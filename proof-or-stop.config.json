@@ -66,6 +66,12 @@
     "commands": [
       {
         "command": "npm",
+        "args": ["--prefix", "packages/main", "run", "test:dynamic-finding-evidence-closure"],
+        "timeoutMs": 180000,
+        "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }]
+      },
+      {
+        "command": "npm",
         "args": [
           "--prefix",
           "packages/main",

@@ -237,7 +237,7 @@ export function identityStoryContext(ctx: HandlerContext, storyId: string): Hand
   return { ...ctx, root, scanRoot: join(root, loadConfig(root).scanRoot), store: current };
 }
 const heldIdentityFences = new Map<string, ReturnType<typeof captureMkdirLockFence>>();
-function identityLockPath(ctx: HandlerContext, storyId: string): string {
+export function identityLockPath(ctx: HandlerContext, storyId: string): string {
   return storyId.startsWith('B-META-') ? mainWriteLockPath(resolveMainRepoRoot(ctx.root)) : ctx.store.runtimeLockDirPath(storyId, 'finding', 'findings');
 }
 /** Acquire every involved real ledger in canonical order; append reuses only

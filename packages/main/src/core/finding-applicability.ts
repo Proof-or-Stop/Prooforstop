@@ -13,6 +13,21 @@ export const REQUIRED_ASSESSMENT_INVALID = [
 export type AssessmentIntegrityState = 'fresh' | typeof REQUIRED_ASSESSMENT_INVALID[number];
 export type DynamicFindingMode = 'observe' | 'warn' | 'enforce';
 export type DispositionPlan = 'repair_current' | 'defer_with_proof';
+export const FINDING_PROTECTED_SURFACES = ['data_integrity', 'security_or_privacy', 'package_publish_or_clean_install',
+  'cli_primary_entrypoint', 'agent_resolution', 'historical_evidence_integrity', 'lifecycle_gate'] as const;
+export type FindingEvaluationScope = 'target_story' | 'canonical_owner' | 'repository_release';
+export interface ApplicabilityProofProjection {
+  /** Reader-derived, never authority when deserialized from a signed assessment. */
+  state: 'verified' | 'invalid';
+  proposalDigest: string;
+  evidenceDigest: string;
+  evaluationScope: FindingEvaluationScope;
+  introducedByCurrentStory: boolean;
+  acceptanceImpact: 'blocks' | 'does_not_block' | 'unknown';
+  requiredCommands: string[];
+  affectedPaths: string[];
+  baseHeadPairDigest?: string;
+}
 
 export interface ApplicabilityFreshnessBinding {
   state: AssessmentIntegrityState;
@@ -50,6 +65,12 @@ export interface FindingApplicabilityAssessment {
   gateImpact?: 'blocks' | 'does_not_block' | 'unknown';
   evidenceRefs?: string[];
   recheckTriggers?: string[];
+  proposalRef?: { storyId: string; recordId: string; recordHash: string; subjectKind: 'finding_assessment_proposal'; subjectId: string; subjectHash: string };
+  runtimeReceiptIds?: string[];
+  evaluationScope?: FindingEvaluationScope;
+  protectedSurfaceEvaluation?: Array<{ surface: string; state: 'clear' | 'known_risk' | 'unknown'; evidenceRefs: string[] }>;
+  evidenceVerification?: ApplicabilityProofProjection;
+  dependencySnapshot?: { processPolicyDigest: string; reviewerAuthorityDigest: string; findingHash: string; canonicalDigest: string; routeDigest: string };
   signature?: string;
   keyId?: string;
 }
@@ -68,6 +89,18 @@ export interface FindingDeferralDisposition {
   renewalCount?: number;
   predecessorDispositionId?: string;
   assessmentDispositionPlan?: 'defer_with_proof';
+  assessmentId?: string;
+  canonicalDefectId?: string;
+  initialProgressBaselineSetId?: string;
+  initialProgressBaselineSetHash?: string;
+  progressEvidenceBindingDigest?: string;
+  predecessorBaselineDigest?: string;
+  firstDeferredAt?: string;
+  lineageRootDeferralId?: string;
+  policyDigest?: string;
+  expiryPolicyVersion?: string;
+  lineageDigest?: string;
+  severityBound?: 'low' | 'medium';
   signature?: string;
   keyId?: string;
 }
@@ -76,6 +109,8 @@ export interface MandatoryRepairClassification {
   state: 'required' | 'closure_proven';
   findingId?: string;
   classificationId?: string;
+  closureBinding?: Omit<ApplicabilityCurrentContext, 'baseHash' | 'headHash'>;
+  closureEvidenceRefs?: string[];
   signature?: string;
   keyId?: string;
 }
@@ -90,6 +125,7 @@ export interface DynamicFindingInput {
   now?: Date;
   mode: DynamicFindingMode;
   killSwitch?: boolean;
+  evaluationScope?: FindingEvaluationScope;
 }
 
 export interface DynamicFindingDecision {
@@ -118,13 +154,15 @@ function routeIsFresh(route: AcceptedFindingRoute | null | undefined, now: Date)
 }
 function assessmentIsFresh(assessment: FindingApplicabilityAssessment | null | undefined, now: Date): boolean {
   if (!assessment || assessment.integrity.state !== 'fresh' || assessment.proofStrength !== 'strong') return false;
+  if (assessment.evidenceVerification?.state !== 'verified' || !assessment.evidenceVerification.proposalDigest
+    || !assessment.evidenceVerification.evidenceDigest) return false;
   const required = ['storyId', 'scopeDigest', 'baseHash', 'headHash', 'acceptanceDigest', 'runtimeReceiptDigest'] as const;
   if (required.some(key => !assessment.integrity[key]?.trim())) return false;
   return !assessment.integrity.expiresAt || (Number.isFinite(Date.parse(assessment.integrity.expiresAt))
     && Date.parse(assessment.integrity.expiresAt) > now.getTime());
 }
 function deferralIsValid(deferral: FindingDeferralDisposition | null | undefined, assessment: FindingApplicabilityAssessment | null | undefined, now: Date): boolean {
-  return !!deferral && deferral.state === 'valid' && deferral.lineageState === 'current'
+  return assessmentIsFresh(assessment, now) && !!deferral && deferral.state === 'valid' && deferral.lineageState === 'current'
     && (deferral.assessmentDispositionPlan === undefined || deferral.assessmentDispositionPlan === 'defer_with_proof')
     && !!deferral.ownerStoryId?.trim() && !!deferral.routeReceiptId?.trim()
     && deferral.ownerStoryId === assessment?.acceptedRoute?.ownerStoryId
@@ -132,28 +170,40 @@ function deferralIsValid(deferral: FindingDeferralDisposition | null | undefined
     && routeIsFresh(assessment?.acceptedRoute, now) && Number.isFinite(Date.parse(deferral.expiresAt))
     && Date.parse(deferral.expiresAt) > now.getTime();
 }
+export function protectedSurfacesAreClear(assessment: FindingApplicabilityAssessment): boolean {
+  const rows = assessment.protectedSurfaceEvaluation ?? [];
+  return rows.length === FINDING_PROTECTED_SURFACES.length && FINDING_PROTECTED_SURFACES.every(surface => {
+    const matches = rows.filter(row => row.surface === surface);
+    return matches.length === 1 && matches[0]!.state === 'clear' && matches[0]!.evidenceRefs.length > 0;
+  });
+}
 
 /** One shared decision for REVIEW, TEST and DONE consumers. */
 export function isDynamicFindingBlocking(input: DynamicFindingInput): DynamicFindingDecision {
   const legacy = legacyBlocking(input);
-  if (input.finding.status !== 'open' || (input.finding.evidenceState != null && input.finding.evidenceState !== 'verified')) {
-    return { blocking: false, legacyBlocking: legacy, dynamicBlocking: false, reason: 'finding_not_verified_open', floors: [], advisory: true };
-  }
   if (input.killSwitch || input.mode === 'observe') {
     return { blocking: legacy, legacyBlocking: legacy, dynamicBlocking: legacy, reason: input.killSwitch ? 'kill_switch_legacy' : 'observe_legacy', floors: [], advisory: !legacy };
+  }
+  if (input.mandatoryRepair?.state === 'closure_proven') {
+    return { blocking: input.mode === 'warn' ? legacy : false, legacyBlocking: legacy, dynamicBlocking: false,
+      reason: 'complete_repair_closure', floors: [], advisory: input.mode === 'warn' ? !legacy : true };
   }
 
   const now = input.now ?? new Date();
   const floors: DynamicFindingDecision['floors'] = [];
   const claimedDeferral = input.assessment?.dispositionPlan === 'defer_with_proof' || !!input.deferral;
   const invalidDeferralLineage = claimedDeferral && !deferralIsValid(input.deferral, input.assessment, now);
-  const freshAssessment = assessmentIsFresh(input.assessment, now);
+  const freshAssessment = assessmentIsFresh(input.assessment, now)
+    && input.assessment?.evidenceVerification?.evaluationScope === (input.evaluationScope ?? 'target_story');
   const deferralLineageRelease = freshAssessment && (input.assessment?.verdict === 'disproven'
     || (NON_APPLICABLE_RELEASE.has(input.assessment!.verdict) && routeIsFresh(input.assessment?.acceptedRoute, now)));
-  if (invalidDeferralLineage && !deferralLineageRelease && input.mandatoryRepair?.state !== 'closure_proven') floors.push('deferral_lineage');
+  if (invalidDeferralLineage && !deferralLineageRelease) floors.push('deferral_lineage');
   const highRisk = input.finding.severity === 'critical' || input.finding.severity === 'high';
-  if (highRisk && !freshAssessment) floors.push('assessment_integrity');
-  if ((invalidDeferralLineage || input.mandatoryRepair?.state === 'required') && input.mandatoryRepair?.state !== 'closure_proven') floors.push('mandatory_repair');
+  const verifiedOpen = input.finding.status === 'open' && (input.finding.evidenceState == null || input.finding.evidenceState === 'verified');
+  if (verifiedOpen && highRisk && !freshAssessment) floors.push('assessment_integrity');
+  if (invalidDeferralLineage || input.mandatoryRepair?.state === 'required') floors.push('mandatory_repair');
+  if (!verifiedOpen && floors.length === 0) return { blocking: false, legacyBlocking: legacy, dynamicBlocking: false,
+    reason: 'finding_not_verified_open', floors: [], advisory: true };
 
   let dynamicBlocking = floors.length > 0;
   let reason = floors.length > 0 ? `${floors[0]}_floor` : 'dynamic_advisory';
@@ -167,13 +217,15 @@ export function isDynamicFindingBlocking(input: DynamicFindingInput): DynamicFin
       || assessment!.verdict === 'applicable') {
       if (assessment!.verdict === 'applicable' && assessment!.gateImpact === 'does_not_block'
         && assessment!.dispositionPlan === 'defer_with_proof' && deferralIsValid(input.deferral, assessment, now)
+        && protectedSurfacesAreClear(assessment!) && assessment!.evidenceVerification?.introducedByCurrentStory === false
+        && assessment!.evidenceVerification?.acceptanceImpact === 'does_not_block'
         && (input.finding.severity === 'low' || input.finding.severity === 'medium')) {
         dynamicBlocking = false; reason = 'defer_with_proof';
       } else {
         dynamicBlocking = true; reason = 'repair_current';
       }
     } else if (assessment!.verdict === 'not_reproduced_under_current_witness') {
-      dynamicBlocking = highRisk || input.mandatoryRepair?.state === 'required' || !routeIsFresh(assessment!.acceptedRoute, now);
+      dynamicBlocking = input.mandatoryRepair?.state === 'required' || !routeIsFresh(assessment!.acceptedRoute, now);
       reason = dynamicBlocking ? 'witness_or_route_does_not_release_floor' : 'current_witness_advisory';
     } else {
       dynamicBlocking = highRisk || legacy;
@@ -199,10 +251,10 @@ export function verifyAssessmentFreshness(assessment: FindingApplicabilityAssess
   if (!binding.storyId || !binding.scopeDigest || !binding.baseHash || !binding.headHash
     || !binding.acceptanceDigest || !binding.runtimeReceiptDigest) return 'incomplete';
   if (binding.storyId !== current.storyId || binding.scopeDigest !== current.scopeDigest
-    || binding.baseHash !== current.baseHash || binding.headHash !== current.headHash
     || binding.acceptanceDigest !== current.acceptanceDigest || binding.runtimeReceiptDigest !== current.runtimeReceiptDigest) return 'mismatched';
-  if ((binding.materialHash || current.materialHash) && binding.materialHash !== current.materialHash) return 'mismatched';
-  if ((binding.storyFilesHash || current.storyFilesHash) && binding.storyFilesHash !== current.storyFilesHash) return 'mismatched';
+  if ((binding.storyFilesHash || current.storyFilesHash) && binding.storyFilesHash !== current.storyFilesHash) return 'stale';
+  if ((binding.materialHash || current.materialHash) && binding.materialHash !== current.materialHash) return 're_attestation_required';
+  if (binding.baseHash !== current.baseHash || binding.headHash !== current.headHash) return 'mismatched';
   if (binding.expiresAt && Date.parse(binding.expiresAt) <= now.getTime()) return 'expired';
   return 'fresh';
 }
@@ -213,7 +265,7 @@ export const DEFERRAL_EXPIRY_POLICY = Object.freeze({
 export function deferralExpiry(severity: string, createdAt: Date, renewalCount = 0): Date {
   if (severity !== 'low' && severity !== 'medium') throw new Error('DEFERRAL_INELIGIBLE_SEVERITY');
   const policy = DEFERRAL_EXPIRY_POLICY[severity];
-  if (renewalCount > policy.maxRenewals) throw new Error('DEFERRAL_RENEWAL_EXHAUSTED');
+  if (!Number.isSafeInteger(renewalCount) || renewalCount < 0 || renewalCount > policy.maxRenewals) throw new Error('DEFERRAL_RENEWAL_EXHAUSTED');
   const ttl = Math.min(policy.ttlDays * (renewalCount + 1), DEFERRAL_EXPIRY_POLICY.hardMaxDays);
   return new Date(createdAt.getTime() + ttl * 86_400_000);
 }
@@ -254,21 +306,20 @@ export interface DynamicFindingBatchRow {
 }
 export interface DynamicFindingScorecard {
   total: number; legacyBlocking: number; dynamicBlocking: number; changed: number;
-  operationReductionPercent: number; missedHighCritical: number; falseDeferrals: number;
+  operationReductionPercent: number | null; missedHighCritical: number | null; falseDeferrals: number | null;
+  authority: 'descriptive_only';
 }
-export function dynamicFindingScorecard(rows: DynamicFindingBatchRow[], baselineOperations = rows.length * 2, dynamicOperations = rows.length): DynamicFindingScorecard {
+export function dynamicFindingScorecard(rows: DynamicFindingBatchRow[], baselineOperations?: number, dynamicOperations?: number): DynamicFindingScorecard {
   const legacyBlockingCount = rows.filter(row => row.decision.legacyBlocking).length;
   const dynamicBlockingCount = rows.filter(row => row.decision.dynamicBlocking).length;
-  const applicableVerdicts = new Set<ApplicabilityVerdict>(['introduced', 'worsened', 'applicable']);
   return {
     total: rows.length, legacyBlocking: legacyBlockingCount, dynamicBlocking: dynamicBlockingCount,
     changed: rows.filter(row => row.decision.legacyBlocking !== row.decision.dynamicBlocking).length,
-    operationReductionPercent: baselineOperations === 0 ? 0 : Number((((baselineOperations - dynamicOperations) / baselineOperations) * 100).toFixed(2)),
-    missedHighCritical: rows.filter(row => ['critical', 'high'].includes(row.severity)
-      && row.assessmentVerdict !== null && applicableVerdicts.has(row.assessmentVerdict)
-      && !row.decision.dynamicBlocking).length,
-    falseDeferrals: rows.filter(row => row.dispositionPlan === 'defer_with_proof'
-      && (row.assessmentVerdict !== 'applicable' || !['low', 'medium'].includes(row.severity)
-        || row.gateImpact !== 'does_not_block' || row.decision.dynamicBlocking)).length,
+    operationReductionPercent: baselineOperations !== undefined && dynamicOperations !== undefined
+      && Number.isFinite(baselineOperations) && Number.isFinite(dynamicOperations) && baselineOperations > 0 && dynamicOperations >= 0
+      ? Number((((baselineOperations - dynamicOperations) / baselineOperations) * 100).toFixed(2)) : null,
+    // These rows have no independent adjudication denominator. Do not turn the
+    // system's own labels into safety truth or invent workflow-operation counts.
+    missedHighCritical: null, falseDeferrals: null, authority: 'descriptive_only',
   };
 }

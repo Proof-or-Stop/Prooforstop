@@ -1,6 +1,6 @@
 # Dynamic Finding System Execution Plan
 
-Status: approved execution plan; Dynamic Applicability implementation completed in the bounded Lab channel on 2026-09-11
+Status: approved execution plan; bounded Lab implementation and evidence follow-up, not full-plan acceptance or operational enforce qualification
 
 Story: B-1fa6
 
@@ -23,9 +23,21 @@ state is not rewritten and the Lab record is not represented as formal Story DON
 | Unified lifecycle consumption | REVIEW transition, TEST diagnostic, reviewer batch, and DONE review-verdict reuse one projection |
 | Batch and rollout | Digest-bound atomic batch manifest, `finding_triage`, `finding_rollout_scorecard`, `observe|warn|enforce`, and kill switch |
 
-The compatibility default remains `observe`. Enforce is an explicit project
-policy choice; prompt prose, `finding_dismiss`, gaps, and backlog entries cannot
-manufacture assessment or deferral authority.
+The compatibility default remains `observe`. Enforce configuration is a request,
+not qualification: the current scorecard, independent corpus, observed window
+and merged prerequisites must pass before dynamic gate authority activates.
+Prompt prose, `finding_dismiss`, gaps, and backlog entries cannot manufacture
+assessment or deferral authority.
+
+The 0.3.315 Lab follow-up adds query-derived qualification sources, narrow
+dependency-bound material re-attestation, owner-boundary automatic recall and
+actual historical/current execution pairs. Its RED/GREEN results, independent
+Claude CLI audits and remaining limits are recorded in
+[the four-gap audit](../../audits/dynamic-finding-four-gaps-0315.md). In particular,
+the current re-attestation policy does not prove arbitrary unrelated code changes
+safe; an engineering fixture is not the required operational qualification
+window. The map above records available mechanisms, not acceptance of every
+requirement in this plan.
 
 ## 1. Executive decision
 

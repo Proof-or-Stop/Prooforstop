@@ -70,6 +70,7 @@ import {
   isRegisteredReviewAgent,
   resolveAgentMutationAuthority,
 } from '../core/agent-dispatch-registry.js';
+import { readDynamicFindingDecision, resolveDynamicFindingRollout } from '../core/finding-applicability-projection.js';
 import {
   captureReviewerReadEvent,
   diagnoseReviewerReadEvidence,
@@ -174,6 +175,17 @@ function appendFindingLifecycleTransition(
   input: FindingLifecycleInput,
   ledgerStore: FindingLedgerWriteStore = ctx.store,
 ): FindingLifecycleTransition {
+  const obligationLedger = ctx.store.readFindingLedger<import('../core/finding-ledger.js').JsonValue>(storyId);
+  const hasObligation = obligationLedger.records.some(row => ['mandatory_repair', 'finding_deferral_disposition'].includes(row.recordType)
+    && (row.payload as unknown as { findingId?: string })?.findingId === finding.id);
+  const rollout = resolveDynamicFindingRollout(ctx.root);
+  if (hasObligation && rollout.mode === 'enforce' && !rollout.killSwitch) {
+    const decision = readDynamicFindingDecision({ store: ctx.store, projectRoot: ctx.root, storyId, finding,
+      effectiveBlockingSeverities: ['critical', 'high', 'medium'], round: 1, diagnostic: true });
+    if (decision.floors.length || decision.reason === 'repair_current') {
+      throw new Error(`dynamic finding: ${input.toStatus} cannot erase ${decision.reason}; record verified RED/root-cause/fix/GREEN closure first`);
+    }
+  }
   const identity = getSessionIdentity();
   const signer = findingLedgerSignerFromWorkspace(ctx.root);
   bindLegacyFindingLedgerReceipts({

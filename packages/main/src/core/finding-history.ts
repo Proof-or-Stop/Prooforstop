@@ -110,9 +110,9 @@ export function queryHistoryIndex(index: HistoryIndex, query: z.infer<typeof his
     && (!query.sourceLineageKey || row.sourceLineageKeys.includes(query.sourceLineageKey))
     && (!query.outcome || row.outcome === query.outcome) && (!query.recordId || row.ref?.recordId === query.recordId));
 }
-export const RECALL_TRIGGERS = ['target_created', 'target_started', 'scope_contract_match', 'severity_escalation', 'owner_invalid', 'target_closed_unfixed', 'expired', 'source_hash_drift', 'runtime_drift'] as const;
+export const RECALL_TRIGGERS = ['target_created', 'target_started', 'scope_contract_match', 'severity_escalation', 'owner_invalid', 'target_closed_unfixed', 'expired', 'source_hash_drift', 'runtime_drift', 'deferral_invalidated'] as const;
 export const historyRecallSchema = z.object({ storyId: routeText, idempotencyKey: routeText, route: ledgerRefSchema,
-  trigger: z.enum(RECALL_TRIGGERS) }).strict();
+  trigger: z.enum(RECALL_TRIGGERS), deferral: ledgerRefSchema.optional() }).strict();
 export const recallRecordSchema = z.object({ schemaVersion: z.literal(1), ...authority, recallId: routeText,
   trigger: z.enum(RECALL_TRIGGERS), triggerDigest: routeHash, route: ledgerRefSchema, candidateId: routeText,
   currentConsent: z.boolean(), consentDiagnostic: routeText, observedSnapshot: z.record(z.string(), z.unknown()),

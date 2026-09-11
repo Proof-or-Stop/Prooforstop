@@ -23,6 +23,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync,
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import type { ValidationCommand, ValidationCommandResult, ValidationProgressReporter, ValidationResult } from '../core/validation-types.js';
 import { validateResourceClaims } from '../core/keyed-scheduler.js';
+import { StoryStore } from '../core/store.js';
+import { assertFindingValidationConstraintsCurrent } from '../core/finding-validation.js';
 import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { buildDualRevisionImpactGraph } from '../core/dual-revision-impact-graph.js';
 import { buildStoryChangeManifest } from '../core/story-change-resolver.js';
@@ -71,6 +73,7 @@ import {
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 export interface PrepareStoryAwareValidationArgs {
+  findingConstraints?: import('../core/finding-validation.js').FindingValidationConstraints;
   projectRoot: string;
   /** Git worktree root may differ from the config/project root on wrapper layouts. */
   gitCwd?: string;
@@ -379,6 +382,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     toolchainDigest,
     scopeContract: args.scopeContract,
     buildCommandId: waveZeroCommand(catalog),
+    findingConstraints: args.findingConstraints,
   };
   const manifest = buildDynamicValidationPlan(context);
   return {
@@ -1058,6 +1062,10 @@ export function dynamicValidationPreflightFallbackReasons(projectRoot: string, p
 /** Execute the actual Wave-0 + selected path and persist its signed receipts. */
 export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidationArgs): Promise<StoryAwareDynamicRun> {
   return withValidationSigningRoot(args.gitCwd ?? projectSigningRoot(args.projectRoot), async () => {
+  const originalBeforeLaunch = args.beforeLaunch;
+  const checkFindingConstraints = () => assertFindingValidationConstraintsCurrent(new StoryStore(args.projectRoot), args.projectRoot, args.findingConstraints);
+  checkFindingConstraints();
+  args = { ...args, beforeLaunch: () => { checkFindingConstraints(); originalBeforeLaunch?.(); } };
   const prior = readStoryAwareValidationArtifacts(args.projectRoot, args.storyId);
   const first = prepare({ ...args, receipts: args.receipts || prior.receipts, revocationLedger: args.revocationLedger || prior.revocationLedger });
   const head = args.head || currentHead(args.gitCwd || args.projectRoot);
@@ -1187,6 +1195,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     pinnedCommandsExecuted: pinnedExecuted,
   });
   const runtimeReport = formatDynamicValidationReport({ manifest: final.manifest, authority, durationMs: dynamicExecution.commands.reduce((sum, row) => sum + row.durationMs, 0) });
+  checkFindingConstraints();
   persistStoryAwareValidationArtifacts({ projectRoot: args.projectRoot, storyId: args.storyId, manifest: final.manifest, report: runtimeReport, receipts, revocationLedger: final.revocationLedger, shardArtifacts });
   return { ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport };
 

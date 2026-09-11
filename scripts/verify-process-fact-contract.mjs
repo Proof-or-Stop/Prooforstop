@@ -9682,13 +9682,13 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
       name: 'finding_runtime_evidence_run', level: 'L2', category: 'finding-ledger-persistence',
       owner: /core\/finding-ledger \+ handlers\/finding-ledger\.appendRuntimeReceipt/,
       semantics: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
-      phases: ['DEV'], ownershipClass: 'storyScopedMutating',
+      phases: ['DEV', 'REVIEW', 'TEST'], ownershipClass: 'storyScopedMutating',
     },
     {
       name: 'finding_runtime_evidence_verify', level: 'L3', category: 'runtime-evidence-verification',
       owner: /core\/runtime-evidence-receipt \+ handlers\/finding-ledger\.verify/,
       semantics: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
-      phases: ['DEV'], ownershipClass: 'readOnly',
+      phases: ['DEV', 'REVIEW', 'TEST'], ownershipClass: 'readOnly',
     },
   ];
   for (const contract of expected) {
@@ -10931,6 +10931,44 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
     'P0m component-filtered process mapping must be explicit and non-empty');
   assert(sourceResult.refusal === 'registry-component-mapping-unavailable',
     'process registry missing mapping must use the typed unavailable diagnostic');
+}
+// Dynamic Finding proof and rollout contracts: prompt guidance plus mechanical
+// entry/read/CAS guards. Each source guard has a deliberate bypass mutation.
+{
+  const guards = [
+    ['packages/main/src/core/finding-applicability-projection.ts', 'rollout.killSwitch || (!args.diagnostic', 'verifiedIdentityCarrier(ledger', 'readMaterialBoundRepairRuntimeEvidence({'],
+    ['packages/main/src/handlers/finding-ledger.ts', 'receipt.sourceMaterialHash !== material', "['merge-base', '--is-ancestor', receipt.headHash, currentHead]", 'closureReuse ? receipt.headHash : currentHead'],
+    ['packages/main/src/core/finding-validation.ts', "rollout.mode !== 'enforce'", 'scopeExpansionAuthorized: false'],
+    ['packages/main/src/handlers/finding.ts', "hasObligation && rollout.mode === 'enforce' && !rollout.killSwitch"],
+    ['packages/main/src/handlers/finding-applicability-proof.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'row.stdout.includes(intent.selector)', 'FINDING_PROTECTED_SURFACES.every'],
+    ['packages/main/src/handlers/finding-deferral-proof.ts', 'readFindingRouteProgressProof(ctx', 'assertNoCanonicalDeferralReset(ctx', 'previous.payload.renewalCount! + 1'],
+    ['packages/main/src/handlers/finding-applicability.ts', 'revalidateDeferrals.forEach(check => check())', 'repairClosureContext(currentApplicabilityContext'],
+    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)'],
+    ['packages/main/src/handlers/finding-qualification-adjudication.ts', 'authors.has(adjudicator)', 'exactLedgerRecordHash(proposal) !== ref.recordHash', 'applicabilityDigest(Object.keys(observed).sort())', 'correct: applicabilityDigest(observed) === applicabilityDigest(input.expected)'],
+    ['packages/main/src/handlers/finding-runtime-pair.ts', 'readHistoricalFindingRuntimeEvidence(ctx', 'readCurrentFindingRuntimeEvidence(ctx', 'base.receipt.executionCommandDigest !== head.receipt.executionCommandDigest', 'b[key] > a[key]'],
+    ['packages/main/src/handlers/finding-material-reattestation.ts', 'verifyDynamicFindingRecord(record, trust.publicKey)', 'current.storyFilesHash !== assessment.integrity.storyFilesHash', 'checkedReexecution(ctx', 'reviewPassDigest'],
+    ['packages/main/src/handlers/finding-deferral-recall.ts', "rollout.mode === 'observe'", 'findingHistoryRecallObservation(ctx', 'observed.triggerDigest'],
+  ];
+  for (const [path, ...required] of guards) {
+    const source = read(path);
+    const check = value => required.every(token => value.includes(token));
+    assert(check(source), `${path}: dynamic Finding evidence contract missing`);
+    for (const token of required) assert(!check(source.replaceAll(token, 'REMOVED_DFEC_GUARD')),
+      `${path}: dynamic Finding guard mutation escaped: ${token}`);
+  }
+  const policy = read(processFactRegistryPath);
+  for (const token of ['PROCESS_FACT_DYNAMIC_FINDING_POLICY', 'reported statistics remain diagnostic', 'findingConstraintDigest']) {
+    assert(policy.includes(token), `dynamic Finding process registry must describe ${token}`);
+  }
+  for (const token of ['finding_assessment_propose', 'finding_runtime_evidence_run', 'signed PASS', 'killSwitch=true']) {
+    assert(read('packages/main/src/core/prompt-registry.ts').includes(token), `dynamic Finding prompt contract must describe ${token}`);
+  }
+}
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
 }
 
 

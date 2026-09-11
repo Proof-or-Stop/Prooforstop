@@ -2,7 +2,7 @@ import { ReviewerBatchAdmitArgsSchema } from '../core/reviewer-batch-admit-schem
 import { z } from 'zod';
 import { findingSupersessionRequestSchema, canonicalSupersessionRequestSchema, historyQuerySchema, historyRecallSchema, scorecardQuerySchema } from '../core/finding-history.js';
 import { candidateAddSchema, candidateGetSchema, candidateMergeSchema, candidateDisproveSchema, candidatePromoteSchema, identityConfirmSchema, identityQuerySchema } from '../core/finding-identity.js';
-import { routeRequestSchema, routeRevokeSchema, routeVerifySchema, candidateRouteRequestSchema } from '../core/finding-route.js';
+import { routeRequestSchema, routeRevokeSchema, routeVerifySchema, candidateRouteRequestSchema, routeSourceSchema } from '../core/finding-route.js';
 import { progressCaptureSchema, progressPredecessorRequestSchema } from '../core/finding-progress.js';
 import { publicToolCatalog, type ToolDef } from './main-tools.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
@@ -2258,6 +2258,7 @@ Behavior:
   }},
   { name: 'finding_runtime_evidence_run', description: 'Run a structured build/execution command and append a content-addressed RuntimeEvidenceReceipt', schema: {
     storyId: z.string().describe('Story ID.'),
+    sourceRef: z.string().regex(/^[a-f0-9]{40,64}$/).optional().describe('Exact ancestor commit executed in a detached temporary worktree; historical proof only, never current freshness.'),
     idempotencyKey: z.string().min(1).describe('Exactly-once runtime receipt append key.'),
     buildCommand: runtimeEvidenceCommandSchema.describe('Structured build command.'),
     executionCommand: runtimeEvidenceCommandSchema.describe('Structured execution command.'),
@@ -2285,16 +2286,21 @@ Behavior:
     storyId: z.string().min(1), findingId: z.string().min(1), idempotencyKey: z.string().min(1),
     verdict: z.enum(['introduced', 'worsened', 'applicable', 'pre_existing_unaffected', 'out_of_scope', 'duplicate', 'disproven', 'not_reproduced_under_current_witness', 'unknown']),
     proofStrength: z.enum(['strong', 'weak', 'unknown']),
+    proposalRef: routeSourceSchema, evaluationScope: z.enum(['target_story', 'canonical_owner', 'repository_release']).optional(),
     dispositionPlan: z.enum(['repair_current', 'defer_with_proof']).optional(),
     gateImpact: z.enum(['blocks', 'does_not_block', 'unknown']).optional(),
     evidenceRefs: z.array(z.string().min(1)).optional(), recheckTriggers: z.array(z.string().min(1)).optional(),
     expiresAt: z.string().datetime().optional(),
     route: z.object({ storyId: z.string().min(1), receipt: z.object({ storyId: z.string().min(1), recordId: z.string().min(1), recordHash: z.string().regex(/^[a-f0-9]{64}$/) }).strict() }).strict().optional(),
   }},
+  { name: 'finding_assessment_propose', description: 'Current reviewer signs a runtime-witness-bound immutable proposal; it has no standalone gate authority', schema: {
+    storyId: z.string().min(1), findingId: z.string().min(1), idempotencyKey: z.string().min(1), proposal: z.record(z.string(), z.unknown()),
+  }},
   { name: 'finding_applicability_batch', description: 'Atomically apply a digest-bound batch of signed applicability assessments, eligible deferrals and mandatory-repair classifications', schema: {
     storyId: z.string().min(1), idempotencyKey: z.string().min(1),
     items: z.array(z.object({
       findingId: z.string().min(1),
+      proposalRef: routeSourceSchema, evaluationScope: z.enum(['target_story', 'canonical_owner', 'repository_release']).optional(),
       verdict: z.enum(['introduced', 'worsened', 'applicable', 'pre_existing_unaffected', 'out_of_scope', 'duplicate', 'disproven', 'not_reproduced_under_current_witness', 'unknown']),
       proofStrength: z.enum(['strong', 'weak', 'unknown']), dispositionPlan: z.enum(['repair_current', 'defer_with_proof']).optional(),
       gateImpact: z.enum(['blocks', 'does_not_block', 'unknown']).optional(), expiresAt: z.string().datetime().optional(),
@@ -2309,13 +2315,21 @@ Behavior:
   { name: 'finding_mandatory_repair_close', description: 'Append signed complete-repair closure for an exact mandatory-repair classification', schema: {
     storyId: z.string().min(1), findingId: z.string().min(1), idempotencyKey: z.string().min(1), classificationId: z.string().min(1),
     closureEvidenceRefs: z.array(z.string().min(1)).min(1),
+    rootCause: z.string().min(20), repairCommit: z.string().regex(/^[a-f0-9]{40,64}$/),
   }},
   { name: 'finding_triage', description: 'Read the shared Dynamic Finding blocker projection and batch manifest digest used by lifecycle gates', schema: {
     storyId: z.string().min(1), findingIds: z.array(z.string().min(1)).optional(), mode: z.enum(['observe', 'warn', 'enforce']).optional(),
   }},
+  { name: 'finding_material_reattest', description: 'Re-attest only unrelated material drift with exact fresh runtime pairs and current independent reviewer proof; no scope or expiry extension', schema: {
+    storyId: z.string().min(1), assessmentId: z.string().min(1), runtimeReceiptIds: z.array(z.string().min(1)).min(1), idempotencyKey: z.string().min(1),
+  }},
   { name: 'finding_rollout_scorecard', description: 'Compare legacy and dynamic blocker decisions and report bounded operation-reduction metrics', schema: {
     storyId: z.string().min(1), findingIds: z.array(z.string().min(1)).optional(), mode: z.enum(['observe', 'warn', 'enforce']).optional(),
   }},
+  { name: 'finding_qualification_record', description: 'Record an independently adjudicated, executed qualification case; never authorizes a lifecycle transition', schema: {
+    storyId: z.string().min(1), findingId: z.string().min(1), assessmentId: z.string().min(1), reviewRunId: z.string().min(1), runtimeReceiptId: z.string().min(1), idempotencyKey: z.string().min(1),
+  }},
+  { name: 'finding_qualification_query', description: 'Read exact signed qualification rows through the public ledger query boundary', schema: { storyId: z.string().min(1) } },
   { name: 'scope_budget_check', description: 'Read semantic scope budget dimensions, unknown mappings and required decomposition before DEV. No approval or state mutation.', schema: {
     storyId: z.string().min(1), amendmentId: z.string().min(1).optional(), json: z.boolean().optional(),
   }},

@@ -3011,7 +3011,11 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     assert.equal(phases.every((phase) => isCommandAllowed('finding_ledger_query', phase)), true);
     assert.equal(isCommandAllowed('finding_runtime_evidence_run', 'DEV'), true);
     assert.equal(isCommandAllowed('finding_runtime_evidence_verify', 'DEV'), true);
-    assert.equal(phases.filter((phase) => phase !== 'DEV').some((phase) => isCommandAllowed('finding_runtime_evidence_run', phase) || isCommandAllowed('finding_runtime_evidence_verify', phase)), false);
+    assert.equal(phases.filter((phase) => !['DEV', 'REVIEW', 'TEST'].includes(phase)).some((phase) => isCommandAllowed('finding_runtime_evidence_run', phase) || isCommandAllowed('finding_runtime_evidence_verify', phase)), false);
+    for (const phase of ['REVIEW', 'TEST'] as const) {
+      assert.equal(isCommandAllowed('finding_runtime_evidence_run', phase), true);
+      assert.equal(isCommandAllowed('finding_runtime_evidence_verify', phase), true);
+    }
     console.log('registry.command_phase_policy: PASS bypasses=0');
 
     assert.deepEqual(

@@ -394,12 +394,17 @@ export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
 export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
   producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
-  semanticVerifier: 'core/finding-applicability.verifyDynamicFindingRecord + exact ledger/CAS carrier and route verification',
-  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish'],
+  semanticVerifier: 'handlers/finding-applicability-proof current reviewer proposal and executed pinned witness; finding-deferral-proof signed policy/exact progress lineage; exact ledger/CAS, route and current-source checks; repair closure rechecks runtime artifacts, environment and key trust across material-identical descendant commits',
+  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'review_convergence', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish', 'story-aware-validation additive constraints'],
   gateEvidence: true,
   lifecycleAuthority: 'dynamic-blocker-projection-only',
   rollout: ['observe', 'warn', 'enforce'],
   killSwitch: 'legacy predicate fallback',
+  qualification: '22 metric rows; public queries and independently reviewed preregistered mutation executions supply counts; reported statistics remain diagnostic; exact per-subject independent gold, not an existence list, adjudicates the full census with a grader distinct from both source observer and bound decision proposer; high/critical misses veto aggregate averages and synthetic successes never dilute operational denominators; monotonic frozen-population start/end records measure proposal latency with per-observation population proof, unmatched starts refuse via timeout rate; full proposal/route/deferral/repair subject census and merged prerequisites required before the real 20 Stories / 200 cases / 30 observed days',
+  historicalRuntime: 'finding_runtime_evidence_run sourceRef executes an exact ancestor in a detached temporary worktree; both ordered receipts, selectors, witness schemas and pair digest bind non-regression proof',
+  materialReattestation: 'finding_material_reattest signs unchanged source, process-policy, canonical and target-route dependencies plus exact fresh same-command runtime re-executions after current independent PASS; readers rederive all inputs',
+  recallProducer: 'story_advance owner boundary reconciles non-authoritative history recalls in warn/enforce only; explicit and automatic triggers share observed-state keys; failures report without bypassing gates or blocking DEV rework',
+  validation: 'signed findingConstraintDigest; additive required commands and affected paths; reassessment escalates to full; recheck before launch and before persistence; never scope authority',
 } as const;
 
 export const PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY = {
@@ -521,6 +526,10 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_mandatory_repair_close: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'freshness-policy', 'gate-evidence'],
   finding_triage: ['schema-contract', 'signed-artifact', 'freshness-policy', 'blocker-state', 'gate-evidence'],
   finding_rollout_scorecard: ['schema-contract', 'freshness-policy'],
+  finding_qualification_record: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
+  finding_qualification_query: ['schema-contract', 'signed-artifact'],
+  finding_material_reattest: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
+  finding_assessment_propose: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
   host_run: ['execution-evidence', 'schema-contract'],
   // Aggregate cursors affect observation only; terminal signatures and the
   // immutable Story ownership subject retain their existing consumer rules.

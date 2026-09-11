@@ -432,7 +432,7 @@ function parseGitStatusPath(rawPath: string): string {
   return trimmed;
 }
 
-function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { files: string[]; error?: string } {
+export function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { files: string[]; error?: string } {
   try {
     // No full-output trim(): it would strip the first porcelain row's leading
     // status space (" M path" -> "M path"), shifting the fixed-width path
