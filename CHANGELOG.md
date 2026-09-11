@@ -1,5 +1,72 @@
 # Changelog
 
+## Lab dynamic-finding-applicability - v0.3.313 - 2026-09-11
+
+# Dynamic Finding Applicability Lab Integration Notes
+
+## Objective and scope
+
+This Lab implements the Dynamic Finding Applicability layer described by `docs/requirements/decisions/dynamic-finding-system-execution-plan.md`. It deliberately does not mutate or advance Story B-e6d9. The bounded change adds signed applicability assessment, fail-closed safety floors, evidence-backed deferral, shared gate projection, rollout controls, public CLI handlers, and deterministic RED/GREEN coverage.
+
+## Preregistered RED evidence
+
+The Lab froze five acceptance cases before implementation at commit `43f64b5ad9eb4d2ca1b27062e16bfbb57fe701da`. The legacy predicate passed one case and failed four:
+
+- an unrelated high Finding with strong out-of-scope proof remained blocking;
+- a current high regression became advisory through round decay;
+- a stale high assessment was not represented and became advisory;
+- an unowned medium deferral became advisory;
+- a valid low deferral remained advisory, which was the single legacy pass.
+
+The recorded marker was `DYNAMIC_FINDING_APPLICABILITY FAIL 4/5`. The preregistered workload corpus fixed 12 baseline manual operations and 5 dynamic operations, a target reduction of 58.33%, with zero allowed missed high/critical Findings and zero allowed false deferrals.
+
+## Implemented behavior
+
+- Added signed `FindingApplicabilityAssessment`, `FindingDeferralDisposition`, and `MandatoryRepairClassification` records with exact current Story, scope, base/head, acceptance, runtime, material, and Story-file freshness bindings.
+- Added the assessment-integrity, invalid-deferral-lineage, and downstream mandatory-repair floors. Invalid or missing safety evidence fails closed, and mandatory repair requires explicit signed closure evidence.
+- Added exact deferral eligibility for verified applicable low/medium Findings that do not block the current gate, with evidence references, recheck triggers, a live accepted owner route, expiry, renewal limits, and a hard cumulative horizon.
+- Added atomic ledger writes, source-record CAS, idempotent replay, batch manifests, and request-drift refusal.
+- Added one shared dynamic projection consumed by REVIEW, TEST diagnostics, DONE review evaluation, reviewer batch/status, lifecycle readiness, and certification-window facts.
+- Added `observe`, `warn`, and `enforce` rollout modes plus a kill switch. Observe remains the compatibility default and avoids dynamic ledger and Git freshness reads.
+- Added six official commands: `finding_applicability_assess`, `finding_applicability_batch`, `finding_deferral_record`, `finding_mandatory_repair_close`, `finding_triage`, and `finding_rollout_scorecard`.
+- Registered the Dynamic Finding test in package scripts, validation commands, the serial reference suite, and the full-suite resource inventory.
+
+## GREEN and quantitative evidence
+
+- The unchanged RED contract now passes all 5/5 cases.
+- The Dynamic Finding smoke suite passes 50 focused assertions.
+- The fixed corpus reports 12 baseline operations versus 5 dynamic operations: 58.33% fewer classification/triage operations.
+- The fixed safety corpus reports `missedHighCritical=0` and `falseDeferrals=0`.
+- Mutation coverage proves the scorecard does not assume those zeros: an intentionally unsafe row produces `missedHighCritical=1` and `falseDeferrals=1`.
+- The full-suite scheduler/inventory smoke passes 190 assertions and proves the new test is present in the real package inventory and resource policy.
+- The command catalog smoke reports 408 registered commands.
+- The prompt registry renders all 18 Claude and Codex agent contracts.
+- The Finding Identity and Historical Lineage dependency suite passes 92/92 delivery checks.
+- The process-fact contract verifier passes, including the L4 Dynamic Finding gate consumer.
+- `git diff --check` passes.
+
+## Independent Claude CLI audit
+
+The initial independent audit found two acceptance blockers: stale-route handling for `not_reproduced_under_current_witness`, and missing root/full-suite registration. Both were repaired. A second audit found the rollout scorecard's detached-handler `this` crash and hardcoded safety zeros. Those were repaired with a lexical handler closure, derived safety metrics, a nonzero mutation test, and a true detached invocation test. The final Claude CLI audit returned `APPROVE` and confirmed all prior blockers closed.
+
+## Bounded baseline findings not repaired here
+
+Three failures were reproduced identically on current main and were therefore preserved as unrelated baseline findings instead of expanding this Lab:
+
+- `evidence-state-gate-smoke` reaches a missing acceptance-verification prerequisite before its expected blocking-Finding assertion;
+- `reviewer-batch-smoke` expects obsolete short lane identifiers while the runtime emits canonical `proof-or-stop-review-*` identifiers;
+- `test:story-aware-validation-plan` contains an existing document byte/hash fixture mismatch.
+
+These failures are not caused or worsened by this Lab and do not invalidate the focused Dynamic Finding RED/GREEN evidence.
+
+## Integration boundary
+
+The work was developed from current local main in `Lab-dynamic-finding-applicability`, synced whenever main advanced, and the final GREEN is bound to the current committed Lab HEAD. Finish is authorized for local main only. No remote push is authorized or performed, and no formal Story lifecycle state is changed by this maintenance Lab.
+
+Maintenance provenance: codex/lab-dynamic-finding-applicability, repair 1efd21d2e68b42668cc77d3c410709ca37890114.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-dynamic-finding-applicability.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## v0.3.312 — Runtime Reliability and Validation Registration Convergence — 2026-09-11
 
 ### Release context
