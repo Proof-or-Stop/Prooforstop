@@ -1,0 +1,120 @@
+{
+  "duration_api_ms": 191616,
+  "stop_reason": "end_turn",
+  "session_id": "80f6c2d7-582d-4a36-896f-da1eed839671",
+  "total_cost_usd": 2.0190734999999997,
+  "usage": {
+    "input_tokens": 28,
+    "cache_creation_input_tokens": 110003,
+    "cache_read_input_tokens": 1118397,
+    "output_tokens": 14330,
+    "output_tokens_details": {
+      "thinking_tokens": 9831
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 110003,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 3613,
+        "cache_read_input_tokens": 114594,
+        "cache_creation_input_tokens": 2018,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 2018
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1385,
+      "outputTokens": 14,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001455,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-opus-5[1m]": {
+      "inputTokens": 28,
+      "outputTokens": 14330,
+      "cacheReadInputTokens": 1118397,
+      "cacheCreationInputTokens": 110003,
+      "webSearchRequests": 0,
+      "costUSD": 2.0176184999999998,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 9831,
+      "canonicalModel": "claude-opus-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_014wmvZdVvESys7p4MjPjbzn",
+      "tool_input": {
+        "command": "git -C /Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-dynamic-finding-evidence-closure diff --stat 42df0aa8e0..63b563d625",
+        "description": "Diff stat of repair commit"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 19,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "## Commands executed (exact, from this cwd)\n\n| Command | Exit |\n|---|---|\n| `proof-or-stop session_brief` | 0 |\n| `proof-or-stop aux_doc_list` | 0 |\n| `git diff --stat 42df0aa8e0..63b563d625` / `git diff 42df0aa8e0..63b563d625` | 0 |\n| `node packages/main/tests/red/red-dynamic-finding-final-contracts.mjs` | 0 — `DYNAMIC_FINDING_FINAL_CONTRACTS PASS 3 passed 0 failed`; sections `historical-e2e exit=0` (`PRE_EXISTING_E2E PASS 6`), `prerequisite-proof exit=0` (4 QUALIFICATION_PREREQUISITE PASS lines), `cohort-proof exit=0` (`COHORT_STATS references=2 denominator=1 independentFindingCases=0 convergenceSeconds=3600`) |\n| `node packages/main/dist/tasks/dynamic-finding-evidence-closure-smoke.js` | 0 — `DYNAMIC_FINDING_EVIDENCE_CONTRACT PASS 87` |\n| `ls -l` (dist/src mtimes), `git status --porcelain` | 0 — dist 15:51 > src 15:47; no modified tracked files, so the runs reflect 63b563d625 |\n\n## Findings\n\n**F1 — medium, correctness of the positive path.** `readFindingQualificationScorecard` now hard-throws whenever any case lacks a matched cohort: `finding-qualification.ts:185` calls `sumQualificationCohortTiming`, which throws `timing source missing` at `finding-qualification-events.ts:139`. The pre-repair code pushed `qualification_timing_sources_missing` and `continue`d (diff lines 285-289), so the corpus and all 22 diagnostic rows were still built. The throw is caught at `finding-qualification.ts:199`, leaving `corpus` undefined — every metric degrades to `insufficient_evidence` and the named reason is replaced by a raw message. `matchedCohort` is optional (`finding-qualification.ts:78`), so a realistic mixed corpus where most Finding cases carry no cohort can no longer produce a scorecard at all; qualification now effectively demands 100% cohort coverage across ≥200 cases. It fails closed (no false qualification), but the diagnostic loss and the implicit new requirement look unintended for item 3's stated scope.\n\n**F2 — low.** Byte-identical repeated performance rows are now silently dropped: `finding-rollout-qualification.ts:119-122` returns before the generic duplicate check at `:125`, so the `invalid_or_duplicate_measurement` signal the pre-repair calculator raised for an exact resubmission is gone; only *conflicting* rows refuse (`:120`). No inflation — the deduped denominator is 1 (`COHORT_STATS denominator=1`) — but a duplicate submission is no longer visible in `refusalReasons`.\n\n**F3 — low, claim vs mechanism.** The prerequisite receipt is not bound into the independent PASS. The PASS marker binds `assessmentId:reportReceiptId:reportReceiptHash` (`finding-qualification.ts:60-62`); a prerequisite receipt is only required to be current, exit 0, `headHash === mergedCommit`, selector present exactly once, and matching a checklist pin's command+selector (`finding-qualification-prerequisites.ts:196-208`). The trust anchor is therefore the reviewed PLAN pin, not a reviewer signature over that receipt; `prompt-registry.ts:57` \"bound by the independent case PASS\" holds only indirectly. Not a false-pass vector.\n\nPositive paths verified as working: prerequisite collect+verify accepted, official signed write, historical query retains the executed proof, revoked runtime key refuses; six negative controls (duplicate, report-receipt reuse, wrong name/selector, failing receipt, substituted hash). Cohort: two references → denominator 1, `storyCount/caseCount/observedDays = 0`, a *different* `attemptId` still yields denominator 2 (no over-dedupe), conflicting reference refuses. `pre_existing_unaffected` release runs through the real `finding_applicability_assess` handler with route consent (`finding-pre-existing-e2e-smoke.ts:120-126`), idempotent replay and material-drift refusal. The calculator's boundary corpus still qualifies (87 PASS), so excluding performance metrics from `operational` (`finding-rollout-qualification.ts:136`) did not break it.\n\n## Limitations\n\nAll of this is fixture coverage in disposable temp git repos: the \"merged SHA\", `main`, and the `dependency_mutation_suite` script are synthesized (`dynamic-finding-runtime-integration-smoke.ts` prerequisite block). Nothing here shows the six real prerequisites executed at real merged SHAs. The boundary corpus assigns a unique `candidateStoryId` per index, so it does not exercise dedupe. No real samples, no 30-day window, no 20 stories/200 cases — **operational rollout is not qualified**, and observe-mode defaults prove nothing about enforce safety. I did not re-run at 42df0aa8e0 (read-only); baseline figures are as you supplied. I read only the changed files plus `finding-rollout-qualification.ts`, `finding-qualification.ts`, the RED harness and the two smoke tests.\n\n## Verdict\n\nAccept the three authorized items as fixture-verified and mechanically sound, with F1 flagged for reconsideration before any real corpus is assembled; F2/F3 recorded, non-blocking. No writes, no edits, no Story actions taken.",
+  "ttft_ms": 1751,
+  "type": "result",
+  "duration_ms": 232996,
+  "uuid": "2f5aa78a-a07d-4e5d-b056-281c39ba4e98",
+  "ttft_stream_ms": 1057,
+  "time_to_request_ms": 69,
+  "first_content_frame_ms": 1057,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

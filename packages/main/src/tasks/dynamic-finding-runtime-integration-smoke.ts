@@ -38,7 +38,7 @@ try {
   const command = `${process.execPath} witness.mjs`;
   const qualificationCommand = `${process.execPath} qualification.mjs`;
   write('proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives',
-    requirementsDir: 'docs/requirements', workflow: { profile: 'balanced' }, dynamicFinding: { mode: 'warn' },
+    requirementsDir: 'docs/requirements', workflow: { profile: 'balanced' }, dynamicFinding: { mode: 'warn', ...(prerequisiteAudit ? { qualificationStoryIds: [storyId] } : {}) },
     nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() } }));
   write('.gitignore', '.proof-or-stop/\nbuild/\n');
   write('defect.mjs', 'export const broken = true;\n');
@@ -194,6 +194,13 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
     const qualifiedRows = handlers.finding_qualification_query({ storyId }).rows;
     assert.equal(qualifiedRows.length, 1); assert.equal(qualifiedRows[0]!.payload.prerequisites[name]!.proof.runtimeReceiptId, proof.runtimeReceiptId);
     console.log('QUALIFICATION_PREREQUISITE PASS official signed write and historical query retain executed proof');
+    const incompleteScorecard = handlers.finding_rollout_scorecard({ storyId }).qualification;
+    assert.equal(incompleteScorecard.rows.find(row => row.metric === 'scorecard_completeness')!.denominator, 1,
+      'missing performance cohort must retain independent subject denominator');
+    assert.ok(incompleteScorecard.metadata);
+    assert.ok(incompleteScorecard.refusalReasons.includes('qualification_timing_sources_missing'));
+    assert.equal(incompleteScorecard.qualification.eligible, false);
+    console.log('QUALIFICATION_PREREQUISITE PASS incomplete timing retains 22 diagnostic rows and independent subject denominator=1');
     setRuntimeEvidenceKeyStatusForTest(root, 'revoked');
     assert.throws(() => handlers.finding_qualification_query({ storyId }), /revoked_signing_key/);
     console.log('QUALIFICATION_PREREQUISITE PASS revoked runtime trust refuses historical qualification');
