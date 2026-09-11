@@ -146,6 +146,7 @@ import { createFindingIdentityHandlers } from './handlers/finding-identity.js';
 import { createFindingRouteHandlers } from './handlers/finding-route.js';
 import { createFindingHistoryHandlers } from './handlers/finding-history.js';
 import { createFindingRuntimeEvidenceHandlers } from './handlers/finding-runtime-evidence.js';
+import { createFindingApplicabilityHandlers } from './handlers/finding-applicability.js';
 import { createIdentityStateMigrateHandlers } from './handlers/identity-state-migrate.js';
 import { nextStoryId } from './handlers/context.js';
 import { readBrandEnv } from './core/brand-env.js';
@@ -234,6 +235,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   const findingLedgerHandlers = createFindingLedgerHandlers(ctx);
   registry.register('finding_ledger_query', findingLedgerHandlers.finding_ledger_query);
   registry.registerBatch(createFindingRuntimeEvidenceHandlers(ctx));
+  registry.registerBatch(createFindingApplicabilityHandlers(ctx));
   registry.registerBatch(createEvaluateHandlers(ctx));
   registry.registerBatch(createWorkflowHandlers(ctx));
   registry.registerBatch(createScopeCheckHandlers(ctx));

@@ -59,7 +59,8 @@ import {
   reviewerRoleReadIds,
 } from '../core/reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
-import { isFindingBlocking, resolveReviewRoundCount } from '../core/advisory.js';
+import { resolveReviewRoundCount } from '../core/advisory.js';
+import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
 import type { Finding } from '../core/types.js';
@@ -356,7 +357,8 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const blockingFindings = evidenceState.valid
       .map((record) => record.finding)
       .filter((finding): finding is Finding => !!finding)
-      .filter((finding) => isFindingBlocking(finding, blockingSeverities, roundCount));
+      .filter((finding) => readDynamicFindingDecision({ store: ctx.store, projectRoot: ctx.root, storyId,
+        finding, effectiveBlockingSeverities: blockingSeverities, round: roundCount }).blocking);
 
     const lanes: ReviewerLanePlan[] = activeReviewers.map((reviewer) => {
       // review_incremental_context facts: prior verdict, bound headHash,

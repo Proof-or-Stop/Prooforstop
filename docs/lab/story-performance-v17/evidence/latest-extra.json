@@ -1,0 +1,26 @@
+[
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/dynamic-finding-applicability-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 1.8497160830000001
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs"
+    ],
+    "code": 0,
+    "seconds": 0.12810854199999988
+  },
+  {
+    "command": [
+      "node",
+      "scripts/verify-runtime-fact-contract.mjs"
+    ],
+    "code": 0,
+    "seconds": 9.088337832999999
+  }
+]

@@ -13,7 +13,7 @@ import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amen
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
-import { isFindingBlocking } from './advisory.js';
+import { readDynamicFindingDecision } from './finding-applicability-projection.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers, projectFinalReviewRoster } from '../handlers/reviewer-list.js';
 import { resolveEffectiveBlockingSeverities } from './guard-utils.js';
@@ -134,7 +134,8 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
     // Count open blockers using the same predicate as the REVIEW->TEST gate
     // (status open + blocking severity + verified evidenceState + not advisory this round).
     const openBlockers = matched.filter(f =>
-      !!f && isFindingBlocking(f, effectiveBlockingSeverities, roundCount)
+      !!f && readDynamicFindingDecision({ store, projectRoot: projectRoot ?? process.cwd(), storyId, finding: f,
+        effectiveBlockingSeverities, round: roundCount }).blocking
     ).length;
     const blockerCount = openBlockers + invalid.length;
 

@@ -457,7 +457,47 @@ async function main() {
       check(Boolean(entry?.externalSeverity), `runtime fact ${id} missing externalSeverity`);
       check(checksSource.includes(`case '${entry?.checker}'`), `runtime checker not wired: ${entry?.checker} for ${id}`);
     }
+    check(typeof registryModule.projectRuntimeFactRegistry === 'function', 'runtime registry must export its whole-registry projection');
+    check(typeof registryModule.projectComponentRuntimeFactMapping === 'function', 'runtime registry must export its component-filtered projection');
+    if (typeof registryModule.projectRuntimeFactRegistry === 'function') {
+      const projection = registryModule.projectRuntimeFactRegistry();
+      check(projection.length === registry.length && projection.length > 0, 'runtime registry component mapping must be total');
+      check(projection.every(entry => !Object.hasOwn(entry, 'generatedFrom')), 'whole runtime registry projection must omit generatedFrom');
+      const componentProjection = registryModule.projectComponentRuntimeFactMapping('P0m', [
+        { runtimeFactId: 'z', kind: 'environment-check', paths: ['z.ts'], componentId: 'P0m' },
+        { runtimeFactId: 'a', kind: 'environment-check', paths: ['a.ts'], componentId: 'P0m' },
+      ]);
+      check(componentProjection.length === 2
+        && componentProjection[0].runtimeFactId === 'a'
+        && componentProjection.every(entry => entry.componentId === 'P0m'),
+      'runtime component-filtered mapping must filter and UTF-8 sort explicit tuples');
+      try {
+        registryModule.projectRuntimeFactRegistry([{ kind: 'environment-check', paths: ['missing-id.ts'] }]);
+        fail('runtime registry verifier accepted a missing mapping');
+      } catch (error) {
+        check(error?.code === 'registry-component-mapping-unavailable', 'runtime registry missing mapping must use the typed unavailable diagnostic');
+      }
+    }
   }
+
+  const runtimeMappingSourceProbe = execFileSync(process.execPath, [
+    '--import', join(root, 'scripts/lab-source-loader.mjs'),
+    '--input-type=module',
+    '--eval',
+    `import { RUNTIME_FACT_REGISTRY, projectRuntimeFactRegistry, projectComponentRuntimeFactMapping } from './packages/main/src/core/runtime-fact-registry.ts';
+const projection = projectRuntimeFactRegistry();
+const component = projectComponentRuntimeFactMapping('P0m', [{ runtimeFactId: 'source-probe', kind: 'environment-check', paths: ['source.ts'], componentId: 'P0m' }]);
+let refusal = null;
+try { projectRuntimeFactRegistry([{ kind: 'environment-check', paths: ['missing-id.ts'] }]); } catch (error) { refusal = error?.code; }
+process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, projection: projection.length, generatedInWhole: projection.some(entry => Object.hasOwn(entry, 'generatedFrom')), component: component.length, refusal }));`,
+  ], { cwd: root, encoding: 'utf8' });
+  const runtimeMappingSource = JSON.parse(runtimeMappingSourceProbe);
+  check(runtimeMappingSource.registry > 0 && runtimeMappingSource.projection === runtimeMappingSource.registry,
+    'current source runtime registry component mapping must be total');
+  check(runtimeMappingSource.generatedInWhole === false, 'current source whole runtime projection must omit generatedFrom');
+  check(runtimeMappingSource.component === 1, 'current source runtime component projection must consume explicit mappings');
+  check(runtimeMappingSource.refusal === 'registry-component-mapping-unavailable',
+    'current source runtime missing mapping must use the typed unavailable diagnostic');
 
   if (verificationEvidenceModule) {
     check(

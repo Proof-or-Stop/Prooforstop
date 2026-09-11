@@ -13,7 +13,7 @@ import { autoCommitStoryMetadata, matchesRuntimeCommitSubject } from '../core/au
 import { reportHealthIssue } from '../core/health.js';
 import { existsSync, realpathSync } from 'node:fs';
 import { join, dirname, basename, relative } from 'node:path';
-import { isFindingBlocking } from '../core/advisory.js';
+import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 import { loadConfig } from '../core/config.js';
 import {
   currentGitHead,
@@ -421,7 +421,8 @@ function collectAdmitFacts(
     const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
     const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(ctx.store, storyId, policy);
     openBlockingFindingIds = ctx.store.readFindings(storyId).findings
-      .filter(finding => isFindingBlocking(finding, effectiveBlockingSeverities, roundCount))
+      .filter(finding => readDynamicFindingDecision({ store: ctx.store, projectRoot: ctx.root, storyId, finding,
+        effectiveBlockingSeverities, round: roundCount }).blocking)
       .map(finding => finding.id);
   } catch {
     openBlockingFindingIds = ['<findings-unreadable>'];
@@ -585,6 +586,8 @@ function recoverPendingAdmission(ctx: HandlerContext, storyId: string, expected:
 export function createCertificationWindowHandlers(ctx: HandlerContext) {
   return {
     certification_window_begin(args: { storyId: string }): string {
+      assertActiveIdentityConsumerContract('certification-window', CERTIFICATION_WINDOW_SCHEMA);
+      assertActiveIdentityConsumerContract('review-inventory-epoch', REVIEW_INVENTORY_EPOCHS_SCHEMA);
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_begin: storyId is required');
       const amendment = acceptanceCompletionBlocker(ctx.store, storyId, ctx.root);
@@ -727,6 +730,8 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
     },
 
     certification_window_cancel(args: { storyId: string; reason: string }): string {
+      assertActiveIdentityConsumerContract('certification-window', CERTIFICATION_WINDOW_SCHEMA);
+      assertActiveIdentityConsumerContract('review-inventory-epoch', REVIEW_INVENTORY_EPOCHS_SCHEMA);
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_cancel: storyId is required');
       return withReviewInventoryMutationLock(ctx.store, storyId, () => withValidationMetadataWrite(ctx.store.projectRoot, storyId, () => {

@@ -65,6 +65,23 @@
     },
     "commands": [
       {
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "test:dynamic-finding-applicability"
+        ],
+        "timeoutMs": 120000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/finding-identity-lineage-smoke.js",
@@ -535,6 +552,20 @@
         "command": "node",
         "args": [
           "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs"
         ],
         "timeoutMs": 180000,
         "resources": [

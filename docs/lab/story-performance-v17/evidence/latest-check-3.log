@@ -1,0 +1,20 @@
+QUEUE_RESULT {"kind":"lost","replicate":1,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":48.43879200000001,"outcomeMs":73.30274999999997,"afterTriggerMs":12.653415999999993,"callback":0,"marker":false,"error":"validation owner lease lost, expired, or transferred","value":null}
+PASS lost 1
+QUEUE_RESULT {"kind":"lost","replicate":2,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":47.169083,"outcomeMs":71.60199999999998,"afterTriggerMs":12.725792000000013,"callback":0,"marker":false,"error":"validation owner lease lost, expired, or transferred","value":null}
+PASS lost 2
+QUEUE_RESULT {"kind":"lost","replicate":3,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":46.90666599999997,"outcomeMs":71.655708,"afterTriggerMs":12.94825000000003,"callback":0,"marker":false,"error":"validation owner lease lost, expired, or transferred","value":null}
+PASS lost 3
+QUEUE_RESULT {"kind":"healthy","replicate":1,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":50.29374999999993,"outcomeMs":1119.512083,"afterTriggerMs":1069.214916,"callback":1,"marker":true,"error":null,"value":"accepted"}
+PASS healthy 1
+QUEUE_RESULT {"kind":"healthy","replicate":2,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":51.21629200000007,"outcomeMs":1104.7630420000003,"afterTriggerMs":1053.5455000000002,"callback":1,"marker":true,"error":null,"value":"accepted"}
+PASS healthy 2
+QUEUE_RESULT {"kind":"healthy","replicate":3,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":48.8563750000003,"outcomeMs":1101.937375,"afterTriggerMs":1053.0797079999998,"callback":1,"marker":true,"error":null,"value":"accepted"}
+PASS healthy 3
+QUEUE_RESULT {"kind":"abort","replicate":1,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":46.94350000000031,"outcomeMs":47.719458999999915,"afterTriggerMs":0.7337089999996351,"callback":0,"marker":false,"error":"caller cancellation","value":null}
+PASS abort 1
+QUEUE_RESULT {"kind":"abort","replicate":2,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":46.205375000000004,"outcomeMs":47.032874999999876,"afterTriggerMs":0.7834579999998823,"callback":0,"marker":false,"error":"caller cancellation","value":null}
+PASS abort 2
+QUEUE_RESULT {"kind":"abort","replicate":3,"holderBudgetMs":1000,"heartbeatMs":20,"pollMs":10,"queueReachedMs":48.24320799999987,"outcomeMs":49.06970799999999,"afterTriggerMs":0.7820000000001528,"callback":0,"marker":false,"error":"caller cancellation","value":null}
+PASS abort 3
+QUEUE_SUMMARY {"rows":9,"failures":[]}
+QUEUE_LEASE_GREEN

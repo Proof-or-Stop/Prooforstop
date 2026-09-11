@@ -8,7 +8,8 @@ import { isTerminalChecklistStatus, isWithdrawnChecklistStatus } from './checkli
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { collectReviewerEvidenceState } from './review-run.js';
-import { isFindingBlocking, resolveReviewRoundCount } from './advisory.js';
+import { resolveReviewRoundCount } from './advisory.js';
+import { readDynamicFindingDecision } from './finding-applicability-projection.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
@@ -527,7 +528,8 @@ export function buildReviewGateRows(store: StoryStore, storyId: string, projectR
   const blockingFindings = evidenceState.valid
     .map((record) => record.finding)
     .filter((finding): finding is Finding => !!finding)
-    .filter((finding) => isFindingBlocking(finding, severities, roundCount));
+    .filter((finding) => readDynamicFindingDecision({ store, projectRoot, storyId, finding,
+      effectiveBlockingSeverities: severities, round: roundCount }).blocking);
   if (blockingFindings.length > 0) {
     rows.push(row({
       id: 'review.findings',

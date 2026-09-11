@@ -63,3 +63,15 @@ Validation is in progress. No tag, remote push, release or main mutation perform
 - Updated scope fixture prerequisites without weakening its missing-contract / zero-launch assertions.
 - Moved the process contract final verdict after all checks so late appended checks cannot be lost, and registered consumed-saturation and delegate-binding controls in existing contract commands.
 - This commit is an integration candidate. Full recovery integration, several legacy fixture combinations, current whole-workload comparisons and final independent audit remain outstanding. No release or overall GREEN is claimed.
+
+## Latest remote-main integration
+
+Fetched origin/main at `b715dd7b30f90add3c19dbc939a4f8cffd4b45b7` (0.3.314). Local main matched that exact commit. Managed Lab sync entered three conflicts: certification handler imports, process-fact registry declaration type, and process contract checks. Retained dynamic finding applicability, Lab recovery helpers, measured reuse boundaries, new complete registry mapping, and a single final failure verdict after all checks.
+
+Official build passed. Scope-positive fixture now uses the recognized `scripts/` integration domain; unknown arbitrary paths were correctly refused by production. Freshness full smoke now passes, including missing-scope zero-launch and valid-scope one-launch controls. Historical table SHA-256 is unchanged. See POST-MERGE-VALIDATION.md for exact commands and results; timing is verification duration, not a performance claim. Independent Claude review is pending.
+
+The user subsequently explicitly authorized GitHub publication, tag/release, and synchronized next patch version after current verification. The frozen historical report retains its original authorization snapshot; this entry records the later authorization. Release/tag notes must embed all 24 original comparison rows, not merely link to them.
+
+Claude initial integration review requested changes: mutating certification entry points did not enforce active-identity pins, and preservation proof needed this merge identity. Added before-store checks to begin/cancel, a direct-handler tamper/restored-control regression, and latest-table-preservation.json binding candidate parent `d66ffc6a7abfdb17bfa412f23fa705b3e6fbf6f2` plus incoming main `b715dd7b30f90add3c19dbc939a4f8cffd4b45b7`. Actual RED reached STORE_TOUCHED before pin refusal. A later reuse-smoke case exposed semantic non-PASS becoming PASS during coverage decoration; normalize that result to fail before decoration. Old fixture now explicitly obtains another synthetic test admission before a new actual execution; consumed admission plus changed environment remains rejected with zero additional commands.
+
+Post-fix results: full reuse smoke exit 0 (81.814 s), mutator pin test exit 0 (1.846 s), process contract exit 0 (10.369 s), tree observation exit 0, stage count exit 0, signing-root exit 0. These durations are check runtimes, not product speedup comparisons. Full freshness previously passed in this resolved integration (42.648 s). Final independent audit remains pending.

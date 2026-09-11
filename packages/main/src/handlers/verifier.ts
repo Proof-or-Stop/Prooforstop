@@ -2704,7 +2704,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             const semanticCommandPass = String(parsed?.status ?? '').trim().toLowerCase() === 'pass'
               && parsed?.allPass !== false
               && parsed?.allPassed !== false;
-            const focusedParsed = focus ? markFocusedResult(parsed, focus) : parsed;
+            // Coverage decoration must not turn an exit-zero semantic non-PASS into PASS.
+            const semanticResult = semanticCommandPass ? parsed : { ...parsed, status: 'fail', allPass: false };
+            const focusedParsed = focus ? markFocusedResult(semanticResult, focus) : semanticResult;
             const decorated = decorateAndMaybePersistStoryValidation(
               ctx,
               args.story,

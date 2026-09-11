@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: MUTATOR_MUST_CHECK_PIN_BEFORE_STORE
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-story-performance-main-0296/packages/main/tests/certification-mutator-identity.mjs:25:10
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'Acceptance amendment invalid: STORE_TOUCHED',
+  expected: /review-inventory-epoch.ts consumer rejected active identity bytes/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v26.8.1

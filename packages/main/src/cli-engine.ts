@@ -517,6 +517,12 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
   'finding_candidate_merge',
   'finding_candidate_disprove',
   'finding_candidate_promote',
+  'finding_applicability_assess',
+  'finding_applicability_batch',
+  'finding_deferral_record',
+  'finding_mandatory_repair_close',
+  'finding_triage',
+  'finding_rollout_scorecard',
   'milestone_status',
   'milestone_closeout',
 ]);

@@ -4592,7 +4592,7 @@ function assertSyntheticAdversarialChecks() {
 }
 
 function extractExportedArrayBody(text, exportName) {
-  const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*\\[`).exec(text);
+  const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*(?:\\(\\s*)?\\[`).exec(text);
   assert(Boolean(match), `source should export ${exportName}`);
   if (!match) return '';
 
@@ -5297,8 +5297,8 @@ function assertProcessFactMappedSourceContracts(sourceText) {
   assertInitializerPattern(
     commandFactsInitializer,
     'COMMAND_PROCESS_FACTS',
-    /\bPROCESS_FACT_LEVELS\s*[\s\S]*\.filter\s*\(\s*\(entry:\s*ProcessFactLevelEntry\)\s*=>\s*!entry\.name\.startsWith\('flow-policy:'\)\s*\)\s*[\s\S]*\.map\s*\(/,
-    'must map PROCESS_FACT_LEVELS directly while excluding flow-policy facts from command facts',
+    /\bPROCESS_FACT_LEVELS\s*[\s\S]*\.filter\s*\(\s*\(entry:\s*ProcessFactLevelEntry\)\s*=>\s*!entry\.name\.startsWith\('flow-policy:'\)\s*&&\s*entry\.name\s*!==\s*'runtime:story_scope_budget'\s*\)\s*[\s\S]*\.map\s*\(/,
+    'must map PROCESS_FACT_LEVELS directly while excluding flow-policy facts and the explicitly authored story-scope-budget fact',
   );
   assertInitializerPattern(
     commandFactsInitializer,
@@ -10868,6 +10868,40 @@ for (const token of ['blockingObservationAwaitsRepair', 'CURRENT_MATERIAL', 'KNO
   nodeAssert.ok(repeatLaunchSource.includes(token), 'Missing bounded repeat-launch contract: ' + token);
 }
 
+// P0m: the source parser above remains authoritative for declared semantics,
+// while the compiled projection proves the complete runtime registry is
+// deterministic and refuses an unavailable mapping instead of dropping it.
+{
+  const mappingSource = read(processFactRegistryPath);
+  for (const token of [
+    'projectProcessFactRegistry',
+    'projectComponentProcessFactMapping',
+    'registry-component-mapping-unavailable',
+    'process-generated-without-lineage',
+    'runtime:registry_component_mapping_projection',
+  ]) assert(mappingSource.includes(token), `${processFactRegistryPath}: P0m mapping contract missing ${token}`);
+  const sourceProbe = execFileSync(process.execPath, [
+    '--import', join(root, 'scripts/lab-source-loader.mjs'),
+    '--input-type=module',
+    '--eval',
+    `import { PROCESS_FACT_REGISTRY, projectProcessFactRegistry, projectComponentProcessFactMapping } from './packages/main/src/core/process-fact-registry.ts';
+const projection = projectProcessFactRegistry();
+const p0m = projectComponentProcessFactMapping('P0m');
+let refusal = null;
+try { projectProcessFactRegistry([{ kind: 'artifact', paths: ['missing-id.ts'] }]); } catch (error) { refusal = error?.code; }
+process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, projection: projection.length, generatedInWhole: projection.some(entry => Object.hasOwn(entry, 'generatedFrom')), p0m: p0m.length, p0mOnly: p0m.every(entry => entry.componentId === 'P0m'), refusal }));`,
+  ], { cwd: root, encoding: 'utf8' });
+  const sourceResult = JSON.parse(sourceProbe);
+  assert(sourceResult.registry > 0 && sourceResult.projection === sourceResult.registry,
+    'current source process registry component mapping must be total');
+  assert(sourceResult.generatedInWhole === false, 'whole process registry projection must omit generatedFrom');
+  assert(sourceResult.p0m > 0 && sourceResult.p0mOnly === true,
+    'P0m component-filtered process mapping must be explicit and non-empty');
+  assert(sourceResult.refusal === 'registry-component-mapping-unavailable',
+    'process registry missing mapping must use the typed unavailable diagnostic');
+}
+
+
 assert(read(processFactRegistryPath).includes('runtime:headless_baseline_production'), 'Headless baseline boundary must be registered');
 assert(read('packages/main/src/tasks/story-aware-validation-production-smoke.ts').includes('HEADLESS_BASELINE_REFUSED'), 'Producer must test no-HEAD refusal without baseline writes');
 
@@ -10977,6 +11011,8 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
 }
 
 execFileSync(process.execPath, [join(root, "packages/main/tests/certification-consumed-saturation.mjs")], { cwd: root, stdio: "inherit", timeout: 30000 });
+execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');

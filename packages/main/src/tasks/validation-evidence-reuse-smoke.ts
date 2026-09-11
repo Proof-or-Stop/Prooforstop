@@ -848,7 +848,15 @@ function assertHandlerExecutedThenReused(
     const evidencePath = join(root, '.proof-or-stop/story/actives', storyId, 'test-evidence.json');
     const evidenceBefore = readFileSync(evidencePath, 'utf8');
     const parsedEvidence = JSON.parse(evidenceBefore) as TestEvidenceData;
+    const renewFixtureAdmission = () => {
+      const freshInputs = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+      assert.ok(freshInputs, 'Disposable fixture must classify current inputs');
+      persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: freshInputs });
+      git(root, ['add', store.storyFilePath(storyId, 'certification-window.json')]);
+      git(root, ['commit', '-m', 'prepare explicit synthetic admission for next test execution']);
+    };
     if (!semanticPass) {
+      renewFixtureAdmission();
       assert.equal(parsedEvidence.commandExecution?.status, 'FAIL', 'non-PASS semantic JSON must record commandExecution FAIL');
       const secondFailure = run();
       assert.equal(secondFailure.status, 1, `${secondFailure.stdout}\n${secondFailure.stderr}`);
@@ -1055,6 +1063,12 @@ function assertHandlerExecutedThenReused(
     );
 
     if (sourceKind === 'configured' && commandCount === 1) {
+      const exhaustedEnvironmentChange = runWith({ ...wrapperTransport, CI: 'false' });
+      assert.equal(exhaustedEnvironmentChange.status, 1);
+      assert.match(exhaustedEnvironmentChange.stderr, /pre_cert_window_already_consumed/);
+      assert.match(exhaustedEnvironmentChange.stderr, /validation-identity-changed/);
+      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount, 'Changed environment cannot reuse old PASS or bypass consumed admission');
+      renewFixtureAdmission();
       const semanticEnvironmentChange = runWith({ ...wrapperTransport, CI: 'false' });
       assert.equal(semanticEnvironmentChange.status, 0, `${semanticEnvironmentChange.stdout}\n${semanticEnvironmentChange.stderr}`);
       assert.match(`${semanticEnvironmentChange.stdout}\n${semanticEnvironmentChange.stderr}`, /"disposition":"executed"/);
