@@ -4,7 +4,7 @@
   "title": "Register the bounded benchmark M0 file responsibility before implementation",
   "description": "B-65ca cannot enter DEV because its six planned benchmark files are absent from the enforced responsibility map in proof-or-stop.config.json. Add exactly these paths as one benchmark-feasibility responsibility without changing enforce mode, limits, other responsibilities or validation policy. This is a prerequisite to the user-approved benchmark feature, not an exemption from gates. Latest local main is e0678f649b / 0.3.323.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "keywords": [
     "benchmark-map-registration",
@@ -22,6 +22,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-7dd3a29fe49f55601463958efdd64cb9",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-11T21:45:05.391Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-7dd3a29fe49f55601463958efdd64cb9",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0980",
+    "branch": "story/B-0980",
+    "createdAt": "2026-09-11T21:44:55.263Z"
+  }
 }
