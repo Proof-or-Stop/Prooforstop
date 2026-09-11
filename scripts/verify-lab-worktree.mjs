@@ -41,6 +41,34 @@ function fixture(name) {
 const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced system regression while preserving the existing behavior contract. Verify the target regression and the synchronized built version.');
 const finish = name => ['finish', name, '--notes', notes, '--confirm'];
 try {
+  // Explicit patch requests must work even when only a non-build input changes.
+  const explicit = fixture('explicit'); cmd(explicit, ['create', 'explicit']);
+  const explicitLab = join(explicit, '.worktrees/Lab-explicit');
+  cmd(explicit, ['red', 'explicit', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
+  write(explicitLab, 'bug.txt', 'fixed'); commit(explicitLab, 'fix: non-build input');
+  cmd(explicit, ['green', 'explicit']);
+  const patchFinish = [...finish('explicit'), '--bump', 'patch'];
+  write(explicit, '.git/info/exclude', '.fail-build\n'); write(explicit, '.fail-build', 'fail');
+  assert.doesNotThrow(() => cmd(explicit, patchFinish, 1, /Build failed/),
+    'EXPLICIT_PATCH_UPGRADE: finish must honor the requested patch before post-merge build');
+  assert.equal(JSON.parse(cmd(explicit, ['status', 'explicit'])).phase, 'integrated');
+  rmSync(join(explicit, '.fail-build'));
+  // Omitting the option on retry preserves the prepared upgrade, never bumps twice.
+  cmd(explicit, finish('explicit'));
+  for (const rel of ['package.json', 'package-lock.json', 'packages/main/package.json', 'packages/main/package-lock.json']) {
+    assert.equal(JSON.parse(readFileSync(join(explicit, rel))).version, '1.0.1');
+  }
+  assert.equal(readFileSync(join(explicit, 'built-version'), 'utf8'), '1.0.1');
+
+  const scripts = fixture('scripts'); cmd(scripts, ['create', 'scripts']);
+  const scriptsLab = join(scripts, '.worktrees/Lab-scripts');
+  cmd(scripts, ['red', 'scripts', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
+  write(scriptsLab, 'bug.txt', 'fixed'); write(scriptsLab, 'scripts/repair.mjs', 'export const fixed = true;\n');
+  commit(scriptsLab, 'fix: executable maintenance script'); cmd(scripts, ['green', 'scripts']);
+  cmd(scripts, [...finish('scripts'), '--bump', 'minor'], 1, /patch/);
+  cmd(scripts, finish('scripts'));
+  assert.equal(JSON.parse(readFileSync(join(scripts, 'package.json'))).version, '1.0.1');
+
   const repo = fixture('normal');
   cmd(repo, ['create', '../escape'], 1, /NAME/);
   cmd(repo, ['create', 'one']);
