@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proof-or-stop.execution_boundary.v1.1",
+  "storyId": "B-e434",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git status *",
+    "go test *",
+    "node *",
+    "npm run *",
+    "npm test *",
+    "proof-or-stop *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives",
+    "docs/requirements/decisions",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".git",
+    "node_modules"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Bounded implementation and verification for the two diagnosed defects.",
+  "createdAt": "2026-09-11T13:20:33.364Z",
+  "updatedAt": "2026-09-11T13:20:33.364Z",
+  "_hash": "39dbdebc19992a75b9d1a86bcf419f11bcc8e61f02cd6479e4d293052008bd52"
+}
