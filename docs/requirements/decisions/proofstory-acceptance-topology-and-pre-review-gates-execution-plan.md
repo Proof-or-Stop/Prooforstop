@@ -1092,6 +1092,31 @@ Story writes and metadata commits use that worktree copy; the controller copy
 is not mutated. A foreign lease, nested repository, symlink, mismatched config,
 or oversized snapshot is rejected before projection.
 
+The controller config may be intentionally untracked, so an existing
+branch-local Story directory does not imply that the target config already
+exists. Bootstrap installs a missing target config without dereferencing the
+absent path. The first authorized projection writes matching signed receipts
+under the shared Git common directory and the Story evidence directory. They
+bind the config digest, Story, controller root, worktree root, and config path.
+The Story copy enters branch history with ordinary metadata auto-commit, so
+deleting or damaging either receipt cannot silently authorize a replacement.
+Scope classification treats the
+worktree config as a Proof-or-Stop control artifact only while both copies are
+untracked, byte-identical, and still match both initial receipts. This avoids an
+acceptance-amendment deadlock in projects that do not use ProofStory contracts.
+Changing either copy or both copies together, deleting a tracked config, changing
+the branch/workspace binding, using a symlink, losing the signing key, or losing receipt integrity removes
+that classification and restores ordinary scope enforcement.
+
+Repository baselines are resolved from the configured remote HEAD. In a linked
+Story worktree the primary worktree branch comes next, before conventional
+`main` and `master` fallbacks; this preserves repositories whose integration
+branch is `develop` even if an old `main` ref exists. In an ordinary checkout,
+conventional refs precede the checkout's current branch so a feature branch is
+not mistaken for its own baseline. Local and remote Story refs are never eligible.
+Acceptance and scope gates therefore use a repository's real integration branch
+and never require an Agent to create a synthetic local `main` alias.
+
 The signed Go profile also makes the topology-specific PLAN check
 not-applicable: a valid verifier-issued basis and receipt may pass that check
 without claiming TypeScript topology was discovered. All ordinary scope, Story

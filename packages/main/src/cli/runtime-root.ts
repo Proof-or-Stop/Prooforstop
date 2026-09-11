@@ -6,6 +6,7 @@ import { hasProjectConfigFile, loadConfig, pickProjectConfigPath } from '../core
 import { gitProbe } from '../core/git-probe.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { StoryStore } from '../core/store.js';
+import { attestControllerConfigProjection } from '../core/controller-config-projection.js';
 
 export function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
@@ -127,6 +128,33 @@ function pathExistsAtHead(cwd: string, repositoryRelativePath: string): boolean 
   }
 }
 
+function pathIsTracked(cwd: string, repositoryRelativePath: string): boolean {
+  return gitText(cwd, ['ls-files', '--', repositoryRelativePath.replaceAll('\\', '/')]).length > 0;
+}
+
+function installConfigNoClobber(worktreeRoot: string, targetConfig: string, configBytes: Buffer): Buffer {
+  assertNoSymlinkPath(worktreeRoot, targetConfig, true);
+  if (existsSync(targetConfig)) {
+    const existing = readRegularNoFollow(targetConfig);
+    if (!existing.equals(configBytes)) throw new Error('controller projection refused mismatched worktree configuration');
+    return existing;
+  }
+  const targetRelative = relative(worktreeRoot, targetConfig);
+  if (pathIsTracked(worktreeRoot, targetRelative) || pathExistsAtHead(worktreeRoot, targetRelative)) {
+    throw new Error('controller projection refused missing tracked worktree configuration; restore the branch-local file from Git');
+  }
+  const tempConfig = `${targetConfig}.projection-${randomBytes(6).toString('hex')}`;
+  try {
+    writeFileSync(tempConfig, configBytes, { flag: 'wx' });
+    linkSync(tempConfig, targetConfig);
+    unlinkSync(tempConfig);
+    return configBytes;
+  } catch (error) {
+    rmSync(tempConfig, { force: true });
+    throw error;
+  }
+}
+
 /**
  * Bootstrap controller-only assets into the explicitly registered Story worktree.
  * The controller copy is read once; the projected worktree becomes the only writer.
@@ -170,34 +198,38 @@ export function projectControllerAssetsIntoStoryWorktree(input: {
   assertNoSymlinkPath(worktreeRoot, targetStoryRoot, true);
   const targetConfig = join(worktreeRoot, configRef.filename);
 
+  const attestUntrackedConfig = (): void => {
+    if (pathIsTracked(controllerRoot, configRef.filename) || pathIsTracked(worktreeRoot, configRef.filename)) return;
+    attestControllerConfigProjection({
+      gitCwd: worktreeRoot,
+      storyId: input.storyId,
+      configPath: configRef.filename,
+      controllerRoot,
+      worktreeRoot,
+      storyRoot: targetStoryRoot,
+      configBytes,
+    });
+  };
+
   if (existsSync(targetStoryRoot)) {
     if (!lstatSync(targetStoryRoot).isDirectory() || lstatSync(targetStoryRoot).isSymbolicLink()) throw new Error('controller projection refused unsafe existing Story destination');
-    const existingConfig = readRegularNoFollow(targetConfig);
-    if (!existingConfig.equals(configBytes)) throw new Error('controller projection refused mismatched worktree configuration');
+    attestUntrackedConfig();
+    const existingConfig = installConfigNoClobber(worktreeRoot, targetConfig, configBytes);
     return { storyRoot: targetStoryRoot, configDigest: createHash('sha256').update(existingConfig).digest('hex') };
-  }
-  if (existsSync(targetConfig)) {
-    const existingConfig = readRegularNoFollow(targetConfig);
-    if (!existingConfig.equals(configBytes)) throw new Error('controller projection refused mismatched worktree configuration');
   }
   if (pathExistsAtHead(worktreeRoot, storyRelative)) {
     throw new Error('controller projection refused missing branch-local authoritative Story; restore it from the Story branch instead of the stale controller copy');
   }
-
   const tempStoryRoot = `${targetStoryRoot}.projection-${randomBytes(6).toString('hex')}`;
-  const tempConfig = `${targetConfig}.projection-${randomBytes(6).toString('hex')}`;
   try {
     mkdirSync(dirname(targetStoryRoot), { recursive: true });
     copyTreeNoFollow(sourceStoryRoot, tempStoryRoot);
-    if (!existsSync(targetConfig)) {
-      writeFileSync(tempConfig, configBytes, { flag: 'wx' });
-      linkSync(tempConfig, targetConfig);
-      unlinkSync(tempConfig);
-    }
     renameSync(tempStoryRoot, targetStoryRoot);
+    attestUntrackedConfig();
+    installConfigNoClobber(worktreeRoot, targetConfig, configBytes);
   } catch (error) {
     rmSync(tempStoryRoot, { recursive: true, force: true });
-    rmSync(tempConfig, { force: true });
+    rmSync(targetStoryRoot, { recursive: true, force: true });
     throw error;
   }
   return { storyRoot: targetStoryRoot, configDigest: createHash('sha256').update(configBytes).digest('hex') };

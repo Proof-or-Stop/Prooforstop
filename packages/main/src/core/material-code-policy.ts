@@ -40,6 +40,7 @@ import {
 } from './evidence-freshness.js';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { readGitBlobAt } from './git-blob-reader.js';
+import { resolveRepositoryBaseline } from './git-baseline.js';
 
 export const MATERIAL_CODE_POLICY_SCHEMA_VERSION = 'proof-or-stop.material_code_policy.v1' as const;
 export const MATERIAL_CLASSIFICATION_SNAPSHOT_SCHEMA_VERSION =
@@ -211,10 +212,10 @@ export interface MaterialClassificationSnapshot {
   materialHash?: string;
   gitCwd: string;
   projectRoot?: string;
-  /** Immutable per-file classification of the main...HEAD diff. */
+  /** Immutable per-file classification of the integration-baseline...HEAD diff. */
   files: MaterialClassificationSnapshotFile[];
   /**
-   * B-956f FIX 1: set when the main...HEAD diff enumeration itself failed (e.g.
+   * B-956f FIX 1: set when the integration-baseline...HEAD diff enumeration itself failed (e.g.
    * `main` is unavailable). Consumers that gate on the diff (the review-assurance
    * floor) surface this as a hard "unable to classify git diff" block rather than
    * silently treating an unenumerable diff as an empty (non-material) change set.
@@ -898,7 +899,7 @@ export interface BuildMaterialClassificationSnapshotOptions {
    */
   gitCwd?: string;
   policy?: MaterialCodePolicy;
-  /** Override the classified changed-file set (else `git diff --name-only main...HEAD`). */
+  /** Override the classified changed-file set (else `git diff --name-only <integration-baseline>...HEAD`). */
   changedFiles?: string[];
   headHash?: string;
   materialHash?: string;
@@ -941,7 +942,7 @@ interface MainToHeadDiff {
 }
 
 /**
- * Enumerate the main...HEAD diff with IDENTITY PRESERVED (CX4 FIX B):
+ * Enumerate the integration-baseline...HEAD diff with IDENTITY PRESERVED (CX4 FIX B):
  * `--name-status -z --find-renames` yields explicit D rows for deletions and
  * old/new path pairs for renames, so a deleted or renamed-away script keeps a
  * classifiable OLD-tree identity. `--name-only` loses both (a deleted
@@ -950,9 +951,11 @@ interface MainToHeadDiff {
 function listMainToHeadDiffEntries(gitCwd: string, headRef = 'HEAD'): MainToHeadDiff {
   let raw: string;
   try {
+    const baseline = resolveRepositoryBaseline(gitCwd, headRef);
+    if (!baseline) throw new Error('repository integration baseline is unavailable');
     // B-956f FIX 1: diff against the pinned HEAD sha (headRef), not the symbolic
     // ref, so a concurrent HEAD move cannot change the enumerated set mid-build.
-    raw = execFileSync('git', ['diff', '--name-status', '-z', '--find-renames', `main...${headRef}`], {
+    raw = execFileSync('git', ['diff', '--name-status', '-z', '--find-renames', `${baseline.ref}...${headRef}`], {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -993,15 +996,9 @@ function listMainToHeadDiffEntries(gitCwd: string, headRef = 'HEAD'): MainToHead
   return { entries };
 }
 
-/** merge-base of main...HEAD — the OLD tree the triple-dot diff is computed against. */
+/** Merge-base of the repository integration branch and HEAD. */
 function diffBaseRef(gitCwd: string, headRef = 'HEAD'): string {
-  try {
-    const base = execFileSync('git', ['merge-base', 'main', headRef], {
-      cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (base) return base;
-  } catch { /* fall back to main */ }
-  return 'main';
+  return resolveRepositoryBaseline(gitCwd, headRef)?.mergeBase ?? '__proof_or_stop_missing_repository_baseline__';
 }
 
 /**
@@ -1010,7 +1007,8 @@ function diffBaseRef(gitCwd: string, headRef = 'HEAD'): string {
  * git blob/mode at HEAD; falls back to the main blob when HEAD is unavailable.
  */
 function extensionlessScriptSignal(gitCwd: string, path: string, headRef = 'HEAD'): boolean {
-  for (const ref of [headRef, 'main']) {
+  const baseline = resolveRepositoryBaseline(gitCwd, headRef)?.mergeBase;
+  for (const ref of [headRef, baseline].filter((value): value is string => Boolean(value))) {
     const blob = readGitBlobAt(gitCwd, ref, path);
     // Classification is a gate input. An unreadable tracked state must remain
     // conservative instead of silently becoming a non-material file.
@@ -1063,7 +1061,7 @@ function workingTreeScriptSignal(gitCwd: string, path: string): boolean {
 
 /**
  * Build an immutable (deep-frozen — mutation attempts throw, CX4 FIX A),
- * hash-bound classification snapshot for the main...HEAD diff. Embeds the HEAD
+ * hash-bound classification snapshot for the integration-baseline...HEAD diff. Embeds the HEAD
  * + materialHash + policyDigest it was computed at so consumers can detect
  * drift and re-resolve. Deleted and renamed-away files keep their OLD-tree
  * identity (CX4 FIX B). Best-effort git access: outside a git tree the file

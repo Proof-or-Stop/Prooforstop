@@ -23,6 +23,7 @@ import { CAPABILITY_CATEGORIES } from './capabilities.js';
 import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
+import { resolveRepositoryBaseline } from './git-baseline.js';
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
@@ -155,13 +156,7 @@ function objectIdsFromTree(raw: string, ref: string): Map<string, string> {
   return result;
 }
 export function resolveStoryMergeBase(gitCwd: string, head: string): string | undefined {
-  for (const candidate of ['main', 'origin/main']) {
-    try {
-      const value = git(['merge-base', candidate, head], gitCwd).trim();
-      if (value) return value;
-    } catch { /* try the next conventional main ref */ }
-  }
-  return undefined;
+  return resolveRepositoryBaseline(gitCwd, head)?.mergeBase;
 }
 
 /** Shared changed-file resolver. Rename rows retain both old and new paths. */
