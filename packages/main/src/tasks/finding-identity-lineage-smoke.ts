@@ -1112,9 +1112,21 @@ try {
           assert.equal(store.readFindingLedger(storyId).committedLedgerDigest, beforeRecall);
         }
       } finally { writeFileSync(configPath, configBytes); resetConfigCache(); }
+      const explicitRecall = { storyId, route: { storyId: destination, recordId: renewed.rows[0]!.record.recordId,
+        recordHash: exactLedgerRecordHash(renewed.rows[0]!.record) }, trigger: 'deferral_invalidated',
+        deferral: { storyId, recordId: nextRecord.recordId, recordHash: exactLedgerRecordHash(nextRecord) }, idempotencyKey: 'explicit-l4-recall' };
+      assert.throws(() => createFindingHistoryHandlers(ctx).finding_history_recall(explicitRecall), /provider unavailable/);
+      assert.throws(() => registry.get('finding_history_recall')!({ ...explicitRecall, provider: { valid: true } }), /Unknown|unrecognized|Unrecognized/i);
+      assert.throws(() => registry.get('finding_history_recall')!({ ...explicitRecall,
+        deferral: { ...explicitRecall.deferral, recordHash: '0'.repeat(64) } }), /binding/);
       const recalled = reconcileFindingDeferralRecalls(ctx, storyId);
       assert.equal(recalled.rows.length, 1);
       assert.equal(recalled.rows[0]!.created, 1);
+      const explicitReplayed = registry.get('finding_history_recall')!(explicitRecall) as { created: number; gateEvidence: boolean; authority: string };
+      assert.equal(explicitReplayed.created, 0, 'explicit and automatic recall share exact trigger identity');
+      assert.equal(explicitReplayed.gateEvidence, false);
+      assert.equal(explicitReplayed.authority, 'non_authoritative');
+      console.log('RECALL_PROVIDER native unavailable/injection/hash/explicit-automatic-dedup PASS');
       assert.equal(reconcileFindingDeferralRecalls(ctx, storyId).rows[0]!.created, 0);
       const priorNow = Date.now;
       try {

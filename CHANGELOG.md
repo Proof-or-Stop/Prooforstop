@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab recall-dependency-direction - v0.3.326 - 2026-09-11
+
+Repair the pre-existing reverse dependency from Story2 historical recall to Story1 applicability. Move the unchanged signed L4 invalidation observer to the existing Story1 recall owner and inject an internal typed provider from the registry. Preserve exact signed reference and owner checks, locked revalidation, explicit/automatic deduplication, and non-authoritative gateEvidence=false candidates; unavailable providers fail closed and request JSON cannot supply one.
+
+The regression verifier rejects actual applicability imports, reexports, and literal dynamic imports. Official target RED ran on commit 01b13c0a29 in 0.150 seconds. Official GREEN ran on synced commit f198de4746 in 198.957 seconds with 58 native routes passing and zero failures. Utils/main builds and the process-fact verifier passed. Owner independently reviewed the production diff with no blocker. This bounded Lab repair does not mark the source Story DONE or grant product-release evidence.
+
+Maintenance provenance: codex/lab-recall-dependency-direction, repair f198de4746f06298c051dadc81a0e66f87c3a688.
+Verification command (replayed before integration and on main): `["node","scripts/verify-recall-dependency-direction.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab scorecard-public-census - v0.3.325 - 2026-09-11
 
 # Scorecard public census Lab
