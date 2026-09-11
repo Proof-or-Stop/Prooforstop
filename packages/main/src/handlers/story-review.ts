@@ -422,7 +422,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const entries = item.verificationIntent?.[lane] || [];
           for (const [index, intent] of entries.entries()) {
             const repositoryWide = intent.scope === 'repository'
-              || /\bgo\s+test\s+\.\/\.\.\.|\bcargo\s+test\b|\bpytest\b|\bnpm\s+test\b|\bfull[- ]suite\b|\b(?:complete|entire|full)\s+repository\b|\brepository[- ]wide\b/i.test(intent.desc);
+              || (intent.scope === undefined
+                && /\bgo\s+test\s+\.\/\.\.\.|\bcargo\s+test\b|\bpytest\b|\bnpm\s+test\b|\bfull[- ]suite\b|\b(?:complete|entire|full)\s+repository\b|\brepository[- ]wide\b/i.test(intent.desc));
             if (repositoryWide
               && (intent.priority ?? 'must') === 'must'
               && intent.requirementSource !== 'external_verifier') {

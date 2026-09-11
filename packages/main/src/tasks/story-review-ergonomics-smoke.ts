@@ -225,6 +225,20 @@ function assertRepositoryWideMustNeedsAValidBasis(): void {
     const groundedExternal = review.story_review({ storyId }) as any;
     assert.equal(groundedExternal.issues.some((issue: any) => issue.type === 'repository_wide_requirement_missing'), false);
     assert.equal(external.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
+
+    for (const command of ['pytest tests/test_story.py', 'cargo test test_story_case', 'npm test -- story.spec.ts']) {
+      checklist.items[0].verificationIntent!.happy![0] = {
+        desc: command,
+        type: 'cli',
+        priority: 'must',
+        scope: 'focused',
+        expectation: 'absolute_pass',
+        requirementSource: 'story',
+      } as any;
+      store.writeChecklist(storyId, checklist);
+      const focused = review.story_review({ storyId }) as any;
+      assert.equal(focused.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false, `${command} must remain focused`);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
