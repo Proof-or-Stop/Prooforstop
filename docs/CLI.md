@@ -1308,3 +1308,12 @@ Owner coverage conservatively binds all four registry projection input files (pr
 ### Qualification scorecard census
 
 The Section 11 scorecard reducer consumes the current `finding_ledger_query` signed public census; it does not reopen protected ledger storage. It verifies all five query rows against the source workspace's trusted key, including the Story and snapshot identities, signed ledger record count, migration record hashes and unique record IDs. The response's public key is never a trust source. Missing, duplicated, tampered or incomplete census data refuses qualification, and every relevant proposal, route, deferral or repair subject still needs its exact independent adjudication. Public query internals continue to validate ledger receipts and signatures through their existing storage boundary. Historical case admission, operational sample sizes, timing, current prerequisites and qualification thresholds remain unchanged.
+
+### Native completeness-critic evidence
+
+Native reviewer evidence is checked against the dispatch purpose recorded in its
+signed ReviewRun. An inventory-completeness critic keeps its exact inventory
+subject binding when gates read the evidence; it does not require a second
+topology dispatch. Wrong-purpose, substituted-inventory and tampered evidence
+remain invalid. `node scripts/verify-native-critic-dispatch-purpose.mjs` exercises
+the real brokered proof and read-side verifier in a disposable repository.

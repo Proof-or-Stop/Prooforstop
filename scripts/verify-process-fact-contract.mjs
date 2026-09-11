@@ -11208,3 +11208,12 @@ console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
 
+
+// Native terminal evidence must verify the signed inventory purpose at read time.
+{
+  const review = read('packages/main/src/core/review-run.ts');
+  const nativeRead = review.slice(review.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)"));
+  const dispatch = nativeRead.slice(0, nativeRead.indexOf('const writerSessionId'));
+  assert(dispatch.includes('reviewPurpose: run.reviewPurpose') && dispatch.includes('inventoryBinding: run.inventoryBinding'), 'native read-side dispatch verification must retain signed purpose and inventory subject');
+  assert(read(processFactRegistryPath).includes('Native read-side authority preserves the signed reviewPurpose and inventoryBinding'), 'native read-side purpose binding must be registered');
+}
