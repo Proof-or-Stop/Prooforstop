@@ -156,6 +156,8 @@ integration/build/recheck section still holds the main lock; this change does no
 make concurrent main releases safe. A conflicting operation on the same Lab fails
 with the holder's operation lock. Long synchronous checks retain a heartbeat and
 must still own their lock and original signing key before publishing a result.
+The 120-second fallback stale threshold spans four 30-second heartbeat intervals,
+so a missing process-start probe does not expire a live operation between beats.
 New records use signed schema 2. An existing schema-1 Lab first takes the main
 lock briefly to record its upgrade, waiting for operator retry if an old writer
 is active. The long test runs after this upgrade releases the main lock. Older

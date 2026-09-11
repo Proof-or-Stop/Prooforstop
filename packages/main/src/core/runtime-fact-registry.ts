@@ -230,6 +230,7 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   statusAccess: 'read-only-without-lock-or-trust-initialization',
   mutationLockOrder: 'lab-then-main',
   operationHeartbeatMs: 30000,
+  operationStaleMs: 120000,
   recordSchema: 2,
   readableRecordSchemas: [1, 2],
 } as const;

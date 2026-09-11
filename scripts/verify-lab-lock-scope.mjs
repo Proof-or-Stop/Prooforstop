@@ -3,7 +3,7 @@ import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, existsSync, rmSync, renameSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, existsSync, rmSync, renameSync, chmodSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,12 +21,12 @@ const write = (cwd, path, value) => { mkdirSync(dirname(join(cwd, path)), { recu
 const commit = (cwd, message) => { git(cwd, 'add', '-A', '--', '.', ':!AGENTS.override.md'); git(cwd, 'commit', '-qm', message); };
 const env = { ...process.env, npm_config_prefix: join(temp, 'global'), NPM_CONFIG_PREFIX: join(temp, 'global') };
 for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST', 'PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN']) delete env[key];
-function command(repo, args, entry = script) {
-  const row = spawnSync(process.execPath, [entry, ...args], { cwd: repo, encoding: 'utf8', env, timeout: 15000 });
+function command(repo, args, entry = script, childEnv = env) {
+  const row = spawnSync(process.execPath, [entry, ...args], { cwd: repo, encoding: 'utf8', env: childEnv, timeout: 15000 });
   return { status: row.status, signal: row.signal, error: row.error?.message, stdout: row.stdout || '', output: (row.stdout || '') + (row.stderr || '') };
 }
-function start(repo, args, entry = script) {
-  const child = spawn(process.execPath, [entry, ...args], { cwd: repo, env, stdio: ['ignore', 'pipe', 'pipe'] });
+function start(repo, args, entry = script, childEnv = env) {
+  const child = spawn(process.execPath, [entry, ...args], { cwd: repo, env: childEnv, stdio: ['ignore', 'pipe', 'pipe'] });
   children.add(child);
   const row = { child, done: false, output: '', startedAt: performance.now() };
   child.stdout.on('data', x => { row.output += x; }); child.stderr.on('data', x => { row.output += x; });
@@ -192,6 +192,21 @@ console.log('child succeeded but publication must fail');\n`);
     expect(`successful child cannot publish GREEN after ${fault} changes`, rejected.status === 1 && /ownership or signing key changed/.test(rejected.output) && !durable.green);
     if (fault === 'ownership') expect('release preserves replacement operation ownership', JSON.parse(readFileSync(join(fenced, '.git/lab-maintenance/locks/fence.lock/holder.json'))).lockId === 'controlled-replacement-owner');
   }
+
+  // Degrade the real process-start probe, then age the actually acquired
+  // fixture lock to a point between the old 10s stale limit and its 30s beat.
+  // This is controlled clock-state injection, not a 15-second stress run.
+  const uncertain = fixture('unknown-process'); assert.equal(command(uncertain, ['create', 'held']).status, 0);
+  const shim = join(temp, 'without-ps'); write(shim, 'ps', '#!/bin/sh\nexit 1\n'); chmodSync(join(shim, 'ps'), 0o700);
+  const noProbeEnv = { ...env, PATH: shim + ':' + env.PATH }, uncertainEvents = join(temp, 'unknown-process-events');
+  const held = start(uncertain, red('held', uncertainEvents, 1300), script, noProbeEnv);
+  await until(() => held.done || eventsAt(uncertainEvents).length > 0, 'unknown-process owner starts'); assert.equal(held.done, false, held.output);
+  await delay(100);
+  const operationLock = join(uncertain, '.git/lab-maintenance/locks/held.lock'), oldTime = new Date(Date.now() - 15000);
+  utimesSync(operationLock, oldTime, oldTime); utimesSync(join(operationLock, 'holder.json'), oldTime, oldTime);
+  const contender = command(uncertain, red('held', uncertainEvents, 1), script, noProbeEnv);
+  await held.promise;
+  expect('unknown process identity retains the live lock between heartbeats', contender.status === 1 && held.status === 0 && eventsAt(uncertainEvents).filter(e => e.event === 'start').length === 1, { contenderStatus: contender.status, holderStatus: held.status });
 
   console.log('LAB_LOCK_RESULTS ' + JSON.stringify({ results, failures, timeline }, null, 2));
   if (failures.length) { console.error('LAB_LOCK_SCOPE_RED ' + failures.join('; ')); process.exitCode = 1; }

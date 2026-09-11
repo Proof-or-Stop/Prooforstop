@@ -78,7 +78,7 @@ async function main() {
   const labWorktree = read(root, 'scripts/lab-worktree.mjs');
   check(registrySource.includes("worktreeOnlyActions: ['red', 'green']") && labWorktree.includes('labPolicy.worktreeOnlyActions.includes(action)'), 'Lab RED/GREEN must consume the registered main-lock exclusion');
   check(registrySource.includes("statusAccess: 'read-only-without-lock-or-trust-initialization'") && labWorktree.indexOf("if (action === 'status')") < labWorktree.indexOf('labLock = acquireMkdirLock'), 'Lab status must not acquire a write lock');
-  check(registrySource.includes("mutationLockOrder: 'lab-then-main'") && labWorktree.includes('heartbeatMs: labPolicy.operationHeartbeatMs') && labWorktree.includes('!labLock.isCurrent()'), 'Lab operations must retain registered heartbeat and ownership checks');
+  check(registrySource.includes("mutationLockOrder: 'lab-then-main'") && labWorktree.includes('heartbeatMs: labPolicy.operationHeartbeatMs') && labWorktree.includes('staleMs: labPolicy.operationStaleMs') && labWorktree.includes('!labLock.isCurrent()'), 'Lab operations must retain registered heartbeat, stale threshold and ownership checks');
   check(labWorktree.includes('labPolicy.readableRecordSchemas.includes(state.schema)') && labWorktree.includes('lab record upgrade') && labWorktree.includes('schema: labPolicy.recordSchema'), 'Lab record schema migration must fence older main-only writers');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');

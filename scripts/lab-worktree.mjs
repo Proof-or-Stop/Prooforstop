@@ -242,6 +242,7 @@ async function main() {
     labLock = acquireMkdirLock(join(dir, 'locks', name + '.lock'), {
       label: `Lab ${name} operation`, failFastIfHeld: true, requireHolderToken: true,
       heartbeatMs: labPolicy.operationHeartbeatMs,
+      staleMs: labPolicy.operationStaleMs,
     });
     if (!labPolicy.worktreeOnlyActions.includes(action)) {
       mainLock = acquireMainWriteLock(mainRoot, { label: `lab ${action} ${name}` });
