@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { copyLabFixtureSources } from './lab-fixture-sources.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
@@ -65,9 +66,8 @@ try {
     write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', lockfileVersion: 3, packages: { '': { name: 'proof-or-stop', version: '1.0.0' } } }, null, 2));
   }
   write(repo, 'packages/main/src/core/proof-or-stop-brand.ts', "export const PROOF_OR_STOP_CLI_VERSION = '1.0.0';\n");
-  for (const name of ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']) {
-    write(repo, `packages/main/src/core/${name}.ts`, readFileSync(join(root, `packages/main/src/core/${name}.ts`)));
-  }
+  copyLabFixtureSources(root, repo, ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']);
+  write(repo, 'packages/main/src/core/proof-or-stop-brand.ts', readFileSync(join(root, 'packages/main/src/core/proof-or-stop-brand.ts'), 'utf8').replace(/(PROOF_OR_STOP_CLI_VERSION\s*=\s*)'[^']+'/ , "$1'1.0.0'"));
   write(repo, 'packages/main/src/core/evidence-freshness.ts', `
 export const currentMaterialHash=()=>${JSON.stringify('b'.repeat(64))};
 export const currentStoryFilesHash=()=>${JSON.stringify('a'.repeat(64))};

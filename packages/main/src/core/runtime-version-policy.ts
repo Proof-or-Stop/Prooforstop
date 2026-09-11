@@ -13,3 +13,12 @@ export function isDoneMainRuntimeBuildInput(path: string): boolean {
 export function shouldBuildDoneMainPackageForChangedPaths(paths: string[]): boolean {
   return paths.some(isDoneMainRuntimeBuildInput);
 }
+
+/** Lab release identity includes executable maintenance scripts, independently of build inputs. */
+export function shouldBumpLabVersionForChangedPaths(paths: string[]): boolean {
+  return paths.some(path => {
+    const rel = path.replace(/\\/g, '/').replace(/^\.?\//, '');
+    return isDoneMainRuntimeBuildInput(rel)
+      || /^scripts\/.*\.(?:[cm]?[jt]s|tsx|sh)$/.test(rel);
+  });
+}

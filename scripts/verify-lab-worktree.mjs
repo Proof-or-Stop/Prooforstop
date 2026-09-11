@@ -30,6 +30,7 @@ function fixture(name) {
   for (const rel of ['packages/lab/package-lock.json', 'packages/utils/package-lock.json']) write(repo, rel, JSON.stringify({ lockfileVersion: 3, packages: { '../main': { name: '@proof-or-stop/core', version: '1.0.0' } } }, null, 2));
   write(repo, 'packages/main/src/core/proof-or-stop-brand.ts', "export const PROOF_OR_STOP_CLI_VERSION = '1.0.0';\n");
   copyLabFixtureSources(root, repo, ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']);
+  write(repo, 'packages/main/src/core/proof-or-stop-brand.ts', readFileSync(join(root, 'packages/main/src/core/proof-or-stop-brand.ts'), 'utf8').replace(/(PROOF_OR_STOP_CLI_VERSION\s*=\s*)'[^']+'/ , "$1'1.0.0'"));
   write(repo, 'check.cjs', "const fs=require('fs'); if(fs.readFileSync('bug.txt','utf8')!=='fixed'){ console.error('TARGET regression: broken behavior'); process.exit(1); } console.log('target and regression checks passed');\n");
   write(repo, 'bug.txt', 'broken');
   write(repo, 'build.cjs', "const fs=require('fs'); const p=require('path'); const root=p.resolve(__dirname); if(fs.existsSync(p.join(root,'.fail-build'))){process.exit(3)} fs.writeFileSync(p.join(root,'built-version'),JSON.parse(fs.readFileSync(p.join(root,'package.json'))).version);\n");
