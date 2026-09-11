@@ -4,11 +4,30 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
 import { validateReviewedDataSources, reviewedDataResidueAllowed } from './identity-reviewed-json-contexts.mjs';
 import { validateReviewedFixtureSources, reviewedFixtureResidueAllowed } from './identity-reviewed-fixture-contexts.mjs';
 import { validateReviewedSourceSources, reviewedSourceResidueAllowed } from './identity-reviewed-source-contexts.mjs';
 
 const read = path => readFileSync(path, 'utf8');
+const sourceErrors = validateReviewedSourceSources(read);
+console.log(JSON.stringify({ reviewedSourceBindingFailures: sourceErrors.length, errors: sourceErrors }));
+assert.deepEqual(sourceErrors, [], 'REVIEWED_SOURCE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
+
+// Check the entire data -> reader -> scanner chain. Updating only a reader's
+// inventory digest must not leave its independently pinned scanner witness stale.
+const scanner = read('scripts/verify-proof-or-stop-identity-cutover.mjs');
+const readerTable = scanner.match(/const REVIEWED_CONTEXT_READERS = (\[[\s\S]*?\]);/);
+assert.ok(readerTable, 'scanner must retain its exact reviewed-reader table');
+const readerPins = JSON.parse(readerTable[1]);
+assert.deepEqual(readerPins.map(row => row.path).sort(), ['fixture', 'json', 'source']
+  .map(kind => `scripts/identity-reviewed-${kind}-contexts.mjs`).sort());
+for (const pin of readerPins) {
+  assert.equal(createHash('sha256').update(read(pin.path)).digest('hex'), pin.sha256,
+    `REVIEWED_READER_CHAIN_MUST_MATCH: ${pin.path}`);
+}
+console.log(`PASS scanner reader bindings: ${readerPins.length} exact current modules`);
+
 for (const [kind, validate, allowed] of [
   ['fixture', validateReviewedFixtureSources, reviewedFixtureResidueAllowed],
   ['source', validateReviewedSourceSources, reviewedSourceResidueAllowed],
@@ -24,12 +43,14 @@ for (const [kind, validate, allowed] of [
       { ...input, token: `${row.token}UNKNOWN` },
       { ...input, text: `${text}\n// changed independent source contract\n` },
       { ...input, line: `${line} changed` },
+      { ...input, lineNumber: row.lineNumber + 1 },
+      { ...input, text: `${text}\n${row.token}\n` },
     ]) assert.equal(allowed(mutant), false);
   }
   for (const path of new Set(rows.map(row => row.path))) {
     assert.ok(validate(p => p === path ? '' : read(p)).length);
   }
-  console.log(`PASS ${kind}: ${rows.length} exact positives, ${rows.length * 4} mutation refusals, missing-source controls`);
+  console.log(`PASS ${kind}: ${rows.length} exact positives, ${rows.length * 6} mutation refusals, missing-source controls`);
 }
 const data = JSON.parse(readFileSync(new URL('./identity-reviewed-json-data.json', import.meta.url))).entries;
 assert.deepEqual(validateReviewedDataSources(read), []);
