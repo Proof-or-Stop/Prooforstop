@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab amendment-projection-regression - v0.3.320 - 2026-09-11
+
+Repair the stale acceptance-review prompt projection regression after the flat final-output protocol update. Preserve the exact trusted instruction SHA-256 assertion and unchanged task-data checks for both Claude and Codex, align the digest with the reviewed prompt, and add assertions that the embedded final JSON Schema matches the parser contract and that the prompt explicitly requires top-level binding fields. Load the current checkout source through the existing Lab loader instead of potentially stale dist.
+
+Verification: the committed target RED failed with AMENDMENT_PROJECTION_INSTRUCTION_DIGEST_MISMATCH (74 ms); the committed repair passed the identical command (74 ms). Both node scripts/verify-acceptance-prompt-projection.mjs and node scripts/verify-amendment-prompt-output-shape.mjs passed again. An isolated real Claude CLI 2.1.269 invocation read the committed test source, returned one successful structured approve result, and passed the production acceptance parser with exact subject bindings and normal process cleanup in 60,649 ms. That live call used synthetic Lab subject data and read-only tools; it was not a formal Story approval or a replay of the entire managed amendment lifecycle. No performance improvement is claimed.
+
+Maintenance provenance: codex/lab-amendment-projection-regression, repair a7ee240946be92a25bcef26e68f3f6fb74810b11.
+Verification command (replayed before integration and on main): `["node","scripts/verify-acceptance-prompt-projection.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab dynamic-finding-head-continuity - v0.3.320 - 2026-09-11
 
 Integrate the bounded Dynamic Finding head-continuity and collection-readiness repairs on the current main branch. Preserve both independent Claude audits and the recorded native RED/GREEN evidence; no Story is marked DONE by this Lab integration.
