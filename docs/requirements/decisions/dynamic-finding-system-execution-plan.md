@@ -1,13 +1,31 @@
 # Dynamic Finding System Execution Plan
 
-Status: approved execution plan; specification only
+Status: approved execution plan; Dynamic Applicability implementation completed in the bounded Lab channel on 2026-09-11
 
 Story: B-1fa6
 
 Created: 2026-08-30
 
-Scope: future implementation Stories; this document does not implement schemas,
-commands, persistence, gates, package renames, or historical-data migration.
+Scope: this document remains the design and acceptance authority. The 2026-09-11
+Lab implementation delivers the Dynamic Applicability slice; historical Story
+state is not rewritten and the Lab record is not represented as formal Story DONE.
+
+### 2026-09-11 Dynamic Applicability implementation map
+
+| Planned capability | Implemented authority |
+|---|---|
+| Signed current assessment | `finding_applicability_assess` and `finding_applicability_batch` |
+| Exact source and route binding | Finding-ledger CAS plus current Story 2 route-record verification |
+| Freshness and re-attestation | Scope/base/head/material/story-files/acceptance/runtime recomputation and append-only `material_drift_reattestation` |
+| Safety floors | Deferral-lineage, assessment-integrity, and mandatory-repair ordering in `isDynamicFindingBlocking` |
+| Evidence-backed deferral | Signed `finding_deferral_record`, medium 7-day/zero-renewal and low 30-day/one-renewal policy, and route-expiry ceiling |
+| Complete-repair release | Signed `finding_mandatory_repair_close` bound to the required classification and repair evidence |
+| Unified lifecycle consumption | REVIEW transition, TEST diagnostic, reviewer batch, and DONE review-verdict reuse one projection |
+| Batch and rollout | Digest-bound atomic batch manifest, `finding_triage`, `finding_rollout_scorecard`, `observe|warn|enforce`, and kill switch |
+
+The compatibility default remains `observe`. Enforce is an explicit project
+policy choice; prompt prose, `finding_dismiss`, gaps, and backlog entries cannot
+manufacture assessment or deferral authority.
 
 ## 1. Executive decision
 

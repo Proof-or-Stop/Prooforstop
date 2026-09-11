@@ -117,6 +117,10 @@ const isMember = () => true;
  * quietly, so the mistake is loud; it is still a mistake.
  */
 const REGISTRATION_EXCLUSIONS = new Map([
+  [`${POPULATION_DIR_REL}/red-b03b7-progress-transition-coverage.mjs`,
+    'The registered finding-identity-lineage-smoke.js --section=delivery executes the complete routes branch and the '
+    + 'same three progress-transition cases as this completed Lab wrapper. The exact registration, route branch, source '
+    + 'digest, case names and routes PASS marker are bound below, so a duplicate canonical command is unnecessary.'],
   [`${POPULATION_DIR_REL}/red-b03b7-scope-budget-legacy-migration.mjs`,
     'Lab-only migration witness that requires the historical B-03b7 worktree path as argv[2]. The permanent scope-budget '
     + 'configuration and process-fact validations cover the shipped policy; invoking this pathless wrapper in canonical '
@@ -259,7 +263,7 @@ if (!Array.isArray(config?.validate?.commands) || config.validate.commands.lengt
 // reviewed assertion block, not a filename/marker appearing elsewhere in source.
 const F031_ENTRY = 'packages/main/dist/tasks/finding-identity-lineage-smoke.js';
 const F031_SOURCE = 'packages/main/src/tasks/finding-identity-lineage-smoke.ts';
-const F031_SOURCE_SHA256 = '5f71d7d6b29f76e5a6f667f5982d41eb60a06b2c7ffc18ad3b9321546ffe9ae2';
+const F031_SOURCE_SHA256 = 'b1080064c6fdf4375e5c7cf97a6b0d5f4d026aed492bc82023dfcaf9e3b11bd8';
 function f031DeliveryCovered(candidateConfig, source) {
   const entries = candidateConfig?.validate?.commands ?? [];
   if (entries.filter(entry => JSON.stringify(entryArgv(entry)) === JSON.stringify(['node', F031_ENTRY, '--section=delivery'])).length !== 1) return false;
@@ -278,6 +282,29 @@ const f031Mutations = [
 ];
 for (const [name, mutantConfig, mutantSource] of f031Mutations) {
   if (f031DeliveryCovered(mutantConfig, mutantSource)) fail('F031_coverage_negative', `${name} did not invalidate the exclusion`);
+}
+
+const PROGRESS_CASES = [
+  'failed target test outcome is valid evidence but not semantic progress',
+  'status regression from a signed present predecessor is refused',
+  'predecessor digest substitutions refuse without ledger mutation',
+];
+function progressTransitionDeliveryCovered(candidateConfig, source) {
+  const entries = candidateConfig?.validate?.commands ?? [];
+  return entries.filter(entry => JSON.stringify(entryArgv(entry)) === JSON.stringify(['node', F031_ENTRY, '--section=delivery'])).length === 1
+    && createHash('sha256').update(source).digest('hex') === F031_SOURCE_SHA256
+    && source.includes("section === 'routes' || section === 'history' || section === 'delivery'")
+    && PROGRESS_CASES.every(name => source.includes(`test('${name}'`))
+    && source.includes("FINDING_IDENTITY_ROUTES ${failures ? 'FAIL' : 'PASS'}");
+}
+if (!progressTransitionDeliveryCovered(config, f031Source)) fail('B03B7_progress_coverage', 'progress-transition exclusion requires exact registered delivery routes coverage');
+for (const [name, mutantConfig, mutantSource] of [
+  ['removed registration', withoutDelivery, f031Source],
+  ['removed routes branch', config, f031Source.replace("section === 'routes' || section === 'history' || section === 'delivery'", "section === 'history' || section === 'delivery'")],
+  ['removed progress case', config, f031Source.replace(`test('${PROGRESS_CASES[0]}'`, "test('removed progress case'")],
+  ['removed routes marker', config, f031Source.replace("FINDING_IDENTITY_ROUTES ${failures ? 'FAIL' : 'PASS'}", 'REMOVED_ROUTES_MARKER')],
+]) {
+  if (progressTransitionDeliveryCovered(mutantConfig, mutantSource)) fail('B03B7_progress_coverage_negative', `${name} did not invalidate the exclusion`);
 }
 
 const realTokens = registeredTokens(config);

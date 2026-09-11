@@ -26,7 +26,7 @@ import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers, computeFinalReviewRoster } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
-import { isFindingBlocking } from './advisory.js';
+import { readDynamicFindingDecision } from './finding-applicability-projection.js';
 import { evaluateReviewMintStallAdjudication, type StallAdjudication } from './review-convergence.js';
 import { evaluateReviewerQuorum } from './reviewer-quorum.js';
 import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
@@ -990,12 +990,14 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     const blocking = evidenceState.valid
       .map((e) => e.finding)
       .filter((finding): finding is Finding => !!finding)
-      .filter((f) => isFindingBlocking(f, effectiveBlockingSeverities, roundCount));
+      .map((finding) => ({ finding, decision: readDynamicFindingDecision({ store: context.store,
+        projectRoot: context.projectRoot, storyId: context.storyId, finding, effectiveBlockingSeverities, round: roundCount }) }))
+      .filter((row) => row.decision.blocking);
     if (blocking.length > 0) {
       return {
         ok: false,
         code: 'review_finding_blocking',
-        message: `${blocking.length} open blocking finding(s): ${blocking.map(f => `${f.id} [${f.severity}] ${f.desc}`).join('; ')}`,
+        message: `${blocking.length} open blocking finding(s): ${blocking.map(row => `${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('; ')}`,
       };
     }
     return { ok: true };

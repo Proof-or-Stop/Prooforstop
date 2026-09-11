@@ -281,6 +281,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
     priority: 950,
     after: ['test:proofstory-acceptance-rollout'],
   }),
+  repoRead('test:dynamic-finding-applicability'),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);
