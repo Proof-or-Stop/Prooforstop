@@ -182,7 +182,11 @@ export function readFindingQualificationScorecard(ctx: HandlerContext) {
     const lastStoryId = rows.find(row => row.payload === last)!.payload.publicQueries.ledger.storyId;
     collectQualificationPrerequisites(historicalStoryContext(ctx, lastStoryId), lastStoryId,
       Object.values(last.prerequisites).map(row => row.proof), last.runtimeReceiptId);
-    const timing = sumQualificationCohortTiming(cases.map(row => row.publicQueries.experiments.performanceMetadata));
+    const timingSources = cases.map(row => row.publicQueries.experiments.performanceMetadata);
+    // Missing timing still refuses promotion, but must not discard unrelated
+    // independently measured diagnostic denominators from the partial corpus.
+    if (timingSources.some(row => row === null)) refusalReasons.push('qualification_timing_sources_missing');
+    const timing = sumQualificationCohortTiming(timingSources.filter(row => row !== null));
     corpus = { policyDigest: applicabilityDigest(FINDING_QUALIFICATION_POLICY), featureState: last.featureState,
       window: { start: cases[0]!.observedAt, end: last.observedAt }, repositoryHeads: [...new Set(cases.map(row => row.repositoryHead!))],
       storyClasses: [...new Set(cases.map(row => row.storyClass))], detectorVersions: [...new Set(cases.map(row => row.detectorVersion))],
