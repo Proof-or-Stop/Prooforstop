@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab external-worktree-go-pre-review - v0.3.317 - 2026-09-11
+
+External Story worktrees could lose owner authority, read controller metadata outside the worktree, and deadlock Go projects because TypeScript-specific discovery evidence was mandatory. The repair performs bounded, authorization-first bootstrap into the registered Story branch, makes the branch-local Story copy authoritative, and fails closed if that committed copy disappears. Pure Go projects may now satisfy PLAN and pre-review with current signed command receipts that include a successful argv-structured `go test`; mixed or incompletely scanned TypeScript workspaces retain the strict profile.
+
+Verification includes the pinned Lab RED/GREEN smoke, TypeScript build, acceptance topology and pre-review regression smokes, worktree authority and owner lease smokes, validation timeout coverage, and the process-fact contract checker. The pinned end-to-end GREEN smoke completed in 6.231 seconds.
+
+Maintenance provenance: codex/lab-external-worktree-go-pre-review, repair f4778567dd0dbf6b024fdbb756ae23d62a1d0098.
+Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab owner-worktree-session-continuity - v0.3.316 - 2026-09-11
 
 Fix Story owner continuity across linked Git worktrees. Owner-session identity now uses the repository primary worktree from Git's shared worktree inventory, so the same host task can create a Story in the primary checkout and continue in its Story worktree without forceTakeover. A different task or role remains blocked by the active lease. Verified with a real temporary primary checkout and linked worktree, the full story-owner-lease smoke, and runtime and process fact contracts.
