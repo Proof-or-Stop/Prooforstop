@@ -1299,6 +1299,16 @@ export async function runCli(opts?: {
         entrypoint: inferCodexEntrypoint(),
         startTime: entry.startTime,
         endTime: entry.endTime,
+        // Reuse the actual admission result; never infer an implementation from
+        // a version label or rescan mutable files when publishing diagnostics.
+        // This annotates existing runtime records and grants no gate authority.
+        implementation: enforcedImplementationIdentity ? {
+          status: 'verified-at-entry',
+          schema: enforcedImplementationIdentity.schema,
+          digest: enforcedImplementationIdentity.digest,
+          entrypoint: enforcedImplementationIdentity.entrypoint,
+          pid: process.pid,
+        } : { status: 'unverified' },
         tool: entry.command,
         detail: entry.command,
         args: entry.args,

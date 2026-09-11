@@ -1,0 +1,4037 @@
+{
+  "schema": "lab.remaining-delivery.planning-inventory.v1",
+  "kind": "read-only-source-and-config-observation",
+  "observedAt": "2026-09-10T09:17:29.924Z",
+  "root": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-remaining-delivery-verification-20260910",
+  "head": "442f6f38b6c6cb5f89521ddf9f79cabdd065a5c4",
+  "mainHeadAtObservation": "442f6f38b6c6cb5f89521ddf9f79cabdd065a5c4",
+  "branch": "codex/lab-remaining-delivery-verification-20260910",
+  "packageVersion": "0.3.296",
+  "configSha256": "dcdf22aa818d1ebb7afd89c252bbde3cdbc7e1021e11f081fc5745ef06afc493",
+  "collectorSha256": "c0a5c7e9df3250038e293ad6a3519f6605c44e2d23651df04dcd8e0f3d58e33f",
+  "runtimePreparation": {
+    "labNodeModulesPresent": false,
+    "labMainDistPresent": false,
+    "preparedCliIdentityMeasured": false
+  },
+  "summary": {
+    "routine": {
+      "commands": 141,
+      "resourceDeclarations": 141,
+      "exactInputsDeclarations": 1
+    },
+    "done": {
+      "commands": 2,
+      "resourceDeclarations": 2,
+      "exactInputsDeclarations": 0
+    },
+    "dynamicMode": "observe",
+    "sharedExecution": true,
+    "reuseFreshRoutinePass": true,
+    "sourceDefaultOuterJobs": 4,
+    "sourceCompleteOutputBoundBytes": 1048576
+  },
+  "duplicateExecutableArgvCandidates": [
+    {
+      "executableArgv": [
+        "npm",
+        [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ]
+      ],
+      "consumers": [
+        {
+          "consumer": "routine",
+          "index": 1,
+          "timeoutMs": 290000
+        },
+        {
+          "consumer": "done",
+          "index": 0,
+          "timeoutMs": 290000
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Declarations are not evaluated runtime reuse eligibility.",
+    "Executable/argv equality is not complete execution identity or permission to reuse build proof.",
+    "No command timing, actual process adoption, full-suite PASS or RED/GREEN outcome was measured.",
+    "A source constant is not an observation of an invocation override."
+  ],
+  "commands": [
+    {
+      "consumer": "routine",
+      "index": 0,
+      "command": "node",
+      "args": [
+        "scripts/verify-lab-worktree.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 1,
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "timeoutMs": 290000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        },
+        {
+          "class": "runtime-lock",
+          "key": "proof-or-stop-real-root-admission",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 2,
+      "command": "node",
+      "args": [
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 3,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 4,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/production-test-seam-guard.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 5,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-list-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 6,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/command-catalog-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 7,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/review-pass-discard-smoke.js"
+      ],
+      "timeoutMs": 1200000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "gate",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 8,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": "exact-inputs",
+      "executionInputs": [
+        "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+      ],
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 9,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+      ],
+      "timeoutMs": 1200000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 10,
+      "command": "node",
+      "args": [
+        "scripts/verify-process-fact-contract.mjs",
+        "--quiet"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 11,
+      "command": "node",
+      "args": [
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 12,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 13,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 14,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 15,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 16,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-evidence-buffer-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 17,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 18,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 19,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 20,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "bin",
+          "access": "shared"
+        },
+        {
+          "class": "runtime-lock",
+          "key": "proof-or-stop-real-root-admission",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "local",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 21,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 22,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/done-required-validation-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 23,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 24,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 25,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/done-required-freshness-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 26,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/done-required-head-drift-proof.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 27,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 28,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/version-bump-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 29,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 30,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 31,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 32,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 33,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 34,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 35,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 36,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 37,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 38,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 39,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 40,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/init-preflight-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 41,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/english-early-check-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 42,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/quorum-submit-smoke.js",
+        "--jobs=2"
+      ],
+      "timeoutMs": 1200000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "gate",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 43,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs",
+        "--case=inventory-bijection"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 44,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 45,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 46,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/lifecycle-registry-contract.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 47,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/product-capability-release-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 48,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 49,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 50,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 51,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 52,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 53,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 54,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 55,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 56,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 57,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+      ],
+      "timeoutMs": 120000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 58,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 59,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 60,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 61,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 62,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 63,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 64,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 65,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 66,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 67,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 68,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 69,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 70,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 71,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 72,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 73,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 74,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 75,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 76,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 77,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-validate-registration.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 78,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 79,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-done-shared-predicates.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 80,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/post-done-closure-snapshot-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 81,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 82,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ],
+      "timeoutMs": 300000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist/tasks",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/tests/red",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 83,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 84,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-lock-liveness.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 85,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-content-binding.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        },
+        {
+          "class": "runtime-lock",
+          "key": "proof-or-stop-real-root-admission",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 86,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-reader-race.mjs"
+      ],
+      "timeoutMs": 300000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        },
+        {
+          "class": "runtime-lock",
+          "key": "proof-or-stop-real-root-admission",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 87,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs"
+      ],
+      "timeoutMs": 300000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "exclusive"
+        },
+        {
+          "class": "runtime-lock",
+          "key": "proof-or-stop-real-root-admission",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 88,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-bcae-admission-coscheduling.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 89,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 90,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 91,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 92,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 93,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-s3-differential-probe.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 94,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-s3-digest-collapse.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 95,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2a-canon-differential.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 96,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 97,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2b-binding-store.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 98,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 99,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 100,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 101,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-gate-guard.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 102,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-head-consistency.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 103,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 104,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 105,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 106,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 107,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 108,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 109,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 110,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+        "--issuer-mutations"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "bin",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 111,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+        "--probe-jobs=4"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 112,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 113,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 114,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 115,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 116,
+      "command": "node",
+      "args": [
+        "packages/main/tests/validate-plan-scheduling.test.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 117,
+      "command": "node",
+      "args": [
+        "packages/main/tests/validate-resource-claims.test.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 118,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validate-parallel-equivalence-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "story-selectable",
+      "riskTier": "shared",
+      "closurePolicy": "static-and-traced",
+      "fullBaselineReusePolicy": "not-applicable",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 119,
+      "command": "node",
+      "args": [
+        "packages/main/tests/validate-pollution-attribution.test.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 120,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 121,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 122,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 123,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 124,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 125,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 126,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-w2d-command-readonly.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/src",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "scripts",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 127,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+      ],
+      "timeoutMs": 600000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 128,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+      ],
+      "timeoutMs": 300000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/story/actives",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 129,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "bin",
+          "access": "shared"
+        },
+        {
+          "class": "runtime-lock",
+          "key": "proof-or-stop-real-root-admission",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 130,
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/graph",
+        "run",
+        "check"
+      ],
+      "timeoutMs": 290000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/graph",
+          "access": "exclusive"
+        },
+        {
+          "class": "runtime-lock",
+          "key": "proof-or-stop-real-root-admission",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 131,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/cli-surface-smoke.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 132,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/command-ownership-contract.js"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 133,
+      "command": "node",
+      "args": [
+        "scripts/verify-orphan-surface.mjs"
+      ],
+      "timeoutMs": null,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 134,
+      "command": "node",
+      "args": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "runtime-lock",
+          "key": "proof-or-stop-real-root-admission",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 135,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-tier-planner-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 136,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/single-owner-extraction-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 137,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/narrowing-repin-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 138,
+      "command": "node",
+      "args": [
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+        "--group=identity-cutover"
+      ],
+      "timeoutMs": 2700000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 139,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/review-inventory-epoch-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "routine",
+      "index": 140,
+      "command": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-protocol-smoke.js"
+      ],
+      "timeoutMs": 180000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "package.json",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "proof-or-stop.config.json",
+          "access": "shared"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "done",
+      "index": 0,
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "timeoutMs": 290000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": "packages-main-build",
+      "requiresBuildProof": null
+    },
+    {
+      "consumer": "done",
+      "index": 1,
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "timeoutMs": 7200000,
+      "resources": [
+        {
+          "class": "fixed-path",
+          "key": ".proof-or-stop/runtime/validate-plan-barrier",
+          "access": "exclusive"
+        },
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/utils/dist",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-port",
+          "key": "43127",
+          "access": "exclusive"
+        },
+        {
+          "class": "fixed-path",
+          "key": ".",
+          "access": "exclusive"
+        }
+      ],
+      "executionReuse": null,
+      "executionInputs": null,
+      "assurance": null,
+      "riskTier": null,
+      "closurePolicy": null,
+      "fullBaselineReusePolicy": null,
+      "providesBuildProof": null,
+      "requiresBuildProof": "packages-main-build"
+    }
+  ],
+  "sources": [
+    {
+      "path": "scripts/lab-worktree.mjs",
+      "sha256": "c75769665420a1cb9d79af67f65b6a63cd4e5b112fb7a049d5d32746d8d945b4"
+    },
+    {
+      "path": "docs/lab-maintenance.md",
+      "sha256": "50123b8de5738feaedbe01b14869ace886d470eca640056d431cecbd074ce0ff"
+    },
+    {
+      "path": "docs/validation-performance.md",
+      "sha256": "22743674738338ecdce618e2bfbc9bfd6cced069d1b853cb909c28da00e3a695"
+    },
+    {
+      "path": "packages/main/src/core/shared-validation-execution.ts",
+      "sha256": "099e47114e5d3861c43a0f1fbc46605ad6ab9fdae806f9e64107e6d1c2a614c6"
+    },
+    {
+      "path": "packages/main/src/core/causal-evidence.ts",
+      "sha256": "4139d1d673ce87f0b148f5fb903a622a0294027771d87d6ff73887ada17cef0d"
+    },
+    {
+      "path": "packages/main/src/core/validation-executor.ts",
+      "sha256": "c9e4f26cd730dc8883aae5412fec42f16812c600a52d52279fbcaf6a4d610990"
+    },
+    {
+      "path": "packages/main/src/core/process-metrics.ts",
+      "sha256": "89d3c2cfed4ec86dc5eb0aa9b2904b2ba195faff45aa0016cba46aad9b0ebad7"
+    },
+    {
+      "path": "scripts/real-story-replay-benchmark.mjs",
+      "sha256": "c6d38859e414a03321492cd51a440b258957b301abc9870c38944caa8a1d5901"
+    },
+    {
+      "path": "scripts/run-dynamic-validation-replay.mjs",
+      "sha256": "b1a00a2e623e3853b1885864d3efd34e1c580b9f62d77c9509072093761fb276"
+    },
+    {
+      "path": "packages/main/src/core/execution-implementation.ts",
+      "sha256": "3fff470f14d5a74d3fbe4f01bcb50338d21b898db2cfb6da29829ed8d464786e"
+    },
+    {
+      "path": "packages/main/src/cli-engine.ts",
+      "sha256": "d195126f55dcff3a823b2558dcb5d05fcfb3c76d5c740289e9a29639ae0ea141"
+    },
+    {
+      "path": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+      "sha256": "5e4fb133037ace63a100f89b8252cc3abdd6d6ef704eb23b29dee47476281a96"
+    },
+    {
+      "path": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+      "sha256": "9b81cd322e13044c05ea7427c8dcc40ba89e48def031e36b76f36a224b42245d"
+    }
+  ],
+  "existingVerificationEntrypoints": [
+    {
+      "path": "experiments/five-item-closure/complete-closure-entry.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "experiments/five-item-closure/observe-reuse.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "experiments/five-item-proof/identity.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "experiments/five-item-proof/identity-single-scan.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "experiments/five-item-proof/output-retention-contract.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "experiments/five-item-proof/publication-restart.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "experiments/five-item-proof/checkpoint-owner-recovery.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "experiments/five-item-proof/build-order.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "scripts/verify-performance-production.mjs",
+      "present": true,
+      "executed": false
+    },
+    {
+      "path": "scripts/run-dynamic-validation-replay.mjs",
+      "present": true,
+      "executed": false
+    }
+  ]
+}

@@ -433,6 +433,7 @@ export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   declaredInvocationCapacity: 2,
   duplicateResourceClaims: 'one-per-exact-normalized-claim',
   ownerLeaseHeartbeatMs: 30000,
+  ownerLeaseLossDuringCapacityWait: 'abort-before-callback-preserving-caller-cancellation',
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',
 } as const;
@@ -534,6 +535,14 @@ export const MANAGED_RUN_DASHBOARD_POLICY = {
 /** Optional explicit host transport pin; no package-version equality fallback. */
 export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   schema: 'execution-implementation.v1',
+  sessionSchema: 'execution-session.v1',
+  witnessSchema: 'execution-session-witness.v1',
+  activityWitness: 'existing-records-only-entry-admission-or-unverified',
+  sessionEntryTransport: 'inherited-node-entry.v1',
+  legacyEntryPolicy: 'preload-refuses-unapproved-recognized-cli-before-old-core',
+  hostTimeoutCleanup: 'pipe-lifetime-anchor-owned-posix-group-or-direct-child-fallback',
+  hostCompletionCleanup: 'flushed-output-live-anchor-group-signal-required-before-success',
+  hostAnchorScope: 'plain-host-no-managed-pid-observer-or-invocation-descriptor',
   mismatch: 'refuse-before-dispatch',
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',

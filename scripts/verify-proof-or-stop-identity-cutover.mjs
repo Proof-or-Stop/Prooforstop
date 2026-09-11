@@ -3223,7 +3223,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "9807a19583dbbaaf11847ae71c8886769a95486e5fb778c595814b43fd723d79"
+    "sha256": "bfdfb14e724e9461e3568623415cb697ac38ea26c05be13d066dd188badb48c7"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "e7da3728a69e0edb276ec0b42a3580b5368327749d61ab043f942423d6a73abc"
+    "sha256": "1dbecb232d02baa7a3cf61f00c05bc78791aa3048a3423d40b54c8f26246f535"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3603,7 +3603,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"9807a19583dbbaaf11847ae71c8886769a95486e5fb778c595814b43fd723d79"],
+  [4,"bfdfb14e724e9461e3568623415cb697ac38ea26c05be13d066dd188badb48c7"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "ebbcf9d2f7057867dcbf0fb7c9c88e0526ed003fb7a1733bd974da454039809f"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "8e7e56b2b35de0bb65baf92af9670d133ab137879acda5b4cb0489f49e221a27"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "da9826bd25301fb40b38eaf240dd123e908821acb487d8960e1ba5dd53792726"
+    "sha256": "3a5ff96649888c53a6bf6f39950ef8f2b2c4f227d71152387e14582e0f7f62d4"
   }
 ];
 function verifyReviewedContextReaders(root) {

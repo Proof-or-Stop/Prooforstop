@@ -1,0 +1,199 @@
+{
+  "scope": "three-pair exploratory handler query timing, not Story lead-time or statistical performance PASS",
+  "validInputSnapshot": false,
+  "changedInputs": [
+    "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-de09/proof-or-stop.config.json"
+  ],
+  "inputCount": 1418,
+  "runs": [
+    {
+      "case": "active",
+      "pair": 1,
+      "arm": "red",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 9278.20025,
+      "processWallSeconds": 9.564912542,
+      "resultSha256": "d05688d7eef2db82978dc9047e1eace99453e12311fc6170d78428d55a0ac0c0",
+      "rows": 38
+    },
+    {
+      "case": "active",
+      "pair": 1,
+      "arm": "green",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 3638.260292,
+      "processWallSeconds": 3.8520851659999984,
+      "resultSha256": "fa19c56b2823777a42b7664aab65bbea9e18d9843fcc6a2c451a760a819ebd35",
+      "rows": 41
+    },
+    {
+      "case": "active",
+      "pair": 2,
+      "arm": "green",
+      "order": [
+        "green",
+        "red"
+      ],
+      "handlerMs": 3486.097625,
+      "processWallSeconds": 3.702587124999999,
+      "resultSha256": "fa19c56b2823777a42b7664aab65bbea9e18d9843fcc6a2c451a760a819ebd35",
+      "rows": 41
+    },
+    {
+      "case": "active",
+      "pair": 2,
+      "arm": "red",
+      "order": [
+        "green",
+        "red"
+      ],
+      "handlerMs": 8178.003041000001,
+      "processWallSeconds": 8.421148333999998,
+      "resultSha256": "d05688d7eef2db82978dc9047e1eace99453e12311fc6170d78428d55a0ac0c0",
+      "rows": 38
+    },
+    {
+      "case": "active",
+      "pair": 3,
+      "arm": "red",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 8071.0368339999995,
+      "processWallSeconds": 8.317373542000002,
+      "resultSha256": "d05688d7eef2db82978dc9047e1eace99453e12311fc6170d78428d55a0ac0c0",
+      "rows": 38
+    },
+    {
+      "case": "active",
+      "pair": 3,
+      "arm": "green",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 3416.478334,
+      "processWallSeconds": 3.632646375,
+      "resultSha256": "fa19c56b2823777a42b7664aab65bbea9e18d9843fcc6a2c451a760a819ebd35",
+      "rows": 41
+    },
+    {
+      "case": "review",
+      "pair": 1,
+      "arm": "red",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 8173.014209,
+      "processWallSeconds": 8.426700292,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 1,
+      "arm": "green",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 2746.629042,
+      "processWallSeconds": 2.9944002089999984,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 2,
+      "arm": "green",
+      "order": [
+        "green",
+        "red"
+      ],
+      "handlerMs": 2847.3457500000004,
+      "processWallSeconds": 3.053481167000001,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 2,
+      "arm": "red",
+      "order": [
+        "green",
+        "red"
+      ],
+      "handlerMs": 8119.7365,
+      "processWallSeconds": 8.369236291,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 3,
+      "arm": "red",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 7806.890458,
+      "processWallSeconds": 8.060244458,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    },
+    {
+      "case": "review",
+      "pair": 3,
+      "arm": "green",
+      "order": [
+        "red",
+        "green"
+      ],
+      "handlerMs": 2728.885709,
+      "processWallSeconds": 2.975934125000009,
+      "resultSha256": "b8835676b0e091d17cf57f618a8254b2a7ac3a538336b2a289aed22344a8de02",
+      "rows": 3
+    }
+  ],
+  "summary": [
+    {
+      "case": "active",
+      "redMedianMs": 8178.003041000001,
+      "greenMedianMs": 3486.097625,
+      "redRangeMs": [
+        8071.0368339999995,
+        9278.20025
+      ],
+      "greenRangeMs": [
+        3416.478334,
+        3638.260292
+      ],
+      "allOutputDigestsEqual": false,
+      "observedReductionPercent": null
+    },
+    {
+      "case": "review",
+      "redMedianMs": 8119.7365,
+      "greenMedianMs": 2746.629042,
+      "redRangeMs": [
+        7806.890458,
+        8173.014209
+      ],
+      "greenRangeMs": [
+        2728.885709,
+        2847.3457500000004
+      ],
+      "allOutputDigestsEqual": true,
+      "observedReductionPercent": null
+    }
+  ],
+  "totalWallSeconds": 71.51790799999999
+}

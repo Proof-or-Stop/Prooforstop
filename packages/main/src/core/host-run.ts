@@ -56,6 +56,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
+import { fileURLToPath } from 'node:url';
 
 import {
   canonicalReviewHostLauncherSpec,
@@ -1529,6 +1530,14 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     let termSent = false;
     let killSent = false;
     const processGroupIsolated = runtime.processGroupIsolated ?? (process.platform !== 'win32' && runtime.spawnChild === undefined);
+    // Managed launches publish the actual provider PID and may deliver a signed
+    // descriptor on fd 3. Preserve that newer lifecycle unchanged. Plain host
+    // commands can retain an owned group leader until descendant cleanup.
+    const useGroupAnchor = processGroupIsolated && runtime.spawnChild === undefined
+      && !plan.onSpawn && !plan.reviewInvocationPayload
+      && !runtime.readProcessStartFingerprint && !runtime.signalProcessGroup;
+    let providerClose: { code: number | null; signal: NodeJS.Signals | null } | null = null;
+    let anchorMessageHandler: ((message: unknown) => void) | null = null;
     let stdoutHandler: ((chunk: Buffer | string) => void) | null = null;
     let stderrHandler: ((text: string) => void) | null = null;
     let stdinErrorHandler: ((error: NodeJS.ErrnoException) => void) | null = null;
@@ -1627,6 +1636,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       if (stdinErrorHandler) child.stdin?.removeListener?.('error', stdinErrorHandler);
       if (errorHandler) child.removeListener('error', errorHandler);
       if (closeHandler) child.removeListener('close', closeHandler);
+      if (anchorMessageHandler) child.removeListener('message', anchorMessageHandler);
       stdoutHandler = null;
       stderrHandler = null;
       stdinErrorHandler = null;
@@ -1679,7 +1689,10 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     };
 
     try {
-      child = (runtime.spawnChild ?? spawn)(plan.command, plan.argv, {
+      child = useGroupAnchor ? spawn(process.execPath, [
+        fileURLToPath(new URL('./host-run-group-anchor.js', import.meta.url)), plan.command, ...plan.argv,
+      ], { cwd: plan.cwd, env: plan.env, stdio: ['pipe', 'pipe', 'pipe', 'ipc'], detached: true })
+        : (runtime.spawnChild ?? spawn)(plan.command, plan.argv, {
         cwd: plan.cwd,
         env: plan.reviewInvocationPayload
           ? { ...plan.env, LATTICE_MANAGED_REVIEW_INVOCATION_FD: '3' }
@@ -1713,6 +1726,19 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       };
     }
 
+    const signalOwnedGroup = (): boolean => {
+      if (!useGroupAnchor || !child || child.exitCode !== null || child.signalCode !== null) return false;
+      bindLateStartFingerprint();
+      const sent = signalIsolatedProcessGroup(processIdentity, 'SIGKILL', readStartFingerprint, signalGroup);
+      killSent = sent || killSent;
+      return sent;
+    };
+    const requestAnchorStop = (): void => {
+      // Ask the owned helper to signal itself through private IPC. Explicitly
+      // disconnecting from the parent can suppress ChildProcess close on Node
+      // 26; retain the channel until the actual process and pipe close fence.
+      if (child?.connected) child.send({ schema: 'host-group-anchor.v1', event: 'terminate' }, () => {});
+    };
     const terminate = (reason: 'startup_no_output_timeout' | 'total_timeout' | 'aborted'): void => {
       if (settled || closeObserved || timeoutKind !== null || terminalReason === 'aborted') return;
       if (reason === 'aborted') {
@@ -1724,7 +1750,9 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
         failureKind = preferredHostFailure(failureKind, 'timeout');
       }
       clearTimersAndListener();
-      if (processIdentity?.processGroupIsolated) {
+      if (useGroupAnchor) {
+        if (!signalOwnedGroup()) requestAnchorStop();
+      } else if (processIdentity?.processGroupIsolated) {
         bindLateStartFingerprint();
         const sentToGroup = signalIsolatedProcessGroup(processIdentity, 'SIGTERM', readStartFingerprint, signalGroup);
         termSent = sentToGroup || termSent;
@@ -1877,7 +1905,38 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       // follows the same close/reap boundary before capacity can be released.
     };
     child.on('error', errorHandler);
+    if (useGroupAnchor) {
+      anchorMessageHandler = message => {
+        if (!message || typeof message !== 'object') return;
+        const row = message as { schema?: string; event?: string; code?: number | string | null; signal?: NodeJS.Signals | null };
+        if (row.schema !== 'host-group-anchor.v1') return;
+        if (row.event === 'spawn-error') {
+          asyncSpawnError = true;
+          terminalReason = 'spawn_error';
+          failureKind = preferredHostFailure(failureKind, row.code === 'ENOENT' ? 'missing_executable' : 'unknown');
+        }
+        if (row.event !== 'close' || providerClose) return;
+        providerClose = { code: typeof row.code === 'number' ? row.code : null, signal: row.signal ?? null };
+        if (timedOut || terminalReason === 'aborted') return;
+        // Provider output is flushed before this private IPC message. Preserve
+        // its outcome and clean the live group before releasing the result.
+        fenceDeadlineAfterClose();
+        if (!signalOwnedGroup()) {
+          providerClose.code = 1;
+          if (!asyncSpawnError) terminalReason = 'child_error';
+          failureKind = preferredHostFailure(failureKind, 'unknown');
+          const text = 'HOST_GROUP_CLEANUP_UNVERIFIED\n';
+          retainedStderr = `${retainedStderr}${text}`.slice(-HOST_RUN_FAILURE_TEXT_CAP);
+          deliver({ stream: 'stderr', text });
+          // The private anchor can terminate its own group on disconnect;
+          // never replace a failed external attestation with a bare PID kill.
+          requestAnchorStop();
+        }
+      };
+      child.on('message', anchorMessageHandler);
+    }
     closeHandler = (code, signal) => {
+      if (providerClose) ({ code, signal } = providerClose);
       if (settled || closeObserved) return;
       closeObserved = true;
       closeObservedAt = new Date().toISOString();
