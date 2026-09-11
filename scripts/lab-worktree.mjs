@@ -327,7 +327,7 @@ async function main() {
       if (!auditIsFresh(audit, expected)) fail(`Independent Lab audit rejected the candidate. Resolve findings and reopen if prepared. Evidence: ${audit.evidenceDir}`);
     };
     if (action === 'audit') {
-      await ensureAudit(s.releaseBase ?? sha(mainRoot), sha(s.path));
+      await ensureAudit(s.phase === 'active' ? sha(mainRoot) : s.releaseBase, sha(s.path));
       console.log('Independent different-vendor Lab audit passed for current committed HEAD.'); return;
     }
     if (action === 'reopen') {
