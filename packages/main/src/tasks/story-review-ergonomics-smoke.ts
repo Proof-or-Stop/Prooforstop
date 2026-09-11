@@ -182,7 +182,7 @@ function assertRepositoryWideMustNeedsAValidBasis(): void {
   try {
     const checklist = store.readChecklist(storyId);
     checklist.items[0].verificationIntent = {
-      happy: [{ desc: 'Run the complete repository suite', type: 'cli', priority: 'must', scope: 'repository', expectation: 'absolute_pass', requirementSource: 'repository_health' } as any],
+      happy: [{ desc: 'go test ./... must pass', type: 'cli', priority: 'must' } as any],
       edge: [{ desc: 'Focused boundary behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' } as any],
       adversarial: [{ desc: 'Focused failure behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' } as any],
     };
@@ -195,7 +195,7 @@ function assertRepositoryWideMustNeedsAValidBasis(): void {
     checklist.items[0].verificationIntent!.happy![0] = {
       desc: 'Run the complete repository suite and admit only failures already present in the captured baseline',
       type: 'cli',
-      priority: 'must',
+      priority: 'should',
       scope: 'repository',
       expectation: 'no_new_regressions',
       requirementSource: 'story',
@@ -207,7 +207,7 @@ function assertRepositoryWideMustNeedsAValidBasis(): void {
     store.writeChecklist(storyId, checklist);
     const groundedDifferential = review.story_review({ storyId }) as any;
     assert.equal(groundedDifferential.issues.some((issue: any) => issue.type === 'repository_wide_baseline_missing'), false);
-    assert.equal(differential.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
+    assert.equal(groundedDifferential.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
 
     checklist.items[0].verificationIntent!.happy![0] = {
       desc: 'Run the official repository-wide verifier required by the task',
@@ -230,8 +230,28 @@ function assertRepositoryWideMustNeedsAValidBasis(): void {
   }
 }
 
+function assertVerificationIntentRoleCannotOmitPlanningMetadata(): void {
+  const { root, store, storyId } = initStore();
+  try {
+    const handlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    assert.throws(() => handlers.checklist_update({
+      storyId,
+      itemId: 'CHK-001',
+      agent: 'proof-or-stop-verification-intent',
+      verificationIntent: {
+        happy: [{ desc: 'go test ./... must pass', type: 'cli', priority: 'must' }],
+        edge: [{ desc: 'Focused edge behavior passes', type: 'logic', priority: 'must' }],
+        adversarial: [{ desc: 'Focused failure behavior passes', type: 'logic', priority: 'must' }],
+      },
+    } as any), /verification_intent_metadata_required/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertTouchpointAndExcludedInfoAreQuiet();
 assertRepositoryWideMustNeedsAValidBasis();
+assertVerificationIntentRoleCannotOmitPlanningMetadata();
 assertMissingScopeCheckGuidanceIsActionable();
 assertPlanAddNeedsAuditReason();
 assertPlanRemoveCannotBypassFreeze();

@@ -46,11 +46,13 @@ Repository-wide discovery does not by itself make absolute success a Story
 acceptance requirement. During PLAN, focused behavior introduced by the Story is
 normally an absolute-pass `must`. A repository-wide command must first be run or
 checked against the pre-change baseline. If that baseline is already red because
-of an existing or environmental failure, the Story may require only an explicit
-`no_new_regressions` comparison; a diagnostic repository-health run is `should`.
+of an existing or environmental failure, record an explicit
+`no_new_regressions` repository-health comparison as `should`; reviewers compare
+the referenced baseline and current outputs and file a Finding for a new failure.
 Absolute repository-wide success may remain `must` when the task, user, or
 official verifier explicitly requires it. `story_review` rejects other
-repository-wide absolute-pass `must` intents before they freeze at DEV.
+repository-wide `must` intents, including unannotated standard full-suite
+commands, before they freeze at DEV.
 
 The success prompt of `proof-or-stop validate` must use the current story phase and the gate oracle, rather than hardcoding DONE:
 after the DEV phase passes, the prompt is to commit and enter REVIEW; after the REVIEW phase passes, the prompt is to enter TEST;

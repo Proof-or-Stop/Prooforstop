@@ -114,7 +114,7 @@ export const FLOW_FACT_POLICIES = [
     consumerGate: 'story_review PLAN verification-intent quality gate and REVIEW test-coverage audit',
     artifactCommand: 'story_review',
     semantics: ['flow-policy', 'verification-policy', 'gate-evidence'],
-    rationale: 'PLAN rejects a self-authored repository-wide absolute-pass must. Story-owned full-suite acceptance uses an explicit no-new-regressions expectation; only an explicit external verifier requirement may retain absolute repository-wide success as must.',
+    rationale: 'PLAN rejects a self-authored repository-wide must, including unannotated standard full-suite commands. Repository health stays a baseline-referenced should-level review input; only an explicit external verifier requirement with a source pointer may retain repository-wide success as must.',
   },
 ] as const satisfies readonly FlowFactPolicyDefinition[];
 

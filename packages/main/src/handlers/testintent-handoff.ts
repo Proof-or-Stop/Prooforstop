@@ -58,8 +58,9 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
         '- If the split is wrong, report concrete checklist changes and stop.',
         '- If the split is acceptable, write verificationIntent for each testable item via proof-or-stop checklist_update.',
         '- Run or inspect the repository-wide baseline before freezing any repository-scoped acceptance.',
-        '- Keep Story-focused behavior as scope=focused, expectation=absolute_pass, requirementSource=story.',
-        '- A repository-wide command with a pre-existing or environmental failure must use expectation=no_new_regressions and a baselineRef pointing to the inspected pre-change run; never turn repository health into an absolute-pass must.',
+        '- Priority follows the behavior and risk being tested, not the happy/edge/adversarial lane. Do not mechanically assign one priority per lane.',
+        '- Keep Story-focused behavior as scope=focused, expectation=absolute_pass, requirementSource=story; make it must when the Story actually requires that behavior.',
+        '- A repository-wide command with a pre-existing or environmental failure must use priority=should, expectation=no_new_regressions, requirementSource=repository_health, and a baselineRef pointing to the inspected pre-change run; never turn repository health into a must.',
         '- An absolute repository-wide must is allowed only when the user/task or official verifier explicitly requires it; record requirementSource=external_verifier and a requirementRef to that source.',
         '- Main agent must not write verificationIntent; you own this handoff.',
         '- Do not edit docs/story or fixture JSON directly.',
@@ -76,7 +77,7 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
         checklistJson,
         '',
         'For each testable item, write structured verificationIntent entries:',
-        '{"happy":[{"desc":"focused action/condition -> expected result; WHY: coverage intent","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[{"desc":"focused boundary condition -> expected result; WHY: ...","type":"cli","priority":"should","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"adversarial":[{"desc":"repository suite introduces no failure absent from the inspected baseline; WHY: regression coverage","type":"cli","priority":"must","scope":"repository","expectation":"no_new_regressions","requirementSource":"story","baselineRef":"<pre-change run or artifact>"}]}',
+        '{"happy":[{"desc":"focused action/condition -> expected result; WHY: coverage intent","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[{"desc":"focused boundary condition -> expected result; WHY: ...","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"adversarial":[{"desc":"focused failure timing -> expected result; WHY: ...","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}]}',
         '',
         'Use type=browser only for browser-visible UI interaction. Use verification evidence kind=waiver for truly non-automatable docs/config/process items; use waiverType=deferred_gate_evidence only for gate-self-test cases that cannot be verified until a later phase.',
         '',
@@ -107,7 +108,7 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
           `Run proof-or-stop story_review '{"storyId":"${args.storyId}"}' again.`,
         ],
         commandExamples: missingIntentItems.map((item) =>
-          `proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${item.id}","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[{"desc":"...","type":"cli","priority":"should","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"adversarial":[{"desc":"...","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}]},"agent":"proof-or-stop-verification-intent"}'`
+          `proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${item.id}","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[{"desc":"...","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"adversarial":[{"desc":"...","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}]},"agent":"proof-or-stop-verification-intent"}'`
         ),
         prompt,
       };

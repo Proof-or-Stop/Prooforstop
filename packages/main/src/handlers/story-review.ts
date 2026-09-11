@@ -421,19 +421,19 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         for (const lane of VERIFICATION_LANES) {
           const entries = item.verificationIntent?.[lane] || [];
           for (const [index, intent] of entries.entries()) {
-            if (intent.scope === 'repository'
+            const repositoryWide = intent.scope === 'repository'
+              || /\bgo\s+test\s+\.\/\.\.\.|\bcargo\s+test\b|\bpytest\b|\bnpm\s+test\b|\bfull[- ]suite\b|\b(?:complete|entire|full)\s+repository\b|\brepository[- ]wide\b/i.test(intent.desc);
+            if (repositoryWide
               && (intent.priority ?? 'must') === 'must'
-              && intent.expectation !== 'no_new_regressions'
               && intent.requirementSource !== 'external_verifier') {
               issues.push({
                 type: 'repository_wide_absolute_must',
                 severity: 'blocker',
                 itemId: item.id,
-                message: `${item.id}:${lane}:${index} makes repository-wide absolute success a must without an external verifier requirement. Run or inspect the repository-wide baseline before freezing acceptance; use expectation=no_new_regressions for a Story-owned differential gate, or priority=should with requirementSource=repository_health for a diagnostic health run.`,
+                message: `${item.id}:${lane}:${index} makes repository-wide success a must without an external verifier requirement. Run or inspect the repository-wide baseline before freezing acceptance; keep focused Story behavior as must and record the repository comparison as priority=should, expectation=no_new_regressions, requirementSource=repository_health.`,
               });
             }
-            if (intent.scope === 'repository'
-              && (intent.priority ?? 'must') === 'must'
+            if (repositoryWide
               && intent.expectation === 'no_new_regressions'
               && !intent.baselineRef?.trim()) {
               issues.push({
@@ -443,7 +443,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                 message: `${item.id}:${lane}:${index} uses repository-wide no_new_regressions acceptance without baselineRef. Record the inspected pre-change run or baseline artifact before freezing the comparison.`,
               });
             }
-            if (intent.scope === 'repository'
+            if (repositoryWide
               && (intent.priority ?? 'must') === 'must'
               && intent.expectation === 'absolute_pass'
               && intent.requirementSource === 'external_verifier'

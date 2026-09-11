@@ -287,8 +287,8 @@ Every checklist item should define:
 For verification intent, distinguish Story acceptance from repository health.
 Run or inspect the pre-change baseline before freezing a repository-wide check.
 Focused changed behavior is normally an absolute-pass `must`. A repository-wide
-suite that is already red must use an explicit `no_new_regressions` expectation,
-or remain a `should` diagnostic. Only a user, task, or official-verifier
+suite that is already red uses an explicit `no_new_regressions` expectation as
+a `should` repository-health input for reviewer comparison. Only a user, task, or official-verifier
 requirement may make repository-wide absolute success a `must`.
 
 - title 描述「做什么」，不描述「怎么做」
