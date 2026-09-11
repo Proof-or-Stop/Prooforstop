@@ -163,3 +163,27 @@ policy, blobs and current key status. Metadata reuse is permitted only on a
 clean, material-identical Git descendant; it never re-labels the old execution
 as a new execution. GREEN verifies artifact corruption and key revocation both
 reopen the obligation. The runtime integration now passes 17 checks.
+
+## Verified checkpoint result
+
+Implementation commit: `c81a0bba48a13abe91de22bfc4d825cda0082cbb` (following
+`c67db15efc7bf34063266a5bb358dd146768cf92`). Local main remained at
+`b715dd7b30f90add3c19dbc939a4f8cffd4b45b7`; version remains 0.3.314.
+
+The final local registered-suite replay exited 0: 86 calculator/witness cases,
+17 actual-runtime cases, the original nine cases and six audit regressions.
+Process-fact and runtime-fact verification both exited 0. These counts describe
+test groups, not independent operational qualification cases or time savings.
+
+The final Claude CLI follow-up actually executed both previously failing
+commands from its mixed-provider host. Runtime integration exited 0 with
+`DYNAMIC_FINDING_RUNTIME_INTEGRATION PASS 17`; the original regression command
+exited 0 with 9 passed and 0 failed. It reported no remaining newly introduced
+blocker in the bounded follow-up. Its prior concern about Story metadata
+invalidating closure did not reproduce with the real tracked-metadata commit.
+See [the preserved Claude report](dynamic-finding-evidence-closure-claude.md).
+
+This does not erase the four incomplete engineering items above. No full-plan
+PASS, automatic scope expansion, enforce eligibility, formal Story DONE, main
+merge, version bump or remote publication is claimed. The generated Lab
+`AGENTS.override.md` remains untracked and unchanged.
