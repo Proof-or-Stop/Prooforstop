@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { runProviderNeutralFixture } from './helpers/provider-neutral-fixture.mjs';
+import { spawnSync } from 'node:child_process';
+const binding = spawnSync(process.execPath, ['scripts/verify-inventory-consumer-binding.mjs'], { stdio: 'inherit' });
+assert.equal(binding.status, 0, 'inventory consumer binding failed; inspect concrete refusal above');
 const results = [];
 for (const remediation of [false, true]) {
   const started = performance.now();
