@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab explicit-patch-upgrade - v0.3.321 - 2026-09-11
+
+Fix Lab release version selection: finish now accepts --bump patch and honors an explicit upgrade request even when changed paths are outside main runtime build inputs. Separate the Lab version decision from the shared DONE build predicate; executable scripts under scripts/ now trigger an automatic patch release. Any version change still builds and verifies the CLI because the synchronized runtime brand changes. Persist the prepared decision so a retry without flags preserves the upgrade and never increments twice. Refuse a late patch request against a prepared unbumped release instead of silently ignoring it. Pure documentation without an explicit upgrade retains its version.
+
+Verification uses real temporary Git repositories and the Lab create, red, green and finish commands. Target RED demonstrated rejection of the explicit patch option. GREEN covers explicit non-build-input upgrades, automatic executable-script upgrades, synchronized manifests and lockfiles, built CLI version, failure after integration and idempotent retry, pure documentation compatibility, cleanup, locks, and Story carry-forward. Fixture setup now copies current runtime source dependencies so module-load failures are not mistaken for target RED. The previously repaired acceptance projection and output-shape regressions remain part of the final main verification. This is local Lab maintenance, not formal Story DONE or remote publication.
+
+Maintenance provenance: codex/lab-explicit-patch-upgrade, repair e99b6931a90cfa033f31f6e3bab6d3ff25c334da.
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-worktree.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab amendment-projection-regression - v0.3.320 - 2026-09-11
 
 Repair the stale acceptance-review prompt projection regression after the flat final-output protocol update. Preserve the exact trusted instruction SHA-256 assertion and unchanged task-data checks for both Claude and Codex, align the digest with the reviewed prompt, and add assertions that the embedded final JSON Schema matches the parser contract and that the prompt explicitly requires top-level binding fields. Load the current checkout source through the existing Lab loader instead of potentially stale dist.
