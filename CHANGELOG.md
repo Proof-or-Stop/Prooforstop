@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab repro-first-p0m-mapping - v0.3.314 - 2026-09-11
+
+Implemented the P0m registry component-mapping foundation required by the approved repro-first enforcement plan.
+
+Before this repair, process and runtime fact entries did not expose the stable identifiers, normalized path mappings, component ownership, serialization-boundary metadata, or generated-source lineage needed to compute the approved whole-registry and component-filtered preimages. The focused historical RED proved the projection API was absent.
+
+The repair adds total deterministic projections for both registries, UTF-8 byte ordering, normalized and unique paths, closed bootstrap component identities, exact optional-field omission, and typed registry-component-mapping-unavailable failures for missing, ambiguous, non-total, and generated-without-lineage mappings. It also removes a pre-existing duplicate process-fact name and registers the P0m validation command.
+
+Verification replayed the exact RED command to GREEN, exercised 34 adversarial mapping mutations and eight real worker-thread readers, passed both current-source fact-contract verifiers and TypeScript checks, and received an independent Claude CLI APPROVE before and after synchronization with the latest local main. No performance improvement is claimed; this is correctness and enforcement-foundation maintenance.
+
+Maintenance provenance: codex/lab-repro-first-p0m-mapping, repair 02b901a2626da2ba4541cf8554191dd813f8f9c1.
+Verification command (replayed before integration and on main): `["npm","--prefix","packages/main","run","test:red-p0m-component-mapping"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab dynamic-finding-applicability - v0.3.313 - 2026-09-11
 
 # Dynamic Finding Applicability Lab Integration Notes
