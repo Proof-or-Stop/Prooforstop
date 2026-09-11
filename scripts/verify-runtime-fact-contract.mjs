@@ -21,6 +21,7 @@ const requiredFacts = [
 ];
 
 const requiredEvidenceFacts = [
+  'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
   'verification-receipt-authenticity',

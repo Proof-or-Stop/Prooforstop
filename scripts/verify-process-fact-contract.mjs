@@ -11175,6 +11175,23 @@ try {
   assert(false, `maintenance preview executable proof failed: ${error.message}`);
 }
 
+// Parameterized writes cannot inherit a name-only reader exemption.
+{
+  const engine = read('packages/main/src/cli-engine.ts');
+  assert(engine.includes('commandObservationEffects(effectiveOwnership,')
+    && engine.includes('commandObservationEffects(eventOwnership).recordStoryEvent'),
+    'Command effects and generic Story events must share effective admission ownership');
+  assert(!engine.includes("|| isReadOnlyCommand("), 'Static reader names must not override parameterized writes');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes('runtime:command_observation_effects'), 'Command observation semantics must be registered');
+  try {
+    const output = execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-boundaries.mjs')], {
+      cwd: root, encoding: 'utf8', timeout: 120000,
+    });
+    assert(output.includes('COMMAND_OBSERVATION_GREEN'), 'Real CLI, worktree and lock observation proof must pass');
+    execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-controls.mjs')], { cwd: root, stdio: 'pipe', timeout: 30000 });
+  } catch (error) { assert(false, `Command observation proof failed: ${error.message}`); }
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');

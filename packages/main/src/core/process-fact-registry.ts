@@ -631,6 +631,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
+  'runtime:command_observation_effects': ['runtime-behavior', 'schema-contract', 'workspace-binding'],
   // Status recommendations share the gate admissibility predicate; window
   // RUNNING alone never proves that a routine process is still executing.
   'runtime:precert_routine_single_execution': ['runtime-behavior', 'signed-artifact', 'atomic-persistence', 'validation-result', 'gate-evidence'],

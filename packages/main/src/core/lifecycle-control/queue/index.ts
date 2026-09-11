@@ -1,14 +1,14 @@
 import { createHash } from 'node:crypto';
 
 export const QUEUE_GOVERNANCE_STATUS_SCHEMA_VERSION = 'proof-or-stop.queue_governance_status.v1' as const;
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync, appendFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 import { currentStoryFilesHash } from '../../evidence-freshness.js';
-import { resolveLocalAssuranceStories } from '../../local-assurance-story-projection.js';
+import { resolveLocalAssuranceStoryContexts } from '../../local-assurance-story-projection.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryInfo } from '../../types.js';
-import { getRepoRoot, resolveWorktreePath } from '../../worktree-runtime.js';
+import { getRepoRoot } from '../../worktree-runtime.js';
 import {
   CONTROL_QUEUE_CLASSIFICATIONS,
   DEFAULT_CONTROL_PLANE_CAPABILITIES,
@@ -296,16 +296,14 @@ function malformedExperiment(story: StoryInfo): boolean {
   return /tier-c/i.test(story.title) && !titleInferredExperiment(story);
 }
 
-function worktreeIsStale(story: StoryInfo, root: string, thresholdMs: number, nowMs: number): boolean {
-  const path = story.worktree?.path;
-  if (!path) return false;
-  const absolute = resolveWorktreePath(getRepoRoot(root), path);
-  if (!absolute) return false;
-  try {
-    return nowMs - statSync(absolute).mtimeMs > thresholdMs;
-  } catch {
-    return true;
-  }
+function worktreeIsStale(story: StoryInfo, thresholdMs: number, nowMs: number): boolean {
+  // Directory mtime measures direct child entries, not nested Story progress.
+  // Ignore invalid/future timestamps; missing history is conservatively stale.
+  const progress = [story.createdAt, story.startedAt, ...(story.events ?? [])
+    .filter(event => event.action === 'advance').map(event => event.timestamp)]
+    .map(value => typeof value === 'string' ? Date.parse(value) : NaN)
+    .filter(value => Number.isFinite(value) && value <= nowMs);
+  return progress.length === 0 || nowMs - Math.max(...progress) > thresholdMs;
 }
 
 function queueRow(args: {
@@ -342,7 +340,7 @@ export function projectQueueGovernance(
   const staleWorktreeMs = options.staleWorktreeMs ?? 7 * 24 * 60 * 60 * 1000;
   const mainRepoRoot = getRepoRoot(root);
   const exceptions = explicitExceptionByStory(root);
-  const localProjection = resolveLocalAssuranceStories(store, root, { activeOnly: true, now });
+  const { projection: localProjection, workspaces } = resolveLocalAssuranceStoryContexts(store, root, { activeOnly: true, now });
   const localProjectionById = new Map(localProjection.stories.map((row) => [row.storyId, row]));
   const activeStories = store.listStoryIds()
     .map((storyId) => {
@@ -407,12 +405,13 @@ export function projectQueueGovernance(
       });
     }
     if (projectionRow?.stateSource === 'worktree') {
-      const stale = worktreeIsStale(story, root, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now());
+      const workspace = workspaces.get(story.storyId)!;
+      const stale = !workspace.readFromStoryWorktree || worktreeIsStale(workspace.story, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now());
       return queueRow({
-        story,
+        story: workspace.story,
         classification: stale ? 'stale-worktree' : 'active-worktree',
         reason: stale
-          ? 'authoritative worktree exists but appears stale/missing'
+          ? 'authoritative Story progress is older than the threshold or unavailable'
           : explicit
             ? 'authoritative worktree exists; experiment exception metadata is preserved'
             : 'authoritative worktree exists',

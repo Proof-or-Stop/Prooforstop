@@ -83,3 +83,31 @@ messages now identify a directly usable observation command with its limits.
 independent owner/reviewer identities, populated stale diagnostic input, unchanged
 Story/lease bytes, protected execute attempts, and parameter boundary checks.
 This proves maintenance read behavior, not whole-Story delivery speed.
+
+## Consistent command effects and worktree observations
+
+`reviewer_list --storyId=B-xxxx` is a read. Adding `--forceReviewer=behavior`
+changes the roster and is an owner write, including its configured pre/post hooks,
+activity and generic Story command event. All three runtime surfaces consume the
+same argument-aware ownership result as admission. Historical name-only reader
+helpers remain compatibility APIs; they do not override runtime admission.
+Explicit read telemetry opt-in cannot enable hooks or Story events. Existing
+handler-owned immutable transactions retain their generic-event exclusions.
+
+Runtime closure resolves each Story workspace once and uses that same source for
+phase, readiness and owner lease. It does not renew a lease or acquire a lock.
+Validation self-reentry requires the live async context's acquisition token to
+match the current holder generation. Matching the Story ID or operating-system
+PID alone is insufficient. Unknown lock state is an observation, not ownership.
+
+Queue staleness uses the latest valid, non-future Story creation/start/phase
+advance timestamp from the authoritative worktree. Directory timestamps and owner
+heartbeats do not prove phase progress. Missing authoritative state or progress
+is conservatively reported stale; it never authorizes deletion or cleanup.
+
+`node scripts/verify-command-observation-boundaries.mjs` exercises real CLI
+writes and reads, a linked worktree with a divergent main mirror, reversed
+Story/directory ages, and a separate process holding the validation lock. These
+checks prove the bounded observation defects, not global participant migration,
+all convergence rules or end-to-end Story speedup. The existing phase-separated
+REVIEW/TEST convergence rule is preserved.

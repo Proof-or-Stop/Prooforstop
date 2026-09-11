@@ -1,3 +1,4 @@
+import type { OwnershipClass } from '../core/command-policy.js';
 import { readBrandEnv } from '../core/brand-env.js';
 export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'session_brief',
@@ -274,4 +275,13 @@ export function shouldWriteActivityLog(cmdName: string, args: Record<string, unk
   }
   if (args.dryRun === true) return false;
   return true;
+}
+
+/** Runtime consumers must use the argument-aware admission result, not the
+ * legacy name-only compatibility helpers above. Telemetry opt-in never permits
+ * hooks or Story events for a read-only invocation. */
+export function commandObservationEffects(ownership: OwnershipClass | null, recordReadOnly = false) {
+  const readOnly = ownership === 'readOnly';
+  const writer = ownership !== null && !readOnly;
+  return { readOnly, runHooks: writer, recordStoryEvent: writer, recordActivity: writer || (readOnly && recordReadOnly) };
 }
