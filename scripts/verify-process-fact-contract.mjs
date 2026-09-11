@@ -10985,6 +10985,11 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
   for (const token of ['finding_assessment_propose', 'finding_runtime_evidence_run', 'signed PASS', 'killSwitch=true']) {
     assert(read('packages/main/src/core/prompt-registry.ts').includes(token), `dynamic Finding prompt contract must describe ${token}`);
   }
+  const closureCommand = JSON.parse(read('packages/main/package.json')).scripts['test:dynamic-finding-evidence-closure'];
+  const headRecoveryCommand = 'node dist/tasks/finding-material-reattestation-smoke.js --head-continuity';
+  assert(closureCommand.split(' && ').includes(headRecoveryCommand), 'dynamic Finding head-only regression must remain in the registered package chain');
+  assert(!closureCommand.replace(headRecoveryCommand, 'REMOVED_HEAD_RECOVERY_REGRESSION').split(' && ').includes(headRecoveryCommand),
+    'dynamic Finding head-only registration removal must be detected');
 }
 // Historical comparison-base binding is machine-owned; caller input is not authority.
 {

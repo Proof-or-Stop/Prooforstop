@@ -100,6 +100,33 @@ replay against the previous emitted RED build is not represented as GREEN.
 
 ## Real closed-loop rollout remains separate
 
+### Executed repaired checkpoint
+
+At `8c11d391e918a2e673d4d3f6aea154a82001a5ea`, official GREEN replayed
+the exact pinned command: **3 passed / 0 failed**, exit 0, 91,358 ms. Its three
+parts reported 87 calculator assertions, 13 head-only assertions and 9 original
+material assertions. These are overlapping fixture checks, not independent
+operational cases or a measured reduction in Story time. The process-fact
+contract verifier passed.
+
+Independent Claude CLI session `13fdc724-cddb-4d9f-8980-54953d7a0f17`
+inspected that frozen fix and executed the head-only command, exit 0, 13 checks
+passed. It reported no blockers. Its full returned report is preserved in
+`dynamic-finding-head-continuity-claude.json`. The audit explicitly limits
+recovery to unchanged dependencies and expiry and rejects orphaned history;
+it is not formal reviewer PASS or operational qualification.
+
+The subsequent non-runtime closeout registers the head-only invocation in the
+existing Dynamic Finding package chain and protects that registration with a
+removal check. It changes no production recovery logic. The package regression
+attempt initially stopped at the reviewer-batch compatibility case because this
+new Lab lacked `packages/utils/dist/index.js`; that is an environment failure,
+not target RED. Utilities are prepared before replaying the affected case and
+remaining components. Previously completed components are not represented as
+freshly rerun or combined into a fictitious full-command PASS.
+
+### Operational collection sequence
+
 During actual REVIEW work: execute reviewed reproduction/impact witnesses;
 obtain a reviewer-owned proposal and target consent where needed; record the
 Owner assessment/disposition; independently adjudicate each case through the
