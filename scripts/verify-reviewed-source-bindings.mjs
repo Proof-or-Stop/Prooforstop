@@ -1,0 +1,68 @@
+// Bounded source-identity acceptance; the broader fixture/JSON suite remains separate.
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync, copyFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { pathToFileURL } from 'node:url';
+import { validateReviewedSourceSources, reviewedSourceResidueAllowed } from './identity-reviewed-source-contexts.mjs';
+
+const read = path => readFileSync(path, 'utf8');
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const errors = validateReviewedSourceSources(read);
+console.log(JSON.stringify({ reviewedSourceBindingFailures: errors.length, errors }));
+assert.deepEqual(errors, [], 'REVIEWED_SOURCE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
+
+const scanner = read('scripts/verify-proof-or-stop-identity-cutover.mjs');
+const table = scanner.match(/const REVIEWED_CONTEXT_READERS = (\[[\s\S]*?\]);/);
+assert.ok(table, 'scanner must retain its exact reviewed-reader table');
+const pins = JSON.parse(table[1]);
+assert.deepEqual(pins.map(row => row.path).sort(), ['fixture', 'json', 'source']
+  .map(kind => `scripts/identity-reviewed-${kind}-contexts.mjs`).sort());
+for (const pin of pins) assert.equal(sha(read(pin.path)), pin.sha256,
+  `REVIEWED_READER_CHAIN_MUST_MATCH: ${pin.path}`);
+console.log(`PASS scanner reader bindings: ${pins.length} exact current modules`);
+
+const rows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries;
+for (const row of rows) {
+  const text = read(row.path), line = text.split(/\r?\n/)[row.lineNumber - 1];
+  const input = { path: row.path, token: row.token, line, lineNumber: row.lineNumber, text };
+  assert.equal(reviewedSourceResidueAllowed(input), true, row.path);
+  for (const mutant of [
+    { ...input, path: `${row.path}.unknown` },
+    { ...input, token: `${row.token}UNKNOWN` },
+    { ...input, text: `${text}\n// unrelated source mutation\n` },
+    { ...input, line: `${line} changed` },
+    { ...input, lineNumber: row.lineNumber + 1 },
+    { ...input, text: `${text}\n${row.token}\n` },
+  ]) assert.equal(reviewedSourceResidueAllowed(mutant), false, row.path);
+}
+const paths = [...new Set(rows.map(row => row.path))];
+for (const path of paths) {
+  assert.ok(validateReviewedSourceSources(p => p === path ? '' : read(p)).length);
+  assert.ok(validateReviewedSourceSources(p => { if (p === path) throw Error('missing'); return read(p); }).length);
+}
+console.log(`PASS source: ${rows.length} exact positives, ${rows.length * 6} mutation refusals, ${paths.length * 2} empty/missing controls`);
+
+const scratch = mkdtempSync(join(tmpdir(), 'reviewed-source-binding-'));
+try {
+  const moduleName = 'identity-reviewed-source-contexts.mjs';
+  const dataName = 'identity-reviewed-source-data.json';
+  copyFileSync(new URL(`./${moduleName}`, import.meta.url), join(scratch, moduleName));
+  const bytes = readFileSync(new URL(`./${dataName}`, import.meta.url), 'utf8');
+  const original = JSON.parse(bytes);
+  for (const [name, entries] of [
+    ['original', original.entries],
+    ['missing', original.entries.slice(1)],
+    ['duplicate', [...original.entries, original.entries[0]]],
+  ]) {
+    writeFileSync(join(scratch, dataName), name === 'original' ? bytes : JSON.stringify({ ...original, entries }));
+    const result = spawnSync(process.execPath, ['--input-type=module', '-e', `await import(${JSON.stringify(pathToFileURL(join(scratch, moduleName)).href)})`], { encoding: 'utf8', timeout: 10000 });
+    assert.equal(result.error, undefined);
+    assert.equal(result.signal, null);
+    if (name === 'original') assert.equal(result.status, 0, result.stderr);
+    else { assert.equal(result.status, 1); assert.match(result.stderr, /inventory bytes changed/i); }
+  }
+} finally { rmSync(scratch, { recursive: true, force: true }); }
+console.log('PASS source inventory byte integrity: original accepted, deleted and duplicate rows refused');
