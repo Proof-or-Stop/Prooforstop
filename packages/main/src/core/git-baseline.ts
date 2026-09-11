@@ -18,7 +18,8 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD'): { ref:
     const candidate = ref?.trim() ?? '';
     if (candidate && !isStoryRef(candidate) && !candidates.includes(candidate)) candidates.push(candidate);
   };
-  try { add(git(gitCwd, ['symbolic-ref', '-q', 'refs/remotes/origin/HEAD'])); } catch { /* no remote HEAD */ }
+  let remoteHead: string | undefined;
+  try { remoteHead = git(gitCwd, ['symbolic-ref', '-q', 'refs/remotes/origin/HEAD']); } catch { /* no remote HEAD */ }
   let primaryBranch: string | undefined;
   try {
     const primary = git(gitCwd, ['worktree', 'list', '--porcelain']).split(/\n\n+/)[0] ?? '';
@@ -30,6 +31,19 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD'): { ref:
     const commonDir = git(gitCwd, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
     linkedWorktree = gitDir !== commonDir;
   } catch { /* conventional fallbacks remain available */ }
+  // Local integration can advance without publishing. Only the same primary
+  // branch containing the remote tip may supersede origin/HEAD in a linked
+  // worktree; remote-ahead, diverged and ordinary-checkout policy is unchanged.
+  if (linkedWorktree && primaryBranch?.startsWith('refs/heads/') && !isStoryRef(primaryBranch)
+    && remoteHead === 'refs/remotes/origin/' + primaryBranch.slice('refs/heads/'.length)) {
+    try {
+      const remoteCommit = git(gitCwd, ['rev-parse', '--verify', '--end-of-options', `${remoteHead}^{commit}`]);
+      const localCommit = git(gitCwd, ['rev-parse', '--verify', '--end-of-options', `${primaryBranch}^{commit}`]);
+      git(gitCwd, ['merge-base', '--is-ancestor', remoteCommit, localCommit]);
+      add(primaryBranch);
+    } catch { /* retain remote-first ordering unless local containment is proven */ }
+  }
+  add(remoteHead);
   if (linkedWorktree) add(primaryBranch);
   for (const fallback of ['refs/heads/main', 'refs/remotes/origin/main', 'refs/heads/master', 'refs/remotes/origin/master']) add(fallback);
   if (!linkedWorktree) add(primaryBranch);

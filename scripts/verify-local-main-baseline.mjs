@@ -84,7 +84,55 @@ try {
   assert.equal(pack.hunks.some(row => row.path === 'main-only.ts'), false);
   assert.equal(checkScopeContract(contract(owned), changed, { projectRoot: f.work, gitCwd: f.work }).status, 'pass');
   assert.equal(resolveRepositoryBaseline(f.work).ref, 'refs/heads/main');
+  writeFileSync(join(f.work, 'main-only.ts'), 'export const importedMain = 2;\n');
+  const editedImport = readChangedFiles(f.work);
+  assert.ok(editedImport.includes('main-only.ts'), 'Story edits to an imported path remain visible');
+  assert.ok(checkScopeContract(contract(owned), editedImport, { projectRoot: f.work, gitCwd: f.work }).violations.some(row => row.path === 'main-only.ts'));
+  assert.ok(buildScopeDiffPack(f.work).hunks.some(row => row.path === 'main-only.ts'));
   console.log('LOCAL_BASELINE native scope and diff GREEN');
+
+  const controls = [];
+  function expectRef(label, instance, ref, cwd = instance.work) {
+    assert.equal(resolveRepositoryBaseline(cwd)?.ref, ref, label);
+    controls.push(label);
+  }
+  for (const branch of ['master', 'develop']) {
+    const instance = fixture(branch);
+    expectRef(branch + ' same-name local advancement', instance, 'refs/heads/' + branch);
+    assert.equal(readChangedFiles(instance.work).includes('main-only.ts'), false);
+  }
+  const ahead = fixture();
+  const aheadCommit = git(ahead.main, 'commit-tree', git(ahead.main, 'rev-parse', 'HEAD^{tree}'), '-p', ahead.local, '-m', 'remote ahead');
+  git(ahead.main, 'update-ref', 'refs/remotes/origin/main', aheadCommit);
+  expectRef('remote ahead', ahead, 'refs/remotes/origin/main');
+
+  const diverged = fixture();
+  const divergedCommit = git(diverged.main, 'commit-tree', git(diverged.main, 'rev-parse', diverged.base + '^{tree}'), '-p', diverged.base, '-m', 'remote divergence');
+  git(diverged.main, 'update-ref', 'refs/remotes/origin/main', divergedCommit);
+  expectRef('diverged tips', diverged, 'refs/remotes/origin/main');
+
+  const different = fixture('develop', 'main');
+  expectRef('different primary branch', different, 'refs/remotes/origin/main');
+  const detached = fixture();
+  git(detached.main, 'checkout', '--detach', '-q');
+  expectRef('detached primary', detached, 'refs/remotes/origin/main');
+  const ordinary = fixture();
+  expectRef('ordinary primary checkout', ordinary, 'refs/remotes/origin/main', ordinary.main);
+  const missing = fixture('develop');
+  git(missing.main, 'symbolic-ref', '--delete', 'refs/remotes/origin/HEAD');
+  expectRef('missing remote HEAD', missing, 'refs/heads/develop');
+  const invalid = fixture();
+  git(invalid.main, 'symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/missing');
+  expectRef('unresolvable remote HEAD', invalid, 'refs/heads/main');
+  const poison = fixture('master');
+  git(poison.main, 'update-ref', 'refs/remotes/origin/story/poison', poison.local);
+  git(poison.main, 'symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/story/poison');
+  expectRef('remote Story ref poison', poison, 'refs/heads/master');
+  const localPoison = fixture('story/primary', 'story/primary');
+  assert.equal(resolveRepositoryBaseline(localPoison.work), undefined, 'local and remote Story refs remain ineligible');
+  controls.push('local Story ref poison');
+  console.log('LOCAL_BASELINE fallback controls PASS ' + JSON.stringify(controls));
+
 } finally {
   for (const root of temporary) rmSync(root, { recursive: true, force: true });
 }
