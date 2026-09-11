@@ -1,0 +1,10 @@
+VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently
+VI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key
+VI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do
+VI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time
+VI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG proof-or-stop.config.json cannot register an unrecognised resource class
+VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: 164 commands, 164 declared, 0 exclusive by fail-closed default
+VI-OK B-E40F-CHK005-QUORUM-EXACT-SHARED-CLAIM quorum smoke keeps internal jobs=2, shared Git and an exact outer protected-root barrier
+VI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD 9 commands retain an effective exclusive local barrier
+VI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted
+validate-resource-claims: PASS (49 assertions)

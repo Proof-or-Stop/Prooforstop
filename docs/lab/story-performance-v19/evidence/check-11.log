@@ -1,0 +1,36 @@
+PERFORMANCE_MAIN_INTEGRATION_GREEN valid inventory consumer accepted
+CHECKLIST_PIN_INTEGRATION_GREEN reviewed-guard-present removal-rejected restored-control
+CERTIFICATION_MUTATOR_PIN_GREEN begin-cancel reject-before-store restored-control
+TREE_DELEGATE_BINDING_GREEN actual-delegate-mutation-refused restored-control
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: real doctor exits cleanly: [0.0s] running doctor...
+[11.2s] doctor done
+
+
+1 !== 0
+
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/tasks/story-owner-lease-smoke.js:647:16
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/scripts/verify-performance-main-integration.mjs:17
+ if (result.error || result.signal || result.status !== 0) throw new Error(`Integration regression failed: ${test}`);
+                                                                 ^
+
+Error: Integration regression failed: packages/main/dist/tasks/story-owner-lease-smoke.js
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/scripts/verify-performance-main-integration.mjs:17:66
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.8.1
