@@ -54,6 +54,10 @@ try {
     assert.ok(observed.exitCode !== 0 && observed.stderr.includes('CLI_RUNTIME_VERSION_MISMATCH'),
       `CLI_RUNTIME_VERSION_STALE_ACCEPTED: ${JSON.stringify(observed)}`);
     assert.ok(!observed.stdout.includes(`Proof-or-Stop ${original.version}`), 'must not report stale version as healthy');
+    if (entry === wrapper) {
+      assert.ok(observed.stderr.startsWith('CLI_RUNTIME_VERSION_MISMATCH:') && !observed.stderr.includes('Fallbacks:'),
+        'CLI_RUNTIME_STALE_FALLBACK_ADVERTISED: version drift must identify its cause without advertising the same stale entry');
+    }
    }
   }
   writeFileSync(manifest, JSON.stringify({ ...original, version: null }));
