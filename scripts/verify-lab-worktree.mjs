@@ -57,6 +57,13 @@ try {
   delete process.env.LAB_FIXTURE_AUDIT;
   assert.equal(git(unaudited, 'rev-parse', 'HEAD'), unauditedHead);
   cmd(unaudited, finish('unaudited'), 1, /Rejected Lab audit/);
+  cmd(unaudited,['reopen','unaudited','--confirm']);
+  cmd(unaudited,['green','unaudited']);
+  cmd(unaudited,finish('unaudited'),1,/changed repair content/);
+  assert.equal(git(unaudited,'rev-parse','HEAD'),unauditedHead);
+  cmd(unaudited,['reopen','unaudited','--confirm']);
+  write(unauditedLab,'repair.txt','Substantive fixture repair');commit(unauditedLab,'fix: resolve audit witness');
+  cmd(unaudited,['green','unaudited']);cmd(unaudited,finish('unaudited'));
   // Both host directions are selected mechanically; callers cannot choose the auditor.
   process.env.LAB_FIXTURE_DEVELOPER = 'claude';
   const reverse = fixture('reverse'); cmd(reverse, ['create', 'reverse']);
@@ -89,9 +96,10 @@ try {
   const transport = fixture('transport'); cmd(transport, ['create', 'transport']);
   const transportLab = join(transport, '.worktrees/Lab-transport');
   write(transportLab, 'bug.txt', 'fixed'); commit(transportLab, 'fix: malformed transport witness');
-  for (const mode of ['malformed','duplicate']) {
+  write(transportLab,'extra.txt','second audit reference');commit(transportLab,'test: multiple read references');
+  for (const [mode,pattern] of [['malformed',/malformed JSON/],['duplicate',/exactly one/],['omit-refs',/omitted changed-file read references/],['mutate-snapshot',/snapshot changed during provider execution/]]) {
     process.env.LAB_FIXTURE_AUDIT = mode;
-    cmd(transport, ['audit','transport'], 1);
+    cmd(transport, ['audit','transport'], 1, pattern);
     assert.equal(JSON.parse(cmd(transport,['status','transport'])).audit, undefined);
   }
   delete process.env.LAB_FIXTURE_AUDIT;

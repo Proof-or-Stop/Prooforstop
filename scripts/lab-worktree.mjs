@@ -7,7 +7,7 @@ import { join, resolve, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as labPolicy } from '../packages/main/src/core/runtime-fact-registry.ts';
 import { shouldBumpLabVersionForChangedPaths, shouldBuildDoneMainPackageForChangedPaths } from '../packages/main/src/core/runtime-version-policy.ts';
-import { auditInput, auditIsFresh, developerHost, executeLabAudit } from './lab-audit.mjs';
+import { repairContentDigest, auditInput, auditIsFresh, developerHost, executeLabAudit } from './lab-audit.mjs';
 import { auditProviders, selectAuditor } from './lab-audit-providers.mjs';
 
 const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote push)
@@ -327,6 +327,9 @@ async function main() {
       if (!s.developerHost) { s.developerHost = host; save(s); }
       const { config, selected, expected } = expectedAudit(auditRoot, base, head, host);
       if (auditIsFresh(s.audit, expected)) return;
+      const repairHead = s.phase !== 'active' && s.candidate === head ? git(auditRoot, 'rev-parse', `${head}^`) : head;
+      const contentDigest = repairContentDigest(auditRoot, base, repairHead);
+      if (s.history.some(row => row.kind === 'cross-host-audit' && row.decision === 'fail' && row.repairContentDigest === contentDigest)) fail('Rejected Lab audit requires changed repair content before another audit.');
       if (s.audit?.decision === 'fail' && Object.entries(expected).every(([key, value]) => s.audit[key] === value)) fail('Rejected Lab audit requires a changed candidate before another audit.');
       console.log(`Running independent ${selected.auditor.id} (${selected.auditor.vendor}) CLI Lab audit for ${head}...`);
       const started = Date.now();
@@ -337,6 +340,7 @@ async function main() {
         if (sha(s.path) !== head) fail('Lab changed during audit; result is stale.');
         assertClean(s.path, s.override);
       } else assertAncestor(mainRoot, head, 'main');
+      audit.repairContentDigest = contentDigest;
       s.audit = audit; s.history.push({ kind: 'cross-host-audit', ...audit }); save(s);
       if (!auditIsFresh(audit, expected)) fail(`Independent Lab audit rejected the candidate. Resolve findings and reopen if prepared. Evidence: ${audit.evidenceDir}`);
     };

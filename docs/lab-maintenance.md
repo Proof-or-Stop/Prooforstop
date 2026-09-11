@@ -167,7 +167,7 @@ with the holder's operation lock. Long synchronous checks retain a heartbeat and
 must still own their lock and original signing key before publishing a result.
 The 120-second fallback stale threshold spans four 30-second heartbeat intervals,
 so a missing process-start probe does not expire a live operation between beats.
-New records use signed schema 2. An existing schema-1 Lab first takes the main
+The operation-lock protocol introduced signed schema 2; mandatory vendor audit below now uses schema 3. An existing schema-1 Lab first takes the main
 lock briefly to record its upgrade, waiting for operator retry if an old writer
 is active. The long test runs after this upgrade releases the main lock. Older
 Lab scripts reject schema 2 instead of bypassing its operation lock; use the
@@ -308,7 +308,7 @@ output, stale binding, changed snapshot or incomplete cleanup prevents passing.
 
 Finish audits the prepared candidate before merging and reuses only its exact
 fresh passing record on recovery. An early audit cannot approve later commits or
-a changed baseline/configuration. Rejected unchanged candidates cannot be rerolled;
+a changed baseline/configuration. Rejected unchanged candidates cannot be rerolled, including after reopening and regenerating a release commit;
 reopen and repair a prepared candidate before retrying. Raw provider output,
 process receipts, duration and verdict remain under the Git common Lab audit
 directory; the local HMAC record pins the result. Synthetic fixture CLIs only test
@@ -320,3 +320,5 @@ the shared lock and must earn the audit before integration. The executing truste
 Lab checkout supplies both version and build policy; version numbers always start
 from synchronized latest main. Use the reviewed updated Lab executable when
 bootstrapping a change to the Lab tool itself.
+
+Audit inputs must be valid UTF-8 text with exact path names. Immutable commit inputs are cached only within one command process. Rejected repair-content digests cover the complete pre-release diff, including manually edited manifests and notes, while excluding only the tool-generated release commit. Reopening or regenerating a release without changing that repair diff cannot request another audit.

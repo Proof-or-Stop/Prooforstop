@@ -9,7 +9,11 @@ export const LAB_AUDIT_SCHEMA = 'proof-or-stop.lab-cross-host-audit.v1';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const INPUT_LIMIT = 8 * 1024 * 1024;
 function readGitText(cwd, args, label = args.join(' ')) {
-  try { return execFileSync('git', args, { cwd, encoding: 'utf8', maxBuffer: INPUT_LIMIT, stdio: ['ignore', 'pipe', 'pipe'] }); }
+  try {
+    const bytes = execFileSync('git', args, { cwd, maxBuffer: INPUT_LIMIT, stdio: ['ignore', 'pipe', 'pipe'] });
+    try { return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes); }
+    catch { throw new Error(`Lab audit input violates the bounded text contract: invalid UTF-8 (${label}).`); }
+  }
   catch (error) {
     if (error.code === 'ENOBUFS' || /maxBuffer|ENOBUFS/.test(error.message)) throw new Error(`Lab audit input exceeds the bounded text contract; split the repair (${label}).`);
     throw error;
@@ -24,19 +28,28 @@ export function developerHost(explicit, env = process.env) {
   if (!selected || !/^[a-z][a-z0-9-]*$/.test(selected)) throw new Error('Lab audit requires a declared developer provider.');
   return selected;
 }
+const inputCache = new Map();
+export function repairContentDigest(cwd, base, repairHead) {
+  return hash(readGitText(cwd, ['diff', '--no-ext-diff', '--no-textconv', '--raw', '--no-abbrev', '-z', base, repairHead]));
+}
 export function auditInput(cwd, base, head) {
-  const paths = git(cwd, 'diff', '--name-only', '-z', base, head).split('\0').filter(Boolean);
+  // Only immutable object IDs are cacheable; symbolic refs must be resolved afresh.
+  const key = /^[a-f0-9]{40,64}$/.test(base) && /^[a-f0-9]{40,64}$/.test(head) ? JSON.stringify([cwd, base, head]) : undefined;
+  if (key && inputCache.has(key)) return inputCache.get(key);
+  const paths = readGitText(cwd, ['diff', '--name-only', '-z', base, head]).split('\0').filter(Boolean);
   const files = paths.map(path => {
-    const entry = git(cwd, 'ls-tree', head, '--', path);
+    const entry = git(cwd, '--literal-pathspecs', 'ls-tree', head, '--', path);
     if (!entry) return { path, content: '[deleted; complete prior content is in the diff]' };
     if (!/^\d+ blob /.test(entry)) throw new Error(`Lab audit cannot inspect a non-blob input: ${path}`);
     // An unreadable or oversized existing file must fail, never become a passing placeholder.
     const content = readGitText(cwd, ['show', `${head}:${path}`], path);
     return { path, content };
   });
-  const input = JSON.stringify({ base, head, diff: git(cwd, 'diff', '--no-ext-diff', '--no-textconv', base, head), files });
+  const input = JSON.stringify({ base, head, diff: readGitText(cwd, ['diff', '--no-ext-diff', '--no-textconv', base, head]), files });
   if (Buffer.byteLength(input) > INPUT_LIMIT || files.some(file => file.content.includes('\0'))) throw new Error('Lab audit input exceeds the bounded text contract; split the repair.');
-  return { input, inputDigest: hash(input), paths, files };
+  const result = Object.freeze({ input, inputDigest: hash(input), paths: Object.freeze(paths), files: Object.freeze(files.map(Object.freeze)) });
+  if (key) inputCache.set(key, result);
+  return result;
 }
 const object = properties => ({ type: 'object', additionalProperties: false, required: Object.keys(properties), properties });
 const str = { type: 'string' };
@@ -45,19 +58,19 @@ export function auditSchema() {
     head: str, base: str, inputDigest: str, configDigest: str, developerVendor: str, auditorVendor: str, runId: str, decision: { type: 'string', enum: ['pass', 'fail'] }, summary: str,
     readRefs: { type: 'array', items: str }, findings: { type: 'array', items: object({ severity: str, file: str, problem: str, fix: str }) } });
 }
-export function parseAuditResult(stdout, host, binding) {
+export function parseAuditResult(stdout, protocol, binding) {
   let events;
   try { events = stdout.trim().split('\n').filter(Boolean).map(line => JSON.parse(line)); }
   catch { throw new Error('Lab audit transport contains malformed JSON.'); }
   let candidates;
-  if (host === 'lab-json') {
+  if (protocol === 'lab-json') {
     candidates = events;
     if (candidates.length !== 1) throw new Error('Lab adapter must return exactly one structured result.');
-  } else if (host === 'claude') {
+  } else if (protocol === 'claude-jsonl') {
     const terminal = events.filter(e => e.type === 'result');
     if (terminal.length !== 1 || terminal[0].subtype !== 'success' || terminal[0].is_error === true) throw new Error('Lab audit requires exactly one successful Claude result.');
     candidates = [terminal[0].structured_output];
-  } else {
+  } else if (protocol === 'codex-jsonl') {
     if (events.some(e => e.type === 'turn.failed' || e.type === 'error')) throw new Error('Lab audit Codex turn failed.');
     const messages = events.filter(e => e.type === 'item.completed' && e.item?.type === 'agent_message').map(e => e.item.text);
     candidates = messages.flatMap(text => { try { const p = JSON.parse(text); return p.schemaVersion === LAB_AUDIT_SCHEMA ? [p] : []; } catch { return []; } });
@@ -65,6 +78,7 @@ export function parseAuditResult(stdout, host, binding) {
     try { tail = JSON.parse(messages.at(-1)); } catch { tail = undefined; }
     if (!messages.length || candidates.length !== 1 || JSON.stringify(tail) !== JSON.stringify(candidates[0])) throw new Error('Lab audit requires exactly one final Codex proposal without trailing prose.');
   }
+  else throw new Error(`Unsupported Lab audit protocol: ${protocol}`);
   const result = candidates[0];
   const keys = Object.keys(auditSchema().properties);
   if (!result || Array.isArray(result) || Object.keys(result).length !== keys.length || keys.some(k => !Object.hasOwn(result, k))
@@ -135,7 +149,7 @@ export async function executeLabAudit({ cwd, base, head, developer, labName, evi
   writeFileSync(join(dir, 'process.json'), JSON.stringify(result, null, 2));
   if (overflow || !result.spawned || result.blocked || result.exitCode !== 0 || result.timedOut || !result.processIdentity
     || !result.closeObserved || !result.replacementSafe || result.residualProcessGroup || !result.processCleanup?.reaped || result.processCleanup?.residualProcessGroup) throw new Error(`Lab audit provider failed or cleanup is incomplete; evidence: ${dir}`);
-  const proposal = parseAuditResult(stdout, selection.auditor.protocol === 'lab-json' ? 'lab-json' : auditorHost, binding);
+  const proposal = parseAuditResult(stdout, selection.auditor.protocol, binding);
   if (paths.some(path => !proposal.readRefs.includes(path))) throw new Error(`Lab audit omitted changed-file read references; evidence: ${dir}`);
   if (files.some(file => readFileSync(join(dir, 'snapshot', file.path), 'utf8') !== file.content)) throw new Error('Lab audit snapshot changed during provider execution.');
   const record = { ...proposal, process: { exitCode: result.exitCode, closeObserved: result.closeObserved, replacementSafe: result.replacementSafe, processCleanup: result.processCleanup, processIdentity: result.processIdentity }, durationMs: result.durationMs, evidenceDir: dir, stdoutDigest: hash(stdout), promptDigest: hash(prompt) };
