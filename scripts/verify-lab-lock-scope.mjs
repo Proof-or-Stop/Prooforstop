@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
+import { copyLabFixtureSources } from './lab-fixture-sources.mjs';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, existsSync, rmSync, renameSync, chmodSync, utimesSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, readlinkSync, existsSync, rmSync, renameSync, chmodSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,7 +52,7 @@ function tree(path) {
     if (!existsSync(base)) { hash.update(`absent:${rel}`); return; }
     for (const entry of readdirSync(base, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
       const name = join(rel, entry.name), full = join(base, entry.name); hash.update(`${name}\0`);
-      if (entry.isDirectory()) visit(full, name); else hash.update(readFileSync(full));
+      if (entry.isDirectory()) visit(full, name); else if (entry.isSymbolicLink()) hash.update(readlinkSync(full)); else hash.update(readFileSync(full));
     }
   }
   visit(path); return hash.digest('hex');
@@ -62,9 +63,7 @@ function fixture(name) {
   write(repo, '.gitignore', '.worktrees/\n.proof-or-stop/\n');
   for (const rel of ['package.json', 'packages/main/package.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', type: 'module' }));
   write(repo, 'CHANGELOG.md', '# Changelog\n');
-  for (const name of ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']) {
-    write(repo, `packages/main/src/core/${name}.ts`, readFileSync(join(root, `packages/main/src/core/${name}.ts`)));
-  }
+  copyLabFixtureSources(root, repo, ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']);
   write(repo, 'bug.txt', 'broken');
   write(repo, 'check.mjs', `import fs from 'node:fs'; import path from 'node:path';
 const [events, holdText] = process.argv.slice(2); const id = path.basename(process.cwd());
@@ -177,7 +176,7 @@ try {
   assert.equal(command(migration, red('old', migrationEvents, 20)).status, 0);
   const adopted = state(migration, 'old'); const eventCount = eventsAt(migrationEvents).length;
   const legacyRetry = command(migration, red('old', migrationEvents, 1), legacyScript);
-  expect('old CLI cannot mutate or execute after signed schema migration', adopted.schema === 2 && legacyRetry.status === 1 && /Invalid Lab record/.test(legacyRetry.output) && eventsAt(migrationEvents).length === eventCount);
+  expect('old CLI cannot mutate or execute after signed schema migration', adopted.schema === 3 && legacyRetry.status === 1 && /Invalid Lab record/.test(legacyRetry.output) && eventsAt(migrationEvents).length === eventCount);
 
   for (const fault of ['key', 'ownership']) {
     const fenced = fixture(`fence-${fault}`); assert.equal(command(fenced, ['create', 'fence']).status, 0);

@@ -245,3 +245,74 @@ ambiguous references, duplicate command IDs and mixed reference forms yield an
 unknown budget and block enforce mode. Distinct commands using `node` cannot
 stand in for each other. This identity repair does not enable or calibrate the
 root repository scope budget policy.
+
+## Mandatory independent vendor audit
+
+Lab finish requires at least one actual audit from a vendor different from the
+development provider. It is not a fixed Claude/Codex pair. Built-in adapters map
+Codex to OpenAI and Claude CLI to Anthropic. The default selects an available
+adapter from a different vendor; an explicit preferred auditor is also supported.
+Missing executables, same-vendor selections and failed reviews block integration.
+There is no skip flag or caller-supplied approval path.
+
+```sh
+npm run lab:worktree -- create repair-name --developer codex
+npm run lab:worktree -- audit repair-name --developer codex
+npm run lab:worktree -- finish repair-name --notes /absolute/path/notes.md --confirm --bump patch
+```
+
+To register another vendor, have the operator review and integrate
+`lab-audit.config.json` on main. Audits consume that trusted baseline configuration;
+a candidate cannot select its own auditor by changing the configuration:
+
+```json
+{
+  "adapters": [{
+    "id": "grok",
+    "vendor": "xai",
+    "command": "/absolute/path/to/grok-audit-adapter",
+    "argv": ["--schema", "{schema}"],
+    "protocol": "lab-json"
+  }],
+  "preferredAuditor": "grok"
+}
+```
+
+The example names a required local adapter, not an assumed Grok CLI command or
+an installed integration. A custom adapter must consume the prompt on stdin,
+accept the supplied schema file if needed, invoke its declared vendor in a
+read-only mode, and return exactly one JSON verdict matching the schema. No shell
+interpolation is performed. Built-in IDs cannot be overridden. Provider/vendor
+registration is trusted local operator configuration, not remote vendor
+attestation; a malicious executable or dishonest vendor declaration is outside
+that trust boundary. The tool captures the actual invocation and process result.
+
+Supported host context supplies the developer identity when available; otherwise
+an explicit provider declaration is required. Conflicting host context or a change
+to the pinned developer is refused. This is attributable host identity, not
+cryptographic proof of who edited each byte. Mixed-provider implementation must
+be scoped separately rather than relabeling an existing Lab.
+
+Audit receives the exact committed diff and complete changed-file contents,
+inline or in a read-only snapshot. It runs through shared provider admission and
+the process supervisor. A strict structured verdict binds the Lab, developer and
+auditor IDs and vendors, candidate HEAD, main baseline, complete input digest,
+provider-configuration digest and invocation ID. Read references must cover the
+changed paths; these are the auditor's declarations, not independent filesystem
+read receipts. Any finding, failed invocation, timeout, malformed/duplicate
+output, stale binding, changed snapshot or incomplete cleanup prevents passing.
+
+Finish audits the prepared candidate before merging and reuses only its exact
+fresh passing record on recovery. An early audit cannot approve later commits or
+a changed baseline/configuration. Rejected unchanged candidates cannot be rerolled;
+reopen and repair a prepared candidate before retrying. Raw provider output,
+process receipts, duration and verdict remain under the Git common Lab audit
+directory; the local HMAC record pins the result. Synthetic fixture CLIs only test
+the transport/gates and never count as independent provider audit of this repo.
+These local records do not create formal Story evidence.
+
+Schema 3 fences older writers after adoption. Existing active Labs upgrade under
+the shared lock and must earn the audit before integration. The executing trusted
+Lab checkout supplies both version and build policy; version numbers always start
+from synchronized latest main. Use the reviewed updated Lab executable when
+bootstrapping a change to the Lab tool itself.

@@ -76,7 +76,8 @@ async function main() {
   const labLoader = read(root, 'scripts/lab-source-loader.mjs');
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
   const labWorktree = read(root, 'scripts/lab-worktree.mjs');
-  check(registrySource.includes("worktreeOnlyActions: ['red', 'green']") && labWorktree.includes('labPolicy.worktreeOnlyActions.includes(action)'), 'Lab RED/GREEN must consume the registered main-lock exclusion');
+  check(registrySource.includes('auditRequired: true') && registrySource.includes('recordSchema: 3') && labWorktree.includes('ensureAudit'), 'Lab requires opposite-host audit and rejects pre-audit record writers');
+  check(registrySource.includes("worktreeOnlyActions: ['red', 'green', 'audit']") && labWorktree.includes('labPolicy.worktreeOnlyActions.includes(action)'), 'Lab RED/GREEN must consume the registered main-lock exclusion');
   check(registrySource.includes("statusAccess: 'read-only-without-lock-or-trust-initialization'") && labWorktree.indexOf("if (action === 'status')") < labWorktree.indexOf('labLock = acquireMkdirLock'), 'Lab status must not acquire a write lock');
   check(registrySource.includes("mutationLockOrder: 'lab-then-main'") && labWorktree.includes('heartbeatMs: labPolicy.operationHeartbeatMs') && labWorktree.includes('staleMs: labPolicy.operationStaleMs') && labWorktree.includes('!labLock.isCurrent()'), 'Lab operations must retain registered heartbeat, stale threshold and ownership checks');
   check(labWorktree.includes('labPolicy.readableRecordSchemas.includes(state.schema)') && labWorktree.includes('lab record upgrade') && labWorktree.includes('schema: labPolicy.recordSchema'), 'Lab record schema migration must fence older main-only writers');

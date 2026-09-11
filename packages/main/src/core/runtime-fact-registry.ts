@@ -439,13 +439,17 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   synchronousModuleHooks: true,
   execution: 'checkout-source',
   globalInstallationMutation: false,
-  worktreeOnlyActions: ['red', 'green'],
+  worktreeOnlyActions: ['red', 'green', 'audit'],
   statusAccess: 'read-only-without-lock-or-trust-initialization',
   mutationLockOrder: 'lab-then-main',
   operationHeartbeatMs: 30000,
   operationStaleMs: 120000,
-  recordSchema: 2,
-  readableRecordSchemas: [1, 2],
+  auditBuiltinVendors: { codex: 'openai', claude: 'anthropic' },
+  auditCustomProtocol: 'lab-json',
+  auditIndependence: 'different-vendor',
+  auditRequired: true,
+  recordSchema: 3,
+  readableRecordSchemas: [1, 2, 3],
 } as const;
 
 
