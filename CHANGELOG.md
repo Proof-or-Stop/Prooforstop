@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab native-critic-dispatch-purpose - v0.3.328 - 2026-09-11
+
+Native completeness-critic evidence retains its signed dispatch purpose during read-side revalidation. Previously a genuine inventory-completeness broker attestation was looked up in the topology dispatch namespace and rejected. The minimal change forwards ReviewRun.reviewPurpose and inventoryBinding to the existing dispatch verifier; existing signatures, native execution identity, freshness and replay checks remain active.
+
+The committed regression constructs genuine required reviewer lanes and an inventory-completeness critic through official native dispatch/run/pass handlers, then calls collectReviewerEvidenceState on the actual proof. It recorded target RED before repair and GREEN afterward with the same command. Wrong-purpose, substituted-inventory and tampered signed-pass rejection controls remain passing. The process-fact contract verifier also passes. This Lab does not claim full REVIEW-to-TEST lifecycle completion or formal Story acceptance; it repairs the demonstrated read-side rejection.
+
+Commands: node scripts/verify-native-critic-dispatch-purpose.mjs; node scripts/verify-process-fact-contract.mjs. No remote publication.
+
+Maintenance provenance: codex/lab-native-critic-dispatch-purpose, repair 504b9bd54995d82683d3a62fcc8270b179d60e8a.
+Verification command (replayed before integration and on main): `["node","scripts/verify-native-critic-dispatch-purpose.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab convergence-certification-consumption - v0.3.327 - 2026-09-11
 
 Repair completed convergence history after legitimate certification consumption. Exclude the later signed consumedByCertificationWindowId lifecycle output from both epoch and receipt completion projections, retaining signature checks and all remaining completion claims. Certification independently enforces consumption authority; no new gate authority is granted.
