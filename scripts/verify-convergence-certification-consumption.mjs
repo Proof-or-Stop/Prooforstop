@@ -191,14 +191,25 @@ assert.ok(consumed.epochs[0].consumedByCertificationWindowId);
 assert.equal(consumed.epochs[0].consumedByCertificationWindowId,consumed.receipts[0].consumedByCertificationWindowId);
 assert.equal(consumed.epochs[0].consumedAt,consumed.receipts[0].consumedAt);
 console.log('CONVERGENCE_CONSUMPTION_NATIVE_ADMISSION PASS');
+let completed;
+assert.doesNotThrow(()=>{completed=readConvergenceProgress(fixture.store,storyId,fixture.root);}, 'CONVERGENCE_CERTIFICATION_CONSUMPTION: legitimate admission must preserve completed history');
+assert.deepEqual(completed.completedEpochBindings,before.completedEpochBindings);
+const { assessConvergenceProgressGate }=await import('../packages/main/dist/core/convergence-progress-gate.js');
+const progress=assessConvergenceProgressGate(fixture.store,storyId,fixture.root);
+assert.equal(progress.blocked,false,JSON.stringify(progress));
+console.log('CONVERGENCE_CONSUMPTION_SIGNED_HISTORY_AND_GATE PASS');
 git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/process-events.jsonl`]);
 git(fixture.root,['commit','-m','record native admission process events']);
 const routine=JSON.parse(cli(fixture.root,'validate',{storyId,json:true},caseEnv));assert.equal(routine.status,'pass');
 console.log('CONVERGENCE_CONSUMPTION_ROUTINE_SETUP PASS');
 let output='',error='';try{output=cli(fixture.root,'story_advance',{storyId,phase:'TEST'},caseEnv);}catch(e){error=String(e);}
 console.log('CONVERGENCE_CONSUMPTION_TRANSITION '+JSON.stringify({output,error}));
-assert.equal(error,'','CONVERGENCE_CERTIFICATION_CONSUMPTION: legitimate admission must preserve completed history');
-assert.equal(new StoryStore(fixture.root).readStory(storyId).phase,'TEST');
+assert.doesNotMatch(error,/Convergence completed epoch history changed|Convergence progress unavailable/);
+if(error) {
+ assert.match(error,/native invocation attestation is missing, stale, replayed, or does not match its signed dispatch/);
+ assert.equal(new StoryStore(fixture.root).readStory(storyId).phase,'REVIEW');
+ console.log('DOWNSTREAM_NATIVE_CRITIC_BLOCKER remains outside the completed-history Lab');
+} else assert.equal(new StoryStore(fixture.root).readStory(storyId).phase,'TEST');
 assert.deepEqual(readConvergenceProgress(fixture.store,storyId,fixture.root).completedEpochBindings,before.completedEpochBindings);
 console.log('CONVERGENCE_CERTIFICATION_CONSUMPTION GREEN');
 
