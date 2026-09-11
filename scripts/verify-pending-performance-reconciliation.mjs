@@ -5,11 +5,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import ts from 'typescript';
-import {
-  RUNTIME_ARTIFACT_REGISTRY as registry,
-  findRuntimeArtifactEntry as find,
-  normalizeRuntimeArtifactPath as normalize,
-} from '../packages/main/src/core/runtime-artifact-registry.ts';
+// Resolve the TypeScript closure only after the source loader has registered.
+const {
+  RUNTIME_ARTIFACT_REGISTRY: registry,
+  findRuntimeArtifactEntry: find,
+  normalizeRuntimeArtifactPath: normalize,
+} = await import('../packages/main/src/core/runtime-artifact-registry.ts');
 
 const groups = [];
 function group(name, run) {
