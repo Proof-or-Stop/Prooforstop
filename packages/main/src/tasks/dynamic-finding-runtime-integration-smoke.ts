@@ -22,6 +22,7 @@ import { findingQualificationWorkflowQuery } from '../handlers/finding-qualifica
 import { collectQualificationSubjectAdjudications } from '../handlers/finding-qualification-adjudication.js';
 
 if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
+const prerequisiteAudit = process.argv.includes('--prerequisite-proof');
 
 const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-dfec-runtime-'));
 const beforeCwd = process.cwd();
@@ -51,12 +52,13 @@ evaluationScope:'target_story',verdict:'applicable',reproduced:broken,baseReprod
 gateImpact:'blocks',affectedPaths:['defect.mjs'],checkedIntentRefs:['CHK-001:happy:0','CHK-001:edge:0'],
 protectedSurfaceEvaluation:${JSON.stringify(FINDING_PROTECTED_SURFACES.map(surface => ({ surface, state: 'clear', evidenceRefs: ['CHK-001:happy:0'] })))} }));
 process.exitCode=broken?1:0;`);
-  write('qualification.mjs', `import {StoryStore} from ${JSON.stringify(new URL('../core/store.js', import.meta.url).href)};
+  write('qualification.mjs', `import {execFileSync} from 'node:child_process';
+import {StoryStore} from ${JSON.stringify(new URL('../core/store.js', import.meta.url).href)};
 import {exactLedgerRecordHash} from ${JSON.stringify(new URL('../handlers/finding-ledger.js', import.meta.url).href)};
 const entry=new StoryStore(process.cwd()).readFindingLedger(${JSON.stringify(storyId)}).records.filter(row=>row.recordType==='finding_applicability_assessment').at(-1);const source=entry.payload;
 console.log('FINDING_QUALIFICATION '+JSON.stringify({schemaVersion:${JSON.stringify(FINDING_QUALIFICATION_POLICY.version)},assessmentId:source.assessmentId,
 population:'adversarial',storyClass:'isolated-fixture',detectorVersion:'fixture-v1',retryPolicy:'No retries',exclusions:[],
-timingSeconds:{classifier:0,triage:0,repair:0,convergence:0},prerequisites:[],simpleStoryRegression:null,timeoutRate:0,latencyCorpusSize:1,candidateBaselineExplained:true,
+timingSeconds:{classifier:0,triage:0,repair:0,convergence:0},prerequisites:${prerequisiteAudit ? "[{name:'dependency_mutation_suite',mergedCommit:execFileSync('git',['rev-parse','main'],{encoding:'utf8'}).trim()}]" : '[]'},simpleStoryRegression:null,timeoutRate:0,latencyCorpusSize:1,candidateBaselineExplained:true,
 subjectAdjudications:[{ref:{storyId:${JSON.stringify(storyId)},recordId:entry.recordId,recordHash:exactLedgerRecordHash(entry)},
 expected:{kind:'finding_applicability_assessment',findingId:${JSON.stringify(findingId)},verdict:'applicable',dispositionPlan:'repair_current',gateImpact:'blocks'},
 rationale:'The independent fixture oracle requires repair because the controlled broken export reproduces and blocks its accepted result.'}],
@@ -144,6 +146,13 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
     command: 'review_pass_set', payload: { storyId, agent: independent, reviewRunId: independentRun,
       readManifest: { filesReadFully: ['qualification.mjs', 'witness.mjs'], filesTriagedByName: [], scanEscalationReason: null },
       note: `Independent isolated qualification measurement audit.\n${marker}` } });
+  if (prerequisiteAudit) {
+    const before = store.readFindingLedger(storyId).committedLedgerDigest;
+    assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: independent, invoke: () => handlers.finding_qualification_record(qualifierArgs) }),
+      /qualification: prerequisite/, 'unrelated ancestor without a capability receipt must refuse');
+    assert.equal(store.readFindingLedger(storyId).committedLedgerDigest, before);
+    console.log('QUALIFICATION_PREREQUISITE PASS ancestry alone is not proof');
+  } else {
   const qualified = withNativeReviewFixtureHostIdentity({ agent: independent, invoke: () => handlers.finding_qualification_record(qualifierArgs) });
   assert.ok(qualified); assert.equal(handlers.finding_qualification_query({ storyId }).rows.length, 1);
   const measuredCase = handlers.finding_qualification_query({ storyId }).rows[0]!.payload;
@@ -195,4 +204,5 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
   assert.notEqual(handlers.finding_triage({ storyId }).rows[0]!.decision.reason, 'complete_repair_closure');
   pass('runtime key revocation reopens closure; metadata reuse never waives runtime trust');
   console.log(`DYNAMIC_FINDING_RUNTIME_INTEGRATION PASS ${assertions}`);
+  }
 } finally { process.chdir(beforeCwd); rmSync(root, { recursive: true, force: true }); }

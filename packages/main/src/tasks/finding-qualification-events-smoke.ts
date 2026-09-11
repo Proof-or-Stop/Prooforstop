@@ -8,6 +8,8 @@ import { resetConfigCache } from '../core/config.js';
 import { createFindingLedgerHandlers } from '../handlers/finding-ledger.js';
 import { collectFindingQualificationEvents, findingQualificationWorkflowQuery } from '../handlers/finding-qualification-events.js';
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
+import { buildFindingQualificationScorecard, FINDING_QUALIFICATION_POLICY, type FindingQualificationCorpus } from '../core/finding-rollout-qualification.js';
+import { applicabilityDigest } from '../core/finding-applicability.js';
 
 const root = mkdtempSync(join(tmpdir(), 'finding-collector-')); const oldCwd = process.cwd();
 const write = (path: string, text: string) => writeFileSync(join(root, path), text);
@@ -61,6 +63,21 @@ assert.equal(d.blocking,process.argv[2]!=='negative-control');`);
   assert.equal(matched.measurements.find(row => row.metric === 'review_convergence_reduction')?.numerator, 0.5);
   assert.equal(matched.performanceMetadata?.timingSeconds.repair, 0);
   assert.equal(matched.performanceMetadata?.timeoutRate, null); assert.equal(matched.performanceMetadata?.latencyCorpusSize, 0);
+  if (process.argv.includes('--cohort-proof')) {
+    const repeated = collectFindingQualificationEvents(ctx, { ...input, caseId: 'second-finding-case',
+      matchedCohort: { baselineStoryId: baselineId, candidateStoryId: candidateId } });
+    const now = new Date();
+    const corpus: FindingQualificationCorpus = { policyDigest: applicabilityDigest(FINDING_QUALIFICATION_POLICY), featureState: 'warn',
+      window: { start: new Date(t).toISOString(), end: now.toISOString() }, repositoryHeads: ['fixture'], storyClasses: ['feature'], detectorVersions: ['fixture'],
+      retryPolicy: 'No retries', exclusions: [], latencyHardware: 'Fixture', timingSeconds: { classifier: 0, triage: 0, repair: 0, convergence: 0 },
+      prerequisites: {}, measurements: [...matched.measurements, ...repeated.measurements], simpleStoryRegression: 0, timeoutRate: 0,
+      latencyCorpusSize: 0, candidateBaselineExplained: true };
+    const report = buildFindingQualificationScorecard(corpus, now);
+    const row = report.rows.find(row => row.metric === 'review_convergence_reduction')!;
+    assert.equal(row.denominator, 1, 'one completed cohort must not become two observations through two Finding case IDs');
+    assert.equal(report.qualification.caseCount, 0, 'cohort timing is not an independent Finding observation');
+    console.log('QUALIFICATION_COHORT PASS one cohort one measurement');
+  }
   assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, matchedCohort: { baselineStoryId: baselineId, candidateStoryId: baselineId } }), /distinct/);
   store.writeStory(candidateId, { ...store.readStory(candidateId), phase: 'REVIEW' });
   assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, matchedCohort: { baselineStoryId: baselineId, candidateStoryId: candidateId } }), /completed/);
