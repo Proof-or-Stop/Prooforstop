@@ -1,7 +1,5 @@
 import assert from 'node:assert/strict';
-import { LAB_AUDIT_SCHEMA, oppositeHost, developerHost, parseAuditResult, auditIsFresh } from './lab-audit.mjs';
-assert.equal(oppositeHost('codex'),'claude'); assert.equal(oppositeHost('claude'),'codex');
-assert.throws(()=>oppositeHost('unknown'));
+import { LAB_AUDIT_SCHEMA, developerHost, parseAuditResult, auditIsFresh } from './lab-audit.mjs';
 assert.throws(()=>developerHost('claude',{CODEX_THREAD_ID:'x'}),/conflicts/);
 assert.throws(()=>developerHost(undefined,{}),/declared/);
 const binding={schemaVersion:LAB_AUDIT_SCHEMA,labName:'fixture',developerHost:'codex',auditorHost:'claude',head:'a',base:'b',inputDigest:'c',configDigest:'e',developerVendor:'openai',auditorVendor:'anthropic',runId:'d'};
@@ -16,7 +14,7 @@ const process={exitCode:0,replacementSafe:true,closeObserved:true,processCleanup
 assert.equal(auditIsFresh({...proposal,process},binding),true);
 assert.equal(auditIsFresh({...proposal,process:{...process,replacementSafe:false}},binding),false);
 assert.equal(auditIsFresh({...proposal,process},{...binding,head:'changed'}),false);
-console.log('LAB_AUDIT_CONTRACT PASS host selection, strict output, stale bindings, duplicates and cleanup');
+console.log('LAB_AUDIT_CONTRACT PASS strict output, stale bindings, duplicates and cleanup');
 
 const {selectAuditor}=await import('./lab-audit-providers.mjs');
 const adapter={id:'grok',vendor:'xai',command:'grok-audit-adapter',argv:['--schema','{schema}'],protocol:'lab-json'};
@@ -43,3 +41,12 @@ try {
   assert.throws(()=>auditInput(repo,base,git('rev-parse','HEAD')),/bounded text/);
   console.log('LAB_AUDIT_INPUT PASS literal escapes accepted, actual binary refused');
 } finally {rmSync(repo,{recursive:true,force:true});}
+
+const {runCustomAuditAdapter}=await import('./lab-audit.mjs');
+for(const stage of ['before-spawn','after-spawn']) {
+  let released=0;
+  const admissionApi={acquireProviderProcessAdmission:()=>({admitted:true}),transferProviderProcessAdmissionToProvider:()=>true,releaseProviderProcessAdmission:()=>released++};
+  await assert.rejects(()=>runCustomAuditAdapter({command:'fixture',env:{}},'/tmp',new AbortController(),{admissionApi,runner:async plan=>{if(stage==='after-spawn')plan.onSpawn({pid:1});throw new Error('fixture spawn failure');}}),/fixture spawn failure/);
+  assert.equal(released,stage==='before-spawn'?1:0);
+}
+console.log('LAB_AUDIT_ADMISSION PASS pre-spawn release and unknown-child retention');

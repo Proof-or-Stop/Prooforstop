@@ -18,5 +18,6 @@ console.log(JSON.stringify(event));
 if(mode==='duplicate')console.log(JSON.stringify(event));
 `;
   for (const host of ['claude','codex','grok-fixture-adapter']) { writeFileSync(join(bin,host),body); chmodSync(join(bin,host),0o755); }
+  writeFileSync(join(bin,'nonexecutable-adapter'),body); chmodSync(join(bin,'nonexecutable-adapter'),0o644);
   return bin;
 }

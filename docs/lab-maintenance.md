@@ -14,7 +14,7 @@ Run it from a checkout of this repository. A checked-out local `main` is require
 ## One repair cycle
 
 ```sh
-npm run lab:worktree -- create slow-query
+npm run lab:worktree -- create slow-query --developer codex
 cd .worktrees/Lab-slow-query
 npm run lab:worktree -- sync slow-query
 ```
@@ -191,7 +191,9 @@ reused after cleanup, preserving its record; choose a new repair name.
 - Dirty main or Lab: preserve/commit the pending work, then retry. No automatic stash.
 - Merge conflicts: resolve and commit them in Lab, rerun GREEN, then finish.
 - Failed build without source changes (for example missing dependencies): repair
-  the environment and retry finish with the same notes file. Version is not bumped twice.
+  the environment and retry finish with the same notes file. The pinned developer is reused even
+  in a plain terminal; for an unpinned legacy Lab supply `--developer PROVIDER`.
+  Version is not bumped twice.
 - Prepared candidate needs source changes, new notes, or main advanced: run
   `npm run lab:worktree -- reopen NAME --confirm`. This reverts only the generated
   release commit, preserves repair history, and invalidates GREEN. Sync main,
@@ -288,10 +290,12 @@ attestation; a malicious executable or dishonest vendor declaration is outside
 that trust boundary. The tool captures the actual invocation and process result.
 
 Supported host context supplies the developer identity when available; otherwise
-an explicit provider declaration is required. Conflicting host context or a change
-to the pinned developer is refused. This is attributable host identity, not
-cryptographic proof of who edited each byte. Mixed-provider implementation must
-be scoped separately rather than relabeling an existing Lab.
+an explicit provider declaration is required. `finish` also accepts
+`--developer PROVIDER` for an older Lab that has not pinned its developer. The developer is pinned once; later audit/finish operators may use a plain
+terminal or a different host without changing that attribution. An explicit
+conflicting developer declaration is refused. This is attributable host identity, not
+cryptographic proof of who edited each byte. Do not relabel an existing Lab merely because a different operator retries its
+release; the recorded developer still owns the implementation.
 
 Audit receives the exact committed diff and complete changed-file contents,
 inline or in a read-only snapshot. It runs through shared provider admission and

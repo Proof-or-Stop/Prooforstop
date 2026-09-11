@@ -16,7 +16,7 @@ const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8',
 const write = (root, path, body) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), body); };
 const commit = (cwd, message) => { git(cwd, 'add', '-A', '--', '.', ':!AGENTS.override.md'); git(cwd, 'commit', '-m', message); };
 const cmd = (cwd, args, expected = 0, match) => {
-  const r = spawnSync(process.execPath, [script, ...args], { cwd, encoding: 'utf8', timeout: 60000, env: { ...process.env, GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.excludesFile', GIT_CONFIG_VALUE_0: '/dev/null', CODEX_THREAD_ID: process.env.LAB_FIXTURE_DEVELOPER === 'claude' ? '' : 'fixture-developer', CLAUDECODE: process.env.LAB_FIXTURE_DEVELOPER === 'claude' ? '1' : '', PATH: auditFixtureBin + ':' + process.env.PATH, npm_config_prefix: join(dir, 'global'), NPM_CONFIG_PREFIX: join(dir, 'global') } });
+  const r = spawnSync(process.execPath, [script, ...args], { cwd, encoding: 'utf8', timeout: 60000, env: { ...process.env, GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.excludesFile', GIT_CONFIG_VALUE_0: '/dev/null', CODEX_THREAD_ID: ['claude','plain'].includes(process.env.LAB_FIXTURE_DEVELOPER) ? '' : 'fixture-developer', CLAUDECODE: process.env.LAB_FIXTURE_DEVELOPER === 'claude' ? '1' : '', PATH: auditFixtureBin + ':' + process.env.PATH, npm_config_prefix: join(dir, 'global'), NPM_CONFIG_PREFIX: join(dir, 'global') } });
   const output = (r.stdout || '') + (r.stderr || '');
   assert.equal(r.status, expected, `${args.join(' ')}\n${output}`);
   if (match) assert.match(output, match);
@@ -82,6 +82,29 @@ try {
   cmd(third, ['audit', 'third']);
   assert.equal(JSON.parse(cmd(third, ['status', 'third'])).audit.auditorVendor, 'xai');
 
+  write(third, 'lab-audit.config.json', JSON.stringify({adapters:[{id:'grok',vendor:'xai',command:join(auditFixtureBin,'nonexecutable-adapter'),argv:[],protocol:'lab-json'}],preferredAuditor:'grok'}));
+  commit(third,'test: failing custom executable'); cmd(third,['sync','third']);
+  cmd(third,['audit','third'],1,/provider failed/);
+
+  const transport = fixture('transport'); cmd(transport, ['create', 'transport']);
+  const transportLab = join(transport, '.worktrees/Lab-transport');
+  write(transportLab, 'bug.txt', 'fixed'); commit(transportLab, 'fix: malformed transport witness');
+  for (const mode of ['malformed','duplicate']) {
+    process.env.LAB_FIXTURE_AUDIT = mode;
+    cmd(transport, ['audit','transport'], 1);
+    assert.equal(JSON.parse(cmd(transport,['status','transport'])).audit, undefined);
+  }
+  delete process.env.LAB_FIXTURE_AUDIT;
+
+  const bounded = fixture('bounded'); cmd(bounded, ['create','bounded']);
+  const boundedLab = join(bounded,'.worktrees/Lab-bounded');
+  cmd(bounded,['red','bounded','--expect','TARGET regression','--',process.execPath,'check.cjs']);
+  write(boundedLab,'bug.txt','fixed'); write(boundedLab,'binary.bin',Buffer.from([0,1,2])); commit(boundedLab,'fix: binary audit boundary');
+  cmd(bounded,['green','bounded']); const boundedHead=git(bounded,'rev-parse','HEAD');
+  cmd(bounded,finish('bounded'),1,/bounded text/);
+  assert.equal(git(bounded,'rev-parse','HEAD'),boundedHead,'Input refusal must occur before integration');
+  assert.equal(JSON.parse(cmd(bounded,['status','bounded'])).phase,'prepared');
+
   const late = fixture('late'); cmd(late, ['create', 'late']);
   const lateLab = join(late, '.worktrees/Lab-late');
   cmd(late, ['red', 'late', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
@@ -105,7 +128,9 @@ try {
   assert.equal(JSON.parse(cmd(explicit, ['status', 'explicit'])).phase, 'integrated');
   rmSync(join(explicit, '.fail-build'));
   // Omitting the option on retry preserves the prepared upgrade, never bumps twice.
+  process.env.LAB_FIXTURE_DEVELOPER = 'plain';
   cmd(explicit, finish('explicit'));
+  delete process.env.LAB_FIXTURE_DEVELOPER;
   for (const rel of ['package.json', 'package-lock.json', 'packages/main/package.json', 'packages/main/package-lock.json']) {
     assert.equal(JSON.parse(readFileSync(join(explicit, rel))).version, '1.0.1');
   }
@@ -241,7 +266,7 @@ try {
     encoding: 'utf8',
     stdio: 'inherit',
     timeout: 120000,
-    env: { ...process.env, GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.excludesFile', GIT_CONFIG_VALUE_0: '/dev/null', CODEX_THREAD_ID: process.env.LAB_FIXTURE_DEVELOPER === 'claude' ? '' : 'fixture-developer', CLAUDECODE: process.env.LAB_FIXTURE_DEVELOPER === 'claude' ? '1' : '', PATH: auditFixtureBin + ':' + process.env.PATH, npm_config_prefix: join(dir, 'carry-global'), NPM_CONFIG_PREFIX: join(dir, 'carry-global') },
+    env: { ...process.env, GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.excludesFile', GIT_CONFIG_VALUE_0: '/dev/null', CODEX_THREAD_ID: ['claude','plain'].includes(process.env.LAB_FIXTURE_DEVELOPER) ? '' : 'fixture-developer', CLAUDECODE: process.env.LAB_FIXTURE_DEVELOPER === 'claude' ? '1' : '', PATH: auditFixtureBin + ':' + process.env.PATH, npm_config_prefix: join(dir, 'carry-global'), NPM_CONFIG_PREFIX: join(dir, 'carry-global') },
   });
   checks++;
   console.log(`Lab worktree verification passed (${checks} command checks plus state, version and cleanup assertions).`);

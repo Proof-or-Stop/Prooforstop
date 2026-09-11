@@ -3,15 +3,11 @@ import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { auditProviders, selectAuditor } from './lab-audit-providers.mjs';
+import { selectAuditor } from './lab-audit-providers.mjs';
 
 export const LAB_AUDIT_SCHEMA = 'proof-or-stop.lab-cross-host-audit.v1';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', maxBuffer: 2 * 1024 * 1024 }).trim();
-export function oppositeHost(host) {
-  if (!['claude', 'codex'].includes(host)) throw new Error('Lab audit requires a declared developer host: codex or claude.');
-  return host === 'codex' ? 'claude' : 'codex';
-}
 export function developerHost(explicit, env = process.env) {
   const observed = env.CLAUDECODE ? 'claude' : env.CODEX_THREAD_ID ? 'codex' : undefined;
   if (env.CLAUDECODE && env.CODEX_THREAD_ID) throw new Error('Ambiguous developer host; run from one supported development host.');
@@ -119,16 +115,8 @@ export async function executeLabAudit({ cwd, base, head, developer, labName, evi
     });
   } else {
     const admissionApi = await import('../packages/main/src/core/provider-process-admission.ts');
-    const admission = admissionApi.acquireProviderProcessAdmission({root: cwd, env: process.env, host: auditorHost, storyId: null, agentType: 'lab-independent-auditor'});
-    if (!admission.admitted) throw new Error('Lab audit provider capacity unavailable.');
-    let spawn;
-    try {
-      spawn = await defaultHostRunRunner({command: selection.auditor.command, argv, cwd: dir, env: process.env, stdinText: prompt,
-        timeoutMs: 600000, startupTimeoutMs: 90000, signal: controller.signal, onChunk,
-        onSpawn: identity => { if (!admissionApi.transferProviderProcessAdmissionToProvider(admission, identity)) controller.abort(); }});
-    } finally {
-      if (spawn?.replacementSafe && spawn?.closeObserved) admissionApi.releaseProviderProcessAdmission(admission);
-    }
+    const spawn = await runCustomAuditAdapter({command: selection.auditor.command, argv, cwd: dir, env: process.env, stdinText: prompt,
+      timeoutMs: 600000, startupTimeoutMs: 90000, signal: controller.signal, onChunk}, cwd, controller, {admissionApi, runner: defaultHostRunRunner});
     result = {...spawn, spawned: !!spawn.processIdentity, blocked: false};
   }
   writeFileSync(join(dir, 'stdout.jsonl'), stdout); writeFileSync(join(dir, 'stderr.txt'), stderr);
@@ -141,4 +129,20 @@ export async function executeLabAudit({ cwd, base, head, developer, labName, evi
   const record = { ...proposal, process: { exitCode: result.exitCode, closeObserved: result.closeObserved, replacementSafe: result.replacementSafe, processCleanup: result.processCleanup, processIdentity: result.processIdentity }, durationMs: result.durationMs, evidenceDir: dir, stdoutDigest: hash(stdout), promptDigest: hash(prompt) };
   writeFileSync(join(dir, 'audit.json'), JSON.stringify(record, null, 2));
   return record;
+}
+
+/** Release pre-spawn failures, but never free capacity for an un-reaped child. */
+export async function runCustomAuditAdapter(plan, root, controller, {admissionApi, runner}) {
+  const admission = admissionApi.acquireProviderProcessAdmission({root, env: plan.env, host: plan.command, storyId: null, agentType: 'lab-independent-auditor'});
+  if (!admission.admitted) throw new Error('Lab audit provider capacity unavailable.');
+  let spawn, observed = false;
+  try {
+    spawn = await runner({...plan, onSpawn: identity => {
+      observed = true;
+      if (!admissionApi.transferProviderProcessAdmissionToProvider(admission, identity)) controller.abort();
+    }});
+    return spawn;
+  } finally {
+    if (!observed || (spawn?.replacementSafe && spawn?.closeObserved && spawn?.processCleanup?.reaped && !spawn?.processCleanup?.residualProcessGroup)) admissionApi.releaseProviderProcessAdmission(admission);
+  }
 }

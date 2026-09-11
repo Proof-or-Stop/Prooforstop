@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url';
 import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as labPolicy } from '../packages/main/src/core/runtime-fact-registry.ts';
 import { shouldBumpLabVersionForChangedPaths, shouldBuildDoneMainPackageForChangedPaths } from '../packages/main/src/core/runtime-version-policy.ts';
 import { auditInput, auditIsFresh, developerHost, executeLabAudit } from './lab-audit.mjs';
-import { selectAuditor } from './lab-audit-providers.mjs';
+import { auditProviders, selectAuditor } from './lab-audit-providers.mjs';
 
 const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote push)
   node scripts/lab-worktree.mjs create NAME
@@ -20,7 +20,7 @@ const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote pus
   node scripts/lab-worktree.mjs baseline NAME --expect TEXT --confirm -- EXECUTABLE ARG...
   node scripts/lab-worktree.mjs audit NAME [--developer PROVIDER]
   node scripts/lab-worktree.mjs green NAME
-  node scripts/lab-worktree.mjs finish NAME --notes FILE --confirm [--bump patch]
+  node scripts/lab-worktree.mjs finish NAME --notes FILE --confirm [--bump patch] [--developer PROVIDER]
 
 Commit the repair before green. Green replays the exact RED command.
 Finish requires fresh GREEN, synchronizes main, records notes/version, builds
@@ -200,9 +200,12 @@ async function main() {
     }
     expected = rest[1]; command = rest.slice(4);
   } else if (action === 'finish') {
-    if (![3, 5].includes(rest.length) || rest[0] !== '--notes' || !rest[1] || rest[2] !== '--confirm'
-      || (rest.length === 5 && (rest[3] !== '--bump' || rest[4] !== 'patch'))) fail('finish requires --notes FILE --confirm [--bump patch] (explicit local integration request).');
-    requestedBump = rest.length === 5 ? 'patch' : undefined;
+    if (rest.length < 3 || rest[0] !== '--notes' || !rest[1] || rest[2] !== '--confirm') fail('finish requires --notes FILE --confirm [--bump patch] [--developer PROVIDER].');
+    for (let i = 3; i < rest.length; i += 2) {
+      if (rest[i] === '--bump' && rest[i+1] === 'patch' && !requestedBump) requestedBump = 'patch';
+      else if (rest[i] === '--developer' && /^[a-z][a-z0-9-]*$/.test(rest[i+1] ?? '') && !declaredDeveloper) declaredDeveloper = rest[i+1];
+      else fail('finish requires --notes FILE --confirm [--bump patch] [--developer PROVIDER]; unsupported or duplicate option.');
+    }
     notesPath = resolve(rest[1]);
   } else if (action === 'audit' || action === 'create') {
     if (rest.length && (rest.length !== 2 || rest[0] !== '--developer' || !/^[a-z][a-z0-9-]*$/.test(rest[1]))) fail('Use --developer PROVIDER.');
@@ -305,24 +308,35 @@ async function main() {
     if (!entry && !(action === 'finish' && s.phase === 'verified')) fail('Recorded Lab worktree is missing.');
     if (entry && (entry.branch !== `refs/heads/${s.branch}` || entry.locked)) fail('Lab branch changed or worktree is locked; preserve it for inspection.');
     if (entry) assertClean(s.path, s.override);
-    const ensureAudit = async (base, head) => {
-      assertAncestor(s.path, base, head);
-      const host = developerHost(declaredDeveloper);
-      if (s.developerHost && s.developerHost !== host) fail('Lab developer host changed; mixed-host development needs a separately scoped Lab.');
-      if (!s.developerHost) { s.developerHost = host; save(s); }
+    const expectedAudit = (root, base, head, host) => {
       const configPath = 'lab-audit.config.json';
-      const config = git(s.path, 'ls-tree', '--name-only', base, '--', configPath) ? JSON.parse(git(s.path, 'show', `${base}:${configPath}`)) : {};
-      const selected = selectAuditor(host, config);
-      const expected = { labName: name, developerHost: host, developerVendor: selected.developer.vendor, auditorHost: selected.auditor.id, auditorVendor: selected.auditor.vendor, configDigest: hash(JSON.stringify(config)), base, head, inputDigest: auditInput(s.path, base, head).inputDigest };
+      const config = git(root, 'ls-tree', '--name-only', base, '--', configPath) ? JSON.parse(git(root, 'show', `${base}:${configPath}`)) : {};
+      const configDigest = hash(JSON.stringify(config));
+      const providers = auditProviders(config);
+      const dev = providers.find(provider => provider.id === host);
+      const cached = s.audit?.base === base && s.audit?.head === head && s.audit?.configDigest === configDigest
+        ? providers.find(provider => provider.id === s.audit.auditorHost && provider.vendor !== dev?.vendor && (!config.preferredAuditor || provider.id === config.preferredAuditor)) : undefined;
+      const selected = cached && dev ? { developer: dev, auditor: cached } : selectAuditor(host, config);
+      return { config, selected, expected: { labName: name, developerHost: host, developerVendor: selected.developer.vendor, auditorHost: selected.auditor.id, auditorVendor: selected.auditor.vendor, configDigest, base, head, inputDigest: auditInput(root, base, head).inputDigest } };
+    };
+    const ensureAudit = async (base, head, auditRoot = s.path) => {
+      assertAncestor(auditRoot, base, head);
+      // Recovery operators do not become the implementation's developer.
+      const host = s.developerHost ?? developerHost(declaredDeveloper);
+      if (declaredDeveloper && declaredDeveloper !== host) fail('Declared developer conflicts with the pinned Lab developer.');
+      if (!s.developerHost) { s.developerHost = host; save(s); }
+      const { config, selected, expected } = expectedAudit(auditRoot, base, head, host);
       if (auditIsFresh(s.audit, expected)) return;
       if (s.audit?.decision === 'fail' && Object.entries(expected).every(([key, value]) => s.audit[key] === value)) fail('Rejected Lab audit requires a changed candidate before another audit.');
       console.log(`Running independent ${selected.auditor.id} (${selected.auditor.vendor}) CLI Lab audit for ${head}...`);
       const started = Date.now();
       let audit;
-      try { audit = await executeLabAudit({ cwd: s.path, base, head, developer: host, labName: name, evidenceRoot: join(dir, name + '-audits'), config }); }
+      try { audit = await executeLabAudit({ cwd: auditRoot, base, head, developer: host, labName: name, evidenceRoot: join(dir, name + '-audits'), config }); }
       catch (error) { s.history.push({ kind: 'cross-host-audit-error', head, base, developerHost: host, elapsedMs: Date.now() - started, error: error.message }); save(s); throw error; }
-      if (sha(s.path) !== head) fail('Lab changed during audit; result is stale.');
-      assertClean(s.path, s.override);
+      if (auditRoot === s.path) {
+        if (sha(s.path) !== head) fail('Lab changed during audit; result is stale.');
+        assertClean(s.path, s.override);
+      } else assertAncestor(mainRoot, head, 'main');
       s.audit = audit; s.history.push({ kind: 'cross-host-audit', ...audit }); save(s);
       if (!auditIsFresh(audit, expected)) fail(`Independent Lab audit rejected the candidate. Resolve findings and reopen if prepared. Evidence: ${audit.evidenceDir}`);
     };
@@ -741,15 +755,18 @@ async function main() {
       }
     }
     if (s.phase === 'integrated') {
-      await ensureAudit(s.releaseBase, s.candidate);
       if (sha(mainRoot) !== s.candidate) fail('main moved before post-merge verification; workspace retained for recovery.');
+      // This exact immutable input already passed before --ff-only; the bounds cannot newly grow here.
+      await ensureAudit(s.releaseBase, s.candidate);
       build(mainRoot); checkStoryBaselineParity(mainRoot, 'main-story-baseline');
       checkStoryIntegrationWitnesses(mainRoot, 'main-story-integration'); check(mainRoot, 'main-green');
       if (versions.readSyncedVersion(mainRoot) !== s.version) fail('main version drift after integration.');
       s.phase = 'verified'; save(s);
     }
     if (s.phase === 'verified') {
-      if (!auditIsFresh(s.audit, { labName: name, developerHost: s.developerHost, base: s.releaseBase, head: s.candidate, inputDigest: s.audit?.inputDigest })) fail('Fresh independent Lab audit required before cleanup.');
+      await ensureAudit(s.releaseBase, s.candidate, entry ? s.path : mainRoot);
+      assertMainStable();
+      if (!auditIsFresh(s.audit, expectedAudit(mainRoot, s.releaseBase, s.candidate, s.developerHost).expected)) fail('Fresh independent Lab audit required before cleanup.');
       if (!entry && existsSync(s.path)) fail('Unregistered directory remains at Lab path; cleanup refused.');
       assertAncestor(mainRoot, s.candidate, 'main');
       if (entry) {
