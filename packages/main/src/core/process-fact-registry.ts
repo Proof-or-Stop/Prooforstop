@@ -156,6 +156,7 @@ const PROCESS_FACT_DECLARATION_PATHS_BY_KIND: Record<ProcessFactKind, readonly s
 };
 const GENERATED_PROCESS_FACT_PATH_PREFIXES = [
   '.claude/',
+  '.codex/',
   '.proof-or-stop-codex/',
   'dist/',
   'packages/graph/assets/',
@@ -236,7 +237,8 @@ function normalizeProcessFactMappingEntry(entry: Partial<ProcessFactRegistryEntr
     );
   }
   if (generatedFrom !== undefined
-    && (componentId === undefined || paths.length !== 1 || !isGeneratedProcessFactPath(paths[0]) || paths[0] === generatedFrom)) {
+    && (componentId === undefined || paths.length !== 1 || !isGeneratedProcessFactPath(paths[0])
+      || isGeneratedProcessFactPath(generatedFrom) || paths[0] === generatedFrom)) {
     throw new ProcessFactRegistryMappingError(
       'process-non-total',
       `${entry.factId} generatedFrom must bind exactly one generated component path to a different source path`,

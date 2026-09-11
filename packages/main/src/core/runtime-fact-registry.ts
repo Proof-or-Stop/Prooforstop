@@ -273,6 +273,7 @@ export class RuntimeFactRegistryMappingError extends Error {
 
 const GENERATED_RUNTIME_FACT_PATH_PREFIXES = [
   '.claude/',
+  '.codex/',
   '.proof-or-stop-codex/',
   'dist/',
   'packages/graph/assets/',
@@ -339,7 +340,8 @@ function normalizeRuntimeFactMappingEntry(entry: Partial<RuntimeFactRegistryEntr
     );
   }
   if (generatedFrom !== undefined
-    && (componentId === undefined || paths.length !== 1 || !generatedPath(paths[0]) || paths[0] === generatedFrom)) {
+    && (componentId === undefined || paths.length !== 1 || !generatedPath(paths[0])
+      || generatedPath(generatedFrom) || paths[0] === generatedFrom)) {
     throw new RuntimeFactRegistryMappingError(
       'runtime-non-total',
       `${entry.runtimeFactId} generatedFrom must bind exactly one generated component path to a different source path`,

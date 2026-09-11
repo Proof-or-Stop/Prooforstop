@@ -125,6 +125,16 @@ async function main() {
   ]), 'runtime-ambiguous');
   expectUnavailable(() => projectProcessComponent('typo', processFixtures), 'process-non-total');
   expectUnavailable(() => projectRuntimeComponent('typo', runtimeFixtures), 'runtime-non-total');
+  expectUnavailable(() => projectProcess([{ factId: 'x', kind: 'artifact', paths: ['.codex/hooks/proof-or-stop-scope-pretool.cjs'], componentId: 'P0m' }]), 'process-generated-without-lineage');
+  expectUnavailable(() => projectRuntime([{ runtimeFactId: 'x', kind: 'environment-check', paths: ['.codex/hooks.json'], componentId: 'P0m' }]), 'runtime-generated-without-lineage');
+  expectUnavailable(() => projectProcess([{ factId: 'x', kind: 'artifact', paths: ['packages/main/dist/a.js'], generatedFrom: 'packages/main/src/a.ts' }]), 'process-non-total');
+  expectUnavailable(() => projectRuntime([{ runtimeFactId: 'x', kind: 'environment-check', paths: ['packages/main/dist/a.js'], generatedFrom: 'packages/main/src/a.ts' }]), 'runtime-non-total');
+  expectUnavailable(() => projectProcess([{ factId: 'x', kind: 'artifact', paths: ['packages/main/src/a.ts'], componentId: 'P0m', generatedFrom: 'packages/main/src/b.ts' }]), 'process-non-total');
+  expectUnavailable(() => projectRuntime([{ runtimeFactId: 'x', kind: 'environment-check', paths: ['packages/main/src/a.ts'], componentId: 'P0m', generatedFrom: 'packages/main/src/b.ts' }]), 'runtime-non-total');
+  expectUnavailable(() => projectProcess([{ factId: 'x', kind: 'artifact', paths: ['packages/main/dist/a.js'], componentId: 'P0m', generatedFrom: 'packages/main/dist/b.js' }]), 'process-non-total');
+  expectUnavailable(() => projectRuntime([{ runtimeFactId: 'x', kind: 'environment-check', paths: ['packages/main/dist/a.js'], componentId: 'P0m', generatedFrom: 'packages/main/dist/b.js' }]), 'runtime-non-total');
+  expectUnavailable(() => projectProcess([{ factId: 'x', kind: 'artifact', paths: ['packages/main/dist/a.js'], componentId: 'P0m', generatedFrom: 'packages/main/dist/a.js' }]), 'process-non-total');
+  expectUnavailable(() => projectRuntime([{ runtimeFactId: 'x', kind: 'environment-check', paths: ['packages/main/dist/a.js'], componentId: 'P0m', generatedFrom: 'packages/main/dist/a.js' }]), 'runtime-non-total');
 
   const mutated = processFixtures.map(entry => ({ ...entry }));
   mutated[0] = { ...mutated[0], paths: ['changed.ts'] };
@@ -135,7 +145,7 @@ async function main() {
   console.log('registry-component-mapping: registry=process unavailable=0');
   console.log('registry-component-mapping: registry=runtime unavailable=0');
   console.log('GREEN');
-  console.log('mapping-input-mutation-cases=24');
+  console.log('mapping-input-mutation-cases=34');
   console.log('mutation=PASS');
   console.log('concurrent-read=PASS');
 }
