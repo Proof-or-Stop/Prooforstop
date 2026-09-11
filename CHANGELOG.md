@@ -1,5 +1,69 @@
 # Changelog
 
+## Lab pending-performance-reconciliation-20260911 - v0.3.323 - 2026-09-11
+
+# Recover bounded pending performance and diagnostic repairs
+
+This Lab selectively recovers two verified omissions from historical Labs onto
+current main. It does not merge old branches wholesale, copy Story evidence,
+advance B-e6d9, or interfere with the separately owned CLI runtime repair.
+
+## Repairs
+
+- Runtime artifact lookup no longer repeats the same normalization for every
+  registry entry. Both historical input passes are preserved. A value-checked
+  WeakMap caches only normalized exact/prefix matcher strings; registry order,
+  live mutations, matcher replacement and stateful regex behavior remain live.
+- The quorum smoke refusal helper captures the real thrown error instead of
+  treating the undefined return of assert.throws as the exception. It rejects
+  fabricated, empty, duplicated and out-of-order lane lists, accepts valid
+  canonical subsets, preserves no-write/refusal assertions, and retains every
+  existing full-envelope tamper iteration.
+- The bounded regression is called from the existing runtime fact verifier.
+
+## Evidence and measured comparison
+
+The Lab RED at 732ae789f1 used
+`node scripts/verify-pending-performance-reconciliation.mjs` and observed one
+passing control group and two failing target groups. Under the same assertions,
+GREEN reports three passing groups: 691 path parity cases with live registry
+and regex controls, a warmed-matcher lookup operation count reduced from 280 to
+8 for both repeated and unseen input paths, and 11 quorum diagnostic controls.
+This is approximately 97.1% fewer counted string replacements, not a claim of
+97.1% lower Story latency or measured first-ever lookup cost.
+
+Main and utils builds, the runtime fact contract, and the real qsm-020
+full-envelope replay/tamper case passed. Additional qsm-022 runs initially
+passed their case bodies but were correctly refused by the protected workspace
+guard because concurrent audit documentation or Claude hook activity changed
+the workspace. Those FAIL results were preserved. After audit completion,
+serial run qsm-13e706b2-c1b7-4c1d-957f-16a37beadfd1 passed with a clean mutation
+guard, zero mutation events, matched protected-state digests and zero residue.
+No hooks or guard were disabled.
+
+## Independent review and boundaries
+
+The first tool-enabled Claude CLI audit timed out without a verdict. A bounded
+second review completed with no blocking finding for the supplied complete diff
+and regression source (session 360211b7-e352-4cb7-be95-46af024aaddb). It was code
+inspection, not independent command execution. Source-helper tests are not
+host-independence credentials; real quorum acceptance was verified separately.
+
+The same four pre-existing reviewed-source pin failures were observed on main
+and the candidate. This repair does not claim full identity-suite success or
+broaden unrelated allowlists. Other preserved experiments, release-pin edits
+and pending micro-optimizations were not silently imported or deleted.
+
+Detailed provenance and retained limitations are in
+`docs/audits/pending-performance-reconciliation.md`. Lab finish must synchronize
+the latest local main, replay the pinned GREEN, perform the normal patch version
+upgrade/build/version checks, and verify the post-merge result. This note grants
+no remote push or formal Story DONE claim.
+
+Maintenance provenance: codex/lab-pending-performance-reconciliation-20260911, repair 84a44155c0b5175dc2007dc1f6ed0754366b1577.
+Verification command (replayed before integration and on main): `["node","scripts/verify-pending-performance-reconciliation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab plan-owner-coverage - v0.3.322 - 2026-09-11
 
 # PLAN canonical owner coverage Lab
