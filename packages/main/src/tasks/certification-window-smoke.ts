@@ -2148,8 +2148,9 @@ writeFileSync(join(replayRoot, 'tests', 'app.test.ts'), 'export const t = 1;\n')
 git(replayRoot, ['add', 'src/app.ts', 'tests/app.test.ts']);
 git(replayRoot, ['commit', '-m', 'source and test change']);
 const beforeDriftStatus = structuredClone(replayStore.readCertificationWindows(replayStoryId));
+assert.equal(beforeDriftStatus.windows.at(-1)?.state, 'ADMITTED', 'DONE-required alone must not consume the routine execution claim');
 const driftStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
-assertStatusSurface(driftStatus, 'RUNNING');
+assertStatusSurface(driftStatus, 'ADMITTED');
 assert.match(driftStatus, /^Blocker: \[pre_cert_window_invalidated\]$/m);
 assert.match(driftStatus, /^Observed drift: /m);
 assert.match(driftStatus, new RegExp(`^Next: proof-or-stop certification_window_status --storyId=${replayStoryId} --refresh=true$`, 'm'));
