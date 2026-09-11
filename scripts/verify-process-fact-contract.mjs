@@ -10808,8 +10808,10 @@ for (const kind of ['detector_signal', 'candidate', 'candidate_reproduction_atte
 function story2DependencyIssues(source) {
   const issues = []; const parsed = ts.createSourceFile('story2.ts', source, ts.ScriptTarget.Latest, true);
   const visit = node => {
-    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)
-      && /(?:dynamic-finding-blocking|finding-(?:assessment|triage|deferral|mandatory-repair|rollout|ledger-runtime-smoke|ledger-enforce))/.test(node.moduleSpecifier.text)) issues.push('Story1/3B dependency');
+    const dependency = (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) ? node.moduleSpecifier
+      : ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword ? node.arguments[0] : undefined;
+    if (dependency && ts.isStringLiteral(dependency)
+      && /(?:dynamic-finding-blocking|finding-(?:applicability|assessment|triage|deferral|mandatory-repair|rollout|ledger-runtime-smoke|ledger-enforce))/.test(dependency.text)) issues.push('Story1/3B dependency');
     if (ts.isCallExpression(node) && /^(?:readJson|readJsonCandidate)$/.test(ts.isPropertyAccessExpression(node.expression) ? node.expression.name.text : node.expression.getText(parsed))) issues.push('protected parser');
     ts.forEachChild(node, visit);
   }; visit(parsed); return issues;
@@ -10818,10 +10820,13 @@ for (const file of ['core/finding-identity.ts', 'core/finding-history.ts', 'core
   'handlers/finding-identity.ts', 'handlers/finding-identity-store.ts', 'handlers/finding-history.ts', 'handlers/finding-route.ts']) {
   const source = read(`packages/main/src/${file}`);
   for (const issue of story2DependencyIssues(source)) fail(`Story2 ${file}: ${issue}`);
-  for (const injection of ["import { gate } from './finding-deferral.js';", "import { enforce } from './finding-ledger-runtime-smoke.js';", "store.readJson(storyId, 'findings.json');"]) {
+  for (const injection of ["import { gate } from './finding-deferral.js';", "import { enforce } from './finding-ledger-runtime-smoke.js';", "store.readJson(storyId, 'findings.json');", "import { gate } from './finding-applicability-projection.js';", "export { gate } from './finding-applicability.js';", "await import('./finding-applicability.js');"]) {
     assert(story2DependencyIssues(`${source}\n${injection}`).length > 0, `Story2 dependency verifier detects ${injection}`);
   }
 }
+assert(read('packages/main/src/registry.ts').includes('createFindingHistoryHandlers(ctx, observeDeferralInvalidation)'), 'Official recall composition must supply the Story1 provider');
+assert(read('packages/main/src/handlers/finding-history.ts').includes('deferral invalidation provider unavailable'), 'Standalone Story2 must refuse unavailable provider');
+assert(read('packages/main/src/core/process-fact-registry.ts').includes('invalidationComposition:'), 'Recall provider boundary requires registry coverage');
 const currentStory2Validation = JSON.parse(read('proof-or-stop.config.json')).validate.commands;
 const expectedStory2Validation = [
   { command: 'node', args: ['packages/main/dist/tasks/finding-identity-lineage-smoke.js', '--section=delivery'], timeoutMs: 600000 },

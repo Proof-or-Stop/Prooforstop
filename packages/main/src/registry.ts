@@ -145,6 +145,7 @@ import { createFindingLedgerHandlers } from './handlers/finding-ledger.js';
 import { createFindingIdentityHandlers } from './handlers/finding-identity.js';
 import { createFindingRouteHandlers } from './handlers/finding-route.js';
 import { createFindingHistoryHandlers } from './handlers/finding-history.js';
+import { observeDeferralInvalidation } from './handlers/finding-deferral-recall.js';
 import { createFindingRuntimeEvidenceHandlers } from './handlers/finding-runtime-evidence.js';
 import { createFindingApplicabilityHandlers } from './handlers/finding-applicability.js';
 import { createIdentityStateMigrateHandlers } from './handlers/identity-state-migrate.js';
@@ -231,7 +232,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createFindingHandlers(ctx));
   registry.registerBatch(createFindingIdentityHandlers(ctx));
   registry.registerBatch(createFindingRouteHandlers(ctx));
-  registry.registerBatch(createFindingHistoryHandlers(ctx));
+  registry.registerBatch(createFindingHistoryHandlers(ctx, observeDeferralInvalidation));
   const findingLedgerHandlers = createFindingLedgerHandlers(ctx);
   registry.register('finding_ledger_query', findingLedgerHandlers.finding_ledger_query);
   registry.registerBatch(createFindingRuntimeEvidenceHandlers(ctx));

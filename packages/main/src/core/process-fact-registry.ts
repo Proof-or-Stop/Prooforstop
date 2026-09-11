@@ -361,6 +361,7 @@ export const PROCESS_FACT_STORY2_HISTORY_POLICY = {
   legacyPolicy: 'strict opt-in Store mirror read; no rewrite or identity creation on reads',
   revisionPublication: 'staged non-current revision activated only by exact signed link; two recoverable transactions',
   recallPolicy: 'once per canonical subject and observed trigger state; invalid historical receipt is never current consent',
+  invalidationComposition: 'registry injects handlers/finding-deferral-recall.observeDeferralInvalidation through an internal typed provider; standalone Story2 refuses without it; command JSON and public history queries cannot supply it; locked revalidation and non-gate candidate authority remain unchanged',
 } as const;
 
 /** Read-only transport of verified signed records, never a minted credential. */
