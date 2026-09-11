@@ -1,5 +1,39 @@
 # Changelog
 
+## Lab local-main-baseline - v0.3.324 - 2026-09-11
+
+# Local integration baseline Lab
+
+Repair commit: 5b2651fd6e51ba412154b88389197b5d7d8a24e6. Regression-first commit: 6d769d05ce.
+
+Problem: a linked Story worktree that merged locally advanced main still selected stale origin/HEAD as its comparison baseline. Actual readChangedFiles, checkScopeContract and buildScopeDiffPack therefore classified an unchanged imported main-only file as Story-owned scope. The target RED showed that false violation alongside four genuine committed/staged/unstaged/untracked Story changes, with all setup controls passing.
+
+The minimal resolver repair promotes the primary local branch only in a linked worktree, only when its exact branch name matches origin/HEAD, and only after resolving both commit tips and proving the remote tip is an ancestor of the local tip. Otherwise the previous candidate order is retained. This uses existing local refs; no actual repository refs are rewritten, no scope allowance is expanded, and no remote push is needed. Policy rationale, documentation and process contract guard inventory were updated. Existing runtime registry ownership was already complete and required no new entry.
+
+The pinned native regression now excludes imported main-only files from the changed-file list, scope violations and diff hunks while preserving all four owned-change categories. It also proves later Story edits to the imported path are still visible and blocked. Eleven compatibility controls cover same-name master/develop, remote-ahead, divergent histories, differently named primary, detached primary, ordinary checkout, missing and unresolvable remote HEAD, and local/remote Story-ref poisoning.
+
+## Commands and timings
+
+- record-current-baseline-red: exit 0, 1.790s, 2026-09-11T21:56:20.244331+00:00 to 2026-09-11T21:56:22.034248+00:00; /tmp/B-e6d9-record-current-baseline-red-1789163780244567000.log
+- baseline-native-matrix: exit 0, 3.346s, 2026-09-11T21:57:26.691580+00:00 to 2026-09-11T21:57:30.037934+00:00; /tmp/B-e6d9-baseline-native-matrix-1789163846691745000.log
+- build-local-baseline-lab: exit 0, 10.682s, 2026-09-11T21:58:01.715961+00:00 to 2026-09-11T21:58:12.398771+00:00; /tmp/B-e6d9-build-local-baseline-lab-1789163881716293000.log
+- record-baseline-green: exit 0, 5.226s, 2026-09-11T21:58:25.271510+00:00 to 2026-09-11T21:58:30.498246+00:00; /tmp/B-e6d9-record-baseline-green-1789163905271703000.log
+- baseline-process-contract: exit 0, 11.672s, 2026-09-11T21:58:39.756075+00:00 to 2026-09-11T21:58:51.428753+00:00; /tmp/B-e6d9-baseline-process-contract-1789163919756289000.log
+- existing-external-baseline-regression: exit 1, 5.214s, 2026-09-11T21:58:47.451493+00:00 to 2026-09-11T21:58:52.665913+00:00; /tmp/B-e6d9-existing-external-baseline-regression-1789163927451741000.log
+- main-external-baseline-comparison: exit 1, 4.867s, 2026-09-11T21:59:30.389861+00:00 to 2026-09-11T21:59:35.257281+00:00; /tmp/B-e6d9-main-external-baseline-comparison-1789163970390023000.log
+
+## Failure classification and boundary
+
+Initial fixture setup used a wrong canonicalizer filename, then an empty allowed-list contract (which intentionally invokes legacy compatibility); both were corrected before official RED. An initial Lab RED command refused because local main advanced; official sync merged main and the unchanged target then produced recorded RED. No gate was bypassed. Build used a read-only link to the existing @types/ws dependency; no shared writable dist or manifest changes.
+
+The existing external-worktree/Go suite reaches its later Go execution-receipt fixture and fails incomplete_toolchain_identity. Go is absent from PATH. The same command on main is recorded separately; this is not relabeled target RED or GREEN. The earlier baseline/worktree assertions precede that failure, but the full suite is not claimed passing. The focused native regression and process contract pass.
+
+This is local Lab maintenance evidence, not B-e6d9 Story DONE or CHK006 completion. Parent owns explicit local-main finish/integration and subsequent Story verification. No Story source or metadata was changed by this implementer during the Lab. Ledger: /tmp/B-e6d9-local-main-baseline-timing.jsonl.
+
+Maintenance provenance: codex/lab-local-main-baseline, repair 5b2651fd6e51ba412154b88389197b5d7d8a24e6.
+Verification command (replayed before integration and on main): `["node","scripts/verify-local-main-baseline.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab pending-performance-reconciliation-20260911 - v0.3.323 - 2026-09-11
 
 # Recover bounded pending performance and diagnostic repairs
