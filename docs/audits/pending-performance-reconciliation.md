@@ -65,8 +65,12 @@ An additional `qsm-022` run passed its body but was correctly rejected by the
 outer protected-mutation guard while audit documentation and Claude hook
 activity changed the workspace. A second overlapping run preserved all tracked
 bytes but still observed the Claude activity append. Neither aggregate FAIL is
-reported as PASS. The final confirmation must run after audit completion without
-concurrent writers; this does not justify changing the runner or disabling hooks.
+reported as PASS. The final confirmation ran after audit completion without
+concurrent writers: run `qsm-13e706b2-c1b7-4c1d-957f-16a37beadfd1` returned
+aggregate PASS, `protectedMutationGuard.clean=true`, zero observed mutations,
+matching protected-state digests and zero remaining residue. The case took
+100,765 ms; this timing is not a before/after speed comparison. No runner rule
+or hook was disabled.
 
 ## Independent Claude CLI review
 
