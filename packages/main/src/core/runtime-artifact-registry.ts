@@ -5,8 +5,10 @@ export const MACHINE_FIXED_PORT_ARTIFACT = { directoryName: 'machine-fixed-port-
 export const MANAGED_REVIEW_TEMP_ARTIFACT = { directoryName: 'provider-temp', location: 'sealed-scratch-parent', cleanup: 'owned-scratch-terminal-cleanup' } as const;
 
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { hasValidControllerConfigProjection } from './controller-config-projection.js';
+import { loadConfig } from './config.js';
 
 function hasGitMetadata(dir: string): boolean {
   let current = dir;
@@ -24,9 +26,50 @@ function hasGitMetadata(dir: string): boolean {
  * deny-only inventory: they never authorize old runtime reads or Story hiding.
  */
 import {
+  CONFIG_FILENAMES,
   PROOF_OR_STOP_STATE_DIR,
   STATE_DIR_NAMES,
 } from './brand-paths.js';
+
+export function isByteIdenticalControllerConfig(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  path: string;
+}): boolean {
+  if (!CONFIG_FILENAMES.includes(args.path) || !/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/.test(args.storyId)) return false;
+  try {
+    const worktreeRoot = realpathSync(args.gitCwd);
+    const projectRoot = realpathSync(args.projectRoot);
+    if (worktreeRoot !== projectRoot) return false;
+    const primaryRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (primaryRoot === worktreeRoot) return false;
+    const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (branch !== `refs/heads/story/${args.storyId}`) return false;
+    for (const cwd of [worktreeRoot, primaryRoot]) {
+      const tracked = execFileSync('git', ['ls-files', '--', args.path], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      if (tracked) return false;
+    }
+    const localPath = join(worktreeRoot, args.path);
+    const controllerPath = join(primaryRoot, args.path);
+    const localStat = lstatSync(localPath);
+    const controllerStat = lstatSync(controllerPath);
+    if (!localStat.isFile() || localStat.isSymbolicLink() || !controllerStat.isFile() || controllerStat.isSymbolicLink()) return false;
+    const localBytes = readFileSync(localPath);
+    const controllerBytes = readFileSync(controllerPath);
+    return localBytes.equals(controllerBytes) && hasValidControllerConfigProjection({
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      configPath: args.path,
+      controllerRoot: primaryRoot,
+      worktreeRoot,
+      storyRoot: join(worktreeRoot, loadConfig(worktreeRoot).storyDir, args.storyId),
+      configBytes: controllerBytes,
+    });
+  } catch {
+    return false;
+  }
+}
 
 export type RuntimeArtifactPathMatcher =
   | { kind: 'exact'; value: string }
