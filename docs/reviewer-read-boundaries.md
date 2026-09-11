@@ -91,14 +91,17 @@ changes the roster and is an owner write, including its configured pre/post hook
 activity and generic Story command event. All three runtime surfaces consume the
 same argument-aware ownership result as admission. Historical name-only reader
 helpers remain compatibility APIs; they do not override runtime admission.
-Explicit read telemetry opt-in cannot enable hooks or Story events. Existing
+Explicit read telemetry opt-in cannot enable hooks or Story events. The legacy
+dryRun writer activity suppression is retained; it does not bypass writer
+admission, hooks or Story-event rules. Existing
 handler-owned immutable transactions retain their generic-event exclusions.
 
 Runtime closure resolves each Story workspace once and uses that same source for
 phase, readiness and owner lease. It does not renew a lease or acquire a lock.
 Validation self-reentry requires the live async context's acquisition token to
 match the current holder generation. Matching the Story ID or operating-system
-PID alone is insufficient. Unknown lock state is an observation, not ownership.
+PID alone is insufficient. Unknown lock state grants neither ownership nor availability: it appears as a
+blocking issue in runtime closure and refuses enforce-mode validation writes.
 
 Queue staleness uses the latest valid, non-future Story creation/start/phase
 advance timestamp from the authoritative worktree. Directory timestamps and owner

@@ -298,6 +298,8 @@ async function main() {
     check(ownershipGateSource.includes(`cmd === '${command}'`), `ownership gate missing conditional Story writer ${command}`);
     check(ownershipGateSource.includes(argument), `ownership gate missing ${command} argument ${argument}`);
   }
+  const closureObservation = read(root, 'packages/main/src/core/lifecycle-control/runtime/index.ts');
+  check(closureObservation.includes("reason = 'validation_lock_unknown'") && closureObservation.includes("locks.validationLock === 'unknown') blockingItems.push"), 'Unknown validation lock status must not imply availability');
   check(storyRuntimeAdmissionSource.includes('commandRequiresAuthoritativeRuntime(input.command, input.effectiveOwnership)'), 'Story runtime admission must consume the actual Story-write capability predicate');
   check(!storyRuntimeAdmissionSource.includes("input.effectiveOwnership === 'storyScopedMutating'"), 'Story runtime admission must not enumerate ownership classes');
   check(storyRuntimeAdmissionSource.includes('classifyRuntimeEntrypointAuthority'), 'Story runtime admission must consume the shared runtime authority classifier');

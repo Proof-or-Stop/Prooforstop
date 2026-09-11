@@ -47,7 +47,7 @@ export interface RuntimeEnforcementDecision {
   readonly mode: RuntimeEnforcementMode;
   readonly operation: RuntimeOperation;
   readonly blocked: boolean;
-  readonly reason: 'none' | 'wrong_authoritative_cwd' | 'material_dirty_tree' | 'stale_active_lock' | 'direct_main_mirror_when_worktree_authority' | 'main_write_lock_active';
+  readonly reason: 'none' | 'wrong_authoritative_cwd' | 'material_dirty_tree' | 'stale_active_lock' | 'direct_main_mirror_when_worktree_authority' | 'main_write_lock_active' | 'validation_lock_unknown';
   readonly dirtyState: RuntimeDirtyState;
   readonly rollback: 'set lifecycleControl.runtimeEnforcement=warn';
   readonly proofAdmissibilityEvaluated: false;
@@ -71,6 +71,8 @@ export function evaluateRuntimeEnforcement(input: RuntimeEnforcementInput): Runt
       : 'wrong_authoritative_cwd';
   } else if (input.operation === 'phase-advance' && dirtyState === 'material') {
     reason = 'material_dirty_tree';
+  } else if (input.validationLock === 'unknown') {
+    reason = 'validation_lock_unknown';
   } else if (input.validationLock === 'active' || input.validationLock === 'stale') {
     reason = 'stale_active_lock';
   } else if (input.operation === 'shared-main-write' && input.mainWriteLock === 'active') {
@@ -156,6 +158,14 @@ function ownerLeaseIssue(status: RuntimeClosureRow['locks']['ownerLease']): Life
 }
 
 function validationLockIssue(status: RuntimeClosureRow['locks']['validationLock']): LifecycleControlIssue | null {
+  if (status === 'unknown') {
+    return {
+      check: 'validationLock',
+      reason: 'validation lock owner is unknown; availability is not proven',
+      remediation: 'wait for holder metadata or inspect the lock; missing metadata does not authorize cleanup',
+      source: 'core/validation-execution-lock',
+    };
+  }
   if (status === 'active') {
     return {
       check: 'validationLock',
@@ -259,7 +269,7 @@ export function projectRuntimeClosure(
     if (ownerIssue) advisoryItems.push(ownerIssue);
     const validationIssue = validationLockIssue(locks.validationLock);
     if (validationIssue) {
-      if (locks.validationLock === 'active') blockingItems.push(validationIssue);
+      if (locks.validationLock === 'active' || locks.validationLock === 'unknown') blockingItems.push(validationIssue);
       else advisoryItems.push(validationIssue);
     }
     if (locks.mainWriteLock === 'active') {

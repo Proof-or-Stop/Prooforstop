@@ -279,9 +279,10 @@ export function shouldWriteActivityLog(cmdName: string, args: Record<string, unk
 
 /** Runtime consumers must use the argument-aware admission result, not the
  * legacy name-only compatibility helpers above. Telemetry opt-in never permits
- * hooks or Story events for a read-only invocation. */
-export function commandObservationEffects(ownership: OwnershipClass | null, recordReadOnly = false) {
+ * hooks or Story events for a read-only invocation. Existing dryRun writer
+ * telemetry suppression is preserved independently of admission authority. */
+export function commandObservationEffects(ownership: OwnershipClass | null, recordReadOnly = false, dryRun = false) {
   const readOnly = ownership === 'readOnly';
   const writer = ownership !== null && !readOnly;
-  return { readOnly, runHooks: writer, recordStoryEvent: writer, recordActivity: writer || (readOnly && recordReadOnly) };
+  return { readOnly, runHooks: writer, recordStoryEvent: writer, recordActivity: (writer && !dryRun) || (readOnly && recordReadOnly) };
 }

@@ -1568,7 +1568,7 @@ export async function runCli(opts?: {
       process.exitCode = 1;
       return;
     }
-    const effects = commandObservationEffects(effectiveOwnership, readBrandEnv('ACTIVITY_RECORD_READONLY') === '1');
+    const effects = commandObservationEffects(effectiveOwnership, readBrandEnv('ACTIVITY_RECORD_READONLY') === '1', parsed.dryRun === true);
     const shouldWriteEffectiveActivityLog = effects.recordActivity;
     if (config0?.hooks?.preCommand && effects.runHooks) {
       process.stderr.write(`[proof-or-stop-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
