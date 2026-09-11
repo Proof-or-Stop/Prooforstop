@@ -6,22 +6,25 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, writeFile
 import { join, resolve, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as labPolicy } from '../packages/main/src/core/runtime-fact-registry.ts';
-import { shouldBumpLabVersionForChangedPaths } from '../packages/main/src/core/runtime-version-policy.ts';
+import { shouldBumpLabVersionForChangedPaths, shouldBuildDoneMainPackageForChangedPaths } from '../packages/main/src/core/runtime-version-policy.ts';
+import { repairContentDigest, auditInput, auditIsFresh, developerHost, executeLabAudit } from './lab-audit.mjs';
+import { auditProviders, selectAuditor } from './lab-audit-providers.mjs';
 
 const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote push)
-  node scripts/lab-worktree.mjs create NAME
+  node scripts/lab-worktree.mjs create NAME [--developer PROVIDER]
   node scripts/lab-worktree.mjs sync NAME
   node scripts/lab-worktree.mjs status NAME
   node scripts/lab-worktree.mjs reopen NAME --confirm
   node scripts/lab-worktree.mjs red NAME --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...
   node scripts/lab-worktree.mjs carry NAME --story B-xxxx --source PATH --confirm
   node scripts/lab-worktree.mjs baseline NAME --expect TEXT --confirm -- EXECUTABLE ARG...
+  node scripts/lab-worktree.mjs audit NAME [--developer PROVIDER]
   node scripts/lab-worktree.mjs green NAME
-  node scripts/lab-worktree.mjs finish NAME --notes FILE --confirm [--bump patch]
+  node scripts/lab-worktree.mjs finish NAME --notes FILE --confirm [--bump patch] [--developer PROVIDER]
 
 Commit the repair before green. Green replays the exact RED command.
 Finish requires fresh GREEN, synchronizes main, records notes/version, builds
-when main's policy requires it, reruns the check, fast-forwards clean local main,
+when the executing Lab tool's policy requires it, reruns the check, fast-forwards clean local main,
 rebuilds/rechecks main, then removes the clean worktree and merged branch.
 Failures retain the workspace. Retry finish after correcting the reported issue.
 Notes describe the problem, fix, verification and measured optimization, if any.
@@ -168,6 +171,7 @@ function instructions(name) {
     `It excludes Story metadata and never changes or claims the source Story phase.\n` +
     `Use isolated test data and this checkout's implementation. Keep hooks enabled.\n` +
     `Do not share writable dist or change global installations incidentally.\n` +
+    `Before finish, an independent different-vendor CLI auditor must approve the exact candidate. At least one auditor from a vendor different from the declared developer must pass; configured adapters may include other vendors. Never substitute prose or caller-authored approval for the tool-owned audit record.\n` +
     `Only an explicit user request triggers finish: notes/version/build/checks,\n` +
     `local main integration, then worktree and merged-branch cleanup on success.\n` +
     `Preserve the workspace on any failure. Never push automatically.\n` +
@@ -177,9 +181,9 @@ function instructions(name) {
 async function main() {
   const [action, name, ...rest] = process.argv.slice(2);
   if (!action || action === '--help') { console.log(help); return; }
-  if (!['create', 'sync', 'status', 'red', 'carry', 'baseline', 'green', 'finish', 'reopen'].includes(action)) fail('Unknown command. Use --help.');
+  if (!['create', 'sync', 'status', 'red', 'carry', 'baseline', 'green', 'audit', 'finish', 'reopen'].includes(action)) fail('Unknown command. Use --help.');
   if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(name || '')) fail('NAME must be 1-48 lowercase letters, digits or hyphens.');
-  let notesPath, expected, command, storyId, sourcePath, requestedBump, timeoutMs = 900000;
+  let notesPath, expected, command, storyId, sourcePath, requestedBump, declaredDeveloper, timeoutMs = 900000;
   if (action === 'red') {
     if (rest[0] !== '--expect' || !rest[1]?.trim()) fail('red requires --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...');
     let separator = 2;
@@ -196,10 +200,16 @@ async function main() {
     }
     expected = rest[1]; command = rest.slice(4);
   } else if (action === 'finish') {
-    if (![3, 5].includes(rest.length) || rest[0] !== '--notes' || !rest[1] || rest[2] !== '--confirm'
-      || (rest.length === 5 && (rest[3] !== '--bump' || rest[4] !== 'patch'))) fail('finish requires --notes FILE --confirm [--bump patch] (explicit local integration request).');
-    requestedBump = rest.length === 5 ? 'patch' : undefined;
+    if (rest.length < 3 || rest[0] !== '--notes' || !rest[1] || rest[2] !== '--confirm') fail('finish requires --notes FILE --confirm [--bump patch] [--developer PROVIDER].');
+    for (let i = 3; i < rest.length; i += 2) {
+      if (rest[i] === '--bump' && rest[i+1] === 'patch' && !requestedBump) requestedBump = 'patch';
+      else if (rest[i] === '--developer' && /^[a-z][a-z0-9-]*$/.test(rest[i+1] ?? '') && !declaredDeveloper) declaredDeveloper = rest[i+1];
+      else fail('finish requires --notes FILE --confirm [--bump patch] [--developer PROVIDER]; unsupported or duplicate option.');
+    }
     notesPath = resolve(rest[1]);
+  } else if (action === 'audit' || action === 'create') {
+    if (rest.length && (rest.length !== 2 || rest[0] !== '--developer' || !/^[a-z][a-z0-9-]*$/.test(rest[1]))) fail('Use --developer PROVIDER.');
+    declaredDeveloper = rest[1];
   } else if (action === 'reopen') {
     if (rest.length !== 1 || rest[0] !== '--confirm') fail('reopen requires --confirm.');
   } else if (action === 'carry') {
@@ -210,6 +220,7 @@ async function main() {
     if (!/^B-[A-Za-z0-9]+$/.test(storyId)) fail('carry requires a canonical B-xxxx Story id.');
     sourcePath = realpathSync(resolve(rest[3]));
   } else if (rest.length) fail('Unexpected arguments. Use --help.');
+  const creatingDeveloper = action === 'create' ? developerHost(declaredDeveloper) : undefined;
   const cwd = git(process.cwd(), 'rev-parse', '--show-toplevel');
   const entries = worktrees(cwd);
   const mainRoot = entries.find(w => w.branch === 'refs/heads/main')?.worktree;
@@ -262,6 +273,9 @@ async function main() {
     };
     if (action === 'create') {
       if (existsSync(statePath)) fail('This Lab name already has a record; use a new name or inspect status.');
+      const configPath = 'lab-audit.config.json';
+      const config = git(mainRoot, 'ls-tree', '--name-only', 'HEAD', '--', configPath) ? JSON.parse(git(mainRoot, 'show', `HEAD:${configPath}`)) : {};
+      if (!auditProviders(config).some(provider => provider.id === creatingDeveloper)) fail('Unknown Lab developer provider; register its vendor first.');
       const path = join(mainRoot, '.worktrees', `Lab-${name}`), branch = `codex/lab-${name}`;
       if (existsSync(path)) fail('Lab path already exists; refusing to adopt or overwrite it.');
       const body = instructions(name);
@@ -269,7 +283,7 @@ async function main() {
       // No force, reset or fallback adoption: a partially created directory stays recoverable.
       if (existsSync(join(path, 'AGENTS.override.md'))) fail('Tracked override exists; workspace retained for inspection.');
       writeFileSync(join(path, 'AGENTS.override.md'), body, { flag: 'wx' });
-      save({ schema: labPolicy.recordSchema, name, path, branch, mainRoot, base: sha(mainRoot), override: hash(body), phase: 'active', history: [] });
+      save({ schema: labPolicy.recordSchema, name, path, branch, mainRoot, base: sha(mainRoot), override: hash(body), developerHost: creatingDeveloper, phase: 'active', history: [] });
       console.log(`Created ${path}\nBranch: ${branch}\nNext: reproduce RED; commit repair; green; manually finish.`); return;
     }
     let s = readState(key);
@@ -297,6 +311,55 @@ async function main() {
     if (!entry && !(action === 'finish' && s.phase === 'verified')) fail('Recorded Lab worktree is missing.');
     if (entry && (entry.branch !== `refs/heads/${s.branch}` || entry.locked)) fail('Lab branch changed or worktree is locked; preserve it for inspection.');
     if (entry) assertClean(s.path, s.override);
+    const expectedAudit = (root, base, head, host) => {
+      const configPath = 'lab-audit.config.json';
+      const config = git(root, 'ls-tree', '--name-only', base, '--', configPath) ? JSON.parse(git(root, 'show', `${base}:${configPath}`)) : {};
+      const configDigest = hash(JSON.stringify(config));
+      const providers = auditProviders(config);
+      const dev = providers.find(provider => provider.id === host);
+      const cached = s.audit?.base === base && s.audit?.head === head && s.audit?.configDigest === configDigest
+        ? providers.find(provider => provider.id === s.audit.auditorHost && provider.vendor !== dev?.vendor && (!config.preferredAuditor || provider.id === config.preferredAuditor)) : undefined;
+      const selected = cached && dev ? { developer: dev, auditor: cached } : selectAuditor(host, config);
+      return { config, selected, expected: { labName: name, developerHost: host, developerVendor: selected.developer.vendor, auditorHost: selected.auditor.id, auditorVendor: selected.auditor.vendor, configDigest, base, head, inputDigest: auditInput(root, base, head).inputDigest } };
+    };
+    const ensureAudit = async (base, head, auditRoot = s.path) => {
+      assertAncestor(auditRoot, base, head);
+      // Recovery operators do not become the implementation's developer.
+      const host = s.developerHost ?? declaredDeveloper;
+      if (!host) fail('This Lab has no pinned developer; rerun with --developer PROVIDER naming the provider that implemented the repair.');
+      if (declaredDeveloper && declaredDeveloper !== host) fail('Declared developer conflicts with the pinned Lab developer.');
+      const { config, selected, expected } = expectedAudit(auditRoot, base, head, host);
+      if (!s.developerHost) { s.developerHost = host; save(s); }
+      if (auditIsFresh(s.audit, expected)) return;
+      const repairHead = s.phase !== 'active' && s.candidate === head ? git(auditRoot, 'rev-parse', `${head}^`) : head;
+      const contentDigest = repairContentDigest(auditRoot, base, repairHead);
+      if (s.history.some(row => row.kind === 'cross-host-audit' && row.decision === 'fail' && row.repairContentDigest === contentDigest)) fail('Rejected Lab audit requires changed repair content before another audit.');
+      if (s.audit?.decision === 'fail' && Object.entries(expected).every(([key, value]) => s.audit[key] === value)) fail('Rejected Lab audit requires a changed candidate before another audit.');
+      console.log(`Running independent ${selected.auditor.id} (${selected.auditor.vendor}) CLI Lab audit for ${head}...`);
+      const started = Date.now();
+      let audit;
+      const resumeMainHead = mainLock ? sha(mainRoot) : undefined;
+      // The per-Lab lock remains held; independent main writers may work while the provider runs.
+      if (mainLock) { mainLock.release(); mainLock = undefined; }
+      try { audit = await executeLabAudit({ cwd: auditRoot, base, head, developer: host, labName: name, evidenceRoot: join(dir, name + '-audits'), config, selection: selected }); }
+      catch (error) { s.history.push({ kind: 'cross-host-audit-error', head, base, developerHost: host, elapsedMs: Date.now() - started, error: error.message }); save(s); throw error; }
+      if (auditRoot === s.path) {
+        if (sha(s.path) !== head) fail('Lab changed during audit; result is stale.');
+        assertClean(s.path, s.override);
+      } else assertAncestor(mainRoot, head, 'main');
+      audit.repairContentDigest = contentDigest;
+      s.audit = audit; s.history.push({ kind: 'cross-host-audit', ...audit }); save(s);
+      if (resumeMainHead) {
+        mainLock = acquireMainWriteLock(mainRoot, { label: `lab ${action} ${name} after audit` });
+        if (git(mainRoot, 'branch', '--show-current') !== 'main' || sha(mainRoot) !== resumeMainHead) fail('main changed while the audit ran; preserve candidate and reopen before integration.');
+        assertMainStable();
+      }
+      if (!auditIsFresh(audit, expected)) fail(`Independent Lab audit rejected the candidate. Resolve findings and reopen if prepared. Evidence: ${audit.evidenceDir}`);
+    };
+    if (action === 'audit') {
+      await ensureAudit(s.phase === 'active' ? sha(mainRoot) : s.releaseBase, sha(s.path));
+      console.log('Independent different-vendor Lab audit passed for current committed HEAD.'); return;
+    }
     if (action === 'reopen') {
       if (s.phase !== 'prepared') fail('Only an unintegrated prepared candidate can be reopened.');
       let integrated = false;
@@ -533,7 +596,6 @@ async function main() {
     const notes = read(notesPath).trim();
     if (notes.length < 40 || notes.length > 100000) fail('Provide substantive English release notes (40-100000 characters).');
     const versions = await core('version-bump');
-    const { shouldBuildDoneMainPackageForChangedPaths } = await core('runtime-version-policy');
     if (requestedBump === 'patch' && s.phase !== 'active' && !s.bump) {
       fail('Prepared release did not upgrade: reopen an unintegrated candidate before requesting --bump patch.');
     }
@@ -700,6 +762,7 @@ async function main() {
         if (sha(mainRoot) !== s.releaseBase) fail('main moved after preparation; preserve candidate for explicit re-preparation.');
         build(s.path); checkStoryBaselineParity(s.path, 'candidate-story-baseline');
         checkStoryIntegrationWitnesses(s.path, 'candidate-story-integration'); check(s.path, 'candidate-green');
+        await ensureAudit(s.releaseBase, s.candidate);
         assertMainStable(); assertClean(s.path, s.override);
         if (sha(mainRoot) !== s.releaseBase || sha(s.path) !== s.candidate) fail('HEAD changed during verification; refusing merge.');
         if (git(mainRoot, 'branch', '--show-current') !== 'main') fail('The main checkout changed branches.');
@@ -709,12 +772,17 @@ async function main() {
     }
     if (s.phase === 'integrated') {
       if (sha(mainRoot) !== s.candidate) fail('main moved before post-merge verification; workspace retained for recovery.');
+      // This exact immutable input already passed before --ff-only; the bounds cannot newly grow here.
+      await ensureAudit(s.releaseBase, s.candidate);
       build(mainRoot); checkStoryBaselineParity(mainRoot, 'main-story-baseline');
       checkStoryIntegrationWitnesses(mainRoot, 'main-story-integration'); check(mainRoot, 'main-green');
       if (versions.readSyncedVersion(mainRoot) !== s.version) fail('main version drift after integration.');
       s.phase = 'verified'; save(s);
     }
     if (s.phase === 'verified') {
+      await ensureAudit(s.releaseBase, s.candidate, entry ? s.path : mainRoot);
+      assertMainStable();
+      if (!auditIsFresh(s.audit, expectedAudit(mainRoot, s.releaseBase, s.candidate, s.developerHost).expected)) fail('Fresh independent Lab audit required before cleanup.');
       if (!entry && existsSync(s.path)) fail('Unregistered directory remains at Lab path; cleanup refused.');
       assertAncestor(mainRoot, s.candidate, 'main');
       if (entry) {

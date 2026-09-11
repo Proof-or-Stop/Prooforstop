@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+import { createHmac } from 'node:crypto';
 import assert from 'node:assert/strict';
+import { installLabAuditFixtureProviders } from './lab-audit-fixture-provider.mjs';
 import { copyLabFixtureSources } from './lab-fixture-sources.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, cpSync, existsSync, rmSync, symlinkSync } from 'node:fs';
@@ -9,12 +11,13 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const script = join(root, 'scripts/lab-worktree.mjs');
 const dir = mkdtempSync(join(tmpdir(), 'lab-worktree-test-'));
+const auditFixtureBin = installLabAuditFixtureProviders(dir);
 let checks = 0;
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const write = (root, path, body) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), body); };
 const commit = (cwd, message) => { git(cwd, 'add', '-A', '--', '.', ':!AGENTS.override.md'); git(cwd, 'commit', '-m', message); };
 const cmd = (cwd, args, expected = 0, match) => {
-  const r = spawnSync(process.execPath, [script, ...args], { cwd, encoding: 'utf8', timeout: 60000, env: { ...process.env, npm_config_prefix: join(dir, 'global'), NPM_CONFIG_PREFIX: join(dir, 'global') } });
+  const r = spawnSync(process.execPath, [script, ...args], { cwd, encoding: 'utf8', timeout: 60000, env: { ...process.env, GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.excludesFile', GIT_CONFIG_VALUE_0: '/dev/null', CODEX_THREAD_ID: ['claude','plain'].includes(process.env.LAB_FIXTURE_DEVELOPER) ? '' : 'fixture-developer', CLAUDECODE: process.env.LAB_FIXTURE_DEVELOPER === 'claude' ? '1' : '', PATH: auditFixtureBin + ':' + process.env.PATH, npm_config_prefix: join(dir, 'global'), NPM_CONFIG_PREFIX: join(dir, 'global') } });
   const output = (r.stdout || '') + (r.stderr || '');
   assert.equal(r.status, expected, `${args.join(' ')}\n${output}`);
   if (match) assert.match(output, match);
@@ -41,6 +44,132 @@ function fixture(name) {
 const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced system regression while preserving the existing behavior contract. Verify the target regression and the synchronized built version.');
 const finish = name => ['finish', name, '--notes', notes, '--confirm'];
 try {
+  await import('./verify-lab-audit-contract.mjs');
+  await import('./verify-lab-fixture-sources.mjs');
+  await import('./verify-lab-lock-scope.mjs');
+  assert.notEqual(process.exitCode,1,'Lab lock-scope assertions must pass');
+  // Fault injection is confined to disposable signed fixture records.
+  const alterFixtureRecord=(repo,name,mutate)=>{const path=join(repo,'.git/lab-maintenance',name+'.json');const r=JSON.parse(readFileSync(path));mutate(r.payload);r.hmac=createHmac('sha256',readFileSync(join(repo,'.git/lab-maintenance/local.key'))).update(JSON.stringify(r.payload)).digest('hex');writeFileSync(path,JSON.stringify(r));};
+  const legacy=fixture('legacy-identity');
+  process.env.LAB_FIXTURE_DEVELOPER='plain';
+  cmd(legacy,['create','identity'],1,/declared developer provider/);
+  cmd(legacy,['create','identity','--developer','unknown-fixture-provider'],1,/Unknown Lab developer/);
+  cmd(legacy,['status','identity'],1,/Unknown Lab/);
+  cmd(legacy,['create','identity','--developer','codex']);
+  assert.equal(JSON.parse(cmd(legacy,['status','identity'])).developerHost,'codex');
+  const legacyLab=join(legacy,'.worktrees/Lab-identity');
+  cmd(legacy,['red','identity','--expect','TARGET regression','--',process.execPath,'check.cjs']);
+  write(legacyLab,'bug.txt','fixed');commit(legacyLab,'fix: legacy witness');cmd(legacy,['green','identity']);
+  alterFixtureRecord(legacy,'identity',s=>{delete s.developerHost;s.schema=2;});
+  process.env.LAB_FIXTURE_DEVELOPER='claude';
+  cmd(legacy,finish('identity'),1,/no pinned developer/);
+  cmd(legacy,[...finish('identity'),'--developer','unknown-fixture-provider'],1,/Unknown Lab developer/);
+  assert.equal(JSON.parse(cmd(legacy,['status','identity'])).developerHost,undefined,'LAB_INVALID_DEVELOPER_MUST_NOT_PIN');
+  cmd(legacy,[...finish('identity'),'--developer','codex']);
+  const legacyAudit=JSON.parse(cmd(legacy,['status','identity'])).audit;
+  assert.equal(legacyAudit.developerHost,'codex');assert.equal(legacyAudit.auditorVendor,'anthropic');
+  delete process.env.LAB_FIXTURE_DEVELOPER;
+  const unaudited = fixture('unaudited'); cmd(unaudited, ['create', 'unaudited']);
+  const unauditedLab = join(unaudited, '.worktrees/Lab-unaudited');
+  cmd(unaudited, ['red', 'unaudited', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
+  write(unauditedLab, 'bug.txt', 'fixed'); commit(unauditedLab, 'fix: needs independent audit');
+  cmd(unaudited, ['green', 'unaudited']);
+  const unauditedHead = git(unaudited, 'rev-parse', 'HEAD');
+  process.env.LAB_FIXTURE_AUDIT = 'reject';
+  assert.doesNotThrow(() => cmd(unaudited, finish('unaudited'), 1, /audit/i),
+    'LAB_CROSS_HOST_AUDIT_REQUIRED: rejected audit must prevent integration');
+  delete process.env.LAB_FIXTURE_AUDIT;
+  assert.equal(git(unaudited, 'rev-parse', 'HEAD'), unauditedHead);
+  cmd(unaudited, finish('unaudited'), 1, /Rejected Lab audit/);
+  cmd(unaudited,['reopen','unaudited','--confirm']);
+  cmd(unaudited,['green','unaudited']);
+  cmd(unaudited,finish('unaudited'),1,/changed repair content/);
+  assert.equal(git(unaudited,'rev-parse','HEAD'),unauditedHead);
+  cmd(unaudited,['reopen','unaudited','--confirm']);
+  write(unauditedLab,'repair.txt','Substantive fixture repair');commit(unauditedLab,'fix: resolve audit witness');
+  cmd(unaudited,['green','unaudited']);cmd(unaudited,finish('unaudited'));
+  // Both host directions are selected mechanically; callers cannot choose the auditor.
+  process.env.LAB_FIXTURE_DEVELOPER = 'claude';
+  const reverse = fixture('reverse'); cmd(reverse, ['create', 'reverse']);
+  const reverseLab = join(reverse, '.worktrees/Lab-reverse');
+  cmd(reverse, ['red', 'reverse', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
+  write(reverseLab, 'bug.txt', 'fixed'); commit(reverseLab, 'fix: reverse host');
+  cmd(reverse, ['green', 'reverse']); cmd(reverse, ['audit', 'reverse']);
+  const reverseAudit = JSON.parse(cmd(reverse, ['status', 'reverse'])).audit;
+  assert.equal(reverseAudit.developerHost, 'claude'); assert.equal(reverseAudit.auditorHost, 'codex');
+  write(reverseLab, 'bug.txt', 'fixed again'); commit(reverseLab, 'test: invalidate audit');
+  process.env.LAB_FIXTURE_AUDIT = 'stale';
+  cmd(reverse, ['audit', 'reverse'], 1, /stale subject/);
+  delete process.env.LAB_FIXTURE_AUDIT;
+  delete process.env.LAB_FIXTURE_DEVELOPER;
+
+
+  const third = fixture('third');
+  write(third, 'lab-audit.config.json', JSON.stringify({adapters:[{id:'grok',vendor:'xai',command:join(auditFixtureBin,'grok-fixture-adapter'),argv:[],protocol:'lab-json'}],preferredAuditor:'grok'}));
+  commit(third, 'test: trusted main provider configuration');
+  cmd(third, ['create', 'third']);
+  const thirdLab = join(third, '.worktrees/Lab-third');
+  write(thirdLab, 'bug.txt', 'fixed'); commit(thirdLab, 'fix: third vendor audit');
+  cmd(third, ['audit', 'third']);
+  assert.equal(JSON.parse(cmd(third, ['status', 'third'])).audit.auditorVendor, 'xai');
+
+  // Without a preference the current default differs from the cached Grok adapter.
+  const configWithoutPreference={adapters:[{id:'grok',vendor:'xai',command:join(auditFixtureBin,'grok-fixture-adapter'),argv:[],protocol:'lab-json'}]};
+  write(third,'lab-audit.config.json',JSON.stringify(configWithoutPreference));commit(third,'test: no preferred auditor');cmd(third,['sync','third']);
+  cmd(third,['audit','third']);
+  alterFixtureRecord(third,'third',s=>{s.audit.auditorHost='grok';s.audit.auditorVendor='xai';s.audit.process.processCleanup.reaped=false;});
+  cmd(third,['audit','third']);
+  assert.equal(JSON.parse(cmd(third,['status','third'])).audit.auditorHost,'grok');
+
+  write(third, 'lab-audit.config.json', JSON.stringify({adapters:[{id:'grok',vendor:'xai',command:join(auditFixtureBin,'nonexecutable-adapter'),argv:[],protocol:'lab-json'}],preferredAuditor:'grok'}));
+  commit(third,'test: failing custom executable'); cmd(third,['sync','third']);
+  cmd(third,['audit','third'],1,/provider failed/);
+
+  const transport = fixture('transport'); cmd(transport, ['create', 'transport']);
+  const transportLab = join(transport, '.worktrees/Lab-transport');
+  write(transportLab, 'bug.txt', 'fixed'); commit(transportLab, 'fix: malformed transport witness');
+  write(transportLab,'extra.txt','second audit reference');commit(transportLab,'test: multiple read references');
+  for (const [mode,pattern] of [['malformed',/malformed JSON/],['duplicate',/exactly one/],['omit-refs',/omitted changed-file read references/],['mutate-snapshot',/snapshot changed during provider execution/]]) {
+    process.env.LAB_FIXTURE_AUDIT = mode;
+    cmd(transport, ['audit','transport'], 1, pattern);
+    assert.equal(JSON.parse(cmd(transport,['status','transport'])).audit, undefined);
+  }
+  delete process.env.LAB_FIXTURE_AUDIT;
+
+  for (const [kind, content] of [['binary',Buffer.from([0,1,2])],['oversize','z'.repeat(5*1024*1024)]]) {
+    const name='bounded-'+kind;
+    const bounded=fixture(name);cmd(bounded,['create',name]);
+    const boundedLab=join(bounded,'.worktrees/Lab-'+name);
+    cmd(bounded,['red',name,'--expect','TARGET regression','--',process.execPath,'check.cjs']);
+    write(boundedLab,'bug.txt','fixed');write(boundedLab,'input.bin',content);commit(boundedLab,'fix: audit input boundary');
+    cmd(bounded,['green',name]);const boundedHead=git(bounded,'rev-parse','HEAD');
+    cmd(bounded,finish(name),1,kind==='binary'?/binary content \(input.bin\)/:/exceeds the bounded text contract/);
+    assert.equal(git(bounded,'rev-parse','HEAD'),boundedHead,'Input refusal must occur before integration');
+    assert.equal(JSON.parse(cmd(bounded,['status',name])).phase,'prepared');
+  }
+
+  for (const direction of ['file-to-directory','directory-to-file']) {
+    const repo=fixture(direction);
+    write(repo,direction==='file-to-directory'?'shape':'shape/leaf.txt','old shape');commit(repo,'test: initial path shape');
+    cmd(repo,['create',direction]);const work=join(repo,'.worktrees/Lab-'+direction);
+    cmd(repo,['red',direction,'--expect','TARGET regression','--',process.execPath,'check.cjs']);
+    rmSync(join(work,'shape'),{recursive:true});write(work,direction==='file-to-directory'?'shape/leaf.txt':'shape','new shape');
+    write(work,'bug.txt','fixed');commit(work,'fix: path shape witness');cmd(repo,['green',direction]);
+    const mainHead=git(repo,'rev-parse','HEAD');
+    cmd(repo,finish(direction),1,/conflicting snapshot paths/);
+    assert.equal(git(repo,'rev-parse','HEAD'),mainHead);
+  }
+
+  const late = fixture('late'); cmd(late, ['create', 'late']);
+  const lateLab = join(late, '.worktrees/Lab-late');
+  cmd(late, ['red', 'late', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
+  write(lateLab, 'bug.txt', 'fixed');
+  write(lateLab, 'check.cjs', readFileSync(join(lateLab,'check.cjs'),'utf8') + "if(require('node:fs').readFileSync('CHANGELOG.md','utf8').includes('Lab late'))process.exit(1);\n");
+  commit(lateLab, 'test: fail after release preparation'); cmd(late, ['green', 'late']);
+  cmd(late, finish('late'), 1, /candidate-green failed/);
+  cmd(late, [...finish('late'),'--bump','patch'], 1, /Prepared release did not upgrade/);
+  assert.equal(JSON.parse(readFileSync(join(late, 'package.json'))).version,'1.0.0');
+
   // Explicit patch requests must work even when only a non-build input changes.
   const explicit = fixture('explicit'); cmd(explicit, ['create', 'explicit']);
   const explicitLab = join(explicit, '.worktrees/Lab-explicit');
@@ -48,13 +177,15 @@ try {
   write(explicitLab, 'bug.txt', 'fixed'); commit(explicitLab, 'fix: non-build input');
   cmd(explicit, ['green', 'explicit']);
   const patchFinish = [...finish('explicit'), '--bump', 'patch'];
-  write(explicit, '.git/info/exclude', '.fail-build\n'); write(explicit, '.fail-build', 'fail');
+  write(explicit, '.git/info/exclude', '/node_modules\n.fail-build\n'); write(explicit, '.fail-build', 'fail');
   assert.doesNotThrow(() => cmd(explicit, patchFinish, 1, /Build failed/),
     'EXPLICIT_PATCH_UPGRADE: finish must honor the requested patch before post-merge build');
   assert.equal(JSON.parse(cmd(explicit, ['status', 'explicit'])).phase, 'integrated');
   rmSync(join(explicit, '.fail-build'));
   // Omitting the option on retry preserves the prepared upgrade, never bumps twice.
+  process.env.LAB_FIXTURE_DEVELOPER = 'plain';
   cmd(explicit, finish('explicit'));
+  delete process.env.LAB_FIXTURE_DEVELOPER;
   for (const rel of ['package.json', 'package-lock.json', 'packages/main/package.json', 'packages/main/package-lock.json']) {
     assert.equal(JSON.parse(readFileSync(join(explicit, rel))).version, '1.0.1');
   }
@@ -66,6 +197,7 @@ try {
   write(scriptsLab, 'bug.txt', 'fixed'); write(scriptsLab, 'scripts/repair.mjs', 'export const fixed = true;\n');
   commit(scriptsLab, 'fix: executable maintenance script'); cmd(scripts, ['green', 'scripts']);
   cmd(scripts, [...finish('scripts'), '--bump', 'minor'], 1, /patch/);
+  assert.equal(JSON.parse(readFileSync(join(scripts, 'package.json'))).version, '1.0.0');
   cmd(scripts, finish('scripts'));
   assert.equal(JSON.parse(readFileSync(join(scripts, 'package.json'))).version, '1.0.1');
 
@@ -112,7 +244,7 @@ try {
   cmd(retry, ['red', 'retry', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
   write(retryLab, 'bug.txt', 'fixed'); write(retryLab, 'packages/main/src/fix.ts', 'export const fixed = true;'); commit(retryLab, 'fix: retry target'); cmd(retry, ['green', 'retry']);
   // Ignored marker makes main build fail only AFTER successful candidate verification.
-  write(retry, '.git/info/exclude', '.fail-build\n'); write(retry, '.fail-build', 'fail');
+  write(retry, '.git/info/exclude', '/node_modules\n.fail-build\n'); write(retry, '.fail-build', 'fail');
   cmd(retry, finish('retry'), 1, /Build failed/);
   assert.ok(existsSync(retryLab)); assert.equal(JSON.parse(cmd(retry, ['status', 'retry'])).phase, 'integrated');
   rmSync(join(retry, '.fail-build')); cmd(retry, finish('retry'));
@@ -145,7 +277,7 @@ try {
   cmd(reopen, ['red', 'reopen', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
   write(reopenLab, 'bug.txt', 'fixed'); write(reopenLab, 'packages/main/src/fix.ts', 'export const fixed = true;');
   commit(reopenLab, 'fix: reopen target'); cmd(reopen, ['green', 'reopen']);
-  write(reopen, '.git/info/exclude', '.fail-build\n'); write(reopenLab, '.fail-build', 'fail');
+  write(reopen, '.git/info/exclude', '/node_modules\n.fail-build\n'); write(reopenLab, '.fail-build', 'fail');
   cmd(reopen, finish('reopen'), 1, /Build failed/);
   assert.equal(JSON.parse(cmd(reopen, ['status', 'reopen'])).phase, 'prepared');
   write(reopen, 'main-news.txt', 'advance main'); commit(reopen, 'docs: main advanced');
@@ -189,7 +321,7 @@ try {
     encoding: 'utf8',
     stdio: 'inherit',
     timeout: 120000,
-    env: { ...process.env, npm_config_prefix: join(dir, 'carry-global'), NPM_CONFIG_PREFIX: join(dir, 'carry-global') },
+    env: { ...process.env, GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.excludesFile', GIT_CONFIG_VALUE_0: '/dev/null', CODEX_THREAD_ID: ['claude','plain'].includes(process.env.LAB_FIXTURE_DEVELOPER) ? '' : 'fixture-developer', CLAUDECODE: process.env.LAB_FIXTURE_DEVELOPER === 'claude' ? '1' : '', PATH: auditFixtureBin + ':' + process.env.PATH, npm_config_prefix: join(dir, 'carry-global'), NPM_CONFIG_PREFIX: join(dir, 'carry-global') },
   });
   checks++;
   console.log(`Lab worktree verification passed (${checks} command checks plus state, version and cleanup assertions).`);

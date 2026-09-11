@@ -1,6 +1,6 @@
 {
   "name": "proof-or-stop",
-  "version": "0.3.328",
+  "version": "0.3.329",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -9,6 +9,9 @@
   "scripts": {
     "preflight:entry": "node scripts/entry-preflight.mjs",
     "lab:worktree": "node scripts/lab-worktree.mjs",
+    "test:lab-lock-scope": "node scripts/verify-lab-lock-scope.mjs",
+    "test:lab-audit-contract": "node scripts/verify-lab-audit-contract.mjs",
+    "test:lab-fixture-sources": "node scripts/verify-lab-fixture-sources.mjs",
     "test:lab-worktree": "node scripts/verify-lab-worktree.mjs",
     "audit:silent-catches": "node scripts/audit-silent-catches.mjs",
     "build": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/graph run build && node scripts/verify-full-suite-build-binding.mjs",
