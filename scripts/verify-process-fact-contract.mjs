@@ -11057,6 +11057,7 @@ nodeAssert.ok(read(processFactRegistryPath).includes('schedulerWaitMs is diagnos
   for (const token of ['verifyValidationArtifact', 'signValidationArtifact', 'finalizedLiveAggregateError', 'readFindingLedger', 'buildVerificationCoverage', 'collectReviewerEvidenceState', 'revokedCompletedEpochIds', 'assessEffectiveProgress', 'hasMechanicalExecutionAuthority', 'captureEvidenceHashSnapshot']) {
     assert(progress.includes(token), `U11 progress authority missing ${token}`);
   }
+  for (const token of ['consumedByCertificationWindowId: _epochWindow', 'consumedByCertificationWindowId: _receiptWindow']) assert(progress.includes(token), `U11 legitimate certification consumption must preserve completion claims: ${token}`);
   assert(read('packages/main/src/handlers/review-inventory.ts').includes('captureConvergenceProgress(ctx, args.storyId, finalized.epochId)'), 'U11 actual inventory finalization must record verified progress');
   assert(read('packages/main/src/core/process-fact-registry.ts').includes('artifact:convergence-progress.json'), 'U11 signed progress artifact must be registered');
   assert(read('packages/main/src/handlers/finding.ts').includes('reviewPurpose: run.reviewPurpose, inventoryBinding: run.inventoryBinding'), 'native direct terminal authority must retain the signed review purpose');

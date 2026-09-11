@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab convergence-certification-consumption - v0.3.327 - 2026-09-11
+
+Repair completed convergence history after legitimate certification consumption. Exclude the later signed consumedByCertificationWindowId lifecycle output from both epoch and receipt completion projections, retaining signature checks and all remaining completion claims. Certification independently enforces consumption authority; no new gate authority is granted.
+
+The regression exercises real required-lane and completeness-critic inventory finalization, fast validation, actual certification admission, signed convergence history and shared progress gate, routine validation, and the actual TEST transition. It preserves invalid-signature and signed material/receipt mutation refusal controls. Exact-test historical RED against unchanged original main projection took 25.021 seconds; GREEN took 30.970 seconds. Builds and the process-fact contract verifier passed. Owner reviewed the minimal repair without blockers.
+
+The TEST transition now reaches a separate pre-existing completeness-critic dispatch attestation refusal, explicitly reported by the bounded regression. This Lab proves completed-history repair, not TEST lifecycle success or Story DONE. The separate critic defect remains under independent repair.
+
+Maintenance provenance: codex/lab-convergence-certification-consumption, repair 283e69112524fc7e810975aaef2ea530130ac352.
+Verification command (replayed before integration and on main): `["node","scripts/verify-convergence-certification-consumption.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab recall-dependency-direction - v0.3.326 - 2026-09-11
 
 Repair the pre-existing reverse dependency from Story2 historical recall to Story1 applicability. Move the unchanged signed L4 invalidation observer to the existing Story1 recall owner and inject an internal typed provider from the registry. Preserve exact signed reference and owner checks, locked revalidation, explicit/automatic deduplication, and non-authoritative gateEvidence=false candidates; unavailable providers fail closed and request JSON cannot supply one.

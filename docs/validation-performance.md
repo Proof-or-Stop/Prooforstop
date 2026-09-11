@@ -1126,3 +1126,7 @@ New conditional reviewer runs record `fullStoryBaseHead`, the main commit resolv
 The field accepts a full Git commit object id, never a branch name. A declared base that is no longer available produces `FULL_STORY_BASE_UNAVAILABLE`; it does not fall back to current main or an empty diff. Where production cannot resolve main, the field is omitted and existing behavior is retained. Older envelopes remain readable without inventing a base or changing their legacy eligibility digest; affected old evidence may require a new reviewer run.
 
 This freezes a historical input, not current admission. Story-source, scope, policy, native identity and Finding checks remain live. An authorized operator can still choose main before creating the run; this change records that choice rather than preventing it.
+
+### Completed inventory history after certification
+
+Certification admission legitimately adds signed consumption timestamps and certification-window ownership to a finalized inventory epoch and receipt. The convergence completion digest excludes those later output fields in both records while continuing to verify both signatures and all completion claims. Agents should retain the existing journal after normal admission; do not reset completion history to work around a lifecycle output. Material or receipt tampering remains an integrity failure. Consumption ownership is still enforced independently by certification and never grants authority through the convergence journal.
