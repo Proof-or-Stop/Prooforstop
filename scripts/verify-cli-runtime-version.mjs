@@ -20,7 +20,7 @@ try {
   cpSync(join(root, 'package.json'), join(fixture, 'package.json'));
   mkdirSync(join(fixture, 'node_modules'));
   symlinkSync(join(root, 'packages/main/node_modules'), join(pkg, 'node_modules'));
-  // Root-level helper modules and the main package share the installed dependency tree.
+  // Reuse dependencies, but never share the candidate dist or mutable manifest.
   rmSync(join(fixture, 'node_modules'), { recursive: true });
   symlinkSync(join(root, 'node_modules'), join(fixture, 'node_modules'));
   if (existsSync(join(root, 'packages/utils/dist'))) cpSync(join(root, 'packages/utils/dist'), join(fixture, 'packages/utils/dist'), { recursive: true });
@@ -41,21 +41,29 @@ try {
   const control = invoke(direct);
   assert.equal(control.exitCode, 0, `positive runtime fixture setup failed: ${control.stderr}`);
   assert.ok(control.stdout.includes(original.version), 'positive CLI must report its compiled version');
+  const wrapper = join(fixture, 'bin/proof-or-stop.js');
+  const wrapperControl = invoke(wrapper);
+  assert.equal(wrapperControl.exitCode, 0, `positive wrapper fixture setup failed: ${wrapperControl.stderr}`);
   const before = readdirSync(external).sort();
   const results = [];
   writeFileSync(manifest, JSON.stringify({ ...original, version: '999.1.0' }));
-  for (const entry of [direct, join(fixture, 'bin/proof-or-stop.js')]) {
-    const observed = invoke(entry);
-    results.push({ case: 'stale runtime after package update', entry, ...observed });
+  for (const entry of [direct, wrapper]) {
+   for (const argv of [['--version'], ['--help'], ['story_create', '--name=must-not-execute']]) {
+    const observed = invoke(entry, argv);
+    results.push({ case: 'stale runtime after package update', entry, argv, ...observed });
     assert.ok(observed.exitCode !== 0 && observed.stderr.includes('CLI_RUNTIME_VERSION_MISMATCH'),
       `CLI_RUNTIME_VERSION_STALE_ACCEPTED: ${JSON.stringify(observed)}`);
     assert.ok(!observed.stdout.includes(`Proof-or-Stop ${original.version}`), 'must not report stale version as healthy');
+   }
   }
+  writeFileSync(manifest, JSON.stringify({ ...original, version: null }));
+  const invalid = invoke(direct);
+  assert.ok(invalid.exitCode !== 0 && invalid.stderr.includes('CLI_RUNTIME_VERSION_METADATA_INVALID'), 'invalid runtime version must not dispatch');
   writeFileSync(manifest, JSON.stringify(original));
   const restored = invoke(direct);
   assert.equal(restored.exitCode, 0, `exact restoration must recover: ${restored.stderr}`);
   assert.deepEqual(readdirSync(external).sort(), before, 'entry checks must not write into the caller project');
-  console.log('CLI_RUNTIME_VERSION_GREEN ' + JSON.stringify({ control, results, restored, callerUnchanged: true }));
+  console.log('CLI_RUNTIME_VERSION_GREEN ' + JSON.stringify({ control, wrapperControl, results, invalid, restored, callerUnchanged: true }));
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }

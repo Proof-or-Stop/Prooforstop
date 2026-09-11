@@ -69,6 +69,10 @@ async function importDist(root, relPath) {
 async function main() {
   const root = findRepoRoot(process.cwd());
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')
+    && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),
+  'CLI startup must bind its compiled version to the installed runtime package');
+  execFileSync(process.execPath, ['scripts/verify-cli-runtime-version.mjs'], { cwd: root, stdio: 'pipe', timeout: 60000 });
   check(registrySource.includes('VALIDATION_SOURCE_PROVENANCE_SCHEMA') && read(root, 'packages/main/src/core/validation-executor.ts').includes('schemaVersion: VALIDATION_SOURCE_PROVENANCE_SCHEMA'), 'executor source provenance requires a registered runtime schema');
   const physicalTraceVersion = 'validation-runtime-trace.physical-read.v2';
   check(registrySource.includes(physicalTraceVersion) && read(root, 'packages/main/src/core/validation-runtime-tracer.cjs').includes(physicalTraceVersion), 'CJS tracer and runtime policy schema must agree');

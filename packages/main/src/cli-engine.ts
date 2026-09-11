@@ -1,4 +1,5 @@
 import {enforceExecutionImplementationPin,executionImplementationIdentity} from './core/execution-implementation.js';
+import { assertRuntimePackageVersion } from './core/runtime-package-version.js';
 /**
  * Proof-or-Stop engine
  *
@@ -758,6 +759,7 @@ export async function runCli(opts?: {
   extraOwnershipClasses?: Readonly<Record<string, import('./core/command-policy.js').OwnershipClass>>;
   extraAllowedPhases?: Readonly<Record<string, readonly string[] | 'all'>>;
 }): Promise<void> {
+  assertRuntimePackageVersion();
   const enforcedImplementationIdentity = enforceExecutionImplementationPin();
   if (process.argv.slice(2).includes('--implementation-identity')) {
     // This synchronous branch has no dispatch or intervening work: print the
