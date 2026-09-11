@@ -11,6 +11,12 @@ export const MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY = { maxConcurrent: 4, dir
 export const MACHINE_HEAVY_RESOURCE_POLICY = { cpuKey: 'heavy', processKey: 'fanout', access: 'exclusive', admission: 'one-heavy-member-per-os-user' } as const;
 export const MACHINE_FIXED_PORT_RUNTIME_POLICY = { directoryMode: 0o700, probeTimeoutMs: 1000, queueDeadlineMs: 300000, scope: 'same-os-user-across-repositories', admissionBoundary: 'actual-command-child', unknownResources: 'exclusive-machine-queue', classifiedEmptyResources: 'shared-machine-barrier', barrierKey: 'admission' } as const;
 export const MANAGED_REVIEW_TEMP_RUNTIME_POLICY = { environmentKeys: ['TMPDIR', 'TMP', 'TEMP'], directoryMode: 0o700, isolation: 'per-managed-review-scratch' } as const;
+export const OWNER_SESSION_IDENTITY_RUNTIME_POLICY = {
+  primaryWorktreeProbeCommand: 'git worktree list --porcelain -z',
+  gitScope: 'primary-worktree-root',
+  linkedWorktreeContinuity: true,
+  foreignTaskIsolation: true,
+} as const;
 
 export const REQUIRED_RUNTIME_FACT_IDS = [
   'entrypoint-authority',

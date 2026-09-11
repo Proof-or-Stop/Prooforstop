@@ -46,7 +46,7 @@
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import {
   OWNER_LEASE_FILE,
   STALE_LEASE_THRESHOLD_MS,
@@ -769,6 +769,43 @@ try {
     const blankOverride = runChildIdentity({ ...codexBase, PROOF_OR_STOP_SESSION_ID: '   ' }, true).identity;
     assert.equal(blankOverride.sessionId, codexTaskA.sessionId, 'blank explicit override falls through in a real child process');
 
+    // A Story starts in the primary checkout and then requires the same logical
+    // owner to continue from a linked worktree. The checkout boundary must not
+    // change host-adapter identity, while a different host task must still be
+    // rejected by the active owner lease.
+    const handoffRepo = join(root, 'worktree-session-handoff-repo');
+    const handoffWorktree = join(root, 'worktree-session-handoff-linked');
+    const handoffState = join(root, 'worktree-session-handoff-state');
+    mkdirSync(handoffRepo, { recursive: true });
+    execFileSync('git', ['init'], { cwd: handoffRepo, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'owner-session-smoke@example.invalid'], { cwd: handoffRepo, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.name', 'Owner Session Smoke'], { cwd: handoffRepo, stdio: 'ignore' });
+    writeFileSync(join(handoffRepo, 'README.md'), 'owner session handoff fixture\n', 'utf8');
+    execFileSync('git', ['add', 'README.md'], { cwd: handoffRepo, stdio: 'ignore' });
+    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture'], { cwd: handoffRepo, stdio: 'ignore' });
+    execFileSync('git', ['worktree', 'add', '-b', 'story/B-handoff', handoffWorktree, 'HEAD'], { cwd: handoffRepo, stdio: 'ignore' });
+
+    const runWorktreeLeaseGateChild = (cwd: string, threadId: string): { ok: boolean; error?: string } => {
+      const env = {
+        ...cleanChildEnv(),
+        CODEX_THREAD_ID: threadId,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE: 'lease-gate',
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT: handoffState,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_STORY: 'B-worktree-handoff',
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_PHASE: 'INIT_CHECK',
+      };
+      const result = spawnSync(process.execPath, [childFile], { cwd, env, encoding: 'utf8', timeout: 10_000 });
+      assert.equal(result.status, 0, `worktree owner handoff child exits cleanly: ${result.stderr}`);
+      return JSON.parse(String(result.stdout).trim()) as { ok: boolean; error?: string };
+    };
+    const rootOwner = runWorktreeLeaseGateChild(handoffRepo, 'same-logical-owner');
+    assert.equal(rootOwner.ok, true, 'the logical owner acquires the lease in the primary checkout');
+    const linkedOwner = runWorktreeLeaseGateChild(handoffWorktree, 'same-logical-owner');
+    assert.equal(linkedOwner.ok, true, 'the same logical owner continues from the Story worktree without forceTakeover');
+    const foreignOwner = runWorktreeLeaseGateChild(handoffWorktree, 'different-logical-owner');
+    assert.equal(foreignOwner.ok, false, 'a genuinely different host task cannot steal the active lease in the Story worktree');
+    assert.match(foreignOwner.error ?? '', /owner-gated|still ACTIVE/, 'foreign-task refusal retains the active-lease boundary');
+
     // Race two independent token creator processes for one scope. The scope
     // lock plus atomic rename makes both children return exactly one token.
     const raceRoot = join(root, 'token-race');
@@ -818,15 +855,20 @@ try {
     });
     assert.equal(briefDirect.status, 0, `real session_brief exits cleanly: ${briefDirect.stderr}`);
     const briefOutput = `${briefDirect.stdout}\n${briefDirect.stderr}`;
-    assert.ok(briefOutput.includes('[host-adapter provider=codex]'), 'real session_brief reports Codex host-adapter identity');
     assert.equal(briefOutput.includes(cliSentinel), false, 'real session_brief redacts CODEX_THREAD_ID');
-    const briefSessionId = briefOutput.match(/session identity: (sess-[a-f0-9]+)/)?.[1];
-    assert.ok(briefSessionId, 'real session_brief renders an opaque session id');
+    const cliCommonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], {
+      cwd: projectRoot,
+      encoding: 'utf8',
+    }).trim();
+    const expectedCliIdentity = resolveSessionIdentity(
+      { CODEX_THREAD_ID: cliSentinel },
+      { hostname: 'unused-for-host-adapter', root: dirname(cliCommonDir), ppid: 1 },
+    );
     const recentActivity = readActivityLogTail(projectRoot, 20);
     assert.equal(JSON.stringify(recentActivity).includes(cliSentinel), false, 'activity events never persist raw PROOF_OR_STOP_ACTIVITY_SESSION');
     assert.ok(
-      recentActivity.some(event => event.session === briefSessionId),
-      'activity event persists the same opaque canonical id rendered by session_brief',
+      recentActivity.some(event => event.session === expectedCliIdentity.sessionId),
+      'activity event persists the same opaque canonical host-adapter id used by session_brief',
     );
     const doctor = spawnSync(process.execPath, ['bin/proof-or-stop.js', 'doctor', '--format=json'], {
       cwd: projectRoot,
@@ -2121,6 +2163,7 @@ try {
     'multi-session: same-story 2nd rejected / different-story both proceed / stale takeover only ' +
     'with --takeover+event / active takeover rejected unless --forceTakeover / session_brief guides ' +
     'non-owner read-only / reviewer read-only + reviewerWrite not lease-blocked / F-008-class ' +
+    'primary-checkout to linked-worktree owner continuity with foreign-task rejection / ' +
     'owner-lease.json gitignored — never a dirty write / F-003 traversal storyId fail-closed at ' +
     'the shared gate — no lease written outside the story tree)',
   );

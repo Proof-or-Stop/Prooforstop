@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { resolveAdapterOwnerSession, type OwnerSessionEnv, type OwnerSessionHostProvider } from './owner-session-adapters.js';
 import { gitProbe } from './git-probe.js';
+import { OWNER_SESSION_IDENTITY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 
 export type SessionSource = 'explicit-env' | 'host-adapter' | 'generated-token' | 'derived-ppid';
 export type LegacySessionSource = 'claude-code-env';
@@ -56,7 +58,20 @@ export function resolveSessionIdentity(
 function resolveSessionRoot(): string {
   const probe = gitProbe('git rev-parse --show-toplevel');
   const top = probe.ok ? probe.output.trim() : '';
-  return top.length > 0 ? top : process.cwd();
+  if (top.length === 0) return process.cwd();
+
+  const worktreeProbe = gitProbe(OWNER_SESSION_IDENTITY_RUNTIME_POLICY.primaryWorktreeProbeCommand);
+  const primaryRecord = worktreeProbe.ok
+    ? worktreeProbe.output.split('\0').find(record => record.startsWith('worktree '))
+    : undefined;
+  const primaryWorktreeRoot = primaryRecord?.slice('worktree '.length).trim() ?? '';
+  if (primaryWorktreeRoot.length === 0) return top;
+
+  try {
+    return realpathSync(primaryWorktreeRoot);
+  } catch {
+    return primaryWorktreeRoot;
+  }
 }
 
 let cachedSessionIdentity: SessionIdentity | null = null;

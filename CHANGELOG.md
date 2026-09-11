@@ -1,5 +1,13 @@
 # Changelog
 
+## Lab owner-worktree-session-continuity - v0.3.316 - 2026-09-11
+
+Fix Story owner continuity across linked Git worktrees. Owner-session identity now uses the repository primary worktree from Git's shared worktree inventory, so the same host task can create a Story in the primary checkout and continue in its Story worktree without forceTakeover. A different task or role remains blocked by the active lease. Verified with a real temporary primary checkout and linked worktree, the full story-owner-lease smoke, and runtime and process fact contracts.
+
+Maintenance provenance: codex/lab-owner-worktree-session-continuity, repair 4fe841bdb502bd5164fc612d7d61f08dafa8dd0f.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/story-owner-lease-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab plan-baseline-aware-validation-intent - v0.3.315 - 2026-09-11
 
 PLAN verification intent now distinguishes focused acceptance from repository-wide health checks. Repository-wide failures may only become mandatory when an external verifier explicitly requires them; baseline failures otherwise use no-new-regressions review evidence.

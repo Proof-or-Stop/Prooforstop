@@ -112,6 +112,15 @@ async function main() {
     && managedHost.includes('MANAGED_REVIEW_TEMP_ARTIFACT.directoryName')
     && managedHost.includes('MANAGED_REVIEW_TEMP_RUNTIME_POLICY.environmentKeys'),
     'managed reviewer temporary isolation must consume registered path and environment policy');
+  const ownerSessionSource = read(root, 'packages/main/src/core/owner-session.ts');
+  check(registrySource.includes('OWNER_SESSION_IDENTITY_RUNTIME_POLICY')
+    && registrySource.includes("gitScope: 'primary-worktree-root'")
+    && registrySource.includes('linkedWorktreeContinuity: true')
+    && registrySource.includes('foreignTaskIsolation: true')
+    && ownerSessionSource.includes('OWNER_SESSION_IDENTITY_RUNTIME_POLICY.primaryWorktreeProbeCommand')
+    && ownerSessionSource.includes("split('\\0')")
+    && ownerSessionSource.includes("startsWith('worktree ')"),
+  'owner-session identity must use the registered primary-worktree scope across linked worktrees while retaining task isolation');
   const scopeDecision = read(root, 'packages/main/src/core/story-scope-budget-decisions.ts');
   for (const field of ['approvalLifetimeMs', 'agentEnvironmentMarkers']) {
     check(registrySource.includes('SCOPE_BUDGET_DECISION_RUNTIME_POLICY') && scopeDecision.includes(`SCOPE_BUDGET_DECISION_RUNTIME_POLICY.${field}`), `scope decision runtime policy must consume ${field}`);
