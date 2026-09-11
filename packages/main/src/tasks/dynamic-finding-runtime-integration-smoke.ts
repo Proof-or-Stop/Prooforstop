@@ -23,7 +23,9 @@ import { collectQualificationSubjectAdjudications } from '../handlers/finding-qu
 import { collectQualificationPrerequisites, verifyQualificationPrerequisites } from '../handlers/finding-qualification-prerequisites.js';
 
 if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
-const prerequisiteAudit = process.argv.includes('--prerequisite-proof');
+const collectionAudit = process.argv.includes('--collection-proof');
+const historyAudit = process.argv.includes('--qualification-history-proof');
+const prerequisiteAudit = process.argv.includes('--prerequisite-proof') || collectionAudit || historyAudit;
 
 const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-dfec-runtime-'));
 const beforeCwd = process.cwd();
@@ -96,6 +98,22 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
   assert.equal(red.receipt.exitCode, 1); assert.equal(readCurrentFindingRuntimeEvidence(ctx, storyId, red.runtimeReceiptId).receipt.receiptHash, red.receipt.receiptHash);
   pass('actual RED runtime receipt passes current reader');
   const handlers = createFindingApplicabilityHandlers(ctx);
+  const collection = () => (handlers.finding_rollout_scorecard({ storyId }) as unknown as {
+    collection: { gateEvidence: boolean; scopeExpansionAuthorized: boolean;
+      counts: { findings: number; assessmentRecords: number; qualificationCases: number | null };
+      actions: Array<{ code: string; findingId?: string; assessmentId?: string; commands: string[] }> };
+  }).collection;
+  if (collectionAudit) {
+    const digest = store.readFindingLedger(storyId).committedLedgerDigest;
+    const pending = collection();
+    assert.ok(pending, 'COLLECTION_RED missing assessment must produce an actionable collection report');
+    assert.equal(pending.gateEvidence, false); assert.equal(pending.scopeExpansionAuthorized, false);
+    assert.equal(pending.counts.findings, 1); assert.equal(pending.counts.assessmentRecords, 0);
+    assert.ok(pending.actions.some(row => row.code === 'assessment_missing' && row.findingId === findingId
+      && row.commands.includes('finding_runtime_evidence_run') && row.commands.includes('finding_assessment_propose')));
+    assert.equal(store.readFindingLedger(storyId).committedLedgerDigest, digest);
+    console.log('COLLECTION_PROOF missing assessment has exact finding-bound actions; read is non-mutating PASS');
+  }
   const desired = { verdict: 'applicable', basis: 'direct_scope', owner: 'current_story', evaluationScope: 'target_story',
     runtimeReceiptIds: [red.runtimeReceiptId], currentWitness: { reproduced: true, receiptIds: [red.runtimeReceiptId] },
     expiresAt: new Date(Date.now() + 86_400_000).toISOString(), protectedSurfaceEvaluation: FINDING_PROTECTED_SURFACES.map(surface => ({ surface, state: 'clear', evidenceRefs: ['CHK-001:happy:0'] })) };
@@ -140,6 +158,14 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
   const batch = handlers.finding_applicability_batch({ storyId, idempotencyKey: 'valid-batch', items: [request] });
   assert.equal(batch.assessments.length, 1); assert.equal(handlers.finding_applicability_batch({ storyId, idempotencyKey: 'valid-batch', items: [request] }).manifest.manifestId, batch.manifest.manifestId);
   pass('valid batch is atomic and replayed once');
+  if (collectionAudit) {
+    const pending = collection();
+    assert.ok(pending.actions.some(row => row.code === 'independent_adjudication_missing'
+      && row.assessmentId === (batch.assessments[0] as { assessmentId: string }).assessmentId
+      && row.commands.includes('finding_qualification_record')));
+    assert.equal(pending.counts.qualificationCases, 0);
+    console.log('COLLECTION_PROOF signed assessment is not independent qualification PASS');
+  }
   const independent = 'proof-or-stop-review-quality';
   const independentRun = seedCurrentReviewFixture(root, store, storyId, [independent]).get(independent)!;
   const measured = runtimeHandlers.finding_runtime_evidence_run({ ...runtimeArgs, idempotencyKey: 'qualification-measurement',
@@ -201,8 +227,34 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
     assert.ok(incompleteScorecard.refusalReasons.includes('qualification_timing_sources_missing'));
     assert.equal(incompleteScorecard.qualification.eligible, false);
     console.log('QUALIFICATION_PREREQUISITE PASS incomplete timing retains 22 diagnostic rows and independent subject denominator=1');
+    if (collectionAudit) {
+      const pending = collection();
+      assert.equal(pending.counts.qualificationCases, 1);
+      assert.ok(!pending.actions.some(row => row.code === 'independent_adjudication_missing'
+        && row.assessmentId === qualifierArgs.assessmentId));
+      assert.ok(pending.actions.some(row => row.code === 'subject_census_incomplete'));
+      assert.ok(pending.actions.some(row => row.code === 'matched_performance_missing'));
+      console.log('COLLECTION_PROOF exact adjudication clears only its action; census and timing remain missing PASS');
+    }
+    if (historyAudit) {
+      write('unrelated-material.txt', 'Current merged-state proof must be refreshed, not erase signed historical diagnostics.\n');
+      const stale = handlers.finding_rollout_scorecard({ storyId }).qualification;
+      assert.equal(handlers.finding_qualification_query({ storyId }).rows.length, 1);
+      console.log(`QUALIFICATION_HISTORY before=1 after=${stale.rows.find(row => row.metric === 'scorecard_completeness')!.denominator}`);
+      assert.equal(stale.rows.find(row => row.metric === 'scorecard_completeness')!.denominator, 1,
+        'HISTORY_RED stale current prerequisites must preserve verified historical diagnostic denominator');
+      assert.ok(stale.refusalReasons.includes('qualification merged-state prerequisites stale'));
+      assert.equal(stale.qualification.eligible, false);
+      console.log('QUALIFICATION_HISTORY stale current prerequisites retain historical diagnostics but refuse activation PASS');
+    }
     setRuntimeEvidenceKeyStatusForTest(root, 'revoked');
     assert.throws(() => handlers.finding_qualification_query({ storyId }), /revoked_signing_key/);
+    if (historyAudit) {
+      const untrusted = handlers.finding_rollout_scorecard({ storyId }).qualification;
+      assert.equal(untrusted.rows.find(row => row.metric === 'scorecard_completeness')!.denominator, null);
+      assert.equal(untrusted.qualification.eligible, false);
+      console.log('QUALIFICATION_HISTORY revoked historical trust never retains an admitted denominator PASS');
+    }
     console.log('QUALIFICATION_PREREQUISITE PASS revoked runtime trust refuses historical qualification');
   } else {
   const qualified = withNativeReviewFixtureHostIdentity({ agent: independent, invoke: () => handlers.finding_qualification_record(qualifierArgs) });
