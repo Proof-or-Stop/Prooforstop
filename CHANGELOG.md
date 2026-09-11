@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab external-untracked-config-master-base - v0.3.318 - 2026-09-11
+
+Problem: An untracked controller configuration was absent from a linked Story worktree. Bootstrap lstat failed on the missing target, while a manual copy was later classified as an out-of-scope business change. Master-only repositories also lacked a consistent integration baseline.
+
+Fix: Install missing untracked configuration without clobbering tracked paths; bind the initial bytes to no-follow signed receipts in Git-common and Story evidence storage; classify only a valid receipt-bound pair as a control artifact; resolve repository baselines across remote defaults, linked-worktree primary branches, and conventional main/master refs while excluding Story refs.
+
+Verification: The Lab RED reproduced ENOENT on the missing worktree configuration. Final GREEN passed external-worktree-go-pre-review-smoke, including tracked-config refusal, receipt drift/deletion/corruption/key-loss/symlink negatives, master/develop/main baseline cases, Story intake, material classification, review assurance, and scope admission. Process-fact, scope-contract, story-aware-validation, build, and worktree-authority checks passed. Three independent reviewers reported no remaining blocker.
+
+Measured optimization: Not applicable; this maintenance repair restores reachability and authority integrity rather than reducing runtime.
+
+Maintenance provenance: codex/lab-external-untracked-config-master-base, repair fc79650b3244b76a284233550ef561ad97de68ff.
+Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab external-worktree-go-pre-review - v0.3.317 - 2026-09-11
 
 External Story worktrees could lose owner authority, read controller metadata outside the worktree, and deadlock Go projects because TypeScript-specific discovery evidence was mandatory. The repair performs bounded, authorization-first bootstrap into the registered Story branch, makes the branch-local Story copy authoritative, and fails closed if that committed copy disappears. Pure Go projects may now satisfy PLAN and pre-review with current signed command receipts that include a successful argv-structured `go test`; mixed or incompletely scanned TypeScript workspaces retain the strict profile.
