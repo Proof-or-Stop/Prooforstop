@@ -1,8 +1,8 @@
-# v0.3.318 candidate - Seven Lab integrations and 24 historical repair comparisons
+# v0.3.318 - Seven Lab integrations and 24 historical repair comparisons
 
-## Publication status
+## Release binding
 
-This is a release candidate document. Main publication, the tag, and the GitHub release remain pending final independent audit and verified managed integration. The remote main baseline d354d2b43d and local main maintenance commit 05c5134492 both use version 0.3.317; managed finish must select the next synchronized patch version, without overwriting an existing version.
+The independently audited implementation is `d7f6669c6aa0e62ee58b3d9cf8d5c7ab96f472d6`. Both latest-main maintenance lines are included. The release pipeline adds synchronized version metadata and the final log, verifies local main, and checks remote main/tag equality before publishing. The exact published commit and cleanup outcome are recorded in the Release assets; the implementation-audit SHA is intentionally distinct from that later release commit.
 
 ## What is integrated
 
@@ -10,7 +10,7 @@ The candidate preserves the previous performance Lab commit 565e494d049e2f37ce00
 
 | Lab | Integrated behavior | Verification scope |
 | --- | --- | --- |
-| b03b7-validation-baseline-convergence | Current compatibility fixtures and exact identity/loader obligations remain mechanically enforced | Nine-part aggregate; the last stale identity witness was repaired and its group and mutation self-test pass; independent aggregate replay pending |
+| b03b7-validation-baseline-convergence | Current compatibility fixtures and exact identity/loader obligations remain mechanically enforced | Claude independently replayed the whole nine-part aggregate: all nine parts PASS |
 | delivery-root-cause-20260911 | Delivery review inventory and next-action consistency | Real inventory next-action integration passes |
 | dynamic-finding-evidence-closure | Qualification prerequisites, evidence closure, protected repair obligations, historical witnesses, and partial diagnostics | Full Dynamic Finding package chain passes; this does not grant real operational qualification or activate enforce |
 | dynamic-validation-tier-selection | Story-aware validation selection and conservative widening | Focused Lab test and full planner smoke pass with the actual updated command inventory |
@@ -70,4 +70,12 @@ Whole-Story net speed, long-term review convergence, complete dual-worktree thro
 
 The seven-Lab selected commit inventory and raw before/after logs are in `docs/lab/story-performance-v19/evidence/seven-lab-integration/`. Historical evidence remains in the v18 and earlier v19 archives. The Go regression requires a resolvable `go` executable on PATH; the isolated test used the official go1.24.7 darwin-arm64 archive after SHA256 verification. Toolchain binaries and private backups are not included in release evidence.
 
-Final independent audit, managed GREEN, post-main validation, remote main reachability, tag target equality, and cleanup results must be appended before claiming publication. Source worktrees with new or unmerged work must be retained.
+Claude approved the frozen integration and independently executed all nine requested commands with exit 0. Managed GREEN also passed. Post-main validation, remote reachability, tag equality, and cleanup are release-publication checks recorded separately. Source worktrees with new or unmerged work are retained.
+
+## Explicit behavior and validation boundaries
+
+A strong `not_reproduced_under_current_witness` assessment may now release the transient high assessment-integrity floor. It does not release claimed-deferral lineage or an active mandatory-repair obligation. Adjacent missing/expired proof cases still block, and this integration does not activate enforce mode or claim operational qualification.
+
+The baseline-convergence aggregate is deliberately invoked for this release and independently by Claude. Its registration exclusion does not mean ordinary `validate` executes that aggregate automatically. Its component checks retain their own registrations.
+
+The core release version is synchronized across root/main manifests, their lockfiles, the CLI brand, and embedded core lock records in extension packages. Extension package versions remain independent by the existing version-bump contract; `packages/utils` remains 0.3.268 intentionally.
