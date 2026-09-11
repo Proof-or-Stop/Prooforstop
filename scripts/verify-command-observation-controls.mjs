@@ -3,6 +3,8 @@ import { mkdtempSync, mkdirSync, rmSync, readFileSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { StoryStore } from '../packages/main/dist/core/store.js';
+import { projectRuntimeClosure, evaluateRuntimeEnforcement } from '../packages/main/dist/core/lifecycle-control/runtime/index.js';
 import { commandObservationEffects } from '../packages/main/dist/cli/activity-policy.js';
 import { resolveEffectiveOwnershipClass } from '../packages/main/dist/cli/ownership-gate.js';
 import { withValidationExecutionLock, validationExecutionLockPath, observeValidationExecutionLock } from '../packages/main/dist/core/validation-execution-lock.js';
@@ -54,11 +56,23 @@ try {
   });
   const path=validationExecutionLockPath(root,storyId);mkdirSync(path);
   assert.equal(observeValidationExecutionLock(root,storyId),'unknown','missing metadata is not an owned or free lock');
+  const store=new StoryStore(root);
+  store.writeStory(storyId,{storyId,name:'lock-observation',title:'Lock observation',description:'Isolated unknown lock control',type:'chore',phase:'DEV',priority:'medium',createdAt:new Date().toISOString(),events:[]});
+  store.writeChecklist(storyId,{items:[]});
+  const assertUnknownVisible=()=>{
+    const row=projectRuntimeClosure(store,root,{storyId}).stories.find(row=>row.storyId===storyId);
+    assert.equal(row.locks.validationLock,'unknown');
+    assert.ok(row.blockingItems.some(issue=>issue.check==='validationLock'),'UNKNOWN_VALIDATION_LOCK_MUST_BLOCK_REPORT');
+    const decision=evaluateRuntimeEnforcement({mode:'enforce',operation:'validation-write',currentCwd:root,authoritativeCwd:root,authority:'main',validationLock:'unknown'});
+    assert.equal(decision.blocked,true,'UNKNOWN_VALIDATION_LOCK_MUST_BLOCK_ADMISSION');
+  };
+  assertUnknownVisible();
   writeFileSync(join(path,'holder.json'),'broken');
   assert.equal(observeValidationExecutionLock(root,storyId),'unknown');
+  assertUnknownVisible();
   assert.equal(readFileSync(join(path,'holder.json'),'utf8'),'broken','observation never repairs metadata');
   rmSync(path,{recursive:true});
   assert.equal(observeValidationExecutionLock(root,storyId),'free');
-  console.log(JSON.stringify({parameterCases:cases.length,telemetryModes:2,controls:['unclassified-no-effects','free','live-self','same-pid-foreign-context','released-context-successor','holder-generation-mismatch','missing-holder','corrupt-holder-unchanged']},null,2));
+  console.log(JSON.stringify({parameterCases:cases.length,telemetryModes:2,controls:['unclassified-no-effects','free','live-self','same-pid-foreign-context','released-context-successor','holder-generation-mismatch','missing-holder','corrupt-holder-unchanged','unknown-visible-and-blocked']},null,2));
   console.log('COMMAND_OBSERVATION_CONTROLS_GREEN');
 } finally {rmSync(root,{recursive:true,force:true});}
