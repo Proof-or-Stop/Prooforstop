@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "1dbecb232d02baa7a3cf61f00c05bc78791aa3048a3423d40b54c8f26246f535"
+    "sha256": "7b0020a5eb1c2ab30f07b99358f0c6538871cecf7fdf2059d60af56eeb1d6a04"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
