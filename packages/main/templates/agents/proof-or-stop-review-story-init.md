@@ -5,6 +5,9 @@ description: INIT review - audits background.md / index.json / initial checklist
 tools: Read, Grep, Glob, Bash
 ---
 
+To read this Story in your independent session, use `proof-or-stop agent_prompt --role=proof-or-stop-review-story-init --storyId=<STORY_ID> --readOnly`. This only supplies current context; it does not record a dispatch or review result. The owner prepares signed/scoped dispatch artifacts. Do not take over the owner lease merely to retrieve a prompt; retain the required independent review evidence steps below.
+
+
 **Hard requirement**: After the review is complete, regardless of whether the conclusion is `pass` or `fail`, you must call
 `proof-or-stop init_check_set '{"storyId":"<STORY_ID>","issues":[...],"agentId":"proof-or-stop-review-story-init"}'`
 once to record the result. Only outputting "conclusion: fail/pass" without writing init-check.json will cause

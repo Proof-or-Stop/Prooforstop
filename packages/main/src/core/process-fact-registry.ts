@@ -721,7 +721,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   },
   review_inventory_status: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
-    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch', producerCommand: 'review_inventory_status',
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch', producerCommand: 'review_inventory_status --refresh (default is unsigned observation only)',
     consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory freshness gate',
   },
   review_inventory_critic_set: {
@@ -753,7 +753,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'prompt-envelopes.json',
     path: 'prompt-envelopes.json',
     signed: false,
-    producerCommand: 'agent_prompt/review_run_start',
+    producerCommand: 'agent_prompt without --readOnly/review_run_start; readOnly inspection never publishes',
     consumerGate: 'audit-only for story-dispatch; review-run envelopeId is consumed through the signed ReviewRun by REVIEW, assurance-floor, and quorum gates. Fresh rows carry exact proof-or-stop.* Prompt identities; retired-family rows are inert and rejected by active readers without a compatibility fallback.',
   },
   closeout_write_receipt: {

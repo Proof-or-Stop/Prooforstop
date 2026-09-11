@@ -16,6 +16,7 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
 import { managedHostRunStoryIdForOwnership } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 
 export interface ActiveStoryForOwnershipGate {
@@ -205,7 +206,7 @@ export function resolveEffectiveOwnershipClass(
     cls = typeof forced === 'string' && forced.trim().length > 0 ? 'storyScopedMutating' : 'readOnly';
   }
 
-  if (cmd === 'certification_window_status') {
+  if (cmd === 'certification_window_status' || cmd === 'review_inventory_status') {
     // Default status performs a read-only drift preflight. Only explicit
     // refresh may persist the detected INVALIDATED state.
     cls = args.refresh === true || args.refresh === 'true' ? 'storyScopedMutating' : 'readOnly';
@@ -215,6 +216,11 @@ export function resolveEffectiveOwnershipClass(
     // Health inspection writes nothing by default. Only explicit repair can
     // clean shared worktree state or append Story cleanup events.
     cls = args.repair === true || args.repair === 'true' ? 'mainSharedMutating' : 'readOnly';
+  }
+
+  if (cmd === 'check') {
+    cls = args.apply === true || args.apply === 'true' || args.upgrade === true || args.upgrade === 'true'
+      ? 'mainSharedMutating' : 'readOnly';
   }
 
   if (cmd === 'agent_prompt') {
@@ -228,7 +234,8 @@ export function resolveEffectiveOwnershipClass(
     // conservatively for Story-aware calls so an unknown rollout cannot bypass
     // write admission; role-only prompt lookup remains unconditionally readOnly.
     const unknownStoryMode = hasStory && runtimeContext?.config === undefined;
-    cls = hasStory && (role.length > 0 || explicitAuditWrite || unknownStoryMode)
+    const readOnly = args.readOnly === true || args.readOnly === 'true';
+    cls = hasStory && (!readOnly || explicitAuditWrite || args.experimentalModeOverride !== undefined) && (role.length > 0 || explicitAuditWrite || unknownStoryMode)
       ? 'storyScopedMutating'
       : 'readOnly';
   }
@@ -456,7 +463,7 @@ export function enforceStoryOwnerLeaseGate(
       ownershipClass: cls,
       currentSessionId: getSessionId(),
       currentCwd: process.cwd(),
-    }));
+    }) + reviewerReadRecoveryHint(cmd, args, storyId));
   }
 
   const { lease, action } = acquireOrRefreshOwnerLease(storyDir, {
@@ -496,6 +503,16 @@ export function enforceStoryOwnerLeaseGate(
       ownershipClass: cls,
       currentSessionId: getSessionId(),
       currentCwd: process.cwd(),
-    }),
+    }) + reviewerReadRecoveryHint(cmd, args, storyId),
   );
+}
+
+/** Actionable reader recovery, never a substitute for a scoped/purpose-bound dispatch. */
+export function reviewerReadRecoveryHint(cmd: string, args: Record<string, unknown>, storyId?: string | null): string {
+  if (!storyId || !isCanonicalStoryId(storyId) || !['agent_prompt', 'dispatch'].includes(cmd)) return '';
+  if (['itemId', 'findingId', 'clusterId', 'reviewPurpose', 'inventoryEpochId'].some(key => args[key] !== undefined)) return '';
+  const actor = cmd === 'agent_prompt' ? args.role : args.agentType;
+  const entry = resolveRegisteredAgentActor(typeof actor === 'string' ? actor : undefined);
+  if (!entry || entry.targetCardinality !== 'story-only') return '';
+  return `\nRead-only prompt: proof-or-stop agent_prompt --role=${entry.canonicalName} --storyId=${storyId} --readOnly`;
 }

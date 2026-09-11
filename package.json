@@ -129,6 +129,7 @@
     "test:closeout-trust": "node packages/main/dist/tasks/closeout-trust-smoke.js",
     "test:verifier-causal-preflight": "node packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
     "test:runtime-fact-contract": "node scripts/verify-runtime-fact-contract.mjs",
+    "test:reviewer-read-boundaries": "node scripts/verify-reviewer-read-boundaries.mjs",
     "test:cli-runtime-version": "node scripts/verify-cli-runtime-version.mjs",
     "test:pinn-claim-admissibility": "npm --prefix packages/main run test:pinn-claim-admissibility",
     "test:implementation-reviewer": "node scripts/verify-implementation-reviewer.mjs",
