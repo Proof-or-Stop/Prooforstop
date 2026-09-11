@@ -77,9 +77,9 @@ try{
  const config=JSON.parse(readFileSync(join(repo,'proof-or-stop.config.json')));
  const inventory=[...config.validate.commands.map((command,index)=>({consumer:'validate',index,command})),...config.doneRequiredCommands.map((command,index)=>({consumer:'done_required',index,command}))];
  const audit=inventory.map(row=>({...row,decision:shared.sharedValidationReusePolicy(row.command)}));
- assert.equal(audit.length,167,'Merged v0.3.317 inventory must include every validate and DONE-required command');assert.ok(audit.every(row=>row.decision.reason));
+ assert.equal(audit.length,168,'Merged main inventory includes the external-worktree verification command and every DONE-required command');assert.ok(audit.every(row=>row.decision.reason));
  assert.ok(audit.filter(x=>x.consumer==='done_required').every(x=>x.decision.reason==='build_proof_required'));
  const out=process.env.REUSE_PROOF_OUTPUT;if(out){mkdirSync(out,{recursive:true});writeFileSync(join(out,'inventory.json'),JSON.stringify(audit,null,2));writeFileSync(join(out,'proof.json'),JSON.stringify(evidence,null,2));}
  for(const flags of [[],['--disabled']]){const output=execFileSync(process.execPath,['scripts/probe-reuse-entrypoints.mjs',...flags],{cwd:repo,encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:120000});assert.match(output,/ENTRYPOINT_GREEN/);console.log(output.trim().split('\n').at(-1));}
- console.log('REUSE_PROOF_GREEN: real child executions, disk receipts, production preflight, policy and identity controls, 167-command inventory');
+ console.log('REUSE_PROOF_GREEN: real child executions, disk receipts, production preflight, policy and identity controls, 168-command inventory');
 }finally{process.chdir(originalCwd);rmSync(root,{recursive:true,force:true});}
