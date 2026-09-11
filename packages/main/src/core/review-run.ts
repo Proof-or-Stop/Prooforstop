@@ -916,6 +916,7 @@ export function verifyReviewRunPromptEnvelope(
           // assertCurrentReviewRunForEvidence / collectReviewerEvidenceState.
           passesCutoffAt: run.startedAt,
           asOfRef: run.headHash,
+          fullStoryBaseHead: envelope.fullStoryBaseHead,
           findingProjection: envelope.findingProjection,
           promptEnvelopes: envelopes,
         },

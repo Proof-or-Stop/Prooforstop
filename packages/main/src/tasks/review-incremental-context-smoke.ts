@@ -69,17 +69,21 @@ import {
   classifyIncrementalBindingReasons,
   fixtureCaseClosure,
   reviewIncrementalContext,
+  resolveFullStoryBaseHead,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   FULL_TASK_CONTEXT_LIMITS,
   domainSeparatedDigest,
   validateIncrementalReviewBasis,
+  validatePromptEnvelope,
+  validateFullStoryBaseHead,
 } from '../core/prompt-contracts.js';
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
   fullTaskSemanticDigest,
+  verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
 import {
   promptRoleContract,
@@ -890,7 +894,7 @@ async function runProductionVerifierTemporalCutoffRegression(): Promise<void> {
   }
 }
 
-function runAsOfRunEligibilityRegression(): void {
+function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-asof-run-'));
   const storyId = 'B-asof-run';
   const role = 'proof-or-stop-review-quality';
@@ -917,6 +921,7 @@ function runAsOfRunEligibilityRegression(): void {
   const verifierOptions = (run: ReviewRun) => ({
     roleSemanticDigest: promptRoleContract(role).semanticDigest,
     findingProjection: new StoryStore(root).readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === run.envelopeId)?.findingProjection,
+    fullStoryBaseHead: new StoryStore(root).readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === run.envelopeId)?.fullStoryBaseHead,
     excludedReviewRunId: run.reviewRunId,
     findingsCutoffAt: run.startedAt,
     passesCutoffAt: run.startedAt,
@@ -967,12 +972,69 @@ function runAsOfRunEligibilityRegression(): void {
         },
       }],
     });
+    if (firstBaseOnly) {
+      write(root, 'src/feature.ts', 'export const feature = true; // Story-owned change\n');
+      git(root, ['add', 'src/feature.ts']);
+    }
     git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed as-of-run review metadata']);
 
     runCli('dispatch', { storyId, agentType: role }, 'main');
     runCli('review_run_start', { storyId, agent: role }, role);
     const runA = store.readReviewRuns(storyId).runs.at(-1)!;
+    if (firstBaseOnly) {
+      const envelope = store.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === runA.envelopeId)!;
+      const base = resolveFullStoryBaseHead(store, root, storyId)!;
+      assert.equal(envelope.fullStoryBaseHead, base, 'FIRST_REVIEW_BASE_NOT_BOUND');
+      const options = { ...verifierOptions(runA), asOfRef: runA.headHash };
+      const legacy = reviewIncrementalContext(store, root, storyId, role, { ...options, fullStoryBaseHead: undefined });
+      // Golden captured by replaying the 9c0a6a1cbb context implementation with the same shared dependencies and one-file fixture.
+      assert.equal(legacy.eligibilityDigest, 'ad06de9687d644e7ce6b50c9d2d7aa15428becb0f59e3594da158d7322493935', 'Omitting the new field preserves the legacy eligibility bytes');
+      console.log(`LEGACY_FIRST_BASE_DIGEST=${legacy.eligibilityDigest}`);
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true });
+      const malformed = 'PromptEnvelope.fullStoryBaseHead must be a lowercase 40- or 64-hex Git commit object id';
+      for (const value of ['main', 'HEAD', '', 'a'.repeat(39), 'A'.repeat(40), 'g'.repeat(40)]) {
+        assert.throws(() => validatePromptEnvelope({ ...envelope, fullStoryBaseHead: value }), { message: malformed });
+        assert.throws(() => reviewIncrementalContext(store, root, storyId, role, { ...options, fullStoryBaseHead: value }), { message: malformed });
+      }
+      assert.doesNotThrow(() => validateFullStoryBaseHead('a'.repeat(64)), 'SHA-256 Git object-id syntax is supported');
+      const absentBase = '0'.repeat(40);
+      assert.throws(() => reviewIncrementalContext(store, root, storyId, role, { ...options, fullStoryBaseHead: absentBase }), {
+        message: `FULL_STORY_BASE_UNAVAILABLE: signed comparison base ${absentBase} does not resolve to a commit`,
+      });
+      const tampered = { ...envelope, fullStoryBaseHead: absentBase };
+      assert.equal(verifyPromptEnvelopeIntegrity(tampered), false);
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA, [tampered]), {
+        ok: false, reason: 'Prompt Envelope integrity verification failed',
+      });
+      git(root, ['checkout', 'main']);
+      write(root, 'src/unrelated.ts', 'export const unrelated = true;\n');
+      git(root, ['add', 'src/unrelated.ts']);
+      git(root, [...COMMIT_ENV, 'commit', '-m', 'advance main after first review']);
+      git(root, ['checkout', `story/${storyId}`]);
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'First review survives main moving before any merge');
+      git(root, ['merge', '--no-ff', 'main', '-m', 'merge unrelated main into reviewed Story']);
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'First review survives unrelated main merge');
+      assert.doesNotThrow(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runA.reviewRunId));
+      assert.equal(reviewIncrementalContext(store, root, storyId, role, options).eligibilityDigest, envelope.eligibilityDigest);
+      write(root, 'src/feature.ts', 'export const feature = false;\n');
+      git(root, ['add', 'src/feature.ts']);
+      git(root, [...COMMIT_ENV, 'commit', '-m', 'change reviewed Story source']);
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'Historical identity is separate from live admission');
+      assert.throws(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runA.reviewRunId), /stale|material/i);
+      write(root, 'src/feature.ts', 'export const feature = true; // Story-owned change\n');
+      git(root, ['add', 'src/feature.ts']);
+      git(root, [...COMMIT_ENV, 'commit', '-m', 'restore controlled Story input']);
+      assert.doesNotThrow(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runA.reviewRunId));
+      git(root, ['checkout', 'main']);
+      git(root, ['merge', '--ff-only', `story/${storyId}`]);
+      git(root, ['checkout', `story/${storyId}`]);
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'Even a later main containing the reviewed commit cannot choose a new historical base');
+      git(root, ['branch', '-m', 'main', 'alternate-main']);
+      assert.equal(resolveFullStoryBaseHead(store, root, storyId), undefined, 'Missing main preserves legacy producer behavior');
+      console.log(`${MARKER} FIRST-REVIEW-BASE GREEN: pinned main, tamper/ref/missing-object refusals, live material refusal, merged-head replay`);
+      return;
+    }
     const passA = signedPass(storyId, `${runA.reviewRunId}:PASS`, role, ts(6), round);
     passA.reviewRunId = runA.reviewRunId;
     passA.envelopeId = runA.envelopeId;
@@ -1433,6 +1495,20 @@ function runBoundedPathsDegradationCase(): void {
       firstTimer.eligibilityDigest,
       'the resolved prior IS bound into the authoritative eligibility digest (audit fidelity, not eligibility)',
     );
+    const frozenBase = resolveFullStoryBaseHead(storeFor(priorOverCap), root, storyId)!;
+    const frozenHead = currentGitHead(root)!;
+    const pinnedOptions = { fullStoryBaseHead: frozenBase, asOfRef: frozenHead };
+    const pinnedBefore = reviewIncrementalContext(storeFor(priorOverCap), root, storyId, role, pinnedOptions);
+    git(root, ['checkout', 'main']);
+    write(root, 'src/later-main.ts', 'export const laterMain = true;\n');
+    git(root, ['add', 'src/later-main.ts']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'main drift after bounded fallback']);
+    git(root, ['checkout', `story/${storyId}`]);
+    const pinnedAfter = reviewIncrementalContext(storeFor(priorOverCap), root, storyId, role, pinnedOptions);
+    assert.equal(pinnedAfter.eligibilityDigest, pinnedBefore.eligibilityDigest, 'Bounded fallback must use the signed full-story base');
+    git(root, ['merge', '--no-ff', 'main', '-m', 'merge main after bounded fallback']);
+    assert.equal(reviewIncrementalContext(storeFor(priorOverCap), root, storyId, role, pinnedOptions).eligibilityDigest, pinnedBefore.eligibilityDigest);
+    console.log(`${MARKER} BOUNDED-FROZEN-BASE GREEN`);
     console.log(`${MARKER} (f) BOUNDED-PATHS DEGRADATION: cap=${cap} stays incremental (basis emitted, no ${bounded}); cap+1 degrades to the ${overCap.changedFiles.length}-path story diff with reviewBasis=null and the real prior ${overCap.priorPassRef} still reported`);
   } finally {
     resetConfigCache();
@@ -2344,6 +2420,7 @@ async function run(): Promise<void> {
   // as a serial full-suite tail.
   const cutoffProbe = startIsolatedMode('--cutoff-verifier-only', /PRODUCTION VERIFIER CUTOFF/u);
   runAsOfRunEligibilityRegression();
+  runAsOfRunEligibilityRegression(true);
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
   const abaStarted = performance.now();
@@ -2438,6 +2515,8 @@ if (isDirectRun) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     await runProductionVerifierTemporalCutoffRegression();
+  } else if (process.argv.includes('--first-base-only')) {
+    runAsOfRunEligibilityRegression(true);
   } else if (process.argv.includes('--asof-run-only')) {
     runAsOfRunEligibilityRegression();
   } else if (process.argv.includes('--bounded-paths-only')) {

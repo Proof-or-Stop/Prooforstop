@@ -1118,3 +1118,11 @@ labels from actual live host counts.
 Nested capacity reuse also checks cancellation before entering its callback.
 Signal forwarding uses base AbortController methods and removes listeners on
 success, refusal and callback failure, retaining the existing Node runtime floor.
+
+## Historical review comparison bases
+
+New conditional reviewer runs record `fullStoryBaseHead`, the main commit resolved by the producer, inside the authenticated Prompt Envelope. Historical eligibility replay compares that immutable commit with the signed run head. This applies both to a first review and to a full-context fallback after the incremental path limit is exceeded. Unrelated movement of main can no longer rewrite those historical comparison inputs.
+
+The field accepts a full Git commit object id, never a branch name. A declared base that is no longer available produces `FULL_STORY_BASE_UNAVAILABLE`; it does not fall back to current main or an empty diff. Where production cannot resolve main, the field is omitted and existing behavior is retained. Older envelopes remain readable without inventing a base or changing their legacy eligibility digest; affected old evidence may require a new reviewer run.
+
+This freezes a historical input, not current admission. Story-source, scope, policy, native identity and Finding checks remain live. An authorized operator can still choose main before creating the run; this change records that choice rather than preventing it.

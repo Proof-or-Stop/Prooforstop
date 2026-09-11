@@ -19,7 +19,7 @@ const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept
 const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'b97d6d33dc481c3e16a928606c44827bae2986bc69156bfc7ed108ab32a3b963';
 const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 51;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'aa89c3c530827a290611c5ecc80441a8853dcf2a0e48f9c3ccc4c5df73e5cde4';
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'de47d523b721c1be067de039dc57d397ac5447bd7234f69b7aac333de35055ab';
 const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 199;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const STORY_INIT_COMMIT = '1bde8a8280d68fe652dadfcdf42aad5190350ba7';
@@ -3144,14 +3144,14 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"cc3c26a11e4c8ac240fa7b50baf4e76ba52d8bbe7933266ba962abd67b518d4f"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"5f5bbe5991ebdeee18818ae877359a9abff1e30df60443e882e91dfa889fa026"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "173b375e436424fae6b073aaf407e0e0b132250f0d0fc44c5387def8b3009027"
   },
   {
     "path": "packages/main/src/tasks/certification-window-smoke.ts",
-    "sha256": "57024f94b7b429b377f4678bed092e7d97551deaad093546c356b26e8265f5d5"
+    "sha256": "9ee5b823317b03c313374136687c7af5da0c0c50eef3d47539c24e8116b6f4af"
   },
   {
     "path": "packages/main/src/tasks/command-ownership-contract.ts",
@@ -3195,7 +3195,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
-    "sha256": "791fc5d6ccb04f761e22a311bd72ba4d042a32dcc2587ce812b640ce855ae399"
+    "sha256": "44a4c2c6a20de248a26ed6278902dc37ba32c95f5a4b5d9bba20ea7ba99a9a77"
   },
   {
     "path": "packages/main/src/tasks/thin-init-assets-smoke.ts",
@@ -3275,11 +3275,11 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "198c3a8451d44a5d326f1545ff843d8082d93f21cdc211e8aae808306fdbca3a"
+    "sha256": "f17def09bf9077b5bd6f333470e688f86e6f495ae8f070757c929225c2ba00d2"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "sha256": "d5121a53e0f7ecef58894120b92656cf7a314d38490f59d044afc1b40578f583"
+    "sha256": "a1d3e79a84192659103b9718eb794d8eddb521c8f4ee9cfe0bcb7cbf11634809"
   },
   {
     "path": "scripts/verify-proof-or-stop-residue.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "c02edec9456f40702e0a8621ae82a2aa63d8aac06e3e55ebc1848a8329c7809e"
+    "sha256": "956c39de49d52fbaacab6b62e7e54dc8080c31c7709fa4096e8dff70e018fd7a"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3639,7 +3639,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"cc3c26a11e4c8ac240fa7b50baf4e76ba52d8bbe7933266ba962abd67b518d4f"],
+  [52,"5f5bbe5991ebdeee18818ae877359a9abff1e30df60443e882e91dfa889fa026"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "f69bf2cb833a43c81389c734e2c530e03cb0b12df51d7bbd987c446c8a56b211"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "c2816da7e61c13e827575f0be8e38d56cf08bf478a07d4f9a3a0c5d8de1cc349"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "b1b90ff1a764a1484d8fa062123944d324b07dc6423881d94072aa33f9c09449"
+    "sha256": "e0f67f64ad809f7231d2c083f0d4589ffc107d4ae509ddcce45e72583ea54f26"
   }
 ];
 function verifyReviewedContextReaders(root) {

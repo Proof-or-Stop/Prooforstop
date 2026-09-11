@@ -52,6 +52,7 @@ import {
   FULL_TASK_CONTEXT_LIMITS,
   domainSeparatedDigest,
   validateIncrementalReviewBasis,
+  validateFullStoryBaseHead,
   type IncrementalReviewBasis,
   type PromptEnvelope,
   type PromptFindingProjection,
@@ -755,6 +756,21 @@ export function fixtureCaseClosure(
  *   no review basis, and the explicit FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS
  *   reason code.
  */
+function resolveFullStoryCommitObject(gitCwd: string, ref: string): string | undefined {
+  try {
+    return execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
+      cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000,
+    }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+export function resolveFullStoryBaseHead(store: StoryStore, projectRoot: string, storyId: string): string | undefined {
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  return resolveFullStoryCommitObject(gitCwd, 'main');
+}
+
 export function reviewIncrementalContext(
   store: StoryStore,
   projectRoot: string,
@@ -778,10 +794,20 @@ export function reviewIncrementalContext(
      * receipt-bound envelope's eligibilityDigest / reviewBasisDigest.
      */
     asOfRef?: string;
+    /** Explicit run-start base; omission preserves legacy digest and diff behavior. */
+    fullStoryBaseHead?: string;
   } = {},
 ): ReviewIncrementalContext {
   const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
   const asOfRef = options.asOfRef?.trim() || 'HEAD';
+  const fullStoryBaseHead = options.fullStoryBaseHead;
+  if (fullStoryBaseHead !== undefined) {
+    validateFullStoryBaseHead(fullStoryBaseHead);
+    if (resolveFullStoryCommitObject(gitCwd, fullStoryBaseHead) !== fullStoryBaseHead) {
+      throw new Error(`FULL_STORY_BASE_UNAVAILABLE: signed comparison base ${fullStoryBaseHead} does not resolve to a commit`);
+    }
+  }
+  const fullStoryBaseRef = fullStoryBaseHead ?? 'main';
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
   const findings = store.readFindings(storyId).findings || [];
@@ -962,6 +988,7 @@ export function reviewIncrementalContext(
       ? domainSeparatedDigest('incremental-review-basis.v1', reviewBasis)
       : null;
     const semantic = {
+      ...(fullStoryBaseHead !== undefined ? { fullStoryBaseHead } : {}),
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
       role,
       contextMode,
@@ -1010,7 +1037,7 @@ export function reviewIncrementalContext(
     reasonCodes: string[],
     resolvedPriorForAudit: TrustedPriorPass | null = null,
   ): ReviewIncrementalContext => {
-    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', asOfRef), projectRoot);
+    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
       declaredTestFiles,
@@ -1018,9 +1045,9 @@ export function reviewIncrementalContext(
       fixtureCaseClosureByFile: Object.fromEntries(fullDiff.map(path => [
         path,
         declaredTestFiles.includes(path)
-          && fixtureCaseClosure(gitCwd, 'main', storyId, path, currentStoryIntentRefs, asOfRef),
+          && fixtureCaseClosure(gitCwd, fullStoryBaseRef, storyId, path, currentStoryIntentRefs, asOfRef),
       ])),
-      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', asOfRef),
+      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef),
     });
     return finalize({
       prior: resolvedPriorForAudit,

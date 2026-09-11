@@ -10967,6 +10967,27 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
     assert(read('packages/main/src/core/prompt-registry.ts').includes(token), `dynamic Finding prompt contract must describe ${token}`);
   }
 }
+// Historical comparison-base binding is machine-owned; caller input is not authority.
+{
+  const context = readFileSync(join(root, 'packages/main/src/core/review-incremental-context.ts'), 'utf8');
+  const producer = readFileSync(join(root, 'packages/main/src/handlers/review-run.ts'), 'utf8');
+  const consumer = readFileSync(join(root, 'packages/main/src/core/review-run.ts'), 'utf8');
+  const envelope = readFileSync(join(root, 'packages/main/src/core/prompt-envelope.ts'), 'utf8');
+  const contracts = readFileSync(join(root, 'packages/main/src/core/prompt-contracts.ts'), 'utf8');
+  assert(producer.includes('resolveFullStoryBaseHead(store, signedWorkspaceRoot, args.storyId)'), 'Review-run producer must resolve its own full-story comparison base');
+  assert(!producer.includes('args.fullStoryBaseHead'), 'Caller-supplied full-story base cannot become evidence');
+  assert(context.includes("['rev-parse', '--verify', `${ref}^{commit}`]"), 'Full-story base must resolve to an existing commit, not merely a revision-shaped string');
+  assert(context.includes('FULL_STORY_BASE_UNAVAILABLE:'), 'Unavailable signed comparison bases must have a distinct refusal');
+  assert(context.includes('changedFilesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef)')
+    && context.includes('fixtureCaseClosure(gitCwd, fullStoryBaseRef, storyId, path, currentStoryIntentRefs, asOfRef)')
+    && context.includes('changedFileStatusesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef)'), 'Every full-diff probe must use the same bound base');
+  assert(context.includes('...(fullStoryBaseHead !== undefined ? { fullStoryBaseHead } : {})'), 'Legacy eligibility digests must omit the new base key entirely');
+  assert(envelope.includes('...(input.fullStoryBaseHead !== undefined ? { fullStoryBaseHead: input.fullStoryBaseHead } : {})'), 'Optional comparison base must enter the authenticated envelope bytes');
+  assert(consumer.includes('fullStoryBaseHead: envelope.fullStoryBaseHead'), 'Historical verifier must consume the signed comparison base');
+  assert(contracts.includes('validateFullStoryBaseHead(record.fullStoryBaseHead)'), 'Prompt contract must validate the base object-id syntax');
+  assert(readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('optional fullStoryBaseHead'), 'Comparison-base process semantics must remain registered');
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
