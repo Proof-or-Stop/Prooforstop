@@ -1,0 +1,76 @@
+[
+  {
+    "name": "baseline",
+    "command": [
+      "node",
+      "packages/main/tests/red/red-lab-b03b7-validation-baseline-convergence.mjs"
+    ],
+    "exitCode": 1,
+    "seconds": 201.054
+  },
+  {
+    "name": "finding",
+    "command": [
+      "npm",
+      "run",
+      "test:dynamic-finding-evidence-closure"
+    ],
+    "exitCode": 0,
+    "seconds": 169.539
+  },
+  {
+    "name": "tier",
+    "command": [
+      "node",
+      "packages/main/tests/lab-dynamic-validation-tier-selection.test.mjs"
+    ],
+    "exitCode": 0,
+    "seconds": 0.289
+  },
+  {
+    "name": "lock",
+    "command": [
+      "node",
+      "scripts/verify-lab-lock-scope.mjs"
+    ],
+    "exitCode": 0,
+    "seconds": 11.778
+  },
+  {
+    "name": "repro",
+    "command": [
+      "npm",
+      "run",
+      "test:repro-evidence-binding-dev-gate"
+    ],
+    "exitCode": 0,
+    "seconds": 21.374
+  },
+  {
+    "name": "reuse",
+    "command": [
+      "node",
+      "scripts/verify-validation-reuse-proof.mjs"
+    ],
+    "exitCode": 1,
+    "seconds": 19.87
+  },
+  {
+    "name": "delivery",
+    "command": [
+      "node",
+      "scripts/verify-inventory-next-action.mjs"
+    ],
+    "exitCode": 0,
+    "seconds": 146.566
+  },
+  {
+    "name": "latest-main",
+    "command": [
+      "node",
+      "scripts/verify-external-worktree-go-pre-review.mjs"
+    ],
+    "exitCode": 1,
+    "seconds": 4.062
+  }
+]

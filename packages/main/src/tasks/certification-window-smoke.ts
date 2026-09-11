@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 /**
  * B-1e1f CHK-001..CHK-005: CertificationWindow signed process-fact, admit,
  * heavy choke, invalidation, and PRE_CERT replay smoke.
@@ -15,6 +16,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { CERTIFICATION_DOMAIN_PATH_RULES, deriveCertificationDomainInputHashes, buildCertificationDecision } from '../handlers/certification-window.js';
 import { causalDigest } from '../core/causal-evidence.js';
@@ -29,7 +31,6 @@ import { createCertificationWindowHandlers } from '../handlers/certification-win
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import { safeDoneRequiredRecoveryCommand } from '../handlers/done-prepare.js';
-import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { createVerifierHandlers, probeValidationCausalPreflightFacts } from '../handlers/verifier.js';
 import { runValidateGate } from '../handlers/phase-gates.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
@@ -1876,6 +1877,7 @@ writeHeavyConfig(chokeRoot);
 const chokeStoryId = 'B-cw20';
 const chokeStore = makeStore(chokeRoot, chokeStoryId, 'TEST');
 chokeStore.writeChecklist(chokeStoryId, { items: [] });
+acquireOwnerLease(chokeStore.storyDirPath(chokeStoryId), { command: 'validate', cwd: chokeRoot });
 const chokeCtx = { store: chokeStore, root: chokeRoot, scanRoot: join(chokeRoot, 'packages', 'main'), log: () => {} };
 const chokeDone = createDoneRequiredValidationHandlers(chokeCtx);
 const chokeValidate = createVerifierHandlers(chokeCtx);
@@ -2044,6 +2046,7 @@ writeHeavyConfig(replayRoot, true);
 const replayStoryId = 'B-cw21';
 const replayStore = makeStore(replayRoot, replayStoryId);
 replayStore.writeChecklist(replayStoryId, { items: [] });
+acquireOwnerLease(replayStore.storyDirPath(replayStoryId), { command: 'done_required_validate', cwd: replayRoot });
 const replayHead = currentGitHead(replayRoot)!;
 const replayMaterial = currentMaterialHash(replayRoot, 'HEAD', replayRoot)!;
 const replayStoryFiles = currentStoryFilesHash(replayRoot, 'HEAD', replayRoot)!;
@@ -2148,8 +2151,9 @@ writeFileSync(join(replayRoot, 'tests', 'app.test.ts'), 'export const t = 1;\n')
 git(replayRoot, ['add', 'src/app.ts', 'tests/app.test.ts']);
 git(replayRoot, ['commit', '-m', 'source and test change']);
 const beforeDriftStatus = structuredClone(replayStore.readCertificationWindows(replayStoryId));
+assert.equal(beforeDriftStatus.windows.at(-1)?.state, 'ADMITTED', 'DONE-required alone must not consume the routine execution claim');
 const driftStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
-assertStatusSurface(driftStatus, 'RUNNING');
+assertStatusSurface(driftStatus, 'ADMITTED');
 assert.match(driftStatus, /^Blocker: \[pre_cert_window_invalidated\]$/m);
 assert.match(driftStatus, /^Observed drift: /m);
 assert.match(driftStatus, new RegExp(`^Next: proof-or-stop certification_window_status --storyId=${replayStoryId} --refresh=true$`, 'm'));
@@ -2750,3 +2754,15 @@ console.log(findingOutput);
   assert.deepEqual(failures, [], 'BUG-CERT-001: every real path regression must pass');
   console.log('certification migration and sibling build-input regression: PASS');
 }
+
+// Real producer/recovery controls run from a fixed package path. These synthetic
+// fixtures prove the protocol, not independent reviewer/inventory authorization.
+const admissionHarness = fileURLToPath(new URL('../../tests/certification-admission-recovery.mjs', import.meta.url));
+for (const flags of [[], ['--consume-write-failure'], ['--crash'], ['--before-consume'], ['--admitted-after-write'], ['--locked-trap'], ['--symlink-root'], ['--concurrent-completion'], ['--cancel-before-retry'],
+  ...['source','identity','test-identity','backdated','attribution','receipt-tamper','legacy-owner','partial-epoch','partial-receipt','invalid-time','old-consumption','expected-main','api-absent'].map(name => ['--negative='+name])]) {
+  execFileSync(process.execPath, [admissionHarness, ...flags], { stdio: 'inherit', timeout: 120_000 });
+}
+for (const harness of ['certification-admission-core.mjs', 'certification-inventory-compatibility.mjs']) {
+  execFileSync(process.execPath, [fileURLToPath(new URL('../../tests/'+harness, import.meta.url))], { stdio: 'inherit', timeout: 120_000 });
+}
+console.log('certification admission recovery controls: PASS');

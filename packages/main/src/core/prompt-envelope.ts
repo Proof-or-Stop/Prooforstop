@@ -66,6 +66,7 @@ export interface ConditionalReviewAssemblyInput extends FullPromptAssemblyInput 
   eligibilityReasonCodes: string[];
   freshnessClassification: string;
   impactPolicyVersion: string;
+  fullStoryBaseHead?: string;
   priorPassRef?: string;
   changedFilesDigest: string;
   impactedFilesDigest: string;
@@ -1696,6 +1697,7 @@ export function assembleConditionalReviewPromptEnvelope(
     eligibilityDigest: input.eligibilityDigest,
     freshnessClassification: input.freshnessClassification,
     impactPolicyVersion: input.impactPolicyVersion,
+    ...(input.fullStoryBaseHead !== undefined ? { fullStoryBaseHead: input.fullStoryBaseHead } : {}),
     eligibilityReasonCodes: [...new Set(input.eligibilityReasonCodes)].sort(),
     changedFilesDigest: input.changedFilesDigest,
     impactedFilesDigest: input.impactedFilesDigest,

@@ -1,0 +1,82 @@
+[
+  {
+    "command": [
+      "node",
+      "packages/main/tests/certification-mutator-identity.mjs"
+    ],
+    "code": 0,
+    "seconds": 1.850194375
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/tests/validation-tree-delegate-binding.mjs"
+    ],
+    "code": 0,
+    "seconds": 0.8227296669999999
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/testintent-handoff-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 0.501465166
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/story-review-ergonomics-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 3.0612027499999996
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/verification-intent-alias-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 0.3439739580000003
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/verification-freshness-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 39.967438792
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/validation-evidence-reuse-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 98.23351766600001
+  },
+  {
+    "command": [
+      "node",
+      "scripts/verify-runtime-fact-contract.mjs"
+    ],
+    "code": 0,
+    "seconds": 8.843923292
+  },
+  {
+    "command": [
+      "node",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "code": 0,
+    "seconds": 10.232777708000015
+  },
+  {
+    "command": [
+      "node",
+      "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+    ],
+    "code": 0,
+    "seconds": 8.447569041000008
+  }
+]

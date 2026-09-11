@@ -1,0 +1,4 @@
+import {mkdtempSync,mkdirSync,cpSync,copyFileSync,symlinkSync,rmSync} from 'node:fs';
+import {join} from 'node:path';import {tmpdir} from 'node:os';import {execFileSync} from 'node:child_process';
+const repo=process.cwd(),root=mkdtempSync(join(tmpdir(),'pos-shared-implementation-'));const dest=join(root,'packages/main');
+try {mkdirSync(dest,{recursive:true});for(const dir of ['dist','templates'])cpSync(join(repo,'packages/main',dir),join(dest,dir),{recursive:true});copyFileSync(join(repo,'packages/main/package.json'),join(dest,'package.json'));symlinkSync(join(repo,'packages/main/node_modules'),join(dest,'node_modules'),'dir');symlinkSync(join(repo,'node_modules'),join(root,'node_modules'),'dir');execFileSync(process.execPath,[join(repo,'packages/main/tests/validation-shared-implementation-probe.mjs')],{cwd:repo,env:{...process.env,LAB_IMPLEMENTATION_ROOT:root},stdio:'inherit',timeout:90000});}finally{rmSync(root,{recursive:true,force:true});}

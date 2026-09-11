@@ -75,6 +75,11 @@ async function main() {
   check(registrySource.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS'), 'Lab optional runtime requirements must be registered');
   const labLoader = read(root, 'scripts/lab-source-loader.mjs');
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
+  const labWorktree = read(root, 'scripts/lab-worktree.mjs');
+  check(registrySource.includes("worktreeOnlyActions: ['red', 'green']") && labWorktree.includes('labPolicy.worktreeOnlyActions.includes(action)'), 'Lab RED/GREEN must consume the registered main-lock exclusion');
+  check(registrySource.includes("statusAccess: 'read-only-without-lock-or-trust-initialization'") && labWorktree.indexOf("if (action === 'status')") < labWorktree.indexOf('labLock = acquireMkdirLock'), 'Lab status must not acquire a write lock');
+  check(registrySource.includes("mutationLockOrder: 'lab-then-main'") && labWorktree.includes('heartbeatMs: labPolicy.operationHeartbeatMs') && labWorktree.includes('staleMs: labPolicy.operationStaleMs') && labWorktree.includes('!labLock.isCurrent()'), 'Lab operations must retain registered heartbeat, stale threshold and ownership checks');
+  check(labWorktree.includes('labPolicy.readableRecordSchemas.includes(state.schema)') && labWorktree.includes('lab record upgrade') && labWorktree.includes('schema: labPolicy.recordSchema'), 'Lab record schema migration must fence older main-only writers');
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
   check(registrySource.includes('MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-execution-identity-key.ts').includes('policy.keyBytes') && read(root, 'packages/main/src/core/managed-execution-input-identity.ts').includes('policy.maxExecutableBytes'), 'execution identity IO bounds must be registered and consumed');
@@ -686,6 +691,13 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
     rmSync(tmp, { recursive: true, force: true });
   }
 
+  // Real CLI scan refusal and bounded cache migration share the default runtime contract.
+  for (const test of ['verify-doctor-runtime-scan.mjs', 'verify-doctor-runtime-cache.mjs']) {
+    execFileSync(process.execPath, [join(root, 'scripts', test)], {cwd: root, stdio: 'inherit', timeout: 120000});
+  }
+
+  execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
+
   if (failures.length > 0) {
     console.error('Runtime fact contract failed:');
     for (const failure of failures) console.error(`- ${failure}`);
@@ -701,3 +713,11 @@ main().catch((error) => {
   console.error(`- ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 });
+
+assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts', 'utf8').includes('validation-git-routing-observation'), 'Git routing observation must remain registered');
+
+assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts', 'utf8').includes('validation-signing-target-root'));
+
+assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('validation-reuse-economics'));
+
+assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('validation-git-tree-observation'));

@@ -3,7 +3,7 @@ import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-
 import { collectOrphanPromptBodies } from '../core/prompt-body-gc.js';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
-import { computeActiveReviewers } from './reviewer-list.js';
+import { computeActiveReviewers, computeFinalReviewRoster, finalReviewRosterBasis } from './reviewer-list.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, verifyReviewRun } from '../core/review-run.js';
 import type { ReviewInventoryCriticReceipt, ReviewInventoryEpoch, ReviewInventoryFindingDisposition, ReviewInventoryReceipt } from '../core/types.js';
@@ -27,6 +27,7 @@ import {
   verifyReviewInventoryReceipt,
   persistFinalizedReviewInventoryUnlocked,
   renderFinalizedReviewInventory,
+  reviewInventoryFinalizedNextCommand,
   withReviewInventoryMutationLock,
   reviewInventoryPurposeBinding,
   inventoryPurposeMatchesEpoch,
@@ -85,6 +86,7 @@ function capture(ctx: HandlerContext, storyId: string) {
 export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string): {
   scopeDigest: string;
   requiredLanes: string[];
+  rosterBasis?: string;
   candidateSpecSetDigest?: string;
   corpusDigest?: string;
   candidateArtifactInvalid: boolean;
@@ -95,12 +97,13 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
   try { decision = ctx.store.readDecision(storyId); } catch { decision = null; }
   const understanding = ctx.store.readUnderstanding(storyId);
   const touchpoints = understanding?.touchpoints ?? detectMdTouchpointsFromGit(ctx.root);
+  const roster = computeFinalReviewRoster(ctx.store, ctx.root, storyId, computeActiveReviewers(story, checklist, decision, touchpoints));
   const candidate = ctx.store.readCandidateSpecSet(storyId);
   const candidateArtifactInvalid = candidate !== null && !verifyCandidateSpecSet(candidate);
   const validCandidate = candidateArtifactInvalid ? null : candidate;
   return {
-    requiredLanes: computeActiveReviewers(story, checklist, decision, touchpoints)
-      .map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`)),
+    requiredLanes: roster.requiredReviewers.map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`)),
+    rosterBasis: finalReviewRosterBasis(roster),
     scopeDigest: reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, storyId),
     // B-3f3d F-103: bind the candidate set's SEMANTICS, not its identity digest.
     // artifactDigest is the artifact's tamper-detection identity and deliberately
@@ -160,7 +163,8 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
   const materialChanged = current.materialHash !== epoch.cutoff.materialHash
     || (current.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '');
   const scopeChanged = currentScope.scopeDigest !== epoch.scopeDigest
-    || reviewInventoryDigest(currentScope.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes);
+    || reviewInventoryDigest(currentScope.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes)
+    || currentScope.rosterBasis !== epoch.rosterBasis;
   const candidateChanged = currentScope.candidateArtifactInvalid
     || (currentScope.candidateSpecSetDigest ?? '') !== (epoch.candidateSpecSetDigest ?? '')
     || (currentScope.corpusDigest ?? '') !== (epoch.corpusDigest ?? '');
@@ -238,6 +242,7 @@ export interface ReviewInventoryStatusProjection {
   evaluation?: ReturnType<typeof evaluateReviewInventoryWave>;
   criticComplete?: boolean;
   criticReviewRunId?: string;
+  receipt?: ReviewInventoryReceipt;
 }
 
 export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, projection: ReviewInventoryStatusProjection = {}): string {
@@ -285,9 +290,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
       next = `proof-or-stop review_inventory_finalize --storyId=${epoch.storyId}`;
     }
   } else if (epoch.state === 'FINALIZED') {
-    next = epoch.consumedAt
-      ? `proof-or-stop review_inventory_begin --storyId=${epoch.storyId}`
-      : `proof-or-stop story_advance --storyId=${epoch.storyId} --phase=DEV`;
+    next = reviewInventoryFinalizedNextCommand(epoch, projection.receipt);
   } else {
     next = `proof-or-stop review_inventory_begin --storyId=${epoch.storyId}`;
   }
@@ -381,6 +384,9 @@ function renderProjectedStatus(ctx: HandlerContext, epoch: ReviewInventoryEpoch)
     evaluation,
     criticComplete: currentCriticComplete(ctx, epoch),
     criticReviewRunId: evaluation ? currentCriticReviewRunId(ctx, epoch, evaluation) : undefined,
+    receipt: epoch.state === 'FINALIZED'
+      ? ctx.store.readReviewInventoryEpochs(epoch.storyId).receipts.find(row => row.receiptId === epoch.receiptId)
+      : undefined,
   });
 }
 
@@ -430,11 +436,12 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (pendingReceipt) {
           throw new Error(
             `REVIEW_INVENTORY_RECEIPT_UNCONSUMED: ${pendingReceipt.receipt.receiptId}; ` +
-            `Next: proof-or-stop story_advance --storyId=${args.storyId} --phase=DEV`,
+            `Next: ${reviewInventoryFinalizedNextCommand(pendingReceipt.epoch, pendingReceipt.receipt)}`,
           );
         }
         const {
           requiredLanes,
+          rosterBasis,
           scopeDigest,
           candidateSpecSetDigest,
           corpusDigest,
@@ -465,6 +472,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           ...(candidateSpecSetDigest ? { candidateSpecSetDigest } : {}),
           ...(corpusDigest ? { corpusDigest } : {}),
           requiredLanes,
+          ...(rosterBasis ? { rosterBasis } : {}),
           initialRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
           maxWaves: args.maxWaves ?? 3,
           waves: [],
@@ -680,6 +688,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           cutoff: epoch.cutoff,
           scopeDigest: epoch.scopeDigest,
           requiredLanes: epoch.requiredLanes,
+          ...(epoch.rosterBasis ? { rosterBasis: epoch.rosterBasis } : {}),
           waveCount: epoch.waves.length + 1,
           findingSetDigest: reviewInventoryDigest(aggregateFamilies),
           coverageDigest: reviewInventoryDigest([...epoch.waves, wave].flatMap(row => row.lanes.map(lane => lane.coverageDigest))),
@@ -699,7 +708,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? finalized : row);
         data.receipts.push(receipt);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}${commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize')}`;
+        return `${renderReviewInventoryStatus(finalized, { criticComplete: true, receipt })}\nReceipt: ${receiptId}\nAuthority: ${receipt.authority}; authorizes TEST: ${receipt.authorizesTest}${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}${commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize')}`;
       });
     },
 

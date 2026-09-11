@@ -1,0 +1,32 @@
+{
+  "beforeRef": "45f4e01e63",
+  "added": [
+    {
+      "command": "node",
+      "args": [
+        "scripts/verify-external-worktree-go-pre-review.mjs"
+      ],
+      "timeoutMs": 120000,
+      "resources": [
+        {
+          "class": "git-common-dir",
+          "key": ".",
+          "access": "shared"
+        },
+        {
+          "class": "fixed-path",
+          "key": "packages/main/dist",
+          "access": "exclusive"
+        }
+      ],
+      "assurance": "full-only",
+      "riskTier": "validation-infra",
+      "closurePolicy": "whole-repository",
+      "fullBaselineReusePolicy": "forbidden",
+      "policySource": "external-worktree-go-pre-review-v1"
+    }
+  ],
+  "removed": [],
+  "previousDigest": "3ffe0bd8f84ed0c4f30e2986b2910a3d2c0ee35c18e841d0f5d50206f1c2e274",
+  "measuredDigest": "ba34d4fed4c8b355657089907b79c01e62b1c12c134afa3bab6b6b8dbdf8f70e"
+}

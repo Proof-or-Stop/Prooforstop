@@ -1,0 +1,192 @@
+
+> proof-or-stop@0.3.317 test:dynamic-finding-evidence-closure
+> npm --prefix packages/main run test:dynamic-finding-evidence-closure
+
+
+> @proof-or-stop/core@0.3.317 test:dynamic-finding-evidence-closure
+> node dist/tasks/dynamic-finding-evidence-closure-smoke.js && node dist/tasks/dynamic-finding-runtime-integration-smoke.js && node dist/tasks/finding-runtime-pair-smoke.js && node dist/tasks/finding-material-reattestation-smoke.js && node dist/tasks/finding-qualification-events-smoke.js && node tests/red/red-dynamic-finding-evidence-closure.mjs && node tests/red/red-dynamic-finding-audit-closure.mjs && node tests/red/red-dynamic-finding-four-gaps.mjs && node tests/red/red-dynamic-finding-qualification-audit.mjs && node dist/tasks/finding-qualification-independence-smoke.js && node tests/red/red-dynamic-finding-final-contracts.mjs
+
+DFEC_CONTRACT all 22 scorecard rows remain present without evidence PASS
+DFEC_CONTRACT complete simulated boundary corpus qualifies only the pure calculator PASS
+DFEC_CONTRACT every latency observation independently proves its measured population PASS
+DFEC_CONTRACT false_nonblocking_high_critical rejects rollback PASS
+DFEC_CONTRACT stale_tampered_rejection rejects rollback PASS
+DFEC_CONTRACT assessment_integrity_fail_closed rejects rollback PASS
+DFEC_CONTRACT mandatory_repair_closure_integrity rejects rollback PASS
+DFEC_CONTRACT nonblocking_precision rejects rollback PASS
+DFEC_CONTRACT candidate_conversion rejects rollback PASS
+DFEC_CONTRACT canonical_root_cause_honesty rejects rollback PASS
+DFEC_CONTRACT duplicate_route_accuracy rejects rollback PASS
+DFEC_CONTRACT suspected_route_isolation rejects rollback PASS
+DFEC_CONTRACT route_authority_freshness rejects rollback PASS
+DFEC_CONTRACT initial_baseline_integrity rejects rollback PASS
+DFEC_CONTRACT exact_cas_deferral_atomicity rejects rollback PASS
+DFEC_CONTRACT deferral_route_completeness rejects rollback PASS
+DFEC_CONTRACT false_deferral rejects rollback PASS
+DFEC_CONTRACT deferral_recall rejects rollback PASS
+DFEC_CONTRACT expiry_policy_integrity rejects rollback PASS
+DFEC_CONTRACT lineage_renewal_compliance rejects rollback PASS
+DFEC_CONTRACT material_drift_reattestation rejects rollback PASS
+DFEC_CONTRACT scorecard_completeness rejects rollback PASS
+DFEC_CONTRACT workflow_operation_reduction rejects rollback PASS
+DFEC_CONTRACT review_convergence_reduction rejects rollback PASS
+DFEC_CONTRACT triage_latency rejects rollback PASS
+DFEC_CONTRACT false_nonblocking_high_critical cannot omit its denominator PASS
+DFEC_CONTRACT stale_tampered_rejection cannot omit its denominator PASS
+DFEC_CONTRACT assessment_integrity_fail_closed cannot omit its denominator PASS
+DFEC_CONTRACT mandatory_repair_closure_integrity cannot omit its denominator PASS
+DFEC_CONTRACT nonblocking_precision cannot omit its denominator PASS
+DFEC_CONTRACT candidate_conversion cannot omit its denominator PASS
+DFEC_CONTRACT canonical_root_cause_honesty cannot omit its denominator PASS
+DFEC_CONTRACT duplicate_route_accuracy cannot omit its denominator PASS
+DFEC_CONTRACT suspected_route_isolation cannot omit its denominator PASS
+DFEC_CONTRACT route_authority_freshness cannot omit its denominator PASS
+DFEC_CONTRACT initial_baseline_integrity cannot omit its denominator PASS
+DFEC_CONTRACT exact_cas_deferral_atomicity cannot omit its denominator PASS
+DFEC_CONTRACT deferral_route_completeness cannot omit its denominator PASS
+DFEC_CONTRACT false_deferral cannot omit its denominator PASS
+DFEC_CONTRACT deferral_recall cannot omit its denominator PASS
+DFEC_CONTRACT expiry_policy_integrity cannot omit its denominator PASS
+DFEC_CONTRACT lineage_renewal_compliance cannot omit its denominator PASS
+DFEC_CONTRACT material_drift_reattestation cannot omit its denominator PASS
+DFEC_CONTRACT scorecard_completeness cannot omit its denominator PASS
+DFEC_CONTRACT workflow_operation_reduction cannot omit its denominator PASS
+DFEC_CONTRACT review_convergence_reduction cannot omit its denominator PASS
+DFEC_CONTRACT triage_latency cannot omit its denominator PASS
+DFEC_CONTRACT false_nonblocking_high_critical rejects below-threshold corpus PASS
+DFEC_CONTRACT stale_tampered_rejection rejects below-threshold corpus PASS
+DFEC_CONTRACT assessment_integrity_fail_closed rejects below-threshold corpus PASS
+DFEC_CONTRACT mandatory_repair_closure_integrity rejects below-threshold corpus PASS
+DFEC_CONTRACT nonblocking_precision rejects below-threshold corpus PASS
+DFEC_CONTRACT candidate_conversion rejects below-threshold corpus PASS
+DFEC_CONTRACT canonical_root_cause_honesty rejects below-threshold corpus PASS
+DFEC_CONTRACT duplicate_route_accuracy rejects below-threshold corpus PASS
+DFEC_CONTRACT suspected_route_isolation rejects below-threshold corpus PASS
+DFEC_CONTRACT route_authority_freshness rejects below-threshold corpus PASS
+DFEC_CONTRACT initial_baseline_integrity rejects below-threshold corpus PASS
+DFEC_CONTRACT exact_cas_deferral_atomicity rejects below-threshold corpus PASS
+DFEC_CONTRACT deferral_route_completeness rejects below-threshold corpus PASS
+DFEC_CONTRACT false_deferral rejects below-threshold corpus PASS
+DFEC_CONTRACT deferral_recall rejects below-threshold corpus PASS
+DFEC_CONTRACT expiry_policy_integrity rejects below-threshold corpus PASS
+DFEC_CONTRACT lineage_renewal_compliance rejects below-threshold corpus PASS
+DFEC_CONTRACT material_drift_reattestation rejects below-threshold corpus PASS
+DFEC_CONTRACT scorecard_completeness rejects below-threshold corpus PASS
+DFEC_CONTRACT workflow_operation_reduction rejects below-threshold corpus PASS
+DFEC_CONTRACT review_convergence_reduction rejects below-threshold corpus PASS
+DFEC_CONTRACT triage_latency rejects below-threshold corpus PASS
+DFEC_CONTRACT qualification synthetic refuses PASS
+DFEC_CONTRACT qualification duplicate refuses PASS
+DFEC_CONTRACT qualification future refuses PASS
+DFEC_CONTRACT qualification no-independent-adjudication refuses PASS
+DFEC_CONTRACT qualification window-only refuses PASS
+DFEC_CONTRACT qualification no-prerequisite refuses PASS
+DFEC_CONTRACT qualification metadata refuses PASS
+DFEC_CONTRACT complete executable witness matches source and inspected acceptance PASS
+DFEC_CONTRACT witness head refuses PASS
+DFEC_CONTRACT witness scope refuses PASS
+DFEC_CONTRACT witness intent refuses PASS
+DFEC_CONTRACT witness surface refuses PASS
+DFEC_CONTRACT witness changed-path refuses PASS
+DFEC_CONTRACT witness reproduction refuses PASS
+DFEC_CONTRACT stored low deferral with raw material drift stays in first floor PASS
+DFEC_CONTRACT Finding pins required verification without removing inventory PASS
+DFEC_CONTRACT unknown command and unauthorized scope expansion refuse PASS
+DFEC_CONTRACT expired or invalid Finding evidence requests complete fallback PASS
+DYNAMIC_FINDING_EVIDENCE_CONTRACT PASS 87
+DFEC_RUNTIME native source Finding is current PASS
+DFEC_RUNTIME actual RED runtime receipt passes current reader PASS
+DFEC_RUNTIME proposal is receipted and idempotent PASS
+DFEC_RUNTIME server monotonic clock freezes actual population and excludes timing records from workflow savings PASS
+DFEC_RUNTIME signed assessment and shared gate agree PASS
+DFEC_RUNTIME changed idempotency payload and caller labels cannot change proof PASS
+DFEC_RUNTIME Finding proof proposes validation command without changing warn gate PASS
+DFEC_RUNTIME transaction-boundary source race refuses with zero ledger delta PASS
+DFEC_RUNTIME batch refusal publishes no partial record PASS
+DFEC_RUNTIME valid batch is atomic and replayed once PASS
+DFEC_RUNTIME 22 self-reported rates remain diagnostic; only one exact independent subject receives a denominator PASS
+DFEC_RUNTIME per-subject independent gold mismatch is failure; omitted substituted and duplicate subjects refuse PASS
+DFEC_RUNTIME qualification requires exact independent native PASS; synthetic case cannot enable enforce or inflate count PASS
+DFEC_RUNTIME material drift invalidates runtime and shadow proposal, but warn never changes validation gates PASS
+DFEC_RUNTIME an older repair classification cannot close a newer obligation PASS
+DFEC_RUNTIME actual same-command RED to GREEN closes latest mandatory obligation PASS
+DFEC_RUNTIME metadata-only commit preserves current material repair closure PASS
+DFEC_RUNTIME post-closure runtime artifact corruption cannot retain closure authority PASS
+DFEC_RUNTIME runtime key revocation reopens closure; metadata reuse never waives runtime trust PASS
+DYNAMIC_FINDING_RUNTIME_INTEGRATION PASS 19
+runtime-evidence: failed historical probe retained: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-finding-base-XJsqpD
+runtime-evidence: historical probe retained for cleanup: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-finding-base-rUS8k8
+runtime-evidence: failed historical probe retained: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-finding-base-kjCblC
+FINDING_RUNTIME_PAIR PASS 18
+MATERIAL_REATTEST real signed initial deferral releases shadow gate PASS
+MATERIAL_REATTEST independently eligible deferral is not a nonblocking precision error PASS
+MATERIAL_REATTEST raw material drift remains blocked PASS
+MATERIAL_REATTEST fresh executions alone cannot self-attest PASS
+MATERIAL_REATTEST fresh runtime plus independent signed dependencies restores valid deferral PASS
+MATERIAL_REATTEST replay does not append PASS
+MATERIAL_REATTEST observer cannot self-adjudicate PASS
+MATERIAL_REATTEST metadata-only evidence commit reuses exact material-bound execution PASS
+MATERIAL_REATTEST unknown extensionless dependency refuses release PASS
+MATERIAL_REATTEST PASS 9
+FINDING_QUALIFICATION_EVENTS PASS 13
+DFEC-01-unqualified-enforce PASS
+DFEC-02-empty-safety-denominator PASS
+DFEC-03-protected-surface-missing PASS
+DFEC-04-protected-surface-risk PASS
+DFEC-05-signed-label-is-not-proof PASS
+DFEC-06-status-cannot-erase-repair PASS
+DFEC-07-evidence-gate-fixture PASS
+DFEC-08-reviewer-lane-fixture PASS
+DFEC-09-reviewed-document-binding PASS
+DFEC_SUMMARY {"total":9,"passed":9,"failed":0,"cases":[{"id":"DFEC-01-unqualified-enforce","pass":true},{"id":"DFEC-02-empty-safety-denominator","pass":true},{"id":"DFEC-03-protected-surface-missing","pass":true},{"id":"DFEC-04-protected-surface-risk","pass":true},{"id":"DFEC-05-signed-label-is-not-proof","pass":true},{"id":"DFEC-06-status-cannot-erase-repair","pass":true},{"id":"DFEC-07-evidence-gate-fixture","pass":true},{"id":"DFEC-08-reviewer-lane-fixture","pass":true},{"id":"DFEC-09-reviewed-document-binding","pass":true}]}
+DYNAMIC_FINDING_EVIDENCE_CLOSURE PASS
+DFEC_AUDIT kill switch also disables diagnostic reads PASS
+DFEC_AUDIT observe cannot add validation gate constraints PASS
+DFEC_AUDIT warn cannot add validation gate constraints PASS
+DFEC_AUDIT Story-owned drift is stale, not unrelated re-attestation PASS
+DFEC_AUDIT repair closure survives metadata HEAD but not material drift PASS
+DFEC_AUDIT new evidence closure suite is in authoritative validation inventory PASS
+DYNAMIC_FINDING_AUDIT_CLOSURE PASS 6 passed 0 failed
+PAIR-head-only-cannot-prove-base PASS
+RECALL-L4-expiry-has-typed-trigger PASS
+REATTEST-gate-consumes-verified-closure PASS
+COLLECTORS-not-permanently-disabled PASS
+DYNAMIC_FINDING_FOUR_GAPS PASS 4 passed 0 failed
+QUAL-single-critical-miss-cannot-hide-behind-average PASS
+QUAL-synthetic-cannot-dilute-operational-errors PASS
+DYNAMIC_FINDING_QUALIFICATION_AUDIT PASS 2 passed 0 failed
+QUAL_INDEPENDENCE finding_applicability_assessment PASS
+QUAL_INDEPENDENCE finding_deferral_disposition PASS
+QUAL_INDEPENDENCE mandatory_repair PASS
+FINDING_QUALIFICATION_INDEPENDENCE PASS 3 passed 0 failed
+PRE_EXISTING_E2E two head receipts cannot replace historical execution PASS
+PRE_EXISTING_E2E complete execution pair alone cannot waive target consent PASS
+PRE_EXISTING_E2E substituted target receipt refuses without source ledger delta PASS
+PRE_EXISTING_E2E real pair plus target consent and signed assessment releases high-severity shadow floor PASS
+PRE_EXISTING_E2E full accepted assessment replays idempotently PASS
+PRE_EXISTING_E2E current material drift cannot reuse non-applicable proof PASS
+PRE_EXISTING_E2E PASS 6
+FINAL_CONTRACT historical-e2e exit=0
+DFEC_RUNTIME native source Finding is current PASS
+DFEC_RUNTIME actual RED runtime receipt passes current reader PASS
+DFEC_RUNTIME proposal is receipted and idempotent PASS
+DFEC_RUNTIME server monotonic clock freezes actual population and excludes timing records from workflow savings PASS
+DFEC_RUNTIME signed assessment and shared gate agree PASS
+DFEC_RUNTIME changed idempotency payload and caller labels cannot change proof PASS
+DFEC_RUNTIME Finding proof proposes validation command without changing warn gate PASS
+DFEC_RUNTIME transaction-boundary source race refuses with zero ledger delta PASS
+DFEC_RUNTIME batch refusal publishes no partial record PASS
+DFEC_RUNTIME valid batch is atomic and replayed once PASS
+QUALIFICATION_PREREQUISITE PASS ancestry alone is not proof
+QUALIFICATION_PREREQUISITE PASS 6 receipt and negative-control checks
+QUALIFICATION_PREREQUISITE PASS official signed write and historical query retain executed proof
+QUALIFICATION_PREREQUISITE PASS incomplete timing retains 22 diagnostic rows and independent subject denominator=1
+QUALIFICATION_PREREQUISITE PASS revoked runtime trust refuses historical qualification
+FINAL_CONTRACT prerequisite-proof exit=0
+QUALIFICATION_COHORT PASS one cohort one measurement
+COHORT_STATS references=2 denominator=1 independentFindingCases=0 convergenceSeconds=3600
+FINDING_QUALIFICATION_EVENTS PASS 13
+FINAL_CONTRACT cohort-proof exit=0
+DYNAMIC_FINDING_FINAL_CONTRACTS PASS 3 passed 0 failed
+
+[exited with code 0]

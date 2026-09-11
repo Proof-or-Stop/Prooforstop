@@ -27,8 +27,11 @@ import { validateRouteReceipt, validateCandidateRoute, type RouteReceipt } from 
 import { validateBaseline, validateBaselineSet, validateProgress, validateProgressPredecessor } from '../core/finding-progress.js';
 import { readCandidates } from './finding-identity.js';
 import { verifyFinding } from '../core/finding-verify.js';
+import { readDynamicFindingDecision, currentApplicabilityContext } from '../core/finding-applicability-projection.js';
+import { verifyDynamicFindingRecord, type FindingDeferralDisposition, type FindingApplicabilityAssessment } from '../core/finding-applicability.js';
 
 function recallObservation(ctx: HandlerContext, args: ReturnType<typeof historyRecallSchema.parse>) {
+  if ((args.trigger === 'deferral_invalidated') !== !!args.deferral) throw new Error('history: exact deferral reference required only for L4 invalidation');
   const history = historicalStoryContext(ctx, args.route.storyId);
   const records = history.store.readFindingLedger<JsonValue>(args.route.storyId);
   const original = verifiedIdentityCarrier(records, args.route.storyId, args.route.recordId, identityTrust(history));
@@ -86,7 +89,36 @@ function recallObservation(ctx: HandlerContext, args: ReturnType<typeof historyR
   const checklist = target.store.readChecklist(receipt.target.id);
   const items = checklist.items.filter(row => receipt.subject.targetChecklistItemRefs.includes(row.id));
   let triggerState: object;
-  if (args.trigger === 'expired') {
+  if (args.trigger === 'deferral_invalidated') {
+    if (args.deferral!.storyId !== receipt.source.storyId || args.storyId !== receipt.source.storyId) throw new Error('history: deferral recall requires source owner');
+    const ledger = source.store.readFindingLedger<JsonValue>(args.storyId);
+    const row = verifiedIdentityCarrier(ledger, args.storyId, args.deferral!.recordId, identityTrust(source)).record;
+    const deferral = row.payload as unknown as FindingDeferralDisposition;
+    if (row.recordType !== 'finding_deferral_disposition' || exactLedgerRecordHash(row) !== args.deferral!.recordHash
+      || !verifyDynamicFindingRecord(deferral as unknown as Record<string, unknown>, identityTrust(source).publicKey)
+      || deferral.routeReceiptId !== receipt.routeReceiptId || deferral.ownerStoryId !== receipt.target.id) throw new Error('history: invalid deferral/route binding');
+    const latest = [...ledger.records].reverse().find(item => item.recordType === 'finding_deferral_disposition'
+      && (item.payload as unknown as FindingDeferralDisposition).findingId === deferral.findingId);
+    if (latest?.recordId !== row.recordId) throw new Error('history: superseded deferral is not a current recall trigger');
+    const assessment = ledger.records.find(item => item.recordType === 'finding_applicability_assessment'
+      && (item.payload as unknown as FindingApplicabilityAssessment).assessmentId === deferral.assessmentId)?.payload as unknown as FindingApplicabilityAssessment | undefined;
+    if (!assessment || assessment.proposalRef?.recordId !== receipt.source.recordId) throw new Error('history: deferral proposal substituted');
+    const finding = source.store.readFindings(args.storyId).findings.find(item => item.id === deferral.findingId);
+    if (!finding) throw new Error('history: deferral Finding missing');
+    const decision = readDynamicFindingDecision({ store: source.store, projectRoot: source.root, storyId: args.storyId, finding,
+      effectiveBlockingSeverities: ['critical', 'high', 'medium'], round: 3, diagnostic: true });
+    if (!decision.floors.includes('deferral_lineage')) throw new Error('history: deferral invalidation not observed');
+    // Clock values and unrelated append-only rows cannot manufacture another trigger.
+    let binding: unknown;
+    try { const { headHash: _head, baseHash: _base, ...semantic } = currentApplicabilityContext(source.store, source.root, args.storyId, assessment.runtimeReceiptIds); binding = semantic; }
+    catch { binding = { state: 'unavailable' }; }
+    const currentAssessment = [...ledger.records].reverse().find(item => item.recordType === 'finding_applicability_assessment'
+      && (item.payload as unknown as FindingApplicabilityAssessment).findingId === finding.id);
+    triggerState = { deferral: args.deferral, reason: decision.reason, canonicalDefectId: deferral.canonicalDefectId,
+      currentAssessment: currentAssessment ? exactLedgerRecordHash(currentAssessment) : null, binding, severity: finding.severity,
+      canonicalGraph: identityHash(readCanonicalCatalog(ctx).input), expired: Date.now() >= Date.parse(deferral.expiresAt),
+      expiresAt: deferral.expiresAt, validity: 'invalidated' };
+  } else if (args.trigger === 'expired') {
     if (Date.now() < Date.parse(receipt.expiresAt)) throw new Error('history: expiry trigger not reached'); triggerState = { expiresAt: receipt.expiresAt };
   } else if (args.trigger === 'owner_invalid') {
     if (receipt.target.kind === 'b_meta_gap') {
@@ -133,6 +165,12 @@ function recallObservation(ctx: HandlerContext, args: ReturnType<typeof historyR
   }
   const triggerDigest = identityHash({ subjectKey, targetId: receipt.target.id, trigger: args.trigger, triggerState });
   return { receipt, receiptRow, sourceRecord, target, source, original, currentConsent, consentDiagnostic, triggerState, triggerDigest, anchors, contracts, symbols, description, reproductionContract };
+}
+
+/** Read-only trigger selection; automatic and explicit callers share one key. */
+export function findingHistoryRecallObservation(ctx: HandlerContext, input: unknown) {
+  const observation = recallObservation(ctx, parseIdentityInput(historyRecallSchema, input));
+  return { triggerDigest: observation.triggerDigest, triggerState: observation.triggerState };
 }
 
 function reviewer(ctx: HandlerContext, storyId: string, reviewRunId: string, evidence: Parameters<typeof assertIdentityAnchorsCurrent>[1]): string {

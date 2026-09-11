@@ -2450,3 +2450,14 @@ if (target.endsWith('story-aware-validation-historical-replay.ts')) {
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }
+
+for (const [file, ...flags] of [
+  ['validation-input-contract.mjs'],
+  ['validation-shared-input-tree.mjs'],
+  ['validation-shared-input-tree.mjs', '--delete'],
+  ['validation-shared-input-tree.mjs', '--fifo'],
+  ['validation-shared-singleflight.mjs'],
+  ['validation-shared-output.mjs'],
+  ['validation-shared-implementation.mjs'],
+]) execFileSync(process.execPath, [join(projectRoot, 'packages/main/tests', file!), ...flags], { cwd: projectRoot, stdio: 'inherit', timeout: 120_000 });
+console.log('Shared validation input closure regressions passed');

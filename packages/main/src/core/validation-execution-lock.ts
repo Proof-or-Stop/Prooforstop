@@ -2,7 +2,7 @@ import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_P
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import {
   existsSync,
   lstatSync,
@@ -26,10 +26,14 @@ import {
   type ExistingMkdirLockSnapshot,
   type MkdirLockHolderInfo,
   readMkdirLockHolder,
+  observedProcessStartTimeMs,
 } from './mkdir-lock.js';
 import { canonicalizeEntries, claimsConflict, validateResourceClaims, MAX_JOBS, type ResourceClaim } from './keyed-scheduler.js';
 import { withOwnerLeaseHeartbeat, type OwnerLeaseHeartbeatOptions } from './story-owner-lease.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
+
+export const VALIDATION_METADATA_WAIT_MS = VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.metadataWriteWaitMs;
+export const VALIDATION_METADATA_GRACE_MS = VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.metadataValidationGraceMs;
 
 export const VALIDATION_EXECUTION_LOCKS_REL = `${PROOF_OR_STOP_DIR}/locks/validation`;
 export const VALIDATION_EXECUTION_LOCK_STALE_MS = 120000;
@@ -101,6 +105,20 @@ function currentContextOwns(lockKey: string): boolean {
   return token !== undefined && activeValidationLockTokens.get(lockKey)?.has(token) === true;
 }
 
+/** Read-only generation fence; never acquires or repairs a lost publication lock. */
+export function assertCurrentValidationPublicationOwner(root: string, storyId: string): void {
+  const frame = invocationStages.getStore();
+  if (frame && (!frame.active || frame.executingPlan || !frame.held || !currentContextOwns(frame.commonKey))) {
+    throw new Error('VALIDATION_PUBLICATION_CAPACITY_LOST');
+  }
+  const key = validationExecutionLockPath(root, storyId);
+  const token = validationLockOwnerStore.getStore()?.get(key);
+  const holder = readMkdirLockHolder(key);
+  if (!currentContextOwns(key) || !token || holder?.lockId !== token || holder.pid !== process.pid) {
+    throw new Error('VALIDATION_PUBLICATION_OWNER_LOST');
+  }
+}
+
 function extendedOwnerTokens(lockKey: string, acquisitionToken: string): Map<string, string> {
   const current = validationLockOwnerStore.getStore();
   const next = current ? new Map(current) : new Map<string, string>();
@@ -114,8 +132,11 @@ function clearActiveValidationLockToken(lockKey: string, acquisitionToken: strin
   if (tokens?.size === 0) activeValidationLockTokens.delete(lockKey);
 }
 
+// Date.now and uptime use different clock resolutions. Re-estimating can vary
+// by a millisecond and split one invocation into multiple capacity groups.
+const validationProcessStartTimeMs = Math.floor(Date.now() - (process.uptime() * 1000));
 function currentProcessStartTimeMs(): number {
-  return Math.floor(Date.now() - (process.uptime() * 1000));
+  return validationProcessStartTimeMs;
 }
 
 function pidAppearsAlive(pid: number): boolean {
@@ -246,13 +267,51 @@ function resolveGitCommonLockRoot(root: string): string {
   return basename(commonDir) === '.git' ? dirname(commonDir) : commonDir;
 }
 
+// Cache only successful Git identities. Recheck the nearest .git entry, its
+// real path and linked-worktree commondir on every lookup; init/retarget/remove
+// must never reuse an identity from another repository.
+const sharedRootCache = new Map<string, { fingerprint: string; sharedRoot: string }>();
+function sharedRootFingerprint(root: string): string {
+  let dir = realpathSync(root);
+  const parts = [dir];
+  while (!existsSync(join(dir, '.git'))) {
+    const parent = dirname(dir);
+    if (parent === dir) throw new Error('no Git entry');
+    dir = parent;
+  }
+  const entry = join(dir, '.git');
+  const stat = statSync(entry);
+  parts.push(realpathSync(entry), String(stat.dev), String(stat.ino));
+  let gitDir = entry;
+  if (stat.isFile()) {
+    const contents = readFileSync(entry, 'utf8');
+    parts.push(contents);
+    const match = /^gitdir: (.+)\s*$/.exec(contents.trim());
+    if (!match) throw new Error('invalid Git entry');
+    gitDir = resolve(dir, match[1]);
+  }
+  const commonFile = join(gitDir, 'commondir');
+  const common = existsSync(commonFile) ? readFileSync(commonFile, 'utf8').trim() : '.';
+  const commonDir = realpathSync(resolve(gitDir, common));
+  const commonStat = statSync(commonDir);
+  parts.push(common, commonDir, String(commonStat.dev), String(commonStat.ino));
+  return JSON.stringify(parts);
+}
 export function resolveSharedLockRoot(root: string): string {
   const projectRoot = String(root ?? '').trim();
   if (!projectRoot) return projectRoot;
   try {
-    return resolveGitCommonLockRoot(projectRoot);
+    if (process.env.GIT_DIR || process.env.GIT_COMMON_DIR || process.env.GIT_WORK_TREE) return resolveGitCommonLockRoot(projectRoot);
+    const fingerprint = sharedRootFingerprint(projectRoot);
+    const cached = sharedRootCache.get(projectRoot);
+    if (cached?.fingerprint === fingerprint) return cached.sharedRoot;
+    const sharedRoot = resolveGitCommonLockRoot(projectRoot);
+    if (sharedRootCache.size >= 128) sharedRootCache.delete(sharedRootCache.keys().next().value!);
+    sharedRootCache.set(projectRoot, { fingerprint, sharedRoot });
+    return sharedRoot;
   } catch {
-    return projectRoot;
+    sharedRootCache.delete(projectRoot);
+    try { return resolveGitCommonLockRoot(projectRoot); } catch { return projectRoot; }
   }
 }
 
@@ -377,12 +436,17 @@ export interface ValidationExecutionLockOptions {
 const activeCapacityDeclarations = new Map<string, CapacityResourceDeclaration | null>();
 
 interface CapacityResourceDeclaration {
-  schema: 'validation-capacity-resources.v1';
+  schema: 'validation-capacity-resources.v1' | 'validation-capacity-resources.v2';
+  invocationGroup?: string;
   maxConcurrent: number;
   resources: ResourceClaim[];
 }
 
 export interface ValidationCapacityLockOptions {
+  /** Internal invocation guard: separate from the shared command-capacity queue. */
+  workspaceOnly?: boolean;
+  /** Internal random invocation identity; groups stages without weakening resource conflicts. */
+  invocationGroup?: string;
   /** Omitted/empty declarations retain exclusive legacy admission. */
   resources?: ResourceClaim[];
   maxConcurrent?: number;
@@ -402,6 +466,8 @@ export interface ValidationCapacityLockOptions {
 }
 
 export interface OfficialValidationExecutionOptions extends ValidationCapacityLockOptions {
+  /** Only migrated handlers whose subprocesses cross runValidationCommand may use stages. */
+  commandStages?: boolean;
   sharedExecution?: SharedValidationExecutionContext;
   ownerLeaseDir?: string;
   ownerLeaseHeartbeat?: OwnerLeaseHeartbeatOptions;
@@ -590,15 +656,17 @@ function capacityDeclaration(options: ValidationCapacityLockOptions): CapacityRe
   if (options.resources === undefined) return null;
   if (!Array.isArray(options.resources)) throw new Error('validation resources must be an array');
   const resources = canonicalizeEntries([{ name: options.command, resources: options.resources }], options.workspaceRoot)[0]!.resources;
-  return resources.length ? { schema: 'validation-capacity-resources.v1', maxConcurrent, resources } : null;
+  return resources.length ? { schema: options.invocationGroup ? 'validation-capacity-resources.v2' : 'validation-capacity-resources.v1', ...(options.invocationGroup ? { invocationGroup: options.invocationGroup } : {}), maxConcurrent, resources } : null;
 }
 
 function readCapacityDeclaration(path: string): CapacityResourceDeclaration | null {
   try {
     const value = JSON.parse(readFileSync(join(path, 'resources.json'), 'utf8')) as CapacityResourceDeclaration;
-    if (value.schema !== 'validation-capacity-resources.v1' || !Number.isSafeInteger(value.maxConcurrent)
+    if (!['validation-capacity-resources.v1', 'validation-capacity-resources.v2'].includes(value.schema) || !Number.isSafeInteger(value.maxConcurrent)
       || value.maxConcurrent < 1 || value.maxConcurrent > MAX_JOBS || !Array.isArray(value.resources)
       || value.resources.length === 0) return null;
+    if (value.schema === 'validation-capacity-resources.v2' && !/^[0-9a-f-]{36}$/.test(value.invocationGroup ?? '')) return null;
+    if (value.schema === 'validation-capacity-resources.v1' && value.invocationGroup !== undefined) return null;
     validateResourceClaims(value.resources, 'capacity ticket');
     if (value.resources.some(claim => typeof claim.canonicalKey !== 'string' || !claim.canonicalKey)) return null;
     return value;
@@ -610,13 +678,24 @@ function capacityTicketAdmitted(tickets: Array<{ path: string }>, ticketPath: st
   if (index < 0) return false;
   if (index === 0) return true;
   const own = readCapacityDeclaration(ticketPath);
-  if (!own || index >= own.maxConcurrent) return false;
-  // Count every earlier ticket, including blocked ones. Admission never evicts
-  // an active owner, and a later arrival cannot pass an earlier conflicting job.
+  if (!own) return false;
+  const groupKey = (path: string, declaration: CapacityResourceDeclaration): string => {
+    const holder = readMkdirLockHolder(path);
+    return declaration.invocationGroup && holder?.pid && holder.hostname && holder.processStartTimeMs
+      ? `${holder.hostname}:${holder.pid}:${holder.processStartTimeMs}:${declaration.invocationGroup}` : path;
+  };
+  const groups = new Set([groupKey(ticketPath, own)]);
+  let capacity = own.maxConcurrent;
+  // Count preceding invocations, including blocked ones. Commands within one
+  // invocation keep the scheduler's jobs limit, but never bypass resource conflicts.
+  // V1/legacy tickets remain individual slots; old readers treat V2 as exclusive.
   for (const ticket of tickets.slice(0, index)) {
     const earlier = readCapacityDeclaration(ticket.path);
-    if (!earlier || index >= earlier.maxConcurrent || claimsConflict({ name: 'current', resources: own.resources }, { name: 'earlier', resources: earlier.resources })) return false;
+    if (!earlier || claimsConflict({ name: 'current', resources: own.resources }, { name: 'earlier', resources: earlier.resources })) return false;
+    groups.add(groupKey(ticket.path, earlier));
+    capacity = Math.min(capacity, earlier.maxConcurrent);
   }
+  if (groups.size > capacity) return false;
   return true;
 }
 
@@ -647,7 +726,9 @@ export async function withWorkspaceValidationCapacity<T>(
   options: ValidationCapacityLockOptions,
   fn: () => Promise<T> | T,
 ): Promise<T> {
-  return withValidationCapacityQueue(options, fn, validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true));
+  const sharedKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
+  const lockKey = options.workspaceOnly ? join(sharedKey, 'workspaces', createHash('sha256').update(realpathSync(options.workspaceRoot)).digest('hex')) : sharedKey;
+  return withValidationCapacityQueue(options, fn, lockKey);
 }
 
 /** Same-user machine resources are acquired only by actual command executors. */
@@ -838,12 +919,87 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
   return callbackResult as T;
 }
 
-/** Fixed acquisition order for official validators: workspace capacity first,
- * then the existing per-story evidence lock when a story id is present. */
+interface HeldStage {
+  tokens: Map<string, string>;
+  release: () => Promise<void>;
+}
+
+/** Acquire through the existing queue; its existing heartbeat/release owns the ticket. */
+async function holdValidationStage(options: ValidationCapacityLockOptions): Promise<HeldStage> {
+  let acquired!: (tokens: Map<string, string>) => void;
+  let failed!: (error: unknown) => void;
+  let release!: () => void;
+  const ready = new Promise<Map<string, string>>((resolveReady, rejectReady) => { acquired = resolveReady; failed = rejectReady; });
+  const released = new Promise<void>(resolveRelease => { release = resolveRelease; });
+  const completion = withWorkspaceValidationCapacity(options, async () => {
+    acquired(new Map(validationLockOwnerStore.getStore()));
+    await released;
+  });
+  void completion.catch(failed);
+  const tokens = await ready;
+  return { tokens, release: async () => { release(); await completion; } };
+}
+
+interface InvocationStages {
+  options: OfficialValidationExecutionOptions;
+  stageOptions: ValidationCapacityLockOptions;
+  commonKey: string;
+  held?: HeldStage;
+  tokens: Map<string, string>;
+  executingPlan: boolean;
+  active: boolean;
+}
+const invocationStages = new AsyncLocalStorage<InvocationStages>();
+
+/** Release preparation capacity for a complete plan, then reacquire before publication. */
+export async function withValidationPlanStages<T>(fn: () => Promise<T>): Promise<T> {
+  const frame = invocationStages.getStore();
+  if (!frame || frame.executingPlan) return await fn();
+  if (!frame.active || !frame.held) throw new Error('validation invocation stage is no longer owned');
+  await frame.held.release();
+  frame.held = undefined;
+  frame.executingPlan = true;
+  let result: T;
+  try { result = await fn(); }
+  finally { frame.executingPlan = false; }
+  // An exceptional plan exit never reacquires capacity or masks its original error.
+  // A command FAIL returned as data can still publish FAIL; invocation cancellation cannot.
+  assertCapacityWaitActive(frame.stageOptions);
+  frame.held = await holdValidationStage(frame.stageOptions);
+  const token = frame.held.tokens.get(frame.commonKey);
+  if (!token) throw new Error('validation publication capacity identity missing');
+  frame.tokens.set(frame.commonKey, token);
+  return result;
+}
+
+/** Undeclared commands retain the existing repo-global exclusive capacity semantics. */
+export async function withValidationCommandStage<T>(
+  command: { label: string; cwd?: string; resources?: ResourceClaim[] },
+  fn: () => Promise<T>,
+  wait?: Pick<ValidationCapacityLockOptions, 'abortSignal' | 'deadlineAt' | 'deadlineError'>,
+): Promise<T> {
+  const frame = invocationStages.getStore();
+  if (!frame) return await fn();
+  if (!frame.active) throw new Error('validation invocation stage is no longer owned');
+  return await withValidationPlanStages(() => withWorkspaceValidationCapacity({
+    ...frame.options, workspaceOnly: false, invocationGroup: frame.stageOptions.invocationGroup,
+    abortSignal: wait?.abortSignal && frame.options.abortSignal && wait.abortSignal !== frame.options.abortSignal
+      ? AbortSignal.any([wait.abortSignal, frame.options.abortSignal]) : wait?.abortSignal ?? frame.options.abortSignal,
+    deadlineAt: wait?.deadlineAt !== undefined && frame.options.deadlineAt !== undefined
+      ? Math.min(wait.deadlineAt, frame.options.deadlineAt) : wait?.deadlineAt ?? frame.options.deadlineAt,
+    deadlineError: wait?.deadlineError ?? frame.options.deadlineError,
+    resources: undefined, maxConcurrent: undefined,
+    ...(command.resources?.length ? { resources: normalizedCommandResources(command, frame.options.workspaceRoot), maxConcurrent: VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.declaredInvocationCapacity } : {}),
+  }, fn));
+}
+
+/** Owner lease -> worktree guard -> Story lock -> short shared-capacity stages.
+ * Existing explicit outer capacity callers retain their original non-upgrade contract. */
 export async function withOfficialValidationExecution<T>(
   options: OfficialValidationExecutionOptions,
   fn: () => Promise<T> | T,
 ): Promise<T> {
+  const commonKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
   const execute = async (leaseLostSignal?: AbortSignal) => {
     // Preserve caller cancellation while also stopping an obsolete owner from
     // waiting for capacity and entering a callback after failed renewal.
@@ -858,17 +1014,48 @@ export async function withOfficialValidationExecution<T>(
       return { source, forward };
     });
     try {
-      return await withSharedValidationExecutions(options.sharedExecution, () => withWorkspaceValidationCapacity({ ...options, abortSignal: combined?.signal }, async () => {
-        const storyId = String(options.storyId ?? '').trim();
-        if (!storyId) return await fn();
-        return await withValidationExecutionLock({
-          root: options.root,
-          storyId,
-          workspaceRoot: options.workspaceRoot,
-          command: options.command,
-          staleMs: options.staleMs,
-        }, fn);
-      }));
+      const scopedOptions = { ...options, abortSignal: combined?.signal };
+      assertCapacityWaitActive(scopedOptions);
+      return await withSharedValidationExecutions(options.sharedExecution, async () => {
+    const parent = invocationStages.getStore();
+    if (parent) {
+      if (!parent.active || realpathSync(parent.options.workspaceRoot) !== realpathSync(scopedOptions.workspaceRoot)
+          || (parent.options.storyId ?? '') !== (scopedOptions.storyId ?? '')) throw new Error('nested validation cannot change its invocation workspace or Story');
+      if (!scopedOptions.commandStages) return await withWorkspaceValidationCapacity(scopedOptions, fn);
+      return await fn();
+    }
+    if (currentContextOwns(commonKey)) {
+      if (scopedOptions.storyId && !currentContextOwns(validationExecutionLockPath(scopedOptions.root, scopedOptions.storyId))) {
+        throw new Error('VALIDATION_LOCK_ORDER: acquire the Story lock before shared capacity');
+      }
+      return await withWorkspaceValidationCapacity(scopedOptions, () => scopedOptions.storyId
+        ? withValidationExecutionLock({ root: scopedOptions.root, storyId: scopedOptions.storyId, workspaceRoot: scopedOptions.workspaceRoot, command: scopedOptions.command, staleMs: scopedOptions.staleMs }, fn)
+        : fn());
+    }
+    return await withWorkspaceValidationCapacity({ ...scopedOptions, workspaceOnly: true, invocationGroup: undefined, resources: undefined, maxConcurrent: undefined }, async () => {
+    const run = async () => {
+      if (!scopedOptions.commandStages) return await withWorkspaceValidationCapacity(scopedOptions, fn);
+      const stageOptions: ValidationCapacityLockOptions = {
+        ...scopedOptions, workspaceOnly: false, invocationGroup: randomUUID(),
+        resources: [{ class: 'fixed-path', key: realpathSync(scopedOptions.workspaceRoot), access: 'exclusive' }],
+        maxConcurrent: VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.declaredInvocationCapacity,
+      };
+      const held = await holdValidationStage(stageOptions);
+      const frame: InvocationStages = { options: scopedOptions, stageOptions, commonKey, held, tokens: held.tokens, executingPlan: false, active: true };
+      try { return await validationLockOwnerStore.run(frame.tokens, () => invocationStages.run(frame, fn)); }
+      finally { frame.active = false; await frame.held?.release(); }
+    };
+    const storyId = String(scopedOptions.storyId ?? '').trim();
+    if (!storyId) return await run();
+    return await withValidationExecutionLock({
+      root: scopedOptions.root,
+      storyId,
+      workspaceRoot: scopedOptions.workspaceRoot,
+      command: scopedOptions.command,
+      staleMs: scopedOptions.staleMs,
+    }, run);
+    });
+      });
     } finally {
       for (const { source, forward } of subscriptions) source.removeEventListener('abort', forward);
     }
@@ -876,6 +1063,47 @@ export async function withOfficialValidationExecution<T>(
   return options.ownerLeaseDir
     ? withOwnerLeaseHeartbeat(options.ownerLeaseDir, { command: options.command, cwd: options.workspaceRoot, ...options.ownerLeaseHeartbeat }, execute)
     : execute();
+}
+
+/** Serialize synchronous StoryStore writes against official validation publication.
+ * Refusal is explicit and retryable; no caller payload is discarded or auto-committed.
+ * Only the live async owner may write inside its validation transaction.
+ */
+export function classifyValidationMetadataLock(snapshot: ExistingMkdirLockSnapshot): 'active' | 'stale' | 'unknown' {
+  const holder = snapshot.holder;
+  // Preserve the shared mkdir-lock bounded recovery contract for nascent,
+  // corrupt or foreign holders; never age-steal a demonstrably live local PID.
+  if (!holder || holder.hostname !== hostname()) return 'unknown';
+  if (!pidAppearsAlive(holder.pid)) return 'stale';
+  const observedStart = holder.pid === process.pid ? currentProcessStartTimeMs() : observedProcessStartTimeMs(holder.pid);
+  if (holder.processStartTimeMs === undefined || observedStart === undefined) return 'unknown';
+  if (!sameProcessStart(holder.processStartTimeMs, observedStart)) return 'stale';
+  return 'active';
+}
+
+/** Recognize coordination refusals across CLI/module boundaries. */
+export function isValidationMetadataBusy(error: unknown): boolean {
+  return error instanceof Error && error.message.includes('[VALIDATION_METADATA_BUSY]');
+}
+
+export function withValidationMetadataWrite<T>(root: string, storyId: string, fn: () => T): T {
+  const lockKey = validationExecutionLockPath(root, storyId);
+  if (currentContextOwns(lockKey)) return fn();
+  const holderInfo: MkdirLockHolderInfo = {
+    lockId: randomUUID(), lockClass: 'metadata-write', pid: process.pid, hostname: hostname(),
+    command: `metadata write for ${storyId}`, acquiredAt: new Date().toISOString(),
+    processStartTimeMs: currentProcessStartTimeMs(),
+  };
+  const lock = acquireMkdirLock(lockKey, {
+    label: '[VALIDATION_METADATA_BUSY] metadata write; retry after the active operation finishes', deadlineMs: VALIDATION_METADATA_WAIT_MS, pollMs: 10,
+    staleMs: VALIDATION_EXECUTION_LOCK_STALE_MS, holderInfo, requireHolderToken: true,
+    classifyExistingLock: classifyValidationMetadataLock,
+    heldMessage: `[VALIDATION_METADATA_BUSY] ${storyId}: validation publication is active; retry this write after validation completes`,
+  });
+  const token = holderInfo.lockId!;
+  activeValidationLockTokens.set(lockKey, new Set([...(activeValidationLockTokens.get(lockKey) ?? []), token]));
+  try { return validationLockOwnerStore.run(extendedOwnerTokens(lockKey, token), fn); }
+  finally { clearActiveValidationLockToken(lockKey, token); lock.release(); }
 }
 
 export async function withValidationExecutionLock<T>(
@@ -900,26 +1128,41 @@ export async function withValidationExecutionLock<T>(
     acquiredAt: new Date().toISOString(),
     processStartTimeMs: currentProcessStartTimeMs(),
   };
-  const lock = acquireMkdirLock(lockKey, {
-    label: 'validation execution',
-    staleMs: options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS,
-    failFastIfHeld: true,
-    holderInfo,
-    // B-d877 R5 FIX 2 (F-016): the heartbeat.json this lock writes INSIDE the lock
-    // dir is HOLDER-owned; declare it so the ownership-verified release removes it
-    // before the non-recursive dir removal. Otherwise release leaves heartbeat.json
-    // behind, rmdirSync fails (dir not empty), and the leaked dir blocks the next
-    // validate with a false "already running".
-    ownedAuxFiles: [VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE],
-    classifyExistingLock: classifyValidationExecutionLock,
-    onContentionHeld: (holder, holderAgeMs) => buildValidationLockContentionMessage({
-      storyId,
-      workspaceRoot,
-      command,
-      holder,
-      holderAgeMs,
-    }),
-  });
+  holderInfo.lockClass = 'validation';
+  const deadline = Date.now() + VALIDATION_METADATA_GRACE_MS;
+  let lock: AcquiredMkdirLock;
+  for (;;) {
+    try {
+      lock = acquireMkdirLock(lockKey, {
+        label: 'validation execution',
+        staleMs: options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS,
+        failFastIfHeld: true,
+        holderInfo,
+        // B-d877 R5 FIX 2 (F-016): the heartbeat.json this lock writes INSIDE the lock
+        // dir is HOLDER-owned; declare it so the ownership-verified release removes it
+        // before the non-recursive dir removal. Otherwise release leaves heartbeat.json
+        // behind, rmdirSync fails (dir not empty), and the leaked dir blocks the next
+        // validate with a false "already running".
+        ownedAuxFiles: [VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE],
+        classifyExistingLock: (snapshot) => snapshot.holder?.lockClass === 'metadata-write'
+          ? classifyValidationMetadataLock(snapshot) : classifyValidationExecutionLock(snapshot),
+        onContentionHeld: (holder, holderAgeMs) => buildValidationLockContentionMessage({
+          storyId,
+          workspaceRoot,
+          command,
+          holder,
+          holderAgeMs,
+        }),
+      });
+      break;
+    } catch (error) {
+      const holder = readMkdirLockHolder(lockKey);
+      if (Date.now() >= deadline || (existsSync(lockKey) && holder?.lockClass !== 'metadata-write')) throw error;
+      // Yield to same-process writers as well as other processes. Only short
+      // metadata operations get grace; a second validator still fails promptly.
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+  }
   const acquisitionToken = holderInfo.lockId!;
   activeValidationLockTokens.set(lockKey, new Set([...(activeValidationLockTokens.get(lockKey) ?? []), acquisitionToken]));
   const heartbeat = startHeartbeat(lock, holderInfo);
@@ -935,6 +1178,19 @@ export async function withValidationExecutionLock<T>(
   }
 }
 
+
+/** Normalize command claims without inserting/removing an invocation workspace claim. */
+function normalizedCommandResources(
+  command: { label: string; cwd?: string; resources?: ResourceClaim[] }, workspaceRoot: string,
+): ResourceClaim[] {
+  validateResourceClaims(command.resources!, command.label);
+  const cwd = resolve(workspaceRoot, command.cwd ?? '.');
+  const resources = command.resources!.map(claim => ({
+    class: claim.class, key: claim.class === 'fixed-port' ? claim.key : resolve(cwd, claim.key),
+    access: claim.access, ...(claim.ownership ? { ownership: claim.ownership } : {}),
+  }));
+  return [...new Map(resources.map(claim => [JSON.stringify(claim), claim])).values()];
+}
 
 /** Whole official invocations can overlap only when every child declares its
  * resources. The workspace claim also protects metadata and build preparation. */

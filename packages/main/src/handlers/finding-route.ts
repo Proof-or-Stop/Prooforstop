@@ -1,5 +1,6 @@
 /** Target-owned IO for non-gate route consent and semantic progress. */
 import { randomUUID, createHash } from 'node:crypto';
+import { readMaterialDriftReattestation } from './finding-material-reattestation.js';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { join, relative, resolve, isAbsolute } from 'node:path';
 import { canonicalDigest } from '../core/authority-signing.js';
@@ -92,6 +93,8 @@ export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requ
   const proposal = bound.record.payload as Record<string, unknown>;
   if (bound.record.recordType !== 'assessment_proposal' || proposal.proposalId !== source.subjectId || proposal.proposalDigest !== source.subjectHash) throw new Error('route: proposal source mismatch');
   const actor = String(proposal.assessedBy); const trust = identityTrust(ctx); const snapshot = identitySourceSnapshot(ctx);
+  const restored = !requireCurrentReviewerEvidence && proposal.materialHash !== snapshot.materialHash
+    ? readMaterialDriftReattestation(ctx, source.storyId, source.recordId) : undefined;
   const ref = proposal.findingRef as { storyId: string; findingId: string; recordId: string };
   const findingRecord = ledger.records.find(row => row.recordId === ref.recordId);
   if (!findingRecord || ref.storyId !== source.storyId) throw new Error('route: proposal Finding subject missing');
@@ -103,11 +106,25 @@ export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requ
     if (!reviewerState.valid.some(row => row.kind === 'finding' && row.id === ref.findingId && row.agent === actor && row.reviewRunId === proposal.reviewRunId)) throw new Error('route: proposal reviewer evidence not current/eligible');
   }
   const result = verifyAssessmentProposal(proposal, { publicKey: trust.publicKey, expectedAuthorityDigest: proposalAuthorityDigest(actor),
-    expectedFindingHash: currentFindingHash, expectedHeadHash: snapshot.headHash, expectedMaterialHash: snapshot.materialHash,
+    expectedFindingHash: currentFindingHash, expectedHeadHash: restored ? String(proposal.headHash) : snapshot.headHash,
+    expectedMaterialHash: restored ? String(proposal.materialHash) : snapshot.materialHash,
     expectedStoryFilesHash: currentStoryFilesHash(ctx.root, 'HEAD', ctx.root), receipt: bound.receipt, receiptTrust: trust,
     proposalRecord: bound.record, requireReceipt: true, receiptIsCurrent: true });
   if (!result.valid || Date.parse(String(proposal.issuedAt)) > Date.now() || proposal.scopeDigest !== proposalScopeDigest(ctx, source.storyId)) throw new Error(`route: invalid proposal ${result.rejection ?? 'scope/future issuance'}`);
-  return { bound, proposal };
+  return { bound, proposal, restored };
+}
+
+/** Target/canonical half only; source re-attestation verifies its own exact
+ * proposal separately, avoiding a recursive source-consent trust check. */
+export function readFindingRouteDependencyTuple(ctx: HandlerContext, ref: { storyId: string; recordId: string; recordHash: string }) {
+  const target = identityStoryContext(ctx, ref.storyId);
+  const row = exactReceipt(target, ref); const receipt = row.envelope.payload;
+  const snapshot = targetRouteSnapshot(target, ref.storyId, receipt.target.responsibility.workItemRef);
+  assertReceiptCurrent(receipt, snapshot);
+  if (receipt.canonicalDefect) canonicalForRoute(ctx, receipt.canonicalDefect);
+  if (receipt.initialProgressBaselineSet) baselineSetForReceipt(target, receipt);
+  return { route: ref, routeReceiptId: receipt.routeReceiptId, snapshot, canonical: receipt.canonicalDefect ?? null,
+    baseline: receipt.initialProgressBaselineSet ?? null };
 }
 function targetItem(ctx: HandlerContext, storyId: string, itemId: string) {
   const item = ctx.store.readChecklist(storyId).items.find(row => row.id === itemId);
@@ -244,6 +261,46 @@ function receiptOwnerStillValid(old: RouteReceipt, current: TargetSnapshot): voi
   if (old.decision !== 'accepted' || old.revokedAt || Date.now() >= Date.parse(old.expiresAt)
     || old.target.id !== current.id || old.target.scopeDigest !== current.scopeDigest || identityHash(old.target.owner) !== identityHash(current.owner)
     || old.policyDigest !== current.policyDigest) throw new Error('progress: predecessor consent/owner/scope/policy invalid');
+}
+/** Public read-only Story 2 query for the exact acceptance/baseline/progress tuple.
+ * The consumer supplies its own prior record; a neutral predecessor is not proof
+ * that the record is a deferral. This function does not make a gate decision. */
+export function readFindingRouteProgressProof(ctx: HandlerContext, ref: IdentityLedgerRef, priorSource?: IdentityLedgerRef) {
+  const target = identityStoryContext(ctx, ref.storyId);
+  const row = exactReceipt(target, ref); const receipt = row.envelope.payload;
+  const current = targetRouteSnapshot(target, ref.storyId, receipt.target.responsibility.workItemRef);
+  assertReceiptCurrent(receipt, current);
+  if (receipt.evidenceAuthority.profile !== 'finding_route' || receipt.decision !== 'accepted' || !receipt.canonicalDefect) throw new Error('progress: accepted Finding route required');
+  const canonical = canonicalForRoute(ctx, receipt.canonicalDefect);
+  let initial = receipt; const visited = new Set<string>();
+  while (initial.predecessor) {
+    if (visited.has(initial.routeReceiptId)) throw new Error('progress: cyclic receipt lineage');
+    visited.add(initial.routeReceiptId);
+    initial = exactReceipt(target, initial.predecessor, false).envelope.payload;
+    if (initial.target.id !== receipt.target.id || identityHash(initial.subject) !== identityHash(receipt.subject)
+      || identityHash(initial.canonicalDefect) !== identityHash(receipt.canonicalDefect)) throw new Error('progress: initial subject changed');
+  }
+  const baseline = baselineSetForReceipt(target, initial);
+  let progress: ProgressBinding | undefined;
+  if (priorSource) {
+    if (!receipt.progress || !receipt.predecessor) throw new Error('progress: renewal requires new target acceptance and typed progress');
+    progress = exactSemanticRef(target, receipt.progress, 'progress_evidence').envelope.payload as ProgressBinding;
+    const source = identityStoryContext(ctx, priorSource.storyId);
+    const predecessor = exactSemanticRef(source, progress.previousDeferralRef, 'progress_predecessor').envelope.payload as ProgressPredecessor;
+    if (identityHash(predecessor.sourceRecord) !== identityHash(priorSource)
+      || progress.canonicalDefectId !== canonical.canonicalDefectId
+      || predecessor.baselineSetRef.recordId !== baseline.record.recordId
+      || predecessor.baselineSetRef.recordHash !== exactLedgerRecordHash(baseline.record)
+      || identityHash(progress.targetSnapshot) !== identityHash(current)) throw new Error('progress: exact prior deferral/baseline/current-target mismatch');
+    const before = baseline.envelope.payload.baselines.find(entry => (entry.payload as ProgressBaseline).kind === progress!.kind)?.payload as ProgressBaseline | undefined;
+    if (!before) throw new Error('progress: same-kind initial baseline missing');
+    assertProgressTransition(before, progress);
+    const projection = currentProjection(target, receipt, progress.kind, canonical.canonicalDefectId,
+      progress.projection.kind === 'target_test_result' ? progress.projection.executionKey : undefined);
+    if (identityHash(projection) !== identityHash(progress.projection)) throw new Error('progress: target projection changed after capture');
+  } else if (receipt.predecessor) throw new Error('progress: renewed route cannot reset deferral lineage');
+  return { receipt, receiptRecord: row.record, baseline: baseline.envelope.payload, baselineRecord: baseline.record, progress, canonicalDefect: canonical,
+    authority: 'non_authoritative' as const, gateEvidence: false as const };
 }
 export function createFindingRouteHandlers(ctx: HandlerContext) {
   function acceptOrReject(input: unknown, decision: 'accepted' | 'rejected') {

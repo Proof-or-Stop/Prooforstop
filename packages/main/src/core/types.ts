@@ -85,6 +85,9 @@ export type AgentDispatchMutationCommand =
   | 'topology_critic_receipt_set'
   | 'review_run_start'
   | 'finding_add'
+  | 'finding_assessment_propose'
+  | 'finding_qualification_record'
+  | 'finding_material_reattest'
   | 'review_pass_set'
   | 'review_inventory_critic_set'
   | 'managed_review_proposal_set'
@@ -2306,6 +2309,8 @@ export interface ReviewInventoryEpoch {
   candidateSpecSetDigest?: string;
   corpusDigest?: string;
   requiredLanes: string[];
+  /** Stable semantic basis for a narrowed roster; absent on legacy/full inventory. */
+  rosterBasis?: string;
   /** Highest numeric ReviewRun id existing at begin; current-wave runs must be strictly newer. */
   initialRunSequenceBoundary?: number;
   /** Signed snapshot of open verified findings from current-cutoff/current-round runs that predate begunAt. */
@@ -2338,6 +2343,7 @@ export interface ReviewInventoryEpoch {
   terminalRunSequenceBoundary?: number;
   receiptId?: string;
   consumedAt?: string;
+  consumedByCertificationWindowId?: string;
   consumedByReviewRound?: string;
   _hash: string;
 }
@@ -2351,6 +2357,8 @@ export interface ReviewInventoryReceipt {
   cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
   scopeDigest: string;
   requiredLanes: string[];
+  /** Stable semantic basis for a narrowed roster; absent on legacy/full inventory. */
+  rosterBasis?: string;
   waveCount: number;
   findingSetDigest: string;
   coverageDigest: string;
@@ -2359,6 +2367,7 @@ export interface ReviewInventoryReceipt {
   authorizesTest: false;
   issuedAt: string;
   consumedAt?: string;
+  consumedByCertificationWindowId?: string;
   /** Signed revocation of an unconsumed receipt; revoked receipts never grant remediation authority. */
   invalidatedAt?: string;
   invalidationReason?: string;

@@ -1,0 +1,16 @@
+PROOF {"name":"undeclared policy explains real execution","disposition":"executed","reason":"not_opted_in"}
+PROOF {"name":"real disk receipt and real preflight reused","first":{"disposition":"executed","reason":"no_matching_receipt"},"second":{"disposition":"reused","reason":"matching_receipt"},"receipt":{"executionKey":"ce:v1:065c10762ca553aff1d8b79f3baf26877edd5d9830b9f4d44699e3314daad6d1","receiptHash":"c8541b95a32fe6116f1e942cc269a77d9c01c2f097179ae6dd8e1cd8659b98c8","disposition":"executed","executedAt":"2026-09-11T16:32:03.003Z"}}
+PROOF {"name":"forbidden","reason":"policy_forbidden","executions":2}
+PROOF {"name":"never-reuse","reason":"policy_never_reuse","executions":2}
+PROOF {"name":"gate","reason":"policy_risk_tier","executions":2}
+PROOF {"name":"validation-infra","reason":"policy_risk_tier","executions":2}
+PROOF {"name":"build-producer","reason":"build_proof_required","executions":2}
+PROOF {"name":"build-consumer","reason":"build_proof_required","executions":2}
+PROOF {"name":"missing-input-contract","reason":"inputs_undeclared","executions":2}
+PROOF {"name":"identity changes and failed results never reuse","environment":true,"timeout":true,"externalInput":true,"missingInput":true,"dirtyWorkspace":true,"failure":true}
+PROOF {"name":"concurrent attribution","dispositions":["executed","reused"],"runtimeSpawns":1}
+ENTRYPOINT_GREEN {"disabled":false,"workMs":500,"totalExecutions":1,"elapsedMs":6447.450708,"formalStoryDone":false}
+ENTRYPOINT_GREEN {"disabled":true,"workMs":500,"totalExecutions":3,"elapsedMs":4925.600334,"formalStoryDone":false}
+REUSE_PROOF_GREEN: real child executions, disk receipts, production preflight, policy and identity controls, 168-command inventory
+
+[exited with code 0]

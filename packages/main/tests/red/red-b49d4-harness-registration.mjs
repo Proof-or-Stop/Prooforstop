@@ -117,6 +117,18 @@ const isMember = () => true;
  * quietly, so the mistake is loud; it is still a mistake.
  */
 const REGISTRATION_EXCLUSIONS = new Map([
+  [`${POPULATION_DIR_REL}/red-dynamic-finding-applicability.mjs`,
+    'The canonical registered packages/main npm script declares this exact direct node leaf. The live script chain and root argv are checked below with per-file mutation controls; this avoids duplicate registration and does not claim runtime execution.'],
+  [`${POPULATION_DIR_REL}/red-dynamic-finding-audit-closure.mjs`,
+    'The canonical registered packages/main npm script declares this exact direct node leaf. The live script chain and root argv are checked below with per-file mutation controls; this avoids duplicate registration and does not claim runtime execution.'],
+  [`${POPULATION_DIR_REL}/red-dynamic-finding-evidence-closure.mjs`,
+    'The canonical registered packages/main npm script declares this exact direct node leaf. The live script chain and root argv are checked below with per-file mutation controls; this avoids duplicate registration and does not claim runtime execution.'],
+  [`${POPULATION_DIR_REL}/red-dynamic-finding-final-contracts.mjs`,
+    'The canonical registered packages/main npm script declares this exact direct node leaf. The live script chain and root argv are checked below with per-file mutation controls; this avoids duplicate registration and does not claim runtime execution.'],
+  [`${POPULATION_DIR_REL}/red-dynamic-finding-four-gaps.mjs`,
+    'The canonical registered packages/main npm script declares this exact direct node leaf. The live script chain and root argv are checked below with per-file mutation controls; this avoids duplicate registration and does not claim runtime execution.'],
+  [`${POPULATION_DIR_REL}/red-dynamic-finding-qualification-audit.mjs`,
+    'The canonical registered packages/main npm script declares this exact direct node leaf. The live script chain and root argv are checked below with per-file mutation controls; this avoids duplicate registration and does not claim runtime execution.'],
   [`${POPULATION_DIR_REL}/red-b03b7-progress-transition-coverage.mjs`,
     'The registered finding-identity-lineage-smoke.js --section=delivery executes the complete routes branch and the '
     + 'same three progress-transition cases as this completed Lab wrapper. The exact registration, route branch, source '
@@ -142,6 +154,10 @@ const REGISTRATION_EXCLUSIONS = new Map([
     + 'PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS assertion as this on-demand wrapper. Its signed foreign canonical row, '
     + 'history and scorecard checks remain required. The coverage audit below invalidates this exclusion if the exact '
     + 'delivery registration or reviewed worktrees branch changes; no duplicate validate command is needed.'],
+  [`${POPULATION_DIR_REL}/red-lab-b03b7-validation-baseline-convergence.mjs`,
+    'Lab-only aggregate witness for restoring the latest-main validation baseline that blocked B-03b7. It is pinned '
+    + 'by the local Lab RED/GREEN record and deliberately excluded from standing validate because it recursively '
+    + 'executes registered guards, including the B49d4 derivation guard itself.'],
   [`${POPULATION_DIR_REL}/red-B-e40f-lab-convergence.mjs`,
     'Lab-only maintenance harness for the completed B-e40f convergence experiment. It intentionally measures the '
     + 'full 73-case coordinator against built dist and records Lab RED/GREEN evidence; running it inside every canonical '
@@ -263,11 +279,12 @@ if (!Array.isArray(config?.validate?.commands) || config.validate.commands.lengt
 // reviewed assertion block, not a filename/marker appearing elsewhere in source.
 const F031_ENTRY = 'packages/main/dist/tasks/finding-identity-lineage-smoke.js';
 const F031_SOURCE = 'packages/main/src/tasks/finding-identity-lineage-smoke.ts';
-const F031_SOURCE_SHA256 = 'b1080064c6fdf4375e5c7cf97a6b0d5f4d026aed492bc82023dfcaf9e3b11bd8';
-function f031DeliveryCovered(candidateConfig, source) {
+// Source pin: delivery bypasses the routes-only isolation exit; build verification separately binds dist.
+const F031_SOURCE_SHA256 = '119c1e9c2e1e66b7fc94f6d3e1c89796a9755de12a3d2f1bf1d47a3f431899dc';
+function f031DeliveryCovered(candidateConfig, source, expectedSourceDigest = F031_SOURCE_SHA256) {
   const entries = candidateConfig?.validate?.commands ?? [];
   if (entries.filter(entry => JSON.stringify(entryArgv(entry)) === JSON.stringify(['node', F031_ENTRY, '--section=delivery'])).length !== 1) return false;
-  return createHash('sha256').update(source).digest('hex') === F031_SOURCE_SHA256
+  return createHash('sha256').update(source).digest('hex') === expectedSourceDigest
     && source.includes("section === 'worktrees' || section === 'delivery'")
     && source.includes('PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS');
 }
@@ -281,7 +298,7 @@ const f031Mutations = [
   ['removed success marker', config, f031Source.replace('PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS', 'REMOVED_F031_MARKER')],
 ];
 for (const [name, mutantConfig, mutantSource] of f031Mutations) {
-  if (f031DeliveryCovered(mutantConfig, mutantSource)) fail('F031_coverage_negative', `${name} did not invalidate the exclusion`);
+  if (f031DeliveryCovered(mutantConfig, mutantSource, createHash('sha256').update(mutantSource).digest('hex'))) fail('F031_coverage_negative', `${name} did not invalidate the exclusion`);
 }
 
 const PROGRESS_CASES = [
@@ -289,10 +306,10 @@ const PROGRESS_CASES = [
   'status regression from a signed present predecessor is refused',
   'predecessor digest substitutions refuse without ledger mutation',
 ];
-function progressTransitionDeliveryCovered(candidateConfig, source) {
+function progressTransitionDeliveryCovered(candidateConfig, source, expectedSourceDigest = F031_SOURCE_SHA256) {
   const entries = candidateConfig?.validate?.commands ?? [];
   return entries.filter(entry => JSON.stringify(entryArgv(entry)) === JSON.stringify(['node', F031_ENTRY, '--section=delivery'])).length === 1
-    && createHash('sha256').update(source).digest('hex') === F031_SOURCE_SHA256
+    && createHash('sha256').update(source).digest('hex') === expectedSourceDigest
     && source.includes("section === 'routes' || section === 'history' || section === 'delivery'")
     && PROGRESS_CASES.every(name => source.includes(`test('${name}'`))
     && source.includes("FINDING_IDENTITY_ROUTES ${failures ? 'FAIL' : 'PASS'}");
@@ -304,7 +321,61 @@ for (const [name, mutantConfig, mutantSource] of [
   ['removed progress case', config, f031Source.replace(`test('${PROGRESS_CASES[0]}'`, "test('removed progress case'")],
   ['removed routes marker', config, f031Source.replace("FINDING_IDENTITY_ROUTES ${failures ? 'FAIL' : 'PASS'}", 'REMOVED_ROUTES_MARKER')],
 ]) {
-  if (progressTransitionDeliveryCovered(mutantConfig, mutantSource)) fail('B03B7_progress_coverage_negative', `${name} did not invalidate the exclusion`);
+  if (progressTransitionDeliveryCovered(mutantConfig, mutantSource, createHash('sha256').update(mutantSource).digest('hex'))) fail('B03B7_progress_coverage_negative', `${name} did not invalidate the exclusion`);
+}
+
+
+// Declared npm invocation chains are registration evidence, not runtime receipts.
+const DYNAMIC_PACKAGE_HARNESSES = [
+  ['red-dynamic-finding-applicability.mjs', 'test:dynamic-finding-applicability'],
+  ['red-dynamic-finding-audit-closure.mjs', 'test:dynamic-finding-evidence-closure'],
+  ['red-dynamic-finding-evidence-closure.mjs', 'test:dynamic-finding-evidence-closure'],
+  ['red-dynamic-finding-final-contracts.mjs', 'test:dynamic-finding-evidence-closure'],
+  ['red-dynamic-finding-four-gaps.mjs', 'test:dynamic-finding-evidence-closure'],
+  ['red-dynamic-finding-qualification-audit.mjs', 'test:dynamic-finding-evidence-closure'],
+];
+function packageLeafDeclared(candidateConfig, scriptName, fileName, packageReader) {
+  const expected = ['npm', '--prefix', 'packages/main', 'run', scriptName];
+  const entries = (candidateConfig?.validate?.commands ?? []).filter(entry => JSON.stringify(entryArgv(entry)) === JSON.stringify(expected));
+  if (entries.length !== 1 || entries[0].shell === true) return false;
+  const prefix = entryArgv(entries[0])[2];
+  let command;
+  try { command = packageReader(join(repoRoot, prefix, 'package.json'))?.scripts?.[scriptName]; } catch { return false; }
+  if (typeof command !== 'string' || /[\r\n|;<>$`"'\\#&]/.test(command.replaceAll('&&', ''))) return false;
+  const segments = command.split('&&').map(part => part.trim().split(/\s+/));
+  if (!segments.every(argv => argv.length === 2 && argv[0] === 'node' && /^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)+$/.test(argv[1])
+      && !argv[1].split('/').some(part => part === '.' || part === '..'))) return false;
+  return segments.filter(argv => JSON.stringify(argv) === JSON.stringify(['node', `tests/red/${fileName}`])).length === 1;
+}
+const livePackageReader = path => JSON.parse(readFileSync(path, 'utf8'));
+for (const [fileName, scriptName] of DYNAMIC_PACKAGE_HARNESSES) {
+  if (!packageLeafDeclared(config, scriptName, fileName, livePackageReader)) fail('package_registration', `${fileName} lacks its exact declared package invocation chain`);
+  const packageData = livePackageReader(join(repoRoot, 'packages/main', 'package.json'));
+  const leaf = `node tests/red/${fileName}`;
+  const script = packageData.scripts[scriptName];
+  const matching = entry => JSON.stringify(entryArgv(entry)) === JSON.stringify(['npm', '--prefix', 'packages/main', 'run', scriptName]);
+  const removed = structuredClone(config);
+  removed.validate.commands = removed.validate.commands.filter(entry => !matching(entry));
+  const duplicate = structuredClone(config);
+  duplicate.validate.commands.push(duplicate.validate.commands.find(matching));
+  const wrongPrefix = structuredClone(config);
+  wrongPrefix.validate.commands.find(matching).args[1] = 'packages/other';
+  const cases = [
+    ['removed root command', removed, script],
+    ['duplicate root command', duplicate, script],
+    ['wrong prefix', wrongPrefix, script],
+    ['removed leaf', config, script.split('&&').filter(part => part.trim() !== leaf).join('&&')],
+    ['wrong executable', config, script.replace(leaf, leaf.replace('node ', 'echo '))],
+    ['changed argv', config, script.replace(leaf, `${leaf} --skip`)],
+    ['non-node predecessor', config, `false && ${script}`],
+    ['echo impersonation', config, script.replace(leaf, `echo "${leaf}"`)],
+    ['comment impersonation', config, script.replace(leaf, `# ${leaf}`)],
+    ['newline injection', config, `${script}\n${leaf}`],
+  ];
+  for (const [name, changedConfig, changedScript] of cases) {
+    const changedPackage = { ...packageData, scripts: { ...packageData.scripts, [scriptName]: changedScript } };
+    if (packageLeafDeclared(changedConfig, scriptName, fileName, () => changedPackage)) fail('package_registration_negative', `${fileName}: ${name} was accepted`);
+  }
 }
 
 const realTokens = registeredTokens(config);

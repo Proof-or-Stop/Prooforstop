@@ -297,7 +297,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     id: 'runtime-causal-evidence-receipts',
     description: 'Story-scoped CausalEvidence CAS receipt bytes and execution-key index.',
     matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)\.proof-or-stop/story/actives/[^/]+/causal-evidence(?:/|$)|(?:^|/)docs/story/actives/[^/]+/causal-evidence(?:/|$)`) }],
-    ignorePatterns: ['**/causal-evidence/'],
+    ignorePatterns: ['**/causal-evidence/index.json', '**/causal-evidence/receipts/', '**/causal-evidence/pending-publications/'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
@@ -418,7 +418,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     id: 'runtime-cache',
-    description: 'Mutable runtime cache and trigger state under <state-dir>/runtime/.',
+    description: 'Mutable runtime cache and trigger state under <state-dir>/runtime/, including bounded advisory validation-reuse-costs.json and atomic temporary files; never PASS authority.',
     matchers: stateDirPrefix('runtime/'),
     ignorePatterns: stateDirIgnore('runtime/'),
     materialHash: 'exclude',

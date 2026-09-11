@@ -1,3 +1,4 @@
+import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
 import { withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
@@ -1355,13 +1356,13 @@ export function runValidationCommand(
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   options: RunValidationCommandOptions = {},
 ): Promise<ValidationCommandResult> {
-  return executeSharedValidationCommand(command, projectRoot, resolveCommandTimeoutMs(command, defaultTimeoutMs),
-    () => runValidationCommandWithCompleteOutput(command, projectRoot, defaultTimeoutMs, options), options.sharedExecution, () => {
+  return withValidationCommandStage(command, () => executeSharedValidationCommand(command, projectRoot, resolveCommandTimeoutMs(command, defaultTimeoutMs),
+    () => (command.executionReuse === 'exact-inputs' ? runValidationCommandWithCompleteOutput : runValidationCommandWithCompleteOutputUnscheduled)(command, projectRoot, defaultTimeoutMs, options), options.sharedExecution, () => {
       if (options.abortSignal?.aborted) throw options.abortSignal.reason ?? new Error('shared validation aborted');
       if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
         throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
       }
-    });
+    }), options);
 }
 
 /**
@@ -1369,7 +1370,14 @@ export function runValidationCommand(
  * runSingleAllowlistedCommand also consumes the complete bytes already held in memory so
  * receipt matching and digesting are not accidentally governed by the persistence window.
  */
-async function runValidationCommandWithCompleteOutput(
+function runValidationCommandWithCompleteOutput(
+  command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+  options: RunValidationCommandOptions = {},
+): ReturnType<typeof runValidationCommandWithCompleteOutputUnscheduled> {
+  return withValidationCommandStage(command, () => runValidationCommandWithCompleteOutputUnscheduled(command, projectRoot, defaultTimeoutMs, options), options);
+}
+
+async function runValidationCommandWithCompleteOutputUnscheduled(
   command: ValidationCommand,
   projectRoot: string,
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
@@ -1543,6 +1551,12 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       for (const file of traceFragments.files) rmSync(file, { force: true });
     };
 
+    // Check at the actual spawn boundary, including reuse-ineligible commands.
+    // The outer stage remains held for routine callers; independent capture keeps its own guard.
+    if (options.abortSignal?.aborted) throw options.abortSignal.reason ?? new Error('shared validation aborted');
+    if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
+      throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
+    }
     const child = spawn(command.command, command.args, {
       cwd,
       env: spawnEnv,
@@ -2076,7 +2090,7 @@ export async function executeValidationPlan(
   // to discard by throwing).
   let deadlineExceeded = false;
 
-  await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
+  const scheduled = await withValidationPlanStages(() => runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
     if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
     options.beforeLaunch?.();
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
@@ -2104,10 +2118,17 @@ export async function executeValidationPlan(
     // so a short array would read as an infrastructure failure, not as the one
     // real command failure it is.
     cancellation: 'run-all',
-  });
+  }));
 
   if (deadlineExceeded) {
     throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
+  }
+
+  // Diagnostic resource-conflict wait from the scheduler; excludes worker-slot
+  // queue time and cross-process capacity wait. Never used to decide gate acceptance or reuse.
+  for (const row of scheduled) {
+    const result = executed[row.commandIndex - 1];
+    if (result && row.lockWaitMs !== undefined) result.schedulerWaitMs = row.lockWaitMs;
   }
 
   // B-7dff F-003: each command's dirty-status observation is repo-wide, so

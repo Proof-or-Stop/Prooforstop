@@ -1,0 +1,20 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/verify-performance-main-integration.mjs"
+    ],
+    "code": 0,
+    "seconds": 38.208254084,
+    "log": "final-verify-performance-main-integration.log"
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/story-owner-lease-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 24.906690415999996,
+    "log": "final-story-owner-lease-smoke.log"
+  }
+]

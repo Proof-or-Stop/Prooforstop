@@ -1,0 +1,15 @@
+file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/core/verification-execution-evidence.js:432
+        throw new Error('verification executable resolution is unprovable [incomplete_toolchain_identity]');
+              ^
+
+Error: verification executable resolution is unprovable [incomplete_toolchain_identity]
+    at prepareVerificationExecutionIdentity (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/core/verification-execution-evidence.js:432:15)
+    at createVerificationExecutionReceipt (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/core/verification-execution-evidence.js:542:48)
+    at evidenceFixture (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/tasks/external-worktree-go-pre-review-smoke.js:116:23)
+    at assertGoCommandProfile (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/tasks/external-worktree-go-pre-review-smoke.js:167:42)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/tasks/external-worktree-go-pre-review-smoke.js:230:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.8.1

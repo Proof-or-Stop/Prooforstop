@@ -57,6 +57,7 @@ import {
   PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END,
   PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
+  RUNTIME_ARTIFACT_REGISTRY,
 } from './runtime-artifact-registry.js';
 import {
   listManagedAgentBasenames,
@@ -508,6 +509,29 @@ function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incom
   return { updated, changed, incompatible };
 }
 
+/** Migrate only the historical registry-owned causal blanket. Unknown patterns stay untouched. */
+export function mergeCausalReceiptGitignore(existing: string | null): string {
+  const required = RUNTIME_ARTIFACT_REGISTRY.find(entry => entry.id === 'runtime-causal-evidence-receipts')!.ignorePatterns;
+  const original = existing ?? '';
+  const withoutLegacy = original.split('\n').filter(line => line.trim() !== '**/causal-evidence/').join('\n');
+  // Positive user rules and trailing comments cannot un-ignore these paths.
+  // A later negation can; reassert the registry policy only in that case.
+  const lines = withoutLegacy.split('\n').map(line => line.trim());
+  const positions = required.map(pattern => lines.lastIndexOf(pattern));
+  if (positions.every(index => index >= 0) && !lines.slice(Math.min(...positions) + 1).some(line => line.startsWith('!'))) return withoutLegacy;
+  const trimmed = withoutLegacy.replace(/\s+$/, '');
+  const suffix = required.join('\n');
+  return trimmed + (trimmed ? '\n' : '') + suffix + '\n';
+}
+
+export function assertRuntimeGitignoreRegularFile(path: string): void {
+  try {
+    if (!lstatSync(path).isFile()) throw new Error('RUNTIME_GITIGNORE_NOT_REGULAR: ' + path);
+  } catch (error: any) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+}
+
 function runtimeIgnoreMissing(existing: string | null): string[] {
   if (!existing) return listRuntimeArtifactIgnorePatterns();
   const present = new Set(existing.split('\n').map(line => line.trim()).filter(Boolean));
@@ -527,11 +551,12 @@ function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
 // runtimeIgnoreMissing) instead of hand-rolling a second allowlist. A second
 // merge over already-merged content is a no-op (missing.length === 0).
 export function mergeRuntimeGitignore(existing: string | null): string {
+  existing = mergeCausalReceiptGitignore(existing);
   const missing = runtimeIgnoreMissing(existing);
   if (missing.length === 0) return existing ?? '';
   const base = (existing ?? '').replace(/\s+$/, '');
   const separator = base.length === 0 ? '' : '\n\n';
-  return `${base}${separator}${renderManagedRuntimeIgnoreBlock(missing)}\n`;
+  return mergeCausalReceiptGitignore(`${base}${separator}${renderManagedRuntimeIgnoreBlock(missing)}\n`);
 }
 
 // B-854c CHK-003: exported so doctor can detect whether the managed allowlist is
@@ -1035,10 +1060,10 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   if (def.kind === 'gitignore-runtime') {
     const missing = runtimeIgnoreMissing(actual);
-    if (missing.length === 0) {
+    if (missing.length === 0 && mergeCausalReceiptGitignore(actual) === actual) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'runtime artifact ignore policy is present', action: 'none' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: `missing runtime ignore pattern(s): ${missing.join(', ')}`, action: 'merge managed runtime ignore block' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: missing.length ? `missing runtime ignore pattern(s): ${missing.join(', ')}` : 'legacy causal ignore rule or ordering requires migration', action: 'merge managed runtime ignore block' };
   }
 
   if (def.kind === 'claude-settings') {
@@ -1131,6 +1156,7 @@ function applyDefinition(root: string, def: ManagedAssetDefinition, item: Manage
     return true;
   }
   if (def.kind === 'gitignore-runtime') {
+    assertRuntimeGitignoreRegularFile(join(root, def.relPath));
     writeText(root, def.relPath, mergeRuntimeGitignore(readText(root, def.relPath)));
     return true;
   }

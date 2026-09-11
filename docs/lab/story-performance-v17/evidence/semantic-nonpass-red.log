@@ -1,0 +1,36 @@
+transition fresh-PASS GREEN: status=pass disposition=reused commandExecutions=0; human metadata fail-closed
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"provider":"validate-file-smoke","status":"pass","allPass":true,"details":["Verification intent coverage: 0/1 covered (0 required missing)","  ✗ CHK-001:happy:0 [happy/should/logic] missing — Exercise routine execution and publication behavior"],"verificationPolicy":{"policy":"explicit-intent","channel":"express","intentCount":1,"reason":"verificationIntent entries present (1)"},"verificationCoverage":{"total":1,"required":0,"covered":0,"missingRequired":0,"entries":[{"intentRef":"CHK-001:happy:0","itemId":"CHK-001","lane":"happy","desc":"Exercise routine execution and publication behavior","type":"logic","priority":"should","status":"missing"}]},"disposition":"executed","commandExecutions":1,"reuse":{"reusable":false,"lineage":"rejected","existingEvidenceBasis":"missing","refusalReasons":["evidence-missing"],"identityDigest":"aba95dac9113c22d21eae9836576bd566f1b960b460770935a222b309382ffe4"}}
+
+⚠ Proof-or-Stop stale state warnings:
+  - Story B-reuse-handler has been in TEST phase for 1369h 10 minutes without advance
+[0.0s] validate timeout budget: maxMs=300000 source=derived-command-budget
+[0.0s] running validate...
+[0.5s] story B-reuse-handler: git diff 发现 0 个 material 改动文件
+[0.6s] routine validation reuse refused: refusalReasons=evidence-missing priorIdentityDigest=missing-or-malformed currentIdentityDigest=aba95dac9113c22d21eae9836576bd566f1b960b460770935a222b309382ffe4
+[0.7s] running: npx tsx validate.ts --story=B-reuse-handler --json
+[0.9s] validate progress: command 1/1 started validate.ts: npx tsx validate.ts --story=B-reuse-handler --json timeoutMs=270000
+[1.4s] validate progress: command 1/1 ended validate.ts: code=0 elapsedMs=442
+[2.0s] validate done
+
+
+0 !== 1
+
+    at assertHandlerExecutedThenReused (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-story-performance-main-0296/packages/main/dist/tasks/validation-evidence-reuse-smoke.js:716:16)
+    at main (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-story-performance-main-0296/packages/main/dist/tasks/validation-evidence-reuse-smoke.js:1353:13)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-story-performance-main-0296/packages/main/dist/tasks/validation-evidence-reuse-smoke.js:1365:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1

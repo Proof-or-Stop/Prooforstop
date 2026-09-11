@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execFileSync } from 'node:child_process';
 /**
  * Focused logic proof for B-1909 scope-shrinkage withdrawal dispositions.
  *
@@ -25,7 +26,9 @@
 import { strict as assert } from 'node:assert';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const probeRepo = resolve(fileURLToPath(new URL('../../../..', import.meta.url)));
 import { StoryStore } from '../core/store.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
@@ -328,6 +331,10 @@ function run(): void {
       'the rejected conflicting-id call left the decision record byte-identical',
     );
 
+    for (const probe of ['probe-scope-checkpoint-compensation.mjs', 'probe-scope-checkpoint-interrupted.mjs', 'probe-closeout-busy-propagation.mjs', 'probe-scope-transaction-boundaries.mjs']) {
+      execFileSync(process.execPath, ['scripts/' + probe, '--scenario=scope-write-failure'], { cwd: probeRepo, stdio: 'inherit', timeout: 120_000 });
+    }
+    execFileSync(process.execPath, ['scripts/probe-closeout-busy-propagation.mjs', '--ordinary'], { cwd: probeRepo, stdio: 'inherit', timeout: 120_000 });
     console.log('scope-shrinkage-withdrawal-floor-smoke: PASS');
   } finally {
     rmSync(root, { recursive: true, force: true });

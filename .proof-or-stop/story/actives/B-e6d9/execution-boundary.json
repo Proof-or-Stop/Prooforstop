@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "proof-or-stop.execution_boundary.v1.1",
+  "storyId": "B-e6d9",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git merge*",
+    "git show*",
+    "git status*",
+    "node *",
+    "npm *",
+    "proof-or-stop *",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".proof-or-stop",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs",
+    "package-lock.json",
+    "package.json",
+    "packages/main",
+    "proof-or-stop.config.json",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Use the latest local main baseline and official Story commands. Existing Lab implementation is baseline input, not formal Story DONE evidence. Enforce remains conditional on accepted merged prerequisites. Independently review INIT and later required lanes; time the formal lifecycle and verification.",
+  "createdAt": "2026-09-11T14:38:11.409Z",
+  "updatedAt": "2026-09-11T14:38:11.409Z",
+  "_hash": "8d4056930e375fede6c0903219cc0fd7f6cf0a07398a00a89a394136df97f589"
+}

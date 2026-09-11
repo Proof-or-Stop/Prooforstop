@@ -1,3 +1,4 @@
+import { withValidationSigningRoot } from './core/validation-signing-context.js';
 import {enforceExecutionImplementationPin,executionImplementationIdentity} from './core/execution-implementation.js';
 /**
  * Proof-or-Stop engine
@@ -815,6 +816,7 @@ export async function runCli(opts?: {
   // not trust the stale runtime's command catalog or schema. The sole exemption
   // remains explicit global-fallback session_brief.
   const root0 = resolveRootForCommand(cmd, rootOverride);
+  return withValidationSigningRoot(root0, async () => {
   const runtimeOwnershipConfig = cmd === 'agent_prompt' || cmd === 'evaluate'
     ? loadConfig(root0)
     : undefined;
@@ -1211,6 +1213,12 @@ export async function runCli(opts?: {
   // validators so its watchdog can unwind the exact waiter ticket instead of
   // hard-exiting with process.exit(2). Keep DONE result classification separate:
   // validate already has its own canonical PASS/FAIL exit contract below.
+  let topLevelValidationFailed = false;
+  if (cmd === 'validate') {
+    Object.assign(parsed, { onValidationOutcome: (passed: boolean) => {
+      if (passed === false) topLevelValidationFailed = true;
+    } });
+  }
   const structuredDoneResult = cmd === 'done_prepare' || cmd === 'done_required_validate';
   // B-137a: evidence writers execute pinned provider commands whose wall-clock
   // budget can legitimately exceed the default watchdog, so they need the same
@@ -1285,6 +1293,7 @@ export async function runCli(opts?: {
   }
 
   function isCanonicalCommandFailure(result: unknown): boolean {
+    if (cmd === 'validate' && topLevelValidationFailed) return true;
     if (cmd !== 'validate' && !(cmd === 'story_advance' && parsed.phase === 'TEST')) return false;
     let value: any = result;
     if (typeof result === 'string') {
@@ -1625,8 +1634,9 @@ export async function runCli(opts?: {
       if (result && typeof (result as any).then === 'function') result = await result;
       const structuredDoneFailure = isStructuredDoneFailure(result);
       const canonicalCommandFailure = isCanonicalCommandFailure(result);
+      const commandSucceeded = !structuredDoneFailure && !canonicalCommandFailure;
       clearInterval(watchdog);
-      log(`${cmd} ${structuredDoneFailure ? 'completed with structured failure' : 'done'}`);
+      log(`${cmd} ${commandSucceeded ? 'done' : 'completed with structured failure'}`);
       // B-bbaf CHK-006: a SUCCESSFUL story_advance is real progress THROUGH the
       // gate, so reset that story's repeated-gate-failure counter. Scoped to
       // story_advance specifically (codex host-B #3): resetting on ANY successful
@@ -1634,7 +1644,7 @@ export async function runCli(opts?: {
       // story_advance, run any trivial no-op mutation to reset, repeat forever. A
       // successful advance is the ONLY event that means the same gate is no longer
       // failing, so it is the only legitimate reset. Best-effort.
-      if (cmd === 'story_advance') {
+      if (cmd === 'story_advance' && commandSucceeded) {
         try {
           const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
           if (sid && isCanonicalStoryId(sid)) {
@@ -1643,7 +1653,6 @@ export async function runCli(opts?: {
           }
         } catch { /* best-effort: never fail a successful command on counter reset */ }
       }
-      const commandSucceeded = !structuredDoneFailure && !canonicalCommandFailure;
       if (shouldWriteEffectiveActivityLog || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: commandSucceeded, ...(!commandSucceeded ? { error: 'structured terminal failure' } : {}), staleWarnings });
       }
@@ -1711,7 +1720,7 @@ export async function runCli(opts?: {
       let output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
       output = appendMilestoneStatusAfterMutation(output);
       process.stdout.write(`${output}\n`);
-      process.exitCode = structuredDoneFailure ? 1 : 0;
+      process.exitCode = commandSucceeded ? 0 : 1;
       return;
     } catch (e: any) {
       clearInterval(watchdog);
@@ -1835,4 +1844,5 @@ export async function runCli(opts?: {
       ? parsed
       : (v.data as Record<string, unknown>),
   ));
+  });
 }

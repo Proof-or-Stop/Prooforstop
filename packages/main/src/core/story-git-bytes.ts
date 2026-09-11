@@ -1,3 +1,4 @@
+import { readObservedGitTree } from './git-tree-observation.js';
 /** Process-local memo of immutable Git bytes, never filtered Story evidence. */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -249,7 +250,7 @@ export function readStoryGitBytes(gitCwd: string, base: string, ref: string): { 
   if (resolved.length !== 2 || resolved.some(value => !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(value))) throw new Error('Git references did not resolve to two immutable objects');
   const [headSha, baseSha] = resolved;
   const context = safeContext(cwd);
-  const readTree = () => git(cwd, ['ls-tree', '-r', '-z', headSha]);
+  const readTree = () => readObservedGitTree(cwd, headSha);
   const readDiff = () => git(cwd, ['diff', '--name-status', '-z', '-M', `${baseSha}..${headSha}`]);
   if (context === undefined) { clear(); return { tree: readTree(), diff: readDiff() }; }
   const treeKey = `${cwd}\0${headSha}\0${context}`;

@@ -16,7 +16,8 @@ import { assessConvergenceProgressGate } from './convergence-progress-gate.js';
  * (advisory.ts) + resolveEffectiveBlockingSeverities (guard-utils.ts). This
  * module does NOT reimplement round/blocking logic.
  */
-import { resolveReviewRoundCount, isFindingBlocking } from './advisory.js';
+import { resolveReviewRoundCount } from './advisory.js';
+import { readDynamicFindingDecision } from './finding-applicability-projection.js';
 import { readBrandEnv } from './brand-env.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -104,7 +105,7 @@ export function collectReviewConvergenceInputs(
   let reviewRoundTimestamps: string[] = [];
   try {
     const story = store.readStory(storyId);
-    const config = loadConfig();
+    const config = loadConfig(store.projectRoot);
     const policy = resolveWorkflowPolicy(config, story);
     round1BlockingSeverities = policy.review.blockingSeverities;
     // Canonical round identities: the timestamps of the REVIEW/advance events
@@ -174,7 +175,8 @@ export function collectReviewConvergenceInputs(
     const roundNumber = idx + 1;
     const effectiveBlockingSeverities = effectiveBlockingForRound(roundNumber, round1BlockingSeverities);
     return roundFindings
-      .filter(f => isFindingBlocking(f, effectiveBlockingSeverities, roundNumber))
+      .filter(f => readDynamicFindingDecision({ store, projectRoot: store.projectRoot, storyId, finding: f,
+        effectiveBlockingSeverities, round: roundNumber }).blocking)
       .length;
   });
 

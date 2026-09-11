@@ -67,6 +67,10 @@ export interface ValidationCommand {
 }
 
 export interface ValidationCommandResult {
+  /** Diagnostic intra-plan resource-conflict wait; excludes worker slots and cross-process capacity. */
+  schedulerWaitMs?: number;
+  /** Context-local diagnostics only; never evidence or permission to reuse. */
+  executionDecision?: { disposition: 'executed' | 'reused'; reason: string };
   /** Observed by the executor, never inferred from a successful exit code. */
   sourceProvenance?: {
     schemaVersion: string;

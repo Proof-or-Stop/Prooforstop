@@ -55,7 +55,7 @@ import { isCloseoutWriteReceiptSchema } from './artifact-schema.js';
 import {
   captureDonePrepareGeneratedMetadataTransaction,
   commitImmutableMetadataTree,
-  rollbackDonePrepareGeneratedMetadataTransaction,
+  isRegularMetadataPath,
   type DonePrepareGeneratedMetadataTransaction,
   type ImmutableMetadataCommitTestHooks,
 } from './done-prepare-generated-metadata.js';
@@ -104,6 +104,7 @@ function appendLocalCausalReceiptsBeforeCommit(args: {
   storyRel: string;
   reason: string;
   artifactPaths: readonly string[];
+  expectedHashes?: Map<string, string>;
 }): void {
   const declaredPaths = new Set(args.artifactPaths);
   const policies = CLOSEOUT_ARTIFACT_POLICIES.filter((policy) => declaredPaths.has(policy.path));
@@ -129,6 +130,7 @@ function appendLocalCausalReceiptsBeforeCommit(args: {
     const artifactPath = join(storyDir, policy.path);
     if (!existsSync(artifactPath)) continue;
     const bytes = readFileSync(artifactPath);
+    if (args.expectedHashes && args.expectedHashes.get(artifactRel) !== rawArtifactDigest(bytes)) throw new Error(`publication artifact changed before receipt: ${artifactRel}`);
     const artifactReceipts = readCloseoutWriteReceipts(storyDir)
       .filter((receipt) => receipt.artifactPath === policy.path);
     if (artifactReceipts.some((receipt) => !isCloseoutWriteReceiptSchema(receipt.schemaVersion))) {
@@ -149,7 +151,12 @@ function appendLocalCausalReceiptsBeforeCommit(args: {
       sequence: (previous?.sequence ?? 0) + 1,
       previousIntegrityHash: previous?.integrityHash ?? null,
     });
+    const receiptRel = `${args.storyRel}/closeout-write-receipts.jsonl`;
+    const receiptFile = join(storyDir, 'closeout-write-receipts.jsonl');
+    const priorBytes = existsSync(receiptFile) ? readFileSync(receiptFile) : Buffer.alloc(0);
+    if (args.expectedHashes && args.expectedHashes.get(receiptRel) !== rawArtifactDigest(priorBytes)) throw new Error('publication receipt chain changed before append');
     appendCloseoutWriteReceipt(storyDir, receipt);
+    args.expectedHashes?.set(receiptRel, rawArtifactDigest(Buffer.concat([priorBytes, Buffer.from(`${JSON.stringify(receipt)}\n`)])));
   }
 }
 
@@ -157,6 +164,7 @@ export interface ValidationReuseMetadataTransactionCommitResult {
   ok: boolean;
   commitSha?: string;
   reason?: string;
+  rollbackConflicts?: string[];
 }
 
 export type LifecycleMetadataTransactionKind =
@@ -369,10 +377,38 @@ export function commitLifecycleMetadataTransaction(args: {
 /**
  * Commit the already-mutated canonical validation-reuse evidence, terminal,
  * and receipt through an isolated index. The caller captures `transaction`
- * before the first mutation. Every failure restores both managed worktree bytes
- * and their real-index entries; unrelated staged entries never enter the
- * isolated index and remain untouched.
+ * before the first mutation. Failures restore only worktree bytes matching the intended output. Foreign
+ * bytes remain for explicit reconciliation; index recovery belongs to the
+ * immutable publication primitive, never this outer rollback.
  */
+export function rollbackValidationPublication(args: {
+  gitCwd: string;
+  root?: string;
+  transaction: DonePrepareGeneratedMetadataTransaction;
+  expectedHashes: Map<string, string | null>;
+}, reason: string): ValidationReuseMetadataTransactionCommitResult {
+    const conflicts: string[] = [];
+    for (const state of args.transaction.states) {
+      try {
+        const path = join(args.root ?? args.gitCwd, state.path);
+        if (existsSync(path) && !isRegularMetadataPath(args.root ?? args.gitCwd, state.path)) { conflicts.push(`${state.path}: foreign nonregular path preserved`); continue; }
+        const current = existsSync(path) ? readFileSync(path) : null;
+        const currentHash = current === null ? null : rawArtifactDigest(current);
+        const baselineHash = state.worktreeContent === null ? null : rawArtifactDigest(state.worktreeContent);
+        if (currentHash === baselineHash) continue;
+        if (currentHash !== args.expectedHashes.get(state.path)) {
+          conflicts.push(`${state.path}: concurrent bytes preserved`);
+          continue;
+        }
+        if (state.worktreeContent === null) rmSync(path, { force: true });
+        else writeFileSync(path, state.worktreeContent);
+      } catch (error) { conflicts.push(`${state.path}: ${String(error)}`); }
+    }
+    // The immutable commit primitive owns its index updates. Do not restore a
+    // capture-time shared index over another actor's staged content here.
+    return { ok: false, rollbackConflicts: conflicts, reason: reason + (conflicts.length ? `; ${conflicts.join('; ')}` : '') };
+}
+
 export function commitValidationReuseMetadataTransaction(args: {
   projectRoot: string;
   gitCwd: string;
@@ -381,19 +417,10 @@ export function commitValidationReuseMetadataTransaction(args: {
   reason: string;
   transaction: DonePrepareGeneratedMetadataTransaction;
   closeoutArtifactPaths: readonly string[];
+  expectedHashes: Map<string, string>;
 }): ValidationReuseMetadataTransactionCommitResult {
   const managedPaths = [...args.transaction.paths].sort((a, b) => a.localeCompare(b));
-  const rollback = (reason: string): ValidationReuseMetadataTransactionCommitResult => {
-    const result = rollbackDonePrepareGeneratedMetadataTransaction({
-      root: args.gitCwd,
-      gitCwd: args.gitCwd,
-      transaction: args.transaction,
-    });
-    return {
-      ok: false,
-      reason: result.ok ? reason : `${reason}; rollback failed: ${result.errors.join(' | ')}`,
-    };
-  };
+  const rollback = (reason: string) => rollbackValidationPublication(args, reason);
   const expectedPrefix = `${normalizeRelPath(args.storyRel)}/`;
   const expectedPaths = [
     `${expectedPrefix}closeout-write-receipts.jsonl`,
@@ -406,6 +433,12 @@ export function commitValidationReuseMetadataTransaction(args: {
   ) return rollback('validation reuse transaction must manage exactly evidence, terminal, and receipt');
 
   try {
+    if (args.expectedHashes.size !== managedPaths.length || managedPaths.some(path => !args.expectedHashes.has(path))) return rollback('publication output hash set is incomplete');
+    for (const path of managedPaths) {
+      const file = join(args.gitCwd, path);
+      const bytes = existsSync(file) ? readFileSync(file) : Buffer.alloc(0);
+      if (rawArtifactDigest(bytes) !== args.expectedHashes.get(path)) return rollback(`publication output changed: ${path}`);
+    }
     appendLocalCausalReceiptsBeforeCommit({
       projectRoot: args.projectRoot,
       gitCwd: args.gitCwd,
@@ -413,16 +446,14 @@ export function commitValidationReuseMetadataTransaction(args: {
       storyRel: args.storyRel,
       reason: args.reason,
       artifactPaths: args.closeoutArtifactPaths,
+      expectedHashes: args.expectedHashes,
     });
     const subject = `${COMMIT_SUBJECT_PREFIX} record ${args.storyId} ${args.reason} metadata`;
     const committed = commitImmutableMetadataTree({
       root: args.gitCwd,
       gitCwd: args.gitCwd,
       paths: managedPaths,
-      verifiedHashes: new Map(managedPaths.map((path) => [
-        path,
-        rawArtifactDigest(readFileSync(join(args.gitCwd, path))),
-      ])),
+      verifiedHashes: args.expectedHashes,
       message: subject,
     });
     if (!committed.ok) return rollback(committed.reason || 'immutable metadata commit failed');

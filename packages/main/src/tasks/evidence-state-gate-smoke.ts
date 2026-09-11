@@ -27,11 +27,19 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
+import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
+import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { signFinding } from '../core/finding-verify.js';
 import { signReviewRun } from '../core/review-run.js';
+import { seedCurrentReviewFixture, bindCurrentFixtureFinding, registerCurrentReviewFixtureRun } from './current-review-fixture.js';
+import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
+import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
+
+if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 import { isFindingBlocking, isEvidenceStateBlocking } from '../core/advisory.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
@@ -58,7 +66,7 @@ const REVIEWERS = ['proof-or-stop-review-concept', 'proof-or-stop-review-quality
  * understanding/decision present, and signed review runs for every opt-in reviewer.
  * Returns the store + worktree path; callers seed findings then run the TEST gate.
  */
-function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<string, string> } {
+function createReviewRepo(currentCliRuns = false): { root: string; store: StoryStore; runIds: Map<string, string> } {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-evst-'));
   write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
@@ -69,8 +77,13 @@ function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<stri
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'balanced' },
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }));
   write(root, 'README.md', 'evidence-state gate smoke\n');
+  if (currentCliRuns) {
+    write(root, '.gitignore', listRuntimeArtifactIgnorePatterns().join('\n') + '\n');
+    write(root, 'packages/main/src/subject.ts', 'export const subject = 1;\n');
+  }
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
@@ -98,6 +111,9 @@ function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<stri
       id: `CHK-${suffix}`,
       title: `Done item ${suffix}`,
       context: 'Synthetic checklist item.',
+      verificationIntent: { happy: [{ desc: 'Exercise Finding evidence-state decisions through the real review gate.', type: 'manual' as const }], edge: [], adversarial: [] },
+      verificationEvidence: [{ intentRef: `CHK-${suffix}:happy:0`, kind: 'manual_transcript' as const, result: 'pass' as const,
+        note: 'Synthetic acceptance prerequisite for this isolated gate fixture; the assertions below exercise the real Finding predicate.' }],
       status: 'done' as const,
       startTime: now,
       endTime: now,
@@ -126,26 +142,36 @@ function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<stri
     timestamp: now,
   });
 
-  const headHash = currentGitHead(root) || `head-${REVIEW_ROUND}`;
-  const materialHash = currentMaterialHash(root) || `material-${REVIEW_ROUND}`;
-  const runs: ReviewRun[] = REVIEWERS.map((agent, index) => {
-    const reviewRunId = `${STORY_ID}:RR-${String(index + 1).padStart(3, '0')}`;
-    const startedAt = `2026-05-17T11:${String(index).padStart(2, '0')}:00.000Z`;
-    return {
-      reviewRunId,
-      storyId: STORY_ID,
-      agent,
-      lane: agent,
-      reviewRound: REVIEW_ROUND,
-      startedAt,
-      headHash,
-      materialHash,
-      promptHash: '',
-      _hash: signReviewRun(STORY_ID, reviewRunId, agent, agent, REVIEW_ROUND, startedAt, headHash, materialHash, ''),
-    };
-  });
-  store.writeReviewRuns(STORY_ID, { runs });
-  const runIds = new Map(runs.map((run) => [run.agent, run.reviewRunId]));
+  if (currentCliRuns) {
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
+    git(root, ['checkout', '-b', `story/${STORY_ID}`]);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'arrange disposable current-review fixture']);
+    const runIds = new Map<string, string>();
+    for (const lane of REVIEWERS) {
+      const task = `v15-status-${lane}`;
+      const invoke = (command: string, payload: Record<string, unknown>) => {
+        try {
+          return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
+            cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 60_000,
+            env: { ...process.env, ...adapterSessionEnv(task, lane), PROOF_OR_STOP_AGENT: lane,
+              PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: lane, PROOF_OR_STOP_PROJECT_ROOT: root },
+          });
+        } finally {
+          const lease = readOwnerLease(store.storyDirPath(STORY_ID));
+          if (lease?.sessionId === adapterSessionId(root, task, lane)) releaseOwnerLease(store.storyDirPath(STORY_ID));
+        }
+      };
+      invoke('dispatch', { storyId: STORY_ID, agentType: lane });
+      const started = invoke('review_run_start', { storyId: STORY_ID, agent: lane });
+      const runId = started.match(/Review run (\S+) started/)?.[1];
+      assert.ok(runId, started); runIds.set(lane, runId);
+      registerCurrentReviewFixtureRun(root, store, STORY_ID, lane, runId);
+    }
+    return { root, store, runIds };
+  }
+  const runIds = seedCurrentReviewFixture(root, store, STORY_ID, REVIEWERS);
   return { root, store, runIds };
 }
 
@@ -162,7 +188,7 @@ function makeFinding(opts: {
   const id = `${STORY_ID}:F-${opts.idSuffix}`;
   const createdAt = `2026-05-17T12:00:${opts.idSuffix}.000Z`;
   const desc = `${opts.agent} ${opts.severity} finding ${opts.idSuffix}`;
-  return {
+  return bindCurrentFixtureFinding({
     id,
     desc,
     severity: opts.severity,
@@ -175,7 +201,7 @@ function makeFinding(opts: {
     reviewRound: REVIEW_ROUND,
     reviewRunId: opts.reviewRunId,
     _hash: signFinding(STORY_ID, id, desc, opts.severity, createdAt, REVIEW_ROUND, opts.reviewRunId),
-  };
+  });
 }
 
 /**
@@ -286,7 +312,7 @@ function assertResolvedAndDismissedDoNotBlock(): void {
 function assertDisprovenOpenDoesNotBlock(): void {
   const { root, store, runIds } = createReviewRepo();
   try {
-    const disproven: Finding = {
+    const disproven: Finding = bindCurrentFixtureFinding({
       ...makeFinding({
         idSuffix: '005', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
         severity: 'critical', status: 'open',
@@ -297,7 +323,7 @@ function assertDisprovenOpenDoesNotBlock(): void {
         sourceRefs: ['packages/main/src/handlers/finding.ts:27'],
         reproCommand: 'npm --prefix packages/main run test:evidence-state-gate-smoke',
       },
-    };
+    });
     seedWithSubject(store, runIds, disproven);
     const reason = getGuardFailureReason(STORY_ID, store, 'TEST', root);
     assert.equal(reason, null, 'disproven critical open finding must NOT block REVIEW->TEST');
@@ -356,7 +382,7 @@ function assertFindingListRendersEvidenceState(): void {
 }
 
 // ── Matrix item 7: explicit suspected without uncertaintyReason -> finding_add throws ──
-function assertSuspectedWithoutReasonRejected(): void {
+async function assertSuspectedWithoutReasonRejected(): Promise<void> {
   const { root, runIds } = createReviewRepo();
   try {
     // finding_add enforces cwd-in-worktree, so create a real story worktree to call through CLI.
@@ -376,19 +402,8 @@ function assertSuspectedWithoutReasonRejected(): void {
     });
     // Re-sign review runs against the worktree's current git state so the
     // finding_add freshness check passes (HEAD moved after the metadata commit).
-    const wHead = currentGitHead(worktreePath) || `head-${REVIEW_ROUND}`;
-    const wMaterial = currentMaterialHash(worktreePath) || `material-${REVIEW_ROUND}`;
-    const freshRuns: ReviewRun[] = REVIEWERS.map((agent, index) => {
-      const reviewRunId = `${STORY_ID}:RR-${String(index + 1).padStart(3, '0')}`;
-      const startedAt = `2026-05-17T11:${String(index).padStart(2, '0')}:00.000Z`;
-      return {
-        reviewRunId, storyId: STORY_ID, agent, lane: agent, reviewRound: REVIEW_ROUND, startedAt,
-        headHash: wHead, materialHash: wMaterial, promptHash: '',
-        _hash: signReviewRun(STORY_ID, reviewRunId, agent, agent, REVIEW_ROUND, startedAt, wHead, wMaterial, ''),
-      };
-    });
-    wstore.writeReviewRuns(STORY_ID, { runs: freshRuns });
-    const reviewRunId = runIds.get('proof-or-stop-review-concept')!;
+    const currentRunIds = seedCurrentReviewFixture(worktreePath, wstore, STORY_ID, REVIEWERS);
+    const reviewRunId = currentRunIds.get('proof-or-stop-review-concept')!;
 
     let threw = '';
     try {
@@ -410,7 +425,8 @@ function assertSuspectedWithoutReasonRejected(): void {
     assert.equal(wstore.readFindings(STORY_ID).findings.length, 0, 'rejected finding must not be written');
 
     // positive: same call with uncertaintyReason succeeds and is recorded as suspected
-    const ok = execFileSync(process.execPath, [cliPath, 'finding_add', JSON.stringify({
+    const ok = await runBrokeredNativeReviewCli({ root: worktreePath, store: wstore, storyId: STORY_ID,
+      agent: 'proof-or-stop-review-concept', reviewRunId, command: 'finding_add', payload: {
       storyId: STORY_ID,
       desc: 'suspected with a clear reason is accepted',
       severity: 'high',
@@ -419,7 +435,7 @@ function assertSuspectedWithoutReasonRejected(): void {
       reviewRunId,
       evidenceState: 'suspected',
       uncertaintyReason: 'no repro yet, suspicion comes from static reading only',
-    })], { cwd: worktreePath, env: { ...process.env }, encoding: 'utf-8' });
+    } });
     assert.match(ok, /evidenceState=suspected/);
     const persisted = wstore.readFindings(STORY_ID).findings;
     assert.equal(persisted.length, 1);
@@ -448,19 +464,8 @@ function assertHandlerRejectionCases(): void {
       ...story,
       worktree: { path: `.worktrees/${STORY_ID}`, branch: `story/${STORY_ID}`, createdAt: '2026-05-17T12:00:00.000Z' },
     });
-    const wHead = currentGitHead(worktreePath) || `head-${REVIEW_ROUND}`;
-    const wMaterial = currentMaterialHash(worktreePath) || `material-${REVIEW_ROUND}`;
-    const freshRuns: ReviewRun[] = REVIEWERS.map((agent, index) => {
-      const reviewRunId = `${STORY_ID}:RR-${String(index + 1).padStart(3, '0')}`;
-      const startedAt = `2026-05-17T11:${String(index).padStart(2, '0')}:00.000Z`;
-      return {
-        reviewRunId, storyId: STORY_ID, agent, lane: agent, reviewRound: REVIEW_ROUND, startedAt,
-        headHash: wHead, materialHash: wMaterial, promptHash: '',
-        _hash: signReviewRun(STORY_ID, reviewRunId, agent, agent, REVIEW_ROUND, startedAt, wHead, wMaterial, ''),
-      };
-    });
-    wstore.writeReviewRuns(STORY_ID, { runs: freshRuns });
-    const reviewRunId = runIds.get('proof-or-stop-review-concept')!;
+    const currentRunIds = seedCurrentReviewFixture(worktreePath, wstore, STORY_ID, REVIEWERS);
+    const reviewRunId = currentRunIds.get('proof-or-stop-review-concept')!;
 
     const callFindingAdd = (extra: Record<string, unknown>): string => {
       try {
@@ -536,7 +541,7 @@ function assertPartialSuspectedDoesNotMaskRealBlocker(): void {
 function assertReviewerStatusAgreesWithGate(): void {
   // Case A: suspected open critical -> gate passes, reviewer-status must show pass.
   {
-    const { root, store, runIds } = createReviewRepo();
+    const { root, store, runIds } = createReviewRepo(!process.argv.includes('--legacy-status-fixture'));
     try {
       const suspected = makeFinding({
         idSuffix: '301', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
@@ -561,7 +566,7 @@ function assertReviewerStatusAgreesWithGate(): void {
   }
   // Case B: verified open critical -> gate blocks, reviewer-status must show fail (no false-pass).
   {
-    const { root, store, runIds } = createReviewRepo();
+    const { root, store, runIds } = createReviewRepo(!process.argv.includes('--legacy-status-fixture'));
     try {
       const verified = makeFinding({
         idSuffix: '302', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
@@ -584,13 +589,19 @@ function assertReviewerStatusAgreesWithGate(): void {
   console.log('✓ F-001: reviewer-status display path agrees with the REVIEW->TEST gate (evidenceState dimension)');
 }
 
+if (process.argv.includes('--reviewer-status-only')) {
+  assertReviewerStatusAgreesWithGate();
+  console.log('reviewer-status current CLI fixture: PASS');
+  process.exit(0);
+}
+
 assertLegacyMissingEvidenceStateStillBlocks();
 assertVerifiedOpenStillBlocks();
 assertSuspectedDoesNotBlockAndIsAdvisory();
 assertResolvedAndDismissedDoNotBlock();
 assertDisprovenOpenDoesNotBlock();
 assertFindingListRendersEvidenceState();
-assertSuspectedWithoutReasonRejected();
+await assertSuspectedWithoutReasonRejected();
 assertHandlerRejectionCases();
 assertPartialSuspectedDoesNotMaskRealBlocker();
 assertReviewerStatusAgreesWithGate();

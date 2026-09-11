@@ -1,0 +1,97 @@
+{
+  "duration_api_ms": 36254,
+  "stop_reason": "end_turn",
+  "session_id": "80f6c2d7-582d-4a36-896f-da1eed839671",
+  "total_cost_usd": 0.5290309999999999,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 9821,
+    "cache_read_input_tokens": 734172,
+    "output_tokens": 2547,
+    "output_tokens_details": {
+      "thinking_tokens": 454
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 9821,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1347,
+        "cache_read_input_tokens": 125365,
+        "cache_creation_input_tokens": 1068,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 1068
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "claude-opus-5": {
+      "inputTokens": 12,
+      "outputTokens": 2547,
+      "cacheReadInputTokens": 734172,
+      "cacheCreationInputTokens": 9821,
+      "webSearchRequests": 0,
+      "costUSD": 0.5290309999999999,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 454,
+      "canonicalModel": "claude-opus-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 7,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "## Commands executed\n\n| Command | Exit |\n|---|---|\n| `git diff f5946a2fc7..4a9cdaf3e9` | 0 — one file, `finding-qualification.ts:185-189` |\n| `git show --stat f5946a2fc7` / `git show f5946a2fc7 -- packages/main/src/tasks/dynamic-finding-runtime-integration-smoke.ts` | 0 |\n| `ls -l` (src/dist mtimes) | 0 — src and dist both 15:59, so the run reflects 4a9cdaf3e9 |\n| `node packages/main/tests/red/red-dynamic-finding-final-contracts.mjs` | 0 — `DYNAMIC_FINDING_FINAL_CONTRACTS PASS 3 passed 0 failed`; new line `QUALIFICATION_PREREQUISITE PASS incomplete timing retains 22 diagnostic rows and independent subject denominator=1` |\n\nI did not re-run the 87-test calculator smoke.\n\n## F1 — closed\n\nThe repair is exactly what F1 asked for and nothing wider. `finding-qualification.ts:185-189` separates the null timing sources, pushes `qualification_timing_sources_missing`, and passes only non-null rows to `sumQualificationCohortTiming`, so corpus construction no longer aborts. Fail-closed is preserved by `:205-206`: the reason is appended to `report.refusalReasons` and `eligible` is recomputed as `refusalReasons.length === 0` — false. Dedupe and the conflict throw inside `sumQualificationCohortTiming` are untouched.\n\nThe RED pin is on the official surface, not the calculator: `dynamic-finding-runtime-integration-smoke.ts` sets `qualificationStoryIds: [storyId]` under `--prerequisite-proof` and asserts through `handlers.finding_rollout_scorecard` on a case whose report carries no `matchedCohort` — `scorecard_completeness` denominator 1, `metadata` present, the missing-timing reason retained, `eligible === false`. That covers all four properties you named, and it exercises the mixed-corpus shape F1 identified. Closed.\n\n## F2 — confirmed, dispute withdrawn\n\nYour disposition is correct and my original wording overstated it. `finding-rollout-qualification.ts:114-123` keys on `metric:candidateStoryId:attemptId`, deliberately excluding `caseId`, so two source cases citing one completed cohort must collapse — emitting a generic duplicate error there would be wrong, because the duplication is in the *references*, not the measurement. Identical fingerprints dedupe silently; divergent ones still push `conflicting_performance_source`. `COHORT_STATS references=2 denominator=1 independentFindingCases=0` is the intended behaviour. No residual concern.\n\n## F3 — confirmed as transitive binding\n\nAccepted with the correction that the chain is verified, not assumed: the PASS note binds the report receipt hash (`finding-qualification.ts:60-62`), the report's own stdout bytes carry `prerequisites[].runtimeReceiptId`, and the server independently re-reads and re-verifies that exact receipt at `finding-qualification-prerequisites.ts` (headHash, exit code, pinned command+selector, single selector line) plus the historical recheck at `:139`. That is a real binding, one link removed from a direct signature. My F3 was a wording objection to the prose, and you state the docs now say so; I did not re-audit doc text — outside this bounded scope.\n\n## Unresolved in-scope blockers\n\nNone.\n\n## Bounded acceptance\n\nAccepted at fixture level: the three authorized items plus the F1 repair are verified by real handler-driven disposable-git fixtures. This is **not** operational qualification — no real merged-SHA prerequisite executions, no real cohorts, no 20 stories / 200 cases / 30-day window; `eligible` is false and enforce remains refused by design.",
+  "ttft_ms": 2478,
+  "type": "result",
+  "duration_ms": 87808,
+  "uuid": "b4d6fccc-10c3-4939-9614-70cb640ea584",
+  "ttft_stream_ms": 1672,
+  "time_to_request_ms": 262,
+  "first_content_frame_ms": 1672,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

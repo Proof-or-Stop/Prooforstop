@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { finalReviewRosterForStory, finalReviewRosterBasis } from '../handlers/reviewer-list.js';
 import type { StoryStore } from './store.js';
 import type {
   ChecklistData,
@@ -635,6 +636,17 @@ export function finalizedLiveAggregateError(store: StoryStore, pair: {
   receipt: ReviewInventoryReceipt;
 }): string | undefined {
   const { epoch, receipt } = pair;
+  if (epoch.rosterBasis || receipt.rosterBasis) {
+    try {
+      const current = finalReviewRosterForStory(store, store.projectRoot, epoch.storyId);
+      if (!epoch.rosterBasis || epoch.rosterBasis !== receipt.rosterBasis
+        || epoch.rosterBasis !== finalReviewRosterBasis(current)
+        || reviewInventoryDigest(epoch.requiredLanes) !== reviewInventoryDigest(current.selection.selectedLanes)
+        || reviewInventoryDigest(receipt.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes)) {
+        return 'narrowed review roster basis changed after finalize';
+      }
+    } catch { return 'narrowed review roster basis cannot be verified'; }
+  }
   const finalWave = epoch.waves.at(-1);
   const remediationOnly = receipt.authority === 'review-remediation-only';
   if (!finalWave || !finalWave.completedAt
@@ -744,19 +756,20 @@ function markReviewInventoryConsumed(
   storyId: string,
   pair: { epoch: ReviewInventoryEpoch; receipt: ReviewInventoryReceipt },
   reviewRound: string,
+  admissionWindowId?: string,
 ): string {
   const now = new Date().toISOString();
   const data = store.readReviewInventoryEpochs(storyId);
   data.epochs = data.epochs.map(row => {
     if (row.epochId !== pair.epoch.epochId) return row;
     const { _hash, ...unsigned } = row;
-    const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, consumedByReviewRound: reviewRound, updatedAt: now };
+    const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, ...(admissionWindowId ? { consumedByCertificationWindowId: admissionWindowId } : {}), consumedByReviewRound: reviewRound, updatedAt: now };
     return { ...consumed, _hash: signReviewInventoryEpoch(consumed) };
   });
   data.receipts = data.receipts.map(row => {
     if (row.receiptId !== pair.receipt.receiptId) return row;
     const { _hash, ...unsigned } = row;
-    const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now };
+    const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now, ...(admissionWindowId ? { consumedByCertificationWindowId: admissionWindowId } : {}) };
     return { ...consumed, _hash: signReviewInventoryReceipt(consumed) };
   });
   store.writeReviewInventoryEpochs(storyId, data);
@@ -805,8 +818,20 @@ export function consumeReviewInventoryCompletenessReceipt(
   reviewRound: string,
   currentCutoff: { materialHash: string; storyFilesHash?: string },
   validateInventoryContext?: () => void,
+  admissionWindowId?: string,
 ): string | null {
-  return withReviewInventoryMutationLock(store, storyId, () => {
+  return withReviewInventoryMutationLock(store, storyId, () => consumeReviewInventoryCompletenessReceiptUnlocked(store, storyId, reviewRound, currentCutoff, validateInventoryContext, admissionWindowId));
+}
+
+/** Caller must already hold the review inventory mutation lock. */
+export function consumeReviewInventoryCompletenessReceiptUnlocked(
+  store: StoryStore,
+  storyId: string,
+  reviewRound: string,
+  currentCutoff: { materialHash: string; storyFilesHash?: string },
+  validateInventoryContext?: () => void,
+  admissionWindowId?: string,
+): string | null {
     validateInventoryContext?.();
     const data = store.readReviewInventoryEpochs(storyId);
     const latest = data.epochs.at(-1);
@@ -847,8 +872,7 @@ export function consumeReviewInventoryCompletenessReceipt(
         throw new Error(`REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED: ${liveAggregateError}; begin a fresh inventory epoch`);
       }
     }
-    return markReviewInventoryConsumed(store, storyId, pair, reviewRound);
-  });
+    return markReviewInventoryConsumed(store, storyId, pair, reviewRound, admissionWindowId);
 }
 
 export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInventoryEvaluation, now: string, nextRunSequenceBoundary?: number): ReviewInventoryWave {
@@ -969,6 +993,33 @@ export function persistFinalizedReviewInventoryUnlocked(args: {
     return { epoch, receipt, reused: false };
 }
 
+/** Guidance shares the persisted authority; it grants no transition capability. */
+export function reviewInventoryFinalizedNextCommand(epoch: ReviewInventoryEpoch, receipt?: ReviewInventoryReceipt): string {
+  if (epoch.state !== 'FINALIZED' || !verifyReviewInventoryEpoch(epoch)
+    || !receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt
+    || receipt.receiptId !== epoch.receiptId || receipt.epochId !== epoch.epochId
+    || receipt.storyId !== epoch.storyId || receipt.reviewRound !== epoch.reviewRound
+    || receipt.scopeDigest !== epoch.scopeDigest
+    || reviewInventoryDigest(receipt.cutoff) !== reviewInventoryDigest(epoch.cutoff)
+    || reviewInventoryDigest(receipt.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes)
+    || Boolean(receipt.consumedAt) !== Boolean(epoch.consumedAt)) {
+    throw new Error('REVIEW_INVENTORY_RECEIPT_INVALID: cannot recommend an action from an invalid or mismatched finalized receipt');
+  }
+  if (epoch.consumedAt) {
+    // Legacy saturated receipts can be consumed by either remediation or
+    // PRE_CERT. The receipt does not record which consumer won; do not infer it.
+    return 'proof-or-stop session_brief';
+  }
+  if (receipt.authority === 'review-remediation-only') {
+    return `proof-or-stop story_advance --storyId=${epoch.storyId} --phase=DEV`;
+  }
+  // Zero NEW families does not mean no findings: an older multi-wave inventory
+  // may still carry unresolved work. Let the existing finding policy decide it.
+  return epoch.waves.some(wave => wave.verifiedFindingFamilies.length > 0)
+    ? `proof-or-stop finding_list --storyId=${epoch.storyId}`
+    : `proof-or-stop validate --story=${epoch.storyId} --focus=fast --json`;
+}
+
 export function renderFinalizedReviewInventory(epoch: ReviewInventoryEpoch, receipt: ReviewInventoryReceipt): string {
   return [
     `State: ${epoch.state}`,
@@ -979,5 +1030,6 @@ export function renderFinalizedReviewInventory(epoch: ReviewInventoryEpoch, rece
     `storyFilesHash: ${epoch.cutoff.storyFilesHash ?? ''}`,
     `Authority: ${receipt.authority}`,
     `authorizesTest: ${receipt.authorizesTest}`,
+    `Next: ${reviewInventoryFinalizedNextCommand(epoch, receipt)}`,
   ].join('\n');
 }

@@ -490,34 +490,75 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
   }
 }
 
-async function assertDirectReviewStoryCreateIsRejected(): Promise<void> {
+async function assertDirectReviewStoryCreateIsBlocked(): Promise<void> {
   const root = initRepo('proof-or-stop-field-direct-review-create-');
   try {
-    const result = await runProofOrStopRaw(root, 'story_create', {
+    const store = new StoryStore(root);
+    const rejected = await runProofOrStopRaw(root, 'story_create', {
       name: 'direct-review-round',
       title: 'Direct review round',
-      description: 'Synthetic direct REVIEW creation must be rejected before persistence.',
+      description: 'Synthetic direct REVIEW creation must not bypass lifecycle gates.',
       type: 'chore',
       priority: 'medium',
       phase: 'REVIEW',
       background: [
         '## Trigger Event',
-        '2026-06-12 B-direct-review-round probes the retired direct REVIEW creation path at the public CLI boundary.',
+        '2026-09-10 B-direct-review-round verifies that direct REVIEW creation is rejected before persistence.',
         '',
         '## Key Insights',
-        'The lifecycle requires every Story to reach REVIEW through story_advance and all preceding gates.',
+        'REVIEW metadata is valid only after the Story traverses the lifecycle gates through story_advance.',
         '',
         '## Solution Tradeoffs',
-        'Historical imports use a separate non-Story migration surface instead of minting completed Story credentials.',
+        'Reject the compatibility shortcut instead of manufacturing REVIEW credentials during Story creation.',
         '',
         '## Conversational Texture',
-        'The operator sees a clear intake-only refusal and no partial Story data is written.',
+        'The operator receives a stable error that directs the Story through INIT and the complete lifecycle.',
       ].join('\n'),
-      checklist: [{ title: 'Start review commands after direct creation', context: 'Covers review-only usage' }],
+      checklist: [{ title: 'Reject direct review creation', context: 'Covers lifecycle bypass prevention' }],
     });
-    assert.notEqual(result.code, 0, 'public CLI must reject direct REVIEW creation');
-    assert.match(result.stdout + result.stderr, /story_create_direct_lifecycle_phase_forbidden/);
-    assert.deepEqual(new StoryStore(root).listStoryIds(), [], 'refused direct REVIEW creation must not persist a Story');
+    assert.notEqual(rejected.code, 0);
+    assert.match(rejected.stdout + rejected.stderr, /story_create_direct_lifecycle_phase_forbidden/);
+    assert.deepEqual(store.listStoryIds(), [], 'direct REVIEW rejection must happen before Story persistence');
+
+    const reviewStoryId = 'B-direct-review-round';
+    writeReviewStory(store, reviewStoryId);
+    const reviewRun = await runProofOrStop(root, 'review_run_start', {
+      storyId: reviewStoryId,
+      agent: 'proof-or-stop-review-quality',
+      prompt: 'normal REVIEW story after direct creation rejection',
+    });
+    assert.match(reviewRun, /Review run .* started/);
+
+    const reviewLoop = await runProofOrStop(root, 'review_loop_start', {
+      storyId: reviewStoryId,
+      trigger: { findingIds: [`${reviewStoryId}:F-001`] },
+      rollbackRef: reviewLoopRollbackRef(root),
+    });
+    assert.match(reviewLoop, /Review loop .* started/);
+
+    const emptyTriggerLoop = await runProofOrStopRaw(root, 'review_loop_start', {
+      storyId: reviewStoryId,
+      trigger: { findingIds: [] },
+      rollbackRef: reviewLoopRollbackRef(root),
+    });
+    assert.notEqual(emptyTriggerLoop.code, 0);
+    assert.match(
+      emptyTriggerLoop.stdout + emptyTriggerLoop.stderr,
+      /trigger|findingId|bugId|validationFailureRef|scopeViolationRef/,
+      'review_loop_start must reject empty trigger refs at parameter validation',
+    );
+
+    const placeholderLoop = await runProofOrStopRaw(root, 'review_loop_start', {
+      storyId: reviewStoryId,
+      trigger: { findingIds: [`${reviewStoryId}:F-002`] },
+      rollbackRef: placeholderRollbackRef,
+    });
+    assert.notEqual(placeholderLoop.code, 0);
+    assert.match(
+      placeholderLoop.stdout + placeholderLoop.stderr,
+      /rollbackRef|headHash|diffHash|materialHash|placeholder/,
+      'review_loop_start must reject placeholder rollbackRef hashes',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1929,7 +1970,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
 await assertPlanRemoveIsHardBlocked();
 await assertClusterAutoResolveCliSurface();
 await assertDirectFindingAutoResolveCliSurface();
-await assertDirectReviewStoryCreateIsRejected();
+await assertDirectReviewStoryCreateIsBlocked();
 await assertReviewRunStartCliSurface();
 await assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift();
 await assertReviewRunStartWorkspaceDiagnostics();

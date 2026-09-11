@@ -272,6 +272,8 @@ export interface PromptEnvelope {
   eligibilityDecision: 'full' | 'incremental';
   eligibilityDigest: string;
   freshnessClassification?: string;
+  /** Immutable main commit selected by the review-run producer; absent for legacy envelopes. */
+  fullStoryBaseHead?: string;
   impactPolicyVersion?: string;
   eligibilityReasonCodes?: string[];
   changedFilesDigest?: string;
@@ -522,6 +524,12 @@ function requireNonblank(value: unknown, label: string): asserts value is string
   }
 }
 
+export function validateFullStoryBaseHead(value: unknown): asserts value is string {
+  if (typeof value !== 'string' || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(value)) {
+    throw new PromptContractValidationError('PromptEnvelope.fullStoryBaseHead must be a lowercase 40- or 64-hex Git commit object id');
+  }
+}
+
 function requireDigest(value: unknown, label: string): asserts value is string {
   if (typeof value !== 'string' || !/^[a-f0-9]{64}$/.test(value)) {
     throw new PromptContractValidationError(`${label} must be a lowercase SHA-256 digest`);
@@ -680,11 +688,12 @@ function validatePromptEnvelopeAgainst(
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
     'eligibilityRoleSemanticDigest', 'reviewerDispatchBindingDigest', 'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
     'changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest',
-    'taskSemanticDigest', 'findingProjection', 'findingProjectionDigest',
+    'taskSemanticDigest', 'findingProjection', 'findingProjectionDigest', 'fullStoryBaseHead',
     'selectionReason', 'fullContextBytes', 'incrementalContextBytes', 'escalatedToFull',
     'escalationReason', 'budgetViolation',
   ];
   requireExactKeys(record, required, optional, 'PromptEnvelope');
+  if (record.fullStoryBaseHead !== undefined) validateFullStoryBaseHead(record.fullStoryBaseHead);
   if (record.eligibilityRoleSemanticDigest !== undefined) requireDigest(record.eligibilityRoleSemanticDigest, 'PromptEnvelope.eligibilityRoleSemanticDigest');
   if (record.reviewerDispatchBindingDigest !== undefined) requireDigest(record.reviewerDispatchBindingDigest, 'PromptEnvelope.reviewerDispatchBindingDigest');
   const expectedIdentities = {

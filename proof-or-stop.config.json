@@ -66,6 +66,12 @@
     "commands": [
       {
         "command": "npm",
+        "args": ["--prefix", "packages/main", "run", "test:dynamic-finding-evidence-closure"],
+        "timeoutMs": 180000,
+        "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }]
+      },
+      {
+        "command": "npm",
         "args": [
           "--prefix",
           "packages/main",
@@ -381,6 +387,9 @@
           "XDG_CONFIG_HOME",
           "USER",
           "NODE_ENV",
+          "GIT_DIR",
+          "GIT_COMMON_DIR",
+          "GIT_WORK_TREE",
           "GIT_CONFIG_NOSYSTEM",
           "GIT_CONFIG_GLOBAL",
           "GIT_ATTR_NOSYSTEM",
@@ -1208,6 +1217,9 @@
           "XDG_CONFIG_HOME",
           "USER",
           "NODE_ENV",
+          "GIT_DIR",
+          "GIT_COMMON_DIR",
+          "GIT_WORK_TREE",
           "GIT_CONFIG_NOSYSTEM",
           "GIT_CONFIG_GLOBAL",
           "GIT_ATTR_NOSYSTEM",

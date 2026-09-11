@@ -1,0 +1,13 @@
+file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/scripts/verify-proof-or-stop-identity-cutover.mjs:6703
+  if (verifyBothFamilyContexts(root).length > 0) throw new Error('both-family exact contexts or witnesses are not current');
+                                                       ^
+
+Error: both-family exact contexts or witnesses are not current
+    at runSelfTest (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/scripts/verify-proof-or-stop-identity-cutover.mjs:6703:56)
+    at main (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/scripts/verify-proof-or-stop-identity-cutover.mjs:7450:5)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/scripts/verify-proof-or-stop-identity-cutover.mjs:7575:1980
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.8.1

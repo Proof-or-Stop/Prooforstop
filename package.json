@@ -41,6 +41,7 @@
     "test:tool-executed-evidence-receipt-smoke": "node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
     "test:verification-run-and-guard-smoke": "npm --prefix packages/main run test:verification-run-and-guard-smoke",
     "test:dynamic-finding-applicability": "npm --prefix packages/main run test:dynamic-finding-applicability",
+    "test:dynamic-finding-evidence-closure": "npm --prefix packages/main run test:dynamic-finding-evidence-closure",
     "test:review-loop-smoke": "npm --prefix packages/main run test:review-loop-smoke",
     "test:delivery-context-pack-smoke": "npm --prefix packages/main run test:delivery-context-pack-smoke",
     "test:flow-stability-smoke": "npm --prefix packages/main run test:flow-stability-smoke",

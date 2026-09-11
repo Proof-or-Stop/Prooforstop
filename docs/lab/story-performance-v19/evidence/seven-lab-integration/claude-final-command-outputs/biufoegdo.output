@@ -1,0 +1,136 @@
+LAB_LOCK_RESULTS {
+  "results": [
+    {
+      "name": "unknown status refuses without creating locks, signing keys or records",
+      "pass": true,
+      "status": 1
+    },
+    {
+      "name": "status reads during a real main writer without writes",
+      "pass": true,
+      "status": 0
+    },
+    {
+      "name": "sync still refuses an active main writer",
+      "pass": true
+    },
+    {
+      "name": "RED can execute while unrelated main writer remains held",
+      "pass": true,
+      "status": 0
+    },
+    {
+      "name": "status remains available during a long RED",
+      "pass": true,
+      "status": 0
+    },
+    {
+      "name": "unrelated main writer acquires during a long RED",
+      "pass": true
+    },
+    {
+      "name": "same Lab cannot start a conflicting child",
+      "pass": true
+    },
+    {
+      "name": "finish cannot mutate or remove a running Lab",
+      "pass": true
+    },
+    {
+      "name": "different Lab commands overlap and both record authentic RED",
+      "pass": true,
+      "pairMs": 2316.897208,
+      "overlapMs": 1586,
+      "completed": 2,
+      "retries": 0
+    },
+    {
+      "name": "same Lab refusal does not replace the pinned command",
+      "pass": true
+    },
+    {
+      "name": "concurrent GREEN is refused",
+      "pass": true
+    },
+    {
+      "name": "finish cannot race running GREEN",
+      "pass": true
+    },
+    {
+      "name": "main writer acquires during GREEN",
+      "pass": true
+    },
+    {
+      "name": "GREEN retains exact argv, timeout and current HEAD",
+      "pass": true
+    },
+    {
+      "name": "corrupt status fails closed without repair writes",
+      "pass": true
+    },
+    {
+      "name": "missing signing key refuses without replacing trust",
+      "pass": true
+    },
+    {
+      "name": "schema-1 status stays read-only before migration",
+      "pass": true
+    },
+    {
+      "name": "schema migration refuses a still-running old main-lock writer",
+      "pass": true
+    },
+    {
+      "name": "old CLI cannot mutate or execute after signed schema migration",
+      "pass": true
+    },
+    {
+      "name": "successful child cannot publish GREEN after key changes",
+      "pass": true
+    },
+    {
+      "name": "successful child cannot publish GREEN after ownership changes",
+      "pass": true
+    },
+    {
+      "name": "release preserves replacement operation ownership",
+      "pass": true
+    },
+    {
+      "name": "unknown process identity retains the live lock between heartbeats",
+      "pass": true,
+      "contenderStatus": 1,
+      "holderStatus": 0
+    }
+  ],
+  "failures": [],
+  "timeline": [
+    {
+      "event": "start",
+      "id": "Lab-alpha",
+      "at": 1789144202493,
+      "pid": 27916
+    },
+    {
+      "event": "start",
+      "id": "Lab-bravo",
+      "at": 1789144202709,
+      "pid": 28218
+    },
+    {
+      "event": "end",
+      "id": "Lab-alpha",
+      "at": 1789144204295,
+      "pid": 27916
+    },
+    {
+      "event": "end",
+      "id": "Lab-bravo",
+      "at": 1789144204510,
+      "pid": 28218
+    }
+  ]
+}
+LAB_LOCK_SCOPE_GREEN
+
+[exited with code 0]

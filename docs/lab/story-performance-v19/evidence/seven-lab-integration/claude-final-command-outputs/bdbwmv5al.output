@@ -1,0 +1,129 @@
+
+> proof-or-stop@0.3.317 test:repro-evidence-binding-dev-gate
+> node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js
+
+ok 1 - IDEA->PLAN missing binding is blocked
+ok 2 - IDEA->PLAN valid binding passes
+ok 3 - IDEA->PLAN no-file checklist passes without binding
+ok 4 - lifecycle repro-first gates respect warn mode as diagnostic-only
+ok 5 - lifecycle repro-first gates respect off mode as disabled
+ok 6 - engine errors fail open and surface in session_brief
+ok 7 - malformed story-evidence-binding returns stale diagnostic instead of throwing
+ok 8 - story_create enforce blocks file-declaring story without binding before persistence
+ok 9 - story_create direct lifecycle phase is forbidden before persistence
+ok 10 - story_create cannot directly persist post-INIT lifecycle phases without a repro-first bypass
+⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.
+## Memory Runtime Preflight
+  authority=non_authoritative gateEvidence=false
+  packDigest: 02ffb725378ebd4ea687221ada646f697f34bfd89934b18d2627890ea15345fe
+  topHitIds: none
+  freshness: fresh
+  sourceDigests: project=none global=none playbooks=none signatures=none
+  empty: no relevant active playbooks or dev-memory entries surfaced
+  render: maxLines=60 omittedCount=0
+⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.
+## Memory Runtime Preflight
+  authority=non_authoritative gateEvidence=false
+  packDigest: 570b8ad672db35fb5c5c6fc4a9727f213b64af65d55eacfbdbc815e3f27b7c19
+  topHitIds: none
+  freshness: fresh
+  sourceDigests: project=none global=none playbooks=none signatures=none
+  empty: no relevant active playbooks or dev-memory entries surfaced
+  render: maxLines=60 omittedCount=0
+⚠ 1 other stories were also created within the last 30 minutes:
+  - B-520b [IDEA] Explicit IDEA compatibility
+⚠ [DEPRECATED] normal channel stories should use the story_draft + story_create --from-draft two-stage mode.
+  Direct story_create will be hard-blocked on the normal channel in future versions.
+ok 11 - story_create keeps explicit IDEA and INIT compatibility while INIT_CHECK stays forbidden
+ok 12 - concurrent story_create attempts cannot race post-INIT lifecycle phases into persistence
+ok 13 - story_create enforce blocks code-verifiable material-code bug classifier without binding before persistence
+ok 14 - B-8628 classifyReproFirstRequirement: material-code bug/feature required; docs/refactor/chore/no-file exempt; safety net kept
+⚠ [DEPRECATED] normal channel stories should use the story_draft + story_create --from-draft two-stage mode.
+  Direct story_create will be hard-blocked on the normal channel in future versions.
+ok 15 - story_create enforce blocks high-risk code-verifiable classifier without binding before persistence
+ok 16 - story_create fromDraft enforce blocks before story persistence or draft deletion
+⚠ Repro-first STORY_INTAKE preflight requires accepted repro evidence before creating code-verifiable story B-7913. [missing_story_evidence_binding]
+  mode: warn
+  classifier: code_verifiable_behavior_change; story.type=feature; material code files: src/feature.ts, tests/feature.test.ts
+  Use story_create_from_repro after repro_probe + repro_review_set(red-reviewed,target-bug), or pass reproFirstBypassReason for a documented emergency/non-reproducible IDEA/INIT intake exception.
+⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.
+## Memory Runtime Preflight
+  authority=non_authoritative gateEvidence=false
+  packDigest: c4f7ff03e6673af00e1dbf8432762295bf7183279e60c47fdc3e402e45009443
+  topHitIds: none
+  freshness: fresh
+  sourceDigests: project=none global=none playbooks=none signatures=none
+  empty: no relevant active playbooks or dev-memory entries surfaced
+  render: maxLines=60 omittedCount=0
+ok 17 - story_create fromDraft warn mode diagnoses missing binding but does not block
+⚠ Repro-first STORY_INTAKE preflight bypassed with explicit reason. [repro_first_bypassed]
+  reason: Emergency non-reproducible intake accepted by human operator for this smoke.
+  classifier: code_verifiable_behavior_change; story.type=feature; material code files: src/feature.ts, tests/feature.test.ts
+  Note: this only permits story creation; PLAN/DEV gates still require a valid story-evidence-binding when the story declares code files.
+⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.
+## Memory Runtime Preflight
+  authority=non_authoritative gateEvidence=false
+  packDigest: 7aae0de08aeaa93b428ac387dd8401b72c923e35af956a0a7fcb59e8012a396b
+  topHitIds: none
+  freshness: fresh
+  sourceDigests: project=none global=none playbooks=none signatures=none
+  empty: no relevant active playbooks or dev-memory entries surfaced
+  render: maxLines=60 omittedCount=0
+ok 18 - story_create fromDraft supports explicit repro-first bypass reason
+ok 19 - story_create blocks every post-intake lifecycle phase before persistence
+⚠ Repro-first STORY_INTAKE preflight requires accepted repro evidence before creating code-verifiable story B-2697. [missing_story_evidence_binding]
+  mode: warn
+  classifier: code_verifiable_behavior_change; story.type=feature; material code files: src/feature.ts
+  Use story_create_from_repro after repro_probe + repro_review_set(red-reviewed,target-bug), or pass reproFirstBypassReason for a documented emergency/non-reproducible IDEA/INIT intake exception.
+⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.
+## Memory Runtime Preflight
+  authority=non_authoritative gateEvidence=false
+  packDigest: cf7ef8979b94561eeb9ecd38b8f301e73b6517b0d3093b537805c5531e6e22a2
+  topHitIds: none
+  freshness: fresh
+  sourceDigests: project=none global=none playbooks=none signatures=none
+  empty: no relevant active playbooks or dev-memory entries surfaced
+  render: maxLines=60 omittedCount=0
+ok 20 - story_create warn mode diagnoses missing binding but does not block creation
+⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.
+## Memory Runtime Preflight
+  authority=non_authoritative gateEvidence=false
+  packDigest: fc1610d6df4711777ebd9303bc2bad11497e031d9503d8af62b815e9ff99a956
+  topHitIds: none
+  freshness: fresh
+  sourceDigests: project=none global=none playbooks=none signatures=none
+  empty: no relevant active playbooks or dev-memory entries surfaced
+  render: maxLines=60 omittedCount=0
+ok 21 - story_create mode off bypasses repro-first diagnostic
+⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.
+## Memory Runtime Preflight
+  authority=non_authoritative gateEvidence=false
+  packDigest: 2a2b6ece685781814d5b7e43d645e20709acf8a330a063ee318d9dc08b9758ad
+  topHitIds: none
+  freshness: fresh
+  sourceDigests: project=none global=none playbooks=none signatures=none
+  empty: no relevant active playbooks or dev-memory entries surfaced
+  render: maxLines=60 omittedCount=0
+ok 22 - story_create_from_repro handler creates story and binding under enforce mode
+ok 23 - gate rejects binding whose repro review is not an accepted target bug
+ok 24 - gate accepts spike binding with confirmed spike review
+ok 25 - gate rejects spike binding without spike review as stale
+ok 26 - story_create_from_repro spike without review is stale at gate
+ok 27 - story_create_from_repro rejects rejected spike review before binding
+ok 28 - gate rejects rejected spike review as stale
+ok 29 - gate rejects contradictory spike review status when verdict is rejected
+ok 30 - gate rejects status-only accepted spike review without confirmed verdict
+ok 31 - gate rejects mismatched spike review as stale
+ok 32 - gate treats malformed story-evidence-binding payload as stale without throwing
+ok 33 - PLAN->DEV missing binding is blocked
+ok 34 - PLAN->DEV material-code bug missing binding diagnostic uses code-verifiable classifier reason
+ok 35 - PLAN->DEV no-file bug is repro-first exempt (no bug_story over-reach)
+ok 36 - PLAN->DEV high-risk missing binding diagnostic uses classifier reason
+ok 37 - PLAN->DEV valid binding passes
+ok 38 - PLAN->DEV stale binding is blocked
+ok 39 - INIT_CHECK->DEV express missing binding is blocked
+ok 40 - INIT_CHECK->DEV express valid binding passes
+
+repro evidence binding dev gate smoke passed
+
+[exited with code 0]

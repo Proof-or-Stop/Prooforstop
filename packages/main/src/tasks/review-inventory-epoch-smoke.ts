@@ -869,9 +869,13 @@ const finalizedData: ReviewInventoryEpochData = {
   receipts: [receipt],
   criticReceipts: [firstCritic.receipt, secondCritic.receipt],
 };
-const finalizedStatus = renderReviewInventoryStatus(finalized, { criticComplete: true });
-assert.match(finalizedStatus, /Next: proof-or-stop story_advance --storyId=B-cdf6-replay --phase=DEV/);
+const finalizedStatus = renderReviewInventoryStatus(finalized, { criticComplete: true, receipt });
+assert.match(finalizedStatus, /Next: proof-or-stop finding_list --storyId=B-cdf6-replay/, 'zero new families does not erase existing findings');
 assert.equal((finalizedStatus.match(/^Next:/gm) ?? []).length, 1);
+assert.throws(() => renderReviewInventoryStatus(finalized), /RECEIPT_INVALID/, 'missing authority must not invent DEV guidance');
+assert.throws(() => renderReviewInventoryStatus(finalized, { receipt: { ...receipt, authority: 'review-remediation-only' } }), /RECEIPT_INVALID/, 'tampered authority must not redirect a completed review');
+const foreignReceiptBody = { ...unsignedReceipt, epochId: 'B-other:RI-001' };
+assert.throws(() => renderReviewInventoryStatus(finalized, { receipt: { ...foreignReceiptBody, _hash: signReviewInventoryReceipt(foreignReceiptBody) } }), /RECEIPT_INVALID/, 'independently signed foreign receipt must not redirect a completed review');
 // A complete signed first wave permits repair, while preserving its findings
 // and never becoming certification or TEST authority.
 const earlyUnsigned = {
@@ -1030,9 +1034,9 @@ function replay(): Record<string, number> {
   );
   phase = 'DEV';
   events.push({ type: 'remediation-transition', accepted: phase === 'DEV' });
-  const consumedStatus = renderReviewInventoryStatus(transitionStore.snapshot().epochs[0], { criticComplete: true });
+  const consumedStatus = renderReviewInventoryStatus(transitionStore.snapshot().epochs[0], { criticComplete: true, receipt: transitionStore.snapshot().receipts[0] });
   assert.match(consumedStatus, /REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED/);
-  assert.match(consumedStatus, /Next: proof-or-stop review_inventory_begin/);
+  assert.match(consumedStatus, /Next: proof-or-stop session_brief/, 'consumed inventory must not invent another REVIEW cycle');
   assert.throws(
     () => consumeReviewInventoryReceipt(transitionStore as never, storyId, reviewRound, cutoff),
     /REVIEW_INVENTORY_REMEDIATION_BLOCKED/,

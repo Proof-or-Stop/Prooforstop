@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { generateEd25519KeyPair } from '../core/authority-signing.js';
 import {
-  REQUIRED_ASSESSMENT_INVALID, deferralExpiry, dynamicFindingScorecard,
+  REQUIRED_ASSESSMENT_INVALID, FINDING_PROTECTED_SURFACES, deferralExpiry, dynamicFindingScorecard,
   isDynamicFindingBlocking, signApplicabilityAssessment, verifyApplicabilityAssessment,
   verifyAssessmentFreshness, type FindingApplicabilityAssessment,
 } from '../core/finding-applicability.js';
@@ -24,11 +24,18 @@ const now = new Date('2029-01-01T00:00:00.000Z');
 const route = { state: 'accepted' as const, ownerStoryId: 'B-NEXT', receiptState: 'fresh' as const, receiptId: 'route-1', expiresAt: '2030-01-01T00:00:00.000Z' };
 const integrity = { state: 'fresh' as const, storyId: 'B-CURRENT', scopeDigest: 'scope', baseHash: 'base', headHash: 'head', acceptanceDigest: 'acceptance', runtimeReceiptDigest: 'runtime' };
 const finding = (severity = 'high') => ({ status: 'open', severity, evidenceState: 'verified' });
-const decide = (overrides: Record<string, unknown> = {}) => isDynamicFindingBlocking({
+const decide = (overrides: Record<string, unknown> = {}) => {
+  const assessment = Object.hasOwn(overrides, 'assessment') ? overrides.assessment as FindingApplicabilityAssessment | null
+    : { verdict: 'applicable', integrity, proofStrength: 'strong', dispositionPlan: 'repair_current', acceptedRoute: null } as FindingApplicabilityAssessment;
+  // Pure predicate fixture only. The separate runtime integration test exercises
+  // derivation of these fields; a serialized verification label has no authority.
+  return isDynamicFindingBlocking({
   finding: finding(), effectiveBlockingSeverities: ['critical', 'high', 'medium'], round: 1,
-  assessment: { verdict: 'applicable', integrity, proofStrength: 'strong', dispositionPlan: 'repair_current', acceptedRoute: null },
   mode: 'enforce', now, ...overrides,
-});
+  assessment: assessment && { ...assessment, protectedSurfaceEvaluation: FINDING_PROTECTED_SURFACES.map(surface => ({ surface, state: 'clear', evidenceRefs: ['fixture-intent'] })),
+    evidenceVerification: { state: 'verified', proposalDigest: 'fixture-proposal', evidenceDigest: 'fixture-evidence', evaluationScope: 'target_story',
+      introducedByCurrentStory: ['introduced', 'worsened'].includes(assessment.verdict), acceptanceImpact: assessment.gateImpact ?? 'unknown', requiredCommands: [], affectedPaths: [] } },
+}); };
 
 test('strong out-of-scope proof releases unrelated blocker', () => assert.equal(decide({ assessment: { verdict: 'out_of_scope', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, false));
 test('current high regression ignores round decay', () => assert.equal(decide({ round: 3, assessment: { verdict: 'introduced', integrity, proofStrength: 'strong', dispositionPlan: 'repair_current', acceptedRoute: null } }).blocking, true));
@@ -50,7 +57,7 @@ test('high cannot use valid deferral to bypass repair', () => assert.equal(decid
 test('expired deferral fails closed', () => assert.equal(decide({ finding: finding('low'), assessment: { verdict: 'applicable', integrity, proofStrength: 'strong', dispositionPlan: 'defer_with_proof', acceptedRoute: route }, deferral: { state: 'valid', lineageState: 'current', expiresAt: '2028-01-01T00:00:00.000Z' } }).blocking, true));
 test('mandatory repair requires explicit closure', () => assert.equal(decide({ mandatoryRepair: { state: 'required' }, assessment: { verdict: 'pre_existing_unaffected', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, true));
 test('mandatory repair closure releases independent floor', () => assert.equal(decide({ mandatoryRepair: { state: 'closure_proven' }, assessment: { verdict: 'pre_existing_unaffected', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, false));
-test('not-reproduced witness cannot release high floor', () => assert.equal(decide({ assessment: { verdict: 'not_reproduced_under_current_witness', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, true));
+test('strong current negative witness releases transient high floor without a repair obligation', () => assert.equal(decide({ assessment: { verdict: 'not_reproduced_under_current_witness', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, false));
 test('not-reproduced witness cannot release medium after route expiry', () => assert.equal(decide({ finding: finding('medium'), assessment: { verdict: 'not_reproduced_under_current_witness', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: { ...route, receiptState: 'stale' } } }).blocking, true));
 test('fresh signed disproven truth transition releases', () => assert.equal(decide({ assessment: { verdict: 'disproven', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: null } }).blocking, false));
 test('unknown high verdict fails closed', () => assert.equal(decide({ round: 3, assessment: { verdict: 'unknown', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: null } }).blocking, true));
@@ -86,20 +93,20 @@ test('freshness accepts exact current tuple', () => assert.equal(verifyAssessmen
 test('freshness rejects head drift', () => assert.equal(verifyAssessmentFreshness(signed, { storyId: 'B-CURRENT', scopeDigest: 'scope', baseHash: 'base', headHash: 'changed', acceptanceDigest: 'acceptance', runtimeReceiptDigest: 'runtime' }, now), 'mismatched'));
 test('freshness rejects unsigned record', () => assert.equal(verifyAssessmentFreshness(unsigned, { storyId: 'B-CURRENT', scopeDigest: 'scope', baseHash: 'base', headHash: 'head', acceptanceDigest: 'acceptance', runtimeReceiptDigest: 'runtime' }, now), 'unsigned'));
 
-test('scorecard reproduces preregistered 58.33 percent reduction', () => {
+test('scorecard arithmetic is descriptive, not measured savings or safety proof', () => {
   const rows = Array.from({ length: 6 }, (_, index) => ({ findingId: `F-${index}`, severity: 'high', assessmentVerdict: 'applicable' as const,
     dispositionPlan: 'repair_current' as const, gateImpact: 'blocks' as const, decision: decide() }));
-  assert.deepEqual(dynamicFindingScorecard(rows, 12, 5), { total: 6, legacyBlocking: 6, dynamicBlocking: 6, changed: 0, operationReductionPercent: 58.33, missedHighCritical: 0, falseDeferrals: 0 });
+  assert.deepEqual(dynamicFindingScorecard(rows, 12, 5), { total: 6, legacyBlocking: 6, dynamicBlocking: 6, changed: 0, operationReductionPercent: 58.33, missedHighCritical: null, falseDeferrals: null, authority: 'descriptive_only' });
 });
-test('scorecard derives safety misses from rows instead of assuming zero', () => {
+test('self-reported verdicts cannot supply an independent safety denominator', () => {
   const unsafeDecision = { ...decide(), dynamicBlocking: false };
   const rows = [{ findingId: 'F-unsafe', severity: 'high', assessmentVerdict: 'applicable' as const,
     dispositionPlan: 'defer_with_proof' as const, gateImpact: 'blocks' as const, decision: unsafeDecision }];
-  assert.equal(dynamicFindingScorecard(rows).missedHighCritical, 1);
-  assert.equal(dynamicFindingScorecard(rows).falseDeferrals, 1);
+  assert.equal(dynamicFindingScorecard(rows).missedHighCritical, null);
+  assert.equal(dynamicFindingScorecard(rows).falseDeferrals, null);
 });
 
-test('handler atomically persists, replays and projects one signed assessment', () => {
+test('raw handler labels without a current proposal cannot append an assessment', () => {
   const scratch = mkdtempSync(resolve(tmpdir(), 'dynamic-finding-smoke-'));
   try {
     writeFileSync(resolve(scratch, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B', flows: { defaults: {}, patterns: [] }, dynamicFinding: { mode: 'enforce' } }));
@@ -127,32 +134,20 @@ test('handler atomically persists, replays and projects one signed assessment', 
     }, { label: 'dynamic finding smoke seed', requireHolderToken: true });
     const handlers = createFindingApplicabilityHandlers({ store, root: scratch, scanRoot: scratch });
     const request = { storyId, findingId: sourceFinding.id, idempotencyKey: 'assessment-1', verdict: 'introduced' as const, proofStrength: 'strong' as const, dispositionPlan: 'repair_current' as const, gateImpact: 'blocks' as const };
-    const first = handlers.finding_applicability_assess(request);
-    const replay = handlers.finding_applicability_assess(structuredClone(request));
-    assert.equal(first.assessment.assessmentId, replay.assessment.assessmentId);
-    assert.equal(handlers.finding_triage({ storyId }).rows[0]?.decision.reason, 'mandatory_repair_floor');
-    assert.throws(() => handlers.finding_applicability_assess({ ...request, verdict: 'unknown' }), /IDEMPOTENCY_CONFLICT/);
+    const originalDigest = store.readFindingLedger(storyId).committedLedgerDigest;
+    assert.throws(() => handlers.finding_applicability_assess(request), /receipted assessment proposal/);
     const batchRequest = { storyId, idempotencyKey: 'batch-1', items: [sourceFinding.id, secondFinding.id].map(findingId => ({
       findingId, verdict: 'introduced' as const, proofStrength: 'strong' as const,
       dispositionPlan: 'repair_current' as const, gateImpact: 'blocks' as const,
     })) };
-    const batch = handlers.finding_applicability_batch(batchRequest);
-    const batchReplay = handlers.finding_applicability_batch(structuredClone(batchRequest));
-    assert.equal(batch.assessments.length, 2);
-    assert.equal(batch.manifest.manifestId, batchReplay.manifest.manifestId);
-    assert.equal(store.readFindingLedger(storyId).receipts.filter(row => row.idempotencyKey === 'dynamic-batch:batch-1').length, 1);
-    writeFileSync(resolve(scratch, 'material.txt'), 'changed\n');
-    execFileSync('git', ['add', 'material.txt'], { cwd: scratch });
-    execFileSync('git', ['commit', '-m', 'material drift'], { cwd: scratch, stdio: 'ignore' });
-    assert.equal(handlers.finding_triage({ storyId }).rows[0]?.decision.reason, 'assessment_integrity_floor');
-    const refreshed = handlers.finding_applicability_assess({ ...request, idempotencyKey: 'assessment-2' });
-    assert.ok('reattestation' in refreshed);
-    assert.equal(handlers.finding_triage({ storyId }).rows[0]?.decision.reason, 'mandatory_repair_floor');
+    assert.throws(() => handlers.finding_applicability_batch(batchRequest), /receipted assessment proposal/);
+    assert.equal(store.readFindingLedger(storyId).committedLedgerDigest, originalDigest);
     const flattened = Object.fromEntries(Object.entries(handlers)) as { finding_rollout_scorecard: typeof handlers.finding_rollout_scorecard };
     const { finding_rollout_scorecard: detachedRolloutScorecard } = flattened;
     const rollout = detachedRolloutScorecard({ storyId }) as ReturnType<typeof handlers.finding_rollout_scorecard>;
-    assert.equal(rollout.scorecard.missedHighCritical, 0);
-    assert.equal(rollout.scorecard.falseDeferrals, 0);
+    assert.equal(rollout.scorecard.missedHighCritical, null);
+    assert.equal(rollout.scorecard.falseDeferrals, null);
+    assert.equal(rollout.qualification.qualification.eligible, false);
     assert.equal(rollout.rows.length, 2);
   } finally { rmSync(scratch, { recursive: true, force: true }); }
 });

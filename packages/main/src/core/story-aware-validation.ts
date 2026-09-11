@@ -693,6 +693,7 @@ export interface ValidationSingletonContribution {
   commandIds: string[];
 }
 export interface ValidationSelectionManifest {
+  findingConstraintDigest?: string;
   schema: typeof VALIDATION_SELECTION_SCHEMA; storyId: string; baseHead: string; head: string; changeDigest: string;
   scopeContractDigest: string; catalogDigest: string; inventoryDigest: string; dependencyGraphDigest: string;
   closureCertificateSetDigest: string; toolchainDigest: string; buildProofDigest: string; canonicalBaselineEpochId: string;
@@ -702,6 +703,7 @@ export interface ValidationSelectionManifest {
   escalationReasons: string[]; fullEscalated: boolean; mode: DynamicValidationMode; signature: string;
 }
 export interface DynamicValidationContext {
+  findingConstraints?: import('./finding-validation.js').FindingValidationConstraints;
   storyId: string; baseHead: string; head: string; inventory: ValidationInventory | ValidationInventoryCommand[];
   projectRoot?: string;
   catalog: ValidationCatalogEntry[]; changes: StoryChangeManifest;
@@ -840,6 +842,22 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     if (!row) throw new Error('pinned command absent: ' + pin);
     select(row.id, 'verification-intent-pin', 'pin:' + pin);
   }
+  if (ctx.findingConstraints) {
+    if (ctx.findingConstraints.authority === 'shadow_only') throw new Error('dynamic finding: shadow comparison cannot authorize validation selection');
+    if (ctx.findingConstraints.storyId !== ctx.storyId || ctx.findingConstraints.scopeExpansionAuthorized !== false
+      || !ctx.findingConstraints.digest) throw new Error('dynamic finding constraints have invalid scope/identity');
+    for (const command of ctx.findingConstraints.requiredCommands) {
+      const row = inventory.find(row => row.id === command || row.command === command);
+      if (!row) throw new Error('finding-required command absent from reviewed inventory: ' + command);
+      select(row.id, 'dynamic-finding-required', 'finding:' + ctx.findingConstraints.digest);
+    }
+    for (const path of ctx.findingConstraints.affectedPaths) {
+      const affected = ctx.catalog.filter(entry => [...(entry.inputRoots || []), ...(entry.triggerExtensions.files || [])]
+        .some(pattern => matchesPath(path, [pattern])));
+      if (!affected.length) unmapped.push(path);
+      for (const entry of affected) select(entry.id, 'dynamic-finding-impact:' + path, 'finding-path:' + path);
+    }
+  }
   for (const change of ctx.changes.changedFiles) {
     const direct = ctx.catalog.filter(entry => [...(entry.inputRoots || []), ...(entry.triggerExtensions.files || [])].some(path => matchesPath(change.path, [path]))).map(entry => entry.id);
     const graph = ctx.graph ? ctx.graph.commandsAffectedBy(change) : [];
@@ -854,6 +872,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     if (entry.closurePolicy === 'never-reuse') select(entry.id, 'never-reuse-policy', 'never-reuse-policy');
   }
   const escalationReasons = uniqueSorted([...classifyFullValidationReasons(ctx.changes, ctx.catalog), ...ctx.changes.changedFiles.flatMap(change => ctx.graph ? ctx.graph.authorityReasons(change) : ['authority-graph-unavailable']), ...unmapped.map(path => 'unmapped-change:' + path)]);
+  escalationReasons.push(...(ctx.findingConstraints?.reassessFindingIds ?? []).map(id => 'finding-reassessment-required:' + id));
   // Normative full-only semantics: an impacted full-only command escalates the
   // complete plan. An unimpacted command may avoid that escalation only when
   // its policy permits an exact canonical baseline receipt in this epoch.
@@ -953,6 +972,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     receiptRevocationLedgerDigest: ctx.revocationLedger ? ctx.revocationLedger.digest : stableDigest({}),
     changedFiles: ctx.changes.changedFiles, rows, singletonContributions, totals, escalationReasons: uniqueSorted(escalationReasons),
     fullEscalated, mode: ctx.mode || 'observe',
+    ...(ctx.findingConstraints ? { findingConstraintDigest: ctx.findingConstraints.digest } : {}),
   };
   return { ...body, signature: signPayload(body) };
 }
@@ -1001,6 +1021,7 @@ export function assertSelectionIsSingletonUnionMonotonic(context: DynamicValidat
   if (manifest.totals.unverified !== 0 || manifest.totals.uncovered !== 0) throw new Error('selection monotonicity cannot be certified with gaps');
   if (!verifyValidationSelectionManifest(manifest, { storyId: context.storyId, head: context.head, baseHead: context.baseHead })) throw new Error('selection monotonicity manifest is invalid');
   const expected = buildDynamicValidationPlanInternal(context);
+  if (manifest.findingConstraintDigest !== expected.findingConstraintDigest) throw new Error('selection Finding evidence binding changed');
   const expectedRows = expected.rows.map(row => ({ commandId: row.commandId, disposition: row.disposition, reasons: row.reasons, inputDigest: row.inputDigest, receiptId: row.receiptId, closureCertificateDigest: row.closureCertificateDigest }));
   const actualRows = manifest.rows.map(row => ({ commandId: row.commandId, disposition: row.disposition, reasons: row.reasons, inputDigest: row.inputDigest, receiptId: row.receiptId, closureCertificateDigest: row.closureCertificateDigest }));
   if (stableDigest(actualRows) !== stableDigest(expectedRows)) throw new Error('selection monotonicity manifest does not match authoritative recomputation');

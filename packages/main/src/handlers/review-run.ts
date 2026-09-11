@@ -37,7 +37,7 @@ import {
   buildFullTaskContext,
   verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
-import { reviewIncrementalContext } from '../core/review-incremental-context.js';
+import { reviewIncrementalContext, resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
 import { currentOpenReviewInventory, assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { assertReviewInventoryContextFreshLocked, requireInventoryCriticSubjectLocked } from './review-inventory.js';
 
@@ -325,7 +325,9 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             }))
             .sort((left, right) => left.id.localeCompare(right.id));
           const selectedRoleContract = promptRoleContract(lane, inventoryResponsibility ? 'inventory-completeness' : undefined);
+          const fullStoryBaseHead = resolveFullStoryBaseHead(store, signedWorkspaceRoot, args.storyId);
           const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane, {
+            fullStoryBaseHead,
             roleSemanticDigest: selectedRoleContract.semanticDigest,
             findingsCutoffAt: startedAt,
             passesCutoffAt: startedAt,
@@ -363,6 +365,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             eligibilityReasonCodes: incremental.eligibilityReasonCodes,
             freshnessClassification: incremental.freshnessClassification,
             impactPolicyVersion: incremental.impactPolicyVersion,
+            fullStoryBaseHead,
             priorPassRef: incremental.priorPassRef ?? undefined,
             changedFilesDigest: incremental.changedFilesDigest,
             impactedFilesDigest: incremental.impactedFilesDigest,

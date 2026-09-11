@@ -1,0 +1,60 @@
+{
+  "sessionId": "f2828488-afa4-4406-beb4-5796ac907302",
+  "capturedFrom": "Actual Claude CLI Bash task output files; no reasoning transcript included",
+  "commands": [
+    {
+      "command": "node packages/main/tests/red/red-lab-b03b7-validation-baseline-convergence.mjs",
+      "log": "bc2x4h33i.output",
+      "exitCode": 0,
+      "sha256": "07fe611ff9d92eecb11ccda066de48a26753f074ded68077f904cf614b4fca0f"
+    },
+    {
+      "command": "node scripts/verify-inventory-next-action.mjs",
+      "log": "b4ra2qo3y.output",
+      "exitCode": 0,
+      "sha256": "d6709ac49c3e6f72970b264e464b2954f1dfa9505a9777fbeec83e4d36a37399"
+    },
+    {
+      "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+      "log": "bbgwzrgxg.output",
+      "exitCode": 0,
+      "sha256": "fe392a08cfea8572e476a14495534c8e7b0ab10db59038f871f498ae3968ffba"
+    },
+    {
+      "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+      "log": "bkadsnvt2.output",
+      "exitCode": 0,
+      "sha256": "a6d630d7b6a7c6a0bb1896e30fcc5dc1c39e5607755779f6d44e7db2d0dedab1"
+    },
+    {
+      "command": "node scripts/verify-lab-lock-scope.mjs",
+      "log": "biufoegdo.output",
+      "exitCode": 0,
+      "sha256": "1adc1ac4aa56a49d74c4c52b0391b8eec14a621bfbe84d9f8f42d7feb2269b99"
+    },
+    {
+      "command": "npm run test:dynamic-finding-evidence-closure",
+      "log": "buivnk6jl.output",
+      "exitCode": 0,
+      "sha256": "c1ce5172ed7c61bba777f59ead6d9fc096eb3e8c1aa3bb69f44583d41c345f2b"
+    },
+    {
+      "command": "npm run test:repro-evidence-binding-dev-gate",
+      "log": "bdbwmv5al.output",
+      "exitCode": 0,
+      "sha256": "4bea736a1d3b41983cc2878d9db1f676e7737733f69e53bae3ad736b7c79aaf9"
+    },
+    {
+      "command": "node scripts/verify-validation-reuse-proof.mjs",
+      "log": "b31e3mu7s.output",
+      "exitCode": 0,
+      "sha256": "28875b5fe2de834c30c2c678c99d05a4a6d2a1aa13ff75f4c07da3e40c1ef2e9"
+    },
+    {
+      "command": "node scripts/verify-external-worktree-go-pre-review.mjs",
+      "log": "brujk8ini.output",
+      "exitCode": 0,
+      "sha256": "e7070b78f8824d23768787bd6eca894134dfe57044d55d0bdf140230eb2e6e98"
+    }
+  ]
+}

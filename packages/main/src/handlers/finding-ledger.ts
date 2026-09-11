@@ -29,7 +29,8 @@ import type { StoryStore } from '../core/store.js';
 import { FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT } from '../core/finding-runtime-evidence.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { withFindingRuntimeSource } from './finding-runtime-source.js';
+import { currentGitHead, currentMaterialHash, readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import { readOwnerLease } from '../core/story-owner-lease.js';
 import { captureMkdirLockFence, withMkdirLock } from '../core/mkdir-lock.js';
@@ -921,6 +922,7 @@ const PROPOSAL_VARIANT_KEYS: Record<string, string[]> = {
   out_of_scope: ['excludedScopeProofDigest'],
   duplicate: ['canonicalDefectRef'],
   not_reproduced_under_current_witness: ['currentWitness'],
+  disproven: ['currentWitness'],
   unknown: [],
 };
 const PROPOSAL_ENVELOPE_TEXT_KEYS = [
@@ -1010,17 +1012,20 @@ function proposalExactUnionValid(proposal: Record<string, unknown>): boolean {
   const basis = proposal.basis;
   if (verdict === 'applicable') {
     const witness = proposal.currentWitness;
-    return owner === 'current_story' && (basis === 'introduced_by_diff' || basis === 'direct_scope')
+    return owner === 'current_story' && (basis === 'introduced_by_diff' || basis === 'worsened_by_diff' || basis === 'direct_scope')
       && proposalObjectShape(witness, ['receiptIds', 'reproduced'])
       && witness.reproduced === true && nonEmptyTextArray(witness.receiptIds);
   }
   if (verdict === 'pre_existing_unaffected') {
     const baseHead = proposal.baseHead;
     return (owner === 'meta' || owner === 'other_story') && basis === 'base_head_reproduction'
-      && proposalObjectShape(baseHead, ['baseRef', 'baseResult', 'headRef', 'headResult', 'receiptIds', 'worsenedByStory'])
+      && proposalObjectShape(baseHead, ['baseRef', 'baseResult', 'headRef', 'headResult', 'receiptIds', 'worsenedByStory'], ['baseReceiptId', 'headReceiptId', 'pairDigest'])
       && nonEmptyText(baseHead.baseRef) && baseHead.baseResult === 'reproduced'
       && nonEmptyText(baseHead.headRef) && baseHead.headResult === 'reproduced'
-      && baseHead.worsenedByStory === false && nonEmptyTextArray(baseHead.receiptIds);
+      && baseHead.worsenedByStory === false && nonEmptyTextArray(baseHead.receiptIds)
+      && (!Object.hasOwn(baseHead, 'pairDigest') || (typeof baseHead.pairDigest === 'string' && /^[a-f0-9]{64}$/.test(baseHead.pairDigest)
+        && typeof baseHead.baseReceiptId === 'string' && typeof baseHead.headReceiptId === 'string'
+        && baseHead.baseReceiptId !== baseHead.headReceiptId));
   }
   if (verdict === 'out_of_scope') {
     return (owner === 'meta' || owner === 'other_story') && basis === 'decision_scope'
@@ -1034,9 +1039,9 @@ function proposalExactUnionValid(proposal: Record<string, unknown>): boolean {
       && nonEmptyText(defect.canonicalOwner)
       && proposalTextObject(defect.currentCanonicalFinding, ['findingId', 'hash', 'recordId', 'storyId']);
   }
-  if (verdict === 'not_reproduced_under_current_witness') {
+  if (verdict === 'not_reproduced_under_current_witness' || verdict === 'disproven') {
     const witness = proposal.currentWitness;
-    return (owner === 'meta' || owner === 'other_story') && basis === 'counter_evidence'
+    return ((verdict === 'disproven' && owner === 'current_story') || owner === 'meta' || owner === 'other_story') && basis === 'counter_evidence'
       && proposalObjectShape(witness, [
         'commandPolicyDigest', 'negativeWitnessDigest', 'receiptIds',
         'reproduced', 'runtimeEvidenceDigest',
@@ -1208,6 +1213,7 @@ export interface RuntimeEvidenceCommandSpec {
 
 export interface FindingRuntimeEvidenceRunArgs {
   storyId: string;
+  sourceRef?: string;
   idempotencyKey: string;
   buildCommand: RuntimeEvidenceCommandSpec;
   executionCommand: RuntimeEvidenceCommandSpec;
@@ -1966,6 +1972,71 @@ function runtimeExpectedState(
   };
 }
 
+/** Historical reproduction only: never a current GREEN/runtime-freshness claim. */
+export function readHistoricalFindingRuntimeEvidence(ctx: HandlerContext, storyId: string, receiptId: string) {
+  const ledger = ctx.store.readFindingLedger<JsonValue>(storyId);
+  const record = ledger.records.find(row => row.recordType === 'runtime_evidence_receipt'
+    && (row.payload as unknown as RuntimeEvidenceReceipt).receiptId === receiptId);
+  if (!record || !verifyRuntimeReceiptCarrier(ledger, storyId, record, findingLedgerTrustFromWorkspace(ctx.root))) throw new Error('runtime-evidence: trusted historical carrier missing');
+  const receipt = record.payload as unknown as RuntimeEvidenceReceipt;
+  if (!verifyRuntimeEvidenceReceiptSignature(receipt, runtimeTrustFromWorkspace(ctx.root))) throw new Error('runtime-evidence: historical signature invalid');
+  const blobs = createRuntimeEvidenceBlobStore(ctx.root);
+  for (const ref of [receipt.buildCommand, receipt.executionCommand, receipt.stdout, receipt.stderr, receipt.environment, receipt.artifactManifest]) {
+    if (!blobs.get(ref)) throw new Error('runtime-evidence: historical blob missing');
+  }
+  return { receipt, record, stdout: blobs.get(receipt.stdout)!.toString('utf8') };
+}
+
+/** Read-only Story 3B port. Consumers cannot replace trust, command bytes or output. */
+export function readCurrentFindingRuntimeEvidence(ctx: HandlerContext, storyId: string, receiptId: string) {
+  return readFindingRuntimeEvidenceForReader(ctx, storyId, receiptId, false);
+}
+
+/** Closure reuse is narrower than a fresh execution claim. Only a clean,
+ * material-identical descendant may retain the original execution HEAD;
+ * environment, artifacts, toolchain, policy, blobs and key status are rechecked. */
+export function readMaterialBoundRepairRuntimeEvidence(ctx: HandlerContext, storyId: string, receiptId: string) {
+  return readFindingRuntimeEvidenceForReader(ctx, storyId, receiptId, true);
+}
+/** Re-attestation already executed at its bound material revision. A later
+ * metadata-only commit may reuse it, never relabel it as a new execution. */
+export function readMaterialBoundReattestationRuntimeEvidence(ctx: HandlerContext, storyId: string, receiptId: string) {
+  return readFindingRuntimeEvidenceForReader(ctx, storyId, receiptId, true);
+}
+function readFindingRuntimeEvidenceForReader(ctx: HandlerContext, storyId: string, receiptId: string, closureReuse: boolean) {
+  const ledger = ctx.store.readFindingLedger<JsonValue>(storyId);
+  const record = ledger.records.find(row => row.recordType === 'runtime_evidence_receipt'
+    && (row.payload as unknown as RuntimeEvidenceReceipt).receiptId === receiptId);
+  if (!record || !verifyRuntimeReceiptCarrier(ledger, storyId, record, findingLedgerTrustFromWorkspace(ctx.root))) {
+    throw new Error('runtime-evidence: trusted receipt carrier missing');
+  }
+  const receipt = record.payload as unknown as RuntimeEvidenceReceipt;
+  const currentHead = currentGitHead(ctx.root) ?? '';
+  const material = currentMaterialHash(ctx.root, 'HEAD', ctx.root) ?? '';
+  if (closureReuse) {
+    const dirty = readMaterialDirtyFiles(ctx.root, ctx.root);
+    if (dirty.error || dirty.files.length || !material || receipt.sourceMaterialHash !== material) throw new Error('runtime-evidence: repair material stale');
+    execFileSync('git', ['merge-base', '--is-ancestor', receipt.headHash, currentHead], { cwd: ctx.root, stdio: 'pipe' });
+  }
+  const blobStore = createRuntimeEvidenceBlobStore(ctx.root);
+  const parse = (ref: RuntimeEvidenceReceipt['buildCommand']) => {
+    const bytes = blobStore.get(ref); if (!bytes) throw new Error('runtime-evidence: command blob missing');
+    return JSON.parse(bytes.toString('utf8'));
+  };
+  const environment = parse(receipt.environment) as Record<string, string>;
+  const buildCommand = parse(receipt.buildCommand); const executionCommand = parse(receipt.executionCommand);
+  const verified = verifyRuntimeEvidenceCurrent(receipt, {
+    storyId, headHash: closureReuse ? receipt.headHash : currentHead, sourceMaterialHash: material,
+    buildPolicyDigest: RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST, buildCommand, executionCommand,
+    environment: runtimeEnvironment({ environmentAllowlist: Object.keys(environment), excludedEnvironmentVariables: receipt.environment.excludedVariableNames }),
+    toolchain: runtimeToolchain(receipt.toolchain.compilerVersion), trust: runtimeTrustFromWorkspace(ctx.root), blobStore,
+    artifactRoot: ctx.root, producer: 'finding_runtime_evidence_run',
+  });
+  if (!verified.valid) throw new Error(`runtime-evidence: ${verified.refusal}`);
+  const stdout = blobStore.get(receipt.stdout); if (!stdout) throw new Error('runtime-evidence: stdout missing');
+  return { receipt, record, executionCommand, stdout: stdout.toString('utf8') };
+}
+
 export function createFindingLedgerHandlers(ctx: HandlerContext) {
   return {
     finding_ledger_query(args: FindingLedgerQueryArgs) {
@@ -2009,14 +2080,15 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300_000) {
         throw new Error('timeoutMs must be an integer from 1 to 300000');
       }
-      return withCanonicalBuildLock(ctx.root, () => {
+      const run = () => withFindingRuntimeSource(ctx.root, args.sourceRef, executionRoot => withCanonicalBuildLock(executionRoot, () => {
       args.afterCanonicalBuildLockForTest?.();
       const signer = runtimeEvidenceSignerFromWorkspace(ctx.root);
       const ledgerSigner = findingLedgerSignerFromWorkspace(ctx.root);
       const ledgerTrust = currentFindingLedgerTrustFromWorkspace(ctx.root);
       if (!ledgerTrust) throw new RuntimeEvidenceRefusal('unknown_signing_key');
       const trust = runtimeTrustFromWorkspace(ctx.root);
-      const expected = runtimeExpectedState(ctx, args, trust);
+      const expected = { ...runtimeExpectedState({ ...ctx, root: executionRoot }, args, trust),
+        blobStore: createRuntimeEvidenceBlobStore(ctx.root, args.storageCapability) };
       const findingLockDir = ctx.store.storyFilePath(args.storyId, 'findings.lock');
       const replay = withMkdirLock(findingLockDir, () => runtimeReplay(ctx, args, ledgerTrust, expected), {
         label: 'runtime receipt replay lookup', requireHolderToken: true,
@@ -2048,14 +2120,14 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
           environment: expected.environment,
           toolchain: expected.toolchain,
           producer: expected.producer,
-          root: ctx.root,
+          root: executionRoot,
           artifactInputs: args.artifactPaths.map((path) => ({ path, sourceHead: expected.headHash })),
           blobStore: expected.blobStore,
           receiptId: `rer_${canonicalDigest({ storyId: args.storyId, idempotencyKey: args.idempotencyKey }).slice(0, 32)}`,
           run: () => runRuntimeCommand(expected.executionCommand, childEnvironment, timeoutMs),
         }, signer);
-        if (currentGitHead(ctx.root) !== expected.headHash
-          || currentMaterialHash(ctx.root, 'HEAD', ctx.root) !== expected.sourceMaterialHash) {
+        if (currentGitHead(executionRoot) !== expected.headHash
+          || currentMaterialHash(executionRoot, 'HEAD', executionRoot) !== expected.sourceMaterialHash) {
           throw new RuntimeEvidenceRefusal('source_stale');
         }
 
@@ -2099,7 +2171,10 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
         failFastIfHeld: true,
         heldMessage: 'runtime-evidence: build_in_progress',
       });
-      });
+      }));
+      // Historical worktrees isolate artifacts, but owner-side runtime/build
+      // publication must still exclude a concurrent current-head producer.
+      return args.sourceRef ? withCanonicalBuildLock(ctx.root, run) : run();
     },
 
     finding_runtime_evidence_verify(args: FindingRuntimeEvidenceVerifyArgs) {
