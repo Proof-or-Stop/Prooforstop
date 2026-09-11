@@ -817,6 +817,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     consumerGate: 'validate verification coverage and freshness gates after heartbeat-protected abort-atomic execution: batch command/cwd/effective-timeout/environment plus HEAD/material/story-files identity shares one process while each intent retains independent selector evaluation; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   verification_evidence_refresh_stale: {
+    // Explicit dry-run is an unsigned observation; only execution produces this artifact.
     name: 'checklist.json',
     path: 'checklist.json',
     signed: false,

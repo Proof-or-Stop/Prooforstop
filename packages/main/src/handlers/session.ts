@@ -1250,7 +1250,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           // so we do NOT re-render a redundant "guard session" line here. Only the
           // actionable violation detail below adds new information.
           if (guardSession && guardSession.status === 'violations_detected' && guardSession.violations.length > 0) {
-            lines.push(`  ${guardSession.violations.length} forbidden write(s) under story scope protection — run proof-or-stop guard_session_check for detail.`);
+            lines.push(`  ${guardSession.violations.length} forbidden write(s) under story scope protection — run proof-or-stop guard_session_status --storyId=${storyId} for recorded detail.`);
           }
         }
       } catch { /* probe — never block session_brief on scope-summary render failure */ }

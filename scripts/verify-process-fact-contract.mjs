@@ -9220,7 +9220,7 @@ function assertStoryWriterRuntimeAdmissionContract() {
   const policyEntries = parseCommandPolicyEntries();
   const crossOwnershipEffects = new Map([
     ['story_create', 'always'],
-    ['story_reconcile', 'always'],
+    ['story_reconcile', 'whenDryRunFalse'],
     ['identity_state_migrate', 'whenConfirm'],
     ['story_discard', 'always'],
     ['story_draft_discard', 'always'],
@@ -11147,6 +11147,16 @@ try {
   assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');
 } catch (error) {
   assert(false, `reviewer read boundary executable proof failed: ${error.message}`);
+}
+
+// Real preview calls, parameter admission, protected writer negatives and reader guidance.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-maintenance-preview-boundaries.mjs')], {
+    cwd: root, encoding: 'utf8', timeout: 120000,
+  });
+  assert(output.includes('MAINTENANCE_PREVIEW_GREEN'), 'maintenance preview executable proof must pass');
+} catch (error) {
+  assert(false, `maintenance preview executable proof failed: ${error.message}`);
 }
 
 if (failures.length) {

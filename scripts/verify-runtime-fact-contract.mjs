@@ -264,7 +264,7 @@ async function main() {
   check(commandPolicySource.includes("'storyWriteEffect' in policy && policy.storyWriteEffect !== undefined"), 'Story-write capability registry must derive cross-class writers from declared effects');
   for (const [command, effect] of [
     ['story_create', 'always'],
-    ['story_reconcile', 'always'],
+    ['story_reconcile', 'whenDryRunFalse'],
     ['identity_state_migrate', 'whenConfirm'],
     ['story_discard', 'always'],
     ['story_draft_discard', 'always'],

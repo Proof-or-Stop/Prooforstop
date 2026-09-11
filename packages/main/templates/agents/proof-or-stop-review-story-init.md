@@ -110,3 +110,14 @@ Read `items[].title` and `items[].context` in checklist.json and perform mechani
 - Do not pass judgement on plan / decision / scope (those are the PLAN-phase reviewer's responsibility and outside your review scope)
 
 <!-- proof-or-stop:story-init-legacy-tail:v1 -->
+
+
+### Reading diagnostics while another session owns the Story
+
+Use `init_preflight --storyId=B-xxxx` to inspect current INIT prerequisites.
+`scope_freeze_check` produces evidence and remains an owner operation.
+Use `codex doctor` for observational adapter diagnostics; `codex verify` runs
+heartbeats and publishes verification evidence. To inspect an existing rollout
+report, use `acceptance_rollout_report_read --storyId=B-xxxx --json`.
+A JSON output flag does not make a producer read-only. Do not take over a lease
+just to retrieve diagnostics or recorded guard details (`guard_session_status`).

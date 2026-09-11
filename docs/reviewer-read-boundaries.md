@@ -55,3 +55,31 @@ The default managed-check reviewer refusal was a separate isolated reproduction.
 These are invocation counts, not defect counts or measured delay. The regression
 replays the failure classes with current production code, not the old Story
 state, and does not establish end-to-end Story speedup.
+
+## Maintenance previews and diagnostic guidance
+
+The following preview calls use the same strict mode resolver in raw CLI admission
+and typed handlers. They never acquire an owner lease or publish business evidence.
+Runtime activity logging remains permitted. Snapshot reports are observations and
+must not be used as newly issued gate evidence.
+
+| Reader operation | Execute mode and authority |
+|---|---|
+| `story_reconcile --dryRun` or default | `--dryRun=false` repairs under the shared main write lock |
+| `quorum_prune --dryRun` or default | `--apply` or `--dryRun=false` requires the Story owner and the existing transactional protections |
+| `capability_release_backfill --dryRun` or default | Explicit `--apply` still requires the current plan digest; `--dryRun=false` alone retains the existing preview behavior |
+| `verification_evidence_refresh_stale --storyId=B-xxxx --dryRun` | Omitting dryRun (or false) remains an owner write and may execute pinned verification commands |
+| `guard_session_status --storyId=B-xxxx` | `guard_session_check` rechecks the diff and writes recorded state |
+| `init_preflight --storyId=B-xxxx` | `scope_freeze_check` generates frozen scope evidence; preflight only inspects prerequisites |
+| `codex doctor` | `codex verify` executes heartbeats and records verification evidence |
+| `acceptance_rollout_report_read --storyId=B-xxxx --json` | `acceptance_rollout_report` produces a new signed report, including when json is requested |
+
+Conflicting apply/preview combinations and invalid boolean values fail before
+handler IO. Quorum recovery also rejects apply:false combined with dryRun:false.
+The three historical protected writers retain their authority; their refusal
+messages now identify a directly usable observation command with its limits.
+
+`npm run test:maintenance-preview-boundaries` runs isolated actual CLI calls with
+independent owner/reviewer identities, populated stale diagnostic input, unchanged
+Story/lease bytes, protected execute attempts, and parameter boundary checks.
+This proves maintenance read behavior, not whole-Story delivery speed.

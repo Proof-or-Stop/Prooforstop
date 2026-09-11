@@ -1,3 +1,4 @@
+import { isMaintenancePreviewCommand, maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { StoryStore } from '../core/store.js';
@@ -131,6 +132,10 @@ export function resolveEffectiveOwnershipClass(
   const declaredClass = policy?.ownershipClass ?? externalOwnershipClasses?.[cmd];
   if (!isOwnershipClass(declaredClass)) return null;
   let cls: OwnershipClass = declaredClass;
+
+  if (isMaintenancePreviewCommand(cmd)) {
+    return maintenanceCommandWrites(cmd, args, true) ? declaredClass : 'readOnly';
+  }
 
   if (['finding_resolve', 'finding_dismiss', 'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture'].includes(cmd)
     && storyId && storyId.startsWith('B-META-')) {
@@ -509,7 +514,11 @@ export function enforceStoryOwnerLeaseGate(
 
 /** Actionable reader recovery, never a substitute for a scoped/purpose-bound dispatch. */
 export function reviewerReadRecoveryHint(cmd: string, args: Record<string, unknown>, storyId?: string | null): string {
-  if (!storyId || !isCanonicalStoryId(storyId) || !['agent_prompt', 'dispatch'].includes(cmd)) return '';
+  if (cmd === 'verify_codex') return '\nRead-only diagnostics: proof-or-stop codex doctor (does not run verification heartbeats or publish evidence)';
+  if (!storyId || !isCanonicalStoryId(storyId)) return '';
+  if (cmd === 'scope_freeze_check') return `\nRead-only prerequisites: proof-or-stop init_preflight --storyId=${storyId} (does not generate a freeze proof)`;
+  if (cmd === 'acceptance_rollout_report') return `\nRead-only existing report: proof-or-stop acceptance_rollout_report_read --storyId=${storyId} --json (does not generate new rollout evidence)`;
+  if (!['agent_prompt', 'dispatch'].includes(cmd)) return '';
   if (['itemId', 'findingId', 'clusterId', 'reviewPurpose', 'inventoryEpochId'].some(key => args[key] !== undefined)) return '';
   const actor = cmd === 'agent_prompt' ? args.role : args.agentType;
   const entry = resolveRegisteredAgentActor(typeof actor === 'string' ? actor : undefined);
