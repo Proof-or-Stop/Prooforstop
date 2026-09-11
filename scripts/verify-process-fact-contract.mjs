@@ -11163,3 +11163,16 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
+
+// Structural inventory protection; executable behavior and mutation witnesses live in the focused Lab regression.
+for (const [path, tokens] of [
+ ['packages/main/src/core/plan-touchpoint-coverage.ts',['projectProcessFactRegistry','signValidationArtifact','verifyValidationArtifact','validateOwnerDispositions']],
+ ['packages/main/src/handlers/scope-check.ts',['signPlanOwnerCoverage','dispatched-env']],
+ ['packages/main/src/handlers/story-review.ts',['planOwnerCoverageFailure']],
+ ['packages/main/src/core/machine.ts',['planOwnerCoverageFailure']],
+ ['packages/main/src/handlers/story-dispatch.ts',['ownerDispositions']],
+]) for (const token of tokens) assert(read(path).includes(token), 'Missing selected owner contract: '+path+':'+token);
+
+for (const file of ['process-fact-registry','command-policy','process-fact-levels','flow-fact-policy']) {
+  assert(read('packages/main/src/core/plan-touchpoint-coverage.ts').includes('packages/main/src/core/'+file+'.ts'), 'Unbound registry projection input: '+file);
+}

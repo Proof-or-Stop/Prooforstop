@@ -16,7 +16,7 @@ import { storyScopeBudgetBlocker } from '../core/story-scope-budget.js';
  *   - [CHK-001] Require qualified items to carry observable userSees plus happy/edge/adversarial verification intent in strict paths
  */
 
-import { assessPlanTouchpointCoverage } from '../core/plan-touchpoint-coverage.js';
+import { assessPlanTouchpointCoverage, planOwnerCoverageFailure } from '../core/plan-touchpoint-coverage.js';
 import type { HandlerContext } from './context.js';
 import type { StoryInfo, ScopeContractData } from '../core/types.js';
 import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
@@ -511,6 +511,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         if (policy.profile === 'balanced' && hasDesignDocs && !isHighRisk) return false;
         return true;
       })();
+      const ownerFailure = planOwnerCoverageFailure(store, ctx.root, args.storyId);
+      if (ownerFailure) issues.push({type:'plan_owner_coverage_invalid',severity:'blocker',message:ownerFailure});
       const understanding = store.readUnderstanding(args.storyId);
       const grill = store.readGrill(args.storyId);
       if (grill) {

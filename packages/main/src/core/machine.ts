@@ -1,3 +1,4 @@
+import { planOwnerCoverageFailure } from './plan-touchpoint-coverage.js';
 import { convergenceProgressUnavailable } from './convergence-progress-gate.js';
 import { acceptanceCompletionBlocker } from './acceptance-amendment-gates.js';
 import { storyScopeBudgetBlocker } from './story-scope-budget.js';
@@ -736,6 +737,7 @@ function formatParallelDecompositionBlock(
 }
 
 export function canStartDevGuard(context: StoryMachineContext): boolean {
+  if (planOwnerCoverageFailure(context.store, context.projectRoot, context.storyId)) return false;
   if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
   try {
@@ -1307,6 +1309,10 @@ export function getGuardFailureReason(
   projectRoot?: string,
   gitCwd?: string,
 ): string | null {
+  if (targetPhase === 'DEV' && store.readStory(storyId).phase === 'PLAN') {
+    const ownerFailure = planOwnerCoverageFailure(store, projectRoot ?? process.cwd(), storyId);
+    if (ownerFailure) return ownerFailure;
+  }
   // B-e71f CHK-005: INIT→INIT_CHECK hard gate.
   // Only enabled when story.phase === 'INIT'; other sources such as IDEA→INIT_CHECK are not gated.
   // Missing init-check.json → missing_init_check; _hash mismatch → init_check_tampered.
