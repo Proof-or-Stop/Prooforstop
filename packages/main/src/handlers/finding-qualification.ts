@@ -13,7 +13,8 @@ import { identityStoryContext, historicalStoryContext, identityTrust, verifiedId
 import { readCurrentFindingRuntimeEvidence, readHistoricalFindingRuntimeEvidence, exactLedgerRecordHash } from './finding-ledger.js';
 import type { JsonValue } from '../core/finding-ledger.js';
 import { findingWitnessCommandText } from './finding-applicability-proof.js';
-import { createFindingLedgerHandlers } from './finding-ledger.js';
+import { createFindingLedgerHandlers, findingLedgerTrustFromWorkspace, verifyFindingLedgerQueryRow } from './finding-ledger.js';
+import { canonicalHash } from '../core/finding-ledger.js';
 import { createFindingHistoryHandlers } from './finding-history.js';
 import { collectFindingQualificationEvents, sumQualificationCohortTiming, type QualificationExperimentRef, type QualificationGold } from './finding-qualification-events.js';
 import { collectQualificationSubjectAdjudications, type QualificationSubjectGold } from './finding-qualification-adjudication.js';
@@ -158,6 +159,44 @@ export function findingQualificationQuery(ctx: HandlerContext, storyId: string) 
     });
 }
 
+/** Consume the current public signed census without reopening its protected
+ * ledger. Trust comes from the source workspace, never the response public key.
+ * The signed ledger count and migration hash list independently bind completeness.
+ */
+function readQualificationSubjectCensus(ctx: HandlerContext, storyId: string) {
+  const query = createFindingLedgerHandlers(ctx).finding_ledger_query({ storyId });
+  const trust = findingLedgerTrustFromWorkspace(ctx.root);
+  const refuse = () => { throw new Error('qualification: public census invalid or incomplete'); };
+  if (!query || query.schemaVersion !== 1 || query.command !== 'finding_ledger_query'
+    || query.storyId !== storyId || query.signedRows !== true || query.gateEvidence !== false
+    || query.lifecycleAuthority !== 'none' || query.publicKey !== trust.publicKey
+    || !Array.isArray(query.rows) || query.rows.length !== 5
+    || canonicalHash(query.rows) !== query.snapshotDigest
+    || query.rows.some(row => row.storyId !== storyId || !verifyFindingLedgerQueryRow(row, trust))) return refuse();
+  const categories = query.rows.map(row => row.category).sort();
+  if (categories.join(',') !== 'cas,idempotency,ledger,migration,runtime') return refuse();
+  const census = query.rows.find(row => row.category === 'migration')!;
+  const ledger = query.rows.find(row => row.category === 'ledger')!;
+  const details = census.details as { records?: unknown } | null;
+  const ledgerDetails = ledger.details as { recordCount?: unknown } | null;
+  if (!details || !Array.isArray(details.records) || !ledgerDetails
+    || ledgerDetails.recordCount !== details.records.length
+    || census.numerator !== details.records.length || census.denominator !== details.records.length) return refuse();
+  const records: Array<{ recordId: string; recordType: string; recordHash: string }> = [];
+  const recordIds = new Set<string>();
+  for (const value of details.records) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return refuse();
+    const row = value as Record<string, unknown>;
+    if (typeof row.recordId !== 'string' || !row.recordId.trim() || recordIds.has(row.recordId)
+      || typeof row.recordType !== 'string' || !row.recordType.trim()
+      || typeof row.recordHash !== 'string' || !/^[a-f0-9]{64}$/.test(row.recordHash)) return refuse();
+    recordIds.add(row.recordId);
+    records.push({ recordId: row.recordId, recordType: row.recordType, recordHash: row.recordHash });
+  }
+  if (canonicalHash(records.map(row => row.recordHash).sort()) !== canonicalHash(census.evidenceDigests)) return refuse();
+  return records;
+}
+
 export function readFindingQualificationScorecard(ctx: HandlerContext) {
   const ids = loadConfig(ctx.root).dynamicFinding?.qualificationStoryIds ?? [];
   const refusalReasons: string[] = [];
@@ -172,11 +211,11 @@ export function readFindingQualificationScorecard(ctx: HandlerContext) {
     // The configured corpus is a census, not a selection of successful cases.
     // Unadjudicated proposals, routes, renewals or closures prevent promotion.
     for (const id of ids) {
-      const source = historicalStoryContext(ctx, id); const ledger = source.store.readFindingLedger<JsonValue>(id);
-      createFindingLedgerHandlers(source).finding_ledger_query({ storyId: id });
+      const source = historicalStoryContext(ctx, id);
+      const census = readQualificationSubjectCensus(source, id);
       const covered = cases.flatMap(row => (row.subjectAdjudications ?? []).map(row => row.ref)).filter(ref => ref.storyId === id);
-      for (const row of ledger.records.filter(row => FINDING_QUALIFICATION_SUBJECT_KINDS.has(row.recordType))) {
-        if (!covered.some(ref => ref.recordId === row.recordId && ref.recordHash === exactLedgerRecordHash(row))) refusalReasons.push(`unadjudicated_corpus_subject:${id}:${row.recordId}`);
+      for (const row of census.filter(row => FINDING_QUALIFICATION_SUBJECT_KINDS.has(row.recordType))) {
+        if (!covered.some(ref => ref.recordId === row.recordId && ref.recordHash === row.recordHash)) refusalReasons.push(`unadjudicated_corpus_subject:${id}:${row.recordId}`);
       }
     }
     // Historical operational observations retain their original HEAD. Admission

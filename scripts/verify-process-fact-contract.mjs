@@ -10974,7 +10974,7 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
     ['packages/main/src/handlers/finding-applicability-proof.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'row.stdout.includes(intent.selector)', 'FINDING_PROTECTED_SURFACES.every'],
     ['packages/main/src/handlers/finding-deferral-proof.ts', 'readFindingRouteProgressProof(ctx', 'assertNoCanonicalDeferralReset(ctx', 'previous.payload.renewalCount! + 1'],
     ['packages/main/src/handlers/finding-applicability.ts', 'revalidateDeferrals.forEach(check => check())', 'repairClosureContext(currentApplicabilityContext'],
-    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)', 'prerequisites: admissionPrerequisites', "currentPrerequisites = 'invalid'", 'report.qualification.eligible = report.refusalReasons.length === 0'],
+    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)', 'prerequisites: admissionPrerequisites', "currentPrerequisites = 'invalid'", 'report.qualification.eligible = report.refusalReasons.length === 0', 'readQualificationSubjectCensus(source, id)', 'findingLedgerTrustFromWorkspace(ctx.root)', 'verifyFindingLedgerQueryRow(row, trust)', 'ledgerDetails.recordCount !== details.records.length', 'recordIds.has(row.recordId)', 'canonicalHash(census.evidenceDigests)'],
     ['packages/main/src/handlers/finding-collection.ts', "authority: 'diagnostic_only'", 'gateEvidence: false', 'automaticEnrollment: false', 'FINDING_QUALIFICATION_SUBJECT_KINDS.has', "state: 'unavailable'", 'qualificationCases: null'],
     ['packages/main/src/handlers/finding-qualification-adjudication.ts', 'authors.has(adjudicator)', 'exactLedgerRecordHash(proposal) !== ref.recordHash', 'applicabilityDigest(Object.keys(observed).sort())', 'correct: applicabilityDigest(observed) === applicabilityDigest(input.expected)'],
     ['packages/main/src/handlers/finding-qualification-prerequisites.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'runtime.receipt.headHash !== ref.mergedCommit', 'pin.command === command && pin.selector === selector', 'readHistoricalFindingRuntimeEvidence(ctx', 'runtime.receipt.receiptHash !== proof.runtimeReceiptHash'],
@@ -10991,6 +10991,10 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
     for (const token of required) assert(!check(source.replaceAll(token, 'REMOVED_DFEC_GUARD')),
       `${path}: dynamic Finding guard mutation escaped: ${token}`);
   }
+  const qualificationSource = read('packages/main/src/handlers/finding-qualification.ts');
+  const publicReducer = qualificationSource.slice(qualificationSource.indexOf('function readQualificationSubjectCensus('));
+  assert(publicReducer.length < qualificationSource.length && !publicReducer.includes('.readFindingLedger'),
+    'scorecard reducer and census helper must stay on the signed public query boundary');
   const policy = read(processFactRegistryPath);
   for (const token of ['PROCESS_FACT_DYNAMIC_FINDING_POLICY', 'reported statistics remain diagnostic', 'findingConstraintDigest']) {
     assert(policy.includes(token), `dynamic Finding process registry must describe ${token}`);
