@@ -104,7 +104,7 @@ try {
   rmSync(join(store.storyDirPath(sid),'owner-lease.json'),{force:true});
   acquireOwnerLease(store.storyDirPath(sid),{command:'fixture-mirror',cwd:root});
   process.env.CODEX_THREAD_ID=originalId;resetSessionIdForTest();
-  const runtime=options=>projectRuntimeClosure(store,root,{storyId:sid,...options}).rows.find(r=>r.storyId===sid);
+  const runtime=options=>projectRuntimeClosure(store,root,{storyId:sid,...options}).stories.find(r=>r.storyId===sid);
   await group('authoritative-worktree-owner',async()=>{
     const before=contents(join(local.storyDirPath(sid),'owner-lease.json'));const start=performance.now();const row=runtime();
     observations.push({kind:'owner',ms:performance.now()-start,locks:row.locks});
