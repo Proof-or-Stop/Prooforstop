@@ -11179,6 +11179,14 @@ for (const [file, expected] of [
  assert(JSON.stringify(imports)===JSON.stringify([...expected].sort()), 'Review changed registry projection import dependencies: '+file);
 }
 
+// Structural dual-layer contract; the focused runner executes real Git and scope consumers.
+const baselineResolver = read('packages/main/src/core/git-baseline.ts');
+for (const token of ['linkedWorktree && primaryBranch', "'refs/remotes/origin/' + primaryBranch.slice", "'--is-ancestor', remoteCommit, localCommit", 'add(remoteHead)']) {
+  assert(baselineResolver.includes(token), 'Missing local integration baseline boundary: ' + token);
+}
+assert(read('packages/main/src/core/process-fact-levels.ts').includes('same-named primary local branch'), 'Baseline policy rationale must describe local containment');
+assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASELINE_FALSE_SCOPE'), 'Native baseline regression must remain available');
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
