@@ -177,7 +177,51 @@ function assertPlanRemoveCannotBypassFreeze(): void {
   }
 }
 
+function assertRepositoryWideMustNeedsAValidBasis(): void {
+  const { root, store, storyId } = initStore();
+  try {
+    const checklist = store.readChecklist(storyId);
+    checklist.items[0].verificationIntent = {
+      happy: [{ desc: 'Run the complete repository suite', type: 'cli', priority: 'must', scope: 'repository', expectation: 'absolute_pass', requirementSource: 'repository_health' } as any],
+      edge: [{ desc: 'Focused boundary behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' } as any],
+      adversarial: [{ desc: 'Focused failure behavior passes', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' } as any],
+    };
+    store.writeChecklist(storyId, checklist);
+
+    const review = createStoryReviewHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    const invalid = review.story_review({ storyId }) as any;
+    assert.ok(invalid.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must' && issue.severity === 'blocker'));
+
+    checklist.items[0].verificationIntent!.happy![0] = {
+      desc: 'Run the complete repository suite and admit only failures already present in the captured baseline',
+      type: 'cli',
+      priority: 'must',
+      scope: 'repository',
+      expectation: 'no_new_regressions',
+      requirementSource: 'story',
+    } as any;
+    store.writeChecklist(storyId, checklist);
+    const differential = review.story_review({ storyId }) as any;
+    assert.equal(differential.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
+
+    checklist.items[0].verificationIntent!.happy![0] = {
+      desc: 'Run the official repository-wide verifier required by the task',
+      type: 'cli',
+      priority: 'must',
+      scope: 'repository',
+      expectation: 'absolute_pass',
+      requirementSource: 'external_verifier',
+    } as any;
+    store.writeChecklist(storyId, checklist);
+    const external = review.story_review({ storyId }) as any;
+    assert.equal(external.issues.some((issue: any) => issue.type === 'repository_wide_absolute_must'), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertTouchpointAndExcludedInfoAreQuiet();
+assertRepositoryWideMustNeedsAValidBasis();
 assertMissingScopeCheckGuidanceIsActionable();
 assertPlanAddNeedsAuditReason();
 assertPlanRemoveCannotBypassFreeze();
