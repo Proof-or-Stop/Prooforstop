@@ -11042,6 +11042,16 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
     assert(regression.includes(token), `Canonical journal real producer regression missing ${token}`);
 }
 
+// Finalized inventory advice must share persisted authority across all surfaces.
+{
+  const core = read('packages/main/src/core/review-inventory-epoch.ts');
+  const handler = read('packages/main/src/handlers/review-inventory.ts');
+  assert(core.includes('export function reviewInventoryFinalizedNextCommand'), 'inventory advice must have one receipt-bound selector');
+  assert(core.includes('verifyReviewInventoryReceipt(receipt)') && core.includes('REVIEW_INVENTORY_RECEIPT_INVALID'), 'inventory advice must refuse invalid authority');
+  assert(handler.includes('reviewInventoryFinalizedNextCommand(pendingReceipt.epoch, pendingReceipt.receipt)'), 'duplicate begin must retain finalized receipt guidance');
+  assert(handler.includes('reviewInventoryFinalizedNextCommand(epoch, projection.receipt)'), 'status must use the same finalized authority');
+  assert(handler.includes('Authority: ${receipt.authority}'), 'first finalize must print actual authority');
+}
 execFileSync(process.execPath, [join(root, "packages/main/tests/certification-consumed-saturation.mjs")], { cwd: root, stdio: "inherit", timeout: 30000 });
 execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });
 

@@ -27,6 +27,7 @@ import {
   verifyReviewInventoryReceipt,
   persistFinalizedReviewInventoryUnlocked,
   renderFinalizedReviewInventory,
+  reviewInventoryFinalizedNextCommand,
   withReviewInventoryMutationLock,
   reviewInventoryPurposeBinding,
   inventoryPurposeMatchesEpoch,
@@ -241,6 +242,7 @@ export interface ReviewInventoryStatusProjection {
   evaluation?: ReturnType<typeof evaluateReviewInventoryWave>;
   criticComplete?: boolean;
   criticReviewRunId?: string;
+  receipt?: ReviewInventoryReceipt;
 }
 
 export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, projection: ReviewInventoryStatusProjection = {}): string {
@@ -288,9 +290,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
       next = `proof-or-stop review_inventory_finalize --storyId=${epoch.storyId}`;
     }
   } else if (epoch.state === 'FINALIZED') {
-    next = epoch.consumedAt
-      ? `proof-or-stop review_inventory_begin --storyId=${epoch.storyId}`
-      : `proof-or-stop story_advance --storyId=${epoch.storyId} --phase=DEV`;
+    next = reviewInventoryFinalizedNextCommand(epoch, projection.receipt);
   } else {
     next = `proof-or-stop review_inventory_begin --storyId=${epoch.storyId}`;
   }
@@ -384,6 +384,9 @@ function renderProjectedStatus(ctx: HandlerContext, epoch: ReviewInventoryEpoch)
     evaluation,
     criticComplete: currentCriticComplete(ctx, epoch),
     criticReviewRunId: evaluation ? currentCriticReviewRunId(ctx, epoch, evaluation) : undefined,
+    receipt: epoch.state === 'FINALIZED'
+      ? ctx.store.readReviewInventoryEpochs(epoch.storyId).receipts.find(row => row.receiptId === epoch.receiptId)
+      : undefined,
   });
 }
 
@@ -433,7 +436,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (pendingReceipt) {
           throw new Error(
             `REVIEW_INVENTORY_RECEIPT_UNCONSUMED: ${pendingReceipt.receipt.receiptId}; ` +
-            `Next: proof-or-stop story_advance --storyId=${args.storyId} --phase=DEV`,
+            `Next: ${reviewInventoryFinalizedNextCommand(pendingReceipt.epoch, pendingReceipt.receipt)}`,
           );
         }
         const {
@@ -705,7 +708,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? finalized : row);
         data.receipts.push(receipt);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}${commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize')}`;
+        return `${renderReviewInventoryStatus(finalized, { criticComplete: true, receipt })}\nReceipt: ${receiptId}\nAuthority: ${receipt.authority}; authorizes TEST: ${receipt.authorizesTest}${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}${commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize')}`;
       });
     },
 

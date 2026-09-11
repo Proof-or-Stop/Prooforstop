@@ -6,6 +6,17 @@ execution mechanisms; they do not turn Lab records into Story evidence.
 
 ## PRE_CERT execution order
 
+Finalized-inventory guidance follows the signed receipt authority on first
+finalization, status, a refused duplicate begin, and exact finalize retry.
+`review-remediation-only` leads to DEV. `inventory-completeness-only` with no
+retained finding families leads to the fast PRE_CERT preparation below, without
+an automatic DEV detour. A saturated inventory that retains findings leads to
+`finding_list`: zero new families does not prove that old findings are resolved. The hint
+does not grant TEST or PRE_CERT authority: existing freshness, findings,
+coverage and certification gates still decide admission. Consumed receipts lead
+to the current session brief: legacy saturated receipts do not record whether
+remediation or PRE_CERT consumed them. Invalid or mismatched receipts cannot supply advice.
+
 In REVIEW, finalize the saturated review inventory, then run
 `proof-or-stop validate --story=B-example --focus=fast --json` to publish a
 signed cheap-check receipt for the resulting HEAD. Run

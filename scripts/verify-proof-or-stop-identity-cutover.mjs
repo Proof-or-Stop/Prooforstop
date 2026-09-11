@@ -3144,14 +3144,14 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"07c3acfd865416aa27c05bcb05612f291e63027e79656bc3ab8181dcb360db21"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"cc3c26a11e4c8ac240fa7b50baf4e76ba52d8bbe7933266ba962abd67b518d4f"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "173b375e436424fae6b073aaf407e0e0b132250f0d0fc44c5387def8b3009027"
   },
   {
     "path": "packages/main/src/tasks/certification-window-smoke.ts",
-    "sha256": "f93fd0c3c73f7408c4189dc47f7c15cfd51bd5172be2582b6d7f0edae595e091"
+    "sha256": "57024f94b7b429b377f4678bed092e7d97551deaad093546c356b26e8265f5d5"
   },
   {
     "path": "packages/main/src/tasks/command-ownership-contract.ts",
@@ -3175,7 +3175,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/prompt-registry-smoke.ts",
-    "sha256": "dd0e23111150737b2555b729d0adc650f48f272bf76f59d2c3ffee1600e3f814"
+    "sha256": "7a52f86676b0037f6119617c608dab62fb99dd174fb75360d8d84e002ddca11f"
   },
   {
     "path": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
@@ -3195,7 +3195,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
-    "sha256": "cdf1cff4e032d7485aefdd37ec5e170d8879e13b9c59abfed77f8254aa1529cd"
+    "sha256": "791fc5d6ccb04f761e22a311bd72ba4d042a32dcc2587ce812b640ce855ae399"
   },
   {
     "path": "packages/main/src/tasks/thin-init-assets-smoke.ts",
@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "4abd049eb49a459a27873c61ec34b093f98bc5ef0630c46cb44192b7b0e45555"
+    "sha256": "198c3a8451d44a5d326f1545ff843d8082d93f21cdc211e8aae808306fdbca3a"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "1dbecb232d02baa7a3cf61f00c05bc78791aa3048a3423d40b54c8f26246f535"
+    "sha256": "c02edec9456f40702e0a8621ae82a2aa63d8aac06e3e55ebc1848a8329c7809e"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3639,7 +3639,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"07c3acfd865416aa27c05bcb05612f291e63027e79656bc3ab8181dcb360db21"],
+  [52,"cc3c26a11e4c8ac240fa7b50baf4e76ba52d8bbe7933266ba962abd67b518d4f"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "8e7e56b2b35de0bb65baf92af9670d133ab137879acda5b4cb0489f49e221a27"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "b041c7ab66e01aa2665643b12fca2a217488afa3d8c2f16ac24714cbd1d57a5c"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "3a5ff96649888c53a6bf6f39950ef8f2b2c4f227d71152387e14582e0f7f62d4"
+    "sha256": "b8c800a50b1289bc9b26fa636e740a42e38b793c5d1a7091246e1cc14ac737ad"
   }
 ];
 function verifyReviewedContextReaders(root) {

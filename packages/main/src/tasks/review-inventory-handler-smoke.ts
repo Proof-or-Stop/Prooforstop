@@ -471,7 +471,39 @@ async function inventoryPurposeRecovery(): Promise<void> {
       assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), epochStartHead, 'failed commit never advances HEAD');
       rmSync(rejectionHook);
     }
-    assert.match(cli(fixture.root, 'review_inventory_finalize', finalizeArgs, env('main', 'b29bc-owner')), /FINALIZED/);
+    const finalizedOutput = cli(fixture.root, 'review_inventory_finalize', finalizeArgs, env('main', 'b29bc-owner'));
+    assert.match(finalizedOutput, /FINALIZED/);
+    if (process.argv.includes('--next-action-fixture')) {
+      const before = fixture.store.readReviewInventoryEpochs(storyId);
+      const receipt = before.receipts.at(-1)!;
+      const expectedNext = finalizeArgs.remediation
+        ? `proof-or-stop story_advance --storyId=${storyId} --phase=DEV`
+        : `proof-or-stop validate --story=${storyId} --focus=fast --json`;
+      const checks: { name: string; pass: boolean; observed: string[] }[] = [];
+      const checkNext = (name: string, output: string): void => {
+        const observed = output.split('\n').filter(line => line.startsWith('Next:'));
+        checks.push({ name, pass: observed.length === 1 && observed[0] === `Next: ${expectedNext}`, observed });
+      };
+      checkNext('first finalize follows receipt authority', finalizedOutput);
+      checks.push({ name: 'first finalize reports actual authority',
+        pass: finalizedOutput.includes(`Authority: ${receipt.authority}`),
+        observed: finalizedOutput.split('\n').filter(line => line.startsWith('Authority:')) });
+      checkNext('status follows receipt authority', cli(fixture.root, 'review_inventory_status', { storyId }, env('main', 'b29bc-owner')));
+      let refusedBegin = '';
+      try { cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner')); }
+      catch (error) { refusedBegin = String(error); }
+      // execFileSync embeds the command and stderr; preserve just the CLI hint.
+      const next = refusedBegin.match(/Next: (proof-or-stop [^\n]+)/)?.[0] ?? '';
+      checkNext('pending begin preserves completed review', next);
+      checkNext('idempotent finalize follows receipt authority', cli(fixture.root, 'review_inventory_finalize', finalizeArgs, env('main', 'b29bc-owner')));
+      assert.deepEqual(fixture.store.readReviewInventoryEpochs(storyId), before, 'hint queries and retries preserve the signed receipt and every completed reviewer');
+      assert.equal(receipt.authorizesTest, false, 'guidance never authorizes TEST');
+      assert.throws(() => cli(fixture.root, 'review_inventory_finalize', { storyId, remediation: !finalizeArgs.remediation }, env('main', 'b29bc-owner')), /REPLAY_AUTHORITY/);
+      console.log(`INVENTORY_NEXT_ACTION_RESULT ${JSON.stringify({ authority: receipt.authority, checks, preservedReceipt: true, authorizesTest: false })}`);
+      assert.equal(checks.filter(row => !row.pass).length, 0, 'INVENTORY_NEXT_ACTION_AUTHORITY_MISMATCH');
+      console.log('PASS inventory next action uses the persisted authority on every CLI surface');
+      return;
+    }
     if (process.argv.includes('--metadata-batch-fixture')) {
       assert.equal(git(fixture.root, ['rev-list', '--count', `${epochStartHead}..HEAD`]), '1', 'one completed epoch creates one metadata commit');
       assert.throws(() => cli(fixture.root, 'review_inventory_finalize', { storyId, remediation: !finalizeArgs.remediation }, env('main', 'b29bc-owner')), /REPLAY_AUTHORITY/, 'replay cannot change the original receipt authority');
