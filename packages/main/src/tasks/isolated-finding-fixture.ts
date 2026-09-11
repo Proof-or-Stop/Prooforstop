@@ -12,7 +12,7 @@ const MARKER = '--isolated-finding-fixture-worker';
 export async function runIsolatedFindingFixture(entry: string): Promise<boolean> {
   if (process.argv.includes(MARKER)) return false;
   const file = fileURLToPath(entry);
-  if (!['dynamic-finding-runtime-integration-smoke.js', 'evidence-state-gate-smoke.js'].some(name => file.endsWith('/' + name))) {
+  if (!['dynamic-finding-runtime-integration-smoke.js', 'finding-material-reattestation-smoke.js', 'evidence-state-gate-smoke.js'].some(name => file.endsWith('/' + name))) {
     throw new Error('isolated Finding fixture entry is not allowlisted');
   }
   const scratch = mkdtempSync(join(tmpdir(), 'dfec-native-worker-'));

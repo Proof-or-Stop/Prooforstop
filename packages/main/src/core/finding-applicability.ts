@@ -26,6 +26,7 @@ export interface ApplicabilityProofProjection {
   acceptanceImpact: 'blocks' | 'does_not_block' | 'unknown';
   requiredCommands: string[];
   affectedPaths: string[];
+  baseHeadPairDigest?: string;
 }
 
 export interface ApplicabilityFreshnessBinding {
@@ -69,6 +70,7 @@ export interface FindingApplicabilityAssessment {
   evaluationScope?: FindingEvaluationScope;
   protectedSurfaceEvaluation?: Array<{ surface: string; state: 'clear' | 'known_risk' | 'unknown'; evidenceRefs: string[] }>;
   evidenceVerification?: ApplicabilityProofProjection;
+  dependencySnapshot?: { processPolicyDigest: string; reviewerAuthorityDigest: string; findingHash: string; canonicalDigest: string; routeDigest: string };
   signature?: string;
   keyId?: string;
 }

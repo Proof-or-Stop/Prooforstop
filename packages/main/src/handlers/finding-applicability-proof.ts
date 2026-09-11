@@ -7,10 +7,12 @@ import { canonicalHash } from '../core/finding-ledger.js';
 import { FINDING_PROTECTED_SURFACES, applicabilityDigest, type ApplicabilityProofProjection,
   type FindingApplicabilityAssessment, type FindingEvaluationScope } from '../core/finding-applicability.js';
 import { sourceRouteRecord } from './finding-route.js';
-import { readCurrentFindingRuntimeEvidence } from './finding-ledger.js';
+import { readCurrentFindingRuntimeEvidence, readMaterialBoundReattestationRuntimeEvidence } from './finding-ledger.js';
 import { reviewInventoryAcceptanceSubjectDigestForStore } from '../core/review-inventory-epoch.js';
 import { readCanonicalCatalog } from './finding-identity-store.js';
 import { canonicalCurrent } from '../core/finding-history.js';
+import { readFindingBaseHeadPair } from './finding-runtime-pair.js';
+import { readMaterialDriftReattestation } from './finding-material-reattestation.js';
 
 export const FINDING_PROOF_POLICY = Object.freeze({ version: 'finding-applicability-proof-v1',
   witnessSchema: 'proof-or-stop.finding-witness.v1', protectedSurfaces: FINDING_PROTECTED_SURFACES,
@@ -38,6 +40,7 @@ export function findingWitnessCommandText(command: { executable: string; args?: 
 export function verifyFindingWitness(witness: FindingWitness, args: {
   storyId: string; finding: Finding; baseHash: string; headHash: string; scopeDigest: string; acceptanceDigest: string;
   evaluationScope: FindingEvaluationScope; intentRefs: string[]; changedPaths: string[];
+  baseHeadPairDigest?: string;
 }): void {
   const { finding } = args;
   if (!witness || witness.schemaVersion !== FINDING_PROOF_POLICY.witnessSchema || witness.storyId !== args.storyId
@@ -67,6 +70,7 @@ export function verifyFindingWitness(witness: FindingWitness, args: {
     if (witness.verdict === 'pre_existing_unaffected' && (!witness.reproduced || witness.baseReproduced !== true)) {
       throw new Error('dynamic finding: exact base/head reproduction required');
     }
+    if (witness.verdict === 'pre_existing_unaffected' && !/^[a-f0-9]{64}$/.test(args.baseHeadPairDigest ?? '')) throw new Error('dynamic finding: verified base/head runtime pair required');
   }
   if (['disproven', 'not_reproduced_under_current_witness'].includes(witness.verdict) && witness.reproduced) throw new Error('dynamic finding: negative witness reproduced');
   if (['applicable', 'introduced', 'worsened'].includes(witness.verdict) && !witness.reproduced) throw new Error('dynamic finding: applicable witness must reproduce');
@@ -78,6 +82,7 @@ export function readApplicabilityProof(ctx: HandlerContext, storyId: string, fin
   const ref = assessment.proposalRef;
   if (!ref || ref.storyId !== storyId || ref.subjectKind !== 'finding_assessment_proposal') throw new Error('dynamic finding: exact receipted assessment proposal required');
   const { bound, proposal } = sourceRouteRecord(ctx, ref, requireCurrentReviewerEvidence);
+  const restored = !requireCurrentReviewerEvidence ? readMaterialDriftReattestation(ctx, storyId, ref.recordId) : undefined;
   if (!proposal || (proposal.findingRef as { findingId?: string }).findingId !== finding.id) throw new Error('dynamic finding: proposal belongs to another Finding');
   if ((proposal.dependencyBundle as { proofPolicyDigest?: string }).proofPolicyDigest !== canonicalHash(FINDING_PROOF_POLICY)) {
     throw new Error('dynamic finding: proposal proof policy is stale');
@@ -91,11 +96,20 @@ export function readApplicabilityProof(ctx: HandlerContext, storyId: string, fin
   const checklist = ctx.store.readChecklist(storyId);
   const intents = checklist.items.flatMap(item => Object.entries(item.verificationIntent ?? {}).flatMap(([lane, rows]) =>
     Array.isArray(rows) ? rows.map((row, index) => ({ ref: `${item.id}:${lane}:${index}`, command: row.verification?.command, selector: row.verification?.selector })) : []));
-  const baseHash = execFileSync('git', ['merge-base', 'main', 'HEAD'], { cwd: ctx.root, encoding: 'utf8', stdio: 'pipe' }).trim();
+  const baseHash = restored?.record.currentBinding.baseHash ?? execFileSync('git', ['merge-base', 'main', 'HEAD'], { cwd: ctx.root, encoding: 'utf8', stdio: 'pipe' }).trim();
   const changedPaths = execFileSync('git', ['diff', '--name-only', baseHash, '--'], { cwd: ctx.root, encoding: 'utf8', stdio: 'pipe' }).trim().split('\n').filter(Boolean);
   const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, storyId);
   const acceptanceDigest = applicabilityDigest(checklist);
-  const runtime = runtimeIds.map(id => readCurrentFindingRuntimeEvidence(ctx, storyId, id));
+  const pair = verdict === 'pre_existing_unaffected' ? readFindingBaseHeadPair(ctx, storyId, runtimeIds, baseHash, String(proposal.headHash)) : undefined;
+  const runtime = pair ? [pair.head] : (restored?.runtimeReceiptIds ?? runtimeIds).map(id =>
+    (restored ? readMaterialBoundReattestationRuntimeEvidence : readCurrentFindingRuntimeEvidence)(ctx, storyId, id));
+  if (pair) {
+    const command = findingWitnessCommandText(pair.head.executionCommand);
+    if (!intents.some(intent => intent.command === command && typeof intent.selector === 'string'
+      && intent.selector.length > 0 && pair.base.stdout.includes(intent.selector))) throw new Error('dynamic finding: base receipt misses reviewed selector');
+    verifyFindingWitness(pair.before, { storyId, finding, baseHash: pair.before.baseHash, headHash: baseHash, scopeDigest,
+      acceptanceDigest, evaluationScope, intentRefs: intents.map(row => row.ref), changedPaths: [], baseHeadPairDigest: pair.digest });
+  }
   const commands = runtime.map(row => findingWitnessCommandText(row.executionCommand));
   if (commands.some(command => !intents.some(intent => intent.command === command))) throw new Error('dynamic finding: witness command is not a reviewed verification intent');
   const witnesses = runtime.map(row => {
@@ -106,8 +120,8 @@ export function readApplicabilityProof(ctx: HandlerContext, storyId: string, fin
     const lines = row.stdout.split(/\r?\n/).filter(line => line.startsWith('FINDING_WITNESS '));
     if (lines.length !== 1) throw new Error('dynamic finding: one structured runtime witness required');
     const witness = JSON.parse(lines[0]!.slice('FINDING_WITNESS '.length)) as FindingWitness;
-    verifyFindingWitness(witness, { storyId, finding, baseHash, headHash: String(proposal.headHash), scopeDigest, acceptanceDigest,
-      evaluationScope, intentRefs: intents.map(row => row.ref), changedPaths });
+    verifyFindingWitness(witness, { storyId, finding, baseHash, headHash: restored?.record.currentBinding.headHash ?? String(proposal.headHash), scopeDigest, acceptanceDigest,
+      evaluationScope, intentRefs: intents.map(row => row.ref), changedPaths, baseHeadPairDigest: pair?.digest });
     if (witness.verdict !== verdict || canonicalHash(witness.protectedSurfaceEvaluation) !== canonicalHash(proposal.protectedSurfaceEvaluation)) {
       throw new Error('dynamic finding: proposal and executed witness disagree');
     }
@@ -120,8 +134,9 @@ export function readApplicabilityProof(ctx: HandlerContext, storyId: string, fin
   const exactRuntimeRefs = (value: unknown) => strings(value) && canonicalHash([...value].sort()) === canonicalHash([...runtimeIds].sort());
   if (proposal.verdict === 'applicable' && !exactRuntimeRefs((proposal.currentWitness as { receiptIds: unknown }).receiptIds)) throw new Error('dynamic finding: applicable runtime tuple mismatch');
   if (verdict === 'pre_existing_unaffected') {
-    const pair = proposal.baseHead as { baseRef: string; headRef: string; receiptIds: string[] };
-    if (pair.baseRef !== baseHash || pair.headRef !== proposal.headHash || !exactRuntimeRefs(pair.receiptIds)) throw new Error('dynamic finding: base/head witness tuple mismatch');
+    const binding = proposal.baseHead as { baseRef: string; headRef: string; receiptIds: string[]; baseReceiptId: string; headReceiptId: string; pairDigest: string };
+    if (binding.baseRef !== baseHash || binding.headRef !== proposal.headHash || canonicalHash(binding.receiptIds) !== canonicalHash(runtimeIds)
+      || binding.baseReceiptId !== runtimeIds[0] || binding.headReceiptId !== runtimeIds[1] || binding.pairDigest !== pair!.digest) throw new Error('dynamic finding: base/head witness tuple mismatch');
   }
   if (verdict === 'not_reproduced_under_current_witness' || verdict === 'disproven') {
     const negative = proposal.currentWitness as Record<string, unknown>;
@@ -148,7 +163,8 @@ export function readApplicabilityProof(ctx: HandlerContext, storyId: string, fin
       || !witness.affectedPaths.every(path => scope.explicitExcludes.includes(path))) throw new Error('dynamic finding: exact excluded-scope contract required');
   }
   const proof: ApplicabilityProofProjection = { state: 'verified', proposalDigest: ref.subjectHash,
-    evidenceDigest: applicabilityDigest(runtime.map(row => ({ id: row.receipt.receiptId, hash: row.receipt.receiptHash }))), evaluationScope,
+    evidenceDigest: applicabilityDigest((pair ? [pair.base, pair.head] : runtime).map(row => ({ id: row.receipt.receiptId, hash: row.receipt.receiptHash }))), evaluationScope,
+    ...(pair ? { baseHeadPairDigest: pair.digest } : {}),
     introducedByCurrentStory: witness.introducedByCurrentStory, acceptanceImpact: witness.gateImpact,
     requiredCommands: [...new Set(commands)].sort(), affectedPaths: witness.affectedPaths };
   return { proposal, proposalRecord: bound.record, proof, witness, runtimeIds };

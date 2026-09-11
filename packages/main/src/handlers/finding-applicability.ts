@@ -26,6 +26,8 @@ import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { buildVerifiedDeferral, deferralPolicyForWrite } from './finding-deferral-proof.js';
 import { prepareFindingQualificationCase, findingQualificationQuery, readFindingQualificationScorecard } from './finding-qualification.js';
 import { prepareFindingAssessmentProposal } from './finding-proposal.js';
+import { findingMaterialDependencySnapshot, prepareMaterialDriftReattestation } from './finding-material-reattestation.js';
+import { freezeFindingProposalPopulation, finishFindingProposalTiming } from './finding-proposal-timing.js';
 
 type RouteRef = { storyId: string; receipt: { storyId: string; recordId: string; recordHash: string } };
 export interface FindingApplicabilityAssessArgs {
@@ -133,7 +135,7 @@ function withLedgerLock<T>(ctx: HandlerContext, storyId: string, action: (fence:
     .map(id => ({ ctx: identityStoryContext(ctx, id), storyId: id }))], () => action(captureMkdirLockFence(lockDir)));
 }
 function append(ctx: HandlerContext, storyId: string, fence: ReturnType<typeof captureMkdirLockFence>, idempotencyKey: string,
-  operation: 'append_assessment_proposal' | 'append_assessment' | 'append_deferral' | 'append_mandatory_repair' | 'apply_manifest', records: Array<{ recordType: string; payload: JsonValue; uniqueBindingKey: string }>,
+  operation: 'append_assessment_proposal' | 'append_assessment' | 'append_deferral' | 'append_mandatory_repair' | 'append_material_drift_reattestation' | 'apply_manifest', records: Array<{ recordType: string; payload: JsonValue; uniqueBindingKey: string }>,
   sourceRecords: LedgerRecord<JsonValue>[], revalidate?: () => void) {
   const ledger = ctx.store.readFindingLedger<JsonValue>(storyId);
   const head = ledger.records.at(-1);
@@ -192,6 +194,30 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
       ...currentAuthority() };
   };
   return {
+    finding_material_reattest(input: { storyId: string; assessmentId: string; runtimeReceiptIds: string[]; idempotencyKey: string }) {
+      const assessment = findPayload<FindingApplicabilityAssessment>(ctx.store.readFindingLedger<JsonValue>(input.storyId).records,
+        'finding_applicability_assessment', value => value.assessmentId === input.assessmentId)?.payload;
+      return withLedgerLock(ctx, input.storyId, fence => {
+        const requestDigest = applicabilityDigest(input);
+        const ledger = ctx.store.readFindingLedger<JsonValue>(input.storyId);
+        const prior = ledger.receipts.find(row => row.idempotencyKey === `material-reattest:${input.idempotencyKey}`);
+        if (prior) {
+          const record = ledger.records.find(row => prior.recordIds.includes(row.recordId))!.payload as Record<string, unknown>;
+          if (record.requestDigest !== requestDigest) throw new Error('IDEMPOTENCY_CONFLICT: reattestation changed');
+          return { record, replayed: true, ...currentAuthority() };
+        }
+        const prepared = prepareMaterialDriftReattestation(ctx, input); const signer = findingLedgerSignerFromWorkspace(ctx.root);
+        const record = signDynamicFindingRecord<Record<string, unknown>>({ ...prepared.record, requestDigest, keyId: signer.keyId }, signer.privateKey);
+        const binding = applicabilityDigest({ current: prepared.record.currentBinding, dependencies: prepared.record.dependencies, runtime: prepared.record.runtime });
+        const receipt = append(ctx, input.storyId, fence, `material-reattest:${input.idempotencyKey}`, 'append_material_drift_reattestation', [
+          { recordType: 'material_drift_reattestation', uniqueBindingKey: `reattest:${requestDigest}`, payload: record as unknown as JsonValue },
+        ], [prepared.assessmentRecord, prepared.claim], () => {
+          const fresh = prepareMaterialDriftReattestation(ctx, input);
+          if (applicabilityDigest({ current: fresh.record.currentBinding, dependencies: fresh.record.dependencies, runtime: fresh.record.runtime }) !== binding) throw new Error('CAS_CONFLICT: reattestation inputs moved');
+        });
+        return { record, ledgerReceipt: receipt, replayed: false, ...currentAuthority() };
+      }, assessment?.acceptedRoute ? [assessment.acceptedRoute.ownerStoryId] : []);
+    },
     finding_assessment_propose(input: { storyId: string; findingId: string; idempotencyKey: string; proposal: Record<string, unknown> }) {
       text(input.storyId, 'storyId'); text(input.findingId, 'findingId'); text(input.idempotencyKey, 'idempotencyKey');
       return withLedgerLock(ctx, input.storyId, fence => {
@@ -204,10 +230,25 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
           if ((record?.payload as Record<string, unknown>)?.proposalId !== `proposal:${canonicalHash(input)}`) throw new Error('IDEMPOTENCY_CONFLICT: proposal request changed');
           receipt = prior;
         } else {
-          const prepared = prepareFindingAssessmentProposal(ctx, input);
-          receipt = append(ctx, input.storyId, fence, idempotencyKey, 'append_assessment_proposal', [
-            { recordType: 'assessment_proposal', uniqueBindingKey: `assessment-proposal:${prepared.proposal.proposalId}`, payload: prepared.proposal as JsonValue },
-          ], [prepared.source]);
+          const clock = freezeFindingProposalPopulation(ctx, input.storyId, canonicalHash(input));
+          const timerKey = `timing:${clock.record.attemptId}`;
+          if (ledger.records.some(row => (row.payload as Record<string, unknown>).attemptId === clock.record.attemptId)) throw new Error('proposal timing: incomplete/failed attempt requires a new idempotency key');
+          const signing = findingLedgerSignerFromWorkspace(ctx.root);
+          const persistTiming = (value: Record<string, unknown>, suffix: string) => append(ctx, input.storyId, fence, `${timerKey}:${suffix}`, 'apply_manifest', [
+            { recordType: 'dynamic_finding_manifest', uniqueBindingKey: `${timerKey}:${suffix}`,
+              payload: signDynamicFindingRecord<Record<string, unknown>>({ ...value, keyId: signing.keyId }, signing.privateKey) as JsonValue },
+          ], []);
+          persistTiming(clock.record, 'start');
+          let producedId: string | undefined;
+          try {
+            const prepared = prepareFindingAssessmentProposal(ctx, input);
+            receipt = append(ctx, input.storyId, fence, idempotencyKey, 'append_assessment_proposal', [
+              { recordType: 'assessment_proposal', uniqueBindingKey: `assessment-proposal:${prepared.proposal.proposalId}`, payload: prepared.proposal as JsonValue },
+            ], [prepared.source]);
+            producedId = String(prepared.proposal.proposalId);
+          } finally {
+            persistTiming(finishFindingProposalTiming(clock, producedId ? 'signed' : 'failed', producedId), 'end');
+          }
           const ids = receipt.recordIds;
           record = ctx.store.readFindingLedger<JsonValue>(input.storyId).records.find(row => ids.includes(row.recordId));
         }
@@ -271,12 +312,14 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
           const verifiedProof = readApplicabilityProof(ctx, input.storyId, finding, { ...item, dispositionPlan: item.dispositionPlan ?? null });
           sources.push(verifiedProof.proposalRecord);
           const assessmentId = `assessment:${applicabilityDigest({ requestDigest, findingId: finding.id }).slice(0, 32)}`;
-          const assessment = signApplicabilityAssessment({ schemaVersion: 1, assessmentId, findingId: finding.id, verdict: item.verdict,
+          const unsigned: FindingApplicabilityAssessment = { schemaVersion: 1, assessmentId, findingId: finding.id, verdict: item.verdict,
             integrity: { state: 'fresh', ...currentApplicabilityContext(ctx.store, ctx.root, input.storyId, verifiedProof.runtimeIds), assessedAt: createdAt.toISOString(), expiresAt: String(verifiedProof.proposal.expiresAt) },
             proposalRef: item.proposalRef, evaluationScope: verifiedProof.proof.evaluationScope, runtimeReceiptIds: verifiedProof.runtimeIds,
             protectedSurfaceEvaluation: verifiedProof.witness.protectedSurfaceEvaluation,
             proofStrength: 'strong', dispositionPlan: item.dispositionPlan ?? null, acceptedRoute, gateImpact: item.gateImpact ?? 'unknown',
-            evidenceRefs: [...new Set(item.evidenceRefs ?? [])].sort(), recheckTriggers: [...new Set(item.recheckTriggers ?? [])].sort(), keyId: signer.keyId }, signer.privateKey);
+            evidenceRefs: [...new Set(item.evidenceRefs ?? [])].sort(), recheckTriggers: [...new Set(item.recheckTriggers ?? [])].sort(), keyId: signer.keyId };
+          if (unsigned.dispositionPlan === 'defer_with_proof') unsigned.dependencySnapshot = findingMaterialDependencySnapshot(ctx, input.storyId, unsigned);
+          const assessment = signApplicabilityAssessment(unsigned, signer.privateKey);
           assessments.push(assessment); records.push({ recordType: 'finding_applicability_assessment', uniqueBindingKey: `assessment:${assessmentId}`, payload: assessment as unknown as JsonValue });
           let dispositionId: string | undefined; let mandatoryRepairId: string | undefined;
           if (item.dispositionPlan === 'defer_with_proof') {
@@ -352,6 +395,7 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
           gateImpact: input.gateImpact ?? 'unknown', evidenceRefs: [...new Set(input.evidenceRefs ?? [])].sort(),
           recheckTriggers: [...new Set(input.recheckTriggers ?? [])].sort(), keyId: signer.keyId,
         };
+        if (unsigned.dispositionPlan === 'defer_with_proof') unsigned.dependencySnapshot = findingMaterialDependencySnapshot(ctx, input.storyId, unsigned);
         const assessment = signApplicabilityAssessment(unsigned, signer.privateKey);
         const invalidLineage = deferralLineageInvalid(previousDeferral, finding.severity, signer.publicKey, now);
         const mandatoryUnsigned: MandatoryRepairClassification & Record<string, unknown> = {

@@ -18,6 +18,7 @@ import { StoryStore as QualificationStore } from './store.js';
 import { verifyDeferralProjection } from '../handlers/finding-deferral-proof.js';
 import { verifiedIdentityCarrier } from '../handlers/finding-identity-store.js';
 import { readHistoricalFindingRuntimeEvidence, readMaterialBoundRepairRuntimeEvidence } from '../handlers/finding-ledger.js';
+import { readMaterialDriftReattestation } from '../handlers/finding-material-reattestation.js';
 
 /** Metadata-only commits must not reopen a proven repair. All material, scope,
  * acceptance and exact selected runtime evidence bindings remain mandatory. */
@@ -100,7 +101,11 @@ export function readDynamicFindingDecision(args: {
         && (row.payload as unknown as FindingApplicabilityAssessment).findingId === args.finding.id)!;
       verifiedIdentityCarrier(ledger, args.storyId, record.recordId, trust!);
       const context = currentApplicabilityContext(args.store, args.projectRoot, args.storyId, assessment.runtimeReceiptIds);
-      const state = verifyAssessmentFreshness(assessment, context, now);
+      let state = verifyAssessmentFreshness(assessment, context, now);
+      if (state === 're_attestation_required' && assessment.proposalRef) {
+        const restored = readMaterialDriftReattestation({ store: args.store, root: args.projectRoot, scanRoot: args.projectRoot }, args.storyId, assessment.proposalRef.recordId);
+        if (restored?.assessment.assessmentId === assessment.assessmentId) state = 'fresh';
+      }
       assessment = { ...assessment, integrity: { ...assessment.integrity, state } };
       if (state === 'fresh') {
         const proof = readApplicabilityProof({ store: args.store, root: args.projectRoot, scanRoot: args.projectRoot }, args.storyId, args.finding, assessment, false);

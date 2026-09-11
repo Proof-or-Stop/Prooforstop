@@ -87,6 +87,7 @@ export type AgentDispatchMutationCommand =
   | 'finding_add'
   | 'finding_assessment_propose'
   | 'finding_qualification_record'
+  | 'finding_material_reattest'
   | 'review_pass_set'
   | 'review_inventory_critic_set'
   | 'managed_review_proposal_set'

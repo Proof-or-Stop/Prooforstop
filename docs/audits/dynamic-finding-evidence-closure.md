@@ -110,7 +110,7 @@ the transaction predicate as well as checking the source assessment. Runtime
 witnesses must also satisfy the exact reviewed selector. Readers recheck signed
 ledger carriers rather than accepting a serialized `evidenceVerification` flag.
 
-## Explicit remaining product work — not closed by this Lab checkpoint
+## Remaining product work at the 0.3.314 checkpoint (historical)
 
 1. Complete the §11 public-query collectors for every safety, mutation,
    performance and qualification-window row. The pure 22-row calculator is

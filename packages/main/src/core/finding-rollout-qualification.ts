@@ -35,6 +35,8 @@ export const FINDING_QUALIFICATION_POLICY = Object.freeze({ version: 'dynamic-fi
 
 export interface QualificationMeasurement {
   metric: FindingQualificationMetric;
+  /** Reassessments of one observation are measured but do not inflate cases. */
+  observationId?: string;
   caseId: string; storyId: string; severity: 'critical' | 'high' | 'medium' | 'low';
   observedAt: string; numerator: number; denominator: number;
   /** Produced by the query adapter only after checking independent review and receipt provenance. */
@@ -102,7 +104,7 @@ export function buildFindingQualificationScorecard(corpus?: FindingQualification
   });
   const operational = valid.filter(row => row.synthetic === false);
   const storyCount = new Set(operational.map(row => row.storyId)).size;
-  const caseCount = new Set(operational.map(row => `${row.storyId}:${row.caseId}`)).size;
+  const caseCount = new Set(operational.map(row => `${row.storyId}:${row.observationId ?? row.caseId}`)).size;
   const observedTimes = operational.map(row => Date.parse(row.observedAt));
   const observedDays = observedTimes.length ? (Math.max(...observedTimes) - Math.min(...observedTimes)) / 86_400_000 : 0;
   if (storyCount < 20) refusalReasons.push('fewer_than_20_finding_bearing_stories');
@@ -117,7 +119,8 @@ export function buildFindingQualificationScorecard(corpus?: FindingQualification
     const numerator = sum(cases.map(row => row.numerator));
     const denominator = sum(cases.map(row => row.denominator));
     const latency = cases.map(row => row.latencySeconds).filter(finiteNonnegative);
-    const observed = denominator === 0 ? null : comparison === 'latency' ? percentile(latency, 0.95) : numerator / denominator;
+    const observed = denominator === 0 ? null : comparison === 'latency' ? percentile(latency, 0.95)
+      : metric === 'review_convergence_reduction' ? percentile(cases.filter(row => row.denominator > 0).map(row => row.numerator / row.denominator), 0.5) : numerator / denominator;
     const p50 = comparison === 'latency' ? percentile(latency, 0.5) : null;
     const safetyStrata = ['high', 'critical'].map(severity => {
       const selected = cases.filter(row => row.severity === severity);

@@ -43,7 +43,8 @@ import { buildHistoryIndex, queryHistoryIndex, canonicalCurrent, validateHistory
 import { getGuardFailureReason as getLifecycleGuardFailureReason } from '../core/machine.js';
 import { nativeReviewFixtureBrokers, withBrokeredNativeReviewInvocation } from './native-review-fixture.js';
 import { buildVerifiedDeferral, deferralPolicyForWrite, verifyDeferralProjection } from '../handlers/finding-deferral-proof.js';
-import type { FindingApplicabilityAssessment } from '../core/finding-applicability.js';
+import { signApplicabilityAssessment, type FindingApplicabilityAssessment } from '../core/finding-applicability.js';
+import { reconcileFindingDeferralRecalls } from '../handlers/finding-deferral-recall.js';
 
 const section = process.argv.find(arg => arg.startsWith('--section='))?.split('=')[1] ?? 'candidates';
 const smokeStarted = performance.now();
@@ -88,6 +89,7 @@ try {
   writeFileSync(join(scratch, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
+    dynamicFinding: { mode: 'warn' },
   }));
   writeFileSync(join(scratch, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/tmp/\n.proof-or-stop/runtime/native-review-invocations/\n.native-review-fixture-*.json\n');
   git('add', '.'); git('commit', '-m', 'synthetic candidate source');
@@ -1095,6 +1097,14 @@ try {
       assert.throws(() => verifyDeferralProjection(ctx, storyId, 'low', currentAssessment, nextRecord, new Date(Date.parse(next.expiresAt) + 1)), /invalid/);
       assert.throws(() => buildVerifiedDeferral(ctx, { storyId, findingId: finding.id, severity: 'low', dispositionId: 'reset-clock', assessment: currentAssessment,
         now: new Date(), policy }), /reset deferral lineage/);
+      // The adapter deliberately has incomplete runtime assessment evidence.
+      // Its real signed L4 claim must be recalled, never silently forgotten.
+      persist([{ recordType: 'finding_applicability_assessment', payload: signApplicabilityAssessment(currentAssessment, signer.privateKey) as unknown as JsonValue,
+        uniqueBindingKey: 'dfec-recall-assessment' }], 'dfec-recall-assessment');
+      const recalled = reconcileFindingDeferralRecalls(ctx, storyId);
+      assert.equal(recalled.rows.length, 1);
+      assert.equal(recalled.rows[0]!.created, 1);
+      assert.equal(reconcileFindingDeferralRecalls(ctx, storyId).rows[0]!.created, 0);
       switchSession(targetSession);
     });
     switchSession(sourceSession);

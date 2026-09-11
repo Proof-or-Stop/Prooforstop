@@ -599,7 +599,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   REVIEW: [
-    'finding_assessment_propose', 'finding_qualification_record',
+    'finding_assessment_propose', 'finding_qualification_record', 'finding_material_reattest',
     'finding_runtime_evidence_run', 'finding_runtime_evidence_verify',
     'finding_applicability_assess', 'finding_applicability_batch', 'finding_deferral_record', 'finding_mandatory_repair_close',
     'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',

@@ -18,6 +18,7 @@ import { readFindingValidationConstraints, readFindingValidationPreview, assertF
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
 import { FINDING_QUALIFICATION_METRICS, FINDING_QUALIFICATION_POLICY } from '../core/finding-rollout-qualification.js';
 import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
+import { findingQualificationWorkflowQuery } from '../handlers/finding-qualification-events.js';
 
 if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 
@@ -88,6 +89,12 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
   const proposed = withNativeReviewFixtureHostIdentity({ agent, invoke: () => handlers.finding_assessment_propose(proposalArgs) });
   const again = withNativeReviewFixtureHostIdentity({ agent, invoke: () => handlers.finding_assessment_propose(proposalArgs) });
   assert.deepEqual(again.proposalRef, proposed.proposalRef); pass('proposal is receipted and idempotent');
+  const clock = findingQualificationWorkflowQuery(ctx, storyId);
+  assert.equal(clock.timing.length, 1); assert.equal(clock.timing[0]!.outcome, 'signed');
+  assert.equal(clock.timing[0]!.candidateCount, 1); assert.ok(clock.timing[0]!.durationMs! >= 0);
+  assert.equal(clock.operations.filter(row => row.operation === 'append_assessment_proposal').length, 1);
+  assert.equal(clock.operations.filter(row => row.operation === 'apply_manifest').length, 0);
+  pass('server monotonic clock freezes actual population and excludes timing records from workflow savings');
   const request = { storyId, findingId, idempotencyKey: 'assessment-once', verdict: 'applicable' as const, proofStrength: 'strong' as const,
     dispositionPlan: 'repair_current' as const, gateImpact: 'blocks' as const, proposalRef: proposed.proposalRef as never };
   const assessment = handlers.finding_applicability_assess(request);
@@ -137,6 +144,7 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
   const measuredCase = handlers.finding_qualification_query({ storyId }).rows[0]!.payload;
   assert.equal(measuredCase.measurementAuthority, 'reported_statistics_non_qualifying');
   assert.equal(measuredCase.measurements.length, 22);
+  assert.equal(measuredCase.timingSeconds, null); assert.equal(measuredCase.timeoutRate, null); assert.equal(measuredCase.latencyCorpusSize, 0);
   assert.deepEqual(measuredCase.queryMeasurements, []);
   assert.equal(measuredCase.publicQueries.ledger.signedRows, true);
   pass('22 self-reported rates remain diagnostic; actual empty query cannot manufacture denominators');

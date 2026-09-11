@@ -2257,6 +2257,7 @@ Behavior:
   }},
   { name: 'finding_runtime_evidence_run', description: 'Run a structured build/execution command and append a content-addressed RuntimeEvidenceReceipt', schema: {
     storyId: z.string().describe('Story ID.'),
+    sourceRef: z.string().regex(/^[a-f0-9]{40,64}$/).optional().describe('Exact ancestor commit executed in a detached temporary worktree; historical proof only, never current freshness.'),
     idempotencyKey: z.string().min(1).describe('Exactly-once runtime receipt append key.'),
     buildCommand: runtimeEvidenceCommandSchema.describe('Structured build command.'),
     executionCommand: runtimeEvidenceCommandSchema.describe('Structured execution command.'),
@@ -2317,6 +2318,9 @@ Behavior:
   }},
   { name: 'finding_triage', description: 'Read the shared Dynamic Finding blocker projection and batch manifest digest used by lifecycle gates', schema: {
     storyId: z.string().min(1), findingIds: z.array(z.string().min(1)).optional(), mode: z.enum(['observe', 'warn', 'enforce']).optional(),
+  }},
+  { name: 'finding_material_reattest', description: 'Re-attest only unrelated material drift with exact fresh runtime pairs and current independent reviewer proof; no scope or expiry extension', schema: {
+    storyId: z.string().min(1), assessmentId: z.string().min(1), runtimeReceiptIds: z.array(z.string().min(1)).min(1), idempotencyKey: z.string().min(1),
   }},
   { name: 'finding_rollout_scorecard', description: 'Compare legacy and dynamic blocker decisions and report bounded operation-reduction metrics', schema: {
     storyId: z.string().min(1), findingIds: z.array(z.string().min(1)).optional(), mode: z.enum(['observe', 'warn', 'enforce']).optional(),

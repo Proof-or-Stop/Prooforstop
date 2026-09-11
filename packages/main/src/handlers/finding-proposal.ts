@@ -8,6 +8,8 @@ import { signAssessmentProposal, exactLedgerRecordHash, findingLedgerSignerFromW
 import { proposalAuthorityDigest, proposalFindingHash, proposalScopeDigest } from './finding-route.js';
 import { FINDING_PROOF_POLICY } from './finding-applicability-proof.js';
 import type { HandlerContext } from './context.js';
+import { execFileSync } from 'node:child_process';
+import { readFindingBaseHeadPair } from './finding-runtime-pair.js';
 
 export function prepareFindingAssessmentProposal(ctx: HandlerContext, input: {
   storyId: string; findingId: string; idempotencyKey: string; proposal: Record<string, unknown>;
@@ -22,7 +24,9 @@ export function prepareFindingAssessmentProposal(ctx: HandlerContext, input: {
       && row.agent === actor.canonicalName && row.reviewRunId === finding.reviewRunId)) throw new Error('dynamic finding: exact current reviewer-owned verified Finding required');
   const desired = input.proposal; const runtimeIds = desired.runtimeReceiptIds;
   if (!Array.isArray(runtimeIds) || runtimeIds.length === 0 || runtimeIds.some(id => typeof id !== 'string' || !id.trim())) throw new Error('dynamic finding: proposal requires executed runtime witnesses');
-  runtimeIds.forEach(id => readCurrentFindingRuntimeEvidence(ctx, input.storyId, id));
+  const pair = desired.verdict === 'pre_existing_unaffected'
+    ? readFindingBaseHeadPair(ctx, input.storyId, runtimeIds, execFileSync('git', ['merge-base', 'main', 'HEAD'], { cwd: ctx.root, encoding: 'utf8' }).trim(), currentGitHead(ctx.root)!) : undefined;
+  if (!pair) runtimeIds.forEach(id => readCurrentFindingRuntimeEvidence(ctx, input.storyId, id));
   const now = new Date(); const expiresAt = Date.parse(String(desired.expiresAt));
   if (!Number.isFinite(expiresAt) || expiresAt <= now.getTime() || expiresAt > now.getTime() + 30 * 86_400_000) throw new Error('dynamic finding: proposal expiry must be within 30 days');
   const signer = findingLedgerSignerFromWorkspace(ctx.root); const authorityDigest = proposalAuthorityDigest(actor.canonicalName);
@@ -34,6 +38,8 @@ export function prepareFindingAssessmentProposal(ctx: HandlerContext, input: {
     findingRef, findingHash, findingVersion: source.recordId, issuedAt: now.toISOString(), expiresAt: new Date(expiresAt).toISOString(),
     freshnessPolicyVersion: FINDING_PROOF_POLICY.version, maxAgeSeconds: (expiresAt - now.getTime()) / 1000,
     dependencyBundle: { ...dependency, digest: canonicalHash(dependency) },
+    ...(pair ? { baseHead: { ...(desired.baseHead as Record<string, unknown>), receiptIds: runtimeIds,
+      baseReceiptId: runtimeIds[0], headReceiptId: runtimeIds[1], pairDigest: pair.digest } } : {}),
     evidenceRefs: desired.evidenceRefs ?? runtimeIds, historicalSourceRefs: desired.historicalSourceRefs ?? [],
     reviewRunId: finding.reviewRunId, reviewRound: finding.reviewRound,
     scopeDigest: proposalScopeDigest(ctx, input.storyId), headHash: currentGitHead(ctx.root), materialHash: currentMaterialHash(ctx.root),

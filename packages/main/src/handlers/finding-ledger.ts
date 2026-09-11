@@ -29,6 +29,7 @@ import type { StoryStore } from '../core/store.js';
 import { FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT } from '../core/finding-runtime-evidence.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
+import { withFindingRuntimeSource } from './finding-runtime-source.js';
 import { currentGitHead, currentMaterialHash, readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import { readOwnerLease } from '../core/story-owner-lease.js';
@@ -1018,10 +1019,13 @@ function proposalExactUnionValid(proposal: Record<string, unknown>): boolean {
   if (verdict === 'pre_existing_unaffected') {
     const baseHead = proposal.baseHead;
     return (owner === 'meta' || owner === 'other_story') && basis === 'base_head_reproduction'
-      && proposalObjectShape(baseHead, ['baseRef', 'baseResult', 'headRef', 'headResult', 'receiptIds', 'worsenedByStory'])
+      && proposalObjectShape(baseHead, ['baseRef', 'baseResult', 'headRef', 'headResult', 'receiptIds', 'worsenedByStory'], ['baseReceiptId', 'headReceiptId', 'pairDigest'])
       && nonEmptyText(baseHead.baseRef) && baseHead.baseResult === 'reproduced'
       && nonEmptyText(baseHead.headRef) && baseHead.headResult === 'reproduced'
-      && baseHead.worsenedByStory === false && nonEmptyTextArray(baseHead.receiptIds);
+      && baseHead.worsenedByStory === false && nonEmptyTextArray(baseHead.receiptIds)
+      && (!Object.hasOwn(baseHead, 'pairDigest') || (typeof baseHead.pairDigest === 'string' && /^[a-f0-9]{64}$/.test(baseHead.pairDigest)
+        && typeof baseHead.baseReceiptId === 'string' && typeof baseHead.headReceiptId === 'string'
+        && baseHead.baseReceiptId !== baseHead.headReceiptId));
   }
   if (verdict === 'out_of_scope') {
     return (owner === 'meta' || owner === 'other_story') && basis === 'decision_scope'
@@ -1209,6 +1213,7 @@ export interface RuntimeEvidenceCommandSpec {
 
 export interface FindingRuntimeEvidenceRunArgs {
   storyId: string;
+  sourceRef?: string;
   idempotencyKey: string;
   buildCommand: RuntimeEvidenceCommandSpec;
   executionCommand: RuntimeEvidenceCommandSpec;
@@ -1993,6 +1998,11 @@ export function readCurrentFindingRuntimeEvidence(ctx: HandlerContext, storyId: 
 export function readMaterialBoundRepairRuntimeEvidence(ctx: HandlerContext, storyId: string, receiptId: string) {
   return readFindingRuntimeEvidenceForReader(ctx, storyId, receiptId, true);
 }
+/** Re-attestation already executed at its bound material revision. A later
+ * metadata-only commit may reuse it, never relabel it as a new execution. */
+export function readMaterialBoundReattestationRuntimeEvidence(ctx: HandlerContext, storyId: string, receiptId: string) {
+  return readFindingRuntimeEvidenceForReader(ctx, storyId, receiptId, true);
+}
 function readFindingRuntimeEvidenceForReader(ctx: HandlerContext, storyId: string, receiptId: string, closureReuse: boolean) {
   const ledger = ctx.store.readFindingLedger<JsonValue>(storyId);
   const record = ledger.records.find(row => row.recordType === 'runtime_evidence_receipt'
@@ -2070,14 +2080,15 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300_000) {
         throw new Error('timeoutMs must be an integer from 1 to 300000');
       }
-      return withCanonicalBuildLock(ctx.root, () => {
+      return withFindingRuntimeSource(ctx.root, args.sourceRef, executionRoot => withCanonicalBuildLock(executionRoot, () => {
       args.afterCanonicalBuildLockForTest?.();
       const signer = runtimeEvidenceSignerFromWorkspace(ctx.root);
       const ledgerSigner = findingLedgerSignerFromWorkspace(ctx.root);
       const ledgerTrust = currentFindingLedgerTrustFromWorkspace(ctx.root);
       if (!ledgerTrust) throw new RuntimeEvidenceRefusal('unknown_signing_key');
       const trust = runtimeTrustFromWorkspace(ctx.root);
-      const expected = runtimeExpectedState(ctx, args, trust);
+      const expected = { ...runtimeExpectedState({ ...ctx, root: executionRoot }, args, trust),
+        blobStore: createRuntimeEvidenceBlobStore(ctx.root, args.storageCapability) };
       const findingLockDir = ctx.store.storyFilePath(args.storyId, 'findings.lock');
       const replay = withMkdirLock(findingLockDir, () => runtimeReplay(ctx, args, ledgerTrust, expected), {
         label: 'runtime receipt replay lookup', requireHolderToken: true,
@@ -2109,14 +2120,14 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
           environment: expected.environment,
           toolchain: expected.toolchain,
           producer: expected.producer,
-          root: ctx.root,
+          root: executionRoot,
           artifactInputs: args.artifactPaths.map((path) => ({ path, sourceHead: expected.headHash })),
           blobStore: expected.blobStore,
           receiptId: `rer_${canonicalDigest({ storyId: args.storyId, idempotencyKey: args.idempotencyKey }).slice(0, 32)}`,
           run: () => runRuntimeCommand(expected.executionCommand, childEnvironment, timeoutMs),
         }, signer);
-        if (currentGitHead(ctx.root) !== expected.headHash
-          || currentMaterialHash(ctx.root, 'HEAD', ctx.root) !== expected.sourceMaterialHash) {
+        if (currentGitHead(executionRoot) !== expected.headHash
+          || currentMaterialHash(executionRoot, 'HEAD', executionRoot) !== expected.sourceMaterialHash) {
           throw new RuntimeEvidenceRefusal('source_stale');
         }
 
@@ -2160,7 +2171,7 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
         failFastIfHeld: true,
         heldMessage: 'runtime-evidence: build_in_progress',
       });
-      });
+      }));
     },
 
     finding_runtime_evidence_verify(args: FindingRuntimeEvidenceVerifyArgs) {

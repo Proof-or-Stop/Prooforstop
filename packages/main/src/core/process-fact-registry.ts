@@ -400,7 +400,10 @@ export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   lifecycleAuthority: 'dynamic-blocker-projection-only',
   rollout: ['observe', 'warn', 'enforce'],
   killSwitch: 'legacy predicate fallback',
-  qualification: '22 metric rows; only public-query-derived measurements qualify, reported statistics remain diagnostic; incomplete source collectors refuse enforce before the 20 Stories / 200 cases / 30 observed days and merged prerequisites',
+  qualification: '22 metric rows; public queries and independently reviewed preregistered mutation executions supply counts; reported statistics remain diagnostic; monotonic frozen-population start/end records measure proposal latency, unmatched starts refuse via timeout rate; full proposal/route/deferral/repair subject census and merged prerequisites required before the real 20 Stories / 200 cases / 30 observed days',
+  historicalRuntime: 'finding_runtime_evidence_run sourceRef executes an exact ancestor in a detached temporary worktree; both ordered receipts, selectors, witness schemas and pair digest bind non-regression proof',
+  materialReattestation: 'finding_material_reattest signs unchanged source, process-policy, canonical and target-route dependencies plus exact fresh same-command runtime re-executions after current independent PASS; readers rederive all inputs',
+  recallProducer: 'story_advance owner boundary reconciles non-authoritative history recalls in warn/enforce only; explicit and automatic triggers share observed-state keys; failures report without bypassing gates or blocking DEV rework',
   validation: 'signed findingConstraintDigest; additive required commands and affected paths; reassessment escalates to full; recheck before launch and before persistence; never scope authority',
 } as const;
 
@@ -524,6 +527,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_rollout_scorecard: ['schema-contract', 'freshness-policy'],
   finding_qualification_record: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
   finding_qualification_query: ['schema-contract', 'signed-artifact'],
+  finding_material_reattest: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
   finding_assessment_propose: ['schema-contract', 'signed-artifact', 'atomic-persistence', 'execution-evidence'],
   host_run: ['execution-evidence', 'schema-contract'],
   // Aggregate cursors affect observation only; terminal signatures and the
