@@ -75,3 +75,21 @@ The user subsequently explicitly authorized GitHub publication, tag/release, and
 Claude initial integration review requested changes: mutating certification entry points did not enforce active-identity pins, and preservation proof needed this merge identity. Added before-store checks to begin/cancel, a direct-handler tamper/restored-control regression, and latest-table-preservation.json binding candidate parent `d66ffc6a7abfdb17bfa412f23fa705b3e6fbf6f2` plus incoming main `b715dd7b30f90add3c19dbc939a4f8cffd4b45b7`. Actual RED reached STORE_TOUCHED before pin refusal. A later reuse-smoke case exposed semantic non-PASS becoming PASS during coverage decoration; normalize that result to fail before decoration. Old fixture now explicitly obtains another synthetic test admission before a new actual execution; consumed admission plus changed environment remains rejected with zero additional commands.
 
 Post-fix results: full reuse smoke exit 0 (81.814 s), mutator pin test exit 0 (1.846 s), process contract exit 0 (10.369 s), tree observation exit 0, stage count exit 0, signing-root exit 0. These durations are check runtimes, not product speedup comparisons. Full freshness previously passed in this resolved integration (42.648 s). Final independent audit remains pending.
+
+Committed resolved latest-main merge as `fcac40f34d`. Applied the repository atomic version-bump helper for the explicitly authorized retained Lab prerelease: 0.3.314 -> 0.3.315, seven synchronized paths. This is a retained experimental tag publication, not Lab finish, main integration, or formal Story completion. The pre-push policy forbids remote task branches; publish the authorized annotated experimental tag and GitHub prerelease, keeping local Lab available for inspection.
+
+Claude final bounded audit APPROVE, with independent execution of mutator pin, tree-delegate pin and process contract (all exit 0). Its reuse-log observations were captured during the running sequential matrix: final matrix now contains six completed exit-0 results and the full reuse PASS. Preserve the audit verbatim and append this later completion. Added explicit remaining-scope table to release notes; renamed the failed semantic attempt to semantic-nonpass-red.log without changing bytes.
+
+Claude evidence/disclosure supplement APPROVE: six final prior matrix rows all exit 0; independently verified frozen table, release table and all 21 then-bundled evidence checksums. Historical public archive assembled from 29 report directories: 1,960 top-level reports/logs, per-file digest verification passed, private/runtime fixture trees excluded. Final bumped-version checks are recorded separately.
+
+
+## Final synchronized version 0.3.315
+
+CLI reports `Proof-or-Stop 0.3.315`; official build passed. All four repeated checks below used the bumped candidate runtime. Durations are check runtimes.
+
+| Command | Exit | Seconds |
+|---|---:|---:|
+| `node packages/main/dist/tasks/verification-freshness-smoke.js` | 0 | 31.090 |
+| `node packages/main/dist/tasks/validation-evidence-reuse-smoke.js` | 0 | 79.285 |
+| `node scripts/verify-runtime-fact-contract.mjs` | 0 | 7.306 |
+| `node scripts/verify-process-fact-contract.mjs` | 0 | 9.244 |

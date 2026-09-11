@@ -25,8 +25,20 @@ Incoming main: `b715dd7b30f90add3c19dbc939a4f8cffd4b45b7`. Official builds passe
 |---|---|---|---|
 | Certification mutator pin enforcement | Tampered inventory module reached store access | Both begin/cancel refuse before any store access; restored module reaches ordinary path | evidence/lab-cert-mutator-red.log; evidence/audit-fix-check-0.log |
 | Scope-positive fixture | Unclassified root witness made certification inputs unavailable | Recognized scripts-domain witness executes once; missing contract remains zero launches | full freshness log, evidence/latest-check-2.log |
-| Semantic non-PASS decoration | Missing/unknown status with allPass true became surfaced PASS, exit 0 | Non-PASS remains fail; full reuse smoke passes with semantic negative controls | evidence/lab-reuse-admission-green.log (failed attempt); evidence/audit-fix-check-1.log |
+| Semantic non-PASS decoration | Missing/unknown status with allPass true became surfaced PASS, exit 0 | Non-PASS remains fail; full reuse smoke passes with semantic negative controls | evidence/semantic-nonpass-red.log (failed attempt); evidence/audit-fix-check-1.log |
 
-Failed attempts retain their original filenames; the earlier admission-green log is a failed attempt, not GREEN. New synthetic fixture admission is test-only, signed by existing test helper, and does not prove production review or admission readiness. Changed environment with consumed admission still refuses and starts no additional test.
+The earlier misleading admission-green archive filename was renamed semantic-nonpass-red.log; its bytes remain the original failed attempt. New synthetic fixture admission is test-only, signed by existing test helper, and does not prove production review or admission readiness. Changed environment with consumed admission still refuses and starts no additional test.
 
 The full reuse smoke now passes. Remaining limits: no full comparable Story lifecycle benchmark, no proof of long-term review convergence, no full final dual-worktree throughput benchmark, no universal short-command reuse benefit, and no arbitrary-fault or OS-wide transaction guarantee. The full quorum suite was not rerun: the latest merge did not change its implementation; focused shared-handler and contract regressions were selected. Historical performance rows are unchanged and not re-labelled as current measurements.
+
+
+## Final synchronized version 0.3.315
+
+CLI reports `Proof-or-Stop 0.3.315`; official build passed. All four repeated checks below used the bumped candidate runtime. Durations are check runtimes.
+
+| Command | Exit | Seconds |
+|---|---:|---:|
+| `node packages/main/dist/tasks/verification-freshness-smoke.js` | 0 | 31.090 |
+| `node packages/main/dist/tasks/validation-evidence-reuse-smoke.js` | 0 | 79.285 |
+| `node scripts/verify-runtime-fact-contract.mjs` | 0 | 7.306 |
+| `node scripts/verify-process-fact-contract.mjs` | 0 | 9.244 |

@@ -1,4 +1,4 @@
-# Lab performance integration release notes
+# v0.3.315-lab.1 — Lab 性能与证据修复整合
 
 This experimental candidate integrates the latest main with the accumulated Lab repairs. The table below preserves the historical before/after measurements exactly. These are bounded historical experiments, not a claim that the combined version improves every Story or that every remaining issue is resolved. Timings from different workloads must not be added.
 
@@ -33,4 +33,43 @@ This experimental candidate integrates the latest main with the accumulated Lab 
 
 ## 本次合并后的验证
 
-See POST-MERGE-VALIDATION.md for current results and known limitations. Final independent audit and version assignment are pending.
+Package/CLI version: **0.3.315**. GitHub tag: **v0.3.315-lab.1**, explicitly a prerelease. Source integration commit: `fcac40f34d`.
+
+本次合并后的定向结果：完整 freshness、完整复用 smoke、动态 Finding、流程/运行时契约、阶段计数、Git 树观察和跨目录签名检查通过。完整复用 smoke 81.814 秒是检查耗时，不是 Story 提速数据。
+
+本次新增修复：认证 begin/cancel 在访问数据前检查实现指纹（篡改 RED → 拒绝 GREEN）；非 PASS JSON 不再被覆盖率装饰成 PASS；旧夹具补齐显式认证前提，环境变化仍不能复用旧结果。详见 POST-MERGE-VALIDATION.md 和 evidence/ 原始输出。
+
+仍未证明：完整 Story 净提速、长期审查收敛、完整双工作树吞吐、所有短命令复用经济性及任意故障恢复。本版本不是正式 Story DONE 或签名产品验收证据，未合回 main，也不修改全局安装。
+
+Claude CLI: **APPROVE (bounded scope)**. Independently executed mutator pin, tree-delegate pin and process contract checks, all exit 0. Full smoke outcomes below are separately recorded runs, not claimed as independently rerun by Claude. Historical reports remain immutable; later authorization and integration records are appended separately.
+
+
+## 尚未解决或尚未证明的范围
+
+| 项目 | 当前边界 |
+|---|---|
+| 完整 Story 净耗时 | 尚无同工作量完整生命周期前后对照，必须计入新增回归成本 |
+| 长期审查收敛 | 名单及固定批次证据不能证明所有历史多轮 Story 收敛 |
+| 完整双工作树吞吐 | 尚无最终完整命令清单吞吐、最坏等待及冲突对照 |
+| 短命令复用经济性 | 可避开不合算路径，不证明所有短命令复用更快 |
+| 完整收尾依赖与任意恢复 | 限已声明、已验证故障；不保证任意外部写入或 OS 多文件原子性 |
+| 全量整体验收 | 本次为定向合并验证，未运行完整 quorum 或取得正式 Story DONE |
+
+
+## 可下载证据
+
+- `v0.3.315-lab.1-historical-evidence.zip`：1,960 个历史报告/日志，包含逐文件 SHA-256 清单；未包含运行时私钥或测试工作目录。
+- `v0.3.315-lab.1-current-evidence.zip`：本次修复、验证日志、完整 24 类表格、Claude 审计及自检脚本。
+- Claude 补审已确认六项最终结果完整记录，并独立运行表格/证据包校验；APPROVE 仅限已声明范围。
+
+
+## 0.3.315 最终构建后的复核
+
+| 检查 | 结果 | 检查耗时 |
+|---|---|---:|
+| 完整 freshness smoke | PASS | 31.090 秒 |
+| 完整复用 smoke | PASS | 79.285 秒 |
+| 运行时契约 | PASS | 7.306 秒 |
+| 流程契约 | PASS | 9.244 秒 |
+
+上述为本次自检的命令耗时，不能解读为 Story 提速比例。Claude 独立执行和补审范围见附带审计全文。

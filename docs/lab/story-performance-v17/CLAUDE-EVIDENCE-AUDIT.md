@@ -1,0 +1,11 @@
+**APPROVE** (evidence/disclosure scope only; no files modified, no additional tests run).
+
+**Verified**
+
+- `evidence/audit-fix-checks.json` — six completed rows, all `code: 0`: mutator identity (1.846 s), **full reuse smoke (81.814 s)**, process-fact contract (10.369 s), git-tree observation (0.546 s), stage-entry-count (0.869 s), signing-root (2.134 s). My earlier in-flight matrix observation is superseded; `audit-fix-check-1.log` now terminates in `validation-evidence-reuse-smoke PASS` with the fresh-PASS reuse transition GREEN line above it.
+- Final outcomes are **recorded, not re-executed by me**. `RELEASE-NOTES.md:44` states this explicitly: "Full smoke outcomes below are separately recorded runs, not claimed as independently rerun by Claude." `INTEGRATION-LOG.md` carries the same framing and the durations are labeled check runtimes, not speedup.
+- `verify-package.py` executed independently from the worktree root: `PACKAGE_GREEN: 24 comparison rows preserved; release table identical; 21 evidence files verified`, exit 0. All 21 files in `evidence/` are present in `evidence-manifest.json` with hashes — no orphans on either side.
+- **RED disclosure is correct.** `semantic-nonpass-red.log` is disclosed as a failed attempt in `POST-MERGE-VALIDATION.md:28` ("failed attempt") and the rename is recorded at `:30` and in `INTEGRATION-LOG.md` as a filename-only change with bytes preserved. The file's content confirms it: `AssertionError … actual 0, expected 1` at the coverage-decoration path, 0/1 intent covered. Manifest hash `7335d18…` binds those bytes. `lab-cert-mutator-red.log` is likewise disclosed as the pre-fix RED.
+- **Remaining-scope table present** — `RELEASE-NOTES.md:47-56`, six rows bounding full-Story net time, review convergence, dual-worktree throughput, short-command reuse economics, teardown/arbitrary recovery, and full acceptance, plus the prose non-claims at `:42`.
+
+**Residual, non-blocking:** prior-audit item 3 (`INTEGRATION-LOG.md` reading more settled than `POST-MERGE-VALIDATION.md` on smoke greenness) is now moot rather than edited — the smoke is green, so the two documents no longer conflict. The original line stands unamended, which is consistent with the stated immutability convention.
