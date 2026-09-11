@@ -20,6 +20,7 @@ import { seedCurrentReviewFixture, bindCurrentFixtureFinding } from './current-r
 import { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, runBrokeredNativeReviewCli } from './native-review-fixture.js';
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
 import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
+import { collectFindingQualificationEvents } from '../handlers/finding-qualification-events.js';
 
 if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const sandbox = mkdtempSync(join(tmpdir(), 'proof-or-stop-reattest-'));
@@ -104,6 +105,11 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
     route: { storyId: targetId, receipt: { storyId: targetId, recordId: consent.record.recordId, recordHash: exactLedgerRecordHash(consent.record) } } });
   handlers.finding_deferral_record({ storyId, findingId, idempotencyKey: 'deferral', assessmentId: assessment.assessment.assessmentId! });
   assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, false); pass('real signed initial deferral releases shadow gate');
+  const gold = collectFindingQualificationEvents(ctx, { storyId, findingId, caseId: 'isolated-deferral-gold', severity: 'low', observedAt: new Date().toISOString(),
+    experiments: [], reportReceiptId: 'not-a-measurement-report', population: 'adversarial', gold: { applicable: true, eligibleDeferral: true, ownerStoryId: targetId } });
+  assert.equal(gold.measurements.find(row => row.metric === 'nonblocking_precision')?.numerator, 1);
+  assert.equal(gold.measurements.find(row => row.metric === 'false_deferral')?.numerator, 0);
+  pass('independently eligible deferral is not a nonblocking precision error');
   mkdirSync(join(root, 'docs/audits'), { recursive: true }); write('docs/audits/unrelated.md', 'An unrelated audit note.\n');
   git('add', 'docs/audits/unrelated.md'); git('commit', '-m', 'unrelated main audit'); git('branch', '-f', 'main', 'HEAD');
   assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, true); pass('raw material drift remains blocked');

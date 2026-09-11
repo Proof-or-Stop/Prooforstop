@@ -19,6 +19,7 @@ import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/arti
 import { FINDING_QUALIFICATION_METRICS, FINDING_QUALIFICATION_POLICY } from '../core/finding-rollout-qualification.js';
 import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
 import { findingQualificationWorkflowQuery } from '../handlers/finding-qualification-events.js';
+import { collectQualificationSubjectAdjudications } from '../handlers/finding-qualification-adjudication.js';
 
 if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 
@@ -51,10 +52,14 @@ gateImpact:'blocks',affectedPaths:['defect.mjs'],checkedIntentRefs:['CHK-001:hap
 protectedSurfaceEvaluation:${JSON.stringify(FINDING_PROTECTED_SURFACES.map(surface => ({ surface, state: 'clear', evidenceRefs: ['CHK-001:happy:0'] })))} }));
 process.exitCode=broken?1:0;`);
   write('qualification.mjs', `import {StoryStore} from ${JSON.stringify(new URL('../core/store.js', import.meta.url).href)};
-const source=new StoryStore(process.cwd()).readFindingLedger(${JSON.stringify(storyId)}).records.filter(row=>row.recordType==='finding_applicability_assessment').at(-1).payload;
+import {exactLedgerRecordHash} from ${JSON.stringify(new URL('../handlers/finding-ledger.js', import.meta.url).href)};
+const entry=new StoryStore(process.cwd()).readFindingLedger(${JSON.stringify(storyId)}).records.filter(row=>row.recordType==='finding_applicability_assessment').at(-1);const source=entry.payload;
 console.log('FINDING_QUALIFICATION '+JSON.stringify({schemaVersion:${JSON.stringify(FINDING_QUALIFICATION_POLICY.version)},assessmentId:source.assessmentId,
 population:'adversarial',storyClass:'isolated-fixture',detectorVersion:'fixture-v1',retryPolicy:'No retries',exclusions:[],
 timingSeconds:{classifier:0,triage:0,repair:0,convergence:0},prerequisites:[],simpleStoryRegression:null,timeoutRate:0,latencyCorpusSize:1,candidateBaselineExplained:true,
+subjectAdjudications:[{ref:{storyId:${JSON.stringify(storyId)},recordId:entry.recordId,recordHash:exactLedgerRecordHash(entry)},
+expected:{kind:'finding_applicability_assessment',findingId:${JSON.stringify(findingId)},verdict:'applicable',dispositionPlan:'repair_current',gateImpact:'blocks'},
+rationale:'The independent fixture oracle requires repair because the controlled broken export reproduces and blocks its accepted result.'}],
 measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, comparison]) => ({ metric, numerator: comparison === 'max' ? 0 : 1, denominator: 1, latencySeconds: 1 })))} }));`);
   git('init', '-b', 'main'); git('config', 'user.name', 'Isolated DFEC Test'); git('config', 'user.email', 'dfec@example.invalid');
   git('add', '.'); git('commit', '-m', 'fixture baseline'); git('checkout', '-b', `story/${storyId}`); resetConfigCache(); process.chdir(root);
@@ -145,9 +150,19 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
   assert.equal(measuredCase.measurementAuthority, 'reported_statistics_non_qualifying');
   assert.equal(measuredCase.measurements.length, 22);
   assert.equal(measuredCase.timingSeconds, null); assert.equal(measuredCase.timeoutRate, null); assert.equal(measuredCase.latencyCorpusSize, 0);
-  assert.deepEqual(measuredCase.queryMeasurements, []);
+  assert.equal(measuredCase.queryMeasurements.length, 1);
+  assert.equal(measuredCase.queryMeasurements[0]!.metric, 'scorecard_completeness');
+  assert.equal(measuredCase.queryMeasurements[0]!.numerator, 1);
+  assert.equal(measuredCase.subjectAdjudications[0]!.correct, true);
   assert.equal(measuredCase.publicQueries.ledger.signedRows, true);
-  pass('22 self-reported rates remain diagnostic; actual empty query cannot manufacture denominators');
+  pass('22 self-reported rates remain diagnostic; only one exact independent subject receives a denominator');
+  const subject = measuredCase.subjectAdjudications[0]!;
+  assert.equal(collectQualificationSubjectAdjudications(ctx, [{ ...subject, expected: { ...subject.expected, gateImpact: 'does_not_block' } }], independent)[0]!.correct, false);
+  assert.throws(() => collectQualificationSubjectAdjudications(ctx, [{ ...subject, expected: { kind: 'finding_applicability_assessment' } }], independent), /dimension/);
+  assert.throws(() => collectQualificationSubjectAdjudications(ctx, [{ ...subject, ref: { ...subject.ref, recordHash: 'f'.repeat(64) } }], independent), /substituted/);
+  assert.throws(() => collectQualificationSubjectAdjudications(ctx, [subject, subject], independent), /duplicate/);
+  assert.throws(() => collectQualificationSubjectAdjudications(ctx, [subject], agent), /self-adjudicate/);
+  pass('per-subject independent gold mismatch is failure; omitted substituted and duplicate subjects refuse');
   assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: independent, invoke: () => handlers.finding_qualification_record({ ...qualifierArgs, idempotencyKey: 'inflate' }) }), /duplicate case/);
   assert.equal(handlers.finding_rollout_scorecard({ storyId }).qualification.qualification.eligible, false);
   pass('qualification requires exact independent native PASS; synthetic case cannot enable enforce or inflate count');

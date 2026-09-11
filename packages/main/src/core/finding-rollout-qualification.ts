@@ -29,6 +29,8 @@ export const FINDING_QUALIFICATION_METRICS = [
 export type FindingQualificationMetric = typeof FINDING_QUALIFICATION_METRICS[number][0];
 export const FINDING_QUALIFICATION_POLICY = Object.freeze({ version: 'dynamic-finding-qualification-v1',
   minStories: 20, minCases: 200, minDays: 30, confidence: 0.95, method: 'one-sided-binomial-zero-event',
+  latency: Object.freeze({ p50Seconds: 2, p95Seconds: 5, minCorpusSize: 2273, maxTimeoutRate: 0.01 }),
+  simpleStory: Object.freeze({ maxFindings: 5, maxRegression: 0.1 }),
   metrics: FINDING_QUALIFICATION_METRICS,
   requiredPrerequisites: ['ledger_integrity_merged', 'runtime_integrity_merged', 'identity_lineage_merged',
     'dependency_mutation_suite', 'merged_state_combination_review', 'targeted_adversarial_suite'] });
@@ -44,6 +46,7 @@ export interface QualificationMeasurement {
   independentlyAdjudicated: boolean;
   synthetic: boolean;
   latencySeconds?: number;
+  latencyPopulationSize?: number;
   rollbackEvent?: boolean;
 }
 export interface FindingQualificationCorpus {
@@ -107,15 +110,19 @@ export function buildFindingQualificationScorecard(corpus?: FindingQualification
   const caseCount = new Set(operational.map(row => `${row.storyId}:${row.observationId ?? row.caseId}`)).size;
   const observedTimes = operational.map(row => Date.parse(row.observedAt));
   const observedDays = observedTimes.length ? (Math.max(...observedTimes) - Math.min(...observedTimes)) / 86_400_000 : 0;
-  if (storyCount < 20) refusalReasons.push('fewer_than_20_finding_bearing_stories');
-  if (caseCount < 200) refusalReasons.push('fewer_than_200_independent_cases');
-  if (observedDays < 30) refusalReasons.push('observed_cases_do_not_span_30_days');
+  if (storyCount < FINDING_QUALIFICATION_POLICY.minStories) refusalReasons.push('fewer_than_20_finding_bearing_stories');
+  if (caseCount < FINDING_QUALIFICATION_POLICY.minCases) refusalReasons.push('fewer_than_200_independent_cases');
+  if (observedDays < FINDING_QUALIFICATION_POLICY.minDays) refusalReasons.push('observed_cases_do_not_span_30_days');
   for (const prerequisite of FINDING_QUALIFICATION_POLICY.requiredPrerequisites) {
     const row = corpus?.prerequisites?.[prerequisite];
     if (!row?.passed || !digestList(row.evidenceDigests)) refusalReasons.push(`prerequisite:${prerequisite}`);
   }
   const rows = FINDING_QUALIFICATION_METRICS.map(([metric, comparison, threshold, rollbackThreshold]) => {
-    const cases = valid.filter(row => row.metric === metric);
+    const allCases = valid.filter(row => row.metric === metric);
+    const operationalMetric = ['false_nonblocking_high_critical', 'nonblocking_precision', 'canonical_root_cause_honesty',
+      'duplicate_route_accuracy', 'false_deferral', 'workflow_operation_reduction', 'review_convergence_reduction', 'triage_latency'].includes(metric);
+    const cases = operationalMetric ? allCases.filter(row => !row.synthetic) : allCases;
+    const synthetic = allCases.filter(row => row.synthetic);
     const numerator = sum(cases.map(row => row.numerator));
     const denominator = sum(cases.map(row => row.denominator));
     const latency = cases.map(row => row.latencySeconds).filter(finiteNonnegative);
@@ -132,17 +139,25 @@ export function buildFindingQualificationScorecard(corpus?: FindingQualification
       : comparison === 'descriptive' ? 'descriptive'
       : comparison === 'min' ? (observed >= threshold! ? 'pass' : 'refuse')
       : comparison === 'max' ? (observed <= threshold! ? 'pass' : 'refuse')
-      : (p50 !== null && p50 <= 2 && observed <= 5 && corpus!.latencyCorpusSize >= 2273 ? 'pass' : 'refuse');
-    if (cases.some(row => row.rollbackEvent)) status = 'refuse';
+      : (p50 !== null && p50 <= FINDING_QUALIFICATION_POLICY.latency.p50Seconds && observed <= FINDING_QUALIFICATION_POLICY.latency.p95Seconds
+        && corpus!.latencyCorpusSize >= FINDING_QUALIFICATION_POLICY.latency.minCorpusSize
+        && cases.every(row => finiteNonnegative(row.latencyPopulationSize) && row.latencyPopulationSize >= FINDING_QUALIFICATION_POLICY.latency.minCorpusSize) ? 'pass' : 'refuse');
+    // Adversarial failures are an independent veto, never extra successful
+    // operational denominators that can dilute observed misses.
+    if (allCases.some(row => row.rollbackEvent) || operationalMetric && synthetic.some(row =>
+      comparison === 'min' ? row.numerator < row.denominator * threshold! : comparison === 'max' ? row.numerator > 0
+        : comparison === 'latency' ? !finiteNonnegative(row.latencySeconds) || row.latencySeconds > FINDING_QUALIFICATION_POLICY.latency.p95Seconds : false)) status = 'refuse';
     if (['false_nonblocking_high_critical', 'assessment_integrity_fail_closed', 'mandatory_repair_closure_integrity', 'nonblocking_precision', 'duplicate_route_accuracy'].includes(metric)
       && safetyStrata.some(row => row.sampledN === 0)) status = 'insufficient_evidence';
+    if (['nonblocking_precision', 'duplicate_route_accuracy'].includes(metric) && safetyStrata.some(row => row.events > 0)) status = 'refuse';
     if (comparison === 'descriptive' && !corpus?.candidateBaselineExplained) status = 'refuse';
-    if (metric === 'review_convergence_reduction' && (corpus?.simpleStoryRegression == null || corpus.simpleStoryRegression > 0.1)) status = 'refuse';
-    if (metric === 'triage_latency' && (corpus?.timeoutRate == null || corpus.timeoutRate > 0.01)) status = 'refuse';
+    if (metric === 'review_convergence_reduction' && (corpus?.simpleStoryRegression == null || corpus.simpleStoryRegression > FINDING_QUALIFICATION_POLICY.simpleStory.maxRegression)) status = 'refuse';
+    if (metric === 'triage_latency' && (corpus?.timeoutRate == null || corpus.timeoutRate > FINDING_QUALIFICATION_POLICY.latency.maxTimeoutRate)) status = 'refuse';
     if (status !== 'pass' && status !== 'descriptive') refusalReasons.push(`metric:${metric}:${status}`);
     return { metric, numerator, denominator, observed, p50, status, promotionThreshold: { comparison, value: threshold }, rollbackThreshold,
       reason: status === 'insufficient_evidence' ? 'No complete independently adjudicated denominator/stratum' : status,
       evidenceDigests: [...new Set(cases.flatMap(row => row.evidenceDigests))].sort(), strata: safetyStrata,
+      synthetic: { numerator: sum(synthetic.map(row => row.numerator)), denominator: sum(synthetic.map(row => row.denominator)), promotionDenominator: !operationalMetric },
       confidence: { level: 0.95, method: FINDING_QUALIFICATION_POLICY.method }, promotionRequired: comparison !== 'descriptive' };
   });
   return { schemaVersion: FINDING_QUALIFICATION_POLICY.version, policyDigest,

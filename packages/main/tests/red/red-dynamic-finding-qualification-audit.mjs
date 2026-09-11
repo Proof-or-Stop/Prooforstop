@@ -13,7 +13,7 @@ const corpus = () => ({ policyDigest: applicabilityDigest(FINDING_QUALIFICATION_
     caseId: `case-${i}`, storyId: `B-${i % 20}`, severity: i % 2 ? 'critical' : 'high',
     observedAt: new Date(Date.parse('2029-01-01T00:00:00Z') + i / 199 * 31 * 86400000).toISOString(),
     numerator: comparison === 'max' ? 0 : metric === 'workflow_operation_reduction' ? 0.5 : metric === 'review_convergence_reduction' ? 0.3 : 1,
-    denominator: 1, evidenceDigests: [digest], independentlyAdjudicated: true, synthetic: false, latencySeconds: 1 }))).flat(),
+    denominator: 1, evidenceDigests: [digest], independentlyAdjudicated: true, synthetic: false, latencySeconds: 1, latencyPopulationSize: 2273 }))).flat(),
   simpleStoryRegression: 0.1, timeoutRate: 0.01, latencyCorpusSize: 2273, candidateBaselineExplained: true });
 let failed = 0; let passed = 0;
 function check(name, run) { try { run(); passed++; console.log(`${name} PASS`); } catch (error) { failed++; console.error(`${name} FAIL ${error.message}`); } }

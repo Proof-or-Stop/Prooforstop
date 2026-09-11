@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { createFindingLedgerHandlers } from '../handlers/finding-ledger.js';
-import { collectFindingQualificationEvents } from '../handlers/finding-qualification-events.js';
+import { collectFindingQualificationEvents, findingQualificationWorkflowQuery } from '../handlers/finding-qualification-events.js';
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
 
 const root = mkdtempSync(join(tmpdir(), 'finding-collector-')); const oldCwd = process.cwd();
@@ -30,7 +30,7 @@ assert.equal(d.blocking,process.argv[2]!=='negative-control');`);
   store.writeChecklist(storyId, { items: [{ id: 'CHK-001', title: 'Collector', context: 'Fixture', status: 'done', startTime: null, endTime: null,
     verificationIntent: { happy: [], edge: [], adversarial: pins } }] });
   const producer = createFindingLedgerHandlers(ctx);
-  const run = (scenario: string) => producer.finding_runtime_evidence_run({ storyId, idempotencyKey: scenario,
+  const run = (scenario: string, targetStoryId = storyId) => producer.finding_runtime_evidence_run({ storyId: targetStoryId, idempotencyKey: scenario,
     buildCommand: { executable: process.execPath, args: ['build.mjs'] }, executionCommand: { executable: process.execPath, args: ['experiment.mjs', scenario] },
     artifactPaths: ['build/artifact'], compilerVersion: 'fixture-v1', storageCapability: RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY });
   const good = run('missing-state'); const bad = run('negative-control');
@@ -45,5 +45,25 @@ assert.equal(d.blocking,process.argv[2]!=='negative-control');`);
   assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, reportReceiptId: good.runtimeReceiptId }), /self-reported/);
   assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, experiments: [{ ...experiments[0]!, scenarioId: 'unregistered' }] }), /preregistered/);
   assert.ok(result.missingSourceMetrics.includes('triage_latency'));
-  console.log('FINDING_QUALIFICATION_EVENTS PASS 7');
+  const baselineId = 'B-cohort-before'; const candidateId = 'B-cohort-after';
+  const hour = 3600000; const t = Date.now() - 8 * hour;
+  const event = (phase: 'DEV' | 'REVIEW' | 'DONE', offset: number) => ({ phase, action: 'advance' as const, timestamp: new Date(t + offset * hour).toISOString() });
+  store.writeStory(baselineId, { ...store.readStory(storyId), storyId: baselineId, name: baselineId, phase: 'DONE',
+    events: [event('REVIEW', 0), event('DEV', 1), event('REVIEW', 2), event('DONE', 4)] });
+  store.writeStory(candidateId, { ...store.readStory(storyId), storyId: candidateId, name: candidateId, phase: 'DONE',
+    events: [event('REVIEW', 0), event('DONE', 1)] });
+  // Query actual signed ledgers. A Story JSON alone must not manufacture a
+  // valid empty operational ledger or a zero-time observation.
+  run('missing-state', baselineId); run('missing-state', candidateId);
+  const before = findingQualificationWorkflowQuery(ctx, baselineId);
+  assert.equal(before.rounds.length, 2); assert.equal(before.reviewElapsedMs, 3 * hour); assert.equal(before.repairElapsedMs, hour);
+  const matched = collectFindingQualificationEvents(ctx, { ...input, matchedCohort: { baselineStoryId: baselineId, candidateStoryId: candidateId } });
+  assert.equal(matched.measurements.find(row => row.metric === 'review_convergence_reduction')?.numerator, 0.5);
+  assert.equal(matched.performanceMetadata?.timingSeconds.repair, 0);
+  assert.equal(matched.performanceMetadata?.timeoutRate, null); assert.equal(matched.performanceMetadata?.latencyCorpusSize, 0);
+  assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, matchedCohort: { baselineStoryId: baselineId, candidateStoryId: baselineId } }), /distinct/);
+  store.writeStory(candidateId, { ...store.readStory(candidateId), phase: 'REVIEW' });
+  assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, matchedCohort: { baselineStoryId: baselineId, candidateStoryId: candidateId } }), /completed/);
+  assert.throws(() => collectFindingQualificationEvents(ctx, { ...input, gold: { applicable: true, eligibleDeferral: false, ownerStoryId: null } }), /verified source/);
+  console.log('FINDING_QUALIFICATION_EVENTS PASS 13');
 } finally { process.chdir(oldCwd); resetConfigCache(); rmSync(root, { recursive: true, force: true }); }

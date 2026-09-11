@@ -6,13 +6,16 @@ import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js'
 import { readBrandEnv } from '../core/brand-env.js';
 import { applicabilityDigest } from '../core/finding-applicability.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
+import { readCandidates } from './finding-identity.js';
 
 export function freezeFindingProposalPopulation(ctx: HandlerContext, storyId: string, requestDigest: string) {
   const actor = resolveRegisteredAgentActor(readBrandEnv('AGENT'));
   if (!actor?.reviewerLane || ctx.store.readStory(storyId).phase !== 'REVIEW') throw new Error('proposal timing: current reviewer required');
   const ledger = ctx.store.readFindingLedger(storyId);
-  const observations = ledger.records.filter(row => row.recordType === 'finding' || row.recordType === 'candidate_finding')
-    .map(row => ({ recordId: row.recordId, recordType: row.recordType }));
+  const currentFindings = ctx.store.readFindings(storyId).findings.filter(row => row.status === 'open').map(row => row.recordId);
+  const currentCandidates = readCandidates(ctx, storyId).candidates.filter(row => row.envelope.payload.state === 'pending_verification').map(row => row.record.recordId);
+  const current = new Set([...currentFindings, ...currentCandidates]);
+  const observations = ledger.records.filter(row => current.has(row.recordId)).map(row => ({ recordId: row.recordId, recordType: row.recordType }));
   const startedAt = new Date().toISOString(); const monotonicStart = performance.now();
   return { monotonicStart, record: { schemaVersion: 1, action: 'proposal_timing_start', attemptId: `proposal-attempt:${requestDigest}`,
     storyId, requestDigest, startedAt, repositoryHead: currentGitHead(ctx.root), actor: actor.canonicalName,

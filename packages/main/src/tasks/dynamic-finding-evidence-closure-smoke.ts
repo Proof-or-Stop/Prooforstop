@@ -21,7 +21,7 @@ const simulatedOperationalCorpus = (): FindingQualificationCorpus => ({
     metric, caseId: `simulated-${index}`, storyId: `B-SIMULATED-${index % 20}`, severity: index % 2 ? 'critical' as const : 'high' as const,
     observedAt: new Date(Date.parse('2029-01-01T00:00:00Z') + index / 199 * 31 * 86_400_000).toISOString(),
     numerator: comparison === 'max' ? 0 : metric === 'workflow_operation_reduction' ? 0.5 : metric === 'review_convergence_reduction' ? 0.3 : 1,
-    denominator: 1, evidenceDigests: [fakeDigest], independentlyAdjudicated: true, synthetic: false, latencySeconds: 1,
+    denominator: 1, evidenceDigests: [fakeDigest], independentlyAdjudicated: true, synthetic: false, latencySeconds: 1, latencyPopulationSize: 2273,
   }))).flat(), simpleStoryRegression: 0.1, timeoutRate: 0.01, latencyCorpusSize: 2273, candidateBaselineExplained: true,
 });
 test('all 22 scorecard rows remain present without evidence', () => {
@@ -34,6 +34,13 @@ test('complete simulated boundary corpus qualifies only the pure calculator', ()
   assert.deepEqual(report.refusalReasons, []); assert.equal(report.qualification.eligible, true);
   const row = report.rows.find(row => row.metric === 'false_nonblocking_high_critical')!;
   assert.equal(row.observed, 0); assert.ok(row.strata.every(stratum => stratum.sampledN === 100 && stratum.zeroEventUpperBound! > 0));
+});
+test('every latency observation independently proves its measured population', () => {
+  for (const population of [undefined, 1]) {
+    const corpus = simulatedOperationalCorpus();
+    corpus.measurements.find(row => row.metric === 'triage_latency')!.latencyPopulationSize = population;
+    assert.equal(buildFindingQualificationScorecard(corpus, now).rows.find(row => row.metric === 'triage_latency')!.status, 'refuse');
+  }
 });
 for (const [metric] of FINDING_QUALIFICATION_METRICS) test(`${metric} rejects rollback`, () => {
   const corpus = simulatedOperationalCorpus(); corpus.measurements.find(row => row.metric === metric)!.rollbackEvent = true;

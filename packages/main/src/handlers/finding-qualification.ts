@@ -17,6 +17,7 @@ import { findingWitnessCommandText } from './finding-applicability-proof.js';
 import { createFindingLedgerHandlers } from './finding-ledger.js';
 import { createFindingHistoryHandlers } from './finding-history.js';
 import { collectFindingQualificationEvents, type QualificationExperimentRef, type QualificationGold } from './finding-qualification-events.js';
+import { collectQualificationSubjectAdjudications, type QualificationSubjectGold } from './finding-qualification-adjudication.js';
 
 /** Caller-reported rates are diagnostics, not a source of qualification counts.
  * Only this allowlisted public-query reducer creates aggregate measurements.
@@ -76,6 +77,7 @@ export function prepareFindingQualificationCase(ctx: HandlerContext, input: {
     independentGold?: QualificationGold;
     matchedCohort?: { baselineStoryId: string; candidateStoryId: string };
     reviewedRecordRefs?: Array<{ storyId: string; recordId: string; recordHash: string }>;
+    subjectAdjudications?: QualificationSubjectGold[];
   };
   if (measured.schemaVersion !== FINDING_QUALIFICATION_POLICY.version || measured.assessmentId !== input.assessmentId
     || !['operational', 'adversarial'].includes(measured.population) || !Array.isArray(measured.measurements) || !measured.measurements.length) throw new Error('qualification: wrong/incomplete measurement subject');
@@ -107,6 +109,11 @@ export function prepareFindingQualificationCase(ctx: HandlerContext, input: {
     const row = verifiedIdentityCarrier(owner.store.readFindingLedger<JsonValue>(ref.storyId), ref.storyId, ref.recordId, identityTrust(owner)).record;
     if (exactLedgerRecordHash(row) !== ref.recordHash) throw new Error('qualification: reviewed subject reference substituted');
   }
+  const subjectAdjudications = collectQualificationSubjectAdjudications(ctx, measured.subjectAdjudications ?? [], actor.canonicalName);
+  const subjectMeasurements: QualificationMeasurement[] = subjectAdjudications.map(row => ({ metric: 'scorecard_completeness',
+    caseId: `subject:${row.ref.storyId}:${row.ref.recordId}`, storyId: input.storyId, observationId, observedAt, severity: finding.severity,
+    numerator: Number(row.correct), denominator: 1, evidenceDigests: [runtime.receipt.receiptHash, applicabilityDigest(row)],
+    independentlyAdjudicated: true, synthetic: measured.population !== 'operational', rollbackEvent: !row.correct }));
   return { source, runtime, record: { schemaVersion: 1, action: 'qualification_case', caseId, findingId: finding.id, assessmentId: input.assessmentId,
     actor: actor.canonicalName, reviewRunId: input.reviewRunId, runtimeReceiptId: input.runtimeReceiptId,
     sourceAssessmentRecordId: source.recordId, sourceAssessmentRecordHash: exactLedgerRecordHash(source),
@@ -118,8 +125,8 @@ export function prepareFindingQualificationCase(ctx: HandlerContext, input: {
     latencyHardware: `${platform()} ${arch()} ${cpus()[0]?.model ?? 'unknown'} cores=${cpus().length}`,
     timingSeconds: experiments.performanceMetadata?.timingSeconds ?? null, measurements, prerequisites,
     measurementAuthority: 'reported_statistics_non_qualifying' as const,
-    publicQueries: { identity: identityQuery, ledger: ledgerQuery, experiments }, reviewedRecordRefs,
-    queryMeasurements: [...queryMeasurements, ...experiments.measurements].map(row => ({ ...row, observationId })),
+    publicQueries: { identity: identityQuery, ledger: ledgerQuery, experiments }, reviewedRecordRefs, subjectAdjudications,
+    queryMeasurements: [...queryMeasurements, ...experiments.measurements, ...subjectMeasurements].map(row => ({ ...row, observationId })),
     simpleStoryRegression: experiments.performanceMetadata?.simpleStoryRegression ?? null,
     timeoutRate: experiments.performanceMetadata?.timeoutRate ?? null, latencyCorpusSize: experiments.performanceMetadata?.latencyCorpusSize ?? 0,
     candidateBaselineExplained: measured.candidateBaselineExplained } };
@@ -167,7 +174,7 @@ export function readFindingQualificationScorecard(ctx: HandlerContext) {
     for (const id of ids) {
       const source = historicalStoryContext(ctx, id); const ledger = source.store.readFindingLedger<JsonValue>(id);
       createFindingLedgerHandlers(source).finding_ledger_query({ storyId: id });
-      const covered = cases.flatMap(row => row.reviewedRecordRefs ?? []).filter(ref => ref.storyId === id);
+      const covered = cases.flatMap(row => (row.subjectAdjudications ?? []).map(row => row.ref)).filter(ref => ref.storyId === id);
       for (const row of ledger.records.filter(row => requiredKinds.has(row.recordType))) {
         if (!covered.some(ref => ref.recordId === row.recordId && ref.recordHash === exactLedgerRecordHash(row))) refusalReasons.push(`unadjudicated_corpus_subject:${id}:${row.recordId}`);
       }

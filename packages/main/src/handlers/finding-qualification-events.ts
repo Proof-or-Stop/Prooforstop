@@ -8,7 +8,7 @@ import { findingWitnessCommandText } from './finding-applicability-proof.js';
 import { applicabilityDigest } from '../core/finding-applicability.js';
 import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 import { readCanonicalCatalog } from './finding-identity-store.js';
-import { FINDING_QUALIFICATION_METRICS, type FindingQualificationMetric, type QualificationMeasurement } from '../core/finding-rollout-qualification.js';
+import { FINDING_QUALIFICATION_METRICS, FINDING_QUALIFICATION_POLICY, type FindingQualificationMetric, type QualificationMeasurement } from '../core/finding-rollout-qualification.js';
 
 export interface QualificationExperimentRef { metric: FindingQualificationMetric; scenarioId: string; runtimeReceiptId: string; }
 export interface QualificationGold { applicable: boolean; eligibleDeferral: boolean; ownerStoryId: string | null;
@@ -63,6 +63,7 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
       || !(args.gold.ownerStoryId === null || typeof args.gold.ownerStoryId === 'string')) throw new Error('qualification: incomplete independent gold');
     const finding = ctx.store.readFindings(args.storyId).findings.find(row => row.id === args.findingId);
     if (!finding || finding.evidenceState !== 'verified') throw new Error('qualification: verified source Finding required');
+    if (args.gold.eligibleDeferral && !['low', 'medium'].includes(finding.severity)) throw new Error('qualification: protected severity cannot be gold-eligible for deferral');
     const decision = readDynamicFindingDecision({ store: ctx.store, projectRoot: ctx.root, storyId: args.storyId, finding,
       effectiveBlockingSeverities: ['critical', 'high', 'medium'], round: 3, diagnostic: true });
     const ledger = ctx.store.readFindingLedger(args.storyId);
@@ -70,8 +71,9 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
       && (row.payload as Record<string, unknown>).findingId === finding.id)?.payload as Record<string, unknown> | undefined;
     const evidence = { gold: args.gold, decision, assessment: assessment ?? null }; supportingQueries.push(evidence);
     const synthetic = args.population !== 'operational';
-    if (!decision.dynamicBlocking) {
-      add('nonblocking_precision', Number(!args.gold.applicable), 1, evidence, synthetic);
+    if (!decision.dynamicBlocking && decision.reason !== 'complete_repair_closure' && assessment) {
+      const allowedDeferral = assessment.dispositionPlan === 'defer_with_proof' && args.gold.eligibleDeferral;
+      add('nonblocking_precision', Number(!args.gold.applicable || allowedDeferral), 1, evidence, synthetic);
       if (['critical', 'high'].includes(finding.severity)) add('false_nonblocking_high_critical', Number(args.gold.applicable), 1, evidence, synthetic);
       if (['duplicate', 'out_of_scope', 'pre_existing_unaffected'].includes(String(assessment?.verdict))) {
         const route = assessment?.acceptedRoute as { ownerStoryId?: string } | undefined;
@@ -97,7 +99,7 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
     supportingQueries.push({ before, after });
     const completed = after.timing.filter(row => row.durationMs !== null);
     const timeoutRate = after.timing.length ? after.timing.filter(row => row.timedOut).length / after.timing.length : null;
-    performanceMetadata = { simpleStoryRegression: before.findingCount <= 5 && before.reviewElapsedMs > 0
+    performanceMetadata = { simpleStoryRegression: before.findingCount <= FINDING_QUALIFICATION_POLICY.simpleStory.maxFindings && before.reviewElapsedMs > 0
       ? Math.max(0, after.reviewElapsedMs / before.reviewElapsedMs - 1) : null,
       timeoutRate, latencyCorpusSize: after.timing.length ? Math.min(...after.timing.map(row => row.candidateCount)) : 0,
       timingSeconds: { classifier: completed.reduce((sum, row) => sum + row.durationMs!, 0) / 1000,
@@ -110,9 +112,10 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
       add('review_convergence_reduction', Math.max(0, reduction), 1, { before, after }, false);
     }
     for (const row of after.timing) {
-      if (row.candidateCount < 2273 || row.durationMs === null || !Number.isFinite(row.durationMs) || row.durationMs < 0) continue;
+      if (row.candidateCount < FINDING_QUALIFICATION_POLICY.latency.minCorpusSize || row.durationMs === null || !Number.isFinite(row.durationMs) || row.durationMs < 0) continue;
       measurements.push({ metric: 'triage_latency', caseId: `${args.caseId}:${row.attemptId}`, storyId: after.storyId, severity: args.severity,
         observedAt: row.createdAt, numerator: 1, denominator: 1, latencySeconds: row.durationMs / 1000,
+        latencyPopulationSize: row.candidateCount,
         evidenceDigests: [after.queryDigest], independentlyAdjudicated: true, synthetic: false });
       measurements.at(-1)!.rollbackEvent = row.outcome !== 'signed';
     }
