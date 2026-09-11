@@ -1,5 +1,50 @@
 # Changelog
 
+## v0.3.312 — Runtime Reliability and Validation Registration Convergence — 2026-09-11
+
+### Release context
+
+Two independently validated `v0.3.311` maintenance lines were created from the same `v0.3.310` release. The local line repaired Story-query selection, identity snapshots, implementation-session binding, validation cancellation, and Host descendant cleanup. The remote line updated the B-03b7 delivery-registration contract after the progress-transition coverage was added. Neither line alone contained the other's repairs, so this release merges both histories and assigns a distinct product version to the combined artifact.
+
+### Problems resolved
+
+- Story summaries could omit REVIEW-phase work and could hydrate records that the caller did not select, adding unnecessary repository reads.
+- Identity snapshots could lose the first NUL-framed path or mis-handle special Git paths, weakening exact inventory comparisons.
+- Repeated private identity checks could reload unchanged historical and cache bodies, while implementation runs lacked a durable binding to the exact approved entry bytes.
+- A validation command waiting for shared capacity could still enter its callback after Story ownership had already been lost.
+- Plain POSIX Host runs could finish their provider process while descendants retained output pipes, delaying completion and leaving owned resources without a verified cleanup boundary.
+- The B-03b7 progress-transition wrapper changed the registered RED-harness surface and finding-lineage source, leaving the total harness registration and U18 dependency bindings stale on the remote line.
+- Both parent lines identified themselves as `0.3.311`, so an integrated build could not be distinguished from either incomplete parent.
+
+### Resolution
+
+- Include REVIEW in active Story selection and hydrate only records selected by the query projection.
+- Preserve raw NUL framing throughout Git snapshot reads and verify exact special-path behavior with focused regressions.
+- Reuse verified private baselines, reject incomplete implementation cohorts before launch, and retain the checked implementation identity in activity records.
+- Compose caller cancellation with owner-lease loss so queued validation work is refused before callback admission.
+- Retain an owned process-group anchor for applicable plain POSIX Host runs, preserve existing managed provider-PID and descriptor routes, and fail closed when cleanup cannot be verified.
+- Register the B-03b7 wrapper through a bounded exclusion tied to its exact delivery command, routes branch, shipped cases, PASS marker, and mutation controls; refresh only the affected U18 dependency bindings.
+- Advance the root CLI, Core package, lockfiles, and runtime brand identity to `0.3.312`.
+
+### Before and after
+
+| Area | Before | After |
+| --- | --- | --- |
+| Story queries | REVIEW work could be omitted, and unselected Story records could be read. | REVIEW is included and only selected records are hydrated. |
+| Identity snapshots | NUL-framed output and special paths could lose exact path identity. | Raw framing and every exact path are preserved and regression-tested. |
+| Implementation identity | Host execution could begin without a complete, approved implementation cohort bound to the executed bytes. | Incomplete cohorts are rejected and the checked implementation identity is retained in activity evidence. |
+| Validation ownership | A queued callback could start after owner-lease renewal failed. | Lease loss cancels the wait and prevents callback admission while preserving caller cancellation. |
+| Host completion | Descendant-held pipes could delay completion after the provider exited. | Applicable plain POSIX runs retain an owned anchor and verify descendant cleanup before success. |
+| Delivery registration | The new B-03b7 wrapper and changed lineage source left registration and static-edge bindings stale. | Registration is bound to the exact shipped wrapper behavior and affected dependency digests are current. |
+| Product identity | Two divergent parent lines both reported `0.3.311`. | The combined, buildable artifact is uniquely identified as `v0.3.312`. |
+
+### Verification evidence
+
+- Root and Lab builds pass on the merged source.
+- Focused Story-query, identity-path, implementation-session, validation-cancellation, Host completion, B-03b7 registration, and static-edge controls pass.
+- The process-fact, runtime-fact, identity-cutover, and packed clean-install boundaries pass against the integrated bytes.
+- Commit-message inspection for the release range reports no attribution trailers.
+
 ## Lab validated-performance-integration-20260911 - v0.3.311 - 2026-09-10
 
 Integrate the validated delivery-performance Lab repairs with local main 0.3.310. Active Story queries include REVIEW and hydrate only selected records. Private identity verification reuses unchanged baselines, preserves exact Git paths and avoids loading unrelated historical/cache bodies without weakening mutation detection. Explicit implementation sessions bind canonical entries, reject recognizable unapproved legacy entries, and retain checked identity in existing activity records. Failed owner renewal cancels capacity wait before callback execution while retaining caller cancellation.
@@ -14,6 +59,14 @@ Implementation-session pinning is cooperative and inherited through NODE_OPTIONS
 
 Maintenance provenance: codex/lab-validated-performance-integration-20260911, repair 18735d48005ef525f68d9bf00b9933f2da6a44ad.
 Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-queue-lease-loss.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab final-remote-0310-registration - v0.3.311 - 2026-09-10
+
+Remote v0.3.310 added the B-03b7 progress-transition RED wrapper and extended the finding identity lineage source, making the exact F031 source digest and total RED-harness registration stale. The repair binds the Lab-only wrapper exclusion to the registered delivery command, the exact routes branch, all three shipped cases, the PASS marker, and four mutation controls. It also refreshes the U18 dependency closure for the registration guard and finding source. The registration harness, B-03b7 wrapper, identity boundary-only verifier, U18 static-edge verifier, rollout/mode/selector controls, builds, and diff checks pass.
+
+Maintenance provenance: codex/lab-final-remote-0310-registration, repair 69a405f4f565486b455bc6b416cdf943eda4817d.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-b49d4-harness-registration.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## v0.3.310 — Progress Evidence and Final Validation Integration — 2026-09-10
