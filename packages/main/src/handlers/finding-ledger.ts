@@ -2080,7 +2080,7 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300_000) {
         throw new Error('timeoutMs must be an integer from 1 to 300000');
       }
-      return withFindingRuntimeSource(ctx.root, args.sourceRef, executionRoot => withCanonicalBuildLock(executionRoot, () => {
+      const run = () => withFindingRuntimeSource(ctx.root, args.sourceRef, executionRoot => withCanonicalBuildLock(executionRoot, () => {
       args.afterCanonicalBuildLockForTest?.();
       const signer = runtimeEvidenceSignerFromWorkspace(ctx.root);
       const ledgerSigner = findingLedgerSignerFromWorkspace(ctx.root);
@@ -2172,6 +2172,9 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
         heldMessage: 'runtime-evidence: build_in_progress',
       });
       }));
+      // Historical worktrees isolate artifacts, but owner-side runtime/build
+      // publication must still exclude a concurrent current-head producer.
+      return args.sourceRef ? withCanonicalBuildLock(ctx.root, run) : run();
     },
 
     finding_runtime_evidence_verify(args: FindingRuntimeEvidenceVerifyArgs) {

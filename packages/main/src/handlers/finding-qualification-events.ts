@@ -68,7 +68,7 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
     const ledger = ctx.store.readFindingLedger(args.storyId);
     const assessment = [...ledger.records].reverse().find(row => row.recordType === 'finding_applicability_assessment'
       && (row.payload as Record<string, unknown>).findingId === finding.id)?.payload as Record<string, unknown> | undefined;
-    const evidence = { gold: args.gold, decision, assessment }; supportingQueries.push(evidence);
+    const evidence = { gold: args.gold, decision, assessment: assessment ?? null }; supportingQueries.push(evidence);
     const synthetic = args.population !== 'operational';
     if (!decision.dynamicBlocking) {
       add('nonblocking_precision', Number(!args.gold.applicable), 1, evidence, synthetic);
@@ -119,7 +119,7 @@ export function collectFindingQualificationEvents(ctx: HandlerContext, args: {
   }
   const coveredMetrics = [...new Set(measurements.map(row => row.metric))].sort();
   const missingSourceMetrics = FINDING_QUALIFICATION_METRICS.filter(row => !coveredMetrics.includes(row[0]) && row[0] !== 'candidate_conversion').map(row => row[0]);
-  return { measurements, sources, supportingQueries, coveredMetrics, missingSourceMetrics, performanceMetadata };
+  return { measurements, sources, supportingQueries, coveredMetrics, missingSourceMetrics, performanceMetadata: performanceMetadata ?? null };
 }
 
 /** Public server-derived workflow projection. The ledger query verifies every
@@ -153,7 +153,7 @@ export function findingQualificationWorkflowQuery(ctx: HandlerContext, storyId: 
     if (end && (!Number.isFinite(end.durationMs) || Number(end.durationMs) < 0 || end.populationDigest !== start.populationDigest
       || (end.outcome === 'signed' && !ledger.records.some(row => row.recordType === 'assessment_proposal'
         && (row.payload as Record<string, unknown>).proposalId === end.proposalId)))) throw new Error('qualification: unbound proposal clock');
-    return { attemptId: String(start.attemptId), proposalId: end?.proposalId, durationMs: end ? Number(end.durationMs) : null, candidateCount: Number(start.candidateCount),
+    return { attemptId: String(start.attemptId), proposalId: end?.proposalId ?? null, durationMs: end ? Number(end.durationMs) : null, candidateCount: Number(start.candidateCount),
       outcome: end?.outcome ?? 'interrupted', createdAt: String(start.startedAt), completedAt: end ? String(end.completedAt) : null,
       timedOut: !end || Number(end.durationMs) > Number(start.timeoutBudgetMs) };
   });

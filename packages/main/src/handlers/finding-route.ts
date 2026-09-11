@@ -111,7 +111,7 @@ export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requ
     expectedStoryFilesHash: currentStoryFilesHash(ctx.root, 'HEAD', ctx.root), receipt: bound.receipt, receiptTrust: trust,
     proposalRecord: bound.record, requireReceipt: true, receiptIsCurrent: true });
   if (!result.valid || Date.parse(String(proposal.issuedAt)) > Date.now() || proposal.scopeDigest !== proposalScopeDigest(ctx, source.storyId)) throw new Error(`route: invalid proposal ${result.rejection ?? 'scope/future issuance'}`);
-  return { bound, proposal };
+  return { bound, proposal, restored };
 }
 
 /** Target/canonical half only; source re-attestation verifies its own exact

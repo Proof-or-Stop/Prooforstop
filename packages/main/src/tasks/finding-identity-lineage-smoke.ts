@@ -18,9 +18,9 @@ import type { StoryInfo } from '../core/types.js';
 import { signFinding, verifyFinding } from '../core/finding-verify.js';
 import { isFindingBlocking } from '../core/advisory.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
-import { isCommandAllowed } from '../core/config.js';
+import { isCommandAllowed, resetConfigCache } from '../core/config.js';
 import { PROCESS_FACT_STORY2_CANDIDATE_POLICY } from '../core/process-fact-registry.js';
-import { acquireOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
+import { acquireOwnerLease, releaseOwnerLease, refreshOwnerLease } from '../core/story-owner-lease.js';
 import { createMainRegistry } from '../registry.js';
 import { executeCausalEvidence, preflightCausalEvidence, DEFAULT_CAUSAL_SELECTOR_POLICY } from '../core/causal-evidence.js';
 import { identitySourceSnapshot } from '../handlers/finding-identity-store.js';
@@ -1101,10 +1101,27 @@ try {
       // Its real signed L4 claim must be recalled, never silently forgotten.
       persist([{ recordType: 'finding_applicability_assessment', payload: signApplicabilityAssessment(currentAssessment, signer.privateKey) as unknown as JsonValue,
         uniqueBindingKey: 'dfec-recall-assessment' }], 'dfec-recall-assessment');
+      const configPath = join(scratch, 'proof-or-stop.config.json'); const configBytes = readFileSync(configPath, 'utf8');
+      const beforeRecall = store.readFindingLedger(storyId).committedLedgerDigest;
+      try {
+        for (const dynamicFinding of [{ mode: 'observe' }, { mode: 'warn', killSwitch: true }]) {
+          writeFileSync(configPath, JSON.stringify({ ...JSON.parse(configBytes), dynamicFinding })); resetConfigCache();
+          assert.equal(reconcileFindingDeferralRecalls(ctx, storyId).rows.length, 0);
+          assert.equal(store.readFindingLedger(storyId).committedLedgerDigest, beforeRecall);
+        }
+      } finally { writeFileSync(configPath, configBytes); resetConfigCache(); }
       const recalled = reconcileFindingDeferralRecalls(ctx, storyId);
       assert.equal(recalled.rows.length, 1);
       assert.equal(recalled.rows[0]!.created, 1);
       assert.equal(reconcileFindingDeferralRecalls(ctx, storyId).rows[0]!.created, 0);
+      const priorNow = Date.now;
+      try {
+        Date.now = () => Date.parse(next.expiresAt) + 1;
+        refreshOwnerLease(store.storyDirPath(storyId), { command: 'isolated expiry owner heartbeat', cwd: scratch, now: () => new Date(Date.now()).toISOString() });
+        const expired = reconcileFindingDeferralRecalls(ctx, storyId);
+        assert.ok(expired.rows.some(row => row.created === 1), 'new expiry cause must create a recall');
+        assert.ok(reconcileFindingDeferralRecalls(ctx, storyId).rows.every(row => row.created === 0), 'same expiry replay must not duplicate');
+      } finally { Date.now = priorNow; refreshOwnerLease(store.storyDirPath(storyId), { command: 'restore fixture clock', cwd: scratch }); }
       switchSession(targetSession);
     });
     switchSession(sourceSession);

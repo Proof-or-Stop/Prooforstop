@@ -12,7 +12,6 @@ import { reviewInventoryAcceptanceSubjectDigestForStore } from '../core/review-i
 import { readCanonicalCatalog } from './finding-identity-store.js';
 import { canonicalCurrent } from '../core/finding-history.js';
 import { readFindingBaseHeadPair } from './finding-runtime-pair.js';
-import { readMaterialDriftReattestation } from './finding-material-reattestation.js';
 
 export const FINDING_PROOF_POLICY = Object.freeze({ version: 'finding-applicability-proof-v1',
   witnessSchema: 'proof-or-stop.finding-witness.v1', protectedSurfaces: FINDING_PROTECTED_SURFACES,
@@ -81,8 +80,7 @@ export function readApplicabilityProof(ctx: HandlerContext, storyId: string, fin
   requireCurrentReviewerEvidence = true) {
   const ref = assessment.proposalRef;
   if (!ref || ref.storyId !== storyId || ref.subjectKind !== 'finding_assessment_proposal') throw new Error('dynamic finding: exact receipted assessment proposal required');
-  const { bound, proposal } = sourceRouteRecord(ctx, ref, requireCurrentReviewerEvidence);
-  const restored = !requireCurrentReviewerEvidence ? readMaterialDriftReattestation(ctx, storyId, ref.recordId) : undefined;
+  const { bound, proposal, restored } = sourceRouteRecord(ctx, ref, requireCurrentReviewerEvidence);
   if (!proposal || (proposal.findingRef as { findingId?: string }).findingId !== finding.id) throw new Error('dynamic finding: proposal belongs to another Finding');
   if ((proposal.dependencyBundle as { proofPolicyDigest?: string }).proofPolicyDigest !== canonicalHash(FINDING_PROOF_POLICY)) {
     throw new Error('dynamic finding: proposal proof policy is stale');
@@ -101,8 +99,9 @@ export function readApplicabilityProof(ctx: HandlerContext, storyId: string, fin
   const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, storyId);
   const acceptanceDigest = applicabilityDigest(checklist);
   const pair = verdict === 'pre_existing_unaffected' ? readFindingBaseHeadPair(ctx, storyId, runtimeIds, baseHash, String(proposal.headHash)) : undefined;
-  const runtime = pair ? [pair.head] : (restored?.runtimeReceiptIds ?? runtimeIds).map(id =>
-    (restored ? readMaterialBoundReattestationRuntimeEvidence : readCurrentFindingRuntimeEvidence)(ctx, storyId, id));
+  const runtime = pair ? [pair.head] : restored
+    ? restored.runtimeReceiptIds.map(id => readMaterialBoundReattestationRuntimeEvidence(ctx, storyId, id))
+    : runtimeIds.map(id => readCurrentFindingRuntimeEvidence(ctx, storyId, id));
   if (pair) {
     const command = findingWitnessCommandText(pair.head.executionCommand);
     if (!intents.some(intent => intent.command === command && typeof intent.selector === 'string'

@@ -1,6 +1,6 @@
 /** Actual same-command executions at two Git revisions, never an operational cohort. */
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -8,6 +8,7 @@ import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { createFindingLedgerHandlers, setRuntimeEvidenceKeyStatusForTest } from '../handlers/finding-ledger.js';
 import { readFindingBaseHeadPair } from '../handlers/finding-runtime-pair.js';
+import { withFindingRuntimeSource } from '../handlers/finding-runtime-source.js';
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
 
 const root = mkdtempSync(join(tmpdir(), 'finding-pair-'));
@@ -35,7 +36,8 @@ console.log('FINDING_WITNESS '+JSON.stringify({storyId:'B-pair',findingId:'F-pai
     compilerVersion: 'fixture-v1', environmentAllowlist: ['PATH'], storageCapability: RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY };
   write('unrelated.txt', 'Unrelated content\n'); git('add', 'unrelated.txt'); git('commit', '-m', 'unrelated change');
   const ownerHead = git('rev-parse', 'HEAD');
-  const base = handlers.finding_runtime_evidence_run({ ...args, idempotencyKey: 'base', sourceRef: baseHash });
+  const base = handlers.finding_runtime_evidence_run({ ...args, idempotencyKey: 'base', sourceRef: baseHash,
+    afterCanonicalBuildLockForTest: () => assert.throws(() => handlers.finding_runtime_evidence_run({ ...args, idempotencyKey: 'overlap-current' }), /build_in_progress/) });
   assert.equal(git('rev-parse', 'HEAD'), ownerHead);
   assert.equal(base.receipt.headHash, baseHash);
   const headHash = git('rev-parse', 'HEAD'); const head = handlers.finding_runtime_evidence_run({ ...args, idempotencyKey: 'head' });
@@ -53,5 +55,25 @@ console.log('FINDING_WITNESS '+JSON.stringify({storyId:'B-pair',findingId:'F-pai
   assert.throws(() => readFindingBaseHeadPair(ctx, storyId, [base.runtimeReceiptId, green.runtimeReceiptId], baseHash, git('rev-parse', 'HEAD')), /same defect/);
   setRuntimeEvidenceKeyStatusForTest(root, 'revoked');
   assert.throws(() => readFindingBaseHeadPair(ctx, storyId, pair, baseHash, headHash), /signature|revoked/);
-  console.log('FINDING_RUNTIME_PAIR PASS 10');
+  assert.throws(() => withFindingRuntimeSource(root, 'main', () => {}), /immutable/);
+  git('tag', '-a', 'not-a-commit', '-m', 'annotated object');
+  assert.throws(() => withFindingRuntimeSource(root, git('rev-parse', 'refs/tags/not-a-commit'), () => {}), /exact commit/);
+  const unrelated = git('commit-tree', git('rev-parse', 'HEAD^{tree}'), '-m', 'unrelated root');
+  assert.throws(() => withFindingRuntimeSource(root, unrelated, () => {}));
+  let probe = '';
+  withFindingRuntimeSource(root, baseHash, path => { probe = path; });
+  assert.equal(existsSync(probe), false);
+  try {
+    assert.throws(() => withFindingRuntimeSource(root, baseHash, path => { probe = path; throw new Error('controlled probe failure'); }), /controlled probe failure/);
+    assert.equal(existsSync(probe), true);
+  } finally { if (probe && existsSync(probe)) git('worktree', 'remove', probe); }
+  try {
+    withFindingRuntimeSource(root, baseHash, path => { probe = path; writeFileSync(join(path, 'untracked-probe-output'), 'retain me'); });
+    assert.equal(existsSync(join(probe, 'untracked-probe-output')), true);
+  } finally { rmSync(join(probe, 'untracked-probe-output')); git('worktree', 'remove', probe); }
+  try {
+    assert.throws(() => withFindingRuntimeSource(root, baseHash, path => { probe = path; git('commit', '--allow-empty', '-m', 'concurrent owner movement'); }), /owner HEAD moved/);
+    assert.equal(existsSync(probe), true);
+  } finally { if (probe && existsSync(probe)) git('worktree', 'remove', probe); }
+  console.log('FINDING_RUNTIME_PAIR PASS 18');
 } finally { process.chdir(cwd); resetConfigCache(); rmSync(root, { recursive: true, force: true }); }

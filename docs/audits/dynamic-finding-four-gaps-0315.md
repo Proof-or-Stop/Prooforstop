@@ -63,6 +63,34 @@ mode recall mutation, and recall cause/idempotency problems. Those findings
 guided the targeted corrections. It saw an in-progress working tree and is
 not final certification. A later bounded audit is in progress.
 
+Claude CLI session `4a986dad-fa9c-476d-9611-47c25031234b` subsequently executed
+the pair (10 PASS) and re-attestation (8 PASS) tests. It found no demonstrated
+unsafe release, but did **not** certify all contracts. Its dispositions:
+
+- Historical-source refusal coverage: added actual mutable-ref, non-commit,
+  non-ancestor, owner movement, successful cleanup and failed/dirty retention
+  tests. The expanded pair/source suite reports **18 PASS**.
+- Historical build locking: now holds the owner canonical build lock in
+  addition to the detached probe lock. A controlled current-head producer
+  launched inside the historical lock must refuse `build_in_progress`.
+- Irrelevant old re-attestation: the proof reader now consumes the route
+  reader's conditionally derived restoration, not an unconditional second
+  re-attestation lookup. Stale unrelated records cannot be a second authority.
+- Warn-mode writes: the audit inferred that "does not change gates" meant
+  "does not persist anything". Section 10 of the execution plan explicitly
+  permits non-authoritative warn persistence; its table reserves read-only
+  behavior for observe. This repair preserves that boundary: owner-side warn
+  recall appends pending non-authoritative candidates; gates keep the legacy
+  result. The prompt explicitly states this. Added observe/kill-switch
+  zero-ledger-delta tests; no mode was silently promoted.
+
+The code checkpoint is `ebf669cfb6`; corrections and final validation follow it.
+The new proposal-timing integration initially exposed an undefined optional
+collector field rejected by canonical JSON signing. Absent performance metadata
+now persists explicit `null`, not an undefined or fabricated zero. The runtime
+integration has since passed **18 cases**, including the actual monotonic clock
+and rejection of self-reported performance data.
+
 The operational 20-Story / 200-independent-case / 30-day corpus is separate
 from engineering fixtures. No measured user time saving, qualifying operational
 window, autonomous semantic proof of all scope impact, or full plan completion
