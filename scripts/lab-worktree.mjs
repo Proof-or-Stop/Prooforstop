@@ -6,6 +6,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, writeFile
 import { join, resolve, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as labPolicy } from '../packages/main/src/core/runtime-fact-registry.ts';
+import { shouldBumpLabVersionForChangedPaths } from '../packages/main/src/core/runtime-version-policy.ts';
 
 const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote push)
   node scripts/lab-worktree.mjs create NAME
@@ -16,7 +17,7 @@ const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote pus
   node scripts/lab-worktree.mjs carry NAME --story B-xxxx --source PATH --confirm
   node scripts/lab-worktree.mjs baseline NAME --expect TEXT --confirm -- EXECUTABLE ARG...
   node scripts/lab-worktree.mjs green NAME
-  node scripts/lab-worktree.mjs finish NAME --notes FILE --confirm
+  node scripts/lab-worktree.mjs finish NAME --notes FILE --confirm [--bump patch]
 
 Commit the repair before green. Green replays the exact RED command.
 Finish requires fresh GREEN, synchronizes main, records notes/version, builds
@@ -178,7 +179,7 @@ async function main() {
   if (!action || action === '--help') { console.log(help); return; }
   if (!['create', 'sync', 'status', 'red', 'carry', 'baseline', 'green', 'finish', 'reopen'].includes(action)) fail('Unknown command. Use --help.');
   if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(name || '')) fail('NAME must be 1-48 lowercase letters, digits or hyphens.');
-  let notesPath, expected, command, storyId, sourcePath, timeoutMs = 900000;
+  let notesPath, expected, command, storyId, sourcePath, requestedBump, timeoutMs = 900000;
   if (action === 'red') {
     if (rest[0] !== '--expect' || !rest[1]?.trim()) fail('red requires --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...');
     let separator = 2;
@@ -195,7 +196,9 @@ async function main() {
     }
     expected = rest[1]; command = rest.slice(4);
   } else if (action === 'finish') {
-    if (rest.length !== 3 || rest[0] !== '--notes' || !rest[1] || rest[2] !== '--confirm') fail('finish requires --notes FILE --confirm (explicit local integration request).');
+    if (![3, 5].includes(rest.length) || rest[0] !== '--notes' || !rest[1] || rest[2] !== '--confirm'
+      || (rest.length === 5 && (rest[3] !== '--bump' || rest[4] !== 'patch'))) fail('finish requires --notes FILE --confirm [--bump patch] (explicit local integration request).');
+    requestedBump = rest.length === 5 ? 'patch' : undefined;
     notesPath = resolve(rest[1]);
   } else if (action === 'reopen') {
     if (rest.length !== 1 || rest[0] !== '--confirm') fail('reopen requires --confirm.');
@@ -531,6 +534,9 @@ async function main() {
     if (notes.length < 40 || notes.length > 100000) fail('Provide substantive English release notes (40-100000 characters).');
     const versions = await core('version-bump');
     const { shouldBuildDoneMainPackageForChangedPaths } = await core('runtime-version-policy');
+    if (requestedBump === 'patch' && s.phase !== 'active' && !s.bump) {
+      fail('Prepared release did not upgrade: reopen an unintegrated candidate before requesting --bump patch.');
+    }
     const mainDirty = dirtySnapshot(mainRoot);
     let preservedMainDirty = null;
     if (mainDirty.paths.length > 0) {
@@ -648,7 +654,7 @@ async function main() {
       if (!passed(r) || sha(root) !== before) fail(`${kind} failed or modified the checkout; workspace retained.`);
     };
     const build = root => {
-      if (s.bump) {
+      if (s.build ?? s.bump) {
         const r = run(root, ['node', 'scripts/ensure-dist.mjs']);
         s.history.push({ kind: 'build', cwd: root, ...r }); save(s);
         if (!passed(r)) fail(`Build failed in ${root}; workspace retained. Retry finish after repair.`);
@@ -666,7 +672,10 @@ async function main() {
       s.releaseBase = sha(mainRoot);
       const paths = git(s.path, 'diff', '--name-only', '-z', 'main...HEAD').split('\0').filter(Boolean);
       if (paths.some(p => p === 'AGENTS.override.md' || /^\.proof-or-stop\/story\//.test(p))) fail('Lab override or real Story state cannot be released through Lab.');
-      s.bump = shouldBuildDoneMainPackageForChangedPaths(paths);
+      s.requestedBump = requestedBump ?? 'auto';
+      s.bump = requestedBump === 'patch' || shouldBumpLabVersionForChangedPaths(paths);
+      // A version change also changes the runtime brand and must be built/checked.
+      s.build = shouldBuildDoneMainPackageForChangedPaths(paths) || s.bump;
       const currentVersion = versions.readSyncedVersion(mainRoot);
       if (versions.readSyncedVersion(s.path) !== currentVersion) fail('Version drift: leave version changes to finish, based on latest main.');
       const versionBump = s.bump ? versions.applyPatchBump(s.path) : undefined;

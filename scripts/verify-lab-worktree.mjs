@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import { copyLabFixtureSources } from './lab-fixture-sources.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, cpSync, existsSync, rmSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -28,9 +29,8 @@ function fixture(name) {
   for (const rel of ['package-lock.json', 'packages/main/package-lock.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', lockfileVersion: 3, packages: { '': { name: 'proof-or-stop', version: '1.0.0' } } }, null, 2));
   for (const rel of ['packages/lab/package-lock.json', 'packages/utils/package-lock.json']) write(repo, rel, JSON.stringify({ lockfileVersion: 3, packages: { '../main': { name: '@proof-or-stop/core', version: '1.0.0' } } }, null, 2));
   write(repo, 'packages/main/src/core/proof-or-stop-brand.ts', "export const PROOF_OR_STOP_CLI_VERSION = '1.0.0';\n");
-  for (const name of ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']) {
-    write(repo, `packages/main/src/core/${name}.ts`, readFileSync(join(root, `packages/main/src/core/${name}.ts`)));
-  }
+  copyLabFixtureSources(root, repo, ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']);
+  write(repo, 'packages/main/src/core/proof-or-stop-brand.ts', readFileSync(join(root, 'packages/main/src/core/proof-or-stop-brand.ts'), 'utf8').replace(/(PROOF_OR_STOP_CLI_VERSION\s*=\s*)'[^']+'/ , "$1'1.0.0'"));
   write(repo, 'check.cjs', "const fs=require('fs'); if(fs.readFileSync('bug.txt','utf8')!=='fixed'){ console.error('TARGET regression: broken behavior'); process.exit(1); } console.log('target and regression checks passed');\n");
   write(repo, 'bug.txt', 'broken');
   write(repo, 'build.cjs', "const fs=require('fs'); const p=require('path'); const root=p.resolve(__dirname); if(fs.existsSync(p.join(root,'.fail-build'))){process.exit(3)} fs.writeFileSync(p.join(root,'built-version'),JSON.parse(fs.readFileSync(p.join(root,'package.json'))).version);\n");
@@ -41,6 +41,34 @@ function fixture(name) {
 const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced system regression while preserving the existing behavior contract. Verify the target regression and the synchronized built version.');
 const finish = name => ['finish', name, '--notes', notes, '--confirm'];
 try {
+  // Explicit patch requests must work even when only a non-build input changes.
+  const explicit = fixture('explicit'); cmd(explicit, ['create', 'explicit']);
+  const explicitLab = join(explicit, '.worktrees/Lab-explicit');
+  cmd(explicit, ['red', 'explicit', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
+  write(explicitLab, 'bug.txt', 'fixed'); commit(explicitLab, 'fix: non-build input');
+  cmd(explicit, ['green', 'explicit']);
+  const patchFinish = [...finish('explicit'), '--bump', 'patch'];
+  write(explicit, '.git/info/exclude', '.fail-build\n'); write(explicit, '.fail-build', 'fail');
+  assert.doesNotThrow(() => cmd(explicit, patchFinish, 1, /Build failed/),
+    'EXPLICIT_PATCH_UPGRADE: finish must honor the requested patch before post-merge build');
+  assert.equal(JSON.parse(cmd(explicit, ['status', 'explicit'])).phase, 'integrated');
+  rmSync(join(explicit, '.fail-build'));
+  // Omitting the option on retry preserves the prepared upgrade, never bumps twice.
+  cmd(explicit, finish('explicit'));
+  for (const rel of ['package.json', 'package-lock.json', 'packages/main/package.json', 'packages/main/package-lock.json']) {
+    assert.equal(JSON.parse(readFileSync(join(explicit, rel))).version, '1.0.1');
+  }
+  assert.equal(readFileSync(join(explicit, 'built-version'), 'utf8'), '1.0.1');
+
+  const scripts = fixture('scripts'); cmd(scripts, ['create', 'scripts']);
+  const scriptsLab = join(scripts, '.worktrees/Lab-scripts');
+  cmd(scripts, ['red', 'scripts', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
+  write(scriptsLab, 'bug.txt', 'fixed'); write(scriptsLab, 'scripts/repair.mjs', 'export const fixed = true;\n');
+  commit(scriptsLab, 'fix: executable maintenance script'); cmd(scripts, ['green', 'scripts']);
+  cmd(scripts, [...finish('scripts'), '--bump', 'minor'], 1, /patch/);
+  cmd(scripts, finish('scripts'));
+  assert.equal(JSON.parse(readFileSync(join(scripts, 'package.json'))).version, '1.0.1');
+
   const repo = fixture('normal');
   cmd(repo, ['create', '../escape'], 1, /NAME/);
   cmd(repo, ['create', 'one']);

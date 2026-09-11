@@ -129,15 +129,24 @@ verification, and measured performance improvement where relevant. Then run:
 
 ```sh
 cd ../.. # Return from .worktrees/Lab-slow-query to main before cleanup.
-npm run lab:worktree -- finish slow-query --notes /absolute/path/repair-notes.md --confirm
+npm run lab:worktree -- finish slow-query --notes /absolute/path/repair-notes.md --confirm --bump patch
 ```
 
 Finish requires a clean main and clean committed Lab with current GREEN. It holds
 the same main write lock as formal operations, merges latest local main into Lab,
-reruns the pinned test, and prepares a local release commit. The version/build
-predicate is shared with DONE. Qualifying runtime/contract changes use the existing
+reruns the pinned test, and prepares a local release commit. Lab decides release
+version and build requirements separately. Runtime inputs
+retain the shared DONE build predicate; executable maintenance scripts under
+`scripts/` also trigger an automatic patch release. An explicit `--bump patch`
+on finish requires a patch release even for changes outside those paths.
+Every version bump triggers a build and CLI version check because the runtime
+brand constant changes. The requested policy is stored with the prepared release;
+retrying finish reuses that release and never bumps twice. Omitting the option
+on retry preserves the prepared policy. A patch request against an already
+prepared unbumped candidate is refused; reopen it before changing release intent.
+Qualifying runtime/contract changes use the existing
 atomic patch-bump helper for both manifests, both lockfiles and the CLI brand
-constant. Ordinary documentation-only changes retain the version. Changes and
+constant. Ordinary documentation-only changes retain the version unless a patch is requested. Changes and
 verification commands are recorded in CHANGELOG.md with Lab/commit provenance.
 
 The candidate uses the existing `scripts/ensure-dist.mjs` preparation when required
