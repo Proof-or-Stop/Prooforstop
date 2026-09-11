@@ -42,6 +42,18 @@ User-value acceptance can only be approximated, not disguised as a fully automat
    - **Swift / Package.swift is not in the auto-fallback list**: the Mac Native App is retired and is no longer a current product entry point; to run `swift test`, you must explicitly declare a `validate.commands` entry in `proof-or-stop.config.json`.
 4. When no validation entry is still found, return `warn/skip`, and do not misjudge a non-TS project such as Python/Go/C++ as a failure; a project that needs a hard gate must explicitly configure a validation command.
 
+Repository-wide discovery does not by itself make absolute success a Story
+acceptance requirement. During PLAN, focused behavior introduced by the Story is
+normally an absolute-pass `must`. A repository-wide command must first be run or
+checked against the pre-change baseline. If that baseline is already red because
+of an existing or environmental failure, record an explicit
+`no_new_regressions` repository-health comparison as `should`; reviewers compare
+the referenced baseline and current outputs and file a Finding for a new failure.
+Absolute repository-wide success may remain `must` when the task, user, or
+official verifier explicitly requires it. `story_review` rejects other
+repository-wide `must` intents, including unannotated standard full-suite
+commands, before they freeze at DEV.
+
 The success prompt of `proof-or-stop validate` must use the current story phase and the gate oracle, rather than hardcoding DONE:
 after the DEV phase passes, the prompt is to commit and enter REVIEW; after the REVIEW phase passes, the prompt is to enter TEST;
 after the TEST phase passes, the prompt is to view the DONE pre-check, and per the hint of the failed rows, fill in gate items such as summary, delivery check, dirty tree, and missing/stale `verificationEvidence`.

@@ -55,6 +55,11 @@ export const verificationIntentItemSchema = z.object({
   type: verificationIntentTypeSchema.describe('Verification type.'),
   requiredIn: z.enum(['light', 'balanced', 'strict']).optional().describe('Minimum workflow profile that requires this.'),
   priority: z.enum(['must', 'should', 'nice']).optional().describe('must enters the evidence gate.'),
+  scope: z.enum(['focused', 'repository']).optional().describe('Whether the intent targets changed behavior or the complete repository.'),
+  expectation: z.enum(['absolute_pass', 'no_new_regressions']).optional().describe('Absolute green or a comparison against the pre-change baseline.'),
+  requirementSource: z.enum(['story', 'external_verifier', 'repository_health']).optional().describe('Why this verification belongs in acceptance.'),
+  baselineRef: z.string().trim().min(1).optional().describe('Pointer to the inspected pre-change baseline for no-new-regressions acceptance.'),
+  requirementRef: z.string().trim().min(1).optional().describe('Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.'),
   plannedPathDeclarations: z.array(verificationPlannedPathDeclarationSchema).optional(),
   verification: verificationIntentPinSchema.optional().describe('Immutable executable proof pin: exact command plus required output selector.'),
 }).strict().superRefine((item, ctx) => {

@@ -7,7 +7,8 @@ export type FlowFactPolicyId =
   | 'finding'
   | 'pass-only-normalization'
   | 'review-round-iso-string'
-  | 'express-verification-policy';
+  | 'express-verification-policy'
+  | 'repository-wide-verification-intent';
 
 export interface FlowFactPolicyDefinition {
   name: `flow-policy:${FlowFactPolicyId}`;
@@ -103,6 +104,17 @@ export const FLOW_FACT_POLICIES = [
     consumerGate: 'validate verification coverage and story_review PLAN fast-path advisory gate',
     semantics: ['flow-policy', 'verification-policy', 'gate-evidence'],
     rationale: 'Express channel stories may intentionally skip PLAN verificationIntent and must render that exemption explicitly.',
+  },
+  {
+    name: 'flow-policy:repository-wide-verification-intent',
+    policyId: 'repository-wide-verification-intent',
+    level: 'L4',
+    category: 'flow-policy',
+    owner: 'core/flow-fact-policy',
+    consumerGate: 'story_review PLAN verification-intent quality gate and REVIEW test-coverage audit',
+    artifactCommand: 'story_review',
+    semantics: ['flow-policy', 'verification-policy', 'gate-evidence'],
+    rationale: 'PLAN rejects a self-authored repository-wide must, including unannotated standard full-suite commands. Repository health stays a baseline-referenced should-level review input; only an explicit external verifier requirement with a source pointer may retain repository-wide success as must.',
   },
 ] as const satisfies readonly FlowFactPolicyDefinition[];
 

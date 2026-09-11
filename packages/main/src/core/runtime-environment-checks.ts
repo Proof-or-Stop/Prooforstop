@@ -1224,7 +1224,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/evidence-freshness.ts': '6b69b21b41bb21667d81d0870645aa9c70783c9e5516a1ca9526350a891bd477',
   'packages/main/src/core/review-inventory-epoch.ts': 'efb40ebdd4b7bbc5774c411bed8a50f0521b8db92165ff54b6d2750476d30d74',
   'packages/main/src/core/verification-execution-evidence.ts': '31765476de71f83b91b81fd1dba8b3295d9a8bd33ed9817fc73fe1a961a9f566',
-  'packages/main/src/handlers/checklist.ts': 'e1ceb08a68df40eef619ff3f30f4bc5e32de71f785f8abcfd45332959227cab9',
+  'packages/main/src/handlers/checklist.ts': '00dfd8fbebc27595977addead2dddfa73ced758db86210da32166d96f059cc15',
 });
 
 function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {

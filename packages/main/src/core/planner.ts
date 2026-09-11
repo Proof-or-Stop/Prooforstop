@@ -606,9 +606,9 @@ function defaultPlannerPolicy(args: PlannerDraftArgs, mode: PlannerRunMode, inte
 
 function verificationIntentFor(title: string): VerificationIntent {
   return {
-    happy: [{ id: `${slug(title)}:happy`, desc: `Verify the requested behavior for "${title}" succeeds on the normal path.`, type: 'cli', requiredIn: 'balanced', priority: 'must' }],
-    edge: [{ id: `${slug(title)}:edge`, desc: `Verify bounded failure or missing-input handling for "${title}".`, type: 'cli', requiredIn: 'strict', priority: 'should' }],
-    adversarial: [{ id: `${slug(title)}:adversarial`, desc: 'Verify the implementation does not overclaim DONE or bypass Proof-or-Stop evidence gates.', type: 'logic', requiredIn: 'strict', priority: 'must' }],
+    happy: [{ id: `${slug(title)}:happy`, desc: `Verify the requested behavior for "${title}" succeeds on the normal path.`, type: 'cli', requiredIn: 'balanced', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+    edge: [{ id: `${slug(title)}:edge`, desc: `Verify bounded failure or missing-input handling for "${title}".`, type: 'cli', requiredIn: 'strict', priority: 'should', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+    adversarial: [{ id: `${slug(title)}:adversarial`, desc: 'Verify the implementation does not overclaim DONE or bypass Proof-or-Stop evidence gates.', type: 'logic', requiredIn: 'strict', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
   };
 }
 

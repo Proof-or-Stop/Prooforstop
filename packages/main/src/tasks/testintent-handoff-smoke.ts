@@ -67,9 +67,16 @@ try {
   };
   assert.match(result.prompt, /You are the proof-or-stop-verification-intent agent/);
   assert.match(result.prompt, /write verificationIntent/);
+  assert.match(result.prompt, /run or inspect the repository-wide baseline before freezing/i);
+  assert.match(result.prompt, /no_new_regressions/);
+  assert.match(result.prompt, /external_verifier/);
+  assert.match(result.prompt, /priority follows the behavior and risk/i);
+  assert.doesNotMatch(result.prompt, /"scope":"repository"/);
   assert.doesNotMatch(result.prompt, /write testIntent/);
   assert.equal(result.commandExamples.length, 1);
   assert.match(result.commandExamples[0], /"verificationIntent"/);
+  assert.match(result.commandExamples[0], /"scope":"focused"/);
+  assert.match(result.commandExamples[0], /"expectation":"absolute_pass"/);
   assert.doesNotMatch(result.commandExamples[0], /testIntent/);
   assert.deepEqual(result.summary.missingIntentItems, ['CHK-001']);
 

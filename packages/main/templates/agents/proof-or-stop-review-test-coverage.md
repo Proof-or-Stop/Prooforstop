@@ -22,6 +22,7 @@ proof-or-stop validate '{"story":"<ID>","json":true}'
 1. For every checklist item, check whether the happy / edge / adversarial intent columns match the current channel:
    - normal / high-risk / strict: all three columns should exist.
    - fast / express: at least the happy path should be explainable; missing edge/adversarial may be advisory.
+   - Reject a repository-wide `must` unless `requirementSource=external_verifier` has a concrete `requirementRef`. For repository health, inspect the actual current and referenced baseline outputs: use `priority=should`, `expectation=no_new_regressions`, and `baselineRef`; file a Finding when the current run introduces a failure absent from that baseline. The reference is navigation for this audit, not executable gate evidence by itself.
 2. For every intent with priority=`must`, there must be one valid evidence:
    - `logic_test` / `integration_test` / `browser_test` / `docs_check` / `manual_transcript` whose `result` must not be `fail`.
    - `waiver` must have a clear note explaining why this story should not be covered by automation.

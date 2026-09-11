@@ -1,80 +1,123 @@
 # Changelog
 
-## v0.3.315-lab.1 — 2026-09-11
+## v0.3.316 - 2026-09-11
 
-This experimental candidate integrates the latest main with the accumulated Lab repairs. The table below preserves the historical before/after measurements exactly. These are bounded historical experiments, not a claim that the combined version improves every Story or that every remaining issue is resolved. Timings from different workloads must not be added.
+This version integrates Pan Qi's latest main commit `c382fe083573f8d7c88c8378380d77435977a1ae` with the accumulated performance Lab repairs. Package and CLI versions are updated together to 0.3.316 to distinguish this integration from Pan Qi's 0.3.315. Pan Qi's focused verification scope, requirement-source classification, and baseline-aware acceptance rules are preserved.
 
-## 24 类历史修复前后对比
+The following 24 rows translate the historical comparison table without changing its measurements or limitations. These are bounded historical experiments, not a new benchmark of the combined release. Results from different workloads must not be added. Fewer command launches do not by themselves prove lower total latency.
 
-|问题|修复前|修复后|证据轮次、适用范围|
+## What this integration improves
+
+### 1. Keep verification proportional to the accepted work
+
+Pan Qi's PLAN changes distinguish focused Story acceptance from repository-wide health checks. Previously, an author could turn an unrelated baseline failure into a mandatory whole-repository acceptance condition, extending repair and verification work beyond the requested change. The merged rules reject self-authored repository-wide mandatory success, require a baseline reference for a no-new-regressions comparison, and require a source reference for an explicit external absolute-pass requirement. Explicit focused scope remains focused; legacy full-suite inference is deliberately narrow.
+
+The handoff prompt and checklist mutation handler now both require scope, expectation, and requirement-source classification for the verification-intent role. Those fields, together with baseline and requirement references, participate in routine validation identity. Changing acceptance semantics therefore invalidates incompatible reuse instead of silently accepting an older result. This improves scope control; no new end-to-end speed percentage is claimed for this merge.
+
+### 2. Reduce repeated preparation and avoid uneconomic reuse
+
+The retained Lab changes remove equivalent repeated Git queries and share tree observations only within a bounded observation context. Input and policy checks remain live, and publication still rejects drift. Measured cost hints choose actual execution when reuse overhead exceeds the expected benefit; hints do not authorize a PASS. The table retains both positive and negative measurements rather than claiming every cache is faster.
+
+### 3. Reduce unnecessary serialization while protecting shared writes
+
+Validation retains worktree protection for the whole operation and acquires shared-resource protection for the affected stages. Safe work in independent worktrees can overlap; conflicting writers remain exclusive. Incorrect declarations for nine shared writers were withdrawn. Cancellation and deadline refusal prevent child launch, and scheduler wait diagnostics are retained. The measured benefit applies to the controlled mixed workloads in the table, not the complete final inventory.
+
+### 4. Stop avoidable closeout reruns without weakening evidence
+
+Missing review or scope prerequisites are rejected before expensive commands start. Supported publication recovery retries publication rather than the test. Owned-write rollback preserves unrelated staging and external changes; busy errors propagate. Identity, consumption ownership, and implementation fingerprints remain required for recovery. Original PLAN evidence is retained. These are bounded recovery guarantees, not arbitrary-fault transaction semantics.
+
+### 5. Preserve truthful results and consistent review requirements
+
+Selector, dispatch, inventory, and quorum consumers agree on eligible reviewer lanes while unresolved findings retain the full required roster. An exit-zero JSON result that is not a semantic PASS remains a failure through coverage decoration. Certification begin and cancel reject a tampered implementation before accessing the store. Freshness fixtures now obtain the real lease, mechanical receipt, PLAN, scope, and explicit test-admission prerequisites needed to exercise their intended behavior.
+
+### 6. Reconcile the new implementation fingerprint
+
+Pan Qi's additional checklist metadata checks legitimately change the compiled checklist implementation. The previous executable pin rejects that change, as designed. The integration must update only the reviewed canonical digest after independent inspection, then demonstrate that legitimate operation succeeds while tampering still fails. The rejection and final controls are retained in the current evidence package.
+
+## All 24 historical before-and-after comparisons
+
+| Issue | Before | After | Evidence and applicability |
 |---|---|---|---|
-|quorum 零选择、同步超时、清理热点|0 checks 误报成功；超时漏判；515次扫描|明确拒绝空选择；识别超时；4次扫描|V4。16.719→11.572分钟是同候选串行/并行对照，不是代码前后值|
-|共享执行、目录输入与并发计数|目录EISDIR阻止复用；同回执重复计执行|目录完整绑定；合格消费者3→1次启动；区分实际执行者|V10 input-tree：长任务5.204→3.573秒；短任务0.674→1.935秒反而慢|
-|错误资源声明|9个共享写入命令失去保护并重叠|撤回声明后9组写入不重叠，独立资源仍并行|merge285；安全修复|
-|分阶段跨工作树保护|安全阶段串行；4.894秒|安全阶段重叠、共享写入互斥；4.527秒|V6，三组受控混合清单，非完整清单吞吐|
-|阶段异常、锁顺序与局部并发|异常后可能发布；倒序取锁；独立命令并发1|异常不能发布；倒序拒绝；独立并发3|V6；真实负例与正常控制|
-|收尾前提失败仍验证|启动2条；3.698秒|启动0条；0.673秒|V7三组，测试人为固定1秒|
-|短暂发布失败重跑|测试2次；7.030秒|同调用重试发布，测试1次；3.644秒|V5，限声明支持的故障|
-|契约、原始PLAN与验收顺序|缺契约仍执行；后续变动令证据失效|缺失/损坏契约0启动；保留原PLAN；漂移拒绝|V4/V5/V7；不是完整自动生产调度|
-|外部改写、受控回滚与busy吞错|收尾覆盖风险；忙碌异常被吞|检查点拒绝；回滚自有写入；busy明确传播|早期及V10 metadata；非OS多文件原子性|
-|认证消费中断恢复|消费后中断不能恢复，锁嵌套超时|校验身份和消费归属后恢复；不重复消费|V10 admission，含跨进程SIGKILL与篡改反例|
-|索引恢复覆盖外部暂存|失败时无条件恢复基线|只恢复自有条目，保留外部/不可读状态；SHA256通过|V10 index；仍存在比较/写入窗口|
-|自身回执污染与doctor漏报|真实测试成功不能发布；1122文件报0|1次执行成功发布；准确报告1122；扫描失败明确未知|V10 runtime；定向迁移不扩大删除范围|
-|失败退出码及终态事件|结构失败exit0、terminal pass|拒绝exit1、terminal fail；成功仍exit0|V10 validation-exit；缺前提仍0启动|
-|freshness租约/机械回执/PLAN旧夹具|recover_evidence等断言失败|补齐真实夹具前提；V16完整smoke通过38.13秒|夹具修复，不是性能收益|
-|跨目录签名根错绑|数据A、密钥B|生产与消费均绑定A；错误根/密钥/篡改拒绝|V11，独立进程与并发隔离|
-|框架重复准备|重复路径处理、status、Git shell及快照序列化|去除等价重复；保留实时输入与发布检查|V8三阶段总5.399→3.653秒；warm1.906→1.260秒仍贵|
-|单次story输入merge-base重复|2次|1次；5种Git状态哈希一致|V11，不跨观察复用|
-|短任务选择昂贵复用|三消费者2.553秒|负经济性时实际执行，1.656秒|V12，长任务3.775→3.954秒，无普遍提速|
-|新进程重复学习|两进程1.924秒；第二进程4次probe|非授权成本提示，两进程1.535秒；2次probe|V13，首次学习仍存在|
-|重复资源阶段与取消仍启动|阶段2次；20命令1.931秒；取消启动1次|阶段1次；1.632秒；取消0启动|V14，受控命令工作量|
-|资源等待诊断丢失|计算后丢弃|结果保留schedulerWaitMs|V14，仅调度冲突等待，不含所有锁等待|
-|修复入口重复派发|额外4次run；16.675秒|remediation入口0次；3.276秒|V7同版流程比较，不能说成新代码修复|
-|selector、派发、库存、quorum名单不一致|selector2、其他3；open Finding可缩减|关闭后统一2，未关闭保留3；缺PASS仍阻断|V15同命令2.892→3.559秒；正确性改善，非提速|
-|四入口重复Git树与混合HEAD|读树[2,2,2,2]；旧HEAD配新storyHash|[1,1,1,1]；单次同对象，下次识别变化|V16：20命令3.778→3.658秒；四阶段2.506→2.507秒持平|
+| Quorum empty selection, synchronous timeout, and cleanup hotspot | Zero checks reported success; timeout could be missed; 515 scans | Empty selection rejected; timeout recognized; 4 scans | V4. 16.719 to 11.572 minutes compares serial and parallel execution of the same candidate, not old and new code |
+| Shared execution, directory inputs, and concurrent accounting | Directory EISDIR prevented reuse; the same receipt was counted as multiple executions | Complete directory binding; eligible consumers reduced from 3 launches to 1; actual executor distinguished | V10 input-tree: long task 5.204 to 3.573 seconds; short task 0.674 to 1.935 seconds, slower |
+| Incorrect resource declarations | Nine shared-writing commands lost protection and overlapped | Unsafe declarations withdrawn; nine controls showed no writer overlap; independent resources remained concurrent | merge285; safety repair |
+| Phased protection across worktrees | Safe stages serialized; 4.894 seconds | Safe stages overlapped while shared writers remained exclusive; 4.527 seconds | V6; three controlled mixed-list trials, not full-inventory throughput |
+| Stage exceptions, lock order, and local concurrency | Publication could follow an exception; reversed lock acquisition; independent-command concurrency 1 | Exceptions prevent publication; reversed lock order rejected; independent concurrency 3 | V6; real negative and positive controls |
+| Validation ran despite failed closeout prerequisites | 2 commands launched; 3.698 seconds | 0 commands launched; 0.673 seconds | V7; three trials with an artificial one-second test workload |
+| Transient publication failure repeated tests | 2 test executions; 7.030 seconds | Publication retried within the same call; 1 execution; 3.644 seconds | V5; limited to declared supported failures |
+| Contract, original PLAN, and acceptance ordering | Missing contract still permitted execution; later changes invalidated evidence | Missing or corrupt contract causes 0 launches; original PLAN retained; drift rejected | V4/V5/V7; not a complete automatic artifact-production scheduler |
+| External writes, controlled rollback, and swallowed busy errors | Closeout risked overwriting external changes; busy errors were swallowed | Checkpoint refusal; rollback of owned writes only; busy errors propagated | Early experiments and V10 metadata; not OS-level multi-file atomicity |
+| Recovery after interrupted certification consumption | Interruption after consumption prevented recovery; nested locks timed out | Recovery verifies identity and consumption ownership without consuming twice | V10 admission; includes cross-process SIGKILL and tampering controls |
+| Index recovery overwrote external staging | Failure unconditionally restored the baseline | Only owned entries restored; foreign or unreadable state preserved; SHA256 controls passed | V10 index; comparison/write race window remains |
+| Self-generated receipt pollution and doctor undercount | Real tests succeeded but could not publish; 1,122 files reported as 0 | One execution successfully published; 1,122 files reported accurately; scan failure explicitly unknown | V10 runtime; bounded migration does not broaden deletion scope |
+| Failure exit codes and terminal events | Structured failure returned exit 0 and terminal pass | Refusal returns exit 1 and terminal fail; success retains exit 0 | V10 validation-exit; missing prerequisites still cause 0 launches |
+| Legacy freshness lease, mechanical receipt, and PLAN fixtures | recover_evidence and related assertions failed | Real fixture prerequisites supplied; V16 full smoke passed in 38.13 seconds | Fixture repair, not a performance benefit |
+| Signing identity bound to the wrong repository | Data written in A, signing key selected in B | Producers and consumers bind A; incorrect root, key, and tampering rejected | V11; independent processes and concurrent isolation |
+| Repeated framework preparation | Repeated path handling, status queries, Git shell calls, and snapshot serialization | Equivalent repeated work removed; live input and pre-publication checks retained | V8 three-phase total 5.399 to 3.653 seconds; warm reuse 1.906 to 1.260 seconds remained expensive |
+| Duplicate merge-base query per Story-input check | 2 queries | 1 query; identical hashes across five Git states | V11; no reuse across observations |
+| Short tasks selected expensive reuse | Three consumers took 2.553 seconds | Negative economics selects actual execution; 1.656 seconds | V12; long task 3.775 to 3.954 seconds, no universal speedup |
+| Repeated learning in a new process | Two processes took 1.924 seconds; second process used 4 probes | Non-authoritative cost hint; two processes took 1.535 seconds; 2 probes | V13; initial learning cost remains |
+| Duplicate resource stage and launch after cancellation | 2 stage entries; 20 commands took 1.931 seconds; 1 launch after cancellation | 1 stage entry; 1.632 seconds; 0 launches after cancellation | V14; controlled command workload |
+| Resource-wait diagnostics discarded | Wait time calculated and then discarded | Results preserve schedulerWaitMs | V14; scheduling-conflict wait only, not all lock waiting |
+| Repeated dispatch before remediation | 4 extra reviewer runs; 16.675 seconds | Remediation entry uses 0 extra runs; 3.276 seconds | V7 compares workflows within the same version, not a new code repair |
+| Selector, dispatch, inventory, and quorum roster disagreement | Selector required 2 lanes while other consumers required 3; open findings could permit narrowing | Closed findings permit consistent 2-lane selection; unresolved findings retain 3; missing PASS still blocks | V15 same-command time 2.892 to 3.559 seconds; correctness improvement, not speedup |
+| Repeated Git-tree reads and mixed HEAD across four consumers | Tree reads [2,2,2,2]; old HEAD paired with a new Story hash | Reads [1,1,1,1]; one object per observation; next observation detects change | V16: 20 commands 3.778 to 3.658 seconds; four phases 2.506 to 2.507 seconds, effectively flat |
 
-## 本次合并后的验证
+## Repairs verified during the previous integration
 
-Package/CLI version: **0.3.315**. GitHub tag: **v0.3.315-lab.1**, explicitly a prerelease. Source integration commit: `fcac40f34d`.
+- Certification begin and cancel now verify both registered implementation identity boundaries before touching the store. Tampered implementation RED became fail-before-access GREEN; restored bytes reach the normal path.
+- An exit-zero JSON result that is not a semantic PASS remains a failure during coverage decoration.
+- The scope-positive fixture uses a recognized integration path. Missing scope still prevents test launch.
+- Reuse fixtures obtain an explicit new synthetic admission before another actual test execution. A changed environment with a consumed admission cannot reuse the old PASS or start another test.
 
-本次合并后的定向结果：完整 freshness、完整复用 smoke、动态 Finding、流程/运行时契约、阶段计数、Git 树观察和跨目录签名检查通过。完整复用 smoke 81.814 秒是检查耗时，不是 Story 提速数据。
+The previous synchronized candidate passed full freshness, full reuse, runtime-contract, and process-contract checks. Their observed runtimes were 31.090, 79.285, 7.306, and 9.244 seconds respectively. These are check durations, not Story speedup measurements. Claude CLI independently executed three bounded checks and separately approved the completed evidence and disclosure. The Pan Qi merge is validated separately below; prior passes are not substituted for current integration results.
 
-本次新增修复：认证 begin/cancel 在访问数据前检查实现指纹（篡改 RED → 拒绝 GREEN）；非 PASS JSON 不再被覆盖率装饰成 PASS；旧夹具补齐显式认证前提，环境变化仍不能复用旧结果。详见 POST-MERGE-VALIDATION.md 和 evidence/ 原始输出。
+## Pan Qi integration and current validation
 
-仍未证明：完整 Story 净提速、长期审查收敛、完整双工作树吞吐、所有短命令复用经济性及任意故障恢复。本版本不是正式 Story DONE 或签名产品验收证据，未合回 main，也不修改全局安装。
+The synchronized CLI reports `Proof-or-Stop 0.3.316`. The official build and all ten targeted commands passed. These timings are verification durations, not before/after performance measurements.
 
-Claude CLI: **APPROVE (bounded scope)**. Independently executed mutator pin, tree-delegate pin and process contract checks, all exit 0. Full smoke outcomes below are separately recorded runs, not claimed as independently rerun by Claude. Historical reports remain immutable; later authorization and integration records are appended separately.
+| Current check | Exit code | Seconds |
+|---|---:|---:|
+| `node packages/main/tests/certification-mutator-identity.mjs` | 0 | 1.850 |
+| `node packages/main/tests/validation-tree-delegate-binding.mjs` | 0 | 0.823 |
+| `node packages/main/dist/tasks/testintent-handoff-smoke.js` | 0 | 0.501 |
+| `node packages/main/dist/tasks/story-review-ergonomics-smoke.js` | 0 | 3.061 |
+| `node packages/main/dist/tasks/verification-intent-alias-smoke.js` | 0 | 0.344 |
+| `node packages/main/dist/tasks/verification-freshness-smoke.js` | 0 | 39.967 |
+| `node packages/main/dist/tasks/validation-evidence-reuse-smoke.js` | 0 | 98.234 |
+| `node scripts/verify-runtime-fact-contract.mjs` | 0 | 8.844 |
+| `node scripts/verify-process-fact-contract.mjs` | 0 | 10.233 |
+| `node scripts/verify-proof-or-stop-prompt-baseline.mjs` | 0 | 8.448 |
 
+An additional direct boundary test removes the new scope/expectation/requirement-source guard from a copied runtime. The reviewed checklist pin rejects that mutation; restoring the guard passes. This proves that the digest update does not disable protection.
 
-## 尚未解决或尚未证明的范围
+The final candidate preserves the original Lab table and source history. The known V16 reuse-smoke assertion was explicitly carried forward in the disclosure: its earlier integration fix was revalidated by the full current smoke, which exited 0. No full quorum rerun or whole-Story performance claim is substituted for these bounded checks.
 
-| 项目 | 当前边界 |
+Final independent integration and English-disclosure review is pending.
+
+## Remaining limitations
+
+| Area | What has not been established |
 |---|---|
-| 完整 Story 净耗时 | 尚无同工作量完整生命周期前后对照，必须计入新增回归成本 |
-| 长期审查收敛 | 名单及固定批次证据不能证明所有历史多轮 Story 收敛 |
-| 完整双工作树吞吐 | 尚无最终完整命令清单吞吐、最坏等待及冲突对照 |
-| 短命令复用经济性 | 可避开不合算路径，不证明所有短命令复用更快 |
-| 完整收尾依赖与任意恢复 | 限已声明、已验证故障；不保证任意外部写入或 OS 多文件原子性 |
-| 全量整体验收 | 本次为定向合并验证，未运行完整 quorum 或取得正式 Story DONE |
+| Complete Story net latency | No equivalent-workload, complete-lifecycle before/after benchmark including the cost of new regressions |
+| Long-term review convergence | Correct rosters and fixed-batch replay do not prove convergence for every historical multi-round Story |
+| Complete dual-worktree throughput | No final full-command-inventory throughput, worst-case waiting, and conflict comparison |
+| Short-command reuse economics | Avoiding an uneconomic path does not prove that reuse is faster for every short command |
+| Complete closeout scheduling and arbitrary recovery | Guarantees cover declared, tested failures; not arbitrary external writes or OS-level multi-file atomicity |
+| Historical reuse-smoke assertion | V16 failed before and after the repair because refusal returned exit 1 while the fixture expected exit 0. The previous Lab integration repaired the fixture and later semantic failure, then passed the full smoke. The complete downstream smoke must be rerun after this Pan Qi merge; the full current smoke passed as recorded in the integration results |
+| Formal completion | Lab evidence is not formal Story DONE or signed product acceptance; no universal performance claim is made |
 
+## Evidence
 
-## 可下载证据
+Original historical artifacts remain unchanged for provenance. This release log is an English translation, not a rewrite of historical measurements. The previous Lab release is superseded by this integrated version. Current verification logs, independent audit, translation checks, and archive checksums are supplied with the release.
 
-- `v0.3.315-lab.1-historical-evidence.zip`：1,960 个历史报告/日志，包含逐文件 SHA-256 清单；未包含运行时私钥或测试工作目录。
-- `v0.3.315-lab.1-current-evidence.zip`：本次修复、验证日志、完整 24 类表格、Claude 审计及自检脚本。
-- Claude 补审已确认六项最终结果完整记录，并独立运行表格/证据包校验；APPROVE 仅限已声明范围。
+## Lab plan-baseline-aware-validation-intent - v0.3.315 - 2026-09-11
 
+PLAN verification intent now distinguishes focused acceptance from repository-wide health checks. Repository-wide failures may only become mandatory when an external verifier explicitly requires them; baseline failures otherwise use no-new-regressions review evidence.
 
-## 0.3.315 最终构建后的复核
-
-| 检查 | 结果 | 检查耗时 |
-|---|---|---:|
-| 完整 freshness smoke | PASS | 31.090 秒 |
-| 完整复用 smoke | PASS | 79.285 秒 |
-| 运行时契约 | PASS | 7.306 秒 |
-| 流程契约 | PASS | 9.244 秒 |
-
-上述为本次自检的命令耗时，不能解读为 Story 提速比例。Claude 独立执行和补审范围见附带审计全文。
+Maintenance provenance: codex/lab-plan-baseline-aware-validation-intent, repair 3fea30baf57e3ce66ac766f50977eeddfac23149.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/testintent-handoff-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## Lab repro-first-p0m-mapping - v0.3.314 - 2026-09-11
 
