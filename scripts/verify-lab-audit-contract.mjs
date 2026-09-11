@@ -61,3 +61,7 @@ for(const stage of ['before-spawn','after-spawn']) {
   assert.equal(released,stage==='before-spawn'?1:0);
 }
 console.log('LAB_AUDIT_ADMISSION PASS pre-spawn release and unknown-child retention');
+
+const {LAB_MAINTENANCE_RUNTIME_REQUIREMENTS: auditPolicy}=await import('../packages/main/src/core/runtime-fact-registry.ts');
+assert.equal(auditPolicy.auditTimeoutMs,900000);
+assert.equal(auditPolicy.auditStartupTimeoutMs,90000);

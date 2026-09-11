@@ -448,6 +448,8 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   auditCustomProtocol: 'lab-json',
   auditIndependence: 'different-vendor',
   auditRequired: true,
+  auditTimeoutMs: 900000,
+  auditStartupTimeoutMs: 90000,
   recordSchema: 3,
   readableRecordSchemas: [1, 2, 3],
 } as const;
