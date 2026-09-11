@@ -631,7 +631,6 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
-  'runtime:command_observation_effects': ['runtime-behavior', 'schema-contract', 'workspace-binding'],
   // Status recommendations share the gate admissibility predicate; window
   // RUNNING alone never proves that a routine process is still executing.
   'runtime:precert_routine_single_execution': ['runtime-behavior', 'signed-artifact', 'atomic-persistence', 'validation-result', 'gate-evidence'],
@@ -2344,7 +2343,7 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     level: 'L4',
     producer: 'handlers/verifier',
     consumerGate: 'done_prepare convergence acceptance',
-    rationale: 'Command schedulerWaitMs is diagnostic intra-plan resource-conflict waiting only, excluding worker slots and cross-process capacity; it grants no gate or reuse authority. Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash, grouped per commandSetHash, materialHash, and storyFilesHash for duplicate-suite accounting. Blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at or after TEST entry (facts.testEntryAt, B-f824) plus reused terminals with commandExecutions > 0 in any phase; reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry.',
+    rationale: 'Generic CLI command observation consumes argument-aware effective ownership for hooks, activity and Story events; name-only read helpers never exempt writers. These command observations do not replace validation terminals or grant gate evidence. Command schedulerWaitMs is diagnostic intra-plan resource-conflict waiting only, excluding worker slots and cross-process capacity; it grants no gate or reuse authority. Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash, grouped per commandSetHash, materialHash, and storyFilesHash for duplicate-suite accounting. Blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at or after TEST entry (facts.testEntryAt, B-f824) plus reused terminals with commandExecutions > 0 in any phase; reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry.',
   },
 ] as const satisfies readonly ProcessFactRegistryDeclaration[];
 

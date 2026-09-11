@@ -11182,7 +11182,7 @@ try {
     && engine.includes('commandObservationEffects(eventOwnership).recordStoryEvent'),
     'Command effects and generic Story events must share effective admission ownership');
   assert(!engine.includes("|| isReadOnlyCommand("), 'Static reader names must not override parameterized writes');
-  assert(read('packages/main/src/core/process-fact-registry.ts').includes('runtime:command_observation_effects'), 'Command observation semantics must be registered');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes('Generic CLI command observation consumes argument-aware effective ownership'), 'Command observation semantics must be registered');
   try {
     const output = execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-boundaries.mjs')], {
       cwd: root, encoding: 'utf8', timeout: 120000,
