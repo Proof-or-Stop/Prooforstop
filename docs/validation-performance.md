@@ -1130,3 +1130,17 @@ This freezes a historical input, not current admission. Story-source, scope, pol
 ### Completed inventory history after certification
 
 Certification admission legitimately adds signed consumption timestamps and certification-window ownership to a finalized inventory epoch and receipt. The convergence completion digest excludes those later output fields in both records while continuing to verify both signatures and all completion claims. Agents should retain the existing journal after normal admission; do not reset completion history to work around a lifecycle output. Material or receipt tampering remains an integrity failure. Consumption ownership is still enforced independently by certification and never grants authority through the convergence journal.
+
+### Batched review metadata before certification
+
+The native review epoch publisher commits signed reviewer artifacts together as
+`record <Story> review epoch metadata`. PRE_CERT recognizes that exact same-Story
+bookkeeping subject when every changed path belongs to the publisher's registered
+review artifacts or a content-addressed prompt body. Ancestor, single-parent,
+material, scope and signed inventory checks remain required. An arbitrary commit
+subject, another Story's path or an unrelated artifact does not gain continuity.
+
+`node scripts/verify-review-epoch-certification-continuity.mjs` runs genuine native
+review lanes and a completeness critic in linked worktrees, then checks clean
+admission and those rejected lineage claims. This preserves the normal sequence
+of finalizing review inventory and running the fast check before admission.

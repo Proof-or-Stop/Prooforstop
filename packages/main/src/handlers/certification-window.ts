@@ -1,3 +1,4 @@
+import { REVIEW_EPOCH_COMMIT_ARTIFACTS } from '../core/review-metadata-batch.js';
 import { isDeepStrictEqual } from 'node:util';
 import { withValidationMetadataWrite } from '../core/validation-execution-lock.js';
 import { withReviewInventoryMutationLock, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
@@ -374,11 +375,17 @@ function hasVerifiedInventoryMetadataHeadContinuity(args: {
     const subject = gitText(gitCwd, ['show', '-s', '--format=%s', commit]);
     const pathsText = gitText(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit]);
     if (!parents || parents.split(/\s+/).filter(Boolean).length !== 1 || !subject || pathsText === null) return false;
-    if (!PRECERT_INVENTORY_METADATA_REASONS.some(reason => (
+    const reviewEpochBatch = matchesRuntimeCommitSubject(subject, `record ${storyId} review epoch metadata`);
+    if (!reviewEpochBatch && !PRECERT_INVENTORY_METADATA_REASONS.some(reason => (
       matchesRuntimeCommitSubject(subject, `record ${storyId} ${reason} metadata`)
     ))) return false;
     const paths = pathsText.split('\n').filter(Boolean);
     if (paths.length === 0 || paths.some(path => !path.startsWith(storyPrefix))) return false;
+    if (reviewEpochBatch && paths.some(path => {
+      const artifact = path.slice(storyPrefix.length);
+      return !(REVIEW_EPOCH_COMMIT_ARTIFACTS as readonly string[]).includes(artifact)
+        && !/^prompt-bodies\/[0-9a-f]{64}\.txt$/.test(artifact);
+    })) return false;
   }
   return true;
 }

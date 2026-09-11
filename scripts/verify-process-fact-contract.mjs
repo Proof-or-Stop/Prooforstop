@@ -11219,3 +11219,12 @@ console.log('Process-fact contract verification passed');
   assert(dispatch.includes('reviewPurpose: run.reviewPurpose') && dispatch.includes('inventoryBinding: run.inventoryBinding'), 'native read-side dispatch verification must retain signed purpose and inventory subject');
   assert(read(processFactRegistryPath).includes('Native read-side authority preserves the signed reviewPurpose and inventoryBinding'), 'native read-side purpose binding must be registered');
 }
+
+// Canonical batched review publication must retain PRE_CERT identity without broadening its path surface.
+{
+  const cert = read('packages/main/src/handlers/certification-window.ts');
+  for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS', 'reviewEpochBatch', 'record ${storyId} review epoch metadata', 'path.slice(storyPrefix.length)']) {
+    assert(cert.includes(token), `PRE_CERT canonical review epoch continuity missing ${token}`);
+  }
+  assert(read(processFactRegistryPath).includes('publisher\'s registered artifacts and content-addressed prompt-body paths'), 'bounded canonical review epoch continuity must be registered');
+}
