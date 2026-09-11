@@ -93,7 +93,7 @@ export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requ
   const proposal = bound.record.payload as Record<string, unknown>;
   if (bound.record.recordType !== 'assessment_proposal' || proposal.proposalId !== source.subjectId || proposal.proposalDigest !== source.subjectHash) throw new Error('route: proposal source mismatch');
   const actor = String(proposal.assessedBy); const trust = identityTrust(ctx); const snapshot = identitySourceSnapshot(ctx);
-  const restored = !requireCurrentReviewerEvidence && proposal.materialHash !== snapshot.materialHash
+  const restored = !requireCurrentReviewerEvidence && (proposal.materialHash !== snapshot.materialHash || proposal.headHash !== snapshot.headHash)
     ? readMaterialDriftReattestation(ctx, source.storyId, source.recordId) : undefined;
   const ref = proposal.findingRef as { storyId: string; findingId: string; recordId: string };
   const findingRecord = ledger.records.find(row => row.recordId === ref.recordId);

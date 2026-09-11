@@ -24,6 +24,7 @@ import {
   resolveMaterialCodePolicy,
 } from './material-code-policy.js';
 import { GIT_TREE_OUTPUT_MAX_BUFFER } from './evidence-freshness.js';
+import { resolveRepositoryBaseline } from './git-baseline.js';
 
 export const SCOPE_ANCHOR_PARSER_VERSION = `typescript-${ts.versionMajorMinor}-ast-v1` as const;
 export const SCOPE_ANCHOR_ARTIFACT_VERSION = 'proof-or-stop.scope-anchor.v1' as const;
@@ -203,7 +204,9 @@ function inferPackageKeyPath(body: string[]): string | undefined {
 
 function readBaseSource(gitCwd: string, path: string): string | undefined {
   try {
-    return execFileSync('git', ['show', `main:${path}`], {
+    const baseline = resolveRepositoryBaseline(gitCwd);
+    if (!baseline) return undefined;
+    return execFileSync('git', ['show', `${baseline.ref}:${path}`], {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -487,8 +490,9 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
 
 function readUnifiedDiff(gitCwd: string): string {
   const parts: string[] = [];
+  const baseline = resolveRepositoryBaseline(gitCwd);
   for (const args of [
-    ['diff', '--find-renames', '--find-copies', '--unified=20', 'main...HEAD'],
+    ...(baseline ? [['diff', '--find-renames', '--find-copies', '--unified=20', `${baseline.ref}...HEAD`]] : []),
     ['diff', '--find-renames', '--find-copies', '--unified=20'],
     ['diff', '--find-renames', '--find-copies', '--unified=20', '--cached'],
   ]) {

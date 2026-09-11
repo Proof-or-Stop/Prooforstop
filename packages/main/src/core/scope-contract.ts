@@ -24,6 +24,7 @@ import {
   pathMatchesScopePattern,
   SCOPE_PATH_CANONICALIZER_VERSION,
 } from './scope-path-classifier.js';
+import { resolveRepositoryBaseline } from './git-baseline.js';
 
 // ── Validation ──
 
@@ -213,6 +214,7 @@ export type GitChangedFilesReader = (projectRoot: string) => string[];
  */
 export function readChangedFiles(projectRoot: string): string[] {
   const files = new Set<string>();
+  const baseline = resolveRepositoryBaseline(projectRoot);
   const addNameStatus = (output: string): void => {
     for (const line of output.trim().split('\n')) {
       if (!line) continue;
@@ -231,10 +233,10 @@ export function readChangedFiles(projectRoot: string): string[] {
   };
   try {
     // Tracked changed files vs merge-base with main
-    const tracked = execFileSync(
-      'git', ['diff', '--name-status', '--find-renames', 'main...HEAD'],
+    const tracked = baseline ? execFileSync(
+      'git', ['diff', '--name-status', '--find-renames', `${baseline.ref}...HEAD`],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-    ).trim();
+    ).trim() : '';
     if (tracked) addNameStatus(tracked);
   } catch { /* not a git repo or no main branch */ }
   try {
@@ -281,6 +283,7 @@ export function readChangedFiles(projectRoot: string): string[] {
  */
 export function readRetiredRepoRootDiffPaths(gitCwd: string): string[] {
   const paths = new Set<string>();
+  const baseline = resolveRepositoryBaseline(gitCwd);
   const addNameStatus = (output: string): void => {
     const fields = output.split('\0');
     let index = 0;
@@ -308,7 +311,7 @@ export function readRetiredRepoRootDiffPaths(gitCwd: string): string[] {
     }
   };
   for (const args of [
-    ['diff', '--name-status', '-z', '--find-renames', 'main...HEAD'],
+    ...(baseline ? [['diff', '--name-status', '-z', '--find-renames', `${baseline.ref}...HEAD`]] : []),
     ['diff', '--name-status', '-z', '--find-renames'],
     ['diff', '--name-status', '-z', '--find-renames', '--cached'],
   ]) {

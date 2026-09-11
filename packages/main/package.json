@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.318",
+  "version": "0.3.320",
   "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -123,7 +123,7 @@
     "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
     "test:finding-identity-delivery": "node dist/tasks/finding-identity-lineage-smoke.js --section=delivery",
     "test:dynamic-finding-applicability": "node dist/tasks/dynamic-finding-applicability-smoke.js && node tests/red/red-dynamic-finding-applicability.mjs",
-    "test:dynamic-finding-evidence-closure": "node dist/tasks/dynamic-finding-evidence-closure-smoke.js && node dist/tasks/dynamic-finding-runtime-integration-smoke.js && node dist/tasks/finding-runtime-pair-smoke.js && node dist/tasks/finding-material-reattestation-smoke.js && node dist/tasks/finding-qualification-events-smoke.js && node tests/red/red-dynamic-finding-evidence-closure.mjs && node tests/red/red-dynamic-finding-audit-closure.mjs && node tests/red/red-dynamic-finding-four-gaps.mjs && node tests/red/red-dynamic-finding-qualification-audit.mjs && node dist/tasks/finding-qualification-independence-smoke.js && node tests/red/red-dynamic-finding-final-contracts.mjs",
+    "test:dynamic-finding-evidence-closure": "node dist/tasks/dynamic-finding-evidence-closure-smoke.js && node dist/tasks/dynamic-finding-runtime-integration-smoke.js && node dist/tasks/finding-runtime-pair-smoke.js && node dist/tasks/finding-material-reattestation-smoke.js && node dist/tasks/finding-qualification-events-smoke.js && node tests/red/red-dynamic-finding-evidence-closure.mjs && node tests/red/red-dynamic-finding-audit-closure.mjs && node tests/red/red-dynamic-finding-four-gaps.mjs && node tests/red/red-dynamic-finding-qualification-audit.mjs && node dist/tasks/finding-qualification-independence-smoke.js && node tests/red/red-dynamic-finding-final-contracts.mjs && node dist/tasks/finding-material-reattestation-smoke.js --head-continuity && node dist/tasks/dynamic-finding-runtime-integration-smoke.js --collection-proof && node dist/tasks/dynamic-finding-runtime-integration-smoke.js --qualification-history-proof",
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
     "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",

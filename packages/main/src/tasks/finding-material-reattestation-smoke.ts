@@ -15,6 +15,7 @@ import { createFindingApplicabilityHandlers } from '../handlers/finding-applicab
 import { createFindingRouteHandlers } from '../handlers/finding-route.js';
 import { buildConfirmedCanonicalDefect, signIdentityEnvelope, validateCanonicalDefect } from '../core/finding-identity.js';
 import { applicabilityDigest, FINDING_PROTECTED_SURFACES } from '../core/finding-applicability.js';
+import { currentApplicabilityContext } from '../core/finding-applicability-projection.js';
 import { prepareMaterialDriftReattestation, readMaterialDriftReattestation } from '../handlers/finding-material-reattestation.js';
 import { seedCurrentReviewFixture, bindCurrentFixtureFinding } from './current-review-fixture.js';
 import { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, runBrokeredNativeReviewCli } from './native-review-fixture.js';
@@ -29,6 +30,7 @@ const oldCwd = process.cwd(); const oldEnv = { ...process.env };
 const gitAt = (cwd: string, ...args: string[]) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: 'pipe' }).trim();
 const git = (...args: string[]) => gitAt(root, ...args);
 const write = (path: string, text: string) => writeFileSync(join(root, path), text);
+const headContinuity = process.argv.includes('--head-continuity');
 let count = 0; const pass = (name: string) => { count++; console.log(`MATERIAL_REATTEST ${name} PASS`); };
 try {
   const storyId = 'B-RETEST'; const targetId = 'B-TARGET'; const findingId = `${storyId}:F-001`;
@@ -53,6 +55,7 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
   git('init', '-b', 'main'); git('config', 'user.name', 'Isolated Reattestation Test'); git('config', 'user.email', 'reattest@example.invalid');
   git('add', '.'); git('commit', '-m', 'fixture baseline'); git('worktree', 'add', '-b', `story/${targetId}`, targetRoot);
   git('checkout', '-b', `story/${storyId}`); process.chdir(root); resetConfigCache();
+  if (headContinuity) git('commit', '--allow-empty', '-m', 'establish exact assessment proof head');
   const store = new StoryStore(root); const targetStore = new StoryStore(targetRoot);
   const ctx = { root, store, scanRoot: join(root, 'packages/main') };
   const targetCtx = { root: targetRoot, store: targetStore, scanRoot: join(targetRoot, 'packages/main') };
@@ -110,21 +113,58 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
   assert.equal(gold.measurements.find(row => row.metric === 'nonblocking_precision')?.numerator, 1);
   assert.equal(gold.measurements.find(row => row.metric === 'false_deferral')?.numerator, 0);
   pass('independently eligible deferral is not a nonblocking precision error');
-  mkdirSync(join(root, 'docs/audits'), { recursive: true }); write('docs/audits/unrelated.md', 'An unrelated audit note.\n');
-  git('add', 'docs/audits/unrelated.md'); git('commit', '-m', 'unrelated main audit'); git('branch', '-f', 'main', 'HEAD');
-  assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, true); pass('raw material drift remains blocked');
+  if (headContinuity) {
+    const before = currentApplicabilityContext(store, root, storyId, [old.runtimeReceiptId]);
+    git('add', '-f', `.proof-or-stop/story/actives/${storyId}`); git('commit', '-m', 'persist original signed finding evidence');
+    const after = currentApplicabilityContext(store, root, storyId, [old.runtimeReceiptId]);
+    assert.notEqual(after.headHash, before.headHash);
+    assert.deepEqual({ ...after, headHash: before.headHash }, before, 'only HEAD changes after committing process evidence');
+    console.log('HEAD_CONTINUITY context headChanged=true materialChanged=false storyFilesChanged=false baseChanged=false scopeChanged=false acceptanceChanged=false runtimeChanged=false');
+  } else {
+    mkdirSync(join(root, 'docs/audits'), { recursive: true }); write('docs/audits/unrelated.md', 'An unrelated audit note.\n');
+    git('add', 'docs/audits/unrelated.md'); git('commit', '-m', 'unrelated main audit'); git('branch', '-f', 'main', 'HEAD');
+  }
+  assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, true); pass('raw unproven drift remains blocked');
   const fresh = runtime.finding_runtime_evidence_run({ ...runtimeArgs, idempotencyKey: 'fresh' });
   const input = { storyId, assessmentId: assessment.assessment.assessmentId!, runtimeReceiptIds: [fresh.runtimeReceiptId], idempotencyKey: 'retest' };
   const reviewRunId = seedCurrentReviewFixture(root, store, storyId, [reviewer]).get(reviewer)!;
+  if (headContinuity) {
+    const base = git('rev-parse', 'main');
+    git('branch', '-f', 'main', 'HEAD');
+    assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => prepareMaterialDriftReattestation(ctx, input) }), /not an isolated current material drift/);
+    git('branch', '-f', 'main', base); pass('head-only recovery rejects changed base');
+    const currentHead = git('rev-parse', 'HEAD');
+    const siblingHead = git('commit-tree', 'HEAD^{tree}', '-p', base, '-m', 'controlled non-descendant proof');
+    git('update-ref', `refs/heads/story/${storyId}`, siblingHead, currentHead);
+    assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => prepareMaterialDriftReattestation(ctx, input) }), /immutable head ancestry required/);
+    git('update-ref', `refs/heads/story/${storyId}`, currentHead, siblingHead); pass('head-only recovery rejects non-descendant history');
+    assert.throws(() => withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => prepareMaterialDriftReattestation(ctx, { ...input, runtimeReceiptIds: [old.runtimeReceiptId] }) }), /runtime-evidence/);
+    pass('head-only recovery requires genuinely new execution');
+  }
   let marker = '';
   try { withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => prepareMaterialDriftReattestation(ctx, input) }); }
-  catch (error) { marker = String(error).match(/finding-reattest:[^\s]+/)?.[0] ?? ''; if (!marker) throw error; }
+  catch (error) {
+    marker = String(error).match(/finding-reattest:[^\s]+/)?.[0] ?? '';
+    if (!marker && headContinuity) assert.fail(`HEAD_CONTINUITY fresh equivalent execution must reach independent-review binding, not permanent drift refusal: ${String(error)}`);
+    if (!marker) throw error;
+  }
   assert.ok(marker); pass('fresh executions alone cannot self-attest');
   await runBrokeredNativeReviewCli({ root, store, storyId, agent: reviewer, reviewRunId, command: 'review_pass_set', payload: { storyId, agent: reviewer, reviewRunId,
-    readManifest: { filesReadFully: ['witness.mjs', 'docs/audits/unrelated.md'], filesTriagedByName: [], scanEscalationReason: null }, note: `Independent unrelated-material audit.\n${marker}` } });
+    readManifest: { filesReadFully: headContinuity ? ['witness.mjs'] : ['witness.mjs', 'docs/audits/unrelated.md'], filesTriagedByName: [], scanEscalationReason: null }, note: `Independent bounded-drift audit.\n${marker}` } });
   const result = withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => handlers.finding_material_reattest(input) });
   assert.equal(result.replayed, false); assert.equal(readMaterialDriftReattestation(ctx, storyId, proposed.proposalRef.recordId)?.materialDriftState, 'unrelated_re_attested');
   assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, false); pass('fresh runtime plus independent signed dependencies restores valid deferral');
+  if (headContinuity) {
+    assert.equal(result.record.driftKind, 'head_only');
+    assert.equal(result.record.expiresAt, assessment.assessment.integrity.expiresAt);
+    assert.deepEqual(store.readFindingLedger(storyId).records.find(row => row.recordType === 'finding_applicability_assessment')!.payload, assessment.assessment);
+    console.log('HEAD_CONTINUITY restored=true oldAssessmentPreserved=true freshExecutionRequired=true independentReviewRequired=true');
+    const base = git('rev-parse', 'main');
+    git('branch', '-f', 'main', 'HEAD');
+    assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, true);
+    git('branch', '-f', 'main', base);
+    assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, false); pass('head-only reader rechecks base before releasing');
+  }
   assert.equal(withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => handlers.finding_material_reattest(input) }).replayed, true); pass('replay does not append');
   assert.throws(() => withNativeReviewFixtureHostIdentity({ agent, invoke: () => prepareMaterialDriftReattestation(ctx, input) }), /self-adjudicate/); pass('observer cannot self-adjudicate');
   git('add', '-f', `.proof-or-stop/story/actives/${storyId}`); git('commit', '-m', 'persist fixture process evidence only');

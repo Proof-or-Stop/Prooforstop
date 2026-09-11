@@ -1,5 +1,53 @@
 # Changelog
 
+## Lab amendment-projection-regression - v0.3.320 - 2026-09-11
+
+Repair the stale acceptance-review prompt projection regression after the flat final-output protocol update. Preserve the exact trusted instruction SHA-256 assertion and unchanged task-data checks for both Claude and Codex, align the digest with the reviewed prompt, and add assertions that the embedded final JSON Schema matches the parser contract and that the prompt explicitly requires top-level binding fields. Load the current checkout source through the existing Lab loader instead of potentially stale dist.
+
+Verification: the committed target RED failed with AMENDMENT_PROJECTION_INSTRUCTION_DIGEST_MISMATCH (74 ms); the committed repair passed the identical command (74 ms). Both node scripts/verify-acceptance-prompt-projection.mjs and node scripts/verify-amendment-prompt-output-shape.mjs passed again. An isolated real Claude CLI 2.1.269 invocation read the committed test source, returned one successful structured approve result, and passed the production acceptance parser with exact subject bindings and normal process cleanup in 60,649 ms. That live call used synthetic Lab subject data and read-only tools; it was not a formal Story approval or a replay of the entire managed amendment lifecycle. No performance improvement is claimed.
+
+Maintenance provenance: codex/lab-amendment-projection-regression, repair a7ee240946be92a25bcef26e68f3f6fb74810b11.
+Verification command (replayed before integration and on main): `["node","scripts/verify-acceptance-prompt-projection.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab dynamic-finding-head-continuity - v0.3.320 - 2026-09-11
+
+Integrate the bounded Dynamic Finding head-continuity and collection-readiness repairs on the current main branch. Preserve both independent Claude audits and the recorded native RED/GREEN evidence; no Story is marked DONE by this Lab integration.
+
+The head-only repair permits signed recovery for an otherwise eligible low/medium deferral after new same-command execution and independent review, only with unchanged material/base/dependencies and descendant Git ancestry. It retains raw hash checks, expiry, route authority, historical observations, and fail-closed rejection of unknown or rewritten dependencies.
+
+The collection repair adds read-only per-Story assessment, independent adjudication, complete subject-census, corpus enrollment and matched-performance guidance. It distinguishes unavailable evidence from zero progress and does not reopen historical closed Findings. Current prerequisite failure no longer erases verified historical diagnostic denominators; invalid current prerequisites still categorically refuse enforce, and revoked historical trust still rejects the corpus.
+
+Native corrected RED at 00609e01a0 reported one passing group and two failing groups; GREEN at ae4c68235d reported three passing groups and zero failures. The pinned command includes 87 qualification calculator checks, the prior 13-case head-only recovery and nine-case material regression, and native signed collection/history scenarios. Independent Claude sessions 13fdc724-cddb-4d9f-8980-54953d7a0f17 and 9ebffd61-cfe1-4616-bc61-8cfe178fe1b9 accepted the corresponding frozen repairs without blockers. Non-blocking diagnostic advisories remain recorded, not silently presented as formal routed Finding deferrals.
+
+Latest-origin main f19b38f742 was fast-forwarded into the clean local main and synchronized into Lab before integration. Relevant integration validation is replayed by the official Lab finish workflow. These are engineering correctness results, not measured operational Story acceleration. The 20-Story/200-independent-case/30-day and safety qualification policy remains unchanged; no synthetic observations count as operational samples. Dynamic Finding/Validation enforcement is not enabled and no remote publication is performed.
+
+Maintenance provenance: codex/lab-dynamic-finding-head-continuity, repair e512a00f448840db2be94a287c3d54f1054b0c77.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab amendment-review-flat-output - v0.3.319 - 2026-09-11
+
+Clarify the independent DEV acceptance review response contract after two B-e6d9 managed Codex runs emitted an approving verdict with nested binding fields that the strict parser correctly rejected. The trusted prompt now explicitly requires top-level subject fields, rejects a nested binding object, and renders the existing parser transport JSON Schema directly. Parser acceptance and signing rules are unchanged.
+
+The focused source-runtime regression first failed with AMENDMENT_PROMPT_FLAT_SCHEMA_MISSING after flat-accept/nested-reject/mismatch-reject controls passed. The exact pinned command now passes for both Codex and Claude prompt projections and verifies schema equality plus preserved task data. Official Lab RED and GREEN were recorded. This is deterministic prompt/protocol regression evidence, not a claim that the subsequent real provider review has succeeded. No measured lifecycle speedup is claimed. B-e6d9 command timing logs retain the execution measurements and failed launches.
+
+Maintenance provenance: codex/lab-amendment-review-flat-output, repair 84ee44f2709f5ebaefe45880f9da343ce36b154d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-amendment-prompt-output-shape.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab external-untracked-config-master-base - v0.3.318 - 2026-09-11
+
+Problem: An untracked controller configuration was absent from a linked Story worktree. Bootstrap lstat failed on the missing target, while a manual copy was later classified as an out-of-scope business change. Master-only repositories also lacked a consistent integration baseline.
+
+Fix: Install missing untracked configuration without clobbering tracked paths; bind the initial bytes to no-follow signed receipts in Git-common and Story evidence storage; classify only a valid receipt-bound pair as a control artifact; resolve repository baselines across remote defaults, linked-worktree primary branches, and conventional main/master refs while excluding Story refs.
+
+Verification: The Lab RED reproduced ENOENT on the missing worktree configuration. Final GREEN passed external-worktree-go-pre-review-smoke, including tracked-config refusal, receipt drift/deletion/corruption/key-loss/symlink negatives, master/develop/main baseline cases, Story intake, material classification, review assurance, and scope admission. Process-fact, scope-contract, story-aware-validation, build, and worktree-authority checks passed. Three independent reviewers reported no remaining blocker.
+
+Measured optimization: Not applicable; this maintenance repair restores reachability and authority integrity rather than reducing runtime.
+
+Maintenance provenance: codex/lab-external-untracked-config-master-base, repair fc79650b3244b76a284233550ef561ad97de68ff.
+Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
 ## Lab performance-main-release-0317 - v0.3.318 - 2026-09-11
 
 # v0.3.318 - Seven Lab integrations and 24 historical repair comparisons

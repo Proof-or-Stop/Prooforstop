@@ -403,7 +403,8 @@ export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   qualification: '22 metric rows; public queries and independently reviewed preregistered mutation executions supply counts; reported statistics remain diagnostic; exact per-subject independent gold, not an existence list, adjudicates the full census with a grader distinct from both source observer and bound decision proposer; high/critical misses veto aggregate averages and synthetic successes never dilute operational denominators; monotonic frozen-population start/end records measure proposal latency with per-observation population proof, unmatched starts refuse via timeout rate; full proposal/route/deferral/repair subject census and merged prerequisites required before the real 20 Stories / 200 cases / 30 observed days',
   historicalRuntime: 'finding_runtime_evidence_run sourceRef executes an exact ancestor in a detached temporary worktree; both ordered receipts, selectors, witness schemas and pair digest bind non-regression proof',
   qualificationProvenance: 'merged prerequisites require exact-current successful execution receipts with independently reviewed FINDING_PREREQUISITE command/selector bindings; historical readers recheck receipt trust; performance source IDs deduplicate completed candidate cohorts and latency attempts, conflicting references refuse, elapsed time counts once and performance rows never inflate independent Finding cases or observed days',
-  materialReattestation: 'finding_material_reattest signs unchanged source, process-policy, canonical and target-route dependencies plus exact fresh same-command runtime re-executions after current independent PASS; readers rederive all inputs',
+  collectionReadiness: 'finding_rollout_scorecard collection is diagnostic_only with gateEvidence=false and no automatic enrollment or scope expansion; missing and untrusted evidence are distinct, exact independent subject census is shared with admission; stale current prerequisites refuse enforce while still-verified historical denominators remain diagnostic',
+  materialReattestation: 'finding_material_reattest signs unchanged source, process-policy, canonical and target-route dependencies plus exact fresh same-command runtime re-executions after current independent PASS; readers rederive all inputs; head_only recovery additionally requires unchanged material/base and descendant head ancestry, never unconditional hash reuse',
   recallProducer: 'story_advance owner boundary reconciles non-authoritative history recalls in warn/enforce only; explicit and automatic triggers share observed-state keys; failures report without bypassing gates or blocking DEV rework',
   validation: 'signed findingConstraintDigest; additive required commands and affected paths; reassessment escalates to full; recheck before launch and before persistence; never scope authority',
 } as const;
@@ -1503,11 +1504,29 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/cli-engine.ts',
       'packages/main/src/cli/runtime-root.ts',
       'packages/main/src/cli/ownership-gate.ts',
+      'packages/main/src/core/controller-config-projection.ts',
+      'packages/main/src/core/runtime-artifact-registry.ts',
     ],
     consumerSourceRefs: [
       'packages/main/src/core/auto-commit-metadata.ts',
+      'packages/main/src/core/scope-path-classifier.ts',
+      'packages/main/src/core/scope-contract.ts',
       'packages/main/src/handlers/context.ts',
       'packages/main/src/handlers/checklist.ts',
+    ],
+  },
+  'runtime:repository_default_baseline_gate': {
+    producerSourceRefs: [
+      'packages/main/src/core/git-baseline.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/story-aware-validation.ts',
+      'packages/main/src/core/evidence-freshness.ts',
+      'packages/main/src/core/scope-contract.ts',
+      'packages/main/src/core/scope-diff-pack.ts',
+      'packages/main/src/core/material-code-policy.ts',
+      'packages/main/src/core/review-assurance-floor.ts',
+      'packages/main/src/handlers/scope-contract.ts',
     ],
   },
   'runtime:go_command_acceptance_gate': {
@@ -2012,6 +2031,22 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'No-blocker review pass signatures are accepted only with exactly one registered-broker invocation attestation bound to the exact story, lane, ReviewRun, writer session, signed dispatch, adapter, host, and one-shot nonce, or one managed provider receipt/proposal binding. Observable mixed-provider ancestry is an additional veto; unavailable ancestry does not invalidate a trusted broker attestation. Missing, conflicting, replayed, stale, or rewritten provenance fails the REVIEW consumer.',
   },
 
+  {
+    name: 'artifact:evidence/controller-config-projection.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'workspace-binding', 'gate-evidence'],
+    level: 'L4',
+    producer: 'cli/runtime-root via core/controller-config-projection',
+    consumerGate: 'scope-path classifier and scope-contract REVIEW admission',
+    artifact: {
+      name: 'controller-config-projection-receipt',
+      path: 'evidence/controller-config-projection.json',
+      signed: true,
+      signature: 'signValidationArtifact/verifyValidationArtifact binds first projected config digest, Story, controller root, worktree root, and config path',
+      consumerGate: 'scope-contract REVIEW admission',
+    },
+    rationale: 'Only an untracked config pair matching both immutable first-projection receipts can be classified as a control artifact. Both receipt stores enforce canonical containment and no-follow regular-file ancestry. Editing either or both config copies, deleting, replacing, aliasing, or redirecting either receipt, changing workspace identity, using a tracked path, or losing the signing key returns the config to ordinary fail-closed scope enforcement.',
+  },
   {
     name: 'artifact:managed-review-evidence-proposal',
     kind: 'artifact',

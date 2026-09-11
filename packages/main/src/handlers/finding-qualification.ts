@@ -19,6 +19,9 @@ import { collectFindingQualificationEvents, sumQualificationCohortTiming, type Q
 import { collectQualificationSubjectAdjudications, type QualificationSubjectGold } from './finding-qualification-adjudication.js';
 import { collectQualificationPrerequisites, verifyQualificationPrerequisites, type QualificationPrerequisiteRef } from './finding-qualification-prerequisites.js';
 
+export const FINDING_QUALIFICATION_SUBJECT_KINDS = new Set(['assessment_proposal', 'finding_applicability_assessment',
+  'finding_deferral_disposition', 'mandatory_repair', 'candidate_route', 'route_receipt']);
+
 /** Caller-reported rates are diagnostics, not a source of qualification counts.
  * Only this allowlisted public-query reducer creates aggregate measurements.
  * Missing collectors stay absent, producing explicit insufficient-evidence rows. */
@@ -159,6 +162,7 @@ export function readFindingQualificationScorecard(ctx: HandlerContext) {
   const ids = loadConfig(ctx.root).dynamicFinding?.qualificationStoryIds ?? [];
   const refusalReasons: string[] = [];
   let corpus: FindingQualificationCorpus | undefined;
+  let currentPrerequisites: 'not_checked' | 'current' | 'invalid' = 'not_checked';
   try {
     if (!Array.isArray(ids) || !ids.length || new Set(ids).size !== ids.length) throw new Error('qualification corpus not configured');
     const rows = ids.flatMap(id => findingQualificationQuery(ctx, id));
@@ -167,21 +171,30 @@ export function readFindingQualificationScorecard(ctx: HandlerContext) {
     const last = cases.at(-1)!;
     // The configured corpus is a census, not a selection of successful cases.
     // Unadjudicated proposals, routes, renewals or closures prevent promotion.
-    const requiredKinds = new Set(['assessment_proposal', 'finding_applicability_assessment', 'finding_deferral_disposition', 'mandatory_repair', 'candidate_route', 'route_receipt']);
     for (const id of ids) {
       const source = historicalStoryContext(ctx, id); const ledger = source.store.readFindingLedger<JsonValue>(id);
       createFindingLedgerHandlers(source).finding_ledger_query({ storyId: id });
       const covered = cases.flatMap(row => (row.subjectAdjudications ?? []).map(row => row.ref)).filter(ref => ref.storyId === id);
-      for (const row of ledger.records.filter(row => requiredKinds.has(row.recordType))) {
+      for (const row of ledger.records.filter(row => FINDING_QUALIFICATION_SUBJECT_KINDS.has(row.recordType))) {
         if (!covered.some(ref => ref.recordId === row.recordId && ref.recordHash === exactLedgerRecordHash(row))) refusalReasons.push(`unadjudicated_corpus_subject:${id}:${row.recordId}`);
       }
     }
     // Historical operational observations retain their original HEAD. Admission
     // prerequisites must additionally be remeasured at this exact material state.
-    if (last.materialHash !== currentMaterialHash(ctx.root)) throw new Error('qualification merged-state prerequisites stale');
-    const lastStoryId = rows.find(row => row.payload === last)!.payload.publicQueries.ledger.storyId;
-    collectQualificationPrerequisites(historicalStoryContext(ctx, lastStoryId), lastStoryId,
-      Object.values(last.prerequisites).map(row => row.proof), last.runtimeReceiptId);
+    let admissionPrerequisites: FindingQualificationCorpus['prerequisites'] = {};
+    try {
+      if (last.materialHash !== currentMaterialHash(ctx.root)) throw new Error('qualification merged-state prerequisites stale');
+      const lastStoryId = rows.find(row => row.payload === last)!.payload.publicQueries.ledger.storyId;
+      admissionPrerequisites = collectQualificationPrerequisites(historicalStoryContext(ctx, lastStoryId), lastStoryId,
+        Object.values(last.prerequisites).map(row => row.proof), last.runtimeReceiptId);
+      currentPrerequisites = 'current';
+    } catch (error) {
+      // These cases already passed historical signature/runtime verification.
+      // A current admission refusal must not erase their diagnostic denominator.
+      // Empty admission prerequisites and the refusal still prohibit enforce.
+      currentPrerequisites = 'invalid';
+      refusalReasons.push(error instanceof Error ? error.message : String(error));
+    }
     const timingSources = cases.map(row => row.publicQueries.experiments.performanceMetadata);
     // Missing timing still refuses promotion, but must not discard unrelated
     // independently measured diagnostic denominators from the partial corpus.
@@ -192,7 +205,7 @@ export function readFindingQualificationScorecard(ctx: HandlerContext) {
       storyClasses: [...new Set(cases.map(row => row.storyClass))], detectorVersions: [...new Set(cases.map(row => row.detectorVersion))],
       retryPolicy: [...new Set(cases.map(row => row.retryPolicy))].join('; '), exclusions: [...new Set(cases.flatMap(row => row.exclusions))],
       latencyHardware: [...new Set(cases.map(row => row.latencyHardware))].join('; '), timingSeconds: timing,
-      prerequisites: last.prerequisites, measurements: cases.flatMap(row => row.queryMeasurements ?? []),
+      prerequisites: admissionPrerequisites, measurements: cases.flatMap(row => row.queryMeasurements ?? []),
       simpleStoryRegression: cases.some(row => row.simpleStoryRegression !== null) ? Math.max(...cases.flatMap(row => row.simpleStoryRegression === null ? [] : [row.simpleStoryRegression])) : null,
       timeoutRate: cases.some(row => row.timeoutRate !== null) ? Math.max(...cases.flatMap(row => row.timeoutRate === null ? [] : [row.timeoutRate])) : null,
       latencyCorpusSize: Math.max(...cases.map(row => row.latencyCorpusSize)), candidateBaselineExplained: last.candidateBaselineExplained };
@@ -204,5 +217,5 @@ export function readFindingQualificationScorecard(ctx: HandlerContext) {
   const report = buildFindingQualificationScorecard(corpus);
   report.refusalReasons.push(...refusalReasons);
   report.qualification.eligible = report.refusalReasons.length === 0;
-  return report;
+  return { ...report, currentPrerequisites };
 }

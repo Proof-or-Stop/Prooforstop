@@ -28,6 +28,7 @@ import { prepareFindingQualificationCase, findingQualificationQuery, readFinding
 import { prepareFindingAssessmentProposal } from './finding-proposal.js';
 import { findingMaterialDependencySnapshot, prepareMaterialDriftReattestation } from './finding-material-reattestation.js';
 import { freezeFindingProposalPopulation, finishFindingProposalTiming } from './finding-proposal-timing.js';
+import { readFindingCollectionReadiness } from './finding-collection.js';
 
 type RouteRef = { storyId: string; receipt: { storyId: string; recordId: string; recordHash: string } };
 export interface FindingApplicabilityAssessArgs {
@@ -523,6 +524,7 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
       const result = findingTriage(input);
       return { storyId: result.storyId, mode: result.mode, manifestDigest: result.manifestDigest, scorecard: result.scorecard,
         qualification: readFindingQualificationScorecard(ctx),
+        collection: readFindingCollectionReadiness(ctx, input.storyId),
         rows: result.rows.map(row => ({ findingId: row.findingId, legacyBlocking: row.decision.legacyBlocking,
           dynamicBlocking: row.decision.dynamicBlocking, reason: row.decision.reason })) };
     },

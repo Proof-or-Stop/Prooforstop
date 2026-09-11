@@ -1,4 +1,4 @@
-/** Narrow unrelated-material release. Old observations remain immutable; fresh
+/** Narrow unrelated-material or head-only recovery. Old observations remain immutable; fresh
  * same-command executions and independent current review are mandatory. */
 import { execFileSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
@@ -27,6 +27,14 @@ function processDependencies(ctx: HandlerContext) {
       || /(^|\/)(?:AGENTS|CLAUDE|SKILL)\.md$/.test(path);
   });
   return applicabilityDigest({ protectedRows, proofPolicy: FINDING_PROOF_POLICY });
+}
+
+function assertDescendantHead(ctx: HandlerContext, prior: string | undefined, current: string): void {
+  if (!prior || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(prior) || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(current)) {
+    throw new Error('reattestation: immutable head ancestry required');
+  }
+  try { execFileSync('git', ['merge-base', '--is-ancestor', prior, current], { cwd: ctx.root, stdio: 'pipe' }); }
+  catch { throw new Error('reattestation: immutable head ancestry required'); }
 }
 
 export function findingMaterialDependencySnapshot(ctx: HandlerContext, storyId: string, assessment: FindingApplicabilityAssessment) {
@@ -85,9 +93,14 @@ export function prepareMaterialDriftReattestation(ctx: HandlerContext, input: { 
     || assessment.verdict !== 'applicable' || !assessment.dependencySnapshot || !assessment.runtimeReceiptIds) throw new Error('reattestation: eligible signed dependency baseline required');
   const current = currentApplicabilityContext(ctx.store, ctx.root, input.storyId, assessment.runtimeReceiptIds);
   const old = assessment.integrity;
-  if (old.materialHash === current.materialHash || old.storyFilesHash !== current.storyFilesHash || old.scopeDigest !== current.scopeDigest
+  const headOnlyDrift = Boolean(old.materialHash && old.materialHash === current.materialHash
+    && old.baseHash === current.baseHash && old.headHash !== current.headHash);
+  if ((!headOnlyDrift && old.materialHash === current.materialHash) || old.storyFilesHash !== current.storyFilesHash || old.scopeDigest !== current.scopeDigest
     || old.acceptanceDigest !== current.acceptanceDigest || old.runtimeReceiptDigest !== current.runtimeReceiptDigest
     || !old.expiresAt || Date.parse(old.expiresAt) <= Date.now()) throw new Error('reattestation: not an isolated current material drift');
+  // Head movement is not fresh proof. Only a descendant at the same base can
+  // enter the existing new-execution + independent-review recovery protocol.
+  if (headOnlyDrift) assertDescendantHead(ctx, old.headHash, current.headHash);
   const dependencies = findingMaterialDependencySnapshot(ctx, input.storyId, assessment);
   if (applicabilityDigest(dependencies) !== applicabilityDigest(assessment.dependencySnapshot)) throw new Error('reattestation: process/route/canonical dependency changed');
   const runtime = checkedReexecution(ctx, input.storyId, assessment.runtimeReceiptIds, input.runtimeReceiptIds);
@@ -100,6 +113,7 @@ export function prepareMaterialDriftReattestation(ctx: HandlerContext, input: { 
     && row.agent === actor.canonicalName && row.pass?.note?.split(/\r?\n/).includes(marker));
   if (!reviewer) throw new Error(`reattestation: current signed independent PASS must bind ${marker}`);
   return { assessmentRecord: row, claim, record: { schemaVersion: 1, action: 'unrelated_material_reattestation',
+    driftKind: headOnlyDrift ? 'head_only' as const : 'unrelated_material' as const,
     storyId: input.storyId, findingId: assessment.findingId, assessmentId: assessment.assessmentId, proposalRecordId: assessment.proposalRef!.recordId,
     assessmentRecordId: row.recordId, assessmentRecordHash: exactLedgerRecordHash(row), claimRecordId: claim.recordId, claimRecordHash: exactLedgerRecordHash(claim),
     priorMaterialHash: old.materialHash, currentBinding: current, dependencies, runtime, actor: actor.canonicalName,
@@ -128,6 +142,16 @@ export function readMaterialDriftReattestation(ctx: HandlerContext, storyId: str
     || assessment.proposalRef?.recordId !== proposalRecordId || assessment.findingId !== record.findingId
     || !verifyApplicabilityAssessment(assessment, trust.publicKey)) throw new Error('reattestation: wrong subject or substituted predecessor');
   const current = currentApplicabilityContext(ctx.store, ctx.root, storyId, assessment.runtimeReceiptIds);
+  if (record.driftKind === 'head_only') {
+    if (!assessment.integrity.materialHash || assessment.integrity.materialHash !== record.currentBinding.materialHash
+      || assessment.integrity.baseHash !== record.currentBinding.baseHash || current.baseHash !== record.currentBinding.baseHash
+      || assessment.integrity.headHash === record.currentBinding.headHash) throw new Error('reattestation: head-only recovery binding changed');
+    assertDescendantHead(ctx, assessment.integrity.headHash, record.currentBinding.headHash);
+    assertDescendantHead(ctx, record.currentBinding.headHash, current.headHash);
+  } else if ((record.driftKind !== undefined && record.driftKind !== 'unrelated_material')
+    || assessment.integrity.materialHash === record.currentBinding.materialHash) {
+    throw new Error('reattestation: invalid material recovery kind');
+  }
   if (applicabilityDigest(repairClosureContext(current)) !== applicabilityDigest(repairClosureContext(record.currentBinding))
     || current.storyFilesHash !== assessment.integrity.storyFilesHash || record.priorMaterialHash !== assessment.integrity.materialHash
     || applicabilityDigest(findingMaterialDependencySnapshot(ctx, storyId, assessment)) !== applicabilityDigest(record.dependencies)

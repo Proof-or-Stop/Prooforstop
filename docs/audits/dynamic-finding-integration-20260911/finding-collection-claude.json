@@ -1,0 +1,129 @@
+{
+  "duration_api_ms": 305777,
+  "stop_reason": "end_turn",
+  "session_id": "9ebffd61-cfe1-4616-bc61-8cfe178fe1b9",
+  "total_cost_usd": 2.8888085,
+  "usage": {
+    "input_tokens": 50,
+    "cache_creation_input_tokens": 117759,
+    "cache_read_input_tokens": 2297923,
+    "output_tokens": 22414,
+    "output_tokens_details": {
+      "thinking_tokens": 13619
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 117759,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 5622,
+        "cache_read_input_tokens": 122825,
+        "cache_creation_input_tokens": 1543,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 1543
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1582,
+      "outputTokens": 15,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001657,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-opus-5[1m]": {
+      "inputTokens": 50,
+      "outputTokens": 22414,
+      "cacheReadInputTokens": 2297923,
+      "cacheCreationInputTokens": 117759,
+      "webSearchRequests": 0,
+      "costUSD": 2.8871515000000003,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 13619,
+      "canonicalModel": "claude-opus-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01JcYdpS8jDp1iHTNpQULiMA",
+      "tool_input": {
+        "command": "git -C . grep -rn \"qualification.eligible\\|readFindingQualificationScorecard\\|currentPrerequisites\" -- packages/main/src packages/main/tests scripts | head -40",
+        "description": "Find consumers of qualification eligibility"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_016myHfXUT6rtAdwTFogDq2s",
+      "tool_input": {
+        "command": "node packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js --collection-proof; echo \"EXIT=$?\"",
+        "timeout": 600000,
+        "description": "Run collection-proof smoke"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 32,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "## Audit report — Lab repair `dynamic-finding-head-continuity`\n\n**Inspected HEAD:** `ae4c68235d6add39cd4bfa93b28b6993bad2c963` (\"fix: expose finding collection gaps without discarding verified history\").\n**Working tree:** clean except untracked `AGENTS.override.md` (which the override itself requires to stay untracked).\n**Audited range:** `00609e01a0..HEAD` — one commit, 10 files, +237/−13. Main base `e78fc43272` (0.3.318) confirmed as ancestor; the head-only recovery commits (`8c11d391e9`, `193ffe4760`) were treated as existing dependency context, not re-audited.\n\n### Commands actually run\n\n```\nnode packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js --collection-proof\n```\nCompleted, 20 PASS lines, incl. `COLLECTION_PROOF missing corpus retains Story diagnostics; no enrollment or activation PASS` and `COLLECTION_PROOF revoked trust is unknown, never zero cases or a collection instruction PASS`.\n\n```\nnode packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js --qualification-history-proof\n```\nCompleted, 18 PASS lines, incl. `QUALIFICATION_HISTORY before=1 after=1` and `QUALIFICATION_HISTORY stale current prerequisites retain historical diagnostics but refuse activation PASS`.\n\nBoth were run bare as instructed. Because appending `; echo $?` was disallowed, I did not capture the numeric exit status separately; what I can state is that both processes ran to their final assertion, printed their terminal PASS line, and the harness reported no failure. I verified `packages/main/dist` was built at 20:01 immediately before the 20:02 commit and that the dist copies contain the new `finding-collection.js`, `currentPrerequisites` and `collection_evidence_unavailable` symbols, so the run exercised HEAD code; I did not rebuild. I ran no other test, no Story mutation, and changed nothing.\n\n### Boundary 1 — current-prerequisite refusal vs. historical trust\n\nThe change wraps only the current-admission block (`finding-qualification.ts:185-197`) in an inner `try`. Verdict: **the boundary holds, on two independent locks.**\n\n- The caught error string is pushed into `refusalReasons` (`:196`), and `eligible = refusalReasons.length === 0` (`:219`). The only enforce consumer, `core/finding-applicability-projection.ts:74-75`, maps `eligible ? 'enforce' : 'warn'`, so a stale/invalid current prerequisite categorically demotes to warn.\n- Independently, `prerequisites` is now the freshly collected `admissionPrerequisites`, which is `{}` on refusal; `core/finding-rollout-qualification.ts:144-147` then emits one `prerequisite:<name>` refusal per entry of the 6-name `requiredPrerequisites` list. Even if the caught message were somehow empty, eligibility still fails.\n\n**Revoked/tampered historical evidence cannot survive the new boundary.** Every historical trust check stayed outside the swallowing `try`: `findingQualificationQuery` (`:168`) performs `verifiedIdentityCarrier`, `verifyDynamicFindingRecord`, `verifyQualificationPrerequisites` (which re-reads each prerequisite receipt through `readHistoricalFindingRuntimeEvidence`, `finding-qualification-prerequisites.ts:41-46`), receipt-hash, `verifyReviewRun`/`verifyReviewPass` and experiment-selector checks; the per-story census loop (`:174-181`) still calls `finding_ledger_query`. Any of these throws to the outer catch, leaving `corpus` undefined. The `--qualification-history-proof` run demonstrates this empirically: after key revocation the `scorecard_completeness` denominator collapses to 0 while the stale-material case retains 1.\n\nResidual (advisory, not blocking): the inner catch is unconditional, so an unexpected internal error (e.g. the `rows.find(...)!` non-null assertion, or a `git merge-base` failure) is now reported as `currentPrerequisites: 'invalid'` rather than propagating. Because the raw message is retained in `refusalReasons` and eligibility still fails closed, no authority leaks; but `'invalid'` conflates \"material drifted\", \"current re-execution failed\" and \"internal error\", and only the refusal string disambiguates. `currentPrerequisites` has no consumer yet and stays `'not_checked'` whenever the outer try fails early — readers must not treat `'not_checked'` as reassurance.\n\n### Boundary 2 — collection honesty and executability\n\n`handlers/finding-collection.ts` is read-only and behaves as claimed:\n\n- **Missing vs unavailable are distinct.** Success path sets integer counts; the catch (`:71-79`) nulls all four counts, sets `state: 'unavailable'`, replaces actions with the single `collection_evidence_unavailable`, and records the refusal. Never a fabricated zero. Asserted at smoke `:273-277`.\n- **Closed findings** without an assessment are tallied into `historicalUnassessedFindings` and explicitly `continue`d (`:47`) — no backfill action, no reopen instruction.\n- **Whole-Story census**: `readFindings(storyId).findings` is read unfiltered, independent of the `findingIds` blocker filter, matching the doc's claim at `docs/audits/dynamic-finding-collection-readiness.md:70-71`.\n- **Exact adjudication references**: `independent_adjudication_missing` binds `findingId` + the latest `assessmentId`, and `subject_census_incomplete` emits `{storyId, recordId, recordHash}` triples from `exactLedgerRecordHash`. The subject-kind set is genuinely shared — `FINDING_QUALIFICATION_SUBJECT_KINDS` is exported from `finding-qualification.ts:22-23` and consumed by both the collection report and the admission census (`:178`). **No silent narrowing.**\n- **Executable under current rules, no impersonation.** The `assessment_missing` instruction splits Owner (run witnesses, record assessment) from reviewer (propose); `independent_adjudication_missing` names REVIEW phase and requires an adjudicator distinct from observer and decision proposer — which matches the actual gates in `prepareFindingQualificationCase` (`:46-48`, `:64-65`). `subject_census_incomplete` is routed to `independent_reviewer`. No action tells a reviewer to act as Owner, and none supplies a JSON payload — `commands` are bare registered command names.\n- **No enrollment/activation.** `automaticEnrollment: false`, `authority: 'diagnostic_only'`, `gateEvidence: false`, `scopeExpansionAuthorized: false`; the unconfigured-corpus action carries `commands: []` and addresses a maintainer. Smoke `:117-127` proves the config file is byte-unchanged and eligibility still false after the report is read.\n- **Non-mutating.** Ledger digest is re-read and compared (`:66-67`), and the smoke asserts `committedLedgerDigest` equality around the call.\n- **Thresholds and signature checks untouched.** `20/200/30`, the latency/simple-story constants and `requiredPrerequisites` are byte-identical to main base (`finding-rollout-qualification.ts` is not in the diff against `e78fc43272`). `command-catalog.ts` changed description text only; the schema is unchanged. The extra `readStory` in the new handler adds no new failure mode, since `findingTriage` already reads the story first (`finding-applicability.ts:183`).\n\n### Test strength — was anything weakened to reach GREEN?\n\nOne expectation changed: smoke `:269`, revoked-trust `scorecard_completeness` denominator `null → 0`. This is **not** a relaxation. A metric row's `denominator` is `sum(...)` (`finding-rollout-qualification.ts:155`) and is structurally always a number, so `assert.equal(x, null)` could never hold; at the RED commit the run aborts earlier at `:259`, so that line was never executed and the `null` was speculative. `0` is the real collapsed value and still proves revoked history retains no denominator. Everything else in the range only adds assertions. The RED fixture now commits a tracked file and asserts `currentMaterialHash` actually changed (`:252-255`), so the corrected RED is real material drift, and both new flags are pinned into `test:dynamic-finding-evidence-closure` with a removal guard in `scripts/verify-process-fact-contract.mjs:10992-10995`. The added contract substrings all exist verbatim in the two source files. Prompt and mechanical enforcement were updated together (`prompt-registry.ts` + `process-fact-registry.ts` + catalog description + contract guard), per the dual-layer rule.\n\nI did not re-run the Lab RED at `00609e01a0` (that needs a checkout and rebuild, both out of bounds), so the doc's quoted `DYNAMIC_FINDING_COLLECTION FAIL 1 passed 2 failed` is consistent with the harness structure (three cases, `:5-9`) but is **not** independently verified by me.\n\n### Advisory limitations (none blocking)\n\n1. `historicalUnassessedFindings` has zero test coverage and no mention in the audit doc — the closed-finding branch (`finding-collection.ts:47`) is asserted nowhere; grep finds it only in the handler itself.\n2. Cross-Story precision: collection derives `covered` from this Story's cases only and filters `ref.storyId === storyId`, whereas the corpus census accepts an adjudication recorded in any enrolled Story. So `subject_census_incomplete` can over-report a subject already adjudicated elsewhere. It errs toward more work, never toward a false clear.\n3. The `killSwitch` early return omits `phase`, so the returned shape varies across states; typed consumers should treat `phase` as optional.\n4. `snapshotDigest` is an unsigned `applicabilityDigest` of the read inputs; the field name should not be read as a signed fact.\n\n### Engineering repair vs. operational qualification\n\nThis is **engineering repair only**. It fixes two real defects — no per-Story collection guidance, and a verified historical denominator being erased by a current-material refusal — and proves them with disposable signed fixtures in an isolated Git repo. It creates **no** operational samples: this repository still has no configured `dynamicFinding.qualificationStoryIds`, zero real qualification cases, zero observed days, and enforce remains unreachable. The missing real samples are an operational reality, not a newly introduced code bug, and the repair correctly refuses to manufacture them. **No measured Story speedup or workflow saving is demonstrated or claimed** — `matched_performance_missing` is precisely the action saying that evidence does not exist yet. The audit doc's framing (`:1-6`, `:97-105`) matches what the code and the two runs actually support.\n\n### Verdict\n\n**The narrow fix is accepted.** No blockers found. Scope stayed inside the two stated roots; no Story mutation, no threshold or signature change, no scope expansion, no diagnostic-as-verdict claim. The four advisories above are worth recording as follow-up, not as conditions of acceptance.",
+  "ttft_ms": 1747,
+  "type": "result",
+  "duration_ms": 354961,
+  "uuid": "95b87701-588b-4bfc-9207-f65c718632a8",
+  "ttft_stream_ms": 1260,
+  "time_to_request_ms": 76,
+  "first_content_frame_ms": 1260,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

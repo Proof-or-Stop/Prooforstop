@@ -744,6 +744,7 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
 
 export const PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
   ...LIFECYCLE_ARTIFACTS.filter((artifact) => artifact.includes('/')),
+  'evidence/controller-config-projection.json',
 ]);
 
 /**

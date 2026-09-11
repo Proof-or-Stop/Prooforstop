@@ -1,6 +1,8 @@
+import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { projectPromptAsset } from '../packages/main/dist/core/prompt-registry.js';
+const { projectPromptAsset } = await import('../packages/main/src/core/prompt-registry.ts');
+const { acceptanceReviewJsonSchema } = await import('../packages/main/src/core/acceptance-amendment-review.ts');
 
 const subject={storyId:'B-projection',binding:{amendmentId:'AM-1',amendmentDigest:'a'.repeat(64),
   baseDigest:'b'.repeat(64),submitterSessionId:'owner'},originalAcceptance:{text:'Claude @agent(Bash)\nproof-or-stop'},
@@ -10,9 +12,16 @@ for(const host of ['claude','codex']) {
   assert.equal(projection.roleId,'proof-or-stop-acceptance-intent-reviewer');
   const split=projection.hostBody.lastIndexOf('\n\n');
   const instructions=projection.hostBody.slice(0,split);
-  // Exact trusted instructions: only the registered final-schema identity changed.
+  // Pin the reviewed instructions as well as the parser's structural contract.
   assert.equal(createHash('sha256').update(instructions).digest('hex'),
-    '3f3c61bba91c3e5ce9c5954d7860de76c857d9d3cc04d6fad331e7b0a7cc07b5');
+    '18ce35a76857371a4d5d1a8ddc84df8a46acc1cf719a4452d28db8b56d18dfbc',
+    'AMENDMENT_PROJECTION_INSTRUCTION_DIGEST_MISMATCH');
+  const schemaMatch=instructions.match(/Final response JSON Schema:\n(\{[^\n]+\})/);
+  assert.ok(schemaMatch,'Trusted instructions must expose the final response schema');
+  assert.deepEqual(JSON.parse(schemaMatch[1]),acceptanceReviewJsonSchema(),
+    'Prompt and parser must use the same final response contract');
+  assert.match(instructions,/top-level/);
+  assert.match(instructions,/do not return a binding object/);
   assert.deepEqual(JSON.parse(projection.hostBody.slice(split+2)),subject,
     'host transformation must never rewrite the exact acceptance subject');
   assert.match(instructions,/Do not call Story REVIEW pass or Finding commands/);

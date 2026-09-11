@@ -1,0 +1,138 @@
+{
+  "duration_api_ms": 185061,
+  "stop_reason": "end_turn",
+  "session_id": "13fdc724-cddb-4d9f-8980-54953d7a0f17",
+  "total_cost_usd": 1.6900389999999998,
+  "usage": {
+    "input_tokens": 30,
+    "cache_creation_input_tokens": 83059,
+    "cache_read_input_tokens": 997472,
+    "output_tokens": 14353,
+    "output_tokens_details": {
+      "thinking_tokens": 8827
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 83059,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 2120,
+        "cache_read_input_tokens": 88744,
+        "cache_creation_input_tokens": 924,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 924
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1653,
+      "outputTokens": 17,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001738,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-opus-5[1m]": {
+      "inputTokens": 30,
+      "outputTokens": 14353,
+      "cacheReadInputTokens": 997472,
+      "cacheCreationInputTokens": 83059,
+      "webSearchRequests": 0,
+      "costUSD": 1.6883009999999998,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 8827,
+      "canonicalModel": "claude-opus-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_013F8yaKhr2aZcCS8TuuqvkX",
+      "tool_input": {
+        "command": "git -C /Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-dynamic-finding-head-continuity log --oneline -3 && echo \"--- HEAD SHA ---\" && git rev-parse HEAD && echo \"--- status ---\" && git status --porcelain && echo \"--- diff stat ---\" && git diff --stat 50ec3a5e3e..HEAD",
+        "description": "Verify identity and diff scope"
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01S7Jjey1hJXVxcw42txe7u2",
+      "tool_input": {
+        "command": "node packages/main/dist/tasks/finding-material-reattestation-smoke.js --head-continuity; echo \"EXIT_CODE=$?\"",
+        "timeout": 600000,
+        "description": "Run the head-continuity focused smoke test",
+        "run_in_background": true
+      }
+    },
+    {
+      "tool_name": "Bash",
+      "tool_use_id": "toolu_01LunoEi3T4xpwjZjdxBCCmr",
+      "tool_input": {
+        "command": "jobs; ls /tmp 2>/dev/null | head -1",
+        "description": "Check background job status"
+      }
+    }
+  ],
+  "terminal_reason": "completed",
+  "fast_mode_state": "off",
+  "fast_mode_disabled_reason": "sdk_opt_in_required",
+  "subagent_stats": {
+    "spawned": 0,
+    "requested": {
+      "background": 0,
+      "foreground": 0,
+      "unset": 0
+    },
+    "started_in_background": 0,
+    "max_depth": 0,
+    "spawned_by_subagents": 0,
+    "completed": 0,
+    "failed": 0,
+    "killed": {
+      "parent": 0,
+      "user": 0,
+      "system": 0
+    },
+    "refused": {
+      "depth_limit": 0,
+      "concurrency_limit": 0,
+      "budget": 0
+    },
+    "by_type": {}
+  },
+  "is_error": false,
+  "num_turns": 23,
+  "subtype": "success",
+  "api_error_status": null,
+  "result": "## Independent Lab audit — head-only Finding recovery\n\n**Identity verified.** CWD `.worktrees/Lab-dynamic-finding-head-continuity`, `git log --oneline -3` → `8c11d391e9` (fix) on `50ec3a5e3e` (RED) on `e78fc43272` (0.3.318). `git status --porcelain` → only `?? AGENTS.override.md` (the untracked Lab exception, read; it authorizes this non-Story maintenance channel). `git diff --stat 50ec3a5e3e..HEAD` → exactly 8 files, +177/−9.\n\n**Commands run (read-only + the one prescribed test):** `git log`, `git status`, `git diff --stat`, three scoped `git diff <paths>`, targeted `Grep`/`Read` of the touched helpers plus `repairClosureContext` / `currentApplicabilityContext` / `verifyAssessmentFreshness` / `verifyAssessmentProposal`. No edits, writes, subagents, rebuild, or repository-wide search.\n\n**Prescribed test — EXECUTED, exit 0:**\n\n```\nnode packages/main/dist/tasks/finding-material-reattestation-smoke.js --head-continuity\nMATERIAL_REATTEST real signed initial deferral releases shadow gate PASS\nMATERIAL_REATTEST independently eligible deferral is not a nonblocking precision error PASS\nHEAD_CONTINUITY context headChanged=true materialChanged=false storyFilesChanged=false baseChanged=false scopeChanged=false acceptanceChanged=false runtimeChanged=false\nMATERIAL_REATTEST raw unproven drift remains blocked PASS\nMATERIAL_REATTEST head-only recovery rejects changed base PASS\nMATERIAL_REATTEST head-only recovery rejects non-descendant history PASS\nMATERIAL_REATTEST head-only recovery requires genuinely new execution PASS\nMATERIAL_REATTEST fresh executions alone cannot self-attest PASS\nMATERIAL_REATTEST fresh runtime plus independent signed dependencies restores valid deferral PASS\nHEAD_CONTINUITY restored=true oldAssessmentPreserved=true freshExecutionRequired=true independentReviewRequired=true\nMATERIAL_REATTEST head-only reader rechecks base before releasing PASS\nMATERIAL_REATTEST replay does not append PASS\nMATERIAL_REATTEST observer cannot self-adjudicate PASS\nMATERIAL_REATTEST metadata-only evidence commit reuses exact material-bound execution PASS\nMATERIAL_REATTEST unknown extensionless dependency refuses release PASS\nMATERIAL_REATTEST PASS 13\n```\n\n### Blockers: none\n\nFindings against the five checks:\n\n1. **No hidden drift/expiry.** `verifyAssessmentFreshness` is untouched (`core/finding-applicability.ts:247`). Prepare (`finding-material-reattestation.ts:96-103`) still requires unchanged `storyFilesHash/scopeDigest/acceptanceDigest/runtimeReceiptDigest` and a live `expiresAt`; the new `headOnlyDrift` only relaxes the *material-equal* clause and adds ancestry. `expiresAt: old.expiresAt` (line 121) inherits, never extends. The reader re-derives: `repairClosureContext` (`finding-applicability-projection.ts:25-28`) strips only head/base, so current material/scope/acceptance/runtime/storyFiles are all re-compared at line 155-161, plus dependency and reviewer re-verification and record expiry at line 133.\n2. **No cross-binding waiver.** Projection (`finding-applicability-projection.ts:105-108`) keys the read on `assessment.proposalRef.recordId` and only sets `fresh` when `restored.assessment.assessmentId === assessment.assessmentId`; the reader independently pins latest-assessment identity, record hashes and `proposalRef` (lines 137-143). Mismatch alone releases nothing.\n3. **Route/gate consistent.** `finding-route.ts:96` widens the restore trigger to head drift, matching the gate; `proposal.headHash` is a canonical proposal field (`finding-ledger.ts:916`), so the trigger is not vacuously true, and `expectedHeadHash` (line 109) stays non-empty past the `finding-ledger.ts:1111` guard.\n4. **No ancestry/legacy regression.** `assertDescendantHead` uses real `git merge-base --is-ancestor` and fails closed on malformed or unreachable SHAs. Legacy records (`driftKind === undefined`) fall to the else branch at line 151-153, which still demands genuine material change — so a legacy record can never be consumed on a head-only mismatch, and old material recoveries behave identically.\n5. **Tests strengthen.** Added assertions cover `driftKind`, expiry equality, byte-identical preservation of the old assessment payload, and reader-side base recheck. The fixture's extra empty commit is gated on `--head-continuity`, so the original nine material cases are unchanged. The process-fact verifier guard list was tightened, not loosened.\n\n### Safety / operational limits\n\n- Once signed, the recovery stays consumable across an **unbounded chain of descendant commits** whose material/storyFiles/base/scope/acceptance/runtime are all unchanged (e.g. metadata-only commits), bounded only by the inherited `expiresAt`.\n- A history rewrite that orphans the prior head makes `assertDescendantHead` throw — invalidating, not silently releasing. Correct direction, but recoveries do not survive rewrites.\n- `assertDescendantHead` emits one message for both malformed-hash and non-ancestor cases; diagnostic conflation only, no authority impact.\n- This is Lab maintenance, not a reviewer PASS. I verified only this commit's diff and the one prescribed test; I did not run the official three-part GREEN or the process-fact verifier, and I make no whole-plan acceptance or time-saving claim.",
+  "ttft_ms": 1516,
+  "type": "result",
+  "duration_ms": 253600,
+  "uuid": "3cacb333-ed65-436e-a859-a7c834e3522b",
+  "ttft_stream_ms": 1277,
+  "time_to_request_ms": 95,
+  "first_content_frame_ms": 1277,
+  "queued_turn_count": 0,
+  "result_index": 0
+}

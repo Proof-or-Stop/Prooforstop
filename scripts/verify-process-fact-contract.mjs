@@ -1953,11 +1953,17 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceDiscoveryText.includes("return 'go-command'")
       && read('packages/main/src/core/validation-executor.ts').includes("'go',")
       && read('packages/main/src/cli/runtime-root.ts').includes('projectControllerAssetsIntoStoryWorktree')
+      && read('packages/main/src/core/controller-config-projection.ts').includes('signValidationArtifact')
+      && read('packages/main/src/core/controller-config-projection.ts').includes('verifyValidationArtifact')
+      && read('packages/main/src/core/material-code-policy.ts').includes('resolveRepositoryBaseline')
       && read('packages/main/src/cli-engine.ts').includes('enforceStoryOwnerLeaseGate(cmd, parsed, controllerStore')
       && processRegistryText.includes('runtime:external_story_worktree_bootstrap_authority_gate')
+      && processRegistryText.includes('runtime:repository_default_baseline_gate')
       && processRegistryText.includes('runtime:go_command_acceptance_gate')
       && processRegistryText.includes("'packages/main/src/handlers/checklist.ts'")
+      && processRegistryText.includes("'packages/main/src/core/git-baseline.ts'")
       && processLevelText.includes('runtime:external_story_worktree_bootstrap_authority_gate')
+      && processLevelText.includes('runtime:repository_default_baseline_gate')
       && processLevelText.includes('runtime:go_command_acceptance_gate')
       && read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md').includes('A pure Go workspace uses the')
       && read('packages/main/package.json').includes('test:external-worktree-go-pre-review')
@@ -10965,13 +10971,14 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
     ['packages/main/src/handlers/finding-applicability-proof.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'row.stdout.includes(intent.selector)', 'FINDING_PROTECTED_SURFACES.every'],
     ['packages/main/src/handlers/finding-deferral-proof.ts', 'readFindingRouteProgressProof(ctx', 'assertNoCanonicalDeferralReset(ctx', 'previous.payload.renewalCount! + 1'],
     ['packages/main/src/handlers/finding-applicability.ts', 'revalidateDeferrals.forEach(check => check())', 'repairClosureContext(currentApplicabilityContext'],
-    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)'],
+    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)', 'prerequisites: admissionPrerequisites', "currentPrerequisites = 'invalid'", 'report.qualification.eligible = report.refusalReasons.length === 0'],
+    ['packages/main/src/handlers/finding-collection.ts', "authority: 'diagnostic_only'", 'gateEvidence: false', 'automaticEnrollment: false', 'FINDING_QUALIFICATION_SUBJECT_KINDS.has', "state: 'unavailable'", 'qualificationCases: null'],
     ['packages/main/src/handlers/finding-qualification-adjudication.ts', 'authors.has(adjudicator)', 'exactLedgerRecordHash(proposal) !== ref.recordHash', 'applicabilityDigest(Object.keys(observed).sort())', 'correct: applicabilityDigest(observed) === applicabilityDigest(input.expected)'],
     ['packages/main/src/handlers/finding-qualification-prerequisites.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'runtime.receipt.headHash !== ref.mergedCommit', 'pin.command === command && pin.selector === selector', 'readHistoricalFindingRuntimeEvidence(ctx', 'runtime.receipt.receiptHash !== proof.runtimeReceiptHash'],
     ['packages/main/src/core/finding-rollout-qualification.ts', 'conflicting_performance_source:', '!QUALIFICATION_PERFORMANCE_METRICS.includes(row.metric)', 'executed-merged-prerequisites-and-unique-performance-sources-v1'],
     ['packages/main/src/handlers/finding-qualification-events.ts', 'performanceSource: { ...source, attemptId: row.attemptId }', 'conflicting cohort timing'],
     ['packages/main/src/handlers/finding-runtime-pair.ts', 'readHistoricalFindingRuntimeEvidence(ctx', 'readCurrentFindingRuntimeEvidence(ctx', 'base.receipt.executionCommandDigest !== head.receipt.executionCommandDigest', 'b[key] > a[key]'],
-    ['packages/main/src/handlers/finding-material-reattestation.ts', 'verifyDynamicFindingRecord(record, trust.publicKey)', 'current.storyFilesHash !== assessment.integrity.storyFilesHash', 'checkedReexecution(ctx', 'reviewPassDigest'],
+    ['packages/main/src/handlers/finding-material-reattestation.ts', 'verifyDynamicFindingRecord(record, trust.publicKey)', 'current.storyFilesHash !== assessment.integrity.storyFilesHash', 'checkedReexecution(ctx', 'reviewPassDigest', "record.driftKind === 'head_only'", 'old.baseHash === current.baseHash', "['merge-base', '--is-ancestor', prior, current]", 'current.baseHash !== record.currentBinding.baseHash'],
     ['packages/main/src/handlers/finding-deferral-recall.ts', "rollout.mode === 'observe'", 'findingHistoryRecallObservation(ctx', 'observed.triggerDigest'],
   ];
   for (const [path, ...required] of guards) {
@@ -10988,6 +10995,15 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
   for (const token of ['finding_assessment_propose', 'finding_runtime_evidence_run', 'signed PASS', 'killSwitch=true']) {
     assert(read('packages/main/src/core/prompt-registry.ts').includes(token), `dynamic Finding prompt contract must describe ${token}`);
   }
+  const closureCommand = JSON.parse(read('packages/main/package.json')).scripts['test:dynamic-finding-evidence-closure'];
+  const headRecoveryCommand = 'node dist/tasks/finding-material-reattestation-smoke.js --head-continuity';
+  assert(closureCommand.split(' && ').includes(headRecoveryCommand), 'dynamic Finding head-only regression must remain in the registered package chain');
+  for (const flag of ['--collection-proof', '--qualification-history-proof']) {
+    assert(closureCommand.split(' && ').includes(`node dist/tasks/dynamic-finding-runtime-integration-smoke.js ${flag}`),
+      `dynamic Finding collection regression must remain registered: ${flag}`);
+  }
+  assert(!closureCommand.replace(headRecoveryCommand, 'REMOVED_HEAD_RECOVERY_REGRESSION').split(' && ').includes(headRecoveryCommand),
+    'dynamic Finding head-only registration removal must be detected');
 }
 // Historical comparison-base binding is machine-owned; caller input is not authority.
 {
@@ -11170,4 +11186,3 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
-
