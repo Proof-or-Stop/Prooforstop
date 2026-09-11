@@ -1161,7 +1161,7 @@ async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
   const { root } = setupTimeoutFixture();
   try {
     const result = await runValidate(root, NON_MAX_HARNESS_CEILING_MS);
-    assert.equal(result.status, 0, `validate command should return JSON even for failed validation:\n${result.stderr}`);
+    assert.equal(result.status, 1, `failed validation must return JSON and a nonzero exit status:\n${result.stderr}`);
     const parsed = parseValidateJson(result.stdout);
     assert.equal(parsed.commands?.length, 1, 'canonical timeout fixture must schedule its configured command');
     assert.equal(parsed.commands[0].label, 'true-hang', 'the configured hanging command must actually execute');

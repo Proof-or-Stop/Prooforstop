@@ -1,0 +1,2 @@
+transition fresh-PASS GREEN: status=pass disposition=reused commandExecutions=0; human metadata fail-closed
+validation-evidence-reuse-smoke PASS (canonical 3-file isolated transaction, index/worktree rollback, receipt+hook failure fail-closed, coverage-only recovery, 3 sources, B-19ca 45-command reuse)

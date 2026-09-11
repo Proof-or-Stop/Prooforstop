@@ -1,0 +1,34 @@
+[
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/verification-freshness-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 31.090059500000002
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/validation-evidence-reuse-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 79.28474708300001
+  },
+  {
+    "command": [
+      "node",
+      "scripts/verify-runtime-fact-contract.mjs"
+    ],
+    "code": 0,
+    "seconds": 7.305842124999998
+  },
+  {
+    "command": [
+      "node",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "code": 0,
+    "seconds": 9.243871249999998
+  }
+]

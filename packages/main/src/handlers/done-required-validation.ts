@@ -1,6 +1,10 @@
+import { isDeepStrictEqual } from 'node:util';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { sharedValidationReuseAllowed } from '../core/shared-validation-execution.js';
 import { execFileSync } from 'node:child_process';
+import { readFileSync, realpathSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { pickProjectConfigPath } from '../core/config.js';
 import { probeValidationCausalPreflightFacts } from './verifier.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -19,6 +23,19 @@ import { timeoutLayerFromReason } from '../core/done-required-timeout-budget.js'
 import { requireCurrentHeavyCertificationWindow } from '../core/certification-window.js';
 import { currentCertificationIdentity } from './certification-window.js';
 
+// loadConfig is process-cached. Bind the physical config too so a policy
+// change while waiting cannot be hidden by that cache.
+function donePolicyConfigIdentity(root: string): string {
+  try {
+    const picked = pickProjectConfigPath(root);
+    return picked ? `${realpathSync(picked.path)}:${createHash('sha256').update(readFileSync(picked.path)).digest('hex')}` : '<absent>';
+  } catch { throw new Error('[DONE_REQUIRED_POLICY_CHANGED] policy input is unreadable; retry with a stable current plan'); }
+}
+
+function isPreExecutionRefusal(error: unknown): boolean {
+  return /\[(?:PRE_CERT_[A-Z_]+|DONE_REQUIRED_POLICY_CHANGED)\]/i.test(error instanceof Error ? error.message : String(error));
+}
+
 export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     async done_required_validate(args: {
@@ -35,30 +52,34 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       if (!storyId) throw new Error('done_required_validate requires --storyId=<id>');
       assertCwdInWorktree(ctx.store, storyId);
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const policyConfigIdentity = donePolicyConfigIdentity(ctx.root);
       const amendment = acceptanceCompletionBlocker(ctx.store, storyId, gitCwd);
       if (amendment) throw new Error(amendment);
       const policy = resolveDoneRequiredPolicy(ctx.root);
       const requiresCleanWorkspaceForReuse = policy.commands.some(sharedValidationReuseAllowed);
-      if (policy.required && !requiresCleanWorkspaceForReuse) {
-        requireCurrentHeavyCertificationWindow({
-          store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId),
-        });
-      }
       try {
         return await withOfficialValidationExecution({
+        commandStages: true,
         root: ctx.root,
         storyId,
         workspaceRoot: gitCwd,
         requireGitIdentity: true,
         command: 'done_required_validate',
         ...declaredValidationCapacity(policy.commands, gitCwd),
-        sharedExecution: {storyId,receiptStore:ctx.store,probe:input=>probeValidationCausalPreflightFacts(ctx,storyId,input)},
+        sharedExecution: {storyId,reuseEconomics:'measured',receiptStore:ctx.store,probe:input=>probeValidationCausalPreflightFacts(ctx,storyId,input)},
         ownerLeaseDir: ctx.store.storyDirPath(storyId),
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
         deadlineError: args.deadlineError,
         onWaitProgress: (message) => ctx.log?.(message),
       }, async () => {
+      const currentPolicy = resolveDoneRequiredPolicy(ctx.root);
+      if (donePolicyConfigIdentity(ctx.root) !== policyConfigIdentity || !isDeepStrictEqual(currentPolicy, policy)) {
+        throw new Error('[DONE_REQUIRED_POLICY_CHANGED] policy changed while waiting for validation ownership; retry with the current plan');
+      }
+      if (policy.required && !requiresCleanWorkspaceForReuse) {
+        requireCurrentHeavyCertificationWindow({ store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId) });
+      }
       // DONE-required has its own command policy and evidence. It checks the
       // routine admission but never claims or commits its one heavy allocation.
       if (policy.required && requiresCleanWorkspaceForReuse) {
@@ -72,7 +93,6 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         });
       }
 
-      const currentPolicy = resolveDoneRequiredPolicy(ctx.root);
       if (!currentPolicy.required) {
         const result = {
           provider: 'proof-or-stop-done-required-validation',
@@ -114,6 +134,8 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
           },
         });
       } catch (error) {
+        // These refusals precede execution and must retain non-zero CLI status.
+        if (isPreExecutionRefusal(error)) throw error;
         const timeoutLayer = timeoutLayerFromReason(args.abortSignal?.reason) ?? timeoutLayerFromReason(error);
         const terminal = {
           provider: 'proof-or-stop-done-required-validation',
@@ -153,6 +175,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       ].join('\n');
         });
       } catch (error) {
+        if (isPreExecutionRefusal(error)) throw error;
         const timeoutLayer = timeoutLayerFromReason(args.abortSignal?.reason) ?? timeoutLayerFromReason(error);
         let existingEvidenceBasis = 'missing';
         try {

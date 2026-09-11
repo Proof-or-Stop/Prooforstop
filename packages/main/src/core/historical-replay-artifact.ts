@@ -1,3 +1,4 @@
+import { withValidationSigningRoot } from './validation-signing-context.js';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -247,6 +248,7 @@ function admitMetadataOnlyReplayHeadDrift(
  * mechanical without turning a threshold check into an unbounded campaign.
  */
 export function verifyHistoricalReplayArtifact(projectRoot: string): HistoricalReplayArtifactAdmission {
+  return withValidationSigningRoot(projectRoot, () => {
   const root = resolve(projectRoot);
   const outputRoot = join(root, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay');
   const reportPath = join(outputRoot, 'report.json');
@@ -324,4 +326,6 @@ export function verifyHistoricalReplayArtifact(projectRoot: string): HistoricalR
     ...(inventoryDigest ? { inventoryDigest } : {}),
     ...(catalogDigest ? { catalogDigest } : {}),
   };
+
+  });
 }

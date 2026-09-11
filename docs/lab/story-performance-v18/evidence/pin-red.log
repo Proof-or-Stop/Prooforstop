@@ -1,0 +1,21 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /STORE_TOUCHED/. Input:
+
+'review-inventory-epoch/packages/main/src/handlers/checklist.ts consumer rejected active identity bytes; executable declaration/producer/consumer binding changed'
+
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-story-performance-main-0296/packages/main/tests/certification-mutator-identity.mjs:29:54
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'review-inventory-epoch/packages/main/src/handlers/checklist.ts consumer rejected active identity bytes; executable declaration/producer/consumer binding changed',
+  expected: /STORE_TOUCHED/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v26.8.1

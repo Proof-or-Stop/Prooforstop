@@ -9,7 +9,7 @@
  *   - quality       — a prior pass bound to an EARLIER head, with a material file
  *                     changed since → scope-changed / needs-rerun.
  *   - test-coverage — no pass at all → no-receipt / launch.
- *   - behavior      — a blocking verified finding open for the lane → blocking
+ *   - behavior      — a blocking verified finding open for the lane → awaiting-repair
  *                     (+ gate blockedBy).
  *
  * Asserts (mirroring the P3 evidence-plan smoke, pure read-only):
@@ -32,9 +32,10 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { getCommandPolicy } from '../core/command-policy.js';
 import { DEFAULT_PHASE_TOOLS, isCommandAllowed, resetConfigCache } from '../core/config.js';
@@ -42,15 +43,14 @@ import { MAIN_TOOLS } from '../cli-engine.js';
 import { StoryStore } from '../core/store.js';
 import { createMainRegistry } from '../registry.js';
 import { buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
-import { currentGitHead } from '../core/evidence-freshness.js';
-import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { currentGitHead, currentStoryFilesHash, checkEvidenceFreshnessForGit, classifyEvidenceFreshness } from '../core/evidence-freshness.js';
+import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
+import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { ReviewerBatchReport } from '../handlers/reviewer-batch.js';
 import type {
   ChecklistData,
-  Finding,
-  ReviewPass,
-  ReviewRun,
   StoryEvent,
   StoryInfo,
 } from '../core/types.js';
@@ -76,11 +76,13 @@ function writeConfig(root: string): void {
   writeFileSync(
     join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
-      scanRoot: 'packages/main',
+      scanRoot: '.',
       rootDir: 'src',
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
+      promptEnvelope: { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: Object.fromEntries(
+        ['concept', 'quality', 'behavior', 'test-coverage'].map(lane => [`proof-or-stop-review-${lane}`, 'full-envelope'])) },
     }, null, 2) + '\n',
     'utf8',
   );
@@ -92,13 +94,7 @@ function ts(n: number): string {
   return new Date(BASE_MS + n * 60_000).toISOString();
 }
 
-/**
- * A story that has entered REVIEW once. currentReviewRound is deliberately UNSET
- * so reviewer evidence run-binding validation short-circuits to valid (no git /
- * freshness machinery): record validity then depends only on the production
- * signature, and the per-lane scopeChanged is driven purely by the bound run
- * headHash via review_incremental_context. riskSignal 'gate' activates behavior.
- */
+/** A fixed current round with producer-issued run/envelope/pass bindings. */
 function reviewStory(): StoryInfo {
   const events: StoryEvent[] = [
     { phase: 'REVIEW', action: 'advance', timestamp: ts(1) } as StoryEvent,
@@ -111,6 +107,7 @@ function reviewStory(): StoryInfo {
     type: 'feature',
     priority: 'high',
     phase: 'REVIEW',
+    currentReviewRound: ts(1),
     riskSignals: [{ category: 'gate', note: 'activates behavior reviewer' }],
     createdAt: NOW,
     startedAt: NOW,
@@ -134,99 +131,105 @@ function checklist(): ChecklistData {
   };
 }
 
-function signedPass(id: string, agent: string, createdAt: string, reviewRunId: string): ReviewPass {
-  const note = `no blocker from ${agent}`;
-  const pass: ReviewPass = { id, agent, note, createdAt, reviewRunId };
-  // reviewRound left empty (currentReviewRound unset); signature domain includes reviewRunId.
-  pass._hash = signReviewPass(STORY_ID, id, agent, note, createdAt, '', reviewRunId);
-  return pass;
+const fixtureRoots = new Set<string>();
+const cliPath = fileURLToPath(new URL('../../../../bin/proof-or-stop.js', import.meta.url));
+function fixtureCli(root: string, lane: string, command: string, payload: Record<string, unknown>): string {
+  assert.ok(fixtureRoots.has(root), 'CLI review arrangement is confined to its disposable fixture');
+  const task = `reviewer-batch-${lane}`;
+  try {
+    return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
+      cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 60_000, maxBuffer: 8 * 1024 * 1024,
+      env: { ...process.env, ...adapterSessionEnv(task, lane), PROOF_OR_STOP_AGENT: lane,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: lane, PROOF_OR_STOP_PROJECT_ROOT: root },
+    }).trim();
+  } finally {
+    const storyDir = new StoryStore(root).storyDirPath(STORY_ID);
+    const lease = readOwnerLease(storyDir);
+    if (lease?.sessionId === adapterSessionId(root, task, lane)) assert.equal(releaseOwnerLease(storyDir), true);
+  }
 }
 
-function runFor(reviewRunId: string, agent: string, headHash: string): ReviewRun {
-  return {
-    reviewRunId,
-    storyId: STORY_ID,
-    agent,
-    lane: agent,
-    reviewRound: ts(1),
-    startedAt: ts(2),
-    headHash,
-    materialHash: 'unused-by-incremental-context',
-    promptHash: '',
-  };
-}
-
-function signedBlockingFinding(id: string, agent: string, createdAt: string): Finding {
-  const desc = `critical blocker from ${agent}`;
-  // critical + open + no reviewRunId (binding skipped while currentReviewRound is
-  // unset) → verifyFinding passes on the round-only signature; isFindingBlocking
-  // (critical) blocks in every round.
-  return {
-    id,
-    desc,
-    severity: 'critical',
-    category: 'missing',
-    status: 'open',
-    agent,
-    createdAt,
-    _hash: signFinding(STORY_ID, id, desc, 'critical', createdAt, '', ''),
-  };
-}
-
-/**
- * Build a real git fixture: `main` holds the base commit (story branch will be
- * ahead so the no-receipt lane's first-pass full diff is non-empty), then a story
- * branch edits src/quality.ts. Returns the repo root + base/head SHAs so the
- * current-pass lane binds to HEAD and the scope-changed lane binds to baseSha.
- */
+/** Main-only drift keeps quality's real run fresh while requiring incremental review. */
 function createFixture(): {
-  root: string;
-  store: StoryStore;
-  ctx: HandlerContext;
+  root: string; store: StoryStore; ctx: HandlerContext;
+  conceptPassId: string; qualityPassId: string; behaviorFindingId: string;
 } {
-  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-reviewer-batch-'));
-  writeConfig(root);
-  write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n');
-  write(root, 'src/concept.ts', 'export const concept = 1;\n');
-  write(root, 'src/quality.ts', 'export const quality = 1;\n');
-  write(root, 'src/testcov.ts', 'export const testcov = 1;\n');
-
-  git(root, ['init']);
-  git(root, ['checkout', '-B', 'main']);
-  git(root, ['add', '.']);
-  git(root, [...COMMIT_ENV, 'commit', '-m', 'base on main']);
-  const baseSha = currentGitHead(root)!;
-
-  // Story branch ahead of main: a material edit to src/quality.ts.
-  git(root, ['checkout', '-b', `story/${STORY_ID}`]);
-  write(root, 'src/quality.ts', 'export const quality = 2; // edited\n');
-  git(root, ['add', '.']);
-  git(root, [...COMMIT_ENV, 'commit', '-m', 'quality edit']);
-  const headSha = currentGitHead(root)!;
-
-  const store = new StoryStore(root);
-  store.writeStory(STORY_ID, reviewStory());
-  store.writeChecklist(STORY_ID, checklist());
-
-  // concept: current-round pass bound to HEAD → nothing changed since → current.
-  // quality: prior pass bound to baseSha → src/quality.ts changed since → scope-changed.
-  // test-coverage: no pass → no-receipt.
-  // behavior: critical open finding → blocking (no pass needed; blocking wins).
-  const conceptRun = runFor('RR-concept', 'proof-or-stop-review-concept', headSha);
-  const qualityRun = runFor('RR-quality', 'proof-or-stop-review-quality', baseSha);
-  store.writeReviewRuns(STORY_ID, { runs: [conceptRun, qualityRun] });
-  store.writeReviewPasses(STORY_ID, {
-    passes: [
-      signedPass('RP-concept', 'proof-or-stop-review-concept', ts(3), 'RR-concept'),
-      signedPass('RP-quality', 'proof-or-stop-review-quality', ts(4), 'RR-quality'),
-    ],
-  });
-  store.writeFindings(STORY_ID, {
-    findings: [signedBlockingFinding(`${STORY_ID}:F-1`, 'proof-or-stop-review-behavior', ts(5))],
-  });
-
-  const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
-  return { root, store, ctx };
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-reviewer-batch-')));
+  fixtureRoots.add(root);
+  try {
+    writeConfig(root);
+    write(root, '.gitignore', listRuntimeArtifactIgnorePatterns().join('\n') + '\n');
+    for (const name of ['concept', 'quality', 'testcov']) write(root, `src/${name}.ts`, `export const ${name} = 1;\n`);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'rbatch-smoke@example.test']);
+    git(root, ['config', 'user.name', 'Reviewer Batch Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base on main']);
+    git(root, ['checkout', '-b', `story/${STORY_ID}`]);
+    write(root, 'src/story-owned.ts', 'export const storyOwned = 1;\n');
+    const store = new StoryStore(root);
+    store.writeStory(STORY_ID, reviewStory());
+    store.writeChecklist(STORY_ID, checklist());
+    store.writeUnderstanding(STORY_ID, {
+      task: 'Exercise four real reviewer lane states', outcome: 'Preserve trusted incremental review and reject missing or blocking lanes',
+      facts: ['The fixture acceptance requires storyOwned to equal 2.'], constraints: [], unknowns: [],
+      touchpoints: ['src/story-owned.ts', 'src/concept.ts', 'src/quality.ts', 'src/testcov.ts'], timestamp: NOW,
+    });
+    assert.equal(store.readScopeContract(STORY_ID), null, 'This narrow fixture declares no scope contract');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'arrange fixed REVIEW round and story-owned source']);
+    const initialStoryHash = currentStoryFilesHash(root);
+    assert.ok(initialStoryHash);
+    const observedFiles = ['src/story-owned.ts', 'src/concept.ts', 'src/quality.ts', 'src/testcov.ts'];
+    const readManifest = { filesReadFully: observedFiles, filesTriagedByName: [], scanEscalationReason: null };
+    const readEvents = observedFiles.map(path => ({ path, mode: 'full', action: 'Read', tokenCount: 8 }));
+    const observe = (short: string, finding = false) => {
+      const lane = `proof-or-stop-review-${short}`;
+      for (const path of observedFiles) assert.ok(readFileSync(join(root, path), 'utf8').length > 0);
+      fixtureCli(root, lane, 'dispatch', { storyId: STORY_ID, agentType: lane });
+      const started = fixtureCli(root, lane, 'review_run_start', { storyId: STORY_ID, agent: lane });
+      const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+      assert.ok(reviewRunId, started);
+      if (finding) {
+        assert.match(readFileSync(join(root, 'src/story-owned.ts'), 'utf8'), /storyOwned = 1/);
+        fixtureCli(root, lane, 'finding_add', { storyId: STORY_ID, agent: lane, reviewRunId,
+          desc: 'The fixture acceptance requires storyOwned to equal 2, but src/story-owned.ts exports 1.',
+          severity: 'critical', category: 'missing', evidenceState: 'verified', files: ['src/story-owned.ts'], readManifest, readEvents });
+        const row = store.readFindings(STORY_ID).findings.find(row => row.reviewRunId === reviewRunId);
+        assert.ok(row); return row.id;
+      }
+      fixtureCli(root, lane, 'review_pass_set', { storyId: STORY_ID, agent: lane, reviewRunId,
+        note: 'The fixed fixture review of this lane found no additional blocker.', readManifest, readEvents });
+      const row = store.readReviewPasses(STORY_ID).passes.find(row => row.reviewRunId === reviewRunId);
+      assert.ok(row); return row.id;
+    };
+    const qualityPassId = observe('quality');
+    const qualityRun = store.readReviewRuns(STORY_ID).runs.find(row => row.agent === 'proof-or-stop-review-quality')!;
+    assert.equal(qualityRun.storyFilesHash, initialStoryHash);
+    git(root, ['add', '.']);
+    if (git(root, ['status', '--porcelain']).trim()) {
+      git(root, ['commit', '-m', 'freeze quality producer evidence on Story']);
+    }
+    git(root, ['checkout', 'main']);
+    write(root, 'src/quality.ts', 'export const quality = 2; // incoming main change\n');
+    git(root, ['add', 'src/quality.ts']);
+    git(root, ['commit', '-m', 'main-only quality update']);
+    git(root, ['checkout', `story/${STORY_ID}`]);
+    git(root, ['merge', '--no-ff', 'main', '-m', 'merge unrelated main material']);
+    assert.equal(currentStoryFilesHash(root), initialStoryHash, 'Main drift keeps the nonempty Story-owned input unchanged');
+    const freshness = checkEvidenceFreshnessForGit(root, qualityRun.headHash, qualityRun.materialHash, root, qualityRun.storyFilesHash);
+    assert.equal(freshness.fresh, true, 'Real quality run remains freshness-admissible after main-only drift');
+    const conceptPassId = observe('concept');
+    const behaviorFindingId = observe('behavior', true);
+    assert.equal(store.readStory(STORY_ID).currentReviewRound, ts(1), 'Fixture producer round never rotates');
+    const ctx: HandlerContext = { store, root, scanRoot: root };
+    return { root, store, ctx, conceptPassId, qualityPassId, behaviorFindingId };
+  } catch (error) {
+    rmSync(root, { recursive: true, force: true });
+    fixtureRoots.delete(root);
+    throw error;
+  }
 }
 
 function snapshotDir(root: string, dir: string): Record<string, string> {
@@ -243,7 +246,7 @@ function snapshotDir(root: string, dir: string): Record<string, string> {
 }
 
 function laneByName(report: ReviewerBatchReport, lane: string) {
-  const found = report.lanes.find((entry) => entry.lane === lane);
+  const found = report.lanes.find((entry) => entry.lane === `proof-or-stop-review-${lane}`);
   assert.ok(found, `report has lane ${lane}`);
   return found!;
 }
@@ -304,7 +307,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
 // ---- (a)–(e) Core classification + read-only invariants --------------------
 
 {
-  const { root, store, ctx } = createFixture();
+  const { root, store, ctx, conceptPassId, qualityPassId, behaviorFindingId } = createFixture();
   try {
     const handler = createMainRegistry(ctx).get('reviewer_batch');
     assert.ok(handler, 'registry exposes reviewer_batch');
@@ -322,7 +325,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
 
     // The four active lanes (concept/quality/test-coverage baseline + behavior via riskSignal).
     const laneNames = report.lanes.map((entry) => entry.lane).sort();
-    assert.deepEqual(laneNames, ['behavior', 'concept', 'quality', 'test-coverage'], 'four active lanes resolved');
+    assert.deepEqual(laneNames, ['behavior', 'concept', 'quality', 'test-coverage'].map(lane => `proof-or-stop-review-${lane}`), 'four canonical active lanes resolved');
 
     // (b) per-lane classification.
     const concept = laneByName(report, 'concept');
@@ -332,18 +335,18 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
 
     assert.equal(concept.state, 'current-pass', 'concept: current-round pass bound to HEAD, no change since');
     assert.equal(concept.scopeChanged, false, 'concept: nothing changed since its last pass');
-    assert.ok(concept.priorVerdict && concept.priorVerdict.includes('RP-concept'), 'concept priorVerdict references its pass');
+    assert.ok(concept.priorVerdict && concept.priorVerdict.includes(conceptPassId), 'concept priorVerdict references its pass');
 
     assert.equal(quality.state, 'scope-changed', 'quality: prior pass at baseSha, material changed since');
     assert.equal(quality.scopeChanged, true, 'quality: src/quality.ts changed since its last pass');
     assert.ok(quality.changedFilesSinceLastPass.includes('src/quality.ts'), 'quality changedFiles includes the edited material file');
-    assert.ok(quality.priorVerdict && quality.priorVerdict.includes('RP-quality'), 'quality priorVerdict references its pass');
+    assert.ok(quality.priorVerdict && quality.priorVerdict.includes(qualityPassId), 'quality priorVerdict references its pass');
 
     assert.equal(testcov.state, 'no-receipt', 'test-coverage: no pass → no-receipt');
     assert.equal(testcov.scopeChanged, true, 'test-coverage: first-pass full diff → scopeChanged=true');
 
-    assert.equal(behavior.state, 'blocking', 'behavior: blocking verified finding → blocking');
-    assert.deepEqual(behavior.blockingFindings, [`${STORY_ID}:F-1`], 'behavior lane lists the blocking finding id');
+    assert.equal(behavior.state, 'awaiting-repair', 'behavior: current first blocking observation awaits repair without a prior PASS');
+    assert.deepEqual(behavior.blockingFindings, [behaviorFindingId], 'behavior lane lists the blocking finding id');
 
     // (c) launch instructions: each needs-run lane carries the canonical Agent-spawn
     //     form (asserted by SHAPE, so the old dispatch CLI template would fail);
@@ -351,7 +354,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.equal(concept.launchInstruction, null, 'current-pass lane has no launch instruction');
     assertAgentLaunchInstruction(quality.launchInstruction, 'quality');
     assertAgentLaunchInstruction(testcov.launchInstruction, 'test-coverage');
-    assertAgentLaunchInstruction(behavior.launchInstruction, 'behavior');
+    assert.equal(behavior.launchInstruction, null, 'Current first blocker must not request duplicate observation');
 
     // (d) gate: missing passes + blocking finding → blockedBy non-empty, not ready.
     assert.equal(report.gate.ready, false, 'gate is not ready while lanes are missing/blocking');
@@ -379,9 +382,10 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.match(text, /concept \[current-pass\]/);
     assert.match(text, /quality \[scope-changed\]/);
     assert.match(text, /test-coverage \[no-receipt\]/);
-    assert.match(text, /behavior \[blocking\]/);
-    assert.match(text, /authorityDone: false/);
-    assert.match(text, /productionDone: false/);
+    assert.match(text, /behavior \[awaiting-repair\]/);
+    assert.match(text, /admissibilityStatus: reviewer-launch-preview/);
+    assert.match(text, /assuranceLevel: local/);
+    assert.match(text, /evidenceScope: review-readiness/);
 
     // (a) + (e) read-only: no metadata / git mutation; no authority/evidence artifacts
     //     beyond the FIXTURE-seeded ones, and the seeded review-runs/passes/findings
@@ -399,10 +403,76 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.deepEqual(report2, report, 'reviewer_batch is idempotent across two runs');
     assert.deepEqual(snapshotDir(root, storyDir), beforeSnapshot, 'second run leaves story metadata unchanged');
     assert.equal(gitStatus(root), beforeStatus, 'second run leaves git status unchanged');
-  } finally {
-    resetConfigCache();
-    rmSync(root, { recursive: true, force: true });
-  }
+    // Reuse the same authenticated fixture for the adversarial checks.
+    const before = handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport;
+    assert.equal(laneByName(before, 'behavior').state, 'awaiting-repair');
+    const readFindings = store.readFindings.bind(store);
+    const findingData = readFindings(STORY_ID);
+    // Corrupt only disposable records: no invalid signature may suppress launch.
+    for (const change of [{ _signature: 'invalid' }, { agent: 'proof-or-stop-review-quality' }, { reviewRound: '1900-01-01T00:00:00.000Z' }]) {
+      const altered = structuredClone(findingData);
+      const finding = altered.findings.find(row => row.id === behaviorFindingId)!;
+      Object.assign(finding, change);
+      // Changing signed content guarantees invalidity even if a signature field is renamed.
+      finding.desc += ' deliberately invalid fixture';
+      // Inject at the reader boundary: the canonical ledger supersedes legacy JSON.
+      store.readFindings = () => altered;
+      const invalid = handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport;
+      assert.notEqual(laneByName(invalid, 'behavior').state, 'awaiting-repair');
+      assertAgentLaunchInstruction(laneByName(invalid, 'behavior').launchInstruction, 'behavior');
+      assert.equal(invalid.gate.ready, false);
+    }
+    store.readFindings = readFindings;
+    // Preserve suppression across a real metadata-only commit.
+    const beforeMetadataHead = git(root, ['rev-parse', 'HEAD']);
+    const originalStory = store.readStory(STORY_ID);
+    store.writeStory(STORY_ID, { ...originalStory, description: 'Changed acceptance description after the signed observation.' });
+    assert.notEqual(laneByName(handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport, 'behavior').state, 'awaiting-repair', 'Changed review context cannot retain suppression');
+    store.writeStory(STORY_ID, originalStory);
+    store.appendProcessEvent(STORY_ID, { type: 'run_metrics_recorded', note: 'Disposable telemetry-only review fixture observation' });
+    git(root, ['add', store.storyDirPath(STORY_ID)]);
+    git(root, ['commit', '-m', 'metadata-only review fixture note']);
+    const boundRun = store.readReviewRuns(STORY_ID).runs.find(row => row.agent === 'proof-or-stop-review-behavior')!;
+    assert.notEqual(git(root, ['rev-parse', 'HEAD']), boundRun.headHash, 'Metadata proof must advance HEAD');
+    assert.deepEqual(git(root, ['diff', '--name-only', beforeMetadataHead, 'HEAD']).split('\n').filter(Boolean), [relative(root, store.storyFilePath(STORY_ID, 'process-events.jsonl'))]);
+    // The material-hash fast path classifies unchanged bytes as CURRENT_MATERIAL.
+    assert.equal(classifyEvidenceFreshness(checkEvidenceFreshnessForGit(root, boundRun.headHash, boundRun.materialHash, root, boundRun.storyFilesHash), boundRun.headHash), 'CURRENT_MATERIAL');
+    const metadata = handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport;
+    assert.equal(laneByName(metadata, 'behavior').state, 'awaiting-repair');
+    assert.deepEqual(metadata.gate.blockedBy, before.gate.blockedBy);
+    const beforeStoryHash = currentStoryFilesHash(root);
+    assert.equal(laneByName(handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport, 'behavior').state, 'awaiting-repair', 'Story drift counterexample must start from suppression');
+    write(root, 'src/story-owned.ts', 'export const storyOwned = 2;\n');
+    git(root, ['add', 'src/story-owned.ts']);
+    git(root, ['commit', '-m', 'repair changes Story material']);
+    const repaired = handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport;
+    assert.notEqual(laneByName(repaired, 'behavior').state, 'awaiting-repair');
+    assertAgentLaunchInstruction(laneByName(repaired, 'behavior').launchInstruction, 'behavior');
+    assert.equal(repaired.gate.ready, false, 'Changing code is not a new review PASS');
+    console.log('FIRST_FINDING_STORY_DRIFT_REVIEW_REQUIRED');
+    assert.notEqual(currentStoryFilesHash(root), beforeStoryHash, 'Changed Story source must change its actual input hash');
+    // Restore fixture bytes with an ordinary commit, then independently test main drift.
+    write(root, 'src/story-owned.ts', 'export const storyOwned = 1;\n');
+    git(root, ['add', 'src/story-owned.ts']);
+    git(root, ['commit', '-m', 'restore fixture input for independent main drift counterexample']);
+    assert.equal(currentStoryFilesHash(root), beforeStoryHash);
+    assert.equal(laneByName(handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport, 'behavior').state, 'awaiting-repair', 'Main drift counterexample must also start from suppression');
+    const storyBranch = git(root, ['branch', '--show-current']);
+    git(root, ['checkout', 'main']);
+    write(root, 'src/quality.ts', 'export const quality = 3;\n');
+    git(root, ['add', 'src/quality.ts']);
+    git(root, ['commit', '-m', 'main material drift after blocking observation']);
+    git(root, ['checkout', storyBranch]);
+    git(root, ['merge', '--no-ff', 'main', '-m', 'merge later main material']);
+    const after = handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport;
+    const lane = laneByName(after, 'behavior');
+    assert.deepEqual(lane.blockingFindings, [behaviorFindingId], 'The valid finding remains a blocker after unrelated main drift');
+    assert.equal(lane.state, 'blocking', 'MAIN_DRIFT_MUST_NOT_SUPPRESS_REVIEW');
+    assertAgentLaunchInstruction(lane.launchInstruction, 'behavior');
+    assert.deepEqual(after.gate.blockedBy, before.gate.blockedBy, 'Launch guidance must not change gate blockers');
+    console.log('FIRST_FINDING_MAIN_DRIFT_REVIEW_REQUIRED');
+
+  } finally { resetConfigCache(); rmSync(root, { recursive: true, force: true }); }
 }
 
 process.stdout.write('reviewer_batch smoke passed\n');

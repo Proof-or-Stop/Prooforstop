@@ -1,0 +1,42 @@
+[
+  {
+    "command": [
+      "node",
+      "packages/main/tests/validation-tree-delegate-binding.mjs"
+    ],
+    "code": 0,
+    "seconds": 1.2597221250000001
+  },
+  {
+    "command": [
+      "node",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "code": 0,
+    "seconds": 8.516958875
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/dist/tasks/verification-freshness-smoke.js"
+    ],
+    "code": 0,
+    "seconds": 42.648034541
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/tests/validation-queue-lease-loss.test.mjs"
+    ],
+    "code": 0,
+    "seconds": 4.692718083000003
+  },
+  {
+    "command": [
+      "node",
+      "packages/main/tests/certification-consumed-saturation.mjs"
+    ],
+    "code": 0,
+    "seconds": 0.23327562499999743
+  }
+]

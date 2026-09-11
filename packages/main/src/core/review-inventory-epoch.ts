@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { finalReviewRosterForStory, finalReviewRosterBasis } from '../handlers/reviewer-list.js';
 import type { StoryStore } from './store.js';
 import type {
   ChecklistData,
@@ -635,6 +636,17 @@ export function finalizedLiveAggregateError(store: StoryStore, pair: {
   receipt: ReviewInventoryReceipt;
 }): string | undefined {
   const { epoch, receipt } = pair;
+  if (epoch.rosterBasis || receipt.rosterBasis) {
+    try {
+      const current = finalReviewRosterForStory(store, store.projectRoot, epoch.storyId);
+      if (!epoch.rosterBasis || epoch.rosterBasis !== receipt.rosterBasis
+        || epoch.rosterBasis !== finalReviewRosterBasis(current)
+        || reviewInventoryDigest(epoch.requiredLanes) !== reviewInventoryDigest(current.selection.selectedLanes)
+        || reviewInventoryDigest(receipt.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes)) {
+        return 'narrowed review roster basis changed after finalize';
+      }
+    } catch { return 'narrowed review roster basis cannot be verified'; }
+  }
   const finalWave = epoch.waves.at(-1);
   const remediationOnly = receipt.authority === 'review-remediation-only';
   if (!finalWave || !finalWave.completedAt
@@ -744,19 +756,20 @@ function markReviewInventoryConsumed(
   storyId: string,
   pair: { epoch: ReviewInventoryEpoch; receipt: ReviewInventoryReceipt },
   reviewRound: string,
+  admissionWindowId?: string,
 ): string {
   const now = new Date().toISOString();
   const data = store.readReviewInventoryEpochs(storyId);
   data.epochs = data.epochs.map(row => {
     if (row.epochId !== pair.epoch.epochId) return row;
     const { _hash, ...unsigned } = row;
-    const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, consumedByReviewRound: reviewRound, updatedAt: now };
+    const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, ...(admissionWindowId ? { consumedByCertificationWindowId: admissionWindowId } : {}), consumedByReviewRound: reviewRound, updatedAt: now };
     return { ...consumed, _hash: signReviewInventoryEpoch(consumed) };
   });
   data.receipts = data.receipts.map(row => {
     if (row.receiptId !== pair.receipt.receiptId) return row;
     const { _hash, ...unsigned } = row;
-    const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now };
+    const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now, ...(admissionWindowId ? { consumedByCertificationWindowId: admissionWindowId } : {}) };
     return { ...consumed, _hash: signReviewInventoryReceipt(consumed) };
   });
   store.writeReviewInventoryEpochs(storyId, data);
@@ -805,8 +818,20 @@ export function consumeReviewInventoryCompletenessReceipt(
   reviewRound: string,
   currentCutoff: { materialHash: string; storyFilesHash?: string },
   validateInventoryContext?: () => void,
+  admissionWindowId?: string,
 ): string | null {
-  return withReviewInventoryMutationLock(store, storyId, () => {
+  return withReviewInventoryMutationLock(store, storyId, () => consumeReviewInventoryCompletenessReceiptUnlocked(store, storyId, reviewRound, currentCutoff, validateInventoryContext, admissionWindowId));
+}
+
+/** Caller must already hold the review inventory mutation lock. */
+export function consumeReviewInventoryCompletenessReceiptUnlocked(
+  store: StoryStore,
+  storyId: string,
+  reviewRound: string,
+  currentCutoff: { materialHash: string; storyFilesHash?: string },
+  validateInventoryContext?: () => void,
+  admissionWindowId?: string,
+): string | null {
     validateInventoryContext?.();
     const data = store.readReviewInventoryEpochs(storyId);
     const latest = data.epochs.at(-1);
@@ -847,8 +872,7 @@ export function consumeReviewInventoryCompletenessReceipt(
         throw new Error(`REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED: ${liveAggregateError}; begin a fresh inventory epoch`);
       }
     }
-    return markReviewInventoryConsumed(store, storyId, pair, reviewRound);
-  });
+    return markReviewInventoryConsumed(store, storyId, pair, reviewRound, admissionWindowId);
 }
 
 export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInventoryEvaluation, now: string, nextRunSequenceBoundary?: number): ReviewInventoryWave {

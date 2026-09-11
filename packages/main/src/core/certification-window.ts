@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from 'node:util';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -20,6 +21,7 @@ import type {
 
 export const CERTIFICATION_WINDOW_STATES = [
   'BLOCKED',
+  'ADMITTING',
   'ADMITTED',
   'RUNNING',
   'FINALIZED',
@@ -170,6 +172,7 @@ export interface ReviewInventoryEpochAdmitView {
   reviewRound?: string;
   state?: string;
   consumedAt?: string;
+  consumedByCertificationWindowId?: string;
   receiptId?: string;
   cutoff?: { headHash?: string; materialHash?: string; storyFilesHash?: string };
   requiredLanes?: string[];
@@ -196,6 +199,7 @@ export interface InventoryCompletenessReceipt {
   authority?: string;
   authorizesTest?: boolean;
   consumedAt?: string;
+  consumedByCertificationWindowId?: string;
   invalidatedAt?: string;
   cutoff?: { headHash?: string; materialHash?: string; storyFilesHash?: string };
   requiredLanes?: string[];
@@ -223,7 +227,9 @@ export interface ReviewInventoryAdmitApis {
     reviewRound: string,
     currentCutoff: { materialHash: string; storyFilesHash?: string },
     validateInventoryContext?: () => void,
+    admissionWindowId?: string,
   ) => string | null;
+  consumeReviewInventoryCompletenessReceiptUnlocked?: ReviewInventoryAdmitApis['consumeReviewInventoryCompletenessReceipt'];
   verifyReviewInventoryEpoch: (epoch: unknown) => boolean;
   verifyReviewInventoryReceipt: (receipt: unknown) => boolean;
   isInventoryCompletenessOnlyReceipt: (epoch: unknown, receipt: unknown) => boolean;
@@ -423,6 +429,7 @@ export function isSaturatedReviewInventoryForPrecert(
   apis: ReviewInventoryAdmitApis,
   pair: ReviewInventoryAdmitPair | null,
   storyId: string,
+  recoveryWindowId?: string,
 ): boolean {
   const epoch = pair?.epoch;
   const receipt = pair?.receipt;
@@ -435,6 +442,11 @@ export function isSaturatedReviewInventoryForPrecert(
   } catch {
     return false;
   }
+  const consumed = Boolean(epoch.consumedAt || receipt.consumedAt);
+  if (consumed && (!recoveryWindowId || epoch.consumedByCertificationWindowId !== recoveryWindowId
+    || receipt.consumedByCertificationWindowId !== recoveryWindowId
+    || !epoch.consumedAt || epoch.consumedAt !== receipt.consumedAt
+    || !Number.isFinite(Date.parse(epoch.consumedAt)))) return false;
   const requiredLanes = epoch.requiredLanes;
   const receiptRequiredLanes = receipt.requiredLanes;
   const waves = epoch.waves;
@@ -442,7 +454,7 @@ export function isSaturatedReviewInventoryForPrecert(
   if (epoch.state !== 'FINALIZED' || epoch.storyId !== storyId || receipt.storyId !== storyId
     || !epoch.epochId || epoch.receiptId !== receipt.receiptId || receipt.epochId !== epoch.epochId
     || !epoch.reviewRound || receipt.reviewRound !== epoch.reviewRound
-    || epoch.consumedAt || receipt.consumedAt || receipt.invalidatedAt
+    || receipt.invalidatedAt
     || receipt.authority !== INVENTORY_COMPLETENESS_AUTHORITY || receipt.authorizesTest !== false
     || !Array.isArray(requiredLanes) || requiredLanes.length === 0
     || !Array.isArray(receiptRequiredLanes) || !sameStringSet(requiredLanes, receiptRequiredLanes)
@@ -545,7 +557,11 @@ let reviewInventoryAdmitApisOverride: ReviewInventoryAdmitApis | null | undefine
 export function setReviewInventoryAdmitApisForTest(
   apis: ReviewInventoryAdmitApis | null | undefined,
 ): void {
-  reviewInventoryAdmitApisOverride = apis;
+  // Existing lightweight test doubles have no inventory mutex. Production
+  // loading below requires the distinct unlocked export and never falls back.
+  reviewInventoryAdmitApisOverride = apis ? { ...apis,
+    consumeReviewInventoryCompletenessReceiptUnlocked: apis.consumeReviewInventoryCompletenessReceiptUnlocked ?? apis.consumeReviewInventoryCompletenessReceipt,
+  } : apis;
 }
 
 /**
@@ -559,15 +575,17 @@ export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null 
     const required = createRequire(import.meta.url)('./review-inventory-epoch.js') as Record<string, unknown>;
     const finalized = required.finalizedUnconsumedReviewInventory;
     const consume = required.consumeReviewInventoryCompletenessReceipt;
+    const consumeUnlocked = required.consumeReviewInventoryCompletenessReceiptUnlocked;
     const verifyEpoch = required.verifyReviewInventoryEpoch;
     const verifyReceipt = required.verifyReviewInventoryReceipt;
     const isCompletenessOnly = required.isInventoryCompletenessOnlyReceipt;
-    if (typeof finalized !== 'function' || typeof consume !== 'function'
+    if (typeof consumeUnlocked !== 'function' || typeof finalized !== 'function' || typeof consume !== 'function'
       || typeof verifyEpoch !== 'function' || typeof verifyReceipt !== 'function'
       || typeof isCompletenessOnly !== 'function') return null;
     return {
       finalizedUnconsumedReviewInventory: finalized as ReviewInventoryAdmitApis['finalizedUnconsumedReviewInventory'],
       consumeReviewInventoryCompletenessReceipt: consume as ReviewInventoryAdmitApis['consumeReviewInventoryCompletenessReceipt'],
+      consumeReviewInventoryCompletenessReceiptUnlocked: consumeUnlocked as ReviewInventoryAdmitApis['consumeReviewInventoryCompletenessReceipt'],
       verifyReviewInventoryEpoch: verifyEpoch as ReviewInventoryAdmitApis['verifyReviewInventoryEpoch'],
       verifyReviewInventoryReceipt: verifyReceipt as ReviewInventoryAdmitApis['verifyReviewInventoryReceipt'],
       isInventoryCompletenessOnlyReceipt: isCompletenessOnly as ReviewInventoryAdmitApis['isInventoryCompletenessOnlyReceipt'],
@@ -681,7 +699,7 @@ function inventoryLineageRefusal(facts: CertificationWindowAdmitFacts): string |
  * Admit PRE_CERT only from inventory, merge, clean-tree, and coverage facts.
  * Whole-tree materialHash-only drift is never treated as a matching identity.
  */
-export function evaluateCertificationWindowAdmit(
+export function nonInventoryAdmitRefusal(
   facts: CertificationWindowAdmitFacts,
 ): CertificationWindowAdmitDecision {
   if (!facts.inventoryApisPresent) {
@@ -783,6 +801,22 @@ export function evaluateCertificationWindowAdmit(
     };
   }
   return { admit: true };
+}
+
+export function evaluateCertificationWindowAdmit(facts: CertificationWindowAdmitFacts): CertificationWindowAdmitDecision {
+  const prerequisite = nonInventoryAdmitRefusal(facts);
+  // Preserve the existing API/causal -> inventory -> remaining preflight priority.
+  if (!prerequisite.admit && (prerequisite.blockerCode === PRE_CERT_INVENTORY_NOT_FINALIZED
+    || prerequisite.blockerCode === PRE_CERT_CAUSAL_FRESHNESS_REQUIRED)) return prerequisite;
+  const lineageRefusal = inventoryLineageRefusal(facts);
+  if (lineageRefusal) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+      blockerDetail: lineageRefusal,
+    };
+  }
+  return prerequisite;
 }
 
 function countExactLines(text: string, prefix: string): number {
@@ -913,30 +947,51 @@ export function persistCancelledCertificationWindow(args: {
   });
 }
 
+/** Durable preparation only; this state never grants heavy execution authority. */
+export function persistAdmittingCertificationWindow(args: {
+  store: CertificationWindowStorePort; storyId: string; frozen: CertificationWindowFrozenIdentity; inventory: CertificationWindowInventoryBinding;
+}): CertificationWindow {
+  return withCertificationWindowLock(args.store, args.storyId, () => {
+    const data = args.store.readCertificationWindows(args.storyId);
+    const latest = latestCertificationWindow(data);
+    if (latest?.state === 'ADMITTING') throw new Error('PRE_CERT_ADMISSION_PENDING: recover the existing attempt first');
+    const now = new Date().toISOString();
+    const window = withSignedCertificationWindow({ schemaVersion: CERTIFICATION_WINDOW_SCHEMA, storyId: args.storyId,
+      windowId: nextCertificationWindowId(data, args.storyId), state: 'ADMITTING', createdAt: now, updatedAt: now,
+      frozen: args.frozen, inventory: args.inventory, blockerCode: 'PRE_CERT_ADMISSION_PENDING' });
+    data.windows.push(window); args.store.writeCertificationWindows(args.storyId, data); return window;
+  });
+}
+
 export function persistAdmittedCertificationWindow(args: {
   store: CertificationWindowStorePort;
   storyId: string;
   frozen: CertificationWindowFrozenIdentity;
   inventory: CertificationWindowInventoryBinding;
+  expectedPendingWindowId?: string;
 }): { window: CertificationWindow; receipt: PrecertReceipt } {
   return withCertificationWindowLock(args.store, args.storyId, () => {
     const data = args.store.readCertificationWindows(args.storyId);
     const latest = latestCertificationWindow(data);
+    if (args.expectedPendingWindowId && (latest?.state !== 'ADMITTING' || latest.windowId !== args.expectedPendingWindowId)) throw new Error('PRE_CERT_ADMISSION_PENDING: expected attempt is no longer current');
+    if (latest?.state === 'ADMITTING' && !args.expectedPendingWindowId) throw new Error('PRE_CERT_ADMISSION_PENDING: explicit pending attempt binding required');
     if (latest && verifyCertificationWindow(latest) && (latest.state === 'ADMITTED' || latest.state === 'RUNNING')) {
       const existing = receiptForWindow(data, latest);
       if (existing && verifyPrecertReceipt(existing)) {
         return { window: latest, receipt: existing };
       }
     }
+    const pending = latest?.state === 'ADMITTING' ? latest : null;
+    if (pending && (!verifyCertificationWindow(pending) || !isDeepStrictEqual(pending.frozen, args.frozen) || !isDeepStrictEqual(pending.inventory, args.inventory))) throw new Error('PRE_CERT_ADMISSION_PENDING: pending identity mismatch');
     const now = new Date().toISOString();
-    const windowId = nextCertificationWindowId(data, args.storyId);
+    const windowId = pending?.windowId ?? nextCertificationWindowId(data, args.storyId);
     const receiptId = nextPrecertReceiptId(data, args.storyId);
     const window = withSignedCertificationWindow({
       schemaVersion: CERTIFICATION_WINDOW_SCHEMA,
       windowId,
       storyId: args.storyId,
       state: 'ADMITTED',
-      createdAt: now,
+      createdAt: pending?.createdAt ?? now,
       updatedAt: now,
       frozen: args.frozen,
       inventory: args.inventory,
@@ -954,7 +1009,7 @@ export function persistAdmittedCertificationWindow(args: {
       inventoryReceiptId: args.inventory.receiptId,
       createdAt: now,
     });
-    data.windows.push(window);
+    if (pending) data.windows[data.windows.length - 1] = window; else data.windows.push(window);
     data.receipts.push(receipt);
     args.store.writeCertificationWindows(args.storyId, data);
     return { window, receipt };
@@ -1402,4 +1457,26 @@ export function isOfficialHeavyValidateInvocation(args: {
   // forwarding preserves both flags, so treating focus as a blanket exemption
   // would create a PRE_CERT bypass.
   return args.full !== undefined || !args.focus;
+}
+
+/** A validator may move the already-admitted window to RUNNING without changing
+ * its authority, input identity or history. No other metadata delta is admitted.
+ * This classifies the delta only; certification admission and final closeout
+ * still check the frozen identity against current inputs.
+ */
+export function isCertificationRunningOnlyAdvance(before: CertificationWindowData, after: CertificationWindowData, storyId: string): boolean {
+  if (!before || !after || before.schemaVersion !== CERTIFICATION_WINDOW_FILE_SCHEMA || after.schemaVersion !== before.schemaVersion) return false;
+  if (!Array.isArray(before.windows) || !Array.isArray(after.windows) || before.windows.length === 0 || before.windows.length !== after.windows.length) return false;
+  if (!Array.isArray(before.receipts) || !Array.isArray(after.receipts) || !isDeepStrictEqual(before.receipts, after.receipts)) return false;
+  const prior = before.windows.at(-1)!;
+  const next = after.windows.at(-1)!;
+  if (prior.storyId !== storyId || next.storyId !== storyId || prior.state !== 'ADMITTED' || next.state !== 'RUNNING') return false;
+  if (!verifyCertificationWindow(prior) || !verifyCertificationWindow(next)) return false;
+  const receipt = before.receipts.find(row => row.receiptId === prior.receiptId);
+  if (!receipt || receipt.schemaVersion !== PRECERT_RECEIPT_SCHEMA || !verifyPrecertReceipt(receipt) || !windowAuthorizesHeavyCertification(prior, receipt)) return false;
+  if (!Number.isFinite(Date.parse(next.updatedAt)) || Date.parse(next.updatedAt) < Date.parse(prior.updatedAt)) return false;
+  return isDeepStrictEqual(after, {
+    ...before,
+    windows: [...before.windows.slice(0, -1), { ...prior, state: 'RUNNING', updatedAt: next.updatedAt, _hash: next._hash }],
+  });
 }

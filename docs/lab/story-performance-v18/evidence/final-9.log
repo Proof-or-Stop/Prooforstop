@@ -1,0 +1,15 @@
+PASS proof-or-stop prompt baseline: independent approval manifest binds all 18 exact role IDs and complete prompt bodies
+PASS proof-or-stop prompt baseline: roleCount=18 registry hashes verified
+PASS proof-or-stop prompt baseline: roleCount=18 registry snapshot integrity verified
+PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 18 roles
+PASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected
+PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 18 roles
+PASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected
+INFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited
+PASS proof-or-stop prompt baseline: legacy vocabulary findings classified
+INFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies
+PASS proof-or-stop prompt baseline: direct story-file findings classified
+INFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies
+PASS proof-or-stop prompt baseline: direct story-write diagnostics allow no active StoryStore writes
+PASS proof-or-stop prompt baseline: story-init source, Claude mirror, Codex mirror, and assembled prompt are CLI-only
+PASS proof-or-stop prompt baseline: deterministic 18-role PromptMeasurementRecord sidecar verified without refresh authority

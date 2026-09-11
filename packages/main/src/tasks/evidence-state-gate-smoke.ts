@@ -27,6 +27,9 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
+import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
+import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
@@ -58,7 +61,7 @@ const REVIEWERS = ['proof-or-stop-review-concept', 'proof-or-stop-review-quality
  * understanding/decision present, and signed review runs for every opt-in reviewer.
  * Returns the store + worktree path; callers seed findings then run the TEST gate.
  */
-function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<string, string> } {
+function createReviewRepo(currentCliRuns = false): { root: string; store: StoryStore; runIds: Map<string, string> } {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-evst-'));
   write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
@@ -71,6 +74,10 @@ function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<stri
     workflow: { profile: 'balanced' },
   }));
   write(root, 'README.md', 'evidence-state gate smoke\n');
+  if (currentCliRuns) {
+    write(root, '.gitignore', listRuntimeArtifactIgnorePatterns().join('\n') + '\n');
+    write(root, 'packages/main/src/subject.ts', 'export const subject = 1;\n');
+  }
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
@@ -126,6 +133,34 @@ function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<stri
     timestamp: now,
   });
 
+  if (currentCliRuns) {
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
+    git(root, ['checkout', '-b', `story/${STORY_ID}`]);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'arrange disposable current-review fixture']);
+    const runIds = new Map<string, string>();
+    for (const lane of REVIEWERS) {
+      const task = `v15-status-${lane}`;
+      const invoke = (command: string, payload: Record<string, unknown>) => {
+        try {
+          return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
+            cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 60_000,
+            env: { ...process.env, ...adapterSessionEnv(task, lane), PROOF_OR_STOP_AGENT: lane,
+              PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: lane, PROOF_OR_STOP_PROJECT_ROOT: root },
+          });
+        } finally {
+          const lease = readOwnerLease(store.storyDirPath(STORY_ID));
+          if (lease?.sessionId === adapterSessionId(root, task, lane)) releaseOwnerLease(store.storyDirPath(STORY_ID));
+        }
+      };
+      invoke('dispatch', { storyId: STORY_ID, agentType: lane });
+      const started = invoke('review_run_start', { storyId: STORY_ID, agent: lane });
+      const runId = started.match(/Review run (\S+) started/)?.[1];
+      assert.ok(runId, started); runIds.set(lane, runId);
+    }
+    return { root, store, runIds };
+  }
   const headHash = currentGitHead(root) || `head-${REVIEW_ROUND}`;
   const materialHash = currentMaterialHash(root) || `material-${REVIEW_ROUND}`;
   const runs: ReviewRun[] = REVIEWERS.map((agent, index) => {
@@ -536,7 +571,7 @@ function assertPartialSuspectedDoesNotMaskRealBlocker(): void {
 function assertReviewerStatusAgreesWithGate(): void {
   // Case A: suspected open critical -> gate passes, reviewer-status must show pass.
   {
-    const { root, store, runIds } = createReviewRepo();
+    const { root, store, runIds } = createReviewRepo(!process.argv.includes('--legacy-status-fixture'));
     try {
       const suspected = makeFinding({
         idSuffix: '301', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
@@ -561,7 +596,7 @@ function assertReviewerStatusAgreesWithGate(): void {
   }
   // Case B: verified open critical -> gate blocks, reviewer-status must show fail (no false-pass).
   {
-    const { root, store, runIds } = createReviewRepo();
+    const { root, store, runIds } = createReviewRepo(!process.argv.includes('--legacy-status-fixture'));
     try {
       const verified = makeFinding({
         idSuffix: '302', agent: 'proof-or-stop-review-concept', reviewRunId: runIds.get('proof-or-stop-review-concept')!,
@@ -582,6 +617,12 @@ function assertReviewerStatusAgreesWithGate(): void {
     }
   }
   console.log('✓ F-001: reviewer-status display path agrees with the REVIEW->TEST gate (evidenceState dimension)');
+}
+
+if (process.argv.includes('--reviewer-status-only')) {
+  assertReviewerStatusAgreesWithGate();
+  console.log('reviewer-status current CLI fixture: PASS');
+  process.exit(0);
 }
 
 assertLegacyMissingEvidenceStateStillBlocks();

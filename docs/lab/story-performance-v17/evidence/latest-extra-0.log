@@ -1,0 +1,51 @@
+PASS strong out-of-scope proof releases unrelated blocker
+PASS current high regression ignores round decay
+PASS high missing assessment fails closed
+PASS high re_attestation_required assessment fails closed
+PASS high stale assessment fails closed
+PASS high unsigned assessment fails closed
+PASS high tampered assessment fails closed
+PASS high mismatched assessment fails closed
+PASS high incomplete assessment fails closed
+PASS high expired assessment fails closed
+PASS high unknown assessment fails closed
+PASS invalid deferral lineage is first floor
+PASS strong non-applicable supersession releases lineage but not downstream repair
+PASS valid low deferral is advisory
+PASS introduced regression cannot be deferred
+PASS gate-blocking applicable finding cannot be deferred
+PASS high cannot use valid deferral to bypass repair
+PASS expired deferral fails closed
+PASS mandatory repair requires explicit closure
+PASS mandatory repair closure releases independent floor
+PASS not-reproduced witness cannot release high floor
+PASS not-reproduced witness cannot release medium after route expiry
+PASS fresh signed disproven truth transition releases
+PASS unknown high verdict fails closed
+PASS observe keeps legacy round decay
+PASS warn keeps gate result and exposes dynamic result
+PASS kill switch restores legacy predicate
+PASS observe mode avoids dynamic ledger and Git freshness reads
+PASS closed finding never blocks
+PASS suspected finding never blocks
+PASS medium expiry is seven days
+PASS low expiry is thirty days
+PASS medium renewal is refused
+PASS low renewal stays inside hard 30-day cap
+PASS high deferral expiry is refused
+PASS assessment signature verifies
+PASS assessment tamper is rejected
+PASS assessment wrong key is rejected
+PASS freshness accepts exact current tuple
+PASS freshness rejects head drift
+PASS freshness rejects unsigned record
+PASS scorecard reproduces preregistered 58.33 percent reduction
+PASS scorecard derives safety misses from rows instead of assuming zero
+PASS handler atomically persists, replays and projects one signed assessment
+PASS machine gate consumes shared projection
+PASS guard diagnostic consumes shared projection
+PASS reviewer batch consumes shared projection
+PASS all Dynamic Finding commands are registered
+PASS process-fact contract declares L4 gate consumer
+PASS rollout has observe warn enforce and kill switch
+DYNAMIC_FINDING_GREEN PASS 50

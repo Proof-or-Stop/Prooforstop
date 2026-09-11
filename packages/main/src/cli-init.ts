@@ -37,6 +37,8 @@ import type { InitAssetMode, InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
 import {
   migrateProjectLocalManagedAgents,
+  mergeCausalReceiptGitignore,
+  assertRuntimeGitignoreRegularFile,
   renderManagedAssetCheck,
   runManagedAssetCheck,
   scanProjectLocalManagedAgents,
@@ -102,7 +104,13 @@ function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   ].join('\n');
 }
 
-function mergeProofOrStopRuntimeIgnores(existingContent: string): { content: string; changed: boolean } {
+function mergeProofOrStopRuntimeIgnores(existingContent: string): {content: string; changed: boolean} {
+  const merged = mergeProofOrStopRuntimeIgnoresBase(mergeCausalReceiptGitignore(existingContent));
+  const content = mergeCausalReceiptGitignore(merged.content);
+  return {content, changed: content !== existingContent};
+}
+
+function mergeProofOrStopRuntimeIgnoresBase(existingContent: string): { content: string; changed: boolean } {
   const required = listRuntimeArtifactIgnorePatterns();
   const blockMatch = existingContent.match(GITIGNORE_RUNTIME_BLOCK_RE);
   const blockText = blockMatch?.[0] ?? null;
@@ -580,6 +588,7 @@ for (const d of dirs) {
 
 // 1.5 .gitignore（同步 Proof-or-Stop runtime ignore 模板）
 const giPath = join(targetDir, '.gitignore');
+assertRuntimeGitignoreRegularFile(giPath);
 const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
   if (existsSync(giSrc)) {

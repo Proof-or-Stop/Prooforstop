@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 
 /**
  * Section 19.1 replay harness.  It reconstructs real Story base/head pairs
@@ -19,6 +20,7 @@ import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const root = resolve(process.cwd());
+await withValidationSigningRoot(root, async () => {
 // Historical replay has no live Story worktree of its own. Route every Git
 // invocation through the id-independent project resolver so wrapper-root
 // layouts use the configured repository even though no synthetic Story exists.
@@ -888,3 +890,5 @@ console.log(`historical categories: ${categories.join(', ')}`);
 console.log(`historical replay mode: ${execute ? 'execute' : 'plan-only'}`);
 console.log(`historical replay report: ${join(outputRoot, 'report.json')}`);
 if (paired) console.log(`paired-performance: ${join(outputRoot, 'paired-performance.json')}`);
+
+});
