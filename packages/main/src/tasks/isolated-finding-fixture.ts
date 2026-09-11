@@ -44,7 +44,11 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
       launcher.once('error', reject);
       launcher.once('exit', code => code === 0 && workerPid ? resolve() : reject(new Error('isolated fixture launcher failed')));
     });
-    const deadline = Date.now() + 120_000;
+    // The 58-case routes integration performs real target executions and
+    // exceeded 120 s twice at case 46 under the independent Claude host.
+    // Keep its bounded fixture budget separate from production command limits.
+    const budgetMs = file.endsWith('/finding-identity-lineage-smoke.js') ? 300_000 : 120_000;
+    const deadline = Date.now() + budgetMs;
     while (!existsSync(outcome) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));
     process.stdout.write(readFileSync(output, 'utf8'));
     if (!existsSync(outcome)) throw new Error('isolated Finding fixture timed out');
