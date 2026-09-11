@@ -26,3 +26,17 @@ assert.throws(()=>selectAuditor('codex',{adapters:[{...adapter,vendor:'openai'}]
 assert.throws(()=>selectAuditor('codex',{},()=>false),/available/);
 assert.equal(parseAuditResult(JSON.stringify(proposal),'lab-json',binding).decision,'pass');
 console.log('LAB_AUDIT_VENDOR PASS third-vendor adapter, same-vendor rejection and unavailable providers');
+const {mkdtempSync,writeFileSync,rmSync}=await import('node:fs');
+const {tmpdir}=await import('node:os');const {join}=await import('node:path');const {execFileSync}=await import('node:child_process');
+const {auditInput}=await import('./lab-audit.mjs');
+const repo=mkdtempSync(join(tmpdir(),'lab-audit-input-'));
+const git=(...args)=>execFileSync('git',args,{cwd:repo,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+try {
+  git('init','-b','main');git('config','user.name','Lab fixture');git('config','user.email','lab@example.invalid');
+  writeFileSync(join(repo,'sample.txt'),'baseline');git('add','.');git('commit','-m','baseline');const base=git('rev-parse','HEAD');
+  writeFileSync(join(repo,'sample.txt'),'literal \\u0000 in source');git('add','.');git('commit','-m','literal escape');
+  assert.doesNotThrow(()=>auditInput(repo,base,git('rev-parse','HEAD')));
+  writeFileSync(join(repo,'sample.txt'),'actual \0 byte');git('add','.');git('commit','-m','binary control');
+  assert.throws(()=>auditInput(repo,base,git('rev-parse','HEAD')),/bounded text/);
+  console.log('LAB_AUDIT_INPUT PASS literal escapes accepted, actual binary refused');
+} finally {rmSync(repo,{recursive:true,force:true});}
