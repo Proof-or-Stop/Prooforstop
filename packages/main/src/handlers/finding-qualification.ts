@@ -1,6 +1,5 @@
 /** Public signed-query adapter for the §11 aggregator. No protected-file parsing. */
 import { cpus, platform, arch } from 'node:os';
-import { execFileSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
@@ -16,8 +15,9 @@ import type { JsonValue } from '../core/finding-ledger.js';
 import { findingWitnessCommandText } from './finding-applicability-proof.js';
 import { createFindingLedgerHandlers } from './finding-ledger.js';
 import { createFindingHistoryHandlers } from './finding-history.js';
-import { collectFindingQualificationEvents, type QualificationExperimentRef, type QualificationGold } from './finding-qualification-events.js';
+import { collectFindingQualificationEvents, sumQualificationCohortTiming, type QualificationExperimentRef, type QualificationGold } from './finding-qualification-events.js';
 import { collectQualificationSubjectAdjudications, type QualificationSubjectGold } from './finding-qualification-adjudication.js';
+import { collectQualificationPrerequisites, verifyQualificationPrerequisites, type QualificationPrerequisiteRef } from './finding-qualification-prerequisites.js';
 
 /** Caller-reported rates are diagnostics, not a source of qualification counts.
  * Only this allowlisted public-query reducer creates aggregate measurements.
@@ -71,7 +71,7 @@ export function prepareFindingQualificationCase(ctx: HandlerContext, input: {
     storyClass: string; detectorVersion: string; retryPolicy: string; exclusions: string[];
     timingSeconds: FindingQualificationCorpus['timingSeconds'];
     measurements: Array<Pick<QualificationMeasurement, 'metric' | 'numerator' | 'denominator' | 'latencySeconds' | 'rollbackEvent'>>;
-    prerequisites: Array<{ name: string; mergedCommit: string }>;
+    prerequisites: QualificationPrerequisiteRef[];
     simpleStoryRegression: number | null; timeoutRate: number | null; latencyCorpusSize: number; candidateBaselineExplained: boolean;
     experiments?: QualificationExperimentRef[];
     independentGold?: QualificationGold;
@@ -92,11 +92,7 @@ export function prepareFindingQualificationCase(ctx: HandlerContext, input: {
     applicabilityDigest(ctx.store.readReviewRuns(input.storyId).runs.find(row => row.reviewRunId === input.reviewRunId))];
   const measurements: QualificationMeasurement[] = measured.measurements.map(row => ({ ...row, caseId, storyId: input.storyId,
     severity: finding.severity, observedAt, evidenceDigests, independentlyAdjudicated: true, synthetic: measured.population !== 'operational' }));
-  const prerequisites = Object.fromEntries((measured.prerequisites ?? []).map(row => {
-    if (!FINDING_QUALIFICATION_POLICY.requiredPrerequisites.includes(row.name) || !/^[a-f0-9]{40,64}$/.test(row.mergedCommit)) throw new Error('qualification: invalid merged prerequisite');
-    execFileSync('git', ['merge-base', '--is-ancestor', row.mergedCommit, 'main'], { cwd: ctx.root, stdio: 'pipe' });
-    return [row.name, { passed: true, evidenceDigests: [...evidenceDigests, applicabilityDigest({ name: row.name, mergedCommit: row.mergedCommit })] }];
-  }));
+  const prerequisites = collectQualificationPrerequisites(ctx, input.storyId, measured.prerequisites ?? [], input.runtimeReceiptId);
   const identityQuery = createFindingHistoryHandlers(ctx).finding_identity_scorecard({ storyId: input.storyId, sourceStoryIds: [input.storyId], mode: 'warn' });
   const ledgerQuery = createFindingLedgerHandlers(ctx).finding_ledger_query({ storyId: input.storyId });
   const queryMeasurements = deriveQualificationQueryMeasurements({ identity: identityQuery, caseId, storyId: input.storyId, observedAt });
@@ -140,6 +136,7 @@ export function findingQualificationQuery(ctx: HandlerContext, storyId: string) 
       verifiedIdentityCarrier(ledger, storyId, row.recordId, trust);
       if (!verifyDynamicFindingRecord(row.payload as Record<string, unknown>, trust.publicKey)) throw new Error('qualification: invalid case signature');
       const caseRecord = row.payload as unknown as ReturnType<typeof prepareFindingQualificationCase>['record'];
+      verifyQualificationPrerequisites(source, storyId, caseRecord.prerequisites);
       const assessment = verifiedIdentityCarrier(ledger, storyId, caseRecord.sourceAssessmentRecordId, trust).record;
       if (exactLedgerRecordHash(assessment) !== caseRecord.sourceAssessmentRecordHash || assessment.recordType !== 'finding_applicability_assessment'
         || !verifyDynamicFindingRecord(assessment.payload as Record<string, unknown>, trust.publicKey)) throw new Error('qualification: source assessment substituted');
@@ -182,11 +179,10 @@ export function readFindingQualificationScorecard(ctx: HandlerContext) {
     // Historical operational observations retain their original HEAD. Admission
     // prerequisites must additionally be remeasured at this exact material state.
     if (last.materialHash !== currentMaterialHash(ctx.root)) throw new Error('qualification merged-state prerequisites stale');
-    const timing = { classifier: 0, triage: 0, repair: 0, convergence: 0 };
-    for (const row of cases) {
-      if (!row.timingSeconds) { refusalReasons.push('qualification_timing_sources_missing'); continue; }
-      for (const key of Object.keys(timing) as Array<keyof typeof timing>) timing[key] += row.timingSeconds[key];
-    }
+    const lastStoryId = rows.find(row => row.payload === last)!.payload.publicQueries.ledger.storyId;
+    collectQualificationPrerequisites(historicalStoryContext(ctx, lastStoryId), lastStoryId,
+      Object.values(last.prerequisites).map(row => row.proof), last.runtimeReceiptId);
+    const timing = sumQualificationCohortTiming(cases.map(row => row.publicQueries.experiments.performanceMetadata));
     corpus = { policyDigest: applicabilityDigest(FINDING_QUALIFICATION_POLICY), featureState: last.featureState,
       window: { start: cases[0]!.observedAt, end: last.observedAt }, repositoryHeads: [...new Set(cases.map(row => row.repositoryHead!))],
       storyClasses: [...new Set(cases.map(row => row.storyClass))], detectorVersions: [...new Set(cases.map(row => row.detectorVersion))],

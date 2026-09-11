@@ -22,6 +22,8 @@ const simulatedOperationalCorpus = (): FindingQualificationCorpus => ({
     observedAt: new Date(Date.parse('2029-01-01T00:00:00Z') + index / 199 * 31 * 86_400_000).toISOString(),
     numerator: comparison === 'max' ? 0 : metric === 'workflow_operation_reduction' ? 0.5 : metric === 'review_convergence_reduction' ? 0.3 : 1,
     denominator: 1, evidenceDigests: [fakeDigest], independentlyAdjudicated: true, synthetic: false, latencySeconds: 1, latencyPopulationSize: 2273,
+    performanceSource: { baselineStoryId: `B-SIMULATED-BEFORE-${index}`, candidateStoryId: `B-SIMULATED-AFTER-${index}`,
+      baselineDigest: fakeDigest, candidateDigest: fakeDigest, attemptId: `simulated-attempt-${index}` },
   }))).flat(), simpleStoryRegression: 0.1, timeoutRate: 0.01, latencyCorpusSize: 2273, candidateBaselineExplained: true,
 });
 test('all 22 scorecard rows remain present without evidence', () => {

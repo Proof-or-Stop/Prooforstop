@@ -1,4 +1,4 @@
-/** Disposable, real linked-worktree/runtime/native-review re-attestation test.
+/** Disposable, real linked-worktree/runtime/native-review historical acceptance.
  * Fixture setup is not operational qualification or formal Story completion. */
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
@@ -17,13 +17,12 @@ import { buildConfirmedCanonicalDefect, signIdentityEnvelope, validateCanonicalD
 import { applicabilityDigest, FINDING_PROTECTED_SURFACES } from '../core/finding-applicability.js';
 import { currentApplicabilityContext } from '../core/finding-applicability-projection.js';
 import { seedCurrentReviewFixture, bindCurrentFixtureFinding } from './current-review-fixture.js';
-import { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, runBrokeredNativeReviewCli } from './native-review-fixture.js';
+import { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity } from './native-review-fixture.js';
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
 import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
-import { collectFindingQualificationEvents } from '../handlers/finding-qualification-events.js';
 
 if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
-const sandbox = mkdtempSync(join(tmpdir(), 'proof-or-stop-reattest-'));
+const sandbox = mkdtempSync(join(tmpdir(), 'proof-or-stop-pre-existing-'));
 const root = join(sandbox, 'source'); const targetRoot = join(sandbox, 'target'); mkdirSync(root);
 const oldCwd = process.cwd(); const oldEnv = { ...process.env };
 const gitAt = (cwd: string, ...args: string[]) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: 'pipe' }).trim();
@@ -32,7 +31,7 @@ const write = (path: string, text: string) => writeFileSync(join(root, path), te
 let count = 0; const pass = (name: string) => { count++; console.log(`PRE_EXISTING_E2E ${name} PASS`); };
 try {
   const storyId = 'B-RETEST'; const targetId = 'B-TARGET'; const findingId = `${storyId}:F-001`;
-  const agent = 'proof-or-stop-review-concept'; const reviewer = 'proof-or-stop-review-quality';
+  const agent = 'proof-or-stop-review-concept';
   const round = new Date().toISOString(); const expiresAt = new Date(Date.now() + 3600_000).toISOString();
   const command = `${process.execPath} witness.mjs`;
   const surfaces = FINDING_PROTECTED_SURFACES.map(surface => ({ surface, state: 'clear' as const, evidenceRefs: ['CHK-001:happy:0'] }));
@@ -43,8 +42,6 @@ try {
   write('defect.mjs', 'export const broken = true;\n');
   write('build.mjs', "import {mkdirSync,copyFileSync} from 'node:fs'; mkdirSync('build',{recursive:true}); copyFileSync('defect.mjs','build/defect.mjs');");
   write('witness.mjs', `import {execFileSync} from 'node:child_process';\nimport {broken} from './build/defect.mjs';
-import {StoryStore} from ${JSON.stringify(new URL('../core/store.js', import.meta.url).href)};
-import {currentApplicabilityContext} from ${JSON.stringify(new URL('../core/finding-applicability-projection.js', import.meta.url).href)};
 const c=JSON.parse(process.env.FINDING_E2E_CONTEXT);
 console.log('FINDING_WITNESS '+JSON.stringify({schemaVersion:'proof-or-stop.finding-witness.v1',storyId:${JSON.stringify(storyId)},findingId:${JSON.stringify(findingId)},
 baseHash:c.baseHash,headHash:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),scopeDigest:c.scopeDigest,acceptanceDigest:c.acceptanceDigest,evaluationScope:'target_story',
@@ -56,7 +53,7 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
   const store = new StoryStore(root); const targetStore = new StoryStore(targetRoot);
   const ctx = { root, store, scanRoot: join(root, 'packages/main') };
   const targetCtx = { root: targetRoot, store: targetStore, scanRoot: join(targetRoot, 'packages/main') };
-  const story = { storyId, name: 'retest', title: 'Reattest unrelated merged material', description: 'Disposable integration fixture.', type: 'feature' as const,
+  const story = { storyId, name: 'pre-existing', title: 'Accept an unaffected historical defect with target consent', description: 'Disposable integration fixture.', type: 'feature' as const,
     priority: 'low' as const, phase: 'REVIEW' as const, createdAt: round, startedAt: round, endedAt: null, currentReviewRound: round, events: [] };
   const targetStory = { ...story, storyId: targetId, name: 'target', phase: 'DEV' as const,
     worktree: { path: targetRoot, branch: `story/${targetId}`, createdAt: round } };
@@ -138,4 +135,3 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
   process.chdir(oldCwd); for (const key of Object.keys(process.env)) if (!(key in oldEnv)) delete process.env[key];
   Object.assign(process.env, oldEnv); resetSessionIdForTest(); rmSync(sandbox, { recursive: true, force: true });
 }
-
