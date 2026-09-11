@@ -506,8 +506,6 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_BINDING_VERSION' } },
       identitySite('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1', 'schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA', "schemaVersion: 'lattice.evidence_hash_snapshot.v1'", 'lattice.evidence_hash_snapshot.v1', { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'packages/main/src/core/artifact-schema.ts', value: 'lattice.evidence_hash_snapshot.v1', use: 'producer-or-domain' }), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'EVIDENCE_HASH_SNAPSHOT_SCHEMA' } },
-      identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'),
-      identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       identitySite('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identitySite('packages/main/src/handlers/review-run.ts', 'proof-or-stop-review-topology-critic', undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite('packages/main/src/core/review-incremental-context.ts', 'proof-or-stop-review-topology-critic', undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
@@ -532,8 +530,6 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       identityMutationCase('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence_hash_snapshot.v1'),
-      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'),
-      identityMutationCase('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest-binding.v1'),
       identityMutationCase('packages/main/src/core/impact-classification-policy.ts', 'proof-or-stop.impact-classification.v1'),
       identityMutationCase('packages/main/src/handlers/review-run.ts', 'proof-or-stop-review-topology-critic'),
       identityMutationCase('packages/main/src/core/review-incremental-context.ts', 'proof-or-stop-review-topology-critic'),
@@ -1225,8 +1221,8 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 // the runtime never computes a new expected digest from the candidate itself.
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
   'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
-  'packages/main/src/core/evidence-freshness.ts': '6b69b21b41bb21667d81d0870645aa9c70783c9e5516a1ca9526350a891bd477',
-  'packages/main/src/core/review-inventory-epoch.ts': 'efb40ebdd4b7bbc5774c411bed8a50f0521b8db92165ff54b6d2750476d30d74',
+  'packages/main/src/core/evidence-freshness.ts': 'c70a4868a94474a3fd1a36a3c4bdaa18a74cd2154500f1146773f0eb5448cd94',
+  'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
   'packages/main/src/core/verification-execution-evidence.ts': '31765476de71f83b91b81fd1dba8b3295d9a8bd33ed9817fc73fe1a961a9f566',
   'packages/main/src/handlers/checklist.ts': '00dfd8fbebc27595977addead2dddfa73ced758db86210da32166d96f059cc15',
 });

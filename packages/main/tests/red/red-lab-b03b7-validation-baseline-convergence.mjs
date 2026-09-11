@@ -55,32 +55,28 @@ const identitySource = readFileSync(
   resolve(repoRoot, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'),
   'utf8',
 );
-const historicalMatch = identitySource.match(/const historical = '([0-9a-f]{40})';/u);
-assert.ok(historicalMatch, 'identity fixture must expose one exact historical prerequisite');
-const ancestor = spawnSync('git', ['merge-base', '--is-ancestor', historicalMatch[1], 'main'], {
-  cwd: repoRoot,
-  encoding: 'utf8',
-});
+// Current main replaced the historical-commit fixture with a disposable current
+// implementation producer. Preserve that stronger isolation instead of restoring
+// a hard-coded historical author or importing production private keys.
 checks.push({
-  label: 'identity-history-anchor-is-on-main',
-  ok: ancestor.status === 0,
-  status: ancestor.status,
-  signal: ancestor.signal,
-  error: ancestor.error?.message ?? null,
-  tail: historicalMatch[1],
+  label: 'identity-current-implementation-prerequisite',
+  ok: identitySource.includes('createFixtureImplementationCommit(root)')
+    && identitySource.includes("fixtureRoots.includes(root), 'implementation prerequisite is restricted to generated test repositories'")
+    && !identitySource.includes("const historical = '"),
+  status: null, signal: null, error: null,
+  tail: 'current implementation producer is confined to disposable test repositories',
 });
 checks.push({
   label: 'public-prompt-fixture-builds-utils',
   ok: (() => {
-    const measurement = identitySource.indexOf("const measurementRoot = createPublicOperationClone('proof-or-stop-b49df-measurement-public-');");
-    const utilsBuild = identitySource.indexOf("execFileSync('npm', ['--prefix', 'packages/utils', 'run', 'build']", measurement);
-    const promptBaseline = identitySource.indexOf("'test:proof-or-stop-prompt-baseline'", measurement);
-    return measurement >= 0 && utilsBuild > measurement && promptBaseline > utilsBuild;
+    return identitySource.includes("for (const packageName of ['utils', 'lab'])")
+      && identitySource.includes("cpSync(built, join(root, 'packages', packageName, 'dist')")
+      && identitySource.includes("'test:proof-or-stop-prompt-baseline'");
   })(),
   status: null,
   signal: null,
   error: null,
-  tail: 'measurement public-operation fixture must build packages/utils before invoking bin/proof-or-stop.js',
+  tail: 'public-operation fixture copies prepared utils/lab builds before invoking the CLI',
 });
 
 for (const row of checks) {
