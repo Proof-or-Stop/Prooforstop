@@ -328,3 +328,5 @@ Legacy records without a pinned developer always require an explicit `--develope
 Provider audit has a registered 15-minute total budget and 90-second startup budget; timeout is a failed invocation, never approval. Reviewers receive the full diff and complete snapshots, and inspect changed regions plus necessary surrounding context instead of exhaustively rereading unrelated historical content. Missing dependency context must be stated explicitly; denied reads are not evidence.
 
 The pinned Lab worktree verifier also executes the isolated lock-scope regression. Audit input refuses changed paths that collide as file/directory prefixes before snapshot creation. Binary content and size overflow have separate diagnostics naming the cause; these refusals occur before main integration.
+
+Developer IDs must exist in the trusted provider configuration. Creation rejects unknown IDs before creating the worktree; legacy attribution is persisted only after the provider configuration and audit subject validate, so a typo cannot permanently pin an invalid identity.

@@ -273,6 +273,9 @@ async function main() {
     };
     if (action === 'create') {
       if (existsSync(statePath)) fail('This Lab name already has a record; use a new name or inspect status.');
+      const configPath = 'lab-audit.config.json';
+      const config = git(mainRoot, 'ls-tree', '--name-only', 'HEAD', '--', configPath) ? JSON.parse(git(mainRoot, 'show', `HEAD:${configPath}`)) : {};
+      if (!auditProviders(config).some(provider => provider.id === creatingDeveloper)) fail('Unknown Lab developer provider; register its vendor first.');
       const path = join(mainRoot, '.worktrees', `Lab-${name}`), branch = `codex/lab-${name}`;
       if (existsSync(path)) fail('Lab path already exists; refusing to adopt or overwrite it.');
       const body = instructions(name);
@@ -325,8 +328,8 @@ async function main() {
       const host = s.developerHost ?? declaredDeveloper;
       if (!host) fail('This Lab has no pinned developer; rerun with --developer PROVIDER naming the provider that implemented the repair.');
       if (declaredDeveloper && declaredDeveloper !== host) fail('Declared developer conflicts with the pinned Lab developer.');
-      if (!s.developerHost) { s.developerHost = host; save(s); }
       const { config, selected, expected } = expectedAudit(auditRoot, base, head, host);
+      if (!s.developerHost) { s.developerHost = host; save(s); }
       if (auditIsFresh(s.audit, expected)) return;
       const repairHead = s.phase !== 'active' && s.candidate === head ? git(auditRoot, 'rev-parse', `${head}^`) : head;
       const contentDigest = repairContentDigest(auditRoot, base, repairHead);

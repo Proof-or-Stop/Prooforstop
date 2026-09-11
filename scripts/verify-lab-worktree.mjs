@@ -53,6 +53,8 @@ try {
   const legacy=fixture('legacy-identity');
   process.env.LAB_FIXTURE_DEVELOPER='plain';
   cmd(legacy,['create','identity'],1,/declared developer provider/);
+  cmd(legacy,['create','identity','--developer','unknown-fixture-provider'],1,/Unknown Lab developer/);
+  cmd(legacy,['status','identity'],1,/Unknown Lab/);
   cmd(legacy,['create','identity','--developer','codex']);
   assert.equal(JSON.parse(cmd(legacy,['status','identity'])).developerHost,'codex');
   const legacyLab=join(legacy,'.worktrees/Lab-identity');
@@ -61,6 +63,8 @@ try {
   alterFixtureRecord(legacy,'identity',s=>{delete s.developerHost;s.schema=2;});
   process.env.LAB_FIXTURE_DEVELOPER='claude';
   cmd(legacy,finish('identity'),1,/no pinned developer/);
+  cmd(legacy,[...finish('identity'),'--developer','unknown-fixture-provider'],1,/Unknown Lab developer/);
+  assert.equal(JSON.parse(cmd(legacy,['status','identity'])).developerHost,undefined,'LAB_INVALID_DEVELOPER_MUST_NOT_PIN');
   cmd(legacy,[...finish('identity'),'--developer','codex']);
   const legacyAudit=JSON.parse(cmd(legacy,['status','identity'])).audit;
   assert.equal(legacyAudit.developerHost,'codex');assert.equal(legacyAudit.auditorVendor,'anthropic');
