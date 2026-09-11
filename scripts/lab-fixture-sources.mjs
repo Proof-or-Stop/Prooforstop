@@ -1,8 +1,14 @@
 // Copy the runtime source closure so isolated Lab fixtures track real dependencies.
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, symlinkSync, appendFileSync } from 'node:fs';
 import { dirname, resolve, relative } from 'node:path';
 import ts from 'typescript';
+import { createRequire } from 'node:module';
 export function copyLabFixtureSources(root, target, entries) {
+  const deps = resolve(dirname(createRequire(import.meta.url).resolve('typescript')), '../..');
+  if (!existsSync(resolve(target, 'node_modules'))) {
+    symlinkSync(deps, resolve(target, 'node_modules'), 'dir');
+    appendFileSync(resolve(target, '.git/info/exclude'), '\nnode_modules/\n');
+  }
   const seen = new Set();
   function copy(path) {
     if (seen.has(path)) return;
