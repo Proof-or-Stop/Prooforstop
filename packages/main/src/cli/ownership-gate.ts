@@ -6,6 +6,8 @@ import {
   formatLeaseAge,
   formatNonOwnerError,
   getSessionId,
+  isLeaseStale,
+  readOwnerLease,
   takeOverOwnerLease,
 } from '../core/story-owner-lease.js';
 import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core/command-policy.js';
@@ -401,6 +403,7 @@ export function enforceStoryOwnerLeaseGate(
   projectRoot: string,
   externalOwnershipClasses?: ExternalCommandOwnershipClasses,
   config?: Pick<ProofOrStopConfig, 'promptEnvelope' | 'browser' | 'cli'>,
+  options?: { readOnlyAdmission?: boolean },
 ): void {
   const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
   const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses, { config });
@@ -441,6 +444,20 @@ export function enforceStoryOwnerLeaseGate(
 
   const storyDir = store.storyDirPath(storyId);
   if (!existsSync(storyDir)) return;
+
+  if (options?.readOnlyAdmission) {
+    const lease = readOwnerLease(storyDir);
+    if (!lease || lease.sessionId === getSessionId()) return;
+    const intent = resolveTakeoverIntent(args);
+    if (intent === 'forceTakeover' || (intent === 'takeover' && isLeaseStale(lease))) return;
+    throw new Error(formatNonOwnerError(lease, {
+      storyId,
+      command: cmd,
+      ownershipClass: cls,
+      currentSessionId: getSessionId(),
+      currentCwd: process.cwd(),
+    }));
+  }
 
   const { lease, action } = acquireOrRefreshOwnerLease(storyDir, {
     command: cmd,

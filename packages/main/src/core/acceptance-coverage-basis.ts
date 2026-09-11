@@ -15,12 +15,13 @@ import { isConfigFilenameMentioned } from './brand-paths.js';
 import { isAcceptanceBasisPathSourceRef } from './acceptance-topology.js';
 import { getProcessFactRegistryEntry } from './process-fact-registry.js';
 import {
-  ACCEPTANCE_PLAN_DISCOVERY_PROFILE,
+  acceptanceDiscoveryProfile,
   acceptanceDiscoveryFactActivationPhase,
+  type AcceptanceVerificationProfile,
   type AcceptanceSourceSnapshot,
-  detectAcceptanceDiscoverySupport,
   discoveryProfileDigest,
   reconcileAcceptanceDiscoveryResults,
+  resolveAcceptanceVerificationProfile,
   runAcceptanceDiscoverySnapshot,
   renderAcceptanceSnapshotSealIssue,
   snapshotAcceptanceSourceFiles,
@@ -43,6 +44,7 @@ export interface AcceptanceBasisDerivationInput {
   materialHash: string;
   storyFilesHash: string;
   supported?: boolean;
+  verificationProfile?: AcceptanceVerificationProfile;
   foundationalDecision?: DecisionData | null;
   phaseBasis?: 'plan' | 'pre_review';
   priorPlanBasisDigest?: string;
@@ -336,7 +338,12 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     ...(input.scopeContract ? [...input.scopeContract.allowedModify, ...input.scopeContract.allowedCreate, ...input.scopeContract.allowedTest].map(file => `scope:file:${file}`) : []),
     ...input.checklist.items.map(item => `scope:checklist:${item.id}`),
   ]);
-  const supported = input.supported ?? detectAcceptanceDiscoverySupport(input.workspaceRoot);
+  const verificationProfile = input.verificationProfile
+    ?? (input.supported === undefined
+      ? resolveAcceptanceVerificationProfile(input.workspaceRoot)
+      : input.supported ? 'typescript-topology' : 'unsupported');
+  const supported = verificationProfile === 'typescript-topology';
+  const discoveryProfile = acceptanceDiscoveryProfile(verificationProfile);
   const initialInventory = sourceInventory(planned.records, input.contract);
   const discoverySeedFiles = stable([
     ...scopeRefs.filter(ref => ref.startsWith('scope:file:')).map(ref => ref.slice('scope:file:'.length)),
@@ -416,9 +423,9 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
       command: phaseBasis === 'pre_review' ? 'proof-or-stop pre_review_check' : 'proof-or-stop acceptance_basis_generate',
       algorithmVersion: 'v1',
     },
-    discoveryProfileRef: ACCEPTANCE_PLAN_DISCOVERY_PROFILE.ref,
-    discoveryProfileDigest: discoveryProfileDigest(),
-    discoveryMethods: [...ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods],
+    discoveryProfileRef: discoveryProfile.ref,
+    discoveryProfileDigest: discoveryProfileDigest(verificationProfile),
+    discoveryMethods: [...discoveryProfile.methods],
     adapterResults: reconciled.adapterResults,
     scopeRefs,
     sourceInventoryRefs: inventory,

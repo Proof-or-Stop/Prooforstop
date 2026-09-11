@@ -688,6 +688,8 @@ export interface PreReviewCheckArtifactV1 {
   schemaVersion: 'proofstory.pre_review_check.v1';
   storyId: string;
   mode: 'observe' | 'warn' | 'enforce';
+  /** Absent on legacy and strict TypeScript artifacts; explicit on generic command admission. */
+  verificationProfile?: 'go-command';
   cutoffAt: string;
   planBasisDigest: string;
   preReviewBasisArtifact: AcceptanceBasisArtifactV1;
