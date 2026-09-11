@@ -91,7 +91,7 @@ An additional direct boundary test removes the new scope/expectation/requirement
 
 The final candidate preserves the original Lab table and source history. The known V16 reuse-smoke assertion was explicitly carried forward in the disclosure: its earlier integration fix was revalidated by the full current smoke, which exited 0. No full quorum rerun or whole-Story performance claim is substituted for these bounded checks.
 
-Final independent integration and English-disclosure review is pending.
+Claude CLI final review: **APPROVE**, limited to this integration, pin update, translation, and disclosure. Claude independently ran the checklist-pin mutation control, PLAN-review ergonomics smoke, and English evidence-package verifier; all exited 0. The full freshness and reuse smoke results above are separately recorded executions, not claimed as independently rerun by Claude.
 
 ## Remaining limitations
 
@@ -108,3 +108,12 @@ Final independent integration and English-disclosure review is pending.
 ## Evidence
 
 Original historical artifacts remain unchanged for provenance. This release log is an English translation, not a rewrite of historical measurements. The previous Lab release is superseded by this integrated version. Current verification logs, independent audit, translation checks, and archive checksums are supplied with the release.
+
+
+## Downloadable release evidence
+
+- `v0.3.316-current-evidence.zip`: detailed English log, all 24 comparisons, current verification output, independent audit, and the release verifier.
+- `v0.3.316-historical-evidence.zip`: 1,960 unchanged historical reports and logs with per-file SHA-256 manifests. Raw records retain their original language for provenance.
+- `v0.3.316-package-verification.json`: archive hashes and extraction, measurement-change, language, and tampering controls.
+
+This release includes Pan Qi main commit `c382fe083573f8d7c88c8378380d77435977a1ae` as an ancestor. It supersedes v0.3.315-lab.1. No published tag was moved, no global installation was changed, and no formal Story completion is asserted.

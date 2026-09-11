@@ -37,4 +37,6 @@ An additional direct boundary test removes the new scope/expectation/requirement
 
 The final candidate preserves the original Lab table and source history. The known V16 reuse-smoke assertion was explicitly carried forward in the disclosure: its earlier integration fix was revalidated by the full current smoke, which exited 0. No full quorum rerun or whole-Story performance claim is substituted for these bounded checks.
 
-Final independent integration and English-disclosure review is pending.
+Claude CLI final review: **APPROVE**, limited to this integration, pin update, translation, and disclosure. Claude independently ran the checklist-pin mutation control, PLAN-review ergonomics smoke, and English evidence-package verifier; all exited 0. The full freshness and reuse smoke results above are separately recorded executions, not claimed as independently rerun by Claude.
+
+Final Claude review approved the integration and English disclosure and independently executed three checks, all exit 0. Temporary-copy self-controls rejected a changed historical decimal, inserted CJK text, and modified raw evidence; restored originals passed. English release text, historical comparison values, and raw evidence are independently bounded and preserved.

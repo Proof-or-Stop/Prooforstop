@@ -12,6 +12,8 @@ assert '0.3.316' in release
 assert 'Historical reuse-smoke assertion' in release
 checks = json.loads((root / 'translation-check.json').read_text())
 assert len(checks['rows']) == 24 and all(r['decimalMeasurementsPreserved'] for r in checks['rows'])
+for binding, translated in zip(checks['rows'], rows[2:]):
+    assert re.findall(r'(?<![\d.])\d+\.\d+(?![\d.])', translated) == binding['decimalMeasurements'], 'historical decimal measurement changed'
 manifest = json.loads((root / 'evidence-manifest.json').read_text())
 for row in manifest:
     path = root / row['path']
