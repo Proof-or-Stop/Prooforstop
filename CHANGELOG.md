@@ -1,5 +1,56 @@
 # Changelog
 
+## Lab scorecard-public-census - v0.3.325 - 2026-09-11
+
+# Scorecard public census Lab
+
+User-authorized bounded system repair, not Story DONE or qualification admission. Lab is `/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-scorecard-public-census`, based on local main `8cd1bcaa59babd73b81e6115477399f2acb9115b` (0.3.324). Test-first RED commit `02b4f39dccb05933a9939553f0a8528ae5145ba8`; repaired GREEN head `61900ad97ba345d0370b4d4caa6d64b70d5a87fc`. Author is the configured real Harmonynet identity. No Story source or metadata edited. Source writes stopped22:42:37 UTC, only generated AGENTS.override.md untracked. Owner must review before finish/integration.
+
+## Problem and repair
+
+The Section11 reducer called the public ledger query but actually obtained its census by directly reading protected ledger storage first. The native regression first proves that the real public query emits a complete five-row workspace-signed result, then guards only the aggregator's protected store access. Baseline observes protectedReads=1/publicReads=0 and fails the unchanged expected no-direct-read assertion.
+
+The reducer now obtains migration records from the current public query. It verifies all five category rows, snapshot/Story identities, response metadata, signatures against the source workspace key, signed ledger record count, migration numerator/denominator, unique nonempty record identities and the exact signed hash census. The response public key is compared with trusted workspace identity and is never accepted as a trust source. Uncovered proposal/route/deferral/repair subjects still refuse qualification.
+
+Public query storage internals and historical case admission are unchanged. No qualification threshold, runtime prerequisite, independent adjudication or operational denominator is weakened. Source census types/paths remain the existing public contract; there is no new query schema or flag.
+
+## Exact files
+
+- `packages/main/src/handlers/finding-qualification.ts`
+- `packages/main/src/core/process-fact-registry.ts`
+- `scripts/verify-process-fact-contract.mjs`
+- `scripts/verify-finding-scorecard-public-census.mjs`
+- `docs/CLI.md`
+
+Registry/prompt-facing contract now explicitly states the trusted public census boundary; mechanical verifier inventories signature/count/identity checks and forbids direct protected-ledger reads in the reducer/helper. These source inventory checks are structural. Actual behavior is covered by the native public-query reducer regression.
+
+## Verification
+
+Pinned RED/GREEN command: `node scripts/verify-finding-scorecard-public-census.mjs`.
+
+- Official RED target command1066ms; Lab wrapper1.667395s. Log `/tmp/B-e6d9-scorecard-official-red-1789166452944141000.log`.
+- Official GREEN wrapper2.355672s. Log `/tmp/B-e6d9-scorecard-official-green-1789166544721325000.log`.
+- Candidate focused direct pass1.428310s.
+- Built source pass11.543944s. Log `/tmp/B-e6d9-scorecard-build-retry-1789166492624810000.log`.
+- Full process contract pass10.833800s. Log `/tmp/B-e6d9-scorecard-process-contract-built-1789166517004609000.log`.
+- Diff whitespace passed; status only generated override.
+
+Matrix: genuine native ledger carrier and public handler; covered positive and uncovered subject negative; missing/duplicate census category; wrong outer Story; tampered census; omitted record; duplicate record preserving signed counts and matching hash list; signed malformed record identity; count mismatch; signed hash-list mismatch; wrong signed Story; response-key substitution; valid signatures from a different fixture workspace key; wrong snapshot; restored genuine positive. Thirteen malformed/tampered controls pass. Query internals read the native store normally; only reducer's direct protected access is prohibited.
+
+The regression executes the actual transpiled reducer/helper code with already-admitted diagnostic case data supplied at the historical-case seam. This is not full CLI/independent-review lifecycle qualification evidence. Real public query production code, native ledger receipt writer, current workspace trust and cryptographic row verifier are used. The small fixture intentionally remains ineligible because operational samples/timing/prerequisites are absent; no synthetic fixture is claimed to meet Section11 qualification.
+
+## Setup failures and wait accounting
+
+Creation waited for legitimate main writer `lab finish cross-host-audit` PID96135; no lock was removed or bypassed. Seven attempts were refused before creation was admitted22:40:19 and completed in7.321672s. Prepared scratch RED/candidate remained outside repository until official Lab creation.
+
+First Lab build failed10.525369s due missing local `@types/ws`. Added only a local symlink to the existing compatible root type package; no writable dist shared, no lock/package manifests changed. First process-contract invocation overlapped initial dist promotion and reported unavailable prompt renderer7.666766s; retry after complete build passed. These are setup/execution ordering failures, not product RED.
+
+Detailed UTC/monotonic command records: `/tmp/B-e6d9-implement-red-timing.jsonl`, labels `scorecard-*`; interaction label `scorecard-public-census`. This work makes no latency/performance-improvement claim. Parent owns finish and later Story validation.
+
+Maintenance provenance: codex/lab-scorecard-public-census, repair 61900ad97ba345d0370b4d4caa6d64b70d5a87fc.
+Verification command (replayed before integration and on main): `["node","scripts/verify-finding-scorecard-public-census.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab local-main-baseline - v0.3.324 - 2026-09-11
 
 # Local integration baseline Lab
