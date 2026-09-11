@@ -9,6 +9,11 @@ import { signFinding } from '../core/finding-verify.js';
 import { withNativeReviewFixtureHostIdentity, issueBrokeredNativeReviewBinding } from './native-review-fixture.js';
 
 const contexts = new Map<string, { root: string; store: StoryStore; storyId: string; agent: string }>();
+export function registerCurrentReviewFixtureRun(root: string, store: StoryStore, storyId: string, agent: string, reviewRunId: string): void {
+  const run = store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === reviewRunId && row.agent === agent);
+  assert.ok(run?.envelopeId, 'fixture registration requires a persisted current reviewer run');
+  contexts.set(reviewRunId, { root, store, storyId, agent });
+}
 export function seedCurrentReviewFixture(root: string, store: StoryStore, storyId: string, agents: string[]): Map<string, string> {
   const ctx = { root, store, scanRoot: join(root, 'packages/main') };
   const result = new Map<string, string>(); const before = process.cwd();

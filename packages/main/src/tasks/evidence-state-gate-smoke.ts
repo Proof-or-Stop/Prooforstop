@@ -35,7 +35,7 @@ import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { signFinding } from '../core/finding-verify.js';
 import { signReviewRun } from '../core/review-run.js';
-import { seedCurrentReviewFixture, bindCurrentFixtureFinding } from './current-review-fixture.js';
+import { seedCurrentReviewFixture, bindCurrentFixtureFinding, registerCurrentReviewFixtureRun } from './current-review-fixture.js';
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
 import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
 
@@ -167,6 +167,7 @@ function createReviewRepo(currentCliRuns = false): { root: string; store: StoryS
       const started = invoke('review_run_start', { storyId: STORY_ID, agent: lane });
       const runId = started.match(/Review run (\S+) started/)?.[1];
       assert.ok(runId, started); runIds.set(lane, runId);
+      registerCurrentReviewFixtureRun(root, store, STORY_ID, lane, runId);
     }
     return { root, store, runIds };
   }

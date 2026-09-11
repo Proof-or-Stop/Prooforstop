@@ -44,6 +44,7 @@ import { StoryStore } from '../core/store.js';
 import { createMainRegistry } from '../registry.js';
 import { buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
 import { currentGitHead, currentStoryFilesHash, checkEvidenceFreshnessForGit, classifyEvidenceFreshness } from '../core/evidence-freshness.js';
+import { collectReviewerEvidenceState } from '../core/review-run.js';
 import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
@@ -54,6 +55,10 @@ import type {
   StoryEvent,
   StoryInfo,
 } from '../core/types.js';
+
+import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
+import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
+if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 
 const STORY_ID = 'B-rbatch';
 const NOW = '2026-06-20T00:00:00.000Z';
@@ -81,6 +86,7 @@ function writeConfig(root: string): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
+    nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
       promptEnvelope: { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: Object.fromEntries(
         ['concept', 'quality', 'behavior', 'test-coverage'].map(lane => [`proof-or-stop-review-${lane}`, 'full-envelope'])) },
     }, null, 2) + '\n',
@@ -150,10 +156,10 @@ function fixtureCli(root: string, lane: string, command: string, payload: Record
 }
 
 /** Main-only drift keeps quality's real run fresh while requiring incremental review. */
-function createFixture(): {
+async function createFixture(): Promise<{
   root: string; store: StoryStore; ctx: HandlerContext;
   conceptPassId: string; qualityPassId: string; behaviorFindingId: string;
-} {
+}> {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-reviewer-batch-')));
   fixtureRoots.add(root);
   try {
@@ -184,7 +190,7 @@ function createFixture(): {
     const observedFiles = ['src/story-owned.ts', 'src/concept.ts', 'src/quality.ts', 'src/testcov.ts'];
     const readManifest = { filesReadFully: observedFiles, filesTriagedByName: [], scanEscalationReason: null };
     const readEvents = observedFiles.map(path => ({ path, mode: 'full', action: 'Read', tokenCount: 8 }));
-    const observe = (short: string, finding = false) => {
+    const observe = async (short: string, finding = false) => {
       const lane = `proof-or-stop-review-${short}`;
       for (const path of observedFiles) assert.ok(readFileSync(join(root, path), 'utf8').length > 0);
       fixtureCli(root, lane, 'dispatch', { storyId: STORY_ID, agentType: lane });
@@ -193,18 +199,18 @@ function createFixture(): {
       assert.ok(reviewRunId, started);
       if (finding) {
         assert.match(readFileSync(join(root, 'src/story-owned.ts'), 'utf8'), /storyOwned = 1/);
-        fixtureCli(root, lane, 'finding_add', { storyId: STORY_ID, agent: lane, reviewRunId,
+        await runBrokeredNativeReviewCli({ root, store, storyId: STORY_ID, agent: lane, reviewRunId, command: 'finding_add', payload: { storyId: STORY_ID, agent: lane, reviewRunId,
           desc: 'The fixture acceptance requires storyOwned to equal 2, but src/story-owned.ts exports 1.',
-          severity: 'critical', category: 'missing', evidenceState: 'verified', files: ['src/story-owned.ts'], readManifest, readEvents });
+          severity: 'critical', category: 'missing', evidenceState: 'verified', files: ['src/story-owned.ts'], readManifest, readEvents } });
         const row = store.readFindings(STORY_ID).findings.find(row => row.reviewRunId === reviewRunId);
         assert.ok(row); return row.id;
       }
-      fixtureCli(root, lane, 'review_pass_set', { storyId: STORY_ID, agent: lane, reviewRunId,
-        note: 'The fixed fixture review of this lane found no additional blocker.', readManifest, readEvents });
+      await runBrokeredNativeReviewCli({ root, store, storyId: STORY_ID, agent: lane, reviewRunId, command: 'review_pass_set', payload: { storyId: STORY_ID, agent: lane, reviewRunId,
+        note: 'The fixed fixture review of this lane found no additional blocker.', readManifest, readEvents } });
       const row = store.readReviewPasses(STORY_ID).passes.find(row => row.reviewRunId === reviewRunId);
       assert.ok(row); return row.id;
     };
-    const qualityPassId = observe('quality');
+    const qualityPassId = await observe('quality');
     const qualityRun = store.readReviewRuns(STORY_ID).runs.find(row => row.agent === 'proof-or-stop-review-quality')!;
     assert.equal(qualityRun.storyFilesHash, initialStoryHash);
     git(root, ['add', '.']);
@@ -220,8 +226,8 @@ function createFixture(): {
     assert.equal(currentStoryFilesHash(root), initialStoryHash, 'Main drift keeps the nonempty Story-owned input unchanged');
     const freshness = checkEvidenceFreshnessForGit(root, qualityRun.headHash, qualityRun.materialHash, root, qualityRun.storyFilesHash);
     assert.equal(freshness.fresh, true, 'Real quality run remains freshness-admissible after main-only drift');
-    const conceptPassId = observe('concept');
-    const behaviorFindingId = observe('behavior', true);
+    const conceptPassId = await observe('concept');
+    const behaviorFindingId = await observe('behavior', true);
     assert.equal(store.readStory(STORY_ID).currentReviewRound, ts(1), 'Fixture producer round never rotates');
     const ctx: HandlerContext = { store, root, scanRoot: root };
     return { root, store, ctx, conceptPassId, qualityPassId, behaviorFindingId };
@@ -307,7 +313,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
 // ---- (a)–(e) Core classification + read-only invariants --------------------
 
 {
-  const { root, store, ctx, conceptPassId, qualityPassId, behaviorFindingId } = createFixture();
+  const { root, store, ctx, conceptPassId, qualityPassId, behaviorFindingId } = await createFixture();
   try {
     const handler = createMainRegistry(ctx).get('reviewer_batch');
     assert.ok(handler, 'registry exposes reviewer_batch');
@@ -337,7 +343,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.equal(concept.scopeChanged, false, 'concept: nothing changed since its last pass');
     assert.ok(concept.priorVerdict && concept.priorVerdict.includes(conceptPassId), 'concept priorVerdict references its pass');
 
-    assert.equal(quality.state, 'scope-changed', 'quality: prior pass at baseSha, material changed since');
+    assert.equal(quality.state, 'scope-changed', `quality: prior pass at baseSha, material changed since; evidence=${JSON.stringify(collectReviewerEvidenceState(store, STORY_ID, root).invalid)}`);
     assert.equal(quality.scopeChanged, true, 'quality: src/quality.ts changed since its last pass');
     assert.ok(quality.changedFilesSinceLastPass.includes('src/quality.ts'), 'quality changedFiles includes the edited material file');
     assert.ok(quality.priorVerdict && quality.priorVerdict.includes(qualityPassId), 'quality priorVerdict references its pass');

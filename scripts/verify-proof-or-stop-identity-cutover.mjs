@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "b041c7ab66e01aa2665643b12fca2a217488afa3d8c2f16ac24714cbd1d57a5c"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "f69bf2cb833a43c81389c734e2c530e03cb0b12df51d7bbd987c446c8a56b211"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "b8c800a50b1289bc9b26fa636e740a42e38b793c5d1a7091246e1cc14ac737ad"
+    "sha256": "b1b90ff1a764a1484d8fa062123944d324b07dc6423881d94072aa33f9c09449"
   }
 ];
 function verifyReviewedContextReaders(root) {

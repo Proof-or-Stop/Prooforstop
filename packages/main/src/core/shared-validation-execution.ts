@@ -48,12 +48,12 @@ export async function executeSharedValidationCommand(
 ): Promise<ValidationCommandResult> {
   const run = async () => (await capture()).result;
   const context = explicitContext ?? contexts.getStore();
-  if (!context) return run();
   const executeWithoutReuse = async (reason: string): Promise<ValidationCommandResult> => ({
     ...await run(), executionDecision: { disposition: 'executed', reason },
   });
   const policy = sharedValidationReusePolicy(command);
   if (!policy.eligible) return executeWithoutReuse(policy.reason);
+  if (!context) return executeWithoutReuse('shared_context_unavailable');
   assertActive();
   const started = performance.now();
   const economicsKey = context.reuseEconomics === 'measured' ? causalCanonical({

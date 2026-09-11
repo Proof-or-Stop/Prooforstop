@@ -9608,7 +9608,7 @@ function assertProcessFactCommandInventory() {
   assertReviewExecutionAuthorityContract(registry, levelRegistry);
   const storyCreateText = read('packages/main/src/handlers/story-create.ts');
   for (const token of [
-    'args.phase !== 'IDEA' && args.phase !== 'INIT'',
+    "args.phase !== 'IDEA' && args.phase !== 'INIT'",
     'story_create_direct_lifecycle_phase_forbidden',
     'story_advance through INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE',
   ]) {
