@@ -4,7 +4,7 @@
   "title": "Dynamic Finding Applicability",
   "description": "Implement Section 9.1 of the accepted Dynamic Finding execution plan only after B-fe8f and B-03b7 are accepted and merged. RED must reproduce unrelated Findings blocking the current Story, unsafe deferral, stale applicability reuse, and divergent gate predicates. GREEN must prove authoritative assessments, mandatory repair, defer-with-proof, routing, freshness, batch manifests, scorecards, and shared gate behavior.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#91-story-1--dynamic-finding-applicability",
   "depends": [
@@ -30,6 +30,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-11T14:40:34.862Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-7dbe8ef8594ce7626eb564ea8d50f69c",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e6d9",
+    "branch": "story/B-e6d9",
+    "createdAt": "2026-09-11T14:40:24.378Z"
+  }
 }
