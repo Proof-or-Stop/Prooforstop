@@ -11,6 +11,9 @@ import * as preReviewModule from '../core/pre-review-check.js';
 import { deriveAcceptanceCoverageBasis } from '../core/acceptance-coverage-basis.js';
 import { issueAcceptanceBasisReceipt, verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { evaluateAcceptanceTopologyCheck } from '../core/acceptance-topology.js';
+import { checkScopeContract, readChangedFiles } from '../core/scope-contract.js';
+import { SCOPE_PATH_CANONICALIZER_VERSION } from '../core/scope-path-classifier.js';
+import { resolveStoryMergeBase } from '../core/story-aware-validation.js';
 import { StoryStore } from '../core/store.js';
 import { captureVerificationFreshness, createCurrentVerificationAssertionReceipt, createVerificationExecutionReceipt } from '../core/verification-execution-evidence.js';
 import type { ChecklistData, StoryInfo, VerificationEvidence } from '../core/types.js';
@@ -136,6 +139,55 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
   }
 }
 
+function assertUntrackedControllerConfigAndMasterBaseline(project: ProjectControllerAssets): void {
+  const controllerRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-untracked-config-'));
+  const storyId = 'B-untracked-config';
+  const worktreeRoot = join(controllerRoot, '.worktrees', storyId);
+  try {
+    git(controllerRoot, ['init', '-q', '-b', 'master']);
+    git(controllerRoot, ['config', 'user.email', 'lab@example.invalid']);
+    git(controllerRoot, ['config', 'user.name', 'Lab']);
+    writeFileSync(join(controllerRoot, 'README.md'), 'fixture\n');
+    const controllerStore = new StoryStore(controllerRoot);
+    controllerStore.writeStory(storyId, story(storyId, worktreeRoot));
+    controllerStore.writeChecklist(storyId, { items: [{ id: 'CHK-001', title: 'feature', context: 'master-only external fixture', status: 'done', startTime: null, endTime: null }] });
+    git(controllerRoot, ['add', 'README.md']);
+    git(controllerRoot, ['add', '-f', `.proof-or-stop/story/actives/${storyId}`]);
+    git(controllerRoot, ['commit', '-qm', 'master fixture with Story metadata']);
+    const masterHead = git(controllerRoot, ['rev-parse', 'HEAD']);
+    git(controllerRoot, ['branch', `story/${storyId}`]);
+    mkdirSync(join(controllerRoot, '.worktrees'), { recursive: true });
+    git(controllerRoot, ['worktree', 'add', '-q', worktreeRoot, `story/${storyId}`]);
+
+    const configBytes = JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }, null, 2);
+    writeFileSync(join(controllerRoot, 'proof-or-stop.config.json'), configBytes);
+    assert.equal(git(controllerRoot, ['ls-files', '--', 'proof-or-stop.config.json']), '', 'controller config is intentionally untracked');
+    try {
+      project({ controllerRoot, worktreeRoot, storyId });
+    } catch (error) {
+      assert.fail(`LAB_RED: missing untracked controller config cannot bootstrap: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    assert.equal(readFileSync(join(worktreeRoot, 'proof-or-stop.config.json'), 'utf8'), configBytes, 'missing target config is installed from the controller');
+
+    writeFileSync(join(worktreeRoot, 'feature.txt'), 'implemented\n');
+    git(worktreeRoot, ['add', 'feature.txt']);
+    git(worktreeRoot, ['commit', '-qm', 'implement benchmark feature']);
+    assert.equal(resolveStoryMergeBase(worktreeRoot, 'HEAD'), masterHead, 'master-only repositories resolve the real baseline without a local main alias');
+    const changedFiles = readChangedFiles(worktreeRoot);
+    assert.ok(changedFiles.includes('feature.txt'), `master-relative scope includes the feature commit: ${changedFiles.join(',')}`);
+    assert.ok(changedFiles.includes('proof-or-stop.config.json'), 'the untracked projected config remains visible for provenance classification');
+    const scope = checkScopeContract({
+      storyId, mode: 'enforce', allowedModify: [], allowedCreate: ['feature.txt'], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION, pathCanonicalizationMode: 'enforce', createdAt: '2026-09-12T00:00:00.000Z', updatedAt: '2026-09-12T00:00:00.000Z',
+    }, changedFiles, { projectRoot: worktreeRoot, gitCwd: worktreeRoot });
+    assert.equal(scope.status, 'pass', `byte-identical projected config is a control asset, not an acceptance amendment: ${JSON.stringify(scope.violations)}`);
+    assert.equal(scope.rows?.find(row => row.path === 'proof-or-stop.config.json')?.rule, 'runtime_artifact');
+    assert.equal(new StoryStore(worktreeRoot).readProofStoryContract(storyId), null, 'recovery does not require or synthesize a ProofStory contract');
+  } finally {
+    rmSync(controllerRoot, { recursive: true, force: true });
+  }
+}
+
 function evidenceFixture(root: string, storyId: string, run: { code?: number; output?: string; timedOut?: boolean } = {}): { checklist: ChecklistData; evidence: VerificationEvidence; freshness: ReturnType<typeof captureVerificationFreshness> } {
   const command = 'go test ./...';
   const selector = 'ok\tfixture';
@@ -251,6 +303,7 @@ function assertGoCommandProfile(resolveProfile: ResolveProfile, evaluate: Evalua
 const project = (runtimeRootModule as unknown as Record<string, unknown>).projectControllerAssetsIntoStoryWorktree;
 assert.equal(typeof project, 'function', 'LAB_RED: external controller assets are not projected into the signed Story worktree');
 assertExternalControllerProjection(project as ProjectControllerAssets);
+assertUntrackedControllerConfigAndMasterBaseline(project as ProjectControllerAssets);
 
 const resolveProfile = (discoveryModule as unknown as Record<string, unknown>).resolveAcceptanceVerificationProfile;
 const evaluateCommands = (preReviewModule as unknown as Record<string, unknown>).evaluateRegisteredCommandEvidence;
