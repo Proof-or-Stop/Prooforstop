@@ -1,0 +1,30 @@
+PROOF {"name":"undeclared policy explains real execution","disposition":"executed","reason":"not_opted_in"}
+PROOF {"name":"real disk receipt and real preflight reused","first":{"disposition":"executed","reason":"no_matching_receipt"},"second":{"disposition":"reused","reason":"matching_receipt"},"receipt":{"executionKey":"ce:v1:3a0a5e746c30907907410dbfa25041e23cde5d2da75250389e46a41bf86cc5a1","receiptHash":"6be296b4378593b270229b320f3e44ddc7a28082403677fccac6d3dfefaf5bc7","disposition":"executed","executedAt":"2026-09-11T16:02:59.779Z"}}
+PROOF {"name":"forbidden","reason":"policy_forbidden","executions":2}
+PROOF {"name":"never-reuse","reason":"policy_never_reuse","executions":2}
+PROOF {"name":"gate","reason":"policy_risk_tier","executions":2}
+PROOF {"name":"validation-infra","reason":"policy_risk_tier","executions":2}
+PROOF {"name":"build-producer","reason":"build_proof_required","executions":2}
+PROOF {"name":"build-consumer","reason":"build_proof_required","executions":2}
+PROOF {"name":"missing-input-contract","reason":"inputs_undeclared","executions":2}
+PROOF {"name":"identity changes and failed results never reuse","environment":true,"timeout":true,"externalInput":true,"missingInput":true,"dirtyWorkspace":true,"failure":true}
+PROOF {"name":"concurrent attribution","dispositions":["executed","reused"],"runtimeSpawns":1}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Merged v0.3.317 inventory must include every validate and DONE-required command
+
+168 !== 167
+
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/scripts/verify-validation-reuse-proof.mjs:80:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 168,
+  expected: 167,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1

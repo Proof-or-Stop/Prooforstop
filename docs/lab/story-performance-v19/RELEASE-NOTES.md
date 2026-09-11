@@ -1,16 +1,40 @@
-# v0.3.317 - Main integration of the audited performance Lab
+# v0.3.318 candidate - Seven Lab integrations and 24 historical repair comparisons
 
-## Delivery correction
+## Publication status
 
-The previous v0.3.316 tag published the Lab commit without integrating it into main. This release corrects that delivery gap: the candidate starts from main `6632322aec1bda45307df35490a5a2cd53dfd748`, merges the published Lab `565e494d049e2f37ce002a3f820aaed32a1c1685`, validates in an isolated managed Lab, and uses managed finish to update local main. Remote main reachability is a prerequisite for publishing the v0.3.317 tag and release. This document does not claim publication until those operations have been verified.
+This is a release candidate document. Main publication, the tag, and the GitHub release remain pending final independent audit and verified managed integration. The remote main baseline d354d2b43d and local main maintenance commit 05c5134492 both use version 0.3.317; managed finish must select the next synchronized patch version, without overwriting an existing version.
 
-## Integration and optimization scope
+## What is integrated
 
-- Retain latest-main owner identity continuity across worktrees, including its shared Git-directory identity and new owner-lease regression coverage.
-- Integrate the previously audited performance work: reuse attribution and economic controls, shared preparation within protected contexts, staged resource protection, closeout prerequisite rejection and bounded recovery, review roster consistency, and quorum scanning improvements.
-- Restore the reviewed checklist executable binding so a valid inventory consumer is accepted while removal of the incoming classification guard is rejected. The same real production boundary fails on the current-main baseline and passes after integration.
-- Preserve all 24 historical before-and-after comparisons below, including slowdowns, flat results, scope limitations and original evidence. These are historical measurements, not new whole-Story benchmarks.
-- Keep the complete English release log in the versioned CHANGELOG and include the independent audit and Lab integration/cleanup inventory.
+The candidate preserves the previous performance Lab commit 565e494d049e2f37ce002a3f820aaed32a1c1685, all seven selected Lab heads, and both newer main maintenance lines: owner continuity, external worktree/Go pre-review support, and Dynamic Finding evidence closure. The previous v0.3.316 tag did not deliver that performance commit through main; final publication must prove main contains the candidate before creating the tag.
+
+| Lab | Integrated behavior | Verification scope |
+| --- | --- | --- |
+| b03b7-validation-baseline-convergence | Current compatibility fixtures and exact identity/loader obligations remain mechanically enforced | Nine-part aggregate; the last stale identity witness was repaired and its group and mutation self-test pass; independent aggregate replay pending |
+| delivery-root-cause-20260911 | Delivery review inventory and next-action consistency | Real inventory next-action integration passes |
+| dynamic-finding-evidence-closure | Qualification prerequisites, evidence closure, protected repair obligations, historical witnesses, and partial diagnostics | Full Dynamic Finding package chain passes; this does not grant real operational qualification or activate enforce |
+| dynamic-validation-tier-selection | Story-aware validation selection and conservative widening | Focused Lab test and full planner smoke pass with the actual updated command inventory |
+| lab-main-lock-scope-20260911 | Bound main-lock occupancy for Lab operations | Lock-scope integration passes |
+| repro-first-enforcement-0296 | Mechanically require applicable reproduction evidence before repair | Complete registered evidence-binding/DEV-gate chain passes |
+| validation-reuse-proof | Attribute actual execution and safe consumer reuse independently | Real child executions, receipts, policy/identity negatives, concurrent attribution, and all 168 configured consumers pass |
+
+## Repairs required by this integration
+
+| Observed failure | Change | Result and limits |
+| --- | --- | --- |
+| Moving main invalidated a first-review envelope although its historical Story input had not changed | Sign the exact full-Story comparison commit and use it during replay; leave live freshness checks active | Original reviewer-batch expectations pass; bounded overflow, missing object, invalid ref, tamper, and real source-drift controls pass. Claude independently approved the bounded repair |
+| Native review fixtures did not establish current broker-owned context | Produce the fixture through the current CLI instead of relaxing expected lane states | Original quality/scope and blocking-Finding expectations retained |
+| Registration proof did not follow the six Dynamic Finding package leaves | Verify the exact package-script chain, preserve 10 mutation classes per leaf, and test semantic F031 mutants with their own mutated source digest | Actual guard passes; all 26 registration derivation rows pass. Accounted-for exclusions are not claimed to be executed tests |
+| Nested registration mirror omitted the newly consumed package manifest | Copy the real package manifest into both positive and removal-mutant fixtures | Bootstrap reader control, removed-registration refusal, and full derivation pass |
+| Old whole-file witnesses became stale while their exact negative contexts stayed unchanged | Rebind reviewed counts/contexts and paired loader fingerprints; add classification context mutation coverage | Source/emitted identity-site and identity-inventory groups pass; comprehensive identity self-test passes. No blanket file exemption was introduced |
+| New main added one validation command | Account for that exact command and update the command-set digest | 168 validate plus DONE-required inventory entries audited; full tier planner passes |
+| New Go-profile test lacked an installed Go executable | Supply a checksum-verified isolated official Go toolchain for the test | Same unmodified regression passes. This was an environment failure, not a claimed product RED; no toolchain identity check was disabled |
+
+## Performance interpretation
+
+The historical 24 rows below are retained verbatim. They are bounded historical experiments, not new end-to-end benchmarks. The current 500 ms reuse witness still demonstrates a cost inversion: one execution with reuse took 7.965 s versus three direct executions taking 6.074 s in this verification run. Other verification was active, so these timings are diagnostic observations, not isolated performance estimates. Fewer launches do not establish lower latency, and default policies were not weakened to manufacture a benefit.
+
+Whole-Story net speed, long-term review convergence, complete dual-worktree throughput, and arbitrary recovery are not proved by this integration. The prior first-review audit also reproduced pre-existing full-suite ABA/guard-map fixture failures on an overlay without the repair. The separate global static-edge inventory has baseline obligations beyond these seven scoped Lab regressions. No claim of an entirely green repository or formal Story DONE is made.
 
 ## Historical before-and-after comparisons (24 categories)
 
@@ -41,36 +65,9 @@ The previous v0.3.316 tag published the Lab commit without integrating it into m
 | Selector, dispatch, inventory, and quorum roster disagreement | Selector required 2 lanes while other consumers required 3; open findings could permit narrowing | Closed findings permit consistent 2-lane selection; unresolved findings retain 3; missing PASS still blocks | V15 same-command time 2.892 to 3.559 seconds; correctness improvement, not speedup |
 | Repeated Git-tree reads and mixed HEAD across four consumers | Tree reads [2,2,2,2]; old HEAD paired with a new Story hash | Reads [1,1,1,1]; one object per observation; next observation detects change | V16: 20 commands 3.778 to 3.658 seconds; four phases 2.506 to 2.507 seconds, effectively flat |
 
-## Current integration verification
 
-The first integration run retained 13 PASS results and two failures involving the owner smoke. The failure was ENOBUFS: repository-wide doctor JSON measured 5,496,927 bytes, exceeding spawnSync's default pipe capture. A standalone doctor exited 0. The test now captures stdout/stderr in disposable files, retains the zero-exit and identity/redaction assertions, and additionally requires complete parseable JSON. The repaired owner smoke passed. No production owner behavior or doctor error handling was weakened.
+## Evidence and reproduction
 
-The managed main-baseline RED is an independent production defect: the valid inventory consumer is rejected by a stale checklist executable pin. Integration restores the previously audited pin; mutation of the classification guard remains rejected. No complete Story latency or universal cache speedup is claimed. Targeted post-merge checks cover incoming owner continuity and the identity boundaries touched by this merge; the unchanged full 73-case quorum is not rerun solely to regenerate historical performance claims.
+The seven-Lab selected commit inventory and raw before/after logs are in `docs/lab/story-performance-v19/evidence/seven-lab-integration/`. Historical evidence remains in the v18 and earlier v19 archives. The Go regression requires a resolvable `go` executable on PATH; the isolated test used the official go1.24.7 darwin-arm64 archive after SHA256 verification. Toolchain binaries and private backups are not included in release evidence.
 
-## Other Lab integration and cleanup gaps
-
-The separate LAB-INTEGRATION-AUDIT.md inventories existing Labs. A matching historical GREEN is not latest-main acceptance. Unmerged branches and dirty experiments are preserved; their unrelated functionality is not included merely because this release is called an integration. Clean Lab heads already reachable from main are removed after their local provenance and non-reproducible ignored artifacts are preserved privately. No formal Story DONE or fabricated maintenance-record transition is asserted.
-
-## Current verification results
-
-These are validation durations, not new performance benchmarks. The original failed runs remain recorded separately.
-
-| Command | Exit | Seconds |
-|---|---:|---:|
-| `node packages/main/tests/certification-mutator-identity.mjs` | 0 | 1.835 |
-| `node packages/main/tests/validation-tree-delegate-binding.mjs` | 0 | 0.793 |
-| `node packages/main/dist/tasks/testintent-handoff-smoke.js` | 0 | 0.467 |
-| `node packages/main/dist/tasks/story-review-ergonomics-smoke.js` | 0 | 3.130 |
-| `node packages/main/dist/tasks/verification-intent-alias-smoke.js` | 0 | 0.363 |
-| `node packages/main/dist/tasks/verification-freshness-smoke.js` | 0 | 40.516 |
-| `node packages/main/dist/tasks/validation-evidence-reuse-smoke.js` | 0 | 109.138 |
-| `node scripts/verify-runtime-fact-contract.mjs` | 0 | 9.844 |
-| `node scripts/verify-process-fact-contract.mjs` | 0 | 10.626 |
-| `node scripts/verify-proof-or-stop-prompt-baseline.mjs` | 0 | 9.673 |
-| `node scripts/verify-performance-main-integration.mjs` | 0 | 38.208 |
-| `node packages/main/tests/checklist-pin-integration.mjs` | 0 | 1.327 |
-| `node packages/main/dist/tasks/story-owner-lease-smoke.js` | 0 | 24.907 |
-| `node packages/main/tests/validation-reuse-economics.mjs` | 0 | 13.302 |
-| `node packages/main/tests/validate-resource-claims.test.mjs` | 0 | 2.920 |
-
-Independent final Claude CLI review is pending. Publication must wait for its disposition and managed post-merge verification.
+Final independent audit, managed GREEN, post-main validation, remote main reachability, tag target equality, and cleanup results must be appended before claiming publication. Source worktrees with new or unmerged work must be retained.

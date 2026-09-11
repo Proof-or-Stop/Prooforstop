@@ -1,0 +1,39 @@
+{
+  "main": {
+    "calls": [
+      "import(`file://${initPath}`)",
+      "import('./dashboard.js')"
+    ],
+    "fingerprint": "b4f27e9ad02f24b951410ce452089ac0e73da21df2b576896c9242479c204e64",
+    "initPath": [
+      "    const initPath = new URL('./cli-init.js', import.meta.url).pathname.replace(/^\\/([A-Z]:)/, '$1');",
+      "    await import(`file://${initPath}`);"
+    ]
+  },
+  "candidate": {
+    "calls": [
+      "import(`file://${initPath}`)",
+      "import('./dashboard.js')"
+    ],
+    "fingerprint": "52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720",
+    "initPath": [
+      "    const initPath = new URL('./cli-init.js', import.meta.url).pathname.replace(/^\\/([A-Z]:)/, '$1');",
+      "    await import(`file://${initPath}`);"
+    ]
+  },
+  "earlierCandidateMeasurement": {
+    "calls": [
+      "import(`file://${initPath}`)",
+      "import('./dashboard.js')"
+    ],
+    "fingerprint": "98155111ac3e4a5b9005bf57ba78e74db5482aa0c2c7ea1755c9d087765b6083",
+    "initPath": [
+      "    const initPath = new URL('./cli-init.js', import.meta.url).pathname.replace(/^\\/([A-Z]:)/, '$1');",
+      "    await import(`file://${initPath}`);"
+    ]
+  },
+  "pinnedBefore": "b9eb52d027ebe388f6c42117a6ed9fcfafe758c53cc79e8ede61fafecff948f5",
+  "remoteMainCommit": "d354d2b43d771b702b4913b4ba0241520e7b1cb0",
+  "mainMeasurementMethod": "Actual git show origin/main:packages/main/src/cli-engine.ts parsed with installed TypeScript, createPrinter(removeComments:true,newLine:LineFeed), SHA256; differs from stale pin already present on main.",
+  "approvalBasis": "The loader is nested in the new withValidationSigningRoot(root0, async () => {...}) arrow wrapper. enclosingFunctionName skips arrows and still resolves runCli. initPath producer and import argument are byte-identical to main; whole-file fingerprint still binds changes. No dedicated cli-engine provenance graph exists; do not claim a new graph-based control. Update the exactly two stale pin sites together."
+}

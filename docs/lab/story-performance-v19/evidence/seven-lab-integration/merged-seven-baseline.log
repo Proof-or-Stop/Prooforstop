@@ -1,0 +1,80 @@
+FAIL retired-authority-loader-provenance status=1 signal=null error=null
+k/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js:5693:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    {
+      file: 'packages/main/src/cli-engine.ts',
+      line: 897,
+      label: 'unapproved non-literal dynamic module load',
+      text: 'import() `file://${initPath}`; typescript-printer-remove-comments-sha256-v1=52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720'
+    }
+  ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+
+PASS e40f-quorum-inventory
+PASS proofstory-acceptance-basis
+PASS review-inventory-critic-aggregate
+FAIL identity-inventory-pins status=1 signal=null error=null
+o uncached text analysis
+FAIL CHK-007:happy:0 active producer registry config and current baselines are proof-or-stop only: active production/config/current-baseline source contains retired protocol identity
++ actual - expected
+
++ [
++   {
++     line: 297,
++     path: 'packages/main/src/tasks/validate-command-timeout-smoke.ts',
++     token: 'lattice-evidence-timeout-'
++   }
++ ]
+- []
+
+FAIL CHK-007:adversarial:2 producer consumer config and baseline inventory omissions are mutation-detected: active production/config/current-baseline source contains retired protocol identity
++ actual - expected
+
++ [
++   {
++     line: 297,
++     path: 'packages/main/src/tasks/validate-command-timeout-smoke.ts',
++     token: 'lattice-evidence-timeout-'
++   }
++ ]
+- []
+
+
+RED B-49df: 2 focused contract(s) failing.
+
+FAIL identity-site-pins status=1 signal=null error=null
+SS U05 additive acceptance amendment derivation preserves frozen history
+PASS F-060 exact verifier mutation-data fragment never admits changed data or surrounding active code
+PASS F-060 historical counterparts bind actual source while constructed controls claim no historical admission
+FAIL F-060 all owned source and emitted identity sites have independent totality and public-operation cases: owned identity use count changed: packages/main/src/core/certification-window.ts#proof-or-stop.certification_window.v1
+
+5 !== 4
+
+FAIL F-060 discovered-site omissions and new typed producers fail independently of registry agreement: owned identity use count changed: packages/main/src/core/certification-window.ts#proof-or-stop.certification_window.v1
+
+5 !== 4
+
+
+RED B-49df: 2 focused contract(s) failing.
+
+FAIL b49d4-derived-guard-execution status=1 signal=null error=null
+m disk yet reported success with the newcomer sitting undecided in the same directory, because their enumeration is narrowed — by name, or to a population that is not this directory at all. Measured on real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED enumeration of it.
+  [BUDGET] registered row timeoutMs=300000; child-process budget spent=43050ms remaining=211950ms
+
+2 RED / 24 GREEN of 26 rows (43050ms in child processes)
+
+red-b49d4-registration-derivation: 2 row(s) still exhibit the pre-fix defect — NEWCOMER_MIRROR_IS_FAITHFUL, EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE. The registration guard asserts a fixed allowlist instead of deriving its population, so it reports the size of its own expectation and cannot see a member nobody listed.
+
+PASS identity-current-implementation-prerequisite
+PASS public-prompt-fixture-builds-utils
+BASELINE_CONVERGENCE_FAIL count=4

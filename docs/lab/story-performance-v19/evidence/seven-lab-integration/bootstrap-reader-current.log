@@ -1,0 +1,38 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: node:fs:621
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open '/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/red bcae bootstrap fpUSaC/registration-guard-control ChR0fn/packages/main/package.json'
+    at readFileSync (node:fs:621:20)
+    at livePackageReader (file:///private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/red%20bcae%20bootstrap%20fpUSaC/registration-guard-control%20ChR0fn/packages/main/tests/red/red-b49d4-harness-registration.mjs:350:46)
+    at file:///private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/red%20bcae%20bootstrap%20fpUSaC/registration-guard-control%20ChR0fn/packages/main/tests/red/red-b49d4-harness-registration.mjs:353:23
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/red bcae bootstrap fpUSaC/registration-guard-control ChR0fn/packages/main/package.json'
+}
+
+Node.js v26.8.1
+
+
+1 !== 0
+
+    at registrationGuardCases (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs:1393:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-performance-main-release-0317/packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs:1744:22 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1

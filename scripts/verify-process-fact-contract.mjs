@@ -2444,7 +2444,12 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'b9eb52d027ebe388f6c42117a6ed9fcfafe758c53cc79e8ede61fafecff948f5',
+  // Merged-source audit: origin/main d354d2b43d measured b4f27e9a, already
+  // stale against the old b9eb52d0 pin. Candidate measures 52a283cf. The new
+  // withValidationSigningRoot arrow preserves the runCli function anchor and
+  // exact initPath producer/import argument. Both coupled pins move together;
+  // this whole-file binding does not assert a separate loader provenance graph.
+    '52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.

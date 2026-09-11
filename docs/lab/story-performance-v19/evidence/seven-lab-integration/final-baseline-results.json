@@ -1,0 +1,39 @@
+[
+  {
+    "name": "retired-guard",
+    "command": [
+      "node",
+      "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+    ],
+    "exitCode": 0,
+    "seconds": 49.569
+  },
+  {
+    "name": "process-contract",
+    "command": [
+      "node",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "exitCode": 0,
+    "seconds": 11.061
+  },
+  {
+    "name": "identity-selftest",
+    "command": [
+      "node",
+      "scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "--self-test"
+    ],
+    "exitCode": 1,
+    "seconds": 0.238
+  },
+  {
+    "name": "baseline",
+    "command": [
+      "node",
+      "packages/main/tests/red/red-lab-b03b7-validation-baseline-convergence.mjs"
+    ],
+    "exitCode": 1,
+    "seconds": 230.658
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "name": "selftest",
+    "command": [
+      "node",
+      "scripts/verify-proof-or-stop-identity-cutover.mjs",
+      "--self-test"
+    ],
+    "exitCode": 0,
+    "seconds": 18.738
+  },
+  {
+    "name": "identity",
+    "command": [
+      "node",
+      "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "--group=identity-inventory"
+    ],
+    "exitCode": 0,
+    "seconds": 8.854
+  },
+  {
+    "name": "tier",
+    "command": [
+      "node",
+      "packages/main/dist/tasks/validation-tier-planner-smoke.js"
+    ],
+    "exitCode": 0,
+    "seconds": 6.037
+  }
+]

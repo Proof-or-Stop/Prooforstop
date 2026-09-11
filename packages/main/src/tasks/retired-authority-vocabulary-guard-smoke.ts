@@ -488,7 +488,12 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   //
   // The exact merged AST fingerprint is independently mirrored in the process
   // fact verifier and is replaced only after the merged-source audit runs.
-  ['packages/main/src/cli-engine.ts', 'b9eb52d027ebe388f6c42117a6ed9fcfafe758c53cc79e8ede61fafecff948f5'],
+  // Merged-source audit: origin/main d354d2b43d measured b4f27e9a, already
+  // stale against the old b9eb52d0 pin. Candidate measures 52a283cf. The new
+  // withValidationSigningRoot arrow preserves the runCli function anchor and
+  // exact initPath producer/import argument. Both coupled pins move together;
+  // this whole-file binding does not assert a separate loader provenance graph.
+  ['packages/main/src/cli-engine.ts', '52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
