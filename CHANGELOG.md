@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab review-epoch-certification-continuity - v0.3.330 - 2026-09-11
+
+PRE_CERT now recognizes the exact canonical same-Story review epoch metadata commit produced by native inventory finalization. The previous continuity allowlist recognized individual reviewer command commits but omitted the real batched publisher, so genuine signed lanes and completeness-critic evidence in a linked Story worktree could not be admitted after finalization.
+
+The repair permits that exact subject only when all changed paths are registered review artifacts or content-addressed prompt-body paths. It retains same-Story containment, ancestry, single-parent, whole-material identity and signed inventory authority checks. It does not accept arbitrary review prose or unrelated paths.
+
+The same pinned native four-case command recorded target RED and then GREEN. Actual clean linked-worktree publication admits; wrong-subject, other-Story-path and non-review-artifact commits still refuse at the native continuity verifier without issuing pre-cert authority. The process-fact contract and actual CLI bootstrap pass. This bounded Lab fixes native PRE_CERT setup; it is not formal Story DONE or proof of every later lifecycle transition.
+
+Verification: node scripts/verify-review-epoch-certification-continuity.mjs; node scripts/verify-process-fact-contract.mjs. Local integration only; no remote push.
+
+Maintenance provenance: codex/lab-review-epoch-certification-continuity, repair 07b9fd2d5a5082a1e0ca0b702dacebfff424917f.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab cross-host-audit - v0.3.329 - 2026-09-11
 
 Require at least one independent CLI audit from a vendor different from the Lab developer before local integration. Built-in adapters identify Codex/OpenAI and Claude/Anthropic, while trusted main configuration can register other stdin/JSON adapters such as an operator-provided Grok/xAI bridge. The policy is vendor-based, not a fixed two-CLI pairing. A candidate cannot select its own auditor through an unreviewed configuration change.
