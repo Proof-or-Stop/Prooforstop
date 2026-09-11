@@ -10,6 +10,53 @@ Maintenance provenance: codex/lab-external-worktree-go-pre-review, repair f47785
 Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## Lab dynamic-finding-evidence-closure - v0.3.317 - 2026-09-11
+
+Integrate the reviewed Dynamic Finding evidence-closure Lab into local main.
+
+This bounded maintenance release closes the evidence and safety gaps in the
+existing applicability implementation. Configuring enforce no longer bypasses
+qualification; missing safety denominators remain unknown. Executed, reviewed
+witnesses bind applicability and protected-surface conclusions; signed labels
+and status changes cannot waive confirmed repair obligations. Finding constraints
+join Dynamic Validation additively without granting scope expansion.
+
+The Lab adds actual historical base/head execution and strict receipt pairing,
+target-consent acceptance, bounded material re-attestation, owner-boundary recall,
+independent qualification adjudication, and server-derived performance accounting.
+Prerequisites now require successful exact-merged-SHA execution receipts rather
+than ancestry alone. Repeated performance cohorts/attempts count once; conflicting
+references refuse. Missing optional timing preserves other diagnostic metrics
+while qualification remains refused. Focused compatibility fixture repairs and
+reviewed document-binding corrections from the original Lab are included.
+
+Before/after evidence is retained in docs/audits/dynamic-finding-final-contracts-0316.md
+and the earlier four-gap/evidence-closure audit logs. The final three-case contract
+went from 1 pass / 2 failures to 3 passes / 0 failures. The historical target-consent
+path already passed its six assertions when added, so that item is acceptance
+coverage, not a claimed implementation repair. Two references to one cohort now
+produce denominator 1 rather than 2. An audit-discovered diagnostic regression was
+separately reproduced and repaired: a known independent subject retains denominator
+1 instead of being erased to 0 when optional timing is absent.
+
+The existing 170-check focused suite passed; new cases overlap some of that setup
+and are not additional unique operational samples. Process/runtime fact contracts
+passed. Independent Claude CLI audit session 80f6c2d7-582d-4a36-896f-da1eed839671
+executed the three-case command and 87-check calculator; its focused follow-up
+executed the expanded three-case command and reported no unresolved in-scope blockers.
+
+The official finish command must prepare the synchronized patch version, rebuild
+the candidate and main as required, replay the pinned regression before and after
+integration, and clean the worktree only after verification. This is local Lab
+maintenance, not formal B-03b7 or B-e6d9 DONE, signed product-release qualification,
+or a remote publication. No enforce activation is requested. Real operational
+20-Story / 200-case / 30-day qualification evidence is still absent; fixture
+success and test durations must not be advertised as real Story time savings.
+
+Maintenance provenance: codex/lab-dynamic-finding-evidence-closure, repair bb7ee75049999abddf41b7fcca3e78d1a53fd220.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-dynamic-finding-final-contracts.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab owner-worktree-session-continuity - v0.3.316 - 2026-09-11
 
 Fix Story owner continuity across linked Git worktrees. Owner-session identity now uses the repository primary worktree from Git's shared worktree inventory, so the same host task can create a Story in the primary checkout and continue in its Story worktree without forceTakeover. A different task or role remains blocked by the active lease. Verified with a real temporary primary checkout and linked worktree, the full story-owner-lease smoke, and runtime and process fact contracts.
