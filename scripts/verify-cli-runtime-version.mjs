@@ -14,11 +14,12 @@ for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST', 'PRO
 try {
   mkdirSync(pkg, { recursive: true });
   cpSync(join(root, 'packages/main/dist'), join(pkg, 'dist'), { recursive: true });
+  cpSync(join(root, 'packages/main/templates'), join(pkg, 'templates'), { recursive: true });
   cpSync(join(root, 'scripts'), join(fixture, 'scripts'), { recursive: true });
   cpSync(join(root, 'bin'), join(fixture, 'bin'), { recursive: true });
   cpSync(join(root, 'package.json'), join(fixture, 'package.json'));
   mkdirSync(join(fixture, 'node_modules'));
-  symlinkSync(join(root, 'node_modules'), join(pkg, 'node_modules'));
+  symlinkSync(join(root, 'packages/main/node_modules'), join(pkg, 'node_modules'));
   // Root-level helper modules and the main package share the installed dependency tree.
   rmSync(join(fixture, 'node_modules'), { recursive: true });
   symlinkSync(join(root, 'node_modules'), join(fixture, 'node_modules'));
