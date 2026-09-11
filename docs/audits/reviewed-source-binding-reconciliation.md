@@ -71,8 +71,14 @@ the specific incomplete-chain mistake. This intermediate run is diagnostic
 evidence, not a separately signed Lab RED.
 
 The combined `verify-identity-reviewed-contexts.mjs` imports the focused check
-and retains every previous fixture/JSON assertion. It also adds line-position
-and duplicate-token refusal controls. No fixture failures are converted to PASS.
+and retains every previous fixture/JSON assertion. Its original loop still stops
+at the fixture baseline; only the focused source controls run before that stop.
+No fixture failures are converted to PASS. The 324 refusals count observations,
+not independent isolation of every internal predicate: whole-file digest and
+line-consistency checks can reject a mutant before later predicates execute.
+Similarly, the inventory tamper tests prove the byte-digest refusal, not separate
+coverage of every inner structural check. No synthetic override of trusted hashes
+is introduced to make those narrower tests claim broader authority.
 
 ## Preserved unrelated fixture baseline
 
@@ -91,3 +97,42 @@ this audit entry is not a signed Finding routing receipt or formal deferral.
 Reproduce with the unchanged exported fixture validator, inspect the historical
 source diffs, and renew only independently justified fixture bindings in a
 separate bounded repair. No broad whole-repository PASS is claimed here.
+
+## Independent Claude CLI review
+
+Claude CLI session `34b0b7a6-dc22-4130-859d-728f244c6219` returned code-review
+PASS. Its first execution attempts appended an unapproved shell status command
+and were denied by the exact command allowlist. Those attempts are not test
+evidence. A follow-up in the same session executed the two original commands
+without additions; both returned exit 0, with no permission denials:
+
+```text
+node scripts/verify-reviewed-source-bindings.mjs
+reviewedSourceBindingFailures: 0
+PASS scanner reader bindings: 3 exact current modules
+PASS source: 54 exact positives, 324 mutation refusals, 52 empty/missing controls
+PASS source inventory byte integrity: original accepted, deleted and duplicate rows refused
+
+node scripts/verify-amendment-prompt-output-shape.mjs
+AMENDMENT_OUTPUT_SETUP PASS flat accepted; nested and mismatched subjects rejected
+AMENDMENT_PROMPT_OUTPUT_SHAPE PASS both hosts; strict parser controls unchanged
+```
+
+The review's coverage-accounting observations are addressed above: refusal
+counts are not independent predicate-isolation claims, and new duplicate
+controls were removed from the already-blocked combined loop. The original
+combined assertions remain unchanged; it only imports the new focused test.
+The pre-existing compact formatting of the scanner row was not reformatted.
+The reviewer checked the four target contexts and unchanged allowance fields;
+the complete historical diff review is the implementer's evidence, not a claim
+that Claude independently reviewed all historical file diffs.
+
+A further read-only diagnostic exposed the actual scanner's private
+`verifyReviewedContextReaders` and `verifyScannerRetiredContexts` functions using
+an ephemeral module hook. Since this Lab has no built dist, its existing source
+loader plus a bounded source resolution hook was used; no scanner file was
+modified and no full built-CLI acceptance is claimed. On current main the actual
+reader consumer returned four source plus ten fixture errors; in Lab it returned
+only the same ten fixture errors. Scanner self-inventory checks returned no
+errors on either tree. This corroborates the three-level binding repair without
+concealing the unrelated fixture baseline or rewriting its pins.

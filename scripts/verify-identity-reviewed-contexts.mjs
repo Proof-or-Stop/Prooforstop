@@ -25,14 +25,12 @@ for (const [kind, validate, allowed] of [
       { ...input, token: `${row.token}UNKNOWN` },
       { ...input, text: `${text}\n// changed independent source contract\n` },
       { ...input, line: `${line} changed` },
-      { ...input, lineNumber: row.lineNumber + 1 },
-      { ...input, text: `${text}\n${row.token}\n` },
     ]) assert.equal(allowed(mutant), false);
   }
   for (const path of new Set(rows.map(row => row.path))) {
     assert.ok(validate(p => p === path ? '' : read(p)).length);
   }
-  console.log(`PASS ${kind}: ${rows.length} exact positives, ${rows.length * 6} mutation refusals, missing-source controls`);
+  console.log(`PASS ${kind}: ${rows.length} exact positives, ${rows.length * 4} mutation refusals, missing-source controls`);
 }
 const data = JSON.parse(readFileSync(new URL('./identity-reviewed-json-data.json', import.meta.url))).entries;
 assert.deepEqual(validateReviewedDataSources(read), []);
