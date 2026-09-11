@@ -34,6 +34,9 @@ import { signFinding } from '../core/finding-verify.js';
 import { signReviewRun } from '../core/review-run.js';
 import { seedCurrentReviewFixture, bindCurrentFixtureFinding } from './current-review-fixture.js';
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
+import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
+
+if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 import { isFindingBlocking, isEvidenceStateBlocking } from '../core/advisory.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';

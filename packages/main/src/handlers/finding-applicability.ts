@@ -465,7 +465,12 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
         const closure = signDynamicFindingRecord(closureUnsigned, signer.privateKey);
         const receipt = append(ctx, input.storyId, fence, `dynamic-mandatory-close:${input.idempotencyKey}`, 'append_mandatory_repair', [
           { recordType: 'mandatory_repair', uniqueBindingKey: `mandatory-repair-closure:${input.classificationId}`, payload: closure as unknown as JsonValue },
-        ], [required.record]);
+        ], [required.record], () => {
+          readHistoricalFindingRuntimeEvidence(ctx, input.storyId, input.closureEvidenceRefs[0]!);
+          readCurrentFindingRuntimeEvidence(ctx, input.storyId, input.closureEvidenceRefs[1]!);
+          if (applicabilityDigest(closure.closureBinding) !== applicabilityDigest(repairClosureContext(
+            currentApplicabilityContext(ctx.store, ctx.root, input.storyId, input.closureEvidenceRefs)))) throw new Error('CAS_CONFLICT: repair closure proof changed');
+        });
         return { mandatoryRepair: closure, ledgerReceipt: receipt, ...currentAuthority() };
       });
     },

@@ -29,7 +29,7 @@ import type { StoryStore } from '../core/store.js';
 import { FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT } from '../core/finding-runtime-evidence.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import { readOwnerLease } from '../core/story-owner-lease.js';
 import { captureMkdirLockFence, withMkdirLock } from '../core/mkdir-lock.js';
@@ -1984,6 +1984,16 @@ export function readHistoricalFindingRuntimeEvidence(ctx: HandlerContext, storyI
 
 /** Read-only Story 3B port. Consumers cannot replace trust, command bytes or output. */
 export function readCurrentFindingRuntimeEvidence(ctx: HandlerContext, storyId: string, receiptId: string) {
+  return readFindingRuntimeEvidenceForReader(ctx, storyId, receiptId, false);
+}
+
+/** Closure reuse is narrower than a fresh execution claim. Only a clean,
+ * material-identical descendant may retain the original execution HEAD;
+ * environment, artifacts, toolchain, policy, blobs and key status are rechecked. */
+export function readMaterialBoundRepairRuntimeEvidence(ctx: HandlerContext, storyId: string, receiptId: string) {
+  return readFindingRuntimeEvidenceForReader(ctx, storyId, receiptId, true);
+}
+function readFindingRuntimeEvidenceForReader(ctx: HandlerContext, storyId: string, receiptId: string, closureReuse: boolean) {
   const ledger = ctx.store.readFindingLedger<JsonValue>(storyId);
   const record = ledger.records.find(row => row.recordType === 'runtime_evidence_receipt'
     && (row.payload as unknown as RuntimeEvidenceReceipt).receiptId === receiptId);
@@ -1991,6 +2001,13 @@ export function readCurrentFindingRuntimeEvidence(ctx: HandlerContext, storyId: 
     throw new Error('runtime-evidence: trusted receipt carrier missing');
   }
   const receipt = record.payload as unknown as RuntimeEvidenceReceipt;
+  const currentHead = currentGitHead(ctx.root) ?? '';
+  const material = currentMaterialHash(ctx.root, 'HEAD', ctx.root) ?? '';
+  if (closureReuse) {
+    const dirty = readMaterialDirtyFiles(ctx.root, ctx.root);
+    if (dirty.error || dirty.files.length || !material || receipt.sourceMaterialHash !== material) throw new Error('runtime-evidence: repair material stale');
+    execFileSync('git', ['merge-base', '--is-ancestor', receipt.headHash, currentHead], { cwd: ctx.root, stdio: 'pipe' });
+  }
   const blobStore = createRuntimeEvidenceBlobStore(ctx.root);
   const parse = (ref: RuntimeEvidenceReceipt['buildCommand']) => {
     const bytes = blobStore.get(ref); if (!bytes) throw new Error('runtime-evidence: command blob missing');
@@ -1999,7 +2016,7 @@ export function readCurrentFindingRuntimeEvidence(ctx: HandlerContext, storyId: 
   const environment = parse(receipt.environment) as Record<string, string>;
   const buildCommand = parse(receipt.buildCommand); const executionCommand = parse(receipt.executionCommand);
   const verified = verifyRuntimeEvidenceCurrent(receipt, {
-    storyId, headHash: currentGitHead(ctx.root) ?? '', sourceMaterialHash: currentMaterialHash(ctx.root, 'HEAD', ctx.root) ?? '',
+    storyId, headHash: closureReuse ? receipt.headHash : currentHead, sourceMaterialHash: material,
     buildPolicyDigest: RUNTIME_EVIDENCE_BUILD_POLICY_DIGEST, buildCommand, executionCommand,
     environment: runtimeEnvironment({ environmentAllowlist: Object.keys(environment), excludedEnvironmentVariables: receipt.environment.excludedVariableNames }),
     toolchain: runtimeToolchain(receipt.toolchain.compilerVersion), trust: runtimeTrustFromWorkspace(ctx.root), blobStore,

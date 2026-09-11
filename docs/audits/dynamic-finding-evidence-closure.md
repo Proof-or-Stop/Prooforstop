@@ -42,7 +42,7 @@ Executed intermediate results (not final release qualification):
 | --- | --- |
 | `node packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs` | `DYNAMIC_FINDING_EVIDENCE_CLOSURE PASS`, 9/9 |
 | `node packages/main/dist/tasks/dynamic-finding-evidence-closure-smoke.js` | `DYNAMIC_FINDING_EVIDENCE_CONTRACT PASS 86` |
-| `node packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js` | `DYNAMIC_FINDING_RUNTIME_INTEGRATION PASS 15` |
+| `node packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js` | `DYNAMIC_FINDING_RUNTIME_INTEGRATION PASS 17` after the runtime-closure and host-isolation follow-up |
 | `node packages/main/tests/red/red-dynamic-finding-audit-closure.mjs` | `DYNAMIC_FINDING_AUDIT_CLOSURE PASS 6 passed 0 failed`; the same six failed before the audit repairs |
 | `node packages/main/dist/tasks/dynamic-finding-applicability-smoke.js` | `DYNAMIC_FINDING_GREEN PASS 50` |
 | `node packages/main/dist/tasks/finding-identity-lineage-smoke.js --section=routes` | `FINDING_IDENTITY_ROUTES PASS 58 passing 0 failed cases` |
@@ -50,7 +50,7 @@ Executed intermediate results (not final release qualification):
 | `node packages/main/dist/tasks/review-convergence-smoke.js` | PASS |
 | `node scripts/verify-runtime-fact-contract.mjs` | Runtime fact contract verified; execution assertion reuse contract PASS |
 | `node scripts/verify-process-fact-contract.mjs --quiet` | `Process-fact contract verification passed`; includes guard-removal mutations |
-| `npm --prefix packages/main run test:dynamic-finding-evidence-closure` | Exit 0; runs the 86-case calculator/witness suite, 15-case actual-runtime suite, original 9 cases and audit 6 cases |
+| `npm --prefix packages/main run test:dynamic-finding-evidence-closure` | Exit 0 at the safety checkpoint; ran the 86-case calculator/witness suite, then-15-case actual-runtime suite, original 9 cases and audit 6 cases. Follow-up full replay is recorded below. |
 
 The runtime integration fixture executes an actual build and failing command,
 reads its signed current receipt, submits a reviewer-owned immutable proposal,
@@ -132,3 +132,34 @@ real 20-Story / 200-case / 30-day operational qualification cohort. The Lab has
 not completed the entire execution plan, enabled enforce, changed Story
 B-e6d9's phase, or established measured time savings. No main integration,
 version increase or remote publication has occurred. The Lab remains open.
+
+## Follow-up audit and runtime closure regression
+
+Commit `c67db15efc7bf34063266a5bb358dd146768cf92` has an official local Lab
+GREEN receipt for the original nine-case command. This is a maintenance
+checkpoint, not whole-plan completion.
+
+Claude CLI session `48a9f5f0-9b81-4034-9164-f2e8cfdf8c9c` executed the tests.
+It reproduced a real fixture portability failure under `Claude -> Codex`
+process ancestry: runtime integration exited 1, and the original suite reached
+8/9 because the evidence-state fixture encountered the same mixed-provider
+refusal. It independently passed the 86-case and 6-case suites, confirmed the
+rollout/freshness/statistics safety corrections, and did not grant a plan PASS.
+
+Only the two affected disposable fixtures now use a test-only OS-isolated
+worker. The worker is reparented before executing the fixture; it creates its
+own temporary repository and broker keys. No production host observer,
+provider-ancestry veto, signing policy or hook is changed or mocked. The parent
+captures output and exit status, applies a 120-second deadline, and terminates
+only its own worker group on failure. This demonstrates fixture behavior, not
+permission for real mixed-provider direct reviewer evidence.
+
+The closure regression now uses a real Story branch and a committed metadata
+file, not an empty commit. That metadata commit preserves closure. A subsequent
+compiled-artifact corruption reproduced another target failure: the reader
+still returned `complete_repair_closure` although the artifact no longer matched
+GREEN. The repaired reader re-verifies runtime artifact, environment, toolchain,
+policy, blobs and current key status. Metadata reuse is permitted only on a
+clean, material-identical Git descendant; it never re-labels the old execution
+as a new execution. GREEN verifies artifact corruption and key revocation both
+reopen the obligation. The runtime integration now passes 17 checks.

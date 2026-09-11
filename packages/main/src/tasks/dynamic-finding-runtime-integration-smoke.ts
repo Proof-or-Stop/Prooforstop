@@ -9,7 +9,7 @@ import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
 import { withMkdirLock, captureMkdirLockFence } from '../core/mkdir-lock.js';
-import { createFindingLedgerHandlers, appendFindingLedger, findingLedgerSignerFromWorkspace, readCurrentFindingRuntimeEvidence } from '../handlers/finding-ledger.js';
+import { createFindingLedgerHandlers, appendFindingLedger, findingLedgerSignerFromWorkspace, readCurrentFindingRuntimeEvidence, setRuntimeEvidenceKeyStatusForTest } from '../handlers/finding-ledger.js';
 import { createFindingApplicabilityHandlers } from '../handlers/finding-applicability.js';
 import { seedCurrentReviewFixture, bindCurrentFixtureFinding } from './current-review-fixture.js';
 import { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, runBrokeredNativeReviewCli } from './native-review-fixture.js';
@@ -17,6 +17,9 @@ import { FINDING_PROTECTED_SURFACES } from '../core/finding-applicability.js';
 import { readFindingValidationConstraints, readFindingValidationPreview, assertFindingValidationConstraintsCurrent } from '../core/finding-validation.js';
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
 import { FINDING_QUALIFICATION_METRICS, FINDING_QUALIFICATION_POLICY } from '../core/finding-rollout-qualification.js';
+import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
+
+if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 
 const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-dfec-runtime-'));
 const beforeCwd = process.cwd();
@@ -53,7 +56,7 @@ population:'adversarial',storyClass:'isolated-fixture',detectorVersion:'fixture-
 timingSeconds:{classifier:0,triage:0,repair:0,convergence:0},prerequisites:[],simpleStoryRegression:null,timeoutRate:0,latencyCorpusSize:1,candidateBaselineExplained:true,
 measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, comparison]) => ({ metric, numerator: comparison === 'max' ? 0 : 1, denominator: 1, latencySeconds: 1 })))} }));`);
   git('init', '-b', 'main'); git('config', 'user.name', 'Isolated DFEC Test'); git('config', 'user.email', 'dfec@example.invalid');
-  git('add', '.'); git('commit', '-m', 'fixture baseline'); resetConfigCache(); process.chdir(root);
+  git('add', '.'); git('commit', '-m', 'fixture baseline'); git('checkout', '-b', `story/${storyId}`); resetConfigCache(); process.chdir(root);
   const store = new StoryStore(root); const ctx = { root, store, scanRoot: join(root, 'packages/main') };
   store.writeStory(storyId, { storyId, name: 'dfec', title: 'Finding runtime contract', description: 'Disposable integration corpus, never operational evidence.',
     type: 'feature', phase: 'REVIEW', priority: 'medium', createdAt: round, startedAt: round, endedAt: null, currentReviewRound: round,
@@ -155,8 +158,18 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
     rootCause: 'The controlled fixture exported the incorrect boolean.', repairCommit: git('rev-parse', 'HEAD'), closureEvidenceRefs: [red.runtimeReceiptId, green.runtimeReceiptId] });
   assert.equal(closure.mandatoryRepair.state, 'closure_proven');
   assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.reason, 'complete_repair_closure'); pass('actual same-command RED to GREEN closes latest mandatory obligation');
-  git('commit', '--allow-empty', '-m', 'record metadata only');
+  const metadataNote = `.proof-or-stop/story/actives/${storyId}/metadata-only-test.md`;
+  write(metadataNote, 'Disposable fixture audit note, no material source change.\n');
+  git('add', '--force', metadataNote); git('commit', '-m', 'record metadata only');
   assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.reason, 'complete_repair_closure');
   pass('metadata-only commit preserves current material repair closure');
+  write('build/defect.mjs', 'export const broken = true; // corrupted artifact after closure\n');
+  assert.notEqual(handlers.finding_triage({ storyId }).rows[0]!.decision.reason, 'complete_repair_closure');
+  pass('post-closure runtime artifact corruption cannot retain closure authority');
+  write('build/defect.mjs', 'export const broken = false;\n');
+  assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.reason, 'complete_repair_closure');
+  setRuntimeEvidenceKeyStatusForTest(root, 'revoked');
+  assert.notEqual(handlers.finding_triage({ storyId }).rows[0]!.decision.reason, 'complete_repair_closure');
+  pass('runtime key revocation reopens closure; metadata reuse never waives runtime trust');
   console.log(`DYNAMIC_FINDING_RUNTIME_INTEGRATION PASS ${assertions}`);
 } finally { process.chdir(beforeCwd); rmSync(root, { recursive: true, force: true }); }

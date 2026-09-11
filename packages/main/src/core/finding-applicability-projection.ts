@@ -17,6 +17,7 @@ import { readFindingQualificationScorecard } from '../handlers/finding-qualifica
 import { StoryStore as QualificationStore } from './store.js';
 import { verifyDeferralProjection } from '../handlers/finding-deferral-proof.js';
 import { verifiedIdentityCarrier } from '../handlers/finding-identity-store.js';
+import { readHistoricalFindingRuntimeEvidence, readMaterialBoundRepairRuntimeEvidence } from '../handlers/finding-ledger.js';
 
 /** Metadata-only commits must not reopen a proven repair. All material, scope,
  * acceptance and exact selected runtime evidence bindings remain mandatory. */
@@ -128,6 +129,10 @@ export function readDynamicFindingDecision(args: {
       const record = [...ledger.records].reverse().find(row => row.recordType === 'mandatory_repair'
         && (row.payload as unknown as MandatoryRepairClassification).findingId === args.finding.id)!;
       verifiedIdentityCarrier(ledger, args.storyId, record.recordId, trust!);
+      const binding = mandatoryRepair as MandatoryRepairClassification & { redReceiptId?: string; greenReceiptId?: string };
+      if (!binding.redReceiptId || !binding.greenReceiptId) throw new Error('dynamic finding: exact repair runtime pair missing');
+      readHistoricalFindingRuntimeEvidence({ store: args.store, root: args.projectRoot, scanRoot: args.projectRoot }, args.storyId, binding.redReceiptId);
+      readMaterialBoundRepairRuntimeEvidence({ store: args.store, root: args.projectRoot, scanRoot: args.projectRoot }, args.storyId, binding.greenReceiptId);
       const context = repairClosureContext(currentApplicabilityContext(args.store, args.projectRoot, args.storyId, mandatoryRepair.closureEvidenceRefs));
       if (applicabilityDigest(mandatoryRepair.closureBinding) !== applicabilityDigest(context)) mandatoryRepair = { ...mandatoryRepair, state: 'required' };
     } catch { mandatoryRepair = { ...mandatoryRepair, state: 'required' }; }

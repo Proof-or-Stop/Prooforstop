@@ -10844,7 +10844,8 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
 // entry/read/CAS guards. Each source guard has a deliberate bypass mutation.
 {
   const guards = [
-    ['packages/main/src/core/finding-applicability-projection.ts', 'rollout.killSwitch || (!args.diagnostic', 'verifiedIdentityCarrier(ledger'],
+    ['packages/main/src/core/finding-applicability-projection.ts', 'rollout.killSwitch || (!args.diagnostic', 'verifiedIdentityCarrier(ledger', 'readMaterialBoundRepairRuntimeEvidence({'],
+    ['packages/main/src/handlers/finding-ledger.ts', 'receipt.sourceMaterialHash !== material', "['merge-base', '--is-ancestor', receipt.headHash, currentHead]", 'closureReuse ? receipt.headHash : currentHead'],
     ['packages/main/src/core/finding-validation.ts', "rollout.mode !== 'enforce'", 'scopeExpansionAuthorized: false'],
     ['packages/main/src/handlers/finding.ts', "hasObligation && rollout.mode === 'enforce' && !rollout.killSwitch"],
     ['packages/main/src/handlers/finding-applicability-proof.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'row.stdout.includes(intent.selector)', 'FINDING_PROTECTED_SURFACES.every'],

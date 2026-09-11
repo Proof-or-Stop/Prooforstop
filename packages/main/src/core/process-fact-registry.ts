@@ -394,7 +394,7 @@ export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
 export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
   producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
-  semanticVerifier: 'handlers/finding-applicability-proof current reviewer proposal and executed pinned witness; finding-deferral-proof signed policy/exact progress lineage; exact ledger/CAS, route and current-source checks',
+  semanticVerifier: 'handlers/finding-applicability-proof current reviewer proposal and executed pinned witness; finding-deferral-proof signed policy/exact progress lineage; exact ledger/CAS, route and current-source checks; repair closure rechecks runtime artifacts, environment and key trust across material-identical descendant commits',
   allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'review_convergence', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish', 'story-aware-validation additive constraints'],
   gateEvidence: true,
   lifecycleAuthority: 'dynamic-blocker-projection-only',
