@@ -769,6 +769,43 @@ try {
     const blankOverride = runChildIdentity({ ...codexBase, PROOF_OR_STOP_SESSION_ID: '   ' }, true).identity;
     assert.equal(blankOverride.sessionId, codexTaskA.sessionId, 'blank explicit override falls through in a real child process');
 
+    // A Story starts in the primary checkout and then requires the same logical
+    // owner to continue from a linked worktree. The checkout boundary must not
+    // change host-adapter identity, while a different host task must still be
+    // rejected by the active owner lease.
+    const handoffRepo = join(root, 'worktree-session-handoff-repo');
+    const handoffWorktree = join(root, 'worktree-session-handoff-linked');
+    const handoffState = join(root, 'worktree-session-handoff-state');
+    mkdirSync(handoffRepo, { recursive: true });
+    execFileSync('git', ['init'], { cwd: handoffRepo, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'owner-session-smoke@example.invalid'], { cwd: handoffRepo, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.name', 'Owner Session Smoke'], { cwd: handoffRepo, stdio: 'ignore' });
+    writeFileSync(join(handoffRepo, 'README.md'), 'owner session handoff fixture\n', 'utf8');
+    execFileSync('git', ['add', 'README.md'], { cwd: handoffRepo, stdio: 'ignore' });
+    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture'], { cwd: handoffRepo, stdio: 'ignore' });
+    execFileSync('git', ['worktree', 'add', '-b', 'story/B-handoff', handoffWorktree, 'HEAD'], { cwd: handoffRepo, stdio: 'ignore' });
+
+    const runWorktreeLeaseGateChild = (cwd: string, threadId: string): { ok: boolean; error?: string } => {
+      const env = {
+        ...cleanChildEnv(),
+        CODEX_THREAD_ID: threadId,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE: 'lease-gate',
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT: handoffState,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_STORY: 'B-worktree-handoff',
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_PHASE: 'INIT_CHECK',
+      };
+      const result = spawnSync(process.execPath, [childFile], { cwd, env, encoding: 'utf8', timeout: 10_000 });
+      assert.equal(result.status, 0, `worktree owner handoff child exits cleanly: ${result.stderr}`);
+      return JSON.parse(String(result.stdout).trim()) as { ok: boolean; error?: string };
+    };
+    const rootOwner = runWorktreeLeaseGateChild(handoffRepo, 'same-logical-owner');
+    assert.equal(rootOwner.ok, true, 'the logical owner acquires the lease in the primary checkout');
+    const linkedOwner = runWorktreeLeaseGateChild(handoffWorktree, 'same-logical-owner');
+    assert.equal(linkedOwner.ok, true, 'the same logical owner continues from the Story worktree without forceTakeover');
+    const foreignOwner = runWorktreeLeaseGateChild(handoffWorktree, 'different-logical-owner');
+    assert.equal(foreignOwner.ok, false, 'a genuinely different host task cannot steal the active lease in the Story worktree');
+    assert.match(foreignOwner.error ?? '', /owner-gated|still ACTIVE/, 'foreign-task refusal retains the active-lease boundary');
+
     // Race two independent token creator processes for one scope. The scope
     // lock plus atomic rename makes both children return exactly one token.
     const raceRoot = join(root, 'token-race');
