@@ -57,8 +57,34 @@ quorum acceptance test. Runtime fact verification now invokes this regression,
 so it is not an unregistered scratch probe.
 
 Both main and utils builds pass. The existing runtime fact contract passes.
-Real quorum case verification and independent audit are recorded during local
-integration; a source-level GREEN alone does not claim release completion.
+The real `qsm-020` full-envelope replay/tamper case passes with a clean protected
+mutation guard and no remaining fixture/process/ticket/quarantine residue.
+A source-level GREEN alone does not claim release completion.
+
+An additional `qsm-022` run passed its body but was correctly rejected by the
+outer protected-mutation guard while audit documentation and Claude hook
+activity changed the workspace. A second overlapping run preserved all tracked
+bytes but still observed the Claude activity append. Neither aggregate FAIL is
+reported as PASS. The final confirmation must run after audit completion without
+concurrent writers; this does not justify changing the runner or disabling hooks.
+
+## Independent Claude CLI review
+
+The first tool-enabled review timed out after 240 seconds and produced no final
+verdict. It is not acceptance evidence. A second bounded, tools-disabled review
+received the complete repair diff, target test and these notes; it completed
+successfully with session `360211b7-e352-4cb7-be95-46af024aaddb` and verdict
+**no blockers**. That reviewer inspected the supplied code; it did not execute
+commands. The actual tests above were run separately by the implementation task.
+
+The review confirmed preservation of both normalization passes, live mutation
+and regex behavior, captured exception checks and ordered canonical subsets.
+It identified these evidence limitations: AST extraction is a helper test, not
+host assurance; operation counts are not elapsed Story time; mutation checks
+need their own process; and any bounded subprocess can fail on a stalled host.
+The regression is executed in its own child process, acquires no validation
+capacity slot, and retains its bounded 30-second failure timeout. No safety
+timeout or gate was weakened to turn that advisory into a passing claim.
 
 ## Existing baseline and retained work
 
