@@ -1497,6 +1497,31 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/verification.ts',
     ],
   },
+  'runtime:external_story_worktree_bootstrap_authority_gate': {
+    producerSourceRefs: [
+      'packages/main/src/cli-engine.ts',
+      'packages/main/src/cli/runtime-root.ts',
+      'packages/main/src/cli/ownership-gate.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/auto-commit-metadata.ts',
+      'packages/main/src/handlers/context.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
+  },
+  'runtime:go_command_acceptance_gate': {
+    producerSourceRefs: [
+      'packages/main/src/core/acceptance-discovery-adapters.ts',
+      'packages/main/src/core/pre-review-check.ts',
+      'packages/main/src/core/verification-execution-evidence.ts',
+      'packages/main/src/core/validation-executor.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/acceptance-topology.ts',
+      'packages/main/src/handlers/proofstory.ts',
+      'packages/main/src/handlers/transition-orchestrator.ts',
+    ],
+  },
 };
 
 const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEVELS
@@ -1719,7 +1744,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
     consumerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.pre_review_check,
-    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, artifact-kind/runtime-aware planned-to-actual reconciliation, and the gzip-carried canonical machine records emitted only after the bounded production scenario ledger executes. The loader requires every exact current-topology assertion ID, kind, and canonical sourceRef with no missing/extra/duplicate rows; records are assembled by ID rather than positional kind queues, so permutations or swaps cannot reattribute executed outcomes. It also requires distinct mutation target/kind pairs, observed polarity plus clean controls, ordered producer/consumer events, and a mechanically recomputed aggregate root. Both live loading and signed-artifact readback compare proof provenance against the current tracked runner and built target; the fixed runner performs a fresh build before emission. Stale runner/target bytes, stale gitignored dist, arbitrary formatted digests, hard-coded story/counts, arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation. Non-enforcing semantic readback retains the signed artifact critic-receipt digest so legal reviewer receipt renewal alone is not mislabeled as tampering; enforce mode remains bound to the current critic receipt while signature and basis/story/closure drift checks stay fail-closed.',
+    rationale: 'Verifier-owned signed pre-review artifact binds the selected verification profile, recomputed current-worktree basis, strict cutoff, and topology/scope/story/closure hashes. TypeScript and mixed workspaces retain artifact-kind/runtime-aware planned-to-actual reconciliation plus gzip-carried canonical positive, mutation, control, transcript, provenance, and independent critic proof. Pure Go workspaces use the separate go-command profile: every executable must intent needs its immutable command/selector pin and current tool-owned signed receipt, and at least one authenticated execution must be argv-structured go test. Missing, failed, stale, cutoff-invalid, mismatched, unsigned, or non-Go-only evidence fails closed; unsupported languages receive no Go authority. Non-enforcing semantic readback retains the signed artifact critic-receipt digest so legal reviewer receipt renewal alone is not mislabeled as tampering; this critic rule applies to the TypeScript profile.',
   },
   {
     name: 'artifact:acceptance-rollout-report.json',

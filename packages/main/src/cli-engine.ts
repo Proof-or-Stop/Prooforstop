@@ -61,6 +61,7 @@ import { enforceReviewerReadOnlyCommandGate } from './cli/reviewer-readonly-gate
 import { enforceStoryRuntimeAdmission } from './cli/story-runtime-admission.js';
 import {
   resolveMainRootFromWorktreeRoot,
+  projectControllerAssetsIntoStoryWorktree,
   resolveRoot,
   resolveRootForCommand,
 } from './cli/runtime-root.js';
@@ -80,6 +81,8 @@ import {
 } from './cli/lifecycle-dispatch.js';
 import { CliWatchdogTimeoutError, commandCliMaxBudget, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 import { getSessionIdentity } from './core/owner-session.js';
+import { resolveAgentMutationAuthority } from './core/agent-dispatch-registry.js';
+import type { AgentDispatchMutationCommand } from './core/types.js';
 import {
   assertCanonicalActiveIdentityCommandConsumers,
   assertCanonicalActiveIdentityRuntime,
@@ -864,7 +867,7 @@ export async function runCli(opts?: {
   preflightStrictCommandArgsBeforeStoryReads(cmd, argv);
 
   // Detect active story from git branch only after runtime authority passes.
-  const activeStory = detectActiveStory(root0);
+  let activeStory = detectActiveStory(root0);
   const gitReady = isGitRepository(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') {
@@ -993,8 +996,46 @@ export async function runCli(opts?: {
     else parsed.brief = true;
   }
 
+  // External harnesses may create the Story in the controller checkout after
+  // creating its linked worktree. Once command identity, schema and owner
+  // authority are known, project those bounded bootstrap assets into the exact
+  // registered Story worktree. That tree becomes the sole writer from here on.
+  let root = root0;
+  const bootstrapMainRoot = resolveMainRootFromWorktreeRoot(process.cwd());
+  const controllerRoot = bootstrapMainRoot !== null && realpathSync(root0) === realpathSync(process.cwd())
+    ? bootstrapMainRoot
+    : root0;
+  const controllerStore = new StoryStore(controllerRoot);
+  const controllerConfig = controllerRoot === root0 && runtimeOwnershipConfig ? runtimeOwnershipConfig : loadConfig(controllerRoot);
+  const bootstrapStoryId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: controllerRoot });
+  const bootstrapOwnership = resolveEffectiveOwnershipClass(
+    cmd, parsed, bootstrapStoryId, externalAdmission.ownershipClasses, { config: controllerConfig },
+  );
+  const localStoryAlreadyProjected = Boolean(bootstrapStoryId
+    && hasProjectConfigFile(process.cwd())
+    && existsSync(new StoryStore(process.cwd()).storyDirPath(bootstrapStoryId)));
+  if (localStoryAlreadyProjected) {
+    root = process.cwd();
+    activeStory = detectActiveStory(root);
+  } else if (bootstrapStoryId
+    && (bootstrapOwnership === 'storyScopedMutating' || bootstrapOwnership === 'dangerousMutating')
+    && bootstrapMainRoot !== null && realpathSync(bootstrapMainRoot) === realpathSync(controllerRoot)) {
+    // Every non-writing admission check precedes projection. Handler-level
+    // authority remains in force and is repeated after local context creation.
+    enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory, externalAdmission.ownershipClasses, controllerConfig);
+    enforceRetiredRootGuard(cmd, parsed, controllerConfig, activeStory, controllerRoot, externalAdmission.ownershipClasses);
+    enforceStoryRuntimeAdmission({ command: cmd, commandArgs: argv.slice(1), projectRoot: controllerRoot, effectiveOwnership: bootstrapOwnership, invokedEntrypoint: process.argv[1] ?? null, env: process.env });
+    resolveAgentMutationAuthority({ command: cmd as AgentDispatchMutationCommand });
+    enforceStoryOwnerLeaseGate(cmd, parsed, controllerStore, activeStory, controllerRoot, externalAdmission.ownershipClasses, controllerConfig, { readOnlyAdmission: true });
+    projectControllerAssetsIntoStoryWorktree({ controllerRoot, worktreeRoot: process.cwd(), storyId: bootstrapStoryId });
+    root = process.cwd();
+    activeStory = detectActiveStory(root);
+  }
+  if (root !== root0 && activeStory && !isCommandAllowed(cmd, activeStory.phase, loadConfig(root).phaseTools)) {
+    throw new Error(`Command "${cmd}" is not available in ${activeStory.phase} phase`);
+  }
+
   // Execute
-  const root = root0;
   // Durable main-root fallback for post-command activity logging.
   // story_advance --phase=DONE removes the current story worktree mid-command.
   // Once removed, root/.git is gone, so resolveMainRootFromWorktreeRoot() can no
@@ -1010,7 +1051,7 @@ export async function runCli(opts?: {
     process.stderr.write(`[${elapsed}s] ${msg}\n`);
   };
 
-  const config0 = runtimeOwnershipConfig ?? loadConfig(root);
+  const config0 = root === root0 && runtimeOwnershipConfig ? runtimeOwnershipConfig : loadConfig(root);
   const scanRoot = join(root, config0.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };
   const registry = createMainRegistry(ctx);

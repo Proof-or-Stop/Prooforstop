@@ -1678,6 +1678,7 @@ export const VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST: ReadonlySet<string> = ne
   'yarn',
   'tsx',
   'bun',
+  'go',
 ]);
 
 export interface EvidenceCommandIdentity {

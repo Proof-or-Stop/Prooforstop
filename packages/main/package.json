@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.316",
+  "version": "0.3.317",
   "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -111,6 +111,7 @@
     "test:review-budget-stall-adjudication-smoke": "node dist/tasks/review-budget-stall-adjudication-smoke.js",
     "test:proofstory-acceptance-topology-smoke": "node dist/tasks/proofstory-acceptance-topology-smoke.js",
     "test:proofstory-acceptance-basis-smoke": "node dist/tasks/proofstory-acceptance-basis-smoke.js",
+    "test:external-worktree-go-pre-review": "node ../../scripts/verify-external-worktree-go-pre-review.mjs",
     "test:retired-authority-server-semantics": "node dist/tasks/retired-authority-server-semantics-smoke.js",
     "test:source-structure-convergence": "node dist/tasks/source-structure-convergence-smoke.js",
     "usage-ledger-report": "node dist/tasks/usage-ledger-report.js",

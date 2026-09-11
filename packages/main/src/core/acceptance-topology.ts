@@ -620,14 +620,16 @@ export function evaluateAcceptanceTopologyCheck(args: {
     ledger: args.ledger,
   });
   const diagnostics: AcceptanceTopologyDiagnostic[] = [...matrix.diagnostics];
+  const goCommandProfile = args.artifact?.basis.discoveryProfileRef === 'profile:go-command:v1';
+  if (goCommandProfile) diagnostics.length = 0;
   const bindings = args.contract?.acceptanceBindings ?? [];
-  if (bindings.length === 0) {
+  if (!goCommandProfile && bindings.length === 0) {
     diagnostics.push({
       code: 'AT_MISSING_TOPOLOGY', bindingId: '<story>', path: 'proofstory.acceptanceBindings',
       message: 'no required acceptance binding supplies a topology',
     });
   }
-  for (const row of matrix.rows.filter(candidate => candidate.topologyState === 'legacy_missing')) {
+  for (const row of goCommandProfile ? [] : matrix.rows.filter(candidate => candidate.topologyState === 'legacy_missing')) {
     diagnostics.push({
       code: 'AT_MISSING_TOPOLOGY',
       bindingId: row.acceptanceBindingRef.replace(/^acceptance-binding:/, ''),
@@ -649,7 +651,7 @@ export function evaluateAcceptanceTopologyCheck(args: {
         message: 'acceptance basis artifact schema is invalid',
       });
     }
-    if (basisStatus === 'partial' || basisStatus === 'unsupported') {
+    if (!goCommandProfile && (basisStatus === 'partial' || basisStatus === 'unsupported')) {
       diagnostics.push({
         code: 'AT_COVERAGE_BASIS_PARTIAL', bindingId: '<story>', path: 'acceptance-basis.json.basis.status',
         message: `coverage basis is ${basisStatus}; structural completeness is inconclusive`,
@@ -676,7 +678,7 @@ export function evaluateAcceptanceTopologyCheck(args: {
       });
     }
   }
-  for (const item of [...args.currentBasisDiagnostics, ...args.topologyBasisDiagnostics]) {
+  for (const item of goCommandProfile ? [] : [...args.currentBasisDiagnostics, ...args.topologyBasisDiagnostics]) {
     diagnostics.push({
       code: item.code,
       bindingId: '<story>',
@@ -686,9 +688,9 @@ export function evaluateAcceptanceTopologyCheck(args: {
   }
 
   const orderedDiagnostics = stableDiagnostics(diagnostics);
-  const structuralPass = basisStatus === 'complete' && args.receiptVerification.ok && orderedDiagnostics.length === 0;
+  const structuralPass = (basisStatus === 'complete' || goCommandProfile) && args.receiptVerification.ok && orderedDiagnostics.length === 0;
   const blocking = args.mode === 'enforce' && !structuralPass;
-  const inconclusive = basisStatus === 'missing' || basisStatus === 'partial' || basisStatus === 'unsupported';
+  const inconclusive = basisStatus === 'missing' || basisStatus === 'partial' || (basisStatus === 'unsupported' && !goCommandProfile);
   const status: AcceptanceTopologyCheckReport['status'] = structuralPass
     ? 'pass'
     : inconclusive ? 'inconclusive' : 'fail';

@@ -84,6 +84,7 @@ import {
   type AcceptanceRolloutVerification,
 } from '../core/acceptance-rollout.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { resolveAcceptanceVerificationProfile } from '../core/acceptance-discovery-adapters.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -228,6 +229,7 @@ export function currentPreReviewInputForContext(ctx: HandlerContext, storyId: st
   const criticReceipt = ctx.store.readTopologyCriticReceipt(storyId);
   const cutoffAt = new Date().toISOString();
   const contract = ctx.store.readProofStoryContract(storyId);
+  const verificationProfile = resolveAcceptanceVerificationProfile(current.workspace.signedWorkspaceRoot);
   const executableProof = loadVerifiedPreReviewExecutableProof({
     gitCwd: current.workspace.signedWorkspaceRoot,
     metadataRoot: current.workspace.metadataRoot,
@@ -251,6 +253,7 @@ export function currentPreReviewInputForContext(ctx: HandlerContext, storyId: st
     topologyDigest: current.derivation.topologyDigest,
     topologyDiagnosticCodes,
     criticVerification,
+    verificationProfile,
     ...(criticReceipt ? { criticReceiptDigest: `sha256:${digestCanonicalJson(criticReceipt)}` } : {}),
   };
 }

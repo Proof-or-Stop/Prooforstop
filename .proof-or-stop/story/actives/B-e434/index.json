@@ -1,0 +1,52 @@
+{
+  "storyId": "B-e434",
+  "name": "external-worktree-go-pre-review-reachability",
+  "title": "Keep external linked-worktree metadata and Go pre-review enforcement reachable",
+  "description": "Fix the benchmark-visible lifecycle deadlock where an externally provisioned primary checkout stores control assets while Story code runs in a linked worktree, and where the TypeScript-only acceptance discovery profile makes an enforced Go Story impossible to advance despite current passing registered verification.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "external-project",
+    "linked-worktree",
+    "metadata-root",
+    "config-snapshot",
+    "go",
+    "pre-review",
+    "discovery-applicability"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-09-11T13:20:33.364Z",
+  "startedAt": "2026-09-11T13:20:33.364Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-11T13:20:34.701Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-83782db98e030c6ddf25f01f5750f48a",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-11T13:25:12.647Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-83782db98e030c6ddf25f01f5750f48a",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e434",
+    "branch": "story/B-e434",
+    "createdAt": "2026-09-11T13:25:01.454Z"
+  }
+}
