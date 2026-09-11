@@ -1,0 +1,29 @@
+[
+  {
+    "name": "bug-summary",
+    "command": [
+      "node",
+      "scripts/verify-story-list-bug-summary.mjs"
+    ],
+    "exitCode": 0,
+    "seconds": 0.627659208
+  },
+  {
+    "name": "brief-output",
+    "command": [
+      "node",
+      "packages/main/dist/tasks/brief-output-smoke.js"
+    ],
+    "exitCode": 0,
+    "seconds": 33.563419208
+  },
+  {
+    "name": "process-fact",
+    "command": [
+      "node",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "exitCode": 0,
+    "seconds": 5.523646040999999
+  }
+]

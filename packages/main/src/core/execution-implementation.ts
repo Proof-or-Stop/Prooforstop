@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 import {existsSync,readFileSync,readdirSync,realpathSync} from 'node:fs';
-import {dirname,join,resolve} from 'node:path';
+import {dirname,isAbsolute,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {EXECUTION_IMPLEMENTATION_PIN_POLICY} from './runtime-fact-registry.js';
@@ -77,11 +77,38 @@ export function executionImplementationIdentity() {
 
 /** Opt-in transport contract shared by bootstrap, direct global CLI and all roles. */
 export function enforceExecutionImplementationPin(): ReturnType<typeof executionImplementationIdentity> | undefined {
-  const expected=process.env.PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST;
-  const required=process.env.PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN==='1';
+  let expected=process.env.PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST;
+  let required=process.env.PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN==='1';
+  const manifestPath=process.env.PROOF_OR_STOP_IMPLEMENTATION_MANIFEST;
+  if(manifestPath !== undefined) {
+    let manifest: {schema?:unknown;digest?:unknown;entrypoint?:unknown;entrypoints?:unknown};
+    try { manifest=JSON.parse(readFileSync(manifestPath,'utf8')); }
+    catch { throw new Error('IMPLEMENTATION_MANIFEST_UNREADABLE'); }
+    if(!manifest || manifest.schema!==EXECUTION_IMPLEMENTATION_PIN_POLICY.sessionSchema ||
+       typeof manifest.digest!=='string' || !/^[a-f0-9]{64}$/.test(manifest.digest) ||
+       typeof manifest.entrypoint!=='string' || !isAbsolute(manifest.entrypoint))
+      throw new Error('IMPLEMENTATION_MANIFEST_INVALID');
+    const entries=manifest.entrypoints??[{entrypoint:manifest.entrypoint,digest:manifest.digest}];
+    if(!Array.isArray(entries) || entries.length===0 || entries.some(row=>!row ||
+       typeof row.entrypoint!=='string' || !isAbsolute(row.entrypoint) ||
+       typeof row.digest!=='string' || !/^[a-f0-9]{64}$/.test(row.digest)) ||
+       new Set(entries.map(row=>row.entrypoint)).size!==entries.length ||
+       !entries.some(row=>row.entrypoint===manifest.entrypoint && row.digest===manifest.digest))
+      throw new Error('IMPLEMENTATION_MANIFEST_INVALID');
+    const actualEntry=process.argv[1]?realpathSync(resolve(process.argv[1])):null;
+    const selected=entries.find(row=>row.entrypoint===actualEntry);
+    if(!selected) throw new Error('IMPLEMENTATION_MANIFEST_ENTRYPOINT_MISMATCH');
+    if(expected!==undefined && expected!==selected.digest) throw new Error('IMPLEMENTATION_MANIFEST_PIN_CONFLICT');
+    expected=selected.digest;
+    required=true;
+  }
   if(!expected && !required)return undefined;
   if(!expected || !/^[a-f0-9]{64}$/.test(expected))throw new Error('IMPLEMENTATION_PIN_MISSING_OR_INVALID');
   const actual=executionImplementationIdentity();
   if(actual.digest!==expected)throw new Error(`IMPLEMENTATION_PIN_MISMATCH: expected=${expected} actual=${actual.digest} entrypoint=${actual.entrypoint}`);
+  if(manifestPath!==undefined) process.stderr.write('IMPLEMENTATION_SESSION_WITNESS '+JSON.stringify({
+    schema:EXECUTION_IMPLEMENTATION_PIN_POLICY.witnessSchema,pid:process.pid,digest:actual.digest,
+    entrypoint:actual.entrypoint,argvDigest:sha(JSON.stringify(process.argv.slice(2))),
+  })+'\n');
   return actual;
 }

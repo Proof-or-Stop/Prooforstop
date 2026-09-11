@@ -1,0 +1,30 @@
+{
+  "schema": "lab.bounded-query-repair.v1",
+  "status": "MECHANISM_GREEN",
+  "rootCauses": [
+    "REVIEW missing from active allowlist",
+    "explicit filter applied after all detail hydration"
+  ],
+  "productionBase": "442f6f38b6c6cb5f89521ddf9f79cabdd065a5c4",
+  "repairHead": "af32eb6b0b159630480e78acc16d8ed5165f3140",
+  "nativeRed": "query-selection-proof/native-status.json",
+  "nativeGreen": "query-selection-proof/native-status.json",
+  "claudeAudits": [
+    "query-selection-proof/claude-audit/audit.json",
+    "query-selection-proof/claude-followup/audit.json"
+  ],
+  "performanceStatus": "EXPLORATORY_REVIEW_QUERY_ONLY",
+  "overallSixClaimsClosed": false,
+  "mainIntegrated": false,
+  "versionChanged": false,
+  "limitations": [
+    "Does not identify dominant cause of hours-long Story delivery.",
+    "Three pairs, order imbalance, high-selectivity REVIEW-only scenario.",
+    "File-input observation is limited, not a closed execution trace."
+  ],
+  "evidence": [
+    "query-selection-proof/REPORT.md",
+    "query-selection-proof/timing-results.json",
+    "query-selection-proof/regressions.json"
+  ]
+}

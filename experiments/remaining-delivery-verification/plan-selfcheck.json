@@ -1,0 +1,106 @@
+{
+  "schema": "lab.plan-integrity-check.v1",
+  "pass": true,
+  "gateEvidence": false,
+  "planSha256": "ee06342bf21b67aee1fd9abd0ab2f522e3fd2c5ab00225afde2a2811fe66210f",
+  "acceptanceSha256": "aa12ed65b67684bac8dea0146619f4f420f42ae3e79584ab13a58c80af2dd5ec",
+  "verifierSha256": "9bf89f679454b930d5ff50d72b57bba1cfee9fd4dc5325dbe487e696b0a7675a",
+  "itemCount": 6,
+  "statuses": [
+    {
+      "id": "V1",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "V2",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "V3",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "V4",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "V5",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "V6",
+      "status": "NOT_RUN"
+    }
+  ],
+  "negativeControls": [
+    {
+      "name": "missing-parent-scope",
+      "rejected": true
+    },
+    {
+      "name": "missing-child-scope",
+      "rejected": true
+    },
+    {
+      "name": "unrun-child-promoted-to-parent-pass",
+      "rejected": true
+    },
+    {
+      "name": "child-progress-without-evidence",
+      "rejected": true
+    },
+    {
+      "name": "unrun-row-with-timing",
+      "rejected": true
+    },
+    {
+      "name": "missing-limitations",
+      "rejected": true
+    },
+    {
+      "name": "unknown-status",
+      "rejected": true
+    },
+    {
+      "name": "stale-plan-digest",
+      "rejected": true
+    },
+    {
+      "name": "deleted-amendment-history",
+      "rejected": true
+    },
+    {
+      "name": "tampered-previous-plan-digest",
+      "rejected": true
+    },
+    {
+      "name": "setup-blocked-with-unsupported-timing",
+      "rejected": true
+    },
+    {
+      "name": "missing-pre-receipt-cohort",
+      "rejected": true
+    },
+    {
+      "name": "missing-held-out-cohort",
+      "rejected": true
+    },
+    {
+      "name": "pilot-promoted-to-performance",
+      "rejected": true
+    },
+    {
+      "name": "nested-scope-missing",
+      "rejected": true
+    },
+    {
+      "name": "nested-aggregate-mismatch",
+      "rejected": true
+    },
+    {
+      "name": "unrecorded-plan-amendment-head",
+      "rejected": true
+    }
+  ],
+  "scope": "Plan ledger shape, conservative aggregation and revision provenance only. Does not validate future execution receipts or prove a product or performance GREEN."
+}

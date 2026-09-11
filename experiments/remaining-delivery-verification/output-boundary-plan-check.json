@@ -1,0 +1,71 @@
+{
+  "kind": "verification-plan boundary arithmetic; not a production recovery execution",
+  "pass": true,
+  "cap": 1048576,
+  "rows": [
+    {
+      "name": "serialized-minus-one",
+      "codeUnits": 1048562,
+      "serializedBytes": 1048575,
+      "withinCodeUnits": true,
+      "withinSerializedBytes": true
+    },
+    {
+      "name": "serialized-exact",
+      "codeUnits": 1048563,
+      "serializedBytes": 1048576,
+      "withinCodeUnits": true,
+      "withinSerializedBytes": true
+    },
+    {
+      "name": "serialized-plus-one",
+      "codeUnits": 1048564,
+      "serializedBytes": 1048577,
+      "withinCodeUnits": true,
+      "withinSerializedBytes": false
+    },
+    {
+      "name": "code-units-minus-one",
+      "codeUnits": 1048575,
+      "serializedBytes": 1048588,
+      "withinCodeUnits": true,
+      "withinSerializedBytes": false
+    },
+    {
+      "name": "code-units-exact",
+      "codeUnits": 1048576,
+      "serializedBytes": 1048589,
+      "withinCodeUnits": true,
+      "withinSerializedBytes": false
+    },
+    {
+      "name": "code-units-plus-one",
+      "codeUnits": 1048577,
+      "serializedBytes": 1048590,
+      "withinCodeUnits": false,
+      "withinSerializedBytes": false
+    },
+    {
+      "name": "utf8-straddle",
+      "codeUnits": 524288,
+      "serializedBytes": 1048589,
+      "withinCodeUnits": true,
+      "withinSerializedBytes": false
+    },
+    {
+      "name": "escape-straddle",
+      "codeUnits": 524288,
+      "serializedBytes": 1048589,
+      "withinCodeUnits": true,
+      "withinSerializedBytes": false
+    },
+    {
+      "name": "lone-surrogate-straddle",
+      "codeUnits": 262144,
+      "serializedBytes": 1572877,
+      "withinCodeUnits": true,
+      "withinSerializedBytes": false
+    }
+  ],
+  "reverseStraddle": "Impossible for the standard string-object serialization: serialized UTF-8 JSON bytes >= UTF-16 code units + 13 bytes of object syntax. Do not fabricate an over-character/under-byte case."
+}

@@ -510,6 +510,76 @@ mismatched required pins before dispatch. This is opt-in: it does not silently
 upgrade old worktrees or assert that unpinned sessions have uniform provenance.
 It does not authenticate a hostile host or replace signed evidence/freshness.
 
+For an explicitly enrolled local owner/reviewer cohort, capture one approved
+runtime epoch, then launch both hosts through the same transport:
+
+```sh
+node scripts/implementation-session.mjs capture /absolute/path/new-epoch.json
+node scripts/implementation-session.mjs exec /absolute/path/new-epoch.json -- proof-or-stop --version
+node scripts/implementation-session.mjs exec /absolute/path/new-epoch.json -- claude
+```
+
+The session transport also supplies a content-bound Node preload. It refuses an
+unapproved recognized CLI entry before an older implementation can ignore the
+pin variables. The recognized scope is the canonical Node wrapper filenames and
+`dist/cli.js` inside a Proof-or-Stop core package. A new capture is required after
+this transport change; an existing epoch is never silently repinned. Both
+canonical CLI entries and ordinary Node tools remain available. The guard's own
+directory fixes the entry allowlist, so editing a manifest cannot enroll an old
+unaware CLI. This is cooperative inherited-environment protection, not an OS
+sandbox against environment removal, alternate runtimes, or disguised imports.
+Copied entries with different filenames and packages using retired names are
+outside this recognition boundary; the symlink test proves realpath alias
+handling only.
+Existing foreign desktop sessions are not migrated by starting a Lab session.
+
+Plain host commands use a local pipe-lifetime anchor. Managed launches that
+publish the actual provider PID through `onSpawn` or deliver a signed review
+invocation descriptor retain the current managed provider lifecycle; the anchor
+does not replace their PID identity or fd 3 protocol. The provider runs inside the isolated
+group, while the anchor remains alive until controller cleanup. A
+provider that exits first therefore cannot remove the owned leader while its
+descendants retain those pipes. Timeout/cancellation signals that owned group
+with a matching live fingerprint (or a fresh late observation of the still
+unreaped anchor). Provider exit code, signal and spawn errors use private IPC;
+output remains streamed. This adds one Node process per real POSIX run, so normal
+command overhead is measured separately from timeout recovery.
+On normal provider completion the anchor flushes forwarded stdout/stderr before
+sending its private completion message, and keeps the group leader alive. The
+controller then signals the attested owned group and waits for the anchor's
+actual close before returning the original provider result. This also terminates
+ordinary background descendants that closed their output pipes but still hold
+resources needed by the next invocation. These bounded host jobs do not grant
+implicit permission to keep services running after the host finishes.
+If normal-completion cleanup cannot attest or signal the group, the runner emits
+`HOST_GROUP_CLEANUP_UNVERIFIED` and refuses success. A controller disconnect makes
+the private anchor terminate its own group. This is bounded local POSIX cleanup,
+not durable crash supervision or a guarantee against deliberate group escape.
+Missing identity, injected runner seams, and Windows retain direct-child fallback; that fallback
+does not prove descendant cleanup. A process that deliberately creates another
+group is outside this bounded cleanup guarantee. Failure stays failure; recovery
+latency is measured separately from successful Story delivery time.
+
+Capture records both ordinary and canonical Codex entrypoints with their own
+exact pins and requires identical implementation file inventories. Their entry
+wrapper bytes differ, so their complete entry-specific digests need not be equal.
+Capture refuses to overwrite an existing epoch. Exec validates the bound runtime,
+and refuses older single-entry manifests before launching any host;
+sets a private PATH shim for the selected absolute CLI, and carries the manifest
+and required pin through child environments. The CLI itself rejects missing,
+malformed, conflicting or mismatched manifests before dispatch. Each admitted CLI
+process emits `IMPLEMENTATION_SESSION_WITNESS` on stderr with its actual digest,
+entrypoint, PID and argument digest (no raw argument values). The argument digest
+is a correlation token, not confidentiality: guessable arguments can be tested
+against it. These are unsigned
+runtime diagnostics, not role authority or Story acceptance evidence. Inspect
+actual command witnesses, not just the launcher's admission check. A runtime
+change requires a deliberate new captured epoch; it is never silently re-pinned.
+An already-running host must explicitly adopt this transport. Unenrolled hosts,
+environment-stripping callers and hostile local administrators are not made
+uniform or sandboxed by this opt-in mechanism. Lab adoption does not migrate
+other live Story worktrees or change the global installation.
+
 The candidate also renews an existing same-owner lease through the actual
 `verification_evidence_add` and `verification_evidence_batch_add` execution and
 canonical publication paths. A missing, expired or transferred generation remains
@@ -802,3 +872,31 @@ Failed-command diagnostics preserve both the output prefix and terminal failure
 context within the existing character budget. Successful commands retain their
 existing bounded prefix presentation. Execution receipts continue to consume the
 complete captured output.
+
+### Losing ownership while queued
+
+Official validation passes the lease heartbeat's cancellation signal into capacity
+acquisition and combines it with caller cancellation. A failed renewal removes the
+waiting invocation's own capacity ticket and refuses before entering its callback.
+The default heartbeat interval remains 30 seconds; this is the detection bound, not
+a promise of instantaneous revocation. Already-running child commands retain their
+existing launch and publication checks; this change does not terminate arbitrary
+subprocesses. Missing or expired ownership at entry still refuses immediately.
+
+The incremental Lab regression keeps prior repairs in its baseline and compares
+refusal latency after private lease revocation under identical capacity contention.
+Healthy owners still wait and execute; caller aborts keep their original reason.
+This mechanism result does not measure overall Story delivery time or establish
+that other running hosts have adopted this runtime.
+
+Existing activity records now include `implementation.status`: `verified-at-entry`
+with the checked digest, actual entry path and PID, or `unverified` when no pin
+was required. The CLI reuses its admission result; publishing this field performs
+no additional implementation scan and does not enable read-only logging. This
+runtime observation is unsigned diagnostic data, not continuous code attestation,
+Story role authority or proof that every live host has enrolled. Historical rows
+without this field remain unknown. Collection must distinguish observed session
+labels from actual live host counts.
+Nested capacity reuse also checks cancellation before entering its callback.
+Signal forwarding uses base AbortController methods and removes listeners on
+success, refusal and callback failure, retaining the existing Node runtime floor.

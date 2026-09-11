@@ -1,0 +1,13 @@
+{
+  "archive": "historical-raw-transcripts.tar.gz",
+  "sha256": "4c6209eb6d75c95196f48187ed3929cd0355eeaeb9b662a375ec45d43275fe19",
+  "files": {
+    "experiments/remaining-delivery-verification/audit/claude-plan-audit/stream.jsonl": "e9ce3caebadc7f8e8f52e7c1738462e0cd3679a534c25977adfd68ff9faeacb1",
+    "experiments/remaining-delivery-verification/audit/claude-plan-reaudit/stream.jsonl": "6d0dab35d4324fc66390f72080186661fbb74c111b9c0807f2ea9a0ad70191c4",
+    "experiments/remaining-delivery-verification/census/active-story-census.stdout": "597e6bbd613a8fe7952ba7dd42ec4877f232b3ee10246b16be26223cff54863f",
+    "experiments/remaining-delivery-verification/census/authoritative-story-details.json": "fc01a6136c5fa693dfb563d0a8f7d453715e5fe28d2b200760cfbb3368439704",
+    "experiments/remaining-delivery-verification/query-selection-proof/claude-audit/stream.jsonl": "fa310b6ec573c6590144a568aead95e8702b13a33cdd32c61396e20db222c42a",
+    "experiments/remaining-delivery-verification/query-selection-proof/claude-followup/stream.jsonl": "712c05d10eb4a0c48d5199da28ed094c36529e268155c9c86b3525a67f156670"
+  },
+  "reason": "Preserve raw historical stdout and provider transcripts as exact archived evidence; they are not active product command/role definitions. No source scanner rules were weakened."
+}

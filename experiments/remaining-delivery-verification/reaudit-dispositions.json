@@ -1,0 +1,34 @@
+{
+  "scope": "Developer disposition after Claude PASS-FOR-VERIFICATION-PLAN with residual reporting suggestions; no new product claim",
+  "auditSource": "audit/claude-plan-reaudit/audit.json",
+  "planBytesUnchanged": true,
+  "independentlyReauditedAfterTheseEdits": false,
+  "findings": [
+    {
+      "id": "R1",
+      "disposition": "fixed",
+      "evidence": "V5.3 plus missing-pre-receipt-cohort control"
+    },
+    {
+      "id": "R2",
+      "disposition": "fixed",
+      "evidence": "V1.1 pilot refusal and V1.3 held-out row plus two controls"
+    },
+    {
+      "id": "R3",
+      "disposition": "fixed within retained-checkpoint model",
+      "evidence": "exact acceptance/verifier digests, prior self-check plan head and unrecorded-plan-amendment-head control",
+      "limitation": "Deleting or jointly changing all local trusted records is not prevented by local digest bookkeeping."
+    },
+    {
+      "id": "R4",
+      "disposition": "fixed",
+      "evidence": "SETUP_BLOCKED nullity and rejection control"
+    },
+    {
+      "id": "R5",
+      "disposition": "fixed",
+      "evidence": "recursive row and aggregate validation plus two nested controls"
+    }
+  ]
+}

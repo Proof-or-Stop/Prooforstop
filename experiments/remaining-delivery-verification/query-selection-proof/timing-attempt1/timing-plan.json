@@ -1,0 +1,14 @@
+{
+  "scope": "Exploratory read-only query latency on the current repository, not Story delivery performance",
+  "cases": ["active", "review"],
+  "pairsPerCase": 3,
+  "orders": [["red", "green"], ["green", "red"], ["red", "green"]],
+  "primaryTime": "uninstrumented handler elapsedMs, excludes import/build/process startup",
+  "instrumentedWitnesses": "one per arm and query to count detail calls and digest input/output",
+  "sameCoveragePerformanceCase": "review: outputs must be byte-equivalent before timing comparison",
+  "correctnessCase": "active: baseline omissions prevent equal-output speedup claim; report observations without attributing percentage",
+  "analysis": "all runs retained; report medians and range; no statistical or global speedup claim from three pairs",
+  "inputRule": "union of instrumented input paths is checked before and after timing; changed input makes the contrast invalid",
+  "maxSeconds": 300,
+  "noWrites": "handlers only read live Story state; no CLI lifecycle mutation, worktree migration or gate relaxation"
+}
