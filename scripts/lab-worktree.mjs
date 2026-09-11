@@ -306,6 +306,7 @@ async function main() {
     if (entry && (entry.branch !== `refs/heads/${s.branch}` || entry.locked)) fail('Lab branch changed or worktree is locked; preserve it for inspection.');
     if (entry) assertClean(s.path, s.override);
     const ensureAudit = async (base, head) => {
+      assertAncestor(s.path, base, head);
       const host = developerHost(declaredDeveloper);
       if (s.developerHost && s.developerHost !== host) fail('Lab developer host changed; mixed-host development needs a separately scoped Lab.');
       if (!s.developerHost) { s.developerHost = host; save(s); }

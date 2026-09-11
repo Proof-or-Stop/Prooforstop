@@ -29,7 +29,7 @@ export function auditInput(cwd, base, head) {
     return { path, content };
   });
   const input = JSON.stringify({ base, head, diff: git(cwd, 'diff', '--no-ext-diff', '--no-textconv', base, head), files });
-  if (Buffer.byteLength(input) > 8 * 1024 * 1024 || input.includes('\\u0000')) throw new Error('Lab audit input exceeds the bounded text contract; split the repair.');
+  if (Buffer.byteLength(input) > 8 * 1024 * 1024 || files.some(file => file.content.includes('\0'))) throw new Error('Lab audit input exceeds the bounded text contract; split the repair.');
   return { input, inputDigest: hash(input), paths, files };
 }
 const object = properties => ({ type: 'object', additionalProperties: false, required: Object.keys(properties), properties });
