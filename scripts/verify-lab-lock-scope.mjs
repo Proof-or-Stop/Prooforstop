@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
+import { installLabAuditFixtureProviders } from './lab-audit-fixture-provider.mjs';
 import { copyLabFixtureSources } from './lab-fixture-sources.mjs';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -20,7 +21,8 @@ const children = new Set(), failures = [], results = [];
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const write = (cwd, path, value) => { mkdirSync(dirname(join(cwd, path)), { recursive: true }); writeFileSync(join(cwd, path), value); };
 const commit = (cwd, message) => { git(cwd, 'add', '-A', '--', '.', ':!AGENTS.override.md'); git(cwd, 'commit', '-qm', message); };
-const env = { ...process.env, npm_config_prefix: join(temp, 'global'), NPM_CONFIG_PREFIX: join(temp, 'global') };
+const fixtureBin=installLabAuditFixtureProviders(temp);
+const env = { ...process.env, CODEX_THREAD_ID: 'fixture-developer', CLAUDECODE: '', PATH: fixtureBin + ':' + process.env.PATH, npm_config_prefix: join(temp, 'global'), NPM_CONFIG_PREFIX: join(temp, 'global') };
 for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST', 'PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN']) delete env[key];
 function command(repo, args, entry = script, childEnv = env) {
   const row = spawnSync(process.execPath, [entry, ...args], { cwd: repo, encoding: 'utf8', env: childEnv, timeout: 15000 });
@@ -64,6 +66,9 @@ function fixture(name) {
   for (const rel of ['package.json', 'packages/main/package.json']) write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', type: 'module' }));
   write(repo, 'CHANGELOG.md', '# Changelog\n');
   copyLabFixtureSources(root, repo, ['main-write-lock', 'mkdir-lock', 'brand-env', 'brand-paths', 'proof-or-stop-paths', 'runtime-artifact-registry', 'version-bump', 'runtime-version-policy']);
+  for (const rel of ['package-lock.json','packages/main/package-lock.json']) write(repo,rel,JSON.stringify({name:'proof-or-stop',version:'1.0.0',lockfileVersion:3,packages:{'':{name:'proof-or-stop',version:'1.0.0'}}}));
+  const brand='packages/main/src/core/proof-or-stop-brand.ts';
+  write(repo,brand,readFileSync(join(repo,brand),'utf8').replace(/(PROOF_OR_STOP_CLI_VERSION\s*=\s*)'[^']+'/ , "$1'1.0.0'"));
   write(repo, 'bug.txt', 'broken');
   write(repo, 'check.mjs', `import fs from 'node:fs'; import path from 'node:path';
 const [events, holdText] = process.argv.slice(2); const id = path.basename(process.cwd());
@@ -153,6 +158,19 @@ try {
   const keyBefore = tree(repo), missing = command(repo, ['status', 'alpha']);
   expect('missing signing key refuses without replacing trust', missing.status === 1 && tree(repo) === keyBefore && !existsSync(key));
   renameSync(savedKey, key);
+
+  const auditHold=join(temp,'finish-audit-hold');
+  const finishing=start(repo,['finish','alpha','--notes',notes,'--confirm'],script,{...env,LAB_FIXTURE_AUDIT_HOLD:auditHold});
+  await until(()=>finishing.done || existsSync(auditHold+'.ready'),'finish audit start');
+  assert.equal(finishing.done,false,finishing.output);
+  let auditWriter=false;
+  try {
+    const lock=acquireMainWriteLock(repo,{label:'unrelated writer during provider audit'});
+    try {auditWriter=true;write(repo,'concurrent-main.txt','another local writer');commit(repo,'test: main advances during audit');} finally {lock.release();}
+  } finally {writeFileSync(auditHold+'.release','release');}
+  await finishing.promise;
+  expect('main writer acquires while finish audit is in flight',auditWriter);
+  expect('main movement during audit blocks merge and preserves candidate',finishing.status===1 && /main changed while the audit ran/.test(finishing.output) && state(repo,'alpha').phase==='prepared' && existsSync(lab(repo,'alpha')) && git(repo,'rev-parse','HEAD')!==state(repo,'alpha').candidate,{output:finishing.output.slice(-800)});
 
   // Actual pre-repair 0.3.311 Lab CLI, frozen in Git, not a simulated legacy
   // writer. Old scripts know only the main lock and schema 1. Migration must

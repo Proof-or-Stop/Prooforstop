@@ -322,7 +322,8 @@ async function main() {
     const ensureAudit = async (base, head, auditRoot = s.path) => {
       assertAncestor(auditRoot, base, head);
       // Recovery operators do not become the implementation's developer.
-      const host = s.developerHost ?? developerHost(declaredDeveloper);
+      const host = s.developerHost ?? declaredDeveloper;
+      if (!host) fail('This Lab has no pinned developer; rerun with --developer PROVIDER naming the provider that implemented the repair.');
       if (declaredDeveloper && declaredDeveloper !== host) fail('Declared developer conflicts with the pinned Lab developer.');
       if (!s.developerHost) { s.developerHost = host; save(s); }
       const { config, selected, expected } = expectedAudit(auditRoot, base, head, host);
@@ -334,7 +335,10 @@ async function main() {
       console.log(`Running independent ${selected.auditor.id} (${selected.auditor.vendor}) CLI Lab audit for ${head}...`);
       const started = Date.now();
       let audit;
-      try { audit = await executeLabAudit({ cwd: auditRoot, base, head, developer: host, labName: name, evidenceRoot: join(dir, name + '-audits'), config }); }
+      const resumeMainHead = mainLock ? sha(mainRoot) : undefined;
+      // The per-Lab lock remains held; independent main writers may work while the provider runs.
+      if (mainLock) { mainLock.release(); mainLock = undefined; }
+      try { audit = await executeLabAudit({ cwd: auditRoot, base, head, developer: host, labName: name, evidenceRoot: join(dir, name + '-audits'), config, selection: selected }); }
       catch (error) { s.history.push({ kind: 'cross-host-audit-error', head, base, developerHost: host, elapsedMs: Date.now() - started, error: error.message }); save(s); throw error; }
       if (auditRoot === s.path) {
         if (sha(s.path) !== head) fail('Lab changed during audit; result is stale.');
@@ -342,6 +346,11 @@ async function main() {
       } else assertAncestor(mainRoot, head, 'main');
       audit.repairContentDigest = contentDigest;
       s.audit = audit; s.history.push({ kind: 'cross-host-audit', ...audit }); save(s);
+      if (resumeMainHead) {
+        mainLock = acquireMainWriteLock(mainRoot, { label: `lab ${action} ${name} after audit` });
+        if (git(mainRoot, 'branch', '--show-current') !== 'main' || sha(mainRoot) !== resumeMainHead) fail('main changed while the audit ran; preserve candidate and reopen before integration.');
+        assertMainStable();
+      }
       if (!auditIsFresh(audit, expected)) fail(`Independent Lab audit rejected the candidate. Resolve findings and reopen if prepared. Evidence: ${audit.evidenceDir}`);
     };
     if (action === 'audit') {

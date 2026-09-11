@@ -321,4 +321,6 @@ Lab checkout supplies both version and build policy; version numbers always star
 from synchronized latest main. Use the reviewed updated Lab executable when
 bootstrapping a change to the Lab tool itself.
 
-Audit inputs must be valid UTF-8 text with exact path names. Immutable commit inputs are cached only within one command process. Rejected repair-content digests cover the complete pre-release diff, including manually edited manifests and notes, while excluding only the tool-generated release commit. Reopening or regenerating a release without changing that repair diff cannot request another audit.
+Audit inputs must be valid UTF-8 text with exact path names. Immutable commit inputs are cached only within one command process. Rejected repair-content digests cover the complete pre-release diff, including manually edited manifests, while excluding only the tool-generated release commit and the out-of-tree notes file. Changing release notes cannot unlock another audit. Reopening or regenerating a release without changing that repair diff cannot request another audit.
+
+Legacy records without a pinned developer always require an explicit `--developer PROVIDER` naming the implementation provider, even from a recognized terminal. During an actual finish-time provider audit only the per-Lab lock remains held. Finish reacquires the main lock and rechecks the main branch, HEAD and dirty-state boundary before proceeding; concurrent main movement retains the candidate for explicit recovery.

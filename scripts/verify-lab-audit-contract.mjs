@@ -12,10 +12,10 @@ const codex=p=>JSON.stringify({type:'item.completed',item:{type:'agent_message',
 assert.throws(()=>parseAuditResult(codex(proposal)+'\n'+JSON.stringify({type:'item.completed',item:{type:'agent_message',text:'later prose'}}),'codex-jsonl',binding),/exactly one final Codex proposal/);
 assert.equal(parseAuditResult(codex(proposal),'codex-jsonl',binding).decision,'pass');
 assert.throws(()=>parseAuditResult(event(proposal),'unknown-jsonl',binding),/Unsupported Lab audit protocol/);
-const process={exitCode:0,replacementSafe:true,closeObserved:true,processCleanup:{reaped:true,residualProcessGroup:false}};
-assert.equal(auditIsFresh({...proposal,process},binding),true);
-assert.equal(auditIsFresh({...proposal,process:{...process,replacementSafe:false}},binding),false);
-assert.equal(auditIsFresh({...proposal,process},{...binding,head:'changed'}),false);
+const processFacts={exitCode:0,replacementSafe:true,closeObserved:true,processCleanup:{reaped:true,residualProcessGroup:false}};
+assert.equal(auditIsFresh({...proposal,process:processFacts},binding),true);
+assert.equal(auditIsFresh({...proposal,process:{...processFacts,replacementSafe:false}},binding),false);
+assert.equal(auditIsFresh({...proposal,process:processFacts},{...binding,head:'changed'}),false);
 console.log('LAB_AUDIT_CONTRACT PASS strict output, stale bindings, duplicates and cleanup');
 
 const {selectAuditor}=await import('./lab-audit-providers.mjs');

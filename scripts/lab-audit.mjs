@@ -3,11 +3,12 @@ import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as labPolicy, SUPERVISED_PROVIDER_RUNTIME_POLICY } from '../packages/main/src/core/runtime-fact-registry.ts';
 import { selectAuditor } from './lab-audit-providers.mjs';
 
 export const LAB_AUDIT_SCHEMA = 'proof-or-stop.lab-cross-host-audit.v1';
 const hash = value => createHash('sha256').update(value).digest('hex');
-const INPUT_LIMIT = 8 * 1024 * 1024;
+const INPUT_LIMIT = SUPERVISED_PROVIDER_RUNTIME_POLICY.maxOutputBytes;
 function readGitText(cwd, args, label = args.join(' ')) {
   try {
     const bytes = execFileSync('git', args, { cwd, maxBuffer: INPUT_LIMIT, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -63,7 +64,7 @@ export function parseAuditResult(stdout, protocol, binding) {
   try { events = stdout.trim().split('\n').filter(Boolean).map(line => JSON.parse(line)); }
   catch { throw new Error('Lab audit transport contains malformed JSON.'); }
   let candidates;
-  if (protocol === 'lab-json') {
+  if (protocol === labPolicy.auditCustomProtocol) {
     candidates = events;
     if (candidates.length !== 1) throw new Error('Lab adapter must return exactly one structured result.');
   } else if (protocol === 'claude-jsonl') {
@@ -113,8 +114,7 @@ async function loadHostRunner() {
   try { hostRunner = await import('../packages/main/src/core/host-run.ts'); } finally { hook.deregister(); }
   return hostRunner;
 }
-export async function executeLabAudit({ cwd, base, head, developer, labName, evidenceRoot, config = {} }) {
-  const selection = selectAuditor(developer, config);
+export async function executeLabAudit({ cwd, base, head, developer, labName, evidenceRoot, config = {}, selection = selectAuditor(developer, config) }) {
   const auditorHost = selection.auditor.id;
   const configDigest = hash(JSON.stringify(config));
   const { input, inputDigest, paths, files } = auditInput(cwd, base, head);
@@ -130,11 +130,11 @@ export async function executeLabAudit({ cwd, base, head, developer, labName, evi
     ? ['-p', '--output-format', 'stream-json', '--verbose', '--no-session-persistence', '--tools', 'Read', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--mcp-config', '{"mcpServers":{}}', '--json-schema', JSON.stringify(schema)]
     : selection.auditor.protocol === 'codex-jsonl' ? ['exec', '--json', '--ephemeral', '--sandbox', 'read-only', '--skip-git-repo-check', '--output-schema', join(dir, 'schema.json'), '-'] : selection.auditor.argv.map(arg => arg.replaceAll('{schema}', join(dir, 'schema.json')));
   const { runHostRun, defaultHostRunRunner } = await loadHostRunner();
-  let stdout = '', stderr = '', overflow = false;
+  let stdout = '', stderr = '', overflow = false, captured = 0;
   const controller = new AbortController();
-  const onChunk = chunk => { if (Buffer.byteLength(stdout) + Buffer.byteLength(stderr) + Buffer.byteLength(chunk.text) > 8 * 1024 * 1024) { overflow = true; controller.abort(); return; } if (chunk.stream === 'stdout') stdout += chunk.text; else stderr += chunk.text; };
+  const onChunk = chunk => { const bytes = Buffer.byteLength(chunk.text); if (captured + bytes > INPUT_LIMIT) { overflow = true; controller.abort(); return; } captured += bytes; if (chunk.stream === 'stdout') stdout += chunk.text; else stderr += chunk.text; };
   let result;
-  if (selection.auditor.protocol !== 'lab-json') {
+  if (selection.auditor.protocol !== labPolicy.auditCustomProtocol) {
     result = await runHostRun({ host: auditorHost, storyId: null, agentType: 'lab-independent-auditor', promptText: prompt,
       env: process.env, cwd: dir, root: cwd, projectRootHash: hash(cwd), recordedAt: new Date().toISOString(), timeoutMs: 600000, startupTimeoutMs: 90000, signal: controller.signal }, {
       runner: plan => defaultHostRunRunner({ ...plan, command: selection.auditor.command, argv, stdinText: prompt }), passthrough: onChunk,

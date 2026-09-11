@@ -78,6 +78,8 @@ async function main() {
   const labLoader = read(root, 'scripts/lab-source-loader.mjs');
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
   const labWorktree = read(root, 'scripts/lab-worktree.mjs');
+  const labProviders = read(root, 'scripts/lab-audit-providers.mjs');
+  check(['auditBuiltinVendors', 'auditCustomProtocol', 'auditRequired', 'auditIndependence'].every(field => labProviders.includes('labPolicy.' + field)), 'Lab provider implementation must consume registered audit policy');
   check(registrySource.includes('auditRequired: true') && registrySource.includes('recordSchema: 3') && labWorktree.includes('ensureAudit'), 'Lab requires opposite-host audit and rejects pre-audit record writers');
   check(registrySource.includes("worktreeOnlyActions: ['red', 'green', 'audit']") && labWorktree.includes('labPolicy.worktreeOnlyActions.includes(action)'), 'Lab RED/GREEN must consume the registered main-lock exclusion');
   check(registrySource.includes("statusAccess: 'read-only-without-lock-or-trust-initialization'") && labWorktree.indexOf("if (action === 'status')") < labWorktree.indexOf('labLock = acquireMkdirLock'), 'Lab status must not acquire a write lock');

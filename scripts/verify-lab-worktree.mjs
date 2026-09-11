@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createHmac } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { installLabAuditFixtureProviders } from './lab-audit-fixture-provider.mjs';
 import { copyLabFixtureSources } from './lab-fixture-sources.mjs';
@@ -42,9 +43,26 @@ function fixture(name) {
 }
 const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced system regression while preserving the existing behavior contract. Verify the target regression and the synchronized built version.');
 const finish = name => ['finish', name, '--notes', notes, '--confirm'];
-await import('./verify-lab-audit-contract.mjs');
-await import('./verify-lab-fixture-sources.mjs');
 try {
+  await import('./verify-lab-audit-contract.mjs');
+  await import('./verify-lab-fixture-sources.mjs');
+  // Fault injection is confined to disposable signed fixture records.
+  const alterFixtureRecord=(repo,name,mutate)=>{const path=join(repo,'.git/lab-maintenance',name+'.json');const r=JSON.parse(readFileSync(path));mutate(r.payload);r.hmac=createHmac('sha256',readFileSync(join(repo,'.git/lab-maintenance/local.key'))).update(JSON.stringify(r.payload)).digest('hex');writeFileSync(path,JSON.stringify(r));};
+  const legacy=fixture('legacy-identity');
+  process.env.LAB_FIXTURE_DEVELOPER='plain';
+  cmd(legacy,['create','identity'],1,/declared developer provider/);
+  cmd(legacy,['create','identity','--developer','codex']);
+  assert.equal(JSON.parse(cmd(legacy,['status','identity'])).developerHost,'codex');
+  const legacyLab=join(legacy,'.worktrees/Lab-identity');
+  cmd(legacy,['red','identity','--expect','TARGET regression','--',process.execPath,'check.cjs']);
+  write(legacyLab,'bug.txt','fixed');commit(legacyLab,'fix: legacy witness');cmd(legacy,['green','identity']);
+  alterFixtureRecord(legacy,'identity',s=>{delete s.developerHost;s.schema=2;});
+  process.env.LAB_FIXTURE_DEVELOPER='claude';
+  cmd(legacy,finish('identity'),1,/no pinned developer/);
+  cmd(legacy,[...finish('identity'),'--developer','codex']);
+  const legacyAudit=JSON.parse(cmd(legacy,['status','identity'])).audit;
+  assert.equal(legacyAudit.developerHost,'codex');assert.equal(legacyAudit.auditorVendor,'anthropic');
+  delete process.env.LAB_FIXTURE_DEVELOPER;
   const unaudited = fixture('unaudited'); cmd(unaudited, ['create', 'unaudited']);
   const unauditedLab = join(unaudited, '.worktrees/Lab-unaudited');
   cmd(unaudited, ['red', 'unaudited', '--expect', 'TARGET regression', '--', process.execPath, 'check.cjs']);
@@ -88,6 +106,14 @@ try {
   write(thirdLab, 'bug.txt', 'fixed'); commit(thirdLab, 'fix: third vendor audit');
   cmd(third, ['audit', 'third']);
   assert.equal(JSON.parse(cmd(third, ['status', 'third'])).audit.auditorVendor, 'xai');
+
+  // Without a preference the current default differs from the cached Grok adapter.
+  const configWithoutPreference={adapters:[{id:'grok',vendor:'xai',command:join(auditFixtureBin,'grok-fixture-adapter'),argv:[],protocol:'lab-json'}]};
+  write(third,'lab-audit.config.json',JSON.stringify(configWithoutPreference));commit(third,'test: no preferred auditor');cmd(third,['sync','third']);
+  cmd(third,['audit','third']);
+  alterFixtureRecord(third,'third',s=>{s.audit.auditorHost='grok';s.audit.auditorVendor='xai';s.audit.process.processCleanup.reaped=false;});
+  cmd(third,['audit','third']);
+  assert.equal(JSON.parse(cmd(third,['status','third'])).audit.auditorHost,'grok');
 
   write(third, 'lab-audit.config.json', JSON.stringify({adapters:[{id:'grok',vendor:'xai',command:join(auditFixtureBin,'nonexecutable-adapter'),argv:[],protocol:'lab-json'}],preferredAuditor:'grok'}));
   commit(third,'test: failing custom executable'); cmd(third,['sync','third']);
