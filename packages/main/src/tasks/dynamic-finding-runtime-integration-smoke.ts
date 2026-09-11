@@ -1,7 +1,7 @@
 /** Real isolated Git + native review + runtime producer + ledger adapter integration.
  * No fixture observations are submitted as operational rollout qualification. */
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -114,6 +114,17 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
       && row.commands.includes('finding_runtime_evidence_run') && row.commands.includes('finding_assessment_propose')));
     assert.equal(store.readFindingLedger(storyId).committedLedgerDigest, digest);
     console.log('COLLECTION_PROOF missing assessment has exact finding-bound actions; read is non-mutating PASS');
+    const configText = readFileSync(join(root, 'proof-or-stop.config.json'), 'utf8');
+    try {
+      const config = JSON.parse(configText); delete config.dynamicFinding.qualificationStoryIds;
+      write('proof-or-stop.config.json', JSON.stringify(config)); resetConfigCache();
+      const unenrolled = collection();
+      assert.ok(unenrolled.actions.some(row => row.code === 'corpus_not_configured' && row.commands.length === 0));
+      assert.equal(unenrolled.counts.findings, 1);
+      assert.equal(handlers.finding_rollout_scorecard({ storyId }).qualification.qualification.eligible, false);
+      assert.equal(JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'), 'utf8')).dynamicFinding.qualificationStoryIds, undefined);
+      console.log('COLLECTION_PROOF missing corpus retains Story diagnostics; no enrollment or activation PASS');
+    } finally { write('proof-or-stop.config.json', configText); resetConfigCache(); }
   }
   const desired = { verdict: 'applicable', basis: 'direct_scope', owner: 'current_story', evaluationScope: 'target_story',
     runtimeReceiptIds: [red.runtimeReceiptId], currentWitness: { reproduced: true, receiptIds: [red.runtimeReceiptId] },
@@ -255,9 +266,14 @@ measurements:${JSON.stringify(FINDING_QUALIFICATION_METRICS.map(([metric, compar
     assert.throws(() => handlers.finding_qualification_query({ storyId }), /revoked_signing_key/);
     if (historyAudit) {
       const untrusted = handlers.finding_rollout_scorecard({ storyId }).qualification;
-      assert.equal(untrusted.rows.find(row => row.metric === 'scorecard_completeness')!.denominator, null);
+      assert.equal(untrusted.rows.find(row => row.metric === 'scorecard_completeness')!.denominator, 0);
       assert.equal(untrusted.qualification.eligible, false);
       console.log('QUALIFICATION_HISTORY revoked historical trust never retains an admitted denominator PASS');
+    }
+    if (collectionAudit) {
+      assert.equal(collection().counts.qualificationCases, null);
+      assert.ok(collection().actions.some(row => row.code === 'collection_evidence_unavailable'));
+      console.log('COLLECTION_PROOF revoked trust is unknown, never zero cases or a collection instruction PASS');
     }
     console.log('QUALIFICATION_PREREQUISITE PASS revoked runtime trust refuses historical qualification');
   } else {

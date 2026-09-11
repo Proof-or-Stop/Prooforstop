@@ -2323,7 +2323,7 @@ Behavior:
   { name: 'finding_material_reattest', description: 'Re-attest only unrelated material drift with exact fresh runtime pairs and current independent reviewer proof; no scope or expiry extension', schema: {
     storyId: z.string().min(1), assessmentId: z.string().min(1), runtimeReceiptIds: z.array(z.string().min(1)).min(1), idempotencyKey: z.string().min(1),
   }},
-  { name: 'finding_rollout_scorecard', description: 'Compare legacy and dynamic blocker decisions and report bounded operation-reduction metrics', schema: {
+  { name: 'finding_rollout_scorecard', description: 'Compare blocker decisions, qualification and non-authoritative Story collection actions; never enroll or enable automatically', schema: {
     storyId: z.string().min(1), findingIds: z.array(z.string().min(1)).optional(), mode: z.enum(['observe', 'warn', 'enforce']).optional(),
   }},
   { name: 'finding_qualification_record', description: 'Record an independently adjudicated, executed qualification case; never authorizes a lifecycle transition', schema: {

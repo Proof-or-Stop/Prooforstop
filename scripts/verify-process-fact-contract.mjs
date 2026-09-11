@@ -10962,7 +10962,8 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
     ['packages/main/src/handlers/finding-applicability-proof.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'row.stdout.includes(intent.selector)', 'FINDING_PROTECTED_SURFACES.every'],
     ['packages/main/src/handlers/finding-deferral-proof.ts', 'readFindingRouteProgressProof(ctx', 'assertNoCanonicalDeferralReset(ctx', 'previous.payload.renewalCount! + 1'],
     ['packages/main/src/handlers/finding-applicability.ts', 'revalidateDeferrals.forEach(check => check())', 'repairClosureContext(currentApplicabilityContext'],
-    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)'],
+    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)', 'prerequisites: admissionPrerequisites', "currentPrerequisites = 'invalid'", 'report.qualification.eligible = report.refusalReasons.length === 0'],
+    ['packages/main/src/handlers/finding-collection.ts', "authority: 'diagnostic_only'", 'gateEvidence: false', 'automaticEnrollment: false', 'FINDING_QUALIFICATION_SUBJECT_KINDS.has', "state: 'unavailable'", 'qualificationCases: null'],
     ['packages/main/src/handlers/finding-qualification-adjudication.ts', 'authors.has(adjudicator)', 'exactLedgerRecordHash(proposal) !== ref.recordHash', 'applicabilityDigest(Object.keys(observed).sort())', 'correct: applicabilityDigest(observed) === applicabilityDigest(input.expected)'],
     ['packages/main/src/handlers/finding-qualification-prerequisites.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'runtime.receipt.headHash !== ref.mergedCommit', 'pin.command === command && pin.selector === selector', 'readHistoricalFindingRuntimeEvidence(ctx', 'runtime.receipt.receiptHash !== proof.runtimeReceiptHash'],
     ['packages/main/src/core/finding-rollout-qualification.ts', 'conflicting_performance_source:', '!QUALIFICATION_PERFORMANCE_METRICS.includes(row.metric)', 'executed-merged-prerequisites-and-unique-performance-sources-v1'],
@@ -10988,6 +10989,10 @@ process.stdout.write(JSON.stringify({ registry: PROCESS_FACT_REGISTRY.length, pr
   const closureCommand = JSON.parse(read('packages/main/package.json')).scripts['test:dynamic-finding-evidence-closure'];
   const headRecoveryCommand = 'node dist/tasks/finding-material-reattestation-smoke.js --head-continuity';
   assert(closureCommand.split(' && ').includes(headRecoveryCommand), 'dynamic Finding head-only regression must remain in the registered package chain');
+  for (const flag of ['--collection-proof', '--qualification-history-proof']) {
+    assert(closureCommand.split(' && ').includes(`node dist/tasks/dynamic-finding-runtime-integration-smoke.js ${flag}`),
+      `dynamic Finding collection regression must remain registered: ${flag}`);
+  }
   assert(!closureCommand.replace(headRecoveryCommand, 'REMOVED_HEAD_RECOVERY_REGRESSION').split(' && ').includes(headRecoveryCommand),
     'dynamic Finding head-only registration removal must be detected');
 }
