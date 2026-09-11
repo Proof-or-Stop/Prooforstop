@@ -212,7 +212,7 @@ export const RUNTIME_FACT_REGISTRY = [
     externalSeverity: 'advisory',
     checker: 'resolvePackageVersion',
     outputKey: 'packageVersion',
-    rationale: 'Package version drift makes global and local Proof-or-Stop outputs hard to compare. CLI startup also refuses a compiled version that differs from its own installed package manifest; the caller project version is not an execution identity.',
+    rationale: 'The diagnostic checker compares manifests only. Separately, CLI startup refuses a compiled version that differs from its own installed package manifest; this startup check is not a doctor-row measurement, and the caller project version is not an execution identity.',
     driftMessage: 'Proof-or-Stop package versions disagree between the current runtime, repository root, or global install.',
     repairHint: 'Align root/package versions and rebuild before publishing or using the global CLI as evidence.',
   },

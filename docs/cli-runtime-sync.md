@@ -16,6 +16,10 @@ checks the source/build binding and prepares main and utils with build locking.
 Then verify both `proof-or-stop --version` and `node bin/proof-or-stop.js --version`.
 For a published installation, reinstall the intended package version instead.
 An already-running process requires a new invocation to use updated code.
+The refusal is before command dispatch, after the module import graph loads.
+It also applies to a global-fallback session_brief heartbeat: a version-mismatched
+installation must be repaired before that degraded path can be used. The wrapper
+prints the version error directly instead of recommending the same stale entry.
 
 This is a release mismatch guard. It does not prove that same-version edits have
 been compiled or that every running owner/reviewer has migrated. Those require
@@ -26,3 +30,6 @@ path; a source-only update cannot retroactively patch a running binary.
 The regression command is `node scripts/verify-cli-runtime-version.mjs`. It uses
 an isolated installation, a different-version caller project, both CLI entry
 shapes, and a package-only update. No real Story or main installation is changed.
+It is also available as `npm run test:cli-runtime-version` and is included in the
+runtime fact contract. The doctor package-version row compares manifests; it
+does not independently measure this compiled-version startup invariant.
