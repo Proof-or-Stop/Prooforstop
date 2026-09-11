@@ -257,6 +257,22 @@ export interface ProofOrStopConfig {
     dynamic?: {
       mode?: DynamicValidationModeConfig;
       policyDefaults?: DynamicValidationPolicyDefaults;
+      /**
+       * Optional versioned Story-relevance map consumed by validation_plan.
+       * It is advisory-only: narrow plans never become final/DONE authority.
+       */
+      impactIndex?: {
+        schema: 'proofOrStop.validation-impact-index.v1';
+        version: string;
+        commandSetDigest: string;
+        entries: Array<{
+          commandId: string;
+          selection: 'always' | 'story-fast' | 'story-intermediate' | 'repository-full';
+          inputPatterns: string[];
+          coverage: 'complete' | 'partial';
+          fullReason?: string;
+        }>;
+      };
     };
     commands?: Array<string | {
       label?: string;
