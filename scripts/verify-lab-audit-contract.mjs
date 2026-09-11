@@ -36,6 +36,9 @@ try {
   writeFileSync(join(repo,'sample.txt'),'baseline');git('add','.');git('commit','-m','baseline');const base=git('rev-parse','HEAD');
   writeFileSync(join(repo,'sample.txt'),'literal \\u0000 in source');git('add','.');git('commit','-m','literal escape');
   assert.doesNotThrow(()=>auditInput(repo,base,git('rev-parse','HEAD')));
+  const large='x'.repeat(1024*1024+128);
+  writeFileSync(join(repo,'sample.txt'),large);git('add','.');git('commit','-m','large source control');
+  assert.equal(auditInput(repo,base,git('rev-parse','HEAD')).files[0].content,large);
   writeFileSync(join(repo,'sample.txt'),'actual \0 byte');git('add','.');git('commit','-m','binary control');
   assert.throws(()=>auditInput(repo,base,git('rev-parse','HEAD')),/bounded text/);
   console.log('LAB_AUDIT_INPUT PASS literal escapes accepted, actual binary refused');

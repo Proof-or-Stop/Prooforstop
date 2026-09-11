@@ -23,9 +23,11 @@ export function developerHost(explicit, env = process.env) {
 export function auditInput(cwd, base, head) {
   const paths = git(cwd, 'diff', '--name-only', '-z', base, head).split('\0').filter(Boolean);
   const files = paths.map(path => {
-    let content;
-    try { content = execFileSync('git', ['show', `${head}:${path}`], { cwd, encoding: 'utf8', maxBuffer: 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] }); }
-    catch { content = '[deleted or unavailable; inspect diff]'; }
+    const entry = git(cwd, 'ls-tree', head, '--', path);
+    if (!entry) return { path, content: '[deleted; complete prior content is in the diff]' };
+    if (!/^\d+ blob /.test(entry)) throw new Error(`Lab audit cannot inspect a non-blob input: ${path}`);
+    // An unreadable or oversized existing file must fail, never become a passing placeholder.
+    const content = execFileSync('git', ['show', `${head}:${path}`], { cwd, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
     return { path, content };
   });
   const input = JSON.stringify({ base, head, diff: git(cwd, 'diff', '--no-ext-diff', '--no-textconv', base, head), files });
