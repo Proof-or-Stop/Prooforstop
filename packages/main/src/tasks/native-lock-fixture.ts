@@ -25,9 +25,12 @@ export function cleanupNativeLockRoots():void {for(const root of [...roots])rele
 export function assertNativeLockFixture(root:string):void {assert(roots.has(root),'native setup can only operate on its own newly allocated disposable roots');}
 export function lockFixtureActorEnvironment(agent:string) {
  const provider=nativeReviewFixtureAmbientHost()==='claude'?'claude-code' as const:'codex' as const;
- return {...sanitizedFixtureChildEnvironment(process.env),PROOF_OR_STOP_SESSION_ID:undefined,
+ const sanitized=sanitizedFixtureChildEnvironment(process.env);
+ const environment={...sanitized,NODE_OPTIONS:sanitized.NODE_OPTIONS,PROOF_OR_STOP_SESSION_ID:undefined,
   PROOF_OR_STOP_AGENT:agent,PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER:provider,
   PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK:'native-lock:'+agent,PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT:agent};
+ assert.equal(environment.NODE_OPTIONS,process.env.NODE_OPTIONS,'native fixture actor sanitization must preserve the test runtime bootstrap');
+ return environment;
 }
 export function lockFixtureCli(root:string,storyId:string,command:string,payload:Record<string,unknown>,agent='main'):string {
  assertNativeLockFixture(root);

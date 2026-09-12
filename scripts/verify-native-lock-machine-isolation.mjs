@@ -13,6 +13,7 @@ writeFileSync(bootstrap,`import os from 'node:os';import {syncBuiltinESMExports}
 const outerEnv={...process.env,NODE_OPTIONS:[process.env.NODE_OPTIONS??'','--import='+JSON.stringify(bootstrap)].join(' ').trim()};
 const isolated=createNativeLockTestRuntime(outerEnv);
 let holder,holderClosed=false,holderError,holderExit,holderOutput='';
+let primaryFailed=false;
 const started=performance.now();
 const options={root,workspaceRoot:root,command:'native machine isolation control'};
 try {
@@ -41,7 +42,8 @@ try {
  assert.match(separate.output,/NATIVE_MACHINE_ADMITTED/);
  assert(!holderClosed,'independent fixture succeeds while the outer holder is still active');
  console.log('NATIVE_MACHINE_ISOLATION_PASS: same-pool exclusion and independent-pool progress');
-} finally {
+} catch(error){primaryFailed=true;throw error;} finally {
+ try {
  writeFileSync(release,'release');
  const deadline=Date.now()+3000;
  while(holder&&!holderClosed&&!holderError&&Date.now()<deadline)await new Promise(r=>setTimeout(r,10));
@@ -49,5 +51,6 @@ try {
  if(holder&&!holderClosed&&!holderError)throw new Error('isolation holder cleanup did not observe close; retain runtime');
  isolated.dispose();rmSync(root,{recursive:true,force:true});
  if(holderClosed)assert.deepEqual(holderExit,{code:0,signal:null},'outer queue holder must release and close successfully');
- console.log('NATIVE_MACHINE_ISOLATION_TOTAL '+JSON.stringify({elapsedMs:performance.now()-started}));
+ } catch(error){if(!primaryFailed)throw error;console.error('NATIVE_MACHINE_ISOLATION_CLEANUP_WARNING '+String(error));}
+ finally {console.log('NATIVE_MACHINE_ISOLATION_TOTAL '+JSON.stringify({elapsedMs:performance.now()-started}));}
 }

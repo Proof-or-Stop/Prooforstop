@@ -108,8 +108,12 @@ The timeout classifier retains an out-of-band deadline flag so a prompt child
 close cannot erase the timeout result. A held real child pins that diagnostic.
 Native fixture roots are deregistered on release, including a recreated-path
 negative. Ambient-root errors are accumulated with case failures. The refusal
-ordering control measures the same unheld handler first, then observes the held
-call for at least five times that latency inside the disposable cwd.
+ordering control measures the same unheld handler first, then requires the exact
+derived-verdict command to own a persisted waiting ticket while its promise is
+pending. It has no host-speed acceptance threshold or observation sleep. Missing
+queue evidence is a nonzero PROOF_UNAVAILABLE diagnostic; only release followed
+by the expected ordinary refusal completes the control, and waiter timeout is
+not an acceptable refusal.
 
 See [CLI follow-up provenance](native-lock-lab-verification.md) for official
 draft creation and discovery evidence against the current handler.
@@ -138,3 +142,18 @@ Before the repair the second command also timed out. The driver runs this contro
 before the original cleanup, refusal and six native cases, and removes its owned
 runtime after the children close. Abnormal host termination can retain the
 private temporary runtime; it never authorizes deleting real-user queue state.
+
+The actual lockFixtureCli actor environment and deliveryFixtureCli child
+environment assert that sanitization preserved NODE_OPTIONS before spawning.
+This mechanically checks the generated test bootstrap on the real CLI paths
+exercised by the native cases, instead of inferring propagation from the small
+machine-queue probe alone. The shared fixture sanitizer currently removes only
+its enumerated ambient authority keys; these guards refuse a future accidental
+bootstrap removal. Isolation cleanup reports secondary failures without replacing
+the primary failure.
+
+The default smoke counts completed assertion groups as they execute and reports
+the actual count (currently 30). The 15-group focused selector stays byte-compatible.
+The historical 26-group full selector documented in CLI and testing contracts is
+still emitted on a clearly labelled legacy-selector line after complete success;
+it is not the reported actual group count and no frozen Story pin is rewritten.
