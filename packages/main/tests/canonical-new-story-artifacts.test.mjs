@@ -3172,6 +3172,51 @@ await check(['identity-cutover', 'identity-sites', 'identity-config-boundary', '
   assertOwnedIdentitySiteTotality(emitted, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS, { emitted: true });
 });
 
+// These concrete integrated consumers previously left the exact context pins stale.
+// Fresh pins remain closed to additional uses and same-count context movement.
+await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers still reject added and moved identity uses', () => {
+  const sources = identityCutoverSourceMap();
+  assertOwnedIdentitySiteTotality(sources);
+  assertOwnedImportUseIntegrity(sources);
+  const signerPath = 'packages/main/src/core/verification-execution-evidence.ts';
+  const readerCall = 'join(location.commonDir, VERIFICATION_SIGNER_KEY_FILE)';
+  assert.equal(sources.get(signerPath).split(readerCall).length - 1, 1, 'the reviewed located signer reader must be unique');
+  const moved = new Map(sources);
+  moved.set(signerPath, sources.get(signerPath).replace(readerCall, 'join(gitCwd, VERIFICATION_SIGNER_KEY_FILE)'));
+  assert.throws(() => assertOwnedIdentitySiteTotality(moved), /owned identity use context changed/, 'same signer identity and count cannot move to another directory authority');
+  for (const path of [signerPath, 'packages/main/src/handlers/agent-prompt.ts']) {
+    const pin = OWNED_IDENTITY_SITE_CONTEXTS.find(row => row.sourcePath === path);
+    const added = new Map(sources);
+    added.set(path, `${sources.get(path)}\nconst unreviewedIdentityConsumer = ${JSON.stringify(pin.canonical)};\n`);
+    assert.throws(() => assertOwnedIdentitySiteTotality(added), /owned identity use count changed/, path);
+  }
+  const changedConfig = new Map(sources);
+  const config = JSON.parse(sources.get('proof-or-stop.config.json'));
+  config.unreviewedIdentityConsumer = 'proof-or-stop.config.json';
+  changedConfig.set('proof-or-stop.config.json', JSON.stringify(config));
+  assert.throws(() => assertOwnedIdentitySiteTotality(changedConfig), /owned identity use count changed/, 'reviewed command-index movement does not admit a new config use');
+  for (const path of [
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/lifecycle-control/queue/index.ts',
+    'packages/main/src/core/process-fact-registry.ts',
+    'packages/main/src/core/prompt-registry.ts',
+    signerPath,
+    'packages/main/src/handlers/agent-prompt.ts',
+    'packages/main/src/handlers/checklist.ts',
+  ]) {
+    const emitted = ts.transpileModule(sources.get(path), { compilerOptions: { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext } }).outputText;
+    const ast = ts.createSourceFile(path, emitted, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+    const binding = ast.statements.filter(ts.isImportDeclaration).flatMap(node => {
+      const names = node.importClause?.namedBindings;
+      return names && ts.isNamedImports(names) ? names.elements.map(entry => entry.name.text) : [];
+    })[0];
+    assert.ok(binding, `reviewed import consumer needs an actual executable binding: ${path}`);
+    const added = new Map(sources);
+    added.set(path, `${sources.get(path)}\nvoid ${binding};\n`);
+    assert.throws(() => assertOwnedImportUseIntegrity(added), /owned import use changed/, path);
+  }
+});
+
 await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered-site omissions and new typed producers fail independently of registry agreement', async () => {
   const sources = identityCutoverSourceMap();
   const derived = assertOwnedIdentitySiteTotality(sources);
