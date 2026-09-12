@@ -27,8 +27,9 @@ try{
     const previousPath=process.env.PATH;const rows=[];
     try{
       process.env.PATH=bin+':'+(previousPath??'');
-      for(const [version,code] of [['999.91.0','CLI_RUNTIME_VERSION_MISMATCH'],[null,'CLI_RUNTIME_VERSION_METADATA_INVALID']]){
+      for(const [version,code] of [['999.91.0','CLI_RUNTIME_VERSION_MISMATCH'],[null,'CLI_RUNTIME_VERSION_METADATA_INVALID']]) for(const warning of ['', 'Node ExperimentalWarning: fixture notice\n']){
         writeFileSync(join(pkg,'package.json'),JSON.stringify({type:'module',version}));
+        writeFileSync(executable,`#!${process.execPath}\nprocess.stderr.write(${JSON.stringify(warning)});import(${JSON.stringify(join(pkg,'dist/core/runtime-package-version.js'))}).then(m=>{try{m.assertRuntimePackageVersion();}catch(e){process.stderr.write(e.message+'\\n');process.exitCode=1;}});\n`);
         const result=runCodexAdapterChecks(project,{executeGlobalHeartbeat:true,executeLocalHeartbeat:false,timeoutMs:5000});
         const row=result.checks.find(c=>c.id==='global-fallback-heartbeat');assert.ok(row);assert.equal(row.status,'fail');rows.push(row);
         assert.match(row.detail,/\[heartbeat_runtime_version_mismatch\]/);assert.ok(row.detail.includes(code+':'));
