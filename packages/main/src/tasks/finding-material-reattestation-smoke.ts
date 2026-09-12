@@ -178,7 +178,8 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
     ]) assert.throws(() => sourceRouteRecord(ctx, restorationSource, false, () => bad), /restoration source\/root\/current binding mismatch/);
     assert.throws(() => createFindingRouteHandlers(targetCtx).finding_route_verify(routeInput), /invalid proposal/);
     assert.equal(createToolHandlers(targetStore, targetRoot).finding_route_verify!(routeInput).valid, true);
-    assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput, readRestoration: proof }), /[Uu]nrecognized/);
+    const nullablePublicProof = { ...proof, record: { ...proof.record, sourceCoverage: null } };
+    assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput, readRestoration: nullablePublicProof }), /[Uu]nrecognized/);
     process.chdir(targetRoot); process.env.PROOF_OR_STOP_SESSION_ID = 'target-fixture'; resetSessionIdForTest();
     try {
       const official = createToolHandlers(targetStore, targetRoot);
