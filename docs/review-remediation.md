@@ -11,7 +11,12 @@ PASS receipts or rerun tests.
 
 Before publication, all findings must be open members of the signed inventory.
 Every reference must cover a current intent with a matching command/selector pin,
-fresh material and a valid signed successful execution receipt. The repair commit
+fresh material and a valid signed successful V5 execution/publication bundle.
+The shared strict verifier binds Story, intent, command, selector and recorded
+freshness, and authenticates complete output artifact bytes. Readable legacy
+receipts grant no closure or convergence-progress authority; re-execute the
+pinned verifier to obtain current evidence. The same check runs immediately
+before publication, so a removed or changed artifact refuses the whole set. The repair commit
 must follow the inventory cutoff and precede the executed proof. Blocking dirty
 source or fixture paths refuse the whole set. A missing proof on any finding
 leaves the entire ledger unchanged.
@@ -32,3 +37,8 @@ facts again. A completed retry preserves ledger bytes and commit identity.
 Changing a request under the same ID is an idempotency conflict. Resolve an
 unrelated staged-path or commit-hook refusal before retrying; do not amend the
 repair claim or manually rewrite the ledger.
+
+The canonical `test:receipt-authority-v5` suite exercises both atomic remediation
+and convergence progress with real V5 evidence. Invalid bundles are refused; an
+unexpected verifier exception reports `Execution authority verifier unavailable`
+with its cause instead of silently classifying it as ordinary invalid evidence.

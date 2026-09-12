@@ -1,23 +1,25 @@
-/** Exact execution identity shared by remediation and progress observation. */
+/** Exact authenticated execution identity shared by remediation and progress observation. */
 import type { StoryStore } from './store.js';
 import type { ChecklistItem, VerificationEvidence } from './types.js';
-import { canonicalDigest } from './authority-signing.js';
-import { createCausalExecutionKey, verifyCausalEvidenceReceipt } from './causal-evidence.js';
 import { collectVerificationIntents } from './verification.js';
+import { validateVerificationReceipt } from './verification-execution-evidence.js';
 
 export function hasMechanicalExecutionAuthority(store: StoryStore, storyId: string, item: ChecklistItem, evidence: VerificationEvidence): boolean {
   const executed = evidence.receipt;
   const pin = collectVerificationIntents(item).find(i => i.ref === evidence.intentRef)?.intent.verification;
   if (evidence.mechanical !== true || evidence.result !== 'pass' || evidence.kind === 'waiver'
     || !executed || executed.exitCode !== 0 || executed.selectorMatched !== true
-    || !pin || pin.command !== evidence.command || pin.selector !== executed.selector) return false;
-  const causal = executed.executionKey ? store.readCausalEvidenceReceipt(storyId, executed.executionKey, { repairIndex: false }) : undefined;
-  if (!causal || !verifyCausalEvidenceReceipt(causal, executed.executionKey) || causal.storyId !== storyId
-    || causal.receiptHash !== executed.causalReceiptHash || causal.status !== 'pass' || causal.exitCode !== 0
-    || causal.outputDigest !== executed.outputDigest || causal.executedAt !== executed.executedAt
-    || !executed.selector || !(causal.outputProbe.includes(executed.selector) || causal.outputTail.includes(executed.selector))
-    || !evidence.command || canonicalDigest(createCausalExecutionKey({ ...causal.identity, command: evidence.command }).identity.command) !== canonicalDigest(causal.identity.command)
-    || (causal.identity.inputs as Record<string, unknown>)?.materialHash !== evidence.materialHash
-    || causal.identity.storyFilesHash !== evidence.storyFilesHash) return false;
-  return true;
+    || !pin || !pin.selector || pin.command !== evidence.command || pin.selector !== executed.selector
+    || !evidence.headHash || !evidence.materialHash || !evidence.storyFilesHash) return false;
+  try {
+    const validation = validateVerificationReceipt(store.projectRoot, executed, {
+      storyId, intentRef: evidence.intentRef, command: pin.command, selector: pin.selector,
+      freshness: { headHash: evidence.headHash, materialHash: evidence.materialHash, storyFilesHash: evidence.storyFilesHash },
+    });
+    // Readable legacy bundles do not authenticate publication scope or freshness.
+    // Reuse eligibility is independent of authority for this recorded execution.
+    return validation.ok && validation.kind === 'split-v5';
+  } catch (error) {
+    throw new Error(`Execution authority verifier unavailable: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+  }
 }

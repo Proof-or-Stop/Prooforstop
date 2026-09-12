@@ -1,5 +1,41 @@
 # Changelog
 
+## Lab receipt-authority-v5 - v0.3.338 - 2026-09-12
+
+# V5 execution authority compatibility repair
+
+The current evidence writer publishes signed V5 bundles, while remediation and convergence still required legacy causal receipt fields. This refused genuine new execution evidence and blocked B-0980 Finding closure.
+
+Use the existing strict V5 verifier with exact Story, intent, command, selector and recorded freshness bindings. Authenticate complete output bytes and recheck the same authority immediately before atomic ledger publication. Readable legacy receipts confer no current authority and require genuine re-execution.
+
+The real-handler regression recorded target RED, then passed valid atomic closeout, tampered signature/command/intent/freshness/output refusal, cross-Story and legacy refusal, missing output and publication-time deletion, dirty/concurrent source, partial repair rejection, projection failure recovery and idempotent replay. Build and process-fact contract verification passed. No runtime performance improvement is claimed. This local maintenance does not mark B-0980 or its dependent benchmark Story DONE.
+
+The first Claude audit rejected an inert placement of the new process-fact guard. The repaired guard executes before aggregation and uses throwing assertions; an actual intentional V5 discriminator mutation was rejected with exit code 1 and the exact target diagnostic. Added the convergence consumer regression, all three freshness mutation cases, canonical serial-suite registration and resource policy. The real full-suite inventory smoke passed 196 assertions. The evidence store has no public V5 path accessor; the isolated deletion test verifies through the public authenticated reader that its target is the actual output object. Unexpected verifier exceptions retain their cause and report unavailability.
+
+The second audit requested more precise witnesses and avoiding duplicated heavy validation. The canonical authority suite now runs only remediation and convergence; process-fact verification remains its existing independent canonical member and passed separately. Its new registration guard pins the exact command. The unexpected-verifier exception path is tested with the exact message and original cause. Initial and publication refusal tests pin distinct authority messages. Both deletion fixtures bind their target through the public authenticated reader. Positive causal-index recovery remains tested separately from read-only V5 progress. The child regression uses a module-relative absolute path, explicit cwd and 120-second ceiling. Latest local main was synchronized before rebuilding and revalidation.
+
+Maintenance provenance: codex/lab-receipt-authority-v5, repair 8356d03cb5d38f267420f7a750399a5f5ceec696.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-remediation-close.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab static-registry-closure - v0.3.337 - 2026-09-12
+
+Refresh reviewed static command registrations and their current source evidence.
+
+Source and configuration changes had made the static command registry stale. This maintenance renews the exact call locations, source and dependency hashes, configuration associations and supporting source excerpts. Existing classifications and executable behavior remain intact. Current structured excerpts describe their bound source bytes; superseded observations are retained only as explicitly historical provenance.
+
+The newly covered finite call forms include native fixture commands, isolated workers, explicit child tables, contract checks and the resource-owned root build. The root-build entry directly binds its configuration file and quotes the resource and execution policy on which its justification depends. Overlapping native fixture call records are consolidated with the union of their configuration invocations, dependencies and evidence. Their evidence states the actual registration status of each child, the worker allowlist and recursion guard, and the root build script resolution. The root build still uses the existing PATH-resolved npm executable; that is a named limitation, not a claim that npm itself is content-pinned. Scanner policy, production code and command timeouts are unchanged.
+
+The official RED and GREEN command is node scripts/verify-validation-static-edges.mjs. Supplemental real-scanner controls cover deleted edges, source and literal-child drift, substituted identity invocations, configuration drift and unknown nested commands. A separate resource-policy mutation control verifies that the root-build entry still refuses a changed configuration after the top-level configuration projection is renewed. Exact execution results, prepared-candidate audits and local integration receipts remain in the official Lab records; diagnostic attempts are not formal Story evidence.
+
+This is registry-only maintenance on the existing CLI version 0.3.337, not another CLI release. The standard Lab finish heading identifies the Lab name and the version it lands on, as generated by scripts/lab-worktree.mjs. Multiple distinctly named maintenance entries can therefore reference the same unchanged CLI version. No change to the versioning tool or manually authored release heading is included.
+
+B-e6d9 still requires current formal verification and its full REVIEW, TEST and DONE lifecycle. This maintenance does not publish remotely or mark that Story complete.
+
+Maintenance provenance: codex/lab-static-registry-closure, repair 25b7372eec2ec897bb9291c2878f32f09e1a43fd.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edges.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab historical-native-dispatch - v0.3.337 - 2026-09-12
 
 Fix native reviewer evidence validation across successive inventory waves.
