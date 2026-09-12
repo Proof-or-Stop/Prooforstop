@@ -10976,6 +10976,45 @@
           "argv": []
         }
       ]
+    },
+    {
+      "id": "EX-RUNTIME-SNAPSHOT-BINDING",
+      "key": "scripts/verify-runtime-fact-contract.mjs:75:execFileSync",
+      "callDigest": "66efa03c51da9d40d226e8349a70c2c934301212b0d8100da9b409f1f8584caa",
+      "sourceDigest": "c5dc4c603780f371a20179f61271da324ada75d6a92cfb3c9da66e017a3b002a",
+      "configIndexes": [
+        16
+      ],
+      "kind": "REVIEWED_READONLY_SOURCE_CONTRACT",
+      "reason": "The exact runtime verifier child invokes a read-only TypeScript source-contract check. The child reads shared-validation-execution.ts as text, parses it, and rejects five in-memory mutations; it never imports that production module or launches subprocesses. Builtin and TypeScript parser resolution retains the same toolchain trust boundary as the scanner. This is not nested validation execution or native lifecycle evidence.",
+      "requiredEvidence": [
+        {
+          "file": "scripts/verify-runtime-fact-contract.mjs",
+          "startLine": 75,
+          "endLine": 76,
+          "sourceDigest": "c5dc4c603780f371a20179f61271da324ada75d6a92cfb3c9da66e017a3b002a",
+          "excerpt": "  execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],\n    { cwd: root, stdio: 'inherit', timeout: 30000 });"
+        },
+        {
+          "file": "scripts/verify-validation-snapshot-binding.mjs",
+          "startLine": 1,
+          "endLine": 67,
+          "sourceDigest": "d62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8",
+          "excerpt": "#!/usr/bin/env node\n// Canonical runtime checks use the supported TypeScript parser, not Lab-only\n// Node module hooks. Dynamic operation counts remain in the managed Lab test.\nimport assert from 'node:assert/strict';\nimport { readFileSync } from 'node:fs';\nimport ts from 'typescript';\n\nconsole.log('SNAPSHOT_BINDING_RUNTIME ' + JSON.stringify({ node: process.version, executable: process.execPath, argv: process.argv.slice(1) }));\n\nconst source = readFileSync(new URL('../packages/main/src/core/shared-validation-execution.ts', import.meta.url), 'utf8');\nconst fail = (ok, detail) => assert(ok, 'VALIDATION_SNAPSHOT_BINDING_INVALID: ' + detail);\nfunction verify(text) {\n  const file = ts.createSourceFile('shared-validation-execution.ts', text, ts.ScriptTarget.Latest, true);\n  fail(file.parseDiagnostics.length === 0, 'source must parse');\n  const owners = file.statements.filter(node => ts.isFunctionDeclaration(node) && node.name?.text === 'executeSharedValidationCommand');\n  fail(owners.length === 1 && owners[0].body, 'exact shared execution owner');\n  const body = owners[0].body;\n  const local = name => {\n    const matches = body.statements.flatMap(statement => ts.isVariableStatement(statement)\n      && (statement.declarationList.flags & ts.NodeFlags.Const)\n      ? statement.declarationList.declarations.filter(declaration => ts.isIdentifier(declaration.name) && declaration.name.text === name) : []);\n    fail(matches.length === 1 && matches[0].initializer, 'one invocation-local const ' + name);\n    return matches[0];\n  };\n  const compact = node => node.getText(file).replace(/\\s+/g, '');\n  const initial = local('initial');\n  const facts = local('initialCanonical');\n  const inputs = local('inputFilesCanonical');\n  const unchanged = local('unchanged');\n  fail(compact(initial.initializer) === 'probe()', 'initial facts come from a live probe');\n  fail(compact(facts.initializer) === 'causalCanonical(initial)', 'canonical initial facts');\n  fail(compact(inputs.initializer) === 'causalCanonical(inputFiles)', 'canonical initial input bytes');\n  fail(initial.pos < facts.pos && facts.pos < unchanged.pos && inputs.pos < unchanged.pos, 'baseline capture precedes freshness closure');\n  const closure = unchanged.initializer;\n  fail(ts.isArrowFunction(closure) && ts.isBlock(closure.body), 'freshness closure');\n  const attempt = closure.body.statements[0];\n  fail(attempt && ts.isTryStatement(attempt), 'freshness comparison retains refusal boundary');\n  const result = attempt.tryBlock.statements[0];\n  fail(result && ts.isReturnStatement(result) && result.expression, 'freshness return');\n  const expected = 'causalCanonical(probe())===initialCanonical&&workspaceState()===workspace'\n    + '&&causalCanonical(additionalInputs())===inputFilesCanonical&&executionImplementationIdentity().digest===implementationDigest';\n  fail(compact(result.expression) === expected, 'live facts, workspace, input bytes and implementation comparison');\n  const counts = { initial: 0, inputFiles: 0 };\n  const visit = node => {\n    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'causalCanonical'\n      && node.arguments.length === 1 && ts.isIdentifier(node.arguments[0]) && node.arguments[0].text in counts) {\n      counts[node.arguments[0].text]++;\n    }\n    ts.forEachChild(node, visit);\n  };\n  visit(body);\n  fail(counts.initial === 1 && counts.inputFiles === 1, 'baseline canonicalization occurs once in the owner');\n}\nverify(source);\nconst mutants = [\n  ['const initialCanonical = causalCanonical(initial);', ''],\n  ['const inputFilesCanonical = causalCanonical(inputFiles);', ''],\n  ['causalCanonical(probe()) === initialCanonical', 'initialCanonical === initialCanonical'],\n  ['causalCanonical(additionalInputs()) === inputFilesCanonical', 'inputFilesCanonical === inputFilesCanonical'],\n  ['causalCanonical(probe()) === initialCanonical', 'causalCanonical(probe()) === causalCanonical(initial)'],\n];\nfor (const [from, to] of mutants) {\n  assert.equal(source.split(from).length, 2, 'Mutation must bind exactly once');\n  const mutant = source.replace(from, to);\n  assert.throws(() => verify(mutant), /VALIDATION_SNAPSHOT_BINDING_INVALID/);\n}\nconsole.log('VALIDATION_SNAPSHOT_BINDING_GREEN actual-owner five-mutations-refused no-module-hooks');"
+        },
+        "The declared shared-validation-execution.ts dependency is read as text only. Source and invocation changes retain scanner refusal. Existing unrelated stale inventory remains separately reported."
+      ],
+      "dependencyDigests": {
+        "scripts/verify-runtime-fact-contract.mjs": "c5dc4c603780f371a20179f61271da324ada75d6a92cfb3c9da66e017a3b002a",
+        "scripts/verify-validation-snapshot-binding.mjs": "d62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8",
+        "packages/main/src/core/shared-validation-execution.ts": "fa73cd94ee33cee45cfcee2dbdd859122f08aa211e0daaa8a820a00a6b59f8c9"
+      },
+      "invocations": [
+        {
+          "entry": "scripts/verify-runtime-fact-contract.mjs",
+          "argv": []
+        }
+      ]
     }
   ]
 }

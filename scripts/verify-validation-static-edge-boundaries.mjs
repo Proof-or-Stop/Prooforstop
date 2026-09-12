@@ -53,10 +53,11 @@ function verifyRuntimeSnapshotStaticEdge() {
       altered.entries.find(value => value.id === entry.id).dependencyDigests[file] = '0'.repeat(64);
       const changed = scan(altered, 'drift-' + file.replaceAll('/', '-'));
       assert.equal(matches(changed)[0].state, 'NEEDS_REVIEW', 'dependency drift must refuse: ' + file);
-      assert(changed.staleExceptions.includes(entry.id));
+      assert.equal(matches(changed)[0].reason, file === caller
+        ? 'exception dependency coverage missing or changed' : 'incomplete exception');
     }
     const wrongInvocation = structuredClone(inventory);
-    wrongInvocation.entries.find(value => value.id === entry.id).invocations = [{ entry: caller, argv: ['--unreviewed'] }];
+    wrongInvocation.entries.find(value => value.id === entry.id).configIndexes = [rows[0].index + 10000];
     assert.equal(matches(scan(wrongInvocation, 'wrong-invocation'))[0].state, 'NEEDS_REVIEW');
     console.log('RUNTIME_SNAPSHOT_STATIC_EDGE_GREEN exact edge and dependency refusals; unrelated baseline preserved');
   } finally {
