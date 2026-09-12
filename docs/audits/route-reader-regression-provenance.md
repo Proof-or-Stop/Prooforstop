@@ -258,3 +258,7 @@ Commit `1d62cdb3e4cb24d1c4e70c96b9174b27741c09ee`, lines 360–366. Full-source 
         priorRows: prior.rows, currentRows: current.rows } : null;
     })(),
 ```
+
+## Retained timeout diagnostics
+
+Repeated official full-suite timeouts exposed a separate diagnostic defect: the shared subprocess helper discarded captured stdout and stderr when throwing its timeout error. The registered driver now runs a small real-child timeout regression before the original suite. The helper retains the bounded buffers and original timeout code/status/signal, and the driver explicitly renders them once before rethrowing. The regression also executes the exact caller catch body and checks normal exit, nonzero exit, ordinary signal and missing-executable behavior. Original verification commands, acceptance assertions and budgets are unchanged. This repair makes incomplete proof diagnosable; it does not turn a timeout into PASS or establish a machine-load cause.

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { prepareVerification } from './verification-subprocess-budget.mjs';
+import { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const require = createRequire(resolve(root, 'package.json'));
@@ -43,7 +43,13 @@ for (const [path, timeout, selector] of [
   [suitePath, 600000, 'ROUTE_DIRECTION_NATIVE_GREEN'],
   ['scripts/verify-validation-static-edges.mjs', 180000, 'U18_STATIC_PASS'],
 ]) {
-  const result = spawnSync(process.execPath, [path], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 32 * 1024 * 1024 });
+  let result;
+  try {
+    result = spawnSync(process.execPath, [path], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 32 * 1024 * 1024 });
+  } catch (error) {
+    process.stderr.write(verificationFailureMessage('route verification child', error) + '\n');
+    throw error;
+  }
   const output = (result.stdout ?? '') + (result.stderr ?? '');
   process.stdout.write(output);
   assert.equal(result.error, undefined, 'child execution must complete');

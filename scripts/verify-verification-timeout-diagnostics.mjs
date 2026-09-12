@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { inspect } from 'node:util';
 import { runInNewContext } from 'node:vm';
 import { verificationSpawner, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
@@ -15,6 +16,8 @@ assert.equal(failure.signal, 'SIGTERM', 'TIMEOUT_DIAGNOSTICS_RED preserve actual
 assert.equal(failure.stdout, 'TIMEOUT_CHILD_STDOUT', 'TIMEOUT_DIAGNOSTICS_RED preserve stdout');
 assert.equal(failure.stderr, 'TIMEOUT_CHILD_STDERR', 'TIMEOUT_DIAGNOSTICS_RED preserve stderr');
 assert.match(failure.message, /^VERIFICATION_SUBPROCESS_TIMEOUT:/);
+assert.equal(failure.status, null);
+assert(!inspect(failure).includes(failure.stdout) && !inspect(failure).includes(failure.stderr), 'uncaught error inspection must not duplicate rendered buffers');
 const rendered = verificationFailureMessage('route child', failure);
 assert.match(rendered, /^PROOF_UNAVAILABLE:/);
 assert(rendered.includes(failure.stdout) && rendered.includes(failure.stderr));
@@ -33,4 +36,10 @@ const success = verificationSpawner(5000)(process.execPath, ['-e',
   "process.stdout.write('SUCCESS_STDOUT');process.stderr.write('SUCCESS_STDERR')"], { encoding: 'utf8', timeout: 3000 });
 assert.equal(success.status, 0); assert.equal(success.signal, null); assert.equal(success.error, undefined);
 assert.equal(success.stdout, 'SUCCESS_STDOUT'); assert.equal(success.stderr, 'SUCCESS_STDERR');
+const nonzero = verificationSpawner(5000)(process.execPath, ['-e', 'process.exit(7)'], { timeout: 3000 });
+assert.equal(nonzero.status, 7); assert.equal(nonzero.signal, null); assert.equal(nonzero.error, undefined);
+const signaled = verificationSpawner(5000)(process.execPath, ['-e', "process.kill(process.pid,'SIGTERM')"], { timeout: 3000 });
+assert.equal(signaled.status, null); assert.equal(signaled.signal, 'SIGTERM'); assert.equal(signaled.error, undefined);
+const missing = verificationSpawner(5000)('/definitely-absent-route-diagnostic-executable', [], { timeout: 3000 });
+assert.equal(missing.error.code, 'ENOENT');
 console.log('VERIFICATION_TIMEOUT_DIAGNOSTICS_PASS real timeout streams, caller reporting and success preserved');
