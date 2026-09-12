@@ -10,6 +10,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const build = spawnSync(process.execPath, ['scripts/ensure-dist.mjs'], { cwd: root, encoding: 'utf8', timeout: 180000 });
 assert.equal(build.status, 0, build.stdout + build.stderr);
 const results = [];
+const binding = spawnSync(process.execPath, ['scripts/verify-validation-snapshot-binding.mjs'], {
+  cwd: root, encoding: 'utf8', timeout: 30000,
+});
+assert.equal(binding.status, 0, binding.stdout + binding.stderr);
+process.stdout.write(binding.stdout);
 for (const test of ['validation-git-tree-batch.mjs', 'validation-stage-entry-count.mjs',
   'validation-reuse-cost-process.mjs', 'validation-snapshot-operation-count.mjs']) {
   const child = spawnSync(process.execPath, ['packages/main/tests/' + test], {

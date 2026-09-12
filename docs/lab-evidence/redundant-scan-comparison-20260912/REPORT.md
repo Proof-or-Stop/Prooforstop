@@ -53,8 +53,9 @@ facts/input bytes and compares workspace and loaded implementation identity.
   existing 20 ms command; it is not a whole-Story workload.
 - Path comparison checks 570 string-matcher cases against the former two-pass
   normalization semantics.
-- `node scripts/verify-runtime-fact-contract.mjs` passes, including the newly
-  registered snapshot operation regression.
+- The original `node scripts/verify-runtime-fact-contract.mjs` run passes with
+  the dynamic snapshot regression on the recorded Node v26 runtime. See the
+  audit correction below for its final compatibility-safe registration.
 - `node packages/main/tests/validation-shared-input-tree.mjs` passes, including
   directory additions, same-mtime byte drift, self-written inputs and cycles.
 
@@ -73,7 +74,21 @@ benchmark. No elapsed-time speedup percentage or whole-Story improvement is
 claimed. Five baseline checks were already passing; their old historical RED
 values are not substituted for the measured 0.3.339 values.
 
-This is local maintenance RED/GREEN evidence. The changes are committed in the
-Lab branch and have not been integrated, released, or pushed. It is not formal
-Story DONE. Final report-only commits retain the same implementation; a current
-managed GREEN is required after committing the evidence packet.
+This packet records local maintenance RED/GREEN evidence before integration.
+It is not formal Story DONE. Later release records carry integration status;
+the original raw logs and their recorded commit bindings remain unchanged.
+
+## Independent audit correction
+
+The first Claude audit accepted the production optimization and the measurement
+evidence but rejected unconditional registration of the hook-based counter in
+the general runtime contract. `node:module.registerHooks` is a Lab capability,
+not a declared general CLI requirement. The repair keeps that dynamic test in
+the managed Lab command and replaces its canonical gate invocation with a
+TypeScript AST binding check. That check verifies invocation-local baseline
+consts and the exact live comparison in the actual execution owner. Five
+in-memory mutations must be rejected. It uses no native module hooks and does
+not silently skip validation on older runtimes. This changes test registration,
+not the measured production implementation or the original before/after data.
+
+The corrected runtime contract passes; see [compatible registration run](runtime-contract-compatible.log). The new AST guard also passes under Node 20, including its five mutation controls; see [Node 20 run](node20-binding.log). This is a bounded compatibility check for the new guard, not a claim that the entire repository suite was run on Node 20.
