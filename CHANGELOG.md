@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab review-finalization-lineage - v0.3.342 - 2026-09-12
+
+# Review finalization lineage maintenance
+
+B-0980 exposed an official-writer/consumer mismatch: finalized review epoch metadata and genuine verification refreshes invalidated managed reviewer HEAD lineage; the inventory critic consumer also rebuilt an OPEN-only prompt after finalization. Extending the actual handler regression showed that certification admission, routine validation and the TEST transition encountered the same compatibility seam.
+
+The repair retains managed code review only across precisely classified official publications: signed finalized epoch and receipt with original cutoff; strict authenticated V5 evidence-only replacement with unchanged checklist requirements and append-only causal index; exact window-bound inventory consumption; validation artifacts with append-only causal closeout receipts tied to bytes and parent commit; and the existing exact REVIEW-to-TEST index delta. Managed critic consumption validates the current inventory subject and the immutable sealed launch digest without rebuilding a terminal prompt. Material, scope, receipt and lifecycle verdict checks remain independent. Unknown subjects, unrelated paths, forged metadata and changed requirements fail closed.
+
+Verification uses the pinned node scripts/verify-review-epoch-certification-continuity.mjs command. Disposable fixtures exercise actual native reviewer handlers and a synthetic managed transport, finalization, verification refresh, certification admission, routine validation, actual TEST publication, cancellation and forged publication controls. Synthetic fixture identities and transports are test provenance, not independent vendor audit. The complete repository build and process-fact contract check pass. The canonical suite inventory smoke previously passed. The broader managed-review smoke failed at the same first managed-run-completion assertion on both this Lab and baseline main a11f2d89a4; logs are preserved and that check is not reported as passing.
+
+This bounded maintenance does not implement the benchmark runner, declare B-0980 DONE, or supply a product release approval. Claude CLI must independently audit the exact prepared candidate before authorized local integration. No remote push is requested.
+
+Maintenance provenance: codex/lab-review-finalization-lineage, repair 81635818e640d0c3fc5882305ad81c03418ad3ca.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab redundant-scan-comparison - v0.3.341 - 2026-09-12
 
 Reduce repeated initial snapshot canonicalization in shared validation execution. Final comparison starts from local main 0.3.340 at a11f2d89a4c1762b5e0452e6e9e5e696ee9884c9. Each of the two initial baseline objects is canonicalized once per invocation instead of five times on first execution and three on receipt reuse. Live fact probes remain 6 and 4, with real child starts 1 and 0. Current input bytes, workspace, loaded implementation identity and publication checks remain active. Five other measured historical hotspots were already within budget and are unchanged. Quorum cleanup is excluded and remains owned by another Lab.
