@@ -6,8 +6,17 @@ import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import childProcess, {execFileSync} from 'node:child_process';
 import {syncBuiltinESMExports} from 'node:module';
+function assertStageModeResult(mode, result) {
+  assert.equal(result.error, undefined, 'Stage contract child must execute');
+  assert.equal(result.signal, null, 'Stage contract child must finish without a signal');
+  assert.equal(result.status, 0, mode === 'abort' ? 'PRESPAWN_ABORT_ORACLE_MUST_MATCH_COMMAND_RESULT' : `STAGE_MODE_${mode}_MUST_PASS`);
+}
 // Bounded Lab replay includes all original mode contracts in one pinned command.
 if (process.argv.includes('--contract-suite')) {
+  const wrongMode = { status: 0, signal: null, stdout: 'STAGE_ENTRY_GREEN\n' };
+  assert.throws(() => assertStageModeResult('abort', wrongMode), /branch/, 'PRESPAWN_ABORT_ORACLE_MUST_MATCH_COMMAND_RESULT');
+  assert.throws(() => assertStageModeResult('deadline', wrongMode), /branch/);
+  assert.throws(() => assertStageModeResult('normal', { ...wrongMode, stdout: 'PRESPAWN_GREEN\n' }), /branch/);
   for (const mode of ['normal', 'abort', 'deadline']) {
     const env = { ...process.env };
     if (mode === 'normal') delete env.LAB_SAFETY_MODE;
@@ -15,9 +24,7 @@ if (process.argv.includes('--contract-suite')) {
     const result = childProcess.spawnSync(process.execPath, [fileURLToPath(import.meta.url)], { env, encoding: 'utf8' });
     process.stdout.write(result.stdout ?? '');
     process.stderr.write(result.stderr ?? '');
-    assert.equal(result.error, undefined, 'Stage contract child must execute');
-    assert.equal(result.signal, null, 'Stage contract child must finish without a signal');
-    assert.equal(result.status, 0, mode === 'abort' ? 'PRESPAWN_ABORT_ORACLE_MUST_MATCH_COMMAND_RESULT' : `STAGE_MODE_${mode}_MUST_PASS`);
+    assertStageModeResult(mode, result);
   }
   console.log('STAGE_CONTRACT_SUITE_GREEN');
   process.exit(0);
