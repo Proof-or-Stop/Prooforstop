@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
+import { readVerificationOutputArtifact } from '../packages/main/dist/core/verification-execution-evidence.js';
+import { hasMechanicalExecutionAuthority } from '../packages/main/dist/core/verification-receipt-authority.js';
 import { mkdtempSync, writeFileSync, readFileSync, rmSync, chmodSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../packages/main/dist/core/store.js';
@@ -64,6 +67,26 @@ try {
     note: 'Executed the real repaired function for both positive and zero inputs and asserted exact sums.' });
   const evidence = store.readChecklist(storyId).items[0].verificationEvidence[0];
   assert.equal(evidence.mechanical, true);
+  const item = store.readChecklist(storyId).items[0];
+  assert.equal(hasMechanicalExecutionAuthority(store, storyId, item, evidence), true, 'V5_EXECUTION_AUTHORITY_REQUIRED');
+  for (const mutate of [
+    e => { e.receipt.publicationBinding.authenticity.signature = 'invalid'; },
+    e => { e.command = 'node other.cjs'; },
+    e => { e.intentRef = 'CHK-001:happy:9'; },
+    e => { e.headHash = 'a'.repeat(40); },
+    e => { e.materialHash = 'b'.repeat(64); },
+    e => { e.storyFilesHash = 'c'.repeat(64); },
+    e => { e.receipt.outputTail = 'forged output'; },
+    e => { e.receipt = { exitCode: 0, selectorMatched: true, selector: e.receipt.selector }; },
+  ]) {
+    const changed = structuredClone(evidence); mutate(changed);
+    assert.equal(hasMechanicalExecutionAuthority(store, storyId, item, changed), false, 'tampered or legacy evidence must not gain execution authority');
+  }
+  assert.equal(hasMechanicalExecutionAuthority(store, 'B-other', item, evidence), false, 'receipt cannot cross Story boundaries');
+  const unavailable = structuredClone(evidence), failure = new Error('injected verifier access failure');
+  Object.defineProperty(unavailable.receipt, 'executionReceipt', { get() { throw failure; } });
+  assert.throws(() => hasMechanicalExecutionAuthority(store, storyId, item, unavailable),
+    error => error.message.includes('Execution authority verifier unavailable') && error.cause === failure);
   const proof = { itemId: 'CHK-001', intentRef: evidence.intentRef, evidenceDigest: canonicalHash(evidence) };
   const request = { storyId, repairSetId: 'repair-addition', epochId: 'E-1', repairCommit,
     findings: findings.map(({ id }) => ({ findingId: id, resolution: 'Addition restored and checked with real positive and zero inputs.', verification: [proof] })) };
@@ -77,10 +100,14 @@ try {
   assert.throws(() => handlers.review_remediation_close(request), /dirty material/);
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'uncommitted regression publishes no resolution');
   writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a+b;\n');
-  const causalPath = store.causalEvidenceReceiptPath(storyId, evidence.receipt.causalReceiptHash);
+  // The store exposes no V5 object-path accessor. Confirm this isolated CAS
+  // deletion targets the exact artifact read by the public authenticated reader.
+  readVerificationOutputArtifact(root, evidence.receipt.executionReceipt.outputArtifact, storyId);
+  const causalPath = join(root, '.proof-or-stop/evidence/objects/sha256', evidence.receipt.executionReceipt.outputArtifact.artifactDigest + '.json');
   const causalBytes = readFileSync(causalPath);
   rmSync(causalPath);
-  assert.throws(() => handlers.review_remediation_close(request), /authority|receipt/i);
+  assert.throws(() => readVerificationOutputArtifact(root, evidence.receipt.executionReceipt.outputArtifact, storyId), /not found/);
+  assert.throws(() => handlers.review_remediation_close(request), /verification execution authority is missing or invalid/);
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'missing real execution receipt publishes no resolution');
   writeFileSync(causalPath, causalBytes);
   const originalReadInventory = store.readReviewInventoryEpochs.bind(store);
@@ -89,6 +116,16 @@ try {
   store.readReviewInventoryEpochs = originalReadInventory;
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'invalid inventory signature publishes no resolution');
   const originalTransaction = store.transactFindingLedger.bind(store);
+  store.transactFindingLedger = (sid, fence, prepare, options = {}) => originalTransaction(sid, fence, prepare, {
+    ...options, beforeRename: (...argv) => {
+      rmSync(causalPath);
+      options.beforeRename?.(...argv);
+    },
+  });
+  assert.throws(() => handlers.review_remediation_close(request), /execution authority changed before publication/);
+  store.transactFindingLedger = originalTransaction;
+  writeFileSync(causalPath, causalBytes);
+  assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'output removed immediately before publication publishes no terminal facts');
   store.transactFindingLedger = (sid, fence, prepare, options = {}) => originalTransaction(sid, fence, prepare, {
     ...options, beforeRename: (...argv) => {
       writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a-b;\n');
@@ -143,3 +180,6 @@ try {
   assert.equal(git('rev-parse', 'HEAD'), recoveredHead, 'recovered projection has stable replay');
   console.log('PASS U04 complete atomic repairSet closeout');
 } finally { process.chdir(previousCwd); rmSync(root, { recursive: true, force: true }); }
+
+const scriptRoot = dirname(fileURLToPath(import.meta.url));
+execFileSync(process.execPath, [join(scriptRoot, 'verify-convergence-progress-evidence.mjs')], { cwd: join(scriptRoot, '..'), stdio: 'inherit', timeout: 120_000 });
