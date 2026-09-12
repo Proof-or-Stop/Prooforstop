@@ -17,6 +17,10 @@ import {nativeReviewFixtureAmbientHost,nativeReviewFixtureBrokers,runBrokeredNat
 
 const cliPath=fileURLToPath(new URL('../cli.js',import.meta.url));
 const roots=new Set<string>();
+export const NATIVE_FIXTURE_CLI_TIMEOUT_MS=60000;
+export const NATIVE_FIXTURE_HOLD_MS=90000;
+export function allocateNativeLockRoot():string {const root=realpathSync(mkdtempSync(join(tmpdir(),'proof-or-stop-native-lock-')));roots.add(root);return root;}
+export function cleanupNativeLockRoots():void {for(const root of roots)rmSync(root,{recursive:true,force:true});roots.clear();}
 export function assertNativeLockFixture(root:string):void {assert(roots.has(root),'native setup can only operate on its own newly allocated disposable roots');}
 export function lockFixtureActorEnvironment(agent:string) {
  const provider=nativeReviewFixtureAmbientHost()==='claude'?'claude-code' as const:'codex' as const;
@@ -27,20 +31,23 @@ export function lockFixtureActorEnvironment(agent:string) {
 export function lockFixtureCli(root:string,storyId:string,command:string,payload:Record<string,unknown>,agent='main'):string {
  assertNativeLockFixture(root);
  const env=lockFixtureActorEnvironment(agent),start=performance.now();
+ let primaryFailed=false;
  try {
   return execFileSync(process.execPath,[cliPath,'--root',root,command,JSON.stringify(payload)],
-   {cwd:root,env:{...env,PROOF_OR_STOP_PROJECT_ROOT:root},encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:60000,maxBuffer:16*1024*1024}).trim();
- } finally {
+   {cwd:root,env:{...env,PROOF_OR_STOP_PROJECT_ROOT:root},encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:NATIVE_FIXTURE_CLI_TIMEOUT_MS,maxBuffer:16*1024*1024}).trim();
+ } catch(error){primaryFailed=true;if((error as NodeJS.ErrnoException).code==='ETIMEDOUT')throw new Error('NATIVE_FIXTURE_CLI_TIMEOUT '+command+' exceeded '+NATIVE_FIXTURE_CLI_TIMEOUT_MS+'ms');throw error;} finally {
+  try {
   const directory=new StoryStore(root).storyDirPath(storyId);
   const session=deriveAdapterOwnerSessionId(root,env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER,env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK,agent);
   if(readOwnerLease(directory)?.sessionId===session)assert(releaseOwnerLease(directory));
+  } catch(error){if(!primaryFailed)throw error;console.error('NATIVE_LOCK_CLEANUP_WARNING '+String(error));}
   console.log('NATIVE_LOCK_SETUP_TIMING '+JSON.stringify({storyId,command,agent,elapsedMs:performance.now()-start}));
  }
 }
 
 export async function createNativeLockFixture(storyId:string,phase:'REVIEW'|'TEST'='TEST',routine=true) {
  assert(/^B-[A-Za-z0-9_-]+$/.test(storyId));
- const root=realpathSync(mkdtempSync(join(tmpdir(),'proof-or-stop-native-lock-')));roots.add(root);
+ const root=allocateNativeLockRoot();
  const store=new StoryStore(root),start=performance.now();
  const git=(...args:string[])=>execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],
   env:{...process.env,GIT_AUTHOR_NAME:'Native lock fixture',GIT_AUTHOR_EMAIL:'fixture@example.test',GIT_COMMITTER_NAME:'Native lock fixture',GIT_COMMITTER_EMAIL:'fixture@example.test'}}).trim();
@@ -52,13 +59,13 @@ export async function createNativeLockFixture(storyId:string,phase:'REVIEW'|'TES
   write('README.md','# Disposable native validation lock subject\n');
   write('validate-probe.mjs',`import {appendFileSync,existsSync} from 'node:fs';
 appendFileSync('entered.log',(process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL||'preparation')+' '+process.pid+' '+Date.now()+'\\n');
-const deadline=Date.now()+8000;
-while(!existsSync('release')){if(Date.now()>deadline)process.exit(12);await new Promise(r=>setTimeout(r,25));}
+const started=Date.now(),deadline=started+${NATIVE_FIXTURE_HOLD_MS};
+while(!existsSync('release')){if(Date.now()>deadline){console.error('NATIVE_FIXTURE_HOLD_TIMEOUT elapsedMs='+(Date.now()-started));process.exit(12);}await new Promise(r=>setTimeout(r,25));}
 console.log('native lock probe passed');\n`);
   // These probes only touch their disposable repository; declare that footprint
   // so unrelated machine-wide validation is not a hidden prerequisite.
   const resources=[{class:'fixed-path' as const,key:'.',access:'exclusive' as const}];
-  const probe={resources,label:'lock-probe',command:process.execPath,args:['validate-probe.mjs'],focus:['lock'],timeoutMs:10000};
+  const probe={resources,label:'lock-probe',command:process.execPath,args:['validate-probe.mjs'],focus:['lock'],timeoutMs:NATIVE_FIXTURE_HOLD_MS+10000};
   write(PROOF_OR_STOP_CONFIG_FILENAME,JSON.stringify({scanRoot:'packages/main',rootDir:'src',storyDir:PROOF_OR_STOP_STORY_DIR,requirementsDir:'docs/requirements',workflow:{profile:'light'},
    nativeReviewInvocation:{brokers:nativeReviewFixtureBrokers()},validate:{commands:[{resources,label:'cheap preparation',command:process.execPath,args:['--version'],focus:['fast'],timeoutMs:10000},probe]},doneRequiredCommands:[probe]},null,2));
   write('release','initial routine preparation\n');

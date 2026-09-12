@@ -35,8 +35,9 @@ native execution emit elapsed milliseconds. Compare successful runs with the
 same host load; the old early failures were not equivalent completed workloads.
 
 Native startup observation allows 12 seconds for real pre-execution checks; the
-probe's eight-second hold bound, ten-second command deadline, production command
-policy and timeout budgets remain unchanged. Child wait timers are cancelled
+fixture probe now has a 90-second hold bound, a 100-second command deadline,
+and an explicit hold-expiry diagnostic, covering the native writer's 60-second
+budget. These are disposable-fixture settings; production policy is unchanged. Child wait timers are cancelled
 when the child finishes, so a completed wait cannot issue a late kill.
 
 Synthetic unit models remain appropriate for isolated logic tests. They must not
@@ -47,10 +48,11 @@ broader suites so fixture preparation failures are diagnosed at their source.
 The fixture CLI writers assert ownership of the newly allocated native root and
 pin both CLI/project-root routing after sanitizing ambient authority. Focused
 writer probes preserve preparation-time routine PASS; actual new PASS publication
-is asserted by the native dual-order queue cases. The fifteen-group capacity
-contract remains hermetic: its derived-refusal case checks that missing-evidence
-refusal waits for capacity, while admissible derived publication is tested in
-the separate native group. Contender queue observation is bounded below the
+is asserted by the native dual-order queue cases. The original fifteen-group capacity contract retains its strong admissible
+derived-verdict block-then-publication check and original selector. A separate
+hermetic selector checks missing-evidence refusal ordering; it does not replace
+or weaken the legacy proof. The admissible case uses local generated fixture
+brokers, not an external provider credential or LLM invocation. Contender queue observation is bounded below the
 probe hold deadline. Child cleanup has a two-second stream-close grace after
 SIGKILL. The contract driver resolves its repository from its own module URL.
 
@@ -60,5 +62,15 @@ Baseline boundary: on local main `ee1b815a84` (0.3.341), the existing complete
 The Lab reproduces that same early failure and does not claim all fifteen groups
 pass. The focused `--derived-refusal-contract-only` selector exercises the changed
 hermetic group directly; the Lab driver requires that plus all six native cases.
-The original fifteen-group selector and ordering remain intact, with native
-admission no longer introduced into that lightweight path.
+The original fifteen-group selector retains admissible block-then-publication
+semantics. Its legacy early failure remains a documented main baseline; this Lab
+does not weaken that assertion to obtain a passing historical receipt.
+
+The driver has no conflicting per-step watchdog; the official Lab total budget
+remains authoritative. Its asynchronous process-group forwarding allows the
+smoke's SIGTERM/SIGINT cleanup to stop owned children and remove registered
+fixture roots before the driver's bounded escalation. A self-signalled child
+regression proves registered-root cleanup. Primary CLI errors remain visible
+even if lease cleanup also fails. Existing synthetic-window helpers still have
+callers in done-required-validation-smoke and validation-protocol-smoke, so this
+Lab does not remove those unrelated exports.
