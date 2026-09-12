@@ -10064,8 +10064,10 @@ const inventory = [
   {
     name: 'Explicit Lab maintenance integration boundary',
     files: [
+      { relPath: 'scripts/verify-lab-lock-scope.mjs', patterns: ['main changed while the audit ran', 'LAB_FIXTURE_AUDIT_HOLD'] },
+      { relPath: 'scripts/lab-audit.mjs', patterns: ['selectAuditor', 'runHostRun', 'parseAuditResult', 'processCleanup', 'inputDigest', 'readRefs'] },
       { relPath: 'packages/main/src/core/process-fact-registry.ts', patterns: ['runtime:lab_local_maintenance_integration', 'never Story REVIEW/TEST/DONE'] },
-      { relPath: 'scripts/lab-worktree.mjs', patterns: ['acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', 'candidate-story-baseline', 'main-story-baseline', 'candidate-story-integration', 'main-story-integration', '--ff-only', "phase = 'verified'", "'branch', '-d'", "action === 'carry'", "action === 'baseline'", 'story-baseline-supplement', 'baselineWitnesses', 'finishBaselineWitnesses', 'integrationWitnesses', 'createVerificationEvidenceGateEvaluator', 'currentMaterialHash', 'currentStoryFilesHash', 'failureIdentity', "['node', 'scripts/ensure-dist.mjs']", "!path.startsWith('.proof-or-stop/')", 'preservedMainDirty', 'Dirty main changed during Story carry-forward integration'] },
+      { relPath: 'scripts/lab-worktree.mjs', patterns: ['ensureAudit', 'auditIsFresh', 'repairContentDigest', 'changed repair content', 'resumeMainHead', 'no pinned developer', 'acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', 'candidate-story-baseline', 'main-story-baseline', 'candidate-story-integration', 'main-story-integration', '--ff-only', "phase = 'verified'", "'branch', '-d'", "action === 'carry'", "action === 'baseline'", 'story-baseline-supplement', 'baselineWitnesses', 'finishBaselineWitnesses', 'integrationWitnesses', 'createVerificationEvidenceGateEvaluator', 'currentMaterialHash', 'currentStoryFilesHash', 'failureIdentity', "['node', 'scripts/ensure-dist.mjs']", "!path.startsWith('.proof-or-stop/')", 'preservedMainDirty', 'Dirty main changed during Story carry-forward integration'] },
       { relPath: 'scripts/verify-lab-story-carry-forward.mjs', patterns: ['tamper Story hash binding', 'tamper Story receipt authenticity', 'add open Finding', 'exceed bounded baseline failures', 'product change after evidence', 'overlaps dirty main paths', 'trace_incomplete', 'candidate-story-integration', 'main-story-integration'] },
       { relPath: 'docs/lab-maintenance.md', patterns: ['not formal Story', 'RED', 'GREEN', '--confirm', 'Carry a blocked Story patch', 'not Story DONE', 'strict authoritative', 'normalized diagnostic identity', 'bounded dynamic revalidation'] },
     ],
@@ -10808,8 +10810,10 @@ for (const kind of ['detector_signal', 'candidate', 'candidate_reproduction_atte
 function story2DependencyIssues(source) {
   const issues = []; const parsed = ts.createSourceFile('story2.ts', source, ts.ScriptTarget.Latest, true);
   const visit = node => {
-    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)
-      && /(?:dynamic-finding-blocking|finding-(?:assessment|triage|deferral|mandatory-repair|rollout|ledger-runtime-smoke|ledger-enforce))/.test(node.moduleSpecifier.text)) issues.push('Story1/3B dependency');
+    const dependency = (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) ? node.moduleSpecifier
+      : ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword ? node.arguments[0] : undefined;
+    if (dependency && ts.isStringLiteral(dependency)
+      && /(?:dynamic-finding-blocking|finding-(?:applicability|assessment|triage|deferral|mandatory-repair|rollout|ledger-runtime-smoke|ledger-enforce))/.test(dependency.text)) issues.push('Story1/3B dependency');
     if (ts.isCallExpression(node) && /^(?:readJson|readJsonCandidate)$/.test(ts.isPropertyAccessExpression(node.expression) ? node.expression.name.text : node.expression.getText(parsed))) issues.push('protected parser');
     ts.forEachChild(node, visit);
   }; visit(parsed); return issues;
@@ -10818,10 +10822,13 @@ for (const file of ['core/finding-identity.ts', 'core/finding-history.ts', 'core
   'handlers/finding-identity.ts', 'handlers/finding-identity-store.ts', 'handlers/finding-history.ts', 'handlers/finding-route.ts']) {
   const source = read(`packages/main/src/${file}`);
   for (const issue of story2DependencyIssues(source)) fail(`Story2 ${file}: ${issue}`);
-  for (const injection of ["import { gate } from './finding-deferral.js';", "import { enforce } from './finding-ledger-runtime-smoke.js';", "store.readJson(storyId, 'findings.json');"]) {
+  for (const injection of ["import { gate } from './finding-deferral.js';", "import { enforce } from './finding-ledger-runtime-smoke.js';", "store.readJson(storyId, 'findings.json');", "import { gate } from './finding-applicability-projection.js';", "export { gate } from './finding-applicability.js';", "await import('./finding-applicability.js');"]) {
     assert(story2DependencyIssues(`${source}\n${injection}`).length > 0, `Story2 dependency verifier detects ${injection}`);
   }
 }
+assert(read('packages/main/src/registry.ts').includes('createFindingHistoryHandlers(ctx, observeDeferralInvalidation)'), 'Official recall composition must supply the Story1 provider');
+assert(read('packages/main/src/handlers/finding-history.ts').includes('deferral invalidation provider unavailable'), 'Standalone Story2 must refuse unavailable provider');
+assert(read('packages/main/src/core/process-fact-registry.ts').includes('invalidationComposition:'), 'Recall provider boundary requires registry coverage');
 const currentStory2Validation = JSON.parse(read('proof-or-stop.config.json')).validate.commands;
 const expectedStory2Validation = [
   { command: 'node', args: ['packages/main/dist/tasks/finding-identity-lineage-smoke.js', '--section=delivery'], timeoutMs: 600000 },
@@ -10969,7 +10976,7 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
     ['packages/main/src/handlers/finding-applicability-proof.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'row.stdout.includes(intent.selector)', 'FINDING_PROTECTED_SURFACES.every'],
     ['packages/main/src/handlers/finding-deferral-proof.ts', 'readFindingRouteProgressProof(ctx', 'assertNoCanonicalDeferralReset(ctx', 'previous.payload.renewalCount! + 1'],
     ['packages/main/src/handlers/finding-applicability.ts', 'revalidateDeferrals.forEach(check => check())', 'repairClosureContext(currentApplicabilityContext'],
-    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)', 'prerequisites: admissionPrerequisites', "currentPrerequisites = 'invalid'", 'report.qualification.eligible = report.refusalReasons.length === 0'],
+    ['packages/main/src/handlers/finding-qualification.ts', 'createFindingLedgerHandlers(ctx).finding_ledger_query', 'createFindingHistoryHandlers(ctx).finding_identity_scorecard', 'measurements: cases.flatMap(row => row.queryMeasurements ?? [])', 'collectFindingQualificationEvents(ctx', 'qualification_case_requires_query_event_recollection', 'collectQualificationSubjectAdjudications(ctx', '(row.subjectAdjudications ?? []).map(row => row.ref)', 'prerequisites: admissionPrerequisites', "currentPrerequisites = 'invalid'", 'report.qualification.eligible = report.refusalReasons.length === 0', 'readQualificationSubjectCensus(source, id)', 'findingLedgerTrustFromWorkspace(ctx.root)', 'verifyFindingLedgerQueryRow(row, trust)', 'ledgerDetails.recordCount !== details.records.length', 'recordIds.has(row.recordId)', 'canonicalHash(census.evidenceDigests)'],
     ['packages/main/src/handlers/finding-collection.ts', "authority: 'diagnostic_only'", 'gateEvidence: false', 'automaticEnrollment: false', 'FINDING_QUALIFICATION_SUBJECT_KINDS.has', "state: 'unavailable'", 'qualificationCases: null'],
     ['packages/main/src/handlers/finding-qualification-adjudication.ts', 'authors.has(adjudicator)', 'exactLedgerRecordHash(proposal) !== ref.recordHash', 'applicabilityDigest(Object.keys(observed).sort())', 'correct: applicabilityDigest(observed) === applicabilityDigest(input.expected)'],
     ['packages/main/src/handlers/finding-qualification-prerequisites.ts', 'readCurrentFindingRuntimeEvidence(ctx', 'runtime.receipt.headHash !== ref.mergedCommit', 'pin.command === command && pin.selector === selector', 'readHistoricalFindingRuntimeEvidence(ctx', 'runtime.receipt.receiptHash !== proof.runtimeReceiptHash'],
@@ -10986,6 +10993,10 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
     for (const token of required) assert(!check(source.replaceAll(token, 'REMOVED_DFEC_GUARD')),
       `${path}: dynamic Finding guard mutation escaped: ${token}`);
   }
+  const qualificationSource = read('packages/main/src/handlers/finding-qualification.ts');
+  const publicReducer = qualificationSource.slice(qualificationSource.indexOf('function readQualificationSubjectCensus('));
+  assert(publicReducer.length < qualificationSource.length && !publicReducer.includes('.readFindingLedger'),
+    'scorecard reducer and census helper must stay on the signed public query boundary');
   const policy = read(processFactRegistryPath);
   for (const token of ['PROCESS_FACT_DYNAMIC_FINDING_POLICY', 'reported statistics remain diagnostic', 'findingConstraintDigest']) {
     assert(policy.includes(token), `dynamic Finding process registry must describe ${token}`);
@@ -11048,6 +11059,7 @@ nodeAssert.ok(read(processFactRegistryPath).includes('schedulerWaitMs is diagnos
   for (const token of ['verifyValidationArtifact', 'signValidationArtifact', 'finalizedLiveAggregateError', 'readFindingLedger', 'buildVerificationCoverage', 'collectReviewerEvidenceState', 'revokedCompletedEpochIds', 'assessEffectiveProgress', 'hasMechanicalExecutionAuthority', 'captureEvidenceHashSnapshot']) {
     assert(progress.includes(token), `U11 progress authority missing ${token}`);
   }
+  for (const token of ['consumedByCertificationWindowId: _epochWindow', 'consumedByCertificationWindowId: _receiptWindow']) assert(progress.includes(token), `U11 legitimate certification consumption must preserve completion claims: ${token}`);
   assert(read('packages/main/src/handlers/review-inventory.ts').includes('captureConvergenceProgress(ctx, args.storyId, finalized.epochId)'), 'U11 actual inventory finalization must record verified progress');
   assert(read('packages/main/src/core/process-fact-registry.ts').includes('artifact:convergence-progress.json'), 'U11 signed progress artifact must be registered');
   assert(read('packages/main/src/handlers/finding.ts').includes('reviewPurpose: run.reviewPurpose, inventoryBinding: run.inventoryBinding'), 'native direct terminal authority must retain the signed review purpose');
@@ -11178,6 +11190,35 @@ for (const [file, expected] of [
  assert(JSON.stringify(imports)===JSON.stringify([...expected].sort()), 'Review changed registry projection import dependencies: '+file);
 }
 
+// Structural dual-layer contract; the focused runner executes real Git and scope consumers.
+const baselineResolver = read('packages/main/src/core/git-baseline.ts');
+for (const token of ['linkedWorktree && primaryBranch', "'refs/remotes/origin/' + primaryBranch.slice", "'--is-ancestor', remoteCommit, localCommit", 'add(remoteHead)']) {
+  assert(baselineResolver.includes(token), 'Missing local integration baseline boundary: ' + token);
+}
+assert(read('packages/main/src/core/process-fact-levels.ts').includes('same-named primary local branch'), 'Baseline policy rationale must describe local containment');
+assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASELINE_FALSE_SCOPE'), 'Native baseline regression must remain available');
+
+// Native terminal evidence must verify the signed inventory purpose at read time.
+{
+  const review = read('packages/main/src/core/review-run.ts');
+  const nativeRead = review.slice(review.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)"));
+  const dispatch = nativeRead.slice(0, nativeRead.indexOf('const writerSessionId'));
+  if (!dispatch.includes('reviewPurpose: run.reviewPurpose') || !dispatch.includes('inventoryBinding: run.inventoryBinding')) failures.push('native read-side dispatch verification must retain signed purpose and inventory subject');
+  if (!read(processFactRegistryPath).includes('Native read-side authority preserves the signed reviewPurpose and inventoryBinding')) failures.push('native read-side purpose binding must be registered');
+}
+
+// Canonical batched review publication must retain PRE_CERT identity without broadening its path surface.
+{
+  const cert = read('packages/main/src/handlers/certification-window.ts');
+  for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS', 'reviewEpochBatch', 'record ${storyId} review epoch metadata', 'path.slice(storyPrefix.length)', 'isPromptBodyArtifactPath(artifact)']) {
+    if (!cert.includes(token)) failures.push(`PRE_CERT canonical review epoch continuity missing ${token}`);
+  }
+  if (cert.includes('prompt-bodies')) failures.push('PRE_CERT must reuse the canonical prompt-body path owner');
+  if (!read(processFactRegistryPath).includes('prompt-body paths recognized by the canonical prompt-body store')) failures.push('bounded canonical review epoch continuity must be registered');
+  const scripts = JSON.parse(read('package.json')).scripts;
+  if (scripts['test:review-epoch-certification-continuity'] !== 'node scripts/verify-review-epoch-certification-continuity.mjs' || !scripts['test:serial-reference'].includes('npm run test:review-epoch-certification-continuity')) failures.push('native review epoch continuity regression must run in the serial reference suite');
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11189,4 +11230,3 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
-

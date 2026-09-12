@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { copyLabFixtureSources } from './lab-fixture-sources.mjs';
 import assert from 'node:assert/strict';
+import { installLabAuditFixtureProviders } from './lab-audit-fixture-provider.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -10,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const script = join(root, 'scripts/lab-worktree.mjs');
 const temp = mkdtempSync(join(tmpdir(), 'lab-story-carry-'));
+const auditFixtureBin = installLabAuditFixtureProviders(temp);
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
 const write = (cwd, path, body) => {
   mkdirSync(dirname(join(cwd, path)), { recursive: true });
@@ -24,7 +26,7 @@ const invoke = (cwd, args, expected = 0, match) => {
     cwd,
     encoding: 'utf8',
     timeout: 60_000,
-    env: { ...process.env, npm_config_prefix: join(temp, 'global'), NPM_CONFIG_PREFIX: join(temp, 'global') },
+    env: { ...process.env, CODEX_THREAD_ID: 'fixture-developer', CLAUDECODE: '', PATH: auditFixtureBin + ':' + process.env.PATH, npm_config_prefix: join(temp, 'global'), NPM_CONFIG_PREFIX: join(temp, 'global') },
   });
   const output = `${result.stdout || ''}${result.stderr || ''}`;
   if (/Unknown command/.test(output)) {
@@ -57,7 +59,7 @@ try {
   git(repo, 'init', '-b', 'main');
   git(repo, 'config', 'user.name', 'Lab Carry Test');
   git(repo, 'config', 'user.email', 'lab-carry@example.invalid');
-  write(repo, '.gitignore', '.worktrees/\n.proof-or-stop/locks/\n');
+  write(repo, '.gitignore', '.worktrees/\n.proof-or-stop/locks/\n.proof-or-stop/usage/\n');
   write(repo, 'CHANGELOG.md', '# Changelog\n');
   for (const rel of ['package.json', 'packages/main/package.json']) {
     write(repo, rel, JSON.stringify({ name: 'proof-or-stop', version: '1.0.0' }, null, 2));

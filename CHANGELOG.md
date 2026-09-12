@@ -1,5 +1,168 @@
 # Changelog
 
+## Lab review-epoch-certification-continuity - v0.3.330 - 2026-09-12
+
+PRE_CERT now recognizes the exact canonical same-Story review epoch metadata commit produced by native inventory finalization. The previous continuity allowlist recognized individual reviewer command commits but omitted the real batched publisher, so genuine signed lanes and completeness-critic evidence in a linked Story worktree could not be admitted after finalization.
+
+The repair permits that exact subject only when all changed paths are registered review artifacts or prompt-body paths recognized by the canonical prompt-body store. It retains same-Story containment, ancestry, single-parent, whole-material identity and signed inventory authority checks. It does not accept arbitrary review prose or unrelated paths.
+
+The same pinned native four-case command recorded target RED and then GREEN. Actual clean linked-worktree publication admits; wrong-subject, other-Story-path and non-review-artifact commits still refuse at the native continuity verifier without issuing pre-cert authority. The process-fact contract and actual CLI bootstrap pass. This bounded Lab fixes native PRE_CERT setup; it is not formal Story DONE or proof of every later lifecycle transition.
+
+Verification: node scripts/verify-review-epoch-certification-continuity.mjs; node scripts/verify-process-fact-contract.mjs. Local integration only; no remote push.
+
+Independent audit follow-up reuses the existing canonical path predicate, wires the six native controls into the serial reference suite, proves actual signed cancellation refusal and prompt-path acceptance/refusal, and runs all contract checks before the success banner. A bounded 240-second fixture budget accounts for the measured 76-second four-case baseline plus the two additional cases; production timeouts are unchanged.
+
+Maintenance provenance: codex/lab-review-epoch-certification-continuity, repair cf74020ad610d302ac6c383abecae033d6e99464.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab cross-host-audit - v0.3.329 - 2026-09-11
+
+Require at least one independent CLI audit from a vendor different from the Lab developer before local integration. Built-in adapters identify Codex/OpenAI and Claude/Anthropic, while trusted main configuration can register other stdin/JSON adapters such as an operator-provided Grok/xAI bridge. The policy is vendor-based, not a fixed two-CLI pairing. A candidate cannot select its own auditor through an unreviewed configuration change.
+
+The command launches the provider through shared admission and process supervision, gives it the committed diff and complete changed-file snapshots, validates the exact structured verdict and subject/configuration bindings, and records process identity, cleanup, output digests, duration and findings in local HMAC-bound provenance. Missing, failed, rejected, duplicate, malformed or stale audit results block integration. An unchanged rejected candidate cannot be rerolled. Schema 3 prevents older Lab writers from bypassing the new gate after adoption. Host/vendor attribution remains trusted local configuration rather than cryptographic vendor attestation, and no local Lab audit grants Story evidence.
+
+A real Claude CLI audit of 0.3.321 reported fixture exclusions that depended on global Git configuration, dependency-scan gaps, a missing late-upgrade refusal case and unclear release-policy provenance. This repair preserves node_modules exclusions without relying on global ignores, parses runtime imports structurally, rejects unresolved or escaping dependencies, tests the late prepared-release upgrade refusal, and makes both version/build policies explicitly owned by the executing trusted Lab tool.
+
+Verification: target RED reproduced integration without an independent audit. The exact pinned GREEN command now passes 112 real command checks in temporary Git repositories, including both built-in directions and a synthetic third-vendor adapter, same-vendor/unavailable-provider rejection, malformed/stale/duplicate verdicts, rejection retention, version synchronization/retry, cleanup and carry-forward. Contract and fixture-closure controls run within that command. Additional process-fact, runtime-fact and Lab-lock verification passed. Fixture provider outputs are explicitly synthetic and do not count as independent audit of this repair; finish must run a real provider against its final candidate.
+
+A subsequent real Claude audit rejected the initial implementation and its findings were retained. Repairs now reuse the pinned developer for plain-terminal recovery, accept an explicit developer declaration for unpinned legacy finish, release custom-provider admission on failures before a child is observed while retaining unproven live-child capacity, and recompute complete input/provider bindings before cleanup even after worktree removal. Real transport fixtures exercise malformed, duplicate and non-executable-adapter failures. A binary-input finish fixture proves rejection occurs before fast-forward; post-merge checks consume the same immutable base/candidate objects rather than a newly growing input. Unreadable existing files never become passing placeholder content.
+
+The final boundary follow-up aligns Git diff and blob reads with the shared 8 MiB input limit and reports explicit bounded-contract failures, accepts text diffs above 2 MiB when the total input remains within budget, documents the create developer flag in built-in help, and pins the exact Codex trailing-prose rejection reason. Binary and oversized-text finish fixtures both prove that main remains unchanged on refusal.
+
+Review follow-up: bind rejected pre-release repair-content digests across reopen/release regeneration; exercise omitted read references and snapshot mutation through real fixture subprocesses; dispatch by transport protocol; preserve whitespace paths, reject invalid UTF-8, retain BOM bytes, and cache immutable audit inputs within one command.
+
+Additional audit fixes require explicit implementation-provider attribution for unpinned legacy records, single-source the selected auditor, release the main lock during actual provider execution and revalidate after reacquisition, consume registered vendor/protocol policy, and count streamed output bytes linearly. Real isolated concurrency verification proves main writers can proceed during audit and main movement refuses integration.
+
+Two real provider runs reached the previous ten-minute cap without a final structured result. Keep both timeout records; use registered fifteen-minute total/ninety-second startup bounds and focused changed-region snapshot reading while retaining full input availability and the same strict approval contract.
+
+Final hardening: the pinned verifier now runs lock-scope concurrency checks; binary and size refusals are distinct; file/directory snapshot-path collisions are refused explicitly and tested in both directions with unchanged main.
+
+An additional RED reproduced invalid legacy developer attribution being persisted before validation (LAB_INVALID_DEVELOPER_MUST_NOT_PIN). Validate before pinning, and reject unknown developer IDs at creation; both paths are covered by the pinned regression.
+
+Maintenance provenance: codex/lab-cross-host-audit, repair 5cc6b84bef8080af4d18eac5ea78b974ad3faefa.
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-worktree.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab native-critic-dispatch-purpose - v0.3.328 - 2026-09-11
+
+Native completeness-critic evidence retains its signed dispatch purpose during read-side revalidation. Previously a genuine inventory-completeness broker attestation was looked up in the topology dispatch namespace and rejected. The minimal change forwards ReviewRun.reviewPurpose and inventoryBinding to the existing dispatch verifier; existing signatures, native execution identity, freshness and replay checks remain active.
+
+The committed regression constructs genuine required reviewer lanes and an inventory-completeness critic through official native dispatch/run/pass handlers, then calls collectReviewerEvidenceState on the actual proof. It recorded target RED before repair and GREEN afterward with the same command. Wrong-purpose, substituted-inventory and tampered signed-pass rejection controls remain passing. The process-fact contract verifier also passes. This Lab does not claim full REVIEW-to-TEST lifecycle completion or formal Story acceptance; it repairs the demonstrated read-side rejection.
+
+Commands: node scripts/verify-native-critic-dispatch-purpose.mjs; node scripts/verify-process-fact-contract.mjs. No remote publication.
+
+Maintenance provenance: codex/lab-native-critic-dispatch-purpose, repair 504b9bd54995d82683d3a62fcc8270b179d60e8a.
+Verification command (replayed before integration and on main): `["node","scripts/verify-native-critic-dispatch-purpose.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab convergence-certification-consumption - v0.3.327 - 2026-09-11
+
+Repair completed convergence history after legitimate certification consumption. Exclude the later signed consumedByCertificationWindowId lifecycle output from both epoch and receipt completion projections, retaining signature checks and all remaining completion claims. Certification independently enforces consumption authority; no new gate authority is granted.
+
+The regression exercises real required-lane and completeness-critic inventory finalization, fast validation, actual certification admission, signed convergence history and shared progress gate, routine validation, and the actual TEST transition. It preserves invalid-signature and signed material/receipt mutation refusal controls. Exact-test historical RED against unchanged original main projection took 25.021 seconds; GREEN took 30.970 seconds. Builds and the process-fact contract verifier passed. Owner reviewed the minimal repair without blockers.
+
+The TEST transition now reaches a separate pre-existing completeness-critic dispatch attestation refusal, explicitly reported by the bounded regression. This Lab proves completed-history repair, not TEST lifecycle success or Story DONE. The separate critic defect remains under independent repair.
+
+Maintenance provenance: codex/lab-convergence-certification-consumption, repair 283e69112524fc7e810975aaef2ea530130ac352.
+Verification command (replayed before integration and on main): `["node","scripts/verify-convergence-certification-consumption.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab recall-dependency-direction - v0.3.326 - 2026-09-11
+
+Repair the pre-existing reverse dependency from Story2 historical recall to Story1 applicability. Move the unchanged signed L4 invalidation observer to the existing Story1 recall owner and inject an internal typed provider from the registry. Preserve exact signed reference and owner checks, locked revalidation, explicit/automatic deduplication, and non-authoritative gateEvidence=false candidates; unavailable providers fail closed and request JSON cannot supply one.
+
+The regression verifier rejects actual applicability imports, reexports, and literal dynamic imports. Official target RED ran on commit 01b13c0a29 in 0.150 seconds. Official GREEN ran on synced commit f198de4746 in 198.957 seconds with 58 native routes passing and zero failures. Utils/main builds and the process-fact verifier passed. Owner independently reviewed the production diff with no blocker. This bounded Lab repair does not mark the source Story DONE or grant product-release evidence.
+
+Maintenance provenance: codex/lab-recall-dependency-direction, repair f198de4746f06298c051dadc81a0e66f87c3a688.
+Verification command (replayed before integration and on main): `["node","scripts/verify-recall-dependency-direction.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab scorecard-public-census - v0.3.325 - 2026-09-11
+
+# Scorecard public census Lab
+
+User-authorized bounded system repair, not Story DONE or qualification admission. Lab is `/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-scorecard-public-census`, based on local main `8cd1bcaa59babd73b81e6115477399f2acb9115b` (0.3.324). Test-first RED commit `02b4f39dccb05933a9939553f0a8528ae5145ba8`; repaired GREEN head `61900ad97ba345d0370b4d4caa6d64b70d5a87fc`. Author is the configured real Harmonynet identity. No Story source or metadata edited. Source writes stopped22:42:37 UTC, only generated AGENTS.override.md untracked. Owner must review before finish/integration.
+
+## Problem and repair
+
+The Section11 reducer called the public ledger query but actually obtained its census by directly reading protected ledger storage first. The native regression first proves that the real public query emits a complete five-row workspace-signed result, then guards only the aggregator's protected store access. Baseline observes protectedReads=1/publicReads=0 and fails the unchanged expected no-direct-read assertion.
+
+The reducer now obtains migration records from the current public query. It verifies all five category rows, snapshot/Story identities, response metadata, signatures against the source workspace key, signed ledger record count, migration numerator/denominator, unique nonempty record identities and the exact signed hash census. The response public key is compared with trusted workspace identity and is never accepted as a trust source. Uncovered proposal/route/deferral/repair subjects still refuse qualification.
+
+Public query storage internals and historical case admission are unchanged. No qualification threshold, runtime prerequisite, independent adjudication or operational denominator is weakened. Source census types/paths remain the existing public contract; there is no new query schema or flag.
+
+## Exact files
+
+- `packages/main/src/handlers/finding-qualification.ts`
+- `packages/main/src/core/process-fact-registry.ts`
+- `scripts/verify-process-fact-contract.mjs`
+- `scripts/verify-finding-scorecard-public-census.mjs`
+- `docs/CLI.md`
+
+Registry/prompt-facing contract now explicitly states the trusted public census boundary; mechanical verifier inventories signature/count/identity checks and forbids direct protected-ledger reads in the reducer/helper. These source inventory checks are structural. Actual behavior is covered by the native public-query reducer regression.
+
+## Verification
+
+Pinned RED/GREEN command: `node scripts/verify-finding-scorecard-public-census.mjs`.
+
+- Official RED target command1066ms; Lab wrapper1.667395s. Log `/tmp/B-e6d9-scorecard-official-red-1789166452944141000.log`.
+- Official GREEN wrapper2.355672s. Log `/tmp/B-e6d9-scorecard-official-green-1789166544721325000.log`.
+- Candidate focused direct pass1.428310s.
+- Built source pass11.543944s. Log `/tmp/B-e6d9-scorecard-build-retry-1789166492624810000.log`.
+- Full process contract pass10.833800s. Log `/tmp/B-e6d9-scorecard-process-contract-built-1789166517004609000.log`.
+- Diff whitespace passed; status only generated override.
+
+Matrix: genuine native ledger carrier and public handler; covered positive and uncovered subject negative; missing/duplicate census category; wrong outer Story; tampered census; omitted record; duplicate record preserving signed counts and matching hash list; signed malformed record identity; count mismatch; signed hash-list mismatch; wrong signed Story; response-key substitution; valid signatures from a different fixture workspace key; wrong snapshot; restored genuine positive. Thirteen malformed/tampered controls pass. Query internals read the native store normally; only reducer's direct protected access is prohibited.
+
+The regression executes the actual transpiled reducer/helper code with already-admitted diagnostic case data supplied at the historical-case seam. This is not full CLI/independent-review lifecycle qualification evidence. Real public query production code, native ledger receipt writer, current workspace trust and cryptographic row verifier are used. The small fixture intentionally remains ineligible because operational samples/timing/prerequisites are absent; no synthetic fixture is claimed to meet Section11 qualification.
+
+## Setup failures and wait accounting
+
+Creation waited for legitimate main writer `lab finish cross-host-audit` PID96135; no lock was removed or bypassed. Seven attempts were refused before creation was admitted22:40:19 and completed in7.321672s. Prepared scratch RED/candidate remained outside repository until official Lab creation.
+
+First Lab build failed10.525369s due missing local `@types/ws`. Added only a local symlink to the existing compatible root type package; no writable dist shared, no lock/package manifests changed. First process-contract invocation overlapped initial dist promotion and reported unavailable prompt renderer7.666766s; retry after complete build passed. These are setup/execution ordering failures, not product RED.
+
+Detailed UTC/monotonic command records: `/tmp/B-e6d9-implement-red-timing.jsonl`, labels `scorecard-*`; interaction label `scorecard-public-census`. This work makes no latency/performance-improvement claim. Parent owns finish and later Story validation.
+
+Maintenance provenance: codex/lab-scorecard-public-census, repair 61900ad97ba345d0370b4d4caa6d64b70d5a87fc.
+Verification command (replayed before integration and on main): `["node","scripts/verify-finding-scorecard-public-census.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab local-main-baseline - v0.3.324 - 2026-09-11
+
+# Local integration baseline Lab
+
+Repair commit: 5b2651fd6e51ba412154b88389197b5d7d8a24e6. Regression-first commit: 6d769d05ce.
+
+Problem: a linked Story worktree that merged locally advanced main still selected stale origin/HEAD as its comparison baseline. Actual readChangedFiles, checkScopeContract and buildScopeDiffPack therefore classified an unchanged imported main-only file as Story-owned scope. The target RED showed that false violation alongside four genuine committed/staged/unstaged/untracked Story changes, with all setup controls passing.
+
+The minimal resolver repair promotes the primary local branch only in a linked worktree, only when its exact branch name matches origin/HEAD, and only after resolving both commit tips and proving the remote tip is an ancestor of the local tip. Otherwise the previous candidate order is retained. This uses existing local refs; no actual repository refs are rewritten, no scope allowance is expanded, and no remote push is needed. Policy rationale, documentation and process contract guard inventory were updated. Existing runtime registry ownership was already complete and required no new entry.
+
+The pinned native regression now excludes imported main-only files from the changed-file list, scope violations and diff hunks while preserving all four owned-change categories. It also proves later Story edits to the imported path are still visible and blocked. Eleven compatibility controls cover same-name master/develop, remote-ahead, divergent histories, differently named primary, detached primary, ordinary checkout, missing and unresolvable remote HEAD, and local/remote Story-ref poisoning.
+
+## Commands and timings
+
+- record-current-baseline-red: exit 0, 1.790s, 2026-09-11T21:56:20.244331+00:00 to 2026-09-11T21:56:22.034248+00:00; /tmp/B-e6d9-record-current-baseline-red-1789163780244567000.log
+- baseline-native-matrix: exit 0, 3.346s, 2026-09-11T21:57:26.691580+00:00 to 2026-09-11T21:57:30.037934+00:00; /tmp/B-e6d9-baseline-native-matrix-1789163846691745000.log
+- build-local-baseline-lab: exit 0, 10.682s, 2026-09-11T21:58:01.715961+00:00 to 2026-09-11T21:58:12.398771+00:00; /tmp/B-e6d9-build-local-baseline-lab-1789163881716293000.log
+- record-baseline-green: exit 0, 5.226s, 2026-09-11T21:58:25.271510+00:00 to 2026-09-11T21:58:30.498246+00:00; /tmp/B-e6d9-record-baseline-green-1789163905271703000.log
+- baseline-process-contract: exit 0, 11.672s, 2026-09-11T21:58:39.756075+00:00 to 2026-09-11T21:58:51.428753+00:00; /tmp/B-e6d9-baseline-process-contract-1789163919756289000.log
+- existing-external-baseline-regression: exit 1, 5.214s, 2026-09-11T21:58:47.451493+00:00 to 2026-09-11T21:58:52.665913+00:00; /tmp/B-e6d9-existing-external-baseline-regression-1789163927451741000.log
+- main-external-baseline-comparison: exit 1, 4.867s, 2026-09-11T21:59:30.389861+00:00 to 2026-09-11T21:59:35.257281+00:00; /tmp/B-e6d9-main-external-baseline-comparison-1789163970390023000.log
+
+## Failure classification and boundary
+
+Initial fixture setup used a wrong canonicalizer filename, then an empty allowed-list contract (which intentionally invokes legacy compatibility); both were corrected before official RED. An initial Lab RED command refused because local main advanced; official sync merged main and the unchanged target then produced recorded RED. No gate was bypassed. Build used a read-only link to the existing @types/ws dependency; no shared writable dist or manifest changes.
+
+The existing external-worktree/Go suite reaches its later Go execution-receipt fixture and fails incomplete_toolchain_identity. Go is absent from PATH. The same command on main is recorded separately; this is not relabeled target RED or GREEN. The earlier baseline/worktree assertions precede that failure, but the full suite is not claimed passing. The focused native regression and process contract pass.
+
+This is local Lab maintenance evidence, not B-e6d9 Story DONE or CHK006 completion. Parent owns explicit local-main finish/integration and subsequent Story verification. No Story source or metadata was changed by this implementer during the Lab. Ledger: /tmp/B-e6d9-local-main-baseline-timing.jsonl.
+
+Maintenance provenance: codex/lab-local-main-baseline, repair 5b2651fd6e51ba412154b88389197b5d7d8a24e6.
+Verification command (replayed before integration and on main): `["node","scripts/verify-local-main-baseline.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab pending-performance-reconciliation-20260911 - v0.3.323 - 2026-09-11
 
 # Recover bounded pending performance and diagnostic repairs
