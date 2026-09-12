@@ -1491,7 +1491,8 @@ export interface ChecklistItem {
    */
   verificationIntent?: VerificationIntent;
   /** Handler-owned attribution only, with no session identity; never independent review or gate authority.
-   * Unknown unless intentDigest matches acceptanceIntentHash of current intent.
+   * Reader convention only: check intentDigest against acceptanceIntentHash before
+   * treating this diagnostic marker as current; no runtime reader enforces it.
    * Semantic append/repair clears it; exact checkpoint recovery restores the pair. */
   verificationIntentAuthorship?: {
     kind: 'owner_applied_proposal' | 'dispatched_verification_intent' | 'owner_direct';

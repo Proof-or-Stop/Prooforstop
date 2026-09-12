@@ -2998,11 +2998,6 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const results: string[] = [];
       const now = new Date().toISOString();
       const oldStatus = item.status;
-      if (ownerProposalApproved) {
-        (cl.auditLog ??= []).push({timestamp:now,phase:story.phase,itemId:args.itemId,action:'update',
-          from:item.status,to:item.status,agent:'owner',reason:`Owner-approved intent proposal ${args.intentProposalApproval!.digest}: ${args.intentProposalApproval!.reason}`});
-        results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
-      }
 
 
       if (args.title !== undefined) {
@@ -3131,6 +3126,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         (item.verificationIntentAmendments ??= []).push(revision);
         item.status = 'pending'; item.startTime = null; item.endTime = null;
         results.push('signed acceptance revision recorded; planning and fresh coverage remain required');
+      }
+
+      if (ownerProposalApproved) {
+        (cl.auditLog ??= []).push({timestamp:now,phase:story.phase,itemId:args.itemId,action:'update',
+          from:oldStatus,to:item.status,agent:checklistActor,reason:`Owner-approved intent proposal ${args.intentProposalApproval!.digest}: ${args.intentProposalApproval!.reason}`});
+        results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
       }
 
       store.writeChecklist(args.storyId, cl);

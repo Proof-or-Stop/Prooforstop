@@ -96,7 +96,7 @@ try {
  const handlers=createChecklistHandlers({store,root,scanRoot:join(root,'packages/main')});
  const before=JSON.stringify(readOwnerLease(store.storyDirPath(storyId)));
  session('fixture-independent','proof-or-stop-verification-intent');
- assert.equal(resolveEffectiveOwnershipClass('checklist_update',args,storyId),'storyScopedMutating','role environment never exempts owner lease');
+ for (const shape of [{},{agent:'proof-or-stop-verification-intent'},{actor:'proof-or-stop-verification-intent'},args]) assert.equal(resolveEffectiveOwnershipClass('checklist_update',shape,storyId),'storyScopedMutating','role environment and argument shapes never exempt owner lease');
  assert.throws(()=>enforceStoryOwnerLeaseGate('checklist_update',args,store,{storyId,phase:'PLAN'},root),/owned|owner|lease/i);
  assert.throws(()=>handlers.checklist_update(args),/INTENT_PROPOSAL_ROLE_FORBIDDEN/);
  assert.equal(JSON.stringify(readOwnerLease(store.storyDirPath(storyId))),before);
@@ -185,13 +185,25 @@ try {
    const run=spawnSync(process.execPath,[cli,'--root',root,'checklist_update',JSON.stringify(payload)],{cwd:root,env:process.env,encoding:'utf8'});
    assert.equal(run.status,0,run.stdout+run.stderr);
  };
+ const revisionInput=store.readChecklist(storyId);revisionInput.items[0].status='in_progress';store.writeChecklist(storyId,revisionInput);
  applyOwnerIntent(revised);
+ const proposalAudit=store.readChecklist(storyId).auditLog.at(-1);
+ assert.equal(proposalAudit.agent,'main-agent');assert.equal(proposalAudit.from,'in_progress');assert.equal(proposalAudit.to,store.readChecklist(storyId).items[0].status);assert.equal(proposalAudit.to,'pending');
  const revisedItem=store.readChecklist(storyId).items[0];
  assert.equal(revisedItem.verificationIntentAmendments.length,amended.items[0].verificationIntentAmendments.length+1);
  assert.equal(revisedItem.verificationIntentAmendments.at(-1).afterHash,revisedItem.verificationIntentAuthorship.intentDigest);
  assert.equal(revisedItem.verificationIntentAuthorship.intentDigest,acceptanceIntentHash(revisedItem.verificationIntent));
  assert.equal('sessionId' in revisedItem.verificationIntentAuthorship,false);
- applyOwnerIntent(revisedItem.verificationIntent);
+ const extraFields=structuredClone(revisedItem.verificationIntent);extraFields.unknownPreviewField='stripped';
+ applyOwnerIntent(extraFields);
+ assert.equal(store.readChecklist(storyId).items[0].verificationIntent.unknownPreviewField,undefined);
+ const unknownEntry=structuredClone(revisedItem.verificationIntent);unknownEntry.happy[0].unknownEntryField='refused';
+ const beforeUnknown=JSON.stringify(store.readChecklist(storyId));
+ for(const [command,payload] of [['checklist_get',{storyId,proposalFor:itemId,proposalIntent:unknownEntry}],['checklist_update',{storyId,itemId,verificationIntent:unknownEntry}]]){
+   const rejected=spawnSync(process.execPath,[cli,'--root',root,command,JSON.stringify(payload)],{cwd:root,env:process.env,encoding:'utf8'});
+   assert.notEqual(rejected.status,0);assert.match(rejected.stdout+rejected.stderr,/Unrecognized key: "unknownEntryField"/);
+ }
+ assert.equal(JSON.stringify(store.readChecklist(storyId)),beforeUnknown,'both surfaces reject unknown entry keys without writes');
  assert.equal(store.readChecklist(storyId).items[0].verificationIntentAmendments.length,revisedItem.verificationIntentAmendments.length,'semantic no-op must not create another signed revision');
 
  session('fixture-owner');store.writeStory(storyId,{...story,phase:'DEV'});

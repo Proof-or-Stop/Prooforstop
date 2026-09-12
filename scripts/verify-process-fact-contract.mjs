@@ -11284,10 +11284,9 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
 
 // Proposal application keeps ownership and exact approval binding.
 {
-  const gate = read('packages/main/src/cli/ownership-gate.ts');
+  // Ownership class is exercised programmatically by verify-intent-owner-lease.mjs.
   if(!read('packages/main/src/core/command-policy.ts').includes("checklist_remove: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: ['INIT']")) failures.push('checklist removal must remain INIT-only');
   const handler = read('packages/main/src/handlers/checklist.ts');
-  if (gate.includes("if (cmd === 'checklist_update')")) failures.push('checklist_update must retain its declared owner lease class');
   for (const token of ['INTENT_PROPOSAL_OWNER_REQUIRED','INTENT_PROPOSAL_BINDING_INVALID','verification_intent_writer_phase_invalid','verificationIntentAuthorship','verification_intent_applied','independentlyAttested: false']) if(!handler.includes(token)) failures.push('intent proposal contract missing '+token);
   if (!read(processFactRegistryPath).includes('runtime:independent_intent_owner_lease')) failures.push('intent proposal process registration missing');
   const scripts=JSON.parse(read('package.json')).scripts;
