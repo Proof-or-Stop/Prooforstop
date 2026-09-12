@@ -247,3 +247,44 @@ TREE_DELEGATE_BINDING_GREEN actual-delegate-mutation-refused restored-control
 Runtime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)
 execution_assertion_reuse_contract=PASS
 ```
+
+## Release-bound static and seam verification
+
+The final release audit identified registered verifiers that consume the two
+changed source files. The two affected reviewed exception records were rebound
+to the current source bytes, then the static-edge verifier ran:
+
+```text
+node scripts/verify-validation-static-edges.mjs
+```
+
+Exit status was 0. Literal output:
+
+```text
+{"needsReview":0,"nested":0,"skipped":17,"exceptions":326,"unexpandedCommands":0}
+U18_STATIC_PASS
+```
+
+The production seam guard ran through its actual root-package registration:
+
+```text
+npm run test:production-test-seam-guard
+```
+
+Exit status was 0. Literal terminal result:
+
+```text
+Production test seam guard: PASS — no unsafe SMOKE/TEST control reaches a filesystem or process sink.
+```
+
+`npm run test:reviewed-source-bindings` exited 1 in both the synchronized Lab
+candidate and unmodified local main `5fc1e8d4584a74b32e5b3964ee7c3710c7191960`.
+Both runs reported the same seven pre-existing rows and no candidate-only row:
+
+```text
+{"reviewedSourceBindingFailures":7,"errors":["reviewed source changed: packages/main/src/core/process-fact-levels.ts:496","reviewed source changed: packages/main/src/core/runtime-fact-registry.ts:480","reviewed source changed: packages/main/src/cli/command-catalog.ts:3427","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:411","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:412","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:413","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:414"]}
+```
+
+This is a recorded repository-health baseline, not a PASS and not evidence for
+the Dynamic Finding repair. None of those four source files changes in this Lab,
+so their independent identity-data repair remains outside this bounded scope.
