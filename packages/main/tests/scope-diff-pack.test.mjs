@@ -19,9 +19,9 @@ function git(...args){return originalExec('git',args,{cwd:root,encoding:'utf8',s
 function commit(message){git('add','.');git('-c','user.name=Scope fixture','-c','user.email=scope@example.test','commit','-qm',message);}
 function write(path,text){fs.mkdirSync(dirname(join(root,path)),{recursive:true});fs.writeFileSync(join(root,path),text);}
 function digest(hunks){return digestScopeDiffPack({changedFiles:[...new Set(hunks.map(h=>h.path))],hunks,generatedAt:'2000-01-01T00:00:00.000Z'});}
-function observed(diff){
+function observed(diff,afterExec){
  calls=[];
- child.execFileSync=function(file,args,options){calls.push({file:String(file),args:[...args]});return Reflect.apply(originalExec,this,[file,args,options]);};syncBuiltinESMExports();
+ child.execFileSync=function(file,args,options){calls.push({file:String(file),args:[...args]});const value=Reflect.apply(originalExec,this,[file,args,options]);afterExec?.(String(file),args);return value;};syncBuiltinESMExports();
  try{return{hunks:parseUnifiedDiff(root,diff),calls};}
  finally{child.execFileSync=originalExec;syncBuiltinESMExports();}
 }
@@ -31,6 +31,8 @@ const h2='@@ -5,1 +5,1 @@\n-export function second() { return 2; }\n+export func
 const h3='@@ -9,1 +9,1 @@\n-export function third() { return 3; }\n+export function third() { return 33; }';
 const old='export function first() { return 1; }\n\n\n\nexport function second() { return 2; }\n\n\n\nexport function third() { return 3; }\n';
 try{
+ const prose=observed(fileDiff('README.md',['@@ -1,1 +1,1 @@\n-old\n+new']));assert.equal(prose.calls.length,0,'No TS/JS hunks must not discover a baseline');
+ write('same.ts',old);const noBaseline=observed(fileDiff('same.ts',[h1]));assert.equal(noBaseline.hunks[0].previousAnchor,undefined,'Missing repository history remains unavailable');
  git('init','-q','-b','main');write('same.ts',old);write('other.ts','export function other() { return 0; }\n');write('deleted.ts','export function removed() { return 0; }\n');write('rename.ts','export function renamed() { return 0; }\n');commit('base');const base=git('rev-parse','HEAD');
  git('checkout','-qb','story/fixture');write('branch.ts','export const branch=1;\n');commit('branch divergence');
  git('checkout','-q','main');write('same.ts',old.replace('first()', 'baselineTip()'));commit('integration tip changes declaration');const tip=git('rev-parse','HEAD');assert.notEqual(tip,base);git('checkout','-q','story/fixture');
@@ -61,6 +63,11 @@ try{
  const fresh=observed(diff);assert.equal(fresh.hunks[0].previousAnchor,'newBaselineTip','New invocation must read updated selected TIP source');assert.equal(fresh.hunks[0].anchor,'freshCurrent');
  const otherDiff=fileDiff('other.ts',['@@ -1,1 +1,1 @@\n-export function other() { return 0; }\n+export function other() { return 9; }']);write('other.ts','export function other() { return 9; }\n');
  const distinct=observed(diff+otherDiff);assert.equal(distinct.hunks.at(-1).anchor,'other');assert.equal(distinct.hunks.at(-1).previousAnchor,'other');
+ let advanced=false;let pinned;
+ try{pinned=observed(diff+otherDiff,(file,args)=>{if(!advanced&&file==='git'&&args[0]==='show'){advanced=true;git('update-ref','refs/heads/main',tip,newer);}});}
+ finally{git('update-ref','refs/heads/main',newer);}
+ assert(advanced,'Genuine ref move occurred during the parser invocation');assert.deepEqual(pinned.hunks,distinct.hunks,'One invocation must retain its selected historical tip');
+ assert(pinned.calls.filter(c=>c.args[0]==='show').every(c=>String(c.args[1]).startsWith(newer+':')),'Every historical path reads the pinned tip OID');
  assert.equal(child.execFileSync,originalExec,'Forwarding observer restored');
  assert.equal(discovery.length,1,'SCOPE_DIFF_RED baseline discovery must occur once per invocation, not per hunk');
  assert.equal(shows.length,1,'SCOPE_DIFF_RED unchanged historical source must be read once per invocation/path');
