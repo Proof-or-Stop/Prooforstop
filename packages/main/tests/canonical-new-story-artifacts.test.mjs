@@ -799,6 +799,7 @@ await check(['runtime'], 'F-010/F-011 registry-derived Story-write capability cr
     'doctor',
   ];
   const mutatingArgs = {
+    story_reconcile: { dryRun: false },
     signature_backfill: { apply: true },
     identity_state_migrate: { confirm: true },
     reviewer_list: { storyId: 'B-fixture', forceReviewer: 'quality' },
@@ -824,6 +825,8 @@ await check(['runtime'], 'F-010/F-011 registry-derived Story-write capability cr
     ['live_smoke_transcript', { storyId: 'B-fixture' }],
     ['delivery_context_pack', { storyId: 'B-fixture' }],
     ['usage_sweep', {}],
+    ['story_reconcile', {}],
+    ['story_reconcile', { dryRun: true }],
     ['signature_backfill', {}],
     ['identity_state_migrate', { id: 'B-fixture' }],
     ['reviewer_list', { storyId: 'B-fixture' }],
@@ -2515,7 +2518,7 @@ function deriveOwnedIdentityLiterals(sourceMap, { emitted = false } = {}) {
 const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
   {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "canonical": "proof-or-stop.config.json", "occurrences": 1, "contextSha256": "d76aa4750daa0a3bd2e672550d9704eb42847abd42415fae9a20f8fe301b6eb1", "kind": "registry-source-path", "reason": "Exact P0m source inventory path; not a parser, protocol producer, or compatibility reader.", "proof": "node packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs"},
   {"sourcePath":"proof-or-stop.config.json","canonical":"proof-or-stop-experience-layer-v1.1-zh.md","occurrences":1,"contextSha256":"a0430b5c5f5727862f4f3c486638fdda0d0dd464c26f80a09fafe6c6acded30c","kind":"scope-governance-document-path","reason":"Exact responsibility-domain source path names the existing experience-layer design document; not an executable protocol identity or compatibility reader.","proof":"node scripts/verify-root-scope-budget-policy.mjs"},
-  {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "1e3cf33861d44a2b554472098e53779355359f7759f8e67ea2e084c4cb311ba8", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
+  {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "6925f132289490e9370c679f50b5c425477621b904ff14ce6d94fc8eb7ddcc41", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
   {
     sourcePath: 'scripts/verify-proof-or-stop-identity-cutover.mjs',
     canonical: 'proof-or-stop-finish-decision-boundary-',
@@ -2636,7 +2639,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/certification-window.ts", "proof-or-stop.precert-cheap-check-receipt.v1", 2, "598ac97fb601b4d8dd9a16f9a46e45b6df8d930c31731ae6c40f789d0ccce537"],
   ["packages/main/src/core/certification-window.ts", "proof-or-stop.precert_cheap_check_receipt.v1", 5, "88e1c3e63b56dede315423f02f00b5bc011a34610f487ad731d80226c5b4932b"],
 
-  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop-verification-receipt-signer-v1.key",2,"b2272c84d648eadbca1dfa2c1d2629361ac2e5ca967740a7b76223ccb30d4047"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop-verification-receipt-signer-v1.key",3,"c70020b7249196738a7ec9eb21c662e7b6805a5c80e5b6662d05e79257151fd3"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v1",3,"4c05dc6a06dda209a6b3c012a5695335f6fec81c6d728d482457206fe7d0267f"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v2",3,"7a26aa6c00db0c5ac11494b858642fa2015f4aab088ee4331a6c6494624eb1b8"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-identity.v1",2,"7ea346cece80347dedf317a977b42205c3c6dd96fafe7168cbb5c4c560a92b9d"],
@@ -2825,7 +2828,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/review-run.ts","proof-or-stop.review_run_workspace_binding.v1",3,"ebd2c315aa8aef07cbe695f9515b96d5bb2c4c1179eb5831a0d7246dbacef573"],
   ["packages/main/src/core/source-lineage-audit.ts","proof-or-stop.learning-source-key.v1",4,"b4ce85902d753eae474e91f522b6b3a45df7bbc96dc662b2ce728739cae9b1a8"],
   ["packages/main/src/core/source-lineage-audit.ts","proof-or-stop.source-lineage-audit.v1",2,"753b71eb955ac2773da2bf4eee59ddfdcd062af12756f090a7f14ec81a746107"],
-  ["packages/main/src/handlers/agent-prompt.ts","proof-or-stop.agent-prompt-response.v1",2,"24c5be99c5118d833d6c1d482b97b7b12ea1e6e0797f8eac07fdde2433e220a7"],
+  ["packages/main/src/handlers/agent-prompt.ts","proof-or-stop.agent-prompt-response.v1",3,"9aca1853ec68d2b60a8373e0f84b1ba8a146b591f9cc4637b801f4700c24ee8b"],
   ["packages/main/src/handlers/done-effects.ts","proof-or-stop.playbook-promotion-health.v1",2,"60dadb837f637fed6222eacda478b3ec11ad17ed8e67952c6cd7760f3ae901ca"],
   ["packages/main/src/handlers/playbook-runtime-memory.ts","proof-or-stop.dev-memory-finish-decision.v1",1,"b1a24599294674d975c6c461516d3ecb6d9b2a8f5352025513042daeb7834cdb"],
   ["packages/main/src/handlers/playbook-runtime-memory.ts","proof-or-stop.final-response-check.v1",1,"223cf92d48f4da6e18ae4e8cf3710385ec93d57046fd6f74c997b9631954a510"],
@@ -2870,7 +2873,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json", "proof-or-stop.config.json", 13, "6673b9408c13aaa802df2bda44f961685b09eb98d4703f36553f80137fc29f32"],
+  ["proof-or-stop.config.json", "proof-or-stop.config.json", 13, "b069aeffc954e08bcf57cea9a89b33738dc193f25494041081d00f91e5e271d6"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -2980,7 +2983,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 67,
     "contextSha256": "cb73ec333d6f047b5dbf022a20641177a05de86bf2c5d691a372f0e820361581"
   },
-  {"sourcePath": "packages/main/src/core/evidence-freshness.ts", "occurrences": 174, "contextSha256": "335ef9f1df85f17b63a0cc3160d6c2f4b616443086b5f8db3d2f48efab1d6a39"},
+  {"sourcePath": "packages/main/src/core/evidence-freshness.ts", "occurrences": 174, "contextSha256": "d83318dacae758180af3e7695fc307768b7a92aa21dff0d464e5fe01a972a50c"},
   {
     "sourcePath": "packages/main/src/core/experience-layer-types.ts",
     "occurrences": 0,
@@ -3003,8 +3006,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/lifecycle-control/queue/index.ts",
-    "occurrences": 70,
-    "contextSha256": "316bdc446bd34ad1a82298235f31156095a826b0aab86adb11c66ef3bd6de4b0"
+    "occurrences": 53,
+    "contextSha256": "8cb59637cafa3ec554118d5a2a6134d668c14983ad73f73928c28cbff3db0398"
   },
   {
     "sourcePath": "packages/main/src/core/milestone-status.ts",
@@ -3036,7 +3039,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 377,
     "contextSha256": "3f79c6ccaf1d5bbca3bbbe8a19b48db43926794b35a6b852e5748c94e04945cf"
   },
-  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 21, "contextSha256": "35c1318f2c126e116817bc3b0f44a925fbaac780ce9798a88e1ddddaa9f3fb30"},
+  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 23, "contextSha256": "483e3d1d942af7a36fb81b4ff1ed25c37bd70d55d18b8699dfa0d11c7d1c1960"},
   {
     "sourcePath": "packages/main/src/core/prompt-budget.ts",
     "occurrences": 4,
@@ -3059,8 +3062,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/prompt-registry.ts",
-    "occurrences": 62,
-    "contextSha256": "33ff0dd7bd015d325ce6a762c11488c8eb53e6d4d490a465308e7f9dcfd3d6e7"
+    "occurrences": 64,
+    "contextSha256": "c2c708cc827fcd45f8d24a5843a26d59e2d0324fc1b0e776f2e0e1b5a160461b"
   },
   {
     "sourcePath": "packages/main/src/core/prompt-role-contract-registry.ts",
@@ -3077,20 +3080,20 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/verification-execution-evidence.ts",
-    "occurrences": 293,
-    "contextSha256": "4c52bbb94b6f96e1ea941fd0b097dadbcb8b58edf26ae99929abe7400474d2d6"
+    "occurrences": 296,
+    "contextSha256": "8653fc4bebf66e733177010bc48a5b4c922917bddf8ad5849d289dd38c740e91"
   },
   {
     "sourcePath": "packages/main/src/handlers/agent-prompt.ts",
-    "occurrences": 113,
-    "contextSha256": "85324214b09dd1a487289575c0a398834ba3e8e7e1f3a8ebfe251b8568ca3f90"
+    "occurrences": 130,
+    "contextSha256": "574bd09e82f47aa279a905cf63a658c3f36d8443967607d457f3447f46f4b052"
   },
   {
     "sourcePath": "packages/main/src/handlers/candidate-spec-routing.ts",
     "occurrences": 95,
     "contextSha256": "03a898d8331a0fdec5728ab334e998d9e62dfd09162a37e290787328a04459d1"
   },
-  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 803, "contextSha256": "180413cf1a13bdf5cc50b5fba0ff089ff63d845e602020dc7e11b5c8e51dc443"},
+  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 831, "contextSha256": "4052f4949f849e15ef1c81064355ce8366821cc9f77ff6089eb3969b101e9f4a"},
   {
     "sourcePath": "packages/main/src/handlers/done-effects.ts",
     "occurrences": 257,
@@ -3170,6 +3173,68 @@ await check(['identity-cutover', 'identity-sites', 'identity-config-boundary', '
     emitted.set(path, readFileSync(join(repoRoot, path.replace('/src/', '/dist/').replace(/\.ts$/u, '.js')), 'utf8'));
   }
   assertOwnedIdentitySiteTotality(emitted, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS, { emitted: true });
+});
+
+// These concrete integrated consumers previously left the exact context pins stale.
+// Fresh pins remain closed to additional uses and same-count context movement.
+await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers still reject added and moved identity uses', () => {
+  const sources = identityCutoverSourceMap();
+  assertOwnedIdentitySiteTotality(sources);
+  assertOwnedImportUseIntegrity(sources);
+  const signerPath = 'packages/main/src/core/verification-execution-evidence.ts';
+  const readerCall = 'join(location.commonDir, VERIFICATION_SIGNER_KEY_FILE)';
+  assert.equal(sources.get(signerPath).split(readerCall).length - 1, 1, 'the reviewed located signer reader must be unique');
+  const moved = new Map(sources);
+  moved.set(signerPath, sources.get(signerPath).replace(readerCall, 'join(gitCwd, VERIFICATION_SIGNER_KEY_FILE)'));
+  assert.throws(() => assertOwnedIdentitySiteTotality(moved), /owned identity use context changed/, 'same signer identity and count cannot move to another directory authority');
+  for (const path of [signerPath, 'packages/main/src/handlers/agent-prompt.ts']) {
+    const pin = OWNED_IDENTITY_SITE_CONTEXTS.find(row => row.sourcePath === path);
+    const added = new Map(sources);
+    added.set(path, `${sources.get(path)}\nconst unreviewedIdentityConsumer = ${JSON.stringify(pin.canonical)};\n`);
+    assert.throws(() => assertOwnedIdentitySiteTotality(added), /owned identity use count changed/, path);
+  }
+  const changedConfig = new Map(sources);
+  const config = JSON.parse(sources.get('proof-or-stop.config.json'));
+  config.unreviewedIdentityConsumer = 'proof-or-stop.config.json';
+  changedConfig.set('proof-or-stop.config.json', JSON.stringify(config));
+  assert.throws(() => assertOwnedIdentitySiteTotality(changedConfig), /owned identity use count changed/, 'reviewed command-index movement does not admit a new config use');
+  // Move one actual scheduler claim to another command without adding/removing
+  // any canonical literal. Classification context must reject this too.
+  const resourceMoved = new Map(sources);
+  const movedConfig = JSON.parse(sources.get('proof-or-stop.config.json'));
+  const resourceKey = 'proof-or-stop-real-root-admission';
+  const from = movedConfig.validate.commands.find(command => command.resources?.some(resource => resource.key === resourceKey));
+  const to = movedConfig.validate.commands.find(command => !command.resources?.some(resource => resource.key === resourceKey));
+  assert.ok(from && to && from !== to, 'the movement control needs distinct configured commands');
+  const index = from.resources.findIndex(resource => resource.key === resourceKey);
+  const [claim] = from.resources.splice(index, 1);
+  (to.resources ??= []).push(claim);
+  resourceMoved.set('proof-or-stop.config.json', JSON.stringify(movedConfig));
+  const movedResource = deriveOwnedIdentityLiterals(resourceMoved).find(row => row.sourcePath === 'proof-or-stop.config.json' && row.canonical === resourceKey);
+  const resourcePin = OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS.find(row => row.sourcePath === 'proof-or-stop.config.json' && row.canonical === resourceKey);
+  assert.equal(movedResource.occurrences, resourcePin.occurrences, 'movement must preserve all eight resource claims');
+  assert.notEqual(movedResource.contextSha256, resourcePin.contextSha256, 'movement must actually change the structural location');
+  assert.throws(() => assertOwnedIdentitySiteTotality(resourceMoved), /owned identity classification context drift/, 'same-count scheduler claim movement must remain rejected');
+  for (const path of [
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/lifecycle-control/queue/index.ts',
+    'packages/main/src/core/process-fact-registry.ts',
+    'packages/main/src/core/prompt-registry.ts',
+    signerPath,
+    'packages/main/src/handlers/agent-prompt.ts',
+    'packages/main/src/handlers/checklist.ts',
+  ]) {
+    const emitted = ts.transpileModule(sources.get(path), { compilerOptions: { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext } }).outputText;
+    const ast = ts.createSourceFile(path, emitted, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+    const binding = ast.statements.filter(ts.isImportDeclaration).flatMap(node => {
+      const names = node.importClause?.namedBindings;
+      return names && ts.isNamedImports(names) ? names.elements.map(entry => entry.name.text) : [];
+    })[0];
+    assert.ok(binding, `reviewed import consumer needs an actual executable binding: ${path}`);
+    const added = new Map(sources);
+    added.set(path, `${sources.get(path)}\nvoid ${binding};\n`);
+    assert.throws(() => assertOwnedImportUseIntegrity(added), /owned import use changed/, path);
+  }
 });
 
 await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered-site omissions and new typed producers fail independently of registry agreement', async () => {
