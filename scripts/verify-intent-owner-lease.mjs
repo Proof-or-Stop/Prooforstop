@@ -92,7 +92,7 @@ try {
  assert.throws(()=>handlers.checklist_update(args),/INTENT_PROPOSAL_ROLE_FORBIDDEN/);
  assert.equal(JSON.stringify(readOwnerLease(store.storyDirPath(storyId))),before);
  const foreign=spawnSync(process.execPath,[cli,'--root',root,'checklist_update',JSON.stringify(args)],{cwd:root,env:process.env,encoding:'utf8'});
- assert.notEqual(foreign.status,0);assert.match(foreign.stdout+foreign.stderr,/owner|lease/i);
+ assert.notEqual(foreign.status,0);assert.match(foreign.stdout+foreign.stderr,/B-ab12 is owned by Proof-or-Stop session fixture-owner/);
  session('fixture-owner');
  for(const phase of ['INIT','INIT_CHECK','DEV','REVIEW','TEST','DONE']){
   store.writeStory(storyId,{...story,phase});
@@ -113,6 +113,7 @@ try {
  store.writeStory(storyId,story);
  const original=store.readChecklist(storyId);
  handlers.checklist_update(direct);
+ assert.equal(store.readChecklist(storyId).items[0].verificationIntentAuthorship.kind,'dispatched_verification_intent');assert.equal(store.readChecklist(storyId).items[0].verificationIntentAuthorship.independentlyAttested,false);
  assert.deepEqual(store.readChecklist(storyId).items[0].verificationIntent.happy[0].plannedPathDeclarations,verificationIntent.happy[0].plannedPathDeclarations);
  store.writeChecklist(storyId,original);
  session('fixture-owner');
@@ -122,22 +123,25 @@ try {
  assert.match(attempts.find(r=>r.status!==0).out,/INTENT_PROPOSAL_BINDING_INVALID|lock.*timeout|timed out.*lock/i,'concurrent duplicate must fail stale or explicit lock contention');
  assert.equal(readOwnerLease(store.storyDirPath(storyId)).sessionId,'fixture-owner');
  const saved=store.readChecklist(storyId);assert.deepEqual(saved.items[0].verificationIntent.happy[0].plannedPathDeclarations,verificationIntent.happy[0].plannedPathDeclarations);
+ assert.equal(saved.items[0].verificationIntentAuthorship.intentDigest,acceptanceIntentHash(saved.items[0].verificationIntent));
  assert(saved.auditLog.some(row=>row.reason.includes(args.intentProposalApproval.digest)));
+ assert.equal(saved.items[0].verificationIntentAuthorship.kind,'owner_applied_proposal');assert.equal(saved.items[0].verificationIntentAuthorship.independentlyAttested,false);assert.equal(saved.items[0].verificationIntentAuthorship.proposalDigest,args.intentProposalApproval.digest);
+ assert(store.readProcessEvents(storyId).some(row=>row.action==='verification_intent_applied' && row.authorship?.proposalDigest===args.intentProposalApproval.digest));
  assert.throws(()=>handlers.checklist_update(args),/INTENT_PROPOSAL_BINDING_INVALID/,'stale base is rejected even for owner');
  // Real CLI replan admission must match the existing INIT-only removal handler.
  store.writeStory(storyId,{...story,phase:'INIT'});
  const removeArgs={storyId,itemId,disposition:'accept',justification:'Disposable fixture checks the supported INIT consolidation path.'};
  for(const role of ['proof-or-stop-review-story-init','proof-or-stop-product-reviewer']){
    session('fixture-owner',role);
-   assert.throws(()=>handlers.checklist_remove({...removeArgs,actor:'main-agent'}),/init_reviewer_checklist_mutation_blocked/);
+   assert.throws(()=>handlers.checklist_remove({...removeArgs,actor:'main-agent'}),/agent_dispatch_identity_conflict|agent_dispatch_mutation_denied|init_reviewer_checklist_mutation_blocked/);
    const denied=spawnSync(process.execPath,[cli,'--root',root,'checklist_remove',JSON.stringify(removeArgs)],{cwd:root,env:process.env,encoding:'utf8'});
-   assert.notEqual(denied.status,0);assert.match(denied.stdout+denied.stderr,/init_reviewer_checklist_mutation_blocked/);
+   assert.notEqual(denied.status,0);assert.match(denied.stdout+denied.stderr,/agent_dispatch_identity_conflict|agent_dispatch_mutation_denied|init_reviewer_checklist_mutation_blocked/);
  }
  session('fixture-owner');
- assert.throws(()=>handlers.checklist_remove({...removeArgs,agent:'proof-or-stop-product-reviewer'}),/init_reviewer_checklist_mutation_blocked/);
+ assert.throws(()=>handlers.checklist_remove({...removeArgs,agent:'proof-or-stop-product-reviewer'}),/agent_dispatch_identity_conflict|agent_dispatch_mutation_denied|init_reviewer_checklist_mutation_blocked/);
  const remove=spawnSync(process.execPath,[cli,'--root',root,'checklist_remove',JSON.stringify({storyId,itemId,disposition:'accept',justification:'Disposable fixture checks the supported INIT consolidation path.'})],{cwd:root,env:process.env,encoding:'utf8'});
  assert.equal(remove.status,0,'INIT_REMOVAL_UNREACHABLE: '+remove.stdout+remove.stderr);
- assert.equal(store.readChecklist(storyId).items.length,0);
+ assert.equal(store.readChecklist(storyId).items.length,0);assert.equal(store.readChecklist(storyId).auditLog.at(-1).agent,'main-agent');
  store.writeStory(storyId,story);store.writeChecklist(storyId,saved);
  const late=spawnSync(process.execPath,[cli,'--root',root,'checklist_remove',JSON.stringify({storyId,itemId,disposition:'accept',justification:'Must be refused after the INIT phase.'})],{cwd:root,env:process.env,encoding:'utf8'});
  assert.notEqual(late.status,0);assert.match(late.stdout+late.stderr,/PLAN phase does not allow removing|not available.*PLAN|Allowed phases: INIT/);

@@ -11225,7 +11225,7 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   if(!read('packages/main/src/core/command-policy.ts').includes("checklist_remove: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: ['INIT']")) failures.push('checklist removal must remain INIT-only');
   const handler = read('packages/main/src/handlers/checklist.ts');
   if (gate.includes("if (cmd === 'checklist_update')")) failures.push('checklist_update must retain its declared owner lease class');
-  for (const token of ['INTENT_PROPOSAL_OWNER_REQUIRED','INTENT_PROPOSAL_BINDING_INVALID','verification_intent_writer_phase_invalid']) if(!handler.includes(token)) failures.push('intent proposal contract missing '+token);
+  for (const token of ['INTENT_PROPOSAL_OWNER_REQUIRED','INTENT_PROPOSAL_BINDING_INVALID','verification_intent_writer_phase_invalid','verificationIntentAuthorship','verification_intent_applied','independentlyAttested: false']) if(!handler.includes(token)) failures.push('intent proposal contract missing '+token);
   if (!read(processFactRegistryPath).includes('runtime:independent_intent_owner_lease')) failures.push('intent proposal process registration missing');
   const scripts=JSON.parse(read('package.json')).scripts;
   if(!read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:intent-owner-lease',")) failures.push('intent proposal regression requires full-suite resource policy');

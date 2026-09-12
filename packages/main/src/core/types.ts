@@ -79,6 +79,7 @@ export type AgentDispatchPromptBuilderKey =
 
 export type AgentDispatchMutationCommand =
   | 'checklist_update'
+  | 'checklist_remove'
   | 'init_check_set'
   | 'scope_check_save'
   | 'topology_exclusion_approval_set'
@@ -1489,6 +1490,16 @@ export interface ChecklistItem {
    * PLAN records happy/edge/adversarial intent, DEV/REVIEW/TEST attach evidence.
    */
   verificationIntent?: VerificationIntent;
+  /** Handler-owned attribution only; never independent review or gate authority. */
+  verificationIntentAuthorship?: {
+    kind: 'owner_applied_proposal' | 'dispatched_verification_intent' | 'owner_direct';
+    actor: string;
+    sessionId: string;
+    /** Acceptance semantics excluding executor-owned verification pins. */
+    intentDigest: string;
+    proposalDigest?: string;
+    independentlyAttested: false;
+  };
   verificationIntentAmendments?: import('./verification-intent-amendment.js').IntentAmendment[];
   verificationEvidence?: VerificationEvidence[];
   /**

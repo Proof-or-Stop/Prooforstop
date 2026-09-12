@@ -2625,7 +2625,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       );
       if (verificationIntentHasPlannedPathDeclarations(args.verificationIntent)) {
         throw new Error(
-          'checklist_add refused: plannedPathDeclarations may only be authored by the dispatched verification-intent role through checklist_update during PLAN [planned_path_writer_not_authorized]',
+          'checklist_add refused: plannedPathDeclarations require checklist_update in PLAN by the dispatched verification-intent role or the active owner applying a bound proposal [planned_path_writer_not_authorized]',
         );
       }
       const story = assertChecklistAddAllowed(store, args);
@@ -2751,8 +2751,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         throw new Error(`${story.phase} phase does not allow removing checklist items; from INIT_CHECK onward checklist title/context is frozen, to prevent remove+add bypass. New scope can only be added via checklist_add, the original item must remain for gate review`);
       }
 
-      // Check every asserted identity: a payload alias cannot hide a dispatched INIT reviewer.
-      for (const actor of [checklistActorFrom(args), args.agent, args.actor, readBrandEnv('AGENT')]) {
+      const authority = resolveAgentMutationAuthority({command: 'checklist_remove', payloadActors: [args.agent, args.actor]});
+      const resolvedActor = authority.actor || process.env.USER?.trim() || 'main-agent';
+      for (const actor of [resolvedActor, args.agent, args.actor, readBrandEnv('AGENT')]) {
         if (actor?.trim()) assertInitReviewerChecklistMutationAllowed({story, command: 'checklist_remove', actor: actor.trim(), mutatesDefinition: true});
       }
       const removed = cl.items.splice(idx, 1)[0];
@@ -2764,6 +2765,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         phase: story.phase,
         itemId: args.itemId,
         action: 'delete',
+        agent: resolvedActor,
         from: removed.status,
         to: 'pending' as const,
         reason: args.justification.trim(),
@@ -2849,7 +2851,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const ownerProposalRequested = args.intentProposalApproval !== undefined;
       if (incomingHasPlannedDeclarations && !isDispatchedVerificationIntentWriter && !ownerProposalRequested) {
         throw new Error(
-          'checklist_update refused: plannedPathDeclarations require the dispatched verification-intent role during PLAN [planned_path_writer_not_authorized]',
+          'checklist_update refused: plannedPathDeclarations require the dispatched verification-intent role or an active-owner bound proposal during PLAN [planned_path_writer_not_authorized]',
         );
       }
       if (dispatchedRole?.roleClass === 'verification-intent') {
@@ -2969,7 +2971,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const incomingDeclarationSnapshot = plannedPathDeclarationSnapshot(args.verificationIntent);
         if (existingDeclarationSnapshot !== incomingDeclarationSnapshot && !isDispatchedVerificationIntentWriter && !ownerProposalApproved) {
           throw new Error(
-            'checklist_update refused: only the dispatched verification-intent role may add, change, move, or remove plannedPathDeclarations during PLAN [planned_path_writer_not_authorized]',
+            'checklist_update refused: plannedPathDeclarations may change during PLAN through the dispatched verification-intent role or an active-owner bound proposal [planned_path_writer_not_authorized]',
           );
         }
         if (incomingHasPlannedDeclarations) validatePlannedPathDeclarationsForChecklistItem(item, args.verificationIntent);
@@ -3117,7 +3119,21 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push('signed acceptance revision recorded; planning and fresh coverage remain required');
       }
 
+      if (args.verificationIntent !== undefined) {
+        item.verificationIntentAuthorship = {
+          kind: ownerProposalApproved ? 'owner_applied_proposal' : isDispatchedVerificationIntentWriter ? 'dispatched_verification_intent' : 'owner_direct',
+          actor: authority.actor || 'owner', sessionId: getSessionId(),
+          intentDigest: acceptanceIntentHash(item.verificationIntent!),
+          ...(ownerProposalApproved ? {proposalDigest: args.intentProposalApproval!.digest} : {}),
+          independentlyAttested: false,
+        };
+      }
       store.writeChecklist(args.storyId, cl);
+      if (args.verificationIntent !== undefined) {
+        store.appendProcessEvent(args.storyId, {type: 'plan_updated', action: 'verification_intent_applied', itemId: args.itemId,
+          phase: story.phase, authorship: item.verificationIntentAuthorship});
+      }
+
 
       // B-3511: append process events on status transitions
       if (args.status && oldStatus !== args.status) {
