@@ -110,10 +110,14 @@ export async function executeSharedValidationCommand(
   // git status may refresh index stat caches. Freeze raw index facts only after
   // the clean-workspace probe has completed its own legitimate refresh.
   const initial = probe();
+  // Only the already captured baseline is constant during this invocation.
+  // Every later observation still rereads live facts and input bytes.
+  const initialCanonical = causalCanonical(initial);
+  const inputFilesCanonical = causalCanonical(inputFiles);
   const unchanged = () => {
     try {
-      return causalCanonical(probe()) === causalCanonical(initial) && workspaceState() === workspace
-        && causalCanonical(additionalInputs()) === causalCanonical(inputFiles)
+      return causalCanonical(probe()) === initialCanonical && workspaceState() === workspace
+        && causalCanonical(additionalInputs()) === inputFilesCanonical
         && executionImplementationIdentity().digest === implementationDigest;
     } catch { return false; }
   };
