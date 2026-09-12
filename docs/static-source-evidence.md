@@ -21,5 +21,10 @@ Run `node scripts/verify-validation-static-edge-boundaries.mjs` for the regressi
 contract. It exercises the actual scanner with stale nested hashes, invented
 text, invalid/stale ranges, missing call coverage, and history-only evidence, plus
 coherent positive controls and the existing child-process traversal boundaries.
-This change intentionally exposes existing stale manifests; it never silently
-refreshes or reclassifies their rationale. Manifest repairs need source review.
+The committed manifest is migrated using the source-reviewed static-registry-closure
+candidate `ce472dad13`, with every structured excerpt independently checked against
+this Lab's source. The regression also checks every committed manifest entry.
+The existing v1 format already allowed structured excerpts; this change enforces
+their contents and diagnoses narrative-only entries explicitly. No schema shape
+is removed. Older stale manifests now need evidence regeneration and review;
+the scanner never silently refreshes or reclassifies their rationale.

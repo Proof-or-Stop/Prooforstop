@@ -36,7 +36,7 @@ export function createStaticSourceEvidence(root, file, startLine, endLine) {
 /** Historical notes never count as current evidence. Every current excerpt must match. */
 export function staticSourceEvidenceError(root, evidence, callsite) {
   if (!Array.isArray(evidence) || evidence.length === 0) return 'source evidence missing';
-  let covered = false;
+  let covered = false, currentEntries = 0;
   const snapshots = new Map();
   try {
     for (const item of evidence) {
@@ -44,6 +44,7 @@ export function staticSourceEvidenceError(root, evidence, callsite) {
       if (!item || typeof item !== 'object' || Array.isArray(item)) return 'source evidence malformed';
       if (item.historical === true) continue;
       if (item.historical !== undefined && item.historical !== false) return 'source evidence historical flag malformed';
+      currentEntries++;
       if (!snapshots.has(item.file)) snapshots.set(item.file, snapshot(root, item.file));
       const source = snapshots.get(item.file);
       if (item.sourceDigest !== source.sourceDigest) return 'source evidence digest is stale';
@@ -53,5 +54,6 @@ export function staticSourceEvidenceError(root, evidence, callsite) {
   } catch (error) {
     return 'source evidence invalid: ' + error.message;
   }
+  if (!currentEntries) return 'source evidence has no structured current-source entry';
   return covered ? null : 'source evidence does not cover the current callsite';
 }

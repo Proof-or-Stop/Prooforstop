@@ -30,20 +30,35 @@ try{
  const exception={id:'reviewed-property',key:row.key,callDigest:row.callDigest,sourceDigest:row.sourceDigest,configIndexes:[0],kind:'property',reason:'Synthetic fixture tests exact reviewed exception binding.',requiredEvidence:[{file:'suite-helper.mjs',startLine:1,endLine:1,sourceDigest:row.sourceDigest,excerpt:fs.readFileSync(path.join(root,'suite-helper.mjs'),'utf8')}],dependencyDigests:{'a.mjs':hash(caller),'suite-helper.mjs':hash(fs.readFileSync(path.join(root,'suite-helper.mjs')))}};
  pin([exception]);expect(0,'exact reviewed exception accepted');
  const evidence = exception.requiredEvidence[0];
- const rejectEvidence = (requiredEvidence, label) => {
+ const rejectEvidence = (requiredEvidence, label, reason) => {
   pin([{...exception,requiredEvidence}]);
   const report = expect(1, 'SOURCE_EVIDENCE_CONTRACT: '+label);
-  assert(report.rows.some(row=>row.state==='NEEDS_REVIEW' && /evidence/.test(row.reason)));
+  assert.equal(report.rows.find(row=>row.key===exception.key)?.reason,reason,label);
  };
- rejectEvidence([{...evidence,sourceDigest:'0'.repeat(64)}], 'stale nested digest');
- rejectEvidence([{...evidence,excerpt:evidence.excerpt+' // invented'}], 'tampered excerpt');
- rejectEvidence([{...evidence,startLine:2,endLine:2}], 'moved call uses stale range');
- rejectEvidence([{...evidence,startLine:0}], 'invalid line bounds');
- rejectEvidence([{...evidence,file:'../outside.mjs'}], 'escaping source path');
- rejectEvidence(['Historical review narrative'], 'narrative alone is not current source evidence');
- rejectEvidence([{...evidence,historical:true}], 'historical source alone cannot authorize current exception');
+ const stale='source evidence digest is stale', mismatch='source evidence excerpt does not match its lines';
+ const bounds='source evidence invalid: source evidence line bounds are invalid';
+ const noCurrent='source evidence has no structured current-source entry';
+ rejectEvidence([{...evidence,sourceDigest:'0'.repeat(64)}], 'stale nested digest',stale);
+ rejectEvidence([{...evidence,excerpt:evidence.excerpt+' // invented'}], 'tampered excerpt',mismatch);
+ rejectEvidence([{...evidence,startLine:2,endLine:2}], 'range beyond source length',bounds);
+ rejectEvidence([{...evidence,startLine:0}], 'invalid line bounds',bounds);
+ const outside=path.join(root+'-outside.mjs');fs.writeFileSync(outside,evidence.excerpt);
+ try {
+  rejectEvidence([{...evidence,file:'../'+path.basename(outside)}], 'escaping relative source path',
+   'source evidence invalid: source evidence file must be a normalized repository-relative path');
+  fs.symlinkSync(outside,path.join(root,'linked-helper.mjs'));
+  rejectEvidence([{...evidence,file:'linked-helper.mjs'}], 'existing symlink target outside repository',
+   'source evidence invalid: source evidence file escapes the repository');
+ } finally {fs.rmSync(outside,{force:true});}
+ rejectEvidence(['Historical review narrative'], 'narrative alone is not current source evidence',noCurrent);
+ rejectEvidence([{...evidence,historical:true}], 'historical source alone cannot authorize current exception',noCurrent);
+ rejectEvidence([evidence,{...evidence,sourceDigest:'0'.repeat(64)}], 'covering evidence cannot launder stale sibling',stale);
+ rejectEvidence([evidence,{...evidence,excerpt:'invented'}], 'covering evidence cannot launder altered sibling',mismatch);
+ rejectEvidence([null], 'null evidence rejected','source evidence malformed');
+ rejectEvidence([[evidence]], 'nested arrays rejected','source evidence malformed');
+ rejectEvidence([{...evidence,historical:'true'}], 'string historical flag rejected','source evidence historical flag malformed');
  fs.writeFileSync(path.join(root,'context.mjs'),'// current context');
- rejectEvidence([{file:'context.mjs',startLine:1,endLine:1,sourceDigest:hash('// current context'),excerpt:'// current context'}], 'current context does not cover actual call');
+ rejectEvidence([{file:'context.mjs',startLine:1,endLine:1,sourceDigest:hash('// current context'),excerpt:'// current context'}], 'current context does not cover actual call','source evidence does not cover the current callsite');
  pin([exception]);expect(0,'coherent source evidence remains accepted after negative controls');
  const {createStaticSourceEvidence} = await import('./static-source-evidence.mjs');
  assert.deepEqual(createStaticSourceEvidence(root,'suite-helper.mjs',1,1), evidence);
@@ -119,5 +134,12 @@ try{
  for(const name of ['native-review-fixture.ts','fixture-environment.ts'])assert(brandReport.coverage.some(row=>row.file===tasks+name&&row.state==='SCANNED'));
  writeHelper('fixture-environment.ts',"import './brand-depth-three.js';");writeHelper('brand-depth-three.ts',"import './brand-depth-four.js';");writeHelper('brand-depth-four.ts','');
  assert(expect(1,'brand-role entry retains generic depth-four refusal').coverage.some(row=>row.file===tasks+'brand-depth-four.ts'&&row.reason==='helper depth exceeds declared bound'));
+ const {staticSourceEvidenceError} = await import('./static-source-evidence.mjs');
+ const liveManifest=JSON.parse(fs.readFileSync(path.join(repo,'scripts/lab/u18-static-edges/exceptions.json'),'utf8'));
+ for(const entry of liveManifest.entries){
+  const match=entry.key.match(/^(.*):(\d+):[^:]+$/);assert(match,'manifest key must identify its source callsite');
+  assert.equal(staticSourceEvidenceError(repo,entry.requiredEvidence,{file:match[1],line:Number(match[2])}),null,entry.id+' current manifest evidence');
+ }
+ console.log('PASS all '+liveManifest.entries.length+' committed manifest entries have current covering source evidence');
  console.log('U18_STATIC_EDGE_BOUNDARIES_PASS');
 }finally{fs.rmSync(root,{recursive:true,force:true});}
