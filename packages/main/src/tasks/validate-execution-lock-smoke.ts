@@ -288,8 +288,10 @@ async function deliveryFixtureCli(root:string,storyId:string,args:Record<string,
 function assertFocusedProbeResult(proc:SpawnedChild):void {
  const result=JSON.parse(proc.stdout());
  assert.equal(result.status,'pass');assert.equal(result.focus?.name,'lock');assert.equal(result.commandExecutions,1);
- assert.equal(result.commands?.length,1);assert.equal(result.commands[0].executionReceipt?.disposition,'executed');
- assert.ok(result.commands[0].executionReceipt.receiptHash,'focused probe must return its execution receipt');
+ assert.equal(result.commands?.length,1);assert.equal(result.disposition,'executed');
+ const command=result.commands[0];assert.equal(command.code,0);assert.notEqual(command.timedOut,true);
+ assert.deepEqual(command.args,['validate-probe.mjs']);assert.match(command.output,/native lock probe passed/);
+ assert(Number.isFinite(command.durationMs)&&command.durationMs>=0);
 }
 
 function guardedSnapshot(root: string, storyId: string): string {

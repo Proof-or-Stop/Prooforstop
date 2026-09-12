@@ -74,3 +74,13 @@ regression proves registered-root cleanup. Primary CLI errors remain visible
 even if lease cleanup also fails. Existing synthetic-window helpers still have
 callers in done-required-validation-smoke and validation-protocol-smoke, so this
 Lab does not remove those unrelated exports.
+
+Focused validation currently returns command results but does not issue a full
+routine evidence publication or a mandatory per-command receipt. Writer cases
+therefore assert the structured focused status, executed disposition, exactly
+one command, exact probe argv, successful exit/output and measured duration,
+alongside the independent entry marker and preserved routine evidence. Sealed
+certification inventory and an open reviewer-write inventory cannot authorize
+the same new full certification run; the focused shared-lock probe tests the
+writer boundary without manufacturing a second admission. The native dual-order
+queue cases retain actual signed routine and DONE-required publication checks.
