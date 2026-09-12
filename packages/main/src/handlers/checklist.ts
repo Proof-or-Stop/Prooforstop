@@ -216,6 +216,16 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
   return story;
 }
 
+function assertVerificationIntentClassification(itemId: string, verificationIntent: VerificationIntent): void {
+  for (const lane of VERIFICATION_LANES) {
+    for (const [index, intent] of (verificationIntent[lane] ?? []).entries()) {
+      if (!intent.scope || !intent.expectation || !intent.requirementSource) {
+        throw new Error(`checklist_update refused: classify ${itemId}:${lane}:${index} with scope, expectation, and requirementSource [verification_intent_metadata_required]`);
+      }
+    }
+  }
+}
+
 function checklistActorFrom(args: { agent?: string; actor?: string }): string {
   const explicit = args.agent?.trim() || args.actor?.trim();
   if (explicit) return explicit;
@@ -1854,6 +1864,7 @@ export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string
         priority: 'should',
       };
       item.verificationIntent = vi;
+      delete item.verificationIntentAuthorship;
       filled.push(`${item.id}:${lane}:${index} (${vi[lane][index].type})`);
     }
   }
@@ -2870,15 +2881,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             `checklist_update refused: verification-intent roles may write only verificationIntent and may not set ${disallowed.join(', ') || 'non-verification fields'}. [agent_dispatch_mutation_scope_denied]`,
           );
         }
-        for (const lane of VERIFICATION_LANES) {
-          for (const [index, intent] of (args.verificationIntent[lane] ?? []).entries()) {
-            if (!intent.scope || !intent.expectation || !intent.requirementSource) {
-              throw new Error(
-                `checklist_update refused: verification-intent roles must classify ${args.itemId}:${lane}:${index} with scope, expectation, and requirementSource before PLAN acceptance is frozen [verification_intent_metadata_required]`,
-              );
-            }
-          }
-        }
+        assertVerificationIntentClassification(args.itemId, args.verificationIntent);
       }
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -2950,13 +2953,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         if (authority.entry) throw new Error(`INTENT_PROPOSAL_ROLE_FORBIDDEN: dispatched or asserted role ${authority.actor} cannot approve owner proposals`);
         const owner = probeWriterLease(store.storyDirPath(args.storyId), resolveStoryGitCwd(args.storyId));
         if (!owner.valid) throw new Error(`INTENT_PROPOSAL_OWNER_REQUIRED: ${owner.reason}`);
-        for (const lane of VERIFICATION_LANES) {
-          for (const [index, intent] of (args.verificationIntent[lane] ?? []).entries()) {
-            if (!intent.scope || !intent.expectation || !intent.requirementSource) {
-              throw new Error(`checklist_update refused: owner proposals must classify ${args.itemId}:${lane}:${index} with scope, expectation, and requirementSource [verification_intent_metadata_required]`);
-            }
-          }
-        }
+        assertVerificationIntentClassification(args.itemId, args.verificationIntent);
         const baseIntentHash = digestCanonicalJson(item.verificationIntent ?? null);
         const digest = digestCanonicalJson({storyId:args.storyId,itemId:args.itemId,baseIntentHash,verificationIntent:args.verificationIntent});
         if (approval.baseIntentHash !== baseIntentHash || approval.digest !== digest) {
@@ -3130,8 +3127,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       }
       store.writeChecklist(args.storyId, cl);
       if (args.verificationIntent !== undefined) {
-        store.appendProcessEvent(args.storyId, {type: 'plan_updated', action: 'verification_intent_applied', itemId: args.itemId,
-          phase: story.phase, authorship: item.verificationIntentAuthorship});
+        try {
+          store.appendProcessEvent(args.storyId, {type: 'plan_updated', action: 'verification_intent_applied', itemId: args.itemId,
+            phase: story.phase, authorship: item.verificationIntentAuthorship});
+        } catch (e) {
+          console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+        }
       }
 
 
@@ -4083,6 +4084,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         assertEnglishAuthoringText('verification_intent_append', checklistEnglishAuthoringFields({verificationIntent:intent}, args.itemId));
         assertChecklistScopeChangeAllowed(store,args.storyId,{title:item.title,context:JSON.stringify(args.addition),excludes:item.excludes,itemId:item.id});
         item.verificationIntent = intent;
+        delete item.verificationIntentAuthorship;
         (item.verificationIntentAmendments ??= []).push(amendment);
         item.status = 'in_progress'; item.endTime = null;
         store.writeChecklist(args.storyId,cl);

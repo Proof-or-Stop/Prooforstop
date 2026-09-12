@@ -9,8 +9,9 @@ import {acquireOwnerLease,readOwnerLease,resetSessionIdForTest} from '../package
 import {StoryStore} from '../packages/main/dist/core/store.js';
 import {resetConfigCache} from '../packages/main/dist/core/config.js';
 import {createChecklistHandlers} from '../packages/main/dist/handlers/checklist.js';
-import {createIntentAmendment,acceptanceIntentHash} from '../packages/main/dist/core/verification-intent-amendment.js';
+import {acceptanceIntentHash} from '../packages/main/dist/core/verification-intent-amendment.js';
 import {digestCanonicalJson} from '../packages/main/dist/core/digest.js';
+await import('../packages/main/tests/checklist-pin-integration.mjs');
 const root=mkdtempSync(join(tmpdir(),'intent-owner-proposal-'));
 const cwd=process.cwd(), env={...process.env};
 const cli=fileURLToPath(new URL('../bin/proof-or-stop.js',import.meta.url));
@@ -75,9 +76,10 @@ const verificationIntent={
 };
 function session(id,role='main-agent'){process.env.PROOF_OR_STOP_SESSION_ID=id;process.env.PROOF_OR_STOP_AGENT=role;resetSessionIdForTest();}
 try {
+ writeFileSync(join(root,'.gitignore'),'owner-lease.json\n.proof-or-stop/runtime/\n');
  writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'packages/main',rootDir:'src',storyDir:'.proof-or-stop/story/actives'}));
  execFileSync('git',['init','-q','-b','main'],{cwd:root});execFileSync('git',['config','user.name','Fixture'],{cwd:root});execFileSync('git',['config','user.email','fixture@example.invalid'],{cwd:root});
- execFileSync('git',['add','.'],{cwd:root});execFileSync('git',['commit','-qm','fixture baseline'],{cwd:root});
+ execFileSync('git',['add','.'],{cwd:root});execFileSync('git',['commit','-qm','fixture baseline'],{cwd:root});execFileSync('git',['checkout','-qb','story/B-ab12'],{cwd:root});
  resetConfigCache();const store=new StoryStore(root);const now=new Date().toISOString();
  const story={storyId,name:'intent-proposal',title:'Intent proposal regression',description:'Owner applies reviewed intent proposal',type:'chore',phase:'PLAN',priority:'medium',createdAt:now,startedAt:now,endedAt:null,events:[]};
  store.writeStory(storyId,story);store.writeChecklist(storyId,{items:[{id:itemId,title:'Record intent',context:'Focused regression',status:'pending',files:{create:['scripts/benchmark/feasibility.mjs'],modify:[],test:['scripts/verify-benchmark-feasibility.mjs']}}]});
@@ -128,6 +130,19 @@ try {
  assert.equal(saved.items[0].verificationIntentAuthorship.kind,'owner_applied_proposal');assert.equal(saved.items[0].verificationIntentAuthorship.independentlyAttested,false);assert.equal(saved.items[0].verificationIntentAuthorship.proposalDigest,args.intentProposalApproval.digest);
  assert(store.readProcessEvents(storyId).some(row=>row.action==='verification_intent_applied' && row.authorship?.proposalDigest===args.intentProposalApproval.digest));
  assert.throws(()=>handlers.checklist_update(args),/INTENT_PROPOSAL_BINDING_INVALID/,'stale base is rejected even for owner');
+ // Event logging failure must not report a false write failure or skip metadata commit.
+ const replacement=structuredClone(verificationIntent);replacement.edge[0].desc+=' Preserve attribution when ancillary logging fails.';
+ const currentHash=digestCanonicalJson(saved.items[0].verificationIntent);
+ const eventArgs={storyId,itemId,verificationIntent:replacement,intentProposalApproval:{baseIntentHash:currentHash,digest:digestCanonicalJson({storyId,itemId,baseIntentHash:currentHash,verificationIntent:replacement}),reason:'Apply a fixture proposal to exercise ancillary event log failure recovery.'}};
+ const headBefore=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
+ const appendEvent=store.appendProcessEvent;const warn=console.warn;const warnings=[];
+ try{store.appendProcessEvent=()=>{throw new Error('FIXTURE_EVENT_LOG_UNAVAILABLE');};console.warn=(...values)=>warnings.push(values.join(' '));
+   assert.match(handlers.checklist_update(eventArgs),/owner-approved proposal applied/);
+ }finally{store.appendProcessEvent=appendEvent;console.warn=warn;}
+ assert(warnings.some(message=>message.includes('FIXTURE_EVENT_LOG_UNAVAILABLE')));
+ assert.equal(store.readChecklist(storyId).items[0].verificationIntent.edge[0].desc,replacement.edge[0].desc);
+ assert.notEqual(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),headBefore,'ancillary event failure must still commit');
+ store.writeChecklist(storyId,saved);
  // Real CLI replan admission must match the existing INIT-only removal handler.
  store.writeStory(storyId,{...story,phase:'INIT'});
  const removeArgs={storyId,itemId,disposition:'accept',justification:'Disposable fixture checks the supported INIT consolidation path.'};
@@ -146,13 +161,21 @@ try {
  const late=spawnSync(process.execPath,[cli,'--root',root,'checklist_remove',JSON.stringify({storyId,itemId,disposition:'accept',justification:'Must be refused after the INIT phase.'})],{cwd:root,env:process.env,encoding:'utf8'});
  assert.notEqual(late.status,0);assert.match(late.stdout+late.stderr,/PLAN phase does not allow removing|not available.*PLAN|Allowed phases: INIT/);
  // A genuine signed amendment must not allow a foreign role to create a revision.
- const amended=structuredClone(saved);const lease=readOwnerLease(store.storyDirPath(storyId));
+ store.writeStory(storyId,{...story,phase:'DEV'});
  const addition={edge:[{id:'SIGNED-EDGE',desc:'Additional signed boundary assertion',type:'cli',priority:'must'}]};
- const signed=createIntentAmendment({item:amended.items[0],storyId,expectedIntentHash:acceptanceIntentHash(amended.items[0].verificationIntent),reason:'Independent fixture exercises owner-only signed revision protection.',addition,sessionId:lease.sessionId,leaseId:lease.leaseId,headHash:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),gitCwd:root});
- amended.items[0].verificationIntent=signed.intent;amended.items[0].verificationIntentAmendments=[signed.amendment];store.writeChecklist(storyId,amended);
+ handlers.verification_intent_append({storyId,itemId,expectedIntentHash:acceptanceIntentHash(saved.items[0].verificationIntent),reason:'Append a signed acceptance condition and clear its superseded proposal attribution.',addition});
+ const amended=store.readChecklist(storyId);
+ assert.equal(amended.items[0].verificationIntentAuthorship,undefined,'official semantic append must clear proposal attribution');
+ store.writeStory(storyId,story);
  session('fixture-independent','proof-or-stop-verification-intent');
- const revised=structuredClone(signed.intent);revised.edge[0].desc+=' Updated boundary.';Object.assign(revised.edge.at(-1),{scope:'focused',expectation:'absolute_pass',requirementSource:'story'});
+ const revised=structuredClone(amended.items[0].verificationIntent);revised.edge[0].desc+=' Updated boundary.';Object.assign(revised.edge.at(-1),{scope:'focused',expectation:'absolute_pass',requirementSource:'story'});
  assert.throws(()=>handlers.checklist_update({storyId,itemId,verificationIntent:revised}),/AMENDMENT_OWNER_REQUIRED/);
  assert.deepEqual(store.readChecklist(storyId),amended,'refused signed revision must not persist');
+ session('fixture-owner');store.writeStory(storyId,{...story,phase:'DEV'});
+ handlers.verification_intent_append({storyId,itemId,expectedIntentHash:acceptanceIntentHash(amended.items[0].verificationIntent),reason:'Append a real signed acceptance condition and clear superseded attribution.',addition:{edge:[{id:'APPENDED-EDGE',desc:'Another mandatory acceptance condition for the fixture',type:'cli',priority:'must'}]}});
+ assert.equal(store.readChecklist(storyId).items[0].verificationIntentAuthorship,undefined,'semantic append must clear old owner proposal attribution');
+ const recovery=JSON.parse(handlers.verification_intent_recover({storyId}));
+ handlers.verification_intent_recover({storyId,expectedCheckpointDigest:recovery.expectedCheckpointDigest,reason:'Restore the exact signed intent and matching attribution checkpoint.',apply:true});
+ assert.equal(store.readChecklist(storyId).items[0].verificationIntentAuthorship,undefined,'exact recovery restores the matching absent marker');
  console.log('INTENT_OWNER_LEASE_PASS: real CLI owner application; foreign role refusal; exact proposal, phase and stale-base checks');
 } finally {process.chdir(cwd);for(const key of Object.keys(process.env))if(!(key in env))delete process.env[key];Object.assign(process.env,env);resetSessionIdForTest();rmSync(root,{recursive:true,force:true});}
