@@ -37,7 +37,7 @@ export function lockFixtureCli(root:string,storyId:string,command:string,payload
  }
 }
 
-export async function createNativeLockFixture(storyId:string,phase:'REVIEW'|'TEST'='TEST') {
+export async function createNativeLockFixture(storyId:string,phase:'REVIEW'|'TEST'='TEST',routine=true) {
  assert(/^B-[A-Za-z0-9_-]+$/.test(storyId));
  const root=realpathSync(mkdtempSync(join(tmpdir(),'proof-or-stop-native-lock-')));roots.add(root);
  const store=new StoryStore(root),start=performance.now();
@@ -91,13 +91,15 @@ console.log('native lock probe passed');\n`);
   assert.equal(loadVerifiedCertificationWindow(store,storyId).window?.state,'ADMITTED');
   git('add','--',store.storyFilePath(storyId,'process-events.jsonl'));
   if(git('diff','--cached','--name-only'))git('commit','-m','record native lock admission events');
-  assert.equal(JSON.parse(cli('validate',{storyId,json:true})).status,'pass');
+  if(routine)assert.equal(JSON.parse(cli('validate',{storyId,json:true})).status,'pass');
+  else assert.equal(phase,'REVIEW','unconsumed admission stays in REVIEW');
   if(phase==='TEST')cli('story_advance',{storyId,phase:'TEST'});
   git('add','--',store.storyFilePath(storyId,'process-events.jsonl'));
   if(git('diff','--cached','--name-only'))git('commit','-m','publish native phase preparation events');
   assert.equal(git('status','--porcelain','--',store.storyFilePath(storyId,'process-events.jsonl')),'');
   assert.equal(store.readStory(storyId)?.phase,phase);
-  assert.equal(store.readTestEvidence(storyId)?.result,'PASS');
+  if(routine)assert.equal(store.readTestEvidence(storyId)?.result,'PASS');
+  else {assert.equal(store.readTestEvidence(storyId),null);assert.equal(loadVerifiedCertificationWindow(store,storyId).window?.state,'ADMITTED');}
   rmSync(join(root,'entered.log'),{force:true});rmSync(join(root,'release'));
   return {root,storyId,store,files};
  } catch(error){roots.delete(root);rmSync(root,{recursive:true,force:true});throw error;}

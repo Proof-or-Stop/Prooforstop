@@ -9,14 +9,17 @@ initial subject data, with no acceptance obligations unrelated to these lock
 cases. It then uses the real CLI to open review inventory, dispatch each required
 lane, start its run, submit its one-shot broker-bound review, obtain the critic
 receipt, finalize inventory, execute cheap validation, obtain certification
-admission, and publish routine validation evidence. TEST subjects use the official
+admission, and, when required, publish routine validation evidence. Queue tests
+start in REVIEW with an unconsumed admission, so preparation does not spend the
+one permitted heavy execution before the measured operation. TEST subjects use the official
 phase transition. The helper never writes a synthetic admission or PASS record.
 
 The reviewer lock case opens a new official writable inventory after routine
 preparation. A focused validation holds the same Story lock while preserving
 routine evidence. The retry must record its exact signed reviewer run and preserve
 other lanes. Delivery prepares trusted dispatch before acquiring the lock and
-passes the real broker descriptor into the native CLI writer. Both writers must
+passes the real broker descriptor into the native CLI writer. Its focused lock
+probe preserves the prior routine PASS rather than spending admission twice. Both writers must
 refuse with the expected busy error and preserve guarded files and HEAD.
 
 DONE-required and routine validation must queue in both directions and publish

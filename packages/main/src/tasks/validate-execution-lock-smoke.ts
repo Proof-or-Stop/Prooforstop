@@ -564,7 +564,7 @@ async function assertDeliveryCheckCoordinatesWithValidation(): Promise<void> {
   lockFixtureCli(root,storyId,'dispatch',{storyId,agentType:'proof-or-stop-review-delivery'},'proof-or-stop-review-delivery');
   commitAll(root,'publish trusted delivery dispatch before validation');
   try {
-    const validate = spawnValidate(root, storyId, 'delivery-holder');
+    const validate = spawnCommand(root,['validate',`--story=${storyId}`,'--focus=lock','--json'],'delivery-holder');
     assert.equal(await waitForEntered(root, 1, NATIVE_ENTRY_WAIT_MS), true, 'validate must hold the execution lock: '+validate.output());
 
     const deliveryArgs = {
@@ -641,7 +641,7 @@ async function assertStoryAdvanceInternalValidateDoesNotSelfLock(): Promise<void
 }
 
 async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
-  const { root, storyId } = await createNativeLockFixture('B-required-policy-drift');
+  const { root, storyId } = await createNativeLockFixture('B-required-policy-drift','REVIEW',false);
   let releaseCapacity!: () => void, ready!: () => void;
   const entered = new Promise<void>(resolve => { ready = resolve; });
   const releasePromise = new Promise<void>(resolve => { releaseCapacity = resolve; });
@@ -689,7 +689,7 @@ async function assertUnadmittedDoneRequiredNeverExecutes(): Promise<void> {
 }
 
 async function assertDoneRequiredSharesValidateLock(): Promise<void> {
-  const { root, storyId } = await createNativeLockFixture('B-validate-required');
+  const { root, storyId } = await createNativeLockFixture('B-validate-required','REVIEW',false);
   try {
     const validate = spawnValidate(root, storyId, 'done-required-holder');
     assert.equal(await waitForEntered(root, 1, NATIVE_ENTRY_WAIT_MS), true, 'validate must enter before done_required_validate starts: '+validate.output());
@@ -724,7 +724,7 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
     rmSync(root, { recursive: true, force: true });
   }
 
-  const reverse = await createNativeLockFixture('B-required-validate');
+  const reverse = await createNativeLockFixture('B-required-validate','REVIEW',false);
   try {
     const doneRequired = spawnCommand(reverse.root, [
       'done_required_validate',
