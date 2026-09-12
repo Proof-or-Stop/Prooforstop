@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab review-finalization-lineage - v0.3.343 - 2026-09-12
+
+B-0980 exposed an official-writer/consumer mismatch: finalized review epoch metadata and genuine verification refreshes invalidated managed reviewer HEAD lineage; the inventory critic consumer also rebuilt an OPEN-only prompt after finalization. Extending the actual handler regression showed that certification admission, routine validation and the TEST transition encountered the same compatibility seam.
+
+The repair retains managed code review only across precisely classified official publications: signed finalized epoch and receipt with original cutoff; strict authenticated V5 evidence-only replacement with unchanged checklist requirements and append-only causal index; exact window-bound inventory consumption; validation artifacts with append-only causal closeout receipts tied to bytes and parent commit; and the existing exact REVIEW-to-TEST index delta. Managed critic consumption validates the current inventory subject and the immutable sealed launch digest without rebuilding a terminal prompt. Material, scope, receipt and lifecycle verdict checks remain independent. Unknown subjects, unrelated paths, forged metadata and changed requirements fail closed.
+
+Verification uses the pinned node scripts/verify-review-epoch-certification-continuity.mjs command. Disposable fixtures exercise actual native reviewer handlers and a synthetic managed transport, finalization, verification refresh, certification admission, routine validation, actual TEST publication, cancellation and forged publication controls. Synthetic fixture identities and transports are test provenance, not independent vendor audit. The complete repository build and process-fact contract check pass. The canonical suite inventory smoke previously passed. The broader managed-review smoke failed at the same first managed-run-completion assertion on both this Lab and baseline main a11f2d89a4; logs are preserved and that check is not reported as passing.
+
+This bounded maintenance does not implement the benchmark runner, declare B-0980 DONE, or supply a product release approval. Claude CLI must independently audit the exact prepared candidate before authorized local integration. No remote push is requested.
+
+The audited follow-up repairs and bounded unchanged dependency excerpts are retained in docs/audits/review-finalization-lineage.md. The repaired pinned regression passed at bd182268cd in 100511 ms, including discriminating output, original-round and exact transition controls. Full-suite resource inventory and process-fact checks passed.
+
+Maintenance provenance: codex/lab-review-finalization-lineage, repair f2fcd456185b5b44fcaa00bbb1821a1db56f68c8.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b83aa-partial-hash-freshness - v0.3.342 - 2026-09-12
 
 Evidence hash snapshots now fail closed when the current Git HEAD or material digest cannot be derived. The shared classifier is consumed by DONE admission, lifecycle readiness, routine validation reuse, and session diagnostics. Missing storyFilesHash remains an explicit advisory with strict materialHash fallback, and historical DONE projections disclose legacy omissions without reopening completed history.
