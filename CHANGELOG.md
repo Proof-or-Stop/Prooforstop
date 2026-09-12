@@ -1,15 +1,5 @@
 # Changelog
 
-## Lab benchmark-map-verifier - v0.3.336 - 2026-09-12
-
-Repair the missing executable coverage in the historical B-0980 benchmark mapping verifier. The original assertion program could exit successfully without emitting any of the five required evaluator reports or executing the explicit row-mutation controls. Retain its exact bytes as a nested verifier, execute wildcard, duplicate, extra-path, adapter and group mutations with restored controls in disposable configurations, and emit actual candidate/baseline/unregistered/malformed/missing-topology reports. A separate subprocess regression rejects missing observations and nine invalid input configurations. The verifier intentionally requires the pinned historical baseline commit and a built candidate checkout; it is a bounded recovery diagnostic, not a general benchmark runner.
-
-Recorded RED: BENCHMARK_MAP_COVERAGE_MISSING, actual zero evaluator reports versus required five. GREEN runs the same executable and argv after the repair. No real Story metadata, pinned command, evidence receipt, finding state, scope budget, or lifecycle gate is modified. This Lab integration does not mark B-0980 DONE or apply its pending acceptance amendment. Formal evidence integration remains a separate governed step. No performance improvement or full-suite PASS is claimed.
-
-Maintenance provenance: codex/lab-benchmark-map-verifier, repair b11c59492f2f049cde8a8fcb26f5b6706fe31d58.
-Verification command (replayed before integration and on main): `["node","scripts/verify-benchmark-map-recovery-contract.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab static-native-fixture-traversal - v0.3.335 - 2026-09-12
 
 The static validation scanner did not register the native certification helper newly imported by the quorum integration fixture. Its exact import inventory refused that literal, and the existing depth bound stopped the native review helper on the first transitive path, leaving two unexpanded coverage rows.
