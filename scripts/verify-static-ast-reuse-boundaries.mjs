@@ -15,6 +15,7 @@ import crypto from 'node:crypto';
 import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
 const fixture=fs.mkdtempSync(path.join(os.tmpdir(),'static-ast-invocations-'));
+let completed=false;
 try {
  fs.writeFileSync(path.join(fixture,'package.json'),'{}');
  fs.mkdirSync(path.join(fixture,'node_modules'));
@@ -39,4 +40,5 @@ try {
  assert(!identity.coverage.some(r=>r.index===0&&r.reason?.includes('Unreviewed narrowing shard argv')));
  assert(identity.coverage.some(r=>r.index===1&&r.reason?.includes('Unreviewed narrowing shard argv')));
  console.log('STATIC_AST_REUSE_BOUNDARIES_GREEN source freshness, argv isolation and identity child mode isolation');
-} finally {fs.rmSync(fixture,{recursive:true,force:true});}
+ completed=true;
+} catch(error){console.error('STATIC_AST_BOUNDARY_FAILURE_ARTIFACTS '+fixture);throw error;} finally {if(completed)fs.rmSync(fixture,{recursive:true,force:true});}

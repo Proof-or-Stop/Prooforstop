@@ -9,6 +9,7 @@ const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'static-ast-compare-'));
 const scanner=path.join(root,'scripts/verify-validation-static-edges.mjs');
 const original=fs.readFileSync(scanner,'utf8');
 const runs=[];
+let completed=false;
 function replaceRequired(source,needle,value){assert(source.includes(needle),'STATIC_AST_REFERENCE_PATCH_NOT_APPLIED: '+needle);return source.replace(needle,value);}
 try {
  for(const arm of ['reference','candidate']) {
@@ -30,9 +31,15 @@ try {
   runs.push({arm,exitCode:child.status,elapsedMs:performance.now()-started,...JSON.parse(fs.readFileSync(counts,'utf8')),report:fs.readFileSync(report,'utf8')});
  }
  assert.equal(runs[0].exitCode,runs[1].exitCode);
- assert.equal(runs[0].report,runs[1].report,'Complete scanner report must remain byte-identical');
+ if(runs[0].report!==runs[1].report){
+  const before=JSON.parse(runs[0].report),after=JSON.parse(runs[1].report);
+  const row=before.rows.find((r,i)=>JSON.stringify(r)!==JSON.stringify(after.rows[i]));
+  const field=Object.keys(before).find(key=>JSON.stringify(before[key])!==JSON.stringify(after[key]));
+  assert.fail('Complete scanner report differs: '+(row?.key??field??'serialization')+'; retained reports: '+tmp);
+ }
  console.log('STATIC_AST_COMPARISON '+JSON.stringify(runs.map(({report,...r})=>r)));
  assert(runs[0].calls>runs[0].unique,'Witness must contain duplicate parser requests');
  assert.equal(runs[1].calls,runs[1].unique,'STATIC_AST_REPEATED_IDENTICAL_INPUT: parse each exact source once within the command');
  console.log('STATIC_AST_REUSE_GREEN complete report parity and bounded parser calls');
-}finally{fs.rmSync(tmp,{recursive:true,force:true});}
+ completed=true;
+}catch(error){console.error('STATIC_AST_FAILURE_ARTIFACTS '+tmp);throw error;}finally{if(completed)fs.rmSync(tmp,{recursive:true,force:true});}
