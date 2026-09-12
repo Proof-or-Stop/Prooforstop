@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab static-registry-closure - v0.3.337 - 2026-09-12
+
+Repair stale static command registrations after reviewed source and configuration changes. The existing scanner previously returned U18_STATIC_NEEDS_REVIEW; the exact same command now returns U18_STATIC_PASS without changing scanner rules, command budgets, or source behavior. Existing entry identifiers, classifications, explanations, required evidence, invocation lists and order are preserved. Newly registered finite call forms and literal child source dependencies have explicit source-bound review, including the resource-owned root build rather than a disposable-fixture claim.
+
+The official Lab RED and GREEN replay node scripts/verify-validation-static-edges.mjs. Supplemental real-scanner controls reject a deleted edge, changed source, changed literal child dependency, substituted identity invocation, changed configuration and an unknown nested command. They retain actual diagnostic reports. These results prove registration closure and refusal behavior, not fresh native suite execution or formal Story DONE. The final maintenance diff is the registry JSON; the existing scanner is the shipped regression, so no unnecessary executable wrapper or version bump is introduced.
+
+Measured on the 0.3.336 candidate: official GREEN wrapper 2.0302595 seconds and supplemental seven scanner executions 7.518530208 seconds. Later synchronization and integration rechecks have their own recorded timings and must not be represented by these historical measurements. B-e6d9 still requires its own current verification receipts, REVIEW, TEST and DONE lifecycle.
+
+Maintenance provenance: codex/lab-static-registry-closure, repair 84e9c1f1d0f30f9923c3184f9759f0cbbbd0139b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edges.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab historical-native-dispatch - v0.3.337 - 2026-09-12
 
 Fix native reviewer evidence validation across successive inventory waves.
