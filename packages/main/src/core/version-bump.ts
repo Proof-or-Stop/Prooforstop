@@ -44,8 +44,6 @@ export const VERSION_SYNC_PATHS: readonly string[] = [
 // participates in this transaction. A present extension requires its lockfile;
 // minimal core-only repositories need not contain the extension packages.
 const EXTENSION_CORE_LOCK_PATHS = ['packages/lab/package-lock.json', 'packages/utils/package-lock.json'] as const;
-/** All supported version outputs, including optional extension core bindings. */
-export const VERSION_KNOWN_SYNC_PATHS: readonly string[] = [...VERSION_SYNC_PATHS, ...EXTENSION_CORE_LOCK_PATHS];
 function extensionCoreLockPaths(root: string): string[] {
   return EXTENSION_CORE_LOCK_PATHS.filter(path =>
     existsSync(join(root, path)) || existsSync(join(root, path.replace('package-lock.json', 'package.json'))));

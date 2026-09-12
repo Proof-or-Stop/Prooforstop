@@ -96,6 +96,8 @@ release audit remain required.
 
 Digests bind original file bytes; UTF-8 decoding is used only for excerpt slicing.
 Missing evidence files have a stable refusal. Version outputs must be valid UTF-8
-and the guarded allowlist must match the producer's exported complete known
-output paths, including optional extension locks. Changes outside those outputs
+and the guarded core allowlist must match the main producer's existing exported
+VERSION_SYNC_PATHS. Its two private optional extension-lock paths remain explicit
+compatibility bindings; an unexpected producer output raises a distinct allowlist
+drift refusal before publication. Changes outside those outputs
 remain subject to the surrounding Lab clean-tree assertion.

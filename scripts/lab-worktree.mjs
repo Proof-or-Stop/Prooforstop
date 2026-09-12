@@ -741,7 +741,7 @@ async function main() {
       s.build = shouldBuildDoneMainPackageForChangedPaths(paths) || s.bump;
       const currentVersion = versions.readSyncedVersion(mainRoot);
       if (versions.readSyncedVersion(s.path) !== currentVersion) fail('Version drift: leave version changes to finish, based on latest main.');
-      const versionBump = s.bump ? withLabVersionSourceEvidence(s.path, () => versions.applyPatchBump(s.path), versions.VERSION_KNOWN_SYNC_PATHS) : undefined;
+      const versionBump = s.bump ? withLabVersionSourceEvidence(s.path, () => versions.applyPatchBump(s.path), versions.VERSION_SYNC_PATHS) : undefined;
       s.version = versionBump?.to ?? currentVersion;
       s.notesHash = hash(notes);
       const changelog = join(s.path, 'CHANGELOG.md');

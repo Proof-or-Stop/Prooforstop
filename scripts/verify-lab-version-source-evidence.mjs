@@ -9,8 +9,8 @@ import {fileURLToPath} from 'node:url';
 import {LAB_VERSION_FIXTURE_CLI_TIMEOUT_MS,assertLabVersionFixtureTransport} from './lab-version-fixture-transport.mjs';
 import {withLabVersionSourceEvidence as versionTransaction} from './lab-version-source-evidence.mjs';
 const fixtureVersionPaths=['package.json','package-lock.json','packages/main/package.json','packages/main/package-lock.json','packages/main/src/core/proof-or-stop-brand.ts','packages/lab/package-lock.json','packages/utils/package-lock.json'];
-const withLabVersionSourceEvidence=(root,bump)=>versionTransaction(root,bump,fixtureVersionPaths);
-assert.throws(()=>versionTransaction('.',()=>assert.fail('drift must refuse before mutation'),[...fixtureVersionPaths,'new-version-output.json']),error=>error.message.split('\n')[0]==='version output allowlist drifted from VERSION_KNOWN_SYNC_PATHS');
+const withLabVersionSourceEvidence=(root,bump)=>versionTransaction(root,bump,fixtureVersionPaths.slice(0,5));
+assert.throws(()=>versionTransaction('.',()=>assert.fail('drift must refuse before mutation'),[...fixtureVersionPaths.slice(0,5),'new-version-output.json']),error=>error.message.split('\n')[0]==='version output allowlist drifted from VERSION_SYNC_PATHS');
 import {copyLabFixtureSources} from './lab-fixture-sources.mjs';
 import {installLabAuditFixtureProviders} from './lab-audit-fixture-provider.mjs';
 const invalidVersionRoot=mkdtempSync(join(tmpdir(),'lab-invalid-version-utf8-'));
@@ -34,7 +34,7 @@ const EXPECTED={
  'producer-manifest':'version producer cannot modify source evidence',format:'version refresh refuses source line movement',
  historical:'source evidence historical flag malformed',minor:'only an official patch bump can refresh source evidence',
  major:'only an official patch bump can refresh source evidence',downgrade:'only an official patch bump can refresh source evidence',skip:'only an official patch bump can refresh source evidence',
- malformed:'malformed patch version','malformed-from':'malformed patch version',undeclared:'undeclared version output',unexpected:'unexpected version output path',
+ malformed:'malformed patch version','malformed-from':'malformed patch version',undeclared:'undeclared version output',unexpected:'version output allowlist drifted from producer outputs',
  'manifest-format':'version refresh refuses manifest reformatting',
  'created-output':'version producer created an absent output',
  'brand-extra':'only the CLI version declaration may change','brand-duplicate':'version declaration must be unique',

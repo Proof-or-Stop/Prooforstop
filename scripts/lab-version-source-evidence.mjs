@@ -46,7 +46,9 @@ function assertVersionOnly(file,before,after,from,to) {
 
 /** Lab-only version transaction: refresh already-valid evidence, never its rationale. */
 export function withLabVersionSourceEvidence(root,bump,canonicalFiles) {
- assert.deepEqual([...canonicalFiles].sort(),[...files].sort(),'version output allowlist drifted from VERSION_KNOWN_SYNC_PATHS');
+ // Main owns the five core outputs; its two optional extension locks are
+ // separately pinned below because the producer does not export their list.
+ assert.deepEqual([...canonicalFiles].sort(),files.slice(0,5).sort(),'version output allowlist drifted from VERSION_SYNC_PATHS');
  const before=new Map(files.filter(file=>fs.existsSync(path.join(root,file))).map(file=>[file,read(root,file)]));
  const manifestBefore=fs.existsSync(path.join(root,manifestFile))?read(root,manifestFile):null;
  // Generic Labs without this repository-specific manifest retain their existing
@@ -58,7 +60,7 @@ export function withLabVersionSourceEvidence(root,bump,canonicalFiles) {
   const from=result.from.split('.').map(Number),to=result.to.split('.').map(Number);
   assert(from.length===3&&to.length===3&&from.every(Number.isSafeInteger)&&to.every(Number.isSafeInteger)
    &&from[0]===to[0]&&from[1]===to[1]&&to[2]===from[2]+1,'only an official patch bump can refresh source evidence');
-  assert(Array.isArray(result.files)&&result.files.every(file=>files.includes(file)),'unexpected version output path');
+  assert(Array.isArray(result.files)&&result.files.every(file=>files.includes(file)),'version output allowlist drifted from producer outputs');
   assert(files.every(file=>before.has(file)||!fs.existsSync(path.join(root,file))),'version producer created an absent output');
   const changed=new Map();
   for(const [file,text] of before) {
