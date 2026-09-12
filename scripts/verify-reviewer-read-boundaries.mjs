@@ -74,8 +74,11 @@ try {
   mkdirSync(join(root, 'src'));
   writeFileSync(join(root, 'src/base.ts'), 'export const value = 1;\n');
   writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n');
+  const fixtureBudget = structuredClone(JSON.parse(readFileSync(join(repo, 'proof-or-stop.config.json'), 'utf8')).storyScopeBudget);
+  fixtureBudget.responsibilities.push({id:'reader-fixture',paths:['src/**'],hostAdapters:[],validationGroups:[]});
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ ...JSON.parse(readFileSync(join(repo, 'proof-or-stop.config.json'), 'utf8')), scanRoot: '.', rootDir: 'src',
     storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', outDir: 'dist',
+    storyScopeBudget: fixtureBudget,
     testsDir: 'tests', fixturesDir: 'tests/fixtures', promptEnvelope: JSON.parse(readFileSync(join(repo, 'proof-or-stop.config.json'), 'utf8')).promptEnvelope }));
   git('init', '-b', 'work'); git('config', 'user.email', 'lab@example.test'); git('config', 'user.name', 'Lab regression');
   git('add', '.'); git('commit', '-m', 'seed isolated reviewer read regression'); git('branch', 'main');
@@ -113,6 +116,11 @@ try {
   assert.notEqual(identities.owner.sessionId, identities.reviewer.sessionId,
     'SETUP_IDENTITIES_MUST_DIFFER: host environment must not collapse fixture participants');
 
+  // Complete, enforced one-file budget lets the real transition reach the inventory gate.
+  store.writeScopeContract(sid,{storyId:sid,mode:'enforce',allowedModify:['src/base.ts'],allowedCreate:[],allowedTest:[],protectedFiles:[],explicitExcludes:[],acknowledgements:[],createdAt:now,updatedAt:now});
+  store.writeProofStoryContract(sid,{schemaVersion:'proofstory.contract.v1',storyId:sid,diagnosticOnly:true,hardeningLevel:'high_assurance',triggerReasons:[],acceptanceBindings:[],diagnosticGaps:[],createdAt:now,updatedAt:now});
+  const memoryAck = invoke('dev_memory_preflight_ack', [`--storyId=${sid}`, '--reason=Isolated inventory transition fixture; no product development is being performed.'], { reviewer:false });
+  assert.equal(memoryAck.exitCode,0,`SETUP_MEMORY_ACK_FAILED: ${memoryAck.stderr}`);
   const handlers = createReviewInventoryHandlers(ctx);
   handlers.review_inventory_begin({ storyId: sid });
   assert.equal(store.readReviewInventoryEpochs(sid).epochs.at(-1).state, 'OPEN', 'valid OPEN control required');
@@ -160,6 +168,13 @@ try {
     const refresh = invoke('review_inventory_status', [`--storyId=${sid}`, '--refresh']);
     assert.notEqual(refresh.exitCode, 0); assert.match(refresh.stderr, /owner-gated/);
     assert.deepEqual(snapshot(store.storyDirPath(sid)), before, 'foreign refresh must not mutate Story');
+    assert.equal(store.readReviewInventoryEpochs(sid).epochs.at(-1).state, 'OPEN');
+    const rollback = invoke('story_advance', [`--storyId=${sid}`, '--phase=DEV'], { reviewer: false });
+    assert.notEqual(rollback.exitCode, 0, 'default status must never authorize REVIEW-to-DEV');
+    assert.match(rollback.stderr + rollback.stdout, /REVIEW_INVENTORY|review inventory|review_inventory/i, 'the inventory gate, not an unrelated setup refusal, must block rollback');
+    assert.equal(store.readStory(sid).phase, 'REVIEW');
+    const consumer = readFileSync(join(repo, 'packages/main/src/handlers/transition-orchestrator.ts'), 'utf8');
+    assert.match(consumer, /consumeReviewInventoryReceipt\([\s\S]*?assertReviewInventoryContextFreshLocked\(ctx, args.storyId\)/);
     // The existing consumer rechecks live drift even though readonly observation kept OPEN on disk.
     assert.throws(() => assertOpenInventoryFresh(ctx, sid), /OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION/);
     assert.equal(store.readReviewInventoryEpochs(sid).epochs.at(-1).state, 'INVALIDATED');

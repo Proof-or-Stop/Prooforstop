@@ -124,6 +124,40 @@ try {
     const story={storyId:sid,name:sid,title:`Unique progress control ${i}`,description:'Audit fixture',phase:'DEV',type:'chore',priority:'medium',createdAt:old,events:[],worktree:{path:wt,branch:`story/${sid}`}};
     store.writeStory(sid,story);store.writeChecklist(sid,{items:[]});const local=new StoryStore(wt);local.writeStory(sid,story);local.writeChecklist(sid,{items:[]});
   }
+  for (const [id, options, expectedProbes] of [
+    ['queue-default-probes-share-repository-baseline', {}, null],
+    ['queue-budget-can-be-raised-for-complete-observation', {gitProbeLimit:6,gitProbeBudgetMs:10000}, 6],
+  ]) await group(id, () => {
+    const original=childProcess.execFileSync;let baselineResolutions=0,commitProbes=0;
+    childProcess.execFileSync=function(command,args,...rest){if(command==='git'&&args[0]==='symbolic-ref'&&args.includes('refs/remotes/origin/HEAD'))baselineResolutions++;if(command==='git'&&args.includes('--no-merges'))commitProbes++;return original.call(this,command,args,...rest);};syncBuiltinESMExports();
+    try {
+      const result=projectQueueGovernance(store,project,options);
+      const stale=result.rows.filter(row=>row.classification==='stale-worktree').length;
+      measurements[id]={baselineResolutions,commitProbes,stale};
+      assert.equal(baselineResolutions,1,'same repository should resolve candidate refs once per projection');
+      if(expectedProbes!==null){assert.equal(commitProbes,expectedProbes);assert.equal(stale,6);}
+      else assert.ok(stale>=1,'default diagnostic must retain a stale signal on the small fixture');
+    } finally {childProcess.execFileSync=original;syncBuiltinESMExports();}
+  });
+  await group('empty-command-admission-fault-has-one-subject', () => {
+    const ts=createRequire(join(repo,'package.json'))('typescript');
+    const source=ts.createSourceFile('cli.js',readFileSync(join(repo,'packages/main/dist/cli-engine.js'),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+    let block;const visit=node=>{if(ts.isBlock(node)&&node.statements.some(st=>ts.isVariableStatement(st)&&st.declarationList.declarations.some(d=>d.name.getText(source)==='rawRuntimeOwnership')))block=node;ts.forEachChild(node,visit);};visit(source);assert.ok(block);
+    const named=(st,name)=>ts.isVariableStatement(st)&&st.declarationList.declarations.some(d=>d.name.getText(source)===name);
+    let start=block.statements.findIndex(st=>named(st,'admissionCommand'));if(start<0)start=block.statements.findIndex(st=>named(st,'rawRuntimeOwnership'));
+    const end=block.statements.findIndex(st=>named(st,'runtimeAuthority'));assert.ok(end>start);
+    const seen=[];vm.runInNewContext(block.statements.slice(start,end+1).map(st=>st.getText(source)).join('\n'),{cmd:'',argv:[],root0:temp,runtimeOwnershipConfig:undefined,externalAdmission:{ownershipClasses:{}},process:{argv:[],env:{}},assertCanonicalActiveIdentityArgumentDelegates:({command})=>{seen.push(command);throw new Error('INJECTED_EMPTY_ADMISSION_FAILURE');},resolveRawRuntimeAdmissionOwnership:()=>{throw new Error('unreachable');},getCommandPolicy:name=>{seen.push(name);return {ownershipClass:'readOnly'};},commandRequiresAuthoritativeRuntime:name=>{seen.push(name);return false;},classifyRuntimeEntrypointAuthority:({command})=>{seen.push(command);return {status:'allowed'};}});
+    measurements.emptyAdmissionSubjects=seen;assert.ok(seen.length>=3);assert.ok(seen.every(name=>name==='help'),'fallback must use the same normalized command as primary admission');
+  });
+  await group('version-scope-and-guidance-claims-are-current', () => {
+    const text=readFileSync(join(repo,'docs/lab-cli-runtime-audit-scope.md'),'utf8');
+    assert.match(text,/Version inputs are measured/);assert.doesNotMatch(text,/consistently remain 0\.3\.337/);
+    const rootVersion=JSON.parse(readFileSync(join(repo,'package.json'),'utf8')).version;
+    const runtimeVersion=JSON.parse(readFileSync(join(repo,'packages/main/package.json'),'utf8')).version;
+    const brand=readFileSync(join(repo,'packages/main/src/core/proof-or-stop-brand.ts'),'utf8').match(/export const PROOF_OR_STOP_CLI_VERSION\s*=\s*['"]([^'"]+)['"]/);assert.ok(brand);
+    measurements.versionInputs={rootVersion,runtimeVersion,sourceBrand:brand[1]};assert.equal(rootVersion,runtimeVersion);assert.equal(runtimeVersion,brand[1]);
+    const guidance=readFileSync(join(repo,'scripts/verify-maintenance-preview-boundaries.mjs'),'utf8');assert.ok(guidance.includes('invoke(writer, flags)'));
+  });
   await group('queue-probes-bounded-and-unmeasured-is-unknown', () => {
     const original=childProcess.execFileSync;let probes=0;
     childProcess.execFileSync=function(command,args,...rest){if(command==='git'&&args.includes('--no-merges'))probes++;return original.call(this,command,args,...rest);};syncBuiltinESMExports();

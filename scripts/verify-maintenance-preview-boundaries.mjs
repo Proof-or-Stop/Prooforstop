@@ -134,7 +134,7 @@ try {
     ]) {
       const hint = reviewerReadRecoveryHint(writer, {storyId:sid}, sid);
       assert.ok(hint.includes(reader === 'codex_doctor' ? 'codex doctor' : reader), writer + ' lacks reader hint');
-      const refused = invoke(writer, [`--storyId=${sid}`]); assert.notEqual(refused.exitCode, 0); assert.ok(refused.stderr.includes(hint.trim()));
+      const refused = invoke(writer, [`--storyId=${sid}`]); assert.deepEqual(refused.args, flags, 'every declared writer argument form must run'); assert.notEqual(refused.exitCode, 0); assert.ok(refused.stderr.includes(hint.trim()));
       const emitted = refused.stderr.split('\n').find(line => line.includes(hint.trim()));
       const exact = emitted.match(/: proof-or-stop (.*?) \(does not /)?.[1];
       assert.ok(exact, 'refusal must contain an executable reader command');
