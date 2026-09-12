@@ -39,6 +39,13 @@ try {
     writeFileSync(join(pkg, 'src/core/proof-or-stop-brand.ts'), "export const PROOF_OR_STOP_CLI_VERSION = '9.1.0';\n");
     const desync = invoke(); assert.notEqual(desync.status, 0); assert.match(desync.stderr, /CLI_RUNTIME_VERSION_MISMATCH/);
     assert.match(desync.stderr, /SOURCE_VERSION_DESYNC/); assert.doesNotMatch(desync.stderr, /Rebuild this checkout/);
+    rmSync(join(pkg, 'src/core/proof-or-stop-brand.ts'));
+    assert.match(invoke().stderr, /Source version could not be verified/, 'unreadable source remains distinct');
+    writeFileSync(join(pkg, 'src/core/proof-or-stop-brand.ts'), "export const PROOF_OR_STOP_CLI_VERSION = '9.2.0';\n");
+    rmSync(join(install, 'scripts/ensure-dist.mjs'));
+    const missingBuild = invoke(); assert.notEqual(missingBuild.status, 0);
+    assert.match(missingBuild.stderr, /Source matches the package.*build entrypoint.*missing/);
+    assert.doesNotMatch(missingBuild.stderr, /Source version could not be verified/);
   });
   const { assertCanonicalActiveIdentityBoundary } = await import(join(repo, 'packages/main/dist/core/runtime-environment-checks.js'));
   await group('missing-executable-has-boundary-refusal', () => {
@@ -84,11 +91,25 @@ try {
   await group('event-classifier-fault-does-not-replace-error', async () => {
     const require = createRequire(join(repo,'package.json')); const ts = require('typescript');
     const source = ts.createSourceFile('cli.js',readFileSync(join(repo,'packages/main/dist/cli-engine.js'),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
-    let node; const visit = n => { if(ts.isFunctionDeclaration(n) && n.name?.text==='writeCodexProcessEvent') node=n; ts.forEachChild(n,visit); }; visit(source);
-    assert.ok(node,'actual emitted observation function must exist');
-    const fn = vm.runInNewContext(`(${node.getText(source)})`, { isCodexActivitySource:()=>true,storyIdFromArgs:()=> 'B-fault',activeStory:null,root:temp,
-      externalAdmission:{ownershipClasses:{}},config0:{},resolveEffectiveOwnershipClass:()=>{throw new Error('INJECTED_CLASSIFIER_FAULT');} });
+    let node, closeoutError; const visit = n => {
+      if(ts.isFunctionDeclaration(n) && n.name?.text==='writeCodexProcessEvent') node=n;
+      if(ts.isClassDeclaration(n) && n.name?.text==='CanonicalTerminalCloseoutError') closeoutError=n;
+      ts.forEachChild(n,visit);
+    }; visit(source);
+    assert.ok(node && closeoutError,'actual emitted observation function and terminal error must exist');
+    const health=[];
+    const fn = vm.runInNewContext(`(()=>{${closeoutError.getText(source)};return (${node.getText(source)});})()`, { isCodexActivitySource:()=>true,storyIdFromArgs:()=> 'B-fault',activeStory:null,root:temp,
+      externalAdmission:{ownershipClasses:{}},config0:{},reportHealthIssue:(...row)=>health.push(row),resolveEffectiveOwnershipClass:()=>{throw new Error('INJECTED_CLASSIFIER_FAULT');} });
     await assert.doesNotReject(async()=>fn({command:'quorum_prune',args:{dryRun:true,apply:true},success:false,error:'ORIGINAL_COMMAND_ERROR'}));
+    assert.equal(health.length,0,'ordinary best-effort failure retains its original refusal');
+    const closeouts=[{command:'validate',args:{}},{command:'story_advance',args:{phase:'TEST'}}];
+    const refused=closeouts.map(entry=>{try{fn({...entry,success:true});return false;}catch(error){return error.name==='CanonicalTerminalCloseoutError' && /INJECTED_CLASSIFIER_FAULT/.test(error.message);}});
+    measurements.canonicalCloseoutClassifierRefusals=refused.filter(Boolean).length;
+    assert.deepEqual(refused,[true,true],'successful canonical terminals must never silently skip closeout');
+    const before=health.length;
+    for(const entry of closeouts) await assert.doesNotReject(async()=>fn({...entry,success:false,canonicalFailure:true,error:'ORIGINAL_COMMAND_ERROR'}));
+    assert.equal(health.length,before+2,'already-failed commands keep the primary error and report the closeout failure to health');
+
   });
   const { StoryStore } = await import(join(repo,'packages/main/dist/core/store.js'));
   const { projectQueueGovernance } = await import(join(repo,'packages/main/dist/core/lifecycle-control/queue/index.js'));
