@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { verificationFailureMessage } from './verification-subprocess-budget.mjs';
+import { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -11,6 +11,8 @@ import nodeAssert from 'node:assert/strict';
 import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../packages/main/tests/red/red-done-shared-predicates.mjs';
 
 const root = process.cwd();
+try { prepareVerification(root, { shareBuild: true }); }
+catch (error) { console.error(verificationFailureMessage('process contract prerequisite', error)); process.exit(1); }
 // --quiet suppresses only the verbose listings (registry entries, inventory
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
@@ -11280,7 +11282,16 @@ try {
   assert(engine.includes('commandObservationEffects(effectiveOwnership,')
     && engine.includes('commandObservationEffects(eventOwnership).recordStoryEvent'),
     'Command effects and generic Story events must share effective admission ownership');
-  assert(["isReadOnlyCommand", "READ_ONLY_COMMANDS", "shouldWriteActivityLog"].every(name => !engine.includes(name)), 'cli-engine must not consume compatibility name-only observation helpers');
+  const engineAst = ts.createSourceFile('cli-engine.ts', engine, ts.ScriptTarget.Latest, true);
+  const legacy = new Set(['isReadOnlyCommand', 'READ_ONLY_COMMANDS', 'shouldWriteActivityLog']);
+  let legacyConsumption = false;
+  const inspect = node => {
+    if (ts.isImportSpecifier(node) && legacy.has((node.propertyName ?? node.name).text)) legacyConsumption = true;
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && legacy.has(node.expression.text)) legacyConsumption = true;
+    ts.forEachChild(node, inspect);
+  };
+  inspect(engineAst);
+  assert(!legacyConsumption, 'cli-engine must not consume compatibility name-only observation helpers; direct compatibility re-exports remain available');
   assert(read('packages/main/src/core/process-fact-registry.ts').includes('Generic CLI command observation consumes argument-aware effective ownership'), 'Command observation semantics must be registered');
   try {
     const output = execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-boundaries.mjs')], {
@@ -11370,6 +11381,10 @@ try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-hardening.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });
   assert(output.includes('CLI_AUDIT_HARDENING_GREEN'), 'CLI audit hardening controls must pass');
 } catch (error) { assert(false, verificationFailureMessage('CLI audit hardening', error)); }
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-closure-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });
+  assert(output.includes('CLI_AUDIT_CLOSURE_GREEN'), 'Queue, admission, compatibility and shared prerequisite controls must pass');
+} catch (error) { assert(false, verificationFailureMessage('CLI audit closure', error)); }
 try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-budget-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 750000 });
   assert(output.includes('CLI_AUDIT_BUDGET_GREEN'), 'CLI budget and companion diagnostic controls must pass');

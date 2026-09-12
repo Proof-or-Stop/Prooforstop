@@ -35,6 +35,14 @@ the invalidation. Existing producer and gate paths continue checking live
 lineage under their mutation lock and refuse stale inventory even when nobody
 has refreshed its status. Corrupt signed input is never converted into a pass.
 
+Default status is an unlocked, non-transactional observation. A concurrent producer
+may change files between reads and cause a transient parse or signature failure.
+After that producer finishes, retry; if the failure persists, investigate the
+invalid evidence rather than accepting it. A successful status projection is
+still not gate authority. The concurrency regression holds the real producer lock,
+performs independent CLI reads, injects an intermediate invalid signature through
+the fixture Store, and verifies rejection followed by recovery after restoration.
+
 The read-only boundary concerns Story state, leases, managed assets and gate
 evidence. CLI runtime diagnostics may still record activity/cache information
 under the existing runtime policy. It is not a promise of zero filesystem IO.
@@ -122,7 +130,10 @@ non-merge commit exclusive to the Story branch relative to the repository's
 resolved integration baseline. An inherited main commit, merge-only sync,
 directory timestamp or owner heartbeat does not invent Story activity. Missing authoritative state or incomplete progress observation is
 `unknown-worktree`, never an assertion of staleness. This diagnostic never
-authorizes deletion or cleanup. Optional Git observations run only when recorded
+authorizes deletion or cleanup. Queue selection, grouping and displayed phase use
+the main mirror consistently; progress evidence uses the authoritative worktree.
+The queue is not a replacement for the authoritative readiness projection.
+Optional Git observations run only when recorded
 activity is insufficient, with defaults of four worktree probes and a
 1000 ms monotonic subprocess budget per projection. For a broader explicit
 diagnostic, queue_governance_status accepts --gitProbeLimit (up to 1000) and

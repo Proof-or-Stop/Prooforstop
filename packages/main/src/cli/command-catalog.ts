@@ -718,7 +718,7 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID in REVIEW.'),
     maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
   }},
-  { name: 'review_inventory_status', description: 'Read current inventory progress and drift without changing evidence; only --refresh persists invalidation and requires the owner', schema: {
+  { name: 'review_inventory_status', description: 'Read current inventory progress and drift without changing evidence; only --refresh persists invalidation and requires the owner. Concurrent producer writes may cause a transient read failure; retry after the producer finishes. A persistent signature error still requires investigation.', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
     refresh: z.boolean().optional().describe('Owner-only: persist detected invalidation under the inventory mutation lock.'),
   }},

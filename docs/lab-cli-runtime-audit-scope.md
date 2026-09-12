@@ -47,3 +47,32 @@ child output; an assertion failure is PROOF_ASSERTION_FAILED. Both are non-PASS.
 A loaded-machine timeout requires usable evidence on retry, not a product-defect
 claim or a larger default timeout. The snapshot proof excludes permitted activity
 telemetry while retaining managed assets and the independent complete Story snapshot.
+
+
+The process and runtime contracts each prepare the build once, then child suites
+request reuse for the same canonical repository root. The environment value is
+only a request: each child verifies current main and utils source/dist bindings
+before skipping ensure-dist. Changed source, changed output or missing/corrupt
+bindings produce SETUP_BUILD_STALE and non-PASS PROOF_UNAVAILABLE; another root
+runs its own prerequisite. No signature, gate or test result is cached. The budget
+companion inherits this same check, while its isolated delayed-build controls still
+execute their own prerequisites. Compatibility observation exports remain available
+from cli-engine; only internal name-only policy consumption is forbidden.
+
+Observed full-command wall time on the shared workstation, with current build
+artifacts prepared before each side (baseline candidate 449a9253a8, main 0.3.340;
+repair before the later main synchronization):
+
+| Command | Before | After | Result |
+|---|---:|---:|---|
+| npm run test:process-fact-contract | 72.885 s | 78.435 s | Both PASS; no speedup |
+| npm run test:runtime-fact-contract | 19.836 s | 23.190 s | Both PASS; no speedup |
+
+These are single observations, not a stable throughput estimate. The after side
+retains previous assertions and adds queue-phase, strict-mode, compatibility,
+build-staleness and concurrency controls. Controlled parent/child setup starts
+decreased 2 to 1, and four maintenance delegate reads decreased 8 to 4, but that
+does not establish aggregate elapsed-time savings. Earlier failed timing trials
+(a static field-binding check and a missing fixture dependency) are excluded from
+this PASS-to-PASS table and retained in the external Lab evidence package. No
+whole-Story speedup or universal watchdog margin is inferred from this pair.

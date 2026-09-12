@@ -4,11 +4,10 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { writeBuildBinding, writeUtilsBuildBinding, BUILD_MANIFEST } from './full-suite-build-binding.mjs';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const built=spawnSync(process.execPath,[join(repo,'scripts/ensure-dist.mjs')],{cwd:repo,encoding:'utf8',timeout:180000});
-if(built.error?.code==='ETIMEDOUT')throw new Error('SETUP_BUILD_TIMEOUT: prerequisite unavailable; no proof assertions ran');
-assert.equal(built.status,0,`SETUP_BUILD_FAILED: ${built.stdout} ${built.stderr}`);
 const api=await import('./verification-subprocess-budget.mjs');
+api.prepareVerification(repo);
 // Replay the existing production call order when testing the RED implementation:
 // one real verificationSpawner handles ensure-dist and all subsequent children.
 const prepare=api.prepareVerification??((root,options)=>{
@@ -29,6 +28,29 @@ try{
   await check('build-timeout-is-prerequisite-unavailable',()=>{
     writeFileSync(join(fixture,'scripts/ensure-dist.mjs'),'setInterval(()=>{},1000);\n');
     assert.throws(()=>prepare(fixture,{buildTimeoutMs:60,bodyBudgetMs:1000}),/SETUP_BUILD_TIMEOUT/);
+  });
+  await check('shared-prerequisite-rejects-every-stale-build-surface',()=>{
+    const shared=join(temp,'shared');
+    for(const pkg of ['main','utils']) {
+      for(const dir of ['src','dist']) {mkdirSync(join(shared,'packages',pkg,dir),{recursive:true});writeFileSync(join(shared,'packages',pkg,dir,'index.js'),'export const value=1;');}
+      for(const file of ['package.json','tsconfig.json'])writeFileSync(join(shared,'packages',pkg,file),'{}');
+    }
+    mkdirSync(join(shared,'scripts'));writeFileSync(join(shared,'scripts/ensure-dist.mjs'),'// controlled successful prerequisite\n');
+    writeBuildBinding(shared);writeUtilsBuildBinding(shared);
+    const key='PROOF_OR_STOP_VERIFICATION_DIST_READY',previous=process.env[key];delete process.env[key];
+    try {
+      prepare(shared,{shareBuild:true});
+      for(const rel of ['packages/main/src/index.js','packages/main/dist/index.js','packages/utils/src/index.js','packages/utils/dist/index.js',BUILD_MANIFEST]) {
+        const path=join(shared,rel),bytes=readFileSync(path);writeFileSync(path,'changed');
+        try {assert.throws(()=>prepare(shared),/SETUP_BUILD_STALE/,rel);}
+        finally {writeFileSync(path,bytes);}
+      }
+      assert.equal(api.verificationFailureMessage('stale control',new Error('SETUP_BUILD_STALE: fixture')).startsWith('PROOF_UNAVAILABLE:'),true);
+      prepare(shared); // exact restored bindings pass again
+      const other=join(temp,'other');mkdirSync(join(other,'scripts'),{recursive:true});
+      const marker=join(other,'ran');writeFileSync(join(other,'scripts/ensure-dist.mjs'),`import{writeFileSync}from'node:fs';writeFileSync(${JSON.stringify(marker)},'own prerequisite');`);
+      prepare(other);assert.equal(readFileSync(marker,'utf8'),'own prerequisite','another root cannot consume the sharing request');
+    } finally {if(previous===undefined)delete process.env[key];else process.env[key]=previous;}
   });
   await check('missing-boundary-has-explicit-refusal',()=>{
     const install=join(temp,'install');mkdirSync(join(install,'packages/main'),{recursive:true});

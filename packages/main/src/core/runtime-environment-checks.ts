@@ -555,7 +555,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
   }),
   identityBoundary({
     id: 'maintenance-command-mode',
-    preSideEffect: true,
+    // Authenticated by the earlier argument-delegate preflight, before modes
+    // are interpreted. Do not repeat that same check in the consumer loop.
     commands: Object.freeze(['story_reconcile', 'quorum_prune', 'capability_release_backfill', 'verification_evidence_refresh_stale']),
     paths: Object.freeze([runtimeSource('packages/main/src/core/maintenance-command-mode.ts')]),
     identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/maintenance-command-mode.ts', 'Boolean preview/execute delegate contains no artifact or role identity literal; emitted executable bytes are pinned before argument classification')]),

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { verificationFailureMessage } from './verification-subprocess-budget.mjs';
+import { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
@@ -70,6 +70,8 @@ async function importDist(root, relPath) {
 
 async function main() {
   const root = findRepoRoot(process.cwd());
+  try { prepareVerification(root, { shareBuild: true }); }
+  catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');

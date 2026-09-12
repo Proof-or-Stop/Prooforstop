@@ -105,6 +105,9 @@ class CanonicalTerminalCloseoutError extends Error {
 }
 
 export {
+  READ_ONLY_COMMANDS,
+  isReadOnlyCommand,
+  shouldWriteActivityLog,
   inferCodexEntrypoint,
   isCodexActivitySource,
   resolveActivitySource,

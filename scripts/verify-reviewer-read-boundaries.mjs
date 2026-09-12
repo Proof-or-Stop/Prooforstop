@@ -153,6 +153,26 @@ try {
     assert.throws(() => createAgentPromptHandlers(ctx).agent_prompt({ role: roles[0], storyId: initSid, readOnly: true, auditExperiment: true, format: 'json' }), /readOnly.*auditExperiment|auditExperiment.*readOnly/);
   });
 
+  const { withReviewInventoryMutationLock } = await import(join(repo, 'packages/main/dist/core/review-inventory-epoch.js'));
+  check('R2_CONCURRENT_INVENTORY_OBSERVATION', () => {
+    const authentic = store.readReviewInventoryEpochs(sid);
+    const before = snapshot(store.storyDirPath(sid));
+    withReviewInventoryMutationLock(store, sid, () => {
+      const during = invoke('review_inventory_status', [`--storyId=${sid}`], { readOnly: true });
+      assert.equal(during.exitCode, 0, during.stderr); assert.match(during.stdout, /OPEN/);
+      const intermediate = structuredClone(authentic); intermediate.epochs.at(-1)._hash = 'injected-intermediate-invalid-signature';
+      store.writeReviewInventoryEpochs(sid, intermediate);
+      try {
+        const refused = invoke('review_inventory_status', [`--storyId=${sid}`], { readOnly: true });
+        assert.notEqual(refused.exitCode, 0); assert.match(refused.stderr, /signature.*mismatch/);
+        assert.deepEqual(store.readReviewInventoryEpochs(sid), intermediate, 'reader must not repair producer evidence');
+      } finally { store.writeReviewInventoryEpochs(sid, authentic); }
+    });
+    const retried = invoke('review_inventory_status', [`--storyId=${sid}`], { readOnly: true });
+    assert.equal(retried.exitCode, 0, retried.stderr); assert.match(retried.stdout, /OPEN/);
+    assert.deepEqual(snapshot(store.storyDirPath(sid)), before);
+  });
+
   check('R2_INVENTORY_STATUS_READ', () => {
     const before = snapshot(store.storyDirPath(sid));
     const status = invoke('review_inventory_status', [`--storyId=${sid}`], { readOnly: true });

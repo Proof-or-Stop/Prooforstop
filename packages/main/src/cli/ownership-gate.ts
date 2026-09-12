@@ -224,8 +224,13 @@ export function resolveEffectiveOwnershipClass(
   }
 
   if (cmd === 'check') {
-    cls = args.apply === true || args.apply === 'true' || args.upgrade === true || args.upgrade === 'true'
-      ? 'mainSharedMutating' : 'readOnly';
+    const flag = (name: 'apply' | 'upgrade', value: unknown): boolean => {
+      if (value === undefined || value === false || value === 'false') return false;
+      if (value === true || value === 'true') return true;
+      throw new Error(`check: ${name} must be a boolean`);
+    };
+    const apply = flag('apply', args.apply), upgrade = flag('upgrade', args.upgrade);
+    cls = apply || upgrade ? 'mainSharedMutating' : 'readOnly';
   }
 
   if (cmd === 'agent_prompt') {

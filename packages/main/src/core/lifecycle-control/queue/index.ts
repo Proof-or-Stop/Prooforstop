@@ -448,7 +448,9 @@ export function projectQueueGovernance(
         ? storyProgressState(workspace.story, workspace.gitCwd, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now(), probeBudget)
         : 'unknown';
       return queueRow({
-        story: workspace.story,
+        // Selection, grouping and displayed phase share the queue mirror. Only
+        // progress evidence comes from the authoritative workspace above.
+        story,
         classification: progress === 'unknown' ? 'unknown-worktree' : progress === 'stale' ? 'stale-worktree' : 'active-worktree',
         reason: progress === 'unknown'
           ? 'authoritative Story state or bounded Git progress evidence is unavailable; no staleness or cleanup conclusion'
