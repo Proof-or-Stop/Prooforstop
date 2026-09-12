@@ -213,6 +213,12 @@ try {
     const snapshotRow = rows2.find((r) => r.id === 'evidence-hash-snapshot');
     assert.equal(snapshotRow?.status, 'warn');
     assert.equal(snapshotRow?.blocking, false);
+    assert.equal(
+      snapshotRow?.detail,
+      'Historical DONE projection: the completed snapshot did not bind storyFilesHash; DONE consumers fall back to strict materialHash',
+    );
+    assert.equal(snapshotRow?.hint, 'the historical snapshot predates storyFilesHash binding; retain strict materialHash interpretation');
+    assert.doesNotMatch(snapshotRow?.detail ?? '', /could not be derived from the current git state|no main|merge-base/);
   });
 
   // C7 checkEvidenceFreshnessForGit with readable HEAD but underivable materialHash (B-83aa:F-001)

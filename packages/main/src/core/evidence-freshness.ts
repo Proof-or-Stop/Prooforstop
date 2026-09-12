@@ -549,6 +549,17 @@ export function classifyEvidenceHashSnapshot(
   snapshot: EvidenceHashSnapshotLike,
   required: readonly EvidenceHashSnapshotDigestKey[] = EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS,
 ): EvidenceHashSnapshotClassification {
+  const requested = required as readonly string[];
+  const unrecognised = requested.filter((key) => !EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS.includes(key as EvidenceHashSnapshotDigestKey));
+  if (requested.length === 0 || unrecognised.length > 0) {
+    return {
+      complete: false,
+      missing: [...EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS],
+      detail: boundEvidenceHashSnapshotDetail(
+        `evidence hash snapshot classification requested with an empty or unrecognised digest scope${unrecognised.length > 0 ? `: ${unrecognised.join(', ')}` : ''}; refusing to certify (fail closed)`,
+      ),
+    };
+  }
   const scope = EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS.filter((key) => required.includes(key));
   const missing = scope.filter((key) => !evidenceDigestPresent(snapshot?.[key]));
   const present = scope.filter((key) => !missing.includes(key));

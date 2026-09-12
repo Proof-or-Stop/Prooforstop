@@ -191,6 +191,21 @@ function fullDigestRepo(storyId: string): { root: string; store: StoryStore } {
   return { root, store };
 }
 
+/** Committed `story/<id>` branch with no integration ref: HEAD/material are
+ * readable while storyFilesHash alone is unavailable. */
+function storyOnlyRepo(storyId: string): { root: string; store: StoryStore } {
+  const root = mkdtempSync(join(tmpdir(), 'pos-hash-classifier-story-only-'));
+  writeConfig(root);
+  mkdirSync(join(root, 'src'), { recursive: true });
+  writeFileSync(join(root, 'src', 'a.ts'), 'export const a = 1;\n', 'utf-8');
+  git(root, ['init', '-b', `story/${storyId}`]);
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'story-only base']);
+  const store = new StoryStore(root);
+  writeTestStory(store, storyId);
+  return { root, store };
+}
+
 /** `story/<id>` branch whose ref points at a sha absent from the object db:
  * branch detection works, `git rev-parse HEAD` yields the sha, `git ls-tree`
  * fails -> materialHash / storyFilesHash cannot be derived. */
@@ -339,6 +354,16 @@ testCase('classifier (adversarial): empty-string, whitespace and null digests cl
   }
 });
 
+testCase('classifier (adversarial): empty or unrecognised digest scope fails closed', () => {
+  for (const required of [[], ['storyFileHash']] as unknown as EvidenceHashSnapshotDigestKey[][]) {
+    const result = classifyEvidenceHashSnapshot(FIXTURE_FULL, required);
+    assert.equal(result.complete, false, `scope ${JSON.stringify(required)} must not certify a snapshot`);
+    assert.deepEqual(result.missing, [...EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS]);
+    assert.match(result.detail, /empty or unrecognised digest scope/);
+    assert.match(result.detail, /fail closed/);
+  }
+});
+
 testCase('classifier: a complete snapshot is complete with an empty missing list and a bounded one-line detail', () => {
   const result = classifyEvidenceHashSnapshot(FIXTURE_FULL);
   assert.equal(result.complete, true);
@@ -418,6 +443,26 @@ try {
     }
   });
 
+  testCase('done-oracle live projection: storyFilesHash alone unavailable remains advisory', () => {
+    const { root, store } = storyOnlyRepo(STORY_ID);
+    try {
+      const snapshot = captureEvidenceHashSnapshot({ gitCwd: root, metadataRoot: root, ref: 'HEAD' });
+      const classification = classifyEvidenceHashSnapshot(snapshot);
+      assert.deepEqual(classification.missing, ['storyFilesHash'], classification.detail);
+      const rows = buildDoneChecklist(STORY_ID, store, root, { auditWriter: null, gitCwd: root });
+      const row = rows.find((candidate) => candidate.id === 'evidence-hash-snapshot');
+      assert.ok(row, 'storyFilesHash-only absence must be disclosed');
+      assert.equal(row.status, 'warn');
+      assert.equal(row.blocking, false);
+      assert.match(row.detail ?? '', /storyFilesHash/);
+      assert.doesNotMatch(row.detail ?? '', /headHash|materialHash/);
+      assert.doesNotMatch(row.detail ?? '', /Historical DONE projection:/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+      resetConfigCache();
+    }
+  });
+
   // ── handlers/phase-gates.ts runDoneOracleGate — DISCLOSED ─────────────────
   testCase('phase-gates (DISCLOSED): runDoneOracleGate on the unborn repo throws with the classifier line made explicit', () => {
     let thrown: string | null = null;
@@ -478,6 +523,15 @@ try {
           assert.ok(r.reason.includes('(fail closed)'), r.reason);
           assert.ok(r.reason.includes(unbornClassification.detail), `${r.code} reason must carry the classifier detail: ${r.reason}`);
         }
+        const doneBinding = report.readiness.find((r) => r.id === 'done.evidence-hash-snapshot');
+        assert.ok(doneBinding, 'DONE readiness must project the evidence-hash-snapshot oracle row');
+        assert.equal(doneBinding.code, 'evidence_hash_snapshot_partial');
+        assert.equal(doneBinding.category, 'missing');
+        assert.ok(doneBinding.nextCommand?.includes('current git HEAD / material tree must be readable'), doneBinding.nextCommand);
+        assert.ok(
+          report.next.some((action) => action.kind === 'command' && action.command === doneBinding.nextCommand),
+          'the projected repair guidance must reach the DONE next-action list',
+        );
       } else {
         for (const r of [head, material]) {
           assert.equal(r.blocking, false, `${target}: ${r.code} must stay advisory`);
@@ -578,6 +632,22 @@ try {
       assert.deepEqual(withSupplied, withoutSupplied, 'row sets must be identical with and without the supplied snapshot');
       assert.equal(renderDoneChecklist(STORY_ID, withSupplied), renderDoneChecklist(STORY_ID, withoutSupplied), 'rendered DONE checklist must be byte-identical');
       assert.equal(/Evidence hash snapshot/.test(renderDoneChecklist(STORY_ID, withSupplied)), false);
+      const originalStory = store.readStory(STORY_ID);
+      store.writeStory(STORY_ID, { ...originalStory, phase: 'DONE', endedAt: NOW });
+      const historicalRows = buildDoneChecklist(STORY_ID, store, root, {
+        auditWriter: null,
+        gitCwd: root,
+        evidenceHashSnapshot: captured,
+        completedSnapshot: { materialHash: captured.materialHash!, storyFilesHash: null },
+      });
+      const historicalRow = historicalRows.find((row) => row.id === 'evidence-hash-snapshot');
+      assert.ok(historicalRow, 'legacy historical storyFilesHash absence must be disclosed');
+      assert.equal(historicalRow.status, 'warn');
+      assert.equal(historicalRow.blocking, false);
+      assert.equal(historicalRow.detail, 'Historical DONE projection: the completed snapshot did not bind storyFilesHash; DONE consumers fall back to strict materialHash');
+      assert.equal(historicalRow.hint, 'the historical snapshot predates storyFilesHash binding; retain strict materialHash interpretation');
+      assert.doesNotMatch(historicalRow.detail ?? '', /could not be derived from the current git state|no main|merge-base/);
+      store.writeStory(STORY_ID, originalStory);
       for (const target of ['DONE', 'REVIEW', 'TEST'] as LifecycleReadinessTarget[]) {
         const report = buildStoryReadinessReport({ storyId: STORY_ID, target, store, root, gitCwd: root });
         assert.equal(report.readiness.some((r) => /_hash_unavailable$/.test(r.code)), false, `${target}: no *_hash_unavailable row on a full-digest repo`);

@@ -343,6 +343,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   const currentBindingStoryFilesHash = completedSnapshot
     ? completedSnapshot.storyFilesHash ?? undefined
     : currentBinding.storyFilesHash;
+  const historicalStoryFilesHashAbsent = Boolean(completedSnapshot) && completedSnapshot?.storyFilesHash == null;
 
   // 0. B-83aa CHK-001: classify the current binding ONCE. captureEvidenceHashSnapshot
   //    never throws — a digest it cannot derive is simply omitted — so an unborn
@@ -363,10 +364,17 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     // attempt. Current git unavailability is still disclosed, but it cannot
     // reopen a Story whose original DONE snapshot remains the projection basis.
     const historicalLiveObservation = Boolean(completedSnapshot && admissionDigestUnavailable);
+    const liveStoryFilesOnly = !completedSnapshot
+      && bindingClassification.missing.length === 1
+      && bindingClassification.missing[0] === 'storyFilesHash';
     const bindingBlocking = !completedSnapshot && admissionDigestUnavailable;
-    const bindingDetail = historicalLiveObservation
+    const bindingDetail = historicalStoryFilesHashAbsent && !historicalLiveObservation
+      ? 'Historical DONE projection: the completed snapshot did not bind storyFilesHash; DONE consumers fall back to strict materialHash'
+      : historicalLiveObservation
       ? `Historical DONE projection: current live git state is unavailable and does not reopen completed history; ${bindingClassification.detail}`
-      : bindingClassification.detail;
+      : liveStoryFilesOnly
+        ? 'evidence hash snapshot is partial: storyFilesHash unavailable; the other required digests are present'
+        : bindingClassification.detail;
     rows.push(doneCheckRow({
       id: 'evidence-hash-snapshot',
       status: bindingBlocking ? 'fail' : 'warn',
@@ -376,6 +384,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         ? 'the current git HEAD / material tree must be readable from the story worktree (fail closed); repair the git state (unborn HEAD, unreadable ref or tree) and rerun'
         : historicalLiveObservation
           ? 'this is a read-only historical projection; repair the live git state before any new admission attempt'
+          : historicalStoryFilesHashAbsent
+            ? 'the historical snapshot predates storyFilesHash binding; retain strict materialHash interpretation'
           : 'storyFilesHash is unavailable (no main / origin/main merge-base); DONE consumers fall back to strict materialHash',
       source: 'captureEvidenceHashSnapshot',
       blocking: bindingBlocking,

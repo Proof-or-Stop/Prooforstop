@@ -582,6 +582,8 @@ function doneRowNextCommand(storyId: string, row: DoneCheckRow): string | undefi
     case 'done-required-validation':
     case 'branch-synced-main':
       return row.blocking ? donePrepareCommand(storyId) : undefined;
+    case 'evidence-hash-snapshot':
+      return row.blocking ? row.hint : undefined;
     case 'bugs-fixed':
       return row.blocking ? `proof-or-stop bug_list '{"storyId":"${storyId}"}'` : undefined;
     case 'git-working-tree':
@@ -623,6 +625,14 @@ function classifyDoneRow(storyId: string, row: DoneCheckRow): Pick<StoryReadines
       return { source: 'validate', owner: 'host', category: row.status === 'pass' ? 'advisory' : 'missing', code: row.status === 'pass' ? 'verification_intent_coverage_passed' : 'missing_verification_coverage', nextCommand: next };
     case 'evidence-freshness':
       return { source: 'validate', owner: 'host', category: row.status === 'pass' ? 'advisory' : 'stale', code: row.status === 'pass' ? 'verification_evidence_fresh' : 'stale_verification_evidence', nextCommand: next };
+    case 'evidence-hash-snapshot':
+      return {
+        source: 'storyMachine',
+        owner: 'host',
+        category: row.status === 'pass' ? 'advisory' : row.blocking ? 'missing' : 'advisory',
+        code: row.blocking ? 'evidence_hash_snapshot_partial' : 'evidence_hash_snapshot_advisory',
+        nextCommand: next,
+      };
     case 'done-required-validation':
       if (row.status === 'pass' && !row.blocking) return { source: 'validate', owner: 'host', category: 'advisory', code: 'done_required_validation_passed', nextCommand: next };
       if (/not required|no done|required/.test(lowerDetail) && !row.blocking) return { source: 'validate', owner: 'host', category: 'advisory', code: 'done_required_validation_not_required', nextCommand: next };
