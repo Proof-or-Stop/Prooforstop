@@ -1,6 +1,6 @@
 import {evaluatePersistedReviewToTestIndexTransition} from './review-test-index-transition.js';
 export {evaluatePersistedReviewToTestIndexTransition} from './review-test-index-transition.js';
-import { isCurrentVerifiedEvidenceRefreshArtifact } from './review-evidence-refresh.js';
+import { isCurrentVerifiedEvidenceRefreshArtifact, createReviewRefreshReadCache, type ReviewRefreshReadCache } from './review-evidence-refresh.js';
 import { readReviewPromptBody } from './prompt-body-store.js';
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
@@ -1261,6 +1261,7 @@ export function evaluateReviewRunMetadataRetention(
   run: ReviewRun,
   projectRoot: string,
   scopeContext: CurrentScopeContext | null,
+  refreshCache:ReviewRefreshReadCache = createReviewRefreshReadCache(),
 ): { ok: boolean; reasons: string[] } {
   if (!run.scopeBinding?.compositeScopeDigest && !scopeContext?.compositeScopeDigest) {
     return { ok: true, reasons: [] };
@@ -1297,7 +1298,7 @@ export function evaluateReviewRunMetadataRetention(
     : null;
   const effectiveMetadataPaths = metadataPaths.filter(
     (path) => (path !== 'index.json' || !indexTransition?.ok)
-      && !(path.startsWith('causal-evidence/') && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId:story.storyId,artifactPath:path,isProtectedArtifact:closeoutArtifactPolicyFor})),
+      && !((path === 'checklist.json' || path.startsWith('causal-evidence/')) && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId:story.storyId,artifactPath:path,isProtectedArtifact:closeoutArtifactPolicyFor,reviewedHeadHash:run.headHash,snapshotHead:evaluationHead,cache:refreshCache})),
   );
   const changedArtifacts = effectiveMetadataPaths.map((artifactPath) => {
     const classification = classifyCurrentCloseoutArtifactForReviewRetention(
@@ -1311,7 +1312,6 @@ export function evaluateReviewRunMetadataRetention(
       path: artifactPath,
       writer: classification.writer,
       valid: classification.retainsReview,
-      strictEvidenceRefresh: classification.strictEvidenceRefresh,
     };
   });
   const finalHead = currentGitHead(projectRoot);
@@ -1450,6 +1450,7 @@ function validateEvidenceRunBinding(
   promptEnvelopes: readonly PromptEnvelope[],
   advisories?: ReviewRunIssue[],
   verifyPromptEnvelope: typeof verifyReviewRunPromptEnvelope = verifyReviewRunPromptEnvelope,
+  refreshCache?:ReviewRefreshReadCache,
 ): ReviewRunIssue | null {
   if (!story.currentReviewRound) return null;
   if (evidence.reviewRound !== story.currentReviewRound) {
@@ -1684,7 +1685,7 @@ function validateEvidenceRunBinding(
       };
     }
   }
-  const retention = evaluateReviewRunMetadataRetention(store, story, run, signedProjectRoot, effectiveScopeContext);
+  const retention = evaluateReviewRunMetadataRetention(store, story, run, signedProjectRoot, effectiveScopeContext, refreshCache);
   if (!retention.ok) {
     return {
       code: 'stale_run_hash',
@@ -1811,6 +1812,7 @@ export function collectReviewerEvidenceState(
   projectRoot: string,
   options: ReviewerEvidenceCollectionOptions = {},
 ): ReviewerEvidenceState {
+  const refreshCache=createReviewRefreshReadCache();
   const story = store.readStory(storyId);
   const currentRound = story.currentReviewRound;
   const runs = store.readReviewRuns(storyId).runs;
@@ -1902,6 +1904,7 @@ export function collectReviewerEvidenceState(
         promptEnvelopes,
         advisories,
         verifyPromptEnvelope,
+        refreshCache,
       );
     if (issue) {
       rawInvalid.push(issue);

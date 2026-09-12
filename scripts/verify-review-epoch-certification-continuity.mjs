@@ -10,9 +10,9 @@ import {getManagedHostRunStatus, managedHostRunReceipt, managedHostRunDirectory}
 import {collectReviewerEvidenceState} from '../packages/main/dist/core/review-run.js';
 import {verifyManagedReviewLiveBinding, isCurrentManagedInventorySubject, isSealedManagedPromptDigestCurrent} from '../packages/main/dist/core/managed-review-evidence.js';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from "../packages/main/dist/core/store.js";
 import { resetConfigCache } from "../packages/main/dist/core/config.js";
@@ -22,13 +22,20 @@ import { readOwnerLease, releaseOwnerLease } from "../packages/main/dist/core/st
 import { adapterSessionEnv, adapterSessionId } from "../packages/main/dist/tasks/adapter-session-env.js";
 import {isVerifiedReviewMaintenanceCommit} from '../packages/main/dist/core/review-maintenance-lineage.js';
 import {evaluatePersistedReviewToTestIndexTransition} from '../packages/main/dist/core/review-run.js';
-import {classifyCurrentCloseoutArtifactForReviewRetention, isCanonicalCloseoutEvidenceWrite, assertCanonicalCloseoutWrite, computeCloseoutWriteReceiptIntegrity} from '../packages/main/dist/core/closeout-trust.js';
+import {closeoutArtifactPolicyFor, evaluateMetadataOnlyReviewRetention, classifyCurrentCloseoutArtifactForReviewRetention, isCanonicalCloseoutEvidenceWrite, assertCanonicalCloseoutWrite, computeCloseoutWriteReceiptIntegrity} from '../packages/main/dist/core/closeout-trust.js';
 assert.equal(isCanonicalCloseoutEvidenceWrite('checklist.json','verification_evidence_add'),false);
 assert.throws(()=>assertCanonicalCloseoutWrite('checklist.json','verification_evidence_add'),/non-canonical writer/);
-import {isOwnerLeaseHeartbeatOnly} from '../packages/main/dist/core/review-evidence-refresh.js';
+import {isOwnerLeaseHeartbeatOnly, createReviewRefreshReadCache, reviewRefreshReadCacheStats, isCurrentVerifiedEvidenceRefreshArtifact} from '../packages/main/dist/core/review-evidence-refresh.js';
 const leaseControl={sessionId:'fixture-owner',pid:1,heartbeatAt:'2026-01-01T00:00:00.000Z'};
 assert(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,pid:2,heartbeatAt:'2026-01-01T00:00:01.000Z'}));
 assert.equal(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,sessionId:'foreign-owner'}),false);
+assert.equal(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,storyId:'foreign-story'}),false);
+assert.equal(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,futureField:'unreviewed'}),false);
+assert.equal(evaluateMetadataOnlyReviewRetention({materialUnchanged:true,storyFilesUnchanged:true,stableEvaluationHead:true,storedCompositeScopeDigest:'scope',currentCompositeScopeDigest:'scope',storedReviewRound:'round',currentReviewRound:'round',changedArtifacts:[{path:'checklist.json',writer:'verification_evidence_add',valid:true,strictEvidenceRefresh:true}]}).ok,false,'caller booleans cannot grant non-canonical receipt authority');
+import {executeCausalEvidence,preflightCausalEvidence,DEFAULT_CAUSAL_SELECTOR_POLICY} from '../packages/main/dist/core/causal-evidence.js';
+import {currentMaterialHash,currentStoryFilesHash} from '../packages/main/dist/core/evidence-freshness.js';
+import {PROOF_OR_STOP_CLI_VERSION} from '../packages/main/dist/core/proof-or-stop-brand.js';
+const receiptCorpusSize=200;
 const digest='sha256:'+'a'.repeat(64);
 assert(isSealedManagedPromptDigestCurrent(digest,digest,digest));
 assert.equal(isSealedManagedPromptDigestCurrent(undefined,digest,digest),false,'missing launch digest seal must never compare caller values to themselves');
@@ -53,6 +60,18 @@ function git(root, args) {
 function cli(root, command, payload, env = {}) {
     const actor = env.PROOF_OR_STOP_AGENT ?? 'main';
     const task = env.PROOF_OR_STOP_SESSION_ID ?? 'review-inventory-owner';
+    // Fixture child calls release their lease for role handoffs. Restore only
+    // this same logical session's genuine committed lease before its next call,
+    // so continuity tests exercise heartbeat updates rather than new owners.
+    assert(isolatedFixtureRoots.has(root));
+    const ownerPath=new StoryStore(root).storyFilePath(storyId,'owner-lease.json');
+    const ownerGitPath=`.proof-or-stop/story/actives/${storyId}/owner-lease.json`;
+    if(!existsSync(ownerPath) && git(root,['ls-tree','--name-only','HEAD','--',ownerGitPath])) {
+      const bytes=execFileSync('git',['show','HEAD:'+ownerGitPath],{cwd:root,encoding:'utf8'});
+      const previous=JSON.parse(bytes);
+      if(previous.sessionId===adapterSessionId(root.split('/.worktrees/')[0],task,actor)) writeFileSync(ownerPath,bytes);
+    }
+
     try {
         return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
             cwd: root,
@@ -152,11 +171,49 @@ fixture.store.writeChecklist(storyId,pinnedChecklist);
 if(pinnedOwnerBytes!==null) {writeFileSync(pinnedOwnerPath,pinnedOwnerBytes);git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/owner-lease.json`]);}
 git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/checklist.json`]);
 git(fixture.root,['commit','-m','test: preserve the actual immutable execution pin']);
+const smallPinnedHead=git(fixture.root,['rev-parse','HEAD']);
+// Populate a realistic signed receipt corpus through actual bounded Node
+// executions. These receipts are not attached to any Story acceptance intent.
+const corpusIndexPath=resolve(fixture.root,git(fixture.root,['rev-parse','--git-path','index']));
+const corpusIndexBytes=readFileSync(corpusIndexPath);
+const corpusHead=git(fixture.root,['rev-parse','HEAD']);
+const corpusMaterial=currentMaterialHash(fixture.root,'HEAD',fixture.root);
+const corpusStoryFiles=currentStoryFilesHash(fixture.root,'HEAD',fixture.root);
+for(let ordinal=0;ordinal<receiptCorpusSize;ordinal++) {
+ const marker='RECEIPT_CORPUS_'+ordinal;
+ const command={executable:process.execPath,args:['-e',`process.stdout.write(${JSON.stringify(marker)})`]};
+ const identity={storyId,cwd:fixture.root,command,bootstrap:null,inputs:{purpose:'bounded receipt corpus',ordinal},storyFilesHash:corpusStoryFiles,effectiveEnvironment:{},runtimeVersion:process.version,toolVersion:PROOF_OR_STOP_CLI_VERSION,selectorPolicy:DEFAULT_CAUSAL_SELECTOR_POLICY};
+ const preflight=preflightCausalEvidence({
+  cli:{available:true,path:process.execPath},worktree:{expected:fixture.root,actual:fixture.root},
+  gitIndex:{readable:true,path:corpusIndexPath,expected:corpusHead,actual:corpusHead,contentDigest:createHash('sha256').update(corpusIndexBytes).digest('hex')},
+  gitMaterial:{available:true,headHash:corpusHead,materialHash:corpusMaterial,storyFilesHash:corpusStoryFiles},
+  writerLease:{available:true,valid:Boolean(readOwnerLease(fixture.store.storyDirPath(storyId)))},
+  providerCapability:{required:['allowlisted-command','bounded-output'],available:['allowlisted-command','bounded-output']},
+  resources:{required:{timeoutMs:5000},available:{timeoutMs:5000}},
+  evidenceTarget:{writable:true,path:fixture.store.storyDirPath(storyId)},sideChannel:{available:true,maxOutputChars:12000,maxProgressEvents:10}
+ },undefined,identity);
+ const result=await executeCausalEvidence({identity,selector:marker,preflight,receiptStore:fixture.store,
+  revalidateBeforeRun:()=>readFileSync(corpusIndexPath).equals(corpusIndexBytes),
+  run:async()=>{const started=performance.now();const output=execFileSync(command.executable,command.args,{cwd:fixture.root,encoding:'utf8',timeout:5000});return {code:0,output,durationMs:performance.now()-started,timeoutMs:5000};}});
+ assert.equal(result.disposition,'executed');assert.equal(result.verdict.result,'pass');
+}
+git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/causal-evidence`]);
+git(fixture.root,['commit','-m','test: populate a bounded receipt scale case']);
 cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
 {
  const refreshHead=git(fixture.root,['rev-parse','HEAD']);
  assert(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:refreshHead,reviewedHeadHash:git(fixture.root,['rev-parse',refreshHead+'^'])}),'genuine durable output publication retains evidence-only lineage');
  const refreshPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r',refreshHead]).split('\n').filter(Boolean);
+ const cache=createReviewRefreshReadCache();
+ const artifactNames=refreshPaths.map(path=>path.slice(`.proof-or-stop/story/actives/${storyId}/`.length)).filter(path=>path==='checklist.json'||path.startsWith('causal-evidence/'));
+ const cacheArgs={gitCwd:fixture.root,metadataRoot:fixture.root,storyId,reviewedHeadHash:git(fixture.root,['rev-parse',refreshHead+'^']),snapshotHead:refreshHead,cache,isProtectedArtifact:closeoutArtifactPolicyFor};
+ for(const artifactPath of artifactNames) assert(isCurrentVerifiedEvidenceRefreshArtifact({...cacheArgs,artifactPath}));
+ const firstStats=reviewRefreshReadCacheStats(cache);
+ assert.equal(firstStats.proofEvaluations,1,'all current artifacts share one complete commit proof');
+ assert(firstStats.gitCommands<80,JSON.stringify(firstStats));
+ for(let repeat=0;repeat<10;repeat++) for(const artifactPath of artifactNames) assert(isCurrentVerifiedEvidenceRefreshArtifact({...cacheArgs,artifactPath}));
+ assert.deepEqual(reviewRefreshReadCacheStats(cache),firstStats,'repeated artifacts reuse immutable reads without repeated subprocesses');
+ console.log('RECEIPT_CORPUS_CACHE_BOUND',JSON.stringify({receiptCorpusSize,...firstStats}));
  const outputPath=refreshPaths.find(path=>path.startsWith(`.proof-or-stop/story/actives/${storyId}/`+'causal-evidence/outputs/'));
  assert(outputPath,'genuine long-output evidence refresh must exercise durable output verification');
  for(const mode of ['tampered-output','unreferenced-output']) {
@@ -175,6 +232,12 @@ cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturat
  }
  git(fixture.root,['reset','--hard',refreshHead]);
 }
+// The lifecycle counterexamples use their original small witness. Repeating
+// the 200-receipt scale corpus for every unrelated mutant adds no new proof.
+assert(isolatedFixtureRoots.has(fixture.root));
+git(fixture.root,['reset','--hard',smallPinnedHead]);
+cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
+
 
 cli(fixture.root,'candidate_spec_route',{storyId,hosts:false,persist:true},env('main','saturation-owner'));
 cli(fixture.root,'review_inventory_begin',{storyId},env('main','saturation-owner'));
@@ -225,6 +288,7 @@ try {
   const retryRun=cli(fixture.root,'review_run_start',{storyId,agent:critic,...purpose},ce);
   cr=retryRun.match(/Review run (\S+) started/)?.[1];assert(cr,retryRun);
  }while(Date.now()<admissionDeadline);
+ if(status.run.terminal?.reason==='concurrency_cap_exceeded') throw new Error('MANAGED_FIXTURE_ADMISSION_RETRY_REQUIRED: shared capacity remained unavailable; rerun this required proof when capacity is free. No PASS or skip was issued.');
  assert.equal(status.run.state,'completed','MANAGED_FIXTURE_TERMINAL_FAILURE: '+JSON.stringify(status));
  managedRunId=launched.run.runId;
  const receipt=managedHostRunReceipt(fixture.root,launched.run.runId);
@@ -302,7 +366,7 @@ git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch m
 assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,'finalization cannot remove a prior signed review record');
 git(fixture.root,['reset','--hard',publishedHead]);
 
-for(const erased of ['prior-epoch','prior-receipt','ledger-record','ledger-receipt']) {
+for(const erased of ['prior-epoch','prior-receipt','ledger-record','ledger-receipt','missing-required-ledger-receipts']) {
  git(fixture.root,['reset','--hard',publishedHead+'^']);
  const historicalEpoch={...structuredClone(savedEpochs.epochs.at(-1)),epochId:storyId+':RI-history'};
  const historicalReceipt={...structuredClone(savedEpochs.receipts.at(-1)),receiptId:storyId+':RCP-history',epochId:historicalEpoch.epochId};
@@ -324,6 +388,7 @@ for(const erased of ['prior-epoch','prior-receipt','ledger-record','ledger-recei
  fixture.store.writeReviewInventoryEpochs(storyId,next);
  if(erased==='ledger-record') ledger.records=[];
  if(erased==='ledger-receipt') ledger.receipts=[];
+ if(erased==='missing-required-ledger-receipts') delete ledger.receipts;
  writeFileSync(join(fixture.root,ledgerPath),JSON.stringify(ledger));
  git(fixture.root,['add','--',storyPrefix]);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
  assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,erased);
@@ -350,6 +415,13 @@ fixture.store.writeChecklist(storyId,duplicateAfter);
 git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
 assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,'duplicate-reference FAIL upgrade is refused');
 assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,false,'duplicate-reference result change invalidates live binding');
+git(fixture.root,['reset','--hard',publishedHead]);
+
+const unreviewedTitle=fixture.store.readChecklist(storyId);unreviewedTitle.items[0].title='Unreviewed requirement rewrite';
+fixture.store.writeChecklist(storyId,unreviewedTitle);
+git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m','test: introduce an unreviewed title before a genuine refresh']);
+cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
+assert.equal(classifyCurrentCloseoutArtifactForReviewRetention(fixture.store,storyId,'checklist.json',fixture.root,fixture.root,{reviewedHeadHash:expected.headHash}).retainsReview,false,'parent-relative refresh cannot conceal a change since the original reviewed snapshot');
 git(fixture.root,['reset','--hard',publishedHead]);
 for(const mode of modes) {
 // Each counterexample starts from the same genuine signed publication. This
@@ -402,7 +474,7 @@ if(mode==='clean') {
   for(const item of fixture.store.readChecklist(storyId).items) for(const evidence of item.verificationEvidence??[]) console.log('REFRESH_AUTHORITY',hasMechanicalExecutionAuthority(fixture.store,storyId,item,evidence));
  }
  assert(refreshed.valid,'authenticated evidence-only refresh preserves review lineage');
- assert.equal(classifyCurrentCloseoutArtifactForReviewRetention(fixture.store,storyId,'checklist.json',fixture.root,fixture.root).strictEvidenceRefresh,true,'strict refresh classifier directly retains byte-bound checklist');
+ assert.equal(classifyCurrentCloseoutArtifactForReviewRetention(fixture.store,storyId,'checklist.json',fixture.root,fixture.root,{reviewedHeadHash:expected.headHash}).retainsReview,true,'strict refresh classifier directly retains byte-bound checklist');
 
 
 

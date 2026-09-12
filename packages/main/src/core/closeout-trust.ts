@@ -1,4 +1,4 @@
-import { isCurrentVerifiedEvidenceRefreshArtifact } from './review-evidence-refresh.js';
+import { isCurrentVerifiedEvidenceRefreshArtifact, type ReviewRefreshReadCache } from './review-evidence-refresh.js';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
@@ -396,7 +396,7 @@ export interface MetadataOnlyReviewRetentionInput {
   stableEvaluationHead?: boolean;
   storedCompositeScopeDigest?: string;
   currentCompositeScopeDigest?: string;
-  changedArtifacts: Array<{ path: string; writer: string; valid: boolean; strictEvidenceRefresh?: boolean }>;
+  changedArtifacts: Array<{ path: string; writer: string; valid: boolean }>;
   storedReviewRound: string;
   currentReviewRound: string;
 }
@@ -413,7 +413,7 @@ export function evaluateMetadataOnlyReviewRetention(input: MetadataOnlyReviewRet
     const policy = closeoutArtifactPolicyFor(artifact.path);
     if (!policy) reasons.push(`untrusted closeout artifact path: ${artifact.path}`);
     else if (policy.artifactClass !== 'closeout-evidence') reasons.push(`scope-defining artifact changed: ${artifact.path}`);
-    else if (!policy.canonicalWriters.includes(artifact.writer) && !(artifact.path === 'checklist.json' && artifact.writer === 'verification_evidence_add' && artifact.valid && artifact.strictEvidenceRefresh === true)) reasons.push(`non-canonical writer for ${artifact.path}: ${artifact.writer}`);
+    else if (!policy.canonicalWriters.includes(artifact.writer)) reasons.push(`non-canonical writer for ${artifact.path}: ${artifact.writer}`);
     if (!artifact.valid) reasons.push(`invalid closeout artifact: ${artifact.path}`);
   }
   return { ok: reasons.length === 0, reasons: [...new Set(reasons)] };
@@ -618,7 +618,6 @@ function validateCloseoutArtifactShape(
 }
 
 export interface CloseoutReviewRetentionResult {
-  strictEvidenceRefresh?: boolean;
   retainsReview: boolean;
   writer: string;
   reason?: string;
@@ -639,6 +638,7 @@ export function classifyCurrentCloseoutArtifactForReviewRetention(
   artifactPath: string,
   projectRoot: string,
   metadataRoot: string,
+  refreshContext?: {reviewedHeadHash:string;snapshotHead?:string;cache?:ReviewRefreshReadCache},
 ): CloseoutReviewRetentionResult {
   const policy = closeoutArtifactPolicyFor(artifactPath);
   if (!policy) return { retainsReview: false, writer: '', reason: `untrusted closeout artifact path: ${artifactPath}` };
@@ -652,8 +652,8 @@ export function classifyCurrentCloseoutArtifactForReviewRetention(
   }
   try {
     validateCloseoutArtifactShape(store, storyId, artifactPath, absolute);
-    if (artifactPath === 'checklist.json' && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath,isProtectedArtifact:closeoutArtifactPolicyFor})) {
-      return {retainsReview:true,writer:'verification_evidence_add',strictEvidenceRefresh:true};
+    if (artifactPath === 'checklist.json' && refreshContext && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath,reviewedHeadHash:refreshContext.reviewedHeadHash,snapshotHead:refreshContext.snapshotHead,cache:refreshContext.cache,isProtectedArtifact:closeoutArtifactPolicyFor})) {
+      return {retainsReview:true,writer:'verification_evidence_add'};
     }
     const receipt = latestCausallyValidCloseoutReceipt(
       storyDir,

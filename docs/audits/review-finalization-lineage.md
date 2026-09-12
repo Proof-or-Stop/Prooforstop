@@ -243,8 +243,8 @@ retain their Story subject. The mixed forged-telemetry regression now refuses.
 
 Audit 322cc98c-bb07-4333-840f-bd04281d252b produced seven findings. Generic
 checklist receipt builders now reject verification_evidence_add structurally;
-only the strict byte-bound classifier sets the explicit strictEvidenceRefresh
-fact consumed by scoped retention. Direct positive and negative assertions
+only the strict byte-bound classifier can retain the artifact. The fifth-round
+follow-up below removes the intermediate caller-provided boolean entirely. Direct positive and negative assertions
 exercise both boundaries. Baseline closeout-trust writer-oracle failure is routed
 through docs/story/drafts/closeout-trust-validate-writer-oracle (official CLI,
 main commit 862001802d). gap_log failed invalid_binding_shape; no provenance
@@ -259,7 +259,7 @@ positive preservation control. Historical markers in this disposable fixture
 are byte-preservation controls, not claimed independent reviewer authority.
 
 The owner check binds session identity, identity source, host and workspace,
-allowing the same owner to refresh or reacquire its lease. The fixture releases
+allowing only heartbeat and PID updates while preserving every other field. The fixture releases
 its own lease between child calls and now preserves the actual committed prior
 lease for comparison. Forged test-run records are refused and process metrics
 must bind the Story. Typed telemetry readers are handlers/story-query.ts and
@@ -335,3 +335,47 @@ export function isCertificationRunningOnlyAdvance(before: CertificationWindowDat
   });
 }
 ```
+
+
+## Fifth audit follow-up
+
+Audit 945ac0f1-9b7f-48e6-b335-436ad2df342c rejected the parent-only projection
+and repeated-scan implementation. Strict refresh now compares both unchanged
+requirements and the complete covered-result multiset with the original signed
+review HEAD, as well as authenticating the parent and replacement executions.
+A genuine refresh following an unreviewed title change is explicitly refused.
+The current-artifact reader no longer obtains a dead parent hash argument.
+
+The scoped reader recomputes strict proof before excluding checklist/causal
+projections from ordinary closeout evaluation. The ordinary pure evaluator has
+no strictEvidenceRefresh boolean or special direct-writer exception; a manually
+constructed boolean input is refused. Generic receipt authority remains narrow.
+
+A collector creates one opaque read-cache token. Only the refresh module can
+populate its private verdict maps. Commit verdicts bind immutable commit and
+reviewed hashes, while current artifact bytes are checked on every read. Each
+commit builds its output-digest receipt index once. The regression populates
+200 signed history receipts with actual bounded sequential Node commands, then
+checks a one-proof/subprocess-count bound across repeated artifact reads. Those
+history receipts are attached to no acceptance intent and do not represent
+provider work or independent review. Measured command durations use the clock.
+
+Lease comparison now permits exactly PID/heartbeat updates, rejecting changed
+Story identity and previously absent fields. The disposable CLI wrapper restores
+only its same logical session's genuinely committed lease before the next child,
+rather than recreating its acquisition fields. Required finding-ledger records
+and receipts remain required by LedgerEnvelope; omission is deliberately refused
+and now has a counterexample. Optional convergence humanDecisions remains empty
+when absent.
+
+The canonical suite member now uses isolatedHeavy CPU/process claims. External
+capacity exhaustion yields an explicit admission-retry-required diagnostic;
+required proof is never silently skipped or counted as PASS.
+
+The dedicated 200-receipt case batches immutable Git objects and measured 28
+Git subprocesses with one full commit proof; repeated artifact reads added no
+subprocesses. The earlier per-object implementation used 225 calls in that
+reader case. This count compares the reader only, not whole-Story elapsed time.
+The combined 200-receipt lifecycle matrix previously timed out at 420 seconds;
+the passing regression now restores the original small witness before running
+its lifecycle counterexamples. Full large-Story throughput remains unproven.
