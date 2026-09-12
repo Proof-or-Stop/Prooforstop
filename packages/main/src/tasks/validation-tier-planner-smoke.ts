@@ -2402,7 +2402,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ]),
     {
       paths: ['packages/main/src/core/valid-full-path.ts'],
-      rejectedEntryCount: 4,
+      rejectedEntryCount: 5,
     },
     'malformed independently decoded registry entries must be reported while valid authority survives',
   );
