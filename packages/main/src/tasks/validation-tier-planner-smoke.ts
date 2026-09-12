@@ -2414,11 +2414,50 @@ testCase('the wired resolver widens every validation and gate machinery surface 
 
 testCase('Dynamic Finding L4 gate paths force repository-full even when the impact index marks them fast', () => {
   const gateFact = getProcessFactRegistryEntry('runtime:dynamic_finding_applicability_gate');
+  const expectedConsumers = [
+    'finding_triage',
+    'storyMachine.canPassReview',
+    'getGuardFailureReason',
+    'reviewer_batch',
+    'reviewer_status',
+    'review_convergence',
+    'lifecycle_readiness',
+    'certification_window',
+    'storyMachine.canFinish',
+    'story-aware-validation additive constraints',
+  ];
+  const expectedFloorPaths = [
+    'packages/main/src/core/certification-window.ts',
+    'packages/main/src/core/finding-applicability-projection.ts',
+    'packages/main/src/core/finding-applicability.ts',
+    'packages/main/src/core/guard-utils.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/core/machine.ts',
+    'packages/main/src/core/review-convergence.ts',
+    'packages/main/src/core/reviewer-status.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/handlers/finding-applicability-proof.ts',
+    'packages/main/src/handlers/finding-applicability.ts',
+    'packages/main/src/handlers/finding-deferral-proof.ts',
+    'packages/main/src/handlers/finding-material-reattestation.ts',
+    'packages/main/src/handlers/reviewer-batch.ts',
+    'packages/main/src/handlers/transition-orchestrator.ts',
+  ];
   assert.ok(gateFact, 'Dynamic Finding L4 gate process fact must be registered');
   assert.equal(gateFact.level, 'L4');
   assert.equal(gateFact.kind, 'runtime-behavior');
   assert.ok(gateFact.consumerGate?.trim(), 'Dynamic Finding L4 gate process fact must name its consumer gate');
   assert.equal(gateFact.validationTierFloor, 'repository-full');
+  assert.deepEqual(
+    [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
+    [...expectedConsumers].sort(),
+    'Dynamic Finding lifecycle-consumer authority must remain the explicit reviewed list',
+  );
+  assert.deepEqual(
+    [...gateFact.paths].sort(),
+    [...expectedFloorPaths].sort(),
+    'shrinking or expanding the Dynamic Finding validation floor requires explicit review here',
+  );
   assert.ok(gateFact.paths.length > 0, 'Dynamic Finding L4 gate process fact must declare governed paths');
   const declaredSourceRefs = [...new Set([
     ...(gateFact.producerSourceRefs ?? []),
@@ -2439,9 +2478,9 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
     'every declared Dynamic Finding consumer must have a source mapping',
   );
   assert.deepEqual(
-    Object.keys(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerBindingTokensByConsumer).sort(),
+    Object.keys(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerImplementationTokensByConsumer).sort(),
     [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
-    'every declared Dynamic Finding consumer must have an implementation binding token',
+    'every declared Dynamic Finding consumer must have an implementation-presence token',
   );
   const producerPolicy = PROCESS_FACT_DYNAMIC_FINDING_POLICY as typeof PROCESS_FACT_DYNAMIC_FINDING_POLICY & {
     producerCommands?: readonly string[];
@@ -2471,14 +2510,14 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
   }
   for (const consumer of PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers) {
     const mappedSources = PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer[consumer];
-    const bindingTokens = PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerBindingTokensByConsumer[consumer];
-    assert.ok(bindingTokens.length > 0, `Dynamic Finding consumer must declare at least one binding token: ${consumer}`);
+    const implementationTokens = PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerImplementationTokensByConsumer[consumer];
+    assert.ok(implementationTokens.length > 0, `Dynamic Finding consumer must declare at least one implementation-presence token: ${consumer}`);
     assert.ok(
       mappedSources.some((sourceRef) => {
         const source = readFileSync(join(repositorySourceRoot(), sourceRef), 'utf8');
-        return bindingTokens.some((token) => source.includes(token));
+        return implementationTokens.some((token) => source.includes(token));
       }),
-      `a mapped consumer source must contain a declared implementation binding token: ${consumer}`,
+      `mapped consumer source must retain its implementation-presence token; this does not prove Dynamic Finding consumption: ${consumer}`,
     );
   }
   const policyAuthorityPaths = [...new Set([
@@ -2857,16 +2896,16 @@ testCase('explicit repository-full process-fact paths force full without overmat
     assert.ok(!reasonCodes(result).includes('validation_framework_sensitive_change'), unrelatedPath);
   }
 
-  const baselineFact = getProcessFactRegistryEntry('runtime:repository_default_baseline_gate');
-  const explicitUnflooredL4Path = 'packages/main/src/core/git-baseline.ts';
-  assert.equal(baselineFact?.level, 'L4');
-  assert.equal(baselineFact?.validationTierFloor, undefined);
-  assert.ok(baselineFact?.producerSourceRefs?.includes(explicitUnflooredL4Path));
-  const baselineResult = planForPath(explicitUnflooredL4Path);
-  assert.equal(baselineResult.status, 'plan');
-  if (baselineResult.status === 'plan') {
-    assert.equal(baselineResult.effectiveTier, 'story-fast');
-    assert.ok(!reasonCodes(baselineResult).includes('validation_framework_sensitive_change'));
+  const providerAdmissionFact = getProcessFactRegistryEntry('runtime:machine_provider_admission');
+  const explicitUnflooredL4Path = 'packages/main/src/core/provider-process-admission.ts';
+  assert.equal(providerAdmissionFact?.level, 'L4');
+  assert.equal(providerAdmissionFact?.validationTierFloor, undefined);
+  assert.ok(providerAdmissionFact?.producerSourceRefs?.includes(explicitUnflooredL4Path));
+  const providerAdmissionResult = planForPath(explicitUnflooredL4Path);
+  assert.equal(providerAdmissionResult.status, 'plan');
+  if (providerAdmissionResult.status === 'plan') {
+    assert.equal(providerAdmissionResult.effectiveTier, 'story-fast');
+    assert.ok(!reasonCodes(providerAdmissionResult).includes('validation_framework_sensitive_change'));
   }
 });
 

@@ -282,6 +282,39 @@ Exit status was 0. Literal terminal result:
 Production test seam guard: PASS — no unsafe SMOKE/TEST control reaches a filesystem or process sink.
 ```
 
+## Final authority-boundary hardening
+
+The final independent audit identified three proof-quality gaps without finding
+a runtime bypass. The follow-up repair makes each claim mechanically narrower:
+
+- the smoke pins the complete reviewed list of 10 Dynamic Finding lifecycle
+  consumers as literals, independently of the registry policy object;
+- the same smoke pins all 15 expected `repository-full` floor paths as literals,
+  so coordinated removal from producer/consumer mappings cannot self-verify;
+- consumer tokens are named and asserted only as implementation-presence tokens;
+  they do not claim to prove Dynamic Finding consumption, which is protected by
+  the independent literal consumer and floor-path pins; and
+- the unfloored L4 negative control is now
+  `runtime:machine_provider_admission` at
+  `packages/main/src/core/provider-process-admission.ts`. This fact governs
+  provider capacity admission and does not supply the validation selector's
+  changed-file or baseline input.
+
+After those changes, the complete build and targeted planner smoke exited 0;
+the six named checklist groups passed 25, 13, 18, 28, 20, and 13 cases, the
+cross-cutting acceptance guards passed, and the command ended with:
+
+```text
+validation-tier-planner-smoke: PASS
+```
+
+The source changes invalidated exactly the two reviewed dependency digests that
+cover `process-fact-registry.ts` and `validation-tier-planner-smoke.ts`. After
+rebinding those exact source bytes, the static-edge verifier again reported
+`needsReview: 0`, the process-fact contract ended with
+`Process-fact contract verification passed`, and the production seam guard
+remained PASS.
+
 `npm run test:reviewed-source-bindings` exited 1 in both the synchronized Lab
 candidate and unmodified local main `5fc1e8d4584a74b32e5b3964ee7c3710c7191960`.
 Both runs reported the same seven pre-existing rows and no candidate-only row:

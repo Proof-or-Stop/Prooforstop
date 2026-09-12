@@ -47,8 +47,8 @@ The current registry contract implements exactly one floor value,
 cannot be implied by extending a value list.
 Its four signed producer commands, semantic verifiers, and lifecycle consumers
 map to concrete repository paths in the process-fact registry. Changing any of
-those paths forces `repository-full`; unrelated L4 implementation such as the
-repository-baseline reader remains eligible for ordinary relevance selection.
+those paths forces `repository-full`; unrelated L4 implementation such as
+provider process admission remains eligible for ordinary relevance selection.
 An absent floor mapping leaves the registry loadable; its empty projection makes
 the selector widen with `validation_floor_registry_unavailable`. A present floor
 declaration with malformed or empty paths is instead refused while the registry

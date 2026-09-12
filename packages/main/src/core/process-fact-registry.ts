@@ -476,7 +476,10 @@ export const DYNAMIC_FINDING_CONSUMER_SOURCE_REFS = {
   'story-aware-validation additive constraints': ['packages/main/src/core/story-aware-validation.ts'],
 } as const satisfies Record<typeof DYNAMIC_FINDING_ALLOWED_CONSUMERS[number], readonly string[]>;
 
-export const DYNAMIC_FINDING_CONSUMER_BINDING_TOKENS = {
+// These tokens prove only that each mapped consumer implementation remains present.
+// Independent literal consumer/path pins in validation-tier-planner-smoke protect the
+// Dynamic Finding validation-floor authority boundary against coordinated shrinkage.
+export const DYNAMIC_FINDING_CONSUMER_IMPLEMENTATION_TOKENS = {
   finding_triage: ['finding_triage'],
   'storyMachine.canPassReview': ['canPassReviewGuard'],
   getGuardFailureReason: ['getGuardFailureReason'],
@@ -498,7 +501,7 @@ export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   semanticVerifierSourceRefs: DYNAMIC_FINDING_SEMANTIC_VERIFIER_SOURCE_REFS,
   allowedConsumers: DYNAMIC_FINDING_ALLOWED_CONSUMERS,
   consumerSourceRefsByConsumer: DYNAMIC_FINDING_CONSUMER_SOURCE_REFS,
-  consumerBindingTokensByConsumer: DYNAMIC_FINDING_CONSUMER_BINDING_TOKENS,
+  consumerImplementationTokensByConsumer: DYNAMIC_FINDING_CONSUMER_IMPLEMENTATION_TOKENS,
   gateEvidence: true,
   lifecycleAuthority: 'dynamic-blocker-projection-only',
   rollout: ['observe', 'warn', 'enforce'],
