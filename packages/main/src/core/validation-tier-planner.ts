@@ -39,6 +39,7 @@ import {
 } from './validation-relevance-input.js';
 import type { RoutineValidationSourceKind } from './validation-types.js';
 import { digestCanonicalJson } from './digest.js';
+import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 
 export const VALIDATION_TIER_PLAN_SCHEMA = 'proofOrStop.validation-tier-plan.v1' as const;
 
@@ -240,6 +241,21 @@ const VALIDATION_SENSITIVE_PATH_PATTERNS = [
   'docs/requirements/decisions/*validation*.md',
 ] as const;
 
+/**
+ * L4 runtime facts with lifecycle consumers are validation-sensitive by
+ * definition. Derive their governed paths from the canonical process-fact
+ * registry so a new gate (including Dynamic Finding) cannot be labelled fast
+ * by an impact index merely because this planner's older path list did not know
+ * its file name yet.
+ */
+const REGISTERED_L4_RUNTIME_GATE_PATHS = new Set(
+  PROCESS_FACT_REGISTRY
+    .filter((entry) => entry.level === 'L4' && entry.kind === 'runtime-behavior' && Boolean(entry.consumerGate))
+    .flatMap((entry) => entry.paths)
+    .map(normalizedPath)
+    .filter(Boolean),
+);
+
 const BUILD_GRAPH_PATH_PATTERNS = [
   'package.json',
   '**/package.json',
@@ -263,6 +279,7 @@ function classifySensitiveStoryPaths(paths: readonly string[]): ValidationWideni
     const validationNamedSource = normalized.startsWith('packages/main/src/') && basename.includes('validat');
     if (
       validationNamedSource
+      || REGISTERED_L4_RUNTIME_GATE_PATHS.has(normalized)
       || VALIDATION_SENSITIVE_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
     ) {
       reasons.add('validation_framework_sensitive_change');
