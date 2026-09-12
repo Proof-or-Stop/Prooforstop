@@ -5,7 +5,7 @@ import { dirname, join, resolve } from 'node:path';
 import { assertCanonicalActiveIdentityBoundary } from '../packages/main/dist/core/runtime-environment-checks.js';
 const root = mkdtempSync(join(tmpdir(), 'inventory-consumer-binding-'));
 try {
-  for (const path of ['core/review-inventory-epoch.js', 'core/verification-execution-evidence.js', 'handlers/checklist.js', 'core/artifact-schema.js']) {
+  for (const path of ['core/review-inventory-epoch.js', 'core/verification-execution-evidence.js', 'handlers/checklist.js', 'core/maintenance-command-mode.js', 'core/artifact-schema.js']) {
     const target = join(root, 'dist', path);
     mkdirSync(dirname(target), { recursive: true });
     cpSync(resolve('packages/main/dist', path), target);
@@ -22,5 +22,12 @@ try {
   assert.throws(verify, /consumer rejected/, 'a wrong active protocol remains refused');
   writeFileSync(path, original);
   verify();
+  const helperPath = join(root, 'dist/core/maintenance-command-mode.js');
+  const verifyHelper = () => assertCanonicalActiveIdentityBoundary({ boundaryId: 'maintenance-command-mode', runtimePackageRoot: root, projectRoot: root });
+  const helper = readFileSync(helperPath, 'utf8');
+  verifyHelper();
+  writeFileSync(helperPath, helper + '\nexport const unreviewedDelegate = true;\n');
+  assert.throws(verifyHelper, /maintenance-command-mode.*consumer rejected active identity bytes/, 'preview delegation remains implementation-bound');
+  writeFileSync(helperPath, helper); verifyHelper(); verify();
   console.log('PASS inventory consumer binding: canonical accepted, behavioral change rejected, wrong protocol rejected, exact restoration accepted');
 } finally { rmSync(root, { recursive: true, force: true }); }

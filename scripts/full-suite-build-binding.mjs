@@ -50,6 +50,8 @@ export function writeBuildBinding(projectRoot) {
   return manifest;
 }
 
+// Read-only freshness proof for a child reusing build preparation: recompute
+// source/config and output bytes; the stored manifest alone grants no freshness.
 export function verifyBuildBinding(projectRoot) {
   const manifest = JSON.parse(readFileSync(join(projectRoot, BUILD_MANIFEST), 'utf8'));
   if (manifest.schema !== BUILD_BINDING_SCHEMA || manifest.sourceDigest !== treeDigest(projectRoot, 'src') || manifest.distDigest !== treeDigest(projectRoot, 'dist')) {
@@ -82,6 +84,8 @@ export function writeUtilsBuildBinding(projectRoot) {
   return manifest;
 }
 
+// Utils also binds current main output, so a shared prerequisite must verify
+// both package bindings before starting another proof body.
 export function verifyUtilsBuildBinding(projectRoot) {
   const manifest = JSON.parse(readFileSync(join(projectRoot, BUILD_UTILS_MANIFEST), 'utf8'));
   if (manifest.schema !== UTILS_BUILD_BINDING_SCHEMA || manifest.sourceDigest !== utilsSourceDigest(projectRoot) || manifest.distDigest !== utilsDistDigest(projectRoot)) {

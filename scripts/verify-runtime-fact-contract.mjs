@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
@@ -21,6 +22,7 @@ const requiredFacts = [
 ];
 
 const requiredEvidenceFacts = [
+  'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
   'verification-receipt-authenticity',
@@ -68,9 +70,24 @@ async function importDist(root, relPath) {
 
 async function main() {
   const root = findRepoRoot(process.cwd());
+  try { prepareVerification(root, { shareBuild: true }); }
+  catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')
+    && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),
+  'CLI startup must bind its compiled version to the installed runtime package');
+  try {
+    // Separate setup 180s + body 240s; reserve 30s for fixture IO.
+    execFileSync(process.execPath, ['scripts/verify-cli-runtime-version.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });
+  } catch (error) {
+    fail(verificationFailureMessage('CLI runtime version', error));
+    // Collect the other runtime contract failures in this same run as well.
+  }
+  try {
+    execFileSync(process.execPath, ['scripts/verify-cli-audit-runtime-coverage.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });
+  } catch (error) { fail(verificationFailureMessage('CLI runtime coverage', error)); }
   check(registrySource.includes('validation-invocation-baseline-serialization'), 'Invocation-local baseline serialization must be registered');
   execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30000 });
@@ -264,7 +281,7 @@ async function main() {
   check(commandPolicySource.includes("'storyWriteEffect' in policy && policy.storyWriteEffect !== undefined"), 'Story-write capability registry must derive cross-class writers from declared effects');
   for (const [command, effect] of [
     ['story_create', 'always'],
-    ['story_reconcile', 'always'],
+    ['story_reconcile', 'whenDryRunFalse'],
     ['identity_state_migrate', 'whenConfirm'],
     ['story_discard', 'always'],
     ['story_draft_discard', 'always'],
@@ -275,6 +292,7 @@ async function main() {
     ['gap_log', 'always'],
     ['doctor', 'whenRepair'],
     ['certification_window_status', 'whenRefresh'],
+    ['review_inventory_status', 'whenRefresh'],
     ['reviewer_list', 'whenForceReviewer'],
     ['agent_prompt', 'whenStoryPromptEnvelope'],
     ['evaluate', 'whenEvaluatorPromptEnvelope'],
@@ -296,6 +314,8 @@ async function main() {
     check(ownershipGateSource.includes(`cmd === '${command}'`), `ownership gate missing conditional Story writer ${command}`);
     check(ownershipGateSource.includes(argument), `ownership gate missing ${command} argument ${argument}`);
   }
+  const closureObservation = read(root, 'packages/main/src/core/lifecycle-control/runtime/index.ts');
+  check(closureObservation.includes("reason = 'validation_lock_unknown'") && closureObservation.includes("locks.validationLock === 'unknown') blockingItems.push"), 'Unknown validation lock status must not imply availability');
   check(storyRuntimeAdmissionSource.includes('commandRequiresAuthoritativeRuntime(input.command, input.effectiveOwnership)'), 'Story runtime admission must consume the actual Story-write capability predicate');
   check(!storyRuntimeAdmissionSource.includes("input.effectiveOwnership === 'storyScopedMutating'"), 'Story runtime admission must not enumerate ownership classes');
   check(storyRuntimeAdmissionSource.includes('classifyRuntimeEntrypointAuthority'), 'Story runtime admission must consume the shared runtime authority classifier');

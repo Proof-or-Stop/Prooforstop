@@ -92,8 +92,13 @@ try {
   console.log('LOCAL_BASELINE native scope and diff GREEN');
 
   const controls = [];
+  const candidateCache = new Map();
   function expectRef(label, instance, ref, cwd = instance.work) {
-    assert.equal(resolveRepositoryBaseline(cwd)?.ref, ref, label);
+    const direct = resolveRepositoryBaseline(cwd);
+    const cached = resolveRepositoryBaseline(cwd, 'HEAD', { candidateCache });
+    assert.equal(direct?.ref, ref, label);
+    assert.equal(cached?.ref, direct?.ref, label + ' cached selection');
+    assert.equal(cached?.mergeBase, direct?.mergeBase, label + ' cached ancestry');
     controls.push(label);
   }
   for (const branch of ['master', 'develop']) {
@@ -118,6 +123,18 @@ try {
   expectRef('detached primary', detached, 'refs/remotes/origin/main');
   const ordinary = fixture();
   expectRef('ordinary primary checkout', ordinary, 'refs/remotes/origin/main', ordinary.main);
+  expectRef('linked checkout shares Git directory but keeps its selection policy', ordinary, 'refs/heads/main');
+  const snapshot = resolveRepositoryBaseline(ordinary.work, 'HEAD', { candidateCache });
+  git(ordinary.main, 'update-ref', 'refs/heads/main', ordinary.base);
+  assert.equal(resolveRepositoryBaseline(ordinary.work, 'HEAD', { candidateCache }).commit, snapshot.commit,
+    'one observation keeps the baseline commit it actually observed');
+  assert.equal(resolveRepositoryBaseline(ordinary.work, 'HEAD', { candidateCache: new Map() }).commit, ordinary.base,
+    'a new observation sees changed refs');
+  git(ordinary.work, 'checkout', '--orphan', 'unrelated-head', '-q');
+  git(ordinary.work, 'commit', '--allow-empty', '-qm', 'independent history');
+  assert.equal(resolveRepositoryBaseline(ordinary.work, 'HEAD', { candidateCache }), undefined,
+    'a cached repository candidate cannot supply ancestry to an unrelated HEAD');
+  controls.push('observation snapshot and unrelated HEAD isolation');
   const missing = fixture('develop');
   git(missing.main, 'symbolic-ref', '--delete', 'refs/remotes/origin/HEAD');
   expectRef('missing remote HEAD', missing, 'refs/heads/develop');

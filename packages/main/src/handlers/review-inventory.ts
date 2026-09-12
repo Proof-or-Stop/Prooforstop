@@ -157,7 +157,8 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
   };
 }
 
-function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventoryEpoch): ReviewInventoryEpoch {
+/** Observation only: an invalidated projection has no valid signature and is never stored. */
+function projectInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventoryEpoch): ReviewInventoryEpoch {
   const current = capture(ctx, epoch.storyId);
   const currentScope = captureReviewInventoryScope(ctx, epoch.storyId);
   const materialChanged = current.materialHash !== epoch.cutoff.materialHash
@@ -170,8 +171,9 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
     || (currentScope.corpusDigest ?? '') !== (epoch.corpusDigest ?? '');
   if (!materialChanged && !scopeChanged && !candidateChanged) return epoch;
   const now = new Date().toISOString();
-  const next = signEpoch({
+  return {
     ...epoch,
+    _hash: '',
     state: 'INVALIDATED',
     updatedAt: now,
     invalidation: {
@@ -201,7 +203,13 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
       } : {}),
     },
     terminalRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(epoch.storyId).runs),
-  });
+  };
+}
+
+function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventoryEpoch): ReviewInventoryEpoch {
+  const projection = projectInvalidationIfDrifted(ctx, epoch);
+  if (projection === epoch) return epoch;
+  const next = signEpoch(projection);
   const data = ctx.store.readReviewInventoryEpochs(epoch.storyId);
   data.epochs = data.epochs.map(row => row.epochId === epoch.epochId ? next : row);
   ctx.store.writeReviewInventoryEpochs(epoch.storyId, data);
@@ -503,15 +511,24 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
       });
     },
 
-    review_inventory_status(args: { storyId: string }): string {
-      return inventoryLock(ctx, args.storyId, () => {
+    review_inventory_status(args: { storyId: string; refresh?: boolean }): string {
+      if (args.refresh !== undefined && typeof args.refresh !== 'boolean') {
+        throw new Error('review_inventory_status: refresh must be boolean');
+      }
+      const inspect = () => {
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         let epoch = data.epochs.at(-1);
         if (!epoch) throw new Error(`review_inventory_status: no epoch for ${args.storyId}`);
         if (!verifyReviewInventoryEpoch(epoch)) throw new Error(`review_inventory_status: epoch ${epoch.epochId} signature mismatch`);
-        if (epoch.state === 'OPEN') epoch = persistInvalidationIfDrifted(ctx, epoch);
-        return renderProjectedStatus(ctx, epoch);
-      });
+        if (epoch.state === 'OPEN') epoch = args.refresh === true
+          ? persistInvalidationIfDrifted(ctx, epoch)
+          : projectInvalidationIfDrifted(ctx, epoch);
+        return renderProjectedStatus(ctx, epoch)
+          + (args.refresh === true ? '' : '\nRead-only observation; persisted evidence is unchanged.');
+      };
+      // Only the explicit writer takes the mutation lock. Gate consumers still
+      // independently check current lineage under their existing producer lock.
+      return args.refresh === true ? inventoryLock(ctx, args.storyId, inspect) : inspect();
     },
 
     review_inventory_critic_set(args: {

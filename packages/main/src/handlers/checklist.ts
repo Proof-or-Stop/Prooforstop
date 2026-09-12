@@ -1,3 +1,4 @@
+import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
 import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
 import { executionImplementationIdentity } from '../core/execution-implementation.js';
@@ -2156,8 +2157,8 @@ function writeStaleRefresh(
   const { headHash, materialHash, storyFilesHash, stale } = computed;
   const reexecByKey = opts.reexecByKey ?? new Map<string, ReexecStamp>();
   const reexecFailureByKey = opts.reexecFailureByKey ?? new Map<string, ReexecFailure>();
-  return withChecklistLock(ctx, storyId, () => {
-    const cl = store.readChecklist(storyId);
+  const renderAndApply = () => {
+    const cl = opts.dryRun ? computed.cl : store.readChecklist(storyId);
     const lines = [
       `${opts.dryRun ? '[DRY-RUN] ' : ''}Stale verification evidence for ${storyId}: ${stale.length}`,
       ...(opts.diagnostics ?? []),
@@ -2303,7 +2304,8 @@ function writeStaleRefresh(
       if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
     }
     return lines.join('\n');
-  });
+  };
+  return opts.dryRun ? renderAndApply() : withChecklistLock(ctx, storyId, renderAndApply);
 }
 
 /**
@@ -3820,6 +3822,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       deadlineAt?: number;
       deadlineError?: () => Error;
     }): Promise<string> {
+      const dryRun = !maintenanceCommandWrites('verification_evidence_refresh_stale', args);
       assertVerificationEvidenceWriteActive('verification_evidence_refresh_stale', args);
       const initial = collectStaleRefreshContext(ctx, args.storyId);
       if (initial.stale.length === 0) {
@@ -3846,7 +3849,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         return groups;
       };
 
-      if (args.dryRun) return writeStaleRefresh(ctx, args.storyId, initial, { dryRun: true });
+      if (dryRun) return writeStaleRefresh(ctx, args.storyId, initial, { dryRun: true });
       return withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_refresh_stale', cwd: initial.refreshGitCwd }, async () => {
       const initialGroups = buildGroups(initial);
       return withVerificationExecutionLocks(root, initialGroups.keys(), async () => {

@@ -47,6 +47,16 @@ export function resolveLocalAssuranceStories(
   projectRoot: string,
   options: ResolveLocalAssuranceStoriesOptions = {},
 ): LocalAssuranceStoryProjection {
+  return resolveLocalAssuranceStoryContexts(rootStore, projectRoot, options).projection;
+}
+
+/** In-process context only; stores are never included in the public JSON report. */
+export function resolveLocalAssuranceStoryContexts(
+  rootStore: StoryStore,
+  projectRoot: string,
+  options: ResolveLocalAssuranceStoriesOptions = {},
+): { projection: LocalAssuranceStoryProjection; workspaces: ReadonlyMap<string, StoryWorkspace> } {
+  const workspaces = new Map<string, StoryWorkspace>();
   const repoRoot = getRepoRoot(projectRoot);
   const activeOnly = options.activeOnly !== false;
   const ctx = { store: rootStore, root: projectRoot };
@@ -69,18 +79,20 @@ export function resolveLocalAssuranceStories(
     // The projection never applied the phase-terminal guard itself (activeOnly
     // is the caller's filter; activeOnly=false callers such as the handoff read
     // a DONE story's residual worktree), so the guard stays off here.
-    rows.push(buildRow(mainStory, resolveStoryWorkspace(ctx, id, { terminalPhaseGuard: false }), repoRoot));
+    const workspace = resolveStoryWorkspace(ctx, id, { terminalPhaseGuard: false });
+    workspaces.set(id, workspace);
+    rows.push(buildRow(mainStory, workspace, repoRoot));
   }
 
   rows.sort((a, b) => a.storyId.localeCompare(b.storyId));
 
-  return {
+  return { workspaces, projection: {
     schemaVersion: LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION,
     readOnly: true,
     generatedAt: options.now ?? new Date().toISOString(),
     repoRoot,
     stories: rows,
-  };
+  } };
 }
 
 function buildRow(
