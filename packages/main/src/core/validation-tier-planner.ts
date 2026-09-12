@@ -164,6 +164,11 @@ export interface SelectValidationTiersDependencies {
   registryFloorProjection?: unknown;
 }
 
+export interface ValidationFloorProjectionInjection {
+  /** A deliberately supplied projection; the wrapper distinguishes it from omission. */
+  readonly projection: unknown;
+}
+
 export interface ValidationCommandExclusionProof {
   commandId: string;
   reason:
@@ -274,17 +279,17 @@ const BUILD_GRAPH_PATH_PATTERNS = [
  * Finding uses this contract so its gate implementation cannot be labelled
  * fast, without treating every unrelated L4 reference as validation framework
  * code. An unavailable floor projection is repository-scoped and widens even
- * when the changed-path set is empty.
+ * when the changed-path set is empty. Omit `injection` to use only the live
+ * registry; wrap even an unavailable value so absence and failure are explicit.
  */
 export function classifySensitiveStoryPaths(
   paths: readonly string[],
-  injected?: unknown,
+  injection?: ValidationFloorProjectionInjection,
 ): ValidationWideningReasonCode[] {
   const reasons = new Set<ValidationWideningReasonCode>();
-  const injectedProjectionWasProvided = arguments.length >= 2;
   const projections = [
     collectRepositoryFullProcessFactPaths(),
-    ...(injectedProjectionWasProvided ? [injected] : []),
+    ...(injection === undefined ? [] : [injection.projection]),
   ];
   const registeredPatterns = new Set<string>();
   let registeredFloorUnavailable = false;
@@ -368,6 +373,9 @@ export function selectValidationTiers(
   rawInput: SelectValidationTiersInput,
   dependencies: SelectValidationTiersDependencies = {},
 ): ValidationTierSelectionDecision {
+  if (!dependencies || typeof dependencies !== 'object' || Array.isArray(dependencies)) {
+    throw new Error('selectValidationTiers: dependencies must be an object');
+  }
   const input = rawInput;
   const requestedTier = assertValidationTier(input?.requestedTier, 'selectValidationTiers');
   const universe = [...new Set((input?.universeCommandIds ?? []).map((id) => id.trim()).filter(Boolean))];
@@ -390,7 +398,7 @@ export function selectValidationTiers(
   const impactIndexDigest = digestCanonicalJson(index);
   const reasons = new Set<ValidationWideningReasonCode>(forceFullReasons);
   const sensitivePathReasons = Object.prototype.hasOwnProperty.call(dependencies, 'registryFloorProjection')
-    ? classifySensitiveStoryPaths(changedPaths, dependencies.registryFloorProjection)
+    ? classifySensitiveStoryPaths(changedPaths, { projection: dependencies.registryFloorProjection })
     : classifySensitiveStoryPaths(changedPaths);
   for (const reason of sensitivePathReasons) reasons.add(reason);
   if (malformedForceReason) reasons.add('impact_index_unusable');

@@ -2499,7 +2499,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
     { paths: 'not-an-array', rejectedEntryCount: 0 },
   ]) {
     assert.deepEqual(
-      classifySensitiveStoryPaths([], unavailable),
+      classifySensitiveStoryPaths([], { projection: unavailable }),
       ['validation_floor_registry_unavailable'],
       'an unavailable registry floor must widen independently of changed paths',
     );
