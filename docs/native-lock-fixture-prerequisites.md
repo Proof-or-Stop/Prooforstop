@@ -17,7 +17,7 @@ phase transition. The helper never writes a synthetic admission or PASS record.
 The reviewer lock case opens a new official writable inventory after routine
 preparation. A focused validation holds the same Story lock while preserving
 routine evidence. The retry must record its exact signed reviewer run and preserve
-other lanes, with exactly one record for the retrying lane. Delivery prepares trusted dispatch before acquiring the lock and
+all historical passes, with exactly one new record for this signed run. Delivery prepares trusted dispatch before acquiring the lock and
 passes the real broker descriptor into the native CLI writer. Its focused lock
 probe preserves the prior routine PASS rather than spending admission twice. Both writers must
 refuse with the expected busy error and preserve guarded files and HEAD.

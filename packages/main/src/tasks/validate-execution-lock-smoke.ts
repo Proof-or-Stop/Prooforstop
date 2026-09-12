@@ -553,7 +553,7 @@ async function assertReviewerWritesCoordinateWithValidation(): Promise<void> {
     assert.equal(reopened.length,epochs.length+1);
     assert.equal(reopened.at(-1)?.state,'OPEN');
     const lane = 'proof-or-stop-review-quality';
-    const otherPasses=new StoryStore(root).readReviewPasses(storyId).passes.filter(row=>row.agent!==lane);
+    const priorPasses=new StoryStore(root).readReviewPasses(storyId).passes;
     const routineEvidence=new StoryStore(root).readTestEvidence(storyId);
     const observedFiles = ['packages/main/src/index.ts'];
     for (const path of observedFiles) assert.ok(readFileSync(join(root, path), 'utf8').length > 0);
@@ -581,8 +581,9 @@ async function assertReviewerWritesCoordinateWithValidation(): Promise<void> {
     await reviewerFixtureCli(root, storyId, 'review_pass_set', args);
     const afterPasses=new StoryStore(root).readReviewPasses(storyId).passes;
     assert.ok(afterPasses.some(row=>row.agent===lane&&row.reviewRunId===reviewRunId),'native retry persists this signed run');
-    assert.equal(afterPasses.filter(row=>row.agent===lane).length,1,'retry replaces exactly one lane pass');
-    assert.deepEqual(afterPasses.filter(row=>row.agent!==lane),otherPasses,'retry preserves other admission reviewers');
+    // The producer appends history; uniqueness is scoped to this signed run.
+    assert.equal(afterPasses.filter(row=>row.agent===lane&&row.reviewRunId===reviewRunId).length,1,'retry appends exactly one pass for this signed run');
+    assert.deepEqual(afterPasses.filter(row=>row.reviewRunId!==reviewRunId),priorPasses,'retry preserves all historical admission passes');
     assert.deepEqual(new StoryStore(root).readTestEvidence(storyId),routineEvidence,'focused lock test preserves actual routine evidence');
     assert.equal(enteredCount(root), 1, 'review retry does not launch validation again');
     console.log('REVIEW_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, routine evidence preserved, retry, one execution');
