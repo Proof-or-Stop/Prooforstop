@@ -17,6 +17,7 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
 const quiet = process.argv.slice(2).includes('--quiet');
+const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
 for (const path of readonlyLaneSources) if (!existsSync(join(root,path))) failures.push(`Missing managed readonly source ${path}`);
@@ -7293,7 +7294,16 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
-  assert(!read('packages/main/src/core/closeout-trust.ts').includes("canonicalWriters: ['verification_evidence_refresh_stale', 'verification_evidence_add']"), 'direct checklist publication must not become a generic canonical writer');
+  assert(closeoutPolicyModule.CLOSEOUT_ARTIFACT_POLICIES.every(policy => !policy.canonicalWriters.includes('verification_evidence_add')),
+    'no closeout policy may grant generic canonical authority to direct evidence writes');
+  assert(JSON.stringify(closeoutPolicyModule.closeoutArtifactPolicyFor('checklist.json')?.canonicalWriters) === JSON.stringify(['verification_evidence_refresh_stale']),
+    'checklist canonical writers must remain exactly the registered stale refresh command');
+  for (const path of ['packages/main/src/core/review-evidence-refresh.ts','packages/main/src/core/review-run.ts']) {
+    assert(!read(path).includes('causal-evidence/'), 'refresh path consumers must derive paths from owning constants: ' + path);
+    assert(read(path).includes('isRefreshRetainableArtifactPath'), 'refresh consumers must share the path predicate: ' + path);
+  }
+  assert(read('scripts/verify-review-epoch-certification-continuity.mjs').includes('VALIDATE_PROCESS_METRICS_STORY_BOUNDARY'),
+    'validate publication must exercise its own metrics Story boundary');
   assert(!read('packages/main/src/core/review-maintenance-lineage.ts').includes("from './review-run.js'") && !read('packages/main/src/core/closeout-trust.ts').includes("from './review-maintenance-lineage.js'"), 'maintenance readers must not introduce direct importer cycles');
 
   assert(read('packages/main/src/core/closeout-trust.ts').includes("import type { StoryStore } from './store.js'") && !read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'"), 'closeout -> refresh -> store runtime edge must remain absent');
@@ -7306,7 +7316,7 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('semanticRows(priorEvidence)') && maintenanceText.includes('remaining.splice(index,1)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,old!,prior)'), 'review retention cannot add coverage or change the reviewed mechanical result');
   assert(!read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'")
-    && reviewGateText.includes("(path === 'checklist.json' || path.startsWith('causal-evidence/')) && isCurrentVerifiedEvidenceRefreshArtifact("), 'production scoped retention owns strict refresh; generic closeout must retain its type-only store dependency');
+    && reviewGateText.includes("isRefreshRetainableArtifactPath(path) && isCurrentVerifiedEvidenceRefreshArtifact("), 'production scoped retention owns strict refresh; generic closeout must retain its type-only store dependency');
 
   assert(maintenanceText.includes("readAt(reviewedHeadHash,'checklist.json')") && maintenanceText.includes('semanticRows(reviewedEvidence)'), 'refresh proof must bind requirements and coverage to the original reviewed snapshot');
   assert(reviewGateText.includes('const refreshCache=createReviewRefreshReadCache();') && maintenanceText.includes('new WeakMap<ReviewRefreshReadCache,RefreshCacheState>()'), 'one collector-scoped opaque cache prevents repeated full receipt scans');

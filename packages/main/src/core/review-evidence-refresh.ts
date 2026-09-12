@@ -12,6 +12,13 @@ import { hasMechanicalExecutionAuthority } from './verification-receipt-authorit
 import { digestCanonicalJson } from './digest.js';
 import type { ChecklistData } from './types.js';
 
+/** Path eligibility only; receipt authentication remains mandatory at consumers. */
+export function isRefreshRetainableArtifactPath(path: string): boolean {
+  return path === 'checklist.json' || path === CAUSAL_RECEIPT_INDEX_FILE
+    || [CAUSAL_RECEIPT_DIRECTORY, CAUSAL_OUTPUT_DIRECTORY].some(directory =>
+      path.startsWith(directory + '/') && /^[a-f0-9]{64}\.json$/.test(path.slice(directory.length + 1)));
+}
+
 export function isOwnerLeaseHeartbeatOnly(before: Record<string,unknown>, after: Record<string,unknown>):boolean {
   const stable = ({pid,heartbeatAt,...rest}:Record<string,unknown>)=>rest;
   return typeof before.sessionId === 'string' && Boolean(before.sessionId.trim())
@@ -96,8 +103,7 @@ function computeVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
       if (artifacts.some(path => ['process-events.jsonl','owner-lease.json'].includes(path) && args.isProtectedArtifact(path))) return false;
       if (artifacts.includes('owner-lease.json') && (!git(['ls-tree','--name-only',parents[0],'--',prefix + 'owner-lease.json'])
       || !isOwnerLeaseHeartbeatOnly(readAt(parents[0],'owner-lease.json'),readAt(commit,'owner-lease.json')))) return false;
-      if (!artifacts.includes('checklist.json') || artifacts.some(p => p !== 'checklist.json' && p !== 'process-events.jsonl' && p !== 'owner-lease.json' && p !== CAUSAL_RECEIPT_INDEX_FILE
-        && !/^causal-evidence\/(outputs|receipts)\/[a-f0-9]{64}\.json$/.test(p))) return false;
+      if (!artifacts.includes('checklist.json') || artifacts.some(p => p !== 'process-events.jsonl' && p !== 'owner-lease.json' && !isRefreshRetainableArtifactPath(p))) return false;
       if(artifacts.some(path=>path===CAUSAL_RECEIPT_INDEX_FILE || path.startsWith(CAUSAL_RECEIPT_DIRECTORY+'/') || path.startsWith(CAUSAL_OUTPUT_DIRECTORY+'/'))) loadReceiptSnapshots();
       for (const path of artifacts.filter(p => p.startsWith(CAUSAL_RECEIPT_DIRECTORY + '/'))) {
         const causal = readAt(commit,path);
@@ -188,8 +194,7 @@ export function isCurrentVerifiedEvidenceRefreshArtifact(args: {
   reviewedHeadHash:string; snapshotHead?:string; cache?:ReviewRefreshReadCache;
 }): boolean {
   const {gitCwd,metadataRoot,storyId,artifactPath}=args;
-  if (artifactPath !== 'checklist.json' && artifactPath !== CAUSAL_RECEIPT_INDEX_FILE
-    && !/^causal-evidence\/(outputs|receipts)\/[a-f0-9]{64}\.json$/.test(artifactPath)) return false;
+  if (!isRefreshRetainableArtifactPath(artifactPath)) return false;
   try {
     const store = new StoryStore(metadataRoot);
     const prefix = relative(realpathSync(gitCwd),realpathSync(store.storyDirPath(storyId))).replaceAll('\\','/') + '/';

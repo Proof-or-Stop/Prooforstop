@@ -796,6 +796,15 @@ if(mode==='clean') {
    writeFileSync(join(fixture.root,path),execFileSync('git',['show',validateHead+':'+path],{cwd:fixture.root}));
   }
  };
+ for(const validMetrics of [true,false]) {
+  restoreValidate();
+  const metricsPath=storyPrefix+'process-metrics.json';
+  writeFileSync(join(fixture.root,metricsPath),JSON.stringify({...observedMetrics,storyId:validMetrics?storyId:'B-foreign'}));
+  git(fixture.root,['add','--',...new Set([...validatePaths,metricsPath])]);
+  git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} validate metadata`]);
+  assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash,reviewedMaterialHash:expected.materialHash,reviewedStoryFilesHash:expected.storyFilesHash}),validMetrics,'validate metrics Story binding');
+  console.log('VALIDATE_PROCESS_METRICS_STORY_BOUNDARY '+(validMetrics?'control':'foreign-refused'));
+ }
  for(const fault of ['sequence','previous-integrity','head','duplicate-receipt','rewrite-prefix','mixed-telemetry']) {
   restoreValidate();
   const receipts=readFileSync(join(fixture.root,receiptPath),'utf8').trim().split('\n').map(line=>JSON.parse(line));

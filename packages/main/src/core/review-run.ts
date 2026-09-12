@@ -1,6 +1,6 @@
 import {evaluatePersistedReviewToTestIndexTransition} from './review-test-index-transition.js';
 export {evaluatePersistedReviewToTestIndexTransition} from './review-test-index-transition.js';
-import { isCurrentVerifiedEvidenceRefreshArtifact, createReviewRefreshReadCache, type ReviewRefreshReadCache } from './review-evidence-refresh.js';
+import { isRefreshRetainableArtifactPath, isCurrentVerifiedEvidenceRefreshArtifact, createReviewRefreshReadCache, type ReviewRefreshReadCache } from './review-evidence-refresh.js';
 import { readReviewPromptBody } from './prompt-body-store.js';
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
@@ -1299,7 +1299,7 @@ export function evaluateReviewRunMetadataRetention(
     : null;
   const effectiveMetadataPaths = metadataPaths.filter(
     (path) => (path !== 'index.json' || !indexTransition?.ok)
-      && !((path === 'checklist.json' || path.startsWith('causal-evidence/')) && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId:story.storyId,artifactPath:path,isProtectedArtifact:closeoutArtifactPolicyFor,reviewedHeadHash:run.headHash,snapshotHead:evaluationHead,cache:refreshCache})),
+      && !(isRefreshRetainableArtifactPath(path) && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId:story.storyId,artifactPath:path,isProtectedArtifact:closeoutArtifactPolicyFor,reviewedHeadHash:run.headHash,snapshotHead:evaluationHead,cache:refreshCache})),
   );
   const changedArtifacts = effectiveMetadataPaths.map((artifactPath) => {
     const classification = classifyCurrentCloseoutArtifactForReviewRetention(

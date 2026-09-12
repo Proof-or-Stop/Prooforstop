@@ -601,3 +601,17 @@ The runtime contract's real child probe uses the enclosing entry's remaining bud
 Verification is in progress. A bounded canonical scheduler execution of test:runtime-fact-contract is required and will be recorded separately from whole-suite success.
 
 Eleventh verification: build58, full targeted regression47, and process-fact contract22 passed. The exact canonical test:runtime-fact-contract inventory entry passed through runScheduled/runEntry with jobs=3 and unchanged resource/admission policy in 21836.646084 ms (driver elapsed 21856 ms), including REVIEW_EPOCH_BUDGET_TRANSPORT_PASS. Only that canonical member was selected; this is not a whole-suite or concurrent-heavy-workload PASS. The independent read-only delta review found no remaining concrete defect. Formal GREEN and exact-candidate Claude audit follow.
+
+## Twelfth repair after the eleventh rejected audit
+
+Audit 93ebd256-7074-4d9f-85ba-a6b44a3d488f rejected f250e57877 after 689017 ms with three low findings. The eleventh controls and core authority were accepted; no local integration occurred.
+
+The process contract now imports the actual closeout policies after its existing source/dist prerequisite. Every canonical writer array must exclude verification_evidence_add, and the checklist policy must contain exactly verification_evidence_refresh_stale. The runtime refusal remains explicitly documented defence in depth against future policy widening. This replaces the formatting-sensitive source literal assertion.
+
+The genuine validate publication is reconstructed on its exact parent with original receipt bytes for paired process-metrics controls. A current-Story metrics object passes and changing only its Story ID is refused, emitting VALIDATE_PROCESS_METRICS_STORY_BOUNDARY. Epoch-publication metrics controls remain separate.
+
+A shared isRefreshRetainableArtifactPath predicate derives eligible receipt/output directories and index paths from their owning causal-evidence constants. Both refresh readers and the review collector use it; path eligibility never replaces receipt authentication. The process contract refuses reintroducing causal-evidence path literals in those consumers.
+
+Build59 passed and independent read-only delta review found no concrete remaining defect. Regression48 and process contract23 are running. These changes do not alter the runtime budget work already measured under the canonical scheduler in the eleventh repair. Formal GREEN and exact-candidate Claude audit remain required.
+
+Twelfth verification: build59 and full regression48 passed, including both VALIDATE_PROCESS_METRICS_STORY_BOUNDARY controls. Contract23 exposed one stale source-expression assertion; it was updated to require the shared path predicate followed by the same strict authenticated consumer. Contract24 then passed, retaining the original contract23 failure record. No production authority requirement was relaxed.

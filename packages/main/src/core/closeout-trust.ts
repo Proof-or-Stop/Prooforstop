@@ -656,6 +656,8 @@ export function classifyCurrentCloseoutArtifactForReviewRetention(
       artifactPath,
       { projectRoot, metadataRoot },
     );
+    // Defence in depth: current canonical policies already exclude direct writes;
+    // retain this refusal if a future policy edit accidentally widens them.
     if (!receipt || receipt.writerCommand === 'verification_evidence_add') {
       return {
         retainsReview: false,
