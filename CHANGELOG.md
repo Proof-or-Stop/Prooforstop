@@ -1,5 +1,82 @@
 # Changelog
 
+## Lab evidence-fixture-contracts - v0.3.345 - 2026-09-12
+
+Reject stale static-exception evidence mechanically: current excerpts must match source hashes, inclusive ranges and registered call coverage. Historical or narrative evidence cannot authorize current exceptions. Reconcile all 258 manifest entries and the 168-command registry against reviewed local-main source without weakening exception classifications.
+
+Official Lab patch releases refresh only already-valid version-bound evidence. Strict version/output/format guards reject non-version changes and stale inputs with byte restoration; individual evidence writes and restores use temporary-file rename. Generic projects without this manifest retain ordinary version behavior. This is per-file atomicity, not crash-atomic multi-file publication.
+
+Verification: original target RED; exact negative controls for stale hashes, excerpt/range/coverage mismatch, symlink escape, malformed history, version bounds, output/format guards and rollback; complete current scanner GREEN. The version contract covers an actual disposable Lab finish, no-manifest compatibility and injected rename failure. Existing node scripts/verify-lab-worktree.mjs passed all 146 command checks plus state, version and cleanup assertions after commit 3a33762f8d. Synthetic providers are used only by disposable regression fixtures; the real prepared release requires independent Claude CLI audit.
+
+This is local Lab maintenance, with a patch version, change record and signed timings. It is not formal Story DONE or remote publication.
+
+Digest consistency now binds raw source bytes before decoding; missing files have a stable refusal, and moved-callsite controls assert exact row reason/state. The version guard compares its supported paths with the existing main-producer VERSION_SYNC_PATHS export for the five core outputs, with explicit optional extension-lock bindings and refuses invalid UTF-8 version inputs before mutation. A traceable official draft at docs/story/drafts/static-evidence-regression-registration owns ordinary validation scheduling of the operator-run negative contract; no automatic routine scheduling is claimed. Runtime scanner enforcement, pinned Lab RED/GREEN and real candidate audit remain required.
+
+The latest complete Lab worktree regression also passed all 146 command checks on the repaired path. First-release compatibility uses the existing main-producer export rather than requiring a candidate-only new export.
+
+Measured complete version-release regression: 4543.7675ms within 270000ms (59.4x observed headroom); current repository scanner: 1259.183583ms within 60000ms (47.6x). Every replay emits child elapsed/budget/status data and budget exhaustion is a distinct result. docs/static-evidence-lab-verification.md records official CLI draft discovery and current handler counter-evidence: drafts are intentionally created under docs/story/drafts without a B id or a signed review.
+
+Literal child timing records from the measured run:
+```json
+{"label":"version-release-contract","elapsedMs":4543.7675,"budgetMs":270000,"status":0,"signal":null}
+{"label":"live-static-scan","elapsedMs":1259.183583,"budgetMs":60000,"status":0,"signal":null}
+```
+Observed headroom, computed from those literals: 59.4x and 47.6x respectively.
+
+Maintenance provenance: codex/lab-evidence-fixture-contracts, repair c90e9bd6b0274eae9f6203ac92661678cc83c11f.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab validation-stage-abort-oracle - v0.3.344 - 2026-09-12
+
+The validation stage regression expected an exception after cancellation even though the public command API returns a structured prelaunch cancellation result. This made the performance companion fail with zero spawned children.
+
+The fixture now requires cancellation to return code 124, timedOut=true, failureKind=infra_failure, effectiveTimeoutMs=0, and the exact prelaunch cancellation reason, while retaining the zero-child assertion. A supplied deadline error must still be thrown as the identical Error object. Normal stage-entry counts, reuse rechecks and nested resource-containment controls remain unchanged. A focused suite mode replays all three existing modes in separate processes, requires the exact mode-specific success marker and cancellation ledger mode, and bounds each child to 30 seconds with a named timeout failure. Adversarial controls reject successful output from the wrong mode and verify the timeout diagnostic.
+
+The original main failure and the official Lab RED are retained. The same pinned command passed GREEN against this Lab's own build. No production behavior, timeout, gate, signature or resource policy changed. Full performance companion results are recorded separately with the Lab verification evidence. This maintenance repair is not formal Story DONE or product-release evidence.
+
+Maintenance provenance: codex/lab-validation-stage-abort-oracle, repair 5a0be3b8fdcd1b0f93d166928d2a132821589b16.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-stage-entry-count.mjs","--contract-suite"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab runtime-snapshot-static-edge - v0.3.343 - 2026-09-12
+
+Register the exact runtime verifier child that checks shared validation snapshot source bindings. The child parses shared-validation-execution.ts with TypeScript and rejects five in-memory source mutations; it does not import that production module or execute a validation suite. Add one source/call/invocation-bound reviewed exception with caller, child and read-only source dependency hashes. Preserve all unrelated exception entries, scanner classifications and configuration drift.
+
+The committed target RED observed the real canonical scanner classify this exact new main edge as NEEDS_REVIEW. The repaired focused regression verifies EXCEPTION, exact dependency bytes, removal refusal, each declared dependency drift, wrong configured invocation index and unchanged unrelated canonical rows. The default existing static-boundary suite retains all original controls and includes the new case. Full boundary regression passed10.5939935s and focused regression7.166259833s before official GREEN.
+
+This bounded result is not a claim that the repository-wide static scanner is globally green: unrelated historical stale exception/configuration/index debt remains unchanged. It is not B-e6d9 Story DONE, native lifecycle evidence, or a performance optimization. Original executable child argv and30000ms timeout are unchanged. No production scanner, gate, policy or trust mechanism changes.
+
+The first additional drift-control expectation distinguished the scanner's existing incomplete-exception refusal for a read-only child/input from coverage-missing refusal for the caller; this test setup correction is retained in logs and is not a production defect. Source closure is finite; installed TypeScript parser trust retains the same toolchain boundary as the scanner itself.
+
+Maintenance provenance: codex/lab-runtime-snapshot-static-edge, repair 7f0ec2db5149b586f5b1b26d6592c2b576f360fe.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs","--runtime-snapshot-edge"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab b83aa-partial-hash-freshness - v0.3.342 - 2026-09-12
+
+Evidence hash snapshots now fail closed when the current Git HEAD or material digest cannot be derived. The shared classifier is consumed by DONE admission, lifecycle readiness, routine validation reuse, and session diagnostics. Missing storyFilesHash remains an explicit advisory with strict materialHash fallback, and historical DONE projections disclose legacy omissions without reopening completed history.
+
+Verification includes the managed C1-C7 RED/GREEN proof, 22 classifier and consumer cases, TypeScript compilation, process-fact and runtime-fact contracts, DONE wrapper-root and required-freshness regressions, plus independent different-vendor Lab audit.
+
+Maintenance provenance: codex/lab-b83aa-partial-hash-freshness, repair f1bde6fe76e032f424e33a30254fdd74c3832abe.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-partial-hash-snapshot-binding.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab redundant-scan-comparison - v0.3.341 - 2026-09-12
+
+Reduce repeated initial snapshot canonicalization in shared validation execution. Final comparison starts from local main 0.3.340 at a11f2d89a4c1762b5e0452e6e9e5e696ee9884c9. Each of the two initial baseline objects is canonicalized once per invocation instead of five times on first execution and three on receipt reuse. Live fact probes remain 6 and 4, with real child starts 1 and 0. Current input bytes, workspace, loaded implementation identity and publication checks remain active. Five other measured historical hotspots were already within budget and are unchanged. Quorum cleanup is excluded and remains owned by another Lab.
+
+The current RED is a387adfba80000ee69f249a0f21d07fbb3d837e1 and GREEN implementation is 7575d6257240a6ceccc38fb6bb24ba46cd80c391. The RED shared-execution source bytes exactly equal main 0.3.340. The driver and both tests have identical digests at RED and GREEN. Both managed runs use node scripts/verify-redundant-scan-comparison.mjs and record all five results, including the binding guard after the counter so it cannot mask the target RED. Latest runtime contract and declared input-tree regressions pass. The committed report and raw data are in docs/lab-evidence/redundant-scan-comparison-20260912/. Earlier 0.3.339 measurements are preserved in historical-0339 and are not current-driver acceptance evidence. Recorded call durations are single shared-host observations; no causal elapsed-time or whole-Story speedup is claimed.
+
+The first independent audit accepted the production optimization but rejected use of Lab-only module hooks in the general gate. The dynamic counter remains Lab-only; the canonical gate executes a TypeScript AST binding check without hooks. The new guard passes under Node v20.20.2 with runtime, executable and argv captured in its log and five mutations refused. The second audit requested driver ordering, updated complete logs, identifiable Node 20 evidence, and narrower registry wording. All four corrections are present in the final packet, whose log hashes include the Node 20 and compatible runtime results. The retained canonical strings never survive the invocation; existing cost hints remain governed by their separate policy. No general runtime floor is raised or test silently skipped.
+
+This is local Lab maintenance, not formal Story DONE. The user authorized patch upgrade, local integration and successful cleanup, followed by verified GitHub main publication, version tag and a detailed Release.
+
+Maintenance provenance: codex/lab-redundant-scan-comparison, repair a52df82d09785547b0c52318f3cc223c31a4dab0.
+Verification command (replayed before integration and on main): `["node","scripts/verify-redundant-scan-comparison.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab verification-key-location-reuse - v0.3.340 - 2026-09-12
 
 Reduce repeated Git discovery during verification receipt validation by reusing the signer location within one public validation call. Read current key bytes for every signature, bind each requested working directory, and compare the current canonical location before returning. Preserve the original Git parser, including newline paths and shared worktree trust.

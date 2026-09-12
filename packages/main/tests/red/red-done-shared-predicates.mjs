@@ -313,6 +313,12 @@ function productionConsumers(machineSource, oracleSource, state) {
     resolveGitCwd: () => 'GIT',
     checkEvidenceHashSnapshotReuse: () => ({ reusable: false }),
     captureEvidenceHashSnapshot: () => ({ materialHash: 'material', storyFilesHash: 'story-files' }),
+    classifyEvidenceHashSnapshot: () => ({
+      complete: true,
+      missing: [],
+      present: ['headHash', 'materialHash', 'storyFilesHash'],
+      detail: 'evidence hash snapshot is complete',
+    }),
     loadConfig: () => ({}), resolveWorkflowPolicy: () => ({ done: { requireSummary: 'none' }, test: {} }),
     checkEvidenceFreshness: () => ({ fresh: true, message: 'fresh' }),
     evaluateDoneRequiredEvidence: () => ({ status: 'pass', required: false, blocking: false, detail: 'not required' }),

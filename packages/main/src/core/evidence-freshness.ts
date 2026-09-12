@@ -60,6 +60,8 @@ export function isCanonicalSha256Hash(value: unknown): value is string {
 export type EvidenceFreshness = {
   fresh: boolean;
   reason: string;
+  /** Structural reason for an unreadable runtime binding; never inferred from prose. */
+  runtimeUnavailable?: 'headHash' | 'materialHash';
   warnings?: string[];
   currentHead?: string;
   currentMaterialHash?: string;
@@ -311,7 +313,10 @@ export function classifyEvidenceFreshness(
   evidenceHash?: string,
 ): EvidenceFreshnessClassification {
   if (!evidenceHash) return 'LEGACY_UNBOUND';
-  if (/Unable to get git HEAD/i.test(freshness.reason)) return 'RUNTIME_UNAVAILABLE';
+  // B-83aa CHK-001: runtime unavailability is a structural fact, not a phrase
+  // parsed from a human-facing reason. Rewording diagnostics cannot silently
+  // change incremental eligibility from RUNTIME_UNAVAILABLE to UNCOMPARABLE.
+  if (freshness.runtimeUnavailable) return 'RUNTIME_UNAVAILABLE';
   if (!freshness.fresh) {
     return freshness.materialFiles.includes('<story-files-changed>')
       ? 'RELATED_STORY_MATERIAL_DRIFT'
@@ -493,6 +498,94 @@ export function tryCaptureEvidenceHashSnapshot(args: EvidenceHashSnapshotCapture
     return undefined;
   }
 }
+
+// B-83aa CHK-001: shared missing-digest classifier for evidence hash snapshots.
+//
+// captureEvidenceHashSnapshot NEVER throws on a git or hash failure: headHash /
+// materialHash / storyFilesHash are each optional and are simply OMITTED, and
+// tryCaptureEvidenceHashSnapshot only turns a *thrown* error into undefined. An
+// unborn repository (git init, zero commits) or a repository with no `main` ref
+// therefore yields a RETURNED snapshot that binds nothing. Every lifecycle-gate
+// consumer that reads a snapshot must classify it here instead of treating
+// thrown-vs-returned as the only distinction. Omitted keys, empty strings,
+// whitespace-only strings and `null` all count as missing — never as present.
+export type EvidenceHashSnapshotDigestKey = 'headHash' | 'materialHash' | 'storyFilesHash';
+
+export const EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS: readonly EvidenceHashSnapshotDigestKey[] = [
+  'headHash',
+  'materialHash',
+  'storyFilesHash',
+];
+
+/** Upper bound (chars) of the single-line classifier detail. */
+export const EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS = 300;
+
+export interface EvidenceHashSnapshotClassification {
+  /** true when every required digest is present. */
+  complete: boolean;
+  /** Required digests that are absent, in canonical key order. */
+  missing: EvidenceHashSnapshotDigestKey[];
+  /** One line, <= EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS chars, names every missing digest. */
+  detail: string;
+}
+
+/** Any object exposing the three digest keys (a full snapshot, a partial fixture, or nothing). */
+export type EvidenceHashSnapshotLike =
+  | { readonly [K in EvidenceHashSnapshotDigestKey]?: string | null | undefined }
+  | null
+  | undefined;
+
+function evidenceDigestPresent(value: unknown): boolean {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function boundEvidenceHashSnapshotDetail(detail: string): string {
+  const oneLine = detail.replace(/\s*[\r\n]+\s*/g, ' ').trim();
+  if (oneLine.length <= EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS) return oneLine;
+  return `${oneLine.slice(0, EVIDENCE_HASH_SNAPSHOT_DETAIL_MAX_CHARS - 3)}...`;
+}
+
+export function classifyEvidenceHashSnapshot(
+  snapshot: EvidenceHashSnapshotLike,
+  required: readonly EvidenceHashSnapshotDigestKey[] = EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS,
+): EvidenceHashSnapshotClassification {
+  const requested = required as readonly string[];
+  const unrecognised = requested.filter((key) => !EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS.includes(key as EvidenceHashSnapshotDigestKey));
+  if (requested.length === 0 || unrecognised.length > 0) {
+    return {
+      complete: false,
+      missing: [...EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS],
+      detail: boundEvidenceHashSnapshotDetail(
+        `evidence hash snapshot classification requested with an empty or unrecognised digest scope${unrecognised.length > 0 ? `: ${unrecognised.join(', ')}` : ''}; refusing to certify (fail closed)`,
+      ),
+    };
+  }
+  const scope = EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS.filter((key) => required.includes(key));
+  const missing = scope.filter((key) => !evidenceDigestPresent(snapshot?.[key]));
+  const present = scope.filter((key) => !missing.includes(key));
+  if (missing.length === 0) {
+    return {
+      complete: true,
+      missing,
+      detail: boundEvidenceHashSnapshotDetail(`evidence hash snapshot complete: ${present.join(', ')} present`),
+    };
+  }
+  const cause = snapshot
+    ? 'could not be derived from the current git state'
+    : 'no snapshot was captured';
+  return {
+    complete: false,
+    missing,
+    detail: boundEvidenceHashSnapshotDetail(
+      `evidence hash snapshot is partial: ${missing.join(', ')} unavailable (${cause}); the binding cannot vouch for the missing digest${missing.length === 1 ? '' : 's'}`
+      + (present.length > 0 ? `; present: ${present.join(', ')}` : ''),
+    ),
+  };
+}
+
+/** Reason emitted by checkEvidenceFreshnessForGit when the current git HEAD cannot be read. */
+export const EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON =
+  'current git HEAD is unreadable; the evidence binding cannot be verified (fail closed)';
 
 export function checkEvidenceHashSnapshotReuse(
   snapshot: EvidenceHashSnapshot | undefined,
@@ -860,10 +953,15 @@ export function checkEvidenceFreshnessForGit(
 
   const asOf = asOfRef.trim() || 'HEAD';
   const currentHead = asOf === 'HEAD' ? currentGitHead(gitCwd) : gitCommitAtRef(gitCwd, asOf);
-  if (!currentHead) {
+  // B-83aa CHK-001 (fail closed): the evidence carries a headHash binding, so an
+  // unreadable current HEAD means the binding CANNOT be verified. Previously this
+  // returned fresh=true ("skipping freshness check"), which let an unborn or
+  // unreadable repository pass every consumer as if it held a verified binding.
+  if (!currentHead || !classifyEvidenceHashSnapshot({ headHash: currentHead }, ['headHash']).complete) {
     return {
-      fresh: true,
-      reason: 'Unable to get git HEAD, skipping freshness check',
+      fresh: false,
+      reason: EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON,
+      runtimeUnavailable: 'headHash',
       changedFiles: [],
       materialFiles: [],
     };
@@ -871,59 +969,72 @@ export function checkEvidenceFreshnessForGit(
 
   if (evidenceMaterialHash) {
     const materialHash = currentMaterialHash(gitCwd, currentHead, metadataRoot);
-    if (materialHash) {
-      if (materialHash === evidenceMaterialHash) {
-        return {
-          fresh: true,
-          reason: 'evidence materialHash matches current entity file state',
-          currentHead,
-          currentMaterialHash: materialHash,
-          changedFiles: [],
-          materialFiles: [],
-        };
-      }
-      // review-run-binding-race (friction #2) soundness guard: an EMPTY_STORY_FILES_HASH
-      // (sha256 of an empty story-owned diff — e.g. HEAD==main / no story branch) is a
-      // NO-SIGNAL value, not a real vouching hash. It must never enable the drift advisory
-      // (else a stale-material record whose story diff is empty on both sides would ride
-      // the downgrade). Skip the advisory when either side is the empty-set value; control
-      // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
-      // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
-      if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
-        const storyFilesHash = currentStoryFilesHash(gitCwd, currentHead, metadataRoot);
-        if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
-          return {
-            fresh: true,
-            reason: 'evidence storyFilesHash matches current story-owned file state; whole-tree materialHash drift requires re-attestation advisory',
-            warnings: ['whole-tree materialHash drift detected while storyFilesHash matches; re-attestation advisory required'],
-            currentHead,
-            currentMaterialHash: materialHash,
-            currentStoryFilesHash: storyFilesHash,
-            changedFiles: ['<material-tree-changed>'],
-            materialFiles: [],
-          };
-        }
-        if (storyFilesHash && storyFilesHash !== evidenceStoryFilesHash) {
-          return {
-            fresh: false,
-            reason: 'evidence storyFilesHash does not match current story-owned file state',
-            currentHead,
-            currentMaterialHash: materialHash,
-            currentStoryFilesHash: storyFilesHash,
-            changedFiles: [],
-            materialFiles: ['<story-files-changed>'],
-          };
-        }
-      }
+    // B-83aa CHK-001 (fail closed): the evidence carries a materialHash binding
+    // but the current material digest cannot be derived (git ls-tree failure /
+    // unreadable ref). Previously this silently fell through to the weaker head
+    // comparison; now it fails closed and names the material digest.
+    const materialBinding = classifyEvidenceHashSnapshot({ headHash: currentHead, materialHash }, ['materialHash']);
+    if (!materialHash || !materialBinding.complete) {
       return {
         fresh: false,
-        reason: `evidence materialHash does not match current entity file state`,
+        reason: `current materialHash could not be derived at HEAD ${currentHead.slice(0, 7)}; the evidence materialHash binding cannot be verified (fail closed): ${materialBinding.detail}`,
+        runtimeUnavailable: 'materialHash',
+        currentHead,
+        changedFiles: [],
+        materialFiles: [],
+      };
+    }
+    if (materialHash === evidenceMaterialHash) {
+      return {
+        fresh: true,
+        reason: 'evidence materialHash matches current entity file state',
         currentHead,
         currentMaterialHash: materialHash,
         changedFiles: [],
-        materialFiles: ['<material-tree-changed>'],
+        materialFiles: [],
       };
     }
+    // review-run-binding-race (friction #2) soundness guard: an EMPTY_STORY_FILES_HASH
+    // (sha256 of an empty story-owned diff — e.g. HEAD==main / no story branch) is a
+    // NO-SIGNAL value, not a real vouching hash. It must never enable the drift advisory
+    // (else a stale-material record whose story diff is empty on both sides would ride
+    // the downgrade). Skip the advisory when either side is the empty-set value; control
+    // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
+    // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
+    if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
+      const storyFilesHash = currentStoryFilesHash(gitCwd, currentHead, metadataRoot);
+      if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
+        return {
+          fresh: true,
+          reason: 'evidence storyFilesHash matches current story-owned file state; whole-tree materialHash drift requires re-attestation advisory',
+          warnings: ['whole-tree materialHash drift detected while storyFilesHash matches; re-attestation advisory required'],
+          currentHead,
+          currentMaterialHash: materialHash,
+          currentStoryFilesHash: storyFilesHash,
+          changedFiles: ['<material-tree-changed>'],
+          materialFiles: [],
+        };
+      }
+      if (storyFilesHash && storyFilesHash !== evidenceStoryFilesHash) {
+        return {
+          fresh: false,
+          reason: 'evidence storyFilesHash does not match current story-owned file state',
+          currentHead,
+          currentMaterialHash: materialHash,
+          currentStoryFilesHash: storyFilesHash,
+          changedFiles: [],
+          materialFiles: ['<story-files-changed>'],
+        };
+      }
+    }
+    return {
+      fresh: false,
+      reason: `evidence materialHash does not match current entity file state`,
+      currentHead,
+      currentMaterialHash: materialHash,
+      changedFiles: [],
+      materialFiles: ['<material-tree-changed>'],
+    };
   }
 
   if (headMatches(evidenceHash, currentHead)) {
