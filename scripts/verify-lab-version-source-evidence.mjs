@@ -5,8 +5,37 @@ import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {withLabVersionSourceEvidence} from './lab-version-source-evidence.mjs';
 import {copyLabFixtureSources} from './lab-fixture-sources.mjs';
 import {installLabAuditFixtureProviders} from './lab-audit-fixture-provider.mjs';
+// Fail closed and roll back every version byte when prior evidence is stale.
+for (const scenario of ['hash','excerpt','dependency','range','semantic','producer-manifest']) {
+ const root=mkdtempSync(join(tmpdir(),'lab-version-negative-'));
+ try {
+  const file='package.json',manifest='scripts/lab/u18-static-edges/exceptions.json';
+  const before=JSON.stringify({version:'1.0.0',scripts:{test:'node check.js'}},null,2)+'\n';
+  const digest=createHash('sha256').update(before).digest('hex');
+  const evidence={file,sourceDigest:digest,startLine:1,endLine:before.split('\n').length,excerpt:before};
+  const entry={key:file+':1:fixture',sourceDigest:digest,requiredEvidence:[evidence],dependencyDigests:{[file]:digest}};
+  if(scenario==='hash')evidence.sourceDigest='0'.repeat(64);
+  if(scenario==='excerpt')evidence.excerpt='stale';
+  if(scenario==='dependency')entry.dependencyDigests[file]='0'.repeat(64);
+  if(scenario==='range')evidence.startLine=0;
+  mkdirSync(dirname(join(root,manifest)),{recursive:true});
+  writeFileSync(join(root,file),before);
+  const original=JSON.stringify({schema:'u18-static-exceptions.v1',entries:[entry]});
+  writeFileSync(join(root,manifest),original);
+  assert.throws(()=>withLabVersionSourceEvidence(root,()=>{
+   let after=before.replace('1.0.0','1.0.1');
+   if(scenario==='semantic')after=after.replace('node check.js','node bypass.js');
+   writeFileSync(join(root,file),after);
+   if(scenario==='producer-manifest')writeFileSync(join(root,manifest),'{}');
+   return {from:'1.0.0',to:'1.0.1',files:[file]};
+  }), /stale|invalid|non-version|cannot modify/, scenario);
+  assert.equal(readFileSync(join(root,file),'utf8'),before,scenario+' version rollback');
+  assert.equal(readFileSync(join(root,manifest),'utf8'),original,scenario+' evidence rollback');
+ } finally {rmSync(root,{recursive:true,force:true});}
+}
 const source=fileURLToPath(new URL('..',import.meta.url));
 const dir=mkdtempSync(join(tmpdir(),'lab-version-evidence-')),root=join(dir,'repo');
 const write=(file,text)=>{mkdirSync(dirname(join(root,file)),{recursive:true});writeFileSync(join(root,file),text);};
@@ -16,7 +45,11 @@ try {
  mkdirSync(root);git(root,'init','-b','main');git(root,'config','user.name','Version fixture');git(root,'config','user.email','fixture@example.test');
  const bin=installLabAuditFixtureProviders(dir);
  const env={...process.env,GIT_CONFIG_COUNT:'1',GIT_CONFIG_KEY_0:'core.excludesFile',GIT_CONFIG_VALUE_0:'/dev/null',CODEX_THREAD_ID:'fixture-developer',CLAUDECODE:'',PATH:bin+':'+process.env.PATH,npm_config_prefix:join(dir,'global'),NPM_CONFIG_PREFIX:join(dir,'global')};
- const cli=args=>spawnSync(process.execPath,[join(source,'scripts/lab-worktree.mjs'),...args],{cwd:root,env,encoding:'utf8',timeout:60000});
+ // The synthetic provider transport fixture owns an isolated OS-user namespace.
+ // Actual Lab audits still use the real machine admission pool.
+ const launcher=join(dir,'fixture-launcher.mjs');
+ writeFileSync(launcher,`import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';import {pathToFileURL} from 'node:url';const original=os.userInfo;os.userInfo=(...args)=>({...original(...args),homedir:${JSON.stringify(join(dir,'fixture-home'))}});syncBuiltinESMExports();process.argv=[process.execPath,${JSON.stringify(join(source,'scripts/lab-worktree.mjs'))},...process.argv.slice(2)];await import(pathToFileURL(process.argv[1]).href);`);
+ const cli=args=>spawnSync(process.execPath,[launcher,...args],{cwd:root,env,encoding:'utf8',timeout:60000});
  const ok=args=>{const r=cli(args);assert.equal(r.status,0,r.stdout+r.stderr);return r;};
  write('.gitignore','.worktrees/\n.proof-or-stop/\nbuilt-version\n');write('CHANGELOG.md','# Changelog\n');
  for(const file of ['package.json','packages/main/package.json'])write(file,JSON.stringify({name:'proof-or-stop',version:'1.0.0',scripts:{build:'node ../../build.cjs'}},null,2)+'\n');

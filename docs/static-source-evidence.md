@@ -28,3 +28,16 @@ The existing v1 format already allowed structured excerpts; this change enforces
 their contents and diagnoses narrative-only entries explicitly. No schema shape
 is removed. Older stale manifests now need evidence regeneration and review;
 the scanner never silently refreshes or reclassifies their rationale.
+
+## Lab patch release transaction
+
+The Lab finish path refreshes already-valid evidence for its official patch-only
+version outputs in the same release commit. It verifies the old full-file digest
+and exact old excerpt before generating the new fields, and verifies every
+package change is limited to the official version fields. It also updates bound
+dependency hashes and preserves classifications and rationale. Stale prior
+evidence, invalid ranges, or non-version edits refuse the transaction and restore
+the prior version and manifest bytes. Other source changes still require source
+review and explicit evidence regeneration. The version regression runs a complete
+disposable Lab finish with a synthetic transport provider; this test fixture is
+not the independent Claude audit required for the real Lab candidate.

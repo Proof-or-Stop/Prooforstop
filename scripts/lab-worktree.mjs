@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {withLabVersionSourceEvidence} from './lab-version-source-evidence.mjs';
 import './lab-source-loader.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash, createHmac, randomBytes } from 'node:crypto';
@@ -740,7 +741,7 @@ async function main() {
       s.build = shouldBuildDoneMainPackageForChangedPaths(paths) || s.bump;
       const currentVersion = versions.readSyncedVersion(mainRoot);
       if (versions.readSyncedVersion(s.path) !== currentVersion) fail('Version drift: leave version changes to finish, based on latest main.');
-      const versionBump = s.bump ? versions.applyPatchBump(s.path) : undefined;
+      const versionBump = s.bump ? withLabVersionSourceEvidence(s.path, () => versions.applyPatchBump(s.path)) : undefined;
       s.version = versionBump?.to ?? currentVersion;
       s.notesHash = hash(notes);
       const changelog = join(s.path, 'CHANGELOG.md');
