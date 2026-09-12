@@ -125,6 +125,12 @@ Official sync completed in0.720s, then the isolated build passed in12.892s. The 
 
 The observer was loaded only into each verifier parent through `node --import`; it recorded monotonic elapsed time around the original `execFileSync` call and delegated the exact original arguments and options. It did not set NODE_OPTIONS or alter native child argv/environment, signed authority, receipt TTLs, source files, deadlines or return values. Every history call retained `timeout:300000, killSignal:'SIGKILL'`. The observed history margin is narrow: the slowest used292.967172167s, leaving7.032827833s (2.34% of its300s allowance). This run does not establish a universal timeout or throughput guarantee and did not reproduce an actual timeout. No budget adjustment is made from it.
 
+### v0.3.335 release-candidate timeout observation
+
+The final release-candidate wrapper reproduced the previously unobserved boundary failure: its history child emitted passing assertions through the runtime-recall tail and was then terminated by the unchanged 300000ms `execFileSync` ceiling before the final history and route markers. A direct unwrapped replay on the same candidate completed `FINDING_IDENTITY_HISTORY PASS 82 passing 0 failed cases`, `FINDING_IDENTITY_ROUTES PASS 82 passing 0 failed cases`, and `FINDING_IDENTITY_CANDIDATES PASS 82 passing 0 failed cases` in 333.42 seconds.
+
+The release correction changes only that verifier-child ceiling to 420000ms, approximately 26% above the measured complete run and still below the registered 600000ms outer resource-policy budget. The kill signal remains `SIGKILL`; the full 82-case workload, selectors, production command deadlines, receipt lifetimes, and runtime gate policies are unchanged. The complete wrapped verifier is replayed after this correction rather than inferring success from the unwrapped run.
+
 All three histories overlapped from03:47:19.850 to03:52:05.147 UTC, exactly285.297s. All completed with exit0 and the original `FINDING_IDENTITY_HISTORY PASS 82 passing 0 failed cases` marker. The maximum sampled one-minute load average was16.2119140625; this is host telemetry, not a causal attribution to these workers alone.
 
 Per-parent stage elapsed seconds (all status0, no signal):

@@ -1,5 +1,110 @@
 # Changelog
 
+## Lab historical-native-dispatch - v0.3.337 - 2026-09-12
+
+Fix native reviewer evidence validation across successive inventory waves.
+
+An earlier inventory critic PASS could become permanently invalid when a later wave dispatched the same critic lane. The consumer selected the latest dispatch instead of the dispatch sealed into that evidence. It then reported missing execution authority, which a valid later PASS could not supersede.
+
+The consumer now selects the exact dispatch digest sealed into the native evidence. Existing verification still requires a genuine dispatch event, matching role and round, purpose and inventory subject, current host identity, broker signature, writer identity and nonce consumption. Current-wave publication requirements and the latest-run rule for open Findings remain unchanged. This maintenance does not add execution-authority failures to supersession forgiveness.
+
+The native regression uses two real inventory waves. It checks both historical and current evidence, refuses current-wave finalization without its own critic, refuses an older run publishing into the new wave, and preserves supported same-subject redispatch. Tamper controls cover the sealed dispatch digest, writer, nonce, signature and substituted dispatch, including rejection through the evidence collector. The process-fact contract pins the consumer argument and the corresponding PASS and Finding registry descriptions.
+
+Verification commands are node scripts/verify-native-critic-dispatch-purpose.mjs and node scripts/verify-process-fact-contract.mjs. Exact commit bindings, RED and GREEN results, independent audit outcomes and integration checks are recorded by the official Lab maintenance workflow. Earlier failed audit reports and diagnostic timings remain in the maintenance audit records; they are not relabeled as successful runs. The release version and integration metadata are assigned by the official finish workflow.
+
+This is local maintenance. It neither publishes remotely nor marks the dependent Story complete.
+
+Maintenance provenance: codex/lab-historical-native-dispatch, repair 765bde6e9c2ce57d740e909dfac6f0194d4a86ef.
+Verification command (replayed before integration and on main): `["node","scripts/verify-native-critic-dispatch-purpose.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## v0.3.336 — Intent Authority, Route Integrity, and Executable Benchmark Evidence — 2026-09-12
+
+### Release scope
+
+This cumulative patch release promotes the complete `v0.3.332` through `v0.3.336` ancestry on top of `v0.3.331`. It combines five related reliability repairs: owner-approved verification-intent handoff, correct component direction for signed route restoration, complete full-suite resource registration for the new route regression, bounded static traversal of the native quorum fixture graph, and executable recovery of the historical benchmark mapping verifier.
+
+The release preserves every intervening commit rather than replaying selected patches. Earlier `v0.3.331` review-continuity, independent Lab-audit, Dynamic Finding, convergence, and reviewed-source protections therefore remain ancestors of this tag.
+
+### Problems resolved
+
+- The dedicated verification-intent role could prepare acceptance declarations for a benchmark or new file, but it could not hold the Story owner lease. The owner held the lease but had no exact, reviewable protocol for applying that independently prepared intent.
+- Verification-intent attribution could be lost or become ambiguous across semantic updates, append paths, signed recovery, event failures, or INIT-only checklist removal.
+- Story 2 route consent imported the Story 1 material re-attestation reader in the wrong direction, coupling the restoration path to a reverse component dependency.
+- The new route re-attestation regression was added to the canonical serial suite without a matching resource-policy row, causing the full-suite inventory builder to fail closed before test execution.
+- The static validation scanner stopped at its generic depth bound before reaching newly connected native certification and environment helpers in the quorum fixture graph.
+- An early traversal repair made the new native helper mandatory and therefore rejected the legitimate older quorum graph where that helper is absent.
+- Initial regression oracles did not independently prove positive process exit, required-import refusal, alternate-entry confinement, or caller-specific optional-import behavior.
+- The complete route regression still used a 300-second inner history timeout derived from the earlier `v0.3.331` observation. On the final `v0.3.335` candidate, all 82 history cases passed but required 333.42 seconds, so the wrapper killed a functionally green child before its final markers.
+- The historical benchmark mapping assertion program could exit successfully without emitting any of its five required evaluator reports or running the explicit wildcard, duplicate, extra-path, adapter, and group mutation controls.
+- Benchmark verifier failures could degrade into generic runtime exceptions, and malformed responsibility configuration was not distinguished by a stable diagnostic contract.
+
+### Resolution
+
+- Add a read-only `checklist_get` proposal preview that returns the exact prior-intent hash and normalized proposal digest. The active owner can apply only the matching intent through `checklist_update` with an explicit approval reason.
+- Keep owner lease, worktree, phase, schema, classification, scope, signed revision, and semantic no-op checks active. Role identity never grants an ownership bypass.
+- Persist diagnostic intent authorship against the semantic intent digest, clear it when superseded by append or reconstruction, and restore it only with an exact signed checkpoint recovery.
+- Align `checklist_remove` with its INIT-only lifecycle contract and record the resolved actor without expanding the registered mutation authority.
+- Move signed route restoration to the correct owner boundary and inject a typed internal reader through the existing registry. Public command input cannot supply or replace that reader.
+- Validate route restoration across the component DAG, exact source references, workspace binding, route proof, progress revalidation, history recall, and automatic deferral recall while preserving recursion and target-only dependency boundaries.
+- Register the route regression as a shared repository reader with private fixture ownership and a finite measured timeout. Keep it outside machine-wide heavy serialization so unrelated tests may overlap safely.
+- Extend static traversal only for the exact configured native helper edges and depth positions. The default depth-three rule, invocation classification, argv policy, exception requirements, dependency hashing, and unknown-helper refusal remain unchanged.
+- Treat the newly connected certification helper as optional only for its named caller. Preserve every original required import and reject the same literal from unrelated workers or entry points.
+- Strengthen the fixture matrix with real positive exit checks, missing-required-import refusal, reversed and computed import controls, unknown and over-depth helper refusal, source-witness integrity, alternate-entry traversal, and caller-confinement mutations.
+- Raise only the route verifier's history-child ceiling to a finite 420 seconds, providing approximately 26% headroom over the measured final-candidate run while remaining below the registered 600-second outer command budget. No production timeout changes.
+- Preserve the historical benchmark program byte-for-byte as a nested verifier, execute its actual mutation matrix in disposable configurations, and require candidate, baseline, unregistered, malformed, and missing-topology reports.
+- Pin the historical program digest, independently verify emitted bytes, reject an altered-program control, surface child errors and signals explicitly, and cover twelve named invalid-input configurations including missing, null, and non-array responsibility maps.
+
+### Before and after
+
+| Area | Before | After |
+| --- | --- | --- |
+| Intent preparation | The intent specialist could author a declaration but could not safely hand it to the lease-holding owner | A read-only preview produces exact hashes and the owner applies only the reviewed, non-stale proposal |
+| Ownership boundary | Role environment and owner lease needs conflicted | The owner remains the sole mutating authority; independent authorship remains diagnostic |
+| Intent history | Attribution could drift across update, append, recovery, or event failure paths | Attribution is bound to semantic content and follows explicit persistence, clearing, and recovery rules |
+| Checklist removal | Admission did not match the intended lifecycle boundary | Removal is INIT-only and uses one resolved actor identity without granting role deletion authority |
+| Route architecture | Route restoration depended backward on the material re-attestation consumer | The existing owner composes a typed signed-restoration reader in the correct dependency direction |
+| Route proof coverage | Direction and restoration behavior were not tested together across native history paths | Static forbidden-edge checks and complete native material/head-only fixtures execute in one pinned regression |
+| Full-suite inventory | The route verifier was a serial member with no scheduling policy | Script membership and resource policy agree, with bounded timeout and deletion mutation coverage |
+| Static fixture traversal | Two native helper rows remained unexpanded beyond the generic depth bound | Only the exact quorum-native path is traversed at its registered deeper positions |
+| Backward compatibility | Making the new helper required broke the valid older quorum graph | The helper is optional for one exact caller while all previous required imports stay mandatory |
+| Scanner fail-closed behavior | Early tests did not distinguish global allowance from caller-bound allowance | Alternate entry, unrelated worker, missing source, computed import, and deeper unknown paths all remain refused |
+| Route history test budget | A 300-second child cap killed a run whose 82 assertions completed successfully in 333.42 seconds | A measured 420-second child cap preserves the complete matrix under the existing finite outer budget |
+| Benchmark map evidence | The historical verifier could report success after producing zero required evaluator observations | The recovery contract requires five report classes, executes the real mutation matrix, and rejects missing observations |
+| Benchmark input diagnostics | Malformed rows or configuration could fail through incidental exceptions | Twelve invalid configurations are bound to explicit row, baseline, topology, or invalid-config diagnostics |
+
+### Direct effects
+
+- Benchmark and other new-file Stories can receive independently prepared verification intent without weakening the active owner lease.
+- Owners can inspect an exact proposal digest before mutation, and stale or substituted proposals fail with distinct diagnostics.
+- Route re-attestation, progress, history, and deferral recall share the correct signed restoration provider without reintroducing the reverse dependency.
+- The canonical full-suite runner can schedule the route-direction regression instead of aborting during inventory construction.
+- Static validation sees the complete supported native quorum helper chain while retaining bounded traversal and caller-specific confinement.
+- Existing quorum fixtures that do not use the optional certification helper remain valid.
+- Audit-discovered oracle weaknesses are retained as regression controls rather than being represented as successful earlier evidence.
+- The complete route verifier can finish its green history matrix without converting bounded host variation into a false regression.
+- Benchmark responsibility-map recovery now proves that its evaluator actually ran and produced the required observations instead of treating process exit alone as evidence.
+- Historical baseline identity and verifier bytes are pinned, so a substituted program or missing configuration cannot silently satisfy the recovery check.
+
+### Verification evidence
+
+The release retains each Lab's exact RED/GREEN history and independent audit record in the detailed entries below. Publication verification replays the current source build and the focused executable contracts on the final release candidate. The first release-candidate route replay timed out at the former 300-second child ceiling after emitting passing assertions; an independent unwrapped replay completed all 82 cases in 333.42 seconds, establishing the bounded timeout correction before the complete wrapped command was repeated.
+
+Principal commands:
+
+- `npm run build`
+- `node scripts/verify-intent-owner-lease.mjs`
+- `node scripts/verify-route-reattestation-dependency-direction.mjs`
+- `node packages/main/dist/tasks/full-suite-runner-smoke.js`
+- `node scripts/verify-validation-static-edge-boundaries.mjs`
+- `node scripts/verify-process-fact-contract.mjs`
+- `node scripts/verify-reviewed-source-bindings.mjs`
+- `node scripts/verify-benchmark-map-recovery-contract.mjs`
+
+### Compatibility and limits
+
+This is a patch release with no intentional public CLI removal. The proposal preview is diagnostic and does not approve acceptance intent, grant reviewer authority, or replace signed lifecycle evidence. Route restoration remains strict for standalone drift and cannot be injected through public JSON. Deeper scanner traversal is limited to registered caller/helper/depth combinations and does not approve newly discovered process invocations or erase existing review debt. Benchmark recovery remains a bounded diagnostic tied to its pinned historical baseline and built candidate; it does not modify Story metadata, apply pending acceptance amendments, or constitute formal benchmark evidence integration. Lab records remain maintenance provenance rather than formal Story DONE or operational qualification.
+
 ## Lab benchmark-map-verifier - v0.3.336 - 2026-09-12
 
 Repair the missing executable coverage in the historical B-0980 benchmark mapping verifier. The original assertion program could exit successfully without emitting any of the five required evaluator reports or executing the explicit row-mutation controls. Retain its exact bytes as a nested verifier, execute wildcard, duplicate, extra-path, adapter and group mutations with restored controls in disposable configurations, and emit actual candidate/baseline/unregistered/malformed/missing-topology reports. A separate subprocess regression rejects missing observations and twelve invalid input configurations. The verifier intentionally requires the pinned historical baseline commit and a built candidate checkout; it is a bounded recovery diagnostic, not a general benchmark runner.
