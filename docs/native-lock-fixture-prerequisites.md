@@ -88,3 +88,18 @@ queue cases retain actual signed routine and DONE-required publication checks.
 The cleanup contract also waits past a completed child wait deadline and asserts
 that its kill method was never called. Capacity-holder cleanup cannot prevent
 cwd restoration or fixture removal when the holder promise rejects.
+
+
+Coverage follow-up: the official draft
+[native-lock-regression-coverage](story/drafts/native-lock-regression-coverage/background.md)
+is owned by framework validation maintenance. The standalone driver is currently
+operator-invoked, not scheduled by ordinary validation. The focused writer cases
+prove exclusion and preservation of prior routine PASS, not new full-validation
+PASS publication overlapping that writer. The dual-order queue cases prove new
+signed publication, and assertPostCommandPersistenceHoldsLock covers the separate
+post-command lock boundary. The draft owns a legal combined full-writer witness
+and automatic suite registration; neither is claimed completed by this Lab.
+
+Native capacity holders use explicit acquisition deadlines and race readiness
+against holder failure. Both queue directions release their probes and wait for
+owned children before removing roots, including when an earlier assertion fails.

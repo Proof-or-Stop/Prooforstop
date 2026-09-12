@@ -687,7 +687,7 @@ async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
   let holder:Promise<void>|undefined;
   let proc: SpawnedChild | undefined;
   try {
-  holder = withWorkspaceValidationCapacity({ root, workspaceRoot: root, command: 'policy-drift-holder' }, async () => { ready(); await releasePromise; });
+  holder = withWorkspaceValidationCapacity({ root, workspaceRoot: root, command: 'policy-drift-holder', deadlineAt:Date.now()+NATIVE_ENTRY_WAIT_MS }, async () => { ready(); await releasePromise; });
     await Promise.race([entered,holder]);
     proc = spawnCommand(root, ['done_required_validate', JSON.stringify({ storyId, json: true })], 'policy-drift-contender');
     assert.equal(await waitForOutput(proc, /waiting for workspace validation capacity/, NATIVE_ENTRY_WAIT_MS), true, proc.output());
@@ -706,6 +706,7 @@ async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
     console.log('QUEUED_POLICY_DRIFT_GREEN: changed physical config refuses stale cached policy before zero command starts');
   } finally {
     releaseCapacity?.(); await holder?.catch(() => undefined);
+    release(root);
     if (proc && proc.child.exitCode === null) await waitChild(proc, 12000);
     rmSync(root, { recursive: true, force: true });
   }
@@ -732,11 +733,12 @@ async function assertUnadmittedDoneRequiredNeverExecutes(): Promise<void> {
 
 async function assertDoneRequiredSharesValidateLock(): Promise<void> {
   const { root, storyId } = await createNativeLockFixture('B-validate-required','REVIEW',false);
+  let validate:SpawnedChild|undefined,doneRequired:SpawnedChild|undefined;
   try {
-    const validate = spawnValidate(root, storyId, 'done-required-holder');
+    validate = spawnValidate(root, storyId, 'done-required-holder');
     assert.equal(await waitForEntered(root, 1, NATIVE_ENTRY_WAIT_MS), true, 'validate must enter before done_required_validate starts: '+validate.output());
 
-    const doneRequired = spawnCommand(root, [
+    doneRequired = spawnCommand(root, [
       'done_required_validate',
       JSON.stringify({ storyId, json: true }),
     ], 'done-required-contender');
@@ -763,18 +765,21 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
       assert.ok(evidence?.storyFilesHash, `${label} evidence must bind storyFilesHash`);
     }
   } finally {
+    release(root);
+    for(const proc of [validate,doneRequired])if(proc&&proc.child.exitCode===null)await waitChild(proc,12000);
     rmSync(root, { recursive: true, force: true });
   }
 
   const reverse = await createNativeLockFixture('B-required-validate','REVIEW',false);
+  validate=undefined;doneRequired=undefined;
   try {
-    const doneRequired = spawnCommand(reverse.root, [
+    doneRequired = spawnCommand(reverse.root, [
       'done_required_validate',
       JSON.stringify({ storyId: reverse.storyId, json: true }),
     ], 'reverse-done-holder');
     assert.equal(await waitForEntered(reverse.root, 1, NATIVE_ENTRY_WAIT_MS), true,
       'done_required_validate must enter before reverse validate starts: '+doneRequired.output());
-    const validate = spawnValidate(reverse.root, reverse.storyId, 'reverse-validate-contender');
+    validate = spawnValidate(reverse.root, reverse.storyId, 'reverse-validate-contender');
     assert.equal(await waitForOutput(validate, /waiting for workspace validation capacity/, NATIVE_ENTRY_WAIT_MS), true,
       `reverse validate must visibly wait; output=${validate.output()}`);
     assert.equal(enteredCount(reverse.root), 1, 'reverse validate must not enter while done_required holds capacity');
@@ -790,6 +795,8 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
     assert.equal(store.readDoneRequiredEvidence(reverse.storyId)?.status, 'PASS');
     assert.equal(store.readTestEvidence(reverse.storyId)?.result, 'PASS');
   } finally {
+    release(reverse.root);
+    for(const proc of [validate,doneRequired])if(proc&&proc.child.exitCode===null)await waitChild(proc,12000);
     rmSync(reverse.root, { recursive: true, force: true });
   }
 }
@@ -1432,9 +1439,9 @@ async function assertDerivedVerdictRefusalWaitsForCapacity():Promise<void> {
  let holder:Promise<void>|undefined;
  try {
   let ready!:()=>void;const entered=new Promise<void>(resolve=>{ready=resolve;});
-  const release=new Promise<void>(resolve=>{releaseOwner=resolve;});
-  holder=withWorkspaceValidationCapacity({root,workspaceRoot:root,requireGitIdentity:true,command:'derived-refusal-holder'},async()=>{ready();await release;});
-  await entered;
+  const holderRelease=new Promise<void>(resolve=>{releaseOwner=resolve;});
+  holder=withWorkspaceValidationCapacity({root,workspaceRoot:root,requireGitIdentity:true,command:'derived-refusal-holder',deadlineAt:Date.now()+NATIVE_ENTRY_WAIT_MS},async()=>{ready();await holderRelease;});
+  await Promise.race([entered,holder]);
   let settled=false;
   const verdict=Promise.resolve(createVerdictHandlers({root,scanRoot:join(root,'packages/main'),store}).autopilot_review_submit({
    storyId,runId:'refusal-contract',hostId:'fixture',provider:'codex',sessionId:'fixture',decision:'pass',deriveBindings:true,json:true,
@@ -1479,11 +1486,12 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
       workspaceRoot: root,
       requireGitIdentity: true,
       command: 'starved-live-validation-writer',
+      deadlineAt:Date.now()+NATIVE_ENTRY_WAIT_MS,
     }, async () => {
       ownerReady();
       await releasePromise;
     });
-    await ready;
+    await Promise.race([ready,holder]);
 
     let verdictSettled = false;
     const verdictPromise = Promise.resolve(createVerdictHandlers({ root, scanRoot: join(root, 'packages/main'), store })
