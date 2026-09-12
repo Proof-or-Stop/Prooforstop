@@ -1,5 +1,77 @@
 # Changelog
 
+## Lab dynamic-finding-validation-tier-boundary - v0.3.349 - 2026-09-12
+
+### Problem
+
+The Story-aware validation planner could classify changes to Dynamic Finding lifecycle-gate implementation files as `story-fast`. The process-fact registry carried a five-path Dynamic Finding list, but it declared no validation tier floor and the planner did not consume those paths as validation authority. Early repair attempts also demonstrated the opposite failure mode: deriving the floor from every L4 process fact widened unrelated L4 changes to `repository-full`.
+
+### Behavior change
+
+This repair adds an explicit, opt-in `validationTierFloor: repository-full` contract to process-fact declarations. The Dynamic Finding applicability gate is the first declared floor. Its governed source surface is derived from the canonical producer, semantic-verifier, and per-consumer policy source references rather than from a second hand-maintained list. The resulting set contains 15 distinct implementation and gate-consumer paths.
+
+Changes to those declared Dynamic Finding authority paths now force `repository-full` validation even when the impact index marks them fast. Unrelated L4 facts remain eligible for Story-relevant fast or intermediate selection; `runtime:machine_provider_admission` and `packages/main/src/core/provider-process-admission.ts` provide the explicit negative control without supplying changed-file or baseline input to the selector.
+
+The projection fails closed. Unknown floor values, non-L4 floor declarations, missing or empty authored paths, malformed decoded entries, invalid path leaves, rejected entries, or an unavailable/empty floor projection widen to `repository-full`. The planner always consumes the live registry first; its internal verification injection can only add paths or force widening and cannot suppress a real floor. Invalid dependency objects receive a named error, and a source-level regression guard proves the CLI handler does not populate the internal dependency seam.
+
+Decoded projections also carry the exact set of floor-owner IDs. The selector compares that set with the live registry owners, so a future multi-floor snapshot cannot silently lose one floor while retaining another. The operator matrix contains all 21 runtime reason codes, all seven normalized outcomes, and exact condition text; a bidirectional test now refuses documentation/runtime drift. The authority relationship is recorded in `docs/requirements/decisions/validation-widening-matrix-authority.md` rather than asserted by the operator guide alone.
+
+### RED and GREEN evidence
+
+- Initial RED `82e51d5f03` reproduced a Dynamic Finding gate path incorrectly remaining `story-fast`; elapsed 16.438 seconds.
+- Coverage RED `7534abb651` reproduced incomplete L4 consumer-gate pattern coverage; elapsed 16.896 seconds.
+- Policy-completeness RED `a91483aca3` reproduced omitted proof and consumer authority plus an unavailable projection gap; elapsed 23.692 seconds.
+- Dependency-seam RED `43cc620a37` reproduced the ambiguous explicit-undefined contract; elapsed 12.086 seconds.
+- Audit-gap REDs subsequently exposed malformed helper inputs, incomplete source-token bindings, stale inventory evidence, a missing decoded floor owner, and one-sided documentation authority. Each was repaired before the next GREEN; none was treated as product PASS evidence.
+- Final fresh GREEN at `5ddcc63423965a78dae58184dbd317b580cbd7d9` replayed the exact recorded command and passed; elapsed 8.850 seconds. It is synchronized with local main `a8240a60bd33dd1d6ba2fee2966547cd109cc070` at version 0.3.348.
+
+The final validation-tier smoke passed its CHK groups with 25, 13, 18, 28, 20, and 13 cases respectively, plus its cross-cutting RED-before-GREEN, schema-bypass, real-resource-registration, output-identity, DoneWhen-coverage, and bounded-output guards. Default stdout was 2,507 characters against the 11,000-character bound.
+
+Additional verification passed:
+
+- TypeScript no-emit typecheck for `packages/main`.
+- Process-fact contract verification.
+- Runtime-fact contract verification, including 691 path-parity cases and warm/cold operation counts of 8/8.
+- Dynamic Finding applicability suite: 50 GREEN cases and 5/5 RED acceptance cases.
+- Story-aware validation smoke.
+- Static validation-edge verification (`needsReview=0`, 326 complete exceptions).
+- Production test-seam guard.
+- Git diff whitespace validation.
+
+Anthropic Claude audit run `1cd50de6-0d00-44b3-b27b-2a431f602be5` passed exact candidate `5ddcc63423965a78dae58184dbd317b580cbd7d9` with zero findings and took 449.365 seconds. This candidate includes the isolated projection-branch controls and exact a824 baseline comparison added after the prior evidence audit. Earlier passing run `07786ebe-2648-4dfb-9413-012cf8374bad` explicitly confirmed the exact 15-path union and literal pin, retention of every former widening path, monotone injection with no narrowing seam, fail-closed declaration/projection layering, exact 21-row document/runtime matrix parity, the 168-command inventory re-pin as a repair rather than an acceptance relaxation, and honest implementation-presence token semantics. It also confirmed that the provider-admission negative control and certification-window near-miss prove the floor does not overmatch.
+
+The final audit followed multiple fail-and-repair rounds. The immediately preceding failed run, `00fda0e7-724d-4c95-98d3-56ca50a18ec0`, identified three proof-quality gaps: the consumer/path authority could self-verify after a coordinated shrink, the repository-baseline negative control was selector-adjacent, and consumer token wording overstated what token presence proves. The final candidate independently pins all 10 consumers and 15 floor paths, uses provider admission as the unrelated L4 control, and narrows token claims to implementation presence. The final audit found no correctness defect, regression, bypass, version/retry error, or missing-test gap.
+
+The first post-bump audit, run `02a05c9d-7708-4df5-9f51-efad02ff60ae` on version candidate `506c5e49befecdc773d3f230da602e51b9dac807`, confirmed the runtime repair and version/static bindings but rejected two release-artifact defects: a tuple-comparison stdout block contained fields not emitted by its displayed command, and these notes generated invalid CHANGELOG heading levels. The Lab was reopened; the exact six-key tuple output was re-run and recorded, and this release entry now contains only level-three subsections under the Lab release heading.
+
+The next audit, run `ef30c76e-6afb-407d-9e65-22af6fd46ffa`, confirmed the runtime mechanism again but found two additional proof gaps: several projection negatives shared one malformed-envelope cause, and the reviewed-source parity record still named superseded main 0.3.347. The repair now isolates shape-valid empty and rejected projections, separates malformed-shape cases, adds a non-vacuous available-projection control, and records byte-identical stdout from exact base `a8240a60` and the synchronized candidate.
+
+### Performance statement
+
+This repair changes safety classification, not command execution speed. The recorded smoke durations are reproducibility observations and are not used to claim a measured performance improvement. The optimization is bounded avoidance of an unsafe repository-wide expansion: unrelated non-floored L4 paths remain eligible for the existing Story-relevant tier selector instead of being forced to full solely because they are L4.
+
+### Scope
+
+The substantive repair files are the process-fact registry, validation-tier planner, validation-tier planner smoke suite, operator guide, canonical matrix-authority decision, detailed Lab evidence log, and `scripts/lab/u18-static-edges/exceptions.json` for the two reviewed dependency-digest rebinds. The Lab finish adds normal release churn in `CHANGELOG.md`, root/main manifests and lockfiles, `packages/main/src/core/proof-or-stop-brand.ts`, and any version-bound static-evidence fields required by the release helper. This release does not claim to classify, deduplicate, or benchmark the complete repository validation command inventory; the current inventory remains 168 commands with digest `e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b`, and the exact base-to-candidate normalized tuple comparison is `added=[]`, `removed=[]`.
+
+Maintenance provenance: codex/lab-dynamic-finding-validation-tier-boundary, repair 5ddcc63423965a78dae58184dbd317b580cbd7d9.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/validation-tier-planner-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab identity-site-receipt-closure - v0.3.348 - 2026-09-12
+
+The canonical identity-sites and runtime fixture groups failed on local main 0.3.347 after earlier integrations changed production context without updating exact fixture expectations. The repair reconciles three owned identity-site pins, seven imported-use pins, and one unchanged-count scheduler resource classification against recovered historical source and the reviewed current callsites. It also supplies story_reconcile dryRun:false for the existing required-writer assertion and covers both default and explicit dryRun:true as observations. No production source, operation ownership, site ID, acceptance boundary, or mutation refusal is removed or relaxed.
+
+The regression commits add real source mutations for a same-count signer-directory move, a same-count scheduler-resource relocation, additional owned identity/config uses, and additional actual imported-binding uses in each reconciled import consumer. The exact handler, shared-predicate, schema and ownership excerpts and hashes establish that omitted story_reconcile arguments really are report-only. The durable command is node scripts/verify-canonical-context-reconciliation.mjs; the committed driver runs both child groups without evaluated JavaScript embedded in the recorded command. Historical source provenance and semantic review are recorded in docs/lab-identity-context-reconciliation.md. The unchanged historical fixture assertion is reanchored with its exact bytes and source hash; the fixture inventory reader, checker fingerprint and static exceptions propagate those reviewed dependencies with preserved call digests, classifications, invocations and every manifest row, including repeated IDs.
+
+The initial official Lab RED ran both original groups and reproduced the signer-context/count failure plus the story_reconcile default-mode mismatch in 193.999 seconds. After independent review, the exact original signer pin was temporarily restored in a committed witness so the official CLI could bind a durable script entrypoint. That second RED took 190.035 seconds and reproduced the signer failure while the already repaired runtime group remained passing. The reviewed signer pin was then restored; all historical Lab records remain intact. The focused identity-sites group passed 17.479 seconds with source/emitted totality and existing plus new mutation controls; the production static scanner passed 1.265 seconds. Official GREEN and finish rerun the same two-group command on the committed candidate and integrated main. These are local maintenance checks, not formal Story DONE or product-release evidence. No performance improvement is claimed.
+
+Scope boundary: an additional identity scanner --self-test probe fails on BOTH unchanged main 347 and the Lab at the same 'both-family exact contexts or witnesses are not current' assertion (main 0.223 seconds, candidate 0.215 seconds). This is a separate pre-existing identity-context issue being repaired in Story B-e6d9; this Lab does not claim global identity-cutover success or silently expand into that work. The independent Claude audit must assess this bounded fixture repair and its preserved negative controls. No remote push is authorized or performed by this Lab.
+
+Maintenance provenance: codex/lab-identity-site-receipt-closure, repair 5d0538eaa5ecb1162c8084eff252101eb9a8d42c.
+Verification command (replayed before integration and on main): `["node","scripts/verify-canonical-context-reconciliation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab verification-intent-mirror-sync - v0.3.347 - 2026-09-12
 
 The verification-intent Claude mirror omitted the repository-baseline scope, expectation, provenance and requirement-reference guidance already present in the canonical registered prompt template. The active mirror now comes directly from readPromptRegistry and renderPromptEntryForHost for that role and host. This retains the current distinction between focused absolute-pass acceptance and repository-health no-new-regressions expectations; it changes no policy implementation or test assertion.

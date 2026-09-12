@@ -61,6 +61,10 @@ export type ProcessFactSemantic =
 
 export const REPRO_BOOTSTRAP_COMPONENT_IDS = ['P0m', 'P0p', 'P1', 'P1f', 'P2a', 'P2b'] as const;
 export type ReproBootstrapComponentId = typeof REPRO_BOOTSTRAP_COMPONENT_IDS[number];
+/** The only process-fact floor the current selector implements. */
+export const VALIDATION_TIER_FLOOR = 'repository-full' as const;
+export type ValidationTierFloor = typeof VALIDATION_TIER_FLOOR;
+export const DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME = 'runtime:dynamic_finding_applicability_gate' as const;
 
 export interface ProcessFactArtifactRef {
   name: string;
@@ -85,6 +89,8 @@ export interface ProcessFactRegistryEntry {
   kind: ProcessFactKind;
   semantics: readonly ProcessFactSemantic[];
   level: ProcessFactLevel;
+  /** Validation tier floor for changes to this fact's explicitly governed paths. */
+  validationTierFloor?: ValidationTierFloor;
   lifecycle?: CommandLifecycleStatus;
   allowedPhases?: readonly CommandPhase[] | 'all';
   rootOnly?: boolean;
@@ -299,7 +305,36 @@ export function projectComponentProcessFactMapping(
   return tuples;
 }
 
-function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration): ProcessFactRegistryEntry {
+export function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration): ProcessFactRegistryEntry {
+  if (entry.name === DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME
+    && (entry.validationTierFloor !== 'repository-full'
+      || !Array.isArray(entry.paths)
+      || entry.paths.length === 0)) {
+    throw new ProcessFactRegistryMappingError(
+      'process-non-total',
+      `${DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME} requires explicit validation floor paths`,
+    );
+  }
+  if (entry.validationTierFloor !== undefined) {
+    if (entry.validationTierFloor !== VALIDATION_TIER_FLOOR) {
+      throw new ProcessFactRegistryMappingError(
+        'process-non-total',
+        `${entry.name} has unknown validationTierFloor: ${String(entry.validationTierFloor)}`,
+      );
+    }
+    if (entry.level !== 'L4') {
+      throw new ProcessFactRegistryMappingError(
+        'process-non-total',
+        `${entry.name} validationTierFloor requires level L4`,
+      );
+    }
+    if (!Array.isArray(entry.paths) || entry.paths.length === 0) {
+      throw new ProcessFactRegistryMappingError(
+        'process-non-total',
+        `${entry.name} validationTierFloor requires explicitly authored paths`,
+      );
+    }
+  }
   const declaredPaths = entry.paths ?? PROCESS_FACT_DECLARATION_PATHS_BY_KIND[entry.kind];
   if (!declaredPaths) {
     throw new ProcessFactRegistryMappingError('process-missing', `${entry.name} has no authored mapping for kind ${entry.kind}`);
@@ -393,11 +428,80 @@ export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
   { recordClass: 'ledger-receipt', recordTypes: ['finding_ledger_receipt'], level: 'L2', producer: 'handlers/finding-ledger.appendFindingLedger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'The signed commit receipt proves persistence integrity only and never the truth of committed content.' },
 ] as const satisfies readonly Story3PersistenceOnlyRecordPolicy[];
 
+export const DYNAMIC_FINDING_ALLOWED_CONSUMERS = [
+  'finding_triage',
+  'storyMachine.canPassReview',
+  'getGuardFailureReason',
+  'reviewer_batch',
+  'reviewer_status',
+  'review_convergence',
+  'lifecycle_readiness',
+  'certification_window',
+  'storyMachine.canFinish',
+  'story-aware-validation additive constraints',
+] as const;
+
+export const DYNAMIC_FINDING_SEMANTIC_VERIFIER_SOURCE_REFS = [
+  'packages/main/src/handlers/finding-applicability-proof.ts',
+  'packages/main/src/handlers/finding-deferral-proof.ts',
+] as const;
+
+export const DYNAMIC_FINDING_PRODUCER_COMMANDS = [
+  'finding_applicability_assess',
+  'finding_applicability_batch',
+  'finding_deferral_record',
+  'finding_mandatory_repair_close',
+] as const;
+
+export const DYNAMIC_FINDING_PRODUCER_SOURCE_REFS_BY_COMMAND = {
+  finding_applicability_assess: ['packages/main/src/handlers/finding-applicability.ts'],
+  finding_applicability_batch: ['packages/main/src/handlers/finding-applicability.ts'],
+  finding_deferral_record: ['packages/main/src/handlers/finding-applicability.ts'],
+  finding_mandatory_repair_close: ['packages/main/src/handlers/finding-applicability.ts'],
+} as const satisfies Record<typeof DYNAMIC_FINDING_PRODUCER_COMMANDS[number], readonly string[]>;
+
+export const DYNAMIC_FINDING_CONSUMER_SOURCE_REFS = {
+  finding_triage: ['packages/main/src/handlers/finding-applicability.ts'],
+  'storyMachine.canPassReview': ['packages/main/src/core/machine.ts'],
+  getGuardFailureReason: [
+    'packages/main/src/core/machine.ts',
+    'packages/main/src/core/guard-utils.ts',
+  ],
+  reviewer_batch: ['packages/main/src/handlers/reviewer-batch.ts'],
+  reviewer_status: ['packages/main/src/core/reviewer-status.ts'],
+  review_convergence: ['packages/main/src/core/review-convergence.ts'],
+  lifecycle_readiness: ['packages/main/src/core/lifecycle-readiness.ts'],
+  certification_window: ['packages/main/src/core/certification-window.ts'],
+  'storyMachine.canFinish': ['packages/main/src/core/machine.ts'],
+  'story-aware-validation additive constraints': ['packages/main/src/core/story-aware-validation.ts'],
+} as const satisfies Record<typeof DYNAMIC_FINDING_ALLOWED_CONSUMERS[number], readonly string[]>;
+
+// These tokens prove only that each mapped consumer implementation remains present.
+// Independent literal consumer/path pins in validation-tier-planner-smoke protect the
+// Dynamic Finding validation-floor authority boundary against coordinated shrinkage.
+export const DYNAMIC_FINDING_CONSUMER_IMPLEMENTATION_TOKENS = {
+  finding_triage: ['finding_triage'],
+  'storyMachine.canPassReview': ['canPassReviewGuard'],
+  getGuardFailureReason: ['getGuardFailureReason'],
+  reviewer_batch: ['reviewer_batch'],
+  reviewer_status: ['summarizeReviewerStatus'],
+  review_convergence: ['assessReviewConvergence'],
+  lifecycle_readiness: ['buildStoryReadinessReport'],
+  certification_window: ['projectCertificationWindowStatus'],
+  'storyMachine.canFinish': ['canFinishGuard'],
+  'story-aware-validation additive constraints': ['classifyFullValidationReasons'],
+} as const satisfies Record<typeof DYNAMIC_FINDING_ALLOWED_CONSUMERS[number], readonly string[]>;
+
 export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
   producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
+  producerCommands: DYNAMIC_FINDING_PRODUCER_COMMANDS,
+  producerSourceRefsByCommand: DYNAMIC_FINDING_PRODUCER_SOURCE_REFS_BY_COMMAND,
   semanticVerifier: 'handlers/finding-applicability-proof current reviewer proposal and executed pinned witness; finding-deferral-proof signed policy/exact progress lineage; exact ledger/CAS, route and current-source checks; repair closure rechecks runtime artifacts, environment and key trust across material-identical descendant commits',
-  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'review_convergence', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish', 'story-aware-validation additive constraints'],
+  semanticVerifierSourceRefs: DYNAMIC_FINDING_SEMANTIC_VERIFIER_SOURCE_REFS,
+  allowedConsumers: DYNAMIC_FINDING_ALLOWED_CONSUMERS,
+  consumerSourceRefsByConsumer: DYNAMIC_FINDING_CONSUMER_SOURCE_REFS,
+  consumerImplementationTokensByConsumer: DYNAMIC_FINDING_CONSUMER_IMPLEMENTATION_TOKENS,
   gateEvidence: true,
   lifecycleAuthority: 'dynamic-blocker-projection-only',
   rollout: ['observe', 'warn', 'enforce'],
@@ -1548,6 +1652,19 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/handlers/transition-orchestrator.ts',
     ],
   },
+  [DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME]: {
+    producerSourceRefs: [
+      'packages/main/src/core/finding-applicability.ts',
+      'packages/main/src/core/finding-applicability-projection.ts',
+      'packages/main/src/handlers/finding-material-reattestation.ts',
+      ...new Set(Object.values(PROCESS_FACT_DYNAMIC_FINDING_POLICY.producerSourceRefsByCommand).flat()),
+      ...PROCESS_FACT_DYNAMIC_FINDING_POLICY.semanticVerifierSourceRefs,
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/handlers/transition-orchestrator.ts',
+      ...new Set(Object.values(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer).flat()),
+    ],
+  },
 };
 
 const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEVELS
@@ -1557,15 +1674,23 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
   const sourceRefs = RUNTIME_PROCESS_FACT_SOURCE_REFS[entry.name];
   const rootOnly = policy ? policy.rootOnly === true || policy.status === 'rootOnly' : undefined;
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
+  const isDynamicFindingValidationFloor = entry.name === DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME;
+  const validationFloorDeclaration = (() => {
+    if (!isDynamicFindingValidationFloor) return {};
+    if (!sourceRefs) {
+      throw new ProcessFactRegistryMappingError(
+        'process-missing',
+        `${DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME} has no authored runtime source mapping`,
+      );
+    }
+    return {
+      validationTierFloor: 'repository-full' as const,
+      paths: [...new Set([...sourceRefs.producerSourceRefs, ...sourceRefs.consumerSourceRefs])],
+    };
+  })();
   return {
     name: entry.name,
-    ...(entry.name === 'runtime:dynamic_finding_applicability_gate' ? {paths: [
-      'packages/main/src/core/finding-applicability.ts',
-      'packages/main/src/core/finding-applicability-projection.ts',
-      'packages/main/src/handlers/transition-orchestrator.ts',
-      'packages/main/src/handlers/finding-material-reattestation.ts',
-      'packages/main/src/core/certification-window.ts',
-    ]} : {}),
+    ...validationFloorDeclaration,
     kind: commandFactKind(entry.name, entry.level),
     semantics: commandFactSemantics(entry.name, entry.level),
     level: entry.level,
@@ -2539,6 +2664,66 @@ export const PROCESS_FACT_REGISTRY_BY_NAME: Record<string, ProcessFactRegistryEn
 
 export function getProcessFactRegistryEntry(name: string): ProcessFactRegistryEntry | undefined {
   return PROCESS_FACT_REGISTRY_BY_NAME[name];
+}
+
+/**
+ * Return paths whose process-fact declaration explicitly requires full
+ * repository validation. Accept an unknown-shaped list so a consumer cannot
+ * crash while projecting a stale or independently decoded registry snapshot;
+ * malformed entries contribute no validation authority.
+ */
+export function collectRepositoryFullProcessFactPaths(
+  entries: readonly unknown[] = PROCESS_FACT_REGISTRY,
+): { paths: string[]; rejectedEntryCount: number; floorOwnerIds: string[] } {
+  const paths = new Set<string>();
+  const floorOwnerIds = new Set<string>();
+  let rejectedEntryCount = 0;
+  for (const candidate of entries) {
+    if (!candidate || typeof candidate !== 'object') {
+      rejectedEntryCount += 1;
+      continue;
+    }
+    const entry = candidate as {
+      factId?: unknown;
+      name?: unknown;
+      level?: unknown;
+      validationTierFloor?: unknown;
+      paths?: unknown;
+    };
+    if (entry.validationTierFloor === undefined) continue;
+    const floorOwnerId = typeof entry.factId === 'string' && entry.factId.trim() !== ''
+      ? entry.factId.trim()
+      : typeof entry.name === 'string' && entry.name.trim() !== ''
+        ? entry.name.trim()
+        : '';
+    if (
+      entry.validationTierFloor !== VALIDATION_TIER_FLOOR
+      || entry.level !== 'L4'
+      || !Array.isArray(entry.paths)
+      || entry.paths.length === 0
+      || floorOwnerId === ''
+    ) {
+      rejectedEntryCount += 1;
+      continue;
+    }
+    let rejectedLeaf = false;
+    let acceptedLeaf = false;
+    for (const path of entry.paths) {
+      try {
+        paths.add(normalizeProcessFactPath(path, 'process-non-total'));
+        acceptedLeaf = true;
+      } catch {
+        rejectedLeaf = true;
+      }
+    }
+    if (acceptedLeaf) floorOwnerIds.add(floorOwnerId);
+    if (rejectedLeaf) rejectedEntryCount += 1;
+  }
+  return {
+    paths: [...paths],
+    rejectedEntryCount,
+    floorOwnerIds: [...floorOwnerIds].sort(compareUtf8),
+  };
 }
 
 export function hasProcessFactSemantic(name: string, semantic: ProcessFactSemantic): boolean {

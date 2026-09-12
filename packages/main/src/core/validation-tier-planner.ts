@@ -2,9 +2,11 @@
  * B-a745 CHK-004 — language-neutral planner types and the fail-closed widening
  * matrix.
  *
- * Spec: `docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md`
- * sections "Terminology and invariants", "Selection algorithm" (steps 1, 2 and
- * 5) and "Fail-closed widening matrix" (owned by story B-ccf4, not yet on main).
+ * Design source: the branch-owned
+ * `docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md`.
+ * Shipped matrix authority:
+ * `docs/requirements/decisions/validation-widening-matrix-authority.md` and
+ * `docs/validation-performance.md`.
  *
  * The compatibility path remains fail-closed repository-full. A configured,
  * command-set-bound impact index may now opt into the pure
@@ -39,6 +41,7 @@ import {
 } from './validation-relevance-input.js';
 import type { RoutineValidationSourceKind } from './validation-types.js';
 import { digestCanonicalJson } from './digest.js';
+import { collectRepositoryFullProcessFactPaths } from './process-fact-registry.js';
 
 export const VALIDATION_TIER_PLAN_SCHEMA = 'proofOrStop.validation-tier-plan.v1' as const;
 
@@ -158,6 +161,16 @@ export interface SelectValidationTiersInput {
   impactIndex: ValidationImpactIndex | null | undefined;
 }
 
+export interface SelectValidationTiersDependencies {
+  /** Internal verification seam; CLI/schema inputs never populate dependencies. */
+  registryFloorProjection?: unknown;
+}
+
+export interface ValidationFloorProjectionInjection {
+  /** A deliberately supplied projection; the wrapper distinguishes it from omission. */
+  readonly projection: unknown;
+}
+
 export interface ValidationCommandExclusionProof {
   commandId: string;
   reason:
@@ -240,6 +253,17 @@ const VALIDATION_SENSITIVE_PATH_PATTERNS = [
   'docs/requirements/decisions/*validation*.md',
 ] as const;
 
+/** Pre-registry hardcoded sensitivity rules, retained as an additive baseline. */
+export function pathIsLegacyValidationSensitive(path: string): boolean {
+  if (typeof path !== 'string') {
+    throw new Error('pathIsLegacyValidationSensitive: path must be a string');
+  }
+  const normalized = normalizedPath(path);
+  const basename = normalized.split('/').pop()?.toLowerCase() ?? '';
+  return (normalized.startsWith('packages/main/src/') && basename.includes('validat'))
+    || VALIDATION_SENSITIVE_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern));
+}
+
 const BUILD_GRAPH_PATH_PATTERNS = [
   'package.json',
   '**/package.json',
@@ -255,15 +279,69 @@ const BUILD_GRAPH_PATH_PATTERNS = [
   '**/tsconfig.*.json',
 ] as const;
 
-function classifySensitiveStoryPaths(paths: readonly string[]): ValidationWideningReasonCode[] {
+/**
+ * Merge explicit process-fact validation floors with the legacy rules. Dynamic
+ * Finding uses this contract so its gate implementation cannot be labelled
+ * fast, without treating every unrelated L4 reference as validation framework
+ * code. An unavailable floor projection is repository-scoped and widens even
+ * when the changed-path set is empty. Omit `injection` to use only the live
+ * registry; wrap even an unavailable value so absence and failure are explicit.
+ */
+export function classifySensitiveStoryPaths(
+  paths: readonly string[],
+  injection?: ValidationFloorProjectionInjection,
+): ValidationWideningReasonCode[] {
+  if (!Array.isArray(paths) || !paths.every((path) => typeof path === 'string')) {
+    throw new Error('classifySensitiveStoryPaths: paths must be an array of strings');
+  }
+  if (injection !== undefined
+    && (!injection
+      || typeof injection !== 'object'
+      || Array.isArray(injection)
+      || !Object.prototype.hasOwnProperty.call(injection, 'projection'))) {
+    throw new Error('classifySensitiveStoryPaths: injection must be an object with a projection property');
+  }
   const reasons = new Set<ValidationWideningReasonCode>();
+  const liveProjection = collectRepositoryFullProcessFactPaths();
+  const projections = [
+    liveProjection,
+    ...(injection === undefined ? [] : [injection.projection]),
+  ];
+  const liveFloorOwnerIds = new Set(liveProjection.floorOwnerIds);
+  const registeredPatterns = new Set<string>();
+  let registeredFloorUnavailable = false;
+  for (const projection of projections) {
+    const candidate = projection as {
+      paths?: unknown;
+      rejectedEntryCount?: unknown;
+      floorOwnerIds?: unknown;
+    } | null;
+    const projectionShapeValid = Boolean(candidate)
+      && Array.isArray(candidate?.paths)
+      && candidate.paths.every((path) => typeof path === 'string')
+      && Number.isInteger(candidate?.rejectedEntryCount)
+      && Number(candidate?.rejectedEntryCount) >= 0
+      && Array.isArray(candidate?.floorOwnerIds)
+      && candidate.floorOwnerIds.every((ownerId) => typeof ownerId === 'string' && ownerId.trim() !== '');
+    if (!projectionShapeValid) {
+      registeredFloorUnavailable = true;
+      continue;
+    }
+    const patterns = (candidate!.paths as string[]).map(normalizedPath).filter(Boolean);
+    const projectedFloorOwnerIds = new Set(candidate!.floorOwnerIds as string[]);
+    const missingLiveFloorOwner = [...liveFloorOwnerIds].some((ownerId) => !projectedFloorOwnerIds.has(ownerId));
+    if (Number(candidate?.rejectedEntryCount) > 0 || patterns.length === 0 || missingLiveFloorOwner) {
+      registeredFloorUnavailable = true;
+    }
+    for (const pattern of patterns) registeredPatterns.add(pattern);
+  }
+  if (registeredFloorUnavailable) reasons.add('validation_floor_registry_unavailable');
+  const registeredPatternList = [...registeredPatterns];
   for (const path of paths) {
     const normalized = normalizedPath(path);
-    const basename = normalized.split('/').pop()?.toLowerCase() ?? '';
-    const validationNamedSource = normalized.startsWith('packages/main/src/') && basename.includes('validat');
     if (
-      validationNamedSource
-      || VALIDATION_SENSITIVE_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
+      pathIsLegacyValidationSensitive(normalized)
+      || registeredPatternList.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
     ) {
       reasons.add('validation_framework_sensitive_change');
     }
@@ -319,7 +397,13 @@ function dynamicFullDecision(
  * declaration, an unknown changed path, a stale command-set binding, or any
  * pre-classified sensitive fact makes every tier equal repository-full.
  */
-export function selectValidationTiers(rawInput: SelectValidationTiersInput): ValidationTierSelectionDecision {
+export function selectValidationTiers(
+  rawInput: SelectValidationTiersInput,
+  dependencies: SelectValidationTiersDependencies = {},
+): ValidationTierSelectionDecision {
+  if (!dependencies || typeof dependencies !== 'object' || Array.isArray(dependencies)) {
+    throw new Error('selectValidationTiers: dependencies must be an object');
+  }
   const input = rawInput;
   const requestedTier = assertValidationTier(input?.requestedTier, 'selectValidationTiers');
   const universe = [...new Set((input?.universeCommandIds ?? []).map((id) => id.trim()).filter(Boolean))];
@@ -341,7 +425,10 @@ export function selectValidationTiers(rawInput: SelectValidationTiersInput): Val
 
   const impactIndexDigest = digestCanonicalJson(index);
   const reasons = new Set<ValidationWideningReasonCode>(forceFullReasons);
-  for (const reason of classifySensitiveStoryPaths(changedPaths)) reasons.add(reason);
+  const sensitivePathReasons = Object.prototype.hasOwnProperty.call(dependencies, 'registryFloorProjection')
+    ? classifySensitiveStoryPaths(changedPaths, { projection: dependencies.registryFloorProjection })
+    : classifySensitiveStoryPaths(changedPaths);
+  for (const reason of sensitivePathReasons) reasons.add(reason);
   if (malformedForceReason) reasons.add('impact_index_unusable');
   if (typeof input.commandSetDigest !== 'string' || input.commandSetDigest.trim() === '') reasons.add('impact_index_unusable');
   if (typeof input.snapshotDigest !== 'string' || input.snapshotDigest.trim() === '') reasons.add('hash_snapshot_unavailable');
@@ -593,10 +680,15 @@ export const VALIDATION_WIDENING_REASONS = {
       'The set of validation commands or the rules for choosing among them changed, so any earlier narrowing ' +
       'decision no longer applies.',
   },
+  validation_floor_registry_unavailable: {
+    condition: 'Declared repository-full process-fact floors cannot be read completely or no floor is declared',
+    outcome: 'repository-full',
+    gloss:
+      'The process-fact registry could not provide a complete repository-full floor set, or declares no floor ' +
+      'at all, so no path can be cleared as insensitive and the complete validation set has to run.',
+  },
   validation_framework_sensitive_change: {
-    condition:
-      'Selector, graph adapter, validation executor, runner registry, process-fact registry, lifecycle gate, ' +
-      'or validation config changes',
+    condition: 'A legacy validation-machinery pattern or a declared repository-full process-fact path changes',
     outcome: 'repository-full',
     gloss:
       'This Story changed the machinery that decides what to run or how to judge it, so that machinery cannot ' +

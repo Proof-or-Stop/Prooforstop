@@ -4,6 +4,60 @@ Official `validate` and `done_required_validate` retain independent acceptance,
 freshness, resource, owner and build-proof checks. These changes optimize the
 execution mechanisms; they do not turn Lab records into Story evidence.
 
+## Dynamic-tier fail-closed widening matrix
+
+The selector may reduce work only when every changed material path and every
+omitted command has positive coverage. The following matrix is the exact
+operator-facing reason-code contract. Adding or removing a row requires the
+runtime table and its bidirectional regression to change in the same commit.
+For the shipped runtime, this operator guide is authoritative for the exact
+reason-code, outcome, and condition text under the accepted authority decision
+`docs/requirements/decisions/validation-widening-matrix-authority.md`. The
+branch-owned
+`docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md`
+matrix remains design context and does not override this executable contract.
+
+| Condition | Effective result | Reason code |
+|---|---|---|
+| Changed-file discovery fails | Repository-full | `changed_files_unavailable` |
+| Evidence hash snapshot (head, material or story-files digest) cannot be captured or is incomplete | Repository-full | `hash_snapshot_unavailable` |
+| Material path is unclassified | Repository-full | `unclassified_material_input` |
+| Index missing, stale, malformed, or digest-invalid | Repository-full | `impact_index_unusable` |
+| Base index cannot be completely projected to current HEAD | Repository-full | `impact_projection_incomplete` |
+| Material worktree overlay cannot be completely read or changes during plan/execute double-read | Replan; repeated movement widens to repository-full | `workspace_snapshot_changed` |
+| Command-set or selector policy digest changed | Repository-full | `selection_policy_changed` |
+| Declared repository-full process-fact floors cannot be read completely or no floor is declared | Repository-full | `validation_floor_registry_unavailable` |
+| A legacy validation-machinery pattern or a declared repository-full process-fact path changes | Repository-full | `validation_framework_sensitive_change` |
+| Story risk policy marks the change as high-risk | Repository-full | `story_risk_signal_present` |
+| Package manifest, lockfile, build graph, or shared compiler configuration changes | Repository-full | `build_graph_change` |
+| Dynamic import/subprocess/generated edge unresolved | Repository-full | `runtime_edge_unresolved` |
+| Explicit command pin does not resolve | Stop; no PASS artifact | `pinned_command_missing` |
+| Legacy free-form evidence command normalizes to no command in the validation inventory | Repository-full | `pinned_command_non_inventory` |
+| Legacy pin resolves to multiple command IDs | Stop; no PASS artifact | `pinned_command_ambiguous` |
+| Any configured command lacks a positive current-head exclusion proof | Repository-full | `command_exclusion_unproven` |
+| Requested tier uses fallback discovery or an opaque validate-file without a decomposition adapter | Atomic repository-full | `source_kind_atomic` |
+| Source kind is no-validator | Preserve no-validator compatibility; no validation tier can PASS | `no_validator` |
+| No material changes and no explicit docs/no-op policy | Stop; no PASS artifact | `empty_selection_unclassified` |
+| Docs-only changes with a registered docs policy | Run that docs policy | `docs_only_policy` |
+| Selected set exceeds target duration | Report only; never remove a command | `duration_target_exceeded` |
+
+Dynamic Finding is one explicit process-fact floor, not a filename heuristic.
+The current registry contract implements exactly one floor value,
+`repository-full`; adding another floor requires its own selector semantics and
+cannot be implied by extending a value list.
+Its four signed producer commands, semantic verifiers, and lifecycle consumers
+map to concrete repository paths in the process-fact registry. Changing any of
+those paths forces `repository-full`; unrelated L4 implementation such as
+provider process admission remains eligible for ordinary relevance selection.
+An absent floor mapping leaves the registry loadable; its empty projection makes
+the selector widen with `validation_floor_registry_unavailable`. A present floor
+declaration with malformed or empty paths is instead refused while the registry
+module initializes, before any selector can return a tier decision. Both paths
+fail closed, but they intentionally fail at different layers.
+This floor governs the explain-only selector's effective tier
+(`finalAuthority: false`); by itself it does not change which validation commands
+execute while dynamic selection remains in observe mode.
+
 ## PRE_CERT execution order
 
 Finalized-inventory guidance follows the signed receipt authority on first
