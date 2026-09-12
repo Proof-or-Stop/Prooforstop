@@ -1,29 +1,5 @@
 # Changelog
 
-## Lab native-lock-prerequisites - v0.3.348 - 2026-09-12
-
-Repair native validation-lock fixture prerequisites using actual CLI inventory, dispatch, broker-bound review, critic, validation and certification admission. Initial disposable subjects contain no fabricated PASS or admitted window. Focused probes exercise reviewer and delivery write exclusion while preserving routine evidence; native dual-order queues prove real routine and DONE-required publication.
-
-Pin fixture root authority, reject unowned roots and verify misleading ambient project-root isolation. Require exact busy and missing-window refusals, exact retry signed-run cardinality while preserving historical passes, concrete focused execution fields and signed publication where the production API supplies it. Use coherent bounded fixture budgets, preserve primary errors, clean owned roots/children on signals, cancel completed-child timers and restore cwd even if capacity cleanup rejects.
-
-Verification includes the original missing-signature RED, the cleanup and supplemental derived-refusal contracts, and all six native consumer cases. The existing fifteen-group workspace-capacity selector retains its stronger admissible publication assertion; it is not replaced by a refusal-only check. Its earlier CHK-001 acceptance preparation failure was reproduced separately on local main 3fb8385a7d at version 0.3.344 and again on 7dd2470088 at 0.3.345 and 3f6397106a at 0.3.346 and remains a baseline limitation, not a claim of full-suite GREEN.
-
-Each build, prerequisite CLI operation, fixture role interaction and native case emits elapsed milliseconds. Fixture roles are local test actors, not LLM audit calls. Independent real Claude CLI audit timings are recorded separately. Complete this local Lab with a patch release and current prepared-candidate audit; this is not formal Story DONE or remote publication.
-
-The terminal PASS producer uses agent, reviewRound and reviewRunId as its identity and appends history. A whole-lane count of one incorrectly rejects retained admission history; the regression therefore requires exactly one pass for the new signed run and byte-equivalent preservation of every previous pass.
-
-Capacity holder readiness is bounded and propagates acquisition failure. Both queue directions release and reap owned probes on assertion failure. Official draft docs/story/drafts/native-lock-regression-coverage owns automatic routine registration and a combined full-validation writer witness; focused writer preservation and dual-order fresh publication remain distinct, explicitly documented proofs.
-
-Real held-child regression and an extracted old/new waitChild witness prove timeout classification survives prompt child close. Released roots lose fixture authority, including recreated-path rejection. Default smoke execution now invokes cleanup and derived-refusal supplements after the unchanged fifteen-group early return; separate driver registration stays deferred. The refusal comparison has a measured uncontended control and private cwd restoration. CLI draft provenance is documented against the current creation/list handler.
-
-Spawned refusal consumers now reject structured timeout outcomes and null signal/spawn exits before matching expected text. The RED/GREEN witness and a real marker-printing hung child cover the previously possible false GREEN; ordinary exit-1 refusal remains accepted.
-
-A controlled additional RED/GREEN isolates temporary native fixtures from unrelated OS-user machine-validation holders. Each driver creates a private OS-user namespace inherited by its actual CLI descendants through a generated test-only import. Same-pool exclusion remains enforced while an independent fixture progresses under an active outer holder. Production queues and real Claude audit admission are untouched; no timeout increase or credential reuse is introduced. The new control executes alongside the existing cleanup, refusal and six native cases.
-
-Maintenance provenance: codex/lab-native-lock-prerequisites, repair 0ee83ed13badba13b46c61e99b674c77a724fa62.
-Verification command (replayed before integration and on main): `["node","scripts/verify-native-lock-prerequisites.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab cli-runtime-sync-20260911 - v0.3.347 - 2026-09-12
 
 Repair CLI runtime identity, argument-aware observation, and bounded queue diagnostics through the existing Lab maintenance workflow.
