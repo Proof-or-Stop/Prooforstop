@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab scope-diff-repeated-work - v0.3.338 - 2026-09-12
+
+Scope diff parsing repeatedly rediscovered the integration baseline and reread the same historical file for every hunk. On a real Story read-only scope check, a 33.72-second profile spent about 25.97 sampled seconds under historical-source reads, including 23.64 seconds in repeated baseline resolution. The current diff contained 134 TS/JS hunks across 40 paths. This made owner scope checks and session briefs unnecessarily expensive.
+
+Each parse now lazily resolves the existing baseline policy once, pins the selected integration tip commit, and reuses historical file bytes or missing-source results only inside that invocation. Current working-tree reads, AST parsing, semantic anchors, fallback behavior and baseline selection policy remain unchanged. A subsequent parse resolves the baseline and reads history again. The cache never spans invocations and does not use the merge-base in place of the selected tip.
+
+The deterministic regression reduced three-hunk Git work from 21 subprocess calls to 8, including baseline discoveries 3 to 1 and historical reads 3 to 1, with the exact prior complete hunk digest unchanged. It checks independent-hunk parity, integration-tip versus merge-base semantics, missing history and missing files, no-TS lazy behavior, distinct paths, rename/copy/deletion handling, changed current source and baseline on the next invocation, and a genuine ref move during one parse. The original semantic-scope guard suite also runs inside the pinned regression command. Verification uses the Lab checkout's own compiled implementation with a current source/dist build binding; observation wrappers forward real Git calls and restore builtins afterward.
+
+This is an owner-command performance repair. The retained timed-out native fixture had no TS/JS diff hunks, so this evidence does not establish a fix for its separate 180-second routine timeout. No timeout budgets, Story acceptance, scope exceptions, global cache, gate decisions or authority checks are changed.
+
+Maintenance provenance: codex/lab-scope-diff-repeated-work, repair 91f9e8f0bb1be774266665e1482f81e66f42a1c7.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/scope-diff-pack.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab static-registry-closure - v0.3.337 - 2026-09-12
 
 Refresh reviewed static command registrations and their current source evidence.
