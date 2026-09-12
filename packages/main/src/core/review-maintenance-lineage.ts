@@ -10,6 +10,9 @@ import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './revi
 import { verifyCausalEvidenceReceipt, CAUSAL_RECEIPT_DIRECTORY, CAUSAL_RECEIPT_INDEX_FILE } from './causal-evidence.js';
 import { hasMechanicalExecutionAuthority } from './verification-receipt-authority.js';
 import { digestCanonicalJson } from './digest.js';
+import { CERTIFICATION_WINDOW_FILE, CERTIFICATION_WINDOW_FILE_SCHEMA, PRECERT_RECEIPT_SCHEMA, verifyCertificationWindow, verifyPrecertReceipt, verifyPrecertCheapCheckReceipt, isCertificationRunningOnlyAdvance, type CertificationWindowData } from './certification-window.js';
+import { CLOSEOUT_WRITE_RECEIPTS_PATH, closeoutArtifactPolicyFor, verifyCloseoutWriteReceipt, type CloseoutWriteReceipt } from './closeout-trust.js';
+import { evaluatePersistedReviewToTestIndexTransition } from './review-run.js';
 import type { ChecklistData, ReviewInventoryEpochData } from './types.js';
 
 export function isVerifiedReviewMaintenanceCommit(args: {
@@ -95,6 +98,83 @@ export function isVerifiedReviewMaintenanceCommit(args: {
       }
       return changed;
     }
-    return false;
+    // Official certification and validation publications retain code review only.
+    // Their specialized gates still decide whether certification/validation passes.
+    const writer = ['certification_window_begin', 'validate', 'test-transition'].find(command =>
+      matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`));
+    if (!writer) return false;
+    const incidental = new Set(['process-events.jsonl', 'process-metrics.json', 'owner-lease.json', 'test-runs.json']);
+    const substantive = artifacts.filter(path => !incidental.has(path) && path !== CLOSEOUT_WRITE_RECEIPTS_PATH);
+    if (!substantive.length) return false;
+    const priorExists = (path: string) => Boolean(git(['ls-tree','--name-only',parents[0],'--',prefix + path]));
+    const rawAt = (ref: string, path: string) => execFileSync('git',['show',`${ref}:${prefix}${path}`], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore','pipe','pipe'] });
+    const readReceipts = (ref: string): CloseoutWriteReceipt[] => rawAt(ref,CLOSEOUT_WRITE_RECEIPTS_PATH).split('\n').filter(Boolean).map(line => JSON.parse(line));
+    const priorReceipts = priorExists(CLOSEOUT_WRITE_RECEIPTS_PATH) ? readReceipts(parents[0]) : [];
+    const receipts = artifacts.includes(CLOSEOUT_WRITE_RECEIPTS_PATH) ? readReceipts(commit) : priorReceipts;
+    if (digestCanonicalJson(receipts.slice(0,priorReceipts.length)) !== digestCanonicalJson(priorReceipts)) return false;
+    const addedReceipts = receipts.slice(priorReceipts.length);
+    const closeoutPaths = substantive.filter(path => closeoutArtifactPolicyFor(path)?.artifactClass === 'closeout-evidence');
+    if (addedReceipts.length !== closeoutPaths.length) return false;
+    for (const path of substantive) {
+      if (path === CERTIFICATION_WINDOW_FILE) {
+        if (writer === 'test-transition') return false;
+        const after = readAt(commit,path) as CertificationWindowData;
+        const before: CertificationWindowData = priorExists(path) ? readAt(parents[0],path) as CertificationWindowData : {schemaVersion:CERTIFICATION_WINDOW_FILE_SCHEMA,windows:[],receipts:[]};
+        if (after.schemaVersion !== CERTIFICATION_WINDOW_FILE_SCHEMA || !Array.isArray(after.windows) || !Array.isArray(after.receipts)) return false;
+        if (after.windows.some(window => window.storyId !== storyId || !verifyCertificationWindow(window))) return false;
+        if (after.receipts.some(receipt => receipt.storyId !== storyId || !(receipt.schemaVersion === PRECERT_RECEIPT_SCHEMA ? verifyPrecertReceipt(receipt) : verifyPrecertCheapCheckReceipt(receipt)))) return false;
+        if (isCertificationRunningOnlyAdvance(before,after,storyId)) continue;
+        // Admission and cheap checks append to existing history; they cannot
+        // rewrite an earlier window or replace a prior receipt.
+        if (digestCanonicalJson(after.windows.slice(0,before.windows.length)) !== digestCanonicalJson(before.windows)
+          || digestCanonicalJson(after.receipts.slice(0,before.receipts.length)) !== digestCanonicalJson(before.receipts)) return false;
+        if (writer === 'certification_window_begin') {
+          if (after.windows.length !== before.windows.length + 1 || after.windows.at(-1)?.state !== 'ADMITTED') return false;
+          const window = after.windows.at(-1)!;
+          const receipt = after.receipts.find(row => row.receiptId === window.receiptId);
+          if (!receipt || receipt.schemaVersion !== PRECERT_RECEIPT_SCHEMA || receipt.windowId !== window.windowId
+            || digestCanonicalJson(receipt.frozen) !== digestCanonicalJson(window.frozen)) return false;
+        } else if (after.windows.length !== before.windows.length || after.receipts.length <= before.receipts.length
+          || after.receipts.slice(before.receipts.length).some(row => row.schemaVersion === PRECERT_RECEIPT_SCHEMA)) return false;
+        continue;
+      }
+      if (path === 'review-inventory-epochs.json') {
+        if (writer !== 'certification_window_begin' || !artifacts.includes(CERTIFICATION_WINDOW_FILE)) return false;
+        const before = readAt(parents[0],path) as ReviewInventoryEpochData;
+        const after = readAt(commit,path) as ReviewInventoryEpochData;
+        const window = (readAt(commit,CERTIFICATION_WINDOW_FILE) as CertificationWindowData).windows.at(-1);
+        if (!window || window.state !== 'ADMITTED' || !verifyCertificationWindow(window)) return false;
+        const epoch = after.epochs.find(row => row.epochId === window.inventory?.epochId);
+        const receipt = after.receipts.find(row => row.receiptId === window.inventory?.receiptId);
+        const oldEpoch = before.epochs.find(row => row.epochId === epoch?.epochId);
+        const oldReceipt = before.receipts.find(row => row.receiptId === receipt?.receiptId);
+        if (!epoch || !receipt || !oldEpoch || !oldReceipt || oldEpoch.consumedAt || oldReceipt.consumedAt
+          || !verifyReviewInventoryEpoch(epoch) || !verifyReviewInventoryReceipt(receipt)
+          || epoch.storyId !== storyId || receipt.storyId !== storyId || epoch.state !== 'FINALIZED' || receipt.invalidatedAt
+          || !epoch.consumedAt || epoch.consumedAt !== receipt.consumedAt
+          || epoch.consumedByCertificationWindowId !== window.windowId || receipt.consumedByCertificationWindowId !== window.windowId
+          || epoch.consumedByReviewRound !== epoch.reviewRound) return false;
+        const expected = {...before,
+          epochs:before.epochs.map(row => row.epochId === epoch.epochId ? {...row,consumedAt:epoch.consumedAt,consumedByCertificationWindowId:window.windowId,consumedByReviewRound:row.reviewRound,updatedAt:epoch.consumedAt,_hash:epoch._hash} : row),
+          receipts:before.receipts.map(row => row.receiptId === receipt.receiptId ? {...row,consumedAt:epoch.consumedAt,consumedByCertificationWindowId:window.windowId,_hash:receipt._hash} : row)};
+        if (digestCanonicalJson(after) !== digestCanonicalJson(expected)) return false;
+        continue;
+      }
+      if (path === 'index.json') {
+        if (writer !== 'test-transition') return false;
+        const after = readAt(commit,path);
+        if (!evaluatePersistedReviewToTestIndexTransition(gitCwd,prefix + path,
+          {headHash:parents[0],storyId,reviewRound:after.currentReviewRound},after).ok) return false;
+        continue;
+      }
+      if (writer !== 'validate' || !closeoutPaths.includes(path)) return false;
+      const matching = addedReceipts.filter(receipt => receipt.artifactPath === path);
+      const receipt = matching[0];
+      if (matching.length !== 1 || receipt.writerCommand !== writer || receipt.headHash !== parents[0]
+        || !verifyCloseoutWriteReceipt(receipt,{storyId,artifactPath:path,artifactBytes:rawAt(commit,path),projectRoot:gitCwd,metadataRoot}).ok) return false;
+      const prior = priorReceipts.filter(row => row.artifactPath === path).at(-1);
+      if (receipt.sequence !== (prior?.sequence ?? 0) + 1 || receipt.previousIntegrityHash !== (prior?.integrityHash ?? null)) return false;
+    }
+    return true;
   } catch { return false; }
 }

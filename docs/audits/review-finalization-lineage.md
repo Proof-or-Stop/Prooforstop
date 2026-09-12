@@ -16,6 +16,13 @@ intent coverage and authenticate every replacement through the strict V5 receipt
 verifier. Tracked causal receipt/index projections are verified against their signed, content-addressed records; the index remains append-only. Owner-lease bookkeeping is not review or ownership-transfer authority. This classifier retains lineage only; ordinary scope, material,
 review, intent freshness and certification gates still decide authority.
 
+Official certification admission additionally preserves only the exact finalized
+inventory consumption delta bound to its admitted window. Routine validation
+requires append-only closeout receipts bound to the changed artifact bytes and
+parent commit. TEST publication must satisfy the existing exact REVIEW-to-TEST
+index transition validator. These checks retain code review; they do not grant
+certification or validation PASS authority.
+
 Managed critic consumption checks the current signed inventory subject and uses
 the launch digest already authenticated by the immutable managed execution seal.
 It does not relaunch the reviewer or reconstruct a changed prompt. Launch still
@@ -24,5 +31,5 @@ requires OPEN; cancelled, invalidated, tampered and mismatched subjects fail clo
 Run `npm run test:review-epoch-certification-continuity` after building. Disposable
 fixtures exercise actual reviewer and finalization handlers, managed lineage,
 authenticated evidence refresh, forged publishers, wrong paths, cancellation and
-certification admission. Native fixture identities and local Lab records are test
+certification admission, routine validation and actual TEST publication. Native fixture identities and local Lab records are test
 provenance; they are not independent vendor audits or formal Story completion.

@@ -110,6 +110,9 @@ fixture.root=worktreePath;fixture.store=new StoryStore(worktreePath);isolatedFix
 console.log('SATURATED_FIXTURE_ROOT '+fixture.root);
 try {
 const env=(agent,session)=>({PROOF_OR_STOP_AGENT:agent,PROOF_OR_STOP_SESSION_ID:session});
+writeFileSync(join(fixture.root,'packages/main/src/subject.ts'),'export const subject = 2;\n');
+git(fixture.root,['add','--','packages/main/src/subject.ts']);
+git(fixture.root,['commit','-m','test: change the isolated implementation subject']);
 fixture.store.writeChecklist(storyId,{items:[{id:'CHK-001',title:'Execute the bounded runtime witness',status:'done',relatedDocs:[],verificationIntent:{happy:[{desc:'The current node executable returns its version',type:'cli'}],edge:[],adversarial:[]}}]});
 const evidencePayload={storyId,itemId:'CHK-001',intentRef:'CHK-001:happy:0',kind:'integration_test',command:'node --version',selector:'v',note:'Execute the unchanged bounded runtime witness for authenticated evidence refresh.'};
 cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
@@ -126,7 +129,7 @@ for(const lane of epoch.requiredLanes){
 }
 const critic='proof-or-stop-review-topology-critic',ce=env(critic,'saturation-critic');const purpose={reviewPurpose:'inventory-completeness',inventoryEpochId:epoch.epochId};
 cli(fixture.root,'dispatch',{storyId,agentType:critic,...purpose},ce);
-const co=cli(fixture.root,'review_run_start',{storyId,agent:critic,...purpose},ce);const cr=co.match(/Review run (\S+) started/)?.[1];assert(cr,co);
+const co=cli(fixture.root,'review_run_start',{storyId,agent:critic,...purpose},ce);let cr=co.match(/Review run (\S+) started/)?.[1];assert(cr,co);
 // The transport is synthetic only in this disposable fixture. The actual
 // managed worker, sealed receipt importer and REVIEW consumer remain in use.
 const ownerCwd=process.cwd();process.chdir(fixture.root);
@@ -144,11 +147,13 @@ try {
  }});
  const deadline=Date.now()+60000;let status,launched,attempt=0;
  do {
-  launched=await host.host_run({host:'codex',storyId,agentType:critic,reviewRunId:cr,lane:critic,managedReview:true,detach:true,deadlineMs:60000,json:true,idempotencyKey:'isolated-critic-'+(++attempt)});
+  launched=await host.host_run({host:'codex',storyId,agentType:critic,reviewRunId:cr,lane:critic,managedReview:true,detach:true,deadlineMs:60000,json:true});
   do {status=await getManagedHostRunStatus({root:fixture.root,runId:launched.run.runId});if(['completed','failed','timed_out','cancelled'].includes(status.run.state)) break;await new Promise(r=>setTimeout(r,100));}while(Date.now()<deadline);
   if(status.run.terminal?.reason!=='concurrency_cap_exceeded') break;
   // Observe actual shared capacity; never disable admission or retry verdict failures.
-  console.log('FIXTURE_CAPACITY_WAIT',attempt);await new Promise(r=>setTimeout(r,2000));
+  console.log('FIXTURE_CAPACITY_WAIT',++attempt);await new Promise(r=>setTimeout(r,2000));
+  const retryRun=cli(fixture.root,'review_run_start',{storyId,agent:critic,...purpose},ce);
+  cr=retryRun.match(/Review run (\S+) started/)?.[1];assert(cr,retryRun);
  }while(Date.now()<deadline);
  assert.equal(status.run.state,'completed',JSON.stringify(status));
  const receipt=managedHostRunReceipt(fixture.root,launched.run.runId);
@@ -225,6 +230,7 @@ if(mode==='clean') {
   for(const item of fixture.store.readChecklist(storyId).items) for(const evidence of item.verificationEvidence??[]) console.log('REFRESH_AUTHORITY',hasMechanicalExecutionAuthority(fixture.store,storyId,item,evidence));
  }
  assert(refreshed.valid,'authenticated evidence-only refresh preserves review lineage');
+
 } else {
  assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,false,'forged metadata and cancelled epochs never preserve managed authority');
 }
@@ -234,6 +240,29 @@ console.log('REVIEW_EPOCH_CONTINUITY_OBSERVATION '+JSON.stringify({mode,output,e
 if(mode==='clean') {
  assert.equal(error,'','REVIEW_EPOCH_NATIVE_CONTINUITY_REQUIRED: actual canonical batch publication must admit without material drift');
  assert.match(output,/State: ADMITTED/);
+ const routine=JSON.parse(cli(fixture.root,'validate',{storyId,json:true},env('main','saturation-owner')));assert.equal(routine.status,'pass');
+ console.log('POST_CERT_METADATA',git(fixture.root,['log','--format=%H %s','--name-only',publishedHead+'..HEAD']));
+ console.log(cli(fixture.root,'story_advance',{storyId,phase:'TEST'},env('main','saturation-owner')));
+ console.log('POST_TEST_METADATA',git(fixture.root,['log','-1','--format=%H %s','--name-only']));
+ const afterTest=collectReviewerEvidenceState(fixture.store,storyId,fixture.root);
+ assert(afterTest.valid.some(e=>e.reviewRunId===cr),'REVIEW_TO_TEST_MANAGED_CONTINUITY_REQUIRED: actual TEST publication preserves managed review authority: '+JSON.stringify(afterTest.invalid));
+ const testHead=git(fixture.root,['rev-parse','HEAD']);
+ for(const [path,writer,mutate] of [
+  ['index.json','test-transition',data=>({...data,title:'Forged requirement change'})],
+  ['certification-window.json','certification_window_begin',data=>({...data,windows:data.windows.map(window=>({...window,state:'CANCELLED'}))})],
+  ['test-evidence.json','validate',data=>({...data,forgedResult:'Caller-authored pass is not evidence'})],
+ ]) {
+  assert(isolatedFixtureRoots.has(fixture.root));
+  git(fixture.root,['reset','--hard',testHead]);
+  const target=join(fixture.root,storyPrefix,path);
+  writeFileSync(target,JSON.stringify(mutate(JSON.parse(readFileSync(target,'utf8'))),null,2)+'\n');
+  git(fixture.root,['add','--',storyPrefix+path]);
+  git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} ${writer} metadata`]);
+  assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,false,'forged post-review '+path+' must not retain review');
+  console.log('POST_REVIEW_FORGERY_REFUSED '+path);
+ }
+ git(fixture.root,['reset','--hard',testHead]);
+
  const data=fixture.store.readCertificationWindows(storyId);assert.equal(data.receipts.filter(r=>r.authority==='pre-cert').length,1);
  console.log('REVIEW_EPOCH_NATIVE_CONTINUITY GREEN');
 } else {

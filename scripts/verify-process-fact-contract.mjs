@@ -7277,6 +7277,8 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts');
   assert(maintenanceText.includes('verifyReviewInventoryEpoch(epoch)') && maintenanceText.includes('verifyReviewInventoryReceipt(receipt)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,item,evidence)'), 'review maintenance lineage requires signed epoch and strict receipt authority');
+  assert(maintenanceText.includes('verifyCloseoutWriteReceipt(receipt,') && maintenanceText.includes('evaluatePersistedReviewToTestIndexTransition(gitCwd,')
+    && maintenanceText.includes('verifyCertificationWindow(window)') && maintenanceText.includes('consumedByCertificationWindowId !== window.windowId'), 'post-review official lifecycle commits require typed receipt, consumption and exact phase delta checks');
   assert(reviewGateText.includes('isCurrentManagedInventorySubject(store, run)')
     && reviewGateText.includes('managedPromptDigest: managedBinding.managedPromptDigest')
     && !reviewGateText.includes('managedPromptDigest: managedReviewerPromptDigest('), 'managed consumption must validate the current subject and authenticated launch digest without rebuilding the OPEN-only prompt');

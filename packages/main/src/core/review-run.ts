@@ -1253,7 +1253,7 @@ function uncommittedPathsUnder(gitCwd: string, prefix: string): string[] {
 export function evaluatePersistedReviewToTestIndexTransition(
   gitCwd: string,
   indexGitPath: string,
-  run: ReviewRun,
+  run: Pick<ReviewRun, 'headHash' | 'storyId' | 'reviewRound'>,
   currentStory: StoryInfo,
 ): { ok: boolean; reason?: string } {
   let reviewedStory: StoryInfo;
