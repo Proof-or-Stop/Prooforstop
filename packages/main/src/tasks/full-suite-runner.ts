@@ -141,6 +141,8 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
     { class: 'main-write-lock', key: stateDirKey('locks', 'full-suite-main-write-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
   ]),
   repoRead('test:main-write-lock-coverage'),
+  // Exact parser regression reads this build and uses only private Git fixtures.
+  repoRead('test:scope-diff-pack'),
   // Repeated real CLI startups plus competing owner writes need bounded contention headroom.
   repoRead('test:intent-owner-lease', { timeoutMs: 180_000 }),
   repoRead('test:receipt-authority-v5', { timeoutMs: 180_000 }),

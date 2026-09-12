@@ -705,6 +705,7 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:acceptance_rollout_dev_review_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:canonical_scope_path_gate': ['runtime-behavior', 'schema-contract', 'normalization-policy', 'freshness-policy', 'gate-evidence'],
+  // Invocation-local history pin failures use typescript_baseline_pin_unresolved_fail_closed; the existing semantic gate refuses this diagnostic even with current anchors or acknowledgements.
   'runtime:ast_semantic_anchor_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:shared_gap_log_metadata_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:delivery_promise_outcome_done_gate': ['runtime-behavior', 'schema-contract', 'normalization-policy', 'gate-evidence'],
