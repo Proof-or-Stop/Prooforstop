@@ -10,6 +10,10 @@ The selector may reduce work only when every changed material path and every
 omitted command has positive coverage. The following matrix is the exact
 operator-facing reason-code contract. Adding or removing a row requires the
 runtime table and its bidirectional regression to change in the same commit.
+For the shipped runtime, this operator guide is authoritative for the exact
+reason-code, outcome, and condition text. The earlier
+`docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md`
+matrix remains design context and does not override this executable contract.
 
 | Condition | Effective result | Reason code |
 |---|---|---|

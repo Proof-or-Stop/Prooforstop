@@ -571,6 +571,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // B-83aa CHK-003 adds only evidence-hash-snapshot-classifier-smoke.js. The
   // normalized set comparison recorded additions=2 and removals=0; the two
   // exact argv retention assertions above plus this count preserve that result.
+  // The audited local-main 0.3.347 recheck retained 168 entries and the same
+  // e9e563a8... digest; its normalized base-to-candidate delta was additions=0,
+  // removals=0. The literal production-path receipt is in the Lab evidence log.
   assert.equal(real.entries.length, 168, 'the normalized inventory cardinality is part of the re-pin evidence; recount and update PIN MAINTENANCE when validate.commands changes');
   assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
@@ -2230,7 +2233,7 @@ testCase('an unknown reason code has no gloss and is refused rather than glossed
 
 // Parse the operator-facing document itself so its table and the runtime cannot
 // drift behind a test-local transcription.
-testCase('the code and spec fail-closed widening matrices are exactly equal', () => {
+testCase('the operator guide and runtime widening matrices have identical codes, outcomes, and conditions', () => {
   const performanceDoc = readFileSync(join(repositorySourceRoot(), 'docs/validation-performance.md'), 'utf8');
   const matrixSection = performanceDoc.match(
     /^## Dynamic-tier fail-closed widening matrix\s*$([\s\S]*?)(?=^##\s)/mu,
@@ -2504,8 +2507,12 @@ testCase('explicit repository-full process-fact paths force full without overmat
   const gatePatterns = collected.paths;
   assert.equal(collected.rejectedEntryCount, 0);
   assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one repository-full path');
+  const liveFloorOwnerId = collected.floorOwnerIds.find(
+    (ownerId) => ownerId === 'runtime:dynamic_finding_applicability_gate',
+  );
+  assert.equal(liveFloorOwnerId, 'runtime:dynamic_finding_applicability_gate');
   const absentDecodedMapping = collectRepositoryFullProcessFactPaths([]);
-  assert.deepEqual(absentDecodedMapping, { paths: [], rejectedEntryCount: 0 });
+  assert.deepEqual(absentDecodedMapping, { paths: [], rejectedEntryCount: 0, floorOwnerIds: [] });
   assert.deepEqual(
     classifySensitiveStoryPaths([], { projection: absentDecodedMapping }),
     ['validation_floor_registry_unavailable'],
@@ -2527,24 +2534,63 @@ testCase('explicit repository-full process-fact paths force full without overmat
       null,
       { level: 'not-a-level', paths: 'irrelevant-without-a-floor' },
       { level: 'L4' },
-      { level: 'L4', validationTierFloor: 'repository-full', paths: 'not-an-array' },
-      { level: 'L4', validationTierFloor: 'repository-full', paths: [] },
-      { level: 'L3', validationTierFloor: 'repository-full', paths: ['ignored-level.ts'] },
-      { level: 'L4', validationTierFloor: 'story-fast', paths: ['ignored-floor.ts'] },
+      { factId: 'runtime:fixture-shape', level: 'L4', validationTierFloor: 'repository-full', paths: 'not-an-array' },
+      { factId: 'runtime:fixture-empty', level: 'L4', validationTierFloor: 'repository-full', paths: [] },
+      { factId: 'runtime:fixture-level', level: 'L3', validationTierFloor: 'repository-full', paths: ['ignored-level.ts'] },
+      { factId: 'runtime:fixture-floor', level: 'L4', validationTierFloor: 'story-fast', paths: ['ignored-floor.ts'] },
       {
+        factId: 'runtime:fixture-mixed',
         level: 'L4',
         validationTierFloor: 'repository-full',
         paths: [null, '', 'packages/main/src/core/valid-full-path.ts'],
       },
-      { level: 'L4', validationTierFloor: 'repository-full', paths: ['/absolute.ts'] },
-      { level: 'L4', validationTierFloor: 'repository-full', paths: ['../../escape.ts'] },
-      { level: 'L4', validationTierFloor: 'repository-full', paths: ['packages\\main\\escape.ts'] },
+      { factId: 'runtime:fixture-absolute', level: 'L4', validationTierFloor: 'repository-full', paths: ['/absolute.ts'] },
+      { factId: 'runtime:fixture-escape', level: 'L4', validationTierFloor: 'repository-full', paths: ['../../escape.ts'] },
+      { factId: 'runtime:fixture-backslash', level: 'L4', validationTierFloor: 'repository-full', paths: ['packages\\main\\escape.ts'] },
     ]),
     {
       paths: ['packages/main/src/core/valid-full-path.ts'],
       rejectedEntryCount: 9,
+      floorOwnerIds: ['runtime:fixture-mixed'],
     },
     'malformed independently decoded registry entries must be reported while valid authority survives',
+  );
+  const completeTwoFloorProjection = collectRepositoryFullProcessFactPaths([
+    {
+      factId: liveFloorOwnerId,
+      level: 'L4',
+      validationTierFloor: 'repository-full',
+      paths: ['packages/main/src/core/finding-applicability.ts'],
+    },
+    {
+      factId: 'runtime:secondary-validation-floor',
+      level: 'L4',
+      validationTierFloor: 'repository-full',
+      paths: ['packages/main/src/core/secondary-floor.ts'],
+    },
+  ]);
+  assert.deepEqual(completeTwoFloorProjection.floorOwnerIds, [
+    liveFloorOwnerId,
+    'runtime:secondary-validation-floor',
+  ].sort());
+  const strippedTwoFloorProjection = collectRepositoryFullProcessFactPaths([
+    {
+      factId: liveFloorOwnerId,
+      level: 'L4',
+      paths: ['packages/main/src/core/finding-applicability.ts'],
+    },
+    {
+      factId: 'runtime:secondary-validation-floor',
+      level: 'L4',
+      validationTierFloor: 'repository-full',
+      paths: ['packages/main/src/core/secondary-floor.ts'],
+    },
+  ]);
+  assert.deepEqual(strippedTwoFloorProjection.floorOwnerIds, ['runtime:secondary-validation-floor']);
+  assert.deepEqual(
+    classifySensitiveStoryPaths([], { projection: strippedTwoFloorProjection }),
+    ['validation_floor_registry_unavailable'],
+    'a decoded multi-floor projection missing the live floor owner must widen rather than silently narrow',
   );
   const declaration = {
     name: 'runtime:test-validation-floor',
@@ -2753,7 +2799,11 @@ testCase('explicit repository-full process-fact paths force full without overmat
       ],
     },
   }, {
-    registryFloorProjection: { paths: ['packages/main/src/core/unrelated-injected.ts'], rejectedEntryCount: 0 },
+    registryFloorProjection: {
+      paths: ['packages/main/src/core/unrelated-injected.ts'],
+      rejectedEntryCount: 0,
+      floorOwnerIds: collected.floorOwnerIds,
+    },
   });
   assert.equal(additiveDecision.effectiveTier, 'repository-full');
   assert.ok(additiveDecision.escalationReasonCodes.includes('validation_framework_sensitive_change'));

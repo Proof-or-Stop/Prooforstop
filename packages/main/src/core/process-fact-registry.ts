@@ -2670,36 +2670,56 @@ export function getProcessFactRegistryEntry(name: string): ProcessFactRegistryEn
  */
 export function collectRepositoryFullProcessFactPaths(
   entries: readonly unknown[] = PROCESS_FACT_REGISTRY,
-): { paths: string[]; rejectedEntryCount: number } {
+): { paths: string[]; rejectedEntryCount: number; floorOwnerIds: string[] } {
   const paths = new Set<string>();
+  const floorOwnerIds = new Set<string>();
   let rejectedEntryCount = 0;
   for (const candidate of entries) {
     if (!candidate || typeof candidate !== 'object') {
       rejectedEntryCount += 1;
       continue;
     }
-    const entry = candidate as { level?: unknown; validationTierFloor?: unknown; paths?: unknown };
+    const entry = candidate as {
+      factId?: unknown;
+      name?: unknown;
+      level?: unknown;
+      validationTierFloor?: unknown;
+      paths?: unknown;
+    };
     if (entry.validationTierFloor === undefined) continue;
+    const floorOwnerId = typeof entry.factId === 'string' && entry.factId.trim() !== ''
+      ? entry.factId.trim()
+      : typeof entry.name === 'string' && entry.name.trim() !== ''
+        ? entry.name.trim()
+        : '';
     if (
       entry.validationTierFloor !== 'repository-full'
       || entry.level !== 'L4'
       || !Array.isArray(entry.paths)
       || entry.paths.length === 0
+      || floorOwnerId === ''
     ) {
       rejectedEntryCount += 1;
       continue;
     }
     let rejectedLeaf = false;
+    let acceptedLeaf = false;
     for (const path of entry.paths) {
       try {
         paths.add(normalizeProcessFactPath(path, 'process-non-total'));
+        acceptedLeaf = true;
       } catch {
         rejectedLeaf = true;
       }
     }
+    if (acceptedLeaf) floorOwnerIds.add(floorOwnerId);
     if (rejectedLeaf) rejectedEntryCount += 1;
   }
-  return { paths: [...paths], rejectedEntryCount };
+  return {
+    paths: [...paths],
+    rejectedEntryCount,
+    floorOwnerIds: [...floorOwnerIds].sort(compareUtf8),
+  };
 }
 
 export function hasProcessFactSemantic(name: string, semantic: ProcessFactSemantic): boolean {

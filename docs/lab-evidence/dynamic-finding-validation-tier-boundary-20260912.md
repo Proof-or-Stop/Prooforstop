@@ -47,6 +47,32 @@ Therefore this Lab repairs a pre-existing main-branch test pin after upstream
 B-83aa changed `proof-or-stop.config.json`; it does not claim that its own
 five-file diff changes the validation inventory.
 
+### Current audited-base rebind
+
+After synchronizing local main again, the candidate was based on exact main SHA
+`1da6c8e86ec0e586571f27d520a1bd052f0c7fb9`, CLI/package version `0.3.347`.
+The production recomputation was repeated in that synchronized Lab worktree:
+
+```text
+{"commandCount":168,"commandSetDigest":"e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b","warnings":["167 of 168 validation commands still lack a declared id and are running on provisional ids (prefix \"prov-\") derived from command, args, declared cwd and declared shell. Declare a stable id on each so its planner identity survives an edit to any of those fields."]}
+```
+
+Comparing normalized command/argv/cwd/shell tuples from that exact base to the
+synchronized Lab candidate produced:
+
+```text
+baseCount: 168
+candidateCount: 168
+added: []
+removed: []
+```
+
+The rebuilt candidate then ran
+`node packages/main/dist/tasks/validation-tier-planner-smoke.js` and ended with
+`validation-tier-planner-smoke: PASS`. This is the current-base binding; the
+earlier 0.3.345 and `3f6397106a` records above are retained only as provenance of
+the original stale-pin discovery.
+
 ## Original headline RED
 
 The Lab's original pre-repair RED was recorded at

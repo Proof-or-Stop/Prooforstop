@@ -300,25 +300,37 @@ export function classifySensitiveStoryPaths(
     throw new Error('classifySensitiveStoryPaths: injection must be an object with a projection property');
   }
   const reasons = new Set<ValidationWideningReasonCode>();
+  const liveProjection = collectRepositoryFullProcessFactPaths();
   const projections = [
-    collectRepositoryFullProcessFactPaths(),
+    liveProjection,
     ...(injection === undefined ? [] : [injection.projection]),
   ];
+  const liveFloorOwnerIds = new Set(liveProjection.floorOwnerIds);
   const registeredPatterns = new Set<string>();
   let registeredFloorUnavailable = false;
   for (const projection of projections) {
-    const candidate = projection as { paths?: unknown; rejectedEntryCount?: unknown } | null;
+    const candidate = projection as {
+      paths?: unknown;
+      rejectedEntryCount?: unknown;
+      floorOwnerIds?: unknown;
+    } | null;
     const projectionShapeValid = Boolean(candidate)
       && Array.isArray(candidate?.paths)
       && candidate.paths.every((path) => typeof path === 'string')
       && Number.isInteger(candidate?.rejectedEntryCount)
-      && Number(candidate?.rejectedEntryCount) >= 0;
+      && Number(candidate?.rejectedEntryCount) >= 0
+      && Array.isArray(candidate?.floorOwnerIds)
+      && candidate.floorOwnerIds.every((ownerId) => typeof ownerId === 'string' && ownerId.trim() !== '');
     if (!projectionShapeValid) {
       registeredFloorUnavailable = true;
       continue;
     }
     const patterns = (candidate!.paths as string[]).map(normalizedPath).filter(Boolean);
-    if (Number(candidate?.rejectedEntryCount) > 0 || patterns.length === 0) registeredFloorUnavailable = true;
+    const projectedFloorOwnerIds = new Set(candidate!.floorOwnerIds as string[]);
+    const missingLiveFloorOwner = [...liveFloorOwnerIds].some((ownerId) => !projectedFloorOwnerIds.has(ownerId));
+    if (Number(candidate?.rejectedEntryCount) > 0 || patterns.length === 0 || missingLiveFloorOwner) {
+      registeredFloorUnavailable = true;
+    }
     for (const pattern of patterns) registeredPatterns.add(pattern);
   }
   if (registeredFloorUnavailable) reasons.add('validation_floor_registry_unavailable');
