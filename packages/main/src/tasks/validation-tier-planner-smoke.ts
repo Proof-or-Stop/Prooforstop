@@ -114,6 +114,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpath
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 import { z } from 'zod';
 
 import {
@@ -169,6 +170,7 @@ import {
   validationWideningReasonGloss,
   type ValidationTier,
   type ValidationImpactIndex,
+  type SelectValidationTiersInput,
   type ValidationTierPlanResult,
   type ValidationWideningReasonCode,
 } from '../core/validation-tier-planner.js';
@@ -546,14 +548,18 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
     'packages/main/tests/red/red-global-cli-exec-bit.mjs',
     'scripts/verify-process-fact-contract.mjs',
     'scripts/verify-runtime-fact-contract.mjs',
-     'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
-     'packages/main/tests/canonical-new-story-artifacts.test.mjs',
-   ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
+    'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
+    'packages/main/tests/canonical-new-story-artifacts.test.mjs',
+    'packages/main/dist/tasks/evidence-hash-snapshot-classifier-smoke.js',
+    'packages/main/tests/red/red-partial-hash-snapshot-binding.mjs',
+  ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
   // v0.3.300 retains the session-performance inventory and adds the Finding
   // identity delivery and RED commands. Recompute from the merged normalized
   // inventory before replacing this deliberate merge-time sentinel.
   // v0.3.317 integrates the explicitly registered dynamic-finding-evidence-closure suite.
-  // v0.3.345 adds the B-83aa evidence-hash classifier and partial-snapshot RED commands.
+  // v0.3.345 retains B-83aa CHK-002's partial-snapshot RED command and adds
+  // B-83aa CHK-003's evidence-hash classifier command. The retention assertions
+  // above are the recomputation receipt for both exact argv entries.
   assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
@@ -2210,22 +2216,25 @@ testCase('an unknown reason code has no gloss and is refused rather than glossed
   );
 });
 
-// This is a LOWER BOUND on the table, transcribed from the spec's matrix. It is
-// deliberately separate from the gloss check above: this list may legitimately
-// lag the table when a later Story adds a row, whereas the gloss check must
-// never be allowed to lag, which is why it enumerates instead.
-testCase('the table covers every row of the spec fail-closed widening matrix', () => {
+// This is the exact operator-facing matrix transcribed into the executable
+// contract. It is deliberately bidirectional: neither the spec nor the runtime
+// table may gain a row without updating the other side.
+testCase('the code and spec fail-closed widening matrices are exactly equal', () => {
   const specMatrixCodes = [
     'changed_files_unavailable',
+    'hash_snapshot_unavailable',
     'unclassified_material_input',
     'impact_index_unusable',
     'impact_projection_incomplete',
     'workspace_snapshot_changed',
     'selection_policy_changed',
+    'validation_floor_registry_unavailable',
     'validation_framework_sensitive_change',
+    'story_risk_signal_present',
     'build_graph_change',
     'runtime_edge_unresolved',
     'pinned_command_missing',
+    'pinned_command_non_inventory',
     'pinned_command_ambiguous',
     'command_exclusion_unproven',
     'source_kind_atomic',
@@ -2233,10 +2242,12 @@ testCase('the table covers every row of the spec fail-closed widening matrix', (
     'empty_selection_unclassified',
     'docs_only_policy',
     'duration_target_exceeded',
-  ];
-  for (const code of specMatrixCodes) {
-    assert.ok(code in VALIDATION_WIDENING_REASONS, `spec matrix row ${code} is missing from the table`);
-  }
+  ] satisfies ValidationWideningReasonCode[];
+  assert.deepEqual(
+    [...specMatrixCodes].sort(),
+    [...VALIDATION_WIDENING_REASON_CODES].sort(),
+    'the executable widening table and documented matrix must contain the same reason codes',
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -2327,7 +2338,7 @@ testCase('the wired resolver widens every validation and gate machinery surface 
     });
     const result = resolveValidationTierPlan({
       input,
-      requestedTier: 'story-fast',
+      requestedTier: 'story-fast' as const,
       impactIndex: {
         schema: VALIDATION_IMPACT_INDEX_SCHEMA,
         version: 'sensitive-index-v1',
@@ -2372,7 +2383,27 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
     [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
     'every declared Dynamic Finding consumer must have a source mapping',
   );
+  const producerPolicy = PROCESS_FACT_DYNAMIC_FINDING_POLICY as typeof PROCESS_FACT_DYNAMIC_FINDING_POLICY & {
+    producerCommands?: readonly string[];
+    producerSourceRefsByCommand?: Readonly<Record<string, readonly string[]>>;
+  };
+  assert.deepEqual(
+    producerPolicy.producerCommands,
+    [
+      'finding_applicability_assess',
+      'finding_applicability_batch',
+      'finding_deferral_record',
+      'finding_mandatory_repair_close',
+    ],
+    'Dynamic Finding producer authority must be an explicit command list',
+  );
+  assert.deepEqual(
+    Object.keys(producerPolicy.producerSourceRefsByCommand ?? {}).sort(),
+    [...(producerPolicy.producerCommands ?? [])].sort(),
+    'every declared Dynamic Finding producer command must have a source mapping',
+  );
   const policyAuthorityPaths = [...new Set([
+    ...Object.values(producerPolicy.producerSourceRefsByCommand ?? {}).flat(),
     ...PROCESS_FACT_DYNAMIC_FINDING_POLICY.semanticVerifierSourceRefs,
     ...Object.values(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer).flat(),
   ])];
@@ -2459,6 +2490,17 @@ testCase('explicit repository-full process-fact paths force full without overmat
   );
   assert.throws(
     () => declareProcessFactMapping({
+      name: 'runtime:dynamic_finding_applicability_gate',
+      kind: 'runtime-behavior',
+      semantics: ['runtime-behavior'],
+      level: 'L4',
+      producer: 'fixture',
+      rationale: 'A missing Dynamic Finding source mapping must fail at registry declaration time.',
+    }),
+    /runtime:dynamic_finding_applicability_gate requires explicit validation floor paths/,
+  );
+  assert.throws(
+    () => declareProcessFactMapping({
       ...declaration,
       level: 'L4',
       paths: ['packages/main/src/core/example.ts'],
@@ -2526,8 +2568,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
     assert.equal(decision.effectiveTier, 'repository-full');
     assert.ok(decision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
   }
-  assert.throws(
-    () => selectValidationTiers({
+  const invalidDependenciesInput: SelectValidationTiersInput = {
       storyId: 'B-invalid-dependencies',
       requestedTier: 'story-fast',
       universeCommandIds: ['unit-suite'],
@@ -2544,15 +2585,34 @@ testCase('explicit repository-full process-fact paths force full without overmat
           { commandId: 'unit-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
         ],
       },
-    }, null as never),
-    /selectValidationTiers: dependencies must be an object/,
-  );
+    };
+  for (const invalidDependencies of [null, [], 'x', 0, true]) {
+    assert.throws(
+      () => selectValidationTiers(invalidDependenciesInput, invalidDependencies as never),
+      /selectValidationTiers: dependencies must be an object/,
+      `invalid dependency seam shape must be refused: ${JSON.stringify(invalidDependencies)}`,
+    );
+  }
 
   const plannerSource = readFileSync(join(REPOSITORY_ROOT, 'packages/main/src/core/validation-tier-planner.ts'), 'utf8');
   const handlerSource = readFileSync(join(REPOSITORY_ROOT, 'packages/main/src/handlers/validation-plan.ts'), 'utf8');
-  const productionCallSites = plannerSource.match(/selectValidationTiers\(\{[\s\S]*?\n    \}\);/gu) ?? [];
+  const plannerAst = ts.createSourceFile(
+    'validation-tier-planner.ts',
+    plannerSource,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
+  const productionCallSites: ts.CallExpression[] = [];
+  const visitPlanner = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)
+      && ts.isIdentifier(node.expression)
+      && node.expression.text === 'selectValidationTiers') productionCallSites.push(node);
+    ts.forEachChild(node, visitPlanner);
+  };
+  visitPlanner(plannerAst);
   assert.equal(productionCallSites.length, 1, 'production must have exactly one selectValidationTiers call site');
-  assert.doesNotMatch(productionCallSites[0], /\n    \},\s*\{/u, 'production may not populate the internal dependency seam');
+  assert.equal(productionCallSites[0].arguments.length, 1, 'production may not populate the internal dependency seam');
   assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'the CLI handler may not call the selector seam directly');
   assert.match(
     validationWideningReasonGloss('validation_floor_registry_unavailable'),
