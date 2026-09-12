@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab cli-runtime-sync-20260911 - v0.3.345 - 2026-09-12
+
+Repair CLI runtime identity, argument-aware observation, and bounded queue diagnostics through the existing Lab maintenance workflow.
+
+The local CLI now reports parameter errors without misclassifying them as build failures, rejects stale or invalid runtime version metadata before dispatch, and authenticates maintenance helper implementations before argument classification. Read-only reviewer prompts, inventory inspection, maintenance previews and default check retain read-only behavior, while refresh and execution variants retain their owner and runtime gates. Exact recovery guidance points to callable reader commands. Compatibility observation exports remain available.
+
+Queue activity uses authoritative business progress and bounded exclusive Git commits. Shared baseline resolution is cached per projection, with independent worktree ancestry checks. Unobservable worktrees remain unknown, and the dashboard no longer displays unknown or empty queues as ready. Queue selection and display use the same phase source. Lock self-reentry requires the live acquisition context and matching holder generation; unknown ownership grants no authority.
+
+Verification separates prerequisite build budgets from test-body budgets, permits reuse only after validating the current main and utils source/output bindings, preserves failure propagation for canonical successful closeout, and removes duplicate helper authentication. Full project and Story snapshots, actual OS launch argv, wrapper metadata and missing-dist negatives, and concurrent inventory read/signature controls protect the boundaries.
+
+Frozen RED/GREEN evidence: the original audit repair target improved from 2/8 to 8/8 groups, subsequent hardening from 10/14 to 14/14, closure controls from 0/6 to 6/6, and the latest unchanged target from 6/9 to 9/9. Two incorrect parameter diagnostics were corrected; four maintenance entrypoints reject tampered helpers before execution (sentinel executions 20 to 0). Controlled baseline resolutions decreased 4 to 1, helper reads 8 to 4, and nested prerequisite invocations 2 to 1. These counts do not establish overall Story speedup. A measured paired full-contract run was slower after added coverage; all observations and failed trials are retained.
+
+Before release preparation, both complete process-fact and runtime-fact contracts passed on d17aced0f3, and an independent native Claude CLI static audit returned PASS with no unresolved findings (run 9004be59-8374-45a2-a2a0-1025eaf8de2c). The exact prepared version must receive its own native audit and replay before integration. The proof package includes raw RED/GREEN, audit results, patches and 412 independently unpacked and checksummed evidence files.
+
+Scope: bounded CLI/Lab correctness and observation repairs. No claim of global owner/reviewer migration, whole-Story P50/P95 improvements, all-machine throughput, native packaged desktop execution, or formal Story DONE. Concurrent unlocked inventory reads may fail transiently and remain fail-closed with retry guidance. Follow the standard atomic patch release and post-merge checks; remote publishing is a separate approved operation.
+
+Maintenance provenance: codex/lab-cli-runtime-sync-20260911, repair 49ee40d78b1000976de6319f173a4afad174fb13.
+Verification command (replayed before integration and on main): `["node","scripts/verify-cli-audit-closure-controls.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-stage-abort-oracle - v0.3.344 - 2026-09-12
 
 The validation stage regression expected an exception after cancellation even though the public command API returns a structured prelaunch cancellation result. This made the performance companion fail with zero spawned children.
