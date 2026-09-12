@@ -88,6 +88,9 @@ async function main() {
   try {
     execFileSync(process.execPath, ['scripts/verify-cli-audit-runtime-coverage.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });
   } catch (error) { fail(verificationFailureMessage('CLI runtime coverage', error)); }
+  check(registrySource.includes('validation-invocation-baseline-serialization'), 'Invocation-local baseline serialization must be registered');
+  execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],
+    { cwd: root, stdio: 'inherit', timeout: 30000 });
   check(registrySource.includes('VALIDATION_SOURCE_PROVENANCE_SCHEMA') && read(root, 'packages/main/src/core/validation-executor.ts').includes('schemaVersion: VALIDATION_SOURCE_PROVENANCE_SCHEMA'), 'executor source provenance requires a registered runtime schema');
   const physicalTraceVersion = 'validation-runtime-trace.physical-read.v2';
   check(registrySource.includes(physicalTraceVersion) && read(root, 'packages/main/src/core/validation-runtime-tracer.cjs').includes(physicalTraceVersion), 'CJS tracer and runtime policy schema must agree');
