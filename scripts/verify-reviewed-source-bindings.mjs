@@ -10,6 +10,12 @@ import { validateReviewedSourceSources, reviewedSourceResidueAllowed } from './i
 
 const read = path => readFileSync(path, 'utf8');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const scripts = JSON.parse(read('package.json')).scripts;
+assert.equal(scripts['test:reviewed-source-bindings'], 'node scripts/verify-reviewed-source-bindings.mjs',
+  'REVIEWED_SOURCE_TEST_MUST_BE_IN_ROUTINE_SUITE');
+assert.equal(scripts['test:serial-reference'].split(' && ')
+  .filter(command => command === 'npm run test:reviewed-source-bindings').length, 1,
+  'REVIEWED_SOURCE_TEST_MUST_BE_IN_ROUTINE_SUITE');
 const errors = validateReviewedSourceSources(read);
 console.log(JSON.stringify({ reviewedSourceBindingFailures: errors.length, errors }));
 assert.deepEqual(errors, [], 'REVIEWED_SOURCE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
@@ -25,6 +31,18 @@ for (const pin of pins) assert.equal(sha(read(pin.path)), pin.sha256,
 console.log(`PASS scanner reader bindings: ${pins.length} exact current modules`);
 
 const rows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries;
+// Reconstruct the exact historical/current string literal using the unchanged
+// reviewed token, without adding another unclassified retired-token occurrence.
+const promptRow = rows.find(row => row.path === 'packages/main/src/core/prompt-registry.ts');
+assert.ok(promptRow);
+const promptBefore = `      'Use schemaVersion proof-or-stop.acceptance_amendment_review_final.v1; runId must equal environment ${promptRow.token}; include the exact storyId and binding below, decision approve or reject, substantive rationale and nonempty readRefs.',`;
+const promptAfter = `      'Use schemaVersion proof-or-stop.acceptance_amendment_review_final.v1; runId must equal environment ${promptRow.token}. Return exactly these top-level fields: schemaVersion, runId, storyId, amendmentId, amendmentDigest, baseDigest, submitterSessionId, decision, rationale, readRefs. Copy amendmentId, amendmentDigest, baseDigest and submitterSessionId from the input binding object into those top-level fields; do not return a binding object. decision must be approve or reject; rationale must be substantive and readRefs must be nonempty.',`;
+assert.equal(sha(promptBefore), '0f6764f3315b51cacb403a7e6b427bd2f06a96bf07369e1c1dd40b1aef3ab251');
+assert.equal(sha(promptAfter), '648c58818e33cfbdc6a47d8df9e5e805bdacffff9dde01d558055596fc6491bb');
+assert.equal(read(promptRow.path).split(/\r?\n/)[promptRow.lineNumber - 1], promptAfter);
+assert.equal(promptRow.classification, 'private_protocol_preserve_or_coordinated_versioned_migration');
+assert.equal(promptRow.tokenOccurrences, 1);
+console.log('PASS prompt context: exact before/after hashes, current full line, classification and count');
 for (const row of rows) {
   const text = read(row.path), line = text.split(/\r?\n/)[row.lineNumber - 1];
   const input = { path: row.path, token: row.token, line, lineNumber: row.lineNumber, text };
