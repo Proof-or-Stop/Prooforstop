@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from "../packages/main/dist/tasks/native-review-fixture.js";
-import {collectReviewerEvidenceState,verifyCurrentReviewerDispatchBinding} from "../packages/main/dist/core/review-run.js";
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -9,15 +8,13 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from "../packages/main/dist/core/store.js";
 import { resetConfigCache } from "../packages/main/dist/core/config.js";
-import { finalizedUnconsumedReviewInventory, signReviewInventoryEpoch, signReviewInventoryReceipt } from "../packages/main/dist/core/review-inventory-epoch.js";
-import { createReviewInventoryHandlers } from "../packages/main/dist/handlers/review-inventory.js";
+import { finalizedUnconsumedReviewInventory, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from "../packages/main/dist/core/review-inventory-epoch.js";
+import { isPromptBodyArtifactPath } from "../packages/main/dist/core/prompt-body-store.js";
 import { readOwnerLease, releaseOwnerLease } from "../packages/main/dist/core/story-owner-lease.js";
 import { adapterSessionEnv, adapterSessionId } from "../packages/main/dist/tasks/adapter-session-env.js";
-import { getSessionId } from "../packages/main/dist/core/owner-session.js";
 const storyId = 'B-inventory-handler';
 const reviewRound = '2020-01-01T00:00:00.000Z';
 const cliPath = fileURLToPath(new URL('../../../../bin/proof-or-stop.js', new URL("../packages/main/dist/tasks/review-inventory-handler-smoke.js", import.meta.url)));
-const repositoryRoot = fileURLToPath(new URL('../../../../', new URL("../packages/main/dist/tasks/review-inventory-handler-smoke.js", import.meta.url)));
 const isolatedFixtureRoots = new Set();
 function releaseCompletedFixtureOwner(root, expectedSessionId) {
     assert.ok(isolatedFixtureRoots.has(root), 'lease handoffs are isolated test fixtures only');
@@ -52,14 +49,13 @@ function cli(root, command, payload, env = {}) {
         releaseCompletedFixtureOwner(root, adapterSessionId(root.split('/.worktrees/')[0], task, actor));
     }
 }
-function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-stop-implementer@noreply.local' }, fullEnvelope = false) {
+function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-stop-implementer@noreply.local' }) {
     const root = mkdtempSync(join(tmpdir(), 'review-inventory-handler-'));
     isolatedFixtureRoots.add(root);
     mkdirSync(join(root, 'packages/main/src'), { recursive: true });
     mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
     mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
     writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
-        ...(fullEnvelope ? { promptEnvelope: { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-review-topology-critic': 'full-envelope' } } } : {}),
         nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
  validate:{commands:[{label:"native-fast",command:process.execPath,args:["--version"],focus:["fast"],timeoutMs:15000}]},
         scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
@@ -89,50 +85,14 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
         events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
     };
     store.writeStory(storyId, story);
-    // Main added a DEV-door preflight ack (B-a7c5). Write it here so later
-    // story_advance DEV assertions observe inventory/cutoff behavior, not
-    // missing_dev_memory_preflight_ack.
-    store.writeDevMemoryPreflightAck(storyId, {
-        schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1',
-        storyId,
-        packDigest: 'review-inventory-handler-smoke-synthetic-digest',
-        topHitIds: [],
-        acknowledgedAt: reviewRound,
-        acknowledgedBy: 'review-inventory-handler-smoke',
-    });
-    store.writeChecklist(storyId, { items: [
-            { id: 'CHK-001', title: 'Synthetic handler coverage', context: 'real handler smoke', status: 'done', files: [
-                    'packages/main/src/subject.ts',
-                    'packages/main/src/consumer-a.ts',
-                    'packages/main/src/consumer-b.ts',
-                    'packages/main/src/opaque.ts',
-                    'packages/main/tests/isolated.test.ts',
-                ] },
-        ] });
-    const handlers = createReviewInventoryHandlers({ root, scanRoot: join(root, 'packages/main'), store });
-    return { root, store, handlers: new Proxy(handlers, {
-            get(target, key, receiver) {
-                const handler = Reflect.get(target, key, receiver);
-                if (typeof handler !== 'function')
-                    return handler;
-                return (...args) => {
-                    try {
-                        return Reflect.apply(handler, target, args);
-                    }
-                    finally {
-                        releaseCompletedFixtureOwner(root, getSessionId());
-                    }
-                };
-            },
-        }) };
+    return { root, store };
 }
-// B-29bc: the same production CLI fixture supplies complete signed required
-// lanes before critic admission. Host names below describe disposable fixtures,
-// not independent-host assurance. Existing topology assertions remain below.
+// Real native required lanes and the completeness critic supply inventory authority.
+// Fixture broker host labels are disposable test identities, not cross-host assurance.
 
 const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
-for(const mode of ['wrong-subject','wrong-story-path','outside-review-artifact','clean']) {
+for(const mode of ['wrong-subject','wrong-story-path','outside-review-artifact','near-miss-prompt-body','cancelled','clean']) {
 const fixture=setup({name:'Harmonynet',email:'26995688+Harmonynet@users.noreply.github.com'});
 const primaryRoot=fixture.root;const worktreePath=join(primaryRoot,'.worktrees',storyId);
 fixture.store.writeStory(storyId,{...fixture.store.readStory(storyId),worktree:{path:worktreePath,branch:'story/'+storyId,createdAt:reviewRound}});
@@ -167,8 +127,20 @@ const publication=git(fixture.root,['log','-1','--format=%s']);
 assert.equal(publication,`proof-or-stop: record ${storyId} review epoch metadata`,'actual batch publisher must produce the canonical subject');
 const cutoff=fixture.store.readReviewInventoryEpochs(storyId).receipts.at(-1).cutoff.headHash;
 assert.notEqual(git(fixture.root,['rev-parse','HEAD']),cutoff,'actual publication must move beyond signed inventory cutoff');
-if(mode!=='clean') {
- const relative=mode==='wrong-story-path'?'.proof-or-stop/story/actives/B-other/note.txt':mode==='outside-review-artifact'?`.proof-or-stop/story/actives/${storyId}/not-a-review-artifact.txt`:`.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
+const storyPrefix=`.proof-or-stop/story/actives/${storyId}/`;
+const publishedPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r','HEAD']).split('\n');
+assert(publishedPaths.some(path=>path.startsWith(storyPrefix)&&isPromptBodyArtifactPath(path.slice(storyPrefix.length))), 'native publication must exercise the canonical prompt-body path branch');
+if(mode==='cancelled') {
+ console.log(cli(fixture.root,'review_inventory_cancel',{storyId,reason:'Native regression verifies cancelled inventory cannot authorize certification'},env('main','saturation-owner')));
+ assert.equal(git(fixture.root,['log','-1','--format=%s']),`proof-or-stop: record ${storyId} review epoch metadata`);
+ const cancelled=fixture.store.readReviewInventoryEpochs(storyId);
+ assert.equal(cancelled.epochs.at(-1).state,'CANCELLED');
+ assert(verifyReviewInventoryEpoch(cancelled.epochs.at(-1)));
+ assert(cancelled.receipts.at(-1).invalidatedAt);
+ assert(verifyReviewInventoryReceipt(cancelled.receipts.at(-1)));
+ assert.equal(finalizedUnconsumedReviewInventory(fixture.store,storyId),null);
+} else if(mode!=='clean') {
+ const relative=mode==='near-miss-prompt-body'?`${storyPrefix}prompt-bodies/${'a'.repeat(63)}.txt`:mode==='wrong-story-path'?'.proof-or-stop/story/actives/B-other/note.txt':mode==='outside-review-artifact'?`.proof-or-stop/story/actives/${storyId}/not-a-review-artifact.txt`:`.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
  mkdirSync(join(fixture.root,relative,'..'),{recursive:true});
  if(mode==='wrong-subject') {const {appendFileSync}=await import('node:fs');appendFileSync(join(fixture.root,relative),'\n');}
  else writeFileSync(join(fixture.root,relative),'unrelated path must not gain review continuity\n');
@@ -184,7 +156,8 @@ if(mode==='clean') {
  const data=fixture.store.readCertificationWindows(storyId);assert.equal(data.receipts.filter(r=>r.authority==='pre-cert').length,1);
  console.log('REVIEW_EPOCH_NATIVE_CONTINUITY GREEN');
 } else {
- assert.match(error,/Inventory receipt is not on the current headHash lineage/,'negative must reach actual continuity verifier');
+ if(mode==='cancelled') assert.match(error,/pre_cert_inventory_not_finalized/,'signed cancelled receipt must fail the actual inventory admission gate');
+ else assert.match(error,/Inventory receipt is not on the current headHash lineage/,'negative must reach actual continuity verifier');
  assert.equal(fixture.store.readCertificationWindows(storyId).receipts.filter(r=>r.authority==='pre-cert').length,0);
  console.log('REVIEW_EPOCH_CONTINUITY_REFUSED '+mode);
 }

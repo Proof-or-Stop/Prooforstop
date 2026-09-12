@@ -11198,6 +11198,27 @@ for (const token of ['linkedWorktree && primaryBranch', "'refs/remotes/origin/' 
 assert(read('packages/main/src/core/process-fact-levels.ts').includes('same-named primary local branch'), 'Baseline policy rationale must describe local containment');
 assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASELINE_FALSE_SCOPE'), 'Native baseline regression must remain available');
 
+// Native terminal evidence must verify the signed inventory purpose at read time.
+{
+  const review = read('packages/main/src/core/review-run.ts');
+  const nativeRead = review.slice(review.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)"));
+  const dispatch = nativeRead.slice(0, nativeRead.indexOf('const writerSessionId'));
+  if (!dispatch.includes('reviewPurpose: run.reviewPurpose') || !dispatch.includes('inventoryBinding: run.inventoryBinding')) failures.push('native read-side dispatch verification must retain signed purpose and inventory subject');
+  if (!read(processFactRegistryPath).includes('Native read-side authority preserves the signed reviewPurpose and inventoryBinding')) failures.push('native read-side purpose binding must be registered');
+}
+
+// Canonical batched review publication must retain PRE_CERT identity without broadening its path surface.
+{
+  const cert = read('packages/main/src/handlers/certification-window.ts');
+  for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS', 'reviewEpochBatch', 'record ${storyId} review epoch metadata', 'path.slice(storyPrefix.length)', 'isPromptBodyArtifactPath(artifact)']) {
+    if (!cert.includes(token)) failures.push(`PRE_CERT canonical review epoch continuity missing ${token}`);
+  }
+  if (cert.includes('prompt-bodies')) failures.push('PRE_CERT must reuse the canonical prompt-body path owner');
+  if (!read(processFactRegistryPath).includes('prompt-body paths recognized by the canonical prompt-body store')) failures.push('bounded canonical review epoch continuity must be registered');
+  const scripts = JSON.parse(read('package.json')).scripts;
+  if (scripts['test:review-epoch-certification-continuity'] !== 'node scripts/verify-review-epoch-certification-continuity.mjs' || !scripts['test:serial-reference'].includes('npm run test:review-epoch-certification-continuity')) failures.push('native review epoch continuity regression must run in the serial reference suite');
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11209,22 +11230,3 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
-
-
-// Native terminal evidence must verify the signed inventory purpose at read time.
-{
-  const review = read('packages/main/src/core/review-run.ts');
-  const nativeRead = review.slice(review.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)"));
-  const dispatch = nativeRead.slice(0, nativeRead.indexOf('const writerSessionId'));
-  assert(dispatch.includes('reviewPurpose: run.reviewPurpose') && dispatch.includes('inventoryBinding: run.inventoryBinding'), 'native read-side dispatch verification must retain signed purpose and inventory subject');
-  assert(read(processFactRegistryPath).includes('Native read-side authority preserves the signed reviewPurpose and inventoryBinding'), 'native read-side purpose binding must be registered');
-}
-
-// Canonical batched review publication must retain PRE_CERT identity without broadening its path surface.
-{
-  const cert = read('packages/main/src/handlers/certification-window.ts');
-  for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS', 'reviewEpochBatch', 'record ${storyId} review epoch metadata', 'path.slice(storyPrefix.length)']) {
-    assert(cert.includes(token), `PRE_CERT canonical review epoch continuity missing ${token}`);
-  }
-  assert(read(processFactRegistryPath).includes('content-addressed prompt-body paths'), 'bounded canonical review epoch continuity must be registered');
-}

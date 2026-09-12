@@ -1136,7 +1136,9 @@ Certification admission legitimately adds signed consumption timestamps and cert
 The native review epoch publisher commits signed reviewer artifacts together as
 `record <Story> review epoch metadata`. PRE_CERT recognizes that exact same-Story
 bookkeeping subject when every changed path belongs to the publisher's registered
-review artifacts or a content-addressed prompt body. Ancestor, single-parent,
+review artifacts or a prompt-body path recognized by the canonical prompt-body store.
+The publisher verifies referenced prompt bytes; continuity checks path membership,
+not historical blob digests. Ancestor, single-parent,
 material, scope and signed inventory checks remain required. An arbitrary commit
 subject, another Story's path or an unrelated artifact does not gain continuity.
 
@@ -1144,3 +1146,10 @@ subject, another Story's path or an unrelated artifact does not gain continuity.
 review lanes and a completeness critic in linked worktrees, then checks clean
 admission and those rejected lineage claims. This preserves the normal sequence
 of finalizing review inventory and running the fast check before admission.
+
+The serial reference suite includes `test:review-epoch-certification-continuity`.
+Its six native cases include a malformed prompt-body path and an actual signed
+cancellation. Finalize and cancel share a publication subject; admission still
+requires the latest signed FINALIZED epoch and its valid unconsumed receipt.
+The four-case version measured 76 seconds; the expanded six-case verifier has a
+bounded 240-second fixture budget for host contention. Production budgets are unchanged.

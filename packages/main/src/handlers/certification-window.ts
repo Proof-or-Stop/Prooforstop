@@ -1,3 +1,4 @@
+import { isPromptBodyArtifactPath } from '../core/prompt-body-store.js';
 import { REVIEW_EPOCH_COMMIT_ARTIFACTS } from '../core/review-metadata-batch.js';
 import { isDeepStrictEqual } from 'node:util';
 import { withValidationMetadataWrite } from '../core/validation-execution-lock.js';
@@ -342,10 +343,11 @@ function canonicalExistingPath(path: string): string | null {
 /**
  * REVIEW evidence and the bounded inventory protocol both write metadata after
  * an inventory cutoff. Permit only that exact bookkeeping chain, and no other
- * HEAD drift, before PRE_CERT consumes inventory. Cancellation and drift-status
- * commits are deliberately excluded: neither can lie on the lineage of a valid
- * unconsumed FINALIZED receipt. The consume lock remains the final all-hash
- * race fence.
+ * HEAD drift, before PRE_CERT consumes inventory. Finalize and cancel share the
+ * batch publisher; commit subjects do not confer receipt authority. The signed
+ * inventory reader independently requires the latest unconsumed FINALIZED epoch
+ * and its non-invalidated receipt, so cancellation cannot authorize admission.
+ * The consume lock remains the final all-hash race fence.
  */
 function hasVerifiedInventoryMetadataHeadContinuity(args: {
   gitCwd: string;
@@ -384,7 +386,7 @@ function hasVerifiedInventoryMetadataHeadContinuity(args: {
     if (reviewEpochBatch && paths.some(path => {
       const artifact = path.slice(storyPrefix.length);
       return !(REVIEW_EPOCH_COMMIT_ARTIFACTS as readonly string[]).includes(artifact)
-        && !/^prompt-bodies\/[0-9a-f]{64}\.txt$/.test(artifact);
+        && !isPromptBodyArtifactPath(artifact);
     })) return false;
   }
   return true;
