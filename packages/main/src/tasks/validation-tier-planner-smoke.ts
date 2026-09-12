@@ -185,6 +185,7 @@ import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 import { getCommandPolicy } from '../core/command-policy.js';
+import { getProcessFactRegistryEntry } from '../core/process-fact-registry.js';
 import {
   describeRedGreenViolations,
   evaluateRedGreenCommitOrder,
@@ -2332,6 +2333,40 @@ testCase('the wired resolver widens every validation and gate machinery surface 
     assert.equal(result.effectiveTier, 'repository-full', sensitivePath);
     assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), sensitivePath);
     assert.deepEqual(result.unclassifiedInputs, [], `${sensitivePath} was classified by the configured index`);
+  }
+});
+
+testCase('Dynamic Finding L4 gate paths force repository-full even when the impact index marks them fast', () => {
+  const gateFact = getProcessFactRegistryEntry('runtime:dynamic_finding_applicability_gate');
+  assert.ok(gateFact, 'Dynamic Finding L4 gate process fact must be registered');
+  assert.equal(gateFact.level, 'L4');
+  assert.ok(gateFact.paths.length > 0, 'Dynamic Finding L4 gate process fact must declare governed paths');
+
+  for (const sensitivePath of gateFact.paths) {
+    const input = planInput({
+      readers: { changedFileStatuses: statusReader({ [sensitivePath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
+    });
+    const result = resolveValidationTierPlan({
+      input,
+      requestedTier: 'story-fast',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'dynamic-finding-gate-index-v1',
+        commandSetDigest: input.executionInventory.commandSetDigest,
+        entries: [
+          { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [sensitivePath], coverage: 'complete' },
+          { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    });
+    assert.equal(result.status, 'plan', sensitivePath);
+    if (result.status !== 'plan') continue;
+    assert.equal(
+      result.effectiveTier,
+      'repository-full',
+      `Dynamic Finding L4 gate path must force repository-full: ${sensitivePath}`,
+    );
+    assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), sensitivePath);
   }
 });
 
