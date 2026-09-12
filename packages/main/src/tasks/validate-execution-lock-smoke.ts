@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {createNativeLockFixture,lockFixtureCli,assertNativeLockFixture,NATIVE_FIXTURE_CLI_TIMEOUT_MS,allocateNativeLockRoot,cleanupNativeLockRoots} from './native-lock-fixture.js';
+import {createNativeLockFixture,lockFixtureCli,assertNativeLockFixture,NATIVE_FIXTURE_CLI_TIMEOUT_MS,allocateNativeLockRoot,cleanupNativeLockRoots,releaseNativeLockRoot} from './native-lock-fixture.js';
 import {sanitizedFixtureChildEnvironment} from './fixture-environment.js';
 import {runBrokeredNativeReviewCli,withBrokeredNativeDeliveryInvocation,nativeReviewFixtureHostEnvironment} from './native-review-fixture.js';
 
@@ -236,14 +236,16 @@ function spawnValidate(root: string, storyId: string, label: string, extraEnv: R
 async function waitChild(proc: SpawnedChild, timeoutMs: number): Promise<ChildResult> {
   let timer: ReturnType<typeof setTimeout>;
   let grace: ReturnType<typeof setTimeout>;
+  let timedOut=false;
   try {
-    return await Promise.race([proc.done,new Promise<ChildResult>(resolve=>{
+    const result=await Promise.race([proc.done,new Promise<ChildResult>(resolve=>{
       timer=setTimeout(()=>{
+        timedOut=true;
         proc.child.kill('SIGKILL');
         grace=setTimeout(()=>resolve({code:null,output:'timed out waiting for child pid '+proc.child.pid+': '+proc.output()}),2000);
-        void proc.done.then(result=>resolve({code:null,output:'timed out waiting for child: '+result.output}));
       },timeoutMs);
     })]);
+    return timedOut?{code:null,output:'timed out waiting for child pid '+proc.child.pid+' after '+timeoutMs+'ms: '+result.output}:result;
   } finally {clearTimeout(timer!);clearTimeout(grace!);}
 }
 
@@ -589,7 +591,7 @@ async function assertReviewerWritesCoordinateWithValidation(): Promise<void> {
     console.log('REVIEW_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, routine evidence preserved, retry, one execution');
   } finally {
     if (validate && validate.child.exitCode === null) { release(root); await waitChild(validate, 12000); }
-    rmSync(root, { recursive: true, force: true });
+    releaseNativeLockRoot(root);
   }
 }
 
@@ -639,7 +641,7 @@ async function assertDeliveryCheckCoordinatesWithValidation(): Promise<void> {
     console.log('DELIVERY_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, routine evidence preserved, retry, one execution');
   } finally {
     if(validate&&validate.child.exitCode===null){release(root);await waitChild(validate,12000);}
-    rmSync(root, { recursive: true, force: true });
+    releaseNativeLockRoot(root);
   }
 }
 
@@ -708,7 +710,7 @@ async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
     releaseCapacity?.(); await holder?.catch(() => undefined);
     release(root);
     if (proc && proc.child.exitCode === null) await waitChild(proc, 12000);
-    rmSync(root, { recursive: true, force: true });
+    releaseNativeLockRoot(root);
   }
 }
 
@@ -767,7 +769,7 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
   } finally {
     release(root);
     for(const proc of [validate,doneRequired])if(proc&&proc.child.exitCode===null)await waitChild(proc,12000);
-    rmSync(root, { recursive: true, force: true });
+    releaseNativeLockRoot(root);
   }
 
   const reverse = await createNativeLockFixture('B-required-validate','REVIEW',false);
@@ -797,7 +799,7 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
   } finally {
     release(reverse.root);
     for(const proc of [validate,doneRequired])if(proc&&proc.child.exitCode===null)await waitChild(proc,12000);
-    rmSync(reverse.root, { recursive: true, force: true });
+    releaseNativeLockRoot(reverse.root);
   }
 }
 
@@ -1434,25 +1436,28 @@ async function assertBareNpmAndReadOnlyCommandsBypassCapacity(): Promise<void> {
 // Successful admissible publication is covered by the separate native case.
 async function assertDerivedVerdictRefusalWaitsForCapacity():Promise<void> {
  const {root,storyId}=setupFixture({storyId:'B-derived-refusal-contract'});
- const store=new StoryStore(root);
+ const store=new StoryStore(root),originalCwd=process.cwd();
  let releaseOwner!:()=>void;
  let holder:Promise<void>|undefined;
  try {
+  process.chdir(root);
+  const invoke=()=>Promise.resolve(createVerdictHandlers({root,scanRoot:join(root,'packages/main'),store}).autopilot_review_submit({storyId,runId:'refusal-contract',hostId:'fixture',provider:'codex',sessionId:'fixture',decision:'pass',deriveBindings:true,json:true}));
+  const controlStarted=performance.now();await assert.rejects(invoke,/requires canonical current PASS validation evidence/);
+  const controlMs=performance.now()-controlStarted;assert(controlMs<2000,'uncontended refusal control exceeded its 2000ms observation budget');
+  const observationMs=Math.max(150,controlMs*5);
   let ready!:()=>void;const entered=new Promise<void>(resolve=>{ready=resolve;});
   const holderRelease=new Promise<void>(resolve=>{releaseOwner=resolve;});
   holder=withWorkspaceValidationCapacity({root,workspaceRoot:root,requireGitIdentity:true,command:'derived-refusal-holder',deadlineAt:Date.now()+NATIVE_ENTRY_WAIT_MS},async()=>{ready();await holderRelease;});
   await Promise.race([entered,holder]);
   let settled=false;
-  const verdict=Promise.resolve(createVerdictHandlers({root,scanRoot:join(root,'packages/main'),store}).autopilot_review_submit({
-   storyId,runId:'refusal-contract',hostId:'fixture',provider:'codex',sessionId:'fixture',decision:'pass',deriveBindings:true,json:true,
-  }));
+  const verdict=invoke();
   const refusal=verdict.then(()=>{settled=true;throw new Error('missing evidence must not publish a verdict');},error=>{settled=true;return error;});
-  await sleep(75);assert.equal(settled,false,'derived refusal must wait for capacity, even without PASS input');
+  await sleep(observationMs);assert.equal(settled,false,'derived refusal must wait for capacity, even without PASS input');
   assert.equal(store.readProcessEvents(storyId).filter(event=>event.type==='host_verdict').length,0);
   releaseOwner();await holder;
   assert.match(String(await refusal),/requires canonical current PASS validation evidence/);
   assert.equal(store.readProcessEvents(storyId).filter(event=>event.type==='host_verdict').length,0);
- } finally {releaseOwner?.();await holder?.catch(() => undefined);rmSync(root,{recursive:true,force:true});}
+ } finally {releaseOwner?.();process.chdir(originalCwd);await holder?.catch(() => undefined);rmSync(root,{recursive:true,force:true});}
 }
 
 async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
@@ -1524,7 +1529,7 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
     releaseOwner();
     process.chdir(originalCwd);
     await holder?.catch(() => undefined);
-    rmSync(root, { recursive: true, force: true });
+    releaseNativeLockRoot(root);
   }
 }
 
@@ -1946,14 +1951,8 @@ function assertManagedVerificationIntentPinSchemaRoundTrip(): void {
   }).success, false, 'unknown verificationIntent item keys must remain rejected');
 }
 
-void (async () => {
-  try {
-    if(process.argv.includes('--native-signal-child')) {
-      console.log('NATIVE_SIGNAL_ROOT '+allocateNativeLockRoot());
-      const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});activeFixtureChildren.add(child);child.once('close',()=>activeFixtureChildren.delete(child));
-      console.log('NATIVE_SIGNAL_CHILD_PID '+child.pid);process.kill(process.pid,'SIGTERM');await new Promise(()=>{});
-    }
-    if(process.argv.includes('--native-cleanup-contract-only')) {
+async function assertNativeCleanupContract():Promise<void> {
+
       const timerChild=spawn(process.execPath,['-e','process.exit(0)'],{stdio:'ignore'});
       const originalKill=timerChild.kill.bind(timerChild);let lateSignals=0;
       timerChild.kill=((signal?:NodeJS.Signals|number)=>{lateSignals++;return originalKill(signal);}) as typeof timerChild.kill;
@@ -1965,8 +1964,26 @@ void (async () => {
       catch(error){const child=error as {status?:number;stdout?:string;code?:string};if(child.code==='ETIMEDOUT')throw new Error('NATIVE_SIGNAL_CLEANUP_TIMEOUT exceeded 10000ms');assert.equal(child.status,143);output=String(child.stdout);}
       const root=output.match(/NATIVE_SIGNAL_ROOT (.+)/)?.[1];assert(root);assert.equal(existsSync(root),false);
       const childPid=Number(output.match(/NATIVE_SIGNAL_CHILD_PID (\d+)/)?.[1]);assert(childPid>0);assert.throws(()=>process.kill(childPid,0),error=>(error as NodeJS.ErrnoException).code==='ESRCH');
-      console.log('NATIVE_SIGNAL_CLEANUP_CONTRACT_PASS');return;
+
+
+ const timedChild=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});
+ activeFixtureChildren.add(timedChild);timedChild.once('close',()=>activeFixtureChildren.delete(timedChild));
+ const timedDone=new Promise<ChildResult>((resolve,reject)=>{timedChild.once('close',code=>resolve({code,output:'held child'}));timedChild.once('error',reject);});
+ const timedResult=await waitChild({child:timedChild,done:timedDone,output:()=>'',stdout:()=>'',stderr:()=>''},50);
+ assert.equal(timedResult.code,null);assert.match(timedResult.output,/timed out waiting for child pid .* after 50ms/);
+ const releasedRoot=allocateNativeLockRoot();releaseNativeLockRoot(releasedRoot);mkdirSync(releasedRoot);
+ try{assert.throws(()=>assertNativeLockFixture(releasedRoot),/own newly allocated disposable roots/);}finally{rmSync(releasedRoot,{recursive:true,force:true});}
+ console.log('NATIVE_SIGNAL_CLEANUP_CONTRACT_PASS');
+}
+
+void (async () => {
+  try {
+    if(process.argv.includes('--native-signal-child')) {
+      console.log('NATIVE_SIGNAL_ROOT '+allocateNativeLockRoot());
+      const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});activeFixtureChildren.add(child);child.once('close',()=>activeFixtureChildren.delete(child));
+      console.log('NATIVE_SIGNAL_CHILD_PID '+child.pid);process.kill(process.pid,'SIGTERM');await new Promise(()=>{});
     }
+    if(process.argv.includes('--native-cleanup-contract-only')) {await assertNativeCleanupContract();return;}
     if(process.argv.includes('--derived-refusal-contract-only')) {
       await assertDerivedVerdictRefusalWaitsForCapacity();
       console.log('DERIVED_REFUSAL_CAPACITY_CONTRACT_PASS');return;
@@ -1995,6 +2012,7 @@ void (async () => {
       } finally {
         if(previousProjectRoot===undefined)delete process.env.PROOF_OR_STOP_PROJECT_ROOT;else process.env.PROOF_OR_STOP_PROJECT_ROOT=previousProjectRoot;
         try {assert.deepEqual(readdirSync(ambientTarget),[],'ambient project-root target must remain untouched');}
+        catch(error){failures.push('ambient-root isolation: '+String(error));}
         finally {rmSync(ambientTarget,{recursive:true,force:true});}
       }
       assert.deepEqual(failures, [], 'NATIVE_LOCK_PREREQUISITES: '+failures.join('\n'));
@@ -2020,6 +2038,8 @@ void (async () => {
       console.log('validate-execution-lock workspace capacity contract passed: 15 assertion groups');
       return;
     }
+    await assertNativeCleanupContract();
+    await assertDerivedVerdictRefusalWaitsForCapacity();
     await assertPostCommandPersistenceHoldsLock();
     await assertRetiredRaceSeamIsProductionUnreachable();
     await assertDifferentWorktreesCanValidateConcurrently();

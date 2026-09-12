@@ -20,7 +20,8 @@ const roots=new Set<string>();
 export const NATIVE_FIXTURE_CLI_TIMEOUT_MS=60000;
 export const NATIVE_FIXTURE_HOLD_MS=90000;
 export function allocateNativeLockRoot():string {const root=realpathSync(mkdtempSync(join(tmpdir(),'proof-or-stop-native-lock-')));roots.add(root);return root;}
-export function cleanupNativeLockRoots():void {for(const root of roots)rmSync(root,{recursive:true,force:true});roots.clear();}
+export function releaseNativeLockRoot(root:string):void {assertNativeLockFixture(root);roots.delete(root);rmSync(root,{recursive:true,force:true});}
+export function cleanupNativeLockRoots():void {for(const root of [...roots])releaseNativeLockRoot(root);}
 export function assertNativeLockFixture(root:string):void {assert(roots.has(root),'native setup can only operate on its own newly allocated disposable roots');}
 export function lockFixtureActorEnvironment(agent:string) {
  const provider=nativeReviewFixtureAmbientHost()==='claude'?'claude-code' as const:'codex' as const;
@@ -113,6 +114,6 @@ console.log('native lock probe passed');\n`);
   else {assert.equal(store.readTestEvidence(storyId),null);assert.equal(loadVerifiedCertificationWindow(store,storyId).window?.state,'ADMITTED');}
   rmSync(join(root,'entered.log'),{force:true});rmSync(join(root,'release'));
   return {root,storyId,store,files};
- } catch(error){roots.delete(root);rmSync(root,{recursive:true,force:true});throw error;}
+ } catch(error){releaseNativeLockRoot(root);throw error;}
  finally {console.log('NATIVE_LOCK_SETUP_TOTAL '+JSON.stringify({storyId,elapsedMs:performance.now()-start}));}
 }

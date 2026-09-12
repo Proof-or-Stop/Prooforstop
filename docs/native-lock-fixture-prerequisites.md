@@ -93,7 +93,7 @@ cwd restoration or fixture removal when the holder promise rejects.
 Coverage follow-up: the official draft
 [native-lock-regression-coverage](story/drafts/native-lock-regression-coverage/background.md)
 is owned by framework validation maintenance. The standalone driver is currently
-operator-invoked, not scheduled by ordinary validation. The focused writer cases
+operator-invoked, not registered as its own ordinary validation entry. The new cleanup and derived-refusal helpers are also invoked by the default smoke path after the unchanged fifteen-group early return. That broader path retains its documented pre-existing baseline blocker. The focused writer cases
 prove exclusion and preservation of prior routine PASS, not new full-validation
 PASS publication overlapping that writer. The dual-order queue cases prove new
 signed publication, and assertPostCommandPersistenceHoldsLock covers the separate
@@ -103,3 +103,13 @@ and automatic suite registration; neither is claimed completed by this Lab.
 Native capacity holders use explicit acquisition deadlines and race readiness
 against holder failure. Both queue directions release their probes and wait for
 owned children before removing roots, including when an earlier assertion fails.
+
+The timeout classifier retains an out-of-band deadline flag so a prompt child
+close cannot erase the timeout result. A held real child pins that diagnostic.
+Native fixture roots are deregistered on release, including a recreated-path
+negative. Ambient-root errors are accumulated with case failures. The refusal
+ordering control measures the same unheld handler first, then observes the held
+call for at least five times that latency inside the disposable cwd.
+
+See [CLI follow-up provenance](native-lock-lab-verification.md) for official
+draft creation and discovery evidence against the current handler.
