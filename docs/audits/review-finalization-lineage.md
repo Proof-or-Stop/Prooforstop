@@ -518,3 +518,10 @@ Eighth repair build and runtime contract passed. Process contract 20 passed afte
 retargeting a second old certification assertion from dead branch text to the
 actual shared strict reader. The normal-refusal health regression also includes
 a genuine invalid-commit anomaly control through the actual health output path.
+
+
+A final read-through tightened deadline transport: runEntry now passes its original
+absolute deadline through the sole executeFullSuiteEntry call. The envelope does
+not rebuild it after temporary-directory preparation. Runtime contract checks
+pin both that call and the unchanged deadline value; the inner reader already
+clamps against it. This avoids adding launch preparation time back into budget.

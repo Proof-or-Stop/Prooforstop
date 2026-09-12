@@ -660,7 +660,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       externalCancellation: () => state.cancellationReason ?? state.interruptSignal },
       () => {
         enteredExecutor = true;
-        return executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state);
+        return executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state, deadlineAt);
       });
   } catch (error) {
     if (enteredExecutor) throw error;
@@ -670,7 +670,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
   }
 }
 
-async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmCommand: string, onSpawn: (() => void) | undefined, state: FullSuiteRunState): Promise<FullSuiteResult> {
+async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmCommand: string, onSpawn: (() => void) | undefined, state: FullSuiteRunState, outerDeadlineAt: number): Promise<FullSuiteResult> {
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);
@@ -687,7 +687,7 @@ async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmComm
     const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];
     const child = spawn(command, commandArgs, {
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, [REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.environmentKey]: JSON.stringify({entry:entry.name,timeoutMs:entry.timeoutMs ?? DEFAULT_TIMEOUT_MS,deadlineAt:Date.now()+(entry.timeoutMs ?? DEFAULT_TIMEOUT_MS)}), PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
+      env: { ...process.env, [REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.environmentKey]: JSON.stringify({entry:entry.name,timeoutMs:entry.timeoutMs ?? DEFAULT_TIMEOUT_MS,deadlineAt:outerDeadlineAt}), PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
     // B-137a: capture the child's kernel start identity BEFORE any cleanup can
     // run, so a later group signal can be authorized against it.
