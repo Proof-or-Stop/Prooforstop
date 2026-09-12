@@ -24,7 +24,7 @@ export interface RuntimeClosureOptions {
   readonly storyIds?: readonly string[];
   readonly activeOnly?: boolean;
   readonly now?: string;
-  /** Compatibility hint only; never authorizes self-reentry. */
+  /** @deprecated Ignored with a warning; only a live acquisition context authorizes self-reentry. */
   readonly currentValidationStoryId?: string;
 }
 
@@ -205,11 +205,17 @@ function aggregate(rows: readonly RuntimeClosureRow[]): RuntimeClosureReport['ag
   return 'green';
 }
 
+let warnedLegacyValidationHint = false;
+
 export function projectRuntimeClosure(
   store: StoryStore,
   root: string,
   options: RuntimeClosureOptions = {},
 ): RuntimeClosureReport {
+  if (options.currentValidationStoryId !== undefined && !warnedLegacyValidationHint) {
+    warnedLegacyValidationHint = true;
+    console.warn('currentValidationStoryId is deprecated and ignored; validation self-reentry requires the live acquisition context, not a Story ID.');
+  }
   const now = options.now ?? new Date().toISOString();
   const nowMs = Date.parse(now);
   const { projection: localProjection, workspaces } = resolveLocalAssuranceStoryContexts(store, root, {
@@ -237,7 +243,7 @@ export function projectRuntimeClosure(
         storyId: story.storyId,
         target: targetForPhase(story.activePhase),
         store: workspace.store,
-        root: workspace.readFromStoryWorktree ? workspace.gitCwd : root,
+        root: workspace.store.projectRoot,
         gitCwd: workspace.gitCwd,
       });
       for (const row of readiness.readiness) {

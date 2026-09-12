@@ -56,11 +56,12 @@ const git = (...args) => {
   const p = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
   assert.equal(p.status, 0, p.stderr); return p.stdout.trim();
 };
-const snapshot = path => {
+const snapshot = (path, excluded = new Set()) => {
   const entries = [];
   const walk = (dir, rel = '') => {
     for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
       const name = join(rel, entry.name), abs = join(dir, entry.name);
+      if (excluded.has(name)) continue;
       if (entry.isDirectory()) walk(abs, name);
       else entries.push([name, createHash('sha256').update(readFileSync(abs)).digest('hex')]);
     }
@@ -202,8 +203,12 @@ try {
 
   check('R4_CHECK_READONLY_ADMISSION', () => {
     const before = snapshot(store.storyDirPath(sid));
-    const assetPaths = ['.gitignore', 'AGENTS.md', 'CLAUDE.md', '.proof-or-stop/Proof-or-Stop.md', '.proof-or-stop/managed-assets.json'];
-    const assets = () => assetPaths.map(rel => [rel, existsSync(join(root, rel)) ? createHash('sha256').update(readFileSync(join(root, rel))).digest('hex') : null]);
+    // Include every project path, including newly created adapters and hooks.
+    // Story state has its own complete snapshot; Git internals are not assets.
+    for (const rel of ['.claude/hooks/reader-control', '.proof-or-stop-codex/agents/reader-control']) {
+      mkdirSync(dirname(join(root, rel)), { recursive: true }); writeFileSync(join(root, rel), 'preserve this adapter\n');
+    }
+    const assets = () => snapshot(root, new Set(['.git', '.proof-or-stop/story']));
     const assetsBefore = assets();
 
     const control = invoke('check', ['--json'], { reviewer: false });

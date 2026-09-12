@@ -540,15 +540,22 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     ]),
   }),
   identityBoundary({
+    id: 'maintenance-command-mode',
+    preSideEffect: true,
+    commands: Object.freeze(['story_reconcile', 'quorum_prune', 'capability_release_backfill', 'verification_evidence_refresh_stale']),
+    paths: Object.freeze([runtimeSource('packages/main/src/core/maintenance-command-mode.ts')]),
+    identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/maintenance-command-mode.ts', 'Boolean preview/execute delegate contains no artifact or role identity literal; emitted executable bytes are pinned before argument classification')]),
+    identitySites: Object.freeze([]),
+    mutationCases: Object.freeze([]),
+  }),
+  identityBoundary({
     id: 'review-inventory-epoch',
     commands: Object.freeze(['review_inventory_finalize', 'certification_window_begin', 'certification_window_status']),
     paths: Object.freeze([
       runtimeSource('packages/main/src/core/review-inventory-epoch.ts'),
       runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
       runtimeSource('packages/main/src/handlers/checklist.ts'),
-      runtimeSource('packages/main/src/core/maintenance-command-mode.ts'),
     ]),
-    identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/maintenance-command-mode.ts', 'Boolean preview/execute delegate contains no artifact or role identity literal; emitted executable bytes are pinned and mutation-tested')]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
       { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'), valueBinding: { kind: 'property', name: 'schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
@@ -1361,6 +1368,17 @@ export function assertCanonicalActiveIdentityBoundary(input: {
  * need their exact consumer refusal before hooks, owner leases, or activity
  * writers can observe the request.
  */
+/** Argument-mode delegates run earlier than the ordinary consumer preflight. */
+export function assertCanonicalActiveIdentityArgumentDelegates(input: {
+  command: string;
+  projectRoot: string;
+}): void {
+  const boundary = ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === 'maintenance-command-mode')!;
+  if (boundary.commands.includes(input.command)) {
+    assertCanonicalActiveIdentityBoundary({ boundaryId: boundary.id, projectRoot: input.projectRoot });
+  }
+}
+
 export function assertCanonicalActiveIdentityCommandConsumers(input: {
   command: string;
   projectRoot: string;

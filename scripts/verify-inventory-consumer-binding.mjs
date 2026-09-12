@@ -23,9 +23,11 @@ try {
   writeFileSync(path, original);
   verify();
   const helperPath = join(root, 'dist/core/maintenance-command-mode.js');
+  const verifyHelper = () => assertCanonicalActiveIdentityBoundary({ boundaryId: 'maintenance-command-mode', runtimePackageRoot: root, projectRoot: root });
   const helper = readFileSync(helperPath, 'utf8');
+  verifyHelper();
   writeFileSync(helperPath, helper + '\nexport const unreviewedDelegate = true;\n');
-  assert.throws(verify, /maintenance-command-mode.*consumer rejected active identity bytes/, 'preview delegation remains implementation-bound');
-  writeFileSync(helperPath, helper); verify();
+  assert.throws(verifyHelper, /maintenance-command-mode.*consumer rejected active identity bytes/, 'preview delegation remains implementation-bound');
+  writeFileSync(helperPath, helper); verifyHelper(); verify();
   console.log('PASS inventory consumer binding: canonical accepted, behavioral change rejected, wrong protocol rejected, exact restoration accepted');
 } finally { rmSync(root, { recursive: true, force: true }); }

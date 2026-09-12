@@ -103,10 +103,25 @@ match the current holder generation. Matching the Story ID or operating-system
 PID alone is insufficient. Unknown lock state grants neither ownership nor availability: it appears as a
 blocking issue in runtime closure and refuses enforce-mode validation writes.
 
-Queue staleness uses the latest valid, non-future Story creation/start/phase
-advance timestamp from the authoritative worktree. Directory timestamps and owner
-heartbeats do not prove phase progress. Missing authoritative state or progress
-is conservatively reported stale; it never authorizes deletion or cleanup.
+Queue staleness accepts valid, non-future Story creation/start/event timestamps
+from the authoritative worktree. When those are old, it also checks the latest
+non-merge commit exclusive to the Story branch relative to the repository's
+resolved integration baseline. An inherited main commit, merge-only sync,
+directory timestamp or owner heartbeat does not invent Story activity. Missing
+authoritative state or progress is conservatively stale; this diagnostic never
+authorizes deletion or cleanup. The Git probe runs only when recorded activity
+is insufficient, and does not scan the historical Story or log tree.
+
+The deprecated `currentValidationStoryId` option remains accepted for compatibility
+but emits a warning once per process. It is ignored for authorization: detached
+or foreign callers cannot impersonate a lock owner with a matching Story ID.
+Runtime readiness receives the metadata root directly from the selected StoryStore.
+
+Maintenance mode delegates have their own command-bound executable identity
+boundary. The CLI verifies their pinned bytes before invoking argument classification,
+including for previews, and checks the consumer boundary before write effects.
+Malformed or contradictory mode arguments retain authoritative-runtime admission
+but return their precise refusal without advertising a bootstrap rebuild.
 
 `node scripts/verify-command-observation-boundaries.mjs` exercises real CLI
 writes and reads, a linked worktree with a divergent main mirror, reversed

@@ -136,7 +136,11 @@ try {
       const hint = reviewerReadRecoveryHint(writer, {storyId:sid}, sid);
       assert.ok(hint.includes(reader === 'codex_doctor' ? 'codex doctor' : reader), writer + ' lacks reader hint');
       const refused = invoke(writer, [`--storyId=${sid}`]); assert.notEqual(refused.exitCode, 0); assert.ok(refused.stderr.includes(hint.trim()));
-      const row = invoke(reader, flags); assert.equal(row.exitCode, 0, row.stderr); assert.deepEqual(row.changedStoryFiles, []);
+      const emitted = refused.stderr.split('\n').find(line => line.includes(hint.trim()));
+      const exact = emitted.match(/: proof-or-stop (.*?) \(does not /)?.[1];
+      assert.ok(exact, 'refusal must contain an executable reader command');
+      const [command, ...args] = exact.split(' ');
+      const row = invoke(command, args); assert.equal(row.exitCode, 0, row.stderr); assert.deepEqual(row.changedStoryFiles, []);
     }
     const text = readFileSync(join(repo, 'packages/main/src/handlers/session.ts'), 'utf8');
     assert.ok(!text.includes('guard_session_check for detail.'), 'brief must not direct a reader to a writer');

@@ -85,6 +85,7 @@ import { resolveAgentMutationAuthority } from './core/agent-dispatch-registry.js
 import type { AgentDispatchMutationCommand } from './core/types.js';
 import {
   assertCanonicalActiveIdentityCommandConsumers,
+  assertCanonicalActiveIdentityArgumentDelegates,
   assertCanonicalActiveIdentityRuntime,
   classifyRuntimeEntrypointAuthority,
   renderRuntimeEntrypointAuthorityFailure,
@@ -821,12 +822,20 @@ export async function runCli(opts?: {
   const runtimeOwnershipConfig = cmd === 'agent_prompt' || cmd === 'evaluate'
     ? loadConfig(root0)
     : undefined;
-  const rawRuntimeOwnership = resolveRawRuntimeAdmissionOwnership(
-    cmd || 'help',
-    argv.slice(1),
-    externalAdmission.ownershipClasses,
-    { config: runtimeOwnershipConfig },
-  );
+  let rawRuntimeOwnership: ReturnType<typeof resolveRawRuntimeAdmissionOwnership>;
+  let rawAdmissionError: unknown;
+  try {
+    // Mode delegates must be authenticated before they classify even a preview.
+    assertCanonicalActiveIdentityArgumentDelegates({ command: cmd || 'help', projectRoot: root0 });
+    rawRuntimeOwnership = resolveRawRuntimeAdmissionOwnership(
+      cmd || 'help', argv.slice(1), externalAdmission.ownershipClasses, { config: runtimeOwnershipConfig },
+    );
+  } catch (error) {
+    // Retain authoritative-runtime admission on malformed input, then report
+    // the precise refusal without misclassifying it as a bootstrap failure.
+    rawRuntimeOwnership = getCommandPolicy(cmd)?.ownershipClass ?? externalAdmission.ownershipClasses?.[cmd] ?? null;
+    rawAdmissionError = error;
+  }
   const runtimeAuthority = classifyRuntimeEntrypointAuthority({
     command: cmd || 'help',
     commandArgs: argv.slice(1),
@@ -837,6 +846,11 @@ export async function runCli(opts?: {
   });
   if (runtimeAuthority.status === 'blocked') {
     process.stderr.write(`${renderRuntimeEntrypointAuthorityFailure(runtimeAuthority)}\n`);
+    process.exitCode = 1;
+    return;
+  }
+  if (rawAdmissionError) {
+    process.stderr.write(`Error: ${rawAdmissionError instanceof Error ? rawAdmissionError.message : String(rawAdmissionError)}\n`);
     process.exitCode = 1;
     return;
   }

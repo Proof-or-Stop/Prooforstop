@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { resolveRepositoryBaseline } from '../../git-baseline.js';
 
 export const QUEUE_GOVERNANCE_STATUS_SCHEMA_VERSION = 'proof-or-stop.queue_governance_status.v1' as const;
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
@@ -296,14 +298,25 @@ function malformedExperiment(story: StoryInfo): boolean {
   return /tier-c/i.test(story.title) && !titleInferredExperiment(story);
 }
 
-function worktreeIsStale(story: StoryInfo, thresholdMs: number, nowMs: number): boolean {
+function storyProgressIsStale(story: StoryInfo, gitCwd: string, thresholdMs: number, nowMs: number): boolean {
   // Directory mtime measures direct child entries, not nested Story progress.
   // Ignore invalid/future timestamps; missing history is conservatively stale.
-  const progress = [story.createdAt, story.startedAt, ...(story.events ?? [])
-    .filter(event => event.action === 'advance').map(event => event.timestamp)]
+  const progress = [story.createdAt, story.startedAt, ...(story.events ?? []).map(event => event.timestamp)]
     .map(value => typeof value === 'string' ? Date.parse(value) : NaN)
     .filter(value => Number.isFinite(value) && value <= nowMs);
-  return progress.length === 0 || nowMs - Math.max(...progress) > thresholdMs;
+  if (progress.some(time => nowMs - time <= thresholdMs)) return false;
+  // Only probe Git when recorded activity is old. An inherited main commit or
+  // a merge-only synchronization is not evidence of work on this Story.
+  try {
+    const baseline = resolveRepositoryBaseline(gitCwd);
+    if (baseline) {
+      const value = execFileSync('git', ['log', '-1', '--no-merges', '--format=%ct', `${baseline.ref}..HEAD`, '--'],
+        { cwd: gitCwd, encoding: 'utf8', timeout: 5000, stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      const committedAt = value ? Number(value) * 1000 : NaN;
+      if (Number.isFinite(committedAt) && committedAt <= nowMs && nowMs - committedAt <= thresholdMs) return false;
+    }
+  } catch { /* Missing Git evidence cannot invent recent Story activity. */ }
+  return true;
 }
 
 function queueRow(args: {
@@ -406,7 +419,7 @@ export function projectQueueGovernance(
     }
     if (projectionRow?.stateSource === 'worktree') {
       const workspace = workspaces.get(story.storyId)!;
-      const stale = !workspace.readFromStoryWorktree || worktreeIsStale(workspace.story, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now());
+      const stale = !workspace.readFromStoryWorktree || storyProgressIsStale(workspace.story, workspace.gitCwd, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now());
       return queueRow({
         story: workspace.story,
         classification: stale ? 'stale-worktree' : 'active-worktree',

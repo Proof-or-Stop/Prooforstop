@@ -1051,7 +1051,7 @@ Behavior:
     storyId: z.string().optional().describe('Optional single story ID to include. Alias for storyIds=[storyId].'),
     storyIds: z.array(z.string()).optional().describe('Optional story IDs to include.'),
     activeOnly: z.boolean().optional().describe('Only include non-terminal stories (default true).'),
-    currentValidationStoryId: z.string().optional().describe('Test/diagnostic hint to render a validation lock as self-reentry.'),
+    currentValidationStoryId: z.string().optional().describe('Deprecated and ignored with a warning. Self-reentry requires the live lock acquisition context; a Story ID cannot grant ownership.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,

@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const prepared = spawnSync(process.execPath, [join(root, 'scripts/ensure-dist.mjs')], { cwd: root, encoding: 'utf8', timeout: 180000 });
+assert.equal(prepared.status, 0, `SETUP_BUILD_FAILED: ${prepared.stdout} ${prepared.stderr}`);
 const scratch = mkdtempSync(join(tmpdir(), 'cli-version-proof-'));
 const fixture = join(scratch, 'installation');
 const pkg = join(fixture, 'packages/main');
@@ -19,7 +21,7 @@ try {
   cpSync(join(root, 'bin'), join(fixture, 'bin'), { recursive: true });
   cpSync(join(root, 'package.json'), join(fixture, 'package.json'));
   mkdirSync(join(fixture, 'node_modules'));
-  symlinkSync(join(root, 'packages/main/node_modules'), join(pkg, 'node_modules'));
+  if (existsSync(join(root, 'packages/main/node_modules'))) symlinkSync(join(root, 'packages/main/node_modules'), join(pkg, 'node_modules'));
   // Reuse dependencies, but never share the candidate dist or mutable manifest.
   rmSync(join(fixture, 'node_modules'), { recursive: true });
   symlinkSync(join(root, 'node_modules'), join(fixture, 'node_modules'));

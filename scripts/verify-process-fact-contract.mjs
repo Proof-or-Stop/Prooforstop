@@ -11334,6 +11334,13 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   if(scripts['test:intent-owner-lease']!=='node scripts/verify-intent-owner-lease.mjs' || !scripts['test:serial-reference'].includes('npm run test:intent-owner-lease')) failures.push('intent proposal regression must remain in serial suite');
 }
 
+// Executable audit regressions preserve argument refusals, pinned mode delegates,
+// ongoing Story activity, wrapper metadata roots and diagnostic compatibility.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-lab-audit-repairs.mjs')], { cwd: root, encoding: 'utf8', timeout: 180000 });
+  assert(output.includes('CLI_LAB_AUDIT_REPAIRS_GREEN'), 'CLI Lab audit repair controls must pass');
+} catch (error) { assert(false, `CLI Lab audit repairs failed: ${error.message}`); }
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
