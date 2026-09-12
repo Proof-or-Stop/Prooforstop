@@ -1015,6 +1015,16 @@ Top-level `validate` returns nonzero for a typed failure in either JSON or text 
 
 Explicit `executionInputs` may name files or complete directory trees, including resolved symbolic-link targets. Each currentness check rereads bytes; metadata is only a race detector. The entire snapshot is refused for cycles, unsupported nodes or limits (4096 entries, depth64,64MiB). Initial refusal executes without reuse and reports `input_unreadable` in context-local diagnostics. Drift after snapshot refuses stale publication. No partial tree grants reuse.
 
+Within one shared invocation, the captured initial facts and input snapshot are
+each canonicalized once. Later checks still acquire and canonicalize fresh facts
+and input bytes, compare workspace state, and verify loaded implementation
+identity. These baseline strings do not survive the invocation or authorize
+reuse. The canonical runtime contract uses `verify-validation-snapshot-binding.mjs`
+to check the actual owner and live comparison bindings without Node module hooks.
+The Lab-only `validation-snapshot-operation-count.mjs` measures the operation
+count with real execution, reuse, changed inputs, and refusal under live drift;
+it does not raise the general runtime requirement.
+
 `executionDecision` is diagnostic only, absent without a shared execution context. The existing reuse predicate is unchanged; build/gate/forbidden policies still execute. A same-process follower keeps the leader receipt timestamp while reporting reused, because only its local run callback proves a physical start. Directory support does not enable production caches or imply short commands benefit.
 
 
