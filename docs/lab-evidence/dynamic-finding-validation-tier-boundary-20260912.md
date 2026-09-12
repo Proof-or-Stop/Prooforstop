@@ -315,11 +315,36 @@ rebinding those exact source bytes, the static-edge verifier again reported
 `Process-fact contract verification passed`, and the production seam guard
 remained PASS.
 
-`npm run test:reviewed-source-bindings` exited 1 in both the synchronized Lab
-candidate and unmodified local main `5fc1e8d4584a74b32e5b3964ee7c3710c7191960`.
-Both runs reported the same seven pre-existing rows and no candidate-only row:
+The final projection tests give the shape-valid empty-path and rejected-entry
+branches complete live `floorOwnerIds`, so each reaches its intended semantic
+unavailability condition. Malformed path/count/missing-owner fixtures are a
+separate shape-invalid group. A non-empty, zero-rejection projection carrying
+all live owners is the positive control and emits no
+`validation_floor_registry_unavailable` reason.
+
+`npm run test:reviewed-source-bindings` was run separately in the synchronized
+Lab candidate and in a temporary detached worktree at exact audited base
+`a8240a60bd33dd1d6ba2fee2966547cd109cc070`. Both commands exited 1. Their
+stdout files compared byte-for-byte with an empty `diff -u` result. Candidate
+stdout was:
 
 ```text
+> proof-or-stop@0.3.348 test:reviewed-source-bindings
+> node scripts/verify-reviewed-source-bindings.mjs
+
+PASS routine registration: exact npm script and one serial-reference membership
+PASS reviewed context digest: all six rows reject token/count/classification/reason/line-hash mutations
+{"reviewedSourceBindingFailures":7,"errors":["reviewed source changed: packages/main/src/core/process-fact-levels.ts:496","reviewed source changed: packages/main/src/core/runtime-fact-registry.ts:480","reviewed source changed: packages/main/src/cli/command-catalog.ts:3427","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:411","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:412","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:413","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:414"]}
+```
+
+Exact-base stdout was:
+
+```text
+> proof-or-stop@0.3.348 test:reviewed-source-bindings
+> node scripts/verify-reviewed-source-bindings.mjs
+
+PASS routine registration: exact npm script and one serial-reference membership
+PASS reviewed context digest: all six rows reject token/count/classification/reason/line-hash mutations
 {"reviewedSourceBindingFailures":7,"errors":["reviewed source changed: packages/main/src/core/process-fact-levels.ts:496","reviewed source changed: packages/main/src/core/runtime-fact-registry.ts:480","reviewed source changed: packages/main/src/cli/command-catalog.ts:3427","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:411","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:412","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:413","reviewed source changed: packages/main/src/core/runtime-environment-checks.ts:414"]}
 ```
 

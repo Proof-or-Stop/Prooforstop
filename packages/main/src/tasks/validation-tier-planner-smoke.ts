@@ -572,9 +572,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // B-83aa CHK-003 adds only evidence-hash-snapshot-classifier-smoke.js. The
   // normalized set comparison recorded additions=2 and removals=0; the two
   // exact argv retention assertions above plus this count preserve that result.
-  // The audited local-main 0.3.347 recheck retained 168 entries and the same
-  // e9e563a8... digest; its normalized base-to-candidate delta was additions=0,
-  // removals=0. The literal production-path receipt is in the Lab evidence log.
+  // The audited local-main 0.3.348 base a8240a60 recheck retained 168 entries
+  // and the same e9e563a8... digest; its normalized base-to-candidate delta was
+  // additions=0, removals=0. The literal production-path receipt is in the Lab evidence log.
   assert.equal(real.entries.length, 168, 'the normalized inventory cardinality is part of the re-pin evidence; recount and update PIN MAINTENANCE when validate.commands changes');
   assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
@@ -2718,17 +2718,33 @@ testCase('explicit repository-full process-fact paths force full without overmat
     'an explicitly undefined optional override must have the same meaning as omission',
   );
 
-  for (const unavailable of [
-    { paths: [], rejectedEntryCount: 0 },
-    { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: 1 },
-    { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: Number.NaN },
-    { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: 'many' },
-    { paths: 'not-an-array', rejectedEntryCount: 0 },
-  ]) {
+  const liveFloorOwnerIds = collected.floorOwnerIds;
+  const validFloorPath = 'packages/main/src/core/valid-full-path.ts';
+  const semanticallyUnavailableProjections = [
+    { paths: [], rejectedEntryCount: 0, floorOwnerIds: liveFloorOwnerIds },
+    { paths: [validFloorPath], rejectedEntryCount: 1, floorOwnerIds: liveFloorOwnerIds },
+  ];
+  const malformedProjectionShapes = [
+    { paths: [validFloorPath], rejectedEntryCount: Number.NaN, floorOwnerIds: liveFloorOwnerIds },
+    { paths: [validFloorPath], rejectedEntryCount: 'many', floorOwnerIds: liveFloorOwnerIds },
+    { paths: 'not-an-array', rejectedEntryCount: 0, floorOwnerIds: liveFloorOwnerIds },
+    { paths: [validFloorPath], rejectedEntryCount: 0 },
+  ];
+  const availableProjection = {
+    paths: [validFloorPath],
+    rejectedEntryCount: 0,
+    floorOwnerIds: liveFloorOwnerIds,
+  };
+  assert.deepEqual(
+    classifySensitiveStoryPaths([], { projection: availableProjection }),
+    [],
+    'a shape-valid, non-empty, fully owned projection must not report registry unavailability',
+  );
+  for (const unavailable of semanticallyUnavailableProjections) {
     assert.deepEqual(
       classifySensitiveStoryPaths([], { projection: unavailable }),
       ['validation_floor_registry_unavailable'],
-      'an unavailable registry floor must widen independently of changed paths',
+      'an empty or rejected shape-valid registry floor must widen independently of changed paths',
     );
     const decision = selectValidationTiers({
       storyId: 'B-floor-unavailable',
@@ -2751,6 +2767,13 @@ testCase('explicit repository-full process-fact paths force full without overmat
     }, { registryFloorProjection: unavailable });
     assert.equal(decision.effectiveTier, 'repository-full');
     assert.ok(decision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
+  }
+  for (const malformed of malformedProjectionShapes) {
+    assert.deepEqual(
+      classifySensitiveStoryPaths([], { projection: malformed }),
+      ['validation_floor_registry_unavailable'],
+      'a malformed projection shape must widen independently of changed paths',
+    );
   }
   const invalidDependenciesInput: SelectValidationTiersInput = {
       storyId: 'B-invalid-dependencies',
