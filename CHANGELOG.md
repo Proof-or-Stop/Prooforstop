@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab runtime-snapshot-static-edge - v0.3.343 - 2026-09-12
+
+Register the exact runtime verifier child that checks shared validation snapshot source bindings. The child parses shared-validation-execution.ts with TypeScript and rejects five in-memory source mutations; it does not import that production module or execute a validation suite. Add one source/call/invocation-bound reviewed exception with caller, child and read-only source dependency hashes. Preserve all unrelated exception entries, scanner classifications and configuration drift.
+
+The committed target RED observed the real canonical scanner classify this exact new main edge as NEEDS_REVIEW. The repaired focused regression verifies EXCEPTION, exact dependency bytes, removal refusal, each declared dependency drift, wrong configured invocation index and unchanged unrelated canonical rows. The default existing static-boundary suite retains all original controls and includes the new case. Full boundary regression passed10.5939935s and focused regression7.166259833s before official GREEN.
+
+This bounded result is not a claim that the repository-wide static scanner is globally green: unrelated historical stale exception/configuration/index debt remains unchanged. It is not B-e6d9 Story DONE, native lifecycle evidence, or a performance optimization. Original executable child argv and30000ms timeout are unchanged. No production scanner, gate, policy or trust mechanism changes.
+
+The first additional drift-control expectation distinguished the scanner's existing incomplete-exception refusal for a read-only child/input from coverage-missing refusal for the caller; this test setup correction is retained in logs and is not a production defect. Source closure is finite; installed TypeScript parser trust retains the same toolchain boundary as the scanner itself.
+
+Maintenance provenance: codex/lab-runtime-snapshot-static-edge, repair 7f0ec2db5149b586f5b1b26d6592c2b576f360fe.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs","--runtime-snapshot-edge"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab b83aa-partial-hash-freshness - v0.3.342 - 2026-09-12
 
 Evidence hash snapshots now fail closed when the current Git HEAD or material digest cannot be derived. The shared classifier is consumed by DONE admission, lifecycle readiness, routine validation reuse, and session diagnostics. Missing storyFilesHash remains an explicit advisory with strict materialHash fallback, and historical DONE projections disclose legacy omissions without reopening completed history.
