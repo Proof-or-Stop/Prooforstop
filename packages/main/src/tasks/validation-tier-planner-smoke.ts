@@ -110,9 +110,10 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import ts from 'typescript';
 import { z } from 'zod';
 
 import {
@@ -159,6 +160,8 @@ import {
   assertValidationTierSelectionSubsetInvariant,
   isValidationStopReasonCode,
   resolveValidationTierPlan,
+  classifySensitiveStoryPaths,
+  pathIsLegacyValidationSensitive,
   selectValidationTiers,
   validationTierIsSubsetOf,
   validationTierRank,
@@ -166,6 +169,7 @@ import {
   validationWideningReasonGloss,
   type ValidationTier,
   type ValidationImpactIndex,
+  type SelectValidationTiersInput,
   type ValidationTierPlanResult,
   type ValidationWideningReasonCode,
 } from '../core/validation-tier-planner.js';
@@ -186,6 +190,13 @@ import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 import { getCommandPolicy } from '../core/command-policy.js';
 import {
+  collectRepositoryFullProcessFactPaths,
+  declareProcessFactMapping,
+  getProcessFactRegistryEntry,
+  PROCESS_FACT_DYNAMIC_FINDING_POLICY,
+  VALIDATION_TIER_FLOOR,
+} from '../core/process-fact-registry.js';
+import {
   describeRedGreenViolations,
   evaluateRedGreenCommitOrder,
   isStoryQualifiedRedGreenId,
@@ -196,6 +207,17 @@ import { StoryStore } from '../core/store.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
+let memoizedRepositorySourceRoot: string | undefined;
+function repositorySourceRoot(): string {
+  if (memoizedRepositorySourceRoot) return memoizedRepositorySourceRoot;
+  const root = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(
+    root && existsSync(join(root, 'packages/main/src/core/validation-tier-planner.ts')),
+    'validation-tier-planner-smoke source guards require a Git source checkout',
+  );
+  memoizedRepositorySourceRoot = root;
+  return root;
+}
 
 let failures = 0;
 
@@ -536,14 +558,25 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
     'packages/main/tests/red/red-global-cli-exec-bit.mjs',
     'scripts/verify-process-fact-contract.mjs',
     'scripts/verify-runtime-fact-contract.mjs',
-     'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
-     'packages/main/tests/canonical-new-story-artifacts.test.mjs',
-   ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
+    'packages/main/dist/tasks/review-inventory-epoch-smoke.js',
+    'packages/main/tests/canonical-new-story-artifacts.test.mjs',
+    'packages/main/dist/tasks/evidence-hash-snapshot-classifier-smoke.js',
+    'packages/main/tests/red/red-partial-hash-snapshot-binding.mjs',
+  ]) assert.ok(commands.some(entry => entry.args?.includes(required)), `merged inventory retains ${required}`);
   // v0.3.300 retains the session-performance inventory and adds the Finding
   // identity delivery and RED commands. Recompute from the merged normalized
   // inventory before replacing this deliberate merge-time sentinel.
   // v0.3.317 integrates the explicitly registered dynamic-finding-evidence-closure suite.
-  assert.equal(real.commandSetDigest, 'ba34d4fed4c8b355657089907b79c01e62b1c12c134afa3bab6b6b8dbdf8f70e', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // The pre-sync inventory had 166 normalized command+argv tuples. v0.3.345 has
+  // 168: B-83aa CHK-002 adds only red-partial-hash-snapshot-binding.mjs and
+  // B-83aa CHK-003 adds only evidence-hash-snapshot-classifier-smoke.js. The
+  // normalized set comparison recorded additions=2 and removals=0; the two
+  // exact argv retention assertions above plus this count preserve that result.
+  // The audited local-main 0.3.348 base a8240a60 recheck retained 168 entries
+  // and the same e9e563a8... digest; its normalized base-to-candidate delta was
+  // additions=0, removals=0. The literal production-path receipt is in the Lab evidence log.
+  assert.equal(real.entries.length, 168, 'the normalized inventory cardinality is part of the re-pin evidence; recount and update PIN MAINTENANCE when validate.commands changes');
+  assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
@@ -2199,32 +2232,76 @@ testCase('an unknown reason code has no gloss and is refused rather than glossed
   );
 });
 
-// This is a LOWER BOUND on the table, transcribed from the spec's matrix. It is
-// deliberately separate from the gloss check above: this list may legitimately
-// lag the table when a later Story adds a row, whereas the gloss check must
-// never be allowed to lag, which is why it enumerates instead.
-testCase('the table covers every row of the spec fail-closed widening matrix', () => {
-  const specMatrixCodes = [
-    'changed_files_unavailable',
-    'unclassified_material_input',
-    'impact_index_unusable',
-    'impact_projection_incomplete',
-    'workspace_snapshot_changed',
-    'selection_policy_changed',
-    'validation_framework_sensitive_change',
-    'build_graph_change',
-    'runtime_edge_unresolved',
-    'pinned_command_missing',
-    'pinned_command_ambiguous',
-    'command_exclusion_unproven',
-    'source_kind_atomic',
-    'no_validator',
-    'empty_selection_unclassified',
-    'docs_only_policy',
-    'duration_target_exceeded',
-  ];
-  for (const code of specMatrixCodes) {
-    assert.ok(code in VALIDATION_WIDENING_REASONS, `spec matrix row ${code} is missing from the table`);
+// Parse the operator-facing document itself so its table and the runtime cannot
+// drift behind a test-local transcription.
+testCase('the operator guide and runtime widening matrices have identical codes, outcomes, and conditions', () => {
+  const performanceDoc = readFileSync(join(repositorySourceRoot(), 'docs/validation-performance.md'), 'utf8');
+  const authorityDecision = readFileSync(
+    join(repositorySourceRoot(), 'docs/requirements/decisions/validation-widening-matrix-authority.md'),
+    'utf8',
+  );
+  assert.match(
+    performanceDoc,
+    /docs\/requirements\/decisions\/validation-widening-matrix-authority\.md/,
+    'the operator guide must cite the canonical authority decision',
+  );
+  assert.match(
+    authorityDecision,
+    /docs\/validation-performance\.md/,
+    'the canonical authority decision must point back to the executable operator contract',
+  );
+  assert.match(
+    authorityDecision,
+    /story-relevance-dynamic-validation-tiers-execution-plan\.md[\s\S]*design history[\s\S]*pointer to this decision/,
+    'the authority decision must state how the branch-owned design matrix is superseded when integrated',
+  );
+  const matrixSection = performanceDoc.match(
+    /^## Dynamic-tier fail-closed widening matrix\s*$([\s\S]*?)(?=^##\s)/mu,
+  )?.[1];
+  assert.ok(matrixSection, 'docs/validation-performance.md must retain the Dynamic-tier fail-closed widening matrix section');
+  const documentedRows = [...matrixSection.matchAll(
+    /^\|\s*([^|\n]*?)\s*\|\s*([^|\n]*?)\s*\|\s*`([a-z0-9_]+)`\s*\|\s*$/gmu,
+  )].map((match) => ({ condition: match[1], result: match[2], code: match[3] }));
+  const documentedCodes = documentedRows.map((row) => row.code);
+  assert.equal(new Set(documentedCodes).size, documentedCodes.length, 'the documented widening matrix may not repeat a reason code');
+  assert.ok(documentedCodes.length > 0, 'the documented widening matrix must contain reason-code rows');
+  assert.deepEqual(
+    [...documentedCodes].sort(),
+    [...VALIDATION_WIDENING_REASON_CODES].sort(),
+    'docs/validation-performance.md and the executable widening table must contain the same reason codes',
+  );
+  const documentedOutcomeMap = {
+    'Repository-full': 'repository-full',
+    'Replan; repeated movement widens to repository-full': 'replan',
+    'Stop; no PASS artifact': 'stop',
+    'Atomic repository-full': 'atomic-repository-full',
+    'Preserve no-validator compatibility; no validation tier can PASS': 'no-tier-pass',
+    'Run that docs policy': 'docs-policy',
+    'Report only; never remove a command': 'report-only',
+  } as const;
+  assert.deepEqual(
+    [...new Set(Object.values(documentedOutcomeMap))].sort(),
+    [...VALIDATION_WIDENING_OUTCOMES].sort(),
+    'the documented-result normalization must cover every runtime widening outcome',
+  );
+  assert.deepEqual(
+    [...new Set(documentedRows.map((row) => row.result))].sort(),
+    Object.keys(documentedOutcomeMap).sort(),
+    'every documented result label must be used and every used label must be recognized',
+  );
+  for (const row of documentedRows) {
+    assert.ok(row.result in documentedOutcomeMap, `documented result is not normalized: ${row.result}`);
+    const code = row.code as ValidationWideningReasonCode;
+    assert.equal(
+      documentedOutcomeMap[row.result as keyof typeof documentedOutcomeMap],
+      VALIDATION_WIDENING_REASONS[code].outcome,
+      `documented effective result must match runtime outcome for ${row.code}`,
+    );
+    assert.equal(
+      row.condition,
+      VALIDATION_WIDENING_REASONS[code].condition,
+      `documented condition must exactly match the runtime condition for ${row.code}`,
+    );
   }
 });
 
@@ -2316,7 +2393,7 @@ testCase('the wired resolver widens every validation and gate machinery surface 
     });
     const result = resolveValidationTierPlan({
       input,
-      requestedTier: 'story-fast',
+      requestedTier: 'story-fast' as const,
       impactIndex: {
         schema: VALIDATION_IMPACT_INDEX_SCHEMA,
         version: 'sensitive-index-v1',
@@ -2332,6 +2409,526 @@ testCase('the wired resolver widens every validation and gate machinery surface 
     assert.equal(result.effectiveTier, 'repository-full', sensitivePath);
     assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), sensitivePath);
     assert.deepEqual(result.unclassifiedInputs, [], `${sensitivePath} was classified by the configured index`);
+  }
+});
+
+testCase('Dynamic Finding L4 gate paths force repository-full even when the impact index marks them fast', () => {
+  const gateFact = getProcessFactRegistryEntry('runtime:dynamic_finding_applicability_gate');
+  const expectedConsumers = [
+    'finding_triage',
+    'storyMachine.canPassReview',
+    'getGuardFailureReason',
+    'reviewer_batch',
+    'reviewer_status',
+    'review_convergence',
+    'lifecycle_readiness',
+    'certification_window',
+    'storyMachine.canFinish',
+    'story-aware-validation additive constraints',
+  ];
+  const expectedFloorPaths = [
+    'packages/main/src/core/certification-window.ts',
+    'packages/main/src/core/finding-applicability-projection.ts',
+    'packages/main/src/core/finding-applicability.ts',
+    'packages/main/src/core/guard-utils.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/core/machine.ts',
+    'packages/main/src/core/review-convergence.ts',
+    'packages/main/src/core/reviewer-status.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/handlers/finding-applicability-proof.ts',
+    'packages/main/src/handlers/finding-applicability.ts',
+    'packages/main/src/handlers/finding-deferral-proof.ts',
+    'packages/main/src/handlers/finding-material-reattestation.ts',
+    'packages/main/src/handlers/reviewer-batch.ts',
+    'packages/main/src/handlers/transition-orchestrator.ts',
+  ];
+  assert.ok(gateFact, 'Dynamic Finding L4 gate process fact must be registered');
+  assert.equal(gateFact.level, 'L4');
+  assert.equal(gateFact.kind, 'runtime-behavior');
+  assert.ok(gateFact.consumerGate?.trim(), 'Dynamic Finding L4 gate process fact must name its consumer gate');
+  assert.equal(gateFact.validationTierFloor, 'repository-full');
+  assert.deepEqual(
+    [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
+    [...expectedConsumers].sort(),
+    'Dynamic Finding lifecycle-consumer authority must remain the explicit reviewed list',
+  );
+  assert.deepEqual(
+    [...gateFact.paths].sort(),
+    [...expectedFloorPaths].sort(),
+    'shrinking or expanding the Dynamic Finding validation floor requires explicit review here',
+  );
+  assert.ok(gateFact.paths.length > 0, 'Dynamic Finding L4 gate process fact must declare governed paths');
+  const declaredSourceRefs = [...new Set([
+    ...(gateFact.producerSourceRefs ?? []),
+    ...(gateFact.consumerSourceRefs ?? []),
+  ])];
+  assert.ok(declaredSourceRefs.length > 0, 'Dynamic Finding must declare its producer and consumer source surface');
+  for (const sourceRef of declaredSourceRefs) {
+    assert.ok(gateFact.paths.includes(sourceRef), `validation floor must include declared source ref: ${sourceRef}`);
+    assert.ok(existsSync(join(repositorySourceRoot(), sourceRef)), `declared Dynamic Finding source must exist: ${sourceRef}`);
+  }
+  assert.ok(
+    gateFact.paths.includes('packages/main/src/core/certification-window.ts'),
+    'Dynamic Finding coverage must include a non-validation-named path outside the legacy sensitive-path list',
+  );
+  assert.deepEqual(
+    Object.keys(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer).sort(),
+    [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
+    'every declared Dynamic Finding consumer must have a source mapping',
+  );
+  assert.deepEqual(
+    Object.keys(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerImplementationTokensByConsumer).sort(),
+    [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
+    'every declared Dynamic Finding consumer must have an implementation-presence token',
+  );
+  const producerPolicy = PROCESS_FACT_DYNAMIC_FINDING_POLICY as typeof PROCESS_FACT_DYNAMIC_FINDING_POLICY & {
+    producerCommands?: readonly string[];
+    producerSourceRefsByCommand?: Readonly<Record<string, readonly string[]>>;
+  };
+  assert.deepEqual(
+    producerPolicy.producerCommands,
+    [
+      'finding_applicability_assess',
+      'finding_applicability_batch',
+      'finding_deferral_record',
+      'finding_mandatory_repair_close',
+    ],
+    'Dynamic Finding producer authority must be an explicit command list',
+  );
+  assert.deepEqual(
+    Object.keys(producerPolicy.producerSourceRefsByCommand ?? {}).sort(),
+    [...(producerPolicy.producerCommands ?? [])].sort(),
+    'every declared Dynamic Finding producer command must have a source mapping',
+  );
+  for (const commandName of producerPolicy.producerCommands ?? []) {
+    const mappedSources = producerPolicy.producerSourceRefsByCommand?.[commandName] ?? [];
+    assert.ok(
+      mappedSources.some((sourceRef) => readFileSync(join(repositorySourceRoot(), sourceRef), 'utf8').includes(commandName)),
+      `a mapped producer source must contain its exact command registration token: ${commandName}`,
+    );
+  }
+  for (const consumer of PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers) {
+    const mappedSources = PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer[consumer];
+    const implementationTokens = PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerImplementationTokensByConsumer[consumer];
+    assert.ok(implementationTokens.length > 0, `Dynamic Finding consumer must declare at least one implementation-presence token: ${consumer}`);
+    assert.ok(
+      mappedSources.some((sourceRef) => {
+        const source = readFileSync(join(repositorySourceRoot(), sourceRef), 'utf8');
+        return implementationTokens.some((token) => source.includes(token));
+      }),
+      `mapped consumer source must retain its implementation-presence token; this does not prove Dynamic Finding consumption: ${consumer}`,
+    );
+  }
+  const policyAuthorityPaths = [...new Set([
+    ...Object.values(producerPolicy.producerSourceRefsByCommand ?? {}).flat(),
+    ...PROCESS_FACT_DYNAMIC_FINDING_POLICY.semanticVerifierSourceRefs,
+    ...Object.values(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer).flat(),
+  ])];
+  for (const policyAuthorityPath of policyAuthorityPaths) {
+    assert.ok(
+      gateFact.paths.includes(policyAuthorityPath),
+      `Dynamic Finding validation floor must cover policy authority: ${policyAuthorityPath}`,
+    );
+    assert.ok(existsSync(join(repositorySourceRoot(), policyAuthorityPath)), `policy authority source must exist: ${policyAuthorityPath}`);
+  }
+
+  for (const sensitivePath of gateFact.paths) {
+    const input = planInput({
+      readers: { changedFileStatuses: statusReader({ [sensitivePath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
+    });
+    const result = resolveValidationTierPlan({
+      input,
+      requestedTier: 'story-fast',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'dynamic-finding-gate-index-v1',
+        commandSetDigest: input.executionInventory.commandSetDigest,
+        entries: [
+          { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [sensitivePath], coverage: 'complete' },
+          { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    });
+    assert.equal(result.status, 'plan', sensitivePath);
+    if (result.status !== 'plan') continue;
+    assert.equal(
+      result.effectiveTier,
+      'repository-full',
+      `Dynamic Finding L4 gate path must force repository-full: ${sensitivePath}`,
+    );
+    assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), sensitivePath);
+  }
+});
+
+testCase('explicit repository-full process-fact paths force full without overmatching unrelated L4 code', () => {
+  assert.equal(
+    VALIDATION_TIER_FLOOR,
+    'repository-full',
+    'the registry must expose the one floor the selector actually implements, not a plural extension point',
+  );
+  const collected = collectRepositoryFullProcessFactPaths();
+  const gatePatterns = collected.paths;
+  assert.equal(collected.rejectedEntryCount, 0);
+  assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one repository-full path');
+  const liveFloorOwnerId = collected.floorOwnerIds.find(
+    (ownerId) => ownerId === 'runtime:dynamic_finding_applicability_gate',
+  );
+  assert.equal(liveFloorOwnerId, 'runtime:dynamic_finding_applicability_gate');
+  const absentDecodedMapping = collectRepositoryFullProcessFactPaths([]);
+  assert.deepEqual(absentDecodedMapping, { paths: [], rejectedEntryCount: 0, floorOwnerIds: [] });
+  assert.deepEqual(
+    classifySensitiveStoryPaths([], { projection: absentDecodedMapping }),
+    ['validation_floor_registry_unavailable'],
+    'an absent decoded floor mapping stays readable but makes selection widen full',
+  );
+  const floorContractDoc = readFileSync(join(repositorySourceRoot(), 'docs/validation-performance.md'), 'utf8');
+  assert.match(
+    floorContractDoc,
+    /An absent floor mapping leaves the registry loadable; its empty projection makes\s+the selector widen with `validation_floor_registry_unavailable`/u,
+    'the operator guide must distinguish the loadable absent-mapping path',
+  );
+  assert.match(
+    floorContractDoc,
+    /A present floor\s+declaration with malformed or empty paths is instead refused while the registry\s+module initializes, before any selector can return a tier decision/u,
+    'the operator guide must distinguish declaration refusal from selector widening',
+  );
+  assert.deepEqual(
+    collectRepositoryFullProcessFactPaths([
+      null,
+      { level: 'not-a-level', paths: 'irrelevant-without-a-floor' },
+      { level: 'L4' },
+      { factId: 'runtime:fixture-shape', level: 'L4', validationTierFloor: 'repository-full', paths: 'not-an-array' },
+      { factId: 'runtime:fixture-empty', level: 'L4', validationTierFloor: 'repository-full', paths: [] },
+      { factId: 'runtime:fixture-level', level: 'L3', validationTierFloor: 'repository-full', paths: ['ignored-level.ts'] },
+      { factId: 'runtime:fixture-floor', level: 'L4', validationTierFloor: 'story-fast', paths: ['ignored-floor.ts'] },
+      {
+        factId: 'runtime:fixture-mixed',
+        level: 'L4',
+        validationTierFloor: 'repository-full',
+        paths: [null, '', 'packages/main/src/core/valid-full-path.ts'],
+      },
+      { factId: 'runtime:fixture-absolute', level: 'L4', validationTierFloor: 'repository-full', paths: ['/absolute.ts'] },
+      { factId: 'runtime:fixture-escape', level: 'L4', validationTierFloor: 'repository-full', paths: ['../../escape.ts'] },
+      { factId: 'runtime:fixture-backslash', level: 'L4', validationTierFloor: 'repository-full', paths: ['packages\\main\\escape.ts'] },
+    ]),
+    {
+      paths: ['packages/main/src/core/valid-full-path.ts'],
+      rejectedEntryCount: 9,
+      floorOwnerIds: ['runtime:fixture-mixed'],
+    },
+    'malformed independently decoded registry entries must be reported while valid authority survives',
+  );
+  const completeTwoFloorProjection = collectRepositoryFullProcessFactPaths([
+    {
+      factId: liveFloorOwnerId,
+      level: 'L4',
+      validationTierFloor: 'repository-full',
+      paths: ['packages/main/src/core/finding-applicability.ts'],
+    },
+    {
+      factId: 'runtime:secondary-validation-floor',
+      level: 'L4',
+      validationTierFloor: 'repository-full',
+      paths: ['packages/main/src/core/secondary-floor.ts'],
+    },
+  ]);
+  assert.deepEqual(completeTwoFloorProjection.floorOwnerIds, [
+    liveFloorOwnerId,
+    'runtime:secondary-validation-floor',
+  ].sort());
+  const strippedTwoFloorProjection = collectRepositoryFullProcessFactPaths([
+    {
+      factId: liveFloorOwnerId,
+      level: 'L4',
+      paths: ['packages/main/src/core/finding-applicability.ts'],
+    },
+    {
+      factId: 'runtime:secondary-validation-floor',
+      level: 'L4',
+      validationTierFloor: 'repository-full',
+      paths: ['packages/main/src/core/secondary-floor.ts'],
+    },
+  ]);
+  assert.deepEqual(strippedTwoFloorProjection.floorOwnerIds, ['runtime:secondary-validation-floor']);
+  assert.deepEqual(
+    classifySensitiveStoryPaths([], { projection: strippedTwoFloorProjection }),
+    ['validation_floor_registry_unavailable'],
+    'a decoded multi-floor projection missing the live floor owner must widen rather than silently narrow',
+  );
+  const declaration = {
+    name: 'runtime:test-validation-floor',
+    kind: 'runtime-behavior' as const,
+    semantics: ['runtime-behavior' as const],
+    producer: 'validation-tier-planner-smoke',
+    rationale: 'Fixture declaration used to prove invalid validation tier floors fail loudly.',
+    validationTierFloor: 'repository-full' as const,
+  };
+  assert.throws(
+    () => declareProcessFactMapping({ ...declaration, level: 'L3', paths: ['packages/main/src/core/example.ts'] }),
+    /runtime:test-validation-floor validationTierFloor requires level L4/,
+  );
+  assert.throws(
+    () => declareProcessFactMapping({ ...declaration, level: 'L4' }),
+    /runtime:test-validation-floor validationTierFloor requires explicitly authored paths/,
+  );
+  assert.throws(
+    () => declareProcessFactMapping({
+      name: 'runtime:dynamic_finding_applicability_gate',
+      kind: 'runtime-behavior',
+      semantics: ['runtime-behavior'],
+      level: 'L4',
+      producer: 'fixture',
+      rationale: 'A missing Dynamic Finding source mapping must fail at registry declaration time.',
+    }),
+    /runtime:dynamic_finding_applicability_gate requires explicit validation floor paths/,
+  );
+  assert.throws(
+    () => declareProcessFactMapping({
+      ...declaration,
+      level: 'L4',
+      paths: ['packages/main/src/core/example.ts'],
+      validationTierFloor: 'full' as never,
+    }),
+    /runtime:test-validation-floor has unknown validationTierFloor: full/,
+  );
+
+  const planForPath = (changedPath: string) => {
+    const input = planInput({
+      readers: { changedFileStatuses: statusReader({ [changedPath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
+    });
+    return resolveValidationTierPlan({
+      input,
+      requestedTier: 'story-fast',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'repository-full-process-facts-v1',
+        commandSetDigest: input.executionInventory.commandSetDigest,
+        entries: [
+          { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [changedPath], coverage: 'complete' },
+          { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    });
+  };
+
+  assert.deepEqual(
+    classifySensitiveStoryPaths([], undefined),
+    classifySensitiveStoryPaths([]),
+    'an explicitly undefined optional override must have the same meaning as omission',
+  );
+
+  const liveFloorOwnerIds = collected.floorOwnerIds;
+  const validFloorPath = 'packages/main/src/core/valid-full-path.ts';
+  const semanticallyUnavailableProjections = [
+    { paths: [], rejectedEntryCount: 0, floorOwnerIds: liveFloorOwnerIds },
+    { paths: [validFloorPath], rejectedEntryCount: 1, floorOwnerIds: liveFloorOwnerIds },
+  ];
+  const malformedProjectionShapes = [
+    { paths: [validFloorPath], rejectedEntryCount: Number.NaN, floorOwnerIds: liveFloorOwnerIds },
+    { paths: [validFloorPath], rejectedEntryCount: 'many', floorOwnerIds: liveFloorOwnerIds },
+    { paths: 'not-an-array', rejectedEntryCount: 0, floorOwnerIds: liveFloorOwnerIds },
+    { paths: [validFloorPath], rejectedEntryCount: 0 },
+  ];
+  const availableProjection = {
+    paths: [validFloorPath],
+    rejectedEntryCount: 0,
+    floorOwnerIds: liveFloorOwnerIds,
+  };
+  assert.deepEqual(
+    classifySensitiveStoryPaths([], { projection: availableProjection }),
+    [],
+    'a shape-valid, non-empty, fully owned projection must not report registry unavailability',
+  );
+  for (const unavailable of semanticallyUnavailableProjections) {
+    assert.deepEqual(
+      classifySensitiveStoryPaths([], { projection: unavailable }),
+      ['validation_floor_registry_unavailable'],
+      'an empty or rejected shape-valid registry floor must widen independently of changed paths',
+    );
+    const decision = selectValidationTiers({
+      storyId: 'B-floor-unavailable',
+      requestedTier: 'story-fast',
+      universeCommandIds: ['unit-suite', 'lint-suite'],
+      changedPaths: [],
+      pinnedCommandIds: [],
+      forceFullReasons: [],
+      commandSetDigest: 'floor-unavailable-command-set-v1',
+      snapshotDigest: 'floor-unavailable-snapshot-v1',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'floor-unavailable-index-v1',
+        commandSetDigest: 'floor-unavailable-command-set-v1',
+        entries: [
+          { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: ['packages/module-a/**'], coverage: 'complete' },
+          { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    }, { registryFloorProjection: unavailable });
+    assert.equal(decision.effectiveTier, 'repository-full');
+    assert.ok(decision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
+  }
+  for (const malformed of malformedProjectionShapes) {
+    assert.deepEqual(
+      classifySensitiveStoryPaths([], { projection: malformed }),
+      ['validation_floor_registry_unavailable'],
+      'a malformed projection shape must widen independently of changed paths',
+    );
+  }
+  const invalidDependenciesInput: SelectValidationTiersInput = {
+      storyId: 'B-invalid-dependencies',
+      requestedTier: 'story-fast',
+      universeCommandIds: ['unit-suite'],
+      changedPaths: [],
+      pinnedCommandIds: [],
+      forceFullReasons: [],
+      commandSetDigest: 'invalid-dependencies-command-set-v1',
+      snapshotDigest: 'invalid-dependencies-snapshot-v1',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'invalid-dependencies-index-v1',
+        commandSetDigest: 'invalid-dependencies-command-set-v1',
+        entries: [
+          { commandId: 'unit-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    };
+  for (const invalidDependencies of [null, [], 'x', 0, true]) {
+    assert.throws(
+      () => selectValidationTiers(invalidDependenciesInput, invalidDependencies as never),
+      /selectValidationTiers: dependencies must be an object/,
+      `invalid dependency seam shape must be refused: ${JSON.stringify(invalidDependencies)}`,
+    );
+  }
+  for (const invalidPath of [null, [], 0, true, {}]) {
+    assert.throws(
+      () => pathIsLegacyValidationSensitive(invalidPath as never),
+      /pathIsLegacyValidationSensitive: path must be a string/,
+      `legacy sensitivity helper must name an invalid path: ${JSON.stringify(invalidPath)}`,
+    );
+  }
+  for (const invalidPaths of [null, 'x', 0, true, [null]]) {
+    assert.throws(
+      () => classifySensitiveStoryPaths(invalidPaths as never),
+      /classifySensitiveStoryPaths: paths must be an array of strings/,
+      `sensitivity classifier must name invalid paths: ${JSON.stringify(invalidPaths)}`,
+    );
+  }
+  for (const invalidInjection of [null, [], 'x', 0, true, {}]) {
+    assert.throws(
+      () => classifySensitiveStoryPaths([], invalidInjection as never),
+      /classifySensitiveStoryPaths: injection must be an object with a projection property/,
+      `sensitivity classifier must name an invalid injection: ${JSON.stringify(invalidInjection)}`,
+    );
+  }
+  const omittedDependencies = selectValidationTiers(invalidDependenciesInput);
+  assert.ok(
+    !omittedDependencies.escalationReasonCodes.includes('validation_floor_registry_unavailable'),
+    'omitting the internal dependency seam must use the valid live registry projection',
+  );
+  const explicitlyUnavailableDependencies = selectValidationTiers(
+    invalidDependenciesInput,
+    { registryFloorProjection: undefined },
+  );
+  assert.equal(explicitlyUnavailableDependencies.effectiveTier, 'repository-full');
+  assert.ok(
+    explicitlyUnavailableDependencies.escalationReasonCodes.includes('validation_floor_registry_unavailable'),
+    'an explicitly supplied undefined projection must remain distinguishable from omission and widen full',
+  );
+
+  const plannerSource = readFileSync(join(repositorySourceRoot(), 'packages/main/src/core/validation-tier-planner.ts'), 'utf8');
+  const handlerSource = readFileSync(join(repositorySourceRoot(), 'packages/main/src/handlers/validation-plan.ts'), 'utf8');
+  const plannerAst = ts.createSourceFile(
+    'validation-tier-planner.ts',
+    plannerSource,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
+  const productionCallSites: ts.CallExpression[] = [];
+  const visitPlanner = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)
+      && ts.isIdentifier(node.expression)
+      && node.expression.text === 'selectValidationTiers') productionCallSites.push(node);
+    ts.forEachChild(node, visitPlanner);
+  };
+  visitPlanner(plannerAst);
+  assert.equal(productionCallSites.length, 1, 'validation-tier-planner.ts must have exactly one internal selectValidationTiers call site');
+  assert.equal(productionCallSites[0].arguments.length, 1, 'validation-tier-planner.ts internal call may not populate the dependency seam');
+  assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'validation-plan.ts may not call the selector seam directly');
+  assert.match(
+    validationWideningReasonGloss('validation_floor_registry_unavailable'),
+    /could not provide a complete repository-full floor set, or declares no floor at all/,
+  );
+  assert.match(
+    VALIDATION_WIDENING_REASONS.validation_framework_sensitive_change.condition,
+    /declared repository-full process-fact path/,
+    'the widening condition must describe the implemented legacy-pattern plus declared-floor boundary',
+  );
+
+  const dynamicPath = 'packages/main/src/core/finding-applicability.ts';
+  const additiveDecision = selectValidationTiers({
+    storyId: 'B-floor-additive',
+    requestedTier: 'story-fast',
+    universeCommandIds: ['unit-suite', 'lint-suite'],
+    changedPaths: [dynamicPath],
+    pinnedCommandIds: [],
+    forceFullReasons: [],
+    commandSetDigest: 'floor-additive-command-set-v1',
+    snapshotDigest: 'floor-additive-snapshot-v1',
+    impactIndex: {
+      schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+      version: 'floor-additive-index-v1',
+      commandSetDigest: 'floor-additive-command-set-v1',
+      entries: [
+        { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [dynamicPath], coverage: 'complete' },
+        { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+      ],
+    },
+  }, {
+    registryFloorProjection: {
+      paths: ['packages/main/src/core/unrelated-injected.ts'],
+      rejectedEntryCount: 0,
+      floorOwnerIds: collected.floorOwnerIds,
+    },
+  });
+  assert.equal(additiveDecision.effectiveTier, 'repository-full');
+  assert.ok(additiveDecision.escalationReasonCodes.includes('validation_framework_sensitive_change'));
+  assert.ok(!additiveDecision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
+
+  assert.ok(
+    gatePatterns.some((path) => !pathIsLegacyValidationSensitive(path)),
+    'at least one declared floor path must lie outside the legacy sensitivity list',
+  );
+  for (const gatePattern of gatePatterns) {
+    const result = planForPath(gatePattern);
+    assert.equal(result.status, 'plan', gatePattern);
+    if (result.status !== 'plan') continue;
+    assert.equal(result.effectiveTier, 'repository-full', `declared full path must force full: ${gatePattern}`);
+    assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), gatePattern);
+  }
+
+  for (const unrelatedPath of [
+    'packages/main/src/core/certification-window.ts.bak',
+    'packages/module-a/src/unrelated.ts',
+  ]) {
+    const result = planForPath(unrelatedPath);
+    assert.equal(result.status, 'plan', unrelatedPath);
+    if (result.status !== 'plan') continue;
+    assert.equal(result.effectiveTier, 'story-fast', `unrelated path must remain fast: ${unrelatedPath}`);
+    assert.ok(!reasonCodes(result).includes('validation_framework_sensitive_change'), unrelatedPath);
+  }
+
+  const providerAdmissionFact = getProcessFactRegistryEntry('runtime:machine_provider_admission');
+  const explicitUnflooredL4Path = 'packages/main/src/core/provider-process-admission.ts';
+  assert.equal(providerAdmissionFact?.level, 'L4');
+  assert.equal(providerAdmissionFact?.validationTierFloor, undefined);
+  assert.ok(providerAdmissionFact?.producerSourceRefs?.includes(explicitUnflooredL4Path));
+  const providerAdmissionResult = planForPath(explicitUnflooredL4Path);
+  assert.equal(providerAdmissionResult.status, 'plan');
+  if (providerAdmissionResult.status === 'plan') {
+    assert.equal(providerAdmissionResult.effectiveTier, 'story-fast');
+    assert.ok(!reasonCodes(providerAdmissionResult).includes('validation_framework_sensitive_change'));
   }
 });
 
