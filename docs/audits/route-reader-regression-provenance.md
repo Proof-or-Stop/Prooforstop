@@ -2,7 +2,7 @@
 
 This Lab repairs the stale direct-reader assertion and the native negative-input fixture. Production dependency and refusal semantics are unchanged; official release preparation separately updates the CLI version and package manifests. The existing registered dependency-direction entry now invokes the durable driver, which independently checks the suite's helper registration, prepares and verifies main/utils builds, and executes four-gaps, the complete original dependency suite, and static-edge verification. The original native material/head-only, history, process-fact children and timeouts are retained, with no duplicated native run.
 
-The audited baseline for the excerpts below is `3d4aaca54447830fbc4e407d6dfcc21b436d1683`. For every controlling production path listed, the complete source bytes were compared with the current Lab checkout and with the original `62a5c2b385516541bdb3cd001544b83b783812e9` citation: all are byte-identical. Each source and excerpt is pinned by SHA-256 and exact inclusive lines. These developer-provided excerpts fill the audit snapshot's unchanged-dependency gap; they are not independent audit findings, signed Story evidence, or a substitute for the driver's live positive control.
+The audited baseline for the excerpts below is `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`. For every controlling production path listed, the complete source bytes were compared with the current Lab checkout and with the original `62a5c2b385516541bdb3cd001544b83b783812e9` citation: all are byte-identical. Each source and excerpt is pinned by SHA-256 and exact inclusive lines. These developer-provided excerpts fill the audit snapshot's unchanged-dependency gap; they are not independent audit findings, signed Story evidence, or a substitute for the driver's live positive control.
 
 Original main native modes passed. Historical B-e6d9 candidate `1d62cdb3e4cb24d1c4e70c96b9174b27741c09ee` exposed an internal `sourceCoverage: null` value that public identity JSON rejects before strict-schema unknown keys. The committed compatibility RED modeled that candidate shape only in a negative public input. The final fixture first validates both `routeInput` and the null-free two-field public projection, then adds exactly one null leaf for the null refusal assertion. The same null-free projection retains the exact unknown-property rejection. Signed positive proof and all absence, boolean, substituted, wrong-root, current-reviewer, history and progress controls remain intact.
 
@@ -14,7 +14,7 @@ All four rejected vendor audits remain in the tool-owned Lab record: `435bf2b4-e
 
 ## Controlling current baseline: packages/main/src/registry.ts
 
-Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 235–236. Full-source SHA-256 `25550cb0956c3caddb51157ffba7b55f1c7b5e2648ec9818b9ca8f7850ac1103`; Git blob `1dd29d97bedb1e8b9a277dfc3dd0c9a307108025`; excerpt SHA-256 `fc5331c9296466fe0e2c85e556818e60d8ef98afabc33de9b98f66d469293825`.
+Commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, lines 235–236. Full-source SHA-256 `25550cb0956c3caddb51157ffba7b55f1c7b5e2648ec9818b9ca8f7850ac1103`; Git blob `1dd29d97bedb1e8b9a277dfc3dd0c9a307108025`; excerpt SHA-256 `fc5331c9296466fe0e2c85e556818e60d8ef98afabc33de9b98f66d469293825`.
 
 ```typescript
   registry.registerBatch(createFindingRouteHandlers(ctx, readRouteSourceRestoration));
@@ -23,7 +23,7 @@ Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 235–236. Full-source 
 
 ## Controlling current baseline: packages/main/src/handlers/finding-route.ts
 
-Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 81–137. Full-source SHA-256 `a7dcc8a7c4da4903d6585a5bf3360255ec3e2bfecd4bdf39b400516b3854653e`; Git blob `da171c174289b4666f373acc0df3ff11e2c2882a`; excerpt SHA-256 `c493a86c6c902bb6291148330990a86e00bb45fba3294aac92efddfb13c41738`.
+Commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, lines 81–137. Full-source SHA-256 `a7dcc8a7c4da4903d6585a5bf3360255ec3e2bfecd4bdf39b400516b3854653e`; Git blob `da171c174289b4666f373acc0df3ff11e2c2882a`; excerpt SHA-256 `c493a86c6c902bb6291148330990a86e00bb45fba3294aac92efddfb13c41738`.
 
 ```typescript
 /** Internal composition port. Only the Story1 signed reader supplies this full
@@ -87,7 +87,7 @@ export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requ
 
 ## Controlling current baseline: packages/main/src/handlers/finding-route.ts
 
-Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 458–471. Full-source SHA-256 `a7dcc8a7c4da4903d6585a5bf3360255ec3e2bfecd4bdf39b400516b3854653e`; Git blob `da171c174289b4666f373acc0df3ff11e2c2882a`; excerpt SHA-256 `5126d727e550f9416fa69b0a3cc1deabd5cf43feac504db0f0a49fa1454ce0b5`.
+Commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, lines 458–471. Full-source SHA-256 `a7dcc8a7c4da4903d6585a5bf3360255ec3e2bfecd4bdf39b400516b3854653e`; Git blob `da171c174289b4666f373acc0df3ff11e2c2882a`; excerpt SHA-256 `5126d727e550f9416fa69b0a3cc1deabd5cf43feac504db0f0a49fa1454ce0b5`.
 
 ```typescript
     finding_route_verify(input: unknown) {
@@ -108,7 +108,7 @@ Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 458–471. Full-source 
 
 ## Controlling current baseline: packages/main/src/handlers/finding-material-reattestation.ts
 
-Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 126–178. Full-source SHA-256 `52ff4ad7ab47c6585c6cab91ceab681de9e1c2910e6d46ce0e4f50845ea84d1f`; Git blob `42f5e6ad040ee74f2404d8ce861cdd1dafda55d7`; excerpt SHA-256 `4f76e1b2d337fe217d2e538fbed8a1af980aa2b10082a9934eed222cf4df3a87`.
+Commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, lines 126–178. Full-source SHA-256 `52ff4ad7ab47c6585c6cab91ceab681de9e1c2910e6d46ce0e4f50845ea84d1f`; Git blob `42f5e6ad040ee74f2404d8ce861cdd1dafda55d7`; excerpt SHA-256 `4f76e1b2d337fe217d2e538fbed8a1af980aa2b10082a9934eed222cf4df3a87`.
 
 ```typescript
 /** Used by both the gate and source-route verifier. No stored 'fresh' bit. */
@@ -168,7 +168,7 @@ export const readRouteSourceRestoration: RouteSourceRestorationReader = (ctx, so
 
 ## Controlling current baseline: packages/main/src/core/finding-applicability-projection.ts
 
-Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 104–117. Full-source SHA-256 `9c3d4a2cbcc82c5d363aeafd66cfbf6963cb886747cf873431cdd7ee621e85d4`; Git blob `6f68afd1a071393b72fab2b7682288bcd9221316`; excerpt SHA-256 `9ab01bedf0fbfaab54d0ad795795616d21e4997e232c06b263713b3d1f58f42b`.
+Commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, lines 104–117. Full-source SHA-256 `9c3d4a2cbcc82c5d363aeafd66cfbf6963cb886747cf873431cdd7ee621e85d4`; Git blob `6f68afd1a071393b72fab2b7682288bcd9221316`; excerpt SHA-256 `9ab01bedf0fbfaab54d0ad795795616d21e4997e232c06b263713b3d1f58f42b`.
 
 ```typescript
       const context = currentApplicabilityContext(args.store, args.projectRoot, args.storyId, assessment.runtimeReceiptIds);
@@ -189,7 +189,7 @@ Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 104–117. Full-source 
 
 ## Controlling current baseline: packages/main/src/core/finding-identity.ts
 
-Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 129–155. Full-source SHA-256 `f01d0931a02c8b012b55a9f784aa8a053ca542c73e32d7b71a1ecd9d9c16c26f`; Git blob `19767eaae1bff39e616df2f07140a0a74ef91e1e`; excerpt SHA-256 `3941f0871c4ca429f76b5ef12daf0a45a01c589a4661257d197b4bfd10b62c55`.
+Commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, lines 129–155. Full-source SHA-256 `f01d0931a02c8b012b55a9f784aa8a053ca542c73e32d7b71a1ecd9d9c16c26f`; Git blob `19767eaae1bff39e616df2f07140a0a74ef91e1e`; excerpt SHA-256 `3941f0871c4ca429f76b5ef12daf0a45a01c589a4661257d197b4bfd10b62c55`.
 
 ```typescript
 /** Reject representations the signing canonicalizer would erase or coerce. */
@@ -223,7 +223,7 @@ export function parseIdentityInput<T>(schema: z.ZodType<T>, value: unknown): T {
 
 ## Controlling current baseline: packages/main/src/core/finding-route.ts
 
-Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 5–13. Full-source SHA-256 `8ee540ab0cf6091ede04f27509b32c4648f92e0de4c5143a2742ba2ca197b0b2`; Git blob `8697e561e67213170ff6a7dcc623a2594b5eb4b6`; excerpt SHA-256 `55c472af959964dcf0c7da9507eb67117e164f2c03910a1af09d1a1c9373f9a5`.
+Commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, lines 5–13. Full-source SHA-256 `8ee540ab0cf6091ede04f27509b32c4648f92e0de4c5143a2742ba2ca197b0b2`; Git blob `8697e561e67213170ff6a7dcc623a2594b5eb4b6`; excerpt SHA-256 `55c472af959964dcf0c7da9507eb67117e164f2c03910a1af09d1a1c9373f9a5`.
 
 ```typescript
 export const routeText = z.string().trim().min(1);
@@ -239,7 +239,7 @@ export const routeSourceSchema = z.discriminatedUnion('subjectKind', [
 
 ## Controlling current baseline: packages/main/src/core/finding-route.ts
 
-Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 28–28. Full-source SHA-256 `8ee540ab0cf6091ede04f27509b32c4648f92e0de4c5143a2742ba2ca197b0b2`; Git blob `8697e561e67213170ff6a7dcc623a2594b5eb4b6`; excerpt SHA-256 `c7810c23e3494d018c75fad6ccbb9974db2da39081610c3ff264925adc8c8245`.
+Commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, lines 28–28. Full-source SHA-256 `8ee540ab0cf6091ede04f27509b32c4648f92e0de4c5143a2742ba2ca197b0b2`; Git blob `8697e561e67213170ff6a7dcc623a2594b5eb4b6`; excerpt SHA-256 `c7810c23e3494d018c75fad6ccbb9974db2da39081610c3ff264925adc8c8245`.
 
 ```typescript
 export const routeVerifySchema = z.object({ storyId: routeText, receipt: ledgerRefSchema }).strict();
