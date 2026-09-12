@@ -1,5 +1,32 @@
 # Changelog
 
+## Lab evidence-fixture-contracts - v0.3.345 - 2026-09-12
+
+Reject stale static-exception evidence mechanically: current excerpts must match source hashes, inclusive ranges and registered call coverage. Historical or narrative evidence cannot authorize current exceptions. Reconcile all 258 manifest entries and the 168-command registry against reviewed local-main source without weakening exception classifications.
+
+Official Lab patch releases refresh only already-valid version-bound evidence. Strict version/output/format guards reject non-version changes and stale inputs with byte restoration; individual evidence writes and restores use temporary-file rename. Generic projects without this manifest retain ordinary version behavior. This is per-file atomicity, not crash-atomic multi-file publication.
+
+Verification: original target RED; exact negative controls for stale hashes, excerpt/range/coverage mismatch, symlink escape, malformed history, version bounds, output/format guards and rollback; complete current scanner GREEN. The version contract covers an actual disposable Lab finish, no-manifest compatibility and injected rename failure. Existing node scripts/verify-lab-worktree.mjs passed all 146 command checks plus state, version and cleanup assertions after commit 3a33762f8d. Synthetic providers are used only by disposable regression fixtures; the real prepared release requires independent Claude CLI audit.
+
+This is local Lab maintenance, with a patch version, change record and signed timings. It is not formal Story DONE or remote publication.
+
+Digest consistency now binds raw source bytes before decoding; missing files have a stable refusal, and moved-callsite controls assert exact row reason/state. The version guard compares its supported paths with the existing main-producer VERSION_SYNC_PATHS export for the five core outputs, with explicit optional extension-lock bindings and refuses invalid UTF-8 version inputs before mutation. A traceable official draft at docs/story/drafts/static-evidence-regression-registration owns ordinary validation scheduling of the operator-run negative contract; no automatic routine scheduling is claimed. Runtime scanner enforcement, pinned Lab RED/GREEN and real candidate audit remain required.
+
+The latest complete Lab worktree regression also passed all 146 command checks on the repaired path. First-release compatibility uses the existing main-producer export rather than requiring a candidate-only new export.
+
+Measured complete version-release regression: 4543.7675ms within 270000ms (59.4x observed headroom); current repository scanner: 1259.183583ms within 60000ms (47.6x). Every replay emits child elapsed/budget/status data and budget exhaustion is a distinct result. docs/static-evidence-lab-verification.md records official CLI draft discovery and current handler counter-evidence: drafts are intentionally created under docs/story/drafts without a B id or a signed review.
+
+Literal child timing records from the measured run:
+```json
+{"label":"version-release-contract","elapsedMs":4543.7675,"budgetMs":270000,"status":0,"signal":null}
+{"label":"live-static-scan","elapsedMs":1259.183583,"budgetMs":60000,"status":0,"signal":null}
+```
+Observed headroom, computed from those literals: 59.4x and 47.6x respectively.
+
+Maintenance provenance: codex/lab-evidence-fixture-contracts, repair c90e9bd6b0274eae9f6203ac92661678cc83c11f.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-stage-abort-oracle - v0.3.344 - 2026-09-12
 
 The validation stage regression expected an exception after cancellation even though the public command API returns a structured prelaunch cancellation result. This made the performance companion fail with zero spawned children.
