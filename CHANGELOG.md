@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab receipt-authority-v5 - v0.3.338 - 2026-09-12
+
+# V5 execution authority compatibility repair
+
+The current evidence writer publishes signed V5 bundles, while remediation and convergence still required legacy causal receipt fields. This refused genuine new execution evidence and blocked B-0980 Finding closure.
+
+Use the existing strict V5 verifier with exact Story, intent, command, selector and recorded freshness bindings. Authenticate complete output bytes and recheck the same authority immediately before atomic ledger publication. Readable legacy receipts confer no current authority and require genuine re-execution.
+
+The real-handler regression recorded target RED, then passed valid atomic closeout, tampered signature/command/intent/freshness/output refusal, cross-Story and legacy refusal, missing output and publication-time deletion, dirty/concurrent source, partial repair rejection, projection failure recovery and idempotent replay. Build and process-fact contract verification passed. No runtime performance improvement is claimed. This local maintenance does not mark B-0980 or its dependent benchmark Story DONE.
+
+Maintenance provenance: codex/lab-receipt-authority-v5, repair 32af4a8f220fdffe27b62a5e197544009cccf84a.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-remediation-close.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab historical-native-dispatch - v0.3.337 - 2026-09-12
 
 Fix native reviewer evidence validation across successive inventory waves.
