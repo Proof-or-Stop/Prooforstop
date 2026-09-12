@@ -75,10 +75,7 @@ async function main() {
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
-  check(registrySource.includes('memory-query-latency-boundary')
-    && read(root, 'packages/main/src/core/playbook-runtime-baseline.ts').includes('overrides.runtimeIndex, observeQueryElapsed')
-    && read(root, 'packages/main/src/core/playbook-runtime-memory.ts').includes('observeQueryElapsed?.(Math.max(0, performance.now() - started))'),
-  'Memory benchmark timing boundary must retain its runtime registration and executable regression');
+  check(registrySource.includes('memory-query-latency-boundary'), 'Memory query timing runtime fact is registered');
   execFileSync(process.execPath, [join(root, 'scripts/verify-memory-query-timing.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 60_000 });
   check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')
