@@ -76,7 +76,7 @@ code-and-documentation diff changes the validation inventory.
 ### Current audited-base rebind
 
 After synchronizing local main again, the candidate was based on exact main SHA
-`5fc1e8d4584a74b32e5b3964ee7c3710c7191960`, CLI/package version `0.3.347`.
+`62a5c2b385516541bdb3cd001544b83b783812e9`, CLI/package version `0.3.347`.
 The production recomputation was repeated in that synchronized Lab worktree:
 
 ```text
@@ -89,7 +89,7 @@ synchronized Lab candidate produced:
 Literal command:
 
 ```bash
-node --input-type=module - 5fc1e8d4584a74b32e5b3964ee7c3710c7191960 HEAD <<'NODE'
+node --input-type=module - 62a5c2b385516541bdb3cd001544b83b783812e9 HEAD <<'NODE'
 import { execFileSync } from 'node:child_process';
 import { normalizeConfiguredValidationCommands } from './packages/main/dist/core/validation-command-config.js';
 import { buildValidationCommandInventory } from './packages/main/dist/core/validation-command-identity.js';
@@ -108,7 +108,7 @@ NODE
 Verbatim stdout:
 
 ```json
-{"beforeRef":"5fc1e8d4584a74b32e5b3964ee7c3710c7191960","afterRef":"HEAD","beforeCount":168,"afterCount":168,"added":[],"removed":[]}
+{"beforeRef":"62a5c2b385516541bdb3cd001544b83b783812e9","afterRef":"HEAD","beforeCount":168,"afterCount":168,"added":[],"removed":[]}
 ```
 
 ```text
@@ -121,12 +121,13 @@ removed: []
 The rebuilt candidate then ran
 `node packages/main/dist/tasks/validation-tier-planner-smoke.js` and ended with
 `validation-tier-planner-smoke: PASS`. This is the current-base binding. The
-literal `git diff --name-only 1da6c8e86ec0e586571f27d520a1bd052f0c7fb9
-5fc1e8d4584a74b32e5b3964ee7c3710c7191960` listed only the three
-`docs/story/drafts/full-suite-nested-machine-resource-owner/` draft files, so it
+literal `git diff --name-only 5fc1e8d4584a74b32e5b3964ee7c3710c7191960
+62a5c2b385516541bdb3cd001544b83b783812e9` listed only
+`.claude/agents/proof-or-stop-verification-intent.md` and `CHANGELOG.md`, so it
 did not change `proof-or-stop.config.json` or `docs/validation-performance.md`.
-The earlier 0.3.345, `3f6397106a`, and `1da6c8e86e` records above are retained
-only as provenance of the original stale-pin discovery and prior rebinds.
+The earlier 0.3.345, `3f6397106a`, `1da6c8e86e`, and `5fc1e8d458` records above
+are retained only as provenance of the original stale-pin discovery and prior
+rebinds.
 
 ## Original headline RED
 
