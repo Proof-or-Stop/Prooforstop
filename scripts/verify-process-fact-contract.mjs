@@ -9207,8 +9207,8 @@ function assertStoryAwareDynamicValidationRuntime() {
     const level = levels.find((entry) => entry.name === fact);
     assert(level?.level === 'L4', `process-fact-levels: dynamic fact must remain L4: ${fact}`);
     if (fact === 'runtime:story_aware_dynamic_authority_gate') {
-      assert(level?.rationale.includes('TEST may consume an authoritative complete execute-or-reuse inventory ledger'), 'dynamic authority must bind TEST to complete logical coverage');
-      assert(level?.rationale.includes('explicit full and DONE remain on the complete canonical policy'), 'dynamic authority must retain explicit full and DONE boundaries');
+      assert(level?.rationale.includes('DEV, REVIEW and TEST may consume an authoritative complete execute-or-reuse inventory ledger'), 'dynamic authority must bind eligible Story phases to complete logical coverage');
+      assert(level?.rationale.includes('every other phase, explicit full and DONE remain on the complete canonical policy'), 'dynamic authority must retain non-eligible phase, explicit full and DONE boundaries');
       assert(level?.rationale.includes('DONE-required evidence stays independent'), 'dynamic authority must not replace DONE-required proof');
     }
     assert(level?.gateConsumer && /dynamic|validate|TEST|authority/i.test(level.gateConsumer), `process-fact-levels: dynamic fact must name a gate consumer: ${fact}`);
@@ -9253,8 +9253,8 @@ function assertStoryAwareDynamicValidationRuntime() {
   const tierPlannerText = read('packages/main/src/core/validation-tier-planner.ts');
   const tierPlanHandlerText = read('packages/main/src/handlers/validation-plan.ts');
   const validationPlanLevel = levels.find((entry) => entry.name === 'validation_plan');
-  assert(validationPlanLevel?.level === 'L0', 'Story-relevance tier planning must remain non-authoritative L0 observation');
-  for (const token of ['selectValidationTiers', 'command_exclusion_unproven', 'snapshotDigest', 'finalAuthority: false']) {
+  assert(validationPlanLevel?.level === 'L0', 'The read-only validation_plan explanation must remain non-authoritative L0 observation');
+  for (const token of ['selectValidationTiers', 'selectAutomaticValidationTier', 'buildAutomaticValidationTierSelectionBinding', 'buildValidationImpactIndexFromCatalog', 'command_exclusion_unproven', 'snapshotDigest', 'finalAuthority: false', "selectionInputCoverage === 'complete'"]) {
     assert(tierPlannerText.includes(token), `Story-relevance tier selector must retain fail-closed token ${token}`);
   }
   assert(tierPlanHandlerText.includes('dynamic?.impactIndex'), 'validation_plan must read the configured versioned impact index');
@@ -10688,7 +10688,7 @@ assertSyntheticAdversarialChecks();
     const source = read(consumerPath);
     const direct = source.includes('createVerificationEvidenceGateEvaluator');
     const shared = consumerPath === 'packages/main/src/handlers/phase-gates.ts'
-      && source.includes("from './validation-pass-admissibility.js'") && source.includes('assessStoredValidationPassAdmissibility(ctx, storyId)')
+      && source.includes("from './validation-pass-admissibility.js'") && source.includes('assessStoredValidationPassAdmissibility(ctx, storyId')
       && read('packages/main/src/handlers/validation-pass-admissibility.ts').includes('receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId)');
     assert(direct || shared, `${consumerPath}: actual gate/reader must use authoritative verification receipt evaluator`);
   }

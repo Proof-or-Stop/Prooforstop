@@ -71,7 +71,23 @@ function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCw
   return `current worktree has blocking dirty path(s): ${sample}${suffix}`;
 }
 
-export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, storyId: string): ValidationEvidenceAdmissibility {
+export function dynamicValidationCoverageAdmission(
+  output: unknown,
+  allowDynamicCoverage: boolean,
+): { dynamicOrigin: boolean; allowed: boolean; reasonCode?: string } {
+  const value = output as any;
+  const dynamicOrigin = value?.dynamicValidation?.authority === 'enforce-authority'
+    || String(value?.provider || '').includes('dynamic-authoritative');
+  return dynamicOrigin && !allowDynamicCoverage
+    ? { dynamicOrigin, allowed: false, reasonCode: 'dynamic_requires_canonical_full_plan' }
+    : { dynamicOrigin, allowed: true };
+}
+
+export function assessStoredValidationPassAdmissibility(
+  ctx: HandlerContext,
+  storyId: string,
+  options: { allowDynamicCoverage?: boolean } = {},
+): ValidationEvidenceAdmissibility {
   const evidence = ctx.store.readTestEvidence(storyId);
   // Preserve the legacy gate's cheap path: absent or failed evidence means
   // "run validate", not "load every PASS-only freshness dependency first".
@@ -110,8 +126,14 @@ export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, sto
   });
   if (!result.ok) return result;
   const output = JSON.parse(evidence.output);
-  if (output?.dynamicValidation?.authority === 'enforce-authority'
-    || String(output?.provider || '').includes('dynamic-authoritative')) {
+  const dynamicAdmission = dynamicValidationCoverageAdmission(output, options.allowDynamicCoverage === true);
+  if (!dynamicAdmission.allowed) return {
+    ...result,
+    ok: false,
+    reasonCodes: [...result.reasonCodes, dynamicAdmission.reasonCode!],
+    reasons: [...result.reasons, 'stored dynamic validation cannot satisfy a canonical full-plan consumer'],
+  };
+  if (dynamicAdmission.dynamicOrigin) {
     // The canonical PASS writer may append metadata commits after execution.
     // Generic admissibility above proves current material/story identity and
     // trusted metadata-only ancestry; the signed manifest binds execution HEAD.

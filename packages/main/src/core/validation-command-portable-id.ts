@@ -22,6 +22,11 @@ function canonical(value: unknown): string {
   return JSON.stringify(value);
 }
 
+/** One canonical digest implementation shared by portable IDs and routine validation identity. */
+export function validationIdentityDigest(value: unknown): string {
+  return createHash('sha256').update(canonical(value)).digest('hex');
+}
+
 export function declaredValidationCommandCwd(command: Pick<ValidationCommand, 'cwd'>): string {
   const raw = typeof command.cwd === 'string' ? command.cwd.trim() : '';
   if (raw === '') return '.';
@@ -46,13 +51,13 @@ export function narrowPortableValidationCommandTuple(args: {
 }
 
 export function provisionalValidationCommandId(tuple: NarrowPortableValidationCommandTuple): string {
-  const digest = createHash('sha256').update(canonical({
+  const digest = validationIdentityDigest({
     schema: 'proofOrStop.validation-command-narrow-tuple',
     version: 1,
     command: tuple.command,
     args: tuple.args,
     cwdRelative: tuple.cwdRelative,
     shell: tuple.shell,
-  })).digest('hex');
+  });
   return `${PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX}${digest}`;
 }

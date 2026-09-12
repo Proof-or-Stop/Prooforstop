@@ -24,6 +24,7 @@ import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 import { resolveRepositoryBaseline } from './git-baseline.js';
+import { digestCanonicalJson } from './digest.js';
 import {
   narrowPortableValidationCommandTuple,
   provisionalValidationCommandId,
@@ -268,7 +269,7 @@ export const resolveStoryChangeManifest = buildStoryChangeManifest;
 
 export interface ValidationInventoryCommand {
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; runnerSourceDigest?: string; declaredEnvironmentKeys?: string[];
+  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; runnerSourceDigest?: string; declaredEnvironmentKeys?: string[]; inputRoots?: string[]; inputsComplete?: boolean;
   assurance?: Assurance; riskTier?: RiskTier; closurePolicy?: ClosurePolicy; fullBaselineReusePolicy?: FullBaselineReusePolicy; cpuWeight?: number; expectedP50Ms?: number; originalIndex: number;
 }
 export interface ValidationCatalogEntry {
@@ -279,6 +280,10 @@ export interface ValidationCatalogEntry {
   originalIndex: number;
   triggerExtensions: { files?: string[]; symbols?: string[]; processFacts?: string[]; capabilities?: string[]; packages?: string[] };
   inputRoots: string[]; closurePolicy: ClosurePolicy; assurance: Assurance; riskTier: RiskTier;
+  /** Selector-only roots and proof grade. Runtime closure keeps using inputRoots. */
+  selectionInputRoots: string[];
+  selectionInputCoverage: 'complete' | 'partial';
+  selectionInputCoverageSource: 'declared' | 'dual-revision-graph' | 'heuristic';
   fullBaselineReusePolicy: FullBaselineReusePolicy; cpuWeight: number; expectedP50Ms?: number;
 }
 export interface ValidationInventory {
@@ -334,7 +339,12 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
       const declaredEnvironmentKeys = Array.isArray(value.declaredEnvironmentKeys)
         ? value.declaredEnvironmentKeys.filter((item): item is string => typeof item === 'string')
         : undefined;
-      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(typeof value.runnerSourcePath === 'string' ? { runnerSourcePath: value.runnerSourcePath } : {}), ...(declaredEnvironmentKeys ? { declaredEnvironmentKeys } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : typeof policyDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: policyDefaults.expectedP50Ms } : {}), resources, originalIndex: index }];
+      const inputRoots = Array.isArray(value.inputRoots)
+        ? value.inputRoots.filter((item): item is string => typeof item === 'string')
+        : undefined;
+      const shell = typeof value.shell === 'boolean' ? value.shell : undefined;
+      const cwd = typeof value.cwd === 'string' ? value.cwd : undefined;
+      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label, cwd, shell }, index), label, command: value.command, args, ...(shell !== undefined ? { shell } : {}), ...(cwd !== undefined ? { cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(typeof value.runnerSourcePath === 'string' ? { runnerSourcePath: value.runnerSourcePath } : {}), ...(declaredEnvironmentKeys ? { declaredEnvironmentKeys } : {}), ...(inputRoots ? { inputRoots } : {}), ...(typeof value.inputsComplete === 'boolean' ? { inputsComplete: value.inputsComplete } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : typeof policyDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: policyDefaults.expectedP50Ms } : {}), resources, originalIndex: index }];
     });
   }
   const normalized = commands.map((row, index) => ({
@@ -407,16 +417,24 @@ export function assertValidValidationCatalog(inventory: ValidationInventory | Va
 }
 export const validateCatalog = validateValidationCatalog;
 export function compileValidationCatalog(inventory: ValidationInventory, options: Partial<Pick<ValidationCatalogEntry, 'assurance' | 'riskTier' | 'closurePolicy' | 'fullBaselineReusePolicy' | 'cpuWeight' | 'expectedP50Ms'>> & { inputRoots?: string[] } = {}): ValidationCatalogEntry[] {
-  return inventory.commands.map(row => ({
+  return inventory.commands.map(row => {
+    const heuristicRoots = [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : []), ...(row.runnerSourcePath ? [row.runnerSourcePath] : [])];
+    const declaredRoots = options.inputRoots ?? row.inputRoots;
+    const inputRoots = declaredRoots ?? heuristicRoots;
+    const declaredComplete = options.inputRoots !== undefined || (row.inputsComplete === true && row.inputRoots !== undefined);
+    return ({
     ...row, schema: VALIDATION_CATALOG_SCHEMA,
-    inputRoots: options.inputRoots || [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : []), ...(row.runnerSourcePath ? [row.runnerSourcePath] : [])],
-    triggerExtensions: { files: options.inputRoots || [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : []), ...(row.runnerSourcePath ? [row.runnerSourcePath] : [])] },
+    inputRoots,
+    selectionInputRoots: inputRoots,
+    selectionInputCoverage: declaredComplete ? 'complete' : 'partial',
+    selectionInputCoverageSource: declaredComplete ? 'declared' : 'heuristic',
+    triggerExtensions: { files: inputRoots },
     closurePolicy: options.closurePolicy || row.closurePolicy || 'static-and-traced', assurance: options.assurance || row.assurance || 'story-selectable',
     riskTier: options.riskTier || row.riskTier || 'local', fullBaselineReusePolicy: options.fullBaselineReusePolicy || row.fullBaselineReusePolicy || 'not-applicable',
     policySource: options.assurance || options.riskTier || options.closurePolicy || options.fullBaselineReusePolicy || row.assurance || row.riskTier || row.closurePolicy || row.fullBaselineReusePolicy ? 'explicit' : 'default',
     resources: Array.isArray(row.resources) ? row.resources : [], cpuWeight: options.cpuWeight || row.cpuWeight || 1,
     ...(options.expectedP50Ms === undefined ? {} : { expectedP50Ms: options.expectedP50Ms }),
-  })) as ValidationCatalogEntry[];
+  }); }) as ValidationCatalogEntry[];
 }
 
 function sourceRootForCommand(row: ValidationInventoryCommand): string {
@@ -628,19 +646,17 @@ export function augmentValidationCatalogWithGraphInputs(args: {
   graph?: DualRevisionImpactGraph;
   changedFiles: StoryChangedFile[];
 }): ValidationCatalogEntry[] {
+  if (!args.graph || args.graph.graphUnknown) return args.catalog;
   return args.catalog.map((entry) => {
-    const graphInputs = args.graph
-      ? args.changedFiles.flatMap((change) => args.graph!.commandsAffectedBy(change).includes(entry.id)
+    const graphInputs = args.changedFiles.flatMap((change) => args.graph!.commandsAffectedBy(change).includes(entry.id)
         ? [change.path, ...(change.oldPath ? [change.oldPath] : [])]
-        : [])
-      : [];
+        : []);
+    const priorDeclared = entry.selectionInputCoverageSource === 'declared' ? entry.selectionInputRoots : [];
     return {
       ...entry,
-      inputRoots: uniqueSorted([...entry.inputRoots, ...graphInputs]),
-      triggerExtensions: {
-        ...entry.triggerExtensions,
-        files: uniqueSorted([...(entry.triggerExtensions.files ?? []), ...graphInputs]),
-      },
+      selectionInputRoots: uniqueSorted([...priorDeclared, ...graphInputs]),
+      selectionInputCoverage: 'complete',
+      selectionInputCoverageSource: 'dual-revision-graph',
     };
   });
 }
@@ -876,27 +892,31 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   };
   let canonicalTierDecision: AutomaticValidationTierSelectionBinding['decision'] | undefined;
   if (ctx.tierSelection) {
-    if (stableDigest({ input: ctx.tierSelection.input, decision: ctx.tierSelection.decision }) !== ctx.tierSelection.bindingDigest) {
+    if (digestCanonicalJson({ input: ctx.tierSelection.input, decision: ctx.tierSelection.decision }) !== ctx.tierSelection.bindingDigest) {
       throw new Error('selector decision digest mismatch before validation execution');
     }
-    const recomputed = ctx.tierSelection.decision;
+    const boundDecision = ctx.tierSelection.decision;
     const inventoryIds = inventory.map((row) => row.id);
-    if (stableDigest(recomputed.tierSelections['repository-full']) !== stableDigest(inventoryIds)) {
+    if (stableDigest(boundDecision.tierSelections['repository-full']) !== stableDigest(inventoryIds)) {
       throw new Error('selector repository-full membership does not match executor inventory');
     }
-    const fast = new Set(recomputed.tierSelections['story-fast']);
-    const intermediate = new Set(recomputed.tierSelections['story-intermediate']);
-    const full = new Set(recomputed.tierSelections['repository-full']);
+    const fast = new Set(boundDecision.tierSelections['story-fast']);
+    const intermediate = new Set(boundDecision.tierSelections['story-intermediate']);
+    const full = new Set(boundDecision.tierSelections['repository-full']);
     if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) {
       throw new Error('selector tier subset invariant mismatch before validation execution');
     }
-    canonicalTierDecision = recomputed;
-    for (const id of recomputed.selectedUnitIds) select(id, `canonical-tier:${recomputed.effectiveTier}`, 'canonical-tier-selection');
+    canonicalTierDecision = boundDecision;
+    for (const id of boundDecision.selectedUnitIds) select(id, `canonical-tier:${boundDecision.effectiveTier}`, 'canonical-tier-selection');
   }
   for (const entry of ctx.catalog) if (entry.assurance === 'always') select(entry.id, 'always', 'always');
   if (ctx.buildCommandId) select(ctx.buildCommandId, 'wave-0-build', 'wave-0-build');
   for (const pin of ctx.changes.pinnedValidationCommands) {
     const row = inventory.find(command => command.id === pin || command.label === pin || command.command === pin);
+    if (!row && /^validation-[0-9a-f]{16}$/i.test(pin)) {
+      for (const candidate of inventory) select(candidate.id, 'legacy-validation-pin-full-compatibility', `legacy-pin:${pin}`);
+      continue;
+    }
     if (!row) throw new Error('pinned command absent: ' + pin);
     select(row.id, 'verification-intent-pin', 'pin:' + pin);
   }

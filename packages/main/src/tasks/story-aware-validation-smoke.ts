@@ -27,7 +27,13 @@ import {
   assertSelectionIsSingletonUnionMonotonic,
   stableDigest,
 } from '../core/story-aware-validation.js';
-import { VALIDATION_IMPACT_INDEX_SCHEMA, selectAutomaticValidationTier } from '../core/validation-tier-planner.js';
+import {
+  VALIDATION_IMPACT_INDEX_SCHEMA,
+  buildAutomaticValidationTierSelectionBinding,
+  selectAutomaticValidationTier,
+} from '../core/validation-tier-planner.js';
+import type { StoryRelevanceInput } from '../core/validation-relevance-input.js';
+import { assertAutomaticTierSelectionBindingCurrent } from '../handlers/story-aware-validation.js';
 
 const inventory = discoverValidationInventory('/tmp', [
   { id: 'always', label: 'always', command: 'node', args: ['always.js'], originalIndex: 0 },
@@ -43,8 +49,17 @@ const graphAugmentedCatalog = augmentValidationCatalogWithGraphInputs({
     commandsAffectedBy: () => ['local'],
   },
 });
-assert.equal(graphAugmentedCatalog.find((entry) => entry.id === 'local')?.inputRoots.includes('packages/main/src/shared.ts'), true);
-assert.equal(graphAugmentedCatalog.find((entry) => entry.id === 'always')?.inputRoots.includes('packages/main/src/shared.ts'), false);
+assert.equal(graphAugmentedCatalog.find((entry) => entry.id === 'local')?.selectionInputRoots.includes('packages/main/src/shared.ts'), true);
+assert.equal(graphAugmentedCatalog.find((entry) => entry.id === 'always')?.selectionInputRoots.includes('packages/main/src/shared.ts'), false);
+const graphUnknownCatalog = augmentValidationCatalogWithGraphInputs({
+  catalog,
+  changedFiles: [{ path: 'packages/main/src/unknown.ts', status: 'modified', blobId: 'unknown' }],
+  graph: {
+    baseHead: 'base', head: 'head', baseGraphDigest: 'empty', headGraphDigest: 'partial', graphUnknown: true,
+    authorityReasons: () => [], commandsAffectedBy: () => ['local'],
+  },
+});
+assert.deepEqual(graphUnknownCatalog, catalog, 'an incomplete dependency graph must contribute no selector inputs');
 const changes = buildStoryChangeManifest({
   storyId: 'B-smoke',
   gitCwd: '.',
@@ -106,23 +121,58 @@ const tierInput = {
   },
 };
 const tierDecision = selectAutomaticValidationTier(tierInput);
-const tierBindingDigest = stableDigest({ input: tierInput, decision: tierDecision });
+assert.equal(tierDecision.effectiveTier, 'story-intermediate');
+const productionRelevanceInput = {
+  schema: 'proofOrStop.story-relevance-input.v1', storyId: 'B-smoke', phase: 'TEST',
+  hashes: { status: 'available', head: {
+    schemaVersion: 'proof-or-stop.evidence_hash_snapshot.v1', headHash: 'head', materialHash: 'material',
+    storyFilesHash: 'story-files', gitCwd: '.', metadataRoot: '.', ref: 'HEAD',
+    capturedAt: '2026-01-01T00:00:00.000Z', materialDirtyFiles: [],
+  } },
+  changedFiles: { status: 'available', baseRef: 'base', headRef: 'head', statuses: { 'packages/main/src/local.ts': 'M' }, paths: ['packages/main/src/local.ts'] },
+  seeds: [{ kind: 'path', value: 'packages/main/src/local.ts', provenance: ['changed-file'], itemIds: [], changeStatus: 'M' }],
+  excludedPaths: [], pinnedCommands: [], commandSeedEdges: [], unclassifiedInputs: [], riskSignals: [],
+  executionInventory: { sourceKind: 'configured', commandSetDigest: 'smoke-command-set', commandIds: inventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
+  durationHistory: { status: 'collected', sampleCount: 0, estimates: [], unmatchedSamples: [] },
+  verificationIntentContext: [], escalations: [], selectionDigest: 'story-input-selection',
+} as StoryRelevanceInput;
+const productionCatalog = catalog.map((entry) => entry.id === 'local' ? { ...entry, riskTier: 'shared' as const } : entry);
+const tierBinding = buildAutomaticValidationTierSelectionBinding({ input: productionRelevanceInput, catalog: productionCatalog });
+assertAutomaticTierSelectionBindingCurrent(tierBinding);
 const tierBoundSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes, closures,
   baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
-  tierSelection: { input: tierInput, decision: tierDecision, bindingDigest: tierBindingDigest },
+  tierSelection: tierBinding,
 });
 assert.equal(tierBoundSelection.effectiveTier, 'story-intermediate');
-assert.equal(tierBoundSelection.selectorDecisionDigest, tierDecision.selectionDigest);
-assert.deepEqual(tierBoundSelection.tierSelections, tierDecision.tierSelections);
+assert.equal(tierBoundSelection.selectorDecisionDigest, tierBinding.decision.selectionDigest);
+assert.deepEqual(tierBoundSelection.tierSelections, tierBinding.decision.tierSelections);
 assert.throws(
   () => buildDynamicValidationPlan({
     storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes, closures,
     baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
-    tierSelection: { input: tierInput, decision: { ...tierDecision, selectionDigest: 'forged' }, bindingDigest: tierBindingDigest },
+    tierSelection: { ...tierBinding, decision: { ...tierBinding.decision, selectionDigest: 'forged' } },
   }),
   /selector decision digest mismatch before validation execution/,
 );
+assert.throws(
+  () => assertAutomaticTierSelectionBindingCurrent({
+    ...tierBinding,
+    decision: { ...tierBinding.decision, selectedUnitIds: [...tierBinding.decision.selectedUnitIds, 'forged'] },
+  }),
+  /automatic selector decision changed before validation execution/,
+);
+const legacyPinChanges = buildStoryChangeManifest({
+  storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [],
+  verificationIntents: [{ pinnedValidationCommands: ['validation-0123456789abcdef'] }],
+});
+const legacyPinSelection = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: legacyPinChanges, closures,
+  baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+});
+assert.equal(legacyPinSelection.fullEscalated, false);
+assert.equal(legacyPinSelection.rows.every((row) => row.disposition === 'execute'), true,
+  'a stored legacy validation-* pin widens to the full current inventory instead of disappearing or throwing');
 
 // A clean second run may reuse only a signed receipt whose input and closure
 // digests match. An unverified closure executes, and a revoked receipt is not

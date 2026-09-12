@@ -147,7 +147,7 @@ import {
   validationCommandUsesShell,
   validationIdentityDigest,
 } from '../core/validation-evidence-reuse.js';
-import { configuredValidationCommands, resolveValidationDynamicMode, sourceInputSnapshot } from '../handlers/verifier.js';
+import { configuredValidationCommands, dynamicRoutineCoverageAllowed, resolveValidationDynamicMode, sourceInputSnapshot } from '../handlers/verifier.js';
 import {
   REPOSITORY_FULL_TIER,
   VALIDATION_IMPACT_INDEX_SCHEMA,
@@ -206,6 +206,8 @@ import {
 } from '../core/red-green-commit-guard.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
+import { compileValidationCatalog, discoverValidationInventory } from '../core/story-aware-validation.js';
+import { dynamicValidationCoverageAdmission } from '../handlers/validation-pass-admissibility.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
@@ -350,8 +352,27 @@ testCase('undeclared id becomes a deterministic prov- id over the narrow portabl
   const tuple = narrowPortableValidationCommandTuple({ command: entry });
   assert.deepEqual(tuple, { command: 'npm', args: ['run', 'lint'], cwdRelative: '.', shell: false });
   assert.equal(id, provisionalValidationCommandId(tuple));
+  assert.equal(
+    provisionalValidationCommandId({ command: 'npm', args: ['test'], cwdRelative: '.', shell: false }),
+    'prov-130bad3c5e1e0805ebdd86d3fa133efcc03f4dd859ace2d5aa594ee5ed735c51',
+    'the portable ID canonicalization must retain this cross-module compatibility vector',
+  );
   // Deterministic across independent computations.
   assert.equal(id, inventory([entry]).entries[0].id);
+});
+
+testCase('configured cwd and shell use one portable identity in planner and runtime inventories', () => {
+  const root = projectRootWithConfig({
+    label: 'cwd-shell', command: 'node', args: ['task.js'], cwd: 'packages/main', shell: true,
+  });
+  const configured = configuredValidationCommands(root);
+  const planner = buildValidationCommandInventory({ commands: configured });
+  const runtime = discoverValidationInventory(root);
+  assert.equal(runtime.commands[0]?.id, planner.entries[0]?.id);
+  const catalog = compileValidationCatalog(runtime);
+  const index = buildValidationImpactIndexFromCatalog({ commandSetDigest: planner.commandSetDigest, catalog });
+  assert.equal(index.entries[0]?.commandId, planner.entries[0]?.id);
+  assert.notEqual(index.entries[0]?.coverage, 'complete', 'heuristic roots remain partial even when policy fields exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -2382,19 +2403,19 @@ testCase('the production catalog derives the canonical impact index and automati
   const catalog = [
     {
       id: 'build', assurance: 'always', riskTier: 'local', policySource: 'explicit',
-      inputRoots: ['packages/main/src/**'], triggerExtensions: { files: ['packages/main/src/**'] },
+      inputRoots: ['packages/main/src/**'], selectionInputRoots: ['packages/main/src/**'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['packages/main/src/**'] },
     },
     {
       id: 'docs-links', assurance: 'story-selectable', riskTier: 'local', policySource: 'explicit',
-      inputRoots: ['docs/**'], triggerExtensions: { files: ['docs/**'] },
+      inputRoots: ['docs/**'], selectionInputRoots: ['docs/**'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['docs/**'] },
     },
     {
       id: 'docs-contract', assurance: 'story-selectable', riskTier: 'shared', policySource: 'explicit',
-      inputRoots: ['docs/**'], triggerExtensions: { files: ['docs/**'] },
+      inputRoots: ['docs/**'], selectionInputRoots: ['docs/**'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['docs/**'] },
     },
     {
       id: 'repo-sentinel', assurance: 'full-only', riskTier: 'gate', policySource: 'explicit',
-      inputRoots: ['proof-or-stop.config.json'], triggerExtensions: { files: ['proof-or-stop.config.json'] },
+      inputRoots: ['proof-or-stop.config.json'], selectionInputRoots: ['proof-or-stop.config.json'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['proof-or-stop.config.json'] },
     },
   ] as const;
   const impactIndex = buildValidationImpactIndexFromCatalog({ commandSetDigest, catalog });
@@ -2416,21 +2437,64 @@ testCase('the production catalog derives the canonical impact index and automati
     snapshotDigest: 'snapshot-v2',
     impactIndex,
   });
-  assert.equal(decision.requestedTier, 'story-fast');
+  assert.equal(decision.requestedTier, 'story-intermediate');
   assert.equal(decision.effectiveTier, 'story-intermediate');
   assert.deepEqual(decision.selectedUnitIds, ['build', 'docs-links', 'docs-contract']);
   assert.deepEqual(decision.tierSelections['story-fast'], ['build', 'docs-links']);
   assert.deepEqual(decision.tierSelections['story-intermediate'], ['build', 'docs-links', 'docs-contract']);
   assert.deepEqual(decision.tierSelections['repository-full'], catalog.map((entry) => entry.id));
+  const proofChangedIndex = {
+    ...impactIndex,
+    entries: impactIndex.entries.map((entry) => entry.commandId === 'repo-sentinel'
+      ? { ...entry, inputPatterns: ['another-config.json'] }
+      : entry),
+  };
+  const proofChanged = selectAutomaticValidationTier({
+    storyId: 'B-docs-auto', universeCommandIds: catalog.map((entry) => entry.id),
+    changedPaths: ['docs/guide.md'], pinnedCommandIds: [], forceFullReasons: [], commandSetDigest,
+    snapshotDigest: 'snapshot-v2', impactIndex: proofChangedIndex,
+  });
+  assert.notEqual(proofChanged.selectionDigest, decision.selectionDigest,
+    'changing a positive exclusion proof must change the signed selector decision digest');
 });
 
-testCase('Story-scoped dynamic authority defaults on in TEST while explicit full, DONE, and off remain fail-safe controls', () => {
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST' }), 'enforce-low-risk');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-review', storyPhase: 'REVIEW' }), 'enforce-low-risk');
+testCase('dynamic authority requires explicit configuration and only DEV REVIEW TEST can consume its coverage', () => {
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-review', storyPhase: 'REVIEW', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-init', storyPhase: 'INIT', configuredMode: 'enforce-low-risk' }), 'off');
   assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', explicitMode: 'off' }), 'off');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', full: true }), 'off');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-done', storyPhase: 'DONE' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', configuredMode: 'enforce-low-risk', full: true }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-done', storyPhase: 'DONE', configuredMode: 'enforce-low-risk' }), 'off');
   assert.equal(resolveValidationDynamicMode({}), 'off');
+  assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'TEST'), true);
+  assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'REVIEW'), true);
+  assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'INIT'), false);
+  assert.equal(dynamicRoutineCoverageAllowed('off', 'TEST'), false);
+  assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'DONE'), false);
+  const dynamicOutput = { provider: 'proof-or-stop-verifier-dynamic-authoritative', dynamicValidation: { authority: 'enforce-authority' } };
+  assert.deepEqual(dynamicValidationCoverageAdmission(dynamicOutput, true), { dynamicOrigin: true, allowed: true });
+  assert.deepEqual(dynamicValidationCoverageAdmission(dynamicOutput, false), {
+    dynamicOrigin: true, allowed: false, reasonCode: 'dynamic_requires_canonical_full_plan',
+  });
+});
+
+testCase('policy defaults and heuristic roots never manufacture complete input ownership', () => {
+  const index = buildValidationImpactIndexFromCatalog({
+    commandSetDigest: 'defaults-only',
+    catalog: [{
+      id: 'defaulted', assurance: 'story-selectable', riskTier: 'local', policySource: 'explicit',
+      inputRoots: ['packages/main/src'], selectionInputRoots: ['packages/main/src'],
+      selectionInputCoverage: 'partial', selectionInputCoverageSource: 'heuristic', triggerExtensions: {},
+    }],
+  });
+  assert.equal(index.entries[0]?.coverage, 'partial');
+  const decision = selectAutomaticValidationTier({
+    storyId: 'B-defaulted', universeCommandIds: ['defaulted'], changedPaths: ['packages/main/src/a.ts'],
+    pinnedCommandIds: [], forceFullReasons: [], commandSetDigest: 'defaults-only', snapshotDigest: 'snapshot', impactIndex: index,
+  });
+  assert.equal(decision.effectiveTier, 'repository-full');
+  assert.ok(decision.escalationReasonCodes.includes('command_exclusion_unproven'));
 });
 
 testCase('the wired resolver widens every validation and gate machinery surface even when the index marks it fast', () => {

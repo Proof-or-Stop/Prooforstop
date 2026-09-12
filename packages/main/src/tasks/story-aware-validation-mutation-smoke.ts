@@ -7,7 +7,8 @@
  * signed-artifact, closure, catalog, scheduler, or shard gate.
  */
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import {
   aggregateValidationShards,
@@ -16,6 +17,7 @@ import {
   buildStoryChangeManifest,
   buildValidationSchedule,
   buildValidationShards,
+  createCanonicalFullBaseline,
   compileValidationCatalog,
   createValidationClosureCertificate,
   createValidationCommandReceipt,
@@ -41,6 +43,8 @@ import {
 import { executeValidationPlan } from '../core/validation-executor.js';
 import type { ValidationCommand } from '../core/validation-types.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
+import { DYNAMIC_RUNNER_DIGEST, storedDynamicReceiptIntegrityReasons } from '../handlers/story-aware-validation.js';
+import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 
 const replayRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-replay-`);
 const replayCommand = (name: string) => ({
@@ -59,12 +63,12 @@ assert.equal(catalogCheck.ok, true, catalogCheck.errors.join('; '));
 const catalogDigest = stableDigest(catalog);
 assert.throws(
   () => buildStoryChangeManifest({ storyId: 'B-mutation-invalid-base', gitCwd: '.', baseHead: 'missing-base-head', head: 'HEAD' }),
-  /could not resolve a merge base|diff failed|Git references did not resolve to two immutable objects/,
+  /Git references did not resolve to two immutable objects/,
   'unresolvable base/head must fail closed instead of signing an empty change manifest',
 );
 assert.throws(
   () => resolveStoryChangedFiles('.', 'missing-head-ref', '.', 'HEAD'),
-  /could not read tree|Git references did not resolve to two immutable objects/,
+  /Git references did not resolve to two immutable objects/,
   'unreadable tree identity lookup must fail closed instead of manufacturing deleted blob identities',
 );
 const closures = new Map(catalog.map((entry) => [entry.id, createValidationClosureCertificate({
@@ -218,20 +222,124 @@ assert.equal([...baseSelectedIds].every(commandId => expandedSelectedIds.has(com
 assert.equal(monotonicPlans.base.rows.every(row => row.disposition === 'reuse'), true);
 assert.equal(monotonicPlans.expanded.rows.every(row => row.disposition === 'execute'), true);
 assertSelectionIsSingletonUnionMonotonic(expandedContext, monotonicPlans.expanded);
+
+// Drive the actual stored-evidence consumer with a complete execute/reuse
+// ledger, then mutate each gate-owned runtime prerequisite. This is the TEST
+// admission proof behind the public selector markers at the end of this file.
+const storedRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-stored-`);
+try {
+  execFileSync('git', ['init', '-q'], { cwd: storedRoot });
+  withValidationSigningRoot(storedRoot, () => {
+  const ledger = buildRevocationLedger([]);
+  const toolchainDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
+  const storedInventory = discoverValidationInventory(storedRoot, [
+    { id: 'stored-unit', label: 'stored-unit', ...replayCommand('stored-unit'), originalIndex: 0, resources: [] },
+  ]);
+  const storedCatalog = compileValidationCatalog(storedInventory, { inputRoots: ['packages/main/src'] });
+  const storedCatalogDigest = stableDigest(storedCatalog);
+  const storedClosures = new Map(storedCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
+    commandId: entry.id, baseHead: 'base', inventoryDigest: storedInventory.digest, catalogDigest: storedCatalogDigest,
+    staticPaths: entry.inputRoots,
+  })]));
+  const storedChanges = buildStoryChangeManifest({
+    storyId: 'B-stored', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [],
+  });
+  const seedManifest = buildDynamicValidationPlan({
+    storyId: 'B-stored', baseHead: 'base', head: 'head', inventory: storedInventory, catalog: storedCatalog, changes: storedChanges,
+    closures: storedClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'enforce-low-risk',
+    runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest, revocationLedger: ledger,
+  });
+  const storedReceipts = seedManifest.rows.map((row) => createValidationCommandReceipt({
+    id: `stored-${row.commandId}`, commandId: row.commandId,
+    commandIdentityDigest: stableDigest({ commandId: row.commandId }), inputDigest: row.inputDigest,
+    closureCertificateDigest: storedClosures.get(row.commandId)!.signature, catalogDigest: storedCatalogDigest,
+    inventoryDigest: storedInventory.digest, runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest,
+    buildProofDigest: 'build', sourceHead: 'head', sourceBaseHead: 'base', canonicalBaselineEpochId: 'epoch',
+    producedBy: 'story-execution', cleanTreeDigest: 'clean', executionEnvironmentDigest: 'environment',
+    result: 'PASS', exitCode: 0, outputDigest: 'stored-output', durationMs: 1,
+    createdAt: new Date().toISOString(), revocationLedgerDigest: ledger.digest,
+  }));
+  const storedManifest = buildDynamicValidationPlan({
+    storyId: 'B-stored', baseHead: 'base', head: 'head', inventory: storedInventory, catalog: storedCatalog, changes: storedChanges,
+    closures: storedClosures, receipts: storedReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'enforce-low-risk',
+    runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest, revocationLedger: ledger,
+  });
+  assert.equal(storedManifest.rows.every((row) => row.disposition === 'reuse'), true);
+  assert.equal(storedManifest.fullEscalated, false);
+  const storedBaseline = createCanonicalFullBaseline({
+    epochId: 'epoch', sourceHead: 'base', inventoryDigest: storedInventory.digest, catalogDigest: storedCatalogDigest,
+    toolchainDigest, runnerDigest: DYNAMIC_RUNNER_DIGEST, buildProofDigest: 'build', allPass: true,
+    createdAt: new Date().toISOString(), traces: {}, closureCertificates: Object.fromEntries(storedClosures),
+  });
+  const runtimeDir = `${storedRoot}/.proof-or-stop/runtime/dynamic-validation`;
+  const storyRuntimeDir = `${runtimeDir}/B-stored`;
+  mkdirSync(storyRuntimeDir, { recursive: true });
+  writeFileSync(`${runtimeDir}/canonical-baseline.json`, JSON.stringify(storedBaseline));
+  writeFileSync(`${storyRuntimeDir}/revocation-ledger.json`, JSON.stringify(ledger));
+  writeFileSync(`${storyRuntimeDir}/receipts.json`, JSON.stringify(storedReceipts));
+  assert.deepEqual(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', storedManifest), []);
+  const originalLedger = readFileSync(`${storyRuntimeDir}/revocation-ledger.json`, 'utf8');
+  writeFileSync(`${storyRuntimeDir}/revocation-ledger.json`, JSON.stringify({ ...ledger, digest: 'forged' }));
+  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', storedManifest)
+    .includes('dynamic_revocation_ledger_changed_or_invalid'));
+  writeFileSync(`${storyRuntimeDir}/revocation-ledger.json`, originalLedger);
+  const originalReceipts = readFileSync(`${storyRuntimeDir}/receipts.json`, 'utf8');
+  writeFileSync(`${storyRuntimeDir}/receipts.json`, JSON.stringify(storedReceipts.slice(1)));
+  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', storedManifest)
+    .includes('dynamic_receipt_missing_invalid_expired_or_revoked'));
+  writeFileSync(`${storyRuntimeDir}/receipts.json`, originalReceipts);
+  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'other-head', storedManifest)
+    .includes('dynamic_manifest_invalid'));
+  });
+} finally {
+  rmSync(storedRoot, { recursive: true, force: true });
+}
 const directContribution = monotonicPlans.expanded.singletonContributions.find(row => row.source.startsWith('file-direct:') && row.commandIds.includes('unit'))!;
 assert.ok(directContribution, 'expanded plan must expose the direct unit contribution before mutation');
-const contributionMutationBody = {
+const singleSourceBody = {
   ...monotonicPlans.expanded,
-  // Remove the unit from every independent contribution. A full-escalation
-  // contribution may legitimately overlap the direct one; mutating only one
-  // source would leave a complete union and therefore would not be a forgery.
-  singletonContributions: monotonicPlans.expanded.singletonContributions
-    .map(row => ({ ...row, commandIds: row.commandIds.filter(commandId => commandId !== 'unit') }))
-    .filter(row => row.commandIds.length > 0),
+  singletonContributions: monotonicPlans.expanded.rows.map((row, index) => ({
+    source: index === 0 ? 'canonical-tier-selection' : `fixture-independent:${row.commandId}`,
+    commandIds: [row.commandId],
+  })).sort((left, right) => left.source.localeCompare(right.source)),
+};
+const singleSourceManifest = { ...singleSourceBody, signature: signPayload({ ...singleSourceBody, signature: undefined }) };
+assert.equal(verifyValidationSelectionManifest(singleSourceManifest), true,
+  'the fixture must first prove one independent contribution per selected row');
+const contributionMutationBody = {
+  ...singleSourceManifest,
+  singletonContributions: singleSourceManifest.singletonContributions.filter(row => row.source !== 'canonical-tier-selection'),
 };
 const contributionMutation = { ...contributionMutationBody, signature: signPayload({ ...contributionMutationBody, signature: undefined }) };
 assert.equal(verifyValidationSelectionManifest(contributionMutation), false);
 assert.throws(() => assertSelectionIsSingletonUnionMonotonic(expandedContext, contributionMutation), /singleton|monotonicity|manifest/i);
+
+const manifestCommandIds = baseline.rows.map((row) => row.commandId);
+const tieredManifestBody = {
+  ...baseline,
+  selectorDecisionDigest: 'selector-decision-digest',
+  requestedTier: 'story-fast' as const,
+  effectiveTier: 'story-intermediate' as const,
+  tierSelections: {
+    'story-fast': manifestCommandIds.slice(0, 1),
+    'story-intermediate': manifestCommandIds.slice(0, 2),
+    'repository-full': manifestCommandIds,
+  },
+};
+const tieredManifest = { ...tieredManifestBody, signature: signPayload({ ...tieredManifestBody, signature: undefined }) };
+assert.equal(verifyValidationSelectionManifest(tieredManifest), true);
+const resign = (body: Record<string, unknown>) => ({ ...body, signature: signPayload({ ...body, signature: undefined }) }) as ValidationSelectionManifest;
+assert.equal(verifyValidationSelectionManifest(resign({
+  ...tieredManifest,
+  tierSelections: { ...tieredManifest.tierSelections, 'story-fast': ['not-in-intermediate'] },
+})), false, 'story-fast must remain a subset of story-intermediate');
+assert.equal(verifyValidationSelectionManifest(resign({
+  ...tieredManifest,
+  tierSelections: { ...tieredManifest.tierSelections, 'repository-full': manifestCommandIds.slice(1) },
+})), false, 'repository-full must equal the exact manifest row universe');
+const missingTierFields = { ...baseline, selectorDecisionDigest: 'present-without-tier-fields' } as Record<string, unknown>;
+assert.equal(verifyValidationSelectionManifest(resign(missingTierFields)), false,
+  'a selector digest without requested/effective tier arrays must be refused');
 
 const staleReceipt = receipt({
   createdAt: '2020-01-01T00:00:00.000Z', expiresAt: '2020-01-02T00:00:00.000Z',

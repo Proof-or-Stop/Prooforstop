@@ -73,7 +73,11 @@ import {
   verifyValidationShardReceipt,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
-import type { AutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
+import {
+  selectAutomaticValidationTier,
+  type AutomaticValidationTierSelectionBinding,
+} from '../core/validation-tier-planner.js';
+import { digestCanonicalJson } from '../core/digest.js';
 import { narrowPortableValidationCommandTuple, provisionalValidationCommandId } from '../core/validation-command-portable-id.js';
 
 export interface PrepareStoryAwareValidationArgs {
@@ -116,6 +120,18 @@ export interface PreparedStoryAwareValidation {
   revocationLedger: ReceiptRevocationLedger;
 }
 
+/** Re-run the pure selector at the last adapter boundary before child launch. */
+export function assertAutomaticTierSelectionBindingCurrent(
+  binding: AutomaticValidationTierSelectionBinding,
+): void {
+  const expectedDecision = selectAutomaticValidationTier(binding.input);
+  const expectedBindingDigest = digestCanonicalJson({ input: binding.input, decision: expectedDecision });
+  if (binding.bindingDigest !== expectedBindingDigest
+    || digestCanonicalJson(binding.decision) !== digestCanonicalJson(expectedDecision)) {
+    throw new Error('automatic selector decision changed before validation execution');
+  }
+}
+
 function currentHead(gitCwd: string): string {
   // Callers resolve this through the story-keyed resolveGitCwd boundary before
   // entering the adapter. Keeping the parameter named gitCwd prevents a
@@ -127,7 +143,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 7, executor: 'validation-executor', selector: 'validation-tier-planner' });
+export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 7, executor: 'validation-executor', selector: 'validation-tier-planner' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -373,6 +389,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     }));
   }
   const tierSelection = args.tierSelection ?? args.tierSelectionResolver?.({ catalog, graph, changes });
+  if (tierSelection) assertAutomaticTierSelectionBindingCurrent(tierSelection);
   const context: DynamicValidationContext = {
     projectRoot: args.projectRoot,
     storyId: args.storyId,

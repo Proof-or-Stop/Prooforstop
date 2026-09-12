@@ -3,10 +3,10 @@
 /**
  * Executable adapter for the story-aware validation verification intents.
  *
- * Every selector is backed by the source TypeScript smokes. This adapter does
- * not print a pass marker until both the ordinary core smoke and the replay /
- * mutation audit have exited successfully and the requested selector was
- * emitted by those assertions.
+ * Bun runs the source TypeScript smokes directly. On hosts without Bun, the
+ * adapter first performs the canonical packages/main build, then runs the exact
+ * emitted task with Node. It does not print a pass marker until both smokes and
+ * the requested selector have completed successfully.
  */
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
@@ -51,7 +51,17 @@ function runSourceTask(task) {
   // null) falls back to Node over that exact compiled task, never to a second
   // test implementation.
   if (result.status === null && result.error?.code === 'ENOENT' && !process.env.BUN_BINARY) {
+    const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
+      cwd: root,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    if (build.status !== 0) {
+      process.stdout.write(`${build.stdout || ''}${build.stderr || ''}`);
+      throw new Error('Node fallback refused because the canonical packages/main build failed');
+    }
     const compiledTask = task.replace('/src/', '/dist/').replace(/\.ts$/, '.js');
+    process.stdout.write(`dynamic-validation-audit runtime=node compiledArtifact=${compiledTask} freshness=canonical-build\n`);
     result = spawnSync(process.execPath, [join(root, compiledTask)], {
       cwd: root,
       encoding: 'utf8',

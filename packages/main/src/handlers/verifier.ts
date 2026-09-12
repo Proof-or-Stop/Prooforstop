@@ -150,10 +150,14 @@ export function resolveValidationDynamicMode(args: {
   storyPhase?: string;
   full?: string | boolean;
 }): DynamicValidationMode {
-  const configured = resolveDynamicMode(
-    args.explicitMode || args.environmentMode || args.configuredMode || (args.storyId ? 'enforce-low-risk' : 'off'),
-  );
-  return args.full !== undefined || args.storyPhase === 'DONE' ? 'off' : configured;
+  const configured = resolveDynamicMode(args.explicitMode || args.environmentMode || args.configuredMode || 'off');
+  if (args.full !== undefined) return 'off';
+  if (args.storyPhase && !['DEV', 'REVIEW', 'TEST'].includes(args.storyPhase)) return 'off';
+  return configured;
+}
+
+export function dynamicRoutineCoverageAllowed(mode: DynamicValidationMode, storyPhase: string | undefined): boolean {
+  return mode !== 'off' && Boolean(storyPhase && ['DEV', 'REVIEW', 'TEST'].includes(storyPhase));
 }
 
 
@@ -855,7 +859,7 @@ export function evaluateStoryRoutineReuse(args: {
         || String(output?.provider || '').includes('dynamic-authoritative')) {
         priorDynamicAuthority = true;
         dynamicCoverageAdmitted = args.allowDynamicCoverage === true
-          && assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok;
+          && assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true }).ok;
       }
     } catch { /* Malformed/invalid evidence cannot substitute dynamic coverage. */ }
   }
@@ -920,7 +924,7 @@ export function evaluateStoryRoutineReuse(args: {
         evaluation.refusalReasons.push('validation_evidence_output_invalid');
       } else if (priorOutput.dynamicValidation?.authority === 'enforce-authority'
         || String(priorOutput.provider || '').includes('dynamic-authoritative')) {
-        const admitted = assessStoredValidationPassAdmissibility(args.ctx, args.storyId);
+        const admitted = assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true });
         if (!admitted.ok) {
           evaluation.reusable = false;
           evaluation.refusalReasons.push(...admitted.reasonCodes);
@@ -959,7 +963,7 @@ function reusedStoryValidationResult(args: {
   const dynamicOrigin = priorOutput?.dynamicValidation?.authority === 'enforce-authority'
     || String(priorOutput?.provider || '').includes('dynamic-authoritative');
   if (!priorEvidence || !verifyTestValidationEvidence(args.storyId, priorEvidence, args.gitCwd)
-    || (dynamicOrigin && !assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok)) {
+    || (dynamicOrigin && !assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true }).ok)) {
     return externalResult({
       provider: 'proof-or-stop-verifier-reuse-persistence', status: 'fail', failureKind: 'infra_failure',
       summary: 'Validation reuse refused because authenticated evidence changed before persistence',
@@ -1148,7 +1152,7 @@ function tryReuseRoutinePass(args: {
     let output: any;
     try { output = prior?.output ? JSON.parse(prior.output) : undefined; } catch { return null; }
     if (output?.dynamicValidation?.authority !== 'enforce-authority'
-      || !assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok) return null;
+      || !assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true }).ok) return null;
     args.ctx.log?.('routine dynamic validation reused; commandExecutions=0');
     return reusedStoryValidationResult({
       ...args, snapshot: args.built.snapshot, identity: args.built.identity, resolvedDynamicMode: 'enforce-low-risk',
@@ -1822,7 +1826,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         storyPhase: validationPhase,
         full: args.full,
       });
-      const requiresCanonicalFullPlan = dynamicMode === 'off' && (args.full !== undefined || validationPhase === 'DONE');
+      const allowDynamicCoverage = dynamicRoutineCoverageAllowed(dynamicMode, validationPhase);
       const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
       const resolvedProjectGitRoot = args.story
         ? null
@@ -2063,7 +2067,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             focus,
           }) : null;
           const reuse = built && args.story
-            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
+            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage })
             : null;
           const dynamicInputs = args.story ? {
             ...storyDynamicInputs(ctx, args.story),
@@ -2548,7 +2552,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           entrypointPath: join(projectRoot, validateFile),
         }) : null;
         const reuse = built && args.story
-          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
+          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage })
           : null;
         const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
         if (reuse?.reusable && built) {

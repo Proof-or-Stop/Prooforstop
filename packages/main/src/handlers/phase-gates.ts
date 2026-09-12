@@ -635,7 +635,7 @@ export async function runValidateGate(
   // Guard before consulting reusable evidence: a terminal/missing PRE_CERT
   // window cannot be bypassed by an otherwise current PASS.
   assertTestAdmissibleRoutineValidationWindow(ctx, storyId);
-  const admissibility = assessStoredValidationPassAdmissibility(ctx, storyId);
+  const admissibility = assessStoredValidationPassAdmissibility(ctx, storyId, { allowDynamicCoverage: true });
   if (admissibility.ok) {
     ctx.log?.(`REVIEW→TEST gate: existing validation PASS is fresh; TEST reuses it without rerunning proof-or-stop validate (admissible lineage=${admissibility.lineage}).`);
     return;

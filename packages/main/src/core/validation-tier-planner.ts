@@ -29,9 +29,11 @@
  *      operator is unusable to anyone who has not read the spec; the gloss is
  *      what makes the refusal actionable.
  *
- * This module reads no state, writes nothing, executes nothing, and is consumed
- * by no lifecycle gate in this Story. It is planning INPUT for an explain-only
- * CLI (CHK-005), and every result says so through `finalAuthority: false`.
+ * This module reads no state, writes nothing, and executes nothing. The read-only
+ * validation_plan CLI explains its output, while the same automatic selector is
+ * consumed by the dynamic validate adapter and bound into its signed manifest.
+ * A selector decision alone still grants no lifecycle authority, so every result
+ * says `finalAuthority: false`; the runtime authority gate decides admission.
  */
 
 import {
@@ -154,6 +156,9 @@ export interface ValidationImpactCatalogEntry {
   riskTier: 'local' | 'shared' | 'gate' | 'validation-infra';
   policySource: 'explicit' | 'default';
   inputRoots: readonly string[];
+  selectionInputRoots?: readonly string[];
+  selectionInputCoverage?: 'complete' | 'partial';
+  selectionInputCoverageSource?: 'declared' | 'dual-revision-graph' | 'heuristic';
   triggerExtensions?: { files?: readonly string[] };
 }
 
@@ -169,7 +174,7 @@ export function buildValidationImpactIndexFromCatalog(args: {
 }): ValidationImpactIndex {
   const entries: ValidationImpactIndexEntry[] = args.catalog.map((entry) => {
     const inputPatterns = [...new Set([
-      ...(entry.inputRoots ?? []),
+      ...(entry.selectionInputRoots ?? entry.inputRoots ?? []),
       ...(entry.triggerExtensions?.files ?? []),
     ].map(normalizedPath).filter(Boolean))].sort();
     const selection: ValidationImpactSelection = entry.assurance === 'always'
@@ -183,7 +188,7 @@ export function buildValidationImpactIndexFromCatalog(args: {
       commandId: entry.id,
       selection,
       inputPatterns,
-      coverage: entry.policySource === 'explicit' && inputPatterns.length > 0 ? 'complete' : 'partial',
+      coverage: entry.selectionInputCoverage === 'complete' ? 'complete' : 'partial',
       ...(selection === REPOSITORY_FULL_TIER ? { fullReason: 'command_exclusion_unproven' as const } : {}),
     };
   });
@@ -653,7 +658,7 @@ export function selectAutomaticValidationTier(
 
   const promoted = selectValidationTiers({ ...input, requestedTier: 'story-intermediate' }, dependencies);
   if (promoted.effectiveTier === REPOSITORY_FULL_TIER) return promoted;
-  const requestedTier: ValidationTier = 'story-fast';
+  const requestedTier: ValidationTier = 'story-intermediate';
   const effectiveTier: ValidationTier = 'story-intermediate';
   const decisionBody = {
     storyId: input.storyId,
@@ -661,6 +666,8 @@ export function selectAutomaticValidationTier(
     effectiveTier,
     tierSelections: promoted.tierSelections,
     escalationReasonCodes: promoted.escalationReasonCodes,
+    exclusionProofs: promoted.exclusionProofs,
+    inclusionReasonsByCommand: promoted.inclusionReasonsByCommand,
     commandSetDigest: input.commandSetDigest,
     snapshotDigest: input.snapshotDigest,
     impactIndexDigest: promoted.impactIndexDigest,

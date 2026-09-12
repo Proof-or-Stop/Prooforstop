@@ -56,7 +56,6 @@ import { createHash } from 'node:crypto';
 
 import {
   normalizeRoutineValidationCommand,
-  validationIdentityDigest,
 } from './validation-evidence-reuse.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 import type { ValidationCommand } from './validation-types.js';
@@ -67,6 +66,7 @@ import {
   isAbsoluteDeclaredValidationCommandCwd,
   narrowPortableValidationCommandTuple,
   provisionalValidationCommandId,
+  validationIdentityDigest,
   type NarrowPortableValidationCommandTuple,
 } from './validation-command-portable-id.js';
 
@@ -76,6 +76,7 @@ export {
   isAbsoluteDeclaredValidationCommandCwd,
   narrowPortableValidationCommandTuple,
   provisionalValidationCommandId,
+  validationIdentityDigest,
   type NarrowPortableValidationCommandTuple,
 };
 

@@ -413,6 +413,10 @@ The graph identity binds authority roots, members, uncertainty and policy versio
 Missing graphs, unavailable source, parse failures and opaque or unresolved
 authority imports force full rather than establish an unaffected result.
 
+Runner v7 is a new execution identity. Existing dynamic receipts and canonical
+baselines produced by an older runner are intentionally stale; an in-flight
+Story in TEST must obtain a fresh complete run before dynamic reuse can resume.
+
 This conservative resolver currently treats non-builtin package/alias imports
 in an authority closure as unresolved. Projects with such imports can lose
 incremental eligibility until those resolutions are proven; this change does not
