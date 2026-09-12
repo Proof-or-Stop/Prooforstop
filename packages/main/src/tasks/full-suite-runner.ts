@@ -143,6 +143,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:main-write-lock-coverage'),
   // Exact parser regression reads this build and uses only private Git fixtures.
   repoRead('test:scope-diff-pack'),
+  repoRead('test:verification-key-location'),
   // Repeated real CLI startups plus competing owner writes need bounded contention headroom.
   repoRead('test:intent-owner-lease', { timeoutMs: 180_000 }),
   repoRead('test:receipt-authority-v5', { timeoutMs: 180_000 }),
