@@ -76,3 +76,8 @@ does not establish aggregate elapsed-time savings. Earlier failed timing trials
 (a static field-binding check and a missing fixture dependency) are excluded from
 this PASS-to-PASS table and retained in the external Lab evidence package. No
 whole-Story speedup or universal watchdog margin is inferred from this pair.
+
+After synchronizing main 0.3.341, the actual merged candidate 448978938c passed
+the same full commands in 77.450 s (process) and 25.587 s (runtime). This separate
+operational check includes main's new snapshot-binding regression and is not
+folded into the earlier same-base pair.
