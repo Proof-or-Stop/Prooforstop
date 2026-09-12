@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab historical-native-dispatch - v0.3.337 - 2026-09-12
+
+Fix native reviewer evidence validation across successive inventory waves.
+
+An earlier inventory critic PASS could become permanently invalid when a later wave dispatched the same critic lane. The consumer selected the latest dispatch instead of the dispatch sealed into that evidence. It then reported missing execution authority, which a valid later PASS could not supersede.
+
+The consumer now selects the exact dispatch digest sealed into the native evidence. Existing verification still requires a genuine dispatch event, matching role and round, purpose and inventory subject, current host identity, broker signature, writer identity and nonce consumption. Current-wave publication requirements and the latest-run rule for open Findings remain unchanged. This maintenance does not add execution-authority failures to supersession forgiveness.
+
+The native regression uses two real inventory waves. It checks both historical and current evidence, refuses current-wave finalization without its own critic, refuses an older run publishing into the new wave, and preserves supported same-subject redispatch. Tamper controls cover the sealed dispatch digest, writer, nonce, signature and substituted dispatch, including rejection through the evidence collector. The process-fact contract pins the consumer argument and the corresponding PASS and Finding registry descriptions.
+
+Verification commands are node scripts/verify-native-critic-dispatch-purpose.mjs and node scripts/verify-process-fact-contract.mjs. Exact commit bindings, RED and GREEN results, independent audit outcomes and integration checks are recorded by the official Lab maintenance workflow. Earlier failed audit reports and diagnostic timings remain in the maintenance audit records; they are not relabeled as successful runs. The release version and integration metadata are assigned by the official finish workflow.
+
+This is local maintenance. It neither publishes remotely nor marks the dependent Story complete.
+
+Maintenance provenance: codex/lab-historical-native-dispatch, repair 765bde6e9c2ce57d740e909dfac6f0194d4a86ef.
+Verification command (replayed before integration and on main): `["node","scripts/verify-native-critic-dispatch-purpose.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## v0.3.336 — Intent Authority, Route Integrity, and Executable Benchmark Evidence — 2026-09-12
 
 ### Release scope

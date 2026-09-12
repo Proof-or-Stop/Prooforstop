@@ -371,8 +371,8 @@ const requiredArtifactFacts = [
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash.*exact-field allowlists/ },
   { name: 'artifact:review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true, signaturePattern: /signReviewInventoryEpoch\/verifyReviewInventoryEpoch.*signReviewInventoryReceipt\/verifyReviewInventoryReceipt.*signReviewInventoryCriticReceipt\/verifyReviewInventoryCriticReceipt/ },
-  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; direct native records seal a registered-broker Ed25519 invocation attestation bound to exact story\/lane\/ReviewRun\/writer\/dispatch\/adapter\/host\/nonce.*envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
-  { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; direct native records bind category\/evidenceState\/uncertaintyReason\/files\/disprovenEvidence in the signed domain, and reviewRunId-inclusive records do not fall back to legacy signatures/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; direct native records seal a registered-broker Ed25519 invocation attestation bound to exact story\/lane\/ReviewRun\/writer\/dispatch\/adapter\/host\/nonce; historical consumers select that sealed dispatch digest, preserving purpose, inventory subject, current host identity, signature and nonce-consumption checks when later waves dispatch the same lane; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
+  { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; direct native records bind category\/evidenceState\/uncertaintyReason\/files\/disprovenEvidence in the signed domain, native invocation consumers select the exact sealed dispatch digest while preserving purpose, inventory subject, host, broker signature and nonce-consumption checks; open Findings still require the latest lane run, and reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
@@ -7252,6 +7252,23 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['review_execution_authority_missing', 'verifyNativeReviewEvidenceBinding', 'verifyManagedReviewEvidence', 'evidence: { kind:']) {
     assert(reviewGateText.includes(token), `packages/main/src/core/review-run.ts: required authority consumer token missing: ${token}`);
   }
+  const hasExactNativeDispatchSelection = source => {
+    const ast = ts.createSourceFile('review-run.ts', source, ts.ScriptTarget.Latest, true);
+    const owner = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'validateEvidenceRunBinding');
+    const calls = [];
+    const visit = node => {
+      if (ts.isCallExpression(node) && node.expression.getText(ast) === 'verifyCurrentReviewerDispatchBinding') calls.push(node);
+      ts.forEachChild(node, visit);
+    };
+    if (owner) visit(owner);
+    return calls.length === 1 && ts.isObjectLiteralExpression(calls[0].arguments[0])
+      && calls[0].arguments[0].properties.some(property => ts.isPropertyAssignment(property)
+        && property.name.getText(ast) === 'expectedDispatchBindingDigest'
+        && property.initializer.getText(ast) === 'nativeBinding.dispatchBindingDigest');
+  };
+  assert(hasExactNativeDispatchSelection(reviewGateText), 'native review evidence must select its exact sealed historical dispatch');
+  assert(!hasExactNativeDispatchSelection(reviewGateText.replace('expectedDispatchBindingDigest: nativeBinding.dispatchBindingDigest,', '')),
+    'native historical dispatch contract must reject removing the exact binding argument');
   const importerText = read('packages/main/src/handlers/managed-review-evidence.ts');
   for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding']) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
