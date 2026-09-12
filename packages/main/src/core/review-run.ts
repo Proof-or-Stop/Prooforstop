@@ -1813,6 +1813,7 @@ function validateEvidenceRunBinding(
       projectRoot: run.workspaceBinding?.metadataRoot ?? projectRoot,
       reviewPurpose: run.reviewPurpose,
       inventoryBinding: run.inventoryBinding,
+      expectedDispatchBindingDigest: nativeBinding.dispatchBindingDigest,
     });
     const writerSessionId = evidence.pass?.writerSessionId ?? nativeBinding.writerSessionId;
     const sessionSource = evidence.pass?.sessionSource ?? nativeBinding.sessionSource;

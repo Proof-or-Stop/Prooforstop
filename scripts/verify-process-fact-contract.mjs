@@ -7252,6 +7252,23 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['review_execution_authority_missing', 'verifyNativeReviewEvidenceBinding', 'verifyManagedReviewEvidence', 'evidence: { kind:']) {
     assert(reviewGateText.includes(token), `packages/main/src/core/review-run.ts: required authority consumer token missing: ${token}`);
   }
+  const hasExactNativeDispatchSelection = source => {
+    const ast = ts.createSourceFile('review-run.ts', source, ts.ScriptTarget.Latest, true);
+    const owner = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'validateEvidenceRunBinding');
+    const calls = [];
+    const visit = node => {
+      if (ts.isCallExpression(node) && node.expression.getText(ast) === 'verifyCurrentReviewerDispatchBinding') calls.push(node);
+      ts.forEachChild(node, visit);
+    };
+    if (owner) visit(owner);
+    return calls.length === 1 && ts.isObjectLiteralExpression(calls[0].arguments[0])
+      && calls[0].arguments[0].properties.some(property => ts.isPropertyAssignment(property)
+        && property.name.getText(ast) === 'expectedDispatchBindingDigest'
+        && property.initializer.getText(ast) === 'nativeBinding.dispatchBindingDigest');
+  };
+  assert(hasExactNativeDispatchSelection(reviewGateText), 'native review evidence must select its exact sealed historical dispatch');
+  assert(!hasExactNativeDispatchSelection(reviewGateText.replace('expectedDispatchBindingDigest: nativeBinding.dispatchBindingDigest,', '')),
+    'native historical dispatch contract must reject removing the exact binding argument');
   const importerText = read('packages/main/src/handlers/managed-review-evidence.ts');
   for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding']) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);

@@ -222,6 +222,7 @@ try {
  assert.equal(verifyNativeReviewEvidenceBinding(nativeArgs),true);
  assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,binding:{...nativeArgs.binding,invocationNonce:nativeArgs.binding.invocationNonce+'-tampered'}}),false,'nonce alteration remains refused');
  assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,writerSessionId:nativeArgs.writerSessionId+'-tampered'}),false,'writer alteration remains refused');
+ assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,binding:{...nativeArgs.binding,attestation:{...nativeArgs.binding.attestation,signature:'invalid'}}}),false,'broker signature alteration remains refused');
  const current=verifyCurrentReviewerDispatchBinding({...args,inventoryBinding:newRun.inventoryBinding});assert(current.ok);
  assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,dispatch:current.binding}),false,'old attestation cannot use current-wave dispatch');
  const state=collectReviewerEvidenceState(historical.store,storyId,historical.root);
@@ -231,5 +232,6 @@ try {
  // This fixture deliberately retains its real observation. The separate latest-run
  // rule for open Findings must remain intact; this is not a claimed full TEST pass.
  assert(historical.store.readFindings(storyId).findings.some(f=>f.id===observedFinding&&f.status==='open'));
+ assert(state.invalid.some(x=>x.evidenceId===observedFinding&&x.code==='stale_run'),'open Finding latest-run protection must remain strict');
  console.log('NATIVE_HISTORICAL_DISPATCH GREEN');
 }finally{rmSync(historical.root,{recursive:true,force:true});}
