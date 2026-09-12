@@ -116,3 +116,192 @@ Open limitation: no current full canonical71-member timing run has been performe
 ## Audit outcomes preserved
 
 First resource audit: fail241.259s, proposed exclusive-heavy placement created a long serialized-chain risk. Removed that placement. Second resource audit: fail242.329s, accepted membership repair but raised possible inner-timeout contention and unmeasured full-suite duration. Both candidates stopped before main integration. No approval is claimed by this packet.
+
+## Follow-up three-replica contention observation (2026-09-12)
+
+This follow-up is three independent invocations of the same unchanged native route verifier, not three different canonical members and not a full-suite result. The production scheduler ran at jobs=3, using clones of the actual route entry's shared-read resource claims, scaled outer budget and runner-owned private temporary roots. Scratch aliases distinguished load replicas; they did not register new canonical tests. The coordinator drained all other controlled heavy jobs before granting the exclusive measurement window. This is a coordination record, not a claim that every unrelated OS process was absent.
+
+Official sync completed in0.720s, then the isolated build passed in12.892s. The workload wrapper ran03:45:19.008370 to03:52:23.807972 UTC,424.795872542s, exit0. Queue waiting is excluded. Tested HEAD: `22f4b0edeb58768c91bc54727fecc69ccc7ea10e`.
+
+The observer was loaded only into each verifier parent through `node --import`; it recorded monotonic elapsed time around the original `execFileSync` call and delegated the exact original arguments and options. It did not set NODE_OPTIONS or alter native child argv/environment, signed authority, receipt TTLs, source files, deadlines or return values. Every history call retained `timeout:300000, killSignal:'SIGKILL'`. The observed history margin is narrow: the slowest used292.967172167s, leaving7.032827833s (2.34% of its300s allowance). This run does not establish a universal timeout or throughput guarantee and did not reproduce an actual timeout. No budget adjustment is made from it.
+
+All three histories overlapped from03:47:19.850 to03:52:05.147 UTC, exactly285.297s. All completed with exit0 and the original `FINDING_IDENTITY_HISTORY PASS 82 passing 0 failed cases` marker. The maximum sampled one-minute load average was16.2119140625; this is host telemetry, not a causal attribution to these workers alone.
+
+Per-parent stage elapsed seconds (all status0, no signal):
+
+| Parent PID | Material restoration | Head continuity | History | Process contract |
+|---|---:|---:|---:|---:|
+| 9071 | 51.337634916 | 68.794639458 | 292.967172167 | 10.982681750 |
+| 9072 | 51.345905250 | 68.807332584 | 292.951687917 | 10.972845625 |
+| 9073 | 50.005294750 | 67.014522875 | 288.429180209 | 10.779804917 |
+
+Exact history intervals and final results:
+
+```json
+{
+  "head": "22f4b0edeb58768c91bc54727fecc69ccc7ea10e",
+  "histories": [
+    {
+      "event": "end",
+      "utc": "2026-09-12T03:52:05.147Z",
+      "pid": 9073,
+      "args": [
+        "packages/main/dist/tasks/finding-identity-lineage-smoke.js",
+        "--section=history"
+      ],
+      "startUtc": "2026-09-12T03:47:16.716Z",
+      "elapsedMs": 288429.180209,
+      "status": 0,
+      "signal": null,
+      "remainingMs": 11570.819790999987
+    },
+    {
+      "event": "end",
+      "utc": "2026-09-12T03:52:12.802Z",
+      "pid": 9071,
+      "args": [
+        "packages/main/dist/tasks/finding-identity-lineage-smoke.js",
+        "--section=history"
+      ],
+      "startUtc": "2026-09-12T03:47:19.833Z",
+      "elapsedMs": 292967.172167,
+      "status": 0,
+      "signal": null,
+      "remainingMs": 7032.8278329999885
+    },
+    {
+      "event": "end",
+      "utc": "2026-09-12T03:52:12.804Z",
+      "pid": 9072,
+      "args": [
+        "packages/main/dist/tasks/finding-identity-lineage-smoke.js",
+        "--section=history"
+      ],
+      "startUtc": "2026-09-12T03:47:19.850Z",
+      "elapsedMs": 292951.68791700003,
+      "status": 0,
+      "signal": null,
+      "remainingMs": 7048.312082999968
+    }
+  ],
+  "allThreeHistoryOverlapSeconds": 285.297,
+  "entryResults": [
+    {
+      "name": "test:route-reattestation-dependency-direction",
+      "status": "PASS",
+      "durationMs": 424555.71187500004
+    },
+    {
+      "name": "test:route-reattestation-dependency-direction:load-1",
+      "status": "PASS",
+      "durationMs": 416693.87079099996
+    },
+    {
+      "name": "test:route-reattestation-dependency-direction:load-2",
+      "status": "PASS",
+      "durationMs": 424539.221958
+    }
+  ],
+  "tempRootsRemaining": [],
+  "peakOneMinuteLoad": 16.2119140625,
+  "history82Markers": [
+    {
+      "name": "test:route-reattestation-dependency-direction",
+      "present": true
+    },
+    {
+      "name": "test:route-reattestation-dependency-direction:load-1",
+      "present": true
+    },
+    {
+      "name": "test:route-reattestation-dependency-direction:load-2",
+      "present": true
+    }
+  ],
+  "stagesSha256": "fd5228ee754c8b5d801c62d2a3b6a266e69d7df01d5d966eae3db01c5220bbb0"
+}
+```
+
+Cleanup: the production runner removed all three owned temporary roots, and an exact probe-process scan found no remaining owned workers. The measured heavy-work slot was released immediately after collection. No source/dist edits occurred during the run.
+
+The earlier mixed three-member attempt remains separate: brief-output passed33.120s, while flow-stability failed44.489s because its acceptance-basis assertion expected complete but observed partial. Production fail-fast interrupted route during the first material stage, before any history timing. That attempt did not measure the target timeout and is not route RED. Its results remain at `/tmp/B-e6d9-route-contention-attempt1`; no unrelated flow repair is part of this Lab.
+
+Raw observation files retained (SHA256):
+
+- `/tmp/B-e6d9-route-contention-v2-stages.jsonl`: `fd5228ee754c8b5d801c62d2a3b6a266e69d7df01d5d966eae3db01c5220bbb0`.
+- `/tmp/B-e6d9-route-contention-v2-results.json`: `98373bc5312f0bc5f9a7376a944f535a178143788e8b4bb2a11780b4f806e2dc`.
+- `/tmp/B-e6d9-resource-stress-three-replicas.log`: `a135f74cfeac6ee1fa04b98e92e155765ec22423a26f760e85a77037b6516eac`.
+
+Reproducible observational harness used for this measurement (scratch only, no production instrumentation):
+
+### B-e6d9-route-contention-v2.mjs
+
+```javascript
+import {readFileSync,writeFileSync,appendFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {performance} from 'node:perf_hooks';
+import {loadavg,availableParallelism} from 'node:os';
+import {execFileSync} from 'node:child_process';
+const cwd=process.cwd();
+const r=await import(pathToFileURL(resolve('packages/main/dist/tasks/full-suite-runner.js')));
+const target='test:route-reattestation-dependency-direction';
+const names=[target,target+':load-1',target+':load-2'];
+const entries=r.canonicalizeEntries(names.map(name=>{const row=r.FULL_SUITE_ENTRIES.find(e=>e.name===target);if(!row)throw new Error('missing actual resource row '+name);return {...row,name};}),cwd);
+const state=r.createFullSuiteRunState();
+for(const sig of ['SIGINT','SIGTERM'])process.once(sig,()=>r.interruptFullSuiteRun(sig,state));
+const stages='/tmp/B-e6d9-route-contention-v2-stages.jsonl';
+writeFileSync(stages,'');
+const started=performance.now();
+const emit=row=>appendFileSync(stages,JSON.stringify({...row,utc:new Date().toISOString(),elapsedMs:performance.now()-started})+'\n');
+emit({event:'profile',jobs:3,defaultJobs:r.defaultJobs(),availableParallelism:availableParallelism(),head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),entries});
+const sample=setInterval(()=>emit({event:'load',loadavg:loadavg(),activeTopLevelChildren:state.activeChildren.size}),1000);
+try{
+ const results=await r.runScheduled(entries,3,async entry=>{
+  emit({event:'entry-start',name:entry.name});
+  const result=await r.runEntry(r.withConcurrencyHeadroom(entry,3),cwd,'/tmp/B-e6d9-route-contention-v2-npm.mjs',()=>emit({event:'spawn',name:entry.name}),state);
+  writeFileSync('/tmp/B-e6d9-route-contention-v2-'+entry.name.replaceAll(':','-')+'.log',result.output);
+  emit({event:'entry-end',name:entry.name,status:result.status,durationMs:result.durationMs,reason:result.reason??null});
+  return result;
+ },r.fullSuiteSchedulerOptions(state));
+ writeFileSync('/tmp/B-e6d9-route-contention-v2-results.json',JSON.stringify({profile:'three replicas of actual native route workload using canonical resource claims; not distinct canonical members or full suite',jobs:3,elapsedMs:performance.now()-started,results},null,2));
+ console.log(JSON.stringify(results.map(({name,status,durationMs,reason})=>({name,status,durationMs,reason}))));
+ process.exitCode=results.every(v=>v.status==='PASS')?0:1;
+}finally{clearInterval(sample);}
+```
+
+### B-e6d9-route-contention-v2-observer.mjs
+
+```javascript
+import cp from 'node:child_process';
+import {syncBuiltinESMExports} from 'node:module';
+import {appendFileSync} from 'node:fs';
+import {performance} from 'node:perf_hooks';
+const original=cp.execFileSync;
+const target='/tmp/B-e6d9-route-contention-v2-stages.jsonl';
+if(process.argv[1]?.endsWith('/scripts/verify-route-reattestation-dependency-direction.mjs')) {
+ cp.execFileSync=function(file,args,options) {
+  const tracked=Array.isArray(args) && args.some(a=>/finding-material-reattestation-smoke|finding-identity-lineage-smoke|verify-process-fact-contract/.test(a));
+  if(!tracked)return Reflect.apply(original,this,arguments);
+  const start=performance.now(),utc=new Date().toISOString();let outcome={status:0,signal:null};
+  appendFileSync(target,JSON.stringify({event:'start',utc,pid:process.pid,args,timeoutMs:options?.timeout,killSignal:options?.killSignal??'SIGTERM'})+'\n');
+  try{return Reflect.apply(original,this,arguments);}catch(error){outcome={status:error.status??null,signal:error.signal??null,code:error.code??null};throw error;}
+  finally{appendFileSync(target,JSON.stringify({event:'end',utc:new Date().toISOString(),pid:process.pid,args,startUtc:utc,elapsedMs:performance.now()-start,...outcome})+'\n');}
+ };
+ syncBuiltinESMExports();
+}
+```
+
+### B-e6d9-route-contention-v2-npm.mjs
+
+```javascript
+#!/usr/bin/env node
+import {spawnSync} from 'node:child_process';
+import {resolve} from 'node:path';
+const args=process.argv.slice(2);
+const route=args.length===2&&args[0]==='run'&&['test:route-reattestation-dependency-direction','test:route-reattestation-dependency-direction:load-1','test:route-reattestation-dependency-direction:load-2'].includes(args[1]);
+const result=spawnSync(route?process.execPath:'npm',route?['--import','/tmp/B-e6d9-route-contention-v2-observer.mjs',resolve('scripts/verify-route-reattestation-dependency-direction.mjs')]:args,{stdio:'inherit',env:process.env});
+if(result.error)throw result.error;
+if(result.signal)process.kill(process.pid,result.signal);
+process.exitCode=result.status??1;
+```
