@@ -1917,11 +1917,20 @@ void (async () => {
         assertUnadmittedDoneRequiredNeverExecutes, assertDoneRequiredSharesValidateLock,
         assertDerivedVerdictCannotBypassCapacity,assertQueuedDonePolicyDriftRefuses];
       const failures: string[] = [];
+      const ambientTarget=mkdtempSync(join(tmpdir(),'native-lock-misdirected-'));
+      const previousProjectRoot=process.env.PROOF_OR_STOP_PROJECT_ROOT;
+      process.env.PROOF_OR_STOP_PROJECT_ROOT=ambientTarget;
+      try {
       for (const test of cases) {
         const start = performance.now();
         try { await test(); }
         catch (error) { const failure=`${test.name}: ${String(error)}`; failures.push(failure);console.error(failure); }
         finally { console.log('NATIVE_LOCK_CASE_TIMING '+JSON.stringify({name:test.name,elapsedMs:performance.now()-start})); }
+      }
+      } finally {
+        if(previousProjectRoot===undefined)delete process.env.PROOF_OR_STOP_PROJECT_ROOT;else process.env.PROOF_OR_STOP_PROJECT_ROOT=previousProjectRoot;
+        try {assert.deepEqual(readdirSync(ambientTarget),[],'ambient project-root target must remain untouched');}
+        finally {rmSync(ambientTarget,{recursive:true,force:true});}
       }
       assert.deepEqual(failures, [], 'NATIVE_LOCK_PREREQUISITES: '+failures.join('\n'));
       console.log('NATIVE_LOCK_PREREQUISITES_PASS: six actual native consumer cases');
