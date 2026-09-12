@@ -278,27 +278,33 @@ const BUILD_GRAPH_PATH_PATTERNS = [
  */
 export function classifySensitiveStoryPaths(
   paths: readonly string[],
-  registered: unknown = collectRepositoryFullProcessFactPaths(),
+  injected?: unknown,
 ): ValidationWideningReasonCode[] {
   const reasons = new Set<ValidationWideningReasonCode>();
-  const candidate = registered as { paths?: unknown; rejectedEntryCount?: unknown } | null;
-  const projectionShapeValid = Boolean(candidate)
-    && Array.isArray(candidate?.paths)
-    && candidate.paths.every((path) => typeof path === 'string')
-    && Number.isInteger(candidate?.rejectedEntryCount)
-    && Number(candidate?.rejectedEntryCount) >= 0;
-  const registeredPatterns = projectionShapeValid
-    ? [...new Set((candidate!.paths as string[]).map(normalizedPath).filter(Boolean))]
-    : [];
-  const registeredFloorUnavailable = !projectionShapeValid
-    || Number(candidate?.rejectedEntryCount) > 0
-    || registeredPatterns.length === 0;
+  const projections = [collectRepositoryFullProcessFactPaths(), ...(injected === undefined ? [] : [injected])];
+  const registeredPatterns = new Set<string>();
+  let registeredFloorUnavailable = false;
+  for (const projection of projections) {
+    const candidate = projection as { paths?: unknown; rejectedEntryCount?: unknown } | null;
+    const projectionShapeValid = Boolean(candidate)
+      && Array.isArray(candidate?.paths)
+      && candidate.paths.every((path) => typeof path === 'string')
+      && Number.isInteger(candidate?.rejectedEntryCount)
+      && Number(candidate?.rejectedEntryCount) >= 0;
+    if (!projectionShapeValid) {
+      registeredFloorUnavailable = true;
+      continue;
+    }
+    const patterns = (candidate!.paths as string[]).map(normalizedPath).filter(Boolean);
+    if (Number(candidate?.rejectedEntryCount) > 0 || patterns.length === 0) registeredFloorUnavailable = true;
+    for (const pattern of patterns) registeredPatterns.add(pattern);
+  }
   if (registeredFloorUnavailable) reasons.add('validation_floor_registry_unavailable');
   for (const path of paths) {
     const normalized = normalizedPath(path);
     if (
       pathIsLegacyValidationSensitive(normalized)
-      || registeredPatterns.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
+      || [...registeredPatterns].some((pattern) => pathMatchesImpactPattern(normalized, pattern))
     ) {
       reasons.add('validation_framework_sensitive_change');
     }
@@ -381,7 +387,7 @@ export function selectValidationTiers(
   const reasons = new Set<ValidationWideningReasonCode>(forceFullReasons);
   const floorProjection = Object.prototype.hasOwnProperty.call(dependencies, 'registryFloorProjection')
     ? dependencies.registryFloorProjection
-    : collectRepositoryFullProcessFactPaths();
+    : undefined;
   for (const reason of classifySensitiveStoryPaths(changedPaths, floorProjection)) reasons.add(reason);
   if (malformedForceReason) reasons.add('impact_index_unusable');
   if (typeof input.commandSetDigest !== 'string' || input.commandSetDigest.trim() === '') reasons.add('impact_index_unusable');
@@ -635,11 +641,11 @@ export const VALIDATION_WIDENING_REASONS = {
       'decision no longer applies.',
   },
   validation_floor_registry_unavailable: {
-    condition: 'Declared repository-full process-fact floors cannot be read completely',
+    condition: 'Declared repository-full process-fact floors cannot be read completely or no floor is declared',
     outcome: 'repository-full',
     gloss:
-      'The declared repository-full validation floors could not be read from the process-fact registry, so no ' +
-      'path can be cleared as insensitive and the complete validation set has to run.',
+      'The process-fact registry could not provide a complete repository-full floor set, or declares no floor ' +
+      'at all, so no path can be cleared as insensitive and the complete validation set has to run.',
   },
   validation_framework_sensitive_change: {
     condition:

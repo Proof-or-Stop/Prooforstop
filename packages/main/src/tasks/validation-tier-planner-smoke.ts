@@ -2418,7 +2418,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ]),
     {
       paths: ['packages/main/src/core/valid-full-path.ts'],
-      rejectedEntryCount: 7,
+      rejectedEntryCount: 8,
     },
     'malformed independently decoded registry entries must be reported while valid authority survives',
   );
@@ -2501,6 +2501,36 @@ testCase('explicit repository-full process-fact paths force full without overmat
     assert.equal(decision.effectiveTier, 'repository-full');
     assert.ok(decision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
   }
+  assert.match(
+    validationWideningReasonGloss('validation_floor_registry_unavailable'),
+    /could not provide a complete repository-full floor set, or declares no floor at all/,
+  );
+
+  const dynamicPath = 'packages/main/src/core/finding-applicability.ts';
+  const additiveDecision = selectValidationTiers({
+    storyId: 'B-floor-additive',
+    requestedTier: 'story-fast',
+    universeCommandIds: ['unit-suite', 'lint-suite'],
+    changedPaths: [dynamicPath],
+    pinnedCommandIds: [],
+    forceFullReasons: [],
+    commandSetDigest: 'floor-additive-command-set-v1',
+    snapshotDigest: 'floor-additive-snapshot-v1',
+    impactIndex: {
+      schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+      version: 'floor-additive-index-v1',
+      commandSetDigest: 'floor-additive-command-set-v1',
+      entries: [
+        { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [dynamicPath], coverage: 'complete' },
+        { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+      ],
+    },
+  }, {
+    registryFloorProjection: { paths: ['packages/main/src/core/unrelated-injected.ts'], rejectedEntryCount: 0 },
+  });
+  assert.equal(additiveDecision.effectiveTier, 'repository-full');
+  assert.ok(additiveDecision.escalationReasonCodes.includes('validation_framework_sensitive_change'));
+  assert.ok(!additiveDecision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
 
   assert.ok(
     gatePatterns.some((path) => !pathIsLegacyValidationSensitive(path)),

@@ -2584,7 +2584,10 @@ export function collectRepositoryFullProcessFactPaths(
   const paths = new Set<string>();
   let rejectedEntryCount = 0;
   for (const candidate of entries) {
-    if (!candidate || typeof candidate !== 'object') continue;
+    if (!candidate || typeof candidate !== 'object') {
+      rejectedEntryCount += 1;
+      continue;
+    }
     const entry = candidate as { level?: unknown; validationTierFloor?: unknown; paths?: unknown };
     if (entry.validationTierFloor === undefined) continue;
     if (entry.validationTierFloor !== 'repository-full' || entry.level !== 'L4' || !Array.isArray(entry.paths)) {
