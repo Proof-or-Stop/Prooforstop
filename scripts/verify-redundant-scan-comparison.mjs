@@ -10,11 +10,6 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const build = spawnSync(process.execPath, ['scripts/ensure-dist.mjs'], { cwd: root, encoding: 'utf8', timeout: 180000 });
 assert.equal(build.status, 0, build.stdout + build.stderr);
 const results = [];
-const binding = spawnSync(process.execPath, ['scripts/verify-validation-snapshot-binding.mjs'], {
-  cwd: root, encoding: 'utf8', timeout: 30000,
-});
-assert.equal(binding.status, 0, binding.stdout + binding.stderr);
-process.stdout.write(binding.stdout);
 for (const test of ['validation-git-tree-batch.mjs', 'validation-stage-entry-count.mjs',
   'validation-reuse-cost-process.mjs', 'validation-snapshot-operation-count.mjs']) {
   const child = spawnSync(process.execPath, ['packages/main/tests/' + test], {
@@ -24,6 +19,14 @@ for (const test of ['validation-git-tree-batch.mjs', 'validation-stage-entry-cou
   if (child.status !== 0) process.stderr.write(child.stderr ?? String(child.error ?? ''));
   results.push({ test, status: child.status, signal: child.signal });
 }
+// Accumulate this check after the comparison cases: a RED source must still
+// reach its operation-count assertion even when baseline bindings are absent.
+const binding = spawnSync(process.execPath, ['scripts/verify-validation-snapshot-binding.mjs'], {
+  cwd: root, encoding: 'utf8', timeout: 30000,
+});
+process.stdout.write(binding.stdout ?? '');
+if (binding.status !== 0) process.stderr.write(binding.stderr ?? String(binding.error ?? ''));
+results.push({ test: 'verify-validation-snapshot-binding.mjs', status: binding.status, signal: binding.signal });
 const { RUNTIME_ARTIFACT_REGISTRY: registry, findRuntimeArtifactEntry: find } =
   await import('../packages/main/src/core/runtime-artifact-registry.ts');
 find('packages/main/src/comparison-warm.ts');

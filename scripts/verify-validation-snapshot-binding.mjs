@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 
+console.log('SNAPSHOT_BINDING_RUNTIME ' + JSON.stringify({ node: process.version, executable: process.execPath, argv: process.argv.slice(1) }));
+
 const source = readFileSync(new URL('../packages/main/src/core/shared-validation-execution.ts', import.meta.url), 'utf8');
 const fail = (ok, detail) => assert(ok, 'VALIDATION_SNAPSHOT_BINDING_INVALID: ' + detail);
 function verify(text) {
