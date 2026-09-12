@@ -1417,10 +1417,27 @@ export async function runCli(opts?: {
     // Story events follow the same resolved read/write mode as admission and
     // hooks. A static read-command name cannot exempt a parameterized writer.
     const eventStoryId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
+    const closeCanonicalTerminal = (entry.success || entry.canonicalFailure === true)
+      && (
+        entry.command === 'validate'
+        || (entry.command === 'story_advance' && argsObject.phase === 'TEST')
+      );
     let eventOwnership: ReturnType<typeof resolveEffectiveOwnershipClass>;
     try {
       eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses, { config: config0 });
-    } catch { return; } // Best-effort observation must never replace the original command refusal.
+    } catch (error: unknown) {
+      if (closeCanonicalTerminal) {
+        reportHealthIssue('persist:codexProcessEvent', error as Error, { command: entry.command, storyId: eventStoryId });
+        // A successful command cannot advertise success after skipping its
+        // mandatory terminal. Already-failed commands retain their primary
+        // error while health records the additional closeout failure, matching
+        // the persistence-error policy below.
+        if (entry.success) throw new CanonicalTerminalCloseoutError(
+          `canonical terminal classification failed for ${entry.command}: ${(error as Error)?.message || String(error)}`,
+        );
+      }
+      return; // Ordinary observation remains best-effort; terminal failure is never silent.
+    }
     if (!commandObservationEffects(eventOwnership).recordStoryEvent) return;
     // quorum_submit owns one exact immutable process-events transaction inside
     // its handler. A generic post-handler codex_cli append would make that
@@ -1441,11 +1458,7 @@ export async function runCli(opts?: {
     if (entry.command === 'quorum_prune') return;
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
-    const closeCanonicalTerminal = (entry.success || entry.canonicalFailure === true)
-      && (
-        entry.command === 'validate'
-        || (entry.command === 'story_advance' && argsObject.phase === 'TEST')
-      );
+
     try {
       const terminalGitCwd = closeCanonicalTerminal
         ? resolveGitCwd({

@@ -26,6 +26,8 @@ export function assertRuntimePackageVersion(): void {
     ? `SOURCE_VERSION_DESYNC: source ${sourceVersion} at ${sourcePath} disagrees with package ${installed}. Reconcile the source constant and both package manifests through the version workflow before building; rebuilding alone cannot repair this mismatch.`
     : sourceVersion === installed && existsSync(buildScript)
     ? `Rebuild this checkout with node ${JSON.stringify(buildScript)}, then retry the same entrypoint.`
+    : sourceVersion === installed
+    ? `Source matches the package but compiled output is stale; build entrypoint ${JSON.stringify(buildScript)} is missing. Restore the installation build tooling or use its documented build command, then rebuild and retry this entrypoint.`
     : 'Source version could not be verified. Reinstall the intended @proof-or-stop/core package version or inspect its source and manifest versions before building, then retry the same entrypoint.';
   throw new Error(`CLI_RUNTIME_VERSION_MISMATCH: compiled CLI ${PROOF_OR_STOP_CLI_VERSION} differs from package ${installed} at ${packagePath}. ${recovery}`);
 }

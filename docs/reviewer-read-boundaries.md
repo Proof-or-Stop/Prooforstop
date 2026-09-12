@@ -151,6 +151,9 @@ Removing a pin fails closed. Missing registered executable bytes get a boundary
 refusal when inspected through the consumer API; a missing ESM import may fail
 at module loading before that API is reached. Strict typed handlers reject string
 booleans even though raw CLI admission accepts the parser's string representation.
-Observation-only classifier failures omit the best-effort event and preserve the
-original command error. `verify-cli-audit-hardening.mjs` includes explicit fault
+Ordinary observation classifier failures omit the best-effort event and preserve
+the original command error. Successful validate and TEST-advance canonical
+terminals instead throw CanonicalTerminalCloseoutError if classification fails.
+Already-failed canonical commands retain the primary error and additionally
+report the closeout fault to health, matching the existing persistence policy. `verify-cli-audit-hardening.mjs` includes explicit fault
 injection for this defensive path, not a claim of normal argument reachability.

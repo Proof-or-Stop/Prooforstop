@@ -47,3 +47,8 @@ Adapter heartbeat diagnostics preserve runtime mismatch/invalid-metadata refusal
 line, including after warning lines and the published entry's `Error:` prefix, under `[heartbeat_runtime_version_mismatch]`, keeping the failing
 installation path and recovery text. They remain hard failures; timeout, ordinary
 nonzero exit and missing heartbeat activity are still separate failures.
+
+If source matches the manifest but the expected build script is absent, the
+refusal says both facts explicitly: compiled output is stale, source is verified,
+and build tooling is missing. Restore that installation's build tooling or use
+its documented build command. This is distinct from unavailable source.
