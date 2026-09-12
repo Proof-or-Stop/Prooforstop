@@ -8,7 +8,7 @@ const files=['package.json','package-lock.json','packages/main/package.json','pa
  'packages/main/src/core/proof-or-stop-brand.ts','packages/lab/package-lock.json','packages/utils/package-lock.json'];
 const manifestFile='scripts/lab/u18-static-edges/exceptions.json';
 const hash=text=>createHash('sha256').update(text).digest('hex');
-const read=(root,file)=>fs.readFileSync(path.join(root,file),'utf8');
+const read=(root,file)=>{const bytes=fs.readFileSync(path.join(root,file)),text=bytes.toString('utf8');assert(Buffer.from(text).equals(bytes),'version source must be valid UTF-8');return text;};
 
 const canonicalManifest=value=>JSON.stringify(value,null,2).replace(/[\u007f-\uffff]/g,char=>'\\u'+char.charCodeAt(0).toString(16).padStart(4,'0'))+'\n';
 
@@ -45,7 +45,8 @@ function assertVersionOnly(file,before,after,from,to) {
 }
 
 /** Lab-only version transaction: refresh already-valid evidence, never its rationale. */
-export function withLabVersionSourceEvidence(root,bump) {
+export function withLabVersionSourceEvidence(root,bump,canonicalFiles) {
+ assert.deepEqual([...canonicalFiles].sort(),[...files].sort(),'version output allowlist drifted from VERSION_KNOWN_SYNC_PATHS');
  const before=new Map(files.filter(file=>fs.existsSync(path.join(root,file))).map(file=>[file,read(root,file)]));
  const manifestBefore=fs.existsSync(path.join(root,manifestFile))?read(root,manifestFile):null;
  // Generic Labs without this repository-specific manifest retain their existing

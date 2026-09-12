@@ -7,9 +7,17 @@ import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {LAB_VERSION_FIXTURE_CLI_TIMEOUT_MS,assertLabVersionFixtureTransport} from './lab-version-fixture-transport.mjs';
-import {withLabVersionSourceEvidence} from './lab-version-source-evidence.mjs';
+import {withLabVersionSourceEvidence as versionTransaction} from './lab-version-source-evidence.mjs';
+const fixtureVersionPaths=['package.json','package-lock.json','packages/main/package.json','packages/main/package-lock.json','packages/main/src/core/proof-or-stop-brand.ts','packages/lab/package-lock.json','packages/utils/package-lock.json'];
+const withLabVersionSourceEvidence=(root,bump)=>versionTransaction(root,bump,fixtureVersionPaths);
+assert.throws(()=>versionTransaction('.',()=>assert.fail('drift must refuse before mutation'),[...fixtureVersionPaths,'new-version-output.json']),error=>error.message.split('\n')[0]==='version output allowlist drifted from VERSION_KNOWN_SYNC_PATHS');
 import {copyLabFixtureSources} from './lab-fixture-sources.mjs';
 import {installLabAuditFixtureProviders} from './lab-audit-fixture-provider.mjs';
+const invalidVersionRoot=mkdtempSync(join(tmpdir(),'lab-invalid-version-utf8-'));
+try {const bytes=Buffer.from([0xff]);writeFileSync(join(invalidVersionRoot,'package.json'),bytes);
+ assert.throws(()=>withLabVersionSourceEvidence(invalidVersionRoot,()=>assert.fail('invalid bytes must refuse before producer')),error=>error.message.split('\n')[0]==='version source must be valid UTF-8');
+ assert.deepEqual(readFileSync(join(invalidVersionRoot,'package.json')),bytes);
+} finally {rmSync(invalidVersionRoot,{recursive:true,force:true});}
 const timedOutChild=spawnSync(process.execPath,['-e','setTimeout(()=>{},10000)'],{timeout:20,encoding:'utf8'});
 assert.equal(timedOutChild.error?.code,'ETIMEDOUT');
 assert.throws(()=>assertLabVersionFixtureTransport(timedOutChild,'finish'),error=>error.message==='LAB_VERSION_FIXTURE_CLI_TIMEOUT: finish exceeded 60000ms (signal=SIGTERM)');

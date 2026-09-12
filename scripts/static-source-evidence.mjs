@@ -14,8 +14,8 @@ function snapshot(root, file) {
   if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)) {
     throw new Error('source evidence file escapes the repository');
   }
-  const text = fs.readFileSync(target, 'utf8');
-  return { text, sourceDigest: hash(text), lines: text.split('\n') };
+  const bytes = fs.readFileSync(target), text = bytes.toString('utf8');
+  return { text, sourceDigest: hash(bytes), lines: text.split('\n') };
 }
 
 function excerptFrom(source, startLine, endLine) {
@@ -52,6 +52,7 @@ export function staticSourceEvidenceError(root, evidence, callsite) {
       if (item.file === callsite.file && item.startLine <= callsite.line && item.endLine >= callsite.line) covered = true;
     }
   } catch (error) {
+    if (error.code === 'ENOENT') return 'source evidence file is missing';
     return 'source evidence invalid: ' + error.message;
   }
   if (!currentEntries) return 'source evidence has no structured current-source entry';

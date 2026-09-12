@@ -110,6 +110,7 @@ try{
  const bounds='source evidence invalid: source evidence line bounds are invalid';
  const noCurrent='source evidence has no structured current-source entry';
  rejectEvidence([{...evidence,sourceDigest:'0'.repeat(64)}], 'stale nested digest',stale);
+ rejectEvidence([{...evidence,file:'nonexistent-evidence.mjs'}], 'missing evidence file has stable refusal','source evidence file is missing');
  rejectEvidence([{...evidence,excerpt:evidence.excerpt+' // invented'}], 'tampered excerpt',mismatch);
  rejectEvidence([{...evidence,startLine:2,endLine:2}], 'range beyond source length',bounds);
  rejectEvidence([{...evidence,startLine:0}], 'invalid line bounds',bounds);
@@ -139,9 +140,15 @@ try{
  const moved = {...exception,key:exception.key.replace(':1:',':2:'),sourceDigest:hash(contextualSource),
   dependencyDigests:{...exception.dependencyDigests,'suite-helper.mjs':hash(contextualSource)}};
  pin([{...moved,requiredEvidence:[createStaticSourceEvidence(root,'suite-helper.mjs',1,1)]}]);
- expect(1,'current valid excerpt outside moved callsite refused');
+ assert.equal(expect(1,'current valid excerpt outside moved callsite refused').rows.find(row=>row.key===moved.key)?.reason,'source evidence does not cover the current callsite');
  pin([{...moved,requiredEvidence:[createStaticSourceEvidence(root,'suite-helper.mjs',1,2), {...evidence,historical:true}, 'Historical context only']}]);
- expect(0,'single snapshot refresh covers moved call; history remains supplemental');
+ assert.equal(expect(0,'single snapshot refresh covers moved call; history remains supplemental').rows.find(row=>row.key===moved.key)?.state,'EXCEPTION');
+ const invalidUtf8=Buffer.concat([Buffer.from('// '),Buffer.from([0xff]),Buffer.from('\n'+evidence.excerpt)]);
+ fs.writeFileSync(path.join(root,'suite-helper.mjs'),invalidUtf8);
+ const byteEvidence=createStaticSourceEvidence(root,'suite-helper.mjs',1,2);
+ assert.equal(byteEvidence.sourceDigest,hash(invalidUtf8),'source digest hashes original bytes before UTF-8 decoding');
+ pin([{...moved,sourceDigest:hash(invalidUtf8),dependencyDigests:{...moved.dependencyDigests,'suite-helper.mjs':hash(invalidUtf8)},requiredEvidence:[byteEvidence]}]);
+ assert.equal(expect(0,'invalid UTF-8 comment retains consistent byte digests').rows.find(row=>row.key===moved.key)?.state,'EXCEPTION');
  fs.writeFileSync(path.join(root,'suite-helper.mjs'),evidence.excerpt);
 
 

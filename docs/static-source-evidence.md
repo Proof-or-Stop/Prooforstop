@@ -33,8 +33,8 @@ the scanner never silently refreshes or reclassifies their rationale.
 
 The Lab finish path refreshes already-valid evidence for its official patch-only
 version outputs in the same release commit. It verifies the old full-file digest
-and exact old excerpt before generating the new fields, and verifies every
-package change is limited to the official version fields. It also updates bound
+and exact old excerpt before generating the new fields, and verifies changes to the official version and lock files are limited to their
+version fields. It also updates bound
 dependency hashes and preserves classifications and rationale. Stale prior
 evidence, invalid ranges, or non-version edits refuse the transaction and restore
 the prior version and manifest bytes. Other source changes still require source
@@ -83,3 +83,19 @@ The 0.3.343 merge retains the independently registered runtime snapshot edge,
 its precise read-only source-contract classification, and its additional
 removal/dependency/invocation regression controls. The duplicate local draft
 entry is superseded by that exact main entry.
+
+
+The regression driver is currently operator-invoked by the pinned Lab command,
+not automatically scheduled by ordinary `proof-or-stop validate`. The production
+scanner is registered and enforces evidence consistency. The official draft
+[static-evidence-regression-registration](story/drafts/static-evidence-regression-registration/background.md)
+owns routine regression registration under the framework validation-maintenance
+backlog, including runtime measurement, resource policies and exact child closure.
+This scheduling gap is explicitly deferred; current RED/GREEN and real Claude
+release audit remain required.
+
+Digests bind original file bytes; UTF-8 decoding is used only for excerpt slicing.
+Missing evidence files have a stable refusal. Version outputs must be valid UTF-8
+and the guarded allowlist must match the producer's exported complete known
+output paths, including optional extension locks. Changes outside those outputs
+remain subject to the surrounding Lab clean-tree assertion.
