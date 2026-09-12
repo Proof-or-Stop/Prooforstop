@@ -215,6 +215,8 @@ export function isAcceptanceMatrixDerivedEvidence(evidence: { kind?: string; com
   return acceptanceMatrixEvidenceProvenance(evidence) !== null;
 }
 
+// Planned declarations describe structural endpoints, not independently attested reviews.
+// Reviewer/critic receipt validation remains a separate authority check.
 export function validatePlannedPathDeclarationsForChecklistItem(item: ChecklistItem, intent: VerificationIntent): void {
   const declarationIds = new Set<string>();
   const endpointIds = new Set<string>();

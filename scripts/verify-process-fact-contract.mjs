@@ -11282,6 +11282,18 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   if (scripts['test:review-epoch-certification-continuity'] !== 'node scripts/verify-review-epoch-certification-continuity.mjs' || !scripts['test:serial-reference'].includes('npm run test:review-epoch-certification-continuity')) failures.push('native review epoch continuity regression must run in the serial reference suite');
 }
 
+// Proposal application keeps ownership and exact approval binding.
+{
+  // Ownership class is exercised programmatically by verify-intent-owner-lease.mjs.
+  if(!read('packages/main/src/core/command-policy.ts').includes("checklist_remove: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: ['INIT']")) failures.push('checklist removal must remain INIT-only');
+  const handler = read('packages/main/src/handlers/checklist.ts');
+  for (const token of ['INTENT_PROPOSAL_OWNER_REQUIRED','INTENT_PROPOSAL_BINDING_INVALID','verification_intent_writer_phase_invalid','verificationIntentAuthorship','verification_intent_applied','independentlyAttested: false']) if(!handler.includes(token)) failures.push('intent proposal contract missing '+token);
+  if (!read(processFactRegistryPath).includes('runtime:independent_intent_owner_lease')) failures.push('intent proposal process registration missing');
+  const scripts=JSON.parse(read('package.json')).scripts;
+  if(!read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:intent-owner-lease',")) failures.push('intent proposal regression requires full-suite resource policy');
+  if(scripts['test:intent-owner-lease']!=='node scripts/verify-intent-owner-lease.mjs' || !scripts['test:serial-reference'].includes('npm run test:intent-owner-lease')) failures.push('intent proposal regression must remain in serial suite');
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
