@@ -61,7 +61,7 @@ export type EvidenceFreshness = {
   fresh: boolean;
   reason: string;
   /** Structural reason for an unreadable runtime binding; never inferred from prose. */
-  runtimeUnavailable?: 'headHash' | 'materialHash';
+  runtimeUnavailable?: 'headHash' | 'materialHash' | 'storyFilesHash';
   warnings?: string[];
   currentHead?: string;
   currentMaterialHash?: string;
@@ -974,7 +974,7 @@ export function checkEvidenceFreshnessForGit(
     // unreadable ref). Previously this silently fell through to the weaker head
     // comparison; now it fails closed and names the material digest.
     const materialBinding = classifyEvidenceHashSnapshot({ headHash: currentHead, materialHash }, ['materialHash']);
-    if (!materialBinding.complete) {
+    if (!materialHash || !materialBinding.complete) {
       return {
         fresh: false,
         reason: `current materialHash could not be derived at HEAD ${currentHead.slice(0, 7)}; the evidence materialHash binding cannot be verified (fail closed): ${materialBinding.detail}`,
@@ -984,59 +984,57 @@ export function checkEvidenceFreshnessForGit(
         materialFiles: [],
       };
     }
-    if (materialHash) {
-      if (materialHash === evidenceMaterialHash) {
-        return {
-          fresh: true,
-          reason: 'evidence materialHash matches current entity file state',
-          currentHead,
-          currentMaterialHash: materialHash,
-          changedFiles: [],
-          materialFiles: [],
-        };
-      }
-      // review-run-binding-race (friction #2) soundness guard: an EMPTY_STORY_FILES_HASH
-      // (sha256 of an empty story-owned diff — e.g. HEAD==main / no story branch) is a
-      // NO-SIGNAL value, not a real vouching hash. It must never enable the drift advisory
-      // (else a stale-material record whose story diff is empty on both sides would ride
-      // the downgrade). Skip the advisory when either side is the empty-set value; control
-      // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
-      // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
-      if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
-        const storyFilesHash = currentStoryFilesHash(gitCwd, currentHead, metadataRoot);
-        if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
-          return {
-            fresh: true,
-            reason: 'evidence storyFilesHash matches current story-owned file state; whole-tree materialHash drift requires re-attestation advisory',
-            warnings: ['whole-tree materialHash drift detected while storyFilesHash matches; re-attestation advisory required'],
-            currentHead,
-            currentMaterialHash: materialHash,
-            currentStoryFilesHash: storyFilesHash,
-            changedFiles: ['<material-tree-changed>'],
-            materialFiles: [],
-          };
-        }
-        if (storyFilesHash && storyFilesHash !== evidenceStoryFilesHash) {
-          return {
-            fresh: false,
-            reason: 'evidence storyFilesHash does not match current story-owned file state',
-            currentHead,
-            currentMaterialHash: materialHash,
-            currentStoryFilesHash: storyFilesHash,
-            changedFiles: [],
-            materialFiles: ['<story-files-changed>'],
-          };
-        }
-      }
+    if (materialHash === evidenceMaterialHash) {
       return {
-        fresh: false,
-        reason: `evidence materialHash does not match current entity file state`,
+        fresh: true,
+        reason: 'evidence materialHash matches current entity file state',
         currentHead,
         currentMaterialHash: materialHash,
         changedFiles: [],
-        materialFiles: ['<material-tree-changed>'],
+        materialFiles: [],
       };
     }
+    // review-run-binding-race (friction #2) soundness guard: an EMPTY_STORY_FILES_HASH
+    // (sha256 of an empty story-owned diff — e.g. HEAD==main / no story branch) is a
+    // NO-SIGNAL value, not a real vouching hash. It must never enable the drift advisory
+    // (else a stale-material record whose story diff is empty on both sides would ride
+    // the downgrade). Skip the advisory when either side is the empty-set value; control
+    // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
+    // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
+    if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
+      const storyFilesHash = currentStoryFilesHash(gitCwd, currentHead, metadataRoot);
+      if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
+        return {
+          fresh: true,
+          reason: 'evidence storyFilesHash matches current story-owned file state; whole-tree materialHash drift requires re-attestation advisory',
+          warnings: ['whole-tree materialHash drift detected while storyFilesHash matches; re-attestation advisory required'],
+          currentHead,
+          currentMaterialHash: materialHash,
+          currentStoryFilesHash: storyFilesHash,
+          changedFiles: ['<material-tree-changed>'],
+          materialFiles: [],
+        };
+      }
+      if (storyFilesHash && storyFilesHash !== evidenceStoryFilesHash) {
+        return {
+          fresh: false,
+          reason: 'evidence storyFilesHash does not match current story-owned file state',
+          currentHead,
+          currentMaterialHash: materialHash,
+          currentStoryFilesHash: storyFilesHash,
+          changedFiles: [],
+          materialFiles: ['<story-files-changed>'],
+        };
+      }
+    }
+    return {
+      fresh: false,
+      reason: `evidence materialHash does not match current entity file state`,
+      currentHead,
+      currentMaterialHash: materialHash,
+      changedFiles: [],
+      materialFiles: ['<material-tree-changed>'],
+    };
   }
 
   if (headMatches(evidenceHash, currentHead)) {
@@ -1115,6 +1113,11 @@ export function checkStrictVerificationEvidenceFreshnessForGit(
       return {
         fresh: false,
         reason: 'strict verification freshness could not resolve canonical current git/material/story hashes',
+        runtimeUnavailable: !isCanonicalGitHeadHash(currentHead)
+          ? 'headHash'
+          : !isCanonicalSha256Hash(currentMaterial)
+            ? 'materialHash'
+            : 'storyFilesHash',
         changedFiles: [],
         materialFiles: ['<freshness-runtime-unavailable>'],
       };

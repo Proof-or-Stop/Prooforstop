@@ -58,7 +58,8 @@
  * with '' and null values):
  *   - each digest missing alone and all three missing -> complete=false,
  *     `missing` lists exactly the absent keys in canonical order, detail is ONE
- *     line <= 300 chars naming every missing digest and none of the present ones
+ *     line <= 300 chars naming every missing digest and listing present digests
+ *     only after the missing-digest clause
  *   - '' / whitespace / null digest values classify exactly like omitted keys
  *   - a full snapshot -> complete=true, missing=[]
  *
@@ -79,6 +80,7 @@ import {
   EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS,
   captureEvidenceHashSnapshot,
   checkEvidenceFreshnessForGit,
+  checkStrictVerificationEvidenceFreshnessForGit,
   classifyEvidenceFreshness,
   classifyEvidenceHashSnapshot,
   tryCaptureEvidenceHashSnapshot,
@@ -94,6 +96,7 @@ import { createSessionHandlers } from '../handlers/session.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
+import { classifyIncrementalBindingReasons } from '../core/review-incremental-context.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import type { RoutineValidationIdentity } from '../core/validation-types.js';
@@ -407,6 +410,43 @@ try {
     );
   });
 
+  testCase('strict freshness reader and incremental eligibility consume runtime unavailability fail closed', () => {
+    const strictResult = checkStrictVerificationEvidenceFreshnessForGit(
+      unborn,
+      FAKE_HEAD,
+      FAKE_MATERIAL,
+      unborn,
+      FAKE_STORY_FILES,
+    );
+    assert.equal(strictResult.fresh, false);
+    assert.equal(strictResult.runtimeUnavailable, 'headHash');
+    assert.equal(classifyEvidenceFreshness(strictResult, FAKE_HEAD), 'RUNTIME_UNAVAILABLE');
+
+    const commonBinding = {
+      priorEnvelopePresent: true,
+      runtimeContractMatches: true,
+      roleContractMatches: true,
+      executionEnvironmentMatches: true,
+      assemblerMatches: true,
+      dispatchProtocolMatches: true,
+      scopePolicyMatches: true,
+      taskSemanticDigestMatches: true,
+      pureFixtureDrift: false,
+    };
+    const runtimeReasons = classifyIncrementalBindingReasons({
+      ...commonBinding,
+      freshnessClassification: classifyEvidenceFreshness(strictResult, FAKE_HEAD),
+    });
+    assert.ok(runtimeReasons.includes('FULL_FRESHNESS_RUNTIME_UNAVAILABLE'), runtimeReasons.join(','));
+    assert.equal(runtimeReasons.some((reason) => reason.startsWith('ELIGIBLE_')), false);
+
+    const currentReasons = classifyIncrementalBindingReasons({
+      ...commonBinding,
+      freshnessClassification: 'CURRENT_MATERIAL',
+    });
+    assert.deepEqual(currentReasons, ['ELIGIBLE_TRUSTED_PRIOR_BINDINGS']);
+  });
+
   // ── core/done-oracle.ts buildDoneChecklist — FAIL-CLOSED ──────────────────
   testCase('done-oracle (FAIL-CLOSED): unborn repo -> evidence-hash-snapshot row is fail/blocking and names headHash + materialHash', () => {
     const rows = buildDoneChecklist(STORY_ID, unbornStore, unborn, { auditWriter: null, gitCwd: unborn });
@@ -455,8 +495,9 @@ try {
       assert.ok(row, 'storyFilesHash-only absence must be disclosed');
       assert.equal(row.status, 'warn');
       assert.equal(row.blocking, false);
-      assert.match(row.detail ?? '', /storyFilesHash/);
-      assert.doesNotMatch(row.detail ?? '', /headHash|materialHash/);
+      assert.equal(row.detail, classification.detail, 'the advisory detail must be the shared classifier output');
+      assert.match(row.detail ?? '', /storyFilesHash unavailable/);
+      assert.match(row.detail ?? '', /present: headHash, materialHash/);
       assert.doesNotMatch(row.detail ?? '', /Historical DONE projection:/);
       const report = buildStoryReadinessReport({ storyId: STORY_ID, target: 'DONE', store, root, gitCwd: root });
       const projected = report.readiness.find((candidate) => candidate.id === 'done.evidence-hash-snapshot');
@@ -535,10 +576,10 @@ try {
         assert.ok(doneBinding, 'DONE readiness must project the evidence-hash-snapshot oracle row');
         assert.equal(doneBinding.code, 'evidence_hash_snapshot_partial');
         assert.equal(doneBinding.category, 'missing');
-        assert.ok(doneBinding.nextCommand?.includes('current git HEAD / material tree must be readable'), doneBinding.nextCommand);
+        assert.equal(doneBinding.nextCommand, undefined, 'prose remediation must not be exposed as an executable command');
         assert.ok(
-          report.next.some((action) => action.kind === 'command' && action.command === doneBinding.nextCommand),
-          'the projected repair guidance must reach the DONE next-action list',
+          report.next.some((action) => action.kind === 'human_decision' && action.reason.includes(doneBinding.code)),
+          'a blocking partial snapshot without an executable repair must reach the human-decision list',
         );
       } else {
         for (const r of [head, material]) {

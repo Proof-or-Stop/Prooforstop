@@ -582,8 +582,6 @@ function doneRowNextCommand(storyId: string, row: DoneCheckRow): string | undefi
     case 'done-required-validation':
     case 'branch-synced-main':
       return row.blocking ? donePrepareCommand(storyId) : undefined;
-    case 'evidence-hash-snapshot':
-      return row.blocking ? row.hint : undefined;
     case 'bugs-fixed':
       return row.blocking ? `proof-or-stop bug_list '{"storyId":"${storyId}"}'` : undefined;
     case 'git-working-tree':

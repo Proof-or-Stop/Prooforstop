@@ -364,16 +364,11 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     // attempt. Current git unavailability is still disclosed, but it cannot
     // reopen a Story whose original DONE snapshot remains the projection basis.
     const historicalLiveObservation = Boolean(completedSnapshot && admissionDigestUnavailable);
-    const liveStoryFilesOnly = !completedSnapshot
-      && bindingClassification.missing.length === 1
-      && bindingClassification.missing[0] === 'storyFilesHash';
     const bindingBlocking = !completedSnapshot && admissionDigestUnavailable;
     const bindingDetail = historicalStoryFilesHashAbsent && !historicalLiveObservation
       ? 'Historical DONE projection: the completed snapshot did not bind storyFilesHash; DONE consumers fall back to strict materialHash'
       : historicalLiveObservation
-      ? `Historical DONE projection: current live git state is unavailable and does not reopen completed history; ${bindingClassification.detail}`
-      : liveStoryFilesOnly
-        ? 'evidence hash snapshot is partial: storyFilesHash unavailable; the other required digests are present'
+        ? `Historical DONE projection: current live git state is unavailable and does not reopen completed history; ${bindingClassification.detail}`
         : bindingClassification.detail;
     rows.push(doneCheckRow({
       id: 'evidence-hash-snapshot',
