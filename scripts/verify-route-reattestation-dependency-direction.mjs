@@ -26,4 +26,9 @@ for (const flags of [[], ['--head-continuity']]) {
  process.stdout.write(output);
  assert(output.includes('ROUTE_RESTORATION_PORT PASS'), 'ROUTE_DIRECTION_REQUIRED native restoration port controls executed');
 }
+const historyOutput=execFileSync(process.execPath,['packages/main/dist/tasks/finding-identity-lineage-smoke.js','--section=history'],{cwd:root,encoding:'utf8',stdio:'pipe',timeout:120000});
+process.stdout.write(historyOutput);
+assert(historyOutput.includes('FINDING_IDENTITY_ROUTES PASS') && historyOutput.includes('FINDING_IDENTITY_HISTORY PASS'), 'ROUTE_DIRECTION_REQUIRED original route/progress/history regressions execute');
+const contractOutput=execFileSync(process.execPath,['scripts/verify-process-fact-contract.mjs','--quiet'],{cwd:root,encoding:'utf8',stdio:'pipe',timeout:120000});
+process.stdout.write(contractOutput);
 console.log('ROUTE_DIRECTION_NATIVE_GREEN signed material and head-only restoration preserved');

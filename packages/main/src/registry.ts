@@ -1,3 +1,4 @@
+import { readRouteSourceRestoration } from './handlers/finding-material-reattestation.js';
 import { createReviewerBatchAdmitHandlers } from './handlers/reviewer-batch-admit.js';
 // Required production service supplied by the parent integration; this patch is not standalone.
 import { admitReviewerBatch } from './core/reviewer-batch-producer.js';
@@ -231,8 +232,8 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createReviewLoopHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
   registry.registerBatch(createFindingIdentityHandlers(ctx));
-  registry.registerBatch(createFindingRouteHandlers(ctx));
-  registry.registerBatch(createFindingHistoryHandlers(ctx, observeDeferralInvalidation));
+  registry.registerBatch(createFindingRouteHandlers(ctx, readRouteSourceRestoration));
+  registry.registerBatch(createFindingHistoryHandlers(ctx, observeDeferralInvalidation, readRouteSourceRestoration));
   const findingLedgerHandlers = createFindingLedgerHandlers(ctx);
   registry.register('finding_ledger_query', findingLedgerHandlers.finding_ledger_query);
   registry.registerBatch(createFindingRuntimeEvidenceHandlers(ctx));

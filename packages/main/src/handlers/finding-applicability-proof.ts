@@ -7,6 +7,7 @@ import { canonicalHash } from '../core/finding-ledger.js';
 import { FINDING_PROTECTED_SURFACES, applicabilityDigest, type ApplicabilityProofProjection,
   type FindingApplicabilityAssessment, type FindingEvaluationScope } from '../core/finding-applicability.js';
 import { sourceRouteRecord } from './finding-route.js';
+import { readRouteSourceRestoration } from './finding-material-reattestation.js';
 import { readCurrentFindingRuntimeEvidence, readMaterialBoundReattestationRuntimeEvidence } from './finding-ledger.js';
 import { reviewInventoryAcceptanceSubjectDigestForStore } from '../core/review-inventory-epoch.js';
 import { readCanonicalCatalog } from './finding-identity-store.js';
@@ -80,7 +81,7 @@ export function readApplicabilityProof(ctx: HandlerContext, storyId: string, fin
   requireCurrentReviewerEvidence = true) {
   const ref = assessment.proposalRef;
   if (!ref || ref.storyId !== storyId || ref.subjectKind !== 'finding_assessment_proposal') throw new Error('dynamic finding: exact receipted assessment proposal required');
-  const { bound, proposal, restored } = sourceRouteRecord(ctx, ref, requireCurrentReviewerEvidence);
+  const { bound, proposal, restored } = sourceRouteRecord(ctx, ref, requireCurrentReviewerEvidence, readRouteSourceRestoration);
   if (!proposal || (proposal.findingRef as { findingId?: string }).findingId !== finding.id) throw new Error('dynamic finding: proposal belongs to another Finding');
   if ((proposal.dependencyBundle as { proofPolicyDigest?: string }).proofPolicyDigest !== canonicalHash(FINDING_PROOF_POLICY)) {
     throw new Error('dynamic finding: proposal proof policy is stale');

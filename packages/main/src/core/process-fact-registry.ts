@@ -346,6 +346,7 @@ export const PROCESS_FACT_STORY2_ROUTE_POLICY = {
   lifecycleAuthority: 'none',
   targetAuthority: 'current target owner or canonical B-META main authority; never source self-authorization',
   predecessorBoundary: 'neutral source checkpoint is not proof of canonical deferral or renewal eligibility',
+  sourceRestorationBoundary: 'Story2 imports no Story1 material reader; registry and Story1 callers compose the signed exact-source/root restoration reader internally, while standalone drift and strict current-reviewer acceptance fail closed',
   initialPublication: 'one atomic receipt plus four signed same-kind baselines and complete signed set',
 } as const;
 

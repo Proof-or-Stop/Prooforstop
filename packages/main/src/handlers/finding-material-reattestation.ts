@@ -1,6 +1,8 @@
 /** Narrow unrelated-material or head-only recovery. Old observations remain immutable; fresh
  * same-command executions and independent current review are mandatory. */
 import { execFileSync } from 'node:child_process';
+import { realpathSync } from 'node:fs';
+import type { RouteSourceRestorationReader } from './finding-route.js';
 import type { HandlerContext } from './context.js';
 import type { JsonValue } from '../core/finding-ledger.js';
 import { applicabilityDigest, verifyApplicabilityAssessment, verifyDynamicFindingRecord, type FindingApplicabilityAssessment } from '../core/finding-applicability.js';
@@ -164,3 +166,14 @@ export function readMaterialDriftReattestation(ctx: HandlerContext, storyId: str
   if (!reviewer || applicabilityDigest(reviewer.pass) !== record.reviewPassDigest) throw new Error('reattestation: reviewer authority stale');
   return { record, current, assessment, runtimeReceiptIds: record.runtime.map(row => row.currentId), materialDriftState: 'unrelated_re_attested' as const };
 }
+
+/** Composition-root adapter: rederive signed proof for this exact source on every
+ * read, including progress transaction revalidation. Never accept a stored bit. */
+export const readRouteSourceRestoration: RouteSourceRestorationReader = (ctx, source) => {
+  const restored = readMaterialDriftReattestation(ctx, source.storyId, source.recordId);
+  if (!restored) return undefined;
+  if (applicabilityDigest(restored.assessment.proposalRef) !== applicabilityDigest(source)) {
+    throw new Error('reattestation: route source reference mismatch');
+  }
+  return { ...restored, sourceRoot: realpathSync(ctx.root), sourceRef: source };
+};
