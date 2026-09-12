@@ -1,0 +1,260 @@
+{
+  "baseVersion": "0.3.340",
+  "baseCommit": "a11f2d89a4c1762b5e0452e6e9e5e696ee9884c9",
+  "redCommit": "a387adfba80000ee69f249a0f21d07fbb3d837e1",
+  "greenCommit": "7575d6257240a6ceccc38fb6bb24ba46cd80c391",
+  "runtime": "v26.8.1",
+  "command": [
+    "node",
+    "scripts/verify-redundant-scan-comparison.mjs"
+  ],
+  "scope": "Six historical overhead hotspots; quorum excluded by user instruction.",
+  "red": {
+    "mergeBase": [
+      {
+        "mergeBaseCalls": 1,
+        "materialHash": "cde6570ec06b1dd8b0949c323183769cfedb6e83f4dc45916e85d06d4fab1e3c"
+      },
+      {
+        "mergeBaseCalls": 1,
+        "materialHash": "cde6570ec06b1dd8b0949c323183769cfedb6e83f4dc45916e85d06d4fab1e3c"
+      }
+    ],
+    "trees": [
+      {
+        "kind": "probe",
+        "treeReads": 1
+      },
+      {
+        "kind": "capture",
+        "treeReads": 1
+      },
+      {
+        "kind": "strict",
+        "treeReads": 1
+      },
+      {
+        "kind": "relaxed",
+        "treeReads": 1
+      }
+    ],
+    "resourceStage": {
+      "entries": 1,
+      "seconds": 0.50713025,
+      "code": 0
+    },
+    "costProcess": {
+      "first": {
+        "seconds": 7.621778584,
+        "probes": 6,
+        "code": 0,
+        "reason": "no_matching_receipt",
+        "receipt": "executed",
+        "output": "ACTUAL_CHILD\n",
+        "processSeconds": 8.624158165999999
+      },
+      "second": {
+        "seconds": 1.596432375,
+        "probes": 2,
+        "code": 0,
+        "reason": "reuse_cost_exceeds_execution",
+        "output": "ACTUAL_CHILD\n",
+        "processSeconds": 2.3689812089999998
+      }
+    },
+    "snapshots": [
+      {
+        "phase": "executed",
+        "initialSerializations": 5,
+        "inputSerializations": 5,
+        "liveProbes": 6,
+        "childStarts": 1,
+        "ms": 5511.899875
+      },
+      {
+        "phase": "reused",
+        "initialSerializations": 3,
+        "inputSerializations": 3,
+        "liveProbes": 4,
+        "childStarts": 0,
+        "ms": 2857.3820830000004
+      }
+    ],
+    "paths": {
+      "warm": 8,
+      "cold": 8
+    },
+    "children": [
+      {
+        "test": "validation-git-tree-batch.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-stage-entry-count.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-reuse-cost-process.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-snapshot-operation-count.mjs",
+        "status": 1,
+        "signal": null
+      },
+      {
+        "test": "verify-validation-snapshot-binding.mjs",
+        "status": 1,
+        "signal": null
+      }
+    ],
+    "bindingRuntime": {
+      "node": "v26.8.1",
+      "executable": "/opt/homebrew/Cellar/node/26.8.1/bin/node",
+      "argv": [
+        "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/scripts/verify-validation-snapshot-binding.mjs"
+      ]
+    }
+  },
+  "green": {
+    "mergeBase": [
+      {
+        "mergeBaseCalls": 1,
+        "materialHash": "cde6570ec06b1dd8b0949c323183769cfedb6e83f4dc45916e85d06d4fab1e3c"
+      },
+      {
+        "mergeBaseCalls": 1,
+        "materialHash": "cde6570ec06b1dd8b0949c323183769cfedb6e83f4dc45916e85d06d4fab1e3c"
+      }
+    ],
+    "trees": [
+      {
+        "kind": "probe",
+        "treeReads": 1
+      },
+      {
+        "kind": "capture",
+        "treeReads": 1
+      },
+      {
+        "kind": "strict",
+        "treeReads": 1
+      },
+      {
+        "kind": "relaxed",
+        "treeReads": 1
+      }
+    ],
+    "resourceStage": {
+      "entries": 1,
+      "seconds": 0.31759987500000003,
+      "code": 0
+    },
+    "costProcess": {
+      "first": {
+        "seconds": 3.3022887499999998,
+        "probes": 6,
+        "code": 0,
+        "reason": "no_matching_receipt",
+        "receipt": "executed",
+        "output": "ACTUAL_CHILD\n",
+        "processSeconds": 3.856464
+      },
+      "second": {
+        "seconds": 0.797349917,
+        "probes": 2,
+        "code": 0,
+        "reason": "reuse_cost_exceeds_execution",
+        "output": "ACTUAL_CHILD\n",
+        "processSeconds": 1.2852327499999996
+      }
+    },
+    "snapshots": [
+      {
+        "phase": "executed",
+        "initialSerializations": 1,
+        "inputSerializations": 1,
+        "liveProbes": 6,
+        "childStarts": 1,
+        "ms": 3303.2252909999997
+      },
+      {
+        "phase": "reused",
+        "initialSerializations": 1,
+        "inputSerializations": 1,
+        "liveProbes": 4,
+        "childStarts": 0,
+        "ms": 2213.7930420000002
+      }
+    ],
+    "paths": {
+      "warm": 8,
+      "cold": 8
+    },
+    "children": [
+      {
+        "test": "validation-git-tree-batch.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-stage-entry-count.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-reuse-cost-process.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-snapshot-operation-count.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "verify-validation-snapshot-binding.mjs",
+        "status": 0,
+        "signal": null
+      }
+    ],
+    "bindingRuntime": {
+      "node": "v26.8.1",
+      "executable": "/opt/homebrew/Cellar/node/26.8.1/bin/node",
+      "argv": [
+        "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/scripts/verify-validation-snapshot-binding.mjs"
+      ]
+    }
+  },
+  "sameDriverAndTestDigests": {
+    "scripts/verify-redundant-scan-comparison.mjs": "792ac64bbd46a4020c0ccad8b7d440f8c0167e8c66397b5e8c5e739b333d8568",
+    "scripts/verify-validation-snapshot-binding.mjs": "d62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8",
+    "packages/main/tests/validation-snapshot-operation-count.mjs": "c7adfe4b6b6176e106daede2b480ef95b153839c104217858b08f8ad2e94fdee"
+  },
+  "baselineSourceSha256": "04d1e8ff8f2682e93b7cdc1cbef41c7329272c9b5648e5ff7dadb4d5c5e5fd2d",
+  "greenSourceSha256": "fa73cd94ee33cee45cfcee2dbdd859122f08aa211e0daaa8a820a00a6b59f8c9",
+  "node20BindingRuntime": {
+    "node": "v20.20.2",
+    "executable": "/Users/jek/.npm/_npx/ebaba8b9e55fd0a9/node_modules/node/bin/node",
+    "argv": [
+      "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/scripts/verify-validation-snapshot-binding.mjs"
+    ]
+  },
+  "logs": {
+    "red.log": "ec0acf21e244a742fe09d0af8715c7276870c23d7076c1b7554adc0499facbcd",
+    "green.log": "d0465e0a82a5ac413c1a177df11da9ceec3456dd0c6d6926aee7b62a8cf23eef",
+    "node20-binding.log": "98e90c2699d791e20d7d46b6c6f067804dbc36ed4aeba0606d198f5ca2dbd4aa",
+    "runtime-contract.log": "b1d4a00bedaf7433f9d14c362ea80079616b878d4544b3935f6f40af11b48e07",
+    "runtime-contract-compatible.log": "b1d4a00bedaf7433f9d14c362ea80079616b878d4544b3935f6f40af11b48e07",
+    "input-tree.log": "9a633be7fccad90bbd10d4b5f970ce99625af6bafc0fac3cae6babee54318218"
+  },
+  "limitations": [
+    "Operation counts from controlled entrypoint fixtures, not total Story latency.",
+    "Wall times are single observations on a shared machine, not an interleaved benchmark; no causal latency speedup is claimed.",
+    "Earlier 0.3.339 logs predate the driver correction and are historical only.",
+    "Local maintenance evidence is not formal Story DONE."
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "baseVersion": "0.3.339",
+  "baseCommit": "9a526607f6345eca3017f9ab9dc8891c2592ad4d",
+  "redCommit": "d45cef74e8",
+  "greenCommit": "8c6b8b64d8",
+  "runtime": "v26.8.1",
+  "command": [
+    "node",
+    "scripts/verify-redundant-scan-comparison.mjs"
+  ],
+  "scope": "Six historical overhead hotspots; quorum excluded by user instruction.",
+  "red": {
+    "mergeBase": [
+      {
+        "mergeBaseCalls": 1,
+        "materialHash": "993da48dd6c331a69662b77efa014973a8b2a0cd3300132f8c42abef4e8891d7"
+      },
+      {
+        "mergeBaseCalls": 1,
+        "materialHash": "993da48dd6c331a69662b77efa014973a8b2a0cd3300132f8c42abef4e8891d7"
+      }
+    ],
+    "trees": [
+      {
+        "kind": "probe",
+        "treeReads": 1
+      },
+      {
+        "kind": "capture",
+        "treeReads": 1
+      },
+      {
+        "kind": "strict",
+        "treeReads": 1
+      },
+      {
+        "kind": "relaxed",
+        "treeReads": 1
+      }
+    ],
+    "resourceStage": {
+      "entries": 1,
+      "seconds": 0.200960833,
+      "code": 0
+    },
+    "costProcess": {
+      "first": {
+        "seconds": 2.2259876249999997,
+        "probes": 6,
+        "code": 0,
+        "reason": "no_matching_receipt",
+        "receipt": "executed",
+        "output": "ACTUAL_CHILD\n",
+        "processSeconds": 2.627972917
+      },
+      "second": {
+        "seconds": 0.8687228749999999,
+        "probes": 2,
+        "code": 0,
+        "reason": "reuse_cost_exceeds_execution",
+        "output": "ACTUAL_CHILD\n",
+        "processSeconds": 1.1729294170000002
+      }
+    },
+    "snapshots": [
+      {
+        "phase": "executed",
+        "initialSerializations": 5,
+        "inputSerializations": 5,
+        "liveProbes": 6,
+        "childStarts": 1,
+        "ms": 2437.132875
+      },
+      {
+        "phase": "reused",
+        "initialSerializations": 3,
+        "inputSerializations": 3,
+        "liveProbes": 4,
+        "childStarts": 0,
+        "ms": 1376.0400830000003
+      }
+    ],
+    "paths": {
+      "warm": 8,
+      "cold": 8
+    },
+    "children": [
+      {
+        "test": "validation-git-tree-batch.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-stage-entry-count.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-reuse-cost-process.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-snapshot-operation-count.mjs",
+        "status": 1,
+        "signal": null
+      }
+    ]
+  },
+  "green": {
+    "mergeBase": [
+      {
+        "mergeBaseCalls": 1,
+        "materialHash": "993da48dd6c331a69662b77efa014973a8b2a0cd3300132f8c42abef4e8891d7"
+      },
+      {
+        "mergeBaseCalls": 1,
+        "materialHash": "993da48dd6c331a69662b77efa014973a8b2a0cd3300132f8c42abef4e8891d7"
+      }
+    ],
+    "trees": [
+      {
+        "kind": "probe",
+        "treeReads": 1
+      },
+      {
+        "kind": "capture",
+        "treeReads": 1
+      },
+      {
+        "kind": "strict",
+        "treeReads": 1
+      },
+      {
+        "kind": "relaxed",
+        "treeReads": 1
+      }
+    ],
+    "resourceStage": {
+      "entries": 1,
+      "seconds": 0.16994916599999998,
+      "code": 0
+    },
+    "costProcess": {
+      "first": {
+        "seconds": 2.1568886669999996,
+        "probes": 6,
+        "code": 0,
+        "reason": "no_matching_receipt",
+        "receipt": "executed",
+        "output": "ACTUAL_CHILD\n",
+        "processSeconds": 2.508874417
+      },
+      "second": {
+        "seconds": 0.547569917,
+        "probes": 2,
+        "code": 0,
+        "reason": "reuse_cost_exceeds_execution",
+        "output": "ACTUAL_CHILD\n",
+        "processSeconds": 0.876474792
+      }
+    },
+    "snapshots": [
+      {
+        "phase": "executed",
+        "initialSerializations": 1,
+        "inputSerializations": 1,
+        "liveProbes": 6,
+        "childStarts": 1,
+        "ms": 1960.0811669999998
+      },
+      {
+        "phase": "reused",
+        "initialSerializations": 1,
+        "inputSerializations": 1,
+        "liveProbes": 4,
+        "childStarts": 0,
+        "ms": 1208.8568750000004
+      }
+    ],
+    "paths": {
+      "warm": 8,
+      "cold": 8
+    },
+    "children": [
+      {
+        "test": "validation-git-tree-batch.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-stage-entry-count.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-reuse-cost-process.mjs",
+        "status": 0,
+        "signal": null
+      },
+      {
+        "test": "validation-snapshot-operation-count.mjs",
+        "status": 0,
+        "signal": null
+      }
+    ]
+  },
+  "logs": {
+    "red.log": "91a59c23be28a70259c4fd14bce4b841648953de2719d55d9824c697157cc9a2",
+    "green.log": "7bd27dc1ba3373003397580d5adc9041a576fa9eb1b3f00a8d15641816bdaff5",
+    "runtime-contract.log": "c34f741e4e0adf99a92267840e532266e1671d7f601a2710a08d624c1114858d",
+    "input-tree.log": "37c5ffdbd3bfe15b2ddadac6864e6033f99dce6d3e0ab4916ae7590f54c95501"
+  },
+  "limitations": [
+    "Operation counts from controlled real entrypoint fixtures, not total Story latency.",
+    "Wall times are single observations, not an interleaved timing benchmark; no speedup percentage is asserted.",
+    "Four-entry tree fixture bypasses the persistent memo through the existing Git replacement environment control to measure physical per-observation reads.",
+    "Lab evidence is local maintenance evidence, not Story DONE or integration approval."
+  ]
+}
