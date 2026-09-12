@@ -330,3 +330,15 @@ Provider audit has a registered 15-minute total budget and 90-second startup bud
 The pinned Lab worktree verifier also executes the isolated lock-scope regression. Audit input refuses changed paths that collide as file/directory prefixes before snapshot creation. Binary content and size overflow have separate diagnostics naming the cause; these refusals occur before main integration.
 
 Developer IDs must exist in the trusted provider configuration. Creation rejects unknown IDs before creating the worktree; legacy attribution is persisted only after the provider configuration and audit subject validate, so a typo cannot permanently pin an invalid identity.
+
+### Route restoration dependency boundary
+
+Story2 route and history handlers accept an internal source restoration reader
+from registry composition. The Story1 adapter rederives the signed material or
+head-only restoration against the exact proposal and current workspace on each
+read. Public command JSON cannot supply the reader or restoration payload.
+Standalone Story2 callers remain strict under drift; current-reviewer acceptance
+never uses the restoration port. Progress revalidation reads the proof again.
+`node scripts/verify-route-reattestation-dependency-direction.mjs` checks the real
+component DAG and native signed restoration with missing, substituted and wrong
+workspace controls. These disposable tests are not Story completion evidence.

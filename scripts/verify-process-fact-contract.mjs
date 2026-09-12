@@ -10807,13 +10807,76 @@ for (const kind of ['detector_signal', 'candidate', 'candidate_reproduction_atte
   mutation[3] = mutation[3].slice(0, start) + slice + mutation[3].slice(end);
   assert(story2RegistrationIssues(...mutation).length > 0, `Story2 independently rejects missing semantic kind ${kind}`);
 }
+// Section9.1 component DAG: shared infrastructure is neutral; semantic owners are explicit.
+function findingDagDependencyIssues(source, owner) {
+  const allowed = { '3A': ['3A'], '3B': ['3A', '3B'], Story2: ['3A', 'Story2'], Story1: ['3A', '3B', 'Story2', 'Story1'] };
+  const component = specifier => {
+    const name = specifier.split('/').at(-1).replace(/\.(?:[cm]?js|tsx?)$/, '');
+    if (name === 'finding-ledger') return '3A';
+    if (/^(?:runtime-evidence-receipt|finding-runtime-evidence)$/.test(name)) return '3B';
+    if (/^finding-(?:identity(?:-types|-store)?|history|route|progress)$/.test(name)) return 'Story2';
+    if (/^(?:dynamic-finding-blocking|finding-(?:applicability|assessment|triage|deferral|mandatory-repair|rollout|qualification|material-reattestation|runtime-pair|collection))(?:-|$)/.test(name)) return 'Story1';
+    return undefined;
+  };
+  if (!allowed[owner]) throw new Error(`FINDING_DAG_SETUP: unknown owner ${owner}`);
+  const issues = [], parsed = ts.createSourceFile('finding-dag.ts', source, ts.ScriptTarget.Latest, true);
+  const visit = node => {
+    const specifier = (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) ? node.moduleSpecifier
+      : ts.isCallExpression(node) && (node.expression.kind === ts.SyntaxKind.ImportKeyword
+        || ts.isIdentifier(node.expression) && node.expression.text === 'require') ? node.arguments[0] : undefined;
+    if (specifier && ts.isStringLiteral(specifier)) {
+      const provider = component(specifier.text);
+      if (provider && !allowed[owner].includes(provider)) issues.push(`FINDING_DAG_FORBIDDEN: ${owner}->${provider}: ${specifier.text}`);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed); return issues;
+}
+const routeRestorationSource = read('packages/main/src/handlers/finding-route.ts');
+assert(routeRestorationSource.includes('readRestoration?.(ctx, source)')
+  && routeRestorationSource.includes('restored.sourceRoot !== realpathSync(ctx.root)')
+  && routeRestorationSource.includes('canonicalDigest(restored.assessment?.proposalRef) !== canonicalDigest(source)')
+  && routeRestorationSource.includes('sourceRouteRecord(source, receipt.source, false, readRestoration)'),
+  'route restoration must retain internal reader and exact root/proposal binding');
+assert(read('packages/main/src/registry.ts').includes('createFindingRouteHandlers(ctx, readRouteSourceRestoration)')
+  && read('packages/main/src/registry.ts').includes('createFindingHistoryHandlers(ctx, observeDeferralInvalidation, readRouteSourceRestoration)'),
+  'official route/history composition must install signed restoration reader');
+assert(read('packages/main/src/handlers/finding-material-reattestation.ts').includes('readMaterialDriftReattestation(ctx, source.storyId, source.recordId)')
+  && read('packages/main/src/core/process-fact-registry.ts').includes('sourceRestorationBoundary'),
+  'restoration adapter and process registry must retain signed native verification');
+const findingDagOwners = [
+  ['3A', 'core/finding-ledger.ts'],
+  ['3B', 'core/runtime-evidence-receipt.ts'], ['3B', 'core/finding-runtime-evidence.ts'],
+  ...['core/finding-identity.ts', 'core/finding-history.ts', 'core/finding-route.ts', 'core/finding-progress.ts',
+    'handlers/finding-identity.ts', 'handlers/finding-identity-store.ts', 'handlers/finding-history.ts', 'handlers/finding-route.ts'].map(path => ['Story2', path]),
+];
+for (const [owner, path] of findingDagOwners) {
+  for (const issue of findingDagDependencyIssues(read(`packages/main/src/${path}`), owner)) fail(`${issue} in ${path}`);
+}
+const findingDagForbiddenCases = [
+  ['3A', '3B', './runtime-evidence-receipt.js'], ['3A', 'Story2', './finding-identity.js'], ['3A', 'Story1', './finding-applicability.js'],
+  ['3B', 'Story2', './finding-identity.js'], ['3B', 'Story1', './finding-applicability.js'],
+  ['Story2', '3B', './runtime-evidence-receipt.js'], ['Story2', 'Story1', './finding-applicability.js'],
+  ['Story2', '3B', './finding-runtime-evidence.js'],
+];
+for (const [owner, provider, dependency] of findingDagForbiddenCases) {
+  for (const source of [`import { x } from '${dependency}';`, `export { x } from '${dependency}';`, `await import('${dependency}');`, `require('${dependency}');`]) {
+    assert(findingDagDependencyIssues(source, owner).some(issue => issue === `FINDING_DAG_FORBIDDEN: ${owner}->${provider}: ${dependency}`), `FINDING_DAG_MUTATION_MISSED: ${owner}->${provider}`);
+  }
+}
+for (const [owner, dependency] of [
+  ['3B', './finding-ledger.js'], ['Story2', './finding-ledger.js'], ['Story1', './finding-ledger.js'],
+  ['Story1', './runtime-evidence-receipt.js'], ['Story1', './finding-route.js'],
+  ['3B', './runtime-evidence-receipt.js'], ['Story2', './finding-identity.js'], ['3A', './authority-signing.js'],
+]) assert(findingDagDependencyIssues(`import { x } from '${dependency}';`, owner).length === 0, `FINDING_DAG_ALLOWED_EDGE_REJECTED: ${owner} ${dependency}`);
+
 function story2DependencyIssues(source) {
   const issues = []; const parsed = ts.createSourceFile('story2.ts', source, ts.ScriptTarget.Latest, true);
   const visit = node => {
     const dependency = (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) ? node.moduleSpecifier
       : ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword ? node.arguments[0] : undefined;
     if (dependency && ts.isStringLiteral(dependency)
-      && /(?:dynamic-finding-blocking|finding-(?:applicability|assessment|triage|deferral|mandatory-repair|rollout|ledger-runtime-smoke|ledger-enforce))/.test(dependency.text)) issues.push('Story1/3B dependency');
+      && /(?:runtime-evidence-receipt|finding-runtime-evidence|dynamic-finding-blocking|finding-(?:applicability|assessment|triage|deferral|mandatory-repair|rollout|ledger-runtime-smoke|ledger-enforce))/.test(dependency.text)) issues.push('Story1/3B dependency');
     if (ts.isCallExpression(node) && /^(?:readJson|readJsonCandidate)$/.test(ts.isPropertyAccessExpression(node.expression) ? node.expression.name.text : node.expression.getText(parsed))) issues.push('protected parser');
     ts.forEachChild(node, visit);
   }; visit(parsed); return issues;
@@ -10826,7 +10889,7 @@ for (const file of ['core/finding-identity.ts', 'core/finding-history.ts', 'core
     assert(story2DependencyIssues(`${source}\n${injection}`).length > 0, `Story2 dependency verifier detects ${injection}`);
   }
 }
-assert(read('packages/main/src/registry.ts').includes('createFindingHistoryHandlers(ctx, observeDeferralInvalidation)'), 'Official recall composition must supply the Story1 provider');
+assert(read('packages/main/src/registry.ts').includes('createFindingHistoryHandlers(ctx, observeDeferralInvalidation, readRouteSourceRestoration)'), 'Official recall composition must supply the Story1 provider');
 assert(read('packages/main/src/handlers/finding-history.ts').includes('deferral invalidation provider unavailable'), 'Standalone Story2 must refuse unavailable provider');
 assert(read('packages/main/src/core/process-fact-registry.ts').includes('invalidationComposition:'), 'Recall provider boundary requires registry coverage');
 const currentStory2Validation = JSON.parse(read('proof-or-stop.config.json')).validate.commands;

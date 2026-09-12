@@ -1,3 +1,4 @@
+import { readRouteSourceRestoration } from '../handlers/finding-material-reattestation.js';
 import type { StoryStore } from './store.js';
 import type { Finding } from './types.js';
 import type { JsonValue, LedgerRecord } from './finding-ledger.js';
@@ -49,7 +50,7 @@ export function routeStillCurrent(store: StoryStore, projectRoot: string, route:
   if (!route?.receiptRecordId || !route.receiptRecordHash) return false;
   try {
     if (Date.parse(route.expiresAt) <= now.getTime()) return false;
-    const result = createFindingRouteHandlers({ store, root: projectRoot, scanRoot: projectRoot }).finding_route_verify({
+    const result = createFindingRouteHandlers({ store, root: projectRoot, scanRoot: projectRoot }, readRouteSourceRestoration).finding_route_verify({
       storyId: route.ownerStoryId,
       receipt: { storyId: route.ownerStoryId, recordId: route.receiptRecordId, recordHash: route.receiptRecordHash },
     }) as { valid?: boolean; envelope?: { payload?: { routeReceiptId?: string; expiresAt?: string; source?: FindingApplicabilityAssessment['proposalRef'] } } };

@@ -22,7 +22,7 @@ import { appendIdentityTransaction, historicalStoryContext, identityCatalogStory
 import { exactLedgerRecordHash } from './finding-ledger.js';
 import type { CanonicalDefect, CandidateFinding, CandidateReproductionContract, DetectorSignal } from '../core/finding-identity-types.js';
 import type { JsonValue } from '../core/finding-ledger.js';
-import { createFindingRouteHandlers, routeRuntimeReferences, routeRelevantSourceDigest, targetRouteSnapshot } from './finding-route.js';
+import { type RouteSourceRestorationReader, createFindingRouteHandlers, routeRuntimeReferences, routeRelevantSourceDigest, targetRouteSnapshot } from './finding-route.js';
 import { validateRouteReceipt, validateCandidateRoute, type RouteReceipt } from '../core/finding-route.js';
 import { validateBaseline, validateBaselineSet, validateProgress, validateProgressPredecessor } from '../core/finding-progress.js';
 import { readCandidates } from './finding-identity.js';
@@ -31,7 +31,7 @@ import { verifyFinding } from '../core/finding-verify.js';
 /** Internal composition port: its observation can create only a non-gate candidate. */
 export type DeferralInvalidationObservationProvider = (ctx: HandlerContext, args: ReturnType<typeof historyRecallSchema.parse>, source: HandlerContext, receipt: RouteReceipt) => object;
 
-function recallObservation(ctx: HandlerContext, args: ReturnType<typeof historyRecallSchema.parse>, provider?: DeferralInvalidationObservationProvider) {
+function recallObservation(ctx: HandlerContext, args: ReturnType<typeof historyRecallSchema.parse>, provider?: DeferralInvalidationObservationProvider, readRestoration?: RouteSourceRestorationReader) {
   if ((args.trigger === 'deferral_invalidated') !== !!args.deferral) throw new Error('history: exact deferral reference required only for L4 invalidation');
   const history = historicalStoryContext(ctx, args.route.storyId);
   const records = history.store.readFindingLedger<JsonValue>(args.route.storyId);
@@ -51,7 +51,7 @@ function recallObservation(ctx: HandlerContext, args: ReturnType<typeof historyR
   const source = historicalStoryContext(ctx, receipt.source.storyId); const targetStory = target.store.readStory(receipt.target.id);
   const bindings = receipt.recallBindings;
   let currentConsent = false; let consentDiagnostic = 'not_verified';
-  try { createFindingRouteHandlers(target).finding_route_verify({ storyId: receipt.target.id, receipt: receiptRef }); currentConsent = true; consentDiagnostic = 'fresh_accepted'; }
+  try { createFindingRouteHandlers(target, readRestoration).finding_route_verify({ storyId: receipt.target.id, receipt: receiptRef }); currentConsent = true; consentDiagnostic = 'fresh_accepted'; }
   catch (error) { consentDiagnostic = error instanceof Error ? error.message : 'invalid consent'; }
   const sourceRecord = source.store.readFindingLedger<JsonValue>(receipt.source.storyId).records.find(row => row.recordId === receipt.source.recordId);
   if (!sourceRecord || exactLedgerRecordHash(sourceRecord) !== receipt.source.recordHash) throw new Error('history: recalled source missing/substituted');
@@ -143,8 +143,8 @@ function recallObservation(ctx: HandlerContext, args: ReturnType<typeof historyR
 }
 
 /** Read-only trigger selection; automatic and explicit callers share one key. */
-export function findingHistoryRecallObservation(ctx: HandlerContext, input: unknown, provider?: DeferralInvalidationObservationProvider) {
-  const observation = recallObservation(ctx, parseIdentityInput(historyRecallSchema, input), provider);
+export function findingHistoryRecallObservation(ctx: HandlerContext, input: unknown, provider?: DeferralInvalidationObservationProvider, readRestoration?: RouteSourceRestorationReader) {
+  const observation = recallObservation(ctx, parseIdentityInput(historyRecallSchema, input), provider, readRestoration);
   return { triggerDigest: observation.triggerDigest, triggerState: observation.triggerState };
 }
 
@@ -163,7 +163,7 @@ function historyValidator(kind: string, value: unknown): void {
   else if (kind === 'candidate_reproduction_attestation') validateCandidateReproductionAttestation(value);
   else throw new Error('history: unknown semantic kind');
 }
-export function createFindingHistoryHandlers(ctx: HandlerContext, provider?: DeferralInvalidationObservationProvider) {
+export function createFindingHistoryHandlers(ctx: HandlerContext, provider?: DeferralInvalidationObservationProvider, readRestoration?: RouteSourceRestorationReader) {
   return {
     finding_identity_scorecard(input: unknown) {
       const args = parseIdentityInput(scorecardQuerySchema, input); ctx.store.readStory(args.storyId);
@@ -249,10 +249,10 @@ export function createFindingHistoryHandlers(ctx: HandlerContext, provider?: Def
       };
       authorize();
       return withIdentityCatalogLock(destination, () => {
-        const observation = recallObservation(ctx, args, provider);
+        const observation = recallObservation(ctx, args, provider, readRestoration);
         return withIdentityLedgerLocks([{ ctx: destination, storyId: args.storyId }, { ctx: observation.target, storyId: observation.receipt.target.id },
           { ctx: observation.source, storyId: observation.receipt.source.storyId }], () => {
-          const current = recallObservation(ctx, args, provider);
+          const current = recallObservation(ctx, args, provider, readRestoration);
           for (const storyId of identityCatalogStoryIds(ctx)) {
             const source = identityCatalogContributor(ctx, storyId, ['history_recall']); if (!source) continue;
             const ledger = source.store.readFindingLedger<JsonValue>(storyId);
@@ -283,7 +283,7 @@ export function createFindingHistoryHandlers(ctx: HandlerContext, provider?: Def
               const recall = { ...base, recordHash: identityHash(base) };
               return { records: [{ kind: 'detector_signal', payload: signal }, { kind: 'candidate', payload: candidate }, { kind: 'history_recall', payload: recall }],
                 referencedRecords: [args.storyId === current.receipt.target.id ? current.receiptRow.record : current.sourceRecord], validate: historyValidator,
-                revalidate: () => { authorize(); const latest = recallObservation(ctx, args, provider);
+                revalidate: () => { authorize(); const latest = recallObservation(ctx, args, provider, readRestoration);
                   if (latest.triggerDigest !== current.triggerDigest || latest.currentConsent !== current.currentConsent || latest.consentDiagnostic !== current.consentDiagnostic) throw new Error('history: recall predicate changed before commit'); } };
             } });
           return { ...result, authority: 'non_authoritative', gateEvidence: false, created: result.replayed ? 0 : 1,

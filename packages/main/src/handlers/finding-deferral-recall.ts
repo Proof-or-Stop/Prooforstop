@@ -1,3 +1,4 @@
+import { readRouteSourceRestoration } from './finding-material-reattestation.js';
 /** Owner-side mutation boundary. Gate/triage readers never append candidates. */
 import type { HandlerContext } from './context.js';
 import type { JsonValue } from '../core/finding-ledger.js';
@@ -68,14 +69,14 @@ export function reconcileFindingDeferralRecalls(ctx: HandlerContext, storyId: st
     // Reuse existing observation keys so an explicit recall and the automatic
     // path cannot create two candidates for the same route/owner/expiry event.
     for (const trigger of ['expired', 'owner_invalid', 'target_closed_unfixed', 'severity_escalation', 'source_hash_drift', 'runtime_drift'] as const) {
-      try { const input = { ...request, trigger }; const observed = findingHistoryRecallObservation(ctx, input, observeDeferralInvalidation); causes.push({ input, observed }); }
+      try { const input = { ...request, trigger }; const observed = findingHistoryRecallObservation(ctx, input, observeDeferralInvalidation, readRouteSourceRestoration); causes.push({ input, observed }); }
       catch { /* The L4 fallback below remains fail-closed if no known cause can be proven. */ }
     }
     if (!causes.length) {
       const input = { ...request, trigger: 'deferral_invalidated' as const, deferral: ref };
-      causes.push({ input, observed: findingHistoryRecallObservation(ctx, input, observeDeferralInvalidation) });
+      causes.push({ input, observed: findingHistoryRecallObservation(ctx, input, observeDeferralInvalidation, readRouteSourceRestoration) });
     }
-    for (const { input, observed } of causes) rows.push(createFindingHistoryHandlers(ctx, observeDeferralInvalidation).finding_history_recall({ ...input,
+    for (const { input, observed } of causes) rows.push(createFindingHistoryHandlers(ctx, observeDeferralInvalidation, readRouteSourceRestoration).finding_history_recall({ ...input,
       idempotencyKey: `deferral-recall:${observed.triggerDigest}` }));
   }
   return { rows, gateEvidence: false };

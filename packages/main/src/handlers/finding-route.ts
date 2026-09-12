@@ -1,6 +1,5 @@
 /** Target-owned IO for non-gate route consent and semantic progress. */
 import { randomUUID, createHash } from 'node:crypto';
-import { readMaterialDriftReattestation } from './finding-material-reattestation.js';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { join, relative, resolve, isAbsolute } from 'node:path';
 import { canonicalDigest } from '../core/authority-signing.js';
@@ -79,7 +78,20 @@ export function exactSemanticRef(ctx: HandlerContext, ref: IdentityLedgerRef, ki
   if (!row || exactLedgerRecordHash(row.record) !== ref.recordHash) throw new Error('route: missing/substituted signed record');
   return row;
 }
-export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requireCurrentReviewerEvidence = true) {
+/** Internal composition port. Only the Story1 signed reader supplies this full
+ * validated projection; no public command input can supply a reader or proof. */
+export interface RouteSourceRestoration {
+  sourceRoot: string;
+  sourceRef: RouteSource;
+  record: { storyId: string; proposalRecordId: string; currentBinding: { baseHash: string; headHash: string } };
+  current: { storyId: string; headHash: string; materialHash: string; storyFilesHash: string };
+  assessment: { proposalRef?: IdentityLedgerRef };
+  runtimeReceiptIds: string[];
+}
+export type RouteSourceRestorationReader = (ctx: HandlerContext, source: RouteSource) => RouteSourceRestoration | undefined;
+
+export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requireCurrentReviewerEvidence = true,
+  readRestoration?: RouteSourceRestorationReader) {
   const ledger = ctx.store.readFindingLedger<JsonValue>(source.storyId);
   const bound = verifiedIdentityCarrier(ledger, source.storyId, source.recordId, identityTrust(ctx));
   if (exactLedgerRecordHash(bound.record) !== source.recordHash) throw new Error('route: source record hash mismatch');
@@ -94,7 +106,17 @@ export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requ
   if (bound.record.recordType !== 'assessment_proposal' || proposal.proposalId !== source.subjectId || proposal.proposalDigest !== source.subjectHash) throw new Error('route: proposal source mismatch');
   const actor = String(proposal.assessedBy); const trust = identityTrust(ctx); const snapshot = identitySourceSnapshot(ctx);
   const restored = !requireCurrentReviewerEvidence && (proposal.materialHash !== snapshot.materialHash || proposal.headHash !== snapshot.headHash)
-    ? readMaterialDriftReattestation(ctx, source.storyId, source.recordId) : undefined;
+    ? readRestoration?.(ctx, source) : undefined;
+  if (restored && (restored.sourceRoot !== realpathSync(ctx.root)
+    || canonicalDigest(restored.sourceRef) !== canonicalDigest(source)
+    || restored.record?.storyId !== source.storyId || restored.record.proposalRecordId !== source.recordId
+    || canonicalDigest(restored.assessment?.proposalRef) !== canonicalDigest(source)
+    || restored.current?.storyId !== source.storyId || restored.current.headHash !== snapshot.headHash
+    || restored.current.materialHash !== snapshot.materialHash
+    || restored.current.storyFilesHash !== currentStoryFilesHash(ctx.root, 'HEAD', ctx.root)
+    || !Array.isArray(restored.runtimeReceiptIds) || restored.runtimeReceiptIds.length === 0)) {
+    throw new Error('route: restoration source/root/current binding mismatch');
+  }
   const ref = proposal.findingRef as { storyId: string; findingId: string; recordId: string };
   const findingRecord = ledger.records.find(row => row.recordId === ref.recordId);
   if (!findingRecord || ref.storyId !== source.storyId) throw new Error('route: proposal Finding subject missing');
@@ -302,7 +324,7 @@ export function readFindingRouteProgressProof(ctx: HandlerContext, ref: Identity
   return { receipt, receiptRecord: row.record, baseline: baseline.envelope.payload, baselineRecord: baseline.record, progress, canonicalDefect: canonical,
     authority: 'non_authoritative' as const, gateEvidence: false as const };
 }
-export function createFindingRouteHandlers(ctx: HandlerContext) {
+export function createFindingRouteHandlers(ctx: HandlerContext, readRestoration?: RouteSourceRestorationReader) {
   function acceptOrReject(input: unknown, decision: 'accepted' | 'rejected') {
     const args = parseIdentityInput(routeRequestSchema, input);
     if ((args.predecessor && args.predecessor.storyId !== args.storyId) || (args.progress && args.progress.storyId !== args.storyId)) throw new Error('route: target ledger reference mismatch');
@@ -441,7 +463,7 @@ export function createFindingRouteHandlers(ctx: HandlerContext) {
       // evidence was current. Later read-only verification must preserve that
       // historical authority across a source phase-only transition; the signed
       // proposal and exact source/head/material bindings below still fail closed.
-      const source = identityStoryContext(ctx, receipt.source.storyId); sourceRouteRecord(source, receipt.source, false);
+      const source = identityStoryContext(ctx, receipt.source.storyId); sourceRouteRecord(source, receipt.source, false, readRestoration);
       if (receipt.canonicalDefect) canonicalForRoute(ctx, receipt.canonicalDefect);
       assertReceiptCurrent(receipt, targetRouteSnapshot(target, args.storyId, receipt.target.responsibility.workItemRef));
       if (receipt.initialProgressBaselineSet) baselineSetForReceipt(target, receipt);
@@ -479,7 +501,7 @@ export function createFindingRouteHandlers(ctx: HandlerContext) {
       const source = identityStoryContext(ctx, receipt.source.storyId);
       return withIdentityLedgerLocks([{ ctx: target, storyId: args.storyId }, { ctx: source, storyId: receipt.source.storyId }], () => appendIdentityTransaction(target, {
         ...args, operation: 'append_progress_baseline_set', request: args, validate: validator(target), prepare: (ledger, signer) => {
-          exactReceipt(target, args.receipt); sourceRouteRecord(source, receipt.source, false);
+          exactReceipt(target, args.receipt); sourceRouteRecord(source, receipt.source, false, readRestoration);
           if (receipt.canonicalDefect) canonicalForRoute(ctx, receipt.canonicalDefect);
           if (receipt.evidenceAuthority.profile !== 'finding_route' || !receipt.canonicalDefect) throw new Error('progress: finding receipt required');
           const snapshot = targetRouteSnapshot(target, args.storyId, receipt.target.responsibility.workItemRef, true, true); receiptOwnerStillValid(receipt, snapshot);
@@ -520,7 +542,7 @@ export function createFindingRouteHandlers(ctx: HandlerContext) {
           if (priorProgress.some(row => row.envelope.payload.routeReceiptId === receipt.routeReceiptId && row.envelope.payload.kind === args.kind
             && row.envelope.payload.projectionDigest === binding.projectionDigest)) throw new Error('progress: replay/no-op resigning');
           return { records: [{ kind: 'progress_evidence', payload: binding }], referencedRecords: [currentReceipt.record, setRow.record], validate: validator(target),
-            revalidate: () => { exactReceipt(target, args.receipt); sourceRouteRecord(source, receipt.source, false);
+            revalidate: () => { exactReceipt(target, args.receipt); sourceRouteRecord(source, receipt.source, false, readRestoration);
               if (identityHash(targetRouteSnapshot(target, args.storyId, receipt.target.responsibility.workItemRef, true, true)) !== identityHash(snapshot)
                 || identityHash(currentProjection(target, receipt, args.kind, binding.canonicalDefectId, args.executionKey)) !== identityHash(projection)) throw new Error('progress: capture moved before commit'); } };
         } }));

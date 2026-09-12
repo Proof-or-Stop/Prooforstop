@@ -1,3 +1,4 @@
+import { readRouteSourceRestoration } from './finding-material-reattestation.js';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
@@ -76,7 +77,7 @@ function resolveAcceptedRoute(ctx: HandlerContext, route: RouteRef | undefined, 
   acceptedRoute: FindingApplicabilityAssessment['acceptedRoute']; record?: LedgerRecord<JsonValue>;
 } {
   if (!route) return { acceptedRoute: null };
-  const verified = createFindingRouteHandlers(ctx).finding_route_verify(route) as {
+  const verified = createFindingRouteHandlers(ctx, readRouteSourceRestoration).finding_route_verify(route) as {
     envelope: { payload: { decision: string; target: { id: string }; source: { storyId: string; recordId: string; subjectKind: string };
       expiresAt: string; routeReceiptId: string } }; record: LedgerRecord<JsonValue>;
   };
