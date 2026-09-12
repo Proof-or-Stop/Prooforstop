@@ -766,6 +766,7 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
 export function buildMemoryFreshnessPacksWithRuntimeIndex(
   packs: BuildMemoryFreshnessPackOptions[],
   runtimeIndex: RuntimeMemoryIndex,
+  observeQueryElapsed?: (elapsedMs: number) => void,
 ): MemoryFreshnessPack[] {
   if (packs.length === 0) return [];
   const projectRoot = packs[0]!.projectRoot;
@@ -779,10 +780,17 @@ export function buildMemoryFreshnessPacksWithRuntimeIndex(
     runtimeIndex.manifest.sourceDigests,
     currentSourceDigests,
   );
-  return packs.map((options) => buildMemoryFreshnessPackInternal({
-    ...options,
-    ...(runtimeIndexIsFresh ? { runtimeIndex, currentSourceDigests } : {}),
-  }));
+  return packs.map((options) => {
+    // Batch source validation stays outside individual query latency. The
+    // benchmark's enclosing timer still includes that shared preparation.
+    const started = observeQueryElapsed ? performance.now() : 0;
+    const pack = buildMemoryFreshnessPackInternal({
+      ...options,
+      ...(runtimeIndexIsFresh ? { runtimeIndex, currentSourceDigests } : {}),
+    });
+    observeQueryElapsed?.(Math.max(0, performance.now() - started));
+    return pack;
+  });
 }
 
 function resolveIndexedCandidates(
