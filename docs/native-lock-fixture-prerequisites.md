@@ -17,14 +17,14 @@ phase transition. The helper never writes a synthetic admission or PASS record.
 The reviewer lock case opens a new official writable inventory after routine
 preparation. A focused validation holds the same Story lock while preserving
 routine evidence. The retry must record its exact signed reviewer run and preserve
-other lanes. Delivery prepares trusted dispatch before acquiring the lock and
+other lanes, with exactly one record for the retrying lane. Delivery prepares trusted dispatch before acquiring the lock and
 passes the real broker descriptor into the native CLI writer. Its focused lock
 probe preserves the prior routine PASS rather than spending admission twice. Both writers must
 refuse with the expected busy error and preserve guarded files and HEAD.
 
 DONE-required and routine validation must queue in both directions and publish
 real evidence after release. The unadmitted negative has no unrelated checklist
-failure, and asserts PRE_CERT refusal, zero command starts, and no execution
+failure, and asserts the exact pre_cert_window_required refusal, zero command starts, and no execution
 record. The derived-verdict capacity negative first proves that its real routine
 PASS is admissible through the same production checker used by the consumer.
 
@@ -56,7 +56,7 @@ brokers, not an external provider credential or LLM invocation. Contender queue 
 probe hold deadline. Child cleanup has a two-second stream-close grace after
 SIGKILL. The contract driver resolves its repository from its own module URL.
 
-Baseline boundary: on local main `ee1b815a84` (0.3.341), the existing complete
+Baseline boundary: on local main `5135144228` (0.3.342), the existing complete
 `--workspace-capacity-contract-only` command already fails in
 `assertWorkspaceWaitAndRun` because its done CHK-001 has no intent or evidence.
 The Lab reproduces that same early failure and does not claim all fifteen groups
@@ -84,3 +84,7 @@ certification inventory and an open reviewer-write inventory cannot authorize
 the same new full certification run; the focused shared-lock probe tests the
 writer boundary without manufacturing a second admission. The native dual-order
 queue cases retain actual signed routine and DONE-required publication checks.
+
+The cleanup contract also waits past a completed child wait deadline and asserts
+that its kill method was never called. Capacity-holder cleanup cannot prevent
+cwd restoration or fixture removal when the holder promise rejects.

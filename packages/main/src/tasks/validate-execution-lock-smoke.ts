@@ -581,6 +581,7 @@ async function assertReviewerWritesCoordinateWithValidation(): Promise<void> {
     await reviewerFixtureCli(root, storyId, 'review_pass_set', args);
     const afterPasses=new StoryStore(root).readReviewPasses(storyId).passes;
     assert.ok(afterPasses.some(row=>row.agent===lane&&row.reviewRunId===reviewRunId),'native retry persists this signed run');
+    assert.equal(afterPasses.filter(row=>row.agent===lane).length,1,'retry replaces exactly one lane pass');
     assert.deepEqual(afterPasses.filter(row=>row.agent!==lane),otherPasses,'retry preserves other admission reviewers');
     assert.deepEqual(new StoryStore(root).readTestEvidence(storyId),routineEvidence,'focused lock test preserves actual routine evidence');
     assert.equal(enteredCount(root), 1, 'review retry does not launch validation again');
@@ -703,7 +704,7 @@ async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
     assert.equal(store.readCertificationWindows(storyId).windows.some(window => window.state === 'RUNNING'), false);
     console.log('QUEUED_POLICY_DRIFT_GREEN: changed physical config refuses stale cached policy before zero command starts');
   } finally {
-    releaseCapacity?.(); await holder;
+    releaseCapacity?.(); await holder?.catch(() => undefined);
     if (proc && proc.child.exitCode === null) await waitChild(proc, 12000);
     rmSync(root, { recursive: true, force: true });
   }
@@ -717,7 +718,9 @@ async function assertUnadmittedDoneRequiredNeverExecutes(): Promise<void> {
     const proc = spawnCommand(root, ['done_required_validate', JSON.stringify({ storyId, json: true })], 'unadmitted-required');
     const result = await waitChild(proc, 12000);
     assert.notEqual(result.code, 0, result.output);
-    assert.match(result.output, /PRE_CERT_[A-Z_]+/i);
+    assert.match(result.output, /\[pre_cert_window_required\]/i);
+    assert.match(result.output,/Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow/);
+    assert.doesNotMatch(result.output,/checklist.*(?:invalid|missing)|acceptance.*(?:missing|incomplete)/i);
     assert.equal(enteredCount(root), 0, 'unadmitted refusal must precede actual test launch');
     const store = new StoryStore(root);
     assert.equal(store.readDoneRequiredEvidence(storyId), null, 'unadmitted refusal must not publish execution evidence');
@@ -737,7 +740,7 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
       JSON.stringify({ storyId, json: true }),
     ], 'done-required-contender');
     assert.equal(enteredCount(root), 1, 'done_required_validate must not enter the validation command while validate is held');
-    assert.equal(await waitForOutput(doneRequired, /waiting for workspace validation capacity/, 4000), true,
+    assert.equal(await waitForOutput(doneRequired, /waiting for workspace validation capacity/, NATIVE_ENTRY_WAIT_MS), true,
       `done_required_validate must visibly wait; output=${doneRequired.output()}`);
 
     release(root);
@@ -771,7 +774,7 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
     assert.equal(await waitForEntered(reverse.root, 1, NATIVE_ENTRY_WAIT_MS), true,
       'done_required_validate must enter before reverse validate starts: '+doneRequired.output());
     const validate = spawnValidate(reverse.root, reverse.storyId, 'reverse-validate-contender');
-    assert.equal(await waitForOutput(validate, /waiting for workspace validation capacity/, 4000), true,
+    assert.equal(await waitForOutput(validate, /waiting for workspace validation capacity/, NATIVE_ENTRY_WAIT_MS), true,
       `reverse validate must visibly wait; output=${validate.output()}`);
     assert.equal(enteredCount(reverse.root), 1, 'reverse validate must not enter while done_required holds capacity');
     release(reverse.root);
@@ -1441,7 +1444,7 @@ async function assertDerivedVerdictRefusalWaitsForCapacity():Promise<void> {
   releaseOwner();await holder;
   assert.match(String(await refusal),/requires canonical current PASS validation evidence/);
   assert.equal(store.readProcessEvents(storyId).filter(event=>event.type==='host_verdict').length,0);
- } finally {releaseOwner?.();await holder;rmSync(root,{recursive:true,force:true});}
+ } finally {releaseOwner?.();await holder?.catch(() => undefined);rmSync(root,{recursive:true,force:true});}
 }
 
 async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
@@ -1509,8 +1512,9 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
     assert.equal(store.readProcessEvents(storyId).filter(event => event.type === 'host_verdict').length, 1,
       'derived verdict must persist after the capacity owner releases');
   } finally {
-    releaseOwner();await holder;
+    releaseOwner();
     process.chdir(originalCwd);
+    await holder?.catch(() => undefined);
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -1795,7 +1799,7 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
     const holder = spawnValidate(first.root, first.storyId, 'selective-holder');
     assert.equal(await waitForEntered(first.root, 1, 4000), true);
     const selective = spawnCommand(linked, ['validate', '--concept', '--json'], 'selective-contender');
-    assert.equal(await waitForOutput(selective, /waiting for workspace validation capacity/, 4000), true,
+    assert.equal(await waitForOutput(selective, /waiting for workspace validation capacity/, NATIVE_ENTRY_WAIT_MS), true,
       `selective mode must visibly wait; output=${selective.output()}`);
     release(first.root);
     const [holderResult, selectiveResult] = await Promise.all([
@@ -1941,6 +1945,13 @@ void (async () => {
       console.log('NATIVE_SIGNAL_CHILD_PID '+child.pid);process.kill(process.pid,'SIGTERM');await new Promise(()=>{});
     }
     if(process.argv.includes('--native-cleanup-contract-only')) {
+      const timerChild=spawn(process.execPath,['-e','process.exit(0)'],{stdio:'ignore'});
+      const originalKill=timerChild.kill.bind(timerChild);let lateSignals=0;
+      timerChild.kill=((signal?:NodeJS.Signals|number)=>{lateSignals++;return originalKill(signal);}) as typeof timerChild.kill;
+      await new Promise<void>((resolve,reject)=>{timerChild.once('close',()=>resolve());timerChild.once('error',reject);});
+      const timerResult=await waitChild({child:timerChild,done:Promise.resolve({code:0,output:''}),output:()=>'',stdout:()=>'',stderr:()=>''},50);
+      await sleep(100);assert.equal(timerResult.code,0);assert.equal(lateSignals,0,'completed wait must cancel delayed SIGKILL');
+
       let output='';try{execFileSync(process.execPath,[fileURLToPath(import.meta.url),'--native-signal-child'],{encoding:'utf8',timeout:10000});assert.fail('signal child must exit nonzero');}
       catch(error){const child=error as {status?:number;stdout?:string;code?:string};if(child.code==='ETIMEDOUT')throw new Error('NATIVE_SIGNAL_CLEANUP_TIMEOUT exceeded 10000ms');assert.equal(child.status,143);output=String(child.stdout);}
       const root=output.match(/NATIVE_SIGNAL_ROOT (.+)/)?.[1];assert(root);assert.equal(existsSync(root),false);
