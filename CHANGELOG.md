@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab evidence-fixture-contracts - v0.3.342 - 2026-09-12
+
+Repair stale static-exception evidence acceptance: current excerpts must match source hashes, exact ranges and registered call coverage; historical prose cannot authorize current exceptions. Reconcile the existing manifest against reviewed local main changes. Preserve valid version-bound evidence atomically during official Lab patch releases, refusing stale inputs and non-version edits with rollback. Verification includes target RED, current GREEN across scanner adversarial controls, all 258 manifest entries, and a disposable complete version-release regression with rejection/rollback controls. Require the independent Claude CLI audit of the prepared release. This record is local Lab maintenance provenance, not formal Story DONE or remote publication. Execution and audit timings remain in the signed Lab maintenance history.
+
+The prepared-candidate Claude audit identified six additional issues. The repair now enforces line-count and byte preservation apart from validated version literals, rejects malformed historical flags, covers non-patch/malformed version transitions and undeclared/unexpected output paths with rollback, derives the disposable finish budget from four child-call caps plus setup allowance with distinct timeout diagnostics, binds the Lab driver and both evidence helpers in its two reviewed exceptions, and keeps the source loader first. A targeted replay against the prior helper reproduced the formatting acceptance defect before the fixed scanner/version suite passed again.
+
+The follow-up review's exact-refusal coverage gaps are closed: entry-level stale hashes and same-literal changes outside permitted JSON paths have dedicated negatives with exact reason assertions. All negative scenarios now identify their intended guard. The transaction rejects newly created version outputs and restores prior absence on failure; replay against the prior helper reproduces this defect before GREEN.
+
+Nested fixture CLI transport failures now have distinct timeout/transport diagnostics before contract assertions, with shared inner/aggregate budgets and a real timed-out child control. Runtime brand-file negatives directly exercise duplicate declaration and unrelated-edit refusal with byte-for-byte rollback.
+
+Official replay now checks all entry and dependency hashes and runs the actual scanner against this repository. Noncanonical manifest formatting has a targeted RED and exact refusal/rollback control. The literal source-only snapshot-binding reader added by local main ee1b815a84 was reviewed and registered with its source dependencies.
+
+Maintenance provenance: codex/lab-evidence-fixture-contracts, repair 5268e8dabf7f8b90f200aedce4b638911d09b8fe.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab redundant-scan-comparison - v0.3.341 - 2026-09-12
 
 Reduce repeated initial snapshot canonicalization in shared validation execution. Final comparison starts from local main 0.3.340 at a11f2d89a4c1762b5e0452e6e9e5e696ee9884c9. Each of the two initial baseline objects is canonicalized once per invocation instead of five times on first execution and three on receipt reuse. Live fact probes remain 6 and 4, with real child starts 1 and 0. Current input bytes, workspace, loaded implementation identity and publication checks remain active. Five other measured historical hotspots were already within budget and are unchanged. Quorum cleanup is excluded and remains owned by another Lab.
