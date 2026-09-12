@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from "../packages/main/dist/tasks/native-review-fixture.js";
 import assert from 'node:assert/strict';
+import {verifyManagedReviewLiveBinding} from '../packages/main/dist/core/managed-review-evidence.js';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -126,6 +127,8 @@ console.log(cli(fixture.root,'review_inventory_finalize',{storyId},env('main','s
 const publication=git(fixture.root,['log','-1','--format=%s']);
 assert.equal(publication,`proof-or-stop: record ${storyId} review epoch metadata`,'actual batch publisher must produce the canonical subject');
 const cutoff=fixture.store.readReviewInventoryEpochs(storyId).receipts.at(-1).cutoff.headHash;
+const expected=fixture.store.readReviewInventoryEpochs(storyId).receipts.at(-1).cutoff;
+assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,true,'FINALIZED_MANAGED_REVIEW_CONTINUITY_REQUIRED: actual signed epoch publication preserves managed review lineage');
 assert.notEqual(git(fixture.root,['rev-parse','HEAD']),cutoff,'actual publication must move beyond signed inventory cutoff');
 const storyPrefix=`.proof-or-stop/story/actives/${storyId}/`;
 const publishedPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r','HEAD']).split('\n');
