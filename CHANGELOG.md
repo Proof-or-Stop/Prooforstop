@@ -1,5 +1,186 @@
 # Changelog
 
+## Lab review-finalization-lineage - v0.3.350 - 2026-09-12
+
+Restore authenticated managed review continuity after inventory finalization.
+
+B-0980 exposed rejection of canonical signed epoch publication and evidence-only
+refresh commits. The repair shares strict maintenance lineage across managed
+review, certification and scoped retention, and requires the authenticated sealed
+launch digest. It retains review; it grants no certification or validation verdict.
+
+Finalized epochs preserve prior epoch, receipt, review and finding-ledger history.
+A cutoff must be ancestor-or-equal to a later consumer HEAD with both content hashes
+bound. Refresh preserves other checklist fields and the complete intent/kind/result
+multiset against parent AND original reviewed snapshot. Old and new V5 executions
+are authenticated one to one. CAS indexes remain append-only; outputs require exact
+content addressing and signed receipt references. Mixed initialization/process-fact
+commits remain refused. Historical critics are forgiven only after receipt
+authentication and a newer valid same-lane record (PASS or FINDING); missing replacements and tampered
+old seals remain blocking. Generic closeout has no refresh/store runtime dependency;
+the production scoped retention path owns that decision. Owner metadata permits
+only PID/heartbeat changes. Metrics bind Story/shape; test-run projections are
+shape-checked, not authenticated append-only history.
+
+Seven actual Claude audits are recorded as failures. Audit seven of 1aa214e8a0
+confirmed the core mechanism, but returned five diagnostics/coverage findings.
+The candidate was officially reopened. Eighth repair c4cdea9e9d makes ordinary
+ancestry negatives and absent parent snapshots quiet structural refusals, sharing
+one missing-snapshot classifier while retaining unexpected-error health reports.
+The regression uses the actual health-path mechanism, tests missing lease/checklist
+parents and a genuine invalid-commit health anomaly. Convergence completed/revoked
+arrays are required in the persisted journal schema; humanDecisions is optional.
+That source contract is pinned, with real producer shape plus explicit disposable
+prefix-preservation/erasure controls. Synthetic historical row sentinels prove
+retention only, never completed-epoch authority. Inert expected prompt-digest
+consumption and an unreachable certification allowlist branch were removed; real
+sealed digest and shared allowlist checks remain mechanically enforced. Optional
+legacy caller shape remains source-compatible.
+
+Actual standalone seventh-variant passes were 271801, 266625 and 224343 ms.
+Eighth standalone regression44 passed in 188552 ms. The registered fixture watchdog
+is 360000 ms (32.4% above the slowest seventh pass), scales with the scheduler's
+post-admission outer allowance up to 540000 ms, and clamps against the absolute
+outer deadline minus 30000 ms for cleanup. Invalid/expired envelopes refuse.
+Runtime contracts check actual writer/reader; direct assertions cover standalone,
+concurrency, queue/startup delay and invalid values. The canonical member keeps
+repoRead with 450000 ms outer standalone cap; normal global budget and admission
+remain unchanged. Formal GREEN and prepared-candidate replay bind exact committed
+and generated release versions through the official Lab tool.
+
+IMPORTANT LIMITATION: a real jobs=3 canonical subset actually overlapped continuity
+and proofstory-acceptance-rollout for 231920 ms. The heavy member PASSED in 231942 ms.
+Continuity received 539991 ms inner / 674989 ms outer, but FAILED after 274635 ms at
+its FIRST verification_evidence_add waiting in nested machine admission. Its
+watchdog did not expire. The next heavy member was normally cancelled. This proves
+actual overlap and budget transport, NOT completed concurrent execution/headroom
+or full-suite PASS. Do not interpret this failed measurement as acceptance success.
+
+A separate bounded same-API witness reproduced that exact pre-existing mechanism
+on main a8240a60bd and Lab: relevant source and served-module hashes were identical,
+a detached unknown-resource leaf ticket waited behind the diagnostic's own shared
+outer barrier, refused in 903/902 ms, then the identical real Node leaf passed in
+116/92 ms after releasing only its own outer holder. Own workers/tickets were
+verified absent. The misleading forwarded deadline label also reproduced.
+runSingleAllowlistedCommand does not declare resources while the enclosing suite
+entry holds a classified barrier. The official full-suite-nested-machine-resource-owner
+draft already owns this baseline follow-up (main 5fc1e8d458). Exact observations are
+in the external nested-machine-admission-diagnostic report/JSON. This is evidence
+for routing, not a blanket nonblocking verdict: the independent auditor must
+assess the remaining concurrent-execution limitation. No private pool, machine cap
+change, other-holder release, admission bypass or unrelated scheduler repair was
+used to manufacture GREEN.
+
+The main regression uses actual CLI producers, a managed required lane and critic
+started after non-deferred finding_resolve inside OPEN, official finalization,
+cheap/routine validation and actual TEST. A separate two-wave fixture retains a
+truthful accepted-risk negative fixture before managed launch. Missing replacements,
+tampered receipts, wrong consumer hashes, history deletion, changed coverage/results,
+wrong metrics and forged publications remain refused. Managed transports in these
+fixtures are synthetic; actual independent Lab audit invokes real Claude CLI.
+A 200-execution scale witness measures batched Git reads and opaque collector cache;
+it is not a whole-Story benchmark. The earlier combined 200-receipt lifecycle matrix
+timeout at 420 seconds is preserved, not counted as passing.
+
+Build, process contract 20 and runtime contract passed before latest-main sync.
+Earlier default-job npm test attempts failed on both Lab and main at the same
+scheduler smoke before continuity ran; neither was full-suite PASS. Earlier broader
+managed-review and closeout smoke failures also had main reproductions, with the
+closeout-trust-validate-writer-oracle draft retaining that route. All failed audits,
+raw provider usage/cost and wall times remain in the external measurement checkpoint.
+Complete development token totals remain unknown. These are local maintenance
+records, not formal Story DONE, Story quorum, benchmark scores or product release
+approval. No push is authorized.
+
+Final deadline transport commit 1bc781c8e3 preserves the original absolute
+runEntry deadline across temporary-directory setup. Build and runtime contract 2
+passed; an actual scheduler child received the envelope in a 271 ms bounded
+transport probe. This probe is not concurrent headroom evidence.
+
+
+## Ninth repair: isolate the remaining authority coverage boundaries
+
+Claude audit 572f3e7c-830c-4b94-bbed-efd75c87d39f rejected candidate
+f1fc5d4c0b86a5844d52af8eb5ab3cff10e86294 with two coverage findings after
+814395 ms. It accepted the disclosed pre-existing nested admission route;
+concurrent completion and headroom remain unproven. This repair changes tests
+only, preserving the eighth repair's production behavior.
+
+The real continuity regression now independently breaks prior and replacement
+V5 receipt authority while retaining requirements and the full semantic evidence
+multiset. A causal-index negative removes only a valid unrelated corpus entry,
+keeps all receipt blobs, and proves both acceptance receipts still have authority.
+A consumption negative changes only updatedAt, resigns the fixture epoch, and
+preserves the signed window and early consumption predicates so exact-delta
+comparison is decisive. Each branch restores the genuine fixture history; the
+consumption branch also checks a reconstructed positive control.
+
+The complete targeted regression exited zero in regression45. Its log contains
+PAIRED_EXECUTION_AUTHORITY_REFUSED for both sides,
+CAUSAL_INDEX_PREFIX_ERASURE_REFUSED and SIGNED_CONSUMPTION_EXTRA_DELTA_REFUSED.
+Independent read-only advisory review found no concrete gap in this test delta;
+it is not formal Claude audit or Story evidence. Latest-main synchronization,
+fresh Lab GREEN and actual candidate-bound vendor audit remain required.
+
+Ninth repair synchronized local main 3d4aaca544 at Lab commit 6adb1ea858fd196c02612f331c1cb8579a849c6e. Fresh ensure-dist build passed, and official GREEN replay 14 passed. The two nested-admission source modules remain unchanged from the exact a824 baseline witness. Final prepared-candidate replay and actual vendor verdict follow through Lab finish.
+
+
+## Tenth repair: numeric transport contract and native inventory parity
+
+Claude audit 54b4d6e7-d997-487e-8439-cd38ee1af735 rejected candidate b7617eaf7b
+with one medium and two low findings after 696096 ms. Core lineage and the ninth
+repair negatives were accepted. This delta addresses only those three findings.
+
+The runtime contract imports the real scheduler policy and concurrency factor,
+asserts their exact numeric relationships to the registered inner watchdog policy,
+and executes a tiny real child through runEntry. Its received deadline must equal
+the first actual entry clock read plus its declared timeout; the recording wrapper
+returns real clock values and is restored before awaiting execution. This probe
+is separate from the pre-existing failing scheduler smoke and proves transport,
+not full-suite completion or concurrent headroom. An over-cap finite envelope
+for the registered fixture is clamped to the existing outer maximum with a named
+diagnostic. The unchanged absolute deadline and cleanup margin still reduce the
+inner budget. Invalid entry names, malformed/non-finite values and expired budgets
+remain refused; no provider admission or outer suite cap is changed.
+
+Inventory subject classification now applies to native and managed consumers.
+Each path authenticates its own authority before supersession is classified.
+The existing two-wave fixture adds a real brokered native critic after each
+managed critic and uses the native run for official critic_set. Both current-wave
+passes remain valid; both earlier-wave passes leave current authority. Removing
+all current-wave critic passes retains the old supersession errors. Removing the
+old native invocation consumption record, while preserving its signed PASS, run
+and dispatch, remains a hard authentication failure despite newer valid records;
+restoring its exact bytes restores the positive control. The complete regression46
+exited zero with both MANAGED_TWO_WAVE_COLLECTION_GREEN and
+NATIVE_TWO_WAVE_COLLECTION_GREEN.
+
+The collector's existing forgiveness predicate is unchanged: a newer valid same-
+lane record, including a FINDING, may remove a superseded PASS from invalid.
+That does not promote the old PASS into valid evidence or release an open finding.
+Prompt guidance, the process registry and these notes now describe that exact rule.
+Fresh contract checks, formal GREEN and actual candidate audit remain required.
+
+Tenth repair verification: ensure-dist build56, full targeted regression46, runtime contract3 (including exact deadline transport), and process-fact contract21 all exited zero. No whole-suite or concurrent-headroom PASS is claimed.
+
+Official GREEN15 passed at ec2f36ec41600b1f7135b34cd73249557832e37b in 249708 ms. The final prepared candidate still requires its own replay and actual vendor audit.
+
+## Eleventh repair after the tenth rejected audit
+
+Audit ea9152fa-8612-49a7-8118-328d7761c3ce rejected candidate 71ca38d1a0 with five findings. No local integration occurred. The core authority checks were accepted; this delta addresses the five reported issues.
+
+Epoch publication now preserves the prior prefix and permits exactly the authenticated target pair: an existing target is replaced in place; only an absent target adds one row. Initial publication has exactly one epoch and receipt. Negative controls reconstruct the full genuine publication, including its epochs file, before adding a forbidden sibling or 63-hex prompt-body filename. The positive body uses the writer's domain-separated digest. Extra-history controls preserve the genuine prefix and authenticated terminal pair, so rejection exercises the new count bound instead of earlier signature or prefix guards.
+
+The runtime contract's real child probe uses the enclosing entry's remaining budget, reserving 1000 ms, or the machine queue deadline plus 30000 ms when standalone. Admission failures remain failures with structured diagnostics; no skip, resource exemption, provider allowance, or suite cap increase is introduced. A foreign fixture envelope uses the documented standalone watchdog; malformed envelopes and invalid or exhausted matching budgets still fail. The native subject-order and coverage assertions run inside the existing aggregated process contract before any success banner.
+
+Verification is in progress. A bounded canonical scheduler execution of test:runtime-fact-contract is required and will be recorded separately from whole-suite success.
+
+Eleventh verification: build58, full targeted regression47, and process-fact contract22 passed. The exact canonical test:runtime-fact-contract inventory entry passed through runScheduled/runEntry with jobs=3 and unchanged resource/admission policy in 21836.646084 ms (driver elapsed 21856 ms), including REVIEW_EPOCH_BUDGET_TRANSPORT_PASS. Only that canonical member was selected; this is not a whole-suite or concurrent-heavy-workload PASS. The independent read-only delta review found no remaining concrete defect. Formal GREEN and exact-candidate Claude audit follow.
+
+Maintenance provenance: codex/lab-review-finalization-lineage, repair eeea2cf3308e6665ac4e9832099960f0ef59ecc2.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab dynamic-finding-validation-tier-boundary - v0.3.349 - 2026-09-12
 
 ### Problem
