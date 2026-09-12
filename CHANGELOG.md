@@ -1,5 +1,41 @@
 # Changelog
 
+## Lab review-finalization-lineage - v0.3.351 - 2026-09-12
+
+Restore authenticated review continuity after signed inventory finalization and bounded evidence refresh. B-0980 exposed the original rejection; this Lab does not implement the benchmark runner or complete a Story.
+
+The shared maintenance readers preserve reviewed requirements, the full intent/kind/result multiset and signed historical observations. Prior and replacement V5 executions authenticate independently. Exact causal outputs and append-only indexes remain bound to receipts. Finalized inventory publication allows only the authenticated target pair, retains prior arrays and rejects unrelated siblings. Certification and REVIEW-to-TEST retain existing authority gates. Native and managed historical critics are superseded only after their own execution authority authenticates and a newer valid same-lane record exists. No old PASS is promoted and no finding is released.
+
+The thirteenth correction exposes unexpected inventory-store read errors in both the health record and existing invalid-authority issue; ordinary invalid/cancelled/superseded states stay silent. The causal index writer, store reader and refresh reader share CAUSAL_EVIDENCE_INDEX_SCHEMA. Runtime identity verification remains anchored to the real store writer and binds its imported schema origin. Direct copied-byte controls reject a retired writer and a retired exported constant, then restore passing controls. Three import-use context pins for Lab-changed sources are reconciled; the unrelated process-fact-registry baseline mismatch is retained.
+
+Completed full regression measurements for the watchdog coordination are recorded below. These actually ran; the earlier future-tense notes preceded those executions. The source is the tool-owned Lab record at .git/lab-maintenance/review-finalization-lineage.json (read-only excerpts additionally exported as audit12-watchdog-existing-run-evidence.json).
+
+| Stage | Exact head | Result | Elapsed ms |
+|---|---|---|---:|
+| Formal GREEN20 | ce48023bc99781030d152fb42960db014330eb3c | PASS | 397949 |
+| Synced GREEN | ce48023bc99781030d152fb42960db014330eb3c | PASS | 327151 |
+| Versioned candidate GREEN | 2464faae5f850a0eaef5b1b3c90b3f2076bb5de3 | PASS | 344244 |
+
+All three executed the complete pinned command node scripts/verify-review-epoch-certification-continuity.mjs with the200-receipt corpus and final cancelled-state control. The inner watchdog line reported420000 ms. The real canonical runtime-fact-contract member also passed after the budget change (26114.042792 ms) and after the schema/diagnostic correction (24655.54925 ms, including CAUSAL_INDEX_SCHEMA_WRITER_AND_ORIGIN_REFUSAL_GREEN). These are measured executions, not whole-suite PASS or speedup claims.
+
+GREEN17, GREEN18 and GREEN19 exhausted the earlier360000 ms inner watchdog and remain failures. The fixture now reuses exact immutable publication blobs and replaces two duplicate missing-epochs cases with one explicit allowed-sibling-only case retaining actual certification refusal. The inner watchdog uses420000 ms from the already registered450000 ms outer entry, reserving30000 ms cleanup. Concurrent inner540000, outer675000 and original absolute-deadline clamping remain unchanged. This is budget coordination, not an optimization result. Timing variance remains material.
+
+Repository-health limitations remain explicit: the earlier default npm test runs failed the same first full-suite-runner-smoke ancestor-admission prerequisite on main and Lab; the real concurrent continuity-member observation failed in pre-existing detached-worker machine admission, before the corpus or changed lineage checks. The bounded same-API main/Lab diagnosis and unchanged source hashes are preserved. No whole-suite or concurrent-heavy-workload PASS is claimed. The current identity-sites group has the same two main/Lab totality assertion failures caused solely by the pre-existing process-fact-registry context pin (owner indicated by the suite: B-49df); the three Lab-added pin differences were repaired.
+
+Build63 and process contract27 passed. Actual canonical runtime contract6 passed in 24655.54925 ms. Identity16 retains only the same pre-existing process-fact-registry mismatch as main; it is not PASS. The actual npm run test:review-epoch-certification-continuity execution52 passed in 259089 ms on the complete thirteenth working-tree repair (base HEAD 8fb9fce3f5ae7133566457fa69621a46614ba277), including all 200 receipts and the final cancelled-state refusal. Earlier regression50 exposed a generic error hiding the concrete read cause; the invalid-subject check now precedes that generic check without bypassing any successful authority validation. Regression51 exposed two genuine reader health events rather than one; the collector now asserts exactly two, while the direct reader asserts exactly one and ordinary cancelled/superseded controls assert zero. Both failed runs remain preserved. Final committed GREEN is a separate required execution, not inferred from this working-tree PASS.
+
+Twelve actual Claude CLI audits were rejected and remain in history. Audit12 bc896e2c-81b1-4100-adee-e92b0d5c4506 rejected2464faae5f with two medium and one low findings; this correction addresses diagnostics, schema ownership and the incomplete verification narrative. Prior candidate rejection is not overridden. A fresh exact-candidate audit is required before local integration. No remote push is authorized.
+
+
+Latest-main synchronization and repository-health comparison: repair0242aad200 was synchronized with main de2b236e1ae09e21edfe77bc3eaee4cc9725849c at merge ca908f505d532e1f47bc8226c638b74fe9dc8453; build64 passed. Actual default npm test on the earlier Lab snapshot exited1 after197584 ms at workspace validation capacity admission; main exited1 after148463 ms at reviewed-source-bindings. These are different failure observations and do not establish full-suite parity or PASS. A direct same-command comparison after sync exposed one additional Lab-owned whole-file/line pin for the unchanged historical comment in managed-review-evidence.ts. Only that row's source hash and relocated line104, the inventory reader digest and scanner reader digest were refreshed; token/count/classification/reason/line content remain exact. A bounded actual-reader control passed, rejected five source/line/location/token/count mutations, and verified all three scanner reader hashes. The remaining seven reviewed-source failures exactly equal current main's set. Unrelated baseline records and static-edge exception manifests were not regenerated. Full command logs and npm timings are retained externally.
+
+
+COMPLETED FINAL COMMITTED VERIFICATION: formal GREEN21 executed the exact pinned command `node scripts/verify-review-epoch-certification-continuity.mjs` at HEAD `db3cda052beea24ca4d18925bcf67a52b6da1708` after synchronization with main 0.3.350. It PASSED (exit 0, no signal) in 377445 ms. The log reports inner budget420000 ms, receiptCorpusSize200, proofEvaluations1, gitCommands30 and ends with REVIEW_EPOCH_CONTINUITY_REFUSED cancelled. This is the committed thirteenth repair including the bounded comment-pin refresh, not an inference from the earlier working-tree run. Its full tool-owned record remains in .git/lab-maintenance/review-finalization-lineage.json; a read-only copy is retained in the external measurements directory. Claude audit13 has not run at the time these notes are prepared; no audit PASS or integration is claimed.
+
+Maintenance provenance: codex/lab-review-finalization-lineage, repair db3cda052beea24ca4d18925bcf67a52b6da1708.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab native-lock-prerequisites - v0.3.350 - 2026-09-12
 
 Repair native validation-lock fixture prerequisites using actual CLI inventory, dispatch, broker-bound review, critic, validation and certification admission. Initial disposable subjects contain no fabricated PASS or admitted window. Focused probes exercise reviewer and delivery write exclusion while preserving routine evidence; native dual-order queues prove real routine and DONE-required publication.
