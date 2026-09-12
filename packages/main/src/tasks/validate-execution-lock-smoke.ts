@@ -74,6 +74,7 @@ const NOW = '2026-06-24T00:00:00.000Z';
 const NATIVE_ENTRY_WAIT_MS = 12000;
 
 type ChildResult = {
+  timedOut: boolean;
   code: number | null;
   output: string;
 };
@@ -223,8 +224,8 @@ function spawnCommand(root: string, args: string[], label: string, extraEnv: Rec
   child.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
   child.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
   const done = new Promise<ChildResult>((resolveDone) => {
-    child.on('close', (code) => resolveDone({ code, output: stdout + stderr }));
-    child.on('error', (error) => resolveDone({ code: null, output: `${stdout}${stderr}\n${error.message}` }));
+    child.on('close', (code) => resolveDone({ timedOut: false, code, output: stdout + stderr }));
+    child.on('error', (error) => resolveDone({ timedOut: false, code: null, output: `${stdout}${stderr}\n${error.message}` }));
   });
   return { child, done, output: () => stdout + stderr, stdout: () => stdout, stderr: () => stderr };
 }
@@ -242,11 +243,18 @@ async function waitChild(proc: SpawnedChild, timeoutMs: number): Promise<ChildRe
       timer=setTimeout(()=>{
         timedOut=true;
         proc.child.kill('SIGKILL');
-        grace=setTimeout(()=>resolve({code:null,output:'timed out waiting for child pid '+proc.child.pid+': '+proc.output()}),2000);
+        grace=setTimeout(()=>resolve({timedOut:true,code:null,output:'timed out waiting for child pid '+proc.child.pid+': '+proc.output()}),2000);
       },timeoutMs);
     })]);
-    return timedOut?{code:null,output:'timed out waiting for child pid '+proc.child.pid+' after '+timeoutMs+'ms: '+result.output}:result;
+    return timedOut?{timedOut:true,code:null,output:'timed out waiting for child pid '+proc.child.pid+' after '+timeoutMs+'ms: '+result.output}:result;
   } finally {clearTimeout(timer!);clearTimeout(grace!);}
+}
+
+
+function assertOrdinaryRefusal(result: ChildResult): void {
+  assert.equal(result.timedOut, false, `Expected ordinary refusal, received deadline: ${result.output}`);
+  assert.notEqual(result.code, null, `Expected ordinary exit, received signal or spawn error: ${result.output}`);
+  assert.notEqual(result.code, 0, result.output);
 }
 
 async function runProofOrStop(root: string, command: string, args: Record<string, unknown>): Promise<string> {
@@ -495,7 +503,7 @@ async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
       `--PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE=${trapReady}`,
     ], 'unknown-race-flag');
     const rejected = await waitChild(unknownFlag, 5000);
-    assert.notEqual(rejected.code, 0, 'unknown caller-selected race capability flag must be rejected');
+    assertOrdinaryRefusal(rejected);
     assert.equal(existsSync(trapReady), false, 'unknown flag must not create caller-selected ready path');
 
     release(root);
@@ -699,7 +707,7 @@ async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
     writeFileSync(path, JSON.stringify(config));
     releaseCapacity(); await holder;
     const result = await waitChild(proc, 12000);
-    assert.notEqual(result.code, 0, result.output);
+    assertOrdinaryRefusal(result);
     assert.match(result.output, /DONE_REQUIRED_POLICY_CHANGED/);
     assert.equal(enteredCount(root), 0);
     const store = new StoryStore(root);
@@ -721,7 +729,7 @@ async function assertUnadmittedDoneRequiredNeverExecutes(): Promise<void> {
   try {
     const proc = spawnCommand(root, ['done_required_validate', JSON.stringify({ storyId, json: true })], 'unadmitted-required');
     const result = await waitChild(proc, 12000);
-    assert.notEqual(result.code, 0, result.output);
+    assertOrdinaryRefusal(result);
     assert.match(result.output, /\[pre_cert_window_required\]/i);
     assert.match(result.output,/Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow/);
     assert.doesNotMatch(result.output,/checklist.*(?:invalid|missing)|acceptance.*(?:missing|incomplete)/i);
@@ -1137,8 +1145,8 @@ await withWorkspaceValidationCapacity({
         let output = '';
         child.stdout?.on('data', (chunk: Buffer) => { output += chunk.toString(); });
         child.stderr?.on('data', (chunk: Buffer) => { output += chunk.toString(); });
-        child.on('error', (error) => resolveChild({ code: null, output: `${output}\n${error.message}` }));
-        child.on('close', (code) => resolveChild({ code, output }));
+        child.on('error', (error) => resolveChild({ timedOut: false, code: null, output: `${output}\n${error.message}` }));
+        child.on('close', (code) => resolveChild({ timedOut: false, code, output }));
       }));
       const results = await Promise.all(children);
       for (const [index, result] of results.entries()) {
@@ -1740,6 +1748,7 @@ async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
     assert.equal(existsSync(validationExecutionLockPath(cliFixture.root, cliFixture.storyId)), true,
       'queued validate CLI protects Story inputs before waiting for capacity');
     const result = await waitChild(waiter, 5000);
+    assertOrdinaryRefusal(result);
     assert.equal(result.code, 1, result.output);
     assert.match(waiter.stderr(), /validate failed: CLI max timeout exceeded 250ms/,
       `direct validate watchdog must terminate through the structured deadline channel: ${waiter.stderr()}`);
@@ -1957,8 +1966,8 @@ async function assertNativeCleanupContract():Promise<void> {
       const originalKill=timerChild.kill.bind(timerChild);let lateSignals=0;
       timerChild.kill=((signal?:NodeJS.Signals|number)=>{lateSignals++;return originalKill(signal);}) as typeof timerChild.kill;
       await new Promise<void>((resolve,reject)=>{timerChild.once('close',()=>resolve());timerChild.once('error',reject);});
-      const timerResult=await waitChild({child:timerChild,done:Promise.resolve({code:0,output:''}),output:()=>'',stdout:()=>'',stderr:()=>''},50);
-      await sleep(100);assert.equal(timerResult.code,0);assert.equal(lateSignals,0,'completed wait must cancel delayed SIGKILL');
+      const timerResult=await waitChild({child:timerChild,done:Promise.resolve({timedOut:false,code:0,output:''}),output:()=>'',stdout:()=>'',stderr:()=>''},50);
+      await sleep(100);assert.equal(timerResult.timedOut,false);assert.equal(timerResult.code,0);assert.equal(lateSignals,0,'completed wait must cancel delayed SIGKILL');
 
       let output='';try{execFileSync(process.execPath,[fileURLToPath(import.meta.url),'--native-signal-child'],{encoding:'utf8',timeout:10000});assert.fail('signal child must exit nonzero');}
       catch(error){const child=error as {status?:number;stdout?:string;code?:string};if(child.code==='ETIMEDOUT')throw new Error('NATIVE_SIGNAL_CLEANUP_TIMEOUT exceeded 10000ms');assert.equal(child.status,143);output=String(child.stdout);}
@@ -1966,11 +1975,23 @@ async function assertNativeCleanupContract():Promise<void> {
       const childPid=Number(output.match(/NATIVE_SIGNAL_CHILD_PID (\d+)/)?.[1]);assert(childPid>0);assert.throws(()=>process.kill(childPid,0),error=>(error as NodeJS.ErrnoException).code==='ESRCH');
 
 
- const timedChild=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});
+ const marker='DONE_REQUIRED_POLICY_CHANGED [pre_cert_window_required]';
+ const timedChild=spawn(process.execPath,['-e',`console.log(${JSON.stringify(marker)});setInterval(()=>{},1000)`],{stdio:['ignore','pipe','pipe']});
  activeFixtureChildren.add(timedChild);timedChild.once('close',()=>activeFixtureChildren.delete(timedChild));
- const timedDone=new Promise<ChildResult>((resolve,reject)=>{timedChild.once('close',code=>resolve({code,output:'held child'}));timedChild.once('error',reject);});
- const timedResult=await waitChild({child:timedChild,done:timedDone,output:()=>'',stdout:()=>'',stderr:()=>''},50);
- assert.equal(timedResult.code,null);assert.match(timedResult.output,/timed out waiting for child pid .* after 50ms/);
+ let timedOutput='';
+ timedChild.stdout.on('data',chunk=>{timedOutput+=chunk.toString();});
+ const timedDone=new Promise<ChildResult>((resolve,reject)=>{timedChild.once('close',code=>resolve({timedOut:false,code,output:timedOutput}));timedChild.once('error',reject);});
+ const held:SpawnedChild={child:timedChild,done:timedDone,output:()=>timedOutput,stdout:()=>timedOutput,stderr:()=>''};
+ assert.equal(await waitForOutput(held,/DONE_REQUIRED_POLICY_CHANGED/,5000),true,'negative control must print the refusal markers before hanging');
+ const timedResult=await waitChild(held,50);
+ assert.equal(timedResult.timedOut,true);assert.equal(timedResult.code,null);
+ assert.match(timedResult.output,/timed out waiting for child pid .* after 50ms/);
+ assert.match(timedResult.output,/DONE_REQUIRED_POLICY_CHANGED/);
+ assert.match(timedResult.output,/\[pre_cert_window_required\]/);
+ assert.throws(()=>assertOrdinaryRefusal(timedResult),/Expected ordinary refusal, received deadline/);
+ assert.throws(()=>assertOrdinaryRefusal({timedOut:false,code:null,output:marker}),/Expected ordinary exit, received signal or spawn error/);
+ assert.throws(()=>assertOrdinaryRefusal({timedOut:false,code:0,output:marker}));
+ assertOrdinaryRefusal({timedOut:false,code:1,output:marker});
  const releasedRoot=allocateNativeLockRoot();releaseNativeLockRoot(releasedRoot);mkdirSync(releasedRoot);
  try{assert.throws(()=>assertNativeLockFixture(releasedRoot),/own newly allocated disposable roots/);}finally{rmSync(releasedRoot,{recursive:true,force:true});}
  console.log('NATIVE_SIGNAL_CLEANUP_CONTRACT_PASS');

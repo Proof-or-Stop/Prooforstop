@@ -113,3 +113,10 @@ call for at least five times that latency inside the disposable cwd.
 
 See [CLI follow-up provenance](native-lock-lab-verification.md) for official
 draft creation and discovery evidence against the current handler.
+
+Spawned-child results expose a mandatory `timedOut` boolean. Refusal assertions
+require an ordinary nonzero exit and reject deadlines, signals and spawn errors
+before matching diagnostics. A real child prints both expected refusal markers
+and then hangs; its deadline retains that output but cannot satisfy the shared
+refusal assertion. Controls also reject signal/null and successful exits, while
+an ordinary code-1 refusal remains admissible.
