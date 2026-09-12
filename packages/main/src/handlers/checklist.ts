@@ -94,7 +94,7 @@ const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
 
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
-type ChecklistGetArgs = { storyId: string; slim?: boolean; fields?: string[] };
+type ChecklistGetArgs = { storyId: string; slim?: boolean; fields?: string[]; proposalFor?: string; proposalIntent?: VerificationIntent };
 
 /**
  * Resolve the configured validate.commands timeout for a pinned verification command.
@@ -216,6 +216,16 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
   return story;
 }
 
+function assertVerificationIntentClassification(itemId: string, verificationIntent: VerificationIntent, ownerProposal = false): void {
+  for (const lane of VERIFICATION_LANES) {
+    for (const [index, intent] of (verificationIntent[lane] ?? []).entries()) {
+      if (!intent.scope || !intent.expectation || !intent.requirementSource) {
+        throw new Error(`checklist_update refused: ${ownerProposal ? 'owner proposals' : 'verification-intent roles'} must classify ${itemId}:${lane}:${index} with scope, expectation, and requirementSource before PLAN acceptance is frozen [verification_intent_metadata_required]`);
+      }
+    }
+  }
+}
+
 function checklistActorFrom(args: { agent?: string; actor?: string }): string {
   const explicit = args.agent?.trim() || args.actor?.trim();
   if (explicit) return explicit;
@@ -229,7 +239,7 @@ function isInitReviewerChecklistActor(actor: string): boolean {
 
 function assertInitReviewerChecklistMutationAllowed(args: {
   story: StoryInfo;
-  command: 'checklist_add' | 'checklist_update';
+  command: 'checklist_add' | 'checklist_update' | 'checklist_remove';
   actor: string;
   mutatesDefinition: boolean;
 }): void {
@@ -1854,6 +1864,7 @@ export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string
         priority: 'should',
       };
       item.verificationIntent = vi;
+      delete item.verificationIntentAuthorship;
       filled.push(`${item.id}:${lane}:${index} (${vi[lane][index].type})`);
     }
   }
@@ -2601,6 +2612,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
   return {
     checklist_get(args: ChecklistGetArgs) {
       const full = store.readChecklist(args.storyId);
+      if (args.proposalFor !== undefined || args.proposalIntent !== undefined) {
+        if (!args.proposalFor || args.slim !== undefined || args.fields !== undefined) throw new Error('Intent proposal digest view requires proposalFor and cannot combine slim/fields');
+        const item = full.items.find(candidate => candidate.id === args.proposalFor);
+        if (!item) throw new Error(`Checklist item ${args.proposalFor} not found`);
+        const baseIntentHash = digestCanonicalJson(item.verificationIntent ?? null);
+        return {storyId: args.storyId, itemId: item.id, baseIntentHash,
+          ...(args.proposalIntent !== undefined ? {digest: digestCanonicalJson({storyId: args.storyId, itemId: item.id, baseIntentHash, verificationIntent: args.proposalIntent})} : {}),
+          approvalRequired: true, authority: 'diagnostic_only'};
+      }
       if (!args.slim && !args.fields) return full;
       const result = args.slim ? renderSlimChecklist(args.storyId, full) : full as unknown as Record<string, unknown>;
       return pickTopLevelFields(result, args.fields);
@@ -2625,7 +2645,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       );
       if (verificationIntentHasPlannedPathDeclarations(args.verificationIntent)) {
         throw new Error(
-          'checklist_add refused: plannedPathDeclarations may only be authored by the dispatched verification-intent role through checklist_update during PLAN [planned_path_writer_not_authorized]',
+          'checklist_add refused: plannedPathDeclarations require checklist_update in PLAN by the dispatched verification-intent role or the active owner applying a bound proposal [planned_path_writer_not_authorized]',
         );
       }
       const story = assertChecklistAddAllowed(store, args);
@@ -2712,6 +2732,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
     },
 
     checklist_remove(args: {
+      agent?: string;
+      actor?: string;
       storyId: string;
       itemId: string;
       disposition: 'accept' | 'reject' | 'partial';
@@ -2749,6 +2771,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         throw new Error(`${story.phase} phase does not allow removing checklist items; from INIT_CHECK onward checklist title/context is frozen, to prevent remove+add bypass. New scope can only be added via checklist_add, the original item must remain for gate review`);
       }
 
+      const authority = resolveAgentMutationAuthority({command: 'checklist_remove', payloadActors: [args.agent, args.actor]});
+      const resolvedActor = authority.actor || process.env.USER?.trim() || 'main-agent';
+      for (const actor of [resolvedActor, args.agent, args.actor, readBrandEnv('AGENT')]) {
+        if (actor?.trim()) assertInitReviewerChecklistMutationAllowed({story, command: 'checklist_remove', actor: actor.trim(), mutatesDefinition: true});
+      }
       const removed = cl.items.splice(idx, 1)[0];
 
       // Audit log: record the complete removed item info + disposition, written automatically
@@ -2758,6 +2785,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         phase: story.phase,
         itemId: args.itemId,
         action: 'delete',
+        agent: resolvedActor,
         from: removed.status,
         to: 'pending' as const,
         reason: args.justification.trim(),
@@ -2798,6 +2826,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       excludes?: string[];
       files?: { modify: string[]; create: string[]; test: string[] };
       verificationIntent?: VerificationIntent;
+      intentProposalApproval?: { digest: string; baseIntentHash: string; reason: string };
       verificationEvidence?: VerificationEvidenceInput[];
       reason?: string;
       agent?: string;
@@ -2810,7 +2839,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
 
       assertEnglishAuthoringText(
         'checklist_update',
-        checklistEnglishAuthoringFields(args, args.itemId),
+        checklistEnglishAuthoringFields({...args, reason:args.intentProposalApproval?.reason ?? args.reason}, args.itemId),
       );
 
       // B-1909 CHK-001/CHK-005: 'withdrawn' is a terminal disposition that can
@@ -2839,9 +2868,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const incomingHasPlannedDeclarations = verificationIntentHasPlannedPathDeclarations(args.verificationIntent);
       const isDispatchedVerificationIntentWriter = dispatchedRole?.roleClass === 'verification-intent'
         && authority.source === 'dispatched-env';
-      if (incomingHasPlannedDeclarations && !isDispatchedVerificationIntentWriter) {
+      const ownerProposalRequested = args.intentProposalApproval !== undefined;
+      if (incomingHasPlannedDeclarations && !isDispatchedVerificationIntentWriter && !ownerProposalRequested) {
         throw new Error(
-          'checklist_update refused: plannedPathDeclarations require the dispatched verification-intent role during PLAN [planned_path_writer_not_authorized]',
+          'checklist_update refused: plannedPathDeclarations require the dispatched verification-intent role or an active-owner bound proposal during PLAN [planned_path_writer_not_authorized]',
         );
       }
       if (dispatchedRole?.roleClass === 'verification-intent') {
@@ -2860,15 +2890,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             `checklist_update refused: verification-intent roles may write only verificationIntent and may not set ${disallowed.join(', ') || 'non-verification fields'}. [agent_dispatch_mutation_scope_denied]`,
           );
         }
-        for (const lane of VERIFICATION_LANES) {
-          for (const [index, intent] of (args.verificationIntent[lane] ?? []).entries()) {
-            if (!intent.scope || !intent.expectation || !intent.requirementSource) {
-              throw new Error(
-                `checklist_update refused: verification-intent roles must classify ${args.itemId}:${lane}:${index} with scope, expectation, and requirementSource before PLAN acceptance is frozen [verification_intent_metadata_required]`,
-              );
-            }
-          }
-        }
+        assertVerificationIntentClassification(args.itemId, args.verificationIntent);
       }
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -2880,6 +2902,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       //   - userSees is a PLAN artifact (see CLAUDE.md checklist conventions), allowed to be added/modified during the PLAN phase,
       //     frozen from DEV onward (the executor must not tamper with the acceptance description during implementation)
       const story = assertChecklistMutationCwd(store, args.storyId);
+      if ((isDispatchedVerificationIntentWriter || ownerProposalRequested) && story.phase !== 'PLAN') {
+        throw new Error('Independent verification-intent writes require PLAN [verification_intent_writer_phase_invalid]');
+      }
       const titleContextFields = ['title', 'context'] as const;
       const titleContextProtectedPhases = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
       const userSeesProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
@@ -2924,14 +2949,34 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      let ownerProposalApproved = false;
+      if (ownerProposalRequested) {
+        const approval = args.intentProposalApproval!;
+        const allowed = new Set(['storyId', 'itemId', 'verificationIntent', 'intentProposalApproval']);
+        const unexpected = Object.keys(args).filter(key => !allowed.has(key));
+        if (unexpected.length) throw new Error(`INTENT_PROPOSAL_FIELDS_INVALID: unexpected fields ${unexpected.join(', ')}`);
+        if (!args.verificationIntent) throw new Error('INTENT_PROPOSAL_INTENT_REQUIRED: verificationIntent is required');
+        if (!approval || typeof approval.reason !== 'string' || approval.reason.trim().length < 30) {
+          throw new Error(`INTENT_PROPOSAL_REASON_INVALID: reason requires at least 30 characters; received ${typeof approval?.reason === 'string' ? approval.reason.trim().length : 0}`);
+        }
+        if (authority.entry) throw new Error(`INTENT_PROPOSAL_ROLE_FORBIDDEN: dispatched or asserted role ${authority.actor} cannot approve owner proposals`);
+        const owner = probeWriterLease(store.storyDirPath(args.storyId), resolveStoryGitCwd(args.storyId));
+        if (!owner.valid) throw new Error(`INTENT_PROPOSAL_OWNER_REQUIRED: ${owner.reason}`);
+        assertVerificationIntentClassification(args.itemId, args.verificationIntent, true);
+        const baseIntentHash = digestCanonicalJson(item.verificationIntent ?? null);
+        const digest = digestCanonicalJson({storyId:args.storyId,itemId:args.itemId,baseIntentHash,verificationIntent:args.verificationIntent});
+        if (approval.baseIntentHash !== baseIntentHash) throw new Error('INTENT_PROPOSAL_BINDING_INVALID: baseIntentHash is stale; read checklist_get with proposalFor again');
+        if (approval.digest !== digest) throw new Error('INTENT_PROPOSAL_BINDING_INVALID: digest differs from the Story/item/prior-intent/replacement; use checklist_get with proposalFor and proposalIntent');
+        ownerProposalApproved = true;
+      }
       const beforeIntentRevision = structuredClone(item);
       if (item.verificationIntentAmendments?.length && args.status && args.status !== 'pending' && [args.title,args.context,args.userSees,args.excludes,args.files,args.verificationIntent].some(value=>value!==undefined)) throw new Error('AMENDMENT_REVISION_STATUS_REFUSED: revise acceptance before updating completion status');
       if (args.verificationIntent !== undefined) {
         const existingDeclarationSnapshot = plannedPathDeclarationSnapshot(item.verificationIntent);
         const incomingDeclarationSnapshot = plannedPathDeclarationSnapshot(args.verificationIntent);
-        if (existingDeclarationSnapshot !== incomingDeclarationSnapshot && !isDispatchedVerificationIntentWriter) {
+        if (existingDeclarationSnapshot !== incomingDeclarationSnapshot && !isDispatchedVerificationIntentWriter && !ownerProposalApproved) {
           throw new Error(
-            'checklist_update refused: only the dispatched verification-intent role may add, change, move, or remove plannedPathDeclarations during PLAN [planned_path_writer_not_authorized]',
+            'checklist_update refused: plannedPathDeclarations may change during PLAN through the dispatched verification-intent role or an active-owner bound proposal [planned_path_writer_not_authorized]',
           );
         }
         if (incomingHasPlannedDeclarations) validatePlannedPathDeclarationsForChecklistItem(item, args.verificationIntent);
@@ -2953,6 +2998,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const results: string[] = [];
       const now = new Date().toISOString();
       const oldStatus = item.status;
+
 
       if (args.title !== undefined) {
         item.title = args.title;
@@ -3055,6 +3101,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push(`status → ${args.status}`);
       }
 
+      if (args.verificationIntent !== undefined) {
+        item.verificationIntentAuthorship = {
+          kind: ownerProposalApproved ? 'owner_applied_proposal' : isDispatchedVerificationIntentWriter ? 'dispatched_verification_intent' : 'owner_direct',
+          actor: authority.actor || 'owner',
+          intentDigest: acceptanceIntentHash(item.verificationIntent!),
+          ...(ownerProposalApproved ? {proposalDigest: args.intentProposalApproval!.digest} : {}),
+          independentlyAttested: false,
+        };
+      }
       if (beforeIntentRevision.verificationIntentAmendments?.length && (
         acceptanceScopeHash(beforeIntentRevision) !== acceptanceScopeHash(item)
         || acceptanceIntentHash(beforeIntentRevision.verificationIntent!) !== acceptanceIntentHash(item.verificationIntent!)
@@ -3062,18 +3117,33 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const gitCwd = resolveStoryGitCwd(args.storyId);
         const lease = readOwnerLease(store.storyDirPath(args.storyId));
         const owner = probeWriterLease(store.storyDirPath(args.storyId),gitCwd);
-        // The existing dispatched verification-intent role retains its PLAN-only field authority.
-        if (!owner.valid && !isDispatchedVerificationIntentWriter) throw new Error('AMENDMENT_OWNER_REQUIRED');
+        // Signed revisions always require the actual owner, including proposal applications.
+        if (!owner.valid) throw new Error('AMENDMENT_OWNER_REQUIRED');
         if (!lease?.leaseId || isLeaseStale(lease)) throw new Error('AMENDMENT_OWNER_GENERATION_REQUIRED');
         const revision = createIntentRevision({before:beforeIntentRevision,after:item,storyId:args.storyId,phase:story.phase,
-          reason:args.reason,actor:authority.actor || 'owner',sessionId:getSessionId(),leaseId:lease.leaseId,
+          reason:args.intentProposalApproval?.reason ?? args.reason,actor:authority.actor || 'owner',sessionId:getSessionId(),leaseId:lease.leaseId,
           headHash:currentGitHead(gitCwd) ?? '',gitCwd});
         (item.verificationIntentAmendments ??= []).push(revision);
         item.status = 'pending'; item.startTime = null; item.endTime = null;
         results.push('signed acceptance revision recorded; planning and fresh coverage remain required');
       }
 
+      if (ownerProposalApproved) {
+        (cl.auditLog ??= []).push({timestamp:now,phase:story.phase,itemId:args.itemId,action:'update',
+          from:oldStatus,to:item.status,agent:checklistActor,reason:`Owner-approved intent proposal ${args.intentProposalApproval!.digest}: ${args.intentProposalApproval!.reason}`});
+        results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
+      }
+
       store.writeChecklist(args.storyId, cl);
+      if (args.verificationIntent !== undefined) {
+        try {
+          store.appendProcessEvent(args.storyId, {type: 'plan_updated', action: 'verification_intent_applied', itemId: args.itemId,
+            phase: story.phase, authorship: item.verificationIntentAuthorship});
+        } catch (e) {
+          console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+        }
+      }
+
 
       // B-3511: append process events on status transitions
       if (args.status && oldStatus !== args.status) {
@@ -4023,6 +4093,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         assertEnglishAuthoringText('verification_intent_append', checklistEnglishAuthoringFields({verificationIntent:intent}, args.itemId));
         assertChecklistScopeChangeAllowed(store,args.storyId,{title:item.title,context:JSON.stringify(args.addition),excludes:item.excludes,itemId:item.id});
         item.verificationIntent = intent;
+        delete item.verificationIntentAuthorship;
         (item.verificationIntentAmendments ??= []).push(amendment);
         item.status = 'in_progress'; item.endTime = null;
         store.writeChecklist(args.storyId,cl);
