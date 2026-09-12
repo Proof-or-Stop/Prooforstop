@@ -1,59 +1,5 @@
 # Changelog
 
-## Lab dynamic-finding-validation-tier-boundary - v0.3.348 - 2026-09-12
-
-# Dynamic Finding validation-tier boundary
-
-## Problem
-
-The Story-aware validation planner could classify changes to Dynamic Finding lifecycle-gate implementation files as `story-fast`. The process-fact registry carried a five-path Dynamic Finding list, but it declared no validation tier floor and the planner did not consume those paths as validation authority. Early repair attempts also demonstrated the opposite failure mode: deriving the floor from every L4 process fact widened unrelated L4 changes to `repository-full`.
-
-## Behavior change
-
-This repair adds an explicit, opt-in `validationTierFloor: repository-full` contract to process-fact declarations. The Dynamic Finding applicability gate is the first declared floor. Its governed source surface is derived from the canonical producer, semantic-verifier, and per-consumer policy source references rather than from a second hand-maintained list. The resulting set contains 15 distinct implementation and gate-consumer paths.
-
-Changes to those declared Dynamic Finding authority paths now force `repository-full` validation even when the impact index marks them fast. Unrelated L4 facts remain eligible for Story-relevant fast or intermediate selection; `runtime:repository_default_baseline_gate` and `packages/main/src/core/git-baseline.ts` provide the explicit negative control.
-
-The projection fails closed. Unknown floor values, non-L4 floor declarations, missing or empty authored paths, malformed decoded entries, invalid path leaves, rejected entries, or an unavailable/empty floor projection widen to `repository-full`. The planner always consumes the live registry first; its internal verification injection can only add paths or force widening and cannot suppress a real floor. Invalid dependency objects receive a named error, and a source-level regression guard proves the CLI handler does not populate the internal dependency seam.
-
-Decoded projections also carry the exact set of floor-owner IDs. The selector compares that set with the live registry owners, so a future multi-floor snapshot cannot silently lose one floor while retaining another. The operator matrix contains all 21 runtime reason codes, all seven normalized outcomes, and exact condition text; a bidirectional test now refuses documentation/runtime drift. The authority relationship is recorded in `docs/requirements/decisions/validation-widening-matrix-authority.md` rather than asserted by the operator guide alone.
-
-## RED and GREEN evidence
-
-- Initial RED `82e51d5f03` reproduced a Dynamic Finding gate path incorrectly remaining `story-fast`; elapsed 16.438 seconds.
-- Coverage RED `7534abb651` reproduced incomplete L4 consumer-gate pattern coverage; elapsed 16.896 seconds.
-- Policy-completeness RED `a91483aca3` reproduced omitted proof and consumer authority plus an unavailable projection gap; elapsed 23.692 seconds.
-- Dependency-seam RED `43cc620a37` reproduced the ambiguous explicit-undefined contract; elapsed 12.086 seconds.
-- Audit-gap REDs subsequently exposed malformed helper inputs, incomplete source-token bindings, stale inventory evidence, a missing decoded floor owner, and one-sided documentation authority. Each was repaired before the next GREEN; none was treated as product PASS evidence.
-- Final fresh GREEN at `b28c2757ad462d73b2fa903869085b83e9a8c60e` replayed the exact recorded command and passed; elapsed 12.832 seconds. This HEAD includes the Lab-managed prepare/reopen audit trail; its product tree equals the previously audited `15b10c828c2f6ed41fd890f77b3c0d7cca94a775` candidate.
-
-The final validation-tier smoke passed its CHK groups with 25, 13, 18, 28, 20, and 13 cases respectively, plus its cross-cutting RED-before-GREEN, schema-bypass, real-resource-registration, output-identity, DoneWhen-coverage, and bounded-output guards. Default stdout was 2,507 characters against the 11,000-character bound.
-
-Additional verification passed:
-
-- TypeScript no-emit typecheck for `packages/main`.
-- Process-fact contract verification.
-- Runtime-fact contract verification, including 691 path-parity cases and warm/cold operation counts of 8/8.
-- Dynamic Finding applicability suite: 50 GREEN cases and 5/5 RED acceptance cases.
-- Story-aware validation smoke.
-- Git diff whitespace validation.
-
-The independent Claude CLI audit from Anthropic passed the final committed head with zero findings. Final fresh audit run `031560b3-10a7-459e-b3bf-d2f6c5ef264a` took 580.269 seconds. It explicitly confirmed that the derived 15-path floor retains all five previous paths, injection is monotone and cannot narrow, stop semantics remain intact, the 21-row document/runtime matrix is exact, and the 168-command inventory re-pin is a repair rather than an acceptance relaxation. The immediately preceding content-equivalent PASS was run `4d553a6f-a7fa-4253-90f7-24fdbdc6a113` on `15b10c828c2f6ed41fd890f77b3c0d7cca94a775`.
-
-The final audit followed multiple fail-and-repair rounds. The last failed run, `a71c0a73-4244-4205-a01f-7f8bc18782e7`, identified two evidence defects: a one-sided authority claim and missing literal tuple-comparison commands. The final candidate added the canonical authority decision, a checked back-pointer, and verbatim reproducible commands/stdout for both the historical 166-to-168 comparison and the current-base 168-to-168 comparison. The final audit found no correctness defect, regression, bypass, version error, or false evidence claim.
-
-## Performance statement
-
-This repair changes safety classification, not command execution speed. The recorded smoke durations are reproducibility observations and are not used to claim a measured performance improvement. The optimization is bounded avoidance of an unsafe repository-wide expansion: unrelated non-floored L4 paths remain eligible for the existing Story-relevant tier selector instead of being forced to full solely because they are L4.
-
-## Scope
-
-The six changed files are the process-fact registry, validation-tier planner, validation-tier planner smoke suite, operator guide, canonical matrix-authority decision, and detailed Lab evidence log. This release does not claim to classify, deduplicate, or benchmark the complete repository validation command inventory; the current inventory remains 168 commands with digest `e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b`, and the exact base-to-candidate normalized tuple comparison is `added=[]`, `removed=[]`.
-
-Maintenance provenance: codex/lab-dynamic-finding-validation-tier-boundary, repair b28c2757ad462d73b2fa903869085b83e9a8c60e.
-Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/validation-tier-planner-smoke.js"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab cli-runtime-sync-20260911 - v0.3.347 - 2026-09-12
 
 Repair CLI runtime identity, argument-aware observation, and bounded queue diagnostics through the existing Lab maintenance workflow.
