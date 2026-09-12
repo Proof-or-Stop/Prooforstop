@@ -29,7 +29,11 @@ check('RECALL-L4-expiry-has-typed-trigger', () => {
 // Wiring guards accompany, but do not replace, the executable integration suites.
 check('REATTEST-gate-consumes-verified-closure', () => {
   assert.match(source('core/finding-applicability-projection.ts'), /readMaterialDriftReattestation\(/);
-  assert.match(source('handlers/finding-route.ts'), /readMaterialDriftReattestation\(/);
+  assert.match(source('registry.ts'), /createFindingRouteHandlers\(ctx, readRouteSourceRestoration\)/);
+  assert.match(source('registry.ts'), /createFindingHistoryHandlers\(ctx, observeDeferralInvalidation, readRouteSourceRestoration\)/);
+  assert.match(source('handlers/finding-material-reattestation.ts'), /readRouteSourceRestoration[\s\S]*readMaterialDriftReattestation\(ctx, source\.storyId, source\.recordId\)/);
+  assert.match(source('handlers/finding-route.ts'), /readRestoration\?\.\(ctx, source\)/);
+  assert.doesNotMatch(source('handlers/finding-route.ts'), /from ['"]\.\/finding-material-reattestation\.js['"]/);
 });
 check('COLLECTORS-not-permanently-disabled', () => {
   assert.doesNotMatch(source('handlers/finding-qualification.ts'), /refusalReasons\.push\('qualification_source_collectors_incomplete/);

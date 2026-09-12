@@ -14,7 +14,7 @@ import { createFindingLedgerHandlers, appendFindingLedger, findingLedgerSignerFr
 import { createFindingApplicabilityHandlers } from '../handlers/finding-applicability.js';
 import { createToolHandlers } from '../registry.js';
 import { createFindingRouteHandlers, sourceRouteRecord } from '../handlers/finding-route.js';
-import { buildConfirmedCanonicalDefect, signIdentityEnvelope, validateCanonicalDefect } from '../core/finding-identity.js';
+import { assertIdentityJson, buildConfirmedCanonicalDefect, signIdentityEnvelope, validateCanonicalDefect } from '../core/finding-identity.js';
 import { applicabilityDigest, FINDING_PROTECTED_SURFACES } from '../core/finding-applicability.js';
 import { currentApplicabilityContext } from '../core/finding-applicability-projection.js';
 import { prepareMaterialDriftReattestation, readMaterialDriftReattestation, readRouteSourceRestoration } from '../handlers/finding-material-reattestation.js';
@@ -178,8 +178,14 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
     ]) assert.throws(() => sourceRouteRecord(ctx, restorationSource, false, () => bad), /restoration source\/root\/current binding mismatch/);
     assert.throws(() => createFindingRouteHandlers(targetCtx).finding_route_verify(routeInput), /invalid proposal/);
     assert.equal(createToolHandlers(targetStore, targetRoot).finding_route_verify!(routeInput).valid, true);
+    // Internal proof may contain nullable fields; it is never a public command payload.
     const nullablePublicProof = { ...proof, record: { ...proof.record, sourceCoverage: null } };
-    assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput, readRestoration: nullablePublicProof }), /[Uu]nrecognized/);
+    assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput,
+      readRestoration: nullablePublicProof }), /null\/undefined fields are forbidden/);
+    const publicRestoration = { sourceRoot: proof.sourceRoot, sourceRef: proof.sourceRef };
+    assertIdentityJson(publicRestoration);
+    assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput,
+      readRestoration: publicRestoration }), /[Uu]nrecognized/);
     process.chdir(targetRoot); process.env.PROOF_OR_STOP_SESSION_ID = 'target-fixture'; resetSessionIdForTest();
     try {
       const official = createToolHandlers(targetStore, targetRoot);
