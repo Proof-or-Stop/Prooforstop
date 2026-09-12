@@ -451,13 +451,40 @@ function issueVerificationAuthenticity(
   };
 }
 
+/** Private to one public validation call; key bytes and signatures are never cached. */
+function verificationLocationReader(gitCwd: string): { read: (cwd: string) => string | null; unchanged: (cwd: string) => boolean } {
+  function locate(): { cwd: string; commonDir: string } {
+    // Use the existing single-result Git parser: paths may contain newlines.
+    return { cwd: realpathSync(gitCwd), commonDir: gitCommonDir(gitCwd) };
+  }
+  let attempted = false;
+  let location: ReturnType<typeof locate> | undefined;
+  return {
+    read(cwd) {
+      if (cwd !== gitCwd) return null;
+      try {
+        if (!attempted) { attempted = true; location = locate(); }
+        if (!location) return null;
+        return publicKeyForPrivate(readFileSync(join(location.commonDir, VERIFICATION_SIGNER_KEY_FILE), 'utf8').trim());
+      } catch { return null; }
+    },
+    unchanged(cwd) {
+      if (cwd !== gitCwd) return false;
+      if (!attempted) return true; // Legacy unsigned receipts do not discover a signer.
+      try { return location !== undefined && JSON.stringify(locate()) === JSON.stringify(location); }
+      catch { return false; }
+    },
+  };
+}
+
 function verifyVerificationAuthenticity(
   gitCwd: string,
   domain: VerificationRecordAuthenticityV1['domain'],
   record: unknown,
   authenticity: VerificationRecordAuthenticityV1 | undefined,
+  readTrusted: (cwd: string) => string | null = () => trustedVerificationPublicKey(gitCwd),
 ): boolean {
-  const trusted = trustedVerificationPublicKey(gitCwd);
+  const trusted = readTrusted(gitCwd);
   return Boolean(
     trusted
     && authenticity
@@ -878,6 +905,13 @@ export function createVerificationAssertionReceipt(
 }
 
 export function verifyExecutionReceiptStructure(receipt: VerificationExecutionReceiptV2 | VerificationExecutionReceiptV3): string[] {
+  return verifyExecutionReceiptStructureInternal(receipt, () => trustedVerificationPublicKey(receipt.cwd));
+}
+
+function verifyExecutionReceiptStructureInternal(
+  receipt: VerificationExecutionReceiptV2 | VerificationExecutionReceiptV3,
+  readTrusted: (cwd: string) => string | null,
+): string[] {
   const errors: string[] = [];
   const record = receipt as unknown as Record<string, unknown>;
   if (receipt.schemaVersion !== VERIFICATION_EXECUTION_RECEIPT_VERSION && receipt.schemaVersion !== VERIFICATION_EXECUTION_RECEIPT_V3) {
@@ -900,7 +934,7 @@ export function verifyExecutionReceiptStructure(receipt: VerificationExecutionRe
   }
   if (receipt.schemaVersion === VERIFICATION_EXECUTION_RECEIPT_V3) {
     const signedExecution = { ...executionDigestSubject(receipt), executionReceiptDigest: receipt.executionReceiptDigest };
-    if (!verifyVerificationAuthenticity(receipt.cwd, 'execution', signedExecution, receipt.authenticity)) {
+    if (!verifyVerificationAuthenticity(receipt.cwd, 'execution', signedExecution, receipt.authenticity, readTrusted)) {
       errors.push('execution receipt trusted signature mismatch');
     }
     if (!isCanonicalSha256Hash(receipt.executionIdentityDigest)) errors.push('execution identity digest malformed');
@@ -1061,7 +1095,8 @@ export function validateVerificationReceipt(
     };
   }
 
-  const errors = verifyExecutionReceiptStructure(receipt.executionReceipt);
+  const location = verificationLocationReader(receipt.executionReceipt.cwd);
+  const errors = verifyExecutionReceiptStructureInternal(receipt.executionReceipt, location.read);
   if (expected.command !== undefined && receipt.executionReceipt.command !== expected.command) {
     errors.push('authenticated execution command mismatch');
   }
@@ -1091,7 +1126,7 @@ export function validateVerificationReceipt(
     const assertionV2 = assertion as VerificationAssertionReceiptV2;
     const signedAssertion = { ...assertionDigestSubject(assertionV2), assertionReceiptDigest: assertionV2.assertionReceiptDigest };
     if (!verifyVerificationAuthenticity(
-      receipt.executionReceipt.cwd, 'assertion', signedAssertion, assertionV2.authenticity,
+      receipt.executionReceipt.cwd, 'assertion', signedAssertion, assertionV2.authenticity, location.read,
     )) errors.push('assertion receipt trusted signature mismatch');
     // The top-level selector is a compatibility projection consumed by narrowing.
     // It is intentionally absent from the selector-free ExecutionReceipt, but it
@@ -1172,7 +1207,7 @@ export function validateVerificationReceipt(
     }
     if (reuse) {
       const signedReuse = { ...reuseDigestSubject(reuse), reuseReceiptDigest: reuse.reuseReceiptDigest };
-      if (!verifyVerificationAuthenticity(execution.cwd, 'reuse', signedReuse, reuse.authenticity)) {
+      if (!verifyVerificationAuthenticity(execution.cwd, 'reuse', signedReuse, reuse.authenticity, location.read)) {
         errors.push('reuse receipt trusted signature mismatch');
       }
       for (const [label, digest] of [
@@ -1240,7 +1275,7 @@ export function validateVerificationReceipt(
         const { authenticity, publicationDigest, ...actualSubject } = publication;
         if (computeCanonicalDigest(subject) !== publicationDigest
           || computeCanonicalDigest(actualSubject) !== publicationDigest
-          || !verifyVerificationAuthenticity(execution.cwd, 'publication', { ...actualSubject, publicationDigest }, authenticity)) {
+          || !verifyVerificationAuthenticity(execution.cwd, 'publication', { ...actualSubject, publicationDigest }, authenticity, location.read)) {
           errors.push('publication binding trusted signature or cross-link mismatch');
         }
         if (expected.storyId !== undefined && publication.storyId !== expected.storyId) errors.push('publication story binding mismatch');
@@ -1250,6 +1285,8 @@ export function validateVerificationReceipt(
       }
     }
   }
+
+  if (!location.unchanged(receipt.executionReceipt.cwd)) errors.push('verification signer location changed during validation');
 
   return {
     ok: errors.length === 0,

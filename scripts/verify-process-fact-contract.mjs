@@ -11339,6 +11339,16 @@ const receiptScripts = JSON.parse(read('package.json')).scripts;
 nodeAssert(receiptScripts['test:receipt-authority-v5'] === 'node scripts/verify-review-remediation-close.mjs' && receiptScripts['test:serial-reference'].includes('npm run test:receipt-authority-v5'), 'V5 authority regression must run in canonical suite');
 nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:receipt-authority-v5',"), 'V5 authority needs canonical resource policy');
 
+// Private signer-location reuse must not cache trust or escape its public validation call.
+{
+ const receiptSource = read('packages/main/src/core/verification-execution-evidence.ts');
+ nodeAssert(receiptSource.includes('location.unchanged(receipt.executionReceipt.cwd)'), 'Receipt validation requires final current signer location comparison');
+ nodeAssert(receiptSource.includes('if (cwd !== gitCwd) return null;'), 'Cached location must reject another requested signer cwd');
+ nodeAssert(receiptSource.includes("publicKeyForPrivate(readFileSync(join(location.commonDir, VERIFICATION_SIGNER_KEY_FILE), 'utf8').trim())"), 'Each signature stage must read current key bytes');
+ nodeAssert(receiptScripts['test:verification-key-location'] === 'node scripts/verify-verification-key-location.mjs' && receiptScripts['test:serial-reference'].includes('npm run test:verification-key-location'), 'Location continuity regression must run in canonical suite');
+ nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:verification-key-location')"), 'Location regression needs canonical resource policy');
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11350,4 +11360,3 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
-
