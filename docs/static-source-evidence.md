@@ -72,3 +72,9 @@ literal Git subprocess calls at their direct child-process sites, so the scanner
 adds no exception for them. Their package script insertion and the reviewed
 process-fact declaration changes are reflected in current source/dependency
 bindings; the complete 168-command scan passes without new exception categories.
+
+Projects without the static manifest retain the ordinary shared version producer.
+For manifest-bearing projects, manifest publication and rollback restoration use
+same-directory temporary files and rename, avoiding partially written individual
+files. This is per-file atomicity, not a crash-atomic multi-file transaction. A
+rename-failure regression verifies restoration and removal of temporary debris.

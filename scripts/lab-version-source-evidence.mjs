@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {createHash} from 'node:crypto';
+import {createHash,randomUUID} from 'node:crypto';
 import {createStaticSourceEvidence} from './static-source-evidence.mjs';
 
 const files=['package.json','package-lock.json','packages/main/package.json','packages/main/package-lock.json',
@@ -11,6 +11,12 @@ const hash=text=>createHash('sha256').update(text).digest('hex');
 const read=(root,file)=>fs.readFileSync(path.join(root,file),'utf8');
 
 const canonicalManifest=value=>JSON.stringify(value,null,2).replace(/[\u007f-\uffff]/g,char=>'\\u'+char.charCodeAt(0).toString(16).padStart(4,'0'))+'\n';
+
+function atomicWrite(file,text) {
+ const temporary=file+'.lab-version-'+randomUUID()+'.tmp';
+ try {fs.writeFileSync(temporary,text,{flag:'wx',mode:fs.existsSync(file)?fs.statSync(file).mode&0o777:0o644});fs.renameSync(temporary,file);}
+ finally {fs.rmSync(temporary,{force:true});}
+}
 
 function assertVersionOnly(file,before,after,from,to) {
  if(file.endsWith('.ts')) {
@@ -42,6 +48,9 @@ function assertVersionOnly(file,before,after,from,to) {
 export function withLabVersionSourceEvidence(root,bump) {
  const before=new Map(files.filter(file=>fs.existsSync(path.join(root,file))).map(file=>[file,read(root,file)]));
  const manifestBefore=fs.existsSync(path.join(root,manifestFile))?read(root,manifestFile):null;
+ // Generic Labs without this repository-specific manifest retain their existing
+ // official version-bump behavior; there is no source evidence to refresh.
+ if(manifestBefore===null)return bump();
  try {
   const result=bump();
   assert(typeof result.from==='string'&&typeof result.to==='string'&&/^\d+\.\d+\.\d+$/.test(result.from)&&/^\d+\.\d+\.\d+$/.test(result.to),'malformed patch version');
@@ -90,13 +99,13 @@ export function withLabVersionSourceEvidence(root,bump) {
   if(!refreshed)return result;
   // Preserve the existing ASCII JSON encoding, including surrogate pairs in excerpts.
   const content=canonicalManifest(manifest);
-  fs.writeFileSync(path.join(root,manifestFile),content);
+  atomicWrite(path.join(root,manifestFile),content);
   return {...result,files:[...result.files,manifestFile]};
  } catch(error) {
   for(const file of files)if(!before.has(file))fs.rmSync(path.join(root,file),{force:true});
   if(manifestBefore===null)fs.rmSync(path.join(root,manifestFile),{force:true});
-  for(const [file,text] of before)fs.writeFileSync(path.join(root,file),text);
-  if(manifestBefore!==null)fs.writeFileSync(path.join(root,manifestFile),manifestBefore);
+  for(const [file,text] of before)atomicWrite(path.join(root,file),text);
+  if(manifestBefore!==null)atomicWrite(path.join(root,manifestFile),manifestBefore);
   throw error;
  }
 }

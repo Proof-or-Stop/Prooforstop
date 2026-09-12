@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync,spawnSync} from 'node:child_process';
@@ -66,6 +67,29 @@ for (const scenario of Object.keys(EXPECTED)) {
   assert.equal(readFileSync(join(root,file),'utf8'),before,scenario+' version rollback');
   assert.equal(readFileSync(join(root,manifest),'utf8'),original,scenario+' evidence rollback');
  } finally {rmSync(root,{recursive:true,force:true});}
+}
+// No-manifest projects must retain the generic release producer's formatting.
+{
+ const root=mkdtempSync(join(tmpdir(),'lab-no-manifest-'));
+ try {
+  writeFileSync(join(root,'package.json'),'{{"version":"1.0.0"}}'.slice(1,-1));
+  const result=withLabVersionSourceEvidence(root,()=>{writeFileSync(join(root,'package.json'),JSON.stringify({version:'1.0.1'},null,2)+'\n');return {from:'1.0.0',to:'1.0.1',files:['package.json']};});
+  assert.equal(result.to,'1.0.1');assert.equal(JSON.parse(readFileSync(join(root,'package.json'))).version,'1.0.1');
+ } finally {rmSync(root,{recursive:true,force:true});}
+}
+// A failed atomic manifest publication restores all prior bytes without debris.
+{
+ const root=mkdtempSync(join(tmpdir(),'lab-atomic-evidence-')),manifest='scripts/lab/u18-static-edges/exceptions.json';
+ const before=JSON.stringify({version:'1.0.0'},null,2)+'\n',digest=createHash('sha256').update(before).digest('hex');
+ const original=JSON.stringify({schema:'u18-static-exceptions.v1',entries:[{key:'package.json:1:fixture',sourceDigest:digest,requiredEvidence:[],dependencyDigests:{'package.json':digest}}]},null,2)+'\n';
+ mkdirSync(dirname(join(root,manifest)),{recursive:true});writeFileSync(join(root,'package.json'),before);writeFileSync(join(root,manifest),original);
+ const rename=fs.renameSync;let injected=false;
+ try {
+  fs.renameSync=(from,to)=>{if(to===join(root,manifest)&&!injected){injected=true;throw new Error('ATOMIC_MANIFEST_RENAME_FAULT');}return rename(from,to);};
+  assert.throws(()=>withLabVersionSourceEvidence(root,()=>{writeFileSync(join(root,'package.json'),before.replace('1.0.0','1.0.1'));return {from:'1.0.0',to:'1.0.1',files:['package.json']};}),/ATOMIC_MANIFEST_RENAME_FAULT/);
+  assert.equal(readFileSync(join(root,'package.json'),'utf8'),before);assert.equal(readFileSync(join(root,manifest),'utf8'),original);
+  assert(fs.readdirSync(root,{recursive:true}).every(file=>!String(file).includes('.lab-version-')));
+ } finally {fs.renameSync=rename;rmSync(root,{recursive:true,force:true});}
 }
 const source=fileURLToPath(new URL('..',import.meta.url));
 const dir=mkdtempSync(join(tmpdir(),'lab-version-evidence-')),root=join(dir,'repo');
