@@ -1,0 +1,31 @@
+{
+  "storyId": "B-83aa",
+  "updatedAt": "2026-09-12T13:57:11.850Z",
+  "entries": [
+    {
+      "digest": "e862d538042727b678164c37c27b155da04c8f4fa03d313d44c9fe550a9c8ae9",
+      "terms": [
+        "## Conversational Texture",
+        "## Key Insights",
+        "## Solution Tradeoffs",
+        "## Trigger Event",
+        "## Trigger Event 2026-09-02 repro-first intake is creating a story from accepted candidate evidence. Probe rp-mtk45bks-v1fiwl and review rr-mtk49u84-u7876u are bound before development starts. ## Key Insights The repro review is red-reviewed and classified as target-bug, so this story starts from observed failing behavior instead of a speculative fix. Candidate partial-hash-snapshot-treated-as-binding remains intake evidence only. ## Solution Tradeoffs Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof. ## Conversational Texture The maintainer sees a normal ProofOrStop story with a durable intake binding, then still expects DEV, REVIEW, TEST, validation, and DONE evidence to prove the actual fix after implementation.",
+        "2026-09-02 repro-first intake is creating a story from accepted candidate evidence. Probe rp-mtk45bks-v1fiwl and review rr-mtk49u84-u7876u are bound before development starts.",
+        "Add a shared missing-digest classifier beside the reader and classify all five tryCaptureEvidenceHashSnapshot consumers",
+        "Commit the RED script red-partial-hash-snapshot-binding.mjs as a registered red test and make it GREEN",
+        "core/evidence-freshness.ts captureEvidenceHashSnapshot never throws for git or hash failures; headHash, materialHash and storyFilesHash are each optional and silently omitted, and tryCaptureEvidenceHashSnapshot only converts a thrown error into undefined. Five consumers distinguish thrown from returned only: core/done-oracle.ts buildDoneChecklist (~286), handlers/phase-gates.ts runDoneOracleGate (~834), handlers/verifier.ts evaluateStoryRoutineReuse (~628), core/lifecycle-readiness.ts buildStoryReadinessReport (~853), handlers/session.ts DONE pre-check (~1416). RED (repro probe rp-mtk45bks-v1fiwl, red-reviewed rr-mtk49u84-u7876u, script red-partial-hash-snapshot-binding.mjs on a git-init zero-commit fixture): C2 checkEvidenceFreshnessForGit returns fresh=true \"Unable to get git HEAD, skipping freshness check\" when HEAD is unreadable, so C3 the done-oracle evidence-freshness row PASSES with PASS test evidence bound to digests that cannot be re-read (fail-open in the active TEST->DONE gate); C5 buildStoryReadinessReport(target=DONE) reports head/material/story_files_hash_unavailable as warn + blocking=false. Already disclosed today: C4 runDoneOracleGate output names the missing material hash via the escalation/floor rows; C6 a no-main repo (materialHash present, storyFilesHash absent) is disclosed by one DONE row. Not driven: verifier.ts and session.ts (the latter swallows the whole pre-check in a catch-all). GREEN candidate proven on a scratch dist copy: make the !currentHead branch fail closed and make the readiness hash rows blocking for DONE; the script then exits 0. Scope: audit all five consumers, classify each partial-snapshot path as fail-closed / disclosed / tolerable with rationale, add a shared missing-digest classifier beside the reader (also cover the second silent downgrade in checkEvidenceFreshnessForGit where evidenceMaterialHash is set but currentMaterialHash is undefined and control falls through to head comparison), and commit the red script as packages/main/tests/red/red-partial-hash-snapshot-binding.mjs registered in proof-or-stop.config.json.",
+        "done-oracle.ts ~286, phase-gates.ts ~834, verifier.ts ~628, lifecycle-readiness.ts ~853, session.ts ~1416. Per site record fail-closed / disclosed / tolerable with rationale; C4 and C6 are already disclosed by escalation/floor rows; session.ts swallows the DONE pre-check in a catch-all; also cover the evidenceMaterialHash-set-but-currentMaterialHash-undefined fall-through. Model fixtures on B-a745 F-022 (validation-tier-planner-smoke.ts).",
+        "Fail closed or disclose when the evidence hash snapshot is partial in every lifecycle gate consumer",
+        "Implement fix for reproduced failure",
+        "Probe: rp-mtk45bks-v1fiwl, Review: rr-mtk49u84-u7876u",
+        "Script + RED/GREEN transcripts + green-1-candidate.md are in .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects (gitignored evidence store; probe rp-mtk45bks-v1fiwl, review rr-mtk49u84-u7876u). Copy to packages/main/tests/red/, register in proof-or-stop.config.json, then fix: checkEvidenceFreshnessForGit !currentHead branch must fail closed; buildHashRows must be blocking for target DONE.",
+        "The maintainer sees a normal ProofOrStop story with a durable intake binding, then still expects DEV, REVIEW, TEST, validation, and DONE evidence to prove the actual fix after implementation.",
+        "The repro review is red-reviewed and classified as target-bug, so this story starts from observed failing behavior instead of a speculative fix. Candidate partial-hash-snapshot-treated-as-binding remains intake evidence only.",
+        "Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof."
+      ],
+      "reason": "Integrated the bounded partial-hash freshness repair through managed Lab b83aa-partial-hash-freshness at 0.3.342; retire the superseded Story record while retaining audit history.",
+      "discardedAt": "2026-09-12T13:57:11.850Z",
+      "storyId": "B-83aa"
+    }
+  ]
+}
