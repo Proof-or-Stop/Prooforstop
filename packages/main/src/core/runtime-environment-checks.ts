@@ -354,6 +354,17 @@ type ActiveIdentityOperationBoundarySeed = Omit<ActiveIdentityOperationBoundary,
   identityFreePaths?: readonly ActiveIdentityFreePath[];
 };
 
+const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
+  'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
+  'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
+  'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
+  'packages/main/src/core/evidence-freshness.ts': 'c70a4868a94474a3fd1a36a3c4bdaa18a74cd2154500f1146773f0eb5448cd94',
+  'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
+  'packages/main/src/core/verification-execution-evidence.ts': '31765476de71f83b91b81fd1dba8b3295d9a8bd33ed9817fc73fe1a961a9f566',
+  'packages/main/src/handlers/checklist.ts': '43ed1f9d7a7c9193b8e1215afd5f23b62ebd1521aa27b233b903e3a56eac5d82',
+  'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
+});
+
 const identityBoundary = (
   seed: ActiveIdentityOperationBoundarySeed,
 ): ActiveIdentityOperationBoundary => {
@@ -364,6 +375,9 @@ const identityBoundary = (
     const identityFree = freePaths.find((candidate) => candidate.sourcePath === entry.sourcePath);
     if ((owned.length > 0) === Boolean(identityFree)) {
       throw new Error(`${seed.id}/${entry.sourcePath}: path must declare owned identity sites or one identity-free proof, never both/neither`);
+    }
+    if (identityFree && !ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS[entry.sourcePath]) {
+      throw new Error(`${seed.id}/${entry.sourcePath}: identity-free path requires a reviewed executable source binding`);
     }
     return owned.length > 0
       ? Object.freeze({ sourcePath: entry.sourcePath, classification: 'owned-site' as const, siteIds: Object.freeze(owned.map((site) => site.siteId)) })
@@ -1228,14 +1242,7 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 // consumers. A local syntactic decoy cannot authorize a different live dataflow.
 // Intentional implementation changes require explicit review and re-pinning;
 // the runtime never computes a new expected digest from the candidate itself.
-const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
-  'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
-  'packages/main/src/core/evidence-freshness.ts': 'c70a4868a94474a3fd1a36a3c4bdaa18a74cd2154500f1146773f0eb5448cd94',
-  'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
-  'packages/main/src/core/verification-execution-evidence.ts': '31765476de71f83b91b81fd1dba8b3295d9a8bd33ed9817fc73fe1a961a9f566',
-  'packages/main/src/handlers/checklist.ts': '43ed1f9d7a7c9193b8e1215afd5f23b62ebd1521aa27b233b903e3a56eac5d82',
-  'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
-});
+
 
 function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {
   const expected = ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS[sourcePath];
@@ -1353,7 +1360,11 @@ export function assertCanonicalActiveIdentityBoundary(input: {
   for (const registeredPath of boundary.paths) {
     if (!ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS[registeredPath.sourcePath] || executableSources.has(registeredPath.sourcePath)) continue;
     const base = registeredPath.scope === 'runtime-package' ? runtimePackageRoot : projectRoot;
-    executableSources.set(registeredPath.sourcePath, readFileSync(resolve(base, registeredPath.path), 'utf8'));
+    const absolute = resolve(base, registeredPath.path);
+    if (!existsSync(absolute) || !statSync(absolute).isFile()) {
+      throw new Error(`${boundary.id}/${registeredPath.sourcePath} consumer rejected: registered executable bytes are missing`);
+    }
+    executableSources.set(registeredPath.sourcePath, readFileSync(absolute, 'utf8'));
   }
   // Exact value checks remain independently operative; the final syntax guard
   // then catches live rewiring and decoys that keep those values unchanged.

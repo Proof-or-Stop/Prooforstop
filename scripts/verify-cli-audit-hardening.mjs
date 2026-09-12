@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import childProcess, { spawnSync } from 'node:child_process';
+import childProcess from 'node:child_process';
+import { verificationSpawner } from './verification-subprocess-budget.mjs';
+const spawnSync = verificationSpawner();
 import { createRequire, syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -132,6 +134,12 @@ try {
     assert.equal(projectQueueGovernance(wrapper,outer).rows[0].classification,'unknown-worktree');
     writeFileSync(join(wt,'proof-or-stop.config.json'),JSON.stringify(config));const local=new StoryStore(wt);local.writeStory(sid,story);local.writeChecklist(sid,{items:[]});
     assert.equal(projectQueueGovernance(wrapper,outer).rows[0].classification,'active-worktree');
+  });
+  await group('shared-subprocess-budget-expires-before-spawn', () => {
+    const exhausted = verificationSpawner(0);
+    assert.throws(()=>exhausted(process.execPath,['-e',"throw new Error('MUST_NOT_RUN')"]),/VERIFICATION_BUDGET_EXHAUSTED/);
+    const bounded = verificationSpawner(60);
+    assert.throws(()=>bounded(process.execPath,['-e','setInterval(()=>{},1000)'],{timeout:30000}),/VERIFICATION_SUBPROCESS_TIMEOUT/);
   });
   await group('unknown-lock-does-not-authorize-writes', async () => {
     const { evaluateRuntimeEnforcement } = await import(join(repo,'packages/main/dist/core/lifecycle-control/runtime/index.js'));

@@ -10,7 +10,8 @@ with `CLI_RUNTIME_VERSION_MISMATCH` and identifies the actual installation.
 The caller project's version is irrelevant. The check reads one small manifest
 and does not scan Story history, acquire an owner lease, or rebuild automatically.
 
-For a repository installation, run `node scripts/ensure-dist.mjs` from the
+For a repository installation whose source constant matches the runtime manifest,
+run `node scripts/ensure-dist.mjs` from the
 identified checkout after installing its dependencies. That existing command
 checks the source/build binding and prepares main and utils with build locking.
 Then verify both `proof-or-stop --version` and `node bin/proof-or-stop.js --version`.
@@ -33,3 +34,11 @@ shapes, and a package-only update. No real Story or main installation is changed
 It is also available as `npm run test:cli-runtime-version` and is included in the
 runtime fact contract. The doctor package-version row compares manifests; it
 does not independently measure this compiled-version startup invariant.
+
+On mismatch the guard also inspects the installation's source version when it is
+available. `SOURCE_VERSION_DESYNC` identifies a source/manifest disagreement;
+reconcile the constant, root and runtime package manifests, and lockfiles through
+the atomic version workflow before building. Rebuilding the same inconsistent
+source is not a recovery. Without verifiable source, inspect the installation or
+reinstall the intended package. Both versions remain visible in the refusal,
+including when the requested command is `--version`; no stale write is allowed.

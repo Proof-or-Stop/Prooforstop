@@ -1420,7 +1420,10 @@ export async function runCli(opts?: {
     // Story events follow the same resolved read/write mode as admission and
     // hooks. A static read-command name cannot exempt a parameterized writer.
     const eventStoryId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
-    const eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses, { config: config0 });
+    let eventOwnership: ReturnType<typeof resolveEffectiveOwnershipClass>;
+    try {
+      eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses, { config: config0 });
+    } catch { return; } // Best-effort observation must never replace the original command refusal.
     if (!commandObservationEffects(eventOwnership).recordStoryEvent) return;
     // quorum_submit owns one exact immutable process-events transaction inside
     // its handler. A generic post-handler codex_cli append would make that
@@ -1565,8 +1568,9 @@ export async function runCli(opts?: {
     // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
     // runs them like any other mutating command.
     const commandStoryId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
-    const effectiveOwnership = resolveEffectiveOwnershipClass(cmd, parsed, commandStoryId, externalAdmission.ownershipClasses, { config: config0 });
+    let effectiveOwnership: ReturnType<typeof resolveEffectiveOwnershipClass>;
     try {
+      effectiveOwnership = resolveEffectiveOwnershipClass(cmd, parsed, commandStoryId, externalAdmission.ownershipClasses, { config: config0 });
       enforceStoryRuntimeAdmission({
         command: cmd,
         commandArgs: argv.slice(1),

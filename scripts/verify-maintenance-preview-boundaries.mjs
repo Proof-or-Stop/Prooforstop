@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { verificationSpawner } from './verification-subprocess-budget.mjs';
+const spawnSync = verificationSpawner();
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';

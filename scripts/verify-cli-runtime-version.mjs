@@ -3,7 +3,8 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { verificationSpawner } from './verification-subprocess-budget.mjs';
+const spawnSync = verificationSpawner();
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const prepared = spawnSync(process.execPath, [join(root, 'scripts/ensure-dist.mjs')], { cwd: root, encoding: 'utf8', timeout: 180000 });

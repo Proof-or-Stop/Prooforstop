@@ -11101,6 +11101,13 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
   assert(readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('optional fullStoryBaseHead'), 'Comparison-base process semantics must remain registered');
 }
 
+// Executable audit hardening: source recovery, strict handlers, non-vacuous pins,
+// conservative lock admission and bounded queue observations.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-hardening.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
+  assert(output.includes('CLI_AUDIT_HARDENING_GREEN'), 'CLI audit hardening controls must pass');
+} catch (error) { assert(false, `CLI audit hardening failed: ${error.message}`); }
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11231,10 +11238,12 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
 execFileSync(process.execPath, [join(root, "packages/main/tests/certification-consumed-saturation.mjs")], { cwd: root, stdio: "inherit", timeout: 30000 });
 execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });
 
+// Each focused proof shares 240s across build and child commands; outer 270s
+// reserves 30s for bounded fixture IO. These are failure budgets, not speed gains.
 // Real CLI reader admission and handler non-mutation, including protected negative paths.
 try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {
-    cwd: root, encoding: 'utf8', timeout: 120000,
+    cwd: root, encoding: 'utf8', timeout: 270000,
   });
   assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');
 } catch (error) {
@@ -11244,7 +11253,7 @@ try {
 // Real preview calls, parameter admission, protected writer negatives and reader guidance.
 try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-maintenance-preview-boundaries.mjs')], {
-    cwd: root, encoding: 'utf8', timeout: 120000,
+    cwd: root, encoding: 'utf8', timeout: 270000,
   });
   assert(output.includes('MAINTENANCE_PREVIEW_GREEN'), 'maintenance preview executable proof must pass');
 } catch (error) {
@@ -11261,7 +11270,7 @@ try {
   assert(read('packages/main/src/core/process-fact-registry.ts').includes('Generic CLI command observation consumes argument-aware effective ownership'), 'Command observation semantics must be registered');
   try {
     const output = execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-boundaries.mjs')], {
-      cwd: root, encoding: 'utf8', timeout: 120000,
+      cwd: root, encoding: 'utf8', timeout: 270000,
     });
     assert(output.includes('COMMAND_OBSERVATION_GREEN'), 'Real CLI, worktree and lock observation proof must pass');
     execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-controls.mjs')], { cwd: root, stdio: 'pipe', timeout: 30000 });
@@ -11337,9 +11346,16 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
 // Executable audit regressions preserve argument refusals, pinned mode delegates,
 // ongoing Story activity, wrapper metadata roots and diagnostic compatibility.
 try {
-  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-lab-audit-repairs.mjs')], { cwd: root, encoding: 'utf8', timeout: 180000 });
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-lab-audit-repairs.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
   assert(output.includes('CLI_LAB_AUDIT_REPAIRS_GREEN'), 'CLI Lab audit repair controls must pass');
 } catch (error) { assert(false, `CLI Lab audit repairs failed: ${error.message}`); }
+
+// Executable audit hardening: source recovery, strict handlers, non-vacuous pins,
+// conservative lock admission and bounded queue observations.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-hardening.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
+  assert(output.includes('CLI_AUDIT_HARDENING_GREEN'), 'CLI audit hardening controls must pass');
+} catch (error) { assert(false, `CLI audit hardening failed: ${error.message}`); }
 
 if (failures.length) {
   console.error('');

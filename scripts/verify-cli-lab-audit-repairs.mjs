@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { verificationSpawner } from './verification-subprocess-budget.mjs';
+const spawnSync = verificationSpawner();
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -115,6 +116,7 @@ try {
   await group('standalone-version-test-build-prerequisite',()=>{
     const setup=join(temp,'unbuilt');mkdirSync(join(setup,'scripts'),{recursive:true});
     cpSync(join(repo,'scripts/verify-cli-runtime-version.mjs'),join(setup,'scripts/verify-cli-runtime-version.mjs'));
+    cpSync(join(repo,'scripts/verification-subprocess-budget.mjs'),join(setup,'scripts/verification-subprocess-budget.mjs'));
     writeFileSync(join(setup,'scripts/ensure-dist.mjs'),"import{writeFileSync}from'node:fs';writeFileSync('builder-invoked','yes');process.exit(17);\n");
     const r=spawnSync(process.execPath,['scripts/verify-cli-runtime-version.mjs'],{cwd:setup,env,encoding:'utf8',timeout:15000});
     assert.notEqual(r.status,0);

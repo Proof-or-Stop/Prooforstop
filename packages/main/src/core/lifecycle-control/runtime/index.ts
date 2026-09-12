@@ -162,7 +162,7 @@ function validationLockIssue(status: RuntimeClosureRow['locks']['validationLock'
     return {
       check: 'validationLock',
       reason: 'validation lock owner is unknown; availability is not proven',
-      remediation: 'wait for holder metadata or inspect the lock; missing metadata does not authorize cleanup',
+      remediation: 'retry after acquisition settles; inspect proof-or-stop doctor and runtime_closure_status. Manual orphan recovery requires stopping all processes sharing this repository and independently confirming no lock owner before backing up and removing only this lock directory; age or missing metadata alone never authorizes cleanup',
       source: 'core/validation-execution-lock',
     };
   }

@@ -101,16 +101,31 @@ phase, readiness and owner lease. It does not renew a lease or acquire a lock.
 Validation self-reentry requires the live async context's acquisition token to
 match the current holder generation. Matching the Story ID or operating-system
 PID alone is insufficient. Unknown lock state grants neither ownership nor availability: it appears as a
-blocking issue in runtime closure and refuses enforce-mode validation writes.
+blocking issue in runtime closure. In enforce mode it refuses phase advances,
+validation writes, shared main writes and guarded main-mirror reads. Status
+observation itself still runs. A nascent directory without holder metadata is
+indistinguishable from an interrupted acquisition, so neither its age nor a
+caller-supplied Story ID grants a write exemption. Retry after acquisition settles
+and inspect `proof-or-stop doctor` plus `runtime_closure_status`. An orphan may be
+removed manually only after all processes sharing the repository have been stopped
+and absence of an owner has been independently confirmed; preserve a backup and
+remove only that lock directory. Missing/corrupt metadata alone is insufficient,
+and no automatic cleanup is authorized by this diagnostic.
 
 Queue staleness accepts valid, non-future Story creation/start/event timestamps
 from the authoritative worktree. When those are old, it also checks the latest
 non-merge commit exclusive to the Story branch relative to the repository's
 resolved integration baseline. An inherited main commit, merge-only sync,
-directory timestamp or owner heartbeat does not invent Story activity. Missing
-authoritative state or progress is conservatively stale; this diagnostic never
-authorizes deletion or cleanup. The Git probe runs only when recorded activity
-is insufficient, and does not scan the historical Story or log tree.
+directory timestamp or owner heartbeat does not invent Story activity. Missing authoritative state or incomplete progress observation is
+`unknown-worktree`, never an assertion of staleness. This diagnostic never
+authorizes deletion or cleanup. Optional Git observations run only when recorded
+activity is insufficient, with a shared limit of four worktree probes and a
+1000 ms monotonic subprocess budget per projection. Baseline resolution and the
+commit query share that deadline; each worktree result is cached within the
+projection. Callers may lower the caps (zero disables probes). Budget exhaustion,
+Git failure and unavailable authoritative metadata remain unknown. These caps
+bound the additional progress probes, not the entire pre-existing projection or
+filesystem setup. No historical Story/log tree is scanned for commit activity.
 
 The deprecated `currentValidationStoryId` option remains accepted for compatibility
 but emits a warning once per process. It is ignored for authorization: detached
@@ -129,3 +144,12 @@ Story/directory ages, and a separate process holding the validation lock. These
 checks prove the bounded observation defects, not global participant migration,
 all convergence rules or end-to-end Story speedup. The existing phase-separated
 REVIEW/TEST convergence rule is preserved.
+
+Identity-free executable paths require a reviewed pin at registry construction.
+Removing a pin fails closed. Missing registered executable bytes get a boundary
+refusal when inspected through the consumer API; a missing ESM import may fail
+at module loading before that API is reached. Strict typed handlers reject string
+booleans even though raw CLI admission accepts the parser's string representation.
+Observation-only classifier failures omit the best-effort event and preserve the
+original command error. `verify-cli-audit-hardening.mjs` includes explicit fault
+injection for this defensive path, not a claim of normal argument reachability.

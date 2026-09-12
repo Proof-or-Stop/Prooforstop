@@ -76,8 +76,8 @@ async function main() {
     && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),
   'CLI startup must bind its compiled version to the installed runtime package');
   try {
-    // Ten children each have a 15s deadline; allow fixture copying in addition.
-    execFileSync(process.execPath, ['scripts/verify-cli-runtime-version.mjs'], { cwd: root, stdio: 'pipe', timeout: 210000 });
+    // Build and all children share 240s; reserve 30s for bounded fixture IO.
+    execFileSync(process.execPath, ['scripts/verify-cli-runtime-version.mjs'], { cwd: root, stdio: 'pipe', timeout: 270000 });
   } catch (error) {
     fail(`CLI runtime version regression failed: ${error.message}\n${String(error.stdout ?? '')}\n${String(error.stderr ?? '')}`);
     // Collect the other runtime contract failures in this same run as well.
