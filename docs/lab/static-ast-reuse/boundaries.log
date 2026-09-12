@@ -1,0 +1,63 @@
+PASS static refusal require
+PASS static refusal aliasedArray
+PASS static refusal sideEffect
+PASS static refusal computed
+PASS static refusal destructured
+PASS static refusal parseError
+PASS static refusal shadowedBuiltin
+PASS static refusal alias
+PASS static refusal mutable
+PASS static refusal arrayWrite
+PASS static refusal npm
+PASS ordinary CLI and imported builtin remain allowed
+PASS canonical branch excludes combined suite
+PASS configuration drift is refused
+PASS removed canonical flag reveals nested suite
+PASS new helper edge requires review
+PASS exact reviewed exception accepted
+PASS SOURCE_EVIDENCE_CONTRACT: stale nested digest
+PASS SOURCE_EVIDENCE_CONTRACT: missing evidence file has stable refusal
+PASS SOURCE_EVIDENCE_CONTRACT: tampered excerpt
+PASS SOURCE_EVIDENCE_CONTRACT: range beyond source length
+PASS SOURCE_EVIDENCE_CONTRACT: invalid line bounds
+PASS SOURCE_EVIDENCE_CONTRACT: escaping relative source path
+PASS SOURCE_EVIDENCE_CONTRACT: existing symlink target outside repository
+PASS SOURCE_EVIDENCE_CONTRACT: narrative alone is not current source evidence
+PASS SOURCE_EVIDENCE_CONTRACT: historical source alone cannot authorize current exception
+PASS SOURCE_EVIDENCE_CONTRACT: covering evidence cannot launder stale sibling
+PASS SOURCE_EVIDENCE_CONTRACT: covering evidence cannot launder altered sibling
+PASS SOURCE_EVIDENCE_CONTRACT: null evidence rejected
+PASS SOURCE_EVIDENCE_CONTRACT: nested arrays rejected
+PASS SOURCE_EVIDENCE_CONTRACT: string historical flag rejected
+PASS SOURCE_EVIDENCE_CONTRACT: current context does not cover actual call
+PASS coherent source evidence remains accepted after negative controls
+PASS current valid excerpt outside moved callsite refused
+PASS single snapshot refresh covers moved call; history remains supplemental
+PASS invalid UTF-8 comment retains consistent byte digests
+PASS missing dependency set refused
+PASS empty dependency set refused
+PASS omitted caller dependency refused
+PASS caller drift invalidates unchanged helper exception
+PASS source drift invalidates exception
+PASS existing main quorum graph without optional native certification helper succeeds
+PASS native closure process succeeds with current configuration and no stale exception
+PASS exact quorum native helper closure
+PASS native helper closure preserves reversed import order
+PASS deep native fixture child still requires review
+PASS unregistered helper depth remains bounded
+PASS optional native helper remains confined to integration caller
+PASS unregistered literal helper in registered integration remains refused
+PASS computed registered helper remains refused
+PASS missing original required native import remains refused
+PASS missing registered native helper remains refused
+PASS native depth extension is confined to exact quorum entry
+PASS brand-role named entry preserves source pin while traversing generic depths one and two
+PASS brand-role entry retains generic depth-four refusal
+STATIC_EVIDENCE_CHILD_TIMING {"label":"version-release-contract","elapsedMs":6698.003125,"budgetMs":270000,"status":0,"signal":null}
+LAB_VERSION_SOURCE_EVIDENCE_PASS: actual finish preserves evidence and upgrades built version
+PASS all 266 committed manifest entries have current covering source evidence
+STATIC_EVIDENCE_CHILD_TIMING {"label":"live-static-scan","elapsedMs":1703.8187079999989,"budgetMs":60000,"status":0,"signal":null}
+{"needsReview":0,"nested":0,"skipped":17,"exceptions":326,"unexpandedCommands":0}
+U18_STATIC_PASS
+U18_STATIC_EDGE_BOUNDARIES_PASS
+RUNTIME_SNAPSHOT_STATIC_EDGE_GREEN exact edge and dependency refusals; unrelated baseline preserved
