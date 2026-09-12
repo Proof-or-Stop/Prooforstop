@@ -136,7 +136,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
     role: 'proof-or-stop-verification-intent',
     // B-5a88/F-445: active PLAN role; writes only verificationIntent.
-    templateHash: '62918913d034c565153fb95b88a60499ff7984bdfb2d2548f2752c991bb3c20b',
+    templateHash: '8e44c8d690dc005379680e3c9282a71d38d0d1e03e1635668fccd425cbe2dfb2',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([

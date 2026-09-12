@@ -2798,6 +2798,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       excludes?: string[];
       files?: { modify: string[]; create: string[]; test: string[] };
       verificationIntent?: VerificationIntent;
+      intentProposalApproval?: { digest: string; baseIntentHash: string; reason: string };
       verificationEvidence?: VerificationEvidenceInput[];
       reason?: string;
       agent?: string;
@@ -2810,7 +2811,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
 
       assertEnglishAuthoringText(
         'checklist_update',
-        checklistEnglishAuthoringFields(args, args.itemId),
+        checklistEnglishAuthoringFields({...args, reason:args.intentProposalApproval?.reason ?? args.reason}, args.itemId),
       );
 
       // B-1909 CHK-001/CHK-005: 'withdrawn' is a terminal disposition that can
@@ -2839,7 +2840,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const incomingHasPlannedDeclarations = verificationIntentHasPlannedPathDeclarations(args.verificationIntent);
       const isDispatchedVerificationIntentWriter = dispatchedRole?.roleClass === 'verification-intent'
         && authority.source === 'dispatched-env';
-      if (incomingHasPlannedDeclarations && !isDispatchedVerificationIntentWriter) {
+      const ownerProposalRequested = args.intentProposalApproval !== undefined;
+      if (incomingHasPlannedDeclarations && !isDispatchedVerificationIntentWriter && !ownerProposalRequested) {
         throw new Error(
           'checklist_update refused: plannedPathDeclarations require the dispatched verification-intent role during PLAN [planned_path_writer_not_authorized]',
         );
@@ -2880,7 +2882,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       //   - userSees is a PLAN artifact (see CLAUDE.md checklist conventions), allowed to be added/modified during the PLAN phase,
       //     frozen from DEV onward (the executor must not tamper with the acceptance description during implementation)
       const story = assertChecklistMutationCwd(store, args.storyId);
-      if (isDispatchedVerificationIntentWriter && story.phase !== 'PLAN') {
+      if ((isDispatchedVerificationIntentWriter || ownerProposalRequested) && story.phase !== 'PLAN') {
         throw new Error('Independent verification-intent writes require PLAN [verification_intent_writer_phase_invalid]');
       }
       const titleContextFields = ['title', 'context'] as const;
@@ -2927,12 +2929,28 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      let ownerProposalApproved = false;
+      if (ownerProposalRequested) {
+        const approval = args.intentProposalApproval!;
+        const allowed = new Set(['storyId', 'itemId', 'verificationIntent', 'intentProposalApproval']);
+        if (Object.keys(args).some(key => !allowed.has(key)) || !args.verificationIntent
+          || !approval || typeof approval.reason !== 'string' || approval.reason.trim().length < 30
+          || authority.entry || !probeWriterLease(store.storyDirPath(args.storyId), resolveStoryGitCwd(args.storyId)).valid) {
+          throw new Error('INTENT_PROPOSAL_OWNER_REQUIRED: only the active owner may approve an intent-only proposal');
+        }
+        const baseIntentHash = digestCanonicalJson(item.verificationIntent ?? null);
+        const digest = digestCanonicalJson({storyId:args.storyId,itemId:args.itemId,baseIntentHash,verificationIntent:args.verificationIntent});
+        if (approval.baseIntentHash !== baseIntentHash || approval.digest !== digest) {
+          throw new Error('INTENT_PROPOSAL_BINDING_INVALID: proposal differs from the approved Story, item, prior intent or replacement');
+        }
+        ownerProposalApproved = true;
+      }
       const beforeIntentRevision = structuredClone(item);
       if (item.verificationIntentAmendments?.length && args.status && args.status !== 'pending' && [args.title,args.context,args.userSees,args.excludes,args.files,args.verificationIntent].some(value=>value!==undefined)) throw new Error('AMENDMENT_REVISION_STATUS_REFUSED: revise acceptance before updating completion status');
       if (args.verificationIntent !== undefined) {
         const existingDeclarationSnapshot = plannedPathDeclarationSnapshot(item.verificationIntent);
         const incomingDeclarationSnapshot = plannedPathDeclarationSnapshot(args.verificationIntent);
-        if (existingDeclarationSnapshot !== incomingDeclarationSnapshot && !isDispatchedVerificationIntentWriter) {
+        if (existingDeclarationSnapshot !== incomingDeclarationSnapshot && !isDispatchedVerificationIntentWriter && !ownerProposalApproved) {
           throw new Error(
             'checklist_update refused: only the dispatched verification-intent role may add, change, move, or remove plannedPathDeclarations during PLAN [planned_path_writer_not_authorized]',
           );
@@ -2956,6 +2974,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const results: string[] = [];
       const now = new Date().toISOString();
       const oldStatus = item.status;
+      if (ownerProposalApproved) {
+        (cl.auditLog ??= []).push({timestamp:now,phase:story.phase,itemId:args.itemId,action:'update',
+          from:item.status,to:item.status,agent:'owner',reason:`Owner-approved intent proposal ${args.intentProposalApproval!.digest}: ${args.intentProposalApproval!.reason}`});
+        results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
+      }
+
 
       if (args.title !== undefined) {
         item.title = args.title;
@@ -3065,11 +3089,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const gitCwd = resolveStoryGitCwd(args.storyId);
         const lease = readOwnerLease(store.storyDirPath(args.storyId));
         const owner = probeWriterLease(store.storyDirPath(args.storyId),gitCwd);
-        // The existing dispatched verification-intent role retains its PLAN-only field authority.
-        if (!owner.valid && !isDispatchedVerificationIntentWriter) throw new Error('AMENDMENT_OWNER_REQUIRED');
+        // Signed revisions always require the actual owner, including proposal applications.
+        if (!owner.valid) throw new Error('AMENDMENT_OWNER_REQUIRED');
         if (!lease?.leaseId || isLeaseStale(lease)) throw new Error('AMENDMENT_OWNER_GENERATION_REQUIRED');
         const revision = createIntentRevision({before:beforeIntentRevision,after:item,storyId:args.storyId,phase:story.phase,
-          reason:args.reason,actor:authority.actor || 'owner',sessionId:getSessionId(),leaseId:lease.leaseId,
+          reason:args.intentProposalApproval?.reason ?? args.reason,actor:authority.actor || 'owner',sessionId:getSessionId(),leaseId:lease.leaseId,
           headHash:currentGitHead(gitCwd) ?? '',gitCwd});
         (item.verificationIntentAmendments ??= []).push(revision);
         item.status = 'pending'; item.startTime = null; item.endTime = null;

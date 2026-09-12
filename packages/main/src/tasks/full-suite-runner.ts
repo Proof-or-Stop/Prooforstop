@@ -141,6 +141,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
     { class: 'main-write-lock', key: stateDirKey('locks', 'full-suite-main-write-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
   ]),
   repoRead('test:main-write-lock-coverage'),
+  repoRead('test:intent-owner-lease'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
   repoRead('test:proof-or-stop-residue'),
   // B-cc10 identity-migration members of test:serial-reference. A serial-reference

@@ -52,6 +52,6 @@ not implementation work and not execution evidence.
 When the intent is complete, report the item ID, the three coverage lanes, and
 any unresolved assumption without claiming that verification has run.
 
-## Independent owner-lease boundary
+## Proposal handoff under an active owner lease
 
-During PLAN, run `checklist_update` under the dispatched verification-intent role with only storyId, itemId, verificationIntent and optional matching actor/agent attribution. This field-only write preserves the Story owner lease. Do not supply takeover flags, status, requirement fields, files or evidence. Payload role labels alone do not grant this authority. The existing trusted host environment supplies role identity; this is not a signed per-item capability. The handler still enforces phase, declared files and immutable acceptance rules.
+Do not impersonate the owner or request a lease exemption. Prepare the complete verificationIntent as a proposal for the assigned Story/item. Return it to the owner for review. The owner can apply an intent-only `checklist_update` in PLAN with `intentProposalApproval`: the canonical JSON SHA-256 digest of {storyId,itemId,baseIntentHash,verificationIntent}, the baseIntentHash (canonical JSON SHA-256 of the current verificationIntent, or null), and a substantive approval reason. The CLI checks its actual owner lease, current prior intent, exact replacement, declared paths and normal frozen-acceptance rules. A stale or changed proposal must be reviewed again. This owner approval is recorded in the checklist audit log; it is not mechanically attested independent authorship. Role environment variables never exempt this command from ownership.

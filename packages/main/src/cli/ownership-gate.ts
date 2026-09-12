@@ -17,7 +17,6 @@ import type { ProofOrStopConfig } from '../core/config.js';
 import { managedHostRunStoryIdForOwnership } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
-import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 
 export interface ActiveStoryForOwnershipGate {
   storyId: string;
@@ -249,24 +248,8 @@ export function resolveEffectiveOwnershipClass(
     cls = 'readOnly';
   }
 
-  // Independent PLAN intent authoring already has a restricted handler role.
-  // Admit only that role's field-only submission; never turn general checklist
-  // writes or caller-authored role labels into reviewer authority.
-  if (cmd === 'checklist_update') {
-    const allowed = new Set(['storyId', 'itemId', 'verificationIntent', 'agent', 'actor']);
-    if (typeof args.storyId === 'string' && isCanonicalStoryId(args.storyId)
-      && args.storyId === storyId && typeof args.itemId === 'string' && /^CHK-\d+$/.test(args.itemId)
-      && args.verificationIntent !== null && typeof args.verificationIntent === 'object'
-      && !Array.isArray(args.verificationIntent) && Object.keys(args).every(key => allowed.has(key))) {
-      const authority = resolveAgentMutationAuthority({ command: 'checklist_update',
-        payloadActors: [typeof args.agent === 'string' ? args.agent : undefined,
-          typeof args.actor === 'string' ? args.actor : undefined] });
-      if (authority.source === 'dispatched-env' && authority.entry?.roleClass === 'verification-intent') {
-        cls = 'reviewerWrite';
-      }
-    }
-  }
-
+  // checklist_update intentionally retains owner gating, including reviewed
+  // intent proposals. A declared role is never a lease exemption for that writer.
   if (cmd === 'delivery_check_set') {
     cls = isDeliveryReviewerActor(args) ? 'reviewerWrite' : 'storyScopedMutating';
   }
