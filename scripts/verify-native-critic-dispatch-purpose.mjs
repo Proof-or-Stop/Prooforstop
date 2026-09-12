@@ -239,11 +239,23 @@ try {
  assert.equal(verifyCurrentReviewerDispatchBinding({...args,expectedDispatchBindingDigest:oldPass.nativeEvidenceBinding.dispatchBindingDigest,inventoryBinding:newRun.inventoryBinding}).ok,false,'exact digest cannot waive wrong inventory subject');
  const nativeArgs={binding:oldPass.nativeEvidenceBinding,projectRoot:historical.root,storyId,agent:oldRun.agent,lane:oldRun.lane,reviewRunId:oldRun.reviewRunId,dispatch:exact.binding,writerSessionId:oldPass.writerSessionId??oldPass.nativeEvidenceBinding.writerSessionId,sessionSource:oldPass.sessionSource??oldPass.nativeEvidenceBinding.sessionSource};
  assert.equal(verifyNativeReviewEvidenceBinding(nativeArgs),true);
+ assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,binding:{...nativeArgs.binding,dispatchBindingDigest:newPass.nativeEvidenceBinding.dispatchBindingDigest}}),false,'sealed dispatch digest alteration remains refused');
  assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,binding:{...nativeArgs.binding,invocationNonce:nativeArgs.binding.invocationNonce+'-tampered'}}),false,'nonce alteration remains refused');
  assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,writerSessionId:nativeArgs.writerSessionId+'-tampered'}),false,'writer alteration remains refused');
  assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,binding:{...nativeArgs.binding,attestation:{...nativeArgs.binding.attestation,signature:'invalid'}}}),false,'broker signature alteration remains refused');
  const current=verifyCurrentReviewerDispatchBinding({...args,inventoryBinding:newRun.inventoryBinding});assert(current.ok);
  assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,dispatch:current.binding}),false,'old attestation cannot use current-wave dispatch');
+ assert.equal(verifyNativeReviewEvidenceBinding({...nativeArgs,dispatch:current.binding,binding:{...nativeArgs.binding,dispatchBindingDigest:current.binding.dispatchBindingDigest}}),false,'matching a substituted selector cannot forge its broker-signed digest');
+ const originalPasses=historical.store.readReviewPasses(storyId),alteredPasses=structuredClone(originalPasses);
+ alteredPasses.passes.find(row=>row.id===oldPass.id).nativeEvidenceBinding.dispatchBindingDigest=newPass.nativeEvidenceBinding.dispatchBindingDigest;
+ try{
+  historical.store.writeReviewPasses(storyId,alteredPasses);
+  const refused=collectReviewerEvidenceState(historical.store,storyId,historical.root);
+  assert(refused.invalid.some(row=>row.evidenceId===oldPass.id),'actual collector must refuse a substituted sealed dispatch digest');
+  assert(!refused.valid.some(row=>row.id===oldPass.id),'tampered historical pass cannot remain valid');
+ }finally{historical.store.writeReviewPasses(storyId,originalPasses);}
+ console.log('NATIVE_HISTORICAL_DISPATCH_DIGEST_TAMPER_REFUSED PASS');
+
  const state=collectReviewerEvidenceState(historical.store,storyId,historical.root);
  console.log('NATIVE_HISTORICAL_DISPATCH_OBSERVATION '+JSON.stringify({oldPass:oldPass.id,newPass:newPass.id,invalid:state.invalid}));
  assert(!state.invalid.some(x=>x.evidenceId===oldPass.id),'NATIVE_HISTORICAL_DISPATCH_REQUIRED: authentic wave-one critic must retain its exact signed dispatch');
