@@ -112,8 +112,10 @@ import {
   verifyCausalPreflight,
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
-import { appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
+import { appendReceiptRevocation, augmentValidationCatalogWithGraphInputs, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry, type DualRevisionImpactGraph, type StoryChangeManifest } from '../core/story-aware-validation.js';
 import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, readRoutineReuseRevocationBasis, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
+import { collectStoryRelevanceInput } from '../core/validation-relevance-input.js';
+import { buildAutomaticValidationTierSelectionBinding, type AutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 // B-a745 CHK-002: the shell-metacharacter rule and the word splitter now live in
@@ -138,6 +140,20 @@ export interface ValidationSetupScan {
   }>;
   configuredShellReceiptsIntentional: boolean;
   warnings: string[];
+}
+
+export function resolveValidationDynamicMode(args: {
+  explicitMode?: DynamicValidationMode;
+  environmentMode?: string;
+  configuredMode?: string;
+  storyId?: string;
+  storyPhase?: string;
+  full?: string | boolean;
+}): DynamicValidationMode {
+  const configured = resolveDynamicMode(
+    args.explicitMode || args.environmentMode || args.configuredMode || (args.storyId ? 'enforce-low-risk' : 'off'),
+  );
+  return args.full !== undefined || args.storyPhase === 'DONE' ? 'off' : configured;
 }
 
 
@@ -206,6 +222,33 @@ function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
     affectedProcessFacts: [...new Set(affectedProcessFacts)],
     affectedCapabilities: [...new Set(affectedCapabilities)],
   };
+}
+
+function storyAutomaticTierSelection(
+  ctx: HandlerContext,
+  storyId: string,
+  gitCwd: string,
+  commands: ValidationCommand[],
+  catalog: ValidationCatalogEntry[],
+  graph: DualRevisionImpactGraph | undefined,
+  changes: StoryChangeManifest,
+): AutomaticValidationTierSelectionBinding {
+  const story = ctx.store.readStory(storyId);
+  const checklist = ctx.store.readChecklist(storyId);
+  const input = collectStoryRelevanceInput({
+    projectRoot: ctx.root,
+    gitCwd,
+    metadataRoot: ctx.root,
+    story: {
+      storyId,
+      phase: story.phase,
+      ...(story.riskSignals ? { riskSignals: story.riskSignals } : {}),
+    },
+    checklist: { items: checklist.items ?? [] },
+    routine: { sourceKind: 'configured', commands },
+  });
+  const augmentedCatalog = augmentValidationCatalogWithGraphInputs({ catalog, graph, changedFiles: changes.changedFiles });
+  return buildAutomaticValidationTierSelectionBinding({ input, catalog: augmentedCatalog });
 }
 
 function hasAny(projectRoot: string, paths: string[]): boolean {
@@ -1767,19 +1810,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // configured gitRoot is authoritative, however: if it cannot resolve,
       // stop before capacity acquisition rather than mint a wrapper-local lock.
       const projectConfig = loadConfig(projectRoot);
-      const configuredDynamicMode = resolveDynamicMode(
-        args.dynamicMode
-        || process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
-            || projectConfig.validation?.dynamic?.mode
-            || projectConfig.validate?.dynamic?.mode,
-      );
-      // Selective command groups are an iteration optimization, not final
-      // certification. Explicit full and non-DEV/REVIEW Story invocations use
-      // the complete configured plan, even with reusable dynamic receipts.
+      // Explicit full remains literal full execution. TEST may consume an
+      // authoritative complete action ledger (every inventory row execute or
+      // admissible reuse); DONE itself stays non-executing/full-policy only.
       const validationPhase = args.story ? ctx.store.readStory(args.story).phase : undefined;
-      const requiresCanonicalFullPlan = args.full !== undefined
-        || (validationPhase !== undefined && validationPhase !== 'DEV' && validationPhase !== 'REVIEW');
-      const dynamicMode = requiresCanonicalFullPlan ? 'off' : configuredDynamicMode;
+      const dynamicMode = resolveValidationDynamicMode({
+        explicitMode: args.dynamicMode,
+        environmentMode: process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE,
+        configuredMode: projectConfig.validation?.dynamic?.mode || projectConfig.validate?.dynamic?.mode,
+        storyId: args.story,
+        storyPhase: validationPhase,
+        full: args.full,
+      });
+      const requiresCanonicalFullPlan = dynamicMode === 'off' && (args.full !== undefined || validationPhase === 'DONE');
       const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
       const resolvedProjectGitRoot = args.story
         ? null
@@ -2022,7 +2065,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const reuse = built && args.story
             ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
             : null;
-          const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
+          const dynamicInputs = args.story ? {
+            ...storyDynamicInputs(ctx, args.story),
+            ...(usingConfigured ? {
+              tierSelectionResolver: ({ catalog, graph, changes }: {
+                catalog: ValidationCatalogEntry[];
+                graph?: DualRevisionImpactGraph;
+                changes: StoryChangeManifest;
+              }) => storyAutomaticTierSelection(ctx, args.story!, handlerGitCwd, commands, catalog, graph, changes),
+            } : {}),
+          } : {};
           if (reuse?.reusable && built) {
             const reused = tryReuseRoutinePass({
               ctx, storyId: args.story!, gitCwd: handlerGitCwd, commands, dynamicMode, focus,

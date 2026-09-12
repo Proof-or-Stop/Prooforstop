@@ -9206,7 +9206,11 @@ function assertStoryAwareDynamicValidationRuntime() {
     assert(registryText.includes(`'${fact}':`), `process-fact-registry: dynamic fact missing: ${fact}`);
     const level = levels.find((entry) => entry.name === fact);
     assert(level?.level === 'L4', `process-fact-levels: dynamic fact must remain L4: ${fact}`);
-    if (fact === 'runtime:story_aware_dynamic_authority_gate') assert(level?.rationale.includes('explicit full and TEST/DONE invocations execute the complete canonical plan'), 'dynamic authority must retain final full execution');
+    if (fact === 'runtime:story_aware_dynamic_authority_gate') {
+      assert(level?.rationale.includes('TEST may consume an authoritative complete execute-or-reuse inventory ledger'), 'dynamic authority must bind TEST to complete logical coverage');
+      assert(level?.rationale.includes('explicit full and DONE remain on the complete canonical policy'), 'dynamic authority must retain explicit full and DONE boundaries');
+      assert(level?.rationale.includes('DONE-required evidence stays independent'), 'dynamic authority must not replace DONE-required proof');
+    }
     assert(level?.gateConsumer && /dynamic|validate|TEST|authority/i.test(level.gateConsumer), `process-fact-levels: dynamic fact must name a gate consumer: ${fact}`);
   }
   for (const token of ['signed-artifact', 'schema-contract', 'gate-evidence']) {

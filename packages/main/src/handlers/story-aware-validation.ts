@@ -62,6 +62,8 @@ import {
   type ValidationShardResult,
   type ValidationRuntimeTrace,
   type ValidationSelectionManifest,
+  type DualRevisionImpactGraph,
+  type StoryChangeManifest,
   type VerificationIntent,
   verifyCanonicalFullBaseline,
   verifyValidationCommandReceipt,
@@ -71,6 +73,8 @@ import {
   verifyValidationShardReceipt,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
+import type { AutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
+import { narrowPortableValidationCommandTuple, provisionalValidationCommandId } from '../core/validation-command-portable-id.js';
 
 export interface PrepareStoryAwareValidationArgs {
   findingConstraints?: import('../core/finding-validation.js').FindingValidationConstraints;
@@ -94,6 +98,12 @@ export interface PrepareStoryAwareValidationArgs {
   revocationLedger?: ReceiptRevocationLedger;
   /** Configured commands retain env/optional/focus fields omitted by inventory discovery. */
   commands?: ValidationCommand[];
+  tierSelection?: AutomaticValidationTierSelectionBinding;
+  tierSelectionResolver?: (args: {
+    catalog: ValidationCatalogEntry[];
+    graph?: DualRevisionImpactGraph;
+    changes: StoryChangeManifest;
+  }) => AutomaticValidationTierSelectionBinding;
 }
 
 export interface PreparedStoryAwareValidation {
@@ -117,7 +127,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 6, executor: 'validation-executor' });
+const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 7, executor: 'validation-executor', selector: 'validation-tier-planner' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -296,7 +306,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   const head = args.head || currentHead(gitCwd);
   const injectedInventory = args.commands?.map((row, index) => ({
     ...row,
-    id: `validation-${stableDigest({ command: row.command, args: row.args }).slice(0, 16)}`,
+    id: row.id ?? provisionalValidationCommandId(narrowPortableValidationCommandTuple({ command: row })),
     originalIndex: index,
   }));
   const inventory = discoverValidationInventory(args.projectRoot, injectedInventory);
@@ -362,6 +372,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
       producedBy: 'story-closure-preview',
     }));
   }
+  const tierSelection = args.tierSelection ?? args.tierSelectionResolver?.({ catalog, graph, changes });
   const context: DynamicValidationContext = {
     projectRoot: args.projectRoot,
     storyId: args.storyId,
@@ -383,6 +394,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     scopeContract: args.scopeContract,
     buildCommandId: waveZeroCommand(catalog),
     findingConstraints: args.findingConstraints,
+    tierSelection,
   };
   const manifest = buildDynamicValidationPlan(context);
   return {

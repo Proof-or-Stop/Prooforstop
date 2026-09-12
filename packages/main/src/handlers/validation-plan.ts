@@ -48,6 +48,7 @@ import {
 } from '../core/validation-relevance-input.js';
 import {
   VALIDATION_TIERS,
+  buildValidationImpactIndexFromCatalog,
   resolveValidationTierPlan,
   validationWideningReasonGloss,
   type ValidationTier,
@@ -66,6 +67,13 @@ import type { SignedValidationDurationArtifact } from '../core/validation-releva
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
 import { resolveStoryWorkspace } from '../core/story-workspace.js';
 import { loadConfig } from '../core/config.js';
+import {
+  augmentValidationCatalogWithGraphInputs,
+  buildDualRevisionImpactGraph,
+  compileValidationCatalog,
+  discoverValidationInventory,
+  type StoryChangedFile,
+} from '../core/story-aware-validation.js';
 
 export const VALIDATION_PLAN_CLI_SCHEMA = 'proofOrStop.validation-plan-cli.v1' as const;
 
@@ -825,7 +833,35 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
 
       const projectConfig = loadConfig(projectRoot);
       const validationConfig = projectConfig.validate ?? projectConfig.validation;
-      const impactIndex = validationConfig?.dynamic?.impactIndex as ValidationImpactIndex | undefined;
+      const configuredImpactIndex = validationConfig?.dynamic?.impactIndex as ValidationImpactIndex | undefined;
+      const impactIndex = configuredImpactIndex ?? (routine.sourceKind === 'configured'
+        ? (() => {
+            const catalog = compileValidationCatalog(discoverValidationInventory(projectRoot));
+            const changed = input.changedFiles;
+            const changedFiles: StoryChangedFile[] = changed.status === 'available'
+              ? changed.paths.map((path) => {
+                  const rawStatus = changed.statuses[path] ?? 'M';
+                  const status: StoryChangedFile['status'] = rawStatus.startsWith('A') ? 'added'
+                    : rawStatus.startsWith('D') ? 'deleted'
+                      : rawStatus.startsWith('R') ? 'renamed'
+                        : 'modified';
+                  return { path, status };
+                })
+              : [];
+            const graph = changed.status === 'available' && changedFiles.length > 0
+              ? buildDualRevisionImpactGraph({
+                  gitCwd,
+                  baseHead: changed.baseRef,
+                  head: changed.headRef,
+                  catalog,
+                })
+              : undefined;
+            return buildValidationImpactIndexFromCatalog({
+              commandSetDigest: input.executionInventory.commandSetDigest,
+              catalog: augmentValidationCatalogWithGraphInputs({ catalog, graph, changedFiles }),
+            });
+          })()
+        : undefined);
       const result = resolveValidationTierPlan({
         input,
         requestedTier: request.requestedTier,

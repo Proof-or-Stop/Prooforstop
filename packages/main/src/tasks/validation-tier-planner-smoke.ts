@@ -147,7 +147,7 @@ import {
   validationCommandUsesShell,
   validationIdentityDigest,
 } from '../core/validation-evidence-reuse.js';
-import { configuredValidationCommands, sourceInputSnapshot } from '../handlers/verifier.js';
+import { configuredValidationCommands, resolveValidationDynamicMode, sourceInputSnapshot } from '../handlers/verifier.js';
 import {
   REPOSITORY_FULL_TIER,
   VALIDATION_IMPACT_INDEX_SCHEMA,
@@ -2424,6 +2424,15 @@ testCase('the production catalog derives the canonical impact index and automati
   assert.deepEqual(decision.tierSelections['repository-full'], catalog.map((entry) => entry.id));
 });
 
+testCase('Story-scoped dynamic authority defaults on in TEST while explicit full, DONE, and off remain fail-safe controls', () => {
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST' }), 'enforce-low-risk');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-review', storyPhase: 'REVIEW' }), 'enforce-low-risk');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', explicitMode: 'off' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', full: true }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyId: 'B-done', storyPhase: 'DONE' }), 'off');
+  assert.equal(resolveValidationDynamicMode({}), 'off');
+});
+
 testCase('the wired resolver widens every validation and gate machinery surface even when the index marks it fast', () => {
   for (const sensitivePath of [
     'packages/main/src/core/shared-validation-execution.ts',
@@ -2902,8 +2911,12 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ts.forEachChild(node, visitPlanner);
   };
   visitPlanner(plannerAst);
-  assert.equal(productionCallSites.length, 1, 'validation-tier-planner.ts must have exactly one internal selectValidationTiers call site');
-  assert.equal(productionCallSites[0].arguments.length, 1, 'validation-tier-planner.ts internal call may not populate the dependency seam');
+  assert.equal(productionCallSites.length, 3, 'only the plan resolver and automatic-tier wrapper may call the canonical selector');
+  assert.deepEqual(
+    productionCallSites.map((call) => call.arguments.length).sort(),
+    [1, 2, 2],
+    'the plan resolver keeps the live registry seam implicit while the automatic wrapper forwards its internal dependency seam',
+  );
   assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'validation-plan.ts may not call the selector seam directly');
   assert.match(
     validationWideningReasonGloss('validation_floor_registry_unavailable'),
@@ -3621,14 +3634,15 @@ testCase('validation_plan --tier=fast prints every labelled field including fina
   assert.match(text, /^inclusion reasons by unit \(2\):$/m);
   assert.match(text, /^ {2}unit-suite \[unit\]$/m);
   assert.match(text, /^ {2}lint-suite \[lint\]$/m);
-  assert.match(text, /included: .*command_exclusion_unproven/);
+  assert.match(text, /\[command_exclusion_unproven\] outcome=repository-full/);
+  assert.match(text, /included: repository-full:fail-closed/);
 
   // Unclassified inputs are LISTED under their own label.
   assert.match(text, /^unclassified inputs \(\d+\):$/m);
 
   // Every escalation code is followed by its plain-language gloss.
   assert.match(text, /^escalation reasons \(\d+\):$/m);
-  for (const code of ['impact_index_unusable', 'command_exclusion_unproven']) {
+  for (const code of ['changed_files_unavailable', 'hash_snapshot_unavailable', 'command_exclusion_unproven']) {
     const gloss = validationWideningReasonGloss(code as ValidationWideningReasonCode);
     assert.ok(text.includes(`[${code}]`), `escalation code ${code} is not printed`);
     assert.ok(text.includes(gloss.slice(0, 60)), `escalation code ${code} is printed without its gloss`);

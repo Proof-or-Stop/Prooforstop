@@ -24,6 +24,14 @@ import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 import { resolveRepositoryBaseline } from './git-baseline.js';
+import {
+  narrowPortableValidationCommandTuple,
+  provisionalValidationCommandId,
+} from './validation-command-portable-id.js';
+import type {
+  AutomaticValidationTierSelectionBinding,
+  ValidationTier,
+} from './validation-tier-planner.js';
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
@@ -277,10 +285,12 @@ export interface ValidationInventory {
   schema: 'proof-or-stop.validation-inventory.v1';
   commands: ValidationInventoryCommand[]; digest: string; source: 'proof-or-stop.config.json' | 'injected';
 }
-function commandId(row: { command: string; args: string[]; label?: string }, index: number): string {
-  // Labels are presentation metadata; command identity is stable when a label
-  // is edited or inventory order changes.
-  return 'validation-' + stableDigest({ command: row.command, args: row.args }).slice(0, 16);
+function commandId(row: { command: string; args: string[]; label?: string; cwd?: string; shell?: boolean }, _index: number): string {
+  // One portable command identity is shared by validation_plan and the runtime
+  // executor. Labels and array positions are presentation/provenance only.
+  return provisionalValidationCommandId(narrowPortableValidationCommandTuple({
+    command: { label: row.label ?? row.command, command: row.command, args: row.args, cwd: row.cwd, shell: row.shell },
+  }));
 }
 export function discoverValidationInventory(projectRoot: string, injected?: ValidationInventoryCommand[]): ValidationInventory {
   let commands: ValidationInventoryCommand[] = injected ? injected.map((row, index) => ({ ...row, originalIndex: row.originalIndex ?? index })) : [];
@@ -612,6 +622,29 @@ export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: s
   };
 }
 
+/** Add graph-proven Story paths that can reach each command to its selector inputs. */
+export function augmentValidationCatalogWithGraphInputs(args: {
+  catalog: ValidationCatalogEntry[];
+  graph?: DualRevisionImpactGraph;
+  changedFiles: StoryChangedFile[];
+}): ValidationCatalogEntry[] {
+  return args.catalog.map((entry) => {
+    const graphInputs = args.graph
+      ? args.changedFiles.flatMap((change) => args.graph!.commandsAffectedBy(change).includes(entry.id)
+        ? [change.path, ...(change.oldPath ? [change.oldPath] : [])]
+        : [])
+      : [];
+    return {
+      ...entry,
+      inputRoots: uniqueSorted([...entry.inputRoots, ...graphInputs]),
+      triggerExtensions: {
+        ...entry.triggerExtensions,
+        files: uniqueSorted([...(entry.triggerExtensions.files ?? []), ...graphInputs]),
+      },
+    };
+  });
+}
+
 export interface ValidationCommandReceipt {
   schema: typeof VALIDATION_RECEIPT_SCHEMA; id: string; commandId: string;
   commandIdentityDigest: string; inputDigest: string; closureCertificateDigest: string; catalogDigest: string;
@@ -694,6 +727,10 @@ export interface ValidationSingletonContribution {
 }
 export interface ValidationSelectionManifest {
   findingConstraintDigest?: string;
+  selectorDecisionDigest?: string;
+  requestedTier?: ValidationTier;
+  effectiveTier?: ValidationTier;
+  tierSelections?: Record<ValidationTier, string[]>;
   schema: typeof VALIDATION_SELECTION_SCHEMA; storyId: string; baseHead: string; head: string; changeDigest: string;
   scopeContractDigest: string; catalogDigest: string; inventoryDigest: string; dependencyGraphDigest: string;
   closureCertificateSetDigest: string; toolchainDigest: string; buildProofDigest: string; canonicalBaselineEpochId: string;
@@ -713,6 +750,8 @@ export interface DynamicValidationContext {
   graph?: DualRevisionImpactGraph; scopeContract?: ScopeContractData; gitCwd?: string; now?: number;
   /** Stable build/Wave-0 command that must execute on every dynamic run. */
   buildCommandId?: string;
+  /** Canonical Story-relevance decision generated from the same Story snapshot as validation_plan. */
+  tierSelection?: AutomaticValidationTierSelectionBinding;
 }
 function closureMap(value: DynamicValidationContext['closures']): Map<string, ValidationClosureCertificate> {
   return value instanceof Map ? value : new Map(Object.entries(value || {}));
@@ -835,6 +874,25 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const reasons = selected.get(id) || []; if (!reasons.includes(reason)) reasons.push(reason); selected.set(id, reasons);
     contribute(source, [id]);
   };
+  let canonicalTierDecision: AutomaticValidationTierSelectionBinding['decision'] | undefined;
+  if (ctx.tierSelection) {
+    if (stableDigest({ input: ctx.tierSelection.input, decision: ctx.tierSelection.decision }) !== ctx.tierSelection.bindingDigest) {
+      throw new Error('selector decision digest mismatch before validation execution');
+    }
+    const recomputed = ctx.tierSelection.decision;
+    const inventoryIds = inventory.map((row) => row.id);
+    if (stableDigest(recomputed.tierSelections['repository-full']) !== stableDigest(inventoryIds)) {
+      throw new Error('selector repository-full membership does not match executor inventory');
+    }
+    const fast = new Set(recomputed.tierSelections['story-fast']);
+    const intermediate = new Set(recomputed.tierSelections['story-intermediate']);
+    const full = new Set(recomputed.tierSelections['repository-full']);
+    if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) {
+      throw new Error('selector tier subset invariant mismatch before validation execution');
+    }
+    canonicalTierDecision = recomputed;
+    for (const id of recomputed.selectedUnitIds) select(id, `canonical-tier:${recomputed.effectiveTier}`, 'canonical-tier-selection');
+  }
   for (const entry of ctx.catalog) if (entry.assurance === 'always') select(entry.id, 'always', 'always');
   if (ctx.buildCommandId) select(ctx.buildCommandId, 'wave-0-build', 'wave-0-build');
   for (const pin of ctx.changes.pinnedValidationCommands) {
@@ -972,6 +1030,12 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     receiptRevocationLedgerDigest: ctx.revocationLedger ? ctx.revocationLedger.digest : stableDigest({}),
     changedFiles: ctx.changes.changedFiles, rows, singletonContributions, totals, escalationReasons: uniqueSorted(escalationReasons),
     fullEscalated, mode: ctx.mode || 'observe',
+    ...(canonicalTierDecision ? {
+      selectorDecisionDigest: canonicalTierDecision.selectionDigest,
+      requestedTier: canonicalTierDecision.requestedTier,
+      effectiveTier: canonicalTierDecision.effectiveTier,
+      tierSelections: canonicalTierDecision.tierSelections,
+    } : {}),
     ...(ctx.findingConstraints ? { findingConstraintDigest: ctx.findingConstraints.digest } : {}),
   };
   return { ...body, signature: signPayload(body) };
@@ -997,6 +1061,18 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
   const unverified = manifest.rows.filter(row => row.disposition === 'unverified').length;
   const selectedIds = new Set(manifest.rows.filter(row => row.disposition === 'execute' || row.disposition === 'reuse').map(row => row.commandId));
   const contributedIds = singletonUnion(normalizedContributions);
+  const tierBindingValid = manifest.selectorDecisionDigest === undefined
+    ? manifest.requestedTier === undefined && manifest.effectiveTier === undefined && manifest.tierSelections === undefined
+    : Boolean(manifest.requestedTier && manifest.effectiveTier && manifest.tierSelections
+      && manifest.selectorDecisionDigest.length > 0
+      && manifest.tierSelections['repository-full']
+      && stableDigest(manifest.tierSelections['repository-full']) === stableDigest(commandIds));
+  if (manifest.tierSelections) {
+    const fast = new Set(manifest.tierSelections['story-fast']);
+    const intermediate = new Set(manifest.tierSelections['story-intermediate']);
+    const full = new Set(manifest.tierSelections['repository-full']);
+    if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) return false;
+  }
   return manifest.totals.unverified === unverified
     && manifest.totals.executed === executed
     && manifest.totals.reused === reused
@@ -1008,6 +1084,7 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
     && manifest.totals.unmappedChanges === 0
     && contributedIds.size === selectedIds.size
     && [...contributedIds].every(id => selectedIds.has(id))
+    && tierBindingValid
     && manifest.rows.every(row => row.disposition !== 'unverified');
 }
 export const buildSelectionManifest = buildDynamicValidationPlan;

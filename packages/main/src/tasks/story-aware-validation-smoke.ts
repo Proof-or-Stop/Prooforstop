@@ -9,6 +9,7 @@
 import assert from 'node:assert/strict';
 import {
   aggregateValidationShards,
+  augmentValidationCatalogWithGraphInputs,
   buildDynamicValidationPlan,
   buildRevocationLedger,
   buildStoryChangeManifest,
@@ -26,12 +27,24 @@ import {
   assertSelectionIsSingletonUnionMonotonic,
   stableDigest,
 } from '../core/story-aware-validation.js';
+import { VALIDATION_IMPACT_INDEX_SCHEMA, selectAutomaticValidationTier } from '../core/validation-tier-planner.js';
 
 const inventory = discoverValidationInventory('/tmp', [
   { id: 'always', label: 'always', command: 'node', args: ['always.js'], originalIndex: 0 },
   { id: 'local', label: 'local', command: 'node', args: ['local.js'], originalIndex: 1 },
 ]);
 const catalog = compileValidationCatalog(inventory, { inputRoots: ['packages/main/src/local.ts'] });
+const graphAugmentedCatalog = augmentValidationCatalogWithGraphInputs({
+  catalog,
+  changedFiles: [{ path: 'packages/main/src/shared.ts', status: 'modified', blobId: 'shared' }],
+  graph: {
+    baseHead: 'base', head: 'head', baseGraphDigest: 'base-graph', headGraphDigest: 'head-graph', graphUnknown: false,
+    authorityReasons: () => [],
+    commandsAffectedBy: () => ['local'],
+  },
+});
+assert.equal(graphAugmentedCatalog.find((entry) => entry.id === 'local')?.inputRoots.includes('packages/main/src/shared.ts'), true);
+assert.equal(graphAugmentedCatalog.find((entry) => entry.id === 'always')?.inputRoots.includes('packages/main/src/shared.ts'), false);
 const changes = buildStoryChangeManifest({
   storyId: 'B-smoke',
   gitCwd: '.',
@@ -73,6 +86,43 @@ const selection = buildDynamicValidationPlan({
 assert.equal(selection.totals.unverified, 0);
 assert.equal(selection.totals.uncovered, 0);
 assert.equal(selection.totals.inventory, selection.totals.executed + selection.totals.reused);
+
+const tierInput = {
+  storyId: 'B-smoke',
+  universeCommandIds: inventory.commands.map((row) => row.id),
+  changedPaths: ['packages/main/src/local.ts'],
+  pinnedCommandIds: [],
+  forceFullReasons: [],
+  commandSetDigest: 'smoke-command-set',
+  snapshotDigest: 'smoke-snapshot',
+  impactIndex: {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'smoke-v1',
+    commandSetDigest: 'smoke-command-set',
+    entries: [
+      { commandId: 'always', selection: 'always' as const, inputPatterns: [], coverage: 'complete' as const },
+      { commandId: 'local', selection: 'story-intermediate' as const, inputPatterns: ['packages/main/src/**'], coverage: 'complete' as const },
+    ],
+  },
+};
+const tierDecision = selectAutomaticValidationTier(tierInput);
+const tierBindingDigest = stableDigest({ input: tierInput, decision: tierDecision });
+const tierBoundSelection = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes, closures,
+  baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+  tierSelection: { input: tierInput, decision: tierDecision, bindingDigest: tierBindingDigest },
+});
+assert.equal(tierBoundSelection.effectiveTier, 'story-intermediate');
+assert.equal(tierBoundSelection.selectorDecisionDigest, tierDecision.selectionDigest);
+assert.deepEqual(tierBoundSelection.tierSelections, tierDecision.tierSelections);
+assert.throws(
+  () => buildDynamicValidationPlan({
+    storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes, closures,
+    baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+    tierSelection: { input: tierInput, decision: { ...tierDecision, selectionDigest: 'forged' }, bindingDigest: tierBindingDigest },
+  }),
+  /selector decision digest mismatch before validation execution/,
+);
 
 // A clean second run may reuse only a signed receipt whose input and closure
 // digests match. An unverified closure executes, and a revoked receipt is not

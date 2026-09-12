@@ -40,11 +40,24 @@ const selector = selectors[mode];
 if (!selector) throw new Error(`unknown dynamic validation audit mode: ${mode || '<missing>'}`);
 
 function runSourceTask(task) {
-  const result = spawnSync(process.env.BUN_BINARY || 'bun', [join(root, task)], {
+  const sourcePath = join(root, task);
+  let result = spawnSync(process.env.BUN_BINARY || 'bun', [sourcePath], {
     cwd: root,
     encoding: 'utf8',
     maxBuffer: 16 * 1024 * 1024,
   });
+  // Release verification must remain runnable on hosts without Bun. The build
+  // emits the same registered task under dist, so an ENOENT launch (status
+  // null) falls back to Node over that exact compiled task, never to a second
+  // test implementation.
+  if (result.status === null && result.error?.code === 'ENOENT' && !process.env.BUN_BINARY) {
+    const compiledTask = task.replace('/src/', '/dist/').replace(/\.ts$/, '.js');
+    result = spawnSync(process.execPath, [join(root, compiledTask)], {
+      cwd: root,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    });
+  }
   const output = `${result.stdout || ''}${result.stderr || ''}`;
   if (result.status !== 0) {
     process.stdout.write(output);

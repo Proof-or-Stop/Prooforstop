@@ -404,7 +404,8 @@ the seven-member trace is bounded coverage, not a whole-registry trace.
 
 ## Authority changes in dynamic validation
 
-Dynamic runner v6 upgrades changes to registered gate/schema/verification
+Dynamic runner v7 binds the canonical fast/intermediate/full selector decision
+and digest into the signed execution manifest, and upgrades changes to registered gate/schema/verification
 authority sources to full validation, including the full task scope inventory
 validator. It also follows their source dependencies in both Git revisions, so
 removing a dependency in HEAD does not erase the baseline authority relationship.

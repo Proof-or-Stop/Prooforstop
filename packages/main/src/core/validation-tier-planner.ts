@@ -148,6 +148,53 @@ export interface ValidationImpactIndex {
   entries: ValidationImpactIndexEntry[];
 }
 
+export interface ValidationImpactCatalogEntry {
+  id: string;
+  assurance: 'always' | 'story-selectable' | 'full-only';
+  riskTier: 'local' | 'shared' | 'gate' | 'validation-infra';
+  policySource: 'explicit' | 'default';
+  inputRoots: readonly string[];
+  triggerExtensions?: { files?: readonly string[] };
+}
+
+/**
+ * Project the production validation catalog into the canonical tier selector's
+ * versioned ownership map.  This is the bridge that keeps explanation and
+ * execution on one membership authority instead of maintaining a second list.
+ * A defaulted or pathless row is deliberately partial and therefore widens.
+ */
+export function buildValidationImpactIndexFromCatalog(args: {
+  commandSetDigest: string;
+  catalog: readonly ValidationImpactCatalogEntry[];
+}): ValidationImpactIndex {
+  const entries: ValidationImpactIndexEntry[] = args.catalog.map((entry) => {
+    const inputPatterns = [...new Set([
+      ...(entry.inputRoots ?? []),
+      ...(entry.triggerExtensions?.files ?? []),
+    ].map(normalizedPath).filter(Boolean))].sort();
+    const selection: ValidationImpactSelection = entry.assurance === 'always'
+      ? 'always'
+      : entry.assurance === 'full-only' || entry.riskTier === 'gate' || entry.riskTier === 'validation-infra'
+        ? REPOSITORY_FULL_TIER
+        : entry.riskTier === 'shared'
+          ? 'story-intermediate'
+          : 'story-fast';
+    return {
+      commandId: entry.id,
+      selection,
+      inputPatterns,
+      coverage: entry.policySource === 'explicit' && inputPatterns.length > 0 ? 'complete' : 'partial',
+      ...(selection === REPOSITORY_FULL_TIER ? { fullReason: 'command_exclusion_unproven' as const } : {}),
+    };
+  });
+  return {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'production-catalog-v1',
+    commandSetDigest: args.commandSetDigest,
+    entries,
+  };
+}
+
 export interface SelectValidationTiersInput {
   storyId: string;
   requestedTier: ValidationTier;
@@ -164,6 +211,12 @@ export interface SelectValidationTiersInput {
 export interface SelectValidationTiersDependencies {
   /** Internal verification seam; CLI/schema inputs never populate dependencies. */
   registryFloorProjection?: unknown;
+}
+
+export interface AutomaticValidationTierSelectionBinding {
+  input: Omit<SelectValidationTiersInput, 'requestedTier'>;
+  decision: ValidationTierSelectionDecision;
+  bindingDigest: string;
 }
 
 export interface ValidationFloorProjectionInjection {
@@ -577,6 +630,93 @@ export function selectValidationTiers(
     selectionDigest: digestCanonicalJson(decisionBody),
     finalAuthority: false,
   };
+}
+
+/**
+ * Choose the smallest safe tier from Story relevance.  The explicit selector
+ * remains useful for operator previews; production starts at story-fast and is
+ * promoted when a directly affected row declares an intermediate boundary.
+ * Full-only matches and every fail-closed reason are already handled by
+ * selectValidationTiers and therefore retain repository-full semantics.
+ */
+export function selectAutomaticValidationTier(
+  input: Omit<SelectValidationTiersInput, 'requestedTier'>,
+  dependencies: SelectValidationTiersDependencies = {},
+): ValidationTierSelectionDecision {
+  const initial = selectValidationTiers({ ...input, requestedTier: 'story-fast' }, dependencies);
+  if (initial.effectiveTier === REPOSITORY_FULL_TIER) return initial;
+
+  const needsIntermediate = Boolean(input.impactIndex?.entries.some((entry) =>
+    entry.selection === 'story-intermediate'
+    && input.changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern)))));
+  if (!needsIntermediate) return initial;
+
+  const promoted = selectValidationTiers({ ...input, requestedTier: 'story-intermediate' }, dependencies);
+  if (promoted.effectiveTier === REPOSITORY_FULL_TIER) return promoted;
+  const requestedTier: ValidationTier = 'story-fast';
+  const effectiveTier: ValidationTier = 'story-intermediate';
+  const decisionBody = {
+    storyId: input.storyId,
+    requestedTier,
+    effectiveTier,
+    tierSelections: promoted.tierSelections,
+    escalationReasonCodes: promoted.escalationReasonCodes,
+    commandSetDigest: input.commandSetDigest,
+    snapshotDigest: input.snapshotDigest,
+    impactIndexDigest: promoted.impactIndexDigest,
+  };
+  return {
+    ...promoted,
+    requestedTier,
+    effectiveTier,
+    selectedUnitIds: [...promoted.tierSelections[effectiveTier]],
+    selectionDigest: digestCanonicalJson(decisionBody),
+  };
+}
+
+/** Build the exact selector input shared by validation_plan and validate. */
+export function buildAutomaticValidationTierSelectionBinding(args: {
+  input: StoryRelevanceInput;
+  catalog: readonly ValidationImpactCatalogEntry[];
+}): AutomaticValidationTierSelectionBinding {
+  const materialSeedPaths = [...new Set([
+    ...args.input.seeds.filter((seed) => seed.kind === 'path').map((seed) => normalizedPath(seed.value)).filter(Boolean),
+    ...(args.input.hashes.status === 'available'
+      ? (evidenceMaterialDirtyFiles(args.input.hashes.head) ?? []).map(normalizedPath).filter(Boolean)
+      : []),
+  ])].sort();
+  const forceFullReasons = args.input.escalations.map((entry) => entry.code as ValidationWideningReasonCode);
+  if (args.input.changedFiles.status === 'changed_files_unavailable') forceFullReasons.push('changed_files_unavailable');
+  if (args.input.hashes.status === 'hash_snapshot_unavailable') forceFullReasons.push('hash_snapshot_unavailable');
+  if (args.input.unclassifiedInputs.length > 0) forceFullReasons.push('unclassified_material_input');
+  if (args.input.riskSignals.length > 0) forceFullReasons.push('story_risk_signal_present');
+  const impactIndex = buildValidationImpactIndexFromCatalog({
+    commandSetDigest: args.input.executionInventory.commandSetDigest,
+    catalog: args.catalog,
+  });
+  const input: Omit<SelectValidationTiersInput, 'requestedTier'> = {
+    storyId: args.input.storyId,
+    universeCommandIds: [...args.input.executionInventory.commandIds],
+    changedPaths: materialSeedPaths,
+    pinnedCommandIds: args.input.pinnedCommands.map((pin) => pin.commandId),
+    forceFullReasons,
+    commandSetDigest: args.input.executionInventory.commandSetDigest,
+    snapshotDigest: digestCanonicalJson({
+      selectionDigest: args.input.selectionDigest,
+      hashes: args.input.hashes.status === 'available'
+        ? {
+            headHash: args.input.hashes.head.headHash,
+            materialHash: args.input.hashes.head.materialHash,
+            storyFilesHash: args.input.hashes.head.storyFilesHash,
+            materialDirtyFiles: [...(evidenceMaterialDirtyFiles(args.input.hashes.head) ?? [])]
+              .map(normalizedPath).filter(Boolean).sort(),
+          }
+        : { status: args.input.hashes.status, missingDigests: args.input.hashes.missingDigests },
+    }),
+    impactIndex,
+  };
+  const decision = selectAutomaticValidationTier(input);
+  return { input, decision, bindingDigest: digestCanonicalJson({ input, decision }) };
 }
 
 // ---------------------------------------------------------------------------

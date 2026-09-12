@@ -59,12 +59,12 @@ assert.equal(catalogCheck.ok, true, catalogCheck.errors.join('; '));
 const catalogDigest = stableDigest(catalog);
 assert.throws(
   () => buildStoryChangeManifest({ storyId: 'B-mutation-invalid-base', gitCwd: '.', baseHead: 'missing-base-head', head: 'HEAD' }),
-  /could not resolve a merge base|diff failed/,
+  /could not resolve a merge base|diff failed|Git references did not resolve to two immutable objects/,
   'unresolvable base/head must fail closed instead of signing an empty change manifest',
 );
 assert.throws(
   () => resolveStoryChangedFiles('.', 'missing-head-ref', '.', 'HEAD'),
-  /could not read tree/,
+  /could not read tree|Git references did not resolve to two immutable objects/,
   'unreadable tree identity lookup must fail closed instead of manufacturing deleted blob identities',
 );
 const closures = new Map(catalog.map((entry) => [entry.id, createValidationClosureCertificate({
@@ -219,11 +219,15 @@ assert.equal(monotonicPlans.base.rows.every(row => row.disposition === 'reuse'),
 assert.equal(monotonicPlans.expanded.rows.every(row => row.disposition === 'execute'), true);
 assertSelectionIsSingletonUnionMonotonic(expandedContext, monotonicPlans.expanded);
 const directContribution = monotonicPlans.expanded.singletonContributions.find(row => row.source.startsWith('file-direct:') && row.commandIds.includes('unit'))!;
+assert.ok(directContribution, 'expanded plan must expose the direct unit contribution before mutation');
 const contributionMutationBody = {
   ...monotonicPlans.expanded,
-  singletonContributions: monotonicPlans.expanded.singletonContributions.map(row => row === directContribution
-    ? { ...row, commandIds: row.commandIds.filter(commandId => commandId !== 'unit') }
-    : row),
+  // Remove the unit from every independent contribution. A full-escalation
+  // contribution may legitimately overlap the direct one; mutating only one
+  // source would leave a complete union and therefore would not be a forgery.
+  singletonContributions: monotonicPlans.expanded.singletonContributions
+    .map(row => ({ ...row, commandIds: row.commandIds.filter(commandId => commandId !== 'unit') }))
+    .filter(row => row.commandIds.length > 0),
 };
 const contributionMutation = { ...contributionMutationBody, signature: signPayload({ ...contributionMutationBody, signature: undefined }) };
 assert.equal(verifyValidationSelectionManifest(contributionMutation), false);
@@ -266,13 +270,15 @@ const allAuthorityPrerequisites = {
   sourceFirstBuildProofActive: true, buildAlwaysExecuted: true, storyRiskEligible: true,
   periodicFullPolicyActive: true, revocationLedgerCurrent: true, catalogOwnershipGatePassed: true,
 };
+const authorityManifestBody = { ...baseline, fullEscalated: false, escalationReasons: [], signature: undefined };
+const authorityManifest = { ...authorityManifestBody, signature: signPayload(authorityManifestBody) };
 const authority = evaluateDynamicAuthority({
-  mode: 'enforce-low-risk', riskTier: 'local', manifest: baseline,
+  mode: 'enforce-low-risk', riskTier: 'local', manifest: authorityManifest,
   prerequisites: allAuthorityPrerequisites, pinnedCommandsExecuted: true,
 });
 assert.equal(authority.authoritative, true, JSON.stringify(authority));
 const authorityMutation = evaluateDynamicAuthority({
-  mode: 'enforce-low-risk', riskTier: 'local', manifest: baseline,
+  mode: 'enforce-low-risk', riskTier: 'local', manifest: authorityManifest,
   prerequisites: { ...allAuthorityPrerequisites, baselineCurrent: false }, pinnedCommandsExecuted: true,
 });
 assert.equal(authorityMutation.authoritative, false);
