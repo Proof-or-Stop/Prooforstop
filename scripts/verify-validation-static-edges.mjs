@@ -42,7 +42,7 @@ const runtime=p=>p.includes('/src/')?p.replace('/src/','/dist/').replace(/\.ts$/
 const parsedSourceCache = new Map();
 function parseStaticSource(file, text) {
  const cached = parsedSourceCache.get(file);
- if (false && cached?.text === text) return cached.ast;
+ if (cached?.text === text) return cached.ast;
  const ast = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
  parsedSourceCache.set(file, { text, ast });
  return ast;
