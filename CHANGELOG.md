@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab verification-key-location-reuse - v0.3.340 - 2026-09-12
+
+Reduce repeated Git discovery during verification receipt validation by reusing the signer location within one public validation call. Read current key bytes for every signature, bind each requested working directory, and compare the current canonical location before returning. Preserve the original Git parser, including newline paths and shared worktree trust.
+
+A real handler-produced V5 regression records three discovery calls before the repair and two afterward, with three live key reads retained. Official RED/GREEN, key rotation/deletion/tampering, directory redirection, next-call freshness, requested-directory mutation, output/signature negatives, newline/bare/separate-git-dir and linked-worktree controls pass. Existing V5 authority, canonical test inventory, process and runtime checks pass. The reviewed executable fingerprint is refreshed without weakening identity guards.
+
+This bounded Lab result is a per-call probe reduction. It does not certify B-e6d9 DONE, full native acceptance, or resolution of the original 120/180-second deadlines. Detailed timing and preserved failed attempts are retained in the B-e6d9 timing artifacts.
+
+Maintenance provenance: codex/lab-verification-key-location-reuse, repair 69e03bda066881e285a45941b6cb5f4d5245e472.
+Verification command (replayed before integration and on main): `["node","scripts/verify-verification-key-location.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab scope-diff-repeated-work - v0.3.339 - 2026-09-12
 
 Scope diff parsing repeatedly rediscovered the integration baseline and reread the same historical file for every hunk. On a real Story read-only scope check, a 33.72-second profile spent about 25.97 sampled seconds under historical-source reads, including 23.64 seconds in repeated baseline resolution. The current diff contained 134 TS/JS hunks across 40 paths. This made owner scope checks and session briefs unnecessarily expensive.
