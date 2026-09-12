@@ -26,6 +26,7 @@ const EXPECTED={
  historical:'source evidence historical flag malformed',minor:'only an official patch bump can refresh source evidence',
  major:'only an official patch bump can refresh source evidence',downgrade:'only an official patch bump can refresh source evidence',skip:'only an official patch bump can refresh source evidence',
  malformed:'malformed patch version','malformed-from':'malformed patch version',undeclared:'undeclared version output',unexpected:'unexpected version output path',
+ 'manifest-format':'version refresh refuses manifest reformatting',
  'created-output':'version producer created an absent output',
  'brand-extra':'only the CLI version declaration may change','brand-duplicate':'version declaration must be unique',
 };
@@ -47,7 +48,7 @@ for (const scenario of Object.keys(EXPECTED)) {
   if(scenario==='historical')evidence.historical='true';
   mkdirSync(dirname(join(root,manifest)),{recursive:true});
   mkdirSync(dirname(join(root,file)),{recursive:true});writeFileSync(join(root,file),before);
-  const original=JSON.stringify({schema:'u18-static-exceptions.v1',entries:[entry]});
+  const original=JSON.stringify({schema:'u18-static-exceptions.v1',entries:[entry]},null,scenario==='manifest-format'?undefined:2)+(scenario==='manifest-format'?'':'\n');
   writeFileSync(join(root,manifest),original);
   assert.throws(()=>withLabVersionSourceEvidence(root,()=>{
    let after=before.replace('1.0.0','1.0.1');
@@ -91,7 +92,7 @@ try {
  write('bin/proof-or-stop.js',"console.log('Proof-or-Stop '+require('fs').readFileSync('built-version','utf8'));\n");
  write('bug.txt','broken');
  const file='packages/main/package.json',text=readFileSync(join(root,file),'utf8'),digest=createHash('sha256').update(text).digest('hex');
- write('scripts/lab/u18-static-edges/exceptions.json',JSON.stringify({schema:'u18-static-exceptions.v1',entries:[{id:'version-evidence',key:file+':3:fixture',reason:'Disposable source binding regression',requiredEvidence:[{file,startLine:1,endLine:text.split('\n').length,sourceDigest:digest,excerpt:text}],dependencyDigests:{[file]:digest}}]},null,2));
+ write('scripts/lab/u18-static-edges/exceptions.json',JSON.stringify({schema:'u18-static-exceptions.v1',entries:[{id:'version-evidence',key:file+':3:fixture',reason:'Disposable source binding regression',requiredEvidence:[{file,startLine:1,endLine:text.split('\n').length,sourceDigest:digest,excerpt:text}],dependencyDigests:{[file]:digest}}]},null,2)+'\n');
  write('check.cjs',`const fs=require('fs'),assert=require('assert/strict'),hash=s=>require('crypto').createHash('sha256').update(s).digest('hex');
 assert.equal(fs.readFileSync('bug.txt','utf8'),'fixed','TARGET fixture regression');
 const entry=JSON.parse(fs.readFileSync('scripts/lab/u18-static-edges/exceptions.json')).entries[0],e=entry.requiredEvidence[0],text=fs.readFileSync(e.file,'utf8');

@@ -56,3 +56,11 @@ regression budget sums its four CLI call limits plus setup allowance and reports
 transport timeout separately from a failed source-evidence assertion. The two
 Lab-driver exceptions additionally bind the driver and both source-evidence
 helpers, so changes to that behavior require fresh review.
+
+The official regression now verifies every entry-level source digest and every
+dependency digest, then runs the real scanner against the committed repository.
+Lab patch refresh refuses a noncanonical manifest instead of reformatting it.
+After local-main `ee1b815a84`, the additional literal snapshot-binding reader was
+reviewed: its TypeScript AST checks read one source file and have no subprocess
+launches. The refreshed runtime-contract entries bind that reader and source,
+and the new exact callsite is registered as EX-LAB-SNAPSHOT-BINDING.

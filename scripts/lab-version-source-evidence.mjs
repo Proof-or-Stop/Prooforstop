@@ -10,6 +10,8 @@ const manifestFile='scripts/lab/u18-static-edges/exceptions.json';
 const hash=text=>createHash('sha256').update(text).digest('hex');
 const read=(root,file)=>fs.readFileSync(path.join(root,file),'utf8');
 
+const canonicalManifest=value=>JSON.stringify(value,null,2).replace(/[\u007f-\uffff]/g,char=>'\\u'+char.charCodeAt(0).toString(16).padStart(4,'0'))+'\n';
+
 function assertVersionOnly(file,before,after,from,to) {
  if(file.endsWith('.ts')) {
   const declaration=`export const PROOF_OR_STOP_CLI_VERSION = '${from}'`;
@@ -59,6 +61,7 @@ export function withLabVersionSourceEvidence(root,bump) {
   if(manifestBefore===null)return result;
   assert.equal(read(root,manifestFile),manifestBefore,'version producer cannot modify source evidence');
   const manifest=JSON.parse(manifestBefore);
+  assert.equal(canonicalManifest(manifest),manifestBefore,'version refresh refuses manifest reformatting');
   assert.equal(manifest.schema,'u18-static-exceptions.v1');assert(Array.isArray(manifest.entries));
   let refreshed=false;
   for(const entry of manifest.entries) {
@@ -86,7 +89,7 @@ export function withLabVersionSourceEvidence(root,bump) {
   }
   if(!refreshed)return result;
   // Preserve the existing ASCII JSON encoding, including surrogate pairs in excerpts.
-  const content=JSON.stringify(manifest,null,2).replace(/[\u007f-\uffff]/g,char=>'\\u'+char.charCodeAt(0).toString(16).padStart(4,'0'))+'\n';
+  const content=canonicalManifest(manifest);
   fs.writeFileSync(path.join(root,manifestFile),content);
   return {...result,files:[...result.files,manifestFile]};
  } catch(error) {

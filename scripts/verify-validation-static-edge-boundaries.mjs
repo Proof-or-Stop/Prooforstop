@@ -143,8 +143,14 @@ try{
  const liveManifest=JSON.parse(fs.readFileSync(path.join(repo,'scripts/lab/u18-static-edges/exceptions.json'),'utf8'));
  for(const entry of liveManifest.entries){
   const match=entry.key.match(/^(.*):(\d+):[^:]+$/);assert(match,'manifest key must identify its source callsite');
+  assert.equal(entry.sourceDigest,hash(fs.readFileSync(path.join(repo,match[1]))),entry.id+' current source digest');
+  for(const [file,digest] of Object.entries(entry.dependencyDigests))assert.equal(digest,hash(fs.readFileSync(path.join(repo,file))),entry.id+' dependency '+file);
   assert.equal(staticSourceEvidenceError(repo,entry.requiredEvidence,{file:match[1],line:Number(match[2])}),null,entry.id+' current manifest evidence');
  }
  console.log('PASS all '+liveManifest.entries.length+' committed manifest entries have current covering source evidence');
+ const liveScan=spawnSync(process.execPath,[path.join(repo,'scripts/verify-validation-static-edges.mjs'),repo],{encoding:'utf8',timeout:60000});
+ assert(!liveScan.error&&!liveScan.signal,'Live static scanner transport failed: '+String(liveScan.error??liveScan.signal));
+ assert.equal(liveScan.status,0,'Current repository static scanner must pass: '+liveScan.stdout+liveScan.stderr);
+ console.log(liveScan.stdout.trim());
  console.log('U18_STATIC_EDGE_BOUNDARIES_PASS');
 }finally{fs.rmSync(root,{recursive:true,force:true});}
