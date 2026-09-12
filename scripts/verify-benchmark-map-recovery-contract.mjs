@@ -7,12 +7,12 @@ import {fileURLToPath} from 'node:url';
 import {execFileSync, spawnSync} from 'node:child_process';
 const repo=fileURLToPath(new URL('../',import.meta.url));
 const verifier=fileURLToPath(new URL('./verify-benchmark-map-recovery.mjs',import.meta.url));
-const root=mkdtempSync(join(tmpdir(),'benchmark-map-regression-'));
-const baseline=JSON.parse(execFileSync('git',['show','e0678f649bbc0b1f6ec61dc0546127ad511ab273:proof-or-stop.config.json'],{cwd:repo,encoding:'utf8'}));
+const baseline=JSON.parse(execFileSync('git',['show','e0678f649bbc0b1f6ec61dc0546127ad511ab273:proof-or-stop.config.json'],{cwd:repo,encoding:'utf8',timeout:10000,maxBuffer:1024*1024}));
 const paths=['docs/requirements/decisions/benchmark-execution-plan.md','docs/benchmark/implementation-preconditions.md','docs/benchmark/claude-followup-audit.md','docs/benchmark/m0-feasibility.md','scripts/benchmark/feasibility.mjs','scripts/verify-benchmark-feasibility.mjs'];
 const candidate=structuredClone(baseline);
 candidate.storyScopeBudget.responsibilities.push({id:'benchmark-feasibility',paths,hostAdapters:[],validationGroups:[]});
-const env={...process.env,GIT_DIR:execFileSync('git',['rev-parse','--absolute-git-dir'],{cwd:repo,encoding:'utf8'}).trim()};
+const env={...process.env,GIT_DIR:execFileSync('git',['rev-parse','--absolute-git-dir'],{cwd:repo,encoding:'utf8',timeout:10000,maxBuffer:1024*1024}).trim()};
+const root=mkdtempSync(join(tmpdir(),'benchmark-map-regression-'));
 try {
   symlinkSync(join(repo,'packages'),join(root,'packages'),'dir');
   const run=(config,entrypoint=verifier)=>{writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify(config));return spawnSync(process.execPath,[entrypoint],{cwd:root,env,encoding:'utf8',timeout:180000,maxBuffer:2*1024*1024});};
@@ -40,6 +40,9 @@ try {
   for(const row of mutations){assert.equal(row.rejectionExit,1);assert.match(row.rejectionStderr,/AssertionError/);assert.equal(row.restoredExit,0);assert.match(row.restoredOutput,/BENCHMARK_MAP_PASS/);}
   assert.match(good.stdout,/BENCHMARK_MAP_SUPPLEMENT_PASS/);
   const badCases=[
+    ['BENCHMARK_MAP_INVALID_CONFIG',c=>{delete c.storyScopeBudget.responsibilities;}],
+    ['BENCHMARK_MAP_INVALID_CONFIG',c=>c.storyScopeBudget=null],
+    ['BENCHMARK_MAP_INVALID_CONFIG',c=>c.storyScopeBudget.responsibilities='invalid'],
     ['BENCHMARK_MAP_BASELINE_DRIFT',c=>c.storyScopeBudget.mode='observe'],
     ['BENCHMARK_MAP_BASELINE_DRIFT',c=>c.storyScopeBudget.limits.acceptanceTopology++],
     ['BENCHMARK_MAP_ROWS_MISMATCH',c=>c.storyScopeBudget.responsibilities.at(-1).paths.push('extra.mjs')],
