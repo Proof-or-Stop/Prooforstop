@@ -1,4 +1,5 @@
 /** Narrow writer/consumer compatibility for authenticated review bookkeeping. */
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { relative } from 'node:path';
 import { realpathSync } from 'node:fs';
@@ -7,7 +8,7 @@ import { matchesRuntimeCommitSubject } from './auto-commit-metadata.js';
 import { REVIEW_EPOCH_COMMIT_ARTIFACTS } from './review-metadata-batch.js';
 import { isPromptBodyArtifactPath } from './prompt-body-store.js';
 import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
-import { verifyCausalEvidenceReceipt, CAUSAL_RECEIPT_DIRECTORY, CAUSAL_RECEIPT_INDEX_FILE } from './causal-evidence.js';
+import { verifyCausalEvidenceReceipt, CAUSAL_RECEIPT_DIRECTORY, CAUSAL_RECEIPT_INDEX_FILE, CAUSAL_OUTPUT_DIRECTORY } from './causal-evidence.js';
 import { hasMechanicalExecutionAuthority } from './verification-receipt-authority.js';
 import { digestCanonicalJson } from './digest.js';
 import { CERTIFICATION_WINDOW_FILE, CERTIFICATION_WINDOW_FILE_SCHEMA, PRECERT_RECEIPT_SCHEMA, verifyCertificationWindow, verifyPrecertReceipt, verifyPrecertCheapCheckReceipt, isCertificationRunningOnlyAdvance, type CertificationWindowData } from './certification-window.js';
@@ -52,6 +53,15 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         try { git(['cat-file','-e',`${parents[0]}:${prefix}review-inventory-epochs.json`]); return false; } catch { /* absent */ }
       }
       if (previous?.epochs.some(e => e.epochId === epoch.epochId && e.state !== 'OPEN')) return false;
+      // Finalization may append independent review records; it cannot erase or
+      // rewrite earlier observations under the batch publisher's subject.
+      for (const [path,key] of [['review-runs.json','runs'],['review-passes.json','passes'],['findings.json','findings'],['prompt-envelopes.json','envelopes']]) {
+        if (!artifacts.includes(path)) continue;
+        const next = readAt(commit,path);
+        const prior = git(['ls-tree','--name-only',parents[0],'--',prefix + path]) ? readAt(parents[0],path) : {[key]:[]};
+        if (!Array.isArray(next[key]) || !Array.isArray(prior[key])
+          || digestCanonicalJson(next[key].slice(0,prior[key].length)) !== digestCanonicalJson(prior[key])) return false;
+      }
       const current = store.readReviewInventoryEpochs(storyId);
       const live = current.epochs.find(e => e.epochId === epoch.epochId);
       const liveReceipt = current.receipts.find(r => r.receiptId === receipt.receiptId);
@@ -82,6 +92,19 @@ export function isVerifiedReviewMaintenanceCommit(args: {
           if (!verifyCausalEvidenceReceipt(causal,key) || causal.storyId !== storyId || causal.receiptHash !== hash) return false;
         }
       }
+      for (const path of artifacts.filter(path => path.startsWith(CAUSAL_OUTPUT_DIRECTORY + '/'))) {
+        const payload = readAt(commit,path);
+        if (typeof payload.output !== 'string' || Object.keys(payload).join(',') !== 'output') return false;
+        const digest = createHash('sha256').update(payload.output).digest('hex');
+        if (path !== `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`) return false;
+        const receiptPaths = git(['ls-tree','-r','--name-only',commit,'--',prefix + CAUSAL_RECEIPT_DIRECTORY]).split('\n').filter(Boolean);
+        if (!receiptPaths.some(receiptPath => {
+          const receipt = readAt(commit,receiptPath.slice(prefix.length));
+          return verifyCausalEvidenceReceipt(receipt) && receipt.storyId === storyId
+            && receiptPath === `${prefix}${CAUSAL_RECEIPT_DIRECTORY}/${receipt.receiptHash}.json`
+            && receipt.selectorOutput?.digest === digest && receipt.selectorOutput.length === payload.output.length;
+        })) return false;
+      }
       const before = readAt(parents[0],'checklist.json') as ChecklistData;
       const after = readAt(commit,'checklist.json') as ChecklistData;
       const withoutEvidence = (data: ChecklistData) => ({ ...data, items: data.items.map(({ verificationEvidence, ...item }) => item) });
@@ -104,6 +127,7 @@ export function isVerifiedReviewMaintenanceCommit(args: {
       matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`));
     if (!writer) return false;
     const incidental = new Set(['process-events.jsonl', 'process-metrics.json', 'owner-lease.json', 'test-runs.json']);
+    if (artifacts.some(path => incidental.has(path) && closeoutArtifactPolicyFor(path))) return false;
     const substantive = artifacts.filter(path => !incidental.has(path) && path !== CLOSEOUT_WRITE_RECEIPTS_PATH);
     if (!substantive.length) return false;
     const priorExists = (path: string) => Boolean(git(['ls-tree','--name-only',parents[0],'--',prefix + path]));
@@ -164,7 +188,7 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         if (writer !== 'test-transition') return false;
         const after = readAt(commit,path);
         if (!evaluatePersistedReviewToTestIndexTransition(gitCwd,prefix + path,
-          {headHash:parents[0],storyId,reviewRound:after.currentReviewRound},after).ok) return false;
+          {headHash:parents[0],storyId,reviewRound:readAt(reviewedHeadHash,'index.json').currentReviewRound},after).ok) return false;
         continue;
       }
       if (writer !== 'validate' || !closeoutPaths.includes(path)) return false;

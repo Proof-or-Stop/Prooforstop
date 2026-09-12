@@ -49,9 +49,11 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
     // Keep its bounded fixture budget separate from production command limits.
     // The native epoch continuity regression measured 76 s for four linked-worktree
     // cases; six cases now include actual cancellation and a prompt-path near miss.
+    // The extended epoch test includes real managed transport and independently
+    // bounded admission/completion waits plus discriminating transition controls.
     // Allow bounded host contention without changing any production timeout.
     const budgetMs = file.endsWith('/finding-identity-lineage-smoke.js') ? 300_000
-      : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? 240_000 : 120_000;
+      : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? 420_000 : 120_000;
     const deadline = Date.now() + budgetMs;
     while (!existsSync(outcome) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));
     process.stdout.write(readFileSync(output, 'utf8'));

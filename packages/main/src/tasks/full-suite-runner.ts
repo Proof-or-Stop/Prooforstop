@@ -151,10 +151,12 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:reviewed-source-bindings'),
   // The native review-epoch continuity matrix reads the repository bootstrap
   // and exercises all positive and refusal cases in runner-owned temporary Git
-  // repositories. It holds no shared port or runtime lock, so a shared repo-read
-  // claim is sufficient. Omitting this row leaves a canonical serial-reference
-  // member without resource policy and fails the suite closed as unknownPolicy.
-  repoRead('test:review-epoch-certification-continuity'),
+  // repositories. Its synthetic managed transport also uses normal machine
+  // provider admission; the test waits within separate finite admission and
+  // completion budgets and never bypasses that cap. Preserve an outer budget
+  // above its 420-second isolated-worker limit. Omitting this row leaves a
+  // canonical serial-reference member without resource policy.
+  repoRead('test:review-epoch-certification-continuity', { timeoutMs: 450_000 }),
   // The route verifier runs its child suites sequentially against private Git
   // fixtures (history includes a bounded two-child race), with shared checkout
   // reads and no shared writable resource. Allow overlap; its measured 350-second

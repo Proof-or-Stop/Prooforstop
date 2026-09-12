@@ -7275,6 +7275,10 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
   const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts');
+  assert(managedText.includes('isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest)')
+    && !managedText.includes('sealedManagedPromptDigest ?? args.expected.managedPromptDigest'), 'managed launch seal is mandatory; caller bindings never supply a missing digest');
+  assert(managedText.includes('epoch.storyId !== run.storyId') && managedText.includes('binding.wave !== epoch.waves.length'), 'finalized managed critic belongs to the current Story and terminal wave');
+
   assert(maintenanceText.includes('verifyReviewInventoryEpoch(epoch)') && maintenanceText.includes('verifyReviewInventoryReceipt(receipt)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,item,evidence)'), 'review maintenance lineage requires signed epoch and strict receipt authority');
   assert(maintenanceText.includes('verifyCloseoutWriteReceipt(receipt,') && maintenanceText.includes('evaluatePersistedReviewToTestIndexTransition(gitCwd,')

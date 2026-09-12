@@ -382,14 +382,20 @@ export function buildManagedInventoryCriticEvidencePack(args: {
   };
 }
 
-/** Launch accepts OPEN only; consumption accepts the authenticated completed wave too. */
+/** A legacy missing seal never falls back to the binding under verification. */
+export function isSealedManagedPromptDigestCurrent(sealed: unknown, bindingDigest: string, executionDigest: string): boolean {
+  return typeof sealed === 'string' && /^sha256:[a-f0-9]{64}$/.test(sealed)
+    && bindingDigest === sealed && executionDigest === sealed;
+}
+
+/** Launch accepts OPEN only; consumption accepts only the authenticated terminal wave. */
 export function isCurrentManagedInventorySubject(store: StoryStore, run: ReviewRun): boolean {
   if (run.reviewPurpose !== 'inventory-completeness') return true;
   const binding = run.inventoryBinding;
   if (!binding || !Number.isSafeInteger(binding.wave) || binding.wave < 1) return false;
   const data = store.readReviewInventoryEpochs(run.storyId);
   const epoch = data.epochs.find(e => e.epochId === binding.epochId);
-  if (!epoch || !verifyReviewInventoryEpoch(epoch) || !['OPEN','FINALIZED'].includes(epoch.state)) return false;
+  if (!epoch || epoch.storyId !== run.storyId || !verifyReviewInventoryEpoch(epoch) || !['OPEN','FINALIZED'].includes(epoch.state)) return false;
   if (epoch.state === 'FINALIZED') {
     const receipt = data.receipts.find(r => r.receiptId === epoch.receiptId);
     if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt
@@ -397,7 +403,7 @@ export function isCurrentManagedInventorySubject(store: StoryStore, run: ReviewR
       || receipt.reviewRound !== epoch.reviewRound || receipt.scopeDigest !== epoch.scopeDigest
       || digestCanonicalJson(receipt.cutoff) !== digestCanonicalJson(epoch.cutoff)
       || digestCanonicalJson(receipt.requiredLanes) !== digestCanonicalJson(epoch.requiredLanes)
-      || binding.wave > epoch.waves.length) return false;
+      || binding.wave !== epoch.waves.length) return false;
   } else if (binding.wave !== epoch.waves.length + 1) return false;
   // Reconstruct only the wave's stable subject from signed history, never its
   // provider prompt or a caller-authored terminal state.
@@ -761,9 +767,7 @@ export function verifyManagedReviewEvidence(args: {
     && runBinding.lane === args.lane
     && runBinding.reviewRunId === args.reviewRunId;
   const sealedManagedPromptDigest = runBinding.reviewBinding?.managedPromptDigest;
-  const expectedManagedPromptDigest = sealedManagedPromptDigest ?? args.expected.managedPromptDigest;
-  const sealedManagedPromptDigestValid = sealedManagedPromptDigest === undefined
-    || /^sha256:[a-f0-9]{64}$/.test(sealedManagedPromptDigest);
+
   const reviewTupleMatches = runBinding.reviewBinding !== null
     && runBinding.reviewBinding.headHash === args.expected.headHash
     && runBinding.reviewBinding.materialHash === args.expected.materialHash
@@ -775,9 +779,7 @@ export function verifyManagedReviewEvidence(args: {
     && args.binding.storyFilesHash === args.expected.storyFilesHash
     && args.binding.promptHash === args.expected.promptHash
     && args.binding.envelopeId === args.expected.envelopeId
-    && sealedManagedPromptDigestValid
-    && args.binding.managedPromptDigest === expectedManagedPromptDigest
-    && runBinding.promptDigest === expectedManagedPromptDigest;
+    && isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest);
   const storyMatches = proposal?.storyId === args.storyId
     && runBinding.storyId === args.storyId;
   const diagnostic = buildProofAdmissibilityDiagnostic({
