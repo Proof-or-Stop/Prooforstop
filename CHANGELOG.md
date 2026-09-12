@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab redundant-scan-comparison - v0.3.341 - 2026-09-12
+
+Reduce repeated initial snapshot canonicalization in shared validation execution. Final comparison starts from local main 0.3.340 at a11f2d89a4c1762b5e0452e6e9e5e696ee9884c9. Each of the two initial baseline objects is canonicalized once per invocation instead of five times on first execution and three on receipt reuse. Live fact probes remain 6 and 4, with real child starts 1 and 0. Current input bytes, workspace, loaded implementation identity and publication checks remain active. Five other measured historical hotspots were already within budget and are unchanged. Quorum cleanup is excluded and remains owned by another Lab.
+
+The current RED is a387adfba80000ee69f249a0f21d07fbb3d837e1 and GREEN implementation is 7575d6257240a6ceccc38fb6bb24ba46cd80c391. The RED shared-execution source bytes exactly equal main 0.3.340. The driver and both tests have identical digests at RED and GREEN. Both managed runs use node scripts/verify-redundant-scan-comparison.mjs and record all five results, including the binding guard after the counter so it cannot mask the target RED. Latest runtime contract and declared input-tree regressions pass. The committed report and raw data are in docs/lab-evidence/redundant-scan-comparison-20260912/. Earlier 0.3.339 measurements are preserved in historical-0339 and are not current-driver acceptance evidence. Recorded call durations are single shared-host observations; no causal elapsed-time or whole-Story speedup is claimed.
+
+The first independent audit accepted the production optimization but rejected use of Lab-only module hooks in the general gate. The dynamic counter remains Lab-only; the canonical gate executes a TypeScript AST binding check without hooks. The new guard passes under Node v20.20.2 with runtime, executable and argv captured in its log and five mutations refused. The second audit requested driver ordering, updated complete logs, identifiable Node 20 evidence, and narrower registry wording. All four corrections are present in the final packet, whose log hashes include the Node 20 and compatible runtime results. The retained canonical strings never survive the invocation; existing cost hints remain governed by their separate policy. No general runtime floor is raised or test silently skipped.
+
+This is local Lab maintenance, not formal Story DONE. The user authorized patch upgrade, local integration and successful cleanup, followed by verified GitHub main publication, version tag and a detailed Release.
+
+Maintenance provenance: codex/lab-redundant-scan-comparison, repair a52df82d09785547b0c52318f3cc223c31a4dab0.
+Verification command (replayed before integration and on main): `["node","scripts/verify-redundant-scan-comparison.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab verification-key-location-reuse - v0.3.340 - 2026-09-12
 
 Reduce repeated Git discovery during verification receipt validation by reusing the signer location within one public validation call. Read current key bytes for every signature, bind each requested working directory, and compare the current canonical location before returning. Preserve the original Git parser, including newline paths and shared worktree trust.

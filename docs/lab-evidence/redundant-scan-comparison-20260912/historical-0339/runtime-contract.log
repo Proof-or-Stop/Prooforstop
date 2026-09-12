@@ -1,0 +1,33 @@
+PATH_OPERATION_COUNTS {"warm":8,"cold":8}
+{
+  "groups": [
+    {
+      "name": "runtime-path-semantics",
+      "pass": true,
+      "parityCases": 691,
+      "liveMutationAndRegexControls": true
+    },
+    {
+      "name": "runtime-path-operation-budget",
+      "pass": true,
+      "warmReplaceCalls": 8,
+      "coldReplaceCalls": 8
+    },
+    {
+      "name": "quorum-refusal-diagnostic-integrity",
+      "pass": true,
+      "controls": 11
+    }
+  ],
+  "boundary": "Source-level helper and runtime path checks; not Story completion or elapsed Story performance."
+}
+PENDING_RECONCILIATION_GREEN
+MERGE_BASE_COUNTS [{"mergeBaseCalls":1,"materialHash":"993da48dd6c331a69662b77efa014973a8b2a0cd3300132f8c42abef4e8891d7"},{"mergeBaseCalls":1,"materialHash":"993da48dd6c331a69662b77efa014973a8b2a0cd3300132f8c42abef4e8891d7"}]
+SNAPSHOT_OPERATION_COUNTS [{"phase":"executed","initialSerializations":1,"inputSerializations":1,"liveProbes":6,"childStarts":1,"ms":2272.649542},{"phase":"reused","initialSerializations":1,"inputSerializations":1,"liveProbes":4,"childStarts":0,"ms":1264.844}]
+SNAPSHOT_DRIFT_CONTROLS_PASS
+SNAPSHOT_OPERATION_GREEN
+DOCTOR_REAL_FAILED_SCAN_NULL_AND_REPAIR_REFUSAL_GREEN
+DOCTOR_SCAN_FAILURES_AND_FOCUSED_CACHE_REPAIR_GREEN
+TREE_DELEGATE_BINDING_GREEN actual-delegate-mutation-refused restored-control
+Runtime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)
+execution_assertion_reuse_contract=PASS

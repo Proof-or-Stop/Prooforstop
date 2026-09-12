@@ -1,0 +1,59 @@
+
+> proof-or-stop@0.3.340 lab:worktree
+> node scripts/lab-worktree.mjs red redundant-scan-comparison --expect INITIAL_SNAPSHOT_SERIALIZED_REPEATEDLY -- node scripts/verify-redundant-scan-comparison.mjs
+
+GIT_TREE_BATCH_LEDGER={"kind":"probe","seconds":1.131271667,"gitCalls":13,"gitMs":1116.3056239999992,"treeReads":1,"rows":[{"shell":"git rev-parse --show-toplevel","ms":32.78454099999999},{"shell":"git rev-parse HEAD","ms":43.104833999999755},{"args":["rev-parse","--verify","--end-of-options","df1b84b06c3310aa0000cf963a144184fe9bd956^{object}"],"ms":54.645500000000084},{"args":["ls-tree","-r","-z","df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":43.1198330000002},{"args":["symbolic-ref","-q","refs/remotes/origin/HEAD"],"ms":155.7172499999997},{"args":["worktree","list","--porcelain"],"ms":159.52083300000004},{"args":["rev-parse","--absolute-git-dir"],"ms":135.855458},{"args":["rev-parse","--path-format=absolute","--git-common-dir"],"ms":145.24762499999997},{"args":["rev-parse","--verify","--end-of-options","refs/heads/main^{commit}"],"ms":65.71166700000003},{"args":["merge-base","refs/heads/main","df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":56.97733299999982},{"args":["rev-parse","--revs-only","--end-of-options","df1b84b06c3310aa0000cf963a144184fe9bd956^{object}","cadad13155ebdbce473d696b718439ad9c34298e^{object}"],"ms":96.51516600000014},{"args":["diff","--name-status","-z","-M","cadad13155ebdbce473d696b718439ad9c34298e..df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":72.86558399999967},{"args":["rev-parse","--path-format=absolute","--git-path","index"],"ms":54.23999999999978}]}
+GIT_TREE_BATCH_LEDGER={"kind":"capture","seconds":0.6556252919999997,"gitCalls":12,"gitMs":651.0924999999997,"treeReads":1,"rows":[{"args":["status","--porcelain","--untracked-files=all"],"ms":105.21466599999985},{"args":["rev-parse","HEAD"],"ms":72.90491699999984},{"args":["rev-parse","--verify","--end-of-options","df1b84b06c3310aa0000cf963a144184fe9bd956^{object}"],"ms":47.20658300000014},{"args":["ls-tree","-r","-z","df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":54.16466700000001},{"args":["symbolic-ref","-q","refs/remotes/origin/HEAD"],"ms":63.16645800000015},{"args":["worktree","list","--porcelain"],"ms":49.85462499999994},{"args":["rev-parse","--absolute-git-dir"],"ms":48.526124999999865},{"args":["rev-parse","--path-format=absolute","--git-common-dir"],"ms":36.83254199999965},{"args":["rev-parse","--verify","--end-of-options","refs/heads/main^{commit}"],"ms":44.567375000000084},{"args":["merge-base","refs/heads/main","df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":37.21179200000006},{"args":["rev-parse","--revs-only","--end-of-options","df1b84b06c3310aa0000cf963a144184fe9bd956^{object}","cadad13155ebdbce473d696b718439ad9c34298e^{object}"],"ms":33.97687500000029},{"args":["diff","--name-status","-z","-M","cadad13155ebdbce473d696b718439ad9c34298e..df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":57.46587499999987}]}
+GIT_TREE_BATCH_LEDGER={"kind":"strict","seconds":0.6158712500000006,"gitCalls":11,"gitMs":541.26946,"treeReads":1,"rows":[{"args":["rev-parse","HEAD"],"ms":62.150750000000244},{"args":["rev-parse","--verify","--end-of-options","df1b84b06c3310aa0000cf963a144184fe9bd956^{object}"],"ms":54.57212499999969},{"args":["ls-tree","-r","-z","df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":47.22649999999976},{"args":["symbolic-ref","-q","refs/remotes/origin/HEAD"],"ms":46.562292000000525},{"args":["worktree","list","--porcelain"],"ms":33.275541999999405},{"args":["rev-parse","--absolute-git-dir"],"ms":41.07458399999996},{"args":["rev-parse","--path-format=absolute","--git-common-dir"],"ms":53.10633400000006},{"args":["rev-parse","--verify","--end-of-options","refs/heads/main^{commit}"],"ms":53.05133300000034},{"args":["merge-base","refs/heads/main","df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":49.256249999999454},{"args":["rev-parse","--revs-only","--end-of-options","df1b84b06c3310aa0000cf963a144184fe9bd956^{object}","cadad13155ebdbce473d696b718439ad9c34298e^{object}"],"ms":57.84345800000028},{"args":["diff","--name-status","-z","-M","cadad13155ebdbce473d696b718439ad9c34298e..df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":43.15029200000026}]}
+GIT_TREE_BATCH_LEDGER={"kind":"relaxed","seconds":0.9808881250000004,"gitCalls":11,"gitMs":873.210376,"treeReads":1,"rows":[{"args":["rev-parse","HEAD"],"ms":49.119666999999936},{"args":["rev-parse","--verify","--end-of-options","df1b84b06c3310aa0000cf963a144184fe9bd956^{object}"],"ms":180.42349999999988},{"args":["ls-tree","-r","-z","df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":186.80162500000006},{"args":["symbolic-ref","-q","refs/remotes/origin/HEAD"],"ms":79.66775000000052},{"args":["worktree","list","--porcelain"],"ms":64.0625},{"args":["rev-parse","--absolute-git-dir"],"ms":58.444792000000234},{"args":["rev-parse","--path-format=absolute","--git-common-dir"],"ms":53.38012499999968},{"args":["rev-parse","--verify","--end-of-options","refs/heads/main^{commit}"],"ms":56.770292000000154},{"args":["merge-base","refs/heads/main","df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":48.33812500000022},{"args":["rev-parse","--revs-only","--end-of-options","df1b84b06c3310aa0000cf963a144184fe9bd956^{object}","cadad13155ebdbce473d696b718439ad9c34298e^{object}"],"ms":54.54087499999969},{"args":["diff","--name-status","-z","-M","cadad13155ebdbce473d696b718439ad9c34298e..df1b84b06c3310aa0000cf963a144184fe9bd956"],"ms":41.66112499999963}]}
+GIT_TREE_BATCH_SAFETY_GREEN edit rename-tab delete read-failure fresh-after-failure
+GIT_TREE_BATCH_GREEN
+STAGE_ENTRY_LEDGER={"entries":1,"seconds":0.50713025,"code":0}
+STAGE_ENTRY_GREEN
+PAIR {"first":{"seconds":7.621778584,"probes":6,"code":0,"reason":"no_matching_receipt","receipt":"executed","output":"ACTUAL_CHILD\n","processSeconds":8.624158165999999},"second":{"seconds":1.596432375,"probes":2,"code":0,"reason":"reuse_cost_exceeds_execution","output":"ACTUAL_CHILD\n","processSeconds":2.3689812089999998}}
+CROSS_PROCESS_COST_GREEN corruptFallback changedInputNeverOldPass
+MERGE_BASE_COUNTS [{"mergeBaseCalls":1,"materialHash":"cde6570ec06b1dd8b0949c323183769cfedb6e83f4dc45916e85d06d4fab1e3c"},{"mergeBaseCalls":1,"materialHash":"cde6570ec06b1dd8b0949c323183769cfedb6e83f4dc45916e85d06d4fab1e3c"}]
+SNAPSHOT_OPERATION_COUNTS [{"phase":"executed","initialSerializations":5,"inputSerializations":5,"liveProbes":6,"childStarts":1,"ms":5511.899875},{"phase":"reused","initialSerializations":3,"inputSerializations":3,"liveProbes":4,"childStarts":0,"ms":2857.3820830000004}]
+SNAPSHOT_DRIFT_CONTROLS_PASS
+SNAPSHOT_BINDING_RUNTIME {"node":"v26.8.1","executable":"/opt/homebrew/Cellar/node/26.8.1/bin/node","argv":["/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/scripts/verify-validation-snapshot-binding.mjs"]}
+PATH_OPERATION_COUNTS {"warm":8,"cold":8}
+PATH_PARITY_CASES 570
+COMPARISON_RESULTS [{"test":"validation-git-tree-batch.mjs","status":0,"signal":null},{"test":"validation-stage-entry-count.mjs","status":0,"signal":null},{"test":"validation-reuse-cost-process.mjs","status":0,"signal":null},{"test":"validation-snapshot-operation-count.mjs","status":1,"signal":null},{"test":"verify-validation-snapshot-binding.mjs","status":1,"signal":null}]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: INITIAL_SNAPSHOT_SERIALIZED_REPEATEDLY: baseline facts and input bytes must each be canonicalized once per invocation
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/packages/main/tests/validation-snapshot-operation-count.mjs:123:3
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: VALIDATION_SNAPSHOT_BINDING_INVALID: one invocation-local const initialCanonical
+    at fail (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/scripts/verify-validation-snapshot-binding.mjs:11:30)
+    at local (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/scripts/verify-validation-snapshot-binding.mjs:22:5)
+    at verify (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/scripts/verify-validation-snapshot-binding.mjs:27:17)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-redundant-scan-comparison/scripts/verify-validation-snapshot-binding.mjs:54:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+Target RED recorded locally.
