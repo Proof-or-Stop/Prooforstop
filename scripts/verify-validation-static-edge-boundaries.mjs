@@ -35,5 +35,42 @@ try{
  pin([exception]);fs.appendFileSync(path.join(root,'a.mjs'),'\n// caller changed');expect(1,'caller drift invalidates unchanged helper exception');
  fs.writeFileSync(path.join(root,'a.mjs'),caller);fs.appendFileSync(path.join(root,'suite-helper.mjs'),'\n// helper changed');
  assert.deepEqual(expect(1,'source drift invalidates exception').staleExceptions,['reviewed-property']);
+ // Exact native helper closure of the configured quorum entry. These files are
+ // parsed by the scanner; their child processes are never executed by this test.
+ const tasks='packages/main/src/tasks/',quorumEntry='packages/main/dist/tasks/quorum-submit-smoke.js';
+ const graph={
+  'quorum-submit-smoke.ts':['quorum-submit-smoke-case-catalog','quorum-submit-smoke-pure-cases','quorum-submit-smoke-integration-cases','quorum-submit-smoke-prune-cases','quorum-submit-smoke-worker'],
+  'quorum-submit-smoke-pure-cases.ts':['quorum-submit-smoke-case-catalog','quorum-submit-smoke-integration-cases'],
+  'quorum-submit-smoke-prune-cases.ts':['quorum-submit-smoke-case-catalog','quorum-submit-smoke-integration-cases'],
+  'quorum-submit-smoke-integration-cases.ts':['native-certification-fixture','native-review-fixture','quorum-submit-smoke-case-catalog','quorum-submit-smoke-fixture'],
+  'quorum-submit-smoke-worker.ts':['quorum-submit-smoke-case-catalog','quorum-submit-smoke-fixture'],
+  'quorum-submit-smoke-fixture.ts':['quorum-submit-smoke-case-catalog'],
+  'quorum-submit-smoke-case-catalog.ts':[],
+  'native-certification-fixture.ts':['native-review-fixture','fixture-environment'],
+  'native-review-fixture.ts':['fixture-environment'],'fixture-environment.ts':[],
+ };
+ const writeHelper=(name,text)=>fs.writeFileSync(path.join(root,tasks,name),text);
+ const writeGraph=(reverse=false)=>{
+  fs.mkdirSync(path.join(root,tasks),{recursive:true});
+  for(const [name,imports]of Object.entries(graph))writeHelper(name,(reverse&&name==='quorum-submit-smoke-integration-cases.ts'?[...imports].reverse():imports).map(helper=>`import './${helper}.js';`).join('\n'));
+  commands[0]={command:'node',args:[quorumEntry]};save();pin([]);
+ };
+ writeGraph();
+ const nativeReport=run().report;
+ assert.equal(nativeReport.summary.unexpandedCommands,0,'U18_NATIVE_FIXTURE_CLOSURE_UNEXPANDED '+JSON.stringify(nativeReport.coverage.filter(row=>row.state==='NEEDS_REVIEW')));
+ assert.equal(nativeReport.summary.needsReview,0);assert.equal(nativeReport.summary.nested,0);
+ for(const name of ['native-certification-fixture.ts','native-review-fixture.ts','fixture-environment.ts'])assert(nativeReport.coverage.some(row=>row.index===0&&row.file===tasks+name&&row.state==='SCANNED'),`native closure not traversed: ${name}`);
+ console.log('PASS exact quorum native helper closure');
+ writeGraph(true);expect(0,'native helper closure preserves reversed import order');
+ writeGraph();writeHelper('fixture-environment.ts',"import {spawn} from 'node:child_process';spawn(process.execPath,['b.mjs']);");
+ assert(expect(1,'deep native fixture child still requires review').summary.nested>0);
+ writeGraph();fs.appendFileSync(path.join(root,tasks,'native-certification-fixture.ts'),"\nimport './unknown-helper.js';");writeHelper('unknown-helper.ts','');
+ assert(expect(1,'unregistered helper depth remains bounded').coverage.some(row=>row.file===tasks+'unknown-helper.ts'&&row.reason==='helper depth exceeds declared bound'));
+ writeGraph();fs.appendFileSync(path.join(root,tasks,'quorum-submit-smoke-integration-cases.ts'),"\nimport('./' + 'native-certification-fixture.js');");
+ assert(expect(1,'computed registered helper remains refused').coverage.some(row=>row.reason==='Registered verifier imported helper changed or is not a literal'));
+ writeGraph();fs.unlinkSync(path.join(root,tasks,'native-certification-fixture.ts'));
+ assert(expect(1,'missing registered native helper remains refused').coverage.some(row=>row.reason==='source missing'));
+ writeGraph();fs.writeFileSync(path.join(root,'other-suite.mjs'),`import './${tasks}quorum-submit-smoke.js';`);commands[0]={command:'node',args:['other-suite.mjs']};save();pin([]);
+ assert(expect(1,'native depth extension is confined to exact quorum entry').coverage.some(row=>row.reason==='helper depth exceeds declared bound'));
  console.log('U18_STATIC_EDGE_BOUNDARIES_PASS');
 }finally{fs.rmSync(root,{recursive:true,force:true});}
