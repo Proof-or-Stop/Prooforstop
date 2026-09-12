@@ -17,6 +17,14 @@ assert.equal(scripts['test:serial-reference'].split(' && ')
   .filter(command => command === 'npm run test:reviewed-source-bindings').length, 1,
   'REVIEWED_SOURCE_TEST_MUST_BE_IN_ROUTINE_SUITE');
 console.log('PASS routine registration: exact npm script and one serial-reference membership');
+// Main metadata refresh may move reviewed lines, never their context or policy.
+const refreshedPaths = ["packages/main/src/core/process-fact-levels.ts", "packages/main/src/core/runtime-fact-registry.ts", "packages/main/src/core/runtime-environment-checks.ts"];
+const refreshedRows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries
+  .filter(row => refreshedPaths.includes(row.path))
+  .map(({ sourceSha256, lineNumber, ...context }) => context);
+assert.equal(refreshedRows.length, 6, 'exact six reviewed main contexts required');
+assert.equal(sha(JSON.stringify(refreshedRows)), '9e4bfc94c6066c7cfe7e66e5317a54eb44923d7980fc74fbc1996c950067435f',
+  'reviewed main context text, token counts, classification and reason must remain exact');
 const errors = validateReviewedSourceSources(read);
 console.log(JSON.stringify({ reviewedSourceBindingFailures: errors.length, errors }));
 assert.deepEqual(errors, [], 'REVIEWED_SOURCE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
