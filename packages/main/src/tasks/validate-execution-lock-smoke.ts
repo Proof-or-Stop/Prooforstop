@@ -1858,6 +1858,21 @@ function assertManagedVerificationIntentPinSchemaRoundTrip(): void {
 
 void (async () => {
   try {
+    if (process.argv.includes('--native-prerequisites-only')) {
+      const cases = [assertReviewerWritesCoordinateWithValidation, assertDeliveryCheckCoordinatesWithValidation,
+        assertUnadmittedDoneRequiredNeverExecutes, assertDoneRequiredSharesValidateLock,
+        assertDerivedVerdictCannotBypassCapacity];
+      const failures: string[] = [];
+      for (const test of cases) {
+        const start = performance.now();
+        try { await test(); }
+        catch (error) { failures.push(`${test.name}: ${String(error)}`); }
+        finally { console.log('NATIVE_LOCK_CASE_TIMING '+JSON.stringify({name:test.name,elapsedMs:performance.now()-start})); }
+      }
+      assert.deepEqual(failures, [], 'NATIVE_LOCK_PREREQUISITES: '+failures.join('\n'));
+      console.log('NATIVE_LOCK_PREREQUISITES_PASS: five actual native consumer cases');
+      return;
+    }
     await assertWorkspaceWaitAndRun();
     await assertCapacityAtomicStaleQuarantineStress();
     await assertKilledCapacityOwnerReplacement();
