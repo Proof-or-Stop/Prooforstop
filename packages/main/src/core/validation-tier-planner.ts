@@ -253,6 +253,9 @@ const VALIDATION_SENSITIVE_PATH_PATTERNS = [
 
 /** Pre-registry hardcoded sensitivity rules, retained as an additive baseline. */
 export function pathIsLegacyValidationSensitive(path: string): boolean {
+  if (typeof path !== 'string') {
+    throw new Error('pathIsLegacyValidationSensitive: path must be a string');
+  }
   const normalized = normalizedPath(path);
   const basename = normalized.split('/').pop()?.toLowerCase() ?? '';
   return (normalized.startsWith('packages/main/src/') && basename.includes('validat'))
@@ -286,6 +289,16 @@ export function classifySensitiveStoryPaths(
   paths: readonly string[],
   injection?: ValidationFloorProjectionInjection,
 ): ValidationWideningReasonCode[] {
+  if (!Array.isArray(paths) || !paths.every((path) => typeof path === 'string')) {
+    throw new Error('classifySensitiveStoryPaths: paths must be an array of strings');
+  }
+  if (injection !== undefined
+    && (!injection
+      || typeof injection !== 'object'
+      || Array.isArray(injection)
+      || !Object.prototype.hasOwnProperty.call(injection, 'projection'))) {
+    throw new Error('classifySensitiveStoryPaths: injection must be an object with a projection property');
+  }
   const reasons = new Set<ValidationWideningReasonCode>();
   const projections = [
     collectRepositoryFullProcessFactPaths(),
@@ -309,11 +322,12 @@ export function classifySensitiveStoryPaths(
     for (const pattern of patterns) registeredPatterns.add(pattern);
   }
   if (registeredFloorUnavailable) reasons.add('validation_floor_registry_unavailable');
+  const registeredPatternList = [...registeredPatterns];
   for (const path of paths) {
     const normalized = normalizedPath(path);
     if (
       pathIsLegacyValidationSensitive(normalized)
-      || [...registeredPatterns].some((pattern) => pathMatchesImpactPattern(normalized, pattern))
+      || registeredPatternList.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
     ) {
       reasons.add('validation_framework_sensitive_change');
     }

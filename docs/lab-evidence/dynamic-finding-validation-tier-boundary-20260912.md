@@ -88,6 +88,18 @@ FAIL explicit repository-full process-fact paths force full without overmatching
 Missing expected exception.
 ```
 
+A later audit required named runtime refusal at the newly exported helper
+boundary. Its staged RED ran the same smoke and exited 1 with:
+
+```text
+FAIL explicit repository-full process-fact paths force full without overmatching unrelated L4 code: legacy sensitivity helper must name an invalid path: null
+```
+
+After adding input guards for the legacy path predicate, changed-path list, and
+optional projection wrapper, the same smoke returned `PASS`. The guards preserve
+`{projection: undefined}` as an explicit unavailable projection rather than
+collapsing it into the omitted live-registry path.
+
 After the repair, the same command exited 0 and ended with:
 
 ```text

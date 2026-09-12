@@ -45,6 +45,9 @@ the selector widen with `validation_floor_registry_unavailable`. A present floor
 declaration with malformed or empty paths is instead refused while the registry
 module initializes, before any selector can return a tier decision. Both paths
 fail closed, but they intentionally fail at different layers.
+This floor governs the explain-only selector's effective tier
+(`finalAuthority: false`); by itself it does not change which validation commands
+execute while dynamic selection remains in observe mode.
 
 ## PRE_CERT execution order
 

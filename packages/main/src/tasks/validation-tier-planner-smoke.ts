@@ -565,6 +565,7 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // B-83aa CHK-003 adds only evidence-hash-snapshot-classifier-smoke.js. The
   // normalized set comparison recorded additions=2 and removals=0; the two
   // exact argv retention assertions above plus this count preserve that result.
+  assert.equal(real.entries.length, 168, 'the normalized inventory cardinality is part of the re-pin evidence; recount and update PIN MAINTENANCE when validate.commands changes');
   assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
