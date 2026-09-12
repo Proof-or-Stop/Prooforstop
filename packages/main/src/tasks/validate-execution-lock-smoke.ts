@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import {createNativeLockFixture,lockFixtureCli,assertNativeLockFixture} from './native-lock-fixture.js';
 import {sanitizedFixtureChildEnvironment} from './fixture-environment.js';
-import {runBrokeredNativeReviewCli,withBrokeredNativeDeliveryInvocation} from './native-review-fixture.js';
+import {runBrokeredNativeReviewCli,withBrokeredNativeDeliveryInvocation,nativeReviewFixtureHostEnvironment} from './native-review-fixture.js';
 
 /**
  * Smoke: story-scoped validate executions are mutually exclusive without
@@ -259,9 +259,13 @@ async function deliveryFixtureCli(root:string,storyId:string,args:Record<string,
   return withBrokeredNativeDeliveryInvocation({root,store:new StoryStore(root),storyId,invoke:()=>{
     const fd=Number(process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD);
     assert.ok(Number.isInteger(fd)&&fd>=0,'real broker descriptor must exist');
+    // Reconstruct only this callback's freshly broker-issued identity after
+    // removing ambient authority; its signed session must survive sanitization.
+    const actor=nativeReviewFixtureHostEnvironment('proof-or-stop-review-delivery',
+      process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER==='claude-code'?'claude':'codex',process.env.PROOF_OR_STOP_SESSION_ID);
     return execFileSync(process.execPath,[join(repoRoot(),'packages/main/dist/cli.js'),'--root',root,'delivery_check_set',JSON.stringify(args)],{
       cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe',fd],timeout:10000,
-      env:{...sanitizedFixtureChildEnvironment(process.env),PROOF_OR_STOP_PROJECT_ROOT:root,LATTICE_NATIVE_REVIEW_ATTESTATION_FD:'3'},
+      env:{...sanitizedFixtureChildEnvironment(process.env),...actor,PROOF_OR_STOP_PROJECT_ROOT:root,LATTICE_NATIVE_REVIEW_ATTESTATION_FD:'3'},
     });
   }});
 }
