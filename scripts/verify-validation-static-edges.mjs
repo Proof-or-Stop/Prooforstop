@@ -17,9 +17,14 @@ const REVIEWED_VERIFIER_HELPER_IMPORTS = new Map([
  ['packages/main/src/tasks/quorum-submit-smoke.ts', ['./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-pure-cases.js','./quorum-submit-smoke-integration-cases.js','./quorum-submit-smoke-prune-cases.js','./quorum-submit-smoke-worker.js']],
  ['packages/main/src/tasks/quorum-submit-smoke-pure-cases.ts', ['./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-integration-cases.js']],
  ['packages/main/src/tasks/quorum-submit-smoke-prune-cases.ts', ['./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-integration-cases.js']],
- ['packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts', ['./native-certification-fixture.js','./native-review-fixture.js','./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-fixture.js']],
+ ['packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts', ['./native-review-fixture.js','./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-fixture.js']],
  ['packages/main/src/tasks/quorum-submit-smoke-worker.ts', ['./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-fixture.js']],
  ['packages/main/src/tasks/quorum-submit-smoke-fixture.ts', ['./quorum-submit-smoke-case-catalog.js']],
+]);
+// The native certification helper is optional: existing main callers still
+// use the original required imports. When present it must be this exact literal.
+const OPTIONAL_VERIFIER_HELPER_IMPORTS = new Map([
+ ['packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts', ['./native-certification-fixture.js']],
 ]);
 const QUORUM_HELPER_FILES = new Set(['case-catalog','pure-cases','integration-cases','prune-cases','worker','fixture'].map(name => 'packages/main/src/tasks/quorum-submit-smoke-' + name + '.ts'));
 // Exact transitive native fixture closure of the quorum entry. These bounds
@@ -39,7 +44,7 @@ function scan(file,index,entry,argv,seen,depth=0){const invocationKey=JSON.strin
  const seenGraphImports = new Set();
  function observeGraphImport(node, specifier) {
   if (!graphImports) return;
-  if (!ts.isStringLiteralLike(specifier) || !graphImports.includes(specifier.text)) {
+  if (!ts.isStringLiteralLike(specifier) || !(graphImports.includes(specifier.text) || OPTIONAL_VERIFIER_HELPER_IMPORTS.get(file)?.includes(specifier.text))) {
    coverage.push({index,file,state:'NEEDS_REVIEW',reason:'Registered verifier imported helper changed or is not a literal',expression:node.getText(ast)});
    return;
   }
