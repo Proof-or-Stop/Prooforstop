@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab b83aa-partial-hash-freshness - v0.3.342 - 2026-09-12
+
+Evidence hash snapshots now fail closed when the current Git HEAD or material digest cannot be derived. The shared classifier is consumed by DONE admission, lifecycle readiness, routine validation reuse, and session diagnostics. Missing storyFilesHash remains an explicit advisory with strict materialHash fallback, and historical DONE projections disclose legacy omissions without reopening completed history.
+
+Verification includes the managed C1-C7 RED/GREEN proof, 22 classifier and consumer cases, TypeScript compilation, process-fact and runtime-fact contracts, DONE wrapper-root and required-freshness regressions, plus independent different-vendor Lab audit.
+
+Maintenance provenance: codex/lab-b83aa-partial-hash-freshness, repair f1bde6fe76e032f424e33a30254fdd74c3832abe.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-partial-hash-snapshot-binding.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab redundant-scan-comparison - v0.3.341 - 2026-09-12
 
 Reduce repeated initial snapshot canonicalization in shared validation execution. Final comparison starts from local main 0.3.340 at a11f2d89a4c1762b5e0452e6e9e5e696ee9884c9. Each of the two initial baseline objects is canonicalized once per invocation instead of five times on first execution and three on receipt reuse. Live fact probes remain 6 and 4, with real child starts 1 and 0. Current input bytes, workspace, loaded implementation identity and publication checks remain active. Five other measured historical hotspots were already within budget and are unchanged. Quorum cleanup is excluded and remains owned by another Lab.
