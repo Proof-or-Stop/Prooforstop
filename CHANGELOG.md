@@ -1,27 +1,5 @@
 # Changelog
 
-## Lab benchmark-intent-authority - v0.3.332 - 2026-09-12
-
-### Owner-applied verification-intent proposal repair
-
-Benchmark M0 could not record new-file acceptance declarations because the role-only declaration writer and the owner lease guard were incompatible. The rejected first candidate tried a role-environment lease exemption. That approach was removed after Claude audit f7c25e70-30fe-433b-a149-d9bc14d49aaa identified an authority expansion.
-
-The final approach retains checklist_update ownership unchanged. Independent authors return a proposal; only the actual active owner can apply its exact Story/item/prior-intent/replacement digest in PLAN with a substantive reason. The audit log records owner approval, without claiming mechanically proven independent authorship. Foreign sessions cannot mutate checklist state, mint owner revisions or auto-commit through this path. Signed acceptance revisions now require the actual owner even when a role environment is supplied. Changed, stale and mixed-field proposals fail closed. The exact new checklist executable digest is pinned; mutation refusal stays enabled.
-
-During supported pre-implementation replanning, the CLI rejected checklist_remove in INIT although its handler only accepts INIT. Command policy and default phase tools now agree with that existing handler. PLAN and DEV removal remain forbidden. This bounded admission correction allows semantic consolidation through official INIT review without bypassing frozen requirements.
-
-Verification: the Lab's original assertion-based RED recorded INTENT_OWNER_LEASE_CONFLICT. The expanded pinned regression exercises real CLI owner application, foreign-role rejection, exact proposal binding, concurrent duplicate application (exactly one succeeds; the loser must reject the stale base or report explicit lock contention, with a separate deterministic stale replay assertion), persisted planned declarations, exact phase refusal including INIT_CHECK, and real INIT removal with PLAN refusal. The regression uses built modules, not Node registerHooks, and is pinned in both the serial reference and the full-suite resource policy. Existing owner-lease smoke and process-fact checks are run separately. The pinned template and baseline manifest are unchanged from current main. Owner handoff guidance is rendered by the dynamic verification-intent dispatch builder. The pre-existing prompt-baseline failure at the review-behavior modular body hash is retained; no added template drift is inferred from an early failing check.
-
-This is local system maintenance, not benchmark runner completion or Story DONE. No speed or token saving is claimed. Resume the real M0 planning and prerequisite Story through normal CLI gates after integration.
-
-Second audit 39f05c8e-34c1-4e16-a747-c1e8764c01f2 prompted these repairs: INIT removal checks every supplied and dispatched identity, preventing actor aliases from hiding INIT reviewers; owner proposals require all acceptance classifications; refusal messages distinguish fields, missing intent, short reason, role and owner lease failures; signed amendment rejection and legacy role phase behavior have isolated regression witnesses. The fact registry includes all policy and dispatch producers. Tests have bounded startup/lock headroom. Template changes and unrelated main-file reversions were removed after synchronizing local main 377c4faef1.
-
-Current main added whole-file reviewed-source identity bindings. Six affected rows in config, command-catalog and runtime-environment-checks were renewed after reviewing this Lab diff: every classified line is byte-identical, token count/classification/reason unchanged, and only line position/source hash changes. The source inventory digest and scanner reader digest are renewed together; no automatic repin mechanism or identity predicate changed. Existing negative mutation controls are rerun.
-
-Maintenance provenance: codex/lab-benchmark-intent-authority, repair bf7a39ffee740d2eb583c14d6c7e53d08699db2a.
-Verification command (replayed before integration and on main): `["node","scripts/verify-intent-owner-lease.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab identity-reviewed-source-bindings-20260911 - v0.3.331 - 2026-09-12
 
 Integrate the bounded identity-reviewed-source-bindings-20260911 Lab against
