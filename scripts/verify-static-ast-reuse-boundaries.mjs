@@ -1,0 +1,10 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import ts from 'typescript';
+const file='scripts/verify-validation-static-edges.mjs',source=fs.readFileSync(file,'utf8'),parsed=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true);
+const helper=parsed.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='parseStaticSource');assert(helper);
+const box={ts};vm.createContext(box);vm.runInContext('const parsedSourceCache=new Map();'+helper.getText(parsed)+';globalThis.parse=parseStaticSource;globalThis.size=()=>parsedSourceCache.size;',box);
+const a=box.parse('same.ts','const oldName=1;');assert.equal(box.parse('same.ts','const oldName=1;'),a);
+const b=box.parse('same.ts','const newName=2;');assert.notEqual(b,a);assert.equal(b.statements[0].declarationList.declarations[0].name.text,'newName');assert.equal(box.size(),1,'One cached revision per path');
+const c=box.parse('other.ts','const newName=2;');assert.notEqual(c,b);assert.equal(c.fileName,'other.ts');
+const broken=box.parse('same.ts','const =');assert(broken.parseDiagnostics.length>0,'Changed invalid syntax must not inherit a valid AST');
+assert.equal(box.parse('same.ts','const repaired=3;').parseDiagnostics.length,0);assert.equal(box.size(),2);
+console.log('STATIC_AST_REUSE_BOUNDARIES_GREEN same-content hit; changed-content/path miss; invalid syntax preserved; recovery; one revision per path');
