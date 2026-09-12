@@ -369,7 +369,9 @@ and receipts remain required by LedgerEnvelope; omission is deliberately refused
 and now has a counterexample. Optional convergence humanDecisions remains empty
 when absent.
 
-The canonical suite member now uses isolatedHeavy CPU/process claims. External
+The fifth follow-up temporarily used isolatedHeavy CPU/process claims; the sixth
+audit exposed unmeasured serialization, and the final policy below preserves
+baseline shared repo-read scheduling. External
 capacity exhaustion yields an explicit admission-retry-required diagnostic;
 required proof is never silently skipped or counted as PASS.
 
@@ -410,7 +412,17 @@ contract checks this edge explicitly. The extracted canonicalJson import was
 removed from review-run. Epoch metrics receive the same Story/shape guard as
 validation metrics, with a genuine publication mutation control.
 
-The suite retains its declared heavy machine claims. End-to-end default-job
-wall-clock measurement is recorded separately with its exact commit, default
-job count, result and elapsed time before the next audit. No increased global
-budget or full-suite PASS is claimed in advance.
+The suite member keeps its baseline shared repo-read claims with a 450-second
+outer cap above the isolated worker's 420-second bound. This adopts the sixth
+auditor's explicit alternative to adding an exclusive heavy-chain claim; normal
+provider admission remains enforced and fixture commands execute sequentially.
+No new machine pool, capacity override or broader global suite budget is used.
+
+Default-job npm test was attempted on repair 70a825faa9 and main 1da6c8e86e.
+Both failed before this member ran, at full-suite-runner-smoke with the same
+nested ancestor machine-resource conflict. Lab elapsed 19998 ms; main 22803 ms.
+Only 1/75 passed, so these are aborted measurements and establish no complete
+suite wall clock or PASS. The official draft full-suite-nested-machine-resource-owner
+routes this pre-existing scheduler failure. The baseline parallel scheduling
+choice avoids the new serialization risk without repairing unrelated scheduler
+code or hiding the failed measurement.

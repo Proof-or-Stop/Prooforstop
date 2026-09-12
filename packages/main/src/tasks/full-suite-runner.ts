@@ -149,14 +149,12 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:receipt-authority-v5', { timeoutMs: 180_000 }),
   // Reads exact identity bindings; all mutation controls use private temp roots.
   repoRead('test:reviewed-source-bindings'),
-  // The native review-epoch continuity matrix reads the repository bootstrap
-  // and exercises all positive and refusal cases in runner-owned temporary Git
-  // repositories. Its synthetic managed transport also uses normal machine
-  // provider admission, so scheduling claims machine CPU/process capacity; the test waits within separate finite admission and
-  // completion budgets and never bypasses that cap. Preserve an outer budget
-  // above its 420-second isolated-worker limit. Omitting this row leaves a
-  // canonical serial-reference member without resource policy.
-  isolatedHeavy('test:review-epoch-certification-continuity', { timeoutMs: 450_000 }),
+  // The continuity matrix reads this checkout and runs bounded sequential CLI
+  // commands in private Git fixtures. Preserve its baseline shared repo-read
+  // scheduling; provider admission independently enforces the normal machine cap.
+  // The outer entry cap exceeds the 420-second isolated worker budget. Adding an
+  // exclusive full-suite-heavy claim here would introduce unmeasured serialization.
+  repoRead('test:review-epoch-certification-continuity', { timeoutMs: 450_000 }),
   // The route verifier runs its child suites sequentially against private Git
   // fixtures (history includes a bounded two-child race), with shared checkout
   // reads and no shared writable resource. Allow overlap; its measured 350-second
