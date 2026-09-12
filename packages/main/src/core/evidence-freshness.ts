@@ -61,7 +61,7 @@ export type EvidenceFreshness = {
   fresh: boolean;
   reason: string;
   /** Structural reason for an unreadable runtime binding; never inferred from prose. */
-  runtimeUnavailable?: 'headHash' | 'materialHash' | 'storyFilesHash';
+  runtimeUnavailable?: 'headHash' | 'materialHash';
   warnings?: string[];
   currentHead?: string;
   currentMaterialHash?: string;
@@ -1113,11 +1113,6 @@ export function checkStrictVerificationEvidenceFreshnessForGit(
       return {
         fresh: false,
         reason: 'strict verification freshness could not resolve canonical current git/material/story hashes',
-        runtimeUnavailable: !isCanonicalGitHeadHash(currentHead)
-          ? 'headHash'
-          : !isCanonicalSha256Hash(currentMaterial)
-            ? 'materialHash'
-            : 'storyFilesHash',
         changedFiles: [],
         materialFiles: ['<freshness-runtime-unavailable>'],
       };

@@ -119,7 +119,7 @@ function danglingHeadRepo() {
   const root = mkdtempSync(join(tmpdir(), 'red-partial-hash-dangling-'));
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# dangling\n');
-  git(root, ['init', '-b', 'story/B-redhash']);
+  git(root, ['init', '--ref-format=files', '-b', 'story/B-redhash']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'base']);
   // Loose branch ref rewritten to a sha absent from the object db: `git rev-parse HEAD`

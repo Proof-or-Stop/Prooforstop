@@ -537,7 +537,7 @@ const requiredRuntimeEntries = [
     name: 'runtime:evidence_hash_snapshot_fail_closed_gate',
     level: 'L4',
     owner: 'core/evidence-freshness',
-    line: '- runtime:evidence_hash_snapshot_fail_closed_gate [L4] owner=core/evidence-freshness gate=checkEvidenceFreshnessForGit REVIEW/TEST/DONE freshness consumers, lifecycle-readiness DONE hash rows, done-oracle evidence-hash-snapshot row, runDoneOracleGate, verifier routine validation reuse, and session_brief DONE pre-check',
+    line: '- runtime:evidence_hash_snapshot_fail_closed_gate [L4] owner=core/evidence-freshness gate=checkEvidenceFreshnessForGit fail-closed reader, lifecycle-readiness DONE hash rows, done-oracle evidence-hash-snapshot row, runDoneOracleGate, verifier routine validation reuse, and session_brief DONE pre-check',
   },
   {
     // B-137a: absence of a managed receipt is not proof of native execution.
@@ -7410,7 +7410,7 @@ function assertReviewRunStoryFilesHashContract(registry, levelRegistry) {
 
 function assertEvidenceHashSnapshotFailClosedContract(registry, levelRegistry) {
   const runtimeName = 'runtime:evidence_hash_snapshot_fail_closed_gate';
-  const expectedConsumer = 'checkEvidenceFreshnessForGit REVIEW/TEST/DONE freshness consumers, lifecycle-readiness DONE hash rows, done-oracle evidence-hash-snapshot row, runDoneOracleGate, verifier routine validation reuse, and session_brief DONE pre-check';
+  const expectedConsumer = 'checkEvidenceFreshnessForGit fail-closed reader, lifecycle-readiness DONE hash rows, done-oracle evidence-hash-snapshot row, runDoneOracleGate, verifier routine validation reuse, and session_brief DONE pre-check';
   const levelEntry = levelRegistry.get(runtimeName);
   assert(levelEntry, `${processFactLevelRegistryPath}: required ${runtimeName} entry missing`);
   if (levelEntry) {
@@ -7445,15 +7445,13 @@ function assertEvidenceHashSnapshotFailClosedContract(registry, levelRegistry) {
   const consumers = [
     'packages/main/src/core/done-oracle.ts',
     'packages/main/src/core/lifecycle-readiness.ts',
-    'packages/main/src/handlers/phase-gates.ts',
-    'packages/main/src/handlers/session.ts',
     'packages/main/src/handlers/verifier.ts',
   ];
   for (const relPath of consumers) {
     assert(read(relPath).includes('classifyEvidenceHashSnapshot'), `${relPath}: shared partial-snapshot classifier is not consumed`);
   }
   const phaseGates = read('packages/main/src/handlers/phase-gates.ts');
-  for (const token of ['binding.complete', 'Evidence hash snapshot binding (disclosed):', 'bindingRow.detail']) {
+  for (const token of ["r.id === 'evidence-hash-snapshot'", 'Evidence hash snapshot binding (', 'bindingRow.detail']) {
     assert(phaseGates.includes(token), `packages/main/src/handlers/phase-gates.ts: partial capture disclosure is not load-bearing: ${token}`);
   }
   assert(existsSync(join(root, 'packages/main/src/tasks/evidence-hash-snapshot-classifier-smoke.ts')), 'classifier smoke source missing');

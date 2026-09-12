@@ -38,7 +38,7 @@ import {
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { classifyEvidenceHashSnapshot, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import { tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { loadConfig } from '../core/config.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
@@ -689,18 +689,14 @@ export function runDoneOracleGate(
 
   if (failed.length > 0) {
     const hints = failed.flatMap(r => r.hint ? [r.hint] : []);
-    // B-83aa CHK-003 (DISCLOSED): the DONE oracle fails closed on a partial
-    // evidence hash snapshot via its `evidence-hash-snapshot` row; the thrown
-    // gate text names the missing digest explicitly (the shared classifier
-    // line) in addition to the rendered row, so the reason is never buried in
-    // the checklist body. Complete snapshots add nothing (byte-identical).
-    const binding = classifyEvidenceHashSnapshot(evidenceHashSnapshot);
+    // B-83aa CHK-003 (DISCLOSED): use the row produced by buildDoneChecklist as
+    // the sole resolved snapshot classification. The builder may deliberately
+    // recapture a caller-supplied partial/stale snapshot, so independently
+    // classifying the original argument could contradict the rendered rows.
     const bindingRow = checkRows.find(r => r.id === 'evidence-hash-snapshot');
     const bindingLine = bindingRow
       ? `\n\nEvidence hash snapshot binding (${bindingRow.status === 'fail' ? 'fail closed' : 'disclosed'}): ${bindingRow.detail}`
-      : binding.complete
-        ? ''
-        : `\n\nEvidence hash snapshot binding (disclosed): ${binding.detail}`;
+      : '';
     throw new Error(
       rendered + '\n\n' +
       `Cannot enter DONE: ${failed.length} 项检查未通过` +

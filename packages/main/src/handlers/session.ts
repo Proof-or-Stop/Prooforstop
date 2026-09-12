@@ -38,7 +38,7 @@ import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { buildMainSyncReadiness, renderMainSyncReadinessAdvisory } from '../core/lifecycle-readiness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
-import { classifyEvidenceHashSnapshot, currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import { currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION } from '../core/process-fact-registry.js';
 import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
 import {
@@ -1409,11 +1409,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // DONE pre-check list for TEST phase stories
       let donePrecheck: DonePrecheckSummary | null = null;
       // B-83aa CHK-003 (DISCLOSED): the DONE pre-check is never silently omitted.
-      // tryCaptureEvidenceHashSnapshot returns a snapshot that binds nothing when
-      // HEAD / the material tree cannot be read, so the head/material binding is
-      // classified first; a partial binding — or a thrown probe — is disclosed as
-      // exactly one `## DONE pre-check unavailable: <reason>` line and surfaces
-      // in the next-step hint instead of recommending DONE.
+      // buildDoneChecklist is the same source used by TEST->DONE. It classifies
+      // partial snapshots and retains every other blocker; a blocking hash row
+      // also emits one `## DONE pre-check unavailable: <reason>` line and keeps
+      // the next-step hint from recommending DONE. A thrown non-oracle probe is
+      // disclosed separately.
       //
       // B-83aa CHK-003 follow-up (wrapper-root layouts): the snapshot and the
       // checklist git probes run from the RESOLVED git cwd (B-6666 pattern, the
@@ -1430,22 +1430,21 @@ export function createSessionHandlers(ctx: HandlerContext) {
         try {
           const doneGitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
           const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd: doneGitCwd, metadataRoot: ctx.root, ref: 'HEAD' });
-          const binding = classifyEvidenceHashSnapshot(evidenceHashSnapshot, ['headHash', 'materialHash']);
-          if (!binding.complete) {
-            donePrecheckUnavailable = binding.detail;
+          const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
+            gitCwd: doneGitCwd,
+            evidenceHashSnapshot,
+          });
+          donePrecheck = summarizeDonePrecheck(rows);
+          lines.push('');
+          lines.push('## DONE pre-check');
+          for (const row of rows) {
+            const marker = row.status === 'pass' ? 'PASS' : (row.status === 'fail' ? 'FAIL' : 'warn');
+            lines.push(`  [${marker}] ${row.label}${row.detail ? `: ${row.detail}` : ''}`);
+          }
+          const bindingRow = rows.find((row) => row.id === 'evidence-hash-snapshot' && row.blocking);
+          if (bindingRow) {
+            donePrecheckUnavailable = bindingRow.detail ?? 'evidence hash snapshot binding is incomplete';
             donePrecheckUnavailableKind = 'git';
-          } else {
-            const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
-              gitCwd: doneGitCwd,
-              evidenceHashSnapshot,
-            });
-            donePrecheck = summarizeDonePrecheck(rows);
-            lines.push('');
-            lines.push('## DONE pre-check');
-            for (const row of rows) {
-              const marker = row.status === 'pass' ? 'PASS' : (row.status === 'fail' ? 'FAIL' : 'warn');
-              lines.push(`  [${marker}] ${row.label}${row.detail ? `: ${row.detail}` : ''}`);
-            }
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);

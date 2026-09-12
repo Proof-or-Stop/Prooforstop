@@ -80,7 +80,6 @@ import {
   EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS,
   captureEvidenceHashSnapshot,
   checkEvidenceFreshnessForGit,
-  checkStrictVerificationEvidenceFreshnessForGit,
   classifyEvidenceFreshness,
   classifyEvidenceHashSnapshot,
   tryCaptureEvidenceHashSnapshot,
@@ -201,7 +200,7 @@ function storyOnlyRepo(storyId: string): { root: string; store: StoryStore } {
   writeConfig(root);
   mkdirSync(join(root, 'src'), { recursive: true });
   writeFileSync(join(root, 'src', 'a.ts'), 'export const a = 1;\n', 'utf-8');
-  git(root, ['init', '-b', `story/${storyId}`]);
+  git(root, ['init', '--ref-format=files', '-b', `story/${storyId}`]);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'story-only base']);
   const store = new StoryStore(root);
@@ -260,7 +259,6 @@ function wrapperRootRepo(storyId: string, opts: { unborn: boolean }): { metadata
   return { metadataRoot, gitRoot, store };
 }
 
-/** Signed review run with deliberately NO workspaceBinding (legacy shape). */
 /** F-022 fixture shape: the canonical reader's failure is an OMITTED key, never null. */
 const FIXTURE_FULL: EvidenceHashSnapshot = {
   schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA,
@@ -410,18 +408,10 @@ try {
     );
   });
 
-  testCase('strict freshness reader and incremental eligibility consume runtime unavailability fail closed', () => {
-    const strictResult = checkStrictVerificationEvidenceFreshnessForGit(
-      unborn,
-      FAKE_HEAD,
-      FAKE_MATERIAL,
-      unborn,
-      FAKE_STORY_FILES,
-    );
-    assert.equal(strictResult.fresh, false);
-    assert.equal(strictResult.runtimeUnavailable, 'headHash');
-    assert.equal(classifyEvidenceFreshness(strictResult, FAKE_HEAD), 'RUNTIME_UNAVAILABLE');
-
+  testCase('incremental eligibility consumes runtime unavailability fail closed', () => {
+    const runtimeResult = checkEvidenceFreshnessForGit(unborn, FAKE_HEAD, FAKE_MATERIAL, unborn);
+    assert.equal(runtimeResult.fresh, false);
+    assert.equal(runtimeResult.runtimeUnavailable, 'headHash');
     const commonBinding = {
       priorEnvelopePresent: true,
       runtimeContractMatches: true,
@@ -435,7 +425,7 @@ try {
     };
     const runtimeReasons = classifyIncrementalBindingReasons({
       ...commonBinding,
-      freshnessClassification: classifyEvidenceFreshness(strictResult, FAKE_HEAD),
+      freshnessClassification: classifyEvidenceFreshness(runtimeResult, FAKE_HEAD),
     });
     assert.ok(runtimeReasons.includes('FULL_FRESHNESS_RUNTIME_UNAVAILABLE'), runtimeReasons.join(','));
     assert.equal(runtimeReasons.some((reason) => reason.startsWith('ELIGIBLE_')), false);
@@ -506,6 +496,17 @@ try {
       assert.equal(projected.category, 'advisory');
       assert.equal(projected.blocking, false);
       assert.equal(projected.nextCommand, undefined);
+      let thrown: string | null = null;
+      try {
+        runDoneOracleGate(STORY_ID, store, root, { stop() { /* noop */ } }, root);
+      } catch (error) {
+        thrown = error instanceof Error ? error.message : String(error);
+      }
+      assert.ok(thrown, 'other incomplete DONE rows must make the advisory-binding fixture reject admission');
+      assert.ok(
+        thrown!.includes(`Evidence hash snapshot binding (disclosed): ${classification.detail}`),
+        `the phase gate must disclose the oracle row classification without independently reclassifying its input:\n${thrown}`,
+      );
     } finally {
       rmSync(root, { recursive: true, force: true });
       resetConfigCache();
@@ -614,14 +615,16 @@ try {
     const { root, store } = danglingHeadRepo(STORY_ID);
     try {
       const snapshot = captureEvidenceHashSnapshot({ gitCwd: root, metadataRoot: root, ref: 'HEAD' });
-      const binding = classifyEvidenceHashSnapshot(snapshot, ['headHash', 'materialHash']);
-      assert.equal(binding.complete, false, 'fixture sanity: the dangling HEAD must yield a partial head/material binding');
+      const binding = classifyEvidenceHashSnapshot(snapshot);
+      assert.equal(binding.complete, false, 'fixture sanity: the dangling HEAD must yield a partial DONE binding');
       assert.ok(binding.missing.includes('materialHash'), binding.detail);
+      assert.ok(binding.missing.includes('storyFilesHash'), binding.detail);
       const brief = createSessionHandlers({ store, root, scanRoot: join(root, 'packages/main') }).session_brief({ concise: true });
       const unavailableLines = brief.split('\n').filter((line) => line.startsWith('## DONE pre-check unavailable: '));
       assert.equal(unavailableLines.length, 1, `exactly one unavailable line expected:\n${brief}`);
       assert.equal(unavailableLines[0], `## DONE pre-check unavailable: ${binding.detail}`);
-      assert.equal(brief.includes('\n## DONE pre-check\n'), false, 'the normal section is replaced by the disclosure, not printed alongside it');
+      assert.equal(brief.includes('\n## DONE pre-check\n'), true, 'the same-source DONE checklist remains visible alongside the disclosure');
+      assert.match(brief, /\[FAIL\] Evidence hash snapshot:/);
       assert.ok(brief.includes('TEST phase, DONE pre-check unavailable: '), `next step must disclose the unavailable pre-check:\n${brief}`);
       assert.equal(brief.includes('--phase=DONE to complete the story'), false, 'DONE must not be recommended while the pre-check is unavailable');
     } finally {

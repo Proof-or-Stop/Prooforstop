@@ -1221,7 +1221,7 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 // the runtime never computes a new expected digest from the candidate itself.
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
   'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
-  'packages/main/src/core/evidence-freshness.ts': 'c52087874d2655f40beb038403015eda15a1b30e48be748f876b48a5c3114f40',
+  'packages/main/src/core/evidence-freshness.ts': '6eca17a48ac39083a7a601c52b49eb24300fad0ac5a7628efb12f8096d644df7',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
   'packages/main/src/core/verification-execution-evidence.ts': 'ecd665658003dd342c888427da8d474ea7fbe23a3a37eed6587d1408259481e6',
   'packages/main/src/handlers/checklist.ts': 'c1dfe44fe17ecf17570050d74fe4bbd14266c11949519d9f0632d67625ea3815',
