@@ -72,6 +72,8 @@ function hasOnlyManagedReviewImporterCommits(args: {
   metadataRoot: string;
   storyId: string;
   reviewedHeadHash: string;
+  reviewedMaterialHash: string;
+  reviewedStoryFilesHash: string;
   liveHeadHash: string;
 }): boolean {
   if (args.reviewedHeadHash === args.liveHeadHash) return true;
@@ -159,6 +161,8 @@ export function verifyManagedReviewLiveBinding(args: {
     metadataRoot: args.metadataRoot,
     storyId: args.storyId,
     reviewedHeadHash: args.expected.headHash,
+    reviewedMaterialHash: args.expected.materialHash,
+    reviewedStoryFilesHash: args.expected.storyFilesHash,
     liveHeadHash,
   })) {
     return {
@@ -388,28 +392,28 @@ export function isSealedManagedPromptDigestCurrent(sealed: unknown, bindingDiges
     && bindingDigest === sealed && executionDigest === sealed;
 }
 
-/** Launch accepts OPEN only; consumption accepts only the authenticated terminal wave. */
-export function isCurrentManagedInventorySubject(store: StoryStore, run: ReviewRun): boolean {
+/** Historical critics remain authentic; only the latest wave can be current. */
+export function managedInventorySubjectState(store: StoryStore, run: ReviewRun): 'current' | 'superseded' | 'invalid' {
   try {
-  if (run.reviewPurpose !== 'inventory-completeness') return true;
-  const binding = run.inventoryBinding;
-  if (!binding || !Number.isSafeInteger(binding.wave) || binding.wave < 1) return false;
-  const data = store.readReviewInventoryEpochs(run.storyId);
-  const epoch = data.epochs.find(e => e.epochId === binding.epochId);
-  if (!epoch || epoch.storyId !== run.storyId || !verifyReviewInventoryEpoch(epoch) || !['OPEN','FINALIZED'].includes(epoch.state)) return false;
-  if (epoch.state === 'FINALIZED') {
-    const receipt = data.receipts.find(r => r.receiptId === epoch.receiptId);
-    if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt
-      || receipt.epochId !== epoch.epochId || receipt.storyId !== run.storyId
-      || receipt.reviewRound !== epoch.reviewRound || receipt.scopeDigest !== epoch.scopeDigest
-      || digestCanonicalJson(receipt.cutoff) !== digestCanonicalJson(epoch.cutoff)
-      || digestCanonicalJson(receipt.requiredLanes) !== digestCanonicalJson(epoch.requiredLanes)
-      || binding.wave !== epoch.waves.length) return false;
-  } else if (binding.wave !== epoch.waves.length + 1) return false;
-  // Reconstruct only the wave's stable subject from signed history, never its
-  // provider prompt or a caller-authored terminal state.
-  return inventoryPurposeMatchesEpoch(binding, { ...epoch, waves: epoch.waves.slice(0, binding.wave - 1) });
-  } catch { return false; }
+    if (run.reviewPurpose !== 'inventory-completeness') return 'current';
+    const binding = run.inventoryBinding;
+    if (!binding || !Number.isSafeInteger(binding.wave) || binding.wave < 1) return 'invalid';
+    const data = store.readReviewInventoryEpochs(run.storyId);
+    const epoch = data.epochs.find(e => e.epochId === binding.epochId);
+    if (!epoch || epoch.storyId !== run.storyId || !verifyReviewInventoryEpoch(epoch) || !['OPEN','FINALIZED'].includes(epoch.state)) return 'invalid';
+    if (epoch.state === 'FINALIZED') {
+      const receipt = data.receipts.find(r => r.receiptId === epoch.receiptId);
+      if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt
+        || receipt.epochId !== epoch.epochId || receipt.storyId !== run.storyId
+        || receipt.reviewRound !== epoch.reviewRound || receipt.scopeDigest !== epoch.scopeDigest
+        || digestCanonicalJson(receipt.cutoff) !== digestCanonicalJson(epoch.cutoff)
+        || digestCanonicalJson(receipt.requiredLanes) !== digestCanonicalJson(epoch.requiredLanes)) return 'invalid';
+    }
+    const currentWave = epoch.state === 'FINALIZED' ? epoch.waves.length : epoch.waves.length + 1;
+    if (binding.wave > currentWave || (binding.wave <= epoch.waves.length && epoch.waves[binding.wave - 1]?.wave !== binding.wave)) return 'invalid';
+    if (!inventoryPurposeMatchesEpoch(binding, {...epoch,waves:epoch.waves.slice(0,binding.wave-1)})) return 'invalid';
+    return binding.wave === currentWave ? 'current' : 'superseded';
+  } catch { return 'invalid'; }
 }
 
 function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun): string[] {

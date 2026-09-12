@@ -261,8 +261,9 @@ are byte-preservation controls, not claimed independent reviewer authority.
 The owner check binds session identity, identity source, host and workspace,
 allowing only heartbeat and PID updates while preserving every other field. The fixture releases
 its own lease between child calls and now preserves the actual committed prior
-lease for comparison. Forged test-run records are refused and process metrics
-must bind the Story. Typed telemetry readers are handlers/story-query.ts and
+lease for comparison. Malformed validation test-run projections are refused and epoch/validation metrics
+must bind the Story. Test-run history is shape-checked, not authenticated or
+append-only in this classifier. Typed telemetry readers are handlers/story-query.ts and
 handlers/session.ts (rendering), handlers/review-remediation.ts (metrics update),
 handlers/summary.ts (fixture statistics), and core/process-metrics.ts (derived
 scores). This classifier does not authenticate those telemetry values or use
@@ -379,3 +380,37 @@ reader case. This count compares the reader only, not whole-Story elapsed time.
 The combined 200-receipt lifecycle matrix previously timed out at 420 seconds;
 the passing regression now restores the original small witness before running
 its lifecycle counterexamples. Full large-Story throughput remains unproven.
+
+## Sixth audit follow-up
+
+Audit 32aa9f50-4645-4969-9259-cffeb05ddad3 identified late-start managed runs
+and historical inventory waves as missing production cases. Epoch publication
+now requires cutoff ancestry and exact material/Story hashes when the consumer
+started later. The regression uses an actual non-deferred finding_resolve publication inside
+the OPEN epoch before two managed roles launch, and refuses wrong hashes and a
+pre-cutoff consumer. OPEN reviewer/importer writes are normally batch-deferred.
+A mixed evidence-plus-inventory initialization commit remains explicitly refused
+as impure refresh; the regression preserves that refusal instead of widening
+the strict evidence writer.
+
+A real two-wave case uses brokered Finding production for a genuine disposable
+source-contract defect, actual managed critics and official wave advancement.
+The deliberately negative source fixture receives a truthful accepted-risk
+disposition through the real CLI before either managed critic launches; no fix
+is claimed. Its signed discovery remains in inventory history. An old wave is
+superseded only after its receipt authenticates and a newer
+valid lane PASS exists. Removing that replacement remains blocked; tampering
+with the old sealed launch remains a hard receipt failure.
+
+The unused generic classifier extension was deleted. Positive and negative
+refresh assertions now call production evaluateReviewRunMetadataRetention.
+closeout-trust retains its type-only StoryStore import and no longer imports
+review-evidence-refresh, removing the added transitive store edge. The process
+contract checks this edge explicitly. The extracted canonicalJson import was
+removed from review-run. Epoch metrics receive the same Story/shape guard as
+validation metrics, with a genuine publication mutation control.
+
+The suite retains its declared heavy machine claims. End-to-end default-job
+wall-clock measurement is recorded separately with its exact commit, default
+job count, result and elapsed time before the next audit. No increased global
+budget or full-suite PASS is claimed in advance.

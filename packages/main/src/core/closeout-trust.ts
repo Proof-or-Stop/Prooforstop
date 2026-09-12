@@ -1,4 +1,3 @@
-import { isCurrentVerifiedEvidenceRefreshArtifact, type ReviewRefreshReadCache } from './review-evidence-refresh.js';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
@@ -638,7 +637,6 @@ export function classifyCurrentCloseoutArtifactForReviewRetention(
   artifactPath: string,
   projectRoot: string,
   metadataRoot: string,
-  refreshContext?: {reviewedHeadHash:string;snapshotHead?:string;cache?:ReviewRefreshReadCache},
 ): CloseoutReviewRetentionResult {
   const policy = closeoutArtifactPolicyFor(artifactPath);
   if (!policy) return { retainsReview: false, writer: '', reason: `untrusted closeout artifact path: ${artifactPath}` };
@@ -652,9 +650,6 @@ export function classifyCurrentCloseoutArtifactForReviewRetention(
   }
   try {
     validateCloseoutArtifactShape(store, storyId, artifactPath, absolute);
-    if (artifactPath === 'checklist.json' && refreshContext && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath,reviewedHeadHash:refreshContext.reviewedHeadHash,snapshotHead:refreshContext.snapshotHead,cache:refreshContext.cache,isProtectedArtifact:closeoutArtifactPolicyFor})) {
-      return {retainsReview:true,writer:'verification_evidence_add'};
-    }
     const receipt = latestCausallyValidCloseoutReceipt(
       storyDir,
       storyId,

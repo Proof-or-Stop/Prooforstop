@@ -16,14 +16,13 @@ import {
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import {
   classifyReviewerExecutionAuthority,
-  isCurrentManagedInventorySubject,
+  managedInventorySubjectState,
   verifyManagedReviewEvidence,
   verifyManagedReviewLiveBinding,
 } from './managed-review-evidence.js';
 import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
 import { isReviewRetentionProtocolMetadataPath } from './lifecycle-registry.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, ReviewInventoryPurposeBinding, StoryInfo } from './types.js';
-import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
 import { resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
@@ -120,7 +119,8 @@ export type ReviewRunIssueCode =
   | 'prompt_envelope_tampered'
   | 'prompt_envelope_mismatch'
   | 'review_execution_authority_missing'
-  | 'managed_receipt_invalid';
+  | 'managed_receipt_invalid'
+  | 'superseded_inventory_wave';
 
 export interface ReviewRunIssue {
   code: ReviewRunIssueCode;
@@ -189,6 +189,7 @@ export interface ReviewerEvidenceCollectionOptions {
 }
 
 const SUPERSEDED_PASS_ISSUE_CODES = new Set<ReviewRunIssueCode>([
+  'superseded_inventory_wave',
   'stale_run',
   'stale_run_hash',
   'missing_scope_binding',
@@ -1722,7 +1723,8 @@ function validateEvidenceRunBinding(
     hasManagedEvidenceBinding: managedBinding !== undefined,
   });
   if (authority.reviewGatePath === 'managed-receipt' && managedBinding) {
-    if (!isCurrentManagedInventorySubject(store, run)) {
+    const inventorySubject = managedInventorySubjectState(store, run);
+    if (inventorySubject === 'invalid') {
       return { code: 'managed_receipt_invalid', kind: evidence.kind, evidenceId: evidence.id,
         agent: evidence.agent, reviewRunId: evidence.reviewRunId,
         message: `${evidence.kind} ${evidence.id} has an invalid current managed inventory subject` };
@@ -1763,6 +1765,13 @@ function validateEvidenceRunBinding(
         message: `${evidence.kind} ${evidence.id} failed shared managed-review Proof Admissibility: ${managed.reason}`,
       };
     }
+    // Supersession is considered only after the old receipt itself is authenticated.
+    // The collector forgives this PASS only when a newer valid lane PASS exists.
+    if (inventorySubject === 'superseded') return {
+      code: 'superseded_inventory_wave', kind: evidence.kind, evidenceId: evidence.id,
+      agent: evidence.agent, reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} belongs to a signed earlier inventory wave`,
+    };
   }
   if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding) {
     const dispatch = verifyCurrentReviewerDispatchBinding({

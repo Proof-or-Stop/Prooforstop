@@ -7288,24 +7288,25 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   assert(!read('packages/main/src/core/closeout-trust.ts').includes("canonicalWriters: ['verification_evidence_refresh_stale', 'verification_evidence_add']"), 'direct checklist publication must not become a generic canonical writer');
   assert(!read('packages/main/src/core/review-maintenance-lineage.ts').includes("from './review-run.js'") && !read('packages/main/src/core/closeout-trust.ts').includes("from './review-maintenance-lineage.js'"), 'maintenance readers must not introduce direct importer cycles');
 
+  assert(read('packages/main/src/core/closeout-trust.ts').includes("import type { StoryStore } from './store.js'") && !read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'"), 'closeout -> refresh -> store runtime edge must remain absent');
   const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts') + read('packages/main/src/core/review-evidence-refresh.ts');
   assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('semanticRows(priorEvidence)') && maintenanceText.includes('remaining.splice(index,1)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,old!,prior)'), 'review retention cannot add coverage or change the reviewed mechanical result');
-  assert(read('packages/main/src/core/closeout-trust.ts').includes('isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath,reviewedHeadHash:refreshContext.reviewedHeadHash,snapshotHead:refreshContext.snapshotHead,cache:refreshContext.cache,isProtectedArtifact:closeoutArtifactPolicyFor})')
-    && reviewGateText.includes("(path === 'checklist.json' || path.startsWith('causal-evidence/')) && isCurrentVerifiedEvidenceRefreshArtifact("), 'scoped retention must use the same byte-bound strict refresh authority for checklist and causal projections');
+  assert(!read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'")
+    && reviewGateText.includes("(path === 'checklist.json' || path.startsWith('causal-evidence/')) && isCurrentVerifiedEvidenceRefreshArtifact("), 'production scoped retention owns strict refresh; generic closeout must retain its type-only store dependency');
 
   assert(maintenanceText.includes("readAt(reviewedHeadHash,'checklist.json')") && maintenanceText.includes('semanticRows(reviewedEvidence)'), 'refresh proof must bind requirements and coverage to the original reviewed snapshot');
   assert(reviewGateText.includes('const refreshCache=createReviewRefreshReadCache();') && maintenanceText.includes('new WeakMap<ReviewRefreshReadCache,RefreshCacheState>()'), 'one collector-scoped opaque cache prevents repeated full receipt scans');
   assert(!read('packages/main/src/core/closeout-trust.ts').includes('strictEvidenceRefresh'), 'caller boolean input must not confer strict refresh authority');
   assert(managedText.includes('isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest)')
     && !managedText.includes('sealedManagedPromptDigest ?? args.expected.managedPromptDigest'), 'managed launch seal is mandatory; caller bindings never supply a missing digest');
-  assert(managedText.includes('epoch.storyId !== run.storyId') && managedText.includes('binding.wave !== epoch.waves.length'), 'finalized managed critic belongs to the current Story and terminal wave');
+  assert(managedText.includes('epoch.storyId !== run.storyId') && managedText.includes("binding.wave === currentWave ? 'current' : 'superseded'") && reviewGateText.includes("'superseded_inventory_wave'"), 'finalized managed critic belongs to the current Story and terminal wave');
 
   assert(maintenanceText.includes('verifyReviewInventoryEpoch(epoch)') && maintenanceText.includes('verifyReviewInventoryReceipt(receipt)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,item,evidence)'), 'review maintenance lineage requires signed epoch and strict receipt authority');
   assert(maintenanceText.includes('verifyCloseoutWriteReceipt(receipt,') && maintenanceText.includes('evaluatePersistedReviewToTestIndexTransition(gitCwd,')
     && maintenanceText.includes('verifyCertificationWindow(window)') && maintenanceText.includes('consumedByCertificationWindowId !== window.windowId'), 'post-review official lifecycle commits require typed receipt, consumption and exact phase delta checks');
-  assert(reviewGateText.includes('isCurrentManagedInventorySubject(store, run)')
+  assert(reviewGateText.includes('managedInventorySubjectState(store, run)')
     && reviewGateText.includes('managedPromptDigest: managedBinding.managedPromptDigest')
     && !reviewGateText.includes('managedPromptDigest: managedReviewerPromptDigest('), 'managed consumption must validate the current subject and authenticated launch digest without rebuilding the OPEN-only prompt');
   assert(read('packages/main/src/handlers/certification-window.ts').includes('isVerifiedReviewMaintenanceCommit({')

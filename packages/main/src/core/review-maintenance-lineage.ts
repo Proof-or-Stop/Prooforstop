@@ -16,7 +16,7 @@ import { evaluatePersistedReviewToTestIndexTransition } from './review-test-inde
 import type { ReviewInventoryEpochData } from './types.js';
 
 export function isVerifiedReviewMaintenanceCommit(args: {
-  gitCwd: string; metadataRoot: string; storyId: string; commit: string; reviewedHeadHash: string;
+  gitCwd: string; metadataRoot: string; storyId: string; commit: string; reviewedHeadHash: string; reviewedMaterialHash?: string; reviewedStoryFilesHash?: string;
 }): boolean {
   const { gitCwd, metadataRoot, storyId, commit, reviewedHeadHash } = args;
   const git = (argv: string[]) => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore','pipe','pipe'] }).trim();
@@ -37,7 +37,14 @@ export function isVerifiedReviewMaintenanceCommit(args: {
       const data = readAt(commit,'review-inventory-epochs.json') as ReviewInventoryEpochData;
       const epoch = data.epochs.at(-1);
       if (!epoch || epoch.storyId !== storyId || epoch.state !== 'FINALIZED' || !verifyReviewInventoryEpoch(epoch)
-        || epoch.cutoff.headHash !== reviewedHeadHash) return false;
+        || (args.reviewedMaterialHash !== undefined && epoch.cutoff.materialHash !== args.reviewedMaterialHash)
+        || (args.reviewedStoryFilesHash !== undefined && epoch.cutoff.storyFilesHash !== args.reviewedStoryFilesHash)) return false;
+      if (epoch.cutoff.headHash !== reviewedHeadHash && (!args.reviewedMaterialHash || !args.reviewedStoryFilesHash)) return false;
+      git(['merge-base','--is-ancestor',epoch.cutoff.headHash,reviewedHeadHash]);
+      if (artifacts.includes('process-metrics.json')) {
+        const metrics = readAt(commit,'process-metrics.json');
+        if (metrics.storyId !== storyId || typeof metrics.generatedAt !== 'string' || !metrics.sourceSnapshot || !metrics.dimensions) return false;
+      }
       const receipt = data.receipts.find(r => r.receiptId === epoch.receiptId);
       if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt
         || receipt.storyId !== storyId || receipt.epochId !== epoch.epochId
