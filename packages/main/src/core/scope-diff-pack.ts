@@ -202,18 +202,37 @@ function inferPackageKeyPath(body: string[]): string | undefined {
   return undefined;
 }
 
-function readBaseSource(gitCwd: string, path: string): string | undefined {
-  try {
-    const baseline = resolveRepositoryBaseline(gitCwd);
-    if (!baseline) return undefined;
-    return execFileSync('git', ['show', `${baseline.ref}:${path}`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-  } catch {
-    return undefined;
-  }
+/** One historical snapshot per parse; current working-tree reads remain fresh. */
+function createBaseSourceReader(gitCwd: string): (path: string) => string | undefined {
+  let initialized = false;
+  let baselineCommit: string | undefined;
+  const sources = new Map<string, string | undefined>();
+  return (path: string): string | undefined => {
+    if (!initialized) {
+      initialized = true;
+      try {
+        const baseline = resolveRepositoryBaseline(gitCwd);
+        if (baseline) {
+          // Existing anchors read the selected integration tip, not mergeBase.
+          // Pin its object identity so one parse cannot mix moving ref versions.
+          baselineCommit = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${baseline.ref}^{commit}`], {
+            cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+          }).trim();
+        }
+      } catch { /* unavailable history preserves the existing fail-closed fallback */ }
+    }
+    if (!baselineCommit) return undefined;
+    if (!sources.has(path)) {
+      let source: string | undefined;
+      try {
+        source = execFileSync('git', ['show', `${baselineCommit}:${path}`], {
+          cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+        });
+      } catch { /* cache missing source only for this invocation */ }
+      sources.set(path, source);
+    }
+    return sources.get(path);
+  };
 }
 
 interface ChangedBlock {
@@ -273,6 +292,7 @@ function changedBlocks(
 
 export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDiffHunk[] {
   const hunks: ScopeDiffHunk[] = [];
+  const readBaseSource = createBaseSourceReader(projectRoot);
   let currentPath = '';
   let oldPath = '';
   let identityKind: 'rename' | 'copy' | undefined;
@@ -291,7 +311,7 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
     const isTsLike = /\.(ts|tsx|js|jsx|mts|mjs|cts|cjs)$/.test(currentPath);
     const isPackageJson = currentPath.endsWith('package.json') || currentPath.endsWith('.json');
     const currentSource = isTsLike && existsSync(sourcePath) ? readFileSync(sourcePath, 'utf8') : undefined;
-    const baseSource = isTsLike ? readBaseSource(projectRoot, previousPath) : undefined;
+    const baseSource = isTsLike ? readBaseSource(previousPath) : undefined;
     for (const [blockIndex, block] of blocks.entries()) {
       let anchors: AstAnchor[] = [];
       let previousAnchors: AstAnchor[] = [];
@@ -360,7 +380,7 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
     const currentSource = isTsLike && existsSync(join(projectRoot, currentPath))
       ? readFileSync(join(projectRoot, currentPath), 'utf8')
       : undefined;
-    const baseSource = isTsLike ? readBaseSource(projectRoot, oldPath) : undefined;
+    const baseSource = isTsLike ? readBaseSource(oldPath) : undefined;
     let anchors: AstAnchor[] = [];
     let previousAnchors: AstAnchor[] = [];
     let parseFallback: string | undefined;

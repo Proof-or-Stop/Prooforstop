@@ -41,7 +41,7 @@ try{
  const independent=[h1,h2,h3].flatMap(h=>parseUnifiedDiff(root,fileDiff('same.ts',[h])));
  assert.equal(independent[0].previousAnchor,'baselineTip','Read integration TIP, never merge-base');
  assert.equal(independent[0].anchor,'first');assert.equal(independent[1].anchor,'second');assert.equal(independent[2].anchor,'third');
- const result=observed(diff);assert.deepEqual(result.hunks,independent);assert.equal(digest(result.hunks),digest(independent));
+ const result=observed(diff);assert.deepEqual(result.hunks,independent);assert.equal(digest(result.hunks),digest(independent));assert.equal(digest(result.hunks),'0a0d069bb60c9fa653fc3453e0faa1023b88c484254d275ed182fcd168cd73b6','Exact unchanged baseline full hunk digest');
  const discovery=result.calls.filter(c=>c.file==='git'&&c.args[0]==='symbolic-ref');
  const shows=result.calls.filter(c=>c.file==='git'&&c.args[0]==='show');
  console.log('SCOPE_DIFF_NATIVE_COUNTS '+JSON.stringify({discovery:discovery.length,shows:shows.length,allGit:result.calls.length,digest:digest(result.hunks)}));
@@ -59,9 +59,14 @@ try{
  const savedCurrent=fs.readFileSync(join(root,'same.ts'),'utf8');
  git('checkout','-q','-f','main');write('same.ts',old.replace('first()', 'newBaselineTip()'));commit('new integration declaration');const newer=git('rev-parse','HEAD');git('checkout','-q','-f','story/fixture');write('same.ts',savedCurrent);
  const fresh=observed(diff);assert.equal(fresh.hunks[0].previousAnchor,'newBaselineTip','New invocation must read updated selected TIP source');assert.equal(fresh.hunks[0].anchor,'freshCurrent');
+ const otherDiff=fileDiff('other.ts',['@@ -1,1 +1,1 @@\n-export function other() { return 0; }\n+export function other() { return 9; }']);write('other.ts','export function other() { return 9; }\n');
+ const distinct=observed(diff+otherDiff);assert.equal(distinct.hunks.at(-1).anchor,'other');assert.equal(distinct.hunks.at(-1).previousAnchor,'other');
  assert.equal(child.execFileSync,originalExec,'Forwarding observer restored');
  assert.equal(discovery.length,1,'SCOPE_DIFF_RED baseline discovery must occur once per invocation, not per hunk');
  assert.equal(shows.length,1,'SCOPE_DIFF_RED unchanged historical source must be read once per invocation/path');
  assert.equal(missingResult.calls.filter(c=>c.args[0]==='show').length,1,'Missing base source also memoized within invocation');
+ assert.equal(distinct.calls.filter(c=>c.args[0]==='symbolic-ref').length,1);
+ assert.equal(distinct.calls.filter(c=>c.args[0]==='show').length,2,'Different historical paths must not alias');
+ const semantic=originalExec(process.execPath,[join(repo,'packages/main/dist/tasks/semantic-scope-guard-smoke.js')],{cwd:repo,encoding:'utf8',timeout:120000});process.stdout.write(semantic);assert(semantic.includes('semantic scope guard smoke passed'));
  console.log('SCOPE_DIFF_INVOCATION_GREEN exact anchors/digests, TIP semantics, freshness, rename/copy/deletion/missing, bounded Git calls');
 }finally{child.execFileSync=originalExec;syncBuiltinESMExports();fs.rmSync(root,{recursive:true,force:true});}
