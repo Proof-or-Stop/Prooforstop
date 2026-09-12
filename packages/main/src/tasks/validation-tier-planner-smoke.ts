@@ -553,7 +553,8 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // identity delivery and RED commands. Recompute from the merged normalized
   // inventory before replacing this deliberate merge-time sentinel.
   // v0.3.317 integrates the explicitly registered dynamic-finding-evidence-closure suite.
-  assert.equal(real.commandSetDigest, 'ba34d4fed4c8b355657089907b79c01e62b1c12c134afa3bab6b6b8dbdf8f70e', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // v0.3.345 adds the B-83aa evidence-hash classifier and partial-snapshot RED commands.
+  assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
