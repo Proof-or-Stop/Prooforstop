@@ -40,8 +40,8 @@ function completedClaim(store: StoryStore, storyId: string, epochId: string, all
     || receipt.scopeDigest !== epoch.scopeDigest || canonicalDigest(receipt.requiredLanes) !== canonicalDigest(epoch.requiredLanes)
     || receipt.waveCount !== epoch.waves.length) throw new Error('Invalid completed convergence epoch or receipt');
   // Consumption is a legitimate later lifecycle write; completion facts stay fixed.
-  const { _hash: _epochHash, consumedAt: _consumed, consumedByReviewRound: _round, updatedAt: _updated, state: _state, cancelledAt: _cancelled, cancelReason: _reason, terminalRunSequenceBoundary: _boundary, ...epochClaims } = epoch;
-  const { _hash: _receiptHash, consumedAt: _receiptConsumed, invalidatedAt: _invalidated, invalidationReason: _invalidationReason, ...receiptClaims } = receipt;
+  const { _hash: _epochHash, consumedAt: _consumed, consumedByReviewRound: _round, consumedByCertificationWindowId: _epochWindow, updatedAt: _updated, state: _state, cancelledAt: _cancelled, cancelReason: _reason, terminalRunSequenceBoundary: _boundary, ...epochClaims } = epoch;
+  const { _hash: _receiptHash, consumedAt: _receiptConsumed, consumedByCertificationWindowId: _receiptWindow, invalidatedAt: _invalidated, invalidationReason: _invalidationReason, ...receiptClaims } = receipt;
   return { epoch, receipt, revoked, claimDigest: canonicalDigest({ epoch: epochClaims, receipt: receiptClaims }) };
 }
 export function readConvergenceProgress(store: StoryStore, storyId: string, root: string): ConvergenceProgressJournal | null {

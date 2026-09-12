@@ -440,31 +440,37 @@ export function verdictFileCount(root: string): number {
   return listVerdicts(root, 'local', STORY_ID).length;
 }
 
-export function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, store: StoryStore, root: string, label: string): void {
+export function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, store: StoryStore, root: string, label: string): string {
   const beforeEvents = hostVerdictEventCount(store);
   const beforeVerdicts = verdictFileCount(root);
   const handler = registry.get('quorum_submit');
   assert.ok(handler, 'quorum_submit handler is registered');
-  const refusal = assert.throws(
-    () => handler({
-      storyId: STORY_ID,
-      hostA: 'host-a',
-      hostB: 'host-b',
-      format: 'json',
-    }),
+  let refusal: unknown;
+  assert.throws(
+    () => {
+      try {
+        return handler({ storyId: STORY_ID, hostA: 'host-a', hostB: 'host-b', format: 'json' });
+      } catch (error) {
+        refusal = error;
+        throw error;
+      }
+    },
     /quorum_submit refuses: no current reviewer pass evidence for the required lanes/,
     label,
   );
   const refusalText = String(refusal);
   if (refusalText.includes('missing current pass lane(s):')) {
-    assert.match(
-      refusalText,
-      new RegExp(`missing current pass lane\\(s\\): ${REVIEW_LANES.join(', ')}`),
-      `${label}: missing-lane diagnostics use canonical reviewer lanes`,
-    );
+    const namedLanes = refusalText.match(/missing current pass lane\(s\): ([^\n]+)/)?.[1]
+      .split(',').map(lane => lane.trim()) ?? [];
+    assert.ok(namedLanes.length > 0 && namedLanes.every(lane =>
+      (REVIEW_LANES as readonly string[]).includes(lane)),
+    `${label}: missing-lane diagnostics use canonical reviewer lanes`);
+    assert.deepEqual(namedLanes, REVIEW_LANES.filter(lane => namedLanes.includes(lane)),
+      `${label}: canonical reviewer lanes must be duplicate-free and in canonical order`);
   }
   assert.equal(hostVerdictEventCount(store), beforeEvents, `${label}: no host_verdict process events written`);
   assert.equal(verdictFileCount(root), beforeVerdicts, `${label}: no verdict files written`);
+  return refusalText;
 }
 
 export function startRunAndPass(

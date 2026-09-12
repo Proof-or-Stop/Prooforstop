@@ -1108,8 +1108,13 @@ Changing either copy or both copies together, deleting a tracked config, changin
 the branch/workspace binding, using a symlink, losing the signing key, or losing receipt integrity removes
 that classification and restores ordinary scope enforcement.
 
-Repository baselines are resolved from the configured remote HEAD. In a linked
-Story worktree the primary worktree branch comes next, before conventional
+Repository baselines normally resolve from the configured remote HEAD. A linked
+worktree instead prefers the primary local branch when its name exactly matches
+origin/HEAD and the remote commit is an ancestor of the local tip. This excludes
+locally integrated changes from Story scope without requiring a remote push.
+Remote-ahead, diverged, differently named and detached primary checkouts retain
+the existing fallback policy. In a linked Story worktree the primary branch
+otherwise comes next, before conventional
 `main` and `master` fallbacks; this preserves repositories whose integration
 branch is `develop` even if an old `main` ref exists. In an ordinary checkout,
 conventional refs precede the checkout's current branch so a feature branch is

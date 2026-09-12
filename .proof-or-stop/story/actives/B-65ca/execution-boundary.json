@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "proof-or-stop.execution_boundary.v1.1",
+  "storyId": "B-65ca",
+  "allowedCommands": [
+    "git *",
+    "node *",
+    "npm *",
+    "proof-or-stop *",
+    "python3 *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "independent-review-agents"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-65ca",
+    "docs/benchmark",
+    "docs/requirements/decisions",
+    "scripts/benchmark",
+    "scripts/verify-benchmark-feasibility.mjs"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M0 scoped implementation and read-only inspection of current host/runtime. Product main changes only through formal DONE; no remote push, global provider permissions or full benchmark campaigns.",
+  "createdAt": "2026-09-11T21:35:42.757Z",
+  "updatedAt": "2026-09-11T21:35:42.757Z",
+  "_hash": "393e3f62c7a62e557f2c6e6ff34c272bd45ba785ad4e41df1a3bd56ca5d2d741"
+}

@@ -1,3 +1,4 @@
+import { planOwnerCoverageFailure } from './plan-touchpoint-coverage.js';
 import { convergenceProgressUnavailable } from './convergence-progress-gate.js';
 import { acceptanceCompletionBlocker } from './acceptance-amendment-gates.js';
 import { storyScopeBudgetBlocker } from './story-scope-budget.js';
@@ -737,6 +738,7 @@ function formatParallelDecompositionBlock(
 
 export function canStartDevGuard(context: StoryMachineContext): boolean {
   if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
+  if (planOwnerCoverageFailure(context.store, context.projectRoot, context.storyId)) return false;
   // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
   try {
     const config = loadConfig(context.projectRoot);
@@ -1360,6 +1362,10 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'DEV') {
+    if (store.readStory(storyId).phase === 'PLAN') {
+      const ownerFailure = planOwnerCoverageFailure(store, projectRoot ?? process.cwd(), storyId);
+      if (ownerFailure) return ownerFailure;
+    }
     const budgetBlocker = storyScopeBudgetBlocker(store, projectRoot ?? process.cwd(), storyId);
     if (budgetBlocker) return budgetBlocker;
     // First check whether taking the express channel from INIT_CHECK

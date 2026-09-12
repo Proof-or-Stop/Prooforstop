@@ -1,0 +1,48 @@
+{
+  "storyId": "B-65ca",
+  "name": "benchmark-m0-execution-feasibility",
+  "title": "Establish reproducible benchmark execution feasibility and a bounded implementation contract",
+  "description": "Implement the audited benchmark plan starting with M0 on latest local main 3e6b488694 (0.3.322). Deliver repository-owned audited design, executable feasibility probes and a receipt-backed go/no-go report for isolated managed headless task execution, complete usage accounting, admission and reviewer import. Preserve the full product objective of version-pinned task execution with stage time/token accounting and comparisons in subsequent M1-M3; this Story does not claim the full benchmark command is delivered. The accepted source document is /Users/jek/Documents/Proof-or-Stop-Benchmark-Plan/benchmark-execution-plan.md, SHA256 3b4aca3b381b8f7dda6cc4ad93433bb9636b206fe1d8adc60012059bd2989ac8, with implementation-preconditions.md and Claude follow-up READY_FOR_STORY_PLANNING.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "benchmark-m0",
+    "headless-feasibility",
+    "measurement-contract"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-09-11T21:34:46.396Z",
+  "startedAt": "2026-09-11T21:34:46.396Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-11T21:34:47.622Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-7dd3a29fe49f55601463958efdd64cb9",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-11T21:36:23.347Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-7dd3a29fe49f55601463958efdd64cb9",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-65ca",
+    "branch": "story/B-65ca",
+    "createdAt": "2026-09-11T21:36:11.476Z"
+  }
+}

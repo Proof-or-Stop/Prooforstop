@@ -1,0 +1,23 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Register exact benchmark feasibility paths in project policy",
+      "context": "Add docs/requirements/decisions/benchmark-execution-plan.md, docs/benchmark/implementation-preconditions.md, docs/benchmark/claude-followup-audit.md, docs/benchmark/m0-feasibility.md, scripts/benchmark/feasibility.mjs and scripts/verify-benchmark-feasibility.mjs to one new benchmark-feasibility responsibility; hostAdapters and validationGroups stay empty for diagnostic M0.",
+      "relatedDocs": [
+        "docs/story-scope-budget.md"
+      ],
+      "userSees": "B-65ca scope-budget diagnostics no longer report unmapped responsibility for its six declared files; unrelated missing topology remains visible.",
+      "files": {
+        "modify": [
+          "proof-or-stop.config.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

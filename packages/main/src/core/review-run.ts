@@ -1811,6 +1811,8 @@ function validateEvidenceRunBinding(
       lane: run.lane,
       reviewRound: run.reviewRound,
       projectRoot: run.workspaceBinding?.metadataRoot ?? projectRoot,
+      reviewPurpose: run.reviewPurpose,
+      inventoryBinding: run.inventoryBinding,
     });
     const writerSessionId = evidence.pass?.writerSessionId ?? nativeBinding.writerSessionId;
     const sessionSource = evidence.pass?.sessionSource ?? nativeBinding.sessionSource;

@@ -3121,7 +3121,7 @@ The dependency graph is acyclic: Story 3A imports neither Story 2 nor Story 1;
 Story 3B imports 3A only; Story 2 imports 3A persistence/query contracts and
 never Story 1; Story 1 imports Story 2 identity/route/query semantics and 3B runtime/
 ledger/query contracts. Checked-in dependency mutation fixtures must reject each
-forbidden reverse import independently.
+forbidden reverse import independently. The composition root may inject the Story 1 invalidation observer into the Story 2 recall writer through an internal typed port. This observation authorizes only a non-gate candidate recall, is unavailable to command JSON and public history queries, and is revalidated inside the existing ledger transaction. Standalone Story 2 refuses the L4-specific trigger without that provider; ordinary historical triggers remain independent.
 
 ## 10. Migration, rollout, and rollback
 
