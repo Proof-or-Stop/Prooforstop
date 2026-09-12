@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab route-reattestation-dependency-direction - v0.3.332 - 2026-09-12
+
+Fix the reverse dependency from Story2 route consent to the Story1 material re-attestation reader. Registry and Story1 composition now provide an internal signed restoration reader for exact source references and current workspace bindings, including route verification, progress revalidation, history recall and automatic deferral recall. Standalone drift remains strict; current-reviewer acceptance does not consume restoration. The original signed material/head-only verifier and target-only dependency tuple retain their validation and recursion boundary. Public command JSON cannot supply the reader or proof.
+
+The process contract now checks actual primitive component owners and canonical Story2 runtime providers with exact forbidden-edge diagnostics and static import, export, dynamic import and require mutation controls, while preserving allowed edges and existing mutations. The regression is registered in the serial reference suite.
+
+Target RED executes the actual old checker, which accepted the live forbidden import, then fails the precise route-direction assertion. The pinned GREEN command executes the repaired source/DAG checks, both complete native material/head-only fixtures with additional wrong-root/reference/missing-proof/boolean/strict-reviewer and official route/history controls, the existing route/progress/history suite, and the actual process contract. Progress preparation's wrong-baseline refusal is not presented as a restored successful progress commit. Test setup corrections and measured command timings are recorded in the local Lab logs. This is a bounded local maintenance repair, not signed Story DONE or operational rollout qualification. No remote push is requested.
+
+The unchanged local main 0.3.331 exact history command passed all 82 cases in 237.373 seconds. The initially chosen 120-second child budget was therefore insufficient; it is recorded as a failed fixture-budget attempt, not a product regression. The candidate retains all 82 cases under the existing documented 300-second lineage budget, with SIGKILL directed at only that spawned child on timeout. Production timeouts are unchanged.
+
+Official candidate GREEN completed in 350.117 seconds with both native restoration modes, all 82 original history cases and the process contract passing. The exact command remains pinned for the mandatory integration replays.
+
+Maintenance provenance: codex/lab-route-reattestation-dependency-direction, repair e669ed2d4d8e93b49cf70f11fb81699d2c00072f.
+Verification command (replayed before integration and on main): `["node","scripts/verify-route-reattestation-dependency-direction.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab identity-reviewed-source-bindings-20260911 - v0.3.331 - 2026-09-12
 
 Integrate the bounded identity-reviewed-source-bindings-20260911 Lab against
