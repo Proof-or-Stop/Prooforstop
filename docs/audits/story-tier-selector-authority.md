@@ -31,7 +31,7 @@ the old fixed 168-command rule with a new unsafe “all docs are cheap” rule.
 | Tier choice | Operator had to request fast/intermediate/full; no automatic promotion | Starts at fast, promotes to intermediate for directly affected shared/boundary rows, and widens to full for risk, gate, validation-infrastructure, unclassified, stale, or incomplete inputs |
 | Stable command identity | Explain planner used declared/provisional IDs; runtime generated a separate `validation-*` ID | Both use the declared ID or the same portable `prov-*` identity |
 | Decision binding | Runtime manifest had no canonical tier arrays or selector digest | Signed manifest binds requested tier, effective tier, all three exact ID arrays, and `selectorDecisionDigest` |
-| Pre-launch mutation defense | No cross-path selector digest to compare | Runtime recomputes the automatic decision and stops before child execution on digest or membership mismatch |
+| Pre-launch mutation defense | No cross-path selector digest to compare | Runtime recomputes the binding digest and verifies exact full-universe plus tier-subset membership invariants before child execution |
 | Default Story mode | Repository configuration was `observe`; absent configuration resolved to `off` | Story-scoped validation defaults to configured `enforce-low-risk`; project-level validation remains `off` by default |
 | TEST | Verifier forced every TEST invocation to dynamic `off` | TEST may accept dynamic authority only with a complete inventory partition and all existing baseline/closure/freshness/expiry/revocation prerequisites |
 | Explicit full and DONE | Complete canonical policy | Unchanged: explicit `--full` and DONE resolve dynamic mode to `off`; DONE-required commands remain independent |
