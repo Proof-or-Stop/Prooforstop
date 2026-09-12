@@ -1,7 +1,7 @@
 # CLI runtime Lab candidate and integration boundary
 
 This maintenance candidate belongs to `Lab-cli-runtime-sync-20260911`, based on
-local main 0.3.337 (`f855b995ad6a5c103a037f6c54565910050e4d58`). The current task
+the main commit recorded in each native audit binding. The current task
 requests repair in the existing Lab, RED/GREEN evidence and independent Claude
 CLI audit. It does not request finish, a release commit, main integration or push.
 The candidate remains an active, pre-finish Lab. Its implementation identity is
@@ -15,8 +15,11 @@ require a patch release at that stage. Root/runtime manifests, their lockfiles a
 the CLI brand constant must advance together. An early audit cannot approve later
 commits or substitute for that final prepared-candidate audit.
 
-The present manifests and CLI constant consistently remain 0.3.337. Retaining
-that baseline during development does not waive the mandatory release step.
+Version inputs are measured by verify-cli-audit-hardening.mjs for every candidate:
+root package.json, packages/main/package.json, and the source PROOF_OR_STOP_CLI_VERSION
+are reported separately and compared. Read those head-bound results and the native
+audit base instead of treating a version literal in this living guide as current.
+Retaining the synchronized baseline during development does not waive the mandatory release step.
 Before any future integration, verify the atomic bump, both entry versions, fresh
 GREEN and the exact prepared candidate's independent audit. Until then these
 changes and measurements are Lab evidence, not released behavior or Story DONE.

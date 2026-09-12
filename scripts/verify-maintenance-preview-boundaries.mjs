@@ -94,7 +94,7 @@ try {
       assert.equal(row.headUnchanged, true);
     }
   });
-  const { resolveEffectiveOwnershipClass, reviewerReadRecoveryHint, enforceStoryOwnerLeaseGate } = await import(join(repo, 'packages/main/dist/cli/ownership-gate.js'));
+  const { resolveEffectiveOwnershipClass, reviewerReadRecoveryHint } = await import(join(repo, 'packages/main/dist/cli/ownership-gate.js'));
   await check('parameter-matrix-and-protected-writes', async () => {
     for (const [cmd, args, expected] of [
       ['story_reconcile', {}, 'readOnly'], ['story_reconcile', {dryRun:false}, 'mainSharedMutating'],
@@ -134,7 +134,7 @@ try {
     ]) {
       const hint = reviewerReadRecoveryHint(writer, {storyId:sid}, sid);
       assert.ok(hint.includes(reader === 'codex_doctor' ? 'codex doctor' : reader), writer + ' lacks reader hint');
-      const refused = invoke(writer, [`--storyId=${sid}`]); assert.deepEqual(refused.args, flags, 'every declared writer argument form must run'); assert.notEqual(refused.exitCode, 0); assert.ok(refused.stderr.includes(hint.trim()));
+      const refused = invoke(writer, flags); assert.deepEqual(refused.args, flags, 'every declared writer argument form must run'); assert.notEqual(refused.exitCode, 0); assert.ok(refused.stderr.includes(hint.trim()));
       const emitted = refused.stderr.split('\n').find(line => line.includes(hint.trim()));
       const exact = emitted.match(/: proof-or-stop (.*?) \(does not /)?.[1];
       assert.ok(exact, 'refusal must contain an executable reader command');

@@ -819,27 +819,28 @@ export async function runCli(opts?: {
   const runtimeOwnershipConfig = cmd === 'agent_prompt' || cmd === 'evaluate'
     ? loadConfig(root0)
     : undefined;
+  const admissionCommand = cmd || 'help';
   let rawRuntimeOwnership: ReturnType<typeof resolveRawRuntimeAdmissionOwnership>;
   let rawAdmissionError: unknown;
   try {
     // Mode delegates must be authenticated before they classify even a preview.
-    assertCanonicalActiveIdentityArgumentDelegates({ command: cmd || 'help', projectRoot: root0 });
+    assertCanonicalActiveIdentityArgumentDelegates({ command: admissionCommand, projectRoot: root0 });
     rawRuntimeOwnership = resolveRawRuntimeAdmissionOwnership(
-      cmd || 'help', argv.slice(1), externalAdmission.ownershipClasses, { config: runtimeOwnershipConfig },
+      admissionCommand, argv.slice(1), externalAdmission.ownershipClasses, { config: runtimeOwnershipConfig },
     );
   } catch (error) {
     // Retain authoritative-runtime admission on malformed input, then report
     // the precise refusal without misclassifying it as a bootstrap failure.
-    rawRuntimeOwnership = getCommandPolicy(cmd)?.ownershipClass ?? externalAdmission.ownershipClasses?.[cmd] ?? null;
+    rawRuntimeOwnership = getCommandPolicy(admissionCommand)?.ownershipClass ?? externalAdmission.ownershipClasses?.[admissionCommand] ?? null;
     rawAdmissionError = error;
   }
   const runtimeAuthority = classifyRuntimeEntrypointAuthority({
-    command: cmd || 'help',
+    command: admissionCommand,
     commandArgs: argv.slice(1),
     projectRoot: root0,
     invokedEntrypoint: process.argv[1] ?? null,
     env: process.env,
-    requiresAuthoritativeRuntime: commandRequiresAuthoritativeRuntime(cmd || 'help', rawRuntimeOwnership),
+    requiresAuthoritativeRuntime: commandRequiresAuthoritativeRuntime(admissionCommand, rawRuntimeOwnership),
   });
   if (runtimeAuthority.status === 'blocked') {
     process.stderr.write(`${renderRuntimeEntrypointAuthorityFailure(runtimeAuthority)}\n`);

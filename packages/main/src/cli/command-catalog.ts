@@ -1142,6 +1142,8 @@ Behavior:
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'queue_governance_status', description: 'Read-only active story queue governance projection with duplicate and experiment-batch grouping.', schema: {
+    gitProbeLimit: z.number().int().min(0).max(1000).optional().describe('Maximum optional Git progress probes (default 4; zero disables).'),
+    gitProbeBudgetMs: z.number().int().min(0).max(60000).optional().describe('Shared optional Git deadline in milliseconds (default 1000; up to 60000 for a broader diagnostic).'),
     expanded: z.boolean().optional().describe('Expand experiment-batch story membership (default false).'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),

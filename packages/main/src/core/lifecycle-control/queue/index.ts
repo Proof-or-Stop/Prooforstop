@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { resolveRepositoryBaseline } from '../../git-baseline.js';
+import { resolveRepositoryBaseline, type RepositoryBaselineCache } from '../../git-baseline.js';
 
 export const QUEUE_GOVERNANCE_STATUS_SCHEMA_VERSION = 'proof-or-stop.queue_governance_status.v1' as const;
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
@@ -54,7 +54,7 @@ export interface QueueGovernanceOptions {
   readonly expanded?: boolean;
   readonly now?: string;
   readonly staleWorktreeMs?: number;
-  /** Optional diagnostic probes only; callers may lower the hard caps of 4 / 1000 ms. */
+  /** Optional diagnostic probes: defaults 4 / 1000 ms; explicit limits up to 1000 / 60000 ms. */
   readonly gitProbeLimit?: number;
   readonly gitProbeBudgetMs?: number;
 }
@@ -305,6 +305,7 @@ interface ProgressProbeBudget {
   remaining: number;
   readonly deadlineMs: number;
   readonly observations: Map<string, number | null | undefined>;
+  readonly baselineCandidates: RepositoryBaselineCache;
 }
 
 function storyProgressState(story: StoryInfo, gitCwd: string, thresholdMs: number, nowMs: number, budget: ProgressProbeBudget): 'active' | 'stale' | 'unknown' {
@@ -321,10 +322,10 @@ function storyProgressState(story: StoryInfo, gitCwd: string, thresholdMs: numbe
     budget.remaining--;
     budget.observations.set(gitCwd, undefined);
     try {
-      const baseline = resolveRepositoryBaseline(gitCwd, 'HEAD', { deadlineMs: budget.deadlineMs });
+      const baseline = resolveRepositoryBaseline(gitCwd, 'HEAD', { deadlineMs: budget.deadlineMs, candidateCache: budget.baselineCandidates });
       const remaining = Math.floor(budget.deadlineMs - performance.now());
       if (!baseline || remaining <= 0) return 'unknown';
-      const value = execFileSync('git', ['log', '-1', '--no-merges', '--format=%ct', `${baseline.ref}..HEAD`, '--'],
+      const value = execFileSync('git', ['log', '-1', '--no-merges', '--format=%ct', `${baseline.commit ?? baseline.ref}..HEAD`, '--'],
         { cwd: gitCwd, encoding: 'utf8', timeout: remaining, stdio: ['ignore', 'pipe', 'ignore'] }).trim();
       budget.observations.set(gitCwd, value ? Number(value) * 1000 : null);
     } catch { /* Optional observation failure is not proof of staleness. */ }
@@ -411,12 +412,13 @@ export function projectQueueGovernance(
     });
   }
 
-  const bounded = (value: number | undefined, maximum: number): number =>
-    value !== undefined && Number.isFinite(value) ? Math.min(maximum, Math.max(0, Math.floor(value))) : maximum;
+  const bounded = (value: number | undefined, fallback: number, maximum: number): number =>
+    value !== undefined && Number.isFinite(value) ? Math.min(maximum, Math.max(0, Math.floor(value))) : fallback;
   const probeBudget: ProgressProbeBudget = {
-    remaining: bounded(options.gitProbeLimit, 4),
-    deadlineMs: performance.now() + bounded(options.gitProbeBudgetMs, 1000),
+    remaining: bounded(options.gitProbeLimit, 4, 1000),
+    deadlineMs: performance.now() + bounded(options.gitProbeBudgetMs, 1000, 60000),
     observations: new Map(),
+    baselineCandidates: new Map(),
   };
   const rows = activeStories.map((story) => {
     const projectionRow = localProjectionById.get(story.storyId);

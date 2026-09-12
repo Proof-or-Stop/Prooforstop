@@ -14,10 +14,35 @@ function isStoryRef(ref: string): boolean {
 }
 
 /** Resolve the repository's actual integration branch without inventing a local main alias. */
-export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options: { deadlineMs?: number } = {}): { ref: string; mergeBase: string } | undefined {
+export type RepositoryBaselineCache = Map<string, readonly { ref: string; commit: string }[]>;
+export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options: { deadlineMs?: number; candidateCache?: RepositoryBaselineCache } = {}): { ref: string; mergeBase: string; commit?: string } | undefined {
   // Optional monotonic deadline applies to the entire resolution, including
   // unsuccessful fallbacks; an expired budget never starts another subprocess.
   const probe = (cwd: string, args: string[]): string => git(cwd, args, options.deadlineMs);
+  // Only callers owning a single observation snapshot provide this cache. Keep
+  // ordinary and linked checkout policy separate, and still check each HEAD's
+  // ancestry. A cached ref's commit is fixed for that snapshot, not a moving ref.
+  let cacheKey: string | undefined;
+  let observedLinked: boolean | undefined;
+  const selectCached = (refs: readonly { ref: string; commit: string }[]) => {
+    for (const candidate of refs) {
+      try {
+        const mergeBase = probe(gitCwd, ['merge-base', candidate.commit, head]);
+        if (mergeBase) return { ...candidate, mergeBase };
+      } catch { /* an unrelated HEAD must not borrow another worktree's ancestry */ }
+    }
+    return undefined;
+  };
+  if (options.candidateCache) {
+    try {
+      const common = probe(gitCwd, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+      const gitDir = probe(gitCwd, ['rev-parse', '--absolute-git-dir']);
+      observedLinked = common !== gitDir;
+      cacheKey = JSON.stringify([common, observedLinked]);
+      const cached = options.candidateCache.get(cacheKey);
+      if (cached !== undefined) return selectCached(cached);
+    } catch { return undefined; }
+  }
   const candidates: string[] = [];
   const add = (ref: string | undefined): void => {
     const candidate = ref?.trim() ?? '';
@@ -30,8 +55,8 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
     const primary = probe(gitCwd, ['worktree', 'list', '--porcelain']).split(/\n\n+/)[0] ?? '';
     primaryBranch = primary.split('\n').find(line => line.startsWith('branch '))?.slice('branch '.length);
   } catch { /* no trustworthy worktree inventory */ }
-  let linkedWorktree = false;
-  try {
+  let linkedWorktree = observedLinked ?? false;
+  if (observedLinked === undefined) try {
     const gitDir = probe(gitCwd, ['rev-parse', '--absolute-git-dir']);
     const commonDir = probe(gitCwd, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
     linkedWorktree = gitDir !== commonDir;
@@ -52,6 +77,17 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
   if (linkedWorktree) add(primaryBranch);
   for (const fallback of ['refs/heads/main', 'refs/remotes/origin/main', 'refs/heads/master', 'refs/remotes/origin/master']) add(fallback);
   if (!linkedWorktree) add(primaryBranch);
+  if (options.candidateCache && cacheKey !== undefined) {
+    const refs: { ref: string; commit: string }[] = [];
+    for (const ref of candidates) {
+      try { refs.push({ ref, commit: probe(gitCwd, ['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`]) }); }
+      catch { /* unavailable refs stay ineligible */ }
+    }
+    // Never cache an incomplete scan caused by exhaustion.
+    if (options.deadlineMs !== undefined && performance.now() >= options.deadlineMs) return undefined;
+    options.candidateCache.set(cacheKey, refs);
+    return selectCached(refs);
+  }
   for (const ref of candidates) {
     try {
       probe(gitCwd, ['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`]);

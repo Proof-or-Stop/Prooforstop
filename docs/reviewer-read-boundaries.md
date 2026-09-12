@@ -123,10 +123,16 @@ resolved integration baseline. An inherited main commit, merge-only sync,
 directory timestamp or owner heartbeat does not invent Story activity. Missing authoritative state or incomplete progress observation is
 `unknown-worktree`, never an assertion of staleness. This diagnostic never
 authorizes deletion or cleanup. Optional Git observations run only when recorded
-activity is insufficient, with a shared limit of four worktree probes and a
-1000 ms monotonic subprocess budget per projection. Baseline resolution and the
+activity is insufficient, with defaults of four worktree probes and a
+1000 ms monotonic subprocess budget per projection. For a broader explicit
+diagnostic, queue_governance_status accepts --gitProbeLimit (up to 1000) and
+--gitProbeBudgetMs (up to 60000). Baseline resolution and the
 commit query share that deadline; each worktree result is cached within the
-projection. Callers may lower the caps (zero disables probes). Budget exhaustion,
+projection. Zero disables probes. Integration candidate refs and their observed commits are
+cached once per shared Git directory and ordinary/linked checkout mode within
+this projection. Each worktree still checks its own HEAD ancestry; its log uses
+the observed commit, so unrelated histories cannot borrow another tree's result.
+The cache is discarded after the projection, including across later ref changes. Budget exhaustion,
 Git failure and unavailable authoritative metadata remain unknown. These caps
 bound the additional progress probes, not the entire pre-existing projection or
 filesystem setup. No historical Story/log tree is scanned for commit activity.
