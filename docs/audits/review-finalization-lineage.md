@@ -525,3 +525,28 @@ absolute deadline through the sole executeFullSuiteEntry call. The envelope does
 not rebuild it after temporary-directory preparation. Runtime contract checks
 pin both that call and the unchanged deadline value; the inner reader already
 clamps against it. This avoids adding launch preparation time back into budget.
+
+
+## Ninth repair: isolate the remaining authority coverage boundaries
+
+Claude audit 572f3e7c-830c-4b94-bbed-efd75c87d39f rejected candidate
+f1fc5d4c0b86a5844d52af8eb5ab3cff10e86294 with two coverage findings after
+814395 ms. It accepted the disclosed pre-existing nested admission route;
+concurrent completion and headroom remain unproven. This repair changes tests
+only, preserving the eighth repair's production behavior.
+
+The real continuity regression now independently breaks prior and replacement
+V5 receipt authority while retaining requirements and the full semantic evidence
+multiset. A causal-index negative removes only a valid unrelated corpus entry,
+keeps all receipt blobs, and proves both acceptance receipts still have authority.
+A consumption negative changes only updatedAt, resigns the fixture epoch, and
+preserves the signed window and early consumption predicates so exact-delta
+comparison is decisive. Each branch restores the genuine fixture history; the
+consumption branch also checks a reconstructed positive control.
+
+The complete targeted regression exited zero in regression45. Its log contains
+PAIRED_EXECUTION_AUTHORITY_REFUSED for both sides,
+CAUSAL_INDEX_PREFIX_ERASURE_REFUSED and SIGNED_CONSUMPTION_EXTRA_DELTA_REFUSED.
+Independent read-only advisory review found no concrete gap in this test delta;
+it is not formal Claude audit or Story evidence. Latest-main synchronization,
+fresh Lab GREEN and actual candidate-bound vendor audit remain required.

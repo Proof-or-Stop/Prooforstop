@@ -47,7 +47,8 @@ assert.equal(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,sessionId:'
 assert.equal(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,storyId:'foreign-story'}),false);
 assert.equal(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,futureField:'unreviewed'}),false);
 assert.equal(evaluateMetadataOnlyReviewRetention({materialUnchanged:true,storyFilesUnchanged:true,stableEvaluationHead:true,storedCompositeScopeDigest:'scope',currentCompositeScopeDigest:'scope',storedReviewRound:'round',currentReviewRound:'round',changedArtifacts:[{path:'checklist.json',writer:'verification_evidence_add',valid:true,strictEvidenceRefresh:true}]}).ok,false,'caller booleans cannot grant non-canonical receipt authority');
-import {executeCausalEvidence,preflightCausalEvidence,DEFAULT_CAUSAL_SELECTOR_POLICY} from '../packages/main/dist/core/causal-evidence.js';
+import {hasMechanicalExecutionAuthority} from '../packages/main/dist/core/verification-receipt-authority.js';
+import {executeCausalEvidence,preflightCausalEvidence,DEFAULT_CAUSAL_SELECTOR_POLICY,verifyCausalEvidenceReceipt} from '../packages/main/dist/core/causal-evidence.js';
 import {currentMaterialHash,currentStoryFilesHash} from '../packages/main/dist/core/evidence-freshness.js';
 import {PROOF_OR_STOP_CLI_VERSION} from '../packages/main/dist/core/proof-or-stop-brand.js';
 const receiptCorpusSize=200;
@@ -255,6 +256,25 @@ cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturat
   assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:git(fixture.root,['rev-parse',refreshHead+'^'])}),false,mode);
   console.log('CAUSAL_OUTPUT_REFUSED '+mode);
  }
+ git(fixture.root,['reset','--hard',refreshHead+'^']);
+ for(const path of refreshPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),execFileSync('git',['show',refreshHead+':'+path],{cwd:fixture.root}));}
+ const indexPath=`.proof-or-stop/story/actives/${storyId}/causal-evidence/index.json`;
+ const priorIndex=JSON.parse(execFileSync('git',['show',refreshHead+'^:'+indexPath],{cwd:fixture.root,encoding:'utf8'}));
+ const unused=Object.entries(priorIndex.receipts).find(([key,hash])=>{
+  const receipt=JSON.parse(execFileSync('git',['show',refreshHead+'^:'+`.proof-or-stop/story/actives/${storyId}/causal-evidence/receipts/${hash}.json`],{cwd:fixture.root,encoding:'utf8'}));
+  return receipt.identity.inputs?.purpose==='bounded receipt corpus' && verifyCausalEvidenceReceipt(receipt,key);
+ });
+ assert(unused,'choose an authentic corpus receipt unrelated to acceptance, not a required execution receipt');
+ const index=JSON.parse(readFileSync(join(fixture.root,indexPath),'utf8'));assert.equal(index.receipts[unused[0]],unused[1]);delete index.receipts[unused[0]];
+ writeFileSync(join(fixture.root,indexPath),JSON.stringify(index));
+ // Both acceptance sides remain authenticated; only the historical index key disappears.
+ for(const ref of [refreshHead+'^',refreshHead]) {
+  const checklist=JSON.parse(execFileSync('git',['show',ref+':'+`.proof-or-stop/story/actives/${storyId}/checklist.json`],{cwd:fixture.root,encoding:'utf8'}));
+  for(const item of checklist.items)for(const evidence of item.verificationEvidence??[])assert(hasMechanicalExecutionAuthority(fixture.store,storyId,item,evidence));
+ }
+ git(fixture.root,['add','--',...refreshPaths,indexPath]);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
+ assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:git(fixture.root,['rev-parse',refreshHead+'^'])}),false,'valid unreferenced receipt history cannot be removed from the causal index');
+ console.log('CAUSAL_INDEX_PREFIX_ERASURE_REFUSED');
  git(fixture.root,['reset','--hard',refreshHead]);
 }
 // The lifecycle counterexamples use their original small witness. Repeating
@@ -634,6 +654,29 @@ if(mode==='clean') {
  }
  assert(refreshed.valid,'authenticated evidence-only refresh preserves review lineage');
  assert.equal(evaluateReviewRunMetadataRetention(fixture.store,fixture.store.readStory(storyId),persistedCritic,fixture.root,currentScopeContextForStory(fixture.store,storyId,fixture.root)).ok,true,'production retention accepts byte-bound checklist and causal projections');
+ const authorityHead=git(fixture.root,['rev-parse','HEAD']),authorityParent=git(fixture.root,['rev-parse','HEAD^']);
+ const authorityPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r',authorityHead]).split('\n').filter(Boolean);
+ const checklistAt=ref=>JSON.parse(execFileSync('git',['show',ref+':'+storyPrefix+'checklist.json'],{cwd:fixture.root,encoding:'utf8'}));
+ const semantic=data=>data.items.map(item=>({id:item.id,rows:(item.verificationEvidence??[]).map(e=>[e.intentRef,e.kind,e.result])}));
+ const requirements=data=>data.items.map(({verificationEvidence,...item})=>item);
+ for(const side of ['prior','replacement']) {
+  git(fixture.root,['reset','--hard',authorityParent]);
+  const prior=checklistAt(authorityParent),replacement=checklistAt(authorityHead);
+  const broken=side==='prior'?prior:replacement;broken.items[0].verificationEvidence[0].receipt.selectorMatched=false;
+  assert.deepEqual(semantic(prior),semantic(replacement));assert.deepEqual(requirements(prior),requirements(replacement));
+  if(side==='prior') {
+   fixture.store.writeChecklist(storyId,prior);git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m','test: unauthenticated prior receipt with unchanged coverage']);
+  }
+  for(const path of authorityPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),execFileSync('git',['show',authorityHead+':'+path],{cwd:fixture.root}));}
+  fixture.store.writeChecklist(storyId,replacement);
+  assert.equal(hasMechanicalExecutionAuthority(fixture.store,storyId,prior.items[0],prior.items[0].verificationEvidence[0]),side!=='prior');
+  assert.equal(hasMechanicalExecutionAuthority(fixture.store,storyId,replacement.items[0],replacement.items[0].verificationEvidence[0]),side!=='replacement');
+  git(fixture.root,['add','--',...authorityPaths,storyPrefix+'checklist.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
+  assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:git(fixture.root,['rev-parse','HEAD'])}),false,'unchanged coverage requires authenticated '+side+' execution');
+  console.log('PAIRED_EXECUTION_AUTHORITY_REFUSED '+side);
+ }
+ git(fixture.root,['reset','--hard',authorityHead]);
+
 
 
 
@@ -650,6 +693,28 @@ if(mode==='clean') {
  }
  assert.equal(error,'','REVIEW_EPOCH_NATIVE_CONTINUITY_REQUIRED: actual canonical batch publication must admit without material drift');
  assert.match(output,/State: ADMITTED/);
+ const consumptionHead=git(fixture.root,['rev-parse','HEAD']),consumptionParent=git(fixture.root,['rev-parse','HEAD^']);
+ const consumptionPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r',consumptionHead]).split('\n').filter(Boolean);
+ assert(consumptionPaths.includes(storyPrefix+'review-inventory-epochs.json'));
+ for(const fault of [false,true]) {
+  git(fixture.root,['reset','--hard',consumptionParent]);
+  for(const path of consumptionPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),execFileSync('git',['show',consumptionHead+':'+path],{cwd:fixture.root}));}
+  if(fault) {
+   const data=fixture.store.readReviewInventoryEpochs(storyId);const consumed=data.epochs.find(row=>row.consumedAt);assert(consumed);
+   // Keep every early consumption predicate and the window valid. Only the
+   // signed updatedAt differs from the exact consumedAt-derived allowed delta.
+   consumed.updatedAt=new Date(Date.parse(consumed.consumedAt)+1000).toISOString();
+   const {_hash,...claims}=consumed;consumed._hash=signReviewInventoryEpoch(claims);assert(verifyReviewInventoryEpoch(consumed));
+   for(const receipt of data.receipts)assert(verifyReviewInventoryReceipt(receipt));
+   fixture.store.writeReviewInventoryEpochs(storyId,data);
+  }
+  assert.equal(readFileSync(join(fixture.root,storyPrefix+'certification-window.json'),'utf8'),execFileSync('git',['show',consumptionHead+':'+storyPrefix+'certification-window.json'],{cwd:fixture.root,encoding:'utf8'}));
+  git(fixture.root,['add','--',...consumptionPaths]);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} certification_window_begin metadata`]);
+  assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:git(fixture.root,['rev-parse','HEAD'])}),!fault,'signed inventory consumption exact delta');
+ }
+ console.log('SIGNED_CONSUMPTION_EXTRA_DELTA_REFUSED');
+ git(fixture.root,['reset','--hard',consumptionHead]);
+
  const routine=JSON.parse(cli(fixture.root,'validate',{storyId,json:true},env('main','saturation-owner')));assert.equal(routine.status,'pass');
  console.log('POST_CERT_METADATA',git(fixture.root,['log','--format=%H %s','--name-only',publishedHead+'..HEAD']));
  console.log(cli(fixture.root,'story_advance',{storyId,phase:'TEST'},env('main','saturation-owner')));
