@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab identity-reviewed-main-source - v0.3.346 - 2026-09-12
+
+Six reviewed-source rows rejected current local-main files after previously integrated changes. This repair refreshes their exact whole-source SHA bindings and moves the runtime-registry context from line 479 to 480. All six reviewed lines, token counts, classifications and reasons remain identical. The inventory still contains exactly 54 rows; source-reader and enclosing scanner fingerprints are updated through the existing chain. No reader condition, production source, legacy identity allowance or Story-specific source registration changes.
+
+Exact prior files were recovered from Git: process-fact-levels from 5b2651fd6e51ba412154b88389197b5d7d8a24e6, runtime-fact-registry from 3e3d7dd7124bdeae6b591450d6c8aa2029f9d458, and runtime-environment-checks from f926bb1def603d58f28a615996fbece728c1afbb. The source differences are the already-integrated evidence-hash fail-closed registry addition, one invocation-local baseline-serialization registry row, and two executable fingerprint updates. Each reviewed line remains byte-identical. This is reviewed provenance closure, not a claim that those entire source files were unchanged.
+
+The existing registered source-bindings test records actual RED before repair and GREEN after it. It verifies all 54 current positives, 324 mutation refusals, 52 empty/missing-source controls, exact scanner reader hashes, and inventory byte-tamper refusal. An added six-context digest assertion prevents changing the reviewed text, token multiplicity, classification or reason while refreshing location/hash metadata. The broader fixture/JSON identity suite is separate and is not claimed green by this source-only repair. No Story completion or product-release evidence is asserted.
+
+The first independent audit identified two additional whole-source bindings for the same runtime environment file in the scanner: the both-family witness and negative-source integrity table. The candidate now refreshes those exact two hashes as well, preserving every row and rejection condition. A committed regression extracts the actual scanner declarations with the TypeScript parser and executes their initializers; both tables must retain exactly one current binding for the shared path. Four deletion/stale-pin mutants are refused. The unchanged registered command recorded target RED with REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH and GREEN after the two-hash repair. The first audit rejection and concurrent-main-change failure remain in the local audit record; no first-attempt PASS is claimed.
+
+Maintenance provenance: codex/lab-identity-reviewed-main-source, repair e5df7b0d5696a48d9f68efc58d0a0e35dad965a6.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab evidence-fixture-contracts - v0.3.345 - 2026-09-12
 
 Reject stale static-exception evidence mechanically: current excerpts must match source hashes, inclusive ranges and registered call coverage. Historical or narrative evidence cannot authorize current exceptions. Reconcile all 258 manifest entries and the 168-command registry against reviewed local-main source without weakening exception classifications.
