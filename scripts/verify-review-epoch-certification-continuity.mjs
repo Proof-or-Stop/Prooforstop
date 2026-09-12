@@ -162,7 +162,7 @@ assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(450000,1000),1000),/exhau
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(450000,451000,'other'),1000),360000,'foreign ancestor envelope does not replace the standalone watchdog');
 assert.throws(()=>reviewEpochFixtureBudgetMs({PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET:'bad'},1000));
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
-const modes=['clean','coverage-added','wrong-subject','wrong-story-path','outside-review-artifact','near-miss-prompt-body','forged-publisher','forged-refresh','cancelled'];
+const modes=['clean','coverage-added','wrong-subject','wrong-story-path','missing-epochs','forged-publisher','forged-refresh','cancelled'];
 {
 const fixture=setup({name:'Harmonynet',email:'26995688+Harmonynet@users.noreply.github.com'});
 const primaryRoot=fixture.root;const worktreePath=join(primaryRoot,'.worktrees',storyId);
@@ -509,11 +509,15 @@ assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedMa
 assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedStoryFilesHash:'0'.repeat(64)}),false,'wrong consumer Story binding is refused');
 assertNoReaderHealth(()=>assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedHeadHash:smallPinnedHead}),false,'a consumer before the epoch cutoff is refused'));
 const publishPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r',publishedHead]).split('\n').filter(Boolean);
+// Immutable fixture commit bytes are read once; every reconstruction restores
+// the same authenticated snapshot without spawning Git for each repeated case.
+assert.match(publishedHead,/^[a-f0-9]{40}$/);
+const publishedFiles=new Map(publishPaths.map(path=>[path,execFileSync('git',['show',publishedHead+':'+path],{cwd:fixture.root})]));
 // Reconstruct a genuine publication INCLUDING its epochs file so the artifact
 // allowlist, rather than the missing-epochs guard, decides each sibling case.
 for(const mode of ['canonical-body','outside-artifact','near-miss-body','extra-epoch','extra-receipt']) {
  git(fixture.root,['reset','--hard',publishedHead+'^']);
- for(const path of publishPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),execFileSync('git',['show',publishedHead+':'+path],{cwd:fixture.root}));}
+ for(const path of publishPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),publishedFiles.get(path));}
  const epochsPath=storyPrefix+'review-inventory-epochs.json';
  const data=JSON.parse(readFileSync(join(fixture.root,epochsPath),'utf8'));
  const terminal=data.epochs.at(-1);assert(verifyReviewInventoryEpoch(terminal));
@@ -545,7 +549,7 @@ git(fixture.root,['reset','--hard',publishedHead]);
 const observedMetrics=computeProcessMetrics(storyId,fixture.store,fixture.root);
 for(const validMetrics of [true,false]) {
  git(fixture.root,['reset','--hard',publishedHead+'^']);
- for(const path of publishPaths) {mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),execFileSync('git',['show',publishedHead+':'+path],{cwd:fixture.root}));}
+ for(const path of publishPaths) {mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),publishedFiles.get(path));}
  const metrics={...observedMetrics,storyId:validMetrics?storyId:'B-foreign'};
  writeFileSync(join(fixture.root,storyPrefix+'process-metrics.json'),JSON.stringify(metrics));
  git(fixture.root,['add','--',...publishPaths,storyPrefix+'process-metrics.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
@@ -577,7 +581,7 @@ for(const variant of ['preserved','optional-absent','completedEpochBindings','re
  if(variant==='optional-absent')delete prior.humanDecisions;
  writeFileSync(join(fixture.root,storyPrefix+'convergence-progress.json'),JSON.stringify(prior));
  git(fixture.root,['add','--',storyPrefix+'convergence-progress.json']);git(fixture.root,['commit','-m','test: retain convergence prefix witnesses']);
- for(const path of publishPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),execFileSync('git',['show',publishedHead+':'+path],{cwd:fixture.root}));}
+ for(const path of publishPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),publishedFiles.get(path));}
  const next=structuredClone(prior);next.humanDecisions??=[];
  if(['completedEpochBindings','revokedCompletedEpochIds','humanDecisions'].includes(variant))next[variant]=[];
  else if(variant==='missing-required')delete next.completedEpochBindings;
@@ -695,12 +699,18 @@ if(mode==='cancelled') {
  appendFileSync(join(fixture.root,path),'\n');git(fixture.root,['add','--',path]);
  git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
 } else if(mode!=='clean') {
- const relative=mode==='near-miss-prompt-body'?`${storyPrefix}prompt-bodies/${'a'.repeat(63)}.txt`:mode==='wrong-story-path'?'.proof-or-stop/story/actives/B-other/note.txt':mode==='outside-review-artifact'?`.proof-or-stop/story/actives/${storyId}/not-a-review-artifact.txt`:`.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
+ const relative=mode==='wrong-story-path'?'.proof-or-stop/story/actives/B-other/note.txt':`.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
  mkdirSync(join(fixture.root,relative,'..'),{recursive:true});
- if(mode==='wrong-subject') {const {appendFileSync}=await import('node:fs');appendFileSync(join(fixture.root,relative),'\n');}
+ if(mode==='wrong-subject'||mode==='missing-epochs') {const {appendFileSync}=await import('node:fs');appendFileSync(join(fixture.root,relative),'\n');}
  else writeFileSync(join(fixture.root,relative),'unrelated path must not gain review continuity\n');
  git(fixture.root,['add','--',relative]);
  git(fixture.root,['commit','-m',mode==='wrong-subject'?'ordinary bookkeeping claim':`proof-or-stop: record ${storyId} review epoch metadata`]);
+}
+if(mode==='missing-epochs') {
+ const changed=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r','HEAD']).split('\n').filter(Boolean);
+ assert.deepEqual(changed,[storyPrefix+'process-events.jsonl'],'missing-epochs control changes only an allowed sibling');
+ assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:git(fixture.root,['rev-parse','HEAD'])}),false);
+ console.log('EPOCH_PUBLICATION_MISSING_EPOCHS_REFUSED');
 }
 if(mode==='clean') {
  cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
