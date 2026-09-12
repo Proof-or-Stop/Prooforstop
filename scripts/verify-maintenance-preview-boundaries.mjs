@@ -1,14 +1,12 @@
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
-import { verificationSpawner } from './verification-subprocess-budget.mjs';
-const spawnSync = verificationSpawner();
+import { prepareVerification } from './verification-subprocess-budget.mjs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const prep = spawnSync(process.execPath, [join(repo, 'scripts/ensure-dist.mjs')], { cwd: repo, encoding: 'utf8', timeout: 180000 });
-assert.equal(prep.status, 0, `SETUP_BUILD_FAILED: ${prep.stderr} ${prep.stdout}`);
+const spawnSync = prepareVerification(repo);
 const groups = [];
 const rows = [];
 const check = async (id, run) => { try { await run(); groups.push({ id, pass: true }); } catch (e) { groups.push({ id, pass: false, error: e.message }); } };

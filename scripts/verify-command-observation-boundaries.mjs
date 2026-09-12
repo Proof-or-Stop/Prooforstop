@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync, rmSync, utimesSync } from 'node:fs';
 import { fork } from 'node:child_process';
-import { verificationSpawner } from './verification-subprocess-budget.mjs';
-const spawnSync = verificationSpawner();
+import { prepareVerification } from './verification-subprocess-budget.mjs';
 import { tmpdir } from 'node:os';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,8 +17,7 @@ if (process.argv[2] === '--hold-lock') {
   });
   process.exit(0);
 }
-const build = spawnSync(process.execPath, [join(repo, 'scripts/ensure-dist.mjs')], { cwd: repo, encoding: 'utf8', timeout: 180000 });
-assert.equal(build.status, 0, `SETUP_BUILD_FAILED: ${build.stderr} ${build.stdout}`);
+const spawnSync = prepareVerification(repo);
 const env = { ...process.env };
 for (const key of Object.keys(env)) {
   if (/^PROOF_OR_STOP_(?:OWNER_SESSION_ADAPTER_|ACTIVITY_|SESSION_ID$|AGENT$)/.test(key)

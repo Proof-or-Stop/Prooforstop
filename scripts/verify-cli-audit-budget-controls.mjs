@@ -6,6 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const built=spawnSync(process.execPath,[join(repo,'scripts/ensure-dist.mjs')],{cwd:repo,encoding:'utf8',timeout:180000});
+if(built.error?.code==='ETIMEDOUT')throw new Error('SETUP_BUILD_TIMEOUT: prerequisite unavailable; no proof assertions ran');
 assert.equal(built.status,0,`SETUP_BUILD_FAILED: ${built.stdout} ${built.stderr}`);
 const api=await import('./verification-subprocess-budget.mjs');
 // Replay the existing production call order when testing the RED implementation:

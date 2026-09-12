@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import childProcess from 'node:child_process';
-import { verificationSpawner } from './verification-subprocess-budget.mjs';
-const spawnSync = verificationSpawner();
+import { prepareVerification, verificationSpawner } from './verification-subprocess-budget.mjs';
 import { createRequire, syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -10,8 +9,7 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const build = spawnSync(process.execPath, [join(repo, 'scripts/ensure-dist.mjs')], { cwd: repo, encoding: 'utf8', timeout: 180000 });
-assert.equal(build.status, 0, `SETUP_BUILD_FAILED: ${build.stdout} ${build.stderr}`);
+const spawnSync = prepareVerification(repo);
 const temp = mkdtempSync(join(tmpdir(), 'cli-audit-hardening-'));
 const groups = [], measurements = {};
 const group = async (id, fn) => {

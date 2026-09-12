@@ -105,12 +105,9 @@ class CanonicalTerminalCloseoutError extends Error {
 }
 
 export {
-  READ_ONLY_COMMANDS,
   inferCodexEntrypoint,
   isCodexActivitySource,
-  isReadOnlyCommand,
   resolveActivitySource,
-  shouldWriteActivityLog,
 } from './cli/activity-policy.js';
 export {
   ownerLeaseHelpBlock,

@@ -1,6 +1,6 @@
 import type { OwnershipClass } from '../core/command-policy.js';
 import { readBrandEnv } from '../core/brand-env.js';
-/** Compatibility inventory only. Runtime admission/effects do not consume this set. */
+/** Compatibility inventory: cli-engine.ts admission/effects do not consume this set. */
 export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'session_brief',
   'next',
@@ -230,7 +230,7 @@ function usageSweepWritesReport(args: Record<string, unknown>): boolean {
   return typeof out === 'string' && out.trim().length > 0;
 }
 
-/** Compatibility query for historical callers and tests. No CLI runtime consumer.
+/** Compatibility query for historical callers and tests. No cli-engine.ts runtime consumer; other importers are outside this check.
  * Runtime classification uses resolveEffectiveOwnershipClass, including all
  * parameterized write modes, then commandObservationEffects for side effects.
  * This helper retains only the old name inventory and usage_sweep convention.

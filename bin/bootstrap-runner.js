@@ -27,7 +27,7 @@ const UTILS_DIST = join(repoRoot, 'packages', 'utils', 'dist', 'index.js');
 const LAB_DIST = join(repoRoot, 'packages', 'lab', 'dist', 'index.js');
 
 function printBootstrapFailure(error) {
-  if (/^CLI_RUNTIME_VERSION_(?:MISMATCH|METADATA_INVALID):/.test(String(error?.message ?? ''))) {
+  if (/^(?:Error:[ \t]*)?CLI_RUNTIME_VERSION_(?:MISMATCH|METADATA_INVALID):/m.test(String(error?.message ?? ''))) {
     // Both entry shapes would reject the same installation. Do not advertise
     // the generic fallback as recovery from a runtime package mismatch.
     console.error(error.message);

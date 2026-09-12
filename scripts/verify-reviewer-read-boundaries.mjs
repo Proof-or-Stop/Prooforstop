@@ -1,15 +1,13 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { verificationSpawner } from './verification-subprocess-budget.mjs';
-const spawnSync = verificationSpawner();
+import { prepareVerification } from './verification-subprocess-budget.mjs';
 import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const prepared = spawnSync(process.execPath, [join(repo, 'scripts/ensure-dist.mjs')], { cwd: repo, encoding: 'utf8', timeout: 180000 });
-assert.equal(prepared.status, 0, `SETUP_BUILD_FAILED: ${prepared.stderr}\n${prepared.stdout}`);
+const spawnSync = prepareVerification(repo);
 const root = mkdtempSync(join(tmpdir(), 'reviewer-read-boundaries-'));
 const originalCwd = process.cwd();
 const originalEnv = { ...process.env };

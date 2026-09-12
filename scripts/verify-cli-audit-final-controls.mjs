@@ -3,11 +3,9 @@ import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeF
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { verificationSpawner } from './verification-subprocess-budget.mjs';
-const spawnSync = verificationSpawner();
+import { prepareVerification } from './verification-subprocess-budget.mjs';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const build=spawnSync(process.execPath,[join(repo,'scripts/ensure-dist.mjs')],{cwd:repo,encoding:'utf8',timeout:180000});
-assert.equal(build.status,0,`SETUP_BUILD_FAILED: ${build.stdout} ${build.stderr}`);
+const spawnSync = prepareVerification(repo);
 const root=mkdtempSync(join(tmpdir(),'cli-audit-final-'));const groups=[];const measurements={};
 const check=async(id,fn)=>{try{await fn();groups.push({id,pass:true});}catch(e){groups.push({id,pass:false,error:e.message});}};
 try{
@@ -27,9 +25,9 @@ try{
     const previousPath=process.env.PATH;const rows=[];
     try{
       process.env.PATH=bin+':'+(previousPath??'');
-      for(const [version,code] of [['999.91.0','CLI_RUNTIME_VERSION_MISMATCH'],[null,'CLI_RUNTIME_VERSION_METADATA_INVALID']]) for(const warning of ['', 'Node ExperimentalWarning: fixture notice\n']){
+      for(const [version,code] of [['999.91.0','CLI_RUNTIME_VERSION_MISMATCH'],[null,'CLI_RUNTIME_VERSION_METADATA_INVALID']]) for(const warning of ['', 'Node ExperimentalWarning: fixture notice\n']) for(const outputStyle of ['message','error-object']){
         writeFileSync(join(pkg,'package.json'),JSON.stringify({type:'module',version}));
-        writeFileSync(executable,`#!${process.execPath}\nprocess.stderr.write(${JSON.stringify(warning)});import(${JSON.stringify(join(pkg,'dist/core/runtime-package-version.js'))}).then(m=>{try{m.assertRuntimePackageVersion();}catch(e){process.stderr.write(e.message+'\\n');process.exitCode=1;}});\n`);
+        writeFileSync(executable,`#!${process.execPath}\nprocess.stderr.write(${JSON.stringify(warning)});import(${JSON.stringify(join(pkg,'dist/core/runtime-package-version.js'))}).then(m=>{try{m.assertRuntimePackageVersion();}catch(e){${outputStyle==='error-object'?'console.error(e);':"process.stderr.write(e.message+'\\n');"}process.exitCode=1;}});\n`);
         const result=runCodexAdapterChecks(project,{executeGlobalHeartbeat:true,executeLocalHeartbeat:false,timeoutMs:5000});
         const row=result.checks.find(c=>c.id==='global-fallback-heartbeat');assert.ok(row);assert.equal(row.status,'fail');rows.push(row);
         assert.match(row.detail,/\[heartbeat_runtime_version_mismatch\]/);assert.ok(row.detail.includes(code+':'));

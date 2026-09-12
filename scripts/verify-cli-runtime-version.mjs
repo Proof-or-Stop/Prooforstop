@@ -3,12 +3,10 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { verificationSpawner } from './verification-subprocess-budget.mjs';
-const spawnSync = verificationSpawner();
+import { prepareVerification } from './verification-subprocess-budget.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const prepared = spawnSync(process.execPath, [join(root, 'scripts/ensure-dist.mjs')], { cwd: root, encoding: 'utf8', timeout: 180000 });
-assert.equal(prepared.status, 0, `SETUP_BUILD_FAILED: ${prepared.stdout} ${prepared.stderr}`);
+const spawnSync = prepareVerification(root);
 const scratch = mkdtempSync(join(tmpdir(), 'cli-version-proof-'));
 const fixture = join(scratch, 'installation');
 const pkg = join(fixture, 'packages/main');

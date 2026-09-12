@@ -1384,7 +1384,8 @@ export function assertCanonicalActiveIdentityArgumentDelegates(input: {
   command: string;
   projectRoot: string;
 }): void {
-  const boundary = ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === 'maintenance-command-mode')!;
+  const boundary = ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === 'maintenance-command-mode');
+  if (!boundary) throw new Error('unregistered active identity operation boundary: maintenance-command-mode');
   if (boundary.commands.includes(input.command)) {
     assertCanonicalActiveIdentityBoundary({ boundaryId: boundary.id, projectRoot: input.projectRoot });
   }

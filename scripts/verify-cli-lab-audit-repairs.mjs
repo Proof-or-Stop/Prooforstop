@@ -1,14 +1,12 @@
 import assert from 'node:assert/strict';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import { verificationSpawner } from './verification-subprocess-budget.mjs';
-const spawnSync = verificationSpawner();
+import { prepareVerification } from './verification-subprocess-budget.mjs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const build = spawnSync(process.execPath, [join(repo, 'scripts/ensure-dist.mjs')], { cwd: repo, encoding: 'utf8', timeout: 180000 });
-assert.equal(build.status, 0, `SETUP_BUILD_FAILED: ${build.stdout} ${build.stderr}`);
+const spawnSync = prepareVerification(repo);
 const env = { ...process.env };
 for (const key of Object.keys(env)) if (/^PROOF_OR_STOP_(?:OWNER_SESSION_ADAPTER_|ACTIVITY_|SESSION_ID$|AGENT$)/.test(key)
   || ['NODE_OPTIONS','PROOF_OR_STOP_REVIEWER_READONLY','PROOF_OR_STOP_IMPLEMENTATION_MANIFEST','PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN',
