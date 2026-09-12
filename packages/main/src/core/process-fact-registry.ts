@@ -758,7 +758,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'prompt-envelopes.json',
     path: 'prompt-envelopes.json',
     signed: false,
-    producerCommand: 'agent_prompt without --readOnly/review_run_start; readOnly inspection never publishes',
+    producerCommand: 'agent_prompt without --readOnly/review_run_start; readOnly inspection never publishes and its v1 JSON preserves roleBodyDigest and knownExecutionEnvironment with envelope:null/canMintReviewEvidence:false',
     consumerGate: 'audit-only for story-dispatch; review-run envelopeId is consumed through the signed ReviewRun by REVIEW, assurance-floor, and quorum gates. Fresh rows carry exact proof-or-stop.* Prompt identities; retired-family rows are inert and rejected by active readers without a compatibility fallback.',
   },
   closeout_write_receipt: {

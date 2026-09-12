@@ -37,6 +37,7 @@ import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
+  captureKnownExecutionEnvironment,
   verifyPromptEnvelopeIntegrity,
   assertReviewerTaskContextAuthoritySafety,
 } from '../core/prompt-envelope.js';
@@ -171,6 +172,8 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         return args.format === 'json' ? canonicalJsonStringify({
           schemaVersion: 'proof-or-stop.agent-prompt-response.v1',
           readOnly: true, auditOnly: true, canMintReviewEvidence: false,
+          roleBodyDigest: resolvedRoleBody.bodyDigest,
+          knownExecutionEnvironment: captureKnownExecutionEnvironment(),
           mode: resolvedRoleBody.mode, prompt, taskContext, envelope: null,
         }) : prompt;
       }

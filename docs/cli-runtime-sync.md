@@ -42,3 +42,8 @@ the atomic version workflow before building. Rebuilding the same inconsistent
 source is not a recovery. Without verifiable source, inspect the installation or
 reinstall the intended package. Both versions remain visible in the refusal,
 including when the requested command is `--version`; no stale write is allowed.
+
+Adapter heartbeat diagnostics preserve leading runtime mismatch/invalid-metadata
+refusals under `[heartbeat_runtime_version_mismatch]`, keeping the failing
+installation path and recovery text. They remain hard failures; timeout, ordinary
+nonzero exit and missing heartbeat activity are still separate failures.

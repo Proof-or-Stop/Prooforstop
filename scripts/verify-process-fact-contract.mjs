@@ -11101,13 +11101,6 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
   assert(readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('optional fullStoryBaseHead'), 'Comparison-base process semantics must remain registered');
 }
 
-// Executable audit hardening: source recovery, strict handlers, non-vacuous pins,
-// conservative lock admission and bounded queue observations.
-try {
-  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-hardening.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
-  assert(output.includes('CLI_AUDIT_HARDENING_GREEN'), 'CLI audit hardening controls must pass');
-} catch (error) { assert(false, `CLI audit hardening failed: ${error.message}`); }
-
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11356,6 +11349,10 @@ try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-hardening.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
   assert(output.includes('CLI_AUDIT_HARDENING_GREEN'), 'CLI audit hardening controls must pass');
 } catch (error) { assert(false, `CLI audit hardening failed: ${error.message}`); }
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-final-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
+  assert(output.includes('CLI_AUDIT_FINAL_GREEN'), 'CLI final audit controls must pass');
+} catch (error) { assert(false, `CLI final audit controls failed: ${error.message}`); }
 
 if (failures.length) {
   console.error('');

@@ -11,7 +11,8 @@ evidence remains a separate operation.
 | Inspect managed asset drift | `proof-or-stop check --json` | `--apply` / `--upgrade` modify managed assets and remain unavailable in advisory read-only reviewer mode |
 
 `agent_prompt --readOnly --format=json` returns `readOnly: true`,
-`canMintReviewEvidence: false`, and `envelope: null`. Its current Task Context
+`canMintReviewEvidence: false`, and `envelope: null`. Its v1 JSON also preserves
+`roleBodyDigest` and `knownExecutionEnvironment` for diagnostic consumers. Its current Task Context
 passes the same schema and reviewer authority-content checks. It acquires no
 Story owner lease and publishes no dispatch event, Prompt Envelope or ReviewRun.
 For migrated REVIEW lanes, the canonical bootstrap still requires

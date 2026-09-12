@@ -729,7 +729,14 @@ function runHeartbeat(
       );
       return;
     }
-    push(checks, id, label, 'fail', true, `heartbeat command failed: ${e?.stderr?.toString?.().trim() || e?.message || e}`, retryCommand);
+    const stderr = e?.stderr?.toString?.().trim() || '';
+    if (/^CLI_RUNTIME_VERSION_(?:MISMATCH|METADATA_INVALID):/.test(stderr)) {
+      push(checks, id, label, 'fail', true,
+        `[heartbeat_runtime_version_mismatch] Repair the CLI installation identified below before retrying heartbeat; see docs/cli-runtime-sync.md. This failure does not establish a Codex adapter defect.\n${stderr}`,
+        retryCommand);
+      return;
+    }
+    push(checks, id, label, 'fail', true, `heartbeat command failed: ${stderr || e?.message || e}`, retryCommand);
     return;
   }
 
