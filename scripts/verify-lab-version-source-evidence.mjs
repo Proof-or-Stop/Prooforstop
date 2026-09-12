@@ -5,9 +5,16 @@ import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,rmSync,existsSync} from
 import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {LAB_VERSION_FIXTURE_CLI_TIMEOUT_MS,assertLabVersionFixtureTransport} from './lab-version-fixture-transport.mjs';
 import {withLabVersionSourceEvidence} from './lab-version-source-evidence.mjs';
 import {copyLabFixtureSources} from './lab-fixture-sources.mjs';
 import {installLabAuditFixtureProviders} from './lab-audit-fixture-provider.mjs';
+const timedOutChild=spawnSync(process.execPath,['-e','setTimeout(()=>{},10000)'],{timeout:20,encoding:'utf8'});
+assert.equal(timedOutChild.error?.code,'ETIMEDOUT');
+assert.throws(()=>assertLabVersionFixtureTransport(timedOutChild,'finish'),error=>error.message==='LAB_VERSION_FIXTURE_CLI_TIMEOUT: finish exceeded 60000ms (signal=SIGTERM)');
+assert.throws(()=>assertLabVersionFixtureTransport({error:new Error('spawn unavailable'),signal:null},'create'),error=>error.message==='LAB_VERSION_FIXTURE_CLI_TRANSPORT: create: Error: spawn unavailable');
+assert.throws(()=>assertLabVersionFixtureTransport({signal:'SIGTERM'},'green'),error=>error.message==='LAB_VERSION_FIXTURE_CLI_TRANSPORT: green: SIGTERM');
+assert.equal(assertLabVersionFixtureTransport({status:1,signal:null},'finish').status,1,'ordinary contract refusal remains distinct');
 // Each negative must reach its intended guard, not merely any refusal.
 const EXPECTED={
  hash:'stale source evidence requires review before version bump',
@@ -20,12 +27,14 @@ const EXPECTED={
  major:'only an official patch bump can refresh source evidence',downgrade:'only an official patch bump can refresh source evidence',skip:'only an official patch bump can refresh source evidence',
  malformed:'malformed patch version','malformed-from':'malformed patch version',undeclared:'undeclared version output',unexpected:'unexpected version output path',
  'created-output':'version producer created an absent output',
+ 'brand-extra':'only the CLI version declaration may change','brand-duplicate':'version declaration must be unique',
 };
 for (const scenario of Object.keys(EXPECTED)) {
  const root=mkdtempSync(join(tmpdir(),'lab-version-negative-'));
  try {
-  const file='package.json',manifest='scripts/lab/u18-static-edges/exceptions.json';
-  const before=JSON.stringify({version:'1.0.0',scripts:{test:'node check.js'},packages:{'':{version:'1.0.0'},'packages/utils':{version:'1.0.0'}}},null,2)+'\n';
+  const isBrand=scenario.startsWith('brand-');
+  const file=isBrand?'packages/main/src/core/proof-or-stop-brand.ts':'package.json',manifest='scripts/lab/u18-static-edges/exceptions.json';
+  const before=isBrand?("export const PROOF_OR_STOP_CLI_VERSION = '1.0.0';\n".repeat(scenario==='brand-duplicate'?2:1)+"export const marker = true;\n"):JSON.stringify({version:'1.0.0',scripts:{test:'node check.js'},packages:{'':{version:'1.0.0'},'packages/utils':{version:'1.0.0'}}},null,2)+'\n';
   const digest=createHash('sha256').update(before).digest('hex');
   const evidence={file,sourceDigest:digest,startLine:1,endLine:before.split('\n').length,excerpt:before};
   const entry={key:file+':1:fixture',sourceDigest:digest,requiredEvidence:[evidence],dependencyDigests:{[file]:digest}};
@@ -37,11 +46,12 @@ for (const scenario of Object.keys(EXPECTED)) {
   if(scenario==='format'){evidence.endLine=1;evidence.excerpt=before.split('\n')[0];}
   if(scenario==='historical')evidence.historical='true';
   mkdirSync(dirname(join(root,manifest)),{recursive:true});
-  writeFileSync(join(root,file),before);
+  mkdirSync(dirname(join(root,file)),{recursive:true});writeFileSync(join(root,file),before);
   const original=JSON.stringify({schema:'u18-static-exceptions.v1',entries:[entry]});
   writeFileSync(join(root,manifest),original);
   assert.throws(()=>withLabVersionSourceEvidence(root,()=>{
    let after=before.replace('1.0.0','1.0.1');
+   if(scenario==='brand-extra')after=after.replace('marker = true','marker = false');
    if(scenario==='nested-version'){const data=JSON.parse(before);data.packages['packages/utils'].version='1.0.1';after=JSON.stringify(data,null,2)+'\n';}
    if(scenario==='created-output')writeFileSync(join(root,'package-lock.json'),'{}');
    if(scenario==='semantic')after=after.replace('node check.js','node bypass.js');
@@ -69,7 +79,7 @@ try {
  // Actual Lab audits still use the real machine admission pool.
  const launcher=join(dir,'fixture-launcher.mjs');
  writeFileSync(launcher,`import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';import {pathToFileURL} from 'node:url';const original=os.userInfo;os.userInfo=(...args)=>({...original(...args),homedir:${JSON.stringify(join(dir,'fixture-home'))}});syncBuiltinESMExports();process.argv=[process.execPath,${JSON.stringify(join(source,'scripts/lab-worktree.mjs'))},...process.argv.slice(2)];await import(pathToFileURL(process.argv[1]).href);`);
- const cli=args=>spawnSync(process.execPath,[launcher,...args],{cwd:root,env,encoding:'utf8',timeout:60000});
+ const cli=args=>assertLabVersionFixtureTransport(spawnSync(process.execPath,[launcher,...args],{cwd:root,env,encoding:'utf8',timeout:LAB_VERSION_FIXTURE_CLI_TIMEOUT_MS}),args[0]);
  const ok=args=>{const r=cli(args);assert.equal(r.status,0,r.stdout+r.stderr);return r;};
  write('.gitignore','.worktrees/\n.proof-or-stop/\nbuilt-version\n');write('CHANGELOG.md','# Changelog\n');
  for(const file of ['package.json','packages/main/package.json'])write(file,JSON.stringify({name:'proof-or-stop',version:'1.0.0',scripts:{build:'node ../../build.cjs'}},null,2)+'\n');
