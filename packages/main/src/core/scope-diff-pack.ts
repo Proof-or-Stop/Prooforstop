@@ -202,18 +202,42 @@ function inferPackageKeyPath(body: string[]): string | undefined {
   return undefined;
 }
 
-function readBaseSource(gitCwd: string, path: string): string | undefined {
-  try {
-    const baseline = resolveRepositoryBaseline(gitCwd);
-    if (!baseline) return undefined;
-    return execFileSync('git', ['show', `${baseline.ref}:${path}`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-  } catch {
-    return undefined;
-  }
+/** One historical snapshot per parse; current working-tree reads remain fresh. */
+function createBaseSourceReader(gitCwd: string): { read(path: string): string | undefined; pinFailed(): boolean } {
+  let pinFailure = false;
+  let initialized = false;
+  let baselineCommit: string | undefined;
+  const sources = new Map<string, string | undefined>();
+  const read = (path: string): string | undefined => {
+    if (!initialized) {
+      initialized = true;
+      try {
+        const baseline = resolveRepositoryBaseline(gitCwd);
+        if (baseline) {
+          // Existing anchors read the selected integration tip, not mergeBase.
+          // Pin its object identity so one parse cannot mix moving ref versions.
+          try {
+            baselineCommit = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${baseline.ref}^{commit}`], {
+              cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+            }).trim();
+            pinFailure = !baselineCommit;
+          } catch { pinFailure = true; } // Never fall back to a moving live ref.
+        }
+      } catch { /* unavailable history preserves the existing fail-closed fallback */ }
+    }
+    if (!baselineCommit) return undefined;
+    if (!sources.has(path)) {
+      let source: string | undefined;
+      try {
+        source = execFileSync('git', ['show', `${baselineCommit}:${path}`], {
+          cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+        });
+      } catch { /* cache missing source only for this invocation */ }
+      sources.set(path, source);
+    }
+    return sources.get(path);
+  };
+  return { read, pinFailed: () => pinFailure };
 }
 
 interface ChangedBlock {
@@ -273,6 +297,7 @@ function changedBlocks(
 
 export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDiffHunk[] {
   const hunks: ScopeDiffHunk[] = [];
+  const baseSourceReader = createBaseSourceReader(projectRoot);
   let currentPath = '';
   let oldPath = '';
   let identityKind: 'rename' | 'copy' | undefined;
@@ -291,7 +316,7 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
     const isTsLike = /\.(ts|tsx|js|jsx|mts|mjs|cts|cjs)$/.test(currentPath);
     const isPackageJson = currentPath.endsWith('package.json') || currentPath.endsWith('.json');
     const currentSource = isTsLike && existsSync(sourcePath) ? readFileSync(sourcePath, 'utf8') : undefined;
-    const baseSource = isTsLike ? readBaseSource(projectRoot, previousPath) : undefined;
+    const baseSource = isTsLike ? baseSourceReader.read(previousPath) : undefined;
     for (const [blockIndex, block] of blocks.entries()) {
       let anchors: AstAnchor[] = [];
       let previousAnchors: AstAnchor[] = [];
@@ -324,6 +349,7 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
       } else {
         parseFallback = 'unsupported_file_type';
       }
+      if (isTsLike && baseSourceReader.pinFailed()) parseFallback = 'typescript_baseline_pin_unresolved_fail_closed';
       const anchor = anchors[0];
       const previousAnchor = previousAnchors[0];
       hunks.push({
@@ -360,7 +386,7 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
     const currentSource = isTsLike && existsSync(join(projectRoot, currentPath))
       ? readFileSync(join(projectRoot, currentPath), 'utf8')
       : undefined;
-    const baseSource = isTsLike ? readBaseSource(projectRoot, oldPath) : undefined;
+    const baseSource = isTsLike ? baseSourceReader.read(oldPath) : undefined;
     let anchors: AstAnchor[] = [];
     let previousAnchors: AstAnchor[] = [];
     let parseFallback: string | undefined;
@@ -397,6 +423,7 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
         ? 'copy_identity_unsupported_fail_closed'
         : 'unsupported_file_type';
     }
+    if (isTsLike && baseSourceReader.pinFailed()) parseFallback = 'typescript_baseline_pin_unresolved_fail_closed';
     const anchor = anchors[0];
     const previousAnchor = previousAnchors[0];
     const header = `@@ identity:${identityKind} ${oldPath} -> ${currentPath} @@`;
