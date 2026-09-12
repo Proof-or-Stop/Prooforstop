@@ -166,8 +166,9 @@ position are renewed without altering classification or allowing new tokens.
 
 Relative to 0.3.330 main, exactly five of the existing 54 source rows now have
 reviewed binding updates. The data digest, reader digest and outer scanner
-witness remain coupled. No product source is changed by this integration repair;
-the later official release helper owns only the ordinary version changes.
+witness remain coupled. No identity-runtime implementation or Story state is
+changed. A subsequent audit repair below additionally registers one test-resource
+policy row; the official release helper owns the ordinary version changes.
 
 The same focused test reports zero source binding errors, all three reader
 bindings current, 54 exact positives, 324 observed mutation refusals and 52
@@ -187,3 +188,54 @@ the prepared release candidate. Official finish must capture that audit before
 local integration; failed or stale audit evidence cannot be reused as approval.
 Remote push separately requires the human-created one-shot approval bound to
 the final main SHA. No old approval or Story lifecycle result substitutes for it.
+
+## Prepared-candidate audit findings and bounded repair
+
+The first mandatory tool-owned audit of candidate `52192ccc17` failed with
+three findings, despite confirming the binding repair's structural correctness.
+Its record is retained under audit run `d8e7870d-e4e2-4daa-928f-4d1dc38c9fd8`.
+The candidate was reopened using the official command, not rerolled unchanged.
+
+1. The new controls needed a routine execution path. Test-only commit
+   `9c55f76682` added a failing registration assertion, and official RED recorded
+   `REVIEWED_SOURCE_TEST_MUST_BE_IN_ROUTINE_SUITE`. The repair adds the exact npm
+   entry, includes it once at the start of `test:serial-reference`, and supplies
+   a repository-read-only row in `full-suite-runner.ts`. The focused test checks
+   the exact npm command and unique serial-chain membership. The existing full
+   suite inventory builder independently rejects missing/extra policy rows before
+   execution; its normal inventory contract covers this new member. Resource
+   classification uses a shared Git resource and unique temporary roots. Direct
+   resource-inventory validation uses compiled output after a fresh build; the
+   focused source check does not load the whole Story engine or pretend a text
+   search proves policy behavior. The unrelated fixture checks remain unchanged.
+2. The prompt row needed byte-verifiable before/after evidence. The following
+   two expressions reconstruct the complete original and current source lines,
+   including indentation and trailing comma. `reviewedRunIdToken` means exactly
+   the unchanged `token` field of the unique source-inventory row whose path is
+   `packages/main/src/core/prompt-registry.ts`; it is not a wildcard or redaction.
+   Interpolation avoids creating an additional unclassified retired-token literal
+   in a current document. The executable target contains these same expressions,
+   checks their fixed SHA-256 values, and compares the entire current line with
+   the actual source. It also asserts the unchanged classification
+   `private_protocol_preserve_or_coordinated_versioned_migration` and count 1.
+   In both versions the token occurs inside a quoted prompt string telling the
+   reviewer which existing private environment value to echo, not in a new
+   environment lookup, role alias or authority-granting expression.
+
+```js
+const before = `      'Use schemaVersion proof-or-stop.acceptance_amendment_review_final.v1; runId must equal environment ${reviewedRunIdToken}; include the exact storyId and binding below, decision approve or reject, substantive rationale and nonempty readRefs.',`;
+const after = `      'Use schemaVersion proof-or-stop.acceptance_amendment_review_final.v1; runId must equal environment ${reviewedRunIdToken}. Return exactly these top-level fields: schemaVersion, runId, storyId, amendmentId, amendmentDigest, baseDigest, submitterSessionId, decision, rationale, readRefs. Copy amendmentId, amendmentDigest, baseDigest and submitterSessionId from the input binding object into those top-level fields; do not return a binding object. decision must be approve or reject; rationale must be substantive and readRefs must be nonempty.',`;
+```
+
+Before SHA-256: `0f6764f3315b51cacb403a7e6b427bd2f06a96bf07369e1c1dd40b1aef3ab251`.
+After SHA-256: `648c58818e33cfbdc6a47d8df9e5e805bdacffff9dde01d558055596fc6491bb`.
+The substantive change replaces ambiguous nested-binding instructions with the
+existing parser's explicit flat fields and JSON Schema; it does not change the
+token's syntactic role or exemption category.
+
+3. The out-of-tree release notes' redundant H1 heading was removed. Official
+   finish will regenerate the entry beneath its own H2 heading. No historical
+   changelog text is edited manually.
+
+These changes address the actual rejected content and add executable proof.
+The earlier audit remains FAIL; a new prepared candidate must earn a fresh audit.

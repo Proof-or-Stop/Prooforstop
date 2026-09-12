@@ -16,6 +16,7 @@ assert.equal(scripts['test:reviewed-source-bindings'], 'node scripts/verify-revi
 assert.equal(scripts['test:serial-reference'].split(' && ')
   .filter(command => command === 'npm run test:reviewed-source-bindings').length, 1,
   'REVIEWED_SOURCE_TEST_MUST_BE_IN_ROUTINE_SUITE');
+console.log('PASS routine registration: exact npm script and one serial-reference membership');
 const errors = validateReviewedSourceSources(read);
 console.log(JSON.stringify({ reviewedSourceBindingFailures: errors.length, errors }));
 assert.deepEqual(errors, [], 'REVIEWED_SOURCE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
