@@ -1,3 +1,4 @@
+import { isCurrentVerifiedEvidenceRefreshArtifact } from './review-maintenance-lineage.js';
 import { readReviewPromptBody } from './prompt-body-store.js';
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
@@ -1348,7 +1349,8 @@ export function evaluateReviewRunMetadataRetention(
     ? evaluatePersistedReviewToTestIndexTransition(projectRoot, `${storyPrefix}index.json`, run, story)
     : null;
   const effectiveMetadataPaths = metadataPaths.filter(
-    (path) => path !== 'index.json' || !indexTransition?.ok,
+    (path) => (path !== 'index.json' || !indexTransition?.ok)
+      && !(path.startsWith('causal-evidence/') && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId:story.storyId,artifactPath:path})),
   );
   const changedArtifacts = effectiveMetadataPaths.map((artifactPath) => {
     const classification = classifyCurrentCloseoutArtifactForReviewRetention(

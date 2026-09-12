@@ -1,3 +1,4 @@
+import { isCurrentVerifiedEvidenceRefreshArtifact } from './review-maintenance-lineage.js';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
@@ -48,9 +49,10 @@ export const CLOSEOUT_ARTIFACT_POLICIES = [
   { path: 'topology-critic-receipt.json', artifactClass: 'closeout-evidence', canonicalWriters: ['topology_critic_receipt_set'] },
   // A stale-evidence refresh only re-executes already-pinned verification and
   // replaces its evidence rows; it cannot create or change verification intent.
-  // Other checklist writers are deliberately absent because they may alter
-  // checklist status or acceptance semantics and therefore require re-review.
-  { path: 'checklist.json', artifactClass: 'closeout-evidence', canonicalWriters: ['verification_evidence_refresh_stale'] },
+  // Direct evidence publication is retained only by the strict V5 refresh
+  // classifier below: identical covered refs/results and unchanged requirements.
+  // Other checklist writers require re-review.
+  { path: 'checklist.json', artifactClass: 'closeout-evidence', canonicalWriters: ['verification_evidence_refresh_stale', 'verification_evidence_add'] },
   { path: 'parent-ledger-rollup.json', artifactClass: 'closeout-evidence', canonicalWriters: ['parent_ledger_rollup_set'] },
   { path: 'evidence/delivery-context-pack.json', artifactClass: 'closeout-evidence', canonicalWriters: ['delivery_context_pack'] },
   { path: 'test-evidence.json', artifactClass: 'closeout-evidence', canonicalWriters: ['validate', 'test_add', 'test_story'] },
@@ -649,13 +651,16 @@ export function classifyCurrentCloseoutArtifactForReviewRetention(
   }
   try {
     validateCloseoutArtifactShape(store, storyId, artifactPath, absolute);
+    if (artifactPath === 'checklist.json' && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath})) {
+      return {retainsReview:true,writer:'verification_evidence_add'};
+    }
     const receipt = latestCausallyValidCloseoutReceipt(
       storyDir,
       storyId,
       artifactPath,
       { projectRoot, metadataRoot },
     );
-    if (!receipt) {
+    if (!receipt || receipt.writerCommand === 'verification_evidence_add') {
       return {
         retainsReview: false,
         writer: '',

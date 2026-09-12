@@ -2,7 +2,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { relative } from 'node:path';
-import { realpathSync } from 'node:fs';
+import { realpathSync, readFileSync } from 'node:fs';
 import { StoryStore } from './store.js';
 import { matchesRuntimeCommitSubject } from './auto-commit-metadata.js';
 import { REVIEW_EPOCH_COMMIT_ARTIFACTS } from './review-metadata-batch.js';
@@ -112,9 +112,15 @@ export function isVerifiedReviewMaintenanceCommit(args: {
       let changed = false;
       for (const item of after.items) {
         const old = before.items.find(i => i.id === item.id);
-        if ((old?.verificationEvidence ?? []).some(e => !(item.verificationEvidence ?? []).some(n => n.intentRef === e.intentRef))) return false;
+        const priorEvidence = old?.verificationEvidence ?? [];
+        const nextEvidence = item.verificationEvidence ?? [];
+        if (priorEvidence.length !== nextEvidence.length
+          || digestCanonicalJson(priorEvidence.map(e => e.intentRef).sort()) !== digestCanonicalJson(nextEvidence.map(e => e.intentRef).sort())) return false;
         for (const evidence of item.verificationEvidence ?? []) {
           if ((old?.verificationEvidence ?? []).some(e => digestCanonicalJson(e) === digestCanonicalJson(evidence))) continue;
+          const prior = priorEvidence.find(row => row.intentRef === evidence.intentRef);
+          if (!prior || prior.result !== evidence.result || prior.kind !== evidence.kind
+            || !hasMechanicalExecutionAuthority(store,storyId,old!,prior)) return false;
           changed = true;
           if (!hasMechanicalExecutionAuthority(store,storyId,item,evidence)) return false;
         }
@@ -200,5 +206,24 @@ export function isVerifiedReviewMaintenanceCommit(args: {
       if (receipt.sequence !== (prior?.sequence ?? 0) + 1 || receipt.previousIntegrityHash !== (prior?.integrityHash ?? null)) return false;
     }
     return true;
+  } catch { return false; }
+}
+
+/** Current byte-bound projection of a strict refresh, shared with scoped retention. */
+export function isCurrentVerifiedEvidenceRefreshArtifact(args: {
+  gitCwd: string; metadataRoot: string; storyId: string; artifactPath: string;
+}): boolean {
+  const {gitCwd,metadataRoot,storyId,artifactPath}=args;
+  if (artifactPath !== 'checklist.json' && artifactPath !== CAUSAL_RECEIPT_INDEX_FILE
+    && !/^causal-evidence\/(outputs|receipts)\/[a-f0-9]{64}\.json$/.test(artifactPath)) return false;
+  try {
+    const store = new StoryStore(metadataRoot);
+    const prefix = relative(realpathSync(gitCwd),realpathSync(store.storyDirPath(storyId))).replaceAll('\\','/') + '/';
+    if (prefix.startsWith('../') || prefix.startsWith('/')) return false;
+    const git = (argv: string[]) => execFileSync('git',argv,{cwd:gitCwd,encoding:'utf8',stdio:['ignore','pipe','pipe']});
+    const commit = git(['log','-1','--format=%H','--',prefix+artifactPath]).trim();
+    if (!commit || !matchesRuntimeCommitSubject(git(['show','-s','--format=%s',commit]).trim(),`record ${storyId} verification_evidence_add metadata`)) return false;
+    if (readFileSync(store.storyFilePath(storyId,artifactPath),'utf8') !== git(['show',`${commit}:${prefix}${artifactPath}`])) return false;
+    return isVerifiedReviewMaintenanceCommit({gitCwd,metadataRoot,storyId,commit,reviewedHeadHash:git(['rev-parse',commit+'^']).trim()});
   } catch { return false; }
 }

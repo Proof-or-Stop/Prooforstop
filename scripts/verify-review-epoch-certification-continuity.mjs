@@ -2,6 +2,8 @@
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from "../packages/main/dist/tasks/native-review-fixture.js";
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {buildMilestoneLedger} from '../packages/main/dist/core/proofstory.js';
+import {SCOPE_PATH_CANONICALIZER_VERSION} from '../packages/main/dist/core/scope-path-classifier.js';
 import {createHostRunHandlers} from '../packages/main/dist/handlers/host-run.js';
 import {createManagedReviewEvidenceHandlers} from '../packages/main/dist/handlers/managed-review-evidence.js';
 import {getManagedHostRunStatus, managedHostRunReceipt} from '../packages/main/dist/core/managed-host-run.js';
@@ -105,7 +107,7 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
 
 const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
-const modes=['clean','wrong-subject','wrong-story-path','outside-review-artifact','near-miss-prompt-body','forged-publisher','forged-refresh','cancelled'];
+const modes=['clean','coverage-added','wrong-subject','wrong-story-path','outside-review-artifact','near-miss-prompt-body','forged-publisher','forged-refresh','cancelled'];
 {
 const fixture=setup({name:'Harmonynet',email:'26995688+Harmonynet@users.noreply.github.com'});
 const primaryRoot=fixture.root;const worktreePath=join(primaryRoot,'.worktrees',storyId);
@@ -121,7 +123,10 @@ const env=(agent,session)=>({PROOF_OR_STOP_AGENT:agent,PROOF_OR_STOP_SESSION_ID:
 writeFileSync(join(fixture.root,'packages/main/src/subject.ts'),'export const subject = 2;\n');
 git(fixture.root,['add','--','packages/main/src/subject.ts']);
 git(fixture.root,['commit','-m','test: change the isolated implementation subject']);
-fixture.store.writeChecklist(storyId,{items:[{id:'CHK-001',title:'Execute the bounded runtime witness',status:'done',relatedDocs:[],verificationIntent:{happy:[{desc:'The current node executable emits a complete bounded selector transcript',type:'cli'}],edge:[],adversarial:[]}}]});
+fixture.store.writeChecklist(storyId,{items:[{id:'CHK-001',title:'Execute the bounded runtime witness',status:'done',relatedDocs:[],verificationIntent:{happy:[{desc:'The current node executable emits a complete bounded selector transcript',type:'cli'},{desc:'Optional runtime witness for coverage-addition refusal',type:'cli',priority:'should'}],edge:[],adversarial:[]}}]});
+fixture.store.writeScopeContract(storyId,{storyId,mode:'enforce',pathCanonicalizerVersion:SCOPE_PATH_CANONICALIZER_VERSION,pathCanonicalizationMode:'enforce',allowedModify:['packages/main/src/subject.ts'],allowedCreate:[],allowedTest:[],protectedFiles:[],explicitExcludes:[],acknowledgements:[],createdAt:reviewRound,updatedAt:reviewRound});
+fixture.store.writeMilestoneLedger(storyId,buildMilestoneLedger({storyId,state:'candidate',milestones:[{id:'M1',sourceRequirementId:'REQ-1',claim:'Preserve reviewed evidence coverage',doneMeans:'The bounded witness passes',requiredEvidence:['integration_test'],checklistRefs:['CHK-001'],verificationIntentRefs:['CHK-001:happy:0'],status:'planned'}]}));
+git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/scope-contract.json`,`.proof-or-stop/story/actives/${storyId}/milestone-ledger.json`]);
 git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/checklist.json`]);
 git(fixture.root,['commit','-m','test: freeze disposable verification intent']);
 const evidencePayload={storyId,itemId:'CHK-001',intentRef:'CHK-001:happy:0',kind:'integration_test',command:'node -e '+JSON.stringify("process.stdout.write('x'.repeat(13000)+'OUTPUT_END_')"),selector:'OUTPUT_END_',note:'Execute the unchanged bounded runtime witness for authenticated evidence refresh.'};
@@ -129,8 +134,10 @@ const unpinnedHead=git(fixture.root,['rev-parse','HEAD']);
 cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
 // Preserve the real tool-owned immutable pin in the disposable pre-review
 // fixture, so the next publication tests evidence-only change, not first pinning.
+cli(fixture.root,'verification_evidence_add',{...evidencePayload,intentRef:'CHK-001:happy:1'},env('main','saturation-owner'));
 const pinnedChecklist=fixture.store.readChecklist(storyId);
-for(const item of pinnedChecklist.items) delete item.verificationEvidence;
+for(const item of pinnedChecklist.items) item.verificationEvidence=item.verificationEvidence.filter(row=>row.intentRef!=='CHK-001:happy:1');
+// Retain the real earlier PASS as reviewed coverage; the next receipt refreshes it.
 git(fixture.root,['reset','--hard',unpinnedHead]);
 fixture.store.writeChecklist(storyId,pinnedChecklist);
 git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/checklist.json`]);
@@ -217,6 +224,7 @@ try {
 console.log(cli(fixture.root,'review_inventory_critic_set',{storyId,epochId:epoch.epochId,reviewRunId:cr,agent:critic,findingDispositions:[]},ce));
 console.log(cli(fixture.root,'review_inventory_finalize',{storyId},env('main','saturation-owner')));
 const persistedCritic=fixture.store.readReviewRuns(storyId).runs.find(r=>r.reviewRunId===cr);
+assert(persistedCritic.scopeBinding?.compositeScopeDigest,'actual managed run must exercise composite-scope retention');
 assert(collectReviewerEvidenceState(fixture.store,storyId,fixture.root).valid.some(e=>e.reviewRunId===cr),'actual managed REVIEW consumer accepts the finalized critic without rebuilding its launch pack');
 assert(isCurrentManagedInventorySubject(fixture.store,persistedCritic),'authenticated finalized critic remains consumable without rebuilding its OPEN launch pack');
 assert.equal(isCurrentManagedInventorySubject(fixture.store,{...persistedCritic,inventoryBinding:{...persistedCritic.inventoryBinding,epochId:'B-other:RI-999'}}),false,'wrong epoch is rejected');
@@ -258,6 +266,15 @@ git(fixture.root,['add','--',storyPrefix+'review-passes.json',storyPrefix+'revie
 git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
 assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,'finalization cannot remove a prior signed review record');
 git(fixture.root,['reset','--hard',publishedHead]);
+const trueCoverage=fixture.store.readChecklist(storyId);
+const failedCoverage=structuredClone(trueCoverage);failedCoverage.items[0].verificationEvidence[0].result='fail';
+fixture.store.writeChecklist(storyId,failedCoverage);
+git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m','test: construct recorded result-change boundary']);
+fixture.store.writeChecklist(storyId,trueCoverage);
+git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
+assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,'restoring a real PASS cannot retain a different previously recorded result');
+assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,false,'result-changing publication loses managed lineage');
+git(fixture.root,['reset','--hard',publishedHead]);
 for(const mode of modes) {
 // Each counterexample starts from the same genuine signed publication. This
 // reset is restricted to the freshly created disposable Git fixture above.
@@ -267,6 +284,10 @@ for(const path of git(fixture.root,['ls-files','--others','--exclude-standard','
  assert(path.startsWith(storyPrefix) && !path.includes('..'));
  rmSync(join(fixture.root,path),{force:true});
 }
+if(mode==='coverage-added') {
+ cli(fixture.root,'verification_evidence_add',{...evidencePayload,intentRef:'CHK-001:happy:1'},env('main','saturation-owner'));
+ assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,'new coverage requires independent review');
+} else
 if(mode==='cancelled') {
  console.log(cli(fixture.root,'review_inventory_cancel',{storyId,reason:'Native regression verifies cancelled inventory cannot authorize certification'},env('main','saturation-owner')));
  assert.equal(git(fixture.root,['log','-1','--format=%s']),`proof-or-stop: record ${storyId} review epoch metadata`);
@@ -380,7 +401,10 @@ if(mode==='clean') {
  console.log('REVIEW_EPOCH_NATIVE_CONTINUITY GREEN');
 } else {
  if(mode==='cancelled') assert.match(error,/pre_cert_inventory_not_finalized/,'signed cancelled receipt must fail the actual inventory admission gate');
- else assert.match(error,/Inventory receipt is not on the current headHash lineage/,'negative must reach actual continuity verifier');
+ else {
+  assert.match(error,/Inventory receipt is not on the current headHash lineage/,'negative must reach actual continuity verifier');
+  if(mode==='coverage-added') assert.match(error,/pre_cert_inventory_not_finalized/,'coverage-changing publication is refused at PRE_CERT admission');
+ }
  assert.equal(fixture.store.readCertificationWindows(storyId).receipts.filter(r=>r.authority==='pre-cert').length,0);
  console.log('REVIEW_EPOCH_CONTINUITY_REFUSED '+mode);
 }

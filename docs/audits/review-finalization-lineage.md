@@ -40,13 +40,20 @@ Claude invocation 2e094f2f-a8f9-49e0-af33-9b345128c7a3 rejected prepared candida
 
 Managed fixture capacity and completion have separate bounded deadlines. Nonterminal timeout cancels the actual run and reports a distinct completion timeout. Capacity refusal is already terminal and creates no provider; it is retained, never skipped, and each retry obtains a fresh dispatch and ReviewRun. This synthetic runner does not invoke a production model. The broader smoke failure is reported as an unresolved baseline observation, not evidence that this fixture's transport is broken. The notes provide bounded unchanged dependency excerpts for independent context. No production admission or deadline is relaxed.
 
+## Coverage-preserving refresh follow-up
+
+Claude invocation 8a6cbaf7-e675-4ccc-9cf1-8a2e1f70fcc1 rejected a87c16cb997cf0aa223ac8e42b6bb6a287b7a936 with one medium and one low finding about coverage-changing publication. A retained refresh now requires identical covered intent references, evidence kind and result, and strict mechanical authority for both previous and replacement rows. New coverage and failure-to-pass upgrades require another review. The canonical checklist closeout policy names direct evidence publication explicitly, but only the shared strict refresh classifier can retain it; a generic closeout writer receipt alone cannot. Composite-scope retention also verifies each current causal projection against its exact committed bytes and the same complete refresh proof. Uncommitted or unrelated projections remain refused.
+
+The regression now records an actual managed ReviewRun with a scope contract and milestone ledger and asserts that its compositeScopeDigest exists, so scoped retention cannot silently short-circuit. Negative controls add optional previously uncovered intent evidence through the real CLI and check managed lineage plus the PRE_CERT blocker; a changed recorded-result boundary is also refused. The closeout-trust smoke failed at the same validate/test_story writer assertion in both the Lab and a contemporaneous main run. Both logs are retained as a baseline observation, not a claimed passing regression.
+
 ## Unchanged dependency context for independent audit
 
-These exact bounded excerpts come from unchanged dependency implementations in this candidate checkout. SHA-256 binds each complete source file; excerpts clarify the contracts that were unavailable in the first snapshot. They are supporting source context, not a claim of an independent audit or a test result.
+Bounded exact source excerpts; SHA-256 binds each complete file. These excerpts supply dependency context, not independent audit or test evidence.
 
-packages/main/src/core/closeout-trust.ts — SHA-256 55a334cc80608a6a1290a06fa66b15494ba6a4570e10c2cbd7c04cf181417bf6, lines 40-85
+packages/main/src/core/closeout-trust.ts — SHA-256 c24223d36ad4f6600f22b04370c166f2f70517dff081c080d4062418ec62611a, lines 40-87
 
 ```ts
+/**
  * Gate-trusted lifecycle metadata is deliberately smaller than the lifecycle
  * path registry. Recognition as ProofOrStop-owned metadata never grants trust.
  * `milestone-closeout.json` is intentionally absent: B-9188 owns that artifact.
@@ -58,9 +65,10 @@ export const CLOSEOUT_ARTIFACT_POLICIES = [
   { path: 'topology-critic-receipt.json', artifactClass: 'closeout-evidence', canonicalWriters: ['topology_critic_receipt_set'] },
   // A stale-evidence refresh only re-executes already-pinned verification and
   // replaces its evidence rows; it cannot create or change verification intent.
-  // Other checklist writers are deliberately absent because they may alter
-  // checklist status or acceptance semantics and therefore require re-review.
-  { path: 'checklist.json', artifactClass: 'closeout-evidence', canonicalWriters: ['verification_evidence_refresh_stale'] },
+  // Direct evidence publication is retained only by the strict V5 refresh
+  // classifier below: identical covered refs/results and unchanged requirements.
+  // Other checklist writers require re-review.
+  { path: 'checklist.json', artifactClass: 'closeout-evidence', canonicalWriters: ['verification_evidence_refresh_stale', 'verification_evidence_add'] },
   { path: 'parent-ledger-rollup.json', artifactClass: 'closeout-evidence', canonicalWriters: ['parent_ledger_rollup_set'] },
   { path: 'evidence/delivery-context-pack.json', artifactClass: 'closeout-evidence', canonicalWriters: ['delivery_context_pack'] },
   { path: 'test-evidence.json', artifactClass: 'closeout-evidence', canonicalWriters: ['validate', 'test_add', 'test_story'] },
@@ -95,11 +103,9 @@ export function isCanonicalCloseoutEvidenceWrite(path: string, writer: string): 
 function stable(value: unknown): string {
 ```
 
-packages/main/src/core/closeout-trust.ts — SHA-256 55a334cc80608a6a1290a06fa66b15494ba6a4570e10c2cbd7c04cf181417bf6, lines 491-530
+packages/main/src/core/closeout-trust.ts — SHA-256 c24223d36ad4f6600f22b04370c166f2f70517dff081c080d4062418ec62611a, lines 495-534
 
 ```ts
-export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expected: {
-  storyId: string;
   artifactPath: string;
   artifactBytes: string | Buffer;
   projectRoot?: string;
@@ -138,6 +144,8 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
 
 function validReceiptChain(receipts: CloseoutWriteReceipt[], storyId: string, artifactPath: string): boolean {
   const artifactReceipts = receipts.filter((item) => item.artifactPath === artifactPath);
+  if (artifactReceipts.some((item) => !isCloseoutWriteReceiptSchema(item.schemaVersion))) return false;
+
 ```
 
 packages/main/src/core/causal-evidence.ts — SHA-256 447e2885ec26d7e0c83f0b5cdbd6a39068b572e0cdebe46f6efdec8117d8cbc7, lines 28-38
@@ -314,7 +322,3 @@ export function reviewInventoryAcceptanceSubjectDigest(
       if (!row || typeof row !== 'object') return row;
       const {
 ```
-
-Audit response details
-
-The high-severity missing-seal fallback is removed. The shared classifier derives TEST reviewRound from the exact original reviewedHeadHash supplied by the managed receipt or inventory receipt, rather than accepting the candidate index value. Current closeout policy classifies none of the incidental paths as closeout evidence; the repair additionally refuses any future policy reclassification, and telemetry-only fake validate publications are negative controls. The output content address is SHA-256 of the output string, following the store contract above; hashing JSON wrapper bytes would be incompatible. Output references must come from verified same-tree causal receipts. Prior review arrays are prefix-preserved during batch finalization. Capacity refusals already have terminal cleanup and launch no provider, so retries need no cancellation of a dead run; actual nonterminal deadline cancels the run before failing. Every retry creates a new canonical dispatch and ReviewRun. Admission and completion use independently bounded test-only budgets; production capacity and deadlines are unchanged.

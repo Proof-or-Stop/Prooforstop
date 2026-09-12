@@ -7283,6 +7283,11 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
   const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts');
+  assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('prior.result !== evidence.result')
+    && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,old!,prior)'), 'review retention cannot add coverage or change the reviewed mechanical result');
+  assert(read('packages/main/src/core/closeout-trust.ts').includes('isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath})')
+    && reviewGateText.includes("path.startsWith('causal-evidence/') && isCurrentVerifiedEvidenceRefreshArtifact("), 'scoped retention must use the same byte-bound strict refresh authority for checklist and causal projections');
+
   assert(managedText.includes('isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest)')
     && !managedText.includes('sealedManagedPromptDigest ?? args.expected.managedPromptDigest'), 'managed launch seal is mandatory; caller bindings never supply a missing digest');
   assert(managedText.includes('epoch.storyId !== run.storyId') && managedText.includes('binding.wave !== epoch.waves.length'), 'finalized managed critic belongs to the current Story and terminal wave');
