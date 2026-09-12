@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab scope-diff-repeated-work - v0.3.339 - 2026-09-12
+
+Scope diff parsing repeatedly rediscovered the integration baseline and reread the same historical file for every hunk. On a real Story read-only scope check, a 33.72-second profile spent about 25.97 sampled seconds under historical-source reads, including 23.64 seconds in repeated baseline resolution. The current diff contained 134 TS/JS hunks across 40 paths. This made owner scope checks and session briefs unnecessarily expensive.
+
+Each parse now lazily resolves the existing baseline policy once, pins the selected integration tip commit, and reuses historical file bytes or missing-source results only inside that invocation. Current working-tree reads, AST parsing, semantic anchors, ordinary missing-history fallback behavior and baseline selection policy remain unchanged. If a valid selected baseline cannot be pinned, every affected TS/JS hunk carries the explicit typescript_baseline_pin_unresolved_fail_closed diagnostic; the existing semantic gate rejects it even with current anchors or acknowledgements. The next parse retries from a fresh baseline. The existing --end-of-options trust guard remains in place. A subsequent parse resolves the baseline and reads history again. The cache never spans invocations and does not use the merge-base in place of the selected tip.
+
+The deterministic regression reduced three-hunk Git work from 21 subprocess calls to 8, including baseline discoveries 3 to 1 and historical reads 3 to 1, with the exact prior complete hunk digest unchanged. It checks independent-hunk parity, integration-tip versus merge-base semantics, missing history and missing files, no-TS lazy behavior, distinct paths, rename/copy/deletion handling, changed current source and baseline on the next invocation, and a genuine ref move during one parse. The regression is registered once in the canonical full-suite chain with its repository-read resource policy. The unchanged semantic-scope guard suite is verified separately; it is not nested inside the focused test. Verification uses the Lab checkout's own compiled implementation with a current source/dist build binding; observation wrappers forward real Git calls and restore builtins afterward.
+
+This is an owner-command performance repair. The retained timed-out native fixture had no TS/JS diff hunks, so this evidence does not establish a fix for its separate 180-second routine timeout. No timeout budgets, Story acceptance, scope exceptions, global cache or authority credentials are changed.
+
+The focused test explicitly pins the expected parser version before its historical digest, isolates pre-init Git discovery from parent repositories, and exercises a valid-baseline pin failure with a test-only fault. Historical source replay of the prior candidate fails that exact diagnostic assertion; the repaired native test verifies semantic refusal and recovery. Full-suite inventory smoke and process-fact contract verification cover the added registration and diagnostic token.
+
+Maintenance provenance: codex/lab-scope-diff-repeated-work, repair 78bb1e8644aa0ebae6ae8c27efa6b18ec4099376.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/scope-diff-pack.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab receipt-authority-v5 - v0.3.338 - 2026-09-12
 
 # V5 execution authority compatibility repair
