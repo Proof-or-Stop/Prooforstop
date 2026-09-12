@@ -192,7 +192,7 @@ import {
   collectRepositoryFullProcessFactPaths,
   declareProcessFactMapping,
   getProcessFactRegistryEntry,
-  PROCESS_FACT_REGISTRY,
+  PROCESS_FACT_DYNAMIC_FINDING_POLICY,
 } from '../core/process-fact-registry.js';
 import {
   describeRedGreenViolations,
@@ -2366,14 +2366,16 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
     gateFact.paths.includes('packages/main/src/core/certification-window.ts'),
     'Dynamic Finding coverage must include a non-validation-named path outside the legacy sensitive-path list',
   );
-  for (const policyAuthorityPath of [
-    'packages/main/src/handlers/finding-applicability-proof.ts',
-    'packages/main/src/handlers/finding-deferral-proof.ts',
-    'packages/main/src/core/lifecycle-readiness.ts',
-    'packages/main/src/core/reviewer-status.ts',
-    'packages/main/src/core/review-convergence.ts',
-    'packages/main/src/core/machine.ts',
-  ]) {
+  assert.deepEqual(
+    Object.keys(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer).sort(),
+    [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
+    'every declared Dynamic Finding consumer must have a source mapping',
+  );
+  const policyAuthorityPaths = [...new Set([
+    ...PROCESS_FACT_DYNAMIC_FINDING_POLICY.semanticVerifierSourceRefs,
+    ...Object.values(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer).flat(),
+  ])];
+  for (const policyAuthorityPath of policyAuthorityPaths) {
     assert.ok(
       gateFact.paths.includes(policyAuthorityPath),
       `Dynamic Finding validation floor must cover policy authority: ${policyAuthorityPath}`,

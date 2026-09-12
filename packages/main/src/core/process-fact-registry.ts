@@ -417,11 +417,47 @@ export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
   { recordClass: 'ledger-receipt', recordTypes: ['finding_ledger_receipt'], level: 'L2', producer: 'handlers/finding-ledger.appendFindingLedger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'The signed commit receipt proves persistence integrity only and never the truth of committed content.' },
 ] as const satisfies readonly Story3PersistenceOnlyRecordPolicy[];
 
+export const DYNAMIC_FINDING_ALLOWED_CONSUMERS = [
+  'finding_triage',
+  'storyMachine.canPassReview',
+  'getGuardFailureReason',
+  'reviewer_batch',
+  'reviewer_status',
+  'review_convergence',
+  'lifecycle_readiness',
+  'certification_window',
+  'storyMachine.canFinish',
+  'story-aware-validation additive constraints',
+] as const;
+
+export const DYNAMIC_FINDING_SEMANTIC_VERIFIER_SOURCE_REFS = [
+  'packages/main/src/handlers/finding-applicability-proof.ts',
+  'packages/main/src/handlers/finding-deferral-proof.ts',
+] as const;
+
+export const DYNAMIC_FINDING_CONSUMER_SOURCE_REFS = {
+  finding_triage: ['packages/main/src/handlers/finding-applicability.ts'],
+  'storyMachine.canPassReview': ['packages/main/src/core/machine.ts'],
+  getGuardFailureReason: [
+    'packages/main/src/core/machine.ts',
+    'packages/main/src/core/guard-utils.ts',
+  ],
+  reviewer_batch: ['packages/main/src/handlers/reviewer-batch.ts'],
+  reviewer_status: ['packages/main/src/core/reviewer-status.ts'],
+  review_convergence: ['packages/main/src/core/review-convergence.ts'],
+  lifecycle_readiness: ['packages/main/src/core/lifecycle-readiness.ts'],
+  certification_window: ['packages/main/src/core/certification-window.ts'],
+  'storyMachine.canFinish': ['packages/main/src/core/machine.ts'],
+  'story-aware-validation additive constraints': ['packages/main/src/core/story-aware-validation.ts'],
+} as const satisfies Record<typeof DYNAMIC_FINDING_ALLOWED_CONSUMERS[number], readonly string[]>;
+
 export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
   producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
   semanticVerifier: 'handlers/finding-applicability-proof current reviewer proposal and executed pinned witness; finding-deferral-proof signed policy/exact progress lineage; exact ledger/CAS, route and current-source checks; repair closure rechecks runtime artifacts, environment and key trust across material-identical descendant commits',
-  allowedConsumers: ['finding_triage', 'storyMachine.canPassReview', 'getGuardFailureReason', 'reviewer_batch', 'reviewer_status', 'review_convergence', 'lifecycle_readiness', 'certification_window', 'storyMachine.canFinish', 'story-aware-validation additive constraints'],
+  semanticVerifierSourceRefs: DYNAMIC_FINDING_SEMANTIC_VERIFIER_SOURCE_REFS,
+  allowedConsumers: DYNAMIC_FINDING_ALLOWED_CONSUMERS,
+  consumerSourceRefsByConsumer: DYNAMIC_FINDING_CONSUMER_SOURCE_REFS,
   gateEvidence: true,
   lifecycleAuthority: 'dynamic-blocker-projection-only',
   rollout: ['observe', 'warn', 'enforce'],
@@ -1576,10 +1612,11 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/finding-applicability-projection.ts',
       'packages/main/src/handlers/finding-applicability.ts',
       'packages/main/src/handlers/finding-material-reattestation.ts',
+      ...PROCESS_FACT_DYNAMIC_FINDING_POLICY.semanticVerifierSourceRefs,
     ],
     consumerSourceRefs: [
       'packages/main/src/handlers/transition-orchestrator.ts',
-      'packages/main/src/core/certification-window.ts',
+      ...new Set(Object.values(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer).flat()),
     ],
   },
 };

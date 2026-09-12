@@ -281,7 +281,11 @@ export function classifySensitiveStoryPaths(
   injected?: unknown,
 ): ValidationWideningReasonCode[] {
   const reasons = new Set<ValidationWideningReasonCode>();
-  const projections = [collectRepositoryFullProcessFactPaths(), ...(injected === undefined ? [] : [injected])];
+  const injectedProjectionWasProvided = arguments.length >= 2;
+  const projections = [
+    collectRepositoryFullProcessFactPaths(),
+    ...(injectedProjectionWasProvided ? [injected] : []),
+  ];
   const registeredPatterns = new Set<string>();
   let registeredFloorUnavailable = false;
   for (const projection of projections) {
@@ -385,10 +389,10 @@ export function selectValidationTiers(
 
   const impactIndexDigest = digestCanonicalJson(index);
   const reasons = new Set<ValidationWideningReasonCode>(forceFullReasons);
-  const floorProjection = Object.prototype.hasOwnProperty.call(dependencies, 'registryFloorProjection')
-    ? dependencies.registryFloorProjection
-    : undefined;
-  for (const reason of classifySensitiveStoryPaths(changedPaths, floorProjection)) reasons.add(reason);
+  const sensitivePathReasons = Object.prototype.hasOwnProperty.call(dependencies, 'registryFloorProjection')
+    ? classifySensitiveStoryPaths(changedPaths, dependencies.registryFloorProjection)
+    : classifySensitiveStoryPaths(changedPaths);
+  for (const reason of sensitivePathReasons) reasons.add(reason);
   if (malformedForceReason) reasons.add('impact_index_unusable');
   if (typeof input.commandSetDigest !== 'string' || input.commandSetDigest.trim() === '') reasons.add('impact_index_unusable');
   if (typeof input.snapshotDigest !== 'string' || input.snapshotDigest.trim() === '') reasons.add('hash_snapshot_unavailable');
@@ -648,9 +652,7 @@ export const VALIDATION_WIDENING_REASONS = {
       'at all, so no path can be cleared as insensitive and the complete validation set has to run.',
   },
   validation_framework_sensitive_change: {
-    condition:
-      'Selector, graph adapter, validation executor, runner registry, process-fact registry, lifecycle gate, ' +
-      'or validation config changes',
+    condition: 'A legacy validation-machinery pattern or a declared repository-full process-fact path changes',
     outcome: 'repository-full',
     gloss:
       'This Story changed the machinery that decides what to run or how to judge it, so that machinery cannot ' +
