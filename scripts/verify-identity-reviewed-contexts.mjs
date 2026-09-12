@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import './verify-reviewed-source-bindings.mjs';
 import { validateReviewedDataSources, reviewedDataResidueAllowed } from './identity-reviewed-json-contexts.mjs';
 import { validateReviewedFixtureSources, reviewedFixtureResidueAllowed } from './identity-reviewed-fixture-contexts.mjs';
 import { validateReviewedSourceSources, reviewedSourceResidueAllowed } from './identity-reviewed-source-contexts.mjs';

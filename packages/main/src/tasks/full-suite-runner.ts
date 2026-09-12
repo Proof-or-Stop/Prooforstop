@@ -142,6 +142,8 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   ]),
   repoRead('test:main-write-lock-coverage'),
   repoRead('test:intent-owner-lease'),
+  // Reads exact identity bindings; all mutation controls use private temp roots.
+  repoRead('test:reviewed-source-bindings'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
   repoRead('test:proof-or-stop-residue'),
   // B-cc10 identity-migration members of test:serial-reference. A serial-reference

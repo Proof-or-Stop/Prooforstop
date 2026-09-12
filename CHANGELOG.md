@@ -1,5 +1,56 @@
 # Changelog
 
+## Lab identity-reviewed-source-bindings-20260911 - v0.3.331 - 2026-09-12
+
+Integrate the bounded identity-reviewed-source-bindings-20260911 Lab against
+local main 0.3.330. The original 0.3.323 repair covered four source inventory
+rows; latest-main synchronization exposed renewed process-fact drift and a
+runtime-fact row shifted by the independent vendor audit policy. Complete source
+diff review confirms retained token identities, classifications and occurrence
+counts. The repair renews exactly five rows out of 54 and synchronizes the data
+digest, reader digest, and outer scanner reader witness. It introduces no
+automatic repinning, predicate relaxation, identity-runtime behavior change, or Story state
+transition. Ordinary release version changes are tool-generated separately.
+The focused test is registered as test:reviewed-source-bindings, included once
+in the serial reference chain, and declared repository-read-only in the full
+suite's resource policy. Exact reconstructed before/after prompt strings are
+checked against their fixed historical/current line hashes and current source.
+
+The unchanged pinned Lab command is:
+node scripts/verify-reviewed-source-bindings.mjs
+
+Original RED observed four source failures. Post-main-sync RED at b7bbaa02de
+observed two remaining stale bindings after the earlier repair. GREEN returns
+zero source failures, three exact reader bindings, 54 exact source positives,
+324 observed mutation refusals, 52 empty/missing-source refusals, and source
+inventory byte-integrity controls. Compared with untouched 0.3.330 main, source
+binding failures decrease from five to zero. These are correctness/control
+counts, not Story elapsed-time savings or independent isolation of each guard.
+The amendment prompt/parser shape test also passes for both supported hosts.
+
+The previous direct Claude CLI review passed and actually executed both focused
+commands on the earlier candidate. It is retained as historical evidence only.
+The current official finish must execute its required different-vendor audit on
+the prepared release candidate; that current record, not the earlier prose,
+authorizes local integration.
+
+Known unrelated baseline: eleven fixture binding errors over process-fact
+verification, acceptance prompt projection, and the identity-lineage smoke
+remain unchanged. The combined fixture/source/JSON suite still fails on that
+baseline. No full repository or full identity-suite PASS is claimed, and no
+unrelated repair or other active Lab is included.
+
+Detailed root causes, source commit provenance, RED/GREEN and independent review
+limitations are in docs/audits/reviewed-source-binding-reconciliation.md.
+Finish performs the patch upgrade, fresh candidate verification, local main
+integration, post-merge verification and cleanup. GitHub publication remains
+separate and requires the human-created one-shot approval for the final main
+SHA. No push authorization is inferred from these release notes.
+
+Maintenance provenance: codex/lab-identity-reviewed-source-bindings-20260911, repair 5b939e8cf0810c5f3c000e22fc06c5b1ebc6580d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-epoch-certification-continuity - v0.3.330 - 2026-09-12
 
 PRE_CERT now recognizes the exact canonical same-Story review epoch metadata commit produced by native inventory finalization. The previous continuity allowlist recognized individual reviewer command commits but omitted the real batched publisher, so genuine signed lanes and completeness-critic evidence in a linked Story worktree could not be admitted after finalization.
