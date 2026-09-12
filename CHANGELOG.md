@@ -1,15 +1,5 @@
 # Changelog
 
-## Lab verification-intent-mirror-sync - v0.3.347 - 2026-09-12
-
-The verification-intent Claude mirror omitted the repository-baseline scope, expectation, provenance and requirement-reference guidance already present in the canonical registered prompt template. The active mirror now comes directly from readPromptRegistry and renderPromptEntryForHost for that role and host. This retains the current distinction between focused absolute-pass acceptance and repository-health no-new-regressions expectations; it changes no policy implementation or test assertion.
-
-The existing actual prompt-role migration test reproduced the exact mirror-byte mismatch on main 0.3.347 and passed after the one-file repair. Official Lab command timing was RED 68 ms and GREEN 62 ms; this is correctness verification, not a performance improvement claim. The clean repair commit is ed059d285b4ee315e2bde22b546bef679d0e8a11. Lab records are local maintenance provenance, not formal Story DONE or product-release evidence. No remote push is requested or performed.
-
-Maintenance provenance: codex/lab-verification-intent-mirror-sync, repair ed059d285b4ee315e2bde22b546bef679d0e8a11.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/prompt-role-migration.test.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab cli-runtime-sync-20260911 - v0.3.347 - 2026-09-12
 
 Repair CLI runtime identity, argument-aware observation, and bounded queue diagnostics through the existing Lab maintenance workflow.
