@@ -84,8 +84,15 @@ try {
  const story={storyId,name:'intent-proposal',title:'Intent proposal regression',description:'Owner applies reviewed intent proposal',type:'chore',phase:'PLAN',priority:'medium',createdAt:now,startedAt:now,endedAt:null,events:[]};
  store.writeStory(storyId,story);store.writeChecklist(storyId,{items:[{id:itemId,title:'Record intent',context:'Focused regression',status:'pending',files:{create:['scripts/benchmark/feasibility.mjs'],modify:[],test:['scripts/verify-benchmark-feasibility.mjs']}}]});
  process.chdir(root);session('fixture-owner');acquireOwnerLease(store.storyDirPath(storyId),{cwd:root,command:'fixture'});
- const baseIntentHash=digestCanonicalJson(null);
- const args={storyId,itemId,verificationIntent,intentProposalApproval:{baseIntentHash,digest:digestCanonicalJson({storyId,itemId,baseIntentHash,verificationIntent}),reason:'Apply the independently proposed complete intent after reviewing every declared condition.'}};
+ const proposalView=intent=>{
+   const before=JSON.stringify(store.readChecklist(storyId));
+   const result=spawnSync(process.execPath,[cli,'--root',root,'checklist_get',JSON.stringify({storyId,proposalFor:itemId,proposalIntent:intent})],{cwd:root,env:process.env,encoding:'utf8'});
+   assert.equal(result.status,0,result.stderr);assert.equal(JSON.stringify(store.readChecklist(storyId)),before,'proposal digest view must not mutate checklist');
+   const view=JSON.parse(result.stdout);assert.equal(view.approvalRequired,true);assert.equal(view.authority,'diagnostic_only');return view;
+ };
+ const proposal=proposalView(verificationIntent);const baseIntentHash=proposal.baseIntentHash;
+ assert.equal(baseIntentHash,digestCanonicalJson(null));
+ const args={storyId,itemId,verificationIntent,intentProposalApproval:{baseIntentHash,digest:proposal.digest,reason:'Apply the independently proposed complete intent after reviewing every declared condition.'}};
  const handlers=createChecklistHandlers({store,root,scanRoot:join(root,'packages/main')});
  const before=JSON.stringify(readOwnerLease(store.storyDirPath(storyId)));
  session('fixture-independent','proof-or-stop-verification-intent');
@@ -171,8 +178,24 @@ try {
  const revised=structuredClone(amended.items[0].verificationIntent);revised.edge[0].desc+=' Updated boundary.';Object.assign(revised.edge.at(-1),{scope:'focused',expectation:'absolute_pass',requirementSource:'story'});
  assert.throws(()=>handlers.checklist_update({storyId,itemId,verificationIntent:revised}),/AMENDMENT_OWNER_REQUIRED/);
  assert.deepEqual(store.readChecklist(storyId),amended,'refused signed revision must not persist');
+ session('fixture-owner');
+ const applyOwnerIntent=intent=>{
+   const view=proposalView(intent);
+   const payload={storyId,itemId,verificationIntent:intent,intentProposalApproval:{baseIntentHash:view.baseIntentHash,digest:view.digest,reason:'Apply independently prepared classifications through the documented owner proposal route.'}};
+   const run=spawnSync(process.execPath,[cli,'--root',root,'checklist_update',JSON.stringify(payload)],{cwd:root,env:process.env,encoding:'utf8'});
+   assert.equal(run.status,0,run.stdout+run.stderr);
+ };
+ applyOwnerIntent(revised);
+ const revisedItem=store.readChecklist(storyId).items[0];
+ assert.equal(revisedItem.verificationIntentAmendments.length,amended.items[0].verificationIntentAmendments.length+1);
+ assert.equal(revisedItem.verificationIntentAmendments.at(-1).afterHash,revisedItem.verificationIntentAuthorship.intentDigest);
+ assert.equal(revisedItem.verificationIntentAuthorship.intentDigest,acceptanceIntentHash(revisedItem.verificationIntent));
+ assert.equal('sessionId' in revisedItem.verificationIntentAuthorship,false);
+ applyOwnerIntent(revisedItem.verificationIntent);
+ assert.equal(store.readChecklist(storyId).items[0].verificationIntentAmendments.length,revisedItem.verificationIntentAmendments.length,'semantic no-op must not create another signed revision');
+
  session('fixture-owner');store.writeStory(storyId,{...story,phase:'DEV'});
- handlers.verification_intent_append({storyId,itemId,expectedIntentHash:acceptanceIntentHash(amended.items[0].verificationIntent),reason:'Append a real signed acceptance condition and clear superseded attribution.',addition:{edge:[{id:'APPENDED-EDGE',desc:'Another mandatory acceptance condition for the fixture',type:'cli',priority:'must'}]}});
+ handlers.verification_intent_append({storyId,itemId,expectedIntentHash:acceptanceIntentHash(store.readChecklist(storyId).items[0].verificationIntent),reason:'Append a real signed acceptance condition and clear superseded attribution.',addition:{edge:[{id:'APPENDED-EDGE',desc:'Another mandatory acceptance condition for the fixture',type:'cli',priority:'must'}]}});
  assert.equal(store.readChecklist(storyId).items[0].verificationIntentAuthorship,undefined,'semantic append must clear old owner proposal attribution');
  const recovery=JSON.parse(handlers.verification_intent_recover({storyId}));
  handlers.verification_intent_recover({storyId,expectedCheckpointDigest:recovery.expectedCheckpointDigest,reason:'Restore the exact signed intent and matching attribution checkpoint.',apply:true});

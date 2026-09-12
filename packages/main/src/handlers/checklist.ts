@@ -94,7 +94,7 @@ const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
 
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
-type ChecklistGetArgs = { storyId: string; slim?: boolean; fields?: string[] };
+type ChecklistGetArgs = { storyId: string; slim?: boolean; fields?: string[]; proposalFor?: string; proposalIntent?: VerificationIntent };
 
 /**
  * Resolve the configured validate.commands timeout for a pinned verification command.
@@ -216,11 +216,11 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
   return story;
 }
 
-function assertVerificationIntentClassification(itemId: string, verificationIntent: VerificationIntent): void {
+function assertVerificationIntentClassification(itemId: string, verificationIntent: VerificationIntent, ownerProposal = false): void {
   for (const lane of VERIFICATION_LANES) {
     for (const [index, intent] of (verificationIntent[lane] ?? []).entries()) {
       if (!intent.scope || !intent.expectation || !intent.requirementSource) {
-        throw new Error(`checklist_update refused: classify ${itemId}:${lane}:${index} with scope, expectation, and requirementSource [verification_intent_metadata_required]`);
+        throw new Error(`checklist_update refused: ${ownerProposal ? 'owner proposals' : 'verification-intent roles'} must classify ${itemId}:${lane}:${index} with scope, expectation, and requirementSource before PLAN acceptance is frozen [verification_intent_metadata_required]`);
       }
     }
   }
@@ -2612,6 +2612,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
   return {
     checklist_get(args: ChecklistGetArgs) {
       const full = store.readChecklist(args.storyId);
+      if (args.proposalFor !== undefined || args.proposalIntent !== undefined) {
+        if (!args.proposalFor || args.slim !== undefined || args.fields !== undefined) throw new Error('Intent proposal digest view requires proposalFor and cannot combine slim/fields');
+        const item = full.items.find(candidate => candidate.id === args.proposalFor);
+        if (!item) throw new Error(`Checklist item ${args.proposalFor} not found`);
+        const baseIntentHash = digestCanonicalJson(item.verificationIntent ?? null);
+        return {storyId: args.storyId, itemId: item.id, baseIntentHash,
+          ...(args.proposalIntent !== undefined ? {digest: digestCanonicalJson({storyId: args.storyId, itemId: item.id, baseIntentHash, verificationIntent: args.proposalIntent})} : {}),
+          approvalRequired: true, authority: 'diagnostic_only'};
+      }
       if (!args.slim && !args.fields) return full;
       const result = args.slim ? renderSlimChecklist(args.storyId, full) : full as unknown as Record<string, unknown>;
       return pickTopLevelFields(result, args.fields);
@@ -2953,12 +2962,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         if (authority.entry) throw new Error(`INTENT_PROPOSAL_ROLE_FORBIDDEN: dispatched or asserted role ${authority.actor} cannot approve owner proposals`);
         const owner = probeWriterLease(store.storyDirPath(args.storyId), resolveStoryGitCwd(args.storyId));
         if (!owner.valid) throw new Error(`INTENT_PROPOSAL_OWNER_REQUIRED: ${owner.reason}`);
-        assertVerificationIntentClassification(args.itemId, args.verificationIntent);
+        assertVerificationIntentClassification(args.itemId, args.verificationIntent, true);
         const baseIntentHash = digestCanonicalJson(item.verificationIntent ?? null);
         const digest = digestCanonicalJson({storyId:args.storyId,itemId:args.itemId,baseIntentHash,verificationIntent:args.verificationIntent});
-        if (approval.baseIntentHash !== baseIntentHash || approval.digest !== digest) {
-          throw new Error('INTENT_PROPOSAL_BINDING_INVALID: proposal differs from the approved Story, item, prior intent or replacement');
-        }
+        if (approval.baseIntentHash !== baseIntentHash) throw new Error('INTENT_PROPOSAL_BINDING_INVALID: baseIntentHash is stale; read checklist_get with proposalFor again');
+        if (approval.digest !== digest) throw new Error('INTENT_PROPOSAL_BINDING_INVALID: digest differs from the Story/item/prior-intent/replacement; use checklist_get with proposalFor and proposalIntent');
         ownerProposalApproved = true;
       }
       const beforeIntentRevision = structuredClone(item);
@@ -3098,6 +3106,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push(`status → ${args.status}`);
       }
 
+      if (args.verificationIntent !== undefined) {
+        item.verificationIntentAuthorship = {
+          kind: ownerProposalApproved ? 'owner_applied_proposal' : isDispatchedVerificationIntentWriter ? 'dispatched_verification_intent' : 'owner_direct',
+          actor: authority.actor || 'owner',
+          intentDigest: acceptanceIntentHash(item.verificationIntent!),
+          ...(ownerProposalApproved ? {proposalDigest: args.intentProposalApproval!.digest} : {}),
+          independentlyAttested: false,
+        };
+      }
       if (beforeIntentRevision.verificationIntentAmendments?.length && (
         acceptanceScopeHash(beforeIntentRevision) !== acceptanceScopeHash(item)
         || acceptanceIntentHash(beforeIntentRevision.verificationIntent!) !== acceptanceIntentHash(item.verificationIntent!)
@@ -3116,15 +3133,6 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push('signed acceptance revision recorded; planning and fresh coverage remain required');
       }
 
-      if (args.verificationIntent !== undefined) {
-        item.verificationIntentAuthorship = {
-          kind: ownerProposalApproved ? 'owner_applied_proposal' : isDispatchedVerificationIntentWriter ? 'dispatched_verification_intent' : 'owner_direct',
-          actor: authority.actor || 'owner', sessionId: getSessionId(),
-          intentDigest: acceptanceIntentHash(item.verificationIntent!),
-          ...(ownerProposalApproved ? {proposalDigest: args.intentProposalApproval!.digest} : {}),
-          independentlyAttested: false,
-        };
-      }
       store.writeChecklist(args.storyId, cl);
       if (args.verificationIntent !== undefined) {
         try {

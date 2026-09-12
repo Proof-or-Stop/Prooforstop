@@ -1490,13 +1490,12 @@ export interface ChecklistItem {
    * PLAN records happy/edge/adversarial intent, DEV/REVIEW/TEST attach evidence.
    */
   verificationIntent?: VerificationIntent;
-  /** Handler-owned attribution only; never independent review or gate authority.
+  /** Handler-owned attribution only, with no session identity; never independent review or gate authority.
    * Unknown unless intentDigest matches acceptanceIntentHash of current intent.
    * Semantic append/repair clears it; exact checkpoint recovery restores the pair. */
   verificationIntentAuthorship?: {
     kind: 'owner_applied_proposal' | 'dispatched_verification_intent' | 'owner_direct';
     actor: string;
-    sessionId: string;
     /** Acceptance semantics excluding executor-owned verification pins. */
     intentDigest: string;
     proposalDigest?: string;

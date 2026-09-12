@@ -9,6 +9,8 @@ try {
  const check=()=>assertCanonicalActiveIdentityBoundary({boundaryId:'review-inventory-epoch',runtimePackageRoot:root});
  check();
  const path=join(root,'dist/handlers/checklist.js');const before=readFileSync(path,'utf8');
+ // Dispatched writers and owner proposals share this single classification guard.
+ // Mutating the executable guard must invalidate review-inventory authority.
  const guard='if (!intent.scope || !intent.expectation || !intent.requirementSource)';
  assert.equal(before.split(guard).length-1,1,'exactly one incoming metadata guard');
  writeFileSync(path,before.replace(guard,'if (false)'));

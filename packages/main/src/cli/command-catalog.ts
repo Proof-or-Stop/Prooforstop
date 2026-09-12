@@ -452,6 +452,8 @@ Behavior:
   // Checklist
   { name: 'checklist_get', description: 'Read the checklist', schema: {
     storyId: z.string().describe('Story ID'),
+    proposalFor: z.string().optional().describe('Read-only current baseIntentHash for this checklist item; combine with proposalIntent to compute an exact approval digest.'),
+    proposalIntent: verificationIntentSchema.optional().describe('Proposed intent JSON; with proposalFor returns digest only, never applies or approves the proposal.'),
     slim: z.boolean().optional().describe('Opt-in compact checklist view. Default output is unchanged when omitted.'),
     fields: z.array(z.string()).optional().describe('Opt-in top-level field filter. With slim=true, filter storyId/counts/items.'),
   }},

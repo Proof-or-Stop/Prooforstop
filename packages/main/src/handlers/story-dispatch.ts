@@ -644,7 +644,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`Current phase: ${story.phase}. Context: ${item.context || '(not declared)'}`);
     lines.push('Finish by proposing verificationIntent with only storyId and itemId; never change status or impersonate the Story owner.');
     lines.push('If another session owns the Story lease, return the proposal to that owner. The owner may apply it in PLAN with checklist_update and intentProposalApproval {baseIntentHash, digest, reason}; the reason must explain the review in at least 30 characters.');
-    lines.push('Use digestCanonicalJson from core/digest: baseIntentHash hashes current verificationIntent (or null); digest hashes {storyId, itemId, baseIntentHash, verificationIntent}. The active owner submits exactly those three fields plus intentProposalApproval, without an agent role. Independent authorship remains advisory; this approval does not create reviewer or host attestation.');
+    lines.push(`Read current baseIntentHash with checklist_get --storyId=${args.storyId} --proposalFor=${args.itemId}; add --proposalIntent='<complete intent JSON>' to obtain the exact digest. This read-only calculation grants no approval or independent authorship. The active owner applies the reviewed bytes with these hashes and a substantive reason, without an agent role. See checklist_update --help.`);
     lines.push('A directly dispatched verification-intent writer may call checklist_update only when normal owner lease checks permit it; no role bypass or takeover is granted.');
     return { prompt: lines.join('\n') };
   }
