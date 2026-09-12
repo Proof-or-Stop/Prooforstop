@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab identity-reviewed-main-source - v0.3.345 - 2026-09-12
+
+Six reviewed-source rows rejected current local-main files after previously integrated changes. This repair refreshes their exact whole-source SHA bindings and moves the runtime-registry context from line 479 to 480. All six reviewed lines, token counts, classifications and reasons remain identical. The inventory still contains exactly 54 rows; source-reader and enclosing scanner fingerprints are updated through the existing chain. No reader condition, production source, legacy identity allowance or Story-specific source registration changes.
+
+Exact prior files were recovered from Git: process-fact-levels from 5b2651fd6e51ba412154b88389197b5d7d8a24e6, runtime-fact-registry from 3e3d7dd7124bdeae6b591450d6c8aa2029f9d458, and runtime-environment-checks from f926bb1def603d58f28a615996fbece728c1afbb. The source differences are the already-integrated evidence-hash fail-closed registry addition, one invocation-local baseline-serialization registry row, and two executable fingerprint updates. Each reviewed line remains byte-identical. This is reviewed provenance closure, not a claim that those entire source files were unchanged.
+
+The existing registered source-bindings test records actual RED before repair and GREEN after it. It verifies all 54 current positives, 324 mutation refusals, 52 empty/missing-source controls, exact scanner reader hashes, and inventory byte-tamper refusal. An added six-context digest assertion prevents changing the reviewed text, token multiplicity, classification or reason while refreshing location/hash metadata. The broader fixture/JSON identity suite is separate and is not claimed green by this source-only repair. No Story completion or product-release evidence is asserted.
+
+Maintenance provenance: codex/lab-identity-reviewed-main-source, repair bc7522a54d85f2c9190eb6637237353b779a654b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-stage-abort-oracle - v0.3.344 - 2026-09-12
 
 The validation stage regression expected an exception after cancellation even though the public command API returns a structured prelaunch cancellation result. This made the performance companion fail with zero spawned children.
