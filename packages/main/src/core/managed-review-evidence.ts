@@ -1,3 +1,5 @@
+import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
+import { reportHealthIssue } from './health.js';
 import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
 import { StoryStore } from './store.js';
 /** Shared intake + REVIEW-gate verifier for managed reviewer evidence. */
@@ -393,7 +395,7 @@ export function isSealedManagedPromptDigestCurrent(sealed: unknown, bindingDiges
 }
 
 /** Historical critics remain authentic; only the latest wave can be current. */
-export function managedInventorySubjectState(store: StoryStore, run: ReviewRun): 'current' | 'superseded' | 'invalid' {
+export function managedInventorySubjectState(store: StoryStore, run: ReviewRun, onInvalidReason?: (reason: string) => void): 'current' | 'superseded' | 'invalid' {
   try {
     if (run.reviewPurpose !== 'inventory-completeness') return 'current';
     const binding = run.inventoryBinding;
@@ -413,7 +415,11 @@ export function managedInventorySubjectState(store: StoryStore, run: ReviewRun):
     if (binding.wave > currentWave || (binding.wave <= epoch.waves.length && epoch.waves[binding.wave - 1]?.wave !== binding.wave)) return 'invalid';
     if (!inventoryPurposeMatchesEpoch(binding, {...epoch,waves:epoch.waves.slice(0,binding.wave-1)})) return 'invalid';
     return binding.wave === currentWave ? 'current' : 'superseded';
-  } catch { return 'invalid'; }
+  } catch (error) {
+    if (!isMissingReviewSnapshotError(error)) reportHealthIssue('review-maintenance-lineage', error instanceof Error ? error : { message: String(error) }, { storyId: run.storyId });
+    onInvalidReason?.(error instanceof Error ? error.message : String(error));
+    return 'invalid';
+  }
 }
 
 function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun): string[] {

@@ -1604,6 +1604,15 @@ function validateEvidenceRunBinding(
   const signedProjectRoot = workspaceValidation.projectRoot;
   const managedBinding = evidence.pass?.managedEvidenceBinding ?? evidence.finding?.managedEvidenceBinding;
   const nativeBinding = evidence.pass?.nativeEvidenceBinding ?? evidence.finding?.nativeEvidenceBinding;
+  // Inventory purpose is transport-neutral; neither native nor managed evidence
+  // may retain authority for a different live inventory subject.
+  let inventorySubjectCause: string | undefined;
+  const inventorySubject = managedInventorySubjectState(store, run, reason => { inventorySubjectCause = reason; });
+  if (inventorySubject === 'invalid') {
+    return { code: managedBinding ? 'managed_receipt_invalid' : 'review_execution_authority_missing',
+      kind: evidence.kind, evidenceId: evidence.id, agent: evidence.agent, reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has an invalid current inventory subject${inventorySubjectCause ? `: ${inventorySubjectCause}` : ''}` };
+  }
   // B-9dcb CHK-003: the freshness recompute's metadataRoot (4th arg) must be the
   // run's authoritative signed metadataRoot, NOT the signedProjectRoot (gitRoot).
   // On a wrapper-root layout with a CUSTOM storyDir, using the gitRoot as
@@ -1722,14 +1731,6 @@ function validateEvidenceRunBinding(
     assuranceLevel: 'ordinary-review',
     hasManagedEvidenceBinding: managedBinding !== undefined,
   });
-  // Inventory purpose is transport-neutral; neither native nor managed evidence
-  // may retain authority for a different live inventory subject.
-  const inventorySubject = managedInventorySubjectState(store, run);
-  if (inventorySubject === 'invalid') {
-    return { code: managedBinding ? 'managed_receipt_invalid' : 'review_execution_authority_missing',
-      kind: evidence.kind, evidenceId: evidence.id, agent: evidence.agent, reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} has an invalid current inventory subject` };
-  }
   if (authority.reviewGatePath === 'managed-receipt' && managedBinding) {
     // Consumption authenticates the sealed launch; it never rebuilds an OPEN-only prompt.
     const managed = verifyManagedReviewEvidence({

@@ -7234,7 +7234,7 @@ function assertDeliveryPromiseOutcomeContract(registry, levelRegistry) {
 
 function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   const subjectReader = read('packages/main/src/core/review-run.ts');
-  const subjectOffset = subjectReader.indexOf('const inventorySubject = managedInventorySubjectState(store, run);');
+  const subjectOffset = subjectReader.indexOf('const inventorySubject = managedInventorySubjectState(store, run,');
   const managedOffset = subjectReader.indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding)");
   assert(subjectOffset >= 0 && managedOffset >= 0 && subjectOffset < managedOffset,
     'inventory subject classification must precede both execution authority paths');
@@ -7294,6 +7294,11 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
+  assert(managedText.includes('isMissingReviewSnapshotError(error)') && managedText.includes("reportHealthIssue('review-maintenance-lineage', error") && reviewGateText.includes('inventorySubjectCause'),
+    'unexpected inventory reader errors must retain health diagnostics and blocker cause');
+  assert(!read('packages/main/src/core/review-evidence-refresh.ts').includes('proof-or-stop.causal-evidence-index')
+    && read('packages/main/src/core/store.ts').includes('schemaVersion: CAUSAL_EVIDENCE_INDEX_SCHEMA'),
+    'causal index writer and refresh reader must share the owning schema constant');
   assert(closeoutPolicyModule.CLOSEOUT_ARTIFACT_POLICIES.every(policy => !policy.canonicalWriters.includes('verification_evidence_add')),
     'no closeout policy may grant generic canonical authority to direct evidence writes');
   assert(JSON.stringify(closeoutPolicyModule.closeoutArtifactPolicyFor('checklist.json')?.canonicalWriters) === JSON.stringify(['verification_evidence_refresh_stale']),
@@ -7329,7 +7334,7 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,item,evidence)'), 'review maintenance lineage requires signed epoch and strict receipt authority');
   assert(maintenanceText.includes('verifyCloseoutWriteReceipt(receipt,') && maintenanceText.includes('evaluatePersistedReviewToTestIndexTransition(gitCwd,')
     && maintenanceText.includes('verifyCertificationWindow(window)') && maintenanceText.includes('consumedByCertificationWindowId !== window.windowId'), 'post-review official lifecycle commits require typed receipt, consumption and exact phase delta checks');
-  assert(reviewGateText.includes('managedInventorySubjectState(store, run)')
+  assert(reviewGateText.includes('managedInventorySubjectState(store, run,')
     && managedText.includes('isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest)')
     && !reviewGateText.includes('managedPromptDigest: managedReviewerPromptDigest('), 'managed consumption must validate the current subject and authenticated launch digest without rebuilding the OPEN-only prompt');
   assert(read('packages/main/src/handlers/certification-window.ts').includes('isVerifiedReviewMaintenanceCommit({')
@@ -11343,7 +11348,7 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
   assert(effective.includes('schemaVersion: EFFECTIVE_PROGRESS_SCHEMA') && effective.includes('prior.schemaVersion !== state.schemaVersion'), 'Nested progress must reject incompatible domains');
   const store = read('packages/main/src/core/store.ts');
   const outputReader = store.slice(store.indexOf('  causalEvidenceOutputPaths('), store.indexOf('  private recoverOrphanedCausalEvidenceReceipt('));
-  assert(outputReader.includes("index.schemaVersion === 'proof-or-stop.causal-evidence-index.v1'")
+  assert(outputReader.includes("index.schemaVersion === CAUSAL_EVIDENCE_INDEX_SCHEMA")
     && outputReader.includes('verifyCausalEvidenceReceipt(receipt)')
     && outputReader.includes('verified.get(key) === hash'), 'CAS output exemption must match canonical writer and authenticated exact receipt map');
   const regression = read('scripts/verify-canonical-journal-authority.mjs');

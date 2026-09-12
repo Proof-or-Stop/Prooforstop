@@ -3,7 +3,7 @@ import { prepareVerification, verificationFailureMessage } from './verification-
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -512,6 +512,37 @@ async function main() {
   }
   const journalBoundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === 'canonical-journal-authority');
   check(Boolean(journalBoundary), 'current signed journal authority requires a registered runtime boundary');
+  { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/store.ts' && row.canonical === 'proof-or-stop.causal-evidence-index.v1');
+    check(Boolean(site && site.identityOrigin?.sourcePath === 'packages/main/src/core/causal-evidence.ts' && site.identityOrigin.exportName === 'CAUSAL_EVIDENCE_INDEX_SCHEMA' && site.sourceNeedle === 'schemaVersion: CAUSAL_EVIDENCE_INDEX_SCHEMA' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), 'causal index constant must bind the real store writer and its negative mutation'); }
+  // Exercise the exact runtime writer and imported schema authority in a
+  // disposable byte-for-byte copy; production source and keys stay untouched.
+  {
+    const site=journalBoundary?.identitySites.find(row=>row.identityOrigin?.exportName==='CAUSAL_EVIDENCE_INDEX_SCHEMA');
+    assert(site && journalBoundary);
+    const scratch=mkdtempSync(join(tmpdir(),'causal-index-identity-'));
+    const originPath='dist/core/causal-evidence.js';
+    const paths=new Set(journalBoundary.paths.map(row=>row.path));
+    for(const row of journalBoundary.identitySites) if(row.identityOrigin) {
+      assert(row.identityOrigin.sourcePath.startsWith('packages/main/src/'));
+      paths.add(row.identityOrigin.sourcePath.replace('packages/main/src/','dist/').replace(/\.ts$/u,'.js'));
+    }
+    try {
+      for(const path of paths) {mkdirSync(dirname(join(scratch,path)),{recursive:true});copyFileSync(join(root,'packages/main',path),join(scratch,path));}
+      const verify=()=>checksModule.assertCanonicalActiveIdentityBoundary({boundaryId:'canonical-journal-authority',runtimePackageRoot:scratch,projectRoot:root});
+      verify();
+      for(const [path,needle,replacement,origin] of [
+        ['dist/core/store.js',site.sourceNeedle,site.retiredNeedle,false],
+        [originPath,`export const CAUSAL_EVIDENCE_INDEX_SCHEMA = '${site.canonical}';`,`export const CAUSAL_EVIDENCE_INDEX_SCHEMA = '${site.retired}';`,true],
+      ]) {
+        const absolute=join(scratch,path),bytes=readFileSync(absolute,'utf8');
+        assert.equal(bytes.split(needle).length,2,'mutation must target exactly one real authority use');
+        try {writeFileSync(absolute,bytes.replace(needle,replacement));assert.throws(verify,error=>String(error.message).includes(site.siteId)&&(!origin||String(error.message).includes('imported identity origin')));}
+        finally {writeFileSync(absolute,bytes);}
+        verify();
+      }
+      console.log('CAUSAL_INDEX_SCHEMA_WRITER_AND_ORIGIN_REFUSAL_GREEN');
+    } finally {rmSync(scratch,{recursive:true,force:true});}
+  }
   { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/acceptance-amendment-journal.ts' && row.canonical === 'proof-or-stop.acceptance_amendment.v1');
     check(Boolean(site && site.identityOrigin?.sourcePath === 'packages/main/src/core/artifact-schema.ts' && site.identityOrigin.exportName === 'ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA' && site.sourceNeedle === 'schemaVersion: ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), 'canonical journal constant must bind actual consumer and negative mutation: ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA'); }
   { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/acceptance-amendment-journal.ts' && row.canonical === 'proof-or-stop.acceptance_amendments.v1');

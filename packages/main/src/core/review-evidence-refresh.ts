@@ -7,7 +7,7 @@ import { relative } from 'node:path';
 import { realpathSync, readFileSync } from 'node:fs';
 import { StoryStore } from './store.js';
 import { matchesRuntimeCommitSubject } from './auto-commit-metadata.js';
-import { verifyCausalEvidenceReceipt, CAUSAL_RECEIPT_DIRECTORY, CAUSAL_RECEIPT_INDEX_FILE, CAUSAL_OUTPUT_DIRECTORY } from './causal-evidence.js';
+import { verifyCausalEvidenceReceipt, CAUSAL_EVIDENCE_INDEX_SCHEMA, CAUSAL_RECEIPT_DIRECTORY, CAUSAL_RECEIPT_INDEX_FILE, CAUSAL_OUTPUT_DIRECTORY } from './causal-evidence.js';
 import { hasMechanicalExecutionAuthority } from './verification-receipt-authority.js';
 import { digestCanonicalJson } from './digest.js';
 import type { ChecklistData } from './types.js';
@@ -112,7 +112,7 @@ function computeVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
       }
       if (artifacts.includes(CAUSAL_RECEIPT_INDEX_FILE)) {
         const index = readAt(commit,CAUSAL_RECEIPT_INDEX_FILE);
-        if (index.schemaVersion !== 'proof-or-stop.causal-evidence-index.v1' || !index.receipts || typeof index.receipts !== 'object') return false;
+        if (index.schemaVersion !== CAUSAL_EVIDENCE_INDEX_SCHEMA || !index.receipts || typeof index.receipts !== 'object') return false;
         if (git(['ls-tree','--name-only',parents[0],'--',prefix + CAUSAL_RECEIPT_INDEX_FILE])) {
           const prior = readAt(parents[0],CAUSAL_RECEIPT_INDEX_FILE);
           if (!prior.receipts || Object.entries(prior.receipts).some(([key,hash]) => index.receipts[key] !== hash)) return false;

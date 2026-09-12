@@ -33,7 +33,7 @@ function assertNoReaderHealth(action, expectedAnomaly=false) {
  const scratch=mkdtempSync(join(tmpdir(),'review-reader-health-'));
  const old=process.env.PROOF_OR_STOP_HEALTH_PATH, path=join(scratch,'health.jsonl');
  process.env.PROOF_OR_STOP_HEALTH_PATH=path;
- try {assert.equal(getHealthPath(),path);action();const rows=existsSync(path)?readFileSync(path,'utf8').trim().split('\n').filter(Boolean).map(JSON.parse):[];assert.equal(rows.length,expectedAnomaly?1:0,'designed refusals stay quiet; unexpected reader errors stay observable');if(expectedAnomaly)assert.equal(rows[0].category,'review-maintenance-lineage');}
+ try {assert.equal(getHealthPath(),path);action();const rows=existsSync(path)?readFileSync(path,'utf8').trim().split('\n').filter(Boolean).map(JSON.parse):[];assert.equal(rows.length,typeof expectedAnomaly==='number'?expectedAnomaly:expectedAnomaly?1:0,'designed refusals stay quiet; unexpected reader errors stay observable');for(const row of rows)assert.equal(row.category,'review-maintenance-lineage');}
  finally {if(old===undefined)delete process.env.PROOF_OR_STOP_HEALTH_PATH;else process.env.PROOF_OR_STOP_HEALTH_PATH=old;rmSync(scratch,{recursive:true,force:true});}
 }
 
@@ -395,9 +395,15 @@ const epochPath=fixture.store.storyFilePath(storyId,'review-inventory-epochs.jso
 const epochBytes=readFileSync(epochPath,'utf8');
 try {
  writeFileSync(epochPath,'{malformed');
- assert.equal(managedInventorySubjectState(fixture.store,persistedCritic),'invalid');
- const state=collectReviewerEvidenceState(fixture.store,storyId,fixture.root);
- assert(state.invalid.some(row=>row.code==='managed_receipt_invalid'),JSON.stringify(state));
+ let cause;
+ assertNoReaderHealth(()=>assert.equal(managedInventorySubjectState(fixture.store,persistedCritic,reason=>{cause=reason;}),'invalid'),true);
+ assert(cause,'unexpected read must preserve its concrete cause');
+ assertNoReaderHealth(()=>{
+  const state=collectReviewerEvidenceState(fixture.store,storyId,fixture.root);
+  assert(state.invalid.some(row=>row.code==='managed_receipt_invalid' && row.message.includes(cause)),JSON.stringify(state));
+ // One ordinary managed lane's lineage reader and the critic's subject reader
+ // each observe the malformed store once; the direct-reader control above is one.
+ },2);
 } finally {writeFileSync(epochPath,epochBytes);}
 
 const tampered=structuredClone(savedEpochs);tampered.epochs.at(-1).requiredLanes=[];
@@ -411,7 +417,7 @@ assert.equal(managedInventorySubjectState(fixture.store,persistedCritic),'invali
 const multi=structuredClone(savedEpochs);multi.epochs.at(-1).waves.push({...multi.epochs.at(-1).waves[0],wave:2});
 {const {_hash,...unsigned}=multi.epochs.at(-1);multi.epochs.at(-1)._hash=signReviewInventoryEpoch(unsigned);}
 fixture.store.writeReviewInventoryEpochs(storyId,multi);
-assert.equal(managedInventorySubjectState(fixture.store,persistedCritic),'superseded','signed prior wave is historical, not a malformed subject');
+assertNoReaderHealth(()=>assert.equal(managedInventorySubjectState(fixture.store,persistedCritic),'superseded','signed prior wave is historical, not a malformed subject'));
 fixture.store.writeReviewInventoryEpochs(storyId,savedEpochs);
 const publication=git(fixture.root,['log','-1','--format=%s']);
 assert.equal(publication,`proof-or-stop: record ${storyId} review epoch metadata`,'actual batch publisher must produce the canonical subject');
@@ -686,7 +692,7 @@ if(mode==='cancelled') {
  assert(cancelled.receipts.at(-1).invalidatedAt);
  assert(verifyReviewInventoryReceipt(cancelled.receipts.at(-1)));
  assert.equal(finalizedUnconsumedReviewInventory(fixture.store,storyId),null);
- assert.equal(managedInventorySubjectState(fixture.store,persistedCritic),'invalid','cancelled critic cannot be consumed');
+ assertNoReaderHealth(()=>assert.equal(managedInventorySubjectState(fixture.store,persistedCritic),'invalid','cancelled critic cannot be consumed'));
 } else if(mode==='forged-refresh') {
  const checklist=fixture.store.readChecklist(storyId);
  checklist.items[0].title='Unreviewed acceptance alteration';
