@@ -7452,6 +7452,10 @@ function assertEvidenceHashSnapshotFailClosedContract(registry, levelRegistry) {
   for (const relPath of consumers) {
     assert(read(relPath).includes('classifyEvidenceHashSnapshot'), `${relPath}: shared partial-snapshot classifier is not consumed`);
   }
+  const phaseGates = read('packages/main/src/handlers/phase-gates.ts');
+  for (const token of ['binding.complete', 'Evidence hash snapshot binding (disclosed):', 'bindingRow.detail']) {
+    assert(phaseGates.includes(token), `packages/main/src/handlers/phase-gates.ts: partial capture disclosure is not load-bearing: ${token}`);
+  }
   assert(existsSync(join(root, 'packages/main/src/tasks/evidence-hash-snapshot-classifier-smoke.ts')), 'classifier smoke source missing');
   assert(existsSync(join(root, 'packages/main/tests/red/red-partial-hash-snapshot-binding.mjs')), 'partial-hash RED/GREEN proof missing');
 }

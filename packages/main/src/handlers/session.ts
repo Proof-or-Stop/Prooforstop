@@ -440,6 +440,7 @@ export interface NextStepCtx {
    * the brief and in the next-step hint instead of being swallowed.
    */
   donePrecheckUnavailable?: string | null;
+  donePrecheckUnavailableKind?: 'git' | 'probe' | null;
   reviewerStatus: ReviewerStatusSummary | null;
   certificationWindowState?: CertificationWindowState | 'UNVERIFIED' | null;
   reviewInventoryState?: 'OPEN' | 'FINALIZED' | 'INVALIDATED' | 'CANCELLED' | null;
@@ -710,7 +711,10 @@ export function computeNextStep(c: NextStepCtx): string {
         return `TEST phase, last verification failed. Next: proof-or-stop story_advance --storyId=${sid} --phase=DEV to repair failing items and restore PRE_CERT`;
       }
       if (c.donePrecheckUnavailable) {
-        return `TEST phase, DONE pre-check unavailable: ${c.donePrecheckUnavailable}. Next: repair the git state of the story worktree (readable HEAD and material tree), then rerun proof-or-stop session_brief`;
+        const repair = c.donePrecheckUnavailableKind === 'git'
+          ? 'repair the git state of the story worktree (readable HEAD and material tree)'
+          : 'inspect and repair the reported DONE pre-check probe failure';
+        return `TEST phase, DONE pre-check unavailable: ${c.donePrecheckUnavailable}. Next: ${repair}, then rerun proof-or-stop session_brief`;
       }
       if (c.donePrecheck && c.donePrecheck.blocking.length > 0) {
         const ids = c.donePrecheck.blocking.slice(0, 4).map(r => r.id).join(', ');
@@ -1421,6 +1425,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // ctx.root stays the metadataRoot / store root for every non-git read.
       // Plain repos are byte-identical: resolveGitCwd falls back to ctx.root.
       let donePrecheckUnavailable: string | null = null;
+      let donePrecheckUnavailableKind: 'git' | 'probe' | null = null;
       if (story.phase === 'TEST') {
         try {
           const doneGitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
@@ -1428,6 +1433,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           const binding = classifyEvidenceHashSnapshot(evidenceHashSnapshot, ['headHash', 'materialHash']);
           if (!binding.complete) {
             donePrecheckUnavailable = binding.detail;
+            donePrecheckUnavailableKind = 'git';
           } else {
             const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
               gitCwd: doneGitCwd,
@@ -1444,6 +1450,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           donePrecheckUnavailable = `DONE pre-check probe failed: ${message.replace(/\s*[\r\n]+\s*/g, ' ').trim()}`;
+          donePrecheckUnavailableKind = 'probe';
         }
         if (donePrecheckUnavailable) {
           lines.push('');
@@ -1522,6 +1529,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         configuredGitRootResolved: !gitReady && !!configuredGitRootStatus?.signedWorkspaceRoot,
         donePrecheck,
         donePrecheckUnavailable,
+        donePrecheckUnavailableKind,
         reviewerStatus,
         reviewInventoryState,
         certificationWindowState,

@@ -438,6 +438,7 @@ try {
       assert.ok(row.detail?.startsWith('Historical DONE projection:'), row.detail);
       assert.match(row.detail ?? '', /evidence hash snapshot is partial: headHash unavailable/);
       assert.match(row.detail ?? '', /present: materialHash, storyFilesHash/);
+      assert.equal(row.hint, 'this is a read-only historical projection; repair the live git state before any new admission attempt');
     } finally {
       unbornStore.writeStory(STORY_ID, originalStory);
     }
@@ -457,6 +458,13 @@ try {
       assert.match(row.detail ?? '', /storyFilesHash/);
       assert.doesNotMatch(row.detail ?? '', /headHash|materialHash/);
       assert.doesNotMatch(row.detail ?? '', /Historical DONE projection:/);
+      const report = buildStoryReadinessReport({ storyId: STORY_ID, target: 'DONE', store, root, gitCwd: root });
+      const projected = report.readiness.find((candidate) => candidate.id === 'done.evidence-hash-snapshot');
+      assert.ok(projected, 'readiness must project the storyFilesHash-only advisory row');
+      assert.equal(projected.code, 'evidence_hash_snapshot_advisory');
+      assert.equal(projected.category, 'advisory');
+      assert.equal(projected.blocking, false);
+      assert.equal(projected.nextCommand, undefined);
     } finally {
       rmSync(root, { recursive: true, force: true });
       resetConfigCache();
@@ -537,7 +545,10 @@ try {
           assert.equal(r.blocking, false, `${target}: ${r.code} must stay advisory`);
           assert.equal(r.status, 'warn');
           assert.equal(r.category, 'advisory');
+          assert.equal(r.reason.includes(unbornClassification.detail), false, `${target}: advisory reason must not carry the DONE-only classifier detail`);
         }
+        assert.equal(head.reason, 'Current git HEAD could not be read');
+        assert.equal(material.reason, 'Current material hash could not be derived');
       }
       assert.equal(storyFiles.blocking, false, `${target}: storyFilesHash stays advisory at every target`);
       assert.equal(storyFiles.category, 'advisory');
@@ -572,6 +583,27 @@ try {
       assert.equal(brief.includes('\n## DONE pre-check\n'), false, 'the normal section is replaced by the disclosure, not printed alongside it');
       assert.ok(brief.includes('TEST phase, DONE pre-check unavailable: '), `next step must disclose the unavailable pre-check:\n${brief}`);
       assert.equal(brief.includes('--phase=DONE to complete the story'), false, 'DONE must not be recommended while the pre-check is unavailable');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+      resetConfigCache();
+    }
+  });
+
+  testCase('session (DISCLOSED): a non-git DONE pre-check exception is named as a probe failure with non-git remediation', () => {
+    const { root, store } = fullDigestRepo(STORY_ID);
+    const originalReadTestEvidence = store.readTestEvidence.bind(store);
+    let evidenceReads = 0;
+    store.readTestEvidence = ((storyId: string) => {
+      evidenceReads += 1;
+      if (evidenceReads === 2) throw new Error('synthetic checklist probe failure');
+      return originalReadTestEvidence(storyId);
+    }) as StoryStore['readTestEvidence'];
+    try {
+      const brief = createSessionHandlers({ store, root, scanRoot: join(root, 'packages/main') }).session_brief({ concise: true });
+      assert.match(brief, /## DONE pre-check unavailable: DONE pre-check probe failed: synthetic checklist probe failure/);
+      assert.match(brief, /inspect and repair the reported DONE pre-check probe failure/);
+      assert.doesNotMatch(brief, /Next: repair the git state of the story worktree/);
+      assert.ok(evidenceReads >= 2, 'fixture must throw from the DONE pre-check rather than the earlier test summary read');
     } finally {
       rmSync(root, { recursive: true, force: true });
       resetConfigCache();

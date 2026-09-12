@@ -697,8 +697,10 @@ export function runDoneOracleGate(
     const binding = classifyEvidenceHashSnapshot(evidenceHashSnapshot);
     const bindingRow = checkRows.find(r => r.id === 'evidence-hash-snapshot');
     const bindingLine = bindingRow
-      ? `\n\nEvidence hash snapshot binding (${bindingRow.status === 'fail' ? 'fail closed' : 'disclosed'}): ${bindingRow.detail ?? binding.detail}`
-      : '';
+      ? `\n\nEvidence hash snapshot binding (${bindingRow.status === 'fail' ? 'fail closed' : 'disclosed'}): ${bindingRow.detail}`
+      : binding.complete
+        ? ''
+        : `\n\nEvidence hash snapshot binding (disclosed): ${binding.detail}`;
     throw new Error(
       rendered + '\n\n' +
       `Cannot enter DONE: ${failed.length} 项检查未通过` +

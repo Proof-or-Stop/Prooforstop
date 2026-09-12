@@ -723,13 +723,19 @@
         "focus": [
           "fast"
         ],
+        "timeoutMs": 180000,
         "resources": [
           {
             "class": "git-common-dir",
             "key": ".",
             "access": "shared"
           }
-        ]
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
       },
       {
         "command": "node",
