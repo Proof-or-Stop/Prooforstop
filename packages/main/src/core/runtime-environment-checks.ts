@@ -1223,7 +1223,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
   'packages/main/src/core/evidence-freshness.ts': '4661ce241e0ea102c2d2eed0f7546f6a5ab058135756e9bf5cde28979c5b8837',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
-  'packages/main/src/core/verification-execution-evidence.ts': '31765476de71f83b91b81fd1dba8b3295d9a8bd33ed9817fc73fe1a961a9f566',
+  'packages/main/src/core/verification-execution-evidence.ts': 'ecd665658003dd342c888427da8d474ea7fbe23a3a37eed6587d1408259481e6',
   'packages/main/src/handlers/checklist.ts': 'c1dfe44fe17ecf17570050d74fe4bbd14266c11949519d9f0632d67625ea3815',
 });
 
