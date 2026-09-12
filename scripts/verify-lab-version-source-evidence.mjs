@@ -1,22 +1,35 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync,spawnSync} from 'node:child_process';
-import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,rmSync,existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {withLabVersionSourceEvidence} from './lab-version-source-evidence.mjs';
 import {copyLabFixtureSources} from './lab-fixture-sources.mjs';
 import {installLabAuditFixtureProviders} from './lab-audit-fixture-provider.mjs';
-// Fail closed and roll back every version byte when prior evidence is stale.
-for (const scenario of ['hash','excerpt','dependency','range','semantic','producer-manifest','format','historical','minor','major','downgrade','skip','malformed','malformed-from','undeclared','unexpected']) {
+// Each negative must reach its intended guard, not merely any refusal.
+const EXPECTED={
+ hash:'stale source evidence requires review before version bump',
+ 'entry-hash':'stale exception source requires review before version bump',
+ excerpt:'stale excerpt requires review before version bump', dependency:'stale dependency requires review before version bump',
+ range:'invalid source evidence range', semantic:'version refresh refuses source formatting changes',
+ 'nested-version':'version evidence refresh refuses non-version package changes',
+ 'producer-manifest':'version producer cannot modify source evidence',format:'version refresh refuses source line movement',
+ historical:'source evidence historical flag malformed',minor:'only an official patch bump can refresh source evidence',
+ major:'only an official patch bump can refresh source evidence',downgrade:'only an official patch bump can refresh source evidence',skip:'only an official patch bump can refresh source evidence',
+ malformed:'malformed patch version','malformed-from':'malformed patch version',undeclared:'undeclared version output',unexpected:'unexpected version output path',
+ 'created-output':'version producer created an absent output',
+};
+for (const scenario of Object.keys(EXPECTED)) {
  const root=mkdtempSync(join(tmpdir(),'lab-version-negative-'));
  try {
   const file='package.json',manifest='scripts/lab/u18-static-edges/exceptions.json';
-  const before=JSON.stringify({version:'1.0.0',scripts:{test:'node check.js'}},null,2)+'\n';
+  const before=JSON.stringify({version:'1.0.0',scripts:{test:'node check.js'},packages:{'':{version:'1.0.0'},'packages/utils':{version:'1.0.0'}}},null,2)+'\n';
   const digest=createHash('sha256').update(before).digest('hex');
   const evidence={file,sourceDigest:digest,startLine:1,endLine:before.split('\n').length,excerpt:before};
   const entry={key:file+':1:fixture',sourceDigest:digest,requiredEvidence:[evidence],dependencyDigests:{[file]:digest}};
+  if(scenario==='entry-hash')entry.sourceDigest='0'.repeat(64);
   if(scenario==='hash')evidence.sourceDigest='0'.repeat(64);
   if(scenario==='excerpt')evidence.excerpt='stale';
   if(scenario==='dependency')entry.dependencyDigests[file]='0'.repeat(64);
@@ -29,13 +42,16 @@ for (const scenario of ['hash','excerpt','dependency','range','semantic','produc
   writeFileSync(join(root,manifest),original);
   assert.throws(()=>withLabVersionSourceEvidence(root,()=>{
    let after=before.replace('1.0.0','1.0.1');
+   if(scenario==='nested-version'){const data=JSON.parse(before);data.packages['packages/utils'].version='1.0.1';after=JSON.stringify(data,null,2)+'\n';}
+   if(scenario==='created-output')writeFileSync(join(root,'package-lock.json'),'{}');
    if(scenario==='semantic')after=after.replace('node check.js','node bypass.js');
    if(scenario==='format')after=JSON.stringify(JSON.parse(after))+'\n';
    writeFileSync(join(root,file),after);
    if(scenario==='producer-manifest')writeFileSync(join(root,manifest),'{}');
    const to={minor:'1.1.0',major:'2.0.0',downgrade:'0.9.9',skip:'1.0.2',malformed:'1.x'}[scenario]??'1.0.1';
-   return {from:scenario==='malformed-from'?'x.0.0':'1.0.0',to,files:scenario==='undeclared'?[]:scenario==='unexpected'?[file,'outside.txt']:[file]};
-  }), /stale|invalid|non-version|cannot modify|version|source line|source formatting|historical|output|patch bump/, scenario);
+   return {from:scenario==='malformed-from'?'x.0.0':'1.0.0',to,files:scenario==='created-output'?[file,'package-lock.json']:scenario==='undeclared'?[]:scenario==='unexpected'?[file,'outside.txt']:[file]};
+  }), error=>error.message.split('\n')[0]===EXPECTED[scenario], scenario);
+  assert.equal(existsSync(join(root,'package-lock.json')),false,scenario+' absent output rollback');
   assert.equal(readFileSync(join(root,file),'utf8'),before,scenario+' version rollback');
   assert.equal(readFileSync(join(root,manifest),'utf8'),original,scenario+' evidence rollback');
  } finally {rmSync(root,{recursive:true,force:true});}

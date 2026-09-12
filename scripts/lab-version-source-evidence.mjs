@@ -47,6 +47,7 @@ export function withLabVersionSourceEvidence(root,bump) {
   assert(from.length===3&&to.length===3&&from.every(Number.isSafeInteger)&&to.every(Number.isSafeInteger)
    &&from[0]===to[0]&&from[1]===to[1]&&to[2]===from[2]+1,'only an official patch bump can refresh source evidence');
   assert(Array.isArray(result.files)&&result.files.every(file=>files.includes(file)),'unexpected version output path');
+  assert(files.every(file=>before.has(file)||!fs.existsSync(path.join(root,file))),'version producer created an absent output');
   const changed=new Map();
   for(const [file,text] of before) {
    const after=read(root,file);
@@ -89,6 +90,8 @@ export function withLabVersionSourceEvidence(root,bump) {
   fs.writeFileSync(path.join(root,manifestFile),content);
   return {...result,files:[...result.files,manifestFile]};
  } catch(error) {
+  for(const file of files)if(!before.has(file))fs.rmSync(path.join(root,file),{force:true});
+  if(manifestBefore===null)fs.rmSync(path.join(root,manifestFile),{force:true});
   for(const [file,text] of before)fs.writeFileSync(path.join(root,file),text);
   if(manifestBefore!==null)fs.writeFileSync(path.join(root,manifestFile),manifestBefore);
   throw error;
