@@ -27,8 +27,25 @@ try{
  const caller="import './suite-helper.mjs';";
  fs.writeFileSync(path.join(root,'a.mjs'),caller);fs.writeFileSync(path.join(root,'suite-helper.mjs'),"import {spawn} from 'node:child_process';spawn(process.execPath,['b.mjs']);");
  const row=expect(1,'new helper edge requires review').rows[0];
- const exception={id:'reviewed-property',key:row.key,callDigest:row.callDigest,sourceDigest:row.sourceDigest,configIndexes:[0],kind:'property',reason:'Synthetic fixture tests exact reviewed exception binding.',requiredEvidence:['Synthetic paired artifact property'],dependencyDigests:{'a.mjs':hash(caller),'suite-helper.mjs':hash(fs.readFileSync(path.join(root,'suite-helper.mjs')))}};
+ const exception={id:'reviewed-property',key:row.key,callDigest:row.callDigest,sourceDigest:row.sourceDigest,configIndexes:[0],kind:'property',reason:'Synthetic fixture tests exact reviewed exception binding.',requiredEvidence:[{file:'suite-helper.mjs',startLine:1,endLine:1,sourceDigest:row.sourceDigest,excerpt:fs.readFileSync(path.join(root,'suite-helper.mjs'),'utf8')}],dependencyDigests:{'a.mjs':hash(caller),'suite-helper.mjs':hash(fs.readFileSync(path.join(root,'suite-helper.mjs')))}};
  pin([exception]);expect(0,'exact reviewed exception accepted');
+ const evidence = exception.requiredEvidence[0];
+ const rejectEvidence = (requiredEvidence, label) => {
+  pin([{...exception,requiredEvidence}]);
+  const report = expect(1, 'SOURCE_EVIDENCE_CONTRACT: '+label);
+  assert(report.rows.some(row=>row.state==='NEEDS_REVIEW' && /evidence/.test(row.reason)));
+ };
+ rejectEvidence([{...evidence,sourceDigest:'0'.repeat(64)}], 'stale nested digest');
+ rejectEvidence([{...evidence,excerpt:evidence.excerpt+' // invented'}], 'tampered excerpt');
+ rejectEvidence([{...evidence,startLine:2,endLine:2}], 'moved call uses stale range');
+ rejectEvidence([{...evidence,startLine:0}], 'invalid line bounds');
+ rejectEvidence([{...evidence,file:'../outside.mjs'}], 'escaping source path');
+ rejectEvidence(['Historical review narrative'], 'narrative alone is not current source evidence');
+ rejectEvidence([{...evidence,historical:true}], 'historical source alone cannot authorize current exception');
+ fs.writeFileSync(path.join(root,'context.mjs'),'// current context');
+ rejectEvidence([{file:'context.mjs',startLine:1,endLine:1,sourceDigest:hash('// current context'),excerpt:'// current context'}], 'current context does not cover actual call');
+ pin([exception]);expect(0,'coherent source evidence remains accepted after negative controls');
+
  const noDeps={...exception};delete noDeps.dependencyDigests;pin([noDeps]);expect(1,'missing dependency set refused');
  pin([{...exception,dependencyDigests:{}}]);expect(1,'empty dependency set refused');
  pin([{...exception,dependencyDigests:{'suite-helper.mjs':exception.dependencyDigests['suite-helper.mjs']}}]);expect(1,'omitted caller dependency refused');
