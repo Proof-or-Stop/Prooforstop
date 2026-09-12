@@ -174,6 +174,14 @@ async function main(): Promise<void> {
     assert(heavyClaim?.access === 'exclusive', `high-fan-out member ${member} shares the exclusive heavy-smoke resource claim`);
   }
 
+  const routeMember = 'test:route-reattestation-dependency-direction';
+  const routeEntry = FULL_SUITE_ENTRIES.find(item => item.name === routeMember);
+  assert(routeEntry, 'ROUTE_RESOURCE_POLICY_REQUIRED native route regression has a resource policy');
+  assert(routeEntry!.tempOwnership === 'runner-owned-unique', 'route regression retains private fixture ownership');
+  assert(routeEntry!.timeoutMs === 600_000, 'route regression outer budget accommodates measured 350-second native workload');
+  assert(routeEntry!.resources.some(r => r.class === 'git-common-dir' && r.key === '.' && r.access === 'shared'), 'route regression declares shared repository reads');
+  assert(routeEntry!.resources.length === 1, 'route regression has only its shared repository read and adds no exclusive serialization');
+
   const scripts = { 'test:a': 'x', 'test:b': 'x' };
   const policy = { 'test:a': entry('test:a'), 'test:b': entry('test:b') };
   const derived = entriesFromSerialReference('npm run test:a && npm run test:b', scripts, policy);
@@ -209,6 +217,12 @@ async function main(): Promise<void> {
     scripts: livePackage.scripts, policy: livePolicy, prefixMembersReadStale,
     printMembershipLine: () => { process.stdout.write('[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row\n'); },
   });
+  const missingRoutePolicy = { ...livePolicy };
+  delete missingRoutePolicy[routeMember];
+  let routePolicyError = '';
+  try { entriesFromSerialReference(live.composedChain, livePackage.scripts, missingRoutePolicy); }
+  catch (error) { routePolicyError = error instanceof Error ? error.message : String(error); }
+  assert(routePolicyError === `canonical inventory mismatch unknownPolicy=[${routeMember}] stalePolicy=[] missingScripts=[]`, 'route resource deletion mutant fails with the exact dedicated inventory error');
   const liveMainChain = live.mainChain;
   const liveChain = live.composedChain;
 
