@@ -2639,7 +2639,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/certification-window.ts", "proof-or-stop.precert-cheap-check-receipt.v1", 2, "598ac97fb601b4d8dd9a16f9a46e45b6df8d930c31731ae6c40f789d0ccce537"],
   ["packages/main/src/core/certification-window.ts", "proof-or-stop.precert_cheap_check_receipt.v1", 5, "88e1c3e63b56dede315423f02f00b5bc011a34610f487ad731d80226c5b4932b"],
 
-  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop-verification-receipt-signer-v1.key",3,"c70020b7249196738a7ec9eb21c662e7b6805a5c80e5b6662d05e79257151fd3"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop-verification-receipt-signer-v1.key",2,"b2272c84d648eadbca1dfa2c1d2629361ac2e5ca967740a7b76223ccb30d4047"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v1",3,"4c05dc6a06dda209a6b3c012a5695335f6fec81c6d728d482457206fe7d0267f"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v2",3,"7a26aa6c00db0c5ac11494b858642fa2015f4aab088ee4331a6c6494624eb1b8"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-identity.v1",2,"7ea346cece80347dedf317a977b42205c3c6dd96fafe7168cbb5c4c560a92b9d"],
