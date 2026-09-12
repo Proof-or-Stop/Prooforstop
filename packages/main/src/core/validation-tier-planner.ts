@@ -39,7 +39,7 @@ import {
 } from './validation-relevance-input.js';
 import type { RoutineValidationSourceKind } from './validation-types.js';
 import { digestCanonicalJson } from './digest.js';
-import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
+import { collectL4ProcessFactPaths } from './process-fact-registry.js';
 
 export const VALIDATION_TIER_PLAN_SCHEMA = 'proofOrStop.validation-tier-plan.v1' as const;
 
@@ -242,17 +242,15 @@ const VALIDATION_SENSITIVE_PATH_PATTERNS = [
 ] as const;
 
 /**
- * Every L4 fact with a declared lifecycle consumer gate is
- * validation-sensitive by definition. Derive its governed path patterns from
- * the canonical process-fact registry so a new gate (including Dynamic
- * Finding) cannot be labelled fast merely because this planner's older path
- * list did not know its file name yet. These declarations use the same exact,
- * directory-prefix and glob semantics as the other sensitivity patterns.
+ * Every L4 process fact is validation-sensitive by definition. Derive its
+ * governed path patterns from the canonical process-fact registry so a new
+ * gate (including Dynamic Finding) cannot be labelled fast merely because this
+ * planner's older path list did not know its file name yet. These declarations
+ * use the same exact, directory-prefix and glob semantics as the other
+ * sensitivity patterns.
  */
 const REGISTERED_L4_CONSUMER_GATE_PATTERNS = [...new Set(
-  PROCESS_FACT_REGISTRY
-    .filter((entry) => entry.level === 'L4' && Boolean(entry.consumerGate?.trim()))
-    .flatMap((entry) => entry.paths)
+  collectL4ProcessFactPaths()
     .map(normalizedPath)
     .filter(Boolean),
 )];

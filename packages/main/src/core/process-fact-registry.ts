@@ -2538,6 +2538,25 @@ export function getProcessFactRegistryEntry(name: string): ProcessFactRegistryEn
   return PROCESS_FACT_REGISTRY_BY_NAME[name];
 }
 
+/**
+ * Return the unique governed paths declared by L4 process facts. Accept an
+ * unknown-shaped list so a consumer cannot crash while projecting a stale or
+ * independently decoded registry snapshot; malformed entries contribute no
+ * validation authority.
+ */
+export function collectL4ProcessFactPaths(entries: readonly unknown[] = PROCESS_FACT_REGISTRY): string[] {
+  const paths = new Set<string>();
+  for (const candidate of entries) {
+    if (!candidate || typeof candidate !== 'object') continue;
+    const entry = candidate as { level?: unknown; paths?: unknown };
+    if (entry.level !== 'L4' || !Array.isArray(entry.paths)) continue;
+    for (const path of entry.paths) {
+      if (typeof path === 'string' && path.trim() !== '') paths.add(path);
+    }
+  }
+  return [...paths];
+}
+
 export function hasProcessFactSemantic(name: string, semantic: ProcessFactSemantic): boolean {
   return PROCESS_FACT_REGISTRY_BY_NAME[name]?.semantics.includes(semantic) ?? false;
 }

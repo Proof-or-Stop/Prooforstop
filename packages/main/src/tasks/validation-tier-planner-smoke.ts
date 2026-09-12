@@ -185,7 +185,11 @@ import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 import { getCommandPolicy } from '../core/command-policy.js';
-import { getProcessFactRegistryEntry, PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
+import {
+  collectL4ProcessFactPaths,
+  getProcessFactRegistryEntry,
+  PROCESS_FACT_REGISTRY,
+} from '../core/process-fact-registry.js';
 import {
   describeRedGreenViolations,
   evaluateRedGreenCommitOrder,
@@ -2376,35 +2380,64 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
   }
 });
 
-testCase('every registered L4 consumer-gate path uses pattern semantics and forces repository-full', () => {
-  const gatePatterns = [...new Set(PROCESS_FACT_REGISTRY
-    .filter((entry) => entry.level === 'L4' && Boolean(entry.consumerGate?.trim()))
-    .flatMap((entry) => entry.paths))];
-  assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one L4 consumer-gate path');
+testCase('every registered L4 path forces repository-full without prefix overmatching', () => {
+  const l4Facts = PROCESS_FACT_REGISTRY.filter((entry) => entry.level === 'L4');
+  assert.ok(l4Facts.length > 0, 'the process-fact registry must declare at least one L4 fact');
+  assert.equal(
+    l4Facts.filter((entry) => !entry.consumerGate?.trim()).length,
+    0,
+    'every L4 process fact must name its consumer gate',
+  );
+  const gatePatterns = collectL4ProcessFactPaths();
+  assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one L4 governed path');
+  assert.deepEqual(
+    collectL4ProcessFactPaths([
+      null,
+      { level: 'L4' },
+      { level: 'L4', paths: 'not-an-array' },
+      { level: 'L3', paths: ['ignored.ts'] },
+      { level: 'L4', paths: [null, '', 'packages/main/src/core/valid-l4-path.ts'] },
+    ]),
+    ['packages/main/src/core/valid-l4-path.ts'],
+    'malformed independently decoded registry entries must not crash or contribute authority',
+  );
+
+  const planForPath = (changedPath: string) => {
+    const input = planInput({
+      readers: { changedFileStatuses: statusReader({ [changedPath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
+    });
+    return resolveValidationTierPlan({
+      input,
+      requestedTier: 'story-fast',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'all-l4-process-facts-v1',
+        commandSetDigest: input.executionInventory.commandSetDigest,
+        entries: [
+          { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [changedPath], coverage: 'complete' },
+          { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    });
+  };
 
   for (const gatePattern of gatePatterns) {
-    for (const changedPath of [gatePattern, `${gatePattern}/nested-change.ts`]) {
-      const input = planInput({
-        readers: { changedFileStatuses: statusReader({ [changedPath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
-      });
-      const result = resolveValidationTierPlan({
-        input,
-        requestedTier: 'story-fast',
-        impactIndex: {
-          schema: VALIDATION_IMPACT_INDEX_SCHEMA,
-          version: 'all-l4-consumer-gates-v1',
-          commandSetDigest: input.executionInventory.commandSetDigest,
-          entries: [
-            { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [changedPath], coverage: 'complete' },
-            { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
-          ],
-        },
-      });
-      assert.equal(result.status, 'plan', changedPath);
-      if (result.status !== 'plan') continue;
-      assert.equal(result.effectiveTier, 'repository-full', `L4 consumer-gate path must force full: ${changedPath}`);
-      assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), changedPath);
-    }
+    const result = planForPath(gatePattern);
+    assert.equal(result.status, 'plan', gatePattern);
+    if (result.status !== 'plan') continue;
+    assert.equal(result.effectiveTier, 'repository-full', `L4 path must force full: ${gatePattern}`);
+    assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), gatePattern);
+  }
+
+  for (const unrelatedPath of [
+    'packages/main/src/core/certification-window.ts.bak',
+    'packages/module-a/src/unrelated.ts',
+  ]) {
+    const result = planForPath(unrelatedPath);
+    assert.equal(result.status, 'plan', unrelatedPath);
+    if (result.status !== 'plan') continue;
+    assert.equal(result.effectiveTier, 'story-fast', `unrelated path must remain fast: ${unrelatedPath}`);
+    assert.ok(!reasonCodes(result).includes('validation_framework_sensitive_change'), unrelatedPath);
   }
 });
 
