@@ -322,3 +322,13 @@ for (const flags of [[], ['--head-continuity']]) {
  assert(output.includes('ROUTE_RESTORATION_PORT PASS'), 'ROUTE_DIRECTION_REQUIRED native restoration port controls executed');
 }
 ```
+
+## Second audit recovery: registered mutation coverage
+
+Audit `a0679828-9973-48b5-8e46-d8bc7c5f3bc5` is also retained. It correctly identified that the newly added mutation block needed suite reachability. The block now lives in `scripts/route-reader-wiring-controls.mjs`, imported and executed both by the durable Lab driver and by the existing registered `scripts/verify-route-reattestation-dependency-direction.mjs`. The latter retains its original native child loop unchanged, avoiding duplicate native executions. Its full changed file is now part of the audit snapshot. The driver mechanically checks its real import and top-level invocation before executing the shared controls; a committed registration regression recorded RED before that import/call was added.
+
+The audit's statement that the earlier loose-guard RED existed only in an uncommitted intermediate state is incorrect: commit `cec884ccde` contains the durable driver and the then-loose callback, and the official target RED was recorded at that commit. To make this inspectable without access to prior commits, the shared helper embeds that exact callback as a bounded historical fixture. A single current run proves the fixture passes on real sources and accepts each of the three exact mutations, while the live extracted callback rejects each. The fixture grants no production exception and cannot substitute for the live checks.
+
+Historical source SHA-256: `705465caf93805e1a743df5b20dfe69925c9316f04b5432325e46e0f880f0b96`; extracted callback SHA-256: `61cf1669c978057f402b22de271bb7e700c6b70efb8fbb862b55d9760db2e090`. Extraction covers the callback argument for `REATTEST-gate-consumes-verified-closure` in `packages/main/tests/red/red-dynamic-finding-four-gaps.mjs` at `cec884ccde`.
+
+The four-gaps comment now explicitly limits these guards to direct specifiers. They do not prove arbitrary barrel, transitive, createRequire or computed-import behavior. The canonical dependency checker and native tests remain separate coverage with their existing bounds; no new universal dependency-graph claim is made.

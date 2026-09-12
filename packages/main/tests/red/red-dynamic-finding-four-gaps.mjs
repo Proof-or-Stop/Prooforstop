@@ -26,7 +26,8 @@ check('RECALL-L4-expiry-has-typed-trigger', () => {
     route: { storyId: 'B-target', recordId: 'route', recordHash: 'a'.repeat(64) },
     trigger: 'deferral_invalidated', deferral: { storyId: 'B-test', recordId: 'deferral', recordHash: 'b'.repeat(64) } }).success, true);
 });
-// Wiring guards accompany, but do not replace, the executable integration suites.
+// These direct-specifier wiring guards accompany the canonical dependency checker
+// and native integration suite; they do not prove arbitrary transitive or computed imports.
 check('REATTEST-gate-consumes-verified-closure', () => {
   assert.match(source('core/finding-applicability-projection.ts'), /readMaterialDriftReattestation\(/);
   assert.match(source('registry.ts'), /createFindingRouteHandlers\(ctx, readRouteSourceRestoration\)/);
