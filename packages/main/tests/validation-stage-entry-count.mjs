@@ -46,10 +46,23 @@ try{
  if(process.env.LAB_SAFETY_MODE){
   const mode=process.env.LAB_SAFETY_MODE;const ac=new AbortController();const options={abortSignal:ac.signal};const failure=new Error('AFTER_ADMISSION_'+mode);
   inject=()=>{if(mode==='abort')ac.abort(failure);else {options.deadlineAt=Date.now()-1;options.deadlineError=()=>failure;}};
-  let caught;
-  try{await withOfficialValidationExecution({root,workspaceRoot:root,command:'entry-count',commandStages:true},()=>runValidationCommand(command,root,5000,options));}catch(e){caught=e;}
-  console.log('PRESPAWN_LEDGER='+JSON.stringify({mode,childStarts,error:caught?.message}));
-  assert.equal(childStarts,0,'CANCELLED_OR_EXPIRED_COMMAND_MUST_NOT_SPAWN');assert.equal(caught,failure);
+  let caught, result;
+  try{result=await withOfficialValidationExecution({root,workspaceRoot:root,command:'entry-count',commandStages:true},()=>runValidationCommand(command,root,5000,options));}catch(e){caught=e;}
+  console.log('PRESPAWN_LEDGER='+JSON.stringify({mode,childStarts,error:caught?.message,result}));
+  assert.equal(childStarts,0,'CANCELLED_OR_EXPIRED_COMMAND_MUST_NOT_SPAWN');
+  if(mode==='abort'){
+   // Cancellation before capture uses the public command-result API; the
+   // supplied deadline-error callback remains an exception in the other arm.
+   assert.equal(caught,undefined);
+   assert.equal(result.code,124);
+   assert.equal(result.timedOut,true);
+   assert.equal(result.failureKind,'infra_failure');
+   assert.equal(result.effectiveTimeoutMs,0);
+   assert.equal(result.output,'aborted before child launch');
+  }else{
+   assert.equal(result,undefined);
+   assert.equal(caught,failure);
+  }
   console.log('PRESPAWN_GREEN');
  }else{
  const start=performance.now();
