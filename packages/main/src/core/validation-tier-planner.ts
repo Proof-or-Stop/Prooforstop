@@ -39,7 +39,7 @@ import {
 } from './validation-relevance-input.js';
 import type { RoutineValidationSourceKind } from './validation-types.js';
 import { digestCanonicalJson } from './digest.js';
-import { collectL4ProcessFactPaths } from './process-fact-registry.js';
+import { collectRepositoryFullProcessFactPaths } from './process-fact-registry.js';
 
 export const VALIDATION_TIER_PLAN_SCHEMA = 'proofOrStop.validation-tier-plan.v1' as const;
 
@@ -242,15 +242,15 @@ const VALIDATION_SENSITIVE_PATH_PATTERNS = [
 ] as const;
 
 /**
- * Every L4 process fact is validation-sensitive by definition. Derive its
- * governed path patterns from the canonical process-fact registry so a new
- * gate (including Dynamic Finding) cannot be labelled fast merely because this
- * planner's older path list did not know its file name yet. These declarations
+ * Process facts may explicitly set a repository-full validation floor for
+ * their governed path patterns. Dynamic Finding uses that contract so its gate
+ * implementation cannot be labelled fast, without treating every unrelated
+ * L4 producer/consumer reference as validation framework code. Declarations
  * use the same exact, directory-prefix and glob semantics as the other
  * sensitivity patterns.
  */
-const REGISTERED_L4_CONSUMER_GATE_PATTERNS = [...new Set(
-  collectL4ProcessFactPaths()
+const REGISTERED_REPOSITORY_FULL_FACT_PATTERNS = [...new Set(
+  collectRepositoryFullProcessFactPaths()
     .map(normalizedPath)
     .filter(Boolean),
 )];
@@ -278,7 +278,7 @@ function classifySensitiveStoryPaths(paths: readonly string[]): ValidationWideni
     const validationNamedSource = normalized.startsWith('packages/main/src/') && basename.includes('validat');
     if (
       validationNamedSource
-      || REGISTERED_L4_CONSUMER_GATE_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
+      || REGISTERED_REPOSITORY_FULL_FACT_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
       || VALIDATION_SENSITIVE_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
     ) {
       reasons.add('validation_framework_sensitive_change');

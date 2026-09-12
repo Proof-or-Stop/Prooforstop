@@ -85,6 +85,8 @@ export interface ProcessFactRegistryEntry {
   kind: ProcessFactKind;
   semantics: readonly ProcessFactSemantic[];
   level: ProcessFactLevel;
+  /** Validation tier floor for changes to this fact's explicitly governed paths. */
+  validationTierFloor?: 'repository-full';
   lifecycle?: CommandLifecycleStatus;
   allowedPhases?: readonly CommandPhase[] | 'all';
   rootOnly?: boolean;
@@ -1556,7 +1558,7 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
   return {
     name: entry.name,
-    ...(entry.name === 'runtime:dynamic_finding_applicability_gate' ? {paths: [
+    ...(entry.name === 'runtime:dynamic_finding_applicability_gate' ? {validationTierFloor: 'repository-full' as const, paths: [
       'packages/main/src/core/finding-applicability.ts',
       'packages/main/src/core/finding-applicability-projection.ts',
       'packages/main/src/handlers/transition-orchestrator.ts',
@@ -2539,17 +2541,17 @@ export function getProcessFactRegistryEntry(name: string): ProcessFactRegistryEn
 }
 
 /**
- * Return the unique governed paths declared by L4 process facts. Accept an
- * unknown-shaped list so a consumer cannot crash while projecting a stale or
- * independently decoded registry snapshot; malformed entries contribute no
- * validation authority.
+ * Return paths whose process-fact declaration explicitly requires full
+ * repository validation. Accept an unknown-shaped list so a consumer cannot
+ * crash while projecting a stale or independently decoded registry snapshot;
+ * malformed entries contribute no validation authority.
  */
-export function collectL4ProcessFactPaths(entries: readonly unknown[] = PROCESS_FACT_REGISTRY): string[] {
+export function collectRepositoryFullProcessFactPaths(entries: readonly unknown[] = PROCESS_FACT_REGISTRY): string[] {
   const paths = new Set<string>();
   for (const candidate of entries) {
     if (!candidate || typeof candidate !== 'object') continue;
-    const entry = candidate as { level?: unknown; paths?: unknown };
-    if (entry.level !== 'L4' || !Array.isArray(entry.paths)) continue;
+    const entry = candidate as { level?: unknown; validationTierFloor?: unknown; paths?: unknown };
+    if (entry.level !== 'L4' || entry.validationTierFloor !== 'repository-full' || !Array.isArray(entry.paths)) continue;
     for (const path of entry.paths) {
       if (typeof path === 'string' && path.trim() !== '') paths.add(path);
     }

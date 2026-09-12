@@ -186,9 +186,8 @@ import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 import { getCommandPolicy } from '../core/command-policy.js';
 import {
-  collectL4ProcessFactPaths,
+  collectRepositoryFullProcessFactPaths,
   getProcessFactRegistryEntry,
-  PROCESS_FACT_REGISTRY,
 } from '../core/process-fact-registry.js';
 import {
   describeRedGreenViolations,
@@ -2346,6 +2345,7 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
   assert.equal(gateFact.level, 'L4');
   assert.equal(gateFact.kind, 'runtime-behavior');
   assert.ok(gateFact.consumerGate?.trim(), 'Dynamic Finding L4 gate process fact must name its consumer gate');
+  assert.equal(gateFact.validationTierFloor, 'repository-full');
   assert.ok(gateFact.paths.length > 0, 'Dynamic Finding L4 gate process fact must declare governed paths');
   assert.ok(
     gateFact.paths.includes('packages/main/src/core/certification-window.ts'),
@@ -2380,25 +2380,23 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
   }
 });
 
-testCase('every registered L4 path forces repository-full without prefix overmatching', () => {
-  const l4Facts = PROCESS_FACT_REGISTRY.filter((entry) => entry.level === 'L4');
-  assert.ok(l4Facts.length > 0, 'the process-fact registry must declare at least one L4 fact');
-  assert.equal(
-    l4Facts.filter((entry) => !entry.consumerGate?.trim()).length,
-    0,
-    'every L4 process fact must name its consumer gate',
-  );
-  const gatePatterns = collectL4ProcessFactPaths();
-  assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one L4 governed path');
+testCase('explicit repository-full process-fact paths force full without overmatching unrelated L4 code', () => {
+  const gatePatterns = collectRepositoryFullProcessFactPaths();
+  assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one repository-full path');
   assert.deepEqual(
-    collectL4ProcessFactPaths([
+    collectRepositoryFullProcessFactPaths([
       null,
       { level: 'L4' },
-      { level: 'L4', paths: 'not-an-array' },
-      { level: 'L3', paths: ['ignored.ts'] },
-      { level: 'L4', paths: [null, '', 'packages/main/src/core/valid-l4-path.ts'] },
+      { level: 'L4', validationTierFloor: 'repository-full', paths: 'not-an-array' },
+      { level: 'L3', validationTierFloor: 'repository-full', paths: ['ignored-level.ts'] },
+      { level: 'L4', validationTierFloor: 'story-fast', paths: ['ignored-floor.ts'] },
+      {
+        level: 'L4',
+        validationTierFloor: 'repository-full',
+        paths: [null, '', 'packages/main/src/core/valid-full-path.ts'],
+      },
     ]),
-    ['packages/main/src/core/valid-l4-path.ts'],
+    ['packages/main/src/core/valid-full-path.ts'],
     'malformed independently decoded registry entries must not crash or contribute authority',
   );
 
@@ -2411,7 +2409,7 @@ testCase('every registered L4 path forces repository-full without prefix overmat
       requestedTier: 'story-fast',
       impactIndex: {
         schema: VALIDATION_IMPACT_INDEX_SCHEMA,
-        version: 'all-l4-process-facts-v1',
+        version: 'repository-full-process-facts-v1',
         commandSetDigest: input.executionInventory.commandSetDigest,
         entries: [
           { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [changedPath], coverage: 'complete' },
@@ -2425,12 +2423,13 @@ testCase('every registered L4 path forces repository-full without prefix overmat
     const result = planForPath(gatePattern);
     assert.equal(result.status, 'plan', gatePattern);
     if (result.status !== 'plan') continue;
-    assert.equal(result.effectiveTier, 'repository-full', `L4 path must force full: ${gatePattern}`);
+    assert.equal(result.effectiveTier, 'repository-full', `declared full path must force full: ${gatePattern}`);
     assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), gatePattern);
   }
 
   for (const unrelatedPath of [
     'packages/main/src/core/certification-window.ts.bak',
+    'packages/main/src/core/convergence-progress-gate.ts',
     'packages/module-a/src/unrelated.ts',
   ]) {
     const result = planForPath(unrelatedPath);
