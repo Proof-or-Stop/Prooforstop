@@ -8,13 +8,7 @@ import { writeBuildBinding, writeUtilsBuildBinding, BUILD_MANIFEST } from './ful
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const api=await import('./verification-subprocess-budget.mjs');
 api.prepareVerification(repo);
-// Replay the existing production call order when testing the RED implementation:
-// one real verificationSpawner handles ensure-dist and all subsequent children.
-const prepare=api.prepareVerification??((root,options)=>{
-  const run=api.verificationSpawner(options.bodyBudgetMs);
-  const built=run(process.execPath,[join(root,'scripts/ensure-dist.mjs')],{cwd:root,encoding:'utf8',timeout:options.buildTimeoutMs});
-  assert.equal(built.status,0);return run;
-});
+const prepare=api.prepareVerification;
 const temp=mkdtempSync(join(tmpdir(),'audit-budget-control-')),groups=[];
 const check=async(id,fn)=>{try{await fn();groups.push({id,pass:true});}catch(error){groups.push({id,pass:false,error:error.message});}};
 try{

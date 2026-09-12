@@ -81,3 +81,15 @@ After synchronizing main 0.3.341, the actual merged candidate 448978938c passed
 the same full commands in 77.450 s (process) and 25.587 s (runtime). This separate
 operational check includes main's new snapshot-binding regression and is not
 folded into the earlier same-base pair.
+
+The queue dashboard preserves exhausted or unavailable worktree observations as
+non-green; neither an unknown worktree nor an empty projection can become a ready
+queue summary. This changes diagnostic readiness only, without authorizing writes.
+Refresh-only Story writers retain takeover help scoped explicitly to --refresh;
+shared doctor/check repairs do not advertise Story-owner takeover.
+
+The preview proof observes actual child-process argv and snapshots all isolated
+project files and directories except Git internals, separately captured Story files,
+and permitted activity telemetry. Capability-release, learning and worktree paths
+are included. Wrapper regressions cover both version mismatch and invalid metadata,
+while a missing-dist negative retains ordinary bootstrap recovery guidance.

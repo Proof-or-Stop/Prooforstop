@@ -72,6 +72,7 @@ function consumptionStatusFor(summary: ReturnType<typeof projectAdmissibilityWat
 }
 
 function queueStatusFor(classification: string): ControlPlaneStatusLevel {
+  if (classification === 'unknown-worktree') return 'unknown';
   if (classification === 'cleanup-required' || classification === 'duplicate-candidate' || classification === 'superseded') return 'red';
   if (classification === 'stale-worktree' || classification === 'main-init') return 'yellow';
   return 'green';
@@ -169,7 +170,7 @@ export function buildGlobalControlStatus(
       source: 'runtime-projection',
     },
     queueSummary: {
-      classification: queueAggregate === 'red' ? 'blocked' : queueAggregate === 'yellow' ? 'waiting-on-story' : 'ready',
+      classification: queueAggregate === 'red' ? 'blocked' : queueAggregate === 'green' ? 'ready' : 'waiting-on-story',
       size: queue.rows.length,
     },
   });

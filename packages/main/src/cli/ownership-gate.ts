@@ -36,11 +36,15 @@ export type ExternalCommandOwnershipClasses = Readonly<Record<string, OwnershipC
 export function ownerLeaseHelpBlock(cmd: string): string | null {
   const policy = getCommandPolicy(cmd);
   if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
-  const cls = policy.ownershipClass;
+  const refreshWriter = policy.storyWriteEffect === 'whenRefresh' &&
+    resolveEffectiveOwnershipClass(cmd, { refresh: true }, null) === 'storyScopedMutating';
+  const cls = refreshWriter ? 'storyScopedMutating' : policy.ownershipClass;
   if (cls === 'readOnly' || cls === 'reviewerWrite' || cls === 'mainSharedMutating') return null;
   const note = cmd === 'validate'
     ? ' (applies when --story is supplied; diagnostic validate without --story is always read-only)'
-    : '';
+    : refreshWriter
+      ? ' (applies when --refresh is supplied; default status remains read-only)'
+      : '';
   return [
     ``,
     `  Owner lease meta options${note}:`,
