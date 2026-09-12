@@ -70,17 +70,19 @@ assert.equal(declarations.size, witnessNames.length);
 const witnessTables = runInNewContext(witnessNames.map(name => `const ${name} = ${declarations.get(name)};`).join('\n')
   + '\n[BOTH_FAMILY_CONTEXT_WITNESSES, REVIEWED_NEGATIVE_SOURCE_INTEGRITY]', {}, { timeout: 1000 });
 const sharedPath = 'packages/main/src/core/runtime-environment-checks.ts';
-function checkSharedWitnesses(tables) {
-  for (const table of tables) {
-    const matches = table.filter(pin => pin.path === sharedPath);
-    assert.equal(matches.length, 1, 'REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH');
-    assert.equal(matches[0].sha256, sha(read(sharedPath)), 'REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH');
-  }
-}
-checkSharedWitnesses(witnessTables);
 const sharedPaths = [...new Set(witnessTables[0].map(pin => pin.path))]
   .filter(path => witnessTables[1].some(pin => pin.path === path));
 assert.ok(sharedPaths.includes(sharedPath), 'reviewed runtime source must retain both consumers');
+function checkSharedWitnesses(tables) {
+  for (const path of sharedPaths) {
+    for (const table of tables) {
+      const matches = table.filter(pin => pin.path === path);
+      assert.equal(matches.length, 1, 'REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH');
+      assert.equal(matches[0].sha256, sha(read(path)), 'REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH');
+    }
+  }
+}
+checkSharedWitnesses(witnessTables);
 for (const path of sharedPaths) {
   for (const tableIndex of [0, 1]) {
     for (const mutation of ['remove', 'stale', 'duplicate']) {
@@ -94,7 +96,7 @@ for (const path of sharedPaths) {
     }
   }
 }
-console.log('PASS shared source witness closure: both actual scanner tables and four omission/stale controls');
+console.log(`PASS shared source witness closure: ${sharedPaths.length} shared paths; ${sharedPaths.length * 6} omission/stale/duplicate controls`);
 
 const rows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries;
 // Reconstruct the exact historical/current string literal using the unchanged
