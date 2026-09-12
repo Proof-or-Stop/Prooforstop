@@ -2,6 +2,10 @@
 
 ## Scope and anchors
 
+The original repair below records its 0.3.323 baseline. The final integration
+refresh against 0.3.330 is documented at the end; original counts and commands
+are historical evidence, not an assertion of current-main freshness.
+
 This bounded maintenance Lab starts from local main
 `a7b2194acce4dfea6986954fc25f81a0b2d39e68` (0.3.323). It repairs four stale
 source inventory bindings without changing product source, Story state, identity
@@ -136,3 +140,50 @@ reader consumer returned four source plus ten fixture errors; in Lab it returned
 only the same ten fixture errors. Scanner self-inventory checks returned no
 errors on either tree. This corroborates the three-level binding repair without
 concealing the unrelated fixture baseline or rewriting its pins.
+
+## Latest-main integration refresh (2026-09-12)
+
+The operator authorized local integration, patch release, and eventual approved
+main publication. Fetch confirmed local main
+`f958df46a2f6129504a661fc92ebcb31a949ac9b` (0.3.330) contains origin/main
+(0.3.320); local main was 85 commits ahead and zero behind. The official Lab
+sync merged that local baseline at `b7bbaa02de`. No other active Lab was imported.
+
+The unchanged targeted command reproduced two remaining failures after sync:
+`process-fact-levels.ts:496` and `runtime-fact-registry.ts:473`. This RED is
+recorded against the synchronized committed tree. Untouched main has five
+source-row failures; three earlier repairs still matched its bytes, one earlier
+target drifted again, and one new source row drifted.
+
+The complete two-file diff from the original base was inspected. Process facts
+changed only the repository-default baseline rationale, describing the already
+merged local-ahead linked-worktree preference. Its classified target at line
+496 and occurrence count are unchanged, so only the whole-file digest changes.
+Runtime facts added mandatory independent vendor audit settings and schema-3
+Lab policy. The existing environment-marker line is byte-identical and moves
+473 -> 479, with its occurrence count unchanged. Its file digest and line
+position are renewed without altering classification or allowing new tokens.
+
+Relative to 0.3.330 main, exactly five of the existing 54 source rows now have
+reviewed binding updates. The data digest, reader digest and outer scanner
+witness remain coupled. No product source is changed by this integration repair;
+the later official release helper owns only the ordinary version changes.
+
+The same focused test reports zero source binding errors, all three reader
+bindings current, 54 exact positives, 324 observed mutation refusals and 52
+empty/missing controls. The amendment prompt/parser shape regression also
+passes unchanged. These controls retain the evidence limitations recorded above.
+
+The current unrelated fixture baseline is now eleven entries over three files:
+the prior ten plus `packages/main/src/tasks/finding-identity-lineage-smoke.ts:139`.
+These bindings remain out of scope and unchanged; this repair does not claim
+full identity-suite success. The earlier ten-entry baseline is retained above
+as an explicitly dated historical comparison, not rewritten as if it included
+the later change.
+
+The earlier direct Claude audit is historical supporting evidence only. Current
+Lab policy additionally requires a fresh tool-owned different-vendor audit of
+the prepared release candidate. Official finish must capture that audit before
+local integration; failed or stale audit evidence cannot be reused as approval.
+Remote push separately requires the human-created one-shot approval bound to
+the final main SHA. No old approval or Story lifecycle result substitutes for it.
