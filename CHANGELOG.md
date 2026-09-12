@@ -1,19 +1,5 @@
 # Changelog
 
-## Lab identity-site-receipt-closure - v0.3.348 - 2026-09-12
-
-The canonical identity-sites and runtime fixture groups failed on local main 0.3.347 after earlier integrations changed production context without updating exact fixture expectations. The repair reconciles three owned identity-site pins, seven imported-use pins, and one unchanged-count scheduler resource classification against recovered historical source and the reviewed current callsites. It also supplies story_reconcile dryRun:false for the existing required-writer assertion and covers both default and explicit dryRun:true as observations. No production source, operation ownership, site ID, acceptance boundary, or mutation refusal is removed or relaxed.
-
-The regression commit adds real source mutations for a same-count signer-directory move, additional owned identity/config uses, and additional actual imported-binding uses in each reconciled import consumer. Historical source provenance and semantic review are recorded in docs/lab-identity-context-reconciliation.md. The unchanged historical fixture assertion is reanchored with its exact bytes and source hash; the fixture inventory reader, checker fingerprint and static exceptions propagate those reviewed dependencies with preserved call digests, classifications, invocations and every manifest row, including repeated IDs.
-
-The official Lab RED command runs both original groups and reproduced the signer-context/count failure plus the story_reconcile default-mode mismatch. RED took 193.999 seconds. The focused identity-sites group passed 17.479 seconds with source/emitted totality and existing plus new mutation controls; the production static scanner passed 1.265 seconds. Official GREEN and finish rerun the same two-group command on the committed candidate and integrated main. These are local maintenance checks, not formal Story DONE or product-release evidence. No performance improvement is claimed.
-
-Scope boundary: an additional identity scanner --self-test probe fails on BOTH unchanged main 347 and the Lab at the same 'both-family exact contexts or witnesses are not current' assertion (main 0.223 seconds, candidate 0.215 seconds). This is a separate pre-existing identity-context issue being repaired in Story B-e6d9; this Lab does not claim global identity-cutover success or silently expand into that work. The independent Claude audit must assess this bounded fixture repair and its preserved negative controls. No remote push is authorized or performed by this Lab.
-
-Maintenance provenance: codex/lab-identity-site-receipt-closure, repair 0d0583e9831389c22ada36e0c0fde1d0f6d58d77.
-Verification command (replayed before integration and on main): `["node","--input-type=module","-e","import { spawnSync } from \"node:child_process\"; let failed = false; for (const group of [\"identity-sites\", \"runtime\"]) { const r = spawnSync(process.execPath, [\"packages/main/tests/canonical-new-story-artifacts.test.mjs\", --group=${group}], { stdio: \"inherit\" }); if (r.error || r.signal || r.status !== 0) failed = true; } process.exit(failed ? 1 : 0);"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab cli-runtime-sync-20260911 - v0.3.347 - 2026-09-12
 
 Repair CLI runtime identity, argument-aware observation, and bounded queue diagnostics through the existing Lab maintenance workflow.
