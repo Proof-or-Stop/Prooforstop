@@ -1,27 +1,5 @@
 # Changelog
 
-## Lab route-reader-regression - v0.3.350 - 2026-09-12
-
-The four-gaps regression expected the Story2 route handler to call the Story1 material restoration reader directly after an authorized dependency-direction repair moved that relationship into registry composition. Its wiring assertions now retain the projection-reader requirement and verify the actual registry-to-adapter-to-route port chain. Production dependency boundaries are unchanged.
-
-The native public-injection fixture previously passed an entire internal proof while expecting the later unknown-property diagnostic. B-e6d9 can legitimately add sourceCoverage:null to that internal signed record, so public input validation correctly refuses null before schema validation. Original main native controls pass; the committed regression models the observed candidate condition by cloning only the attempted negative public input with that nullable field. It does not modify the signed proof used for normal route verification. The repair separately checks null-containing public input refusal and validates a plain-JSON payload before retaining the exact unknown-property refusal assertion.
-
-The historical Lab command recorded stale wiring plus modeled nullable negative-input failures as target RED. The current durable pinned command runs the actual four-gaps callback against three dependency mutations, the four-gaps test itself, and both native route-restoration modes. Its new target RED proves the loose guards miss those mutations; GREEN requires their rejection and all original native passing selectors. Missing/undefined/boolean/tampered/wrong-root proof and current-reviewer, route/history/progress controls remain. Static exception dependency hashes change only at eight preimage-verified source bindings; all row identities, duplicates, excerpts, other fields and formatting are preserved.
-
-Local Lab evidence is not formal Story DONE or signed product-release evidence. No remote push is performed.
-
-The audit snapshot includes docs/audits/route-reader-regression-provenance.md with bounded immutable source excerpts for unchanged registry composition, strict default, signed reader, projection consumption and public JSON/schema validation. Each excerpt has its source commit, full-file SHA-256, Git blob, line range and excerpt SHA-256. Historical B-e6d9 nullable-field context is explicitly separate from the main baseline; original main native PASS is not described as a production regression. These developer-provided excerpts are audit context, not independent evidence.
-
-The first vendor audit rejection is preserved. Recovery uses a committed durable replay script, strengthens adapter/import wiring guards, and adds three mutations executed against the actual four-gaps callback. Existing suite registration already executes both native modes; provenance now includes that exact registration and invocation, avoiding duplicate suite work. The historical nullable condition is modeled candidate-shape RED; the new durable command records wiring-mutation RED and retains all native GREEN controls. Release version changes are tool-generated separately from the unchanged controlling production dependencies.
-
-Second audit recovery registers the shared mutation helper through the existing dependency-direction suite, without duplicating its native runs. The committed durable driver enforces that registration; official registration RED precedes the fix. The helper embeds the exact committed cec884ccde loose callback and demonstrates its mutation acceptance alongside current rejection in one run. The wiring comment explicitly limits direct-specifier coverage. Both rejected audits remain preserved.
-
-Third audit recovery adds the existing build prerequisite with verified main/utils source-output bindings before compiled children, moves registration checks into the already registered dependency-direction suite, and caches four source reads outside VM budgets. The driver remains the durable local Lab replay; no extra suite/native invocation is added. Setup failures are unavailable proof, never target RED or GREEN. All three rejected audits remain preserved.
-
-Maintenance provenance: codex/lab-route-reader-regression, repair f39567444e9e6c66eb7dedec492a1f2a81ff4605.
-Verification command (replayed before integration and on main): `["node","scripts/verify-route-reader-regression.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab dynamic-finding-validation-tier-boundary - v0.3.349 - 2026-09-12
 
 ### Problem
