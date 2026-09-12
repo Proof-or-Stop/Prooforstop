@@ -27,6 +27,16 @@ const refreshedRows = JSON.parse(read('scripts/identity-reviewed-source-data.jso
 assert.equal(refreshedRows.length, 6, 'exact six reviewed main contexts required');
 assert.equal(sha(JSON.stringify(refreshedRows)), '9e4bfc94c6066c7cfe7e66e5317a54eb44923d7980fc74fbc1996c950067435f',
   'reviewed main context text, token counts, classification and reason must remain exact');
+// Every protected field in every refreshed row remains part of the digest.
+for (const [index, row] of refreshedRows.entries()) {
+  for (const field of ['token', 'tokenOccurrences', 'classification', 'reason', 'lineSha256']) {
+    const mutated = structuredClone(refreshedRows);
+    mutated[index][field] = typeof row[field] === 'number' ? row[field] + 1 : row[field] + ' changed';
+    assert.notEqual(sha(JSON.stringify(mutated)), '9e4bfc94c6066c7cfe7e66e5317a54eb44923d7980fc74fbc1996c950067435f',
+      `reviewed context mutation must refuse: ${index}:${field}`);
+  }
+}
+console.log('PASS reviewed context digest: all six rows reject token/count/classification/reason/line-hash mutations');
 const errors = validateReviewedSourceSources(read);
 console.log(JSON.stringify({ reviewedSourceBindingFailures: errors.length, errors }));
 assert.deepEqual(errors, [], 'REVIEWED_SOURCE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
