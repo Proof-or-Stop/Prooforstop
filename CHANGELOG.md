@@ -1,5 +1,62 @@
 # Changelog
 
+## Lab review-finalization-lineage - v0.3.346 - 2026-09-12
+
+Restore managed review continuity after official inventory finalization.
+
+B-0980 exposed rejection of canonical signed inventory batch publications and
+same-coverage verification refreshes. The critic consumer also rebuilt an
+OPEN-only launch prompt after FINALIZED. The bounded repair shares strict
+maintenance lineage across managed review, certification and scoped retention,
+and consumes the immutable authenticated launch digest.
+
+Preserve the complete intent/kind/result multiset and consume prior evidence
+one to one. Both old and new execution records require V5 authority. Generic
+checklist receipts cannot grant this privilege: only byte-bound strict refresh
+classification can. Prior epoch, receipt and finding-ledger history cannot be
+erased; convergence historical arrays retain their prefixes. The same owner
+session and workspace may refresh or reacquire a lease; foreign ownership and
+malformed telemetry are refused. Validation still needs its own exact causal
+receipt chain and REVIEW-to-TEST permits only the original-round index delta.
+
+Pure refresh, TEST-index and metadata-surface modules remove the newly added
+direct import cycles. Malformed inventory reads return structured invalid
+review evidence; unexpected maintenance reads report diagnostics and refuse.
+
+The fixed regression exercises real CLI evidence execution, a composite-scope
+managed reviewer receipt, inventory finalization, cheap and routine validation,
+and actual TEST transition. Negative controls cover seals, result/coverage
+changes, duplicate references, history erasure, receipt chain/parent/count,
+foreign owner identity, forged telemetry and precise index corruption. Its
+managed test transport is synthetic; the independent Lab audit invokes actual
+Claude CLI. No production provider capacity or deadline is weakened.
+
+The process-fact contract passed. Official GREEN and the prepared-candidate
+replay results are recorded by the Lab tool with their exact HEAD and duration.
+Release preparation adds the version/CHANGELOG commit (including the CLI version
+constant), not another behavior repair. The tool replays the exact pinned
+command on that prepared HEAD before invoking Claude; history kind
+candidate-green binds that run. This note cannot self-reference its future
+commit hash. See docs/audits/review-finalization-lineage.md for dependency
+context and the substantive repairs following four rejected audits.
+
+Baseline limitations: the broader managed-review smoke and closeout-trust
+writer assertion also failed on contemporaneous main. Full-suite success is
+not claimed. The closeout oracle is routed through the official draft
+closeout-trust-validate-writer-oracle (main commit 862001802d), because gap_log
+refused its existing invalid_binding_shape provenance chain. The bounded
+regression directly verifies the changed strict-refresh trust boundary.
+
+These are Lab diagnostic and integration records, not benchmark performance
+measurements, formal Story DONE, independent Story quorum or release approval.
+The regression gained counterexamples between RED and GREEN; elapsed times do
+not represent equivalent-workload speedup. Development token totals remain
+unknown; provider-reported audit usage is recorded separately.
+
+Maintenance provenance: codex/lab-review-finalization-lineage, repair 4fdcdce657db29d6a595faaaa7783bff3dc8c598.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab evidence-fixture-contracts - v0.3.345 - 2026-09-12
 
 Reject stale static-exception evidence mechanically: current excerpts must match source hashes, inclusive ranges and registered call coverage. Historical or narrative evidence cannot authorize current exceptions. Reconcile all 258 manifest entries and the 168-command registry against reviewed local-main source without weakening exception classifications.
