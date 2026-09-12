@@ -154,7 +154,9 @@ assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(450000),1000),360000);
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675000),1000),540000);
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(200000),1000),160000);
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675000,101000),1000),70000);
-assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(675001),1000),/Invalid/);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675001),1000),540000);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(900000,101000),1000),70000,'over-cap clamp still honors the original remaining deadline');
+for (const value of [0,-1,null,'675000']) assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(value),1000),/Invalid/);
 assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(450000,1000),1000),/exhausted/);
 assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(450000,451000,'other'),1000),/Invalid/);
 assert.throws(()=>reviewEpochFixtureBudgetMs({PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET:'bad'},1000));
@@ -434,7 +436,7 @@ try {
  cli(fixture.root,'candidate_spec_route',{storyId,hosts:false,persist:true},env('main','saturation-owner'));
  cli(fixture.root,'review_inventory_begin',{storyId},env('main','saturation-owner'));
  const twoEpoch=fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1);
- const critics=[],transports=[];let observedFinding;
+ const critics=[],nativeCritics=[],transports=[];let observedFinding;
  for(const wave of [1,2]) {
   for(const [index,lane] of twoEpoch.requiredLanes.entries()) {
    const actor=env(lane,`two-wave-${wave}-${lane}`);
@@ -455,26 +457,48 @@ try {
    } else await runBrokeredNativeReviewCli({...common,command:'review_pass_set',payload:{storyId,agent:lane,reviewRunId,note:'Inspected the exact source and retained the existing numeric export observation without a new family.',readManifest,readEvents}});
   }
   const actor=`two-wave-${wave}-critic`,result=await recordManagedReviewer(twoEpoch.epochId,actor);critics.push(result.reviewRunId);transports.push(result.managedRunId);
+  const nativeActor=env(critic,`two-wave-${wave}-native-critic`);
+  const purpose={reviewPurpose:'inventory-completeness',inventoryEpochId:twoEpoch.epochId};
+  cli(fixture.root,'dispatch',{storyId,agentType:critic,...purpose},nativeActor);
+  const nativeStart=cli(fixture.root,'review_run_start',{storyId,agent:critic,...purpose},nativeActor);
+  const nativeRunId=nativeStart.match(/Review run (\S+) started/)?.[1];assert(nativeRunId,nativeStart);
+  await runBrokeredNativeReviewCli({root:fixture.root,store:fixture.store,storyId,agent:critic,reviewRunId:nativeRunId,
+   command:'review_pass_set',payload:{storyId,agent:critic,reviewRunId:nativeRunId,note:'Native critic inspected this inventory wave and retained its settled finding family.',readManifest,readEvents}});
+  nativeCritics.push(nativeRunId);
   const currentEpoch=fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1);
   const evaluation=evaluateReviewInventoryWave({promptStore:fixture.store,epoch:currentEpoch,runs:fixture.store.readReviewRuns(storyId).runs,passes:fixture.store.readReviewPasses(storyId).passes,findings:fixture.store.readFindings(storyId).findings,findingDispositions:[]});
   const findingDispositions=evaluation.rawFindingIds.map(findingId=>({findingId,disposition:'verified_family',familyKey:'retained-numeric-export',reason:'Independent critic retains the actual numeric export family.'}));
-  cli(fixture.root,'review_inventory_critic_set',{storyId,epochId:twoEpoch.epochId,reviewRunId:result.reviewRunId,agent:critic,findingDispositions},env(critic,actor));
+  cli(fixture.root,'review_inventory_critic_set',{storyId,epochId:twoEpoch.epochId,reviewRunId:nativeRunId,agent:critic,findingDispositions},nativeActor);
   cli(fixture.root,wave===1?'review_inventory_wave_advance':'review_inventory_finalize',{storyId},env('main','saturation-owner'));
  }
  const collected=collectReviewerEvidenceState(fixture.store,storyId,fixture.root);
  assert.equal(collected.invalid.length,0,JSON.stringify(collected.invalid));
  assert(collected.valid.some(row=>row.reviewRunId===critics[1]),'terminal managed critic remains valid');
  assert(!collected.valid.some(row=>row.reviewRunId===critics[0]),'earlier critic is superseded, not current authority');
+ assert(collected.valid.some(row=>row.reviewRunId===nativeCritics[1]),'terminal native critic remains valid');
+ assert(!collected.valid.some(row=>row.reviewRunId===nativeCritics[0]),'earlier native critic is superseded too');
  const oldSpecPath=join(managedHostRunDirectory(fixture.root,transports[0]),'spec.json');
  const oldSpecBytes=readFileSync(oldSpecPath,'utf8');
  try {
   const bad=JSON.parse(oldSpecBytes);delete bad.reviewBinding.managedPromptDigest;writeFileSync(oldSpecPath,JSON.stringify(bad));
   assert(collectReviewerEvidenceState(fixture.store,storyId,fixture.root).invalid.some(row=>row.code==='managed_receipt_invalid'),'newer valid PASS never hides an unauthenticated earlier receipt');
  } finally {writeFileSync(oldSpecPath,oldSpecBytes);}
+ const oldNative=fixture.store.readReviewPasses(storyId).passes.find(row=>row.reviewRunId===nativeCritics[0]);
+ assert(oldNative?.nativeEvidenceBinding,'the old critic must carry actual broker authority');
+ const {resolveCanonicalRuntimeProjectRoot}=await import('../packages/main/dist/core/runtime-artifact-registry.js');
+ const nativeConsumptionPath=join(resolveCanonicalRuntimeProjectRoot(fixture.root),'.proof-or-stop','runtime','native-review-invocations',oldNative.nativeEvidenceBinding.brokerId,oldNative.nativeEvidenceBinding.invocationNonce+'.json');
+ const nativeConsumptionBytes=readFileSync(nativeConsumptionPath);
+ try {
+  rmSync(nativeConsumptionPath);
+  assert(collectReviewerEvidenceState(fixture.store,storyId,fixture.root).invalid.some(row=>row.code==='review_execution_authority_missing'&&row.reviewRunId===nativeCritics[0]),'a newer record cannot hide missing native invocation consumption');
+ } finally {writeFileSync(nativeConsumptionPath,nativeConsumptionBytes);}
+ assert.equal(collectReviewerEvidenceState(fixture.store,storyId,fixture.root).invalid.length,0,'restored native consumption must recover the positive control');
  const saved=fixture.store.readReviewPasses(storyId);
- fixture.store.writeReviewPasses(storyId,{...saved,passes:saved.passes.filter(row=>row.reviewRunId!==critics[1])});
+ fixture.store.writeReviewPasses(storyId,{...saved,passes:saved.passes.filter(row=>![critics[1],nativeCritics[1]].includes(row.reviewRunId))});
  assert(collectReviewerEvidenceState(fixture.store,storyId,fixture.root).invalid.some(row=>row.code==='superseded_inventory_wave'),'missing replacement never promotes the earlier wave');
+ assert(collectReviewerEvidenceState(fixture.store,storyId,fixture.root).invalid.some(row=>row.code==='superseded_inventory_wave'&&row.reviewRunId===nativeCritics[0]),'native historical pass without replacement remains invalid');
  console.log('MANAGED_TWO_WAVE_COLLECTION_GREEN');
+ console.log('NATIVE_TWO_WAVE_COLLECTION_GREEN');
 } finally {fixture.root=originalFixture.root;fixture.store=originalFixture.store;rmSync(twoPrimary,{recursive:true,force:true});}
 
 const publicationBinding={gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:publishedHead,reviewedHeadHash:expected.headHash,reviewedMaterialHash:expected.materialHash,reviewedStoryFilesHash:expected.storyFilesHash};

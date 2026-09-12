@@ -129,7 +129,7 @@ const isolatedHeavy = (name: string, options: Omit<FullSuiteEntry, 'name' | 'res
 // Resource policy is intentionally separate from membership authority. Membership
 // comes only from test:serial-reference; a later reference member without a policy
 // fails closed before execution.
-const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
+export const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:full-suite-runner-smoke', {}, [
     { class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-fixed-sentinel'), access: 'exclusive' },
     { class: 'fixed-port', key: '43127', access: 'exclusive' },

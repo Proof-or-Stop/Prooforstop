@@ -15,9 +15,11 @@ export function reviewEpochFixtureBudgetMs(environment: NodeJS.ProcessEnv = proc
   if (raw === undefined) return epochBudget.standaloneMs;
   const value = JSON.parse(raw) as {entry?:unknown;timeoutMs?:unknown;deadlineAt?:unknown};
   if (value.entry !== epochBudget.entry || !Number.isFinite(value.timeoutMs) || !Number.isFinite(value.deadlineAt)
-    || Number(value.timeoutMs) <= 0 || Number(value.timeoutMs) > epochBudget.maxOuterMs) throw new Error('Invalid review epoch fixture outer budget');
-  const scaled = Math.min(epochBudget.maxConcurrentMs, epochBudget.standaloneMs * Number(value.timeoutMs) / epochBudget.outerStandaloneMs);
-  const remaining = Math.min(Number(value.timeoutMs), Number(value.deadlineAt) - now) - epochBudget.cleanupMarginMs;
+    || Number(value.timeoutMs) <= 0) throw new Error(`Invalid review epoch fixture outer budget for ${epochBudget.entry}`);
+  const outerMs = Math.min(Number(value.timeoutMs), epochBudget.maxOuterMs);
+  if (Number(value.timeoutMs) > epochBudget.maxOuterMs) process.stderr.write(`Review epoch fixture ${epochBudget.entry}: outer timeoutMs=${value.timeoutMs} exceeds REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.maxOuterMs=${epochBudget.maxOuterMs}; clamping watchdog input to ${outerMs} ms\n`);
+  const scaled = Math.min(epochBudget.maxConcurrentMs, epochBudget.standaloneMs * outerMs / epochBudget.outerStandaloneMs);
+  const remaining = Math.min(outerMs, Number(value.deadlineAt) - now) - epochBudget.cleanupMarginMs;
   const budget = Math.floor(Math.min(scaled, remaining));
   if (budget <= 0) throw new Error('Review epoch fixture outer deadline exhausted');
   return budget;

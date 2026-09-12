@@ -11522,3 +11522,6 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
+
+assert(readFileSync('packages/main/src/core/review-run.ts','utf8').indexOf('const inventorySubject = managedInventorySubjectState(store, run);') < readFileSync('packages/main/src/core/review-run.ts','utf8').indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding)"), 'inventory subject classification must precede both execution authority paths');
+assert(readFileSync('scripts/verify-review-epoch-certification-continuity.mjs','utf8').includes('NATIVE_TWO_WAVE_COLLECTION_GREEN'), 'native inventory supersession requires behavioral coverage');

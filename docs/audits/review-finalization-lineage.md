@@ -401,7 +401,7 @@ The deliberately negative source fixture receives a truthful accepted-risk
 disposition through the real CLI before either managed critic launches; no fix
 is claimed. Its signed discovery remains in inventory history. An old wave is
 superseded only after its receipt authenticates and a newer
-valid lane PASS exists. Removing that replacement remains blocked; tampering
+valid lane record exists (PASS or FINDING). This omits the old PASS from invalid evidence; it never promotes it into current authority. Removing that replacement remains blocked; tampering
 with the old sealed launch remains a hard receipt failure.
 
 The unused generic classifier extension was deleted. Positive and negative
@@ -550,3 +550,42 @@ CAUSAL_INDEX_PREFIX_ERASURE_REFUSED and SIGNED_CONSUMPTION_EXTRA_DELTA_REFUSED.
 Independent read-only advisory review found no concrete gap in this test delta;
 it is not formal Claude audit or Story evidence. Latest-main synchronization,
 fresh Lab GREEN and actual candidate-bound vendor audit remain required.
+
+
+## Tenth repair: numeric transport contract and native inventory parity
+
+Claude audit 54b4d6e7-d997-487e-8439-cd38ee1af735 rejected candidate b7617eaf7b
+with one medium and two low findings after 696096 ms. Core lineage and the ninth
+repair negatives were accepted. This delta addresses only those three findings.
+
+The runtime contract imports the real scheduler policy and concurrency factor,
+asserts their exact numeric relationships to the registered inner watchdog policy,
+and executes a tiny real child through runEntry. Its received deadline must equal
+the first actual entry clock read plus its declared timeout; the recording wrapper
+returns real clock values and is restored before awaiting execution. This probe
+is separate from the pre-existing failing scheduler smoke and proves transport,
+not full-suite completion or concurrent headroom. An over-cap finite envelope
+for the registered fixture is clamped to the existing outer maximum with a named
+diagnostic. The unchanged absolute deadline and cleanup margin still reduce the
+inner budget. Invalid entry names, malformed/non-finite values and expired budgets
+remain refused; no provider admission or outer suite cap is changed.
+
+Inventory subject classification now applies to native and managed consumers.
+Each path authenticates its own authority before supersession is classified.
+The existing two-wave fixture adds a real brokered native critic after each
+managed critic and uses the native run for official critic_set. Both current-wave
+passes remain valid; both earlier-wave passes leave current authority. Removing
+all current-wave critic passes retains the old supersession errors. Removing the
+old native invocation consumption record, while preserving its signed PASS, run
+and dispatch, remains a hard authentication failure despite newer valid records;
+restoring its exact bytes restores the positive control. The complete regression46
+exited zero with both MANAGED_TWO_WAVE_COLLECTION_GREEN and
+NATIVE_TWO_WAVE_COLLECTION_GREEN.
+
+The collector's existing forgiveness predicate is unchanged: a newer valid same-
+lane record, including a FINDING, may remove a superseded PASS from invalid.
+That does not promote the old PASS into valid evidence or release an open finding.
+Prompt guidance, the process registry and these notes now describe that exact rule.
+Fresh contract checks, formal GREEN and actual candidate audit remain required.
+
+Tenth repair verification: ensure-dist build56, full targeted regression46, runtime contract3 (including exact deadline transport), and process-fact contract21 all exited zero. No whole-suite or concurrent-headroom PASS is claimed.

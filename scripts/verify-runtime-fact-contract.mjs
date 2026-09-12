@@ -125,6 +125,32 @@ async function main() {
     && read(root,'packages/main/src/tasks/full-suite-runner.ts').includes('cwd, npmCommand, onSpawn, state, deadlineAt)')
     && read(root,'packages/main/src/tasks/full-suite-runner.ts').includes('deadlineAt:outerDeadlineAt')
     && read(root,'packages/main/src/tasks/isolated-finding-fixture.ts').includes('Number(value.deadlineAt) - now'), 'review epoch fixture watchdog must consume the scheduler remaining outer deadline through registered test-only policy');
+  const {REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY: epochPolicy} = await importDist(root,'packages/main/dist/core/runtime-fact-registry.js');
+  const {RESOURCE_POLICY, CONCURRENCY_HEADROOM_FACTOR, runEntry, createFullSuiteRunState} = await importDist(root,'packages/main/dist/tasks/full-suite-runner.js');
+  assert.equal(epochPolicy.outerStandaloneMs, RESOURCE_POLICY[epochPolicy.entry].timeoutMs,
+    'review epoch outerStandaloneMs must equal the registered full-suite entry timeoutMs');
+  assert.equal(epochPolicy.maxOuterMs, Math.round(epochPolicy.outerStandaloneMs * CONCURRENCY_HEADROOM_FACTOR),
+    'review epoch maxOuterMs must equal outerStandaloneMs times full-suite concurrency headroom');
+  // Execute the actual writer and deadline transport without launching the heavy
+  // suite member. This tiny child only prints its received framework envelope.
+  const budgetScratch=mkdtempSync(join(tmpdir(),'review-epoch-budget-transport-'));
+  try {
+    const child=join(budgetScratch,'print-budget.mjs');
+    writeFileSync(child, '#!'+process.execPath+'\nconsole.log(process.env.'+epochPolicy.environmentKey+')\n');chmodSync(child,0o700);
+    const realNow=Date.now;let entryStarted;let pending;
+    try {
+      Date.now=()=>{const value=realNow();entryStarted??=value;return value;};
+      pending=runEntry({name:epochPolicy.entry,resources:[],tempOwnership:'runner-owned-unique',timeoutMs:10000},root,child,undefined,createFullSuiteRunState());
+    } finally {Date.now=realNow;}
+    const result=await pending;
+    assert.equal(result.status,'PASS',result.output);
+    const envelope=JSON.parse(result.output.trim());
+    assert.equal(envelope.entry,epochPolicy.entry);
+    assert(envelope.timeoutMs>0 && envelope.timeoutMs<=10000,'writer must send the remaining entry budget');
+    assert(Number.isFinite(entryStarted),'record the actual runEntry clock read without fabricating time');
+    assert.equal(envelope.deadlineAt,entryStarted+10000,'writer must transport the exact original absolute entry deadline');
+    console.log('REVIEW_EPOCH_BUDGET_TRANSPORT_PASS');
+  } finally {rmSync(budgetScratch,{recursive:true,force:true});}
   check(registrySource.includes('MACHINE_HEAVY_RESOURCE_POLICY') && read(root,'packages/main/src/core/keyed-scheduler.ts').includes('MACHINE_HEAVY_RESOURCE_POLICY.cpuKey'), 'machine CPU/process claims must share the runtime policy');
   check(registrySource.includes('MACHINE_FIXED_PORT_RUNTIME_POLICY') && portLock.includes('MACHINE_FIXED_PORT_ARTIFACT.directoryName')
     && portLock.includes('userInfo().homedir') && portLock.includes('probeMachineFixedPort') && portLock.includes('machinePortAncestorPids'),

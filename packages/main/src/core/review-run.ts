@@ -1722,14 +1722,15 @@ function validateEvidenceRunBinding(
     assuranceLevel: 'ordinary-review',
     hasManagedEvidenceBinding: managedBinding !== undefined,
   });
+  // Inventory purpose is transport-neutral; neither native nor managed evidence
+  // may retain authority for a different live inventory subject.
+  const inventorySubject = managedInventorySubjectState(store, run);
+  if (inventorySubject === 'invalid') {
+    return { code: managedBinding ? 'managed_receipt_invalid' : 'review_execution_authority_missing',
+      kind: evidence.kind, evidenceId: evidence.id, agent: evidence.agent, reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has an invalid current inventory subject` };
+  }
   if (authority.reviewGatePath === 'managed-receipt' && managedBinding) {
-    const inventorySubject = managedInventorySubjectState(store, run);
-    if (inventorySubject === 'invalid') {
-      return { code: 'managed_receipt_invalid', kind: evidence.kind, evidenceId: evidence.id,
-        agent: evidence.agent, reviewRunId: evidence.reviewRunId,
-        message: `${evidence.kind} ${evidence.id} has an invalid current managed inventory subject` };
-    }
-
     // Consumption authenticates the sealed launch; it never rebuilds an OPEN-only prompt.
     const managed = verifyManagedReviewEvidence({
       root: projectRoot,
@@ -1762,13 +1763,6 @@ function validateEvidenceRunBinding(
         message: `${evidence.kind} ${evidence.id} failed shared managed-review Proof Admissibility: ${managed.reason}`,
       };
     }
-    // Supersession is considered only after the old receipt itself is authenticated.
-    // The collector forgives this PASS only when a newer valid lane PASS exists.
-    if (inventorySubject === 'superseded') return {
-      code: 'superseded_inventory_wave', kind: evidence.kind, evidenceId: evidence.id,
-      agent: evidence.agent, reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} belongs to a signed earlier inventory wave`,
-    };
   }
   if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding) {
     const dispatch = verifyCurrentReviewerDispatchBinding({
@@ -1809,6 +1803,14 @@ function validateEvidenceRunBinding(
       };
     }
   }
+  // Authenticate either transport before classifying historical evidence. The
+  // collector can omit an old PASS only with a newer valid same-lane record
+  // (PASS or FINDING); omission never promotes that old PASS into valid evidence.
+  if (inventorySubject === 'superseded') return {
+    code: 'superseded_inventory_wave', kind: evidence.kind, evidenceId: evidence.id,
+    agent: evidence.agent, reviewRunId: evidence.reviewRunId,
+    message: `${evidence.kind} ${evidence.id} belongs to a signed earlier inventory wave`,
+  };
   return null;
 }
 
