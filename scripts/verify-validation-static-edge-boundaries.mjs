@@ -1,4 +1,4 @@
-import {LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS} from './lab-version-fixture-transport.mjs';
+import {LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS,STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS,assertLabRegressionTransport} from './lab-version-fixture-transport.mjs';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import assert from 'node:assert/strict';import crypto from 'node:crypto';import {createRequire} from 'node:module';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
 const repo=fileURLToPath(new URL('..',import.meta.url)),root=fs.mkdtempSync(path.join(os.tmpdir(),'u18-static-boundaries-'));
 
@@ -212,8 +212,10 @@ try{
  for(const name of ['native-review-fixture.ts','fixture-environment.ts'])assert(brandReport.coverage.some(row=>row.file===tasks+name&&row.state==='SCANNED'));
  writeHelper('fixture-environment.ts',"import './brand-depth-three.js';");writeHelper('brand-depth-three.ts',"import './brand-depth-four.js';");writeHelper('brand-depth-four.ts','');
  assert(expect(1,'brand-role entry retains generic depth-four refusal').coverage.some(row=>row.file===tasks+'brand-depth-four.ts'&&row.reason==='helper depth exceeds declared bound'));
+ const releaseStarted=performance.now();
  const releaseCase=spawnSync(process.execPath,[path.join(repo,'scripts/verify-lab-version-source-evidence.mjs')],{encoding:'utf8',timeout:LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS});
- assert(!releaseCase.error&&!releaseCase.signal,'Lab release regression infrastructure failure: '+String(releaseCase.error??releaseCase.signal));
+ console.log('STATIC_EVIDENCE_CHILD_TIMING '+JSON.stringify({label:'version-release-contract',elapsedMs:performance.now()-releaseStarted,budgetMs:LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS,status:releaseCase.status,signal:releaseCase.signal}));
+ assertLabRegressionTransport(releaseCase,'version-release-contract',LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS);
  assert.equal(releaseCase.status,0,'LAB_VERSION_MUST_REFRESH_CURRENT_SOURCE_EVIDENCE '+releaseCase.stdout+releaseCase.stderr);
  console.log(releaseCase.stdout.trim());
  const {staticSourceEvidenceError} = await import('./static-source-evidence.mjs');
@@ -225,8 +227,10 @@ try{
   assert.equal(staticSourceEvidenceError(repo,entry.requiredEvidence,{file:match[1],line:Number(match[2])}),null,entry.id+' current manifest evidence');
  }
  console.log('PASS all '+liveManifest.entries.length+' committed manifest entries have current covering source evidence');
- const liveScan=spawnSync(process.execPath,[path.join(repo,'scripts/verify-validation-static-edges.mjs'),repo],{encoding:'utf8',timeout:60000});
- assert(!liveScan.error&&!liveScan.signal,'Live static scanner transport failed: '+String(liveScan.error??liveScan.signal));
+ const liveStarted=performance.now();
+ const liveScan=spawnSync(process.execPath,[path.join(repo,'scripts/verify-validation-static-edges.mjs'),repo],{encoding:'utf8',timeout:STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS});
+ console.log('STATIC_EVIDENCE_CHILD_TIMING '+JSON.stringify({label:'live-static-scan',elapsedMs:performance.now()-liveStarted,budgetMs:STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS,status:liveScan.status,signal:liveScan.signal}));
+ assertLabRegressionTransport(liveScan,'live-static-scan',STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS);
  assert.equal(liveScan.status,0,'Current repository static scanner must pass: '+liveScan.stdout+liveScan.stderr);
  console.log(liveScan.stdout.trim());
  console.log('U18_STATIC_EDGE_BOUNDARIES_PASS');

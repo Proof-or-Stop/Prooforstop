@@ -6,7 +6,7 @@ import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,rmSync,existsSync} from
 import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {LAB_VERSION_FIXTURE_CLI_TIMEOUT_MS,assertLabVersionFixtureTransport} from './lab-version-fixture-transport.mjs';
+import {LAB_VERSION_FIXTURE_CLI_TIMEOUT_MS,assertLabVersionFixtureTransport,STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS,assertLabRegressionTransport} from './lab-version-fixture-transport.mjs';
 import {withLabVersionSourceEvidence as versionTransaction} from './lab-version-source-evidence.mjs';
 const fixtureVersionPaths=['package.json','package-lock.json','packages/main/package.json','packages/main/package-lock.json','packages/main/src/core/proof-or-stop-brand.ts','packages/lab/package-lock.json','packages/utils/package-lock.json'];
 const withLabVersionSourceEvidence=(root,bump)=>versionTransaction(root,bump,fixtureVersionPaths.slice(0,5));
@@ -20,6 +20,9 @@ try {const bytes=Buffer.from([0xff]);writeFileSync(join(invalidVersionRoot,'pack
 } finally {rmSync(invalidVersionRoot,{recursive:true,force:true});}
 const timedOutChild=spawnSync(process.execPath,['-e','setTimeout(()=>{},10000)'],{timeout:20,encoding:'utf8'});
 assert.equal(timedOutChild.error?.code,'ETIMEDOUT');
+assert.throws(()=>assertLabRegressionTransport(timedOutChild,'live-static-scan',STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS),error=>error.message==='LAB_REGRESSION_BUDGET_EXCEEDED: live-static-scan exceeded 60000ms');
+assert.throws(()=>assertLabRegressionTransport({signal:'SIGTERM'},'version-release-contract',270000),error=>error.message==='LAB_REGRESSION_TRANSPORT_FAILED: version-release-contract: SIGTERM');
+assert.equal(assertLabRegressionTransport({status:1},'contract',1).status,1,'ordinary failure remains distinct from budget overrun');
 assert.throws(()=>assertLabVersionFixtureTransport(timedOutChild,'finish'),error=>error.message==='LAB_VERSION_FIXTURE_CLI_TIMEOUT: finish exceeded 60000ms (signal=SIGTERM)');
 assert.throws(()=>assertLabVersionFixtureTransport({error:new Error('spawn unavailable'),signal:null},'create'),error=>error.message==='LAB_VERSION_FIXTURE_CLI_TRANSPORT: create: Error: spawn unavailable');
 assert.throws(()=>assertLabVersionFixtureTransport({signal:'SIGTERM'},'green'),error=>error.message==='LAB_VERSION_FIXTURE_CLI_TRANSPORT: green: SIGTERM');

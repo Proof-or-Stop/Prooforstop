@@ -101,3 +101,6 @@ VERSION_SYNC_PATHS. Its two private optional extension-lock paths remain explici
 compatibility bindings; an unexpected producer output raises a distinct allowlist
 drift refusal before publication. Changes outside those outputs
 remain subject to the surrounding Lab clean-tree assertion.
+
+See [Lab verification provenance](static-evidence-lab-verification.md) for official
+draft creation/discovery counter-evidence and measured child timeout headroom.

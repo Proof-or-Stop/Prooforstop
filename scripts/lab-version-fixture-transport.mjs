@@ -6,3 +6,10 @@ export function assertLabVersionFixtureTransport(result,action) {
  if(result.error||result.signal)throw new Error(`LAB_VERSION_FIXTURE_CLI_TRANSPORT: ${action}: ${String(result.error??result.signal)}`);
  return result;
 }
+
+export const STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS=60000;
+export function assertLabRegressionTransport(result,label,budgetMs) {
+ if(result.error?.code==='ETIMEDOUT')throw new Error(`LAB_REGRESSION_BUDGET_EXCEEDED: ${label} exceeded ${budgetMs}ms`);
+ if(result.error||result.signal)throw new Error(`LAB_REGRESSION_TRANSPORT_FAILED: ${label}: ${String(result.error??result.signal)}`);
+ return result;
+}
