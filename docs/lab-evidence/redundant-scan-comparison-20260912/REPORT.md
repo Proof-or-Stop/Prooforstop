@@ -1,94 +1,122 @@
-# Six historical overhead hotspots on 0.3.339
+# Six historical overhead hotspots on 0.3.340
 
-This managed Lab starts from local main `9a526607f6345eca3017f9ab9dc8891c2592ad4d`
-(0.3.339). Quorum cleanup is explicitly excluded at the user's request because
-another Lab owns it. No quorum implementation or test is changed here.
+This final comparison uses local main **0.3.340**, commit
+`a11f2d89a4c1762b5e0452e6e9e5e696ee9884c9`. Quorum cleanup is explicitly excluded because another Lab
+owns it. No quorum implementation or test is changed here.
 
-The committed RED is `d45cef74e8`; implementation GREEN is `8c6b8b64d8`.
-Both use Node v26.8.1 and the same command:
+The earlier 0.3.339 experiment is retained under
+[historical-0339](historical-0339/README.md). Those logs predate the audit-driven
+comparison-driver correction and are not current-driver acceptance evidence.
+The parent-directory logs were regenerated after that correction and main sync.
 
-```sh
-node scripts/verify-redundant-scan-comparison.mjs
-```
+## Same driver, actual RED and GREEN
 
-The command prepares this Lab's own main/utils build, then exercises equivalent
-disposable fixtures through the actual implementation. RED is an assertion on
-repeated work, not a failed dependency installation or an incorrect product
-result. An earlier driver syntax error was refused by the Lab recorder and is
-not counted as target RED.
+- RED commit: `a387adfba80000ee69f249a0f21d07fbb3d837e1`.
+- GREEN implementation commit: `7575d6257240a6ceccc38fb6bb24ba46cd80c391`.
+- Runtime: Node v26.8.1.
+- Command: `node scripts/verify-redundant-scan-comparison.mjs`.
 
-| Historical hotspot | Before, 0.3.339 | After, Lab candidate | Result |
+RED temporarily restores only the pre-optimization implementation. Its complete
+`shared-validation-execution.ts` bytes equal those at the stated main commit.
+GREEN restores the two invocation-local canonical strings. The driver, dynamic
+counter and AST guard are byte-identical at the RED and GREEN commits; their
+SHA-256 values are in [comparison.json](comparison.json).
+
+The managed command builds its own implementation and runs all four comparison
+programs, then records the AST guard as the fifth result. A failing guard cannot
+prevent the target performance assertion from running. RED contains
+`INITIAL_SNAPSHOT_SERIALIZED_REPEATEDLY` and fails both the dynamic counter and
+binding guard. GREEN contains `VALIDATION_SNAPSHOT_BINDING_GREEN` and all five
+result rows exit 0, followed by `REDUNDANT_SCAN_COMPARISON_GREEN`.
+
+## Operation counts
+
+| Historical hotspot | Before, main 0.3.340 | After, Lab candidate | Result |
 | --- | --- | --- | --- |
-| Merge-base queries per fresh input probe | 1; next probe also 1 | 1; next probe also 1 | Already within budget; no repair |
-| Physical tree reads in probe/capture/strict/relaxed entrypoints | [1, 1, 1, 1] | [1, 1, 1, 1] | Already within budget; no repair |
-| Initial snapshot serialization, each of facts and input snapshot | First execution 5; receipt reuse 3 | First execution 1; receipt reuse 1 | Reproduced and repaired |
-| Resource stage entries for an ordinary command | 1 | 1 | Already within budget; no repair |
-| Cost probes in the second independent process | 2 | 2 | Already within budget; no repair |
-| Path normalization replace calls, warm / unseen input | 8 / 8 | 8 / 8 | Already within budget; no repair |
+| Merge-base calls per fresh input probe | 1; next probe also 1 | 1; next probe also 1 | Already within budget |
+| Tree reads in probe/capture/strict/relaxed | [1, 1, 1, 1] | [1, 1, 1, 1] | Already within budget |
+| Initial canonicalization, each of facts and input snapshot | Execution 5; reuse 3 | Execution 1; reuse 1 | Reproduced and repaired |
+| Ordinary-command resource stage entries | 1 | 1 | Already within budget |
+| Cost probes in the second independent process | 2 | 2 | Already within budget |
+| Path normalization replacements, warm / unseen input | 8 / 8 | 8 / 8 | Already within budget |
 
-The repaired row contains two separate baseline objects. Their combined
-top-level canonicalization count is therefore 10 -> 2 for execution and 6 -> 2
-for receipt reuse. These reductions are 80% and 66.7% of those particular
-operations, not total validation or Story latency.
+There are two baseline objects. Combined canonicalization counts are 10 -> 2
+for execution and 6 -> 2 for reuse. The reductions of 80% and 66.7% describe
+these operations only, not total validation latency.
 
-The first invocation still makes 6 live fact probes and starts 1 real command;
-the reused invocation still makes 4 live fact probes and starts 0 commands.
-Only the canonical strings for already captured baseline objects are retained
-within one invocation. Every later check still acquires and canonicalizes live
-facts/input bytes and compares workspace and loaded implementation identity.
+## Recorded call durations
 
-## Verification and retained boundaries
+| Scenario | Before | After | Difference in these observations |
+| --- | ---: | ---: | ---: |
+| First execution, complete shared-validation call | 5,511.900 ms | 3,303.225 ms | 2,208.675 ms less |
+| Consume a matching receipt, complete call | 2,857.382 ms | 2,213.793 ms | 643.589 ms less |
 
-- The exact RED command passes under managed `green`.
-- Changed input bytes force a new execution. A successful child modifying its
-  declared input tree cannot publish a reusable result. Fresh fact drift refuses
-  before spawning any command.
-- The existing tree test preserves edit, rename, delete, read-failure and recovery
-  controls. It deliberately bypasses the persistent memo using its existing Git
-  replacement environment control to count physical reads within an observation.
-- The existing stage test retains the late recheck for exact-input declarations,
-  the separate full-output caller, and refusal of nested claim expansion.
-- The independent-process cost test retains corrupt-store fallback and execution
-  of changed failing input without consuming old PASS. Its fixture uses the
-  existing 20 ms command; it is not a whole-Story workload.
-- Path comparison checks 570 string-matcher cases against the former two-pass
+These are single observations on a shared machine. They are not isolated
+serialization timings, repeated interleaved samples or whole-Story benchmarks.
+Host load and cache state can change the measurements, so their elapsed
+improvements cannot be attributed solely to this repair. The older 0.3.339
+single observations remain in the historical packet and are not mixed into this
+table or used to select a more favorable timing sample.
+
+## Live checks and regression results
+
+The first invocation retains 6 live fact probes and 1 real child start. Receipt
+reuse retains 4 live fact probes and 0 child starts. Only already captured
+baseline strings are retained within the invocation. Each later check still
+acquires and canonicalizes current facts/input bytes, checks workspace state,
+and verifies loaded implementation identity. Existing persistent cost hints
+remain separately governed by `validation-reuse-economics`.
+
+- Changed input bytes require a new execution.
+- A successful child modifying its declared input tree cannot publish reusable
+  evidence; live fact drift refuses before child launch.
+- The tree fixture retains edit, rename, deletion, failed-read and recovery
+  controls. It uses its existing Git replacement environment control to bypass
+  persistent memoization and count physical reads within each observation.
+- The stage fixture retains exact-input late rechecks, the separate full-output
+  caller and nested claim-expansion refusal.
+- The cost fixture retains corrupt-store fallback and fresh execution of changed
+  failing input. Its 20 ms witness is not a whole-Story workload.
+- Path parity checks cover 570 string-matcher cases against former two-pass
   normalization semantics.
-- The original `node scripts/verify-runtime-fact-contract.mjs` run passes with
-  the dynamic snapshot regression on the recorded Node v26 runtime. See the
-  audit correction below for its final compatibility-safe registration.
-- `node packages/main/tests/validation-shared-input-tree.mjs` passes, including
-  directory additions, same-mtime byte drift, self-written inputs and cycles.
+- The current runtime fact contract passes; it runs the AST binding guard using
+  the supported TypeScript parser, without native module hooks.
+- The current input-tree regression passes directory additions, restored-mtime
+  byte drift, self-written inputs and cycle fallback.
+- The AST guard passes under Node v20.20.2, including
+  five rejected mutations. Its log records process.version, executable and argv.
+  This is a bounded compatibility check for the new guard, not a claim that the
+  entire repository suite ran on Node 20.
 
-The normal runtime contract also runs its existing quorum refusal diagnostic
-helper; that existing check is unmodified and is not quorum cleanup work.
+## Audit corrections
 
-## Evidence and limits
+The first Claude audit accepted the production optimization but rejected the
+Lab-only module-hook counter's unconditional use in the canonical runtime gate.
+Dynamic counting stays in the Lab command; an AST binding check protects the
+actual owner and live comparisons in the canonical gate without raising the
+runtime floor or silently skipping a check.
 
-[Comparison data](comparison.json) records counts, single-observation wall times,
-and SHA-256 fingerprints for [RED](red.log), [GREEN](green.log),
-[runtime contract](runtime-contract.log), and [input tree](input-tree.log).
-The Lab command also retains its own local records under Git common storage.
+The second audit requested four corrections: allow the RED counter to run before
+the binding result is aggregated; regenerate both logs with the corrected
+identical driver; identify Node 20 in its own log; and scope the registry wording
+to invocation-local canonical strings rather than all existing cost caches.
+All four are addressed in the code and regenerated packet above. Earlier failed
+audits remain in the official local Lab records and are not relabeled PASS.
 
-The wall times are single observations on a shared machine, not an interleaved
-benchmark. No elapsed-time speedup percentage or whole-Story improvement is
-claimed. Five baseline checks were already passing; their old historical RED
-values are not substituted for the measured 0.3.339 values.
+## Evidence and publication boundary
 
-This packet records local maintenance RED/GREEN evidence before integration.
-It is not formal Story DONE. Later release records carry integration status;
-the original raw logs and their recorded commit bindings remain unchanged.
+[comparison.json](comparison.json) records counts, raw single-call timings,
+RED/GREEN commit bindings, identical driver/test hashes, source hashes and the
+SHA-256 of every current log:
+[RED](red.log), [GREEN](green.log), [runtime contract](runtime-contract.log),
+[compatible registration](runtime-contract-compatible.log),
+[input tree](input-tree.log), and [Node 20 binding](node20-binding.log).
 
-## Independent audit correction
+The runtime contract also runs its pre-existing quorum refusal diagnostic
+helper. That unchanged helper is not quorum cleanup work.
 
-The first Claude audit accepted the production optimization and the measurement
-evidence but rejected unconditional registration of the hook-based counter in
-the general runtime contract. `node:module.registerHooks` is a Lab capability,
-not a declared general CLI requirement. The repair keeps that dynamic test in
-the managed Lab command and replaces its canonical gate invocation with a
-TypeScript AST binding check. That check verifies invocation-local baseline
-consts and the exact live comparison in the actual execution owner. Five
-in-memory mutations must be rejected. It uses no native module hooks and does
-not silently skip validation on older runtimes. This changes test registration,
-not the measured production implementation or the original before/after data.
-
-The corrected runtime contract passes; see [compatible registration run](runtime-contract-compatible.log). The new AST guard also passes under Node 20, including its five mutation controls; see [Node 20 run](node20-binding.log). This is a bounded compatibility check for the new guard, not a claim that the entire repository suite was run on Node 20.
+This packet is generated before integration. Later official Lab finish records
+carry the final version, independent audit, main integration and post-merge
+replay status. A documentation-only commit does not change the measured
+implementation or driver; the managed command is replayed on the final candidate
+and on main by finish. These are local maintenance facts, not formal Story DONE.
