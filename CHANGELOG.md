@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab route-direction-resource-policy - v0.3.334 - 2026-09-12
+
+Fix the missing resource policy for the canonical native route regression.
+
+The v0.3.332 serial-reference added test:route-reattestation-dependency-direction without a policy row, so the actual inventory builder refused the configured suite with unknownPolicy naming exactly that member. Register its shared repository reads, private fixture ownership and finite 600-second outer timeout. The route command and all its native assertions and internal deadlines remain unchanged.
+
+The sequential child suites use disposable Git roots; a bounded two-child history race does not require machine-wide heavy serialization. Only the shared repository read is registered, allowing unrelated members to overlap.
+
+The existing full-suite runner smoke now requires this exact entry and its resource/budget properties, and proves deletion fails with the exact dedicated inventory error. Preserve the existing full runner smoke and live inventory coverage. This is local Lab engineering provenance, not Story acceptance or a whole-suite pass claim. No push.
+
+The Lab guide requires the existing live inventory smoke after canonical serial-reference membership changes.
+
+Maintenance provenance: codex/lab-route-direction-resource-policy, repair 6dfe9a0742feac332f5e333beb3db379be7c7b2a.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/full-suite-runner-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-intent-authority - v0.3.333 - 2026-09-12
 
 Benchmark planning could not record new-file acceptance declarations: the dedicated intent role could author declarations but held no owner lease, while the owner held the lease but could not apply those declarations. This repair keeps the lease gate intact and supplies an explicit owner-approved proposal handoff. It also corrects checklist_remove admission to match its existing INIT-only handler.
