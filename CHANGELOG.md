@@ -1,5 +1,45 @@
 # Changelog
 
+## Lab historical-native-dispatch - v0.3.337 - 2026-09-12
+
+Fix historical native reviewer dispatch selection across inventory waves.
+
+A genuine wave-one inventory critic PASS could become permanently invalid after a later wave dispatched the same critic lane. The read-side native attestation consumer selected the latest lane/round dispatch, then compared it with the earlier signed inventory subject. This mislabeled an authentic historical attestation as missing execution authority, even when a valid wave-two PASS existed.
+
+The consumer now supplies the dispatch digest sealed into the native evidence to the existing exact dispatch selector. Current host assets, review purpose, inventory subject, broker signature, writer identity, nonce and recorded consumption remain verified. The optional unbound selector still selects the current dispatch. No authority failure is added to supersession forgiveness, no old PASS is deleted, and open Finding latest-run protection remains unchanged.
+
+The existing native critic regression retains its original one-wave positive and negative controls, then produces a genuine source defect and two official inventory waves with independent native critic PASS records. It checks historical and current evidence, wrong inventory subject, unknown digest, substituted current dispatch, changed writer, nonce and broker signature. The actual shared collector must accept both critic records while retaining the intentionally open Finding's stale-run refusal. This bounded Lab does not claim that this deliberately unresolved fixture enters TEST or that the blocked product Story is DONE.
+
+Verification used this Lab's dependencies, source and dist. The regression was committed before the repair. Official RED reproduced NATIVE_HISTORICAL_DISPATCH_REQUIRED in 50.159281 seconds. The same official GREEN command passed in 50.620252 seconds. Process-fact contract verification passed in 11.837822 seconds, including the exact owner-call binding and argument-removal control. The repair build completed in 14.524869 seconds. These timings are observations, not performance claims. Actual different-vendor candidate audit output and its elapsed time are preserved separately; final prepared-release audit may be repeated if release metadata changes its binding.
+
+Candidate: f888d08db232752ea9036e084818784af73023d9, based on synchronized local main 6bdd43076afa918d4041f2a88c7fd1800805e08d (0.3.336). Integration is local only, through the official Lab finish workflow; no remote push or formal Story-state change is included.
+
+
+Preserved independent pre-release audit and dispositions
+
+The real Claude/Anthropic audit of f888d08db2 returned FAIL. Its wrapper took 389.103516 seconds and provider duration was 387.661 seconds. Original verdict, transcript and cleanup record remain in .git/lab-maintenance/historical-native-dispatch-audits/375445ca-e82c-4f8c-b4d6-cb7b4f86189f. No unchanged-candidate retry was performed.
+
+1. Envelope/native dispatch identity: source inspection establishes an existing contract, not a removed equality check. On synchronized main 6bdd43076afa, handlers/finding.ts issueDirectReviewAuthority selects the latest purpose/subject dispatch; core/native-review-evidence.ts binds the broker attestation to that selected dispatch, exact ReviewRun, writer and nonce. The original core/review-run.ts consumer also selected latest independently. verifyReviewRunPromptEnvelope separately selects the envelope's exact historical dispatch (or uniquely reconstructs launcher identity); absence of a current envelope is already unsupported. This patch changes only native read-side selection to its signed native digest. It removes no equality and preserves every purpose, inventory subject, host, broker signature and nonce check. Tightening both producer and envelope coupling would change an existing compatibility contract and is outside this bounded selector repair. The revised native regression performs an official same-subject redispatch after publishing each critic run, verifies that the signed run remains unchanged, then uses the genuine broker producer and shared collector. This control proves supported redispatch; it does not claim two identical-subject dispatch events necessarily have different content digests.
+2. Current-wave authority: before creating the wave-two critic, the actual official finalize command must refuse REVIEW_INVENTORY_CRITIC_INCOMPLETE. The unchanged evidence-writer guard must refuse the old critic because its OPEN epoch/wave/cutoff no longer matches. The original wave-two positive still follows, with native signatures intact.
+3. Finding identity: the regression now reads the single actual persisted Finding and checks its ReviewRun binding, eliminating stdout ID scraping.
+4. Registry: the Finding artifact now explicitly records exact sealed native dispatch selection, preserved verification checks and strict latest-run treatment for open Findings. The existing PASS entry and AST argument-removal contract remain.
+5. Release version: this candidate is a repair commit, not a prepared release. The official finish version phase owns the patch bump and release metadata. No manual version edits were made. The next independent audit will run through finish against the actual prepared release, as documented in docs/lab-maintenance.md, rather than another redundant early audit.
+
+Revised repair candidate: bcab746608 (full SHA and fresh GREEN timings will be supplied after verification). The pre-change RED and failed audit are retained; later successful regression does not relabel either historical result.
+
+
+Final verification update
+
+The expanded native regression passed official GREEN on bcab746608 in 48.150488 seconds. Its exact outputs include NATIVE_HISTORICAL_CURRENT_WAVE_REFUSALS PASS and NATIVE_SAME_SUBJECT_REDISPATCH_COMPATIBILITY PASS. The process-fact checker then correctly refused the stale expected Finding signature description (7.770122 seconds). Commit 726a7c96aebcf1239a547b7ef571c3ad125218b2 updates that exact expected contract, without weakening the checker. Process-fact verification now passes in 10.179161 seconds. A final exact-command GREEN is being recorded for this final commit; the previously observed native result is not substituted for its commit binding.
+
+Source pointers for audit disposition: packages/main/src/handlers/finding.ts:533 (official native writer); packages/main/src/core/native-review-evidence.ts:142 and :228 (issuer and verifier); packages/main/src/core/review-run.ts:695 (selector), :781 (historical envelope selection), :817 (no missing-envelope compatibility), :1380 (current evidence-writer admission), :1807 (changed native consumer); packages/main/src/tasks/native-review-fixture.ts:131 (actual broker fixture dispatch selection). Git comparison to synchronized main shows the only production logic change is the expectedDispatchBindingDigest argument at the native consumer; producer and native verifier bytes are unchanged.
+
+Final official GREEN: PASS on 726a7c96aebcf1239a547b7ef571c3ad125218b2 in 48.017356250 seconds. Exact log: /tmp/B-e6d9-historical-native-dispatch-final-green.log. No finish or new audit has been invoked.
+
+Maintenance provenance: codex/lab-historical-native-dispatch, repair b07987fd467e9c0205e46f41cca45351c26f6394.
+Verification command (replayed before integration and on main): `["node","scripts/verify-native-critic-dispatch-purpose.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## v0.3.336 — Intent Authority, Route Integrity, and Executable Benchmark Evidence — 2026-09-12
 
 ### Release scope
