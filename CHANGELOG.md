@@ -1,19 +1,5 @@
 # Changelog
 
-## Lab static-native-fixture-traversal - v0.3.334 - 2026-09-12
-
-The static validation scanner did not register the native certification helper newly imported by the quorum integration fixture. Its exact import inventory refused that literal, and the existing depth bound stopped the native review helper on the first transitive path, leaving two unexpanded coverage rows.
-
-This bounded repair adds the exact native-certification import and permits only native-review-fixture at depth4 and fixture-environment at depths4/5 for the configured quorum entry. The default depth3 bound remains. These registrations only expand inspection; process invocation classification, argv/mode rules, exception requirements, dependency hashes, and unknown-helper refusal are unchanged.
-
-The committed regression uses the actual quorum→pure→integration→native-certification→native-review→fixture-environment graph. Official RED reproduced both precise missing-coverage rows (2.879303916 seconds outer). After the repair, the identical command passed (3.846044375 seconds outer), including every existing boundary control, reversed imports, a nested registered process at the deepest native helper, unknown/deeper helper refusal, computed import refusal, missing source refusal, and the same helper under a different entry.
-
-No Story state or source was modified by the Lab. New process call rows still require reviewed exception evidence; zero unexpanded rows alone is not global static acceptance. Lab records are local maintenance provenance, not formal Story DONE or product release evidence. The independent vendor audit remains required before integration.
-
-Maintenance provenance: codex/lab-static-native-fixture-traversal, repair 62f4c166da12583267873d0aa22a83851c0a1a72.
-Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-intent-authority - v0.3.333 - 2026-09-12
 
 Benchmark planning could not record new-file acceptance declarations: the dedicated intent role could author declarations but held no owner lease, while the owner held the lease but could not apply those declarations. This repair keeps the lease gate intact and supplies an explicit owner-approved proposal handoff. It also corrects checklist_remove admission to match its existing INIT-only handler.
