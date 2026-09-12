@@ -2,7 +2,7 @@ import { readReviewPromptBody } from './prompt-body-store.js';
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
-import { isAbsolute, relative, resolve, sep } from 'node:path';
+import { isAbsolute, relative, resolve } from 'node:path';
 import {
   changedFilesBetween,
   checkEvidenceFreshnessForGit,
@@ -23,7 +23,7 @@ import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, ReviewI
 import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
-import { resolveGitCwd, resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
+import { resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
 import {
   buildCurrentScopeContext,
   compareScopeBinding,
@@ -1193,83 +1193,13 @@ function validateRunWorkspaceBindingMatchesCurrentResolution(
   };
 }
 
-/** `git rev-parse --show-toplevel` from `cwd`, canonicalized; null when `cwd`
- * is not inside a git working tree (or does not exist). Probe only: no output. */
-function gitTopLevelOrNull(cwd: string): string | null {
-  if (!existsSync(cwd)) return null;
-  try {
-    const out = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-    return out ? canonicalBindingPath(out) : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * B-83aa CHK-003: git cwd for a LEGACY review run (no workspaceBinding).
- *
- * The bare fallbackProjectRoot (production: ctx.root == metadataRoot) is kept
- * byte-identical UNLESS the signed-workspace resolver points at a genuinely
- * different directory that is a real wrapper-root gitRoot for THAT
- * metadataRoot. The re-route is accepted only when ALL of these hold:
- *   1. the resolved cwd is not merely a re-spelling of projectRoot (realpath
- *      alias such as macOS `/var` -> `/private/var`, or a symlinked checkout).
- *      The resolver canonicalizes its result, so on a PLAIN repo it returns
- *      the SAME directory under a different string; adopting that alias while
- *      the store still addresses the un-canonicalized projectRoot makes every
- *      `relative(cwd, storyDir/<artifact>)` escape the repo (`../../../var/...`)
- *      and closeout retention then reports `non-canonical writer for
- *      <artifact>: ` for every artifact (closeout-trust-smoke regression);
- *   2. the resolved cwd lies STRICTLY inside projectRoot;
- *   3. the resolved cwd is itself a git top-level (a real repository root);
- *   4. projectRoot is NOT itself a git top-level (a wrapper metadataRoot is
- *      not a repo; a plain repo IS, and keeps its bare cwd exactly as before).
- * Any other shape falls back to the bare projectRoot. The fail-closed
- * freshness predicate downstream is untouched: a genuinely unreadable repo at
- * the returned cwd still fails closed there.
- */
-export function resolveLegacyReviewRunGitCwd(store: StoryStore, storyId: string, fallbackProjectRoot: string): string {
-  const resolvedCwd = resolveGitCwd({
-    store,
-    storyId,
-    metadataRoot: fallbackProjectRoot,
-    projectRoot: fallbackProjectRoot,
-  });
-  if (resolvedCwd === fallbackProjectRoot) return fallbackProjectRoot;
-  const canonicalProjectRoot = canonicalBindingPath(fallbackProjectRoot);
-  const canonicalResolved = canonicalBindingPath(resolvedCwd);
-  // (1) same directory, only re-spelled: plain repo -> bare projectRoot.
-  if (canonicalResolved === canonicalProjectRoot) return fallbackProjectRoot;
-  // (2) strictly inside projectRoot.
-  const rel = relative(canonicalProjectRoot, canonicalResolved);
-  if (!rel || rel === '..' || rel.startsWith(`..${sep}`) || rel.startsWith('../') || isAbsolute(rel)) return fallbackProjectRoot;
-  // (3) resolved cwd is a real git top-level.
-  const resolvedTopLevel = gitTopLevelOrNull(resolvedCwd);
-  if (!resolvedTopLevel || resolvedTopLevel !== canonicalResolved) return fallbackProjectRoot;
-  // (4) projectRoot is not itself a git top-level (wrapper metadataRoot shape).
-  const projectTopLevel = gitTopLevelOrNull(fallbackProjectRoot);
-  if (projectTopLevel && projectTopLevel === canonicalProjectRoot) return fallbackProjectRoot;
-  return resolvedCwd;
-}
-
 function validateRunWorkspaceBinding(
   store: StoryStore,
   run: ReviewRun,
   fallbackProjectRoot: string,
 ): RunWorkspaceBindingValidation {
   if (!run.workspaceBinding) {
-    // B-83aa CHK-003: a legacy run (no workspaceBinding) used to recompute its
-    // freshness with the bare fallbackProjectRoot as the git cwd. Production
-    // passes ctx.root == metadataRoot here, which on a wrapper-root layout is
-    // NOT a git repository: the probe read no HEAD and, before B-83aa CHK-001,
-    // checkEvidenceFreshnessForGit silently returned fresh=true for it. Now that
-    // an unreadable HEAD FAILS CLOSED, the probe must run from the resolved git
-    // cwd (B-6666 pattern: resolveGitCwd threads the configured gitRoot; plain
-    // repos resolve to fallbackProjectRoot itself, byte-identical). The freshness
-    // recompute metadataRoot (run.workspaceBinding?.metadataRoot ?? projectRoot)
-    // is deliberately NOT changed by this. A genuinely unreadable resolved repo
-    // (unborn HEAD, dangling ref) still fails closed downstream.
-    return { ok: true, projectRoot: resolveLegacyReviewRunGitCwd(store, run.storyId, fallbackProjectRoot) };
+    return { ok: true, projectRoot: fallbackProjectRoot };
   }
 
   if (!verifyReviewRunWorkspaceBinding(run.workspaceBinding, run)) {

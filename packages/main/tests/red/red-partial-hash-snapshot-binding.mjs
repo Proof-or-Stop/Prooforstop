@@ -5,10 +5,9 @@
  * core/evidence-freshness.ts captureEvidenceHashSnapshot NEVER throws on a git or
  * hash failure: headHash / materialHash / storyFilesHash are each OPTIONAL and are
  * simply OMITTED. tryCaptureEvidenceHashSnapshot only turns a *thrown* error into
- * undefined. So an unborn repository (`git init`, zero commits) or a repository
- * with no `main` ref yields a RETURNED snapshot that binds nothing, and every
- * consumer that only distinguishes thrown-vs-returned proceeds as if it held a
- * binding.
+ * undefined. So an unborn repository (`git init`, zero commits) yields a
+ * RETURNED snapshot that binds nothing, and every consumer that only
+ * distinguishes thrown-vs-returned proceeds as if it held a binding.
  *
  * This script asserts the DESIRED property at each lifecycle-gate consumer:
  * a partial snapshot must FAIL CLOSED or be DISCLOSED, never silently pass.
@@ -30,10 +29,10 @@
  *   C5 lifecycle-readiness buildStoryReadinessReport(target=DONE) on the unborn
  *                        repo must make head_hash_unavailable /
  *                        material_hash_unavailable BLOCKING for DONE.
- *   C6 no-main repo      a repo whose HEAD exists but has no `main` ref returns a
- *                        snapshot with materialHash but NO storyFilesHash;
- *                        buildDoneChecklist must disclose that storyFilesHash is
- *                        unavailable somewhere in its rows.
+ *   C6 legacy partial    current no-main semantics produce the explicit empty
+ *                        Story-files digest. A legacy completed snapshot with
+ *                        materialHash but NO storyFilesHash must still be
+ *                        disclosed by buildDoneChecklist as advisory.
  *   C7 dangling HEAD     (B-83aa:F-001) a `story/*` ref pointing at a sha absent
  *                        from the object db: HEAD resolves but `git ls-tree`
  *                        fails; checkEvidenceFreshnessForGit with an evidence
@@ -187,21 +186,33 @@ try {
     assert.equal(material.blocking, true, `material_hash_unavailable is blocking=${material.blocking} for target DONE`);
   });
 
-  // C6 no-main repo: storyFilesHash silently absent
+  // C6 legacy partial snapshot: current no-main capture is complete and uses
+  // the explicit empty Story-files digest. A historical completed snapshot may
+  // still predate that field and must be disclosed, without blocking because
+  // its materialHash remains the strict fallback.
   resetConfigCache();
   const snap2 = freshness.captureEvidenceHashSnapshot({ gitCwd: nomain, metadataRoot: nomain, ref: 'HEAD' });
   observe('C6 captureEvidenceHashSnapshot(no-main)', `headHash=${snap2.headHash ? 'present' : '<absent>'} materialHash=${snap2.materialHash ? 'present' : '<absent>'} storyFilesHash=${snap2.storyFilesHash ?? '<absent>'}`);
+  assert.equal(snap2.storyFilesHash, freshness.EMPTY_STORY_FILES_HASH, 'current no-main capture must use the explicit empty Story-files digest');
   const store2 = new StoryStore(nomain);
   writeTestStory(store2, STORY_ID);
+  const doneStory = store2.readStory(STORY_ID);
+  store2.writeStory(STORY_ID, { ...doneStory, phase: 'DONE', endedAt: NOW });
   store2.writeTestEvidence(STORY_ID, {
     command: 'proof-or-stop validate', output: JSON.stringify({ allPassed: true }), result: 'PASS', timestamp: NOW,
     headHash: snap2.headHash, materialHash: snap2.materialHash, storyFilesHash: FAKE_STORY_FILES,
   });
-  const rows2 = buildDoneChecklist(STORY_ID, store2, nomain, { auditWriter: null });
+  const rows2 = buildDoneChecklist(STORY_ID, store2, nomain, {
+    auditWriter: null,
+    completedSnapshot: { materialHash: snap2.materialHash, storyFilesHash: null },
+  });
   const disclosed = rows2.filter((r) => /storyFilesHash|story files hash|story-files hash/i.test(`${r.detail ?? ''} ${r.hint ?? ''}`));
-  observe('C6 buildDoneChecklist(no-main)', `rows mentioning storyFilesHash: ${disclosed.length}; evidence-freshness=${JSON.stringify(rows2.find((r) => r.id === 'evidence-freshness')?.detail)}`);
+  observe('C6 buildDoneChecklist(legacy partial completed snapshot)', `rows mentioning storyFilesHash: ${disclosed.length}; snapshot-row=${JSON.stringify(rows2.find((r) => r.id === 'evidence-hash-snapshot')?.detail)}`);
   expect('C6 a snapshot with materialHash but no storyFilesHash must be disclosed by at least one DONE row', () => {
-    assert.ok(disclosed.length > 0, `no DONE row discloses that storyFilesHash could not be derived (evidence recorded storyFilesHash=${FAKE_STORY_FILES.slice(0, 8)}...)`);
+    assert.ok(disclosed.length > 0, 'no DONE row discloses that the legacy completed snapshot has no storyFilesHash');
+    const snapshotRow = rows2.find((r) => r.id === 'evidence-hash-snapshot');
+    assert.equal(snapshotRow?.status, 'warn');
+    assert.equal(snapshotRow?.blocking, false);
   });
 
   // C7 checkEvidenceFreshnessForGit with readable HEAD but underivable materialHash (B-83aa:F-001)

@@ -337,7 +337,12 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     ? options.evidenceHashSnapshot!
     : captureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
   const currentBindingMaterialHash = completedSnapshot?.materialHash ?? currentBinding.materialHash;
-  const currentBindingStoryFilesHash = completedSnapshot?.storyFilesHash ?? currentBinding.storyFilesHash;
+  // A completed snapshot explicitly carrying null means the historical record
+  // did not bind storyFilesHash. Preserve that absence for classification and
+  // disclosure instead of silently replacing it with today's computed digest.
+  const currentBindingStoryFilesHash = completedSnapshot
+    ? completedSnapshot.storyFilesHash ?? undefined
+    : currentBinding.storyFilesHash;
 
   // 0. B-83aa CHK-001: classify the current binding ONCE. captureEvidenceHashSnapshot
   //    never throws — a digest it cannot derive is simply omitted — so an unborn

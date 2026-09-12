@@ -68,9 +68,10 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { EVIDENCE_HASH_SNAPSHOT_SCHEMA } from '../core/artifact-schema.js';
 
 import {
   EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON,
@@ -89,16 +90,11 @@ import { evaluateRoutineValidationReuse } from '../core/validation-evidence-reus
 import { runDoneOracleGate } from '../handlers/phase-gates.js';
 import { evaluateStoryRoutineReuse } from '../handlers/verifier.js';
 import { createSessionHandlers } from '../handlers/session.js';
-import { createTestHandlers } from '../handlers/test.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { assertCurrentReviewRunForEvidence, hashReviewPrompt, resolveLegacyReviewRunGitCwd, signReviewRun } from '../core/review-run.js';
-import { buildMilestoneLedger, buildSlicePlan } from '../core/proofstory.js';
-import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
-import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import type { ChecklistData, ReviewRun, ReviewScopeBinding, ScopeContractData, StoryInfo, TestEvidenceData } from '../core/types.js';
+import type { ChecklistData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import type { RoutineValidationIdentity } from '../core/validation-types.js';
 
 type RoutineReuseArgs = Parameters<typeof evaluateRoutineValidationReuse>[0];
@@ -246,38 +242,9 @@ function wrapperRootRepo(storyId: string, opts: { unborn: boolean }): { metadata
 }
 
 /** Signed review run with deliberately NO workspaceBinding (legacy shape). */
-function legacyReviewRun(story: StoryInfo, headHash: string, materialHash: string, storyFilesHash: string | undefined, scopeBinding?: ReviewScopeBinding): ReviewRun {
-  const agent = 'proof-or-stop-review-concept';
-  const reviewRunId = `${story.storyId}:RR-legacy-1`;
-  const startedAt = NOW;
-  // Legacy (pre-envelope) runs must carry the frozen legacy role-body promptHash.
-  const promptHash = hashReviewPrompt(resolvePromptRoleBody(agent, {
-    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
-    roles: { [agent]: 'legacy-full-context' },
-  }).body);
-  const _hash = signReviewRun(
-    story.storyId, reviewRunId, agent, agent, story.currentReviewRound!, startedAt,
-    headHash, materialHash, promptHash, scopeBinding?.bindingHash, undefined, storyFilesHash,
-  );
-  return {
-    storyId: story.storyId,
-    reviewRunId,
-    agent,
-    lane: agent,
-    reviewRound: story.currentReviewRound!,
-    startedAt,
-    headHash,
-    materialHash,
-    ...(storyFilesHash ? { storyFilesHash } : {}),
-    promptHash,
-    ...(scopeBinding ? { scopeBinding } : {}),
-    _hash,
-  };
-}
-
 /** F-022 fixture shape: the canonical reader's failure is an OMITTED key, never null. */
 const FIXTURE_FULL: EvidenceHashSnapshot = {
-  schemaVersion: 'lattice.evidence_hash_snapshot.v1',
+  schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA,
   headHash: 'head0000000000000000000000000000000000000',
   materialHash: 'material00000000000000000000000000000000',
   storyFilesHash: 'storyfiles000000000000000000000000000000',
@@ -593,7 +560,7 @@ try {
   // `gitRoot` subdir. Every consumer must classify the snapshot captured from
   // the RESOLVED git cwd (B-6666 pattern), never from the bare metadataRoot —
   // otherwise the fail-closed classifier blocks a legitimately clean DONE.
-  testCase('wrapper-root (edge): clean configured gitRoot -> resolved-cwd snapshot complete, no evidence-hash-snapshot row, readiness DONE has no *_hash_unavailable row, legacy review run accepted', () => {
+  testCase('wrapper-root (edge): clean configured gitRoot -> resolved-cwd snapshot complete, no evidence-hash-snapshot row, readiness DONE has no *_hash_unavailable row', () => {
     const { metadataRoot, gitRoot, store } = wrapperRootRepo(STORY_ID, { unborn: false });
     try {
       const gitCwd = resolveGitCwd({ store, storyId: STORY_ID, metadataRoot, projectRoot: metadataRoot });
@@ -621,22 +588,13 @@ try {
         assert.equal(report.readiness.some((r) => /_hash_unavailable$/.test(r.code)), false, `${target}: no *_hash_unavailable row on a clean wrapper root`);
       }
 
-      // The regression: a LEGACY review run (no workspaceBinding) recomputed its
-      // freshness from the bare projectRoot (== metadataRoot). With the fail-closed
-      // classifier that read "HEAD unreadable" and blocked DONE. It must resolve
-      // the git cwd and accept the run bound to the resolved digests.
-      const story = store.readStory(STORY_ID);
-      const legacyRun = legacyReviewRun(story, resolved.headHash!, resolved.materialHash!, resolved.storyFilesHash);
-      store.writeReviewRuns(STORY_ID, { runs: [legacyRun] });
-      const accepted = assertCurrentReviewRunForEvidence(store, story, metadataRoot, legacyRun.agent, legacyRun.reviewRunId);
-      assert.equal(accepted.reviewRunId, legacyRun.reviewRunId, 'legacy run bound to the resolved-cwd digests must be accepted from the bare metadataRoot');
     } finally {
       rmSync(metadataRoot, { recursive: true, force: true });
       resetConfigCache();
     }
   });
 
-  testCase('wrapper-root (adversarial): unborn configured gitRoot still FAILS CLOSED (row fail/blocking, readiness DONE blocking, legacy review run rejected)', () => {
+  testCase('wrapper-root (adversarial): unborn configured gitRoot still FAILS CLOSED (row fail/blocking and readiness DONE blocking)', () => {
     const { metadataRoot, gitRoot, store } = wrapperRootRepo(STORY_ID, { unborn: true });
     try {
       const gitCwd = resolveGitCwd({ store, storyId: STORY_ID, metadataRoot, projectRoot: metadataRoot });
@@ -660,105 +618,8 @@ try {
       assert.equal(head.blocking, true);
       assert.equal(material.blocking, true);
 
-      const story = store.readStory(STORY_ID);
-      const legacyRun = legacyReviewRun(story, FAKE_HEAD, FAKE_MATERIAL, FAKE_STORY_FILES);
-      store.writeReviewRuns(STORY_ID, { runs: [legacyRun] });
-      assert.throws(
-        () => assertCurrentReviewRunForEvidence(store, story, metadataRoot, legacyRun.agent, legacyRun.reviewRunId),
-        /fail closed/,
-        'legacy run over an unborn wrapper gitRoot must still be rejected fail-closed',
-      );
     } finally {
       rmSync(metadataRoot, { recursive: true, force: true });
-      resetConfigCache();
-    }
-  });
-  // B-83aa CHK-003 follow-up (closeout-trust regression): on a PLAIN repo the
-  // signed-workspace resolver returns the SAME directory, but realpath-
-  // canonicalized (macOS tmpdir `/var/...` -> `/private/var/...`, or any
-  // symlinked checkout). If a legacy run (no workspaceBinding) adopts that
-  // canonical alias as its git cwd while the store keeps the un-canonicalized
-  // projectRoot, closeout retention builds `relative(cwd, storyDir/<artifact>)`
-  // as `../../../../var/...`, git rejects every artifact as "outside
-  // repository", and the lineage probe reports `non-canonical writer for
-  // <artifact>: ` (empty writer) for EVERY closeout artifact. The legacy cwd
-  // must therefore stay the bare projectRoot whenever the resolver only
-  // re-spells the same directory. Fixture mirrors closeout-trust-smoke: scope
-  // contract + ledger + slice plan committed on main, story branch forked
-  // after, a scope-bound legacy run at that head, then a receipted closeout
-  // artifact written by its canonical writer through the same projectRoot.
-  testCase('plain repo reached through a symlinked projectRoot (closeout-trust shape): legacy review run keeps the bare projectRoot as git cwd and closeout metadata retention succeeds', () => {
-    const realRoot = mkdtempSync(join(tmpdir(), 'pos-hash-classifier-plain-'));
-    const linkParent = mkdtempSync(join(tmpdir(), 'pos-hash-classifier-link-'));
-    try {
-      const link = join(linkParent, 'via-symlink');
-      symlinkSync(realpathSync(realRoot), link);
-      writeConfig(link);
-      mkdirSync(join(link, 'src'), { recursive: true });
-      writeFileSync(join(link, 'src', 'a.ts'), 'export const a = 1;\n', 'utf-8');
-      git(link, ['init', '-b', 'main']);
-      const store = new StoryStore(link);
-      writeTestStory(store, STORY_ID);
-      store.writeStory(STORY_ID, { ...store.readStory(STORY_ID), currentReviewRound: NOW });
-      const contract: ScopeContractData = {
-        storyId: STORY_ID,
-        mode: 'enforce',
-        allowedModify: ['src/**'],
-        allowedCreate: [],
-        allowedTest: ['tests/**'],
-        protectedFiles: [],
-        explicitExcludes: [],
-        acknowledgements: [],
-        createdAt: NOW,
-        updatedAt: NOW,
-      };
-      const ledger = buildMilestoneLedger({
-        storyId: STORY_ID,
-        state: 'candidate',
-        milestones: [{
-          id: 'M1', sourceRequirementId: 'REQ-1', claim: 'Legacy run cwd stays the bare projectRoot', doneMeans: 'Focused smoke passes',
-          requiredEvidence: ['logic_test'], checklistRefs: ['CHK-001'], verificationIntentRefs: ['CHK-001:happy:0'], status: 'planned',
-        }],
-      });
-      const plan = buildSlicePlan({ storyId: STORY_ID, ledger, slices: [{ id: 'S1', milestoneIds: ['M1'], reason: 'one bounded slice' }] });
-      store.writeScopeContract(STORY_ID, contract);
-      store.writeMilestoneLedger(STORY_ID, ledger);
-      store.writeProofStorySlicePlan(STORY_ID, plan);
-      git(link, ['add', '.']);
-      git(link, ['commit', '-m', 'baseline']);
-      git(link, ['checkout', '-b', `story/${STORY_ID}`]);
-
-      // Fixture sanity (non-tautological): the generic resolver does NOT hand
-      // back the projectRoot string; it hands back a canonical alias of the
-      // same directory. That alias is exactly what must NOT become the cwd.
-      const resolvedAlias = resolveGitCwd({ store, storyId: STORY_ID, metadataRoot: link, projectRoot: link });
-      assert.notEqual(resolvedAlias, link, 'fixture sanity: resolveGitCwd re-spells the symlinked projectRoot');
-      assert.equal(realpathSync(resolvedAlias), realpathSync(link), 'fixture sanity: the re-spelled cwd is the SAME directory');
-      assert.equal(
-        resolveLegacyReviewRunGitCwd(store, STORY_ID, link), link,
-        'legacy run git cwd must be the bare projectRoot (byte-identical) on a plain repo, never a re-spelled alias of it',
-      );
-
-      const snapshot = captureEvidenceHashSnapshot({ gitCwd: link, metadataRoot: link, ref: 'HEAD' });
-      assert.equal(classifyEvidenceHashSnapshot(snapshot).complete, true, 'plain repo snapshot must be complete');
-      const emptyDiff = { diffPackHash: 'ignored', changedFiles: [], hunks: [], generatedAt: NOW };
-      const scopeBinding = computeReviewScopeBinding({ contract, diffPack: emptyDiff, ledger, slicePlan: plan })!;
-      const story = store.readStory(STORY_ID);
-      const legacyRun = legacyReviewRun(story, snapshot.headHash!, snapshot.materialHash!, snapshot.storyFilesHash, scopeBinding);
-      store.writeReviewRuns(STORY_ID, { runs: [legacyRun] });
-
-      // Receipted closeout artifact written AFTER the run by its canonical
-      // writer; retention re-derives its lineage with `git log -- <rel path>`
-      // from the legacy run's git cwd.
-      const handlerOut = createTestHandlers({ store, root: link, scanRoot: link } as HandlerContext)
-        .test_add({ storyId: STORY_ID, command: 'true', output: 'pass', result: 'PASS' });
-      assert.match(handlerOut, /auto-committed/, 'fixture sanity: test_add must auto-commit a receipted test-evidence.json');
-
-      const accepted = assertCurrentReviewRunForEvidence(store, story, link, legacyRun.agent, legacyRun.reviewRunId);
-      assert.equal(accepted.reviewRunId, legacyRun.reviewRunId, 'legacy run on a plain repo must be accepted from the bare projectRoot: closeout retention must not run from a re-spelled cwd');
-    } finally {
-      rmSync(linkParent, { recursive: true, force: true });
-      rmSync(realRoot, { recursive: true, force: true });
       resetConfigCache();
     }
   });
