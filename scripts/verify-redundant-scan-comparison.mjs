@@ -42,6 +42,7 @@ const reference = path => {
     if (matcher.kind === 'prefix') { const base = normalize(matcher.value); return value === base || value.startsWith(base + '/'); }
     return matcher.value.test(value);
   }));
+};
 let parityCases = 0;
 for (const entry of registry) for (const matcher of entry.matchers) {
   if (typeof matcher.value !== 'string') continue;
