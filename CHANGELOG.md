@@ -1,17 +1,5 @@
 # Changelog
 
-## Lab b83aa-partial-hash-freshness - v0.3.341 - 2026-09-12
-
-# B-83aa Partial Hash Freshness
-
-Evidence hash snapshots now fail closed when the current Git HEAD or material digest cannot be derived. The shared classifier is consumed by DONE admission, lifecycle readiness, routine validation reuse, and session diagnostics. Missing storyFilesHash remains an explicit advisory with strict materialHash fallback, and historical DONE projections disclose legacy omissions without reopening completed history.
-
-Verification includes the managed C1-C7 RED/GREEN proof, 22 classifier and consumer cases, TypeScript compilation, process-fact and runtime-fact contracts, DONE wrapper-root and required-freshness regressions, plus independent different-vendor Lab audit.
-
-Maintenance provenance: codex/lab-b83aa-partial-hash-freshness, repair 22b16edf903488a6e24725bd4b1fb7868f11234d.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-partial-hash-snapshot-binding.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab verification-key-location-reuse - v0.3.340 - 2026-09-12
 
 Reduce repeated Git discovery during verification receipt validation by reusing the signer location within one public validation call. Read current key bytes for every signature, bind each requested working directory, and compare the current canonical location before returning. Preserve the original Git parser, including newline paths and shared worktree trust.
