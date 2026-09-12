@@ -41,6 +41,11 @@ The recorded command should cover the reproduction and relevant regressions.
 Performance assertions must compare equivalent conditions and define a threshold.
 Command exit status cannot prove that a test is meaningful; maintainers must still
 review test intent, coverage, and whether an optimization weakens a contract.
+When changing `test:serial-reference` or `test:serial-reference-prefix`, build and
+run `node packages/main/dist/tasks/full-suite-runner-smoke.js` before GREEN. Its
+live inventory check verifies every canonical member has a resource policy;
+per-command success alone does not establish suite membership completeness.
+
 Keep hooks enabled and preserve prompt plus mechanical enforcement for process
 facts. Local records are not formal Story REVIEW, TEST, DONE, or signed
 artifact/capability-release evidence. No Story JSON is created or advanced.

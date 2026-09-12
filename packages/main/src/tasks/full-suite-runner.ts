@@ -149,11 +149,11 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // claim is sufficient. Omitting this row leaves a canonical serial-reference
   // member without resource policy and fails the suite closed as unknownPolicy.
   repoRead('test:review-epoch-certification-continuity'),
-  // Native route/history verification reads this checkout and creates private Git
-  // fixtures. Its measured 350-second workload retains the shared heavy CPU,
-  // process and path admission claims; internal child deadlines stay unchanged.
-  repoRead('test:route-reattestation-dependency-direction', { timeoutMs: 600_000 },
-    isolatedHeavy('test:route-reattestation-dependency-direction').resources),
+  // The route verifier runs its child suites sequentially against private Git
+  // fixtures (history includes a bounded two-child race), with shared checkout
+  // reads and no shared writable resource. Allow overlap; its measured 350-second
+  // workload needs a finite outer budget, not machine-wide heavy serialization.
+  repoRead('test:route-reattestation-dependency-direction', { timeoutMs: 600_000 }),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
   repoRead('test:proof-or-stop-residue'),
   // B-cc10 identity-migration members of test:serial-reference. A serial-reference

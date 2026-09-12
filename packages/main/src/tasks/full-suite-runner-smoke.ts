@@ -180,10 +180,7 @@ async function main(): Promise<void> {
   assert(routeEntry!.tempOwnership === 'runner-owned-unique', 'route regression retains private fixture ownership');
   assert(routeEntry!.timeoutMs === 600_000, 'route regression outer budget accommodates measured 350-second native workload');
   assert(routeEntry!.resources.some(r => r.class === 'git-common-dir' && r.key === '.' && r.access === 'shared'), 'route regression declares shared repository reads');
-  const heavyReference = FULL_SUITE_ENTRIES.find(item => item.name === 'test:flow-stability-smoke')!;
-  for (const claim of heavyReference.resources) {
-    assert(routeEntry!.resources.some(r => r.class === claim.class && r.key === claim.key && r.access === claim.access), `route regression preserves heavy resource claim ${claim.class}`);
-  }
+  assert(routeEntry!.resources.length === 1, 'route regression has only its shared repository read and adds no exclusive serialization');
 
   const scripts = { 'test:a': 'x', 'test:b': 'x' };
   const policy = { 'test:a': entry('test:a'), 'test:b': entry('test:b') };
