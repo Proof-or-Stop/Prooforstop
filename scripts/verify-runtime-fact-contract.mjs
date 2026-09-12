@@ -120,6 +120,9 @@ async function main() {
   check(registrySource.includes('MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY') && admission.includes('machineProviderProcessSlotsDir()') && admission.includes('admission.machineSlot'), 'provider admission must acquire, transfer and release canonical machine sidecar slots');
   const portLock = read(root, 'packages/main/src/core/validation-execution-lock.ts');
   check(registrySource.includes("unknownResources: 'exclusive-machine-queue'") && portLock.includes("class: 'machine-validation'"), 'unknown validation resources require a shared machine admission barrier with exclusive fallback');
+  check(registrySource.includes('REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY')
+    && read(root,'packages/main/src/tasks/full-suite-runner.ts').includes('[REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.environmentKey]: JSON.stringify(')
+    && read(root,'packages/main/src/tasks/isolated-finding-fixture.ts').includes('Number(value.deadlineAt) - now'), 'review epoch fixture watchdog must consume the scheduler remaining outer deadline through registered test-only policy');
   check(registrySource.includes('MACHINE_HEAVY_RESOURCE_POLICY') && read(root,'packages/main/src/core/keyed-scheduler.ts').includes('MACHINE_HEAVY_RESOURCE_POLICY.cpuKey'), 'machine CPU/process claims must share the runtime policy');
   check(registrySource.includes('MACHINE_FIXED_PORT_RUNTIME_POLICY') && portLock.includes('MACHINE_FIXED_PORT_ARTIFACT.directoryName')
     && portLock.includes('userInfo().homedir') && portLock.includes('probeMachineFixedPort') && portLock.includes('machinePortAncestorPids'),

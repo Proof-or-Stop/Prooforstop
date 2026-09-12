@@ -1,3 +1,4 @@
+import {isMissingReviewSnapshotError} from './review-metadata-surface.js';
 import {reportHealthIssue} from './health.js';
 /** Narrow writer/consumer compatibility for authenticated review bookkeeping. */
 import { createHash } from 'node:crypto';
@@ -93,7 +94,8 @@ function computeVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
     };
     if (matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_add metadata`)) {
       if (artifacts.some(path => ['process-events.jsonl','owner-lease.json'].includes(path) && args.isProtectedArtifact(path))) return false;
-      if (artifacts.includes('owner-lease.json') && !isOwnerLeaseHeartbeatOnly(readAt(parents[0],'owner-lease.json'),readAt(commit,'owner-lease.json'))) return false;
+      if (artifacts.includes('owner-lease.json') && (!git(['ls-tree','--name-only',parents[0],'--',prefix + 'owner-lease.json'])
+      || !isOwnerLeaseHeartbeatOnly(readAt(parents[0],'owner-lease.json'),readAt(commit,'owner-lease.json')))) return false;
       if (!artifacts.includes('checklist.json') || artifacts.some(p => p !== 'checklist.json' && p !== 'process-events.jsonl' && p !== 'owner-lease.json' && p !== CAUSAL_RECEIPT_INDEX_FILE
         && !/^causal-evidence\/(outputs|receipts)\/[a-f0-9]{64}\.json$/.test(p))) return false;
       if(artifacts.some(path=>path===CAUSAL_RECEIPT_INDEX_FILE || path.startsWith(CAUSAL_RECEIPT_DIRECTORY+'/') || path.startsWith(CAUSAL_OUTPUT_DIRECTORY+'/'))) loadReceiptSnapshots();
@@ -133,6 +135,7 @@ function computeVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
         const digest=createHash('sha256').update(payload.output).digest('hex');
         if(path!==`${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json` || !outputsByDigest.get(digest)?.has(payload.output.length)) return false;
       }
+      if (!git(['ls-tree','--name-only',parents[0],'--',prefix + 'checklist.json'])) return false;
       const before = readAt(parents[0],'checklist.json') as ChecklistData;
       const after = readAt(commit,'checklist.json') as ChecklistData;
       const reviewed = readAt(reviewedHeadHash,'checklist.json') as ChecklistData;
@@ -172,7 +175,7 @@ function computeVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
     }
     return false;
   } catch (error) {
-    if (!(error && typeof error === 'object' && (('code' in error && error.code === 'ENOENT') || ('stderr' in error && /fatal: path .* does not exist in/.test(String(error.stderr))))))
+    if (!isMissingReviewSnapshotError(error))
       reportHealthIssue('review-maintenance-lineage',error instanceof Error ? error : {message:String(error)},{storyId});
     return false;
   }
@@ -205,7 +208,7 @@ export function isCurrentVerifiedEvidenceRefreshArtifact(args: {
     if(readFileSync(store.storyFilePath(storyId,artifactPath),'utf8')!==published.bytes) return false;
     return isVerifiedEvidenceRefreshCommit({gitCwd,metadataRoot,storyId,commit:published.commit,isProtectedArtifact:args.isProtectedArtifact,reviewedHeadHash:args.reviewedHeadHash,cache:args.cache});
   } catch (error) {
-    if (!(error && typeof error === 'object' && (('code' in error && error.code === 'ENOENT') || ('stderr' in error && /fatal: path .* does not exist in/.test(String(error.stderr))))))
+    if (!isMissingReviewSnapshotError(error))
       reportHealthIssue('review-maintenance-lineage',error instanceof Error ? error : {message:String(error)},{storyId});
     return false;
   }

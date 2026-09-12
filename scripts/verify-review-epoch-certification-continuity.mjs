@@ -22,6 +22,20 @@ import { isPromptBodyArtifactPath } from "../packages/main/dist/core/prompt-body
 import { readOwnerLease, releaseOwnerLease } from "../packages/main/dist/core/story-owner-lease.js";
 import { adapterSessionEnv, adapterSessionId } from "../packages/main/dist/tasks/adapter-session-env.js";
 import {isVerifiedReviewMaintenanceCommit} from '../packages/main/dist/core/review-maintenance-lineage.js';
+import {getHealthPath} from '../packages/main/dist/core/health.js';
+import {isMissingReviewSnapshotError} from '../packages/main/dist/core/review-metadata-surface.js';
+import {recordConvergenceProgress} from '../packages/main/dist/core/convergence-progress-journal.js';
+assert(isMissingReviewSnapshotError({stderr:"fatal: path 'x' exists on disk, but not in 'head'"}));
+assert(isMissingReviewSnapshotError({stderr:"fatal: path 'x' does not exist in 'head'"}));
+assert.equal(isMissingReviewSnapshotError({stderr:'fatal: bad object head'}),false);
+function assertNoReaderHealth(action, expectedAnomaly=false) {
+ const scratch=mkdtempSync(join(tmpdir(),'review-reader-health-'));
+ const old=process.env.PROOF_OR_STOP_HEALTH_PATH, path=join(scratch,'health.jsonl');
+ process.env.PROOF_OR_STOP_HEALTH_PATH=path;
+ try {assert.equal(getHealthPath(),path);action();const rows=existsSync(path)?readFileSync(path,'utf8').trim().split('\n').filter(Boolean).map(JSON.parse):[];assert.equal(rows.length,expectedAnomaly?1:0,'designed refusals stay quiet; unexpected reader errors stay observable');if(expectedAnomaly)assert.equal(rows[0].category,'review-maintenance-lineage');}
+ finally {if(old===undefined)delete process.env.PROOF_OR_STOP_HEALTH_PATH;else process.env.PROOF_OR_STOP_HEALTH_PATH=old;rmSync(scratch,{recursive:true,force:true});}
+}
+
 import {evaluatePersistedReviewToTestIndexTransition} from '../packages/main/dist/core/review-run.js';
 import {closeoutArtifactPolicyFor, evaluateMetadataOnlyReviewRetention, isCanonicalCloseoutEvidenceWrite, assertCanonicalCloseoutWrite, computeCloseoutWriteReceiptIntegrity} from '../packages/main/dist/core/closeout-trust.js';
 assert.equal(isCanonicalCloseoutEvidenceWrite('checklist.json','verification_evidence_add'),false);
@@ -132,7 +146,17 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
 // Real native required lanes and the completeness critic supply inventory authority.
 // Fixture broker host labels are disposable test identities, not cross-host assurance.
 
-const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
+const {runIsolatedFindingFixture,reviewEpochFixtureBudgetMs}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
+const budgetEnv=(timeoutMs,deadlineAt=timeoutMs+1000,entry='test:review-epoch-certification-continuity')=>({PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET:JSON.stringify({entry,timeoutMs,deadlineAt})});
+assert.equal(reviewEpochFixtureBudgetMs({},1000),360000);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(450000),1000),360000);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675000),1000),540000);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(200000),1000),160000);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675000,101000),1000),70000);
+assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(675001),1000),/Invalid/);
+assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(450000,1000),1000),/exhausted/);
+assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(450000,451000,'other'),1000),/Invalid/);
+assert.throws(()=>reviewEpochFixtureBudgetMs({PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET:'bad'},1000));
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const modes=['clean','coverage-added','wrong-subject','wrong-story-path','outside-review-artifact','near-miss-prompt-body','forged-publisher','forged-refresh','cancelled'];
 {
@@ -435,9 +459,10 @@ try {
 
 const publicationBinding={gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:publishedHead,reviewedHeadHash:expected.headHash,reviewedMaterialHash:expected.materialHash,reviewedStoryFilesHash:expected.storyFilesHash};
 assert(isVerifiedReviewMaintenanceCommit(publicationBinding),'actual late-start publication control passes');
+assertNoReaderHealth(()=>assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:'not-a-commit'}),false),true);
 assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedMaterialHash:'0'.repeat(64)}),false,'wrong consumer material binding is refused');
 assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedStoryFilesHash:'0'.repeat(64)}),false,'wrong consumer Story binding is refused');
-assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedHeadHash:smallPinnedHead}),false,'a consumer before the epoch cutoff is refused');
+assertNoReaderHealth(()=>assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedHeadHash:smallPinnedHead}),false,'a consumer before the epoch cutoff is refused'));
 const publishPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r',publishedHead]).split('\n').filter(Boolean);
 const observedMetrics=computeProcessMetrics(storyId,fixture.store,fixture.root);
 for(const validMetrics of [true,false]) {
@@ -447,6 +472,41 @@ for(const validMetrics of [true,false]) {
  writeFileSync(join(fixture.root,storyPrefix+'process-metrics.json'),JSON.stringify(metrics));
  git(fixture.root,['add','--',...publishPaths,storyPrefix+'process-metrics.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
  assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:git(fixture.root,['rev-parse','HEAD'])}),validMetrics,'epoch metrics current-Story control/refusal');
+}
+git(fixture.root,['reset','--hard',publishedHead]);
+
+// A first publication of a lease/checklist is a structural refusal, not an
+// unreadable-repository anomaly. These writes are disposable Git witnesses only.
+for(const missingParent of ['owner-lease.json','checklist.json']) {
+ git(fixture.root,['reset','--hard',publishedHead]);
+ const path=storyPrefix+missingParent;
+ const original=missingParent==='owner-lease.json'?JSON.stringify(leaseControl):readFileSync(join(fixture.root,path),'utf8');
+ rmSync(join(fixture.root,path),{force:true});git(fixture.root,['add','-A','--',storyPrefix]);
+ git(fixture.root,['commit','--allow-empty','-m','test: absent parent snapshot']);
+ writeFileSync(join(fixture.root,path),original);git(fixture.root,['add','--',path]);
+ git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
+ assertNoReaderHealth(()=>assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:git(fixture.root,['rev-parse','HEAD'])}),false,missingParent));
+}
+git(fixture.root,['reset','--hard',publishedHead]);
+recordConvergenceProgress(fixture.store,storyId,fixture.root);
+const realConvergence=JSON.parse(readFileSync(join(fixture.root,storyPrefix+'convergence-progress.json'),'utf8'));
+assert(Array.isArray(realConvergence.completedEpochBindings)&&Array.isArray(realConvergence.revokedCompletedEpochIds),'official producer writes required arrays');
+// Preserve authentic producer shape. Historical row sentinels below test prefix
+// retention only; they do not claim to be valid completed-epoch authority.
+for(const variant of ['preserved','optional-absent','completedEpochBindings','revokedCompletedEpochIds','humanDecisions','missing-required']) {
+ git(fixture.root,['reset','--hard',publishedHead+'^']);
+ const prior={...realConvergence,completedEpochBindings:[{epochId:'historical',claimDigest:'fixture-history'}],revokedCompletedEpochIds:['historical'],humanDecisions:[{reason:'retained historical fixture decision',completedEpochIds:['historical'],snapshotDigest:'fixture-history'}]};
+ if(variant==='optional-absent')delete prior.humanDecisions;
+ writeFileSync(join(fixture.root,storyPrefix+'convergence-progress.json'),JSON.stringify(prior));
+ git(fixture.root,['add','--',storyPrefix+'convergence-progress.json']);git(fixture.root,['commit','-m','test: retain convergence prefix witnesses']);
+ for(const path of publishPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),execFileSync('git',['show',publishedHead+':'+path],{cwd:fixture.root}));}
+ const next=structuredClone(prior);next.humanDecisions??=[];
+ if(['completedEpochBindings','revokedCompletedEpochIds','humanDecisions'].includes(variant))next[variant]=[];
+ else if(variant==='missing-required')delete next.completedEpochBindings;
+ else next.humanDecisions.push({reason:'appended fixture decision',completedEpochIds:[],snapshotDigest:'next'});
+ writeFileSync(join(fixture.root,storyPrefix+'convergence-progress.json'),JSON.stringify(next));
+ git(fixture.root,['add','--',...publishPaths,storyPrefix+'convergence-progress.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
+ assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:git(fixture.root,['rev-parse','HEAD'])}),['preserved','optional-absent'].includes(variant),variant);
 }
 git(fixture.root,['reset','--hard',publishedHead]);
 

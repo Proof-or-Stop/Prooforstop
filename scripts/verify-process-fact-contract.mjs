@@ -7290,6 +7290,11 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
 
   assert(read('packages/main/src/core/closeout-trust.ts').includes("import type { StoryStore } from './store.js'") && !read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'"), 'closeout -> refresh -> store runtime edge must remain absent');
   const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts') + read('packages/main/src/core/review-evidence-refresh.ts');
+  const convergenceSchema = read('packages/main/src/core/convergence-progress-journal.ts');
+  assert(convergenceSchema.includes('completedEpochBindings: { epochId: string; claimDigest: string }[];')
+    && convergenceSchema.includes('revokedCompletedEpochIds: string[];') && convergenceSchema.includes('humanDecisions?:'), 'convergence history arrays are mandatory except humanDecisions; reader assumptions bind persisted schema');
+  assert(maintenanceText.split('isMissingReviewSnapshotError(error)').length === 4, 'all three maintenance reader catches share the missing-snapshot classifier');
+
   assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('semanticRows(priorEvidence)') && maintenanceText.includes('remaining.splice(index,1)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,old!,prior)'), 'review retention cannot add coverage or change the reviewed mechanical result');
   assert(!read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'")
@@ -7307,7 +7312,7 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   assert(maintenanceText.includes('verifyCloseoutWriteReceipt(receipt,') && maintenanceText.includes('evaluatePersistedReviewToTestIndexTransition(gitCwd,')
     && maintenanceText.includes('verifyCertificationWindow(window)') && maintenanceText.includes('consumedByCertificationWindowId !== window.windowId'), 'post-review official lifecycle commits require typed receipt, consumption and exact phase delta checks');
   assert(reviewGateText.includes('managedInventorySubjectState(store, run)')
-    && reviewGateText.includes('managedPromptDigest: managedBinding.managedPromptDigest')
+    && managedText.includes('isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest)')
     && !reviewGateText.includes('managedPromptDigest: managedReviewerPromptDigest('), 'managed consumption must validate the current subject and authenticated launch digest without rebuilding the OPEN-only prompt');
   assert(read('packages/main/src/handlers/certification-window.ts').includes('isVerifiedReviewMaintenanceCommit({')
     && managedText.includes('isVerifiedReviewMaintenanceCommit({'), 'managed and certification consumers share bounded signed publication lineage');
@@ -11435,8 +11440,12 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
 // Canonical batched review publication must retain PRE_CERT identity without broadening its path surface.
 {
   const cert = read('packages/main/src/handlers/certification-window.ts');
-  for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS', 'reviewEpochBatch', 'record ${storyId} review epoch metadata', 'path.slice(storyPrefix.length)', 'isPromptBodyArtifactPath(artifact)']) {
+  for (const token of ['reviewEpochBatch', 'record ${storyId} review epoch metadata', 'isVerifiedReviewMaintenanceCommit({']) {
     if (!cert.includes(token)) failures.push(`PRE_CERT canonical review epoch continuity missing ${token}`);
+  }
+  const epochReader=read('packages/main/src/core/review-maintenance-lineage.ts');
+  for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS','p.slice(prefix.length)','isPromptBodyArtifactPath(p)']) {
+    if (!epochReader.includes(token)) failures.push(`PRE_CERT shared canonical reader missing ${token}`);
   }
   if (cert.includes('prompt-bodies')) failures.push('PRE_CERT must reuse the canonical prompt-body path owner');
   if (!read(processFactRegistryPath).includes('prompt-body paths recognized by the canonical prompt-body store')) failures.push('bounded canonical review epoch continuity must be registered');

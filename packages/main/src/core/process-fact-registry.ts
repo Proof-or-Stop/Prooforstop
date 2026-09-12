@@ -2544,3 +2544,9 @@ export function getProcessFactRegistryEntry(name: string): ProcessFactRegistryEn
 export function hasProcessFactSemantic(name: string, semantic: ProcessFactSemantic): boolean {
   return PROCESS_FACT_REGISTRY_BY_NAME[name]?.semantics.includes(semantic) ?? false;
 }
+
+// Review-maintenance reader diagnostics distinguish ordinary negative ancestry
+// and missing snapshots from unexpected failures. Convergence prefix retention
+// binds required completed/revoked arrays and optional human decisions to the
+// persisted journal schema. The launch seal comparison, not an optional legacy
+// expected digest property, remains the managed review consumption authority.

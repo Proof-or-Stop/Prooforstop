@@ -426,3 +426,95 @@ suite wall clock or PASS. The official draft full-suite-nested-machine-resource-
 routes this pre-existing scheduler failure. The baseline parallel scheduling
 choice avoids the new serialization risk without repairing unrelated scheduler
 code or hiding the failed measurement.
+
+
+## Eighth bounded repair after actual audit 40d44c17
+
+Actual Claude audit of 1aa214e8a0 returned five findings in 578838 ms. It
+confirmed the core launch seal, one-to-one V5 result/coverage preservation,
+publication history and wave supersession protections. The candidate was
+reopened; no integration was claimed.
+
+Ancestry exit 1 now returns an explicit negative verdict; other Git failures
+still reach the health reporter. A shared missing-snapshot predicate recognizes
+both Git absent-path wordings. Lease/checklist parent reads are existence-guarded.
+The regression redirects the actual health writer through its supported test
+path, checks the path, proves normal refusals emit no anomaly and an invalid
+commit emits one. It adds first-parent lease/checklist publication controls.
+
+The persisted ConvergenceProgressJournal in core/convergence-progress-journal.ts
+requires completedEpochBindings and revokedCompletedEpochIds; humanDecisions is
+optional. The process contract pins these exact declarations:
+
+```ts
+completedEpochBindings: { epochId: string; claimDigest: string }[];
+revokedCompletedEpochIds: string[];
+humanDecisions?: { reason: string; completedEpochIds: string[]; snapshotDigest: string }[];
+```
+
+The regression calls recordConvergenceProgress to obtain the real producer
+shape, then constructs disposable historical prefix sentinels. Those sentinels
+are not claimed as valid completed-epoch authority. Positive prefix preservation,
+each field's erasure, absent optional parent field and missing required next
+field are exercised through the maintenance classifier. Other convergence gates
+retain their authority checks. Consumption no longer supplies an inert prompt
+digest; legacy caller shapes remain source-compatible via an optional field.
+The real three-way sealed digest comparison stays mechanically pinned. The
+unreachable certification allowlist branch is removed; the shared strict reader
+continues to enforce that allowlist.
+
+### Measured watchdog and concurrency boundary
+
+The seventh-variant recorded passes were 271801 ms at 722a066079, 266625 ms at
+745bd838d4 and 224343 ms at prepared 1aa214e8a0. The eighth standalone regression
+44 passed in 188552 ms with source frozen. The registered standalone watchdog is
+360000 ms, retaining 88199 ms (32.4%) margin above the slowest seventh pass. It
+scales from the scheduler's post-admission outer budget, up to 540000 ms, and is
+clamped to its absolute remaining deadline minus 30000 ms. Invalid/expired
+transport refuses. Production provider admission, resource pools, global suite
+budget and canonical membership are unchanged. Runtime contracts pin writer and
+reader; fast assertions cover standalone, concurrency, queue/startup delay and
+invalid/expired envelopes. This is a test watchdog, not new authority.
+
+A real canonical three-member jobs=3 subset was run with the unchanged scheduler,
+resource claims, machine admission, build binding and cancellation policy:
+review-epoch-certification-continuity, proofstory-acceptance-rollout and
+flow-stability-smoke. The first heavy member PASSED in 231942 ms. Continuity
+received 539991 ms inner / 674989 ms outer and overlapped that member for
+231920 ms, but FAILED after 274635 ms at its FIRST verification_evidence_add.
+Its internal CLI waited in machine admission and returned its existing deadline
+error; the 539991 ms watchdog did not expire. The next heavy member was normally
+cancelled. This establishes actual overlap and transport observation, not a
+completed concurrent continuity PASS or full-suite PASS.
+
+The existing runSingleAllowlistedCommand builds a validation command without
+resource claims; its unknown leaf requests the exclusive machine barrier while
+the enclosing full-suite entry retains its classified shared barrier. The
+existing full-suite-nested-machine-resource-owner draft owns that nested resource
+follow-up (main 5fc1e8d458). The earlier exact default-job npm test failures were
+reproduced on main too. This Lab does not reclassify unknown leaf work as safe,
+create private provider pools, release another holder or repair global scheduling.
+Raw subset outcomes, received budgets and overlap spans are retained externally
+in review-finalization-concurrency-subset.json; standalone and failure logs are
+preserved. Complete concurrent execution remains an explicit limitation for the
+next independent auditor to assess, not evidence of reduced resource consumption.
+
+
+A bounded same-API detached-child witness subsequently reproduced the exact
+nested barrier mechanism on both main a8240a60bd and this Lab. Both relevant
+source files and served modules were byte-identical. The actual unknown-resource
+leaf ticket was observed behind the diagnostic's own shared outer ticket; the
+leaf's parent was PID 1. Main/Lab refused in 903/902 ms under a bounded deadline;
+after releasing only the diagnostic's own outer holder, the identical Node leaf
+executed successfully in 116/92 ms. The forwarded 10-second deadline label on
+that sub-second refusal also reproduced the misleading timeout wording. Own
+workers and tickets were verified absent afterward. There were no provider
+launches, private pools, admission overrides or real Story changes. External
+nested-machine-admission-diagnostic-report.md and its JSON retain the actual
+observations. This strengthens the existing baseline route; it does not prove
+successful concurrent headroom. Independent audit must assess that limitation.
+
+Eighth repair build and runtime contract passed. Process contract 20 passed after
+retargeting a second old certification assertion from dead branch text to the
+actual shared strict reader. The normal-refusal health regression also includes
+a genuine invalid-commit anomaly control through the actual health output path.

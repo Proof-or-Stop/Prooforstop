@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { MACHINE_HEAVY_RESOURCE_POLICY } from '../core/runtime-fact-registry.js';
+import { MACHINE_HEAVY_RESOURCE_POLICY, REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY } from '../core/runtime-fact-registry.js';
 import { withMachineValidationResources } from '../core/validation-execution-lock.js';
 
 import { spawn, execFileSync } from 'node:child_process';
@@ -687,7 +687,7 @@ async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmComm
     const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];
     const child = spawn(command, commandArgs, {
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
+      env: { ...process.env, [REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.environmentKey]: JSON.stringify({entry:entry.name,timeoutMs:entry.timeoutMs ?? DEFAULT_TIMEOUT_MS,deadlineAt:Date.now()+(entry.timeoutMs ?? DEFAULT_TIMEOUT_MS)}), PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
     // B-137a: capture the child's kernel start identity BEFORE any cleanup can
     // run, so a later group signal can be authorized against it.

@@ -1,3 +1,4 @@
+import { REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY as epochBudget } from '../core/runtime-fact-registry.js';
 /** Test-only OS isolation for native-broker fixtures. Never used by production
  * handlers: no host policy, process observer or broker verification is replaced.
  * The worker owns only disposable test repositories and its own broker keys. */
@@ -7,6 +8,20 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
+
+/** Bound the inner watchdog by the scheduler's actual remaining outer deadline. */
+export function reviewEpochFixtureBudgetMs(environment: NodeJS.ProcessEnv = process.env, now = Date.now()): number {
+  const raw = environment[epochBudget.environmentKey];
+  if (raw === undefined) return epochBudget.standaloneMs;
+  const value = JSON.parse(raw) as {entry?:unknown;timeoutMs?:unknown;deadlineAt?:unknown};
+  if (value.entry !== epochBudget.entry || !Number.isFinite(value.timeoutMs) || !Number.isFinite(value.deadlineAt)
+    || Number(value.timeoutMs) <= 0 || Number(value.timeoutMs) > epochBudget.maxOuterMs) throw new Error('Invalid review epoch fixture outer budget');
+  const scaled = Math.min(epochBudget.maxConcurrentMs, epochBudget.standaloneMs * Number(value.timeoutMs) / epochBudget.outerStandaloneMs);
+  const remaining = Math.min(Number(value.timeoutMs), Number(value.deadlineAt) - now) - epochBudget.cleanupMarginMs;
+  const budget = Math.floor(Math.min(scaled, remaining));
+  if (budget <= 0) throw new Error('Review epoch fixture outer deadline exhausted');
+  return budget;
+}
 
 const MARKER = '--isolated-finding-fixture-worker';
 export async function runIsolatedFindingFixture(entry: string): Promise<boolean> {
@@ -47,14 +62,14 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
     // The 58-case routes integration performs real target executions and
     // exceeded 120 s twice at case 46 under the independent Claude host.
     // Keep its bounded fixture budget separate from production command limits.
-    // The native epoch continuity regression measured 76 s for four linked-worktree
-    // cases; six cases now include actual cancellation and a prompt-path near miss.
-    // The extended epoch test includes real managed transport and independently
-    // bounded admission/completion waits plus discriminating transition controls.
-    // Allow bounded host contention without changing any production timeout.
+    // The current variant measured 271801 ms standalone at 722a066079.
+    // 360 s adds 32% margin; concurrent scheduling scales it to at most 540 s,
+    // clamped to the remaining outer deadline minus 30 s for cleanup.
+    const budgetStartedAt=Date.now();
     const budgetMs = file.endsWith('/finding-identity-lineage-smoke.js') ? 300_000
-      : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? 420_000 : 120_000;
-    const deadline = Date.now() + budgetMs;
+      : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? reviewEpochFixtureBudgetMs(process.env,budgetStartedAt) : 120_000;
+    const deadline = budgetStartedAt + budgetMs;
+    if(file.endsWith('/verify-review-epoch-certification-continuity.mjs')) process.stdout.write(`REVIEW_EPOCH_FIXTURE_BUDGET ${JSON.stringify({budgetMs,deadline,outerEnvelope:process.env[epochBudget.environmentKey]??null})}\n`);
     while (!existsSync(outcome) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));
     process.stdout.write(readFileSync(output, 'utf8'));
     if (!existsSync(outcome)) throw new Error('isolated Finding fixture timed out');

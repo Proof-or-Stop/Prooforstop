@@ -540,7 +540,9 @@ export function verifyManagedReviewEvidence(args: {
   reviewRunId: string;
   lane: string;
   binding: ManagedReviewEvidenceBinding;
-  expected: ManagedReviewExpectedBinding;
+  // Legacy callers may supply the import-time digest, but consumption derives
+  // authority exclusively from the signed binding and sealed managed launch.
+  expected: Omit<ManagedReviewExpectedBinding, 'managedPromptDigest'> & { managedPromptDigest?: string };
   evidence?: { kind: 'pass'; pass: ReviewPass } | { kind: 'finding'; finding: Finding };
 }): ManagedReviewEvidenceVerification {
   let receipt: ManagedHostRunReceipt;

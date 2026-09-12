@@ -1730,6 +1730,7 @@ function validateEvidenceRunBinding(
         message: `${evidence.kind} ${evidence.id} has an invalid current managed inventory subject` };
     }
 
+    // Consumption authenticates the sealed launch; it never rebuilds an OPEN-only prompt.
     const managed = verifyManagedReviewEvidence({
       root: projectRoot,
       storyId: story.storyId,
@@ -1744,10 +1745,6 @@ function validateEvidenceRunBinding(
         storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
         promptHash: run.promptHash,
         envelopeId: run.envelopeId ?? null,
-        // verifyManagedReviewEvidence checks this against the authenticated launch
-        // binding and sealed promptDigest. Never rebuild a launch-time inventory
-        // pack after its epoch has legitimately transitioned to FINALIZED.
-        managedPromptDigest: managedBinding.managedPromptDigest,
       },
       ...(evidence.kind === 'pass' && evidence.pass
         ? { evidence: { kind: 'pass' as const, pass: evidence.pass } }

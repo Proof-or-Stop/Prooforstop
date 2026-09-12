@@ -6,7 +6,7 @@ import { relative } from 'node:path';
 import { realpathSync } from 'node:fs';
 import { StoryStore } from './store.js';
 import { matchesRuntimeCommitSubject } from './auto-commit-metadata.js';
-import { REVIEW_EPOCH_COMMIT_ARTIFACTS } from './review-metadata-surface.js';
+import { REVIEW_EPOCH_COMMIT_ARTIFACTS, isMissingReviewSnapshotError } from './review-metadata-surface.js';
 import { isPromptBodyArtifactPath } from './prompt-body-store.js';
 import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
 import { digestCanonicalJson } from './digest.js';
@@ -40,7 +40,13 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         || (args.reviewedMaterialHash !== undefined && epoch.cutoff.materialHash !== args.reviewedMaterialHash)
         || (args.reviewedStoryFilesHash !== undefined && epoch.cutoff.storyFilesHash !== args.reviewedStoryFilesHash)) return false;
       if (epoch.cutoff.headHash !== reviewedHeadHash && (!args.reviewedMaterialHash || !args.reviewedStoryFilesHash)) return false;
-      git(['merge-base','--is-ancestor',epoch.cutoff.headHash,reviewedHeadHash]);
+      // Git exit 1 is an ordinary negative ancestry verdict; other failures
+      // remain unexpected reader errors and reach the health reporter.
+      try { git(['merge-base','--is-ancestor',epoch.cutoff.headHash,reviewedHeadHash]); }
+      catch (error) {
+        if (error && typeof error === 'object' && 'status' in error && error.status === 1) return false;
+        throw error;
+      }
       if (artifacts.includes('process-metrics.json')) {
         const metrics = readAt(commit,'process-metrics.json');
         if (metrics.storyId !== storyId || typeof metrics.generatedAt !== 'string' || !metrics.sourceSnapshot || !metrics.dimensions) return false;
@@ -93,7 +99,8 @@ export function isVerifiedReviewMaintenanceCommit(args: {
     // subject-bound projections; owner-lease changes retain only an unchanged owner and a heartbeat/PID update.
     const incidental = new Set(['process-events.jsonl', 'process-metrics.json', 'test-runs.json', 'owner-lease.json']);
     if (artifacts.some(path => incidental.has(path) && closeoutArtifactPolicyFor(path))) return false;
-    if (artifacts.includes('owner-lease.json') && !isOwnerLeaseHeartbeatOnly(readAt(parents[0],'owner-lease.json'),readAt(commit,'owner-lease.json'))) return false;
+    if (artifacts.includes('owner-lease.json') && (!git(['ls-tree','--name-only',parents[0],'--',prefix + 'owner-lease.json'])
+      || !isOwnerLeaseHeartbeatOnly(readAt(parents[0],'owner-lease.json'),readAt(commit,'owner-lease.json')))) return false;
     if (artifacts.includes('process-metrics.json')) {
       const metrics = readAt(commit,'process-metrics.json');
       if (metrics.storyId !== storyId || typeof metrics.generatedAt !== 'string' || !metrics.sourceSnapshot || !metrics.dimensions) return false;
@@ -177,7 +184,7 @@ export function isVerifiedReviewMaintenanceCommit(args: {
     }
     return true;
   } catch (error) {
-    if (!(error && typeof error === 'object' && (('code' in error && error.code === 'ENOENT') || ('stderr' in error && /fatal: path .* does not exist in/.test(String(error.stderr))))))
+    if (!isMissingReviewSnapshotError(error))
       reportHealthIssue('review-maintenance-lineage',error instanceof Error ? error : {message:String(error)},{storyId});
     return false;
   }
