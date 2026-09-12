@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {withLabVersionSourceEvidence} from './lab-version-source-evidence.mjs';
 import './lab-source-loader.mjs';
+import {withLabVersionSourceEvidence} from './lab-version-source-evidence.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, writeFileSync, renameSync, unlinkSync, realpathSync } from 'node:fs';

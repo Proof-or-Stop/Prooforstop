@@ -47,3 +47,12 @@ re-anchoring eight unchanged excerpts and four unchanged call expressions. The
 bounded dependency update covers the official version files, the full-suite
 registry additions, and process-fact registry assertions. No exception category,
 rationale, invocation, or call digest changed during this reconciliation.
+
+The release transaction also preserves the exact line count and each line's
+bytes except the validated old-to-new version literal. It refuses reformatting
+and malformed historical flags, and tests non-patch/malformed transitions plus
+undeclared or unexpected output paths with rollback. The disposable finish
+regression budget sums its four CLI call limits plus setup allowance and reports
+transport timeout separately from a failed source-evidence assertion. The two
+Lab-driver exceptions additionally bind the driver and both source-evidence
+helpers, so changes to that behavior require fresh review.

@@ -17,6 +17,10 @@ function assertVersionOnly(file,before,after,from,to) {
   assert.equal(after,before.replace(declaration,`export const PROOF_OR_STOP_CLI_VERSION = '${to}'`),'only the CLI version declaration may change');
   return;
  }
+ const oldLines=before.split('\n'),newLines=after.split('\n');
+ assert.equal(newLines.length,oldLines.length,'version refresh refuses source line movement');
+ assert(newLines.every((line,i)=>line===oldLines[i]||line===oldLines[i].replaceAll(JSON.stringify(from),JSON.stringify(to))),
+  'version refresh refuses source formatting changes');
  const old=JSON.parse(before),next=JSON.parse(after);
  for(const key of ['version','packages']) {
   if(key==='version' && old.version!==next.version) {
@@ -38,6 +42,7 @@ export function withLabVersionSourceEvidence(root,bump) {
  const manifestBefore=fs.existsSync(path.join(root,manifestFile))?read(root,manifestFile):null;
  try {
   const result=bump();
+  assert(typeof result.from==='string'&&typeof result.to==='string'&&/^\d+\.\d+\.\d+$/.test(result.from)&&/^\d+\.\d+\.\d+$/.test(result.to),'malformed patch version');
   const from=result.from.split('.').map(Number),to=result.to.split('.').map(Number);
   assert(from.length===3&&to.length===3&&from.every(Number.isSafeInteger)&&to.every(Number.isSafeInteger)
    &&from[0]===to[0]&&from[1]===to[1]&&to[2]===from[2]+1,'only an official patch bump can refresh source evidence');
@@ -62,6 +67,7 @@ export function withLabVersionSourceEvidence(root,bump) {
     entry.sourceDigest=source.newHash;refreshed=true;
    }
    for(const evidence of entry.requiredEvidence??[]) {
+    if(evidence&&typeof evidence==='object'&&Object.hasOwn(evidence,'historical'))assert(typeof evidence.historical==='boolean','source evidence historical flag malformed');
     if(!evidence||typeof evidence!=='object'||evidence.historical===true)continue;
     const source=changed.get(evidence.file);if(!source)continue;
     assert.equal(evidence.sourceDigest,source.oldHash,'stale source evidence requires review before version bump');

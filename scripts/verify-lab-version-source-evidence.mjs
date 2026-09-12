@@ -9,7 +9,7 @@ import {withLabVersionSourceEvidence} from './lab-version-source-evidence.mjs';
 import {copyLabFixtureSources} from './lab-fixture-sources.mjs';
 import {installLabAuditFixtureProviders} from './lab-audit-fixture-provider.mjs';
 // Fail closed and roll back every version byte when prior evidence is stale.
-for (const scenario of ['hash','excerpt','dependency','range','semantic','producer-manifest']) {
+for (const scenario of ['hash','excerpt','dependency','range','semantic','producer-manifest','format','historical','minor','major','downgrade','skip','malformed','malformed-from','undeclared','unexpected']) {
  const root=mkdtempSync(join(tmpdir(),'lab-version-negative-'));
  try {
   const file='package.json',manifest='scripts/lab/u18-static-edges/exceptions.json';
@@ -21,6 +21,8 @@ for (const scenario of ['hash','excerpt','dependency','range','semantic','produc
   if(scenario==='excerpt')evidence.excerpt='stale';
   if(scenario==='dependency')entry.dependencyDigests[file]='0'.repeat(64);
   if(scenario==='range')evidence.startLine=0;
+  if(scenario==='format'){evidence.endLine=1;evidence.excerpt=before.split('\n')[0];}
+  if(scenario==='historical')evidence.historical='true';
   mkdirSync(dirname(join(root,manifest)),{recursive:true});
   writeFileSync(join(root,file),before);
   const original=JSON.stringify({schema:'u18-static-exceptions.v1',entries:[entry]});
@@ -28,10 +30,12 @@ for (const scenario of ['hash','excerpt','dependency','range','semantic','produc
   assert.throws(()=>withLabVersionSourceEvidence(root,()=>{
    let after=before.replace('1.0.0','1.0.1');
    if(scenario==='semantic')after=after.replace('node check.js','node bypass.js');
+   if(scenario==='format')after=JSON.stringify(JSON.parse(after))+'\n';
    writeFileSync(join(root,file),after);
    if(scenario==='producer-manifest')writeFileSync(join(root,manifest),'{}');
-   return {from:'1.0.0',to:'1.0.1',files:[file]};
-  }), /stale|invalid|non-version|cannot modify/, scenario);
+   const to={minor:'1.1.0',major:'2.0.0',downgrade:'0.9.9',skip:'1.0.2',malformed:'1.x'}[scenario]??'1.0.1';
+   return {from:scenario==='malformed-from'?'x.0.0':'1.0.0',to,files:scenario==='undeclared'?[]:scenario==='unexpected'?[file,'outside.txt']:[file]};
+  }), /stale|invalid|non-version|cannot modify|version|source line|source formatting|historical|output|patch bump/, scenario);
   assert.equal(readFileSync(join(root,file),'utf8'),before,scenario+' version rollback');
   assert.equal(readFileSync(join(root,manifest),'utf8'),original,scenario+' evidence rollback');
  } finally {rmSync(root,{recursive:true,force:true});}
