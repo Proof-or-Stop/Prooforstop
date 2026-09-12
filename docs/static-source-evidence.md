@@ -41,3 +41,9 @@ the prior version and manifest bytes. Other source changes still require source
 review and explicit evidence regeneration. The version regression runs a complete
 disposable Lab finish with a synthetic transport provider; this test fixture is
 not the independent Claude audit required for the real Lab candidate.
+
+The subsequent local-main integrations through `9a526607f6` were reviewed before
+re-anchoring eight unchanged excerpts and four unchanged call expressions. The
+bounded dependency update covers the official version files, the full-suite
+registry additions, and process-fact registry assertions. No exception category,
+rationale, invocation, or call digest changed during this reconciliation.
