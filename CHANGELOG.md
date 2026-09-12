@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab validation-stage-abort-oracle - v0.3.344 - 2026-09-12
+
+The validation stage regression expected an exception after cancellation even though the public command API returns a structured prelaunch cancellation result. This made the performance companion fail with zero spawned children.
+
+The fixture now requires cancellation to return code 124, timedOut=true, failureKind=infra_failure, effectiveTimeoutMs=0, and the exact prelaunch cancellation reason, while retaining the zero-child assertion. A supplied deadline error must still be thrown as the identical Error object. Normal stage-entry counts, reuse rechecks and nested resource-containment controls remain unchanged. A focused suite mode replays all three existing modes in separate processes, requires the exact mode-specific success marker and cancellation ledger mode, and bounds each child to 30 seconds with a named timeout failure. Adversarial controls reject successful output from the wrong mode and verify the timeout diagnostic.
+
+The original main failure and the official Lab RED are retained. The same pinned command passed GREEN against this Lab's own build. No production behavior, timeout, gate, signature or resource policy changed. Full performance companion results are recorded separately with the Lab verification evidence. This maintenance repair is not formal Story DONE or product-release evidence.
+
+Maintenance provenance: codex/lab-validation-stage-abort-oracle, repair 5a0be3b8fdcd1b0f93d166928d2a132821589b16.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-stage-entry-count.mjs","--contract-suite"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab runtime-snapshot-static-edge - v0.3.343 - 2026-09-12
 
 Register the exact runtime verifier child that checks shared validation snapshot source bindings. The child parses shared-validation-execution.ts with TypeScript and rejects five in-memory source mutations; it does not import that production module or execute a validation suite. Add one source/call/invocation-bound reviewed exception with caller, child and read-only source dependency hashes. Preserve all unrelated exception entries, scanner classifications and configuration drift.
