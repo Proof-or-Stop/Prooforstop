@@ -1898,6 +1898,10 @@ function assertManagedVerificationIntentPinSchemaRoundTrip(): void {
 
 void (async () => {
   try {
+    if(process.argv.includes('--derived-refusal-contract-only')) {
+      await assertDerivedVerdictRefusalWaitsForCapacity();
+      console.log('DERIVED_REFUSAL_CAPACITY_CONTRACT_PASS');return;
+    }
     if (process.argv.includes('--native-prerequisites-only')) {
       const unowned=mkdtempSync(join(tmpdir(),'native-lock-unowned-'));
       try {

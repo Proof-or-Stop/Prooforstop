@@ -53,3 +53,12 @@ refusal waits for capacity, while admissible derived publication is tested in
 the separate native group. Contender queue observation is bounded below the
 probe hold deadline. Child cleanup has a two-second stream-close grace after
 SIGKILL. The contract driver resolves its repository from its own module URL.
+
+Baseline boundary: on local main `ee1b815a84` (0.3.341), the existing complete
+`--workspace-capacity-contract-only` command already fails in
+`assertWorkspaceWaitAndRun` because its done CHK-001 has no intent or evidence.
+The Lab reproduces that same early failure and does not claim all fifteen groups
+pass. The focused `--derived-refusal-contract-only` selector exercises the changed
+hermetic group directly; the Lab driver requires that plus all six native cases.
+The original fifteen-group selector and ordering remain intact, with native
+admission no longer introduced into that lightweight path.
