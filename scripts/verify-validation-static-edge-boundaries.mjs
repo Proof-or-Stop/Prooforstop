@@ -69,6 +69,8 @@ try{
  assert(expect(1,'deep native fixture child still requires review').summary.nested>0);
  writeGraph();fs.appendFileSync(path.join(root,tasks,'native-certification-fixture.ts'),"\nimport './unknown-helper.js';");writeHelper('unknown-helper.ts','');
  assert(expect(1,'unregistered helper depth remains bounded').coverage.some(row=>row.file===tasks+'unknown-helper.ts'&&row.reason==='helper depth exceeds declared bound'));
+ writeGraph();fs.appendFileSync(path.join(root,tasks,'quorum-submit-smoke-integration-cases.ts'),"\nimport './stray-helper.js';");writeHelper('stray-helper.ts','');
+ assert(expect(1,'unregistered literal helper in registered integration remains refused').coverage.some(row=>row.file===tasks+'quorum-submit-smoke-integration-cases.ts'&&row.reason==='Registered verifier imported helper changed or is not a literal'));
  writeGraph();fs.appendFileSync(path.join(root,tasks,'quorum-submit-smoke-integration-cases.ts'),"\nimport('./' + 'native-certification-fixture.js');");
  assert(expect(1,'computed registered helper remains refused').coverage.some(row=>row.reason==='Registered verifier imported helper changed or is not a literal'));
  writeGraph();writeHelper('quorum-submit-smoke-integration-cases.ts',graph['quorum-submit-smoke-integration-cases.ts'].filter(name=>name!=='native-review-fixture').map(name=>`import './${name}.js';`).join('\n'));
@@ -77,5 +79,12 @@ try{
  assert(expect(1,'missing registered native helper remains refused').coverage.some(row=>row.reason==='source missing'));
  writeGraph();fs.writeFileSync(path.join(root,'other-suite.mjs'),`import './${tasks}quorum-submit-smoke.js';`);commands[0]={command:'node',args:['other-suite.mjs']};save();pin([]);
  assert(expect(1,'native depth extension is confined to exact quorum entry').coverage.some(row=>row.reason==='helper depth exceeds declared bound'));
+ writeGraph();const brandEntry='packages/main/tests/brand-role-migration.test.mjs';
+ fs.mkdirSync(path.dirname(path.join(root,brandEntry)),{recursive:true});fs.writeFileSync(path.join(root,brandEntry),'');
+ commands[0]={command:'node',args:[brandEntry]};save();pin([]);
+ const brandReport=expect(0,'actual brand-role entry native fixture uses generic depths one and two');
+ for(const name of ['native-review-fixture.ts','fixture-environment.ts'])assert(brandReport.coverage.some(row=>row.file===tasks+name&&row.state==='SCANNED'));
+ writeHelper('fixture-environment.ts',"import './brand-depth-three.js';");writeHelper('brand-depth-three.ts',"import './brand-depth-four.js';");writeHelper('brand-depth-four.ts','');
+ assert(expect(1,'brand-role entry retains generic depth-four refusal').coverage.some(row=>row.file===tasks+'brand-depth-four.ts'&&row.reason==='helper depth exceeds declared bound'));
  console.log('U18_STATIC_EDGE_BOUNDARIES_PASS');
 }finally{fs.rmSync(root,{recursive:true,force:true});}
