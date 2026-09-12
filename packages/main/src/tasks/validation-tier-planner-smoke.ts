@@ -206,11 +206,17 @@ import { StoryStore } from '../core/store.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
-const REPOSITORY_ROOT = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
-assert.ok(
-  REPOSITORY_ROOT && existsSync(join(REPOSITORY_ROOT, 'packages/main/src/core/validation-tier-planner.ts')),
-  'validation-tier-planner-smoke source guards require a Git source checkout',
-);
+let memoizedRepositorySourceRoot: string | undefined;
+function repositorySourceRoot(): string {
+  if (memoizedRepositorySourceRoot) return memoizedRepositorySourceRoot;
+  const root = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(
+    root && existsSync(join(root, 'packages/main/src/core/validation-tier-planner.ts')),
+    'validation-tier-planner-smoke source guards require a Git source checkout',
+  );
+  memoizedRepositorySourceRoot = root;
+  return root;
+}
 
 let failures = 0;
 
@@ -2225,7 +2231,7 @@ testCase('an unknown reason code has no gloss and is refused rather than glossed
 // Parse the operator-facing document itself so its table and the runtime cannot
 // drift behind a test-local transcription.
 testCase('the code and spec fail-closed widening matrices are exactly equal', () => {
-  const performanceDoc = readFileSync(join(REPOSITORY_ROOT, 'docs/validation-performance.md'), 'utf8');
+  const performanceDoc = readFileSync(join(repositorySourceRoot(), 'docs/validation-performance.md'), 'utf8');
   const matrixSection = performanceDoc.match(
     /^## Dynamic-tier fail-closed widening matrix\s*$([\s\S]*?)(?=^##\s)/mu,
   )?.[1];
@@ -2268,7 +2274,11 @@ testCase('the code and spec fail-closed widening matrices are exactly equal', ()
       VALIDATION_WIDENING_REASONS[code].outcome,
       `documented effective result must match runtime outcome for ${row.code}`,
     );
-    assert.ok(row.condition.trim(), `documented condition must not be empty for ${row.code}`);
+    assert.equal(
+      row.condition,
+      VALIDATION_WIDENING_REASONS[code].condition,
+      `documented condition must exactly match the runtime condition for ${row.code}`,
+    );
   }
 });
 
@@ -2394,7 +2404,7 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
   assert.ok(declaredSourceRefs.length > 0, 'Dynamic Finding must declare its producer and consumer source surface');
   for (const sourceRef of declaredSourceRefs) {
     assert.ok(gateFact.paths.includes(sourceRef), `validation floor must include declared source ref: ${sourceRef}`);
-    assert.ok(existsSync(join(REPOSITORY_ROOT, sourceRef)), `declared Dynamic Finding source must exist: ${sourceRef}`);
+    assert.ok(existsSync(join(repositorySourceRoot(), sourceRef)), `declared Dynamic Finding source must exist: ${sourceRef}`);
   }
   assert.ok(
     gateFact.paths.includes('packages/main/src/core/certification-window.ts'),
@@ -2404,6 +2414,11 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
     Object.keys(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer).sort(),
     [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
     'every declared Dynamic Finding consumer must have a source mapping',
+  );
+  assert.deepEqual(
+    Object.keys(PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerBindingTokensByConsumer).sort(),
+    [...PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers].sort(),
+    'every declared Dynamic Finding consumer must have an implementation binding token',
   );
   const producerPolicy = PROCESS_FACT_DYNAMIC_FINDING_POLICY as typeof PROCESS_FACT_DYNAMIC_FINDING_POLICY & {
     producerCommands?: readonly string[];
@@ -2424,6 +2439,25 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
     [...(producerPolicy.producerCommands ?? [])].sort(),
     'every declared Dynamic Finding producer command must have a source mapping',
   );
+  for (const commandName of producerPolicy.producerCommands ?? []) {
+    const mappedSources = producerPolicy.producerSourceRefsByCommand?.[commandName] ?? [];
+    assert.ok(
+      mappedSources.some((sourceRef) => readFileSync(join(repositorySourceRoot(), sourceRef), 'utf8').includes(commandName)),
+      `a mapped producer source must contain its exact command registration token: ${commandName}`,
+    );
+  }
+  for (const consumer of PROCESS_FACT_DYNAMIC_FINDING_POLICY.allowedConsumers) {
+    const mappedSources = PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerSourceRefsByConsumer[consumer];
+    const bindingTokens = PROCESS_FACT_DYNAMIC_FINDING_POLICY.consumerBindingTokensByConsumer[consumer];
+    assert.ok(bindingTokens.length > 0, `Dynamic Finding consumer must declare at least one binding token: ${consumer}`);
+    assert.ok(
+      mappedSources.some((sourceRef) => {
+        const source = readFileSync(join(repositorySourceRoot(), sourceRef), 'utf8');
+        return bindingTokens.some((token) => source.includes(token));
+      }),
+      `a mapped consumer source must contain a declared implementation binding token: ${consumer}`,
+    );
+  }
   const policyAuthorityPaths = [...new Set([
     ...Object.values(producerPolicy.producerSourceRefsByCommand ?? {}).flat(),
     ...PROCESS_FACT_DYNAMIC_FINDING_POLICY.semanticVerifierSourceRefs,
@@ -2434,7 +2468,7 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
       gateFact.paths.includes(policyAuthorityPath),
       `Dynamic Finding validation floor must cover policy authority: ${policyAuthorityPath}`,
     );
-    assert.ok(existsSync(join(REPOSITORY_ROOT, policyAuthorityPath)), `policy authority source must exist: ${policyAuthorityPath}`);
+    assert.ok(existsSync(join(repositorySourceRoot(), policyAuthorityPath)), `policy authority source must exist: ${policyAuthorityPath}`);
   }
 
   for (const sensitivePath of gateFact.paths) {
@@ -2477,7 +2511,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ['validation_floor_registry_unavailable'],
     'an absent decoded floor mapping stays readable but makes selection widen full',
   );
-  const floorContractDoc = readFileSync(join(REPOSITORY_ROOT, 'docs/validation-performance.md'), 'utf8');
+  const floorContractDoc = readFileSync(join(repositorySourceRoot(), 'docs/validation-performance.md'), 'utf8');
   assert.match(
     floorContractDoc,
     /An absent floor mapping leaves the registry loadable; its empty projection makes\s+the selector widen with `validation_floor_registry_unavailable`/u,
@@ -2669,8 +2703,8 @@ testCase('explicit repository-full process-fact paths force full without overmat
     'an explicitly supplied undefined projection must remain distinguishable from omission and widen full',
   );
 
-  const plannerSource = readFileSync(join(REPOSITORY_ROOT, 'packages/main/src/core/validation-tier-planner.ts'), 'utf8');
-  const handlerSource = readFileSync(join(REPOSITORY_ROOT, 'packages/main/src/handlers/validation-plan.ts'), 'utf8');
+  const plannerSource = readFileSync(join(repositorySourceRoot(), 'packages/main/src/core/validation-tier-planner.ts'), 'utf8');
+  const handlerSource = readFileSync(join(repositorySourceRoot(), 'packages/main/src/handlers/validation-plan.ts'), 'utf8');
   const plannerAst = ts.createSourceFile(
     'validation-tier-planner.ts',
     plannerSource,

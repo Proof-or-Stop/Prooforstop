@@ -475,6 +475,19 @@ export const DYNAMIC_FINDING_CONSUMER_SOURCE_REFS = {
   'story-aware-validation additive constraints': ['packages/main/src/core/story-aware-validation.ts'],
 } as const satisfies Record<typeof DYNAMIC_FINDING_ALLOWED_CONSUMERS[number], readonly string[]>;
 
+export const DYNAMIC_FINDING_CONSUMER_BINDING_TOKENS = {
+  finding_triage: ['finding_triage'],
+  'storyMachine.canPassReview': ['canPassReviewGuard'],
+  getGuardFailureReason: ['getGuardFailureReason'],
+  reviewer_batch: ['reviewer_batch'],
+  reviewer_status: ['summarizeReviewerStatus'],
+  review_convergence: ['assessReviewConvergence'],
+  lifecycle_readiness: ['buildStoryReadinessReport'],
+  certification_window: ['projectCertificationWindowStatus'],
+  'storyMachine.canFinish': ['canFinishGuard'],
+  'story-aware-validation additive constraints': ['classifyFullValidationReasons'],
+} as const satisfies Record<typeof DYNAMIC_FINDING_ALLOWED_CONSUMERS[number], readonly string[]>;
+
 export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
   producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
@@ -484,6 +497,7 @@ export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   semanticVerifierSourceRefs: DYNAMIC_FINDING_SEMANTIC_VERIFIER_SOURCE_REFS,
   allowedConsumers: DYNAMIC_FINDING_ALLOWED_CONSUMERS,
   consumerSourceRefsByConsumer: DYNAMIC_FINDING_CONSUMER_SOURCE_REFS,
+  consumerBindingTokensByConsumer: DYNAMIC_FINDING_CONSUMER_BINDING_TOKENS,
   gateEvidence: true,
   lifecycleAuthority: 'dynamic-blocker-projection-only',
   rollout: ['observe', 'warn', 'enforce'],

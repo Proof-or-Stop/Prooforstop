@@ -14,26 +14,26 @@ runtime table and its bidirectional regression to change in the same commit.
 | Condition | Effective result | Reason code |
 |---|---|---|
 | Changed-file discovery fails | Repository-full | `changed_files_unavailable` |
-| The HEAD, material, or Story-files evidence hash cannot be captured completely | Repository-full | `hash_snapshot_unavailable` |
-| A material path is unclassified | Repository-full | `unclassified_material_input` |
-| The impact index is missing, stale, malformed, or digest-invalid | Repository-full | `impact_index_unusable` |
-| The base index cannot be projected completely to current HEAD | Repository-full | `impact_projection_incomplete` |
-| The material worktree overlay cannot be read completely or changes during the plan/execution double-read | Replan; repeated movement widens to repository-full | `workspace_snapshot_changed` |
-| The command-set or selector-policy digest changes | Repository-full | `selection_policy_changed` |
-| The registry cannot provide a complete non-empty set of declared repository-full process-fact floors | Repository-full | `validation_floor_registry_unavailable` |
-| A legacy validation-machinery pattern or an explicitly declared repository-full process-fact path changes | Repository-full | `validation_framework_sensitive_change` |
-| Story risk policy marks the change high-risk | Repository-full | `story_risk_signal_present` |
-| A package manifest, lockfile, build graph, or shared compiler configuration changes | Repository-full | `build_graph_change` |
-| A dynamic import, subprocess, or generated dependency edge remains unresolved | Repository-full | `runtime_edge_unresolved` |
-| An explicit validation-command pin does not resolve | Stop; no PASS artifact | `pinned_command_missing` |
-| A legacy free-form evidence command maps to no validation-inventory command | Repository-full | `pinned_command_non_inventory` |
-| A legacy pin resolves to multiple command IDs | Stop; no PASS artifact | `pinned_command_ambiguous` |
-| Any configured command lacks a positive current-HEAD exclusion proof | Repository-full | `command_exclusion_unproven` |
-| The source is fallback discovery or an opaque validate file without a decomposition adapter | Atomic repository-full | `source_kind_atomic` |
-| The project has no validator | Preserve no-validator compatibility; no validation tier can PASS | `no_validator` |
-| Selection is empty without a registered docs/no-op policy | Stop; no PASS artifact | `empty_selection_unclassified` |
-| Only documentation changes and a registered docs policy applies | Run that docs policy | `docs_only_policy` |
-| The selected set exceeds its duration target | Report only; never remove a command | `duration_target_exceeded` |
+| Evidence hash snapshot (head, material or story-files digest) cannot be captured or is incomplete | Repository-full | `hash_snapshot_unavailable` |
+| Material path is unclassified | Repository-full | `unclassified_material_input` |
+| Index missing, stale, malformed, or digest-invalid | Repository-full | `impact_index_unusable` |
+| Base index cannot be completely projected to current HEAD | Repository-full | `impact_projection_incomplete` |
+| Material worktree overlay cannot be completely read or changes during plan/execute double-read | Replan; repeated movement widens to repository-full | `workspace_snapshot_changed` |
+| Command-set or selector policy digest changed | Repository-full | `selection_policy_changed` |
+| Declared repository-full process-fact floors cannot be read completely or no floor is declared | Repository-full | `validation_floor_registry_unavailable` |
+| A legacy validation-machinery pattern or a declared repository-full process-fact path changes | Repository-full | `validation_framework_sensitive_change` |
+| Story risk policy marks the change as high-risk | Repository-full | `story_risk_signal_present` |
+| Package manifest, lockfile, build graph, or shared compiler configuration changes | Repository-full | `build_graph_change` |
+| Dynamic import/subprocess/generated edge unresolved | Repository-full | `runtime_edge_unresolved` |
+| Explicit command pin does not resolve | Stop; no PASS artifact | `pinned_command_missing` |
+| Legacy free-form evidence command normalizes to no command in the validation inventory | Repository-full | `pinned_command_non_inventory` |
+| Legacy pin resolves to multiple command IDs | Stop; no PASS artifact | `pinned_command_ambiguous` |
+| Any configured command lacks a positive current-head exclusion proof | Repository-full | `command_exclusion_unproven` |
+| Requested tier uses fallback discovery or an opaque validate-file without a decomposition adapter | Atomic repository-full | `source_kind_atomic` |
+| Source kind is no-validator | Preserve no-validator compatibility; no validation tier can PASS | `no_validator` |
+| No material changes and no explicit docs/no-op policy | Stop; no PASS artifact | `empty_selection_unclassified` |
+| Docs-only changes with a registered docs policy | Run that docs policy | `docs_only_policy` |
+| Selected set exceeds target duration | Report only; never remove a command | `duration_target_exceeded` |
 
 Dynamic Finding is one explicit process-fact floor, not a filename heuristic.
 Its four signed producer commands, semantic verifiers, and lifecycle consumers
