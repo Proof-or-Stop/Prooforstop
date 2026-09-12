@@ -54,9 +54,12 @@ appendFileSync('entered.log',(process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABE
 const deadline=Date.now()+8000;
 while(!existsSync('release')){if(Date.now()>deadline)process.exit(12);await new Promise(r=>setTimeout(r,25));}
 console.log('native lock probe passed');\n`);
-  const probe={label:'lock-probe',command:process.execPath,args:['validate-probe.mjs'],focus:['lock'],timeoutMs:10000};
+  // These probes only touch their disposable repository; declare that footprint
+  // so unrelated machine-wide validation is not a hidden prerequisite.
+  const resources=[{class:'fixed-path' as const,key:'.',access:'exclusive' as const}];
+  const probe={resources,label:'lock-probe',command:process.execPath,args:['validate-probe.mjs'],focus:['lock'],timeoutMs:10000};
   write(PROOF_OR_STOP_CONFIG_FILENAME,JSON.stringify({scanRoot:'packages/main',rootDir:'src',storyDir:PROOF_OR_STOP_STORY_DIR,requirementsDir:'docs/requirements',workflow:{profile:'light'},
-   nativeReviewInvocation:{brokers:nativeReviewFixtureBrokers()},validate:{commands:[{label:'cheap preparation',command:process.execPath,args:['--version'],focus:['fast'],timeoutMs:10000},probe]},doneRequiredCommands:[probe]},null,2));
+   nativeReviewInvocation:{brokers:nativeReviewFixtureBrokers()},validate:{commands:[{resources,label:'cheap preparation',command:process.execPath,args:['--version'],focus:['fast'],timeoutMs:10000},probe]},doneRequiredCommands:[probe]},null,2));
   write('release','initial routine preparation\n');
   git('init','-b','main');
   const round=new Date().toISOString();
