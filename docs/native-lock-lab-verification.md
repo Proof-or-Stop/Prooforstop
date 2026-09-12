@@ -40,3 +40,9 @@ validation-maintenance backlog, not a formal Story or signed completion claim.
 The deferred work is routine registration and a combined full-validation writer
 witness. Existing focused writer exclusion and preserved routine PASS remain
 separate from dual-order fresh signed publication and post-command lock coverage.
+
+The draft was reissued through the official story_draft_discard and story_draft
+handlers to add default-entry machine-queue exposure to CHK-001 while preserving
+its earlier scope. The current handler has no edit operation and explicitly
+directs existing names through discard/recreation. This updates the CLI-owned
+draft only; it allocates no B identifier and makes no completion claim.

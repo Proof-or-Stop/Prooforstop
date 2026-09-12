@@ -9,3 +9,5 @@ The dual-order routine and DONE-required queue cases prove new signed publicatio
 
 ## Conversational Texture
 The user requested bounded Lab repair with RED/GREEN, real Claude CLI audit and a patch record. Framework validation maintenance owns this follow-up. No automatic scheduling or new full-PASS publication in the focused writer probes is claimed.
+
+The current Lab driver isolation does not cover the default smoke entry. Audit 138754a5 identified that residual machine-queue exposure; CHK-001 retains ownership of verifying a safe default-entry integration. This record does not claim the residual exposure repaired.

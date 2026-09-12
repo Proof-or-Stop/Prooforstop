@@ -1482,6 +1482,7 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
   const originalCwd = process.cwd();
   let releaseOwner:()=>void=()=>{};
   let holder:Promise<void>|undefined;
+  let verdictCompletion:Promise<unknown>|undefined;
   try {
     const store = new StoryStore(root);
     process.chdir(root);
@@ -1527,6 +1528,7 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
         deriveBindings: true,
         json: true,
       }));
+    verdictCompletion=verdictPromise;
     verdictPromise.finally(() => { verdictSettled = true; }).catch(() => undefined);
     await sleep(75);
     assert.equal(verdictSettled, false,
@@ -1544,9 +1546,8 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
       'derived verdict must persist after the capacity owner releases');
   } finally {
     releaseOwner();
-    process.chdir(originalCwd);
-    await holder?.catch(() => undefined);
-    releaseNativeLockRoot(root);
+    try { await holder?.catch(() => undefined); await verdictCompletion?.catch(() => undefined); }
+    finally { process.chdir(originalCwd); releaseNativeLockRoot(root); }
   }
 }
 

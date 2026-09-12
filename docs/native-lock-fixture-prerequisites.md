@@ -165,3 +165,17 @@ requires a distinct child PID and the private runtime home while the unrelated
 outer queue holder stays alive. This observation is diagnostic fixture data, not
 a signed Story receipt. Its outer transport budget exceeds the helper's existing
 60-second CLI bound by 10 seconds.
+
+This namespace is enabled only by scripts/verify-native-lock-prerequisites.mjs.
+The default/direct validate-execution-lock-smoke entry does not arm it: its native
+cases can still wait on unrelated real-user machine holders. CHK-001 in the
+CLI-managed native-lock-regression-coverage draft explicitly owns that residual
+default-entry exposure alongside routine registration. This Lab does not claim
+default-entry isolation or repository-wide GREEN.
+
+The admissible derived-verdict case retains its consumer promise outside the try
+block. Error cleanup releases the holder and waits for that consumer to settle
+before restoring cwd and removing the fixture, preventing a resumed consumer from
+using a deleted repository. A controlled failing-assertion witness exercises the
+actual queued consumer and observes its completion state immediately before root
+deletion.
