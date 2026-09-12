@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab evidence-fixture-contracts - v0.3.341 - 2026-09-12
+
+Repair stale static-exception evidence acceptance: current excerpts must match source hashes, exact ranges and registered call coverage; historical prose cannot authorize current exceptions. Reconcile the existing manifest against reviewed local main changes. Preserve valid version-bound evidence atomically during official Lab patch releases, refusing stale inputs and non-version edits with rollback. Verification includes target RED, current GREEN across scanner adversarial controls, all 257 manifest entries, and a disposable complete version-release regression with rejection/rollback controls. Require the independent Claude CLI audit of the prepared release. This record is local Lab maintenance provenance, not formal Story DONE or remote publication. Execution and audit timings remain in the signed Lab maintenance history.
+
+The prepared-candidate Claude audit identified six additional issues. The repair now enforces line-count and byte preservation apart from validated version literals, rejects malformed historical flags, covers non-patch/malformed version transitions and undeclared/unexpected output paths with rollback, derives the disposable finish budget from four child-call caps plus setup allowance with distinct timeout diagnostics, binds the Lab driver and both evidence helpers in its two reviewed exceptions, and keeps the source loader first. A targeted replay against the prior helper reproduced the formatting acceptance defect before the fixed scanner/version suite passed again.
+
+Maintenance provenance: codex/lab-evidence-fixture-contracts, repair ef4d5380b895ac5caa96d31d7af78053818e9cad.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab verification-key-location-reuse - v0.3.340 - 2026-09-12
 
 Reduce repeated Git discovery during verification receipt validation by reusing the signer location within one public validation call. Read current key bytes for every signature, bind each requested working directory, and compare the current canonical location before returning. Preserve the original Git parser, including newline paths and shared worktree trust.
