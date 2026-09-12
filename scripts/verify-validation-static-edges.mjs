@@ -17,20 +17,14 @@ const REVIEWED_VERIFIER_HELPER_IMPORTS = new Map([
  ['packages/main/src/tasks/quorum-submit-smoke.ts', ['./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-pure-cases.js','./quorum-submit-smoke-integration-cases.js','./quorum-submit-smoke-prune-cases.js','./quorum-submit-smoke-worker.js']],
  ['packages/main/src/tasks/quorum-submit-smoke-pure-cases.ts', ['./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-integration-cases.js']],
  ['packages/main/src/tasks/quorum-submit-smoke-prune-cases.ts', ['./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-integration-cases.js']],
- ['packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts', ['./native-certification-fixture.js','./native-review-fixture.js','./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-fixture.js']],
+ ['packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts', ['./native-review-fixture.js','./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-fixture.js']],
  ['packages/main/src/tasks/quorum-submit-smoke-worker.ts', ['./quorum-submit-smoke-case-catalog.js','./quorum-submit-smoke-fixture.js']],
  ['packages/main/src/tasks/quorum-submit-smoke-fixture.ts', ['./quorum-submit-smoke-case-catalog.js']],
 ]);
 const QUORUM_HELPER_FILES = new Set(['case-catalog','pure-cases','integration-cases','prune-cases','worker','fixture'].map(name => 'packages/main/src/tasks/quorum-submit-smoke-' + name + '.ts'));
-// Exact transitive native fixture closure of the quorum entry. These bounds
-// only add traversal; every discovered process call still needs its own review.
-const QUORUM_NATIVE_HELPER_DEPTHS = new Map([
- ['packages/main/src/tasks/native-review-fixture.ts', [4]],
- ['packages/main/src/tasks/fixture-environment.ts', [4, 5]],
-]);
 const source=p=>{const mapped=p.replace('/dist/','/src/').replace(/\.js$/,'.ts');return fs.existsSync(path.join(root,mapped))?mapped:p;};
 const runtime=p=>p.includes('/src/')?p.replace('/src/','/dist/').replace(/\.ts$/,'.js'):p;
-function scan(file,index,entry,argv,seen,depth=0){const invocationKey=JSON.stringify([file,entry,argv]);if(seen.has(invocationKey))return;seen.add(invocationKey);if(depth>3 && !(entry==='packages/main/dist/tasks/quorum-submit-smoke.js' && QUORUM_NATIVE_HELPER_DEPTHS.get(file)?.includes(depth))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'helper depth exceeds declared bound'});return;}if(!fs.existsSync(path.join(root,file))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source missing'});return;}
+function scan(file,index,entry,argv,seen,depth=0){const invocationKey=JSON.stringify([file,entry,argv]);if(seen.has(invocationKey))return;seen.add(invocationKey);if(depth>3 && !(depth===4 && file==='packages/main/src/tasks/fixture-environment.ts' && entry==='packages/main/dist/tasks/quorum-submit-smoke.js')){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'helper depth exceeds declared bound'});return;}if(!fs.existsSync(path.join(root,file))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source missing'});return;}
  const text=fs.readFileSync(path.join(root,file),'utf8'),ast=ts.createSourceFile(file,text,ts.ScriptTarget.Latest,true),decls=new Map(),cpNames=new Map(),spaces=new Set(),helpers=[],fileTargets=new Set(),mutable=new Set(),aliases=[],pureNames=new Map(),pureSpaces=new Map(),bindings=[];
  if(ast.parseDiagnostics?.length)coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source parse diagnostics'});
  const moduleFile=path.join(root,runtime(file));

@@ -56,7 +56,7 @@ try{
   commands[0]={command:'node',args:[quorumEntry]};save();pin([]);
  };
  writeGraph();
- const nativeReport=run().report;
+ const nativeReport=expect(0,'native closure process succeeds with current configuration and no stale exception');
  assert.equal(nativeReport.summary.unexpandedCommands,0,'U18_NATIVE_FIXTURE_CLOSURE_UNEXPANDED '+JSON.stringify(nativeReport.coverage.filter(row=>row.state==='NEEDS_REVIEW')));
  assert.equal(nativeReport.summary.needsReview,0);assert.equal(nativeReport.summary.nested,0);
  for(const name of ['native-certification-fixture.ts','native-review-fixture.ts','fixture-environment.ts'])assert(nativeReport.coverage.some(row=>row.index===0&&row.file===tasks+name&&row.state==='SCANNED'),`native closure not traversed: ${name}`);
@@ -68,6 +68,8 @@ try{
  assert(expect(1,'unregistered helper depth remains bounded').coverage.some(row=>row.file===tasks+'unknown-helper.ts'&&row.reason==='helper depth exceeds declared bound'));
  writeGraph();fs.appendFileSync(path.join(root,tasks,'quorum-submit-smoke-integration-cases.ts'),"\nimport('./' + 'native-certification-fixture.js');");
  assert(expect(1,'computed registered helper remains refused').coverage.some(row=>row.reason==='Registered verifier imported helper changed or is not a literal'));
+ writeGraph();writeHelper('quorum-submit-smoke-integration-cases.ts',graph['quorum-submit-smoke-integration-cases.ts'].filter(name=>name!=='native-certification-fixture').map(name=>`import './${name}.js';`).join('\n'));
+ assert(expect(1,'missing required native import remains refused').coverage.some(row=>row.file===tasks+'quorum-submit-smoke-integration-cases.ts'&&row.reason==='Registered verifier required helper import missing'&&row.expected==='./native-certification-fixture.js'));
  writeGraph();fs.unlinkSync(path.join(root,tasks,'native-certification-fixture.ts'));
  assert(expect(1,'missing registered native helper remains refused').coverage.some(row=>row.reason==='source missing'));
  writeGraph();fs.writeFileSync(path.join(root,'other-suite.mjs'),`import './${tasks}quorum-submit-smoke.js';`);commands[0]={command:'node',args:['other-suite.mjs']};save();pin([]);
