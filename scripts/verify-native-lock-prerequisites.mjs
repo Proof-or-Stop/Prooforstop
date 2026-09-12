@@ -2,6 +2,7 @@ import {spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 for (const [command,args] of [
  ['npm',['--prefix','packages/main','run','build']],
+ ['npm',['--prefix','packages/utils','run','build']],
  [process.execPath,['packages/main/dist/tasks/validate-execution-lock-smoke.js','--native-prerequisites-only']],
 ]) {
  const started=performance.now();
