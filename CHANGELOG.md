@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab review-finalization-lineage - v0.3.344 - 2026-09-12
+
+B-0980 exposed an official-writer/consumer mismatch: finalized review epoch metadata and genuine verification refreshes invalidated managed reviewer HEAD lineage; the inventory critic consumer also rebuilt an OPEN-only prompt after finalization. Extending the actual handler regression showed that certification admission, routine validation and the TEST transition encountered the same compatibility seam.
+
+The repair retains managed code review only across precisely classified official publications: signed finalized epoch and receipt with original cutoff; strict authenticated V5 evidence-only replacement with unchanged checklist requirements and append-only causal index; exact window-bound inventory consumption; validation artifacts with append-only causal closeout receipts tied to bytes and parent commit; and the existing exact REVIEW-to-TEST index delta. Managed critic consumption validates the current inventory subject and the immutable sealed launch digest without rebuilding a terminal prompt. Material, scope, receipt and lifecycle verdict checks remain independent. Unknown subjects, unrelated paths, forged metadata and changed requirements fail closed.
+
+Verification uses the pinned node scripts/verify-review-epoch-certification-continuity.mjs command. Disposable fixtures exercise actual native reviewer handlers and a synthetic managed transport, finalization, verification refresh, certification admission, routine validation, actual TEST publication, cancellation and forged publication controls. Synthetic fixture identities and transports are test provenance, not independent vendor audit. The complete repository build and process-fact contract check pass. The canonical suite inventory smoke previously passed. The broader managed-review smoke failed at the same first managed-run-completion assertion on both this Lab and baseline main a11f2d89a4; logs are preserved and that check is not reported as passing.
+
+This bounded maintenance does not implement the benchmark runner, declare B-0980 DONE, or supply a product release approval. Claude CLI must independently audit the exact prepared candidate before authorized local integration. No remote push is requested.
+
+The audited follow-up repairs and bounded unchanged dependency excerpts are retained in docs/audits/review-finalization-lineage.md. The repaired pinned regression passed at bd182268cd in 100511 ms, including discriminating output, original-round and exact transition controls. Full-suite resource inventory and process-fact checks passed.
+
+Third audit readiness
+
+The second audit findings are repaired at db0338a3b6. Retained refreshes now preserve exact reviewed coverage/kind/result and authenticate both previous and replacement V5 rows. Canonical scoped closeout readers use the same byte-bound refresh policy; generic writer labels do not grant checklist authority. The pinned regression includes an actual scope-contract/milestone-bound managed ReviewRun, real coverage-addition refusal at PRE_CERT, result-change controls and the complete TEST transition. Current GREEN passed at 1ccb8ad953a1adf79b36fe01fea32bc0a1fdc308 in 157531 ms after synchronization with main 0.3.343. The complete repository build passed before that sync, and synchronized CLI preparation passed afterward. The closeout-trust smoke also has a preserved contemporaneous main/Lab failure at its validate/test_story writer assertion; neither that check nor the earlier broader managed smoke is claimed green.
+
+Maintenance provenance: codex/lab-review-finalization-lineage, repair 1ccb8ad953a1adf79b36fe01fea32bc0a1fdc308.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab runtime-snapshot-static-edge - v0.3.343 - 2026-09-12
 
 Register the exact runtime verifier child that checks shared validation snapshot source bindings. The child parses shared-validation-execution.ts with TypeScript and rejects five in-memory source mutations; it does not import that production module or execute a validation suite. Add one source/call/invocation-bound reviewed exception with caller, child and read-only source dependency hashes. Preserve all unrelated exception entries, scanner classifications and configuration drift.
