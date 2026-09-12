@@ -562,7 +562,8 @@ async function assertReviewerWritesCoordinateWithValidation(): Promise<void> {
 async function assertDeliveryCheckCoordinatesWithValidation(): Promise<void> {
   const { root, storyId } = await createNativeLockFixture('B-validate-delivery');
   lockFixtureCli(root,storyId,'dispatch',{storyId,agentType:'proof-or-stop-review-delivery'},'proof-or-stop-review-delivery');
-  commitAll(root,'publish trusted delivery dispatch before validation');
+  // Dispatch is HEAD-bound. Do not commit after issuing it; a focused lock
+  // probe preserves routine evidence without creating a new certification publication.
   try {
     const validate = spawnCommand(root,['validate',`--story=${storyId}`,'--focus=lock','--json'],'delivery-holder');
     assert.equal(await waitForEntered(root, 1, NATIVE_ENTRY_WAIT_MS), true, 'validate must hold the execution lock: '+validate.output());
