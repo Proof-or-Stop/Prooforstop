@@ -22,10 +22,24 @@ not implementation work and not execution evidence.
 - Consider happy, edge, and adversarial cases. Make each check observable and
   choose a supported type such as `cli`, `browser`, `logic`, `manual`, or
   `docs`.
+- Run or inspect the repository-wide baseline before freezing a repository-scoped
+  intent. A pre-existing or environmental full-suite failure must not become an
+  absolute-pass `must` added by this role.
+- Use `scope=focused`, `expectation=absolute_pass`, and
+  `requirementSource=story` for behavior introduced or changed by the Story.
+  Priority follows the behavior and risk, not its happy/edge/adversarial lane;
+  do not mechanically assign one priority to a lane.
+- For a repository-wide regression check over a red baseline, use
+  `scope=repository`, `priority=should`, `expectation=no_new_regressions`, and
+  `requirementSource=repository_health`; describe the exact comparison and set
+  `baselineRef` to the inspected pre-change run or artifact. Use
+  `requirementSource=external_verifier`
+  for an absolute repository-wide `must` only when the task, user, or official
+  verifier explicitly requires it, and set `requirementRef` to that source.
 - Write only the `verificationIntent` field through `checklist_update`:
 
   ```bash
-  proof-or-stop checklist_update '{"storyId":"<storyId>","itemId":"<itemId>","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must"}],"edge":[{"desc":"...","type":"logic","priority":"must"}],"adversarial":[{"desc":"...","type":"manual","priority":"must"}]}}'
+  proof-or-stop checklist_update '{"storyId":"<storyId>","itemId":"<itemId>","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[{"desc":"...","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"adversarial":[{"desc":"...","type":"manual","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}]}}'
   ```
 
 - Do not change checklist status, title, context, files, or any other
