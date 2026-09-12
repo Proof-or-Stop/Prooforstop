@@ -63,6 +63,7 @@ export const REPRO_BOOTSTRAP_COMPONENT_IDS = ['P0m', 'P0p', 'P1', 'P1f', 'P2a', 
 export type ReproBootstrapComponentId = typeof REPRO_BOOTSTRAP_COMPONENT_IDS[number];
 export const VALIDATION_TIER_FLOORS = ['repository-full'] as const;
 export type ValidationTierFloor = typeof VALIDATION_TIER_FLOORS[number];
+export const DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME = 'runtime:dynamic_finding_applicability_gate' as const;
 
 export interface ProcessFactArtifactRef {
   name: string;
@@ -304,6 +305,15 @@ export function projectComponentProcessFactMapping(
 }
 
 export function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration): ProcessFactRegistryEntry {
+  if (entry.name === DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME
+    && (entry.validationTierFloor !== 'repository-full'
+      || !Array.isArray(entry.paths)
+      || entry.paths.length === 0)) {
+    throw new ProcessFactRegistryMappingError(
+      'process-non-total',
+      `${DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME} requires explicit validation floor paths`,
+    );
+  }
   if (entry.validationTierFloor !== undefined) {
     if (!(VALIDATION_TIER_FLOORS as readonly unknown[]).includes(entry.validationTierFloor)) {
       throw new ProcessFactRegistryMappingError(
@@ -435,6 +445,20 @@ export const DYNAMIC_FINDING_SEMANTIC_VERIFIER_SOURCE_REFS = [
   'packages/main/src/handlers/finding-deferral-proof.ts',
 ] as const;
 
+export const DYNAMIC_FINDING_PRODUCER_COMMANDS = [
+  'finding_applicability_assess',
+  'finding_applicability_batch',
+  'finding_deferral_record',
+  'finding_mandatory_repair_close',
+] as const;
+
+export const DYNAMIC_FINDING_PRODUCER_SOURCE_REFS_BY_COMMAND = {
+  finding_applicability_assess: ['packages/main/src/handlers/finding-applicability.ts'],
+  finding_applicability_batch: ['packages/main/src/handlers/finding-applicability.ts'],
+  finding_deferral_record: ['packages/main/src/handlers/finding-applicability.ts'],
+  finding_mandatory_repair_close: ['packages/main/src/handlers/finding-applicability.ts'],
+} as const satisfies Record<typeof DYNAMIC_FINDING_PRODUCER_COMMANDS[number], readonly string[]>;
+
 export const DYNAMIC_FINDING_CONSUMER_SOURCE_REFS = {
   finding_triage: ['packages/main/src/handlers/finding-applicability.ts'],
   'storyMachine.canPassReview': ['packages/main/src/core/machine.ts'],
@@ -454,6 +478,8 @@ export const DYNAMIC_FINDING_CONSUMER_SOURCE_REFS = {
 export const PROCESS_FACT_DYNAMIC_FINDING_POLICY = {
   recordTypes: ['finding_applicability_assessment', 'finding_deferral_disposition', 'dynamic_finding_manifest', 'material_drift_reattestation', 'mandatory_repair'],
   producer: 'handlers/finding-applicability (finding_applicability_assess, finding_applicability_batch, finding_deferral_record, finding_mandatory_repair_close)',
+  producerCommands: DYNAMIC_FINDING_PRODUCER_COMMANDS,
+  producerSourceRefsByCommand: DYNAMIC_FINDING_PRODUCER_SOURCE_REFS_BY_COMMAND,
   semanticVerifier: 'handlers/finding-applicability-proof current reviewer proposal and executed pinned witness; finding-deferral-proof signed policy/exact progress lineage; exact ledger/CAS, route and current-source checks; repair closure rechecks runtime artifacts, environment and key trust across material-identical descendant commits',
   semanticVerifierSourceRefs: DYNAMIC_FINDING_SEMANTIC_VERIFIER_SOURCE_REFS,
   allowedConsumers: DYNAMIC_FINDING_ALLOWED_CONSUMERS,
@@ -1607,12 +1633,12 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/handlers/transition-orchestrator.ts',
     ],
   },
-  'runtime:dynamic_finding_applicability_gate': {
+  [DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME]: {
     producerSourceRefs: [
       'packages/main/src/core/finding-applicability.ts',
       'packages/main/src/core/finding-applicability-projection.ts',
-      'packages/main/src/handlers/finding-applicability.ts',
       'packages/main/src/handlers/finding-material-reattestation.ts',
+      ...new Set(Object.values(PROCESS_FACT_DYNAMIC_FINDING_POLICY.producerSourceRefsByCommand).flat()),
       ...PROCESS_FACT_DYNAMIC_FINDING_POLICY.semanticVerifierSourceRefs,
     ],
     consumerSourceRefs: [
@@ -1629,12 +1655,23 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
   const sourceRefs = RUNTIME_PROCESS_FACT_SOURCE_REFS[entry.name];
   const rootOnly = policy ? policy.rootOnly === true || policy.status === 'rootOnly' : undefined;
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
-  return {
-    name: entry.name,
-    ...(entry.name === 'runtime:dynamic_finding_applicability_gate' && sourceRefs ? {
+  const isDynamicFindingValidationFloor = entry.name === DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME;
+  const validationFloorDeclaration = (() => {
+    if (!isDynamicFindingValidationFloor) return {};
+    if (!sourceRefs) {
+      throw new ProcessFactRegistryMappingError(
+        'process-missing',
+        `${DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME} has no authored runtime source mapping`,
+      );
+    }
+    return {
       validationTierFloor: 'repository-full' as const,
       paths: [...new Set([...sourceRefs.producerSourceRefs, ...sourceRefs.consumerSourceRefs])],
-    } : {}),
+    };
+  })();
+  return {
+    name: entry.name,
+    ...validationFloorDeclaration,
     kind: commandFactKind(entry.name, entry.level),
     semantics: commandFactSemantics(entry.name, entry.level),
     level: entry.level,
