@@ -185,7 +185,7 @@ import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 import { getCommandPolicy } from '../core/command-policy.js';
-import { getProcessFactRegistryEntry } from '../core/process-fact-registry.js';
+import { getProcessFactRegistryEntry, PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import {
   describeRedGreenViolations,
   evaluateRedGreenCommitOrder,
@@ -2340,7 +2340,13 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
   const gateFact = getProcessFactRegistryEntry('runtime:dynamic_finding_applicability_gate');
   assert.ok(gateFact, 'Dynamic Finding L4 gate process fact must be registered');
   assert.equal(gateFact.level, 'L4');
+  assert.equal(gateFact.kind, 'runtime-behavior');
+  assert.ok(gateFact.consumerGate?.trim(), 'Dynamic Finding L4 gate process fact must name its consumer gate');
   assert.ok(gateFact.paths.length > 0, 'Dynamic Finding L4 gate process fact must declare governed paths');
+  assert.ok(
+    gateFact.paths.includes('packages/main/src/core/certification-window.ts'),
+    'Dynamic Finding coverage must include a non-validation-named path outside the legacy sensitive-path list',
+  );
 
   for (const sensitivePath of gateFact.paths) {
     const input = planInput({
@@ -2367,6 +2373,38 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
       `Dynamic Finding L4 gate path must force repository-full: ${sensitivePath}`,
     );
     assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), sensitivePath);
+  }
+});
+
+testCase('every registered L4 consumer-gate path uses pattern semantics and forces repository-full', () => {
+  const gatePatterns = [...new Set(PROCESS_FACT_REGISTRY
+    .filter((entry) => entry.level === 'L4' && Boolean(entry.consumerGate?.trim()))
+    .flatMap((entry) => entry.paths))];
+  assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one L4 consumer-gate path');
+
+  for (const gatePattern of gatePatterns) {
+    for (const changedPath of [gatePattern, `${gatePattern}/nested-change.ts`]) {
+      const input = planInput({
+        readers: { changedFileStatuses: statusReader({ [changedPath]: 'M' }), hashSnapshot: fixtureHashSnapshot },
+      });
+      const result = resolveValidationTierPlan({
+        input,
+        requestedTier: 'story-fast',
+        impactIndex: {
+          schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+          version: 'all-l4-consumer-gates-v1',
+          commandSetDigest: input.executionInventory.commandSetDigest,
+          entries: [
+            { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: [changedPath], coverage: 'complete' },
+            { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+          ],
+        },
+      });
+      assert.equal(result.status, 'plan', changedPath);
+      if (result.status !== 'plan') continue;
+      assert.equal(result.effectiveTier, 'repository-full', `L4 consumer-gate path must force full: ${changedPath}`);
+      assert.ok(reasonCodes(result).includes('validation_framework_sensitive_change'), changedPath);
+    }
   }
 });
 
