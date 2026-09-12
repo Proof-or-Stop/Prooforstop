@@ -157,3 +157,11 @@ the actual count (currently 30). The 15-group focused selector stays byte-compat
 The historical 26-group full selector documented in CLI and testing contracts is
 still emitted on a clearly labelled legacy-selector line after complete success;
 it is not the reported actual group count and no frozen Story pin is rewritten.
+
+The machine-isolation control also invokes the actual compiled CLI through
+lockFixtureCli's actor-environment construction. A test-only preload observes
+the CLI descendant's PID, entry file and effective OS-user home. The control
+requires a distinct child PID and the private runtime home while the unrelated
+outer queue holder stays alive. This observation is diagnostic fixture data, not
+a signed Story receipt. Its outer transport budget exceeds the helper's existing
+60-second CLI bound by 10 seconds.

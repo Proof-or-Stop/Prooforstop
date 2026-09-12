@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import {spawn,execFileSync} from 'node:child_process';
-import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {NATIVE_FIXTURE_CLI_TIMEOUT_MS} from '../packages/main/dist/tasks/native-lock-fixture.js';
 import {createNativeLockTestRuntime} from './native-lock-test-runtime.mjs';
 
 const root=mkdtempSync(join(tmpdir(),'native-machine-isolation-control-'));
@@ -41,6 +43,21 @@ try {
  assert.equal(separate.signal,null);assert.equal(separate.status,0,'isolated native fixture must not wait on an unrelated machine queue: '+separate.output);
  assert.match(separate.output,/NATIVE_MACHINE_ADMITTED/);
  assert(!holderClosed,'independent fixture succeeds while the outer holder is still active');
+ const cliPath=fileURLToPath(new URL('../packages/main/dist/cli.js',import.meta.url));
+ const fixtureModule=new URL('../packages/main/dist/tasks/native-lock-fixture.js',import.meta.url).href;
+ const observation=join(isolated.root,'actual-cli-namespace.json');
+ const observer=join(isolated.root,'observe-cli.mjs');
+ writeFileSync(observer,`import {writeFileSync} from 'node:fs';import {userInfo} from 'node:os';if(process.argv[1]===${JSON.stringify(cliPath)})writeFileSync(${JSON.stringify(observation)},JSON.stringify({pid:process.pid,cli:process.argv[1],home:userInfo().homedir}));`);
+ const cliEnvironment={...isolated.env,NODE_OPTIONS:isolated.env.NODE_OPTIONS+' --import='+JSON.stringify(observer)};
+ const cliProgram=`const f=await import(${JSON.stringify(fixtureModule)});const root=f.allocateNativeLockRoot();try{console.log('NATIVE_CLI_PARENT_PID '+process.pid);console.log(f.lockFixtureCli(root,'B-namespace-proof','--version',{}));}finally{f.releaseNativeLockRoot(root);}`;
+ const cliStarted=performance.now();
+ const cliOutput=execFileSync(process.execPath,['--input-type=module','-e',cliProgram],{env:cliEnvironment,encoding:'utf8',timeout:NATIVE_FIXTURE_CLI_TIMEOUT_MS+10000,stdio:['ignore','pipe','pipe']});
+ assert.match(cliOutput,/Proof-or-Stop \d+\.\d+\.\d+/);
+ const observed=JSON.parse(readFileSync(observation,'utf8'));
+ assert.equal(observed.cli,cliPath);assert.equal(observed.home,join(isolated.root,'home'));
+ const parentPid=Number(cliOutput.match(/NATIVE_CLI_PARENT_PID (\d+)/)?.[1]);assert(parentPid>0&&observed.pid>0);assert.notEqual(observed.pid,parentPid,'the observation must come from the actual CLI descendant');
+ assert(!holderClosed,'actual CLI environment proof runs while the outer queue remains held');
+ console.log('NATIVE_LOCK_CLI_NAMESPACE_TIMING '+JSON.stringify({elapsedMs:performance.now()-cliStarted,parentPid,cliPid:observed.pid}));
  console.log('NATIVE_MACHINE_ISOLATION_PASS: same-pool exclusion and independent-pool progress');
 } catch(error){primaryFailed=true;throw error;} finally {
  try {
