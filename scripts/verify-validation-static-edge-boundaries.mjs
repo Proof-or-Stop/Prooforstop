@@ -45,6 +45,19 @@ try{
  fs.writeFileSync(path.join(root,'context.mjs'),'// current context');
  rejectEvidence([{file:'context.mjs',startLine:1,endLine:1,sourceDigest:hash('// current context'),excerpt:'// current context'}], 'current context does not cover actual call');
  pin([exception]);expect(0,'coherent source evidence remains accepted after negative controls');
+ const {createStaticSourceEvidence} = await import('./static-source-evidence.mjs');
+ assert.deepEqual(createStaticSourceEvidence(root,'suite-helper.mjs',1,1), evidence);
+ assert.throws(()=>createStaticSourceEvidence(root,'suite-helper.mjs',0,1), /line bounds/);
+ const contextualSource = '// context only\n'+evidence.excerpt;
+ fs.writeFileSync(path.join(root,'suite-helper.mjs'),contextualSource);
+ const moved = {...exception,key:exception.key.replace(':1:',':2:'),sourceDigest:hash(contextualSource),
+  dependencyDigests:{...exception.dependencyDigests,'suite-helper.mjs':hash(contextualSource)}};
+ pin([{...moved,requiredEvidence:[createStaticSourceEvidence(root,'suite-helper.mjs',1,1)]}]);
+ expect(1,'current valid excerpt outside moved callsite refused');
+ pin([{...moved,requiredEvidence:[createStaticSourceEvidence(root,'suite-helper.mjs',1,2), {...evidence,historical:true}, 'Historical context only']}]);
+ expect(0,'single snapshot refresh covers moved call; history remains supplemental');
+ fs.writeFileSync(path.join(root,'suite-helper.mjs'),evidence.excerpt);
+
 
  const noDeps={...exception};delete noDeps.dependencyDigests;pin([noDeps]);expect(1,'missing dependency set refused');
  pin([{...exception,dependencyDigests:{}}]);expect(1,'empty dependency set refused');
