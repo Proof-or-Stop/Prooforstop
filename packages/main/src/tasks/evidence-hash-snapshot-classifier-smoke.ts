@@ -79,6 +79,7 @@ import {
   EVIDENCE_HASH_SNAPSHOT_DIGEST_KEYS,
   captureEvidenceHashSnapshot,
   checkEvidenceFreshnessForGit,
+  classifyEvidenceFreshness,
   classifyEvidenceHashSnapshot,
   tryCaptureEvidenceHashSnapshot,
   type EvidenceHashSnapshot,
@@ -370,6 +371,17 @@ try {
     assert.deepEqual(unbornClassification.missing, ['headHash', 'materialHash', 'storyFilesHash']);
   });
 
+  testCase('freshness projection: unreadable HEAD is structurally RUNTIME_UNAVAILABLE independent of reason prose', () => {
+    const result = checkEvidenceFreshnessForGit(unborn, FAKE_HEAD, FAKE_MATERIAL, unborn);
+    assert.equal(result.runtimeUnavailable, 'headHash');
+    assert.equal(classifyEvidenceFreshness(result, FAKE_HEAD), 'RUNTIME_UNAVAILABLE');
+    assert.equal(
+      classifyEvidenceFreshness({ ...result, reason: 'diagnostic wording changed' }, FAKE_HEAD),
+      'RUNTIME_UNAVAILABLE',
+      'classification must consume the structural discriminator rather than parse reason text',
+    );
+  });
+
   // ── core/done-oracle.ts buildDoneChecklist — FAIL-CLOSED ──────────────────
   testCase('done-oracle (FAIL-CLOSED): unborn repo -> evidence-hash-snapshot row is fail/blocking and names headHash + materialHash', () => {
     const rows = buildDoneChecklist(STORY_ID, unbornStore, unborn, { auditWriter: null, gitCwd: unborn });
@@ -383,6 +395,27 @@ try {
     const supplied = buildDoneChecklist(STORY_ID, unbornStore, unborn, { auditWriter: null, gitCwd: unborn, evidenceHashSnapshot: unbornSnapshot });
     const rendered = renderDoneChecklist(STORY_ID, supplied);
     assert.ok(/Evidence hash snapshot: .*headHash.*materialHash/.test(rendered), `rendered checklist must name the missing digests:\n${rendered}`);
+  });
+
+  testCase('done-oracle historical projection: unreadable live git is disclosed without reopening DONE', () => {
+    const originalStory = unbornStore.readStory(STORY_ID);
+    unbornStore.writeStory(STORY_ID, { ...originalStory, phase: 'DONE', endedAt: NOW });
+    try {
+      const rows = buildDoneChecklist(STORY_ID, unbornStore, unborn, {
+        auditWriter: null,
+        gitCwd: unborn,
+        completedSnapshot: { materialHash: FAKE_MATERIAL, storyFilesHash: FAKE_STORY_FILES },
+      });
+      const row = rows.find((candidate) => candidate.id === 'evidence-hash-snapshot');
+      assert.ok(row, 'the unreadable current git state must remain visible in a historical projection');
+      assert.equal(row.status, 'warn');
+      assert.equal(row.blocking, false);
+      assert.ok(row.detail?.startsWith('Historical DONE projection:'), row.detail);
+      assert.match(row.detail ?? '', /evidence hash snapshot is partial: headHash unavailable/);
+      assert.match(row.detail ?? '', /present: materialHash, storyFilesHash/);
+    } finally {
+      unbornStore.writeStory(STORY_ID, originalStory);
+    }
   });
 
   // ── handlers/phase-gates.ts runDoneOracleGate — DISCLOSED ─────────────────
@@ -512,6 +545,9 @@ try {
       assert.ok(result.reason.includes('(fail closed)'), `reason must be the explicit fail-closed line: ${result.reason}`);
       assert.equal(result.currentMaterialHash, undefined, 'no current materialHash can exist when ls-tree fails');
       assert.equal(result.currentHead, FAKE_HEAD, 'HEAD itself was readable, so the result carries it (this is NOT the unreadable-HEAD branch)');
+      assert.equal(result.runtimeUnavailable, 'materialHash');
+      assert.equal(classifyEvidenceFreshness(result, FAKE_HEAD), 'RUNTIME_UNAVAILABLE');
+      assert.equal(classifyEvidenceFreshness({ ...result, reason: 'diagnostic wording changed' }, FAKE_HEAD), 'RUNTIME_UNAVAILABLE');
       assert.notEqual(result.reason, EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON, 'must not be misreported as the unreadable-HEAD branch');
       assert.notEqual(result.reason, 'evidence corresponds to current HEAD', 'must not fall through to the head comparison (pre-fix behaviour)');
       assert.equal(/metadata-only changes/.test(result.reason), false, 'must not fall through to the changed-files head comparison');

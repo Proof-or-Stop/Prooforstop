@@ -60,6 +60,8 @@ export function isCanonicalSha256Hash(value: unknown): value is string {
 export type EvidenceFreshness = {
   fresh: boolean;
   reason: string;
+  /** Structural reason for an unreadable runtime binding; never inferred from prose. */
+  runtimeUnavailable?: 'headHash' | 'materialHash';
   warnings?: string[];
   currentHead?: string;
   currentMaterialHash?: string;
@@ -311,12 +313,10 @@ export function classifyEvidenceFreshness(
   evidenceHash?: string,
 ): EvidenceFreshnessClassification {
   if (!evidenceHash) return 'LEGACY_UNBOUND';
-  // B-83aa CHK-001: the unreadable-HEAD / underivable-materialHash branches of
-  // checkEvidenceFreshnessForGit now FAIL CLOSED (fresh=false) but are still a
-  // runtime-unavailable condition, not a material comparison — keep them on the
-  // RUNTIME_UNAVAILABLE projection so incremental eligibility forces a full run
-  // for the same reason it did before the fail-closed change.
-  if (/Unable to get git HEAD|\(fail closed\)/i.test(freshness.reason)) return 'RUNTIME_UNAVAILABLE';
+  // B-83aa CHK-001: runtime unavailability is a structural fact, not a phrase
+  // parsed from a human-facing reason. Rewording diagnostics cannot silently
+  // change incremental eligibility from RUNTIME_UNAVAILABLE to UNCOMPARABLE.
+  if (freshness.runtimeUnavailable) return 'RUNTIME_UNAVAILABLE';
   if (!freshness.fresh) {
     return freshness.materialFiles.includes('<story-files-changed>')
       ? 'RELATED_STORY_MATERIAL_DRIFT'
@@ -950,6 +950,7 @@ export function checkEvidenceFreshnessForGit(
     return {
       fresh: false,
       reason: EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON,
+      runtimeUnavailable: 'headHash',
       changedFiles: [],
       materialFiles: [],
     };
@@ -966,6 +967,7 @@ export function checkEvidenceFreshnessForGit(
       return {
         fresh: false,
         reason: `current materialHash could not be derived at HEAD ${currentHead.slice(0, 7)}; the evidence materialHash binding cannot be verified (fail closed): ${materialBinding.detail}`,
+        runtimeUnavailable: 'materialHash',
         currentHead,
         changedFiles: [],
         materialFiles: [],

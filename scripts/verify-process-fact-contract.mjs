@@ -7435,6 +7435,7 @@ function assertEvidenceHashSnapshotFailClosedContract(registry, levelRegistry) {
   for (const token of [
     'export function classifyEvidenceHashSnapshot(',
     'EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON',
+    'runtimeUnavailable',
     'the evidence materialHash binding cannot be verified (fail closed)',
   ]) {
     assert(freshness.includes(token), `evidence-freshness.ts: fail-closed contract missing ${token}`);
@@ -11394,4 +11395,3 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
-

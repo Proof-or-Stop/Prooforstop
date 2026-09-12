@@ -38,7 +38,7 @@ import {
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { checkEvidenceFreshnessForGit, classifyEvidenceHashSnapshot, currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import { classifyEvidenceHashSnapshot, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { loadConfig } from '../core/config.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';

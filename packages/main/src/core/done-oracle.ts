@@ -358,15 +358,25 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     storyFilesHash: currentBindingStoryFilesHash,
   });
   if (!bindingClassification.complete) {
-    const bindingBlocking = bindingClassification.missing.some((key) => key !== 'storyFilesHash');
+    const admissionDigestUnavailable = bindingClassification.missing.some((key) => key !== 'storyFilesHash');
+    // A completed snapshot is a historical presentation, not a new admission
+    // attempt. Current git unavailability is still disclosed, but it cannot
+    // reopen a Story whose original DONE snapshot remains the projection basis.
+    const historicalLiveObservation = Boolean(completedSnapshot && admissionDigestUnavailable);
+    const bindingBlocking = !completedSnapshot && admissionDigestUnavailable;
+    const bindingDetail = historicalLiveObservation
+      ? `Historical DONE projection: current live git state is unavailable and does not reopen completed history; ${bindingClassification.detail}`
+      : bindingClassification.detail;
     rows.push(doneCheckRow({
       id: 'evidence-hash-snapshot',
       status: bindingBlocking ? 'fail' : 'warn',
       label: 'Evidence hash snapshot',
-      detail: bindingClassification.detail,
+      detail: bindingDetail,
       hint: bindingBlocking
         ? 'the current git HEAD / material tree must be readable from the story worktree (fail closed); repair the git state (unborn HEAD, unreadable ref or tree) and rerun'
-        : 'storyFilesHash is unavailable (no main / origin/main merge-base); DONE consumers fall back to strict materialHash',
+        : historicalLiveObservation
+          ? 'this is a read-only historical projection; repair the live git state before any new admission attempt'
+          : 'storyFilesHash is unavailable (no main / origin/main merge-base); DONE consumers fall back to strict materialHash',
       source: 'captureEvidenceHashSnapshot',
       blocking: bindingBlocking,
     }));
