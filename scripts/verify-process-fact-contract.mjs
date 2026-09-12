@@ -8687,6 +8687,7 @@ async function assertLifecycleArtifactScopePolicy() {
     'SCOPE_ANCHOR_ARTIFACT_VERSION',
     'ts.createSourceFile',
     'typescript_parse_error_fail_closed',
+    'typescript_baseline_pin_unresolved_fail_closed',
     "line === '+++ /dev/null'",
     'file_scope_no_enclosing_declaration',
   ]) {
