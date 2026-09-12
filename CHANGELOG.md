@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab receipt-authority-v5 - v0.3.338 - 2026-09-12
+
+# V5 execution authority compatibility repair
+
+The current evidence writer publishes signed V5 bundles, while remediation and convergence still required legacy causal receipt fields. This refused genuine new execution evidence and blocked B-0980 Finding closure.
+
+Use the existing strict V5 verifier with exact Story, intent, command, selector and recorded freshness bindings. Authenticate complete output bytes and recheck the same authority immediately before atomic ledger publication. Readable legacy receipts confer no current authority and require genuine re-execution.
+
+The real-handler regression recorded target RED, then passed valid atomic closeout, tampered signature/command/intent/freshness/output refusal, cross-Story and legacy refusal, missing output and publication-time deletion, dirty/concurrent source, partial repair rejection, projection failure recovery and idempotent replay. Build and process-fact contract verification passed. No runtime performance improvement is claimed. This local maintenance does not mark B-0980 or its dependent benchmark Story DONE.
+
+The first Claude audit rejected an inert placement of the new process-fact guard. The repaired guard executes before aggregation and uses throwing assertions; an actual intentional V5 discriminator mutation was rejected with exit code 1 and the exact target diagnostic. Added the convergence consumer regression, all three freshness mutation cases, canonical serial-suite registration and resource policy. The real full-suite inventory smoke passed 196 assertions. The evidence store has no public V5 path accessor; the isolated deletion test verifies through the public authenticated reader that its target is the actual output object. Unexpected verifier exceptions retain their cause and report unavailability.
+
+The second audit requested more precise witnesses and avoiding duplicated heavy validation. The canonical authority suite now runs only remediation and convergence; process-fact verification remains its existing independent canonical member and passed separately. Its new registration guard pins the exact command. The unexpected-verifier exception path is tested with the exact message and original cause. Initial and publication refusal tests pin distinct authority messages. Both deletion fixtures bind their target through the public authenticated reader. Positive causal-index recovery remains tested separately from read-only V5 progress. The child regression uses a module-relative absolute path, explicit cwd and 120-second ceiling. Latest local main was synchronized before rebuilding and revalidation.
+
+Maintenance provenance: codex/lab-receipt-authority-v5, repair 8356d03cb5d38f267420f7a750399a5f5ceec696.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-remediation-close.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab static-registry-closure - v0.3.337 - 2026-09-12
 
 Refresh reviewed static command registrations and their current source evidence.

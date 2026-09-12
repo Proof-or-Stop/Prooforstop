@@ -11,7 +11,6 @@ import type { MkdirLockFence } from '../core/mkdir-lock.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
-import { verifyCausalEvidenceReceipt } from '../core/causal-evidence.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
@@ -127,8 +126,8 @@ export function createReviewRemediationHandlers(ctx: HandlerContext, dependencie
             }) !== inputDigest) throw new Error('repairSet inputs changed before publication');
             for (const repair of args.findings) for (const proof of repair.verification) {
               const evidence = checklist.items.find(i => i.id === proof.itemId)!.verificationEvidence!.find(e => canonicalHash(e) === proof.evidenceDigest)!;
-              const causal = ctx.store.readCausalEvidenceReceipt(args.storyId, evidence.receipt!.executionKey!);
-              if (!causal || !verifyCausalEvidenceReceipt(causal, evidence.receipt!.executionKey) || causal.receiptHash !== evidence.receipt!.causalReceiptHash) throw new Error('repairSet execution authority changed before publication');
+              const item = checklist.items.find(i => i.id === proof.itemId)!;
+              if (!hasMechanicalExecutionAuthority(ctx.store, args.storyId, item, evidence)) throw new Error('repairSet execution authority changed before publication');
             }
           };
           assertPublicationInputsCurrent();
