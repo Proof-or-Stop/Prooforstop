@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab benchmark-map-verifier - v0.3.336 - 2026-09-12
+
+Repair the missing executable coverage in the historical B-0980 benchmark mapping verifier. The original assertion program could exit successfully without emitting any of the five required evaluator reports or executing the explicit row-mutation controls. Retain its exact bytes as a nested verifier, execute wildcard, duplicate, extra-path, adapter and group mutations with restored controls in disposable configurations, and emit actual candidate/baseline/unregistered/malformed/missing-topology reports. A separate subprocess regression rejects missing observations and twelve invalid input configurations. The verifier intentionally requires the pinned historical baseline commit and a built candidate checkout; it is a bounded recovery diagnostic, not a general benchmark runner.
+
+Recorded RED: BENCHMARK_MAP_COVERAGE_MISSING, actual zero evaluator reports versus required five. GREEN runs the same executable and argv after the repair. No real Story metadata, pinned command, evidence receipt, finding state, scope budget, or lifecycle gate is modified. This Lab integration does not mark B-0980 DONE or apply its pending acceptance amendment. Formal evidence integration remains a separate governed step. No performance improvement or full-suite PASS is claimed.
+
+The audit follow-up pins the historical program SHA-256 to c07e1b8606e05a956b0fb7a61cfdbcab601fe38e73a58dfd7dbf8bcd5241aa93, checks the emitted bytes independently, and executes an altered-program negative control. Invalid candidate inputs must produce the expected named row/baseline diagnostics; missing rows cannot pass via TypeError. Child process errors and signals fail explicitly, while the 180-second outer invocation budget exceeds the eleven 10-second nested calls plus bounded Git reads. The initial rejected audit and repair commits remain preserved.
+
+The second audit follow-up creates the regression temporary directory only after bounded historical-baseline and Git-directory reads succeed. Missing, null and non-array responsibility configuration cases each assert BENCHMARK_MAP_INVALID_CONFIG, bringing the named invalid-input cases to twelve.
+
+Maintenance provenance: codex/lab-benchmark-map-verifier, repair 16aa52414f1bca433fbaaa5d34e3df3697ad747c.
+Verification command (replayed before integration and on main): `["node","scripts/verify-benchmark-map-recovery-contract.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab static-native-fixture-traversal - v0.3.335 - 2026-09-12
 
 The static validation scanner did not register the native certification helper newly imported by the quorum integration fixture. Its exact import inventory refused that literal, and the existing depth bound stopped the native review helper on the first transitive path, leaving two unexpanded coverage rows.
