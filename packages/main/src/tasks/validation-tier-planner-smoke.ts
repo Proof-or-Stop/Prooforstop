@@ -205,6 +205,7 @@ import { StoryStore } from '../core/store.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
+const REPOSITORY_ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 
 let failures = 0;
 
@@ -2357,10 +2358,9 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
     ...(gateFact.consumerSourceRefs ?? []),
   ])];
   assert.ok(declaredSourceRefs.length > 0, 'Dynamic Finding must declare its producer and consumer source surface');
-  const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url));
   for (const sourceRef of declaredSourceRefs) {
     assert.ok(gateFact.paths.includes(sourceRef), `validation floor must include declared source ref: ${sourceRef}`);
-    assert.ok(existsSync(join(repoRoot, sourceRef)), `declared Dynamic Finding source must exist: ${sourceRef}`);
+    assert.ok(existsSync(join(REPOSITORY_ROOT, sourceRef)), `declared Dynamic Finding source must exist: ${sourceRef}`);
   }
   assert.ok(
     gateFact.paths.includes('packages/main/src/core/certification-window.ts'),
@@ -2380,7 +2380,7 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
       gateFact.paths.includes(policyAuthorityPath),
       `Dynamic Finding validation floor must cover policy authority: ${policyAuthorityPath}`,
     );
-    assert.ok(existsSync(join(repoRoot, policyAuthorityPath)), `policy authority source must exist: ${policyAuthorityPath}`);
+    assert.ok(existsSync(join(REPOSITORY_ROOT, policyAuthorityPath)), `policy authority source must exist: ${policyAuthorityPath}`);
   }
 
   for (const sensitivePath of gateFact.paths) {
@@ -2485,8 +2485,13 @@ testCase('explicit repository-full process-fact paths force full without overmat
     });
   };
 
+  assert.deepEqual(
+    classifySensitiveStoryPaths([], undefined),
+    classifySensitiveStoryPaths([]),
+    'an explicitly undefined optional override must have the same meaning as omission',
+  );
+
   for (const unavailable of [
-    undefined,
     { paths: [], rejectedEntryCount: 0 },
     { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: 1 },
     { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: Number.NaN },
@@ -2520,6 +2525,34 @@ testCase('explicit repository-full process-fact paths force full without overmat
     assert.equal(decision.effectiveTier, 'repository-full');
     assert.ok(decision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
   }
+  assert.throws(
+    () => selectValidationTiers({
+      storyId: 'B-invalid-dependencies',
+      requestedTier: 'story-fast',
+      universeCommandIds: ['unit-suite'],
+      changedPaths: [],
+      pinnedCommandIds: [],
+      forceFullReasons: [],
+      commandSetDigest: 'invalid-dependencies-command-set-v1',
+      snapshotDigest: 'invalid-dependencies-snapshot-v1',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'invalid-dependencies-index-v1',
+        commandSetDigest: 'invalid-dependencies-command-set-v1',
+        entries: [
+          { commandId: 'unit-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    }, null as never),
+    /selectValidationTiers: dependencies must be an object/,
+  );
+
+  const plannerSource = readFileSync(join(REPOSITORY_ROOT, 'packages/main/src/core/validation-tier-planner.ts'), 'utf8');
+  const handlerSource = readFileSync(join(REPOSITORY_ROOT, 'packages/main/src/handlers/validation-plan.ts'), 'utf8');
+  const productionCallSites = plannerSource.match(/selectValidationTiers\(\{[\s\S]*?\n    \}\);/gu) ?? [];
+  assert.equal(productionCallSites.length, 1, 'production must have exactly one selectValidationTiers call site');
+  assert.doesNotMatch(productionCallSites[0], /\n    \},\s*\{/u, 'production may not populate the internal dependency seam');
+  assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'the CLI handler may not call the selector seam directly');
   assert.match(
     validationWideningReasonGloss('validation_floor_registry_unavailable'),
     /could not provide a complete repository-full floor set, or declares no floor at all/,
