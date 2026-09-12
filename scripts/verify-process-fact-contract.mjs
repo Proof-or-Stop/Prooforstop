@@ -9890,7 +9890,7 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   }
   const remediationSource = read('packages/main/src/handlers/review-remediation.ts');
   for (const invariant of ['withAtomicFindingLedgerWrites', 'verifyReviewInventoryEpoch', 'verifyReviewInventoryReceipt',
-    'verifyCausalEvidenceReceipt', 'isBlockingDirty', 'appendMarker(ctx.store)', 'exactStoryArtifactNames']) {
+    'hasMechanicalExecutionAuthority', 'isBlockingDirty', 'appendMarker(ctx.store)', 'exactStoryArtifactNames']) {
     assert(remediationSource.includes(invariant), `ReviewRemediation must preserve ${invariant}`);
   }
   assert(/review_remediation_close:[^\n]+ownershipClass: 'storyScopedMutating'[^\n]+allowedPhases: \['DEV'\]/.test(read('packages/main/src/core/command-policy.ts')), 'ReviewRemediation must remain owner-gated DEV repair');
@@ -11322,3 +11322,14 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
+
+// Remediation and convergence must consume authenticated V5 publication evidence.
+{
+  const authority = read('packages/main/src/core/verification-receipt-authority.ts');
+  for (const token of ['validateVerificationReceipt', "validation.kind === 'split-v5'", 'storyId, intentRef:', 'freshness:', 'store.projectRoot']) {
+    assert(authority.includes(token), `execution authority missing V5 binding: ${token}`);
+  }
+  const remediation = read('packages/main/src/handlers/review-remediation.ts');
+  assert(!remediation.includes('readCausalEvidenceReceipt'), 'publication recheck must not revert to legacy-only authority');
+  assert(remediation.match(/hasMechanicalExecutionAuthority\(ctx.store/g)?.length === 2, 'initial and publication authority must share the strict verifier');
+}
