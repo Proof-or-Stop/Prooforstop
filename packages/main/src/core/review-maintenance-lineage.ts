@@ -114,16 +114,27 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         const old = before.items.find(i => i.id === item.id);
         const priorEvidence = old?.verificationEvidence ?? [];
         const nextEvidence = item.verificationEvidence ?? [];
+        const semanticRows = (rows: typeof priorEvidence) => rows.map(e => JSON.stringify([e.intentRef,e.kind,e.result])).sort();
         if (priorEvidence.length !== nextEvidence.length
-          || digestCanonicalJson(priorEvidence.map(e => e.intentRef).sort()) !== digestCanonicalJson(nextEvidence.map(e => e.intentRef).sort())) return false;
-        for (const evidence of item.verificationEvidence ?? []) {
-          if ((old?.verificationEvidence ?? []).some(e => digestCanonicalJson(e) === digestCanonicalJson(evidence))) continue;
-          const prior = priorEvidence.find(row => row.intentRef === evidence.intentRef);
-          if (!prior || prior.result !== evidence.result || prior.kind !== evidence.kind
-            || !hasMechanicalExecutionAuthority(store,storyId,old!,prior)) return false;
+          || digestCanonicalJson(semanticRows(priorEvidence)) !== digestCanonicalJson(semanticRows(nextEvidence))) return false;
+        // Consume exact rows first, then pair remaining rows one to one. A
+        // previously valid row cannot authorize multiple replacements.
+        const remaining = [...priorEvidence];
+        const replacements = nextEvidence.filter(evidence => {
+          const index = remaining.findIndex(prior => digestCanonicalJson(prior) === digestCanonicalJson(evidence));
+          if (index < 0) return true;
+          remaining.splice(index,1);
+          return false;
+        });
+        for (const evidence of replacements) {
+          const index = remaining.findIndex(prior => prior.intentRef === evidence.intentRef
+            && prior.kind === evidence.kind && prior.result === evidence.result
+            && hasMechanicalExecutionAuthority(store,storyId,old!,prior));
+          if (index < 0 || !hasMechanicalExecutionAuthority(store,storyId,item,evidence)) return false;
+          remaining.splice(index,1);
           changed = true;
-          if (!hasMechanicalExecutionAuthority(store,storyId,item,evidence)) return false;
         }
+        if (remaining.length) return false;
       }
       return changed;
     }
@@ -132,6 +143,10 @@ export function isVerifiedReviewMaintenanceCommit(args: {
     const writer = ['certification_window_begin', 'validate', 'test-transition'].find(command =>
       matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`));
     if (!writer) return false;
+    // These four bookkeeping projections confer no gate authority. Their bytes
+    // are intentionally ignored even alongside a valid publication; a specialized
+    // consumer must never use this lineage verdict to trust telemetry contents.
+    // A future closeout policy entry fails closed below until explicitly handled.
     const incidental = new Set(['process-events.jsonl', 'process-metrics.json', 'owner-lease.json', 'test-runs.json']);
     if (artifacts.some(path => incidental.has(path) && closeoutArtifactPolicyFor(path))) return false;
     const substantive = artifacts.filter(path => !incidental.has(path) && path !== CLOSEOUT_WRITE_RECEIPTS_PATH);

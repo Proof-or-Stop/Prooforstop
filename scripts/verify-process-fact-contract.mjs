@@ -7283,7 +7283,7 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
   const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts');
-  assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('prior.result !== evidence.result')
+  assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('semanticRows(priorEvidence)') && maintenanceText.includes('remaining.splice(index,1)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,old!,prior)'), 'review retention cannot add coverage or change the reviewed mechanical result');
   assert(read('packages/main/src/core/closeout-trust.ts').includes('isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath})')
     && reviewGateText.includes("path.startsWith('causal-evidence/') && isCurrentVerifiedEvidenceRefreshArtifact("), 'scoped retention must use the same byte-bound strict refresh authority for checklist and causal projections');

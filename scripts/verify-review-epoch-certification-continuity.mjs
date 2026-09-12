@@ -6,7 +6,7 @@ import {buildMilestoneLedger} from '../packages/main/dist/core/proofstory.js';
 import {SCOPE_PATH_CANONICALIZER_VERSION} from '../packages/main/dist/core/scope-path-classifier.js';
 import {createHostRunHandlers} from '../packages/main/dist/handlers/host-run.js';
 import {createManagedReviewEvidenceHandlers} from '../packages/main/dist/handlers/managed-review-evidence.js';
-import {getManagedHostRunStatus, managedHostRunReceipt} from '../packages/main/dist/core/managed-host-run.js';
+import {getManagedHostRunStatus, managedHostRunReceipt, managedHostRunDirectory} from '../packages/main/dist/core/managed-host-run.js';
 import {collectReviewerEvidenceState} from '../packages/main/dist/core/review-run.js';
 import {verifyManagedReviewLiveBinding, isCurrentManagedInventorySubject, isSealedManagedPromptDigestCurrent} from '../packages/main/dist/core/managed-review-evidence.js';
 import { execFileSync } from 'node:child_process';
@@ -22,6 +22,7 @@ import { readOwnerLease, releaseOwnerLease } from "../packages/main/dist/core/st
 import { adapterSessionEnv, adapterSessionId } from "../packages/main/dist/tasks/adapter-session-env.js";
 import {isVerifiedReviewMaintenanceCommit} from '../packages/main/dist/core/review-maintenance-lineage.js';
 import {evaluatePersistedReviewToTestIndexTransition} from '../packages/main/dist/core/review-run.js';
+import {computeCloseoutWriteReceiptIntegrity} from '../packages/main/dist/core/closeout-trust.js';
 const digest='sha256:'+'a'.repeat(64);
 assert(isSealedManagedPromptDigestCurrent(digest,digest,digest));
 assert.equal(isSealedManagedPromptDigestCurrent(undefined,digest,digest),false,'missing launch digest seal must never compare caller values to themselves');
@@ -182,6 +183,7 @@ cli(fixture.root,'dispatch',{storyId,agentType:critic,...purpose},ce);
 const co=cli(fixture.root,'review_run_start',{storyId,agent:critic,...purpose},ce);let cr=co.match(/Review run (\S+) started/)?.[1];assert(cr,co);
 // The transport is synthetic only in this disposable fixture. The actual
 // managed worker, sealed receipt importer and REVIEW consumer remain in use.
+let managedRunId;
 const ownerCwd=process.cwd();process.chdir(fixture.root);
 try {
  const ctx={root:fixture.root,store:fixture.store,scanRoot:join(fixture.root,'packages/main')};
@@ -215,6 +217,7 @@ try {
   cr=retryRun.match(/Review run (\S+) started/)?.[1];assert(cr,retryRun);
  }while(Date.now()<admissionDeadline);
  assert.equal(status.run.state,'completed','MANAGED_FIXTURE_TERMINAL_FAILURE: '+JSON.stringify(status));
+ managedRunId=launched.run.runId;
  const receipt=managedHostRunReceipt(fixture.root,launched.run.runId);
  assert.match(createManagedReviewEvidenceHandlers(ctx).managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/Managed review evidence imported/);
 } finally {process.chdir(ownerCwd);}
@@ -227,6 +230,20 @@ const persistedCritic=fixture.store.readReviewRuns(storyId).runs.find(r=>r.revie
 assert(persistedCritic.scopeBinding?.compositeScopeDigest,'actual managed run must exercise composite-scope retention');
 assert(collectReviewerEvidenceState(fixture.store,storyId,fixture.root).valid.some(e=>e.reviewRunId===cr),'actual managed REVIEW consumer accepts the finalized critic without rebuilding its launch pack');
 assert(isCurrentManagedInventorySubject(fixture.store,persistedCritic),'authenticated finalized critic remains consumable without rebuilding its OPEN launch pack');
+const specPath=join(managedHostRunDirectory(fixture.root,managedRunId),'spec.json');
+const originalSpec=readFileSync(specPath,'utf8');
+try {
+ for(const seal of [undefined,'malformed']) {
+  const spec=JSON.parse(originalSpec);assert(spec.reviewBinding.managedPromptDigest);
+  if(seal===undefined) delete spec.reviewBinding.managedPromptDigest;
+  else spec.reviewBinding.managedPromptDigest=seal;
+  writeFileSync(specPath,JSON.stringify(spec));
+  const collected=collectReviewerEvidenceState(fixture.store,storyId,fixture.root);
+  assert(collected.invalid.some(row=>row.code==='managed_receipt_invalid'),JSON.stringify(collected));
+  assert(!collected.valid.some(row=>row.reviewRunId===cr),'missing or malformed persisted launch seal cannot reach valid review');
+ }
+} finally {writeFileSync(specPath,originalSpec);}
+
 assert.equal(isCurrentManagedInventorySubject(fixture.store,{...persistedCritic,inventoryBinding:{...persistedCritic.inventoryBinding,epochId:'B-other:RI-999'}}),false,'wrong epoch is rejected');
 const savedEpochs=fixture.store.readReviewInventoryEpochs(storyId);
 const tampered=structuredClone(savedEpochs);tampered.epochs.at(-1).requiredLanes=[];
@@ -274,6 +291,19 @@ fixture.store.writeChecklist(storyId,trueCoverage);
 git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
 assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,'restoring a real PASS cannot retain a different previously recorded result');
 assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,false,'result-changing publication loses managed lineage');
+git(fixture.root,['reset','--hard',publishedHead]);
+// Duplicate references must not let one prior PASS conceal a FAIL upgrade.
+const duplicateBefore=structuredClone(trueCoverage);
+const duplicateFail={...structuredClone(duplicateBefore.items[0].verificationEvidence[0]),result:'fail'};
+duplicateBefore.items[0].verificationEvidence.push(duplicateFail);
+fixture.store.writeChecklist(storyId,duplicateBefore);
+git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m','test: construct duplicate-reference result boundary']);
+const duplicateAfter=structuredClone(duplicateBefore);
+duplicateAfter.items[0].verificationEvidence[1]={...structuredClone(duplicateAfter.items[0].verificationEvidence[0]),note:'Duplicate replacement must not reuse prior authority'};
+fixture.store.writeChecklist(storyId,duplicateAfter);
+git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
+assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,'duplicate-reference FAIL upgrade is refused');
+assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,false,'duplicate-reference result change invalidates live binding');
 git(fixture.root,['reset','--hard',publishedHead]);
 for(const mode of modes) {
 // Each counterexample starts from the same genuine signed publication. This
@@ -347,6 +377,48 @@ if(mode==='clean') {
  const testHead=git(fixture.root,['rev-parse','HEAD']);
  const testParent=git(fixture.root,['rev-parse',testHead+'^']);
  const testIndex=JSON.parse(readFileSync(join(fixture.root,storyPrefix,'index.json'),'utf8'));
+ // Reconstruct the genuine validate publication on its exact parent, then
+ // perturb one receipt predicate while preserving the real artifact bytes.
+ const validateHead=testParent;
+ assert.match(git(fixture.root,['show','-s','--format=%s',validateHead]),/validate metadata$/);
+ const validateParent=git(fixture.root,['rev-parse',validateHead+'^']);
+ const validatePaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r',validateHead]).split('\n').filter(Boolean);
+ const receiptPath=storyPrefix+'closeout-write-receipts.jsonl';
+ const restoreValidate=()=>{
+  git(fixture.root,['reset','--hard',validateParent]);
+  for(const path of validatePaths) {
+   mkdirSync(join(fixture.root,path,'..'),{recursive:true});
+   writeFileSync(join(fixture.root,path),execFileSync('git',['show',validateHead+':'+path],{cwd:fixture.root}));
+  }
+ };
+ for(const fault of ['sequence','previous-integrity','head','duplicate-receipt','rewrite-prefix','mixed-telemetry']) {
+  restoreValidate();
+  const receipts=readFileSync(join(fixture.root,receiptPath),'utf8').trim().split('\n').map(line=>JSON.parse(line));
+  const last=receipts.at(-1);
+  if(fault==='sequence') last.sequence+=1;
+  if(fault==='previous-integrity') last.previousIntegrityHash='f'.repeat(64);
+  if(fault==='head') last.headHash=expected.headHash;
+  if(['sequence','previous-integrity','head'].includes(fault)) last.integrityHash=computeCloseoutWriteReceiptIntegrity(last);
+  if(fault==='duplicate-receipt') receipts.push(structuredClone(last));
+  if(fault==='rewrite-prefix') {
+   // Seed this disposable parent's history with the authentic receipt; the
+   // candidate then rewrites that already persisted prefix instead of appending.
+   git(fixture.root,['reset','--hard',validateParent]);
+   writeFileSync(join(fixture.root,receiptPath),receipts.map(row=>JSON.stringify(row)).join('\n')+'\n');
+   git(fixture.root,['add','--',receiptPath]);git(fixture.root,['commit','-m','test: establish authentic prior closeout receipt']);
+   for(const path of validatePaths) writeFileSync(join(fixture.root,path),execFileSync('git',['show',validateHead+':'+path],{cwd:fixture.root}));
+   receipts[0].timestamp='2099-01-01T00:00:00.000Z';receipts[0].integrityHash=computeCloseoutWriteReceiptIntegrity(receipts[0]);
+  }
+  writeFileSync(join(fixture.root,receiptPath),receipts.map(row=>JSON.stringify(row)).join('\n')+'\n');
+  const extra=storyPrefix+'test-runs.json';
+  if(fault==='mixed-telemetry') writeFileSync(join(fixture.root,extra),JSON.stringify({runs:[{forged:true}]}));
+  git(fixture.root,['add','--',...validatePaths,...(fault==='mixed-telemetry'?[extra]:[])]);
+  git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} validate metadata`]);
+  assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),fault==='mixed-telemetry',fault);
+  console.log('VALIDATE_PUBLICATION_BOUNDARY '+fault);
+ }
+ git(fixture.root,['reset','--hard',testHead]);
+
  for(const [name,mutate,reason] of [
   ['stable-field',data=>({...data,title:'Forged requirement change'}),'index fields outside'],
   ['extra-event',data=>({...data,events:[...data.events,data.events.at(-1)]}),'events are not'],

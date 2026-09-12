@@ -322,3 +322,26 @@ export function reviewInventoryAcceptanceSubjectDigest(
       if (!row || typeof row !== 'object') return row;
       const {
 ```
+
+
+## Third audit follow-up
+
+Audit ec26e2c2-1a66-4187-bb7e-e4674449138e rejected the duplicate-reference
+comparison. Refreshes now preserve the complete semantic multiset of intent
+reference, kind and result. Exact unchanged rows are consumed first; changed
+rows consume authenticated prior rows one to one. A prior PASS cannot authorize
+multiple replacements or conceal a recorded FAIL among duplicate references.
+The pinned fixture adds this counterexample and exercises invalid persisted
+managed launch seals through the actual REVIEW evidence collector.
+
+The fixture reconstructs the real validate publication and tests receipt
+sequence, previous integrity hash, parent HEAD, duplicate receipt count and
+prior-prefix replacement. Integrity hashes are recomputed for single-field
+controls so refusal tests more than a stale checksum.
+
+The four incidental bookkeeping files deliberately confer no authority through
+this classifier. Their content is ignored even alongside an authentic validate
+publication; this does not validate telemetry, authorize certification or replace
+any specialized gate. The mixed forged test-runs plus authentic evidence case
+explicitly preserves code-review lineage, while telemetry alone remains refused.
+A future closeout policy classification of any incidental path fails closed.
