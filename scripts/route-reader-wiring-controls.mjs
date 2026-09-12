@@ -16,7 +16,11 @@ export function verifyRouteReaderWiring() {
     && node.expression.arguments[0]?.text === 'REATTEST-gate-consumes-verified-closure');
   assert(statement, 'actual four-gaps wiring callback must exist');
   const callback = statement.expression.arguments[1].getText(tree);
-  const source = path => readFileSync(resolve(root, 'packages/main/src', path), 'utf8');
+  // Read once outside VM budgets; guarded callbacks only inspect cached text.
+  const paths = ['core/finding-applicability-projection.ts', 'registry.ts',
+    'handlers/finding-material-reattestation.ts', 'handlers/finding-route.ts'];
+  const sources = new Map(paths.map(path => [path, readFileSync(resolve(root, 'packages/main/src', path), 'utf8')]));
+  const source = path => { assert(sources.has(path), 'unexpected wiring source: ' + path); return sources.get(path); };
   const runWiring = overrides => runInNewContext('(' + callback + ')()', {
     assert, source: path => overrides.get(path) ?? source(path),
   }, { timeout: 1000 });
@@ -48,5 +52,5 @@ export function verifyRouteReaderWiring() {
   if (missed.length) console.error('ROUTE_READER_WIRING_MUTATION_RED ' + missed.join('; '));
   assert.deepEqual(missed, [], 'actual four-gaps guards must reject each dependency mutation');
   console.log('ROUTE_READER_WIRING_MUTATIONS PASS adapter scope and alternate imports');
-  
+
 }

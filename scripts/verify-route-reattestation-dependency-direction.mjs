@@ -3,8 +3,17 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
-verifyRouteReaderWiring();
 const root=process.cwd(),require=createRequire(resolve(root,'package.json')),ts=require('typescript');
+const registered = readFileSync(resolve(root, 'scripts/verify-route-reattestation-dependency-direction.mjs'), 'utf8');
+const registrationTree = ts.createSourceFile('registered.mjs', registered, ts.ScriptTarget.Latest, true);
+assert(registrationTree.statements.some(node => ts.isImportDeclaration(node)
+  && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs'
+  && node.importClause?.namedBindings?.elements?.some(binding => binding.name.text === 'verifyRouteReaderWiring'
+    && !binding.propertyName)), 'ROUTE_READER_REGISTERED_MUTATION_RED registered suite must import actual helper');
+assert(registrationTree.statements.some(node => ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)
+  && node.expression.expression.getText(registrationTree) === 'verifyRouteReaderWiring' && node.expression.arguments.length === 0),
+  'ROUTE_READER_REGISTERED_MUTATION_RED registered suite must execute actual helper');
+verifyRouteReaderWiring();
 const contract=readFileSync(resolve(root,'scripts/verify-process-fact-contract.mjs'),'utf8');
 const source=readFileSync(resolve(root,'packages/main/src/handlers/finding-route.ts'),'utf8');
 const parsed=ts.createSourceFile('contract.mjs',contract,ts.ScriptTarget.Latest,true);
