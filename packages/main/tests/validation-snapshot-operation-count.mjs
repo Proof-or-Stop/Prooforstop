@@ -36,6 +36,10 @@ const { probeValidationCausalPreflightFacts } = await import('../dist/handlers/v
 const root = mkdtempSync(join(tmpdir(), 'snapshot-operation-count-'));
 const oldCwd = process.cwd();
 const originalExec = cp.execFileSync;
+const originalSpawn = cp.spawn;
+let childStarts = 0;
+cp.spawn = function (...args) { childStarts++; return originalSpawn.apply(this, args); };
+syncBuiltinESMExports();
 const git = args => originalExec('git', args, { cwd: root, encoding: 'utf8', stdio: 'pipe' }).trim();
 let store;
 const storyId = 'B-snapshot-count';
@@ -76,17 +80,21 @@ try {
   const input = join(generated, 'input.txt');
   writeFileSync(input, 'stable');
   const command = { command: process.execPath, args: [join(root, 'witness.mjs')], executionReuse: 'exact-inputs', executionInputs: [input] };
-  const context = { storyId, receiptStore: store, probe };
+  let liveProbes = 0;
+  const context = { storyId, receiptStore: store, probe: input => { liveProbes++; return probe(input); } };
   const measurements = [];
   for (const phase of ['executed', 'reused']) {
     canonicalCounts = new WeakMap(); baseline = undefined; inputs = undefined;
+    liveProbes = 0; childStarts = 0;
     const start = performance.now();
     const result = await runValidationCommand(command, root, 10000, { sharedExecution: context });
     assert.equal(result.code, 0); assert.match(result.output, /REAL_SNAPSHOT_WITNESS/);
     assert.equal(result.executionReceipt?.disposition, phase);
     assert(baseline && inputs, 'Instrumentation must observe both actual baseline objects');
     measurements.push({ phase, initialSerializations: canonicalCounts.get(baseline) ?? 0,
-      inputSerializations: canonicalCounts.get(inputs) ?? 0, ms: performance.now() - start });
+      inputSerializations: canonicalCounts.get(inputs) ?? 0, liveProbes, childStarts, ms: performance.now() - start });
+    assert.equal(childStarts, phase === 'executed' ? 1 : 0);
+    assert(liveProbes >= 4, 'Live admission, consumption and publication observations remain');
   }
   assert.equal(hookMatches, 1);
   console.log('SNAPSHOT_OPERATION_COUNTS ' + JSON.stringify(measurements));
@@ -101,13 +109,23 @@ try {
   await assert.rejects(runValidationCommand({ ...command, args: [selfWriter], executionInputs: [generated] }, root, 10000,
     { sharedExecution: context }), /inputs changed|publication/);
   assert.equal(readFileSync(input, 'utf8'), 'in-flight drift');
+  let driftProbes = 0;
+  childStarts = 0;
+  await assert.rejects(runValidationCommand(command, root, 10000, { sharedExecution: {
+    ...context, probe: input => {
+      const facts = probe(input);
+      if (++driftProbes > 1) facts.gitMaterial.storyFilesHash = 'f'.repeat(64);
+      return facts;
+    },
+  } }), /inputs changed|preflight/);
+  assert(driftProbes > 1); assert.equal(childStarts, 0, 'Fresh fact drift refuses before child launch');
   console.log('SNAPSHOT_DRIFT_CONTROLS_PASS');
   assert(measurements.every(row => row.initialSerializations === 1 && row.inputSerializations === 1),
     'INITIAL_SNAPSHOT_SERIALIZED_REPEATEDLY: baseline facts and input bytes must each be canonicalized once per invocation');
   console.log('SNAPSHOT_OPERATION_GREEN');
 } finally {
   if (store) releaseOwnerLease(store.storyDirPath(storyId));
-  process.chdir(oldCwd); cp.execFileSync = originalExec; syncBuiltinESMExports();
+  process.chdir(oldCwd); cp.execFileSync = originalExec; cp.spawn = originalSpawn; syncBuiltinESMExports();
   hook.deregister(); delete globalThis.__snapshotCount; delete globalThis.__snapshotBaseline;
   rmSync(root, { recursive: true, force: true });
 }
