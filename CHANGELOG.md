@@ -1,13 +1,5 @@
 # Changelog
 
-## Lab evidence-fixture-contracts - v0.3.340 - 2026-09-12
-
-Repair stale static-exception evidence acceptance: current excerpts must match source hashes, exact ranges and registered call coverage; historical prose cannot authorize current exceptions. Reconcile the existing manifest against reviewed local main changes. Preserve valid version-bound evidence atomically during official Lab patch releases, refusing stale inputs and non-version edits with rollback. Verification includes target RED, current GREEN across scanner adversarial controls, all 257 manifest entries, and a disposable complete version-release regression with rejection/rollback controls. Require the independent Claude CLI audit of the prepared release. This record is local Lab maintenance provenance, not formal Story DONE or remote publication. Execution and audit timings remain in the signed Lab maintenance history.
-
-Maintenance provenance: codex/lab-evidence-fixture-contracts, repair f7239a98427fe9c2d8a9d60fa05084d59a8c1643.
-Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab scope-diff-repeated-work - v0.3.339 - 2026-09-12
 
 Scope diff parsing repeatedly rediscovered the integration baseline and reread the same historical file for every hunk. On a real Story read-only scope check, a 33.72-second profile spent about 25.97 sampled seconds under historical-source reads, including 23.64 seconds in repeated baseline resolution. The current diff contained 134 TS/JS hunks across 40 paths. This made owner scope checks and session briefs unnecessarily expensive.
