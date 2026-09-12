@@ -1,17 +1,5 @@
 # Changelog
 
-## Lab redundant-scan-comparison - v0.3.340 - 2026-09-12
-
-Reduce repeated baseline snapshot canonicalization in shared validation execution. This repair starts from local main 0.3.339 and addresses one of six measured historical overhead hotspots. The initial facts and input snapshot are now each canonicalized once per invocation: 5 to 1 calls during first execution and 3 to 1 during receipt reuse. Live fact probes remain 6 and 4 respectively; workspace, live input, loaded implementation identity, and pre-publication checks remain active. Changed inputs execute again and live fact drift refuses before child launch. The other five measured hotspots were already within their operation budgets and are unchanged. Quorum cleanup is explicitly excluded and belongs to another Lab.
-
-The managed RED/GREEN command is node scripts/verify-redundant-scan-comparison.mjs. The runtime fact contract and validation-shared-input-tree regression also pass. The committed report and raw measurements are in docs/lab-evidence/redundant-scan-comparison-20260912/. Single observed call times are retained there but are not a repeated timing benchmark; no whole-Story speedup or causal latency percentage is claimed. These records are local Lab maintenance evidence, not formal Story DONE. The user has authorized local patch version upgrade, integration, and successful worktree cleanup. The user subsequently authorized publishing the verified main commit, version tag and detailed GitHub Release after local integration.
-
-Independent audit correction: the first Claude audit accepted the production optimization but rejected unconditional use of the Lab-only module-hook counter in the general runtime contract. The dynamic counter remains in the managed Lab command. The canonical runtime verifier instead invokes a TypeScript AST binding check for the real invocation-local baseline consts and live freshness expression, with five in-memory mutations required to fail. The corrected runtime contract passes. The new guard passes separately under Node 20; this is not a claim of running the entire repository suite on Node 20. No general Node requirement is raised and no check is silently skipped.
-
-Maintenance provenance: codex/lab-redundant-scan-comparison, repair 4ffb6b0780464487fdb34fc2b4afdafe0867c96d.
-Verification command (replayed before integration and on main): `["node","scripts/verify-redundant-scan-comparison.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab scope-diff-repeated-work - v0.3.339 - 2026-09-12
 
 Scope diff parsing repeatedly rediscovered the integration baseline and reread the same historical file for every hunk. On a real Story read-only scope check, a 33.72-second profile spent about 25.97 sampled seconds under historical-source reads, including 23.64 seconds in repeated baseline resolution. The current diff contained 134 TS/JS hunks across 40 paths. This made owner scope checks and session briefs unnecessarily expensive.
