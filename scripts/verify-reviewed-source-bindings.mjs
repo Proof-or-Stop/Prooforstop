@@ -6,6 +6,8 @@ import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
+import ts from 'typescript';
+import { runInNewContext } from 'node:vm';
 import { validateReviewedSourceSources, reviewedSourceResidueAllowed } from './identity-reviewed-source-contexts.mjs';
 
 const read = path => readFileSync(path, 'utf8');
@@ -38,6 +40,44 @@ assert.deepEqual(pins.map(row => row.path).sort(), ['fixture', 'json', 'source']
 for (const pin of pins) assert.equal(sha(read(pin.path)), pin.sha256,
   `REVIEWED_READER_CHAIN_MUST_MATCH: ${pin.path}`);
 console.log(`PASS scanner reader bindings: ${pins.length} exact current modules`);
+
+// Inspect the actual scanner declarations so a source refresh cannot leave a
+// second, contradictory whole-file witness behind in either consumer table.
+const scannerAst = ts.createSourceFile('scanner.mjs', scanner, ts.ScriptTarget.Latest, true);
+const witnessNames = ['BOTH_FAMILY_CONTEXT_ROWS', 'BOTH_FAMILY_CONTEXT_WITNESSES', 'REVIEWED_NEGATIVE_SOURCE_INTEGRITY'];
+const declarations = new Map();
+for (const statement of scannerAst.statements) {
+  if (!ts.isVariableStatement(statement)) continue;
+  for (const declaration of statement.declarationList.declarations) {
+    if (ts.isIdentifier(declaration.name) && witnessNames.includes(declaration.name.text)) {
+      assert.ok(declaration.initializer);
+      assert.equal(declarations.has(declaration.name.text), false);
+      declarations.set(declaration.name.text, declaration.initializer.getText(scannerAst));
+    }
+  }
+}
+assert.equal(declarations.size, witnessNames.length);
+const witnessTables = runInNewContext(witnessNames.map(name => `const ${name} = ${declarations.get(name)};`).join('\n')
+  + '\n[BOTH_FAMILY_CONTEXT_WITNESSES, REVIEWED_NEGATIVE_SOURCE_INTEGRITY]', {}, { timeout: 1000 });
+const sharedPath = 'packages/main/src/core/runtime-environment-checks.ts';
+function checkSharedWitnesses(tables) {
+  for (const table of tables) {
+    const matches = table.filter(pin => pin.path === sharedPath);
+    assert.equal(matches.length, 1, 'REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH');
+    assert.equal(matches[0].sha256, sha(read(sharedPath)), 'REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH');
+  }
+}
+checkSharedWitnesses(witnessTables);
+for (const tableIndex of [0, 1]) {
+  for (const remove of [false, true]) {
+    const mutated = JSON.parse(JSON.stringify(witnessTables));
+    const index = mutated[tableIndex].findIndex(pin => pin.path === sharedPath);
+    if (remove) mutated[tableIndex].splice(index, 1);
+    else mutated[tableIndex][index].sha256 = '0'.repeat(64);
+    assert.throws(() => checkSharedWitnesses(mutated), /REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH/);
+  }
+}
+console.log('PASS shared source witness closure: both actual scanner tables and four omission/stale controls');
 
 const rows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries;
 // Reconstruct the exact historical/current string literal using the unchanged
