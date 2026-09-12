@@ -1,33 +1,29 @@
 # Route reader regression: bounded audit source context
 
-The Lab audit supplies complete changed files but does not supply unchanged production dependencies. These excerpts make the controlling composition, default refusal, signed reader and public schema available inside that snapshot. They are developer-provided source provenance, not independent audit findings or formal Story evidence. The controlling production dependencies excerpted here are unchanged by this Lab; official release preparation separately updates the CLI version constant and package manifests.
+This Lab repairs the stale direct-reader assertion and the native negative-input fixture. Production dependency and refusal semantics are unchanged; official release preparation separately updates the CLI version and package manifests. The existing registered dependency-direction entry now invokes the durable driver, which independently checks the suite's helper registration, prepares and verifies main/utils builds, and executes four-gaps, the complete original dependency suite, and static-edge verification. The original native material/head-only, history, process-fact children and timeouts are retained, with no duplicated native run.
 
-Main-source excerpts below are from immutable baseline `62a5c2b385516541bdb3cd001544b83b783812e9`. Each block records its exact inclusive line range, full UTF-8 source SHA-256, Git blob and excerpt SHA-256 (including the final newline). The final block is explicitly historical B-e6d9 candidate context, not baseline production. Hashes identify the cited bytes; the audit must assess the code and changed tests rather than treating hashes as a correctness verdict. Helper implementations outside these bounded excerpts are not reproduced here.
+The audited baseline for the excerpts below is `3d4aaca54447830fbc4e407d6dfcc21b436d1683`. For every controlling production path listed, the complete source bytes were compared with the current Lab checkout and with the original `62a5c2b385516541bdb3cd001544b83b783812e9` citation: all are byte-identical. Each source and excerpt is pinned by SHA-256 and exact inclusive lines. These developer-provided excerpts fill the audit snapshot's unchanged-dependency gap; they are not independent audit findings, signed Story evidence, or a substitute for the driver's live positive control.
 
-The original main native material and head-only modes passed; only the old four-gaps direct-call assertion failed. B-e6d9 exposed a separate fixture assumption: its internal signed record can contain `sourceCoverage: null`, while public identity JSON forbids null recursively before strict schema parsing. The committed RED characterization cloned only the attempted negative public input to model that observed candidate shape. It did not change the signed proof used by positive route verification. Therefore the modeled native RED is not a claim that original main native behavior failed.
+Original main native modes passed. Historical B-e6d9 candidate `1d62cdb3e4cb24d1c4e70c96b9174b27741c09ee` exposed an internal `sourceCoverage: null` value that public identity JSON rejects before strict-schema unknown keys. The committed compatibility RED modeled that candidate shape only in a negative public input. The final fixture first validates both `routeInput` and the null-free two-field public projection, then adds exactly one null leaf for the null refusal assertion. The same null-free projection retains the exact unknown-property rejection. Signed positive proof and all absence, boolean, substituted, wrong-root, current-reviewer, history and progress controls remain intact.
 
-The repair preserves the exact unknown-property assertion using a plain JSON projection (`sourceRoot`, `sourceRef`) checked by `assertIdentityJson`, and separately requires null-containing input refusal. It preserves the projection assertion and checks registry composition, adapter consumption and the route port without restoring the forbidden direct dependency. The pinned GREEN executes the actual four-gaps test and both native route-restoration modes, retaining absent, undefined, boolean, substituted, wrong-root, current-reviewer and history/progress refusal controls in the changed smoke file. The eight static dependency digest substitutions preserve the original rows, duplicate IDs, excerpts and all other fields.
+The live mutation helper checks the actual four-gaps callback on cached current source text, then rejects adapter-body replacement and alternate static/dynamic direct imports. Its adapter mutation locates the initializer structurally. Historical loose behavior is separately characterized against fixed inline source text only; it never binds retired regexes to current production. Its exact historical callback was extracted from committed RED revision `cec884ccde`, not from an uncommitted intermediate. The direct-specifier guards expressly do not claim arbitrary transitive or computed-import coverage.
 
-The code below shows why the two validation layers differ: public verification parses a strict schema first; that parser rejects null before schema unknown keys. Internal restoration is an optional function parameter supplied by registry composition, never a public property. The strict default cannot use restoration for current-reviewer acceptance. The adapter freshly reads signed proof for the exact source; the route checks current source/root bindings before using historical proposal hashes. This is bounded context for reviewing the test changes, not a claim of additional production coverage.
+The independent driver parses the sibling suite resolved from its own repository path and demonstrates refusal after removing either helper import or top-level call. Its existing root npm entry and serial-reference membership are checked before any child. Build setup verifies current source/output bindings; failures are unavailable proof, never GREEN. The original suite retains its 600-second maximum and its individual child budgets; setup has 180 seconds, with a 600-second shared proof body below the pinned 900-second Lab budget. The pinned static verifier must report U18_STATIC_PASS and zero needs-review/unexpanded work before the final GREEN selector.
 
-## Registry composition
+All four rejected vendor audits remain in the tool-owned Lab record: `435bf2b4-ea1c-41a1-8ff5-7fb29ac9cdcd`, `a0679828-9973-48b5-8e46-d8bc7c5f3bc5`, `78ac0073-b89e-4bd7-8d4b-a35b99b22c6c`, and `6becbb72-a29d-4741-851a-0c286490bb29`. This consolidation responds to their concrete coverage and replay findings. No audit PASS or local integration is claimed by this document. The durable pinned command is `node scripts/verify-route-reader-regression.mjs`; its full output, including static counts and native/history selectors, is retained by RED/GREEN and finish.
 
-Source: `packages/main/src/registry.ts`, commit `62a5c2b385516541bdb3cd001544b83b783812e9`, lines 235–236.
+## Controlling current baseline: packages/main/src/registry.ts
 
-Full-source SHA-256: `25550cb0956c3caddb51157ffba7b55f1c7b5e2648ec9818b9ca8f7850ac1103`. Git blob: `1dd29d97bedb1e8b9a277dfc3dd0c9a307108025`.
-Excerpt SHA-256: `fc5331c9296466fe0e2c85e556818e60d8ef98afabc33de9b98f66d469293825`.
+Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 235–236. Full-source SHA-256 `25550cb0956c3caddb51157ffba7b55f1c7b5e2648ec9818b9ca8f7850ac1103`; Git blob `1dd29d97bedb1e8b9a277dfc3dd0c9a307108025`; excerpt SHA-256 `fc5331c9296466fe0e2c85e556818e60d8ef98afabc33de9b98f66d469293825`.
 
 ```typescript
   registry.registerBatch(createFindingRouteHandlers(ctx, readRouteSourceRestoration));
   registry.registerBatch(createFindingHistoryHandlers(ctx, observeDeferralInvalidation, readRouteSourceRestoration));
 ```
 
-## Internal port and strict default
+## Controlling current baseline: packages/main/src/handlers/finding-route.ts
 
-Source: `packages/main/src/handlers/finding-route.ts`, commit `62a5c2b385516541bdb3cd001544b83b783812e9`, lines 81–137.
-
-Full-source SHA-256: `a7dcc8a7c4da4903d6585a5bf3360255ec3e2bfecd4bdf39b400516b3854653e`. Git blob: `da171c174289b4666f373acc0df3ff11e2c2882a`.
-Excerpt SHA-256: `c493a86c6c902bb6291148330990a86e00bb45fba3294aac92efddfb13c41738`.
+Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 81–137. Full-source SHA-256 `a7dcc8a7c4da4903d6585a5bf3360255ec3e2bfecd4bdf39b400516b3854653e`; Git blob `da171c174289b4666f373acc0df3ff11e2c2882a`; excerpt SHA-256 `c493a86c6c902bb6291148330990a86e00bb45fba3294aac92efddfb13c41738`.
 
 ```typescript
 /** Internal composition port. Only the Story1 signed reader supplies this full
@@ -89,12 +85,9 @@ export function sourceRouteRecord(ctx: HandlerContext, source: RouteSource, requ
 }
 ```
 
-## Public verification consumes the injected reader
+## Controlling current baseline: packages/main/src/handlers/finding-route.ts
 
-Source: `packages/main/src/handlers/finding-route.ts`, commit `62a5c2b385516541bdb3cd001544b83b783812e9`, lines 458–471.
-
-Full-source SHA-256: `a7dcc8a7c4da4903d6585a5bf3360255ec3e2bfecd4bdf39b400516b3854653e`. Git blob: `da171c174289b4666f373acc0df3ff11e2c2882a`.
-Excerpt SHA-256: `5126d727e550f9416fa69b0a3cc1deabd5cf43feac504db0f0a49fa1454ce0b5`.
+Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 458–471. Full-source SHA-256 `a7dcc8a7c4da4903d6585a5bf3360255ec3e2bfecd4bdf39b400516b3854653e`; Git blob `da171c174289b4666f373acc0df3ff11e2c2882a`; excerpt SHA-256 `5126d727e550f9416fa69b0a3cc1deabd5cf43feac504db0f0a49fa1454ce0b5`.
 
 ```typescript
     finding_route_verify(input: unknown) {
@@ -113,12 +106,9 @@ Excerpt SHA-256: `5126d727e550f9416fa69b0a3cc1deabd5cf43feac504db0f0a49fa1454ce0
     },
 ```
 
-## Signed reader and exact-source adapter
+## Controlling current baseline: packages/main/src/handlers/finding-material-reattestation.ts
 
-Source: `packages/main/src/handlers/finding-material-reattestation.ts`, commit `62a5c2b385516541bdb3cd001544b83b783812e9`, lines 126–178.
-
-Full-source SHA-256: `52ff4ad7ab47c6585c6cab91ceab681de9e1c2910e6d46ce0e4f50845ea84d1f`. Git blob: `42f5e6ad040ee74f2404d8ce861cdd1dafda55d7`.
-Excerpt SHA-256: `4f76e1b2d337fe217d2e538fbed8a1af980aa2b10082a9934eed222cf4df3a87`.
+Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 126–178. Full-source SHA-256 `52ff4ad7ab47c6585c6cab91ceab681de9e1c2910e6d46ce0e4f50845ea84d1f`; Git blob `42f5e6ad040ee74f2404d8ce861cdd1dafda55d7`; excerpt SHA-256 `4f76e1b2d337fe217d2e538fbed8a1af980aa2b10082a9934eed222cf4df3a87`.
 
 ```typescript
 /** Used by both the gate and source-route verifier. No stored 'fresh' bit. */
@@ -176,12 +166,9 @@ export const readRouteSourceRestoration: RouteSourceRestorationReader = (ctx, so
   return { ...restored, sourceRoot: realpathSync(ctx.root), sourceRef: source };
 ```
 
-## Projection retains the signed reader
+## Controlling current baseline: packages/main/src/core/finding-applicability-projection.ts
 
-Source: `packages/main/src/core/finding-applicability-projection.ts`, commit `62a5c2b385516541bdb3cd001544b83b783812e9`, lines 104–117.
-
-Full-source SHA-256: `9c3d4a2cbcc82c5d363aeafd66cfbf6963cb886747cf873431cdd7ee621e85d4`. Git blob: `6f68afd1a071393b72fab2b7682288bcd9221316`.
-Excerpt SHA-256: `9ab01bedf0fbfaab54d0ad795795616d21e4997e232c06b263713b3d1f58f42b`.
+Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 104–117. Full-source SHA-256 `9c3d4a2cbcc82c5d363aeafd66cfbf6963cb886747cf873431cdd7ee621e85d4`; Git blob `6f68afd1a071393b72fab2b7682288bcd9221316`; excerpt SHA-256 `9ab01bedf0fbfaab54d0ad795795616d21e4997e232c06b263713b3d1f58f42b`.
 
 ```typescript
       const context = currentApplicabilityContext(args.store, args.projectRoot, args.storyId, assessment.runtimeReceiptIds);
@@ -200,12 +187,9 @@ Excerpt SHA-256: `9ab01bedf0fbfaab54d0ad795795616d21e4997e232c06b263713b3d1f58f4
     } catch { assessment = { ...assessment, integrity: { ...assessment.integrity, state: 'incomplete' } }; }
 ```
 
-## Public JSON validation precedes schema parsing
+## Controlling current baseline: packages/main/src/core/finding-identity.ts
 
-Source: `packages/main/src/core/finding-identity.ts`, commit `62a5c2b385516541bdb3cd001544b83b783812e9`, lines 129–155.
-
-Full-source SHA-256: `f01d0931a02c8b012b55a9f784aa8a053ca542c73e32d7b71a1ecd9d9c16c26f`. Git blob: `19767eaae1bff39e616df2f07140a0a74ef91e1e`.
-Excerpt SHA-256: `3941f0871c4ca429f76b5ef12daf0a45a01c589a4661257d197b4bfd10b62c55`.
+Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 129–155. Full-source SHA-256 `f01d0931a02c8b012b55a9f784aa8a053ca542c73e32d7b71a1ecd9d9c16c26f`; Git blob `19767eaae1bff39e616df2f07140a0a74ef91e1e`; excerpt SHA-256 `3941f0871c4ca429f76b5ef12daf0a45a01c589a4661257d197b4bfd10b62c55`.
 
 ```typescript
 /** Reject representations the signing canonicalizer would erase or coerce. */
@@ -237,12 +221,9 @@ export function parseIdentityInput<T>(schema: z.ZodType<T>, value: unknown): T {
 }
 ```
 
-## Public reference schema
+## Controlling current baseline: packages/main/src/core/finding-route.ts
 
-Source: `packages/main/src/core/finding-route.ts`, commit `62a5c2b385516541bdb3cd001544b83b783812e9`, lines 5–13.
-
-Full-source SHA-256: `8ee540ab0cf6091ede04f27509b32c4648f92e0de4c5143a2742ba2ca197b0b2`. Git blob: `8697e561e67213170ff6a7dcc623a2594b5eb4b6`.
-Excerpt SHA-256: `55c472af959964dcf0c7da9507eb67117e164f2c03910a1af09d1a1c9373f9a5`.
+Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 5–13. Full-source SHA-256 `8ee540ab0cf6091ede04f27509b32c4648f92e0de4c5143a2742ba2ca197b0b2`; Git blob `8697e561e67213170ff6a7dcc623a2594b5eb4b6`; excerpt SHA-256 `55c472af959964dcf0c7da9507eb67117e164f2c03910a1af09d1a1c9373f9a5`.
 
 ```typescript
 export const routeText = z.string().trim().min(1);
@@ -256,23 +237,17 @@ export const routeSourceSchema = z.discriminatedUnion('subjectKind', [
 ]);
 ```
 
-## Public verification schema
+## Controlling current baseline: packages/main/src/core/finding-route.ts
 
-Source: `packages/main/src/core/finding-route.ts`, commit `62a5c2b385516541bdb3cd001544b83b783812e9`, lines 28–28.
-
-Full-source SHA-256: `8ee540ab0cf6091ede04f27509b32c4648f92e0de4c5143a2742ba2ca197b0b2`. Git blob: `8697e561e67213170ff6a7dcc623a2594b5eb4b6`.
-Excerpt SHA-256: `c7810c23e3494d018c75fad6ccbb9974db2da39081610c3ff264925adc8c8245`.
+Commit `3d4aaca54447830fbc4e407d6dfcc21b436d1683`, lines 28–28. Full-source SHA-256 `8ee540ab0cf6091ede04f27509b32c4648f92e0de4c5143a2742ba2ca197b0b2`; Git blob `8697e561e67213170ff6a7dcc623a2594b5eb4b6`; excerpt SHA-256 `c7810c23e3494d018c75fad6ccbb9974db2da39081610c3ff264925adc8c8245`.
 
 ```typescript
 export const routeVerifySchema = z.object({ storyId: routeText, receipt: ledgerRefSchema }).strict();
 ```
 
-## Historical candidate nullable internal field
+## Historical candidate: packages/main/src/handlers/finding-material-reattestation.ts
 
-Source: `packages/main/src/handlers/finding-material-reattestation.ts`, commit `1d62cdb3e4cb24d1c4e70c96b9174b27741c09ee`, lines 360–366.
-
-Full-source SHA-256: `65d074f0bb61c3afe428d01735ad0264e63ba0035afddbec6f90953af611a428`. Git blob: `b32d4c1d84f77ea959efeb0dd031d32b8bda23a6`.
-Excerpt SHA-256: `294f2cbfcd467f208e70bb26e887a2282cf4af3c16f348a1cf1bab341d31ea45`.
+Commit `1d62cdb3e4cb24d1c4e70c96b9174b27741c09ee`, lines 360–366. Full-source SHA-256 `65d074f0bb61c3afe428d01735ad0264e63ba0035afddbec6f90953af611a428`; Git blob `b32d4c1d84f77ea959efeb0dd031d32b8bda23a6`; excerpt SHA-256 `294f2cbfcd467f208e70bb26e887a2282cf4af3c16f348a1cf1bab341d31ea45`.
 
 ```typescript
   return { assessmentRecord: row, claim, record: { schemaVersion: 1, action: 'unrelated_material_reattestation',
@@ -283,60 +258,3 @@ Excerpt SHA-256: `294f2cbfcd467f208e70bb26e887a2282cf4af3c16f348a1cf1bab341d31ea
         priorRows: prior.rows, currentRows: current.rows } : null;
     })(),
 ```
-
-## Rejected audit and bounded recovery
-
-Audit run `435bf2b4-ea1c-41a1-8ff5-7fb29ac9cdcd` rejected the first prepared candidate. Its code assessment found the split public-input assertions sound. Its evidence findings are retained; this recovery does not erase or reroll that rejected content.
-
-The durable replay is now `node scripts/verify-route-reader-regression.mjs`, a committed script without inline evaluated command text. The old signed RED command did execute and its output printed the target marker: Node assertion diagnostics contained the literal `expected: /[Uu]nrecognized/,` in both native failures. Thus the old `includes('[Uu]nrecognized')` matched the actual assertion diagnostic, not an error message. Nevertheless, the rendered CHANGELOG lost template-literal delimiters, so a durable script removes that reproduction defect. The prior nullable-input RED remains a modeled candidate shape, not an original-main native failure.
-
-The new committed regression extracts and executes the actual four-gaps callback, first requiring it to pass on real sources, then requiring assertion failures for an adapter-body substitution retaining unrelated tokens, an alternate static import, and a dynamic import. It recorded target RED on the previously loose guards. The repaired guards anchor the actual adapter declaration/call and reject alternate import paths and dynamic imports. The same durable command then runs four-gaps and both native modes and requires successful exits and passing selectors. No process or timeout failure is accepted as GREEN.
-
-The existing registered dependency-direction suite already invokes both native modes. Its registration and invocation are copied below; no duplicate suite invocation was added. The four-gaps comment correctly distinguishes its wiring checks from this executable native coverage. The unchanged existing dependency-direction script also checks the canonical DAG using mutations and runs route/history and process-fact verification. Those additional runs are not claimed as part of this Lab's narrower pinned command.
-
-Source: `package.json`, commit `a8240a60bd33dd1d6ba2fee2966547cd109cc070`, lines 12–12.
-
-Full-source SHA-256: `2fba41886610b5320d614a2476be3e6ab855040dcda203ebbc4e017c09305a38`. Excerpt SHA-256: `e84ea3acebc169787675c43ea4d4ad4e3a30d67172d19343b769e22bcfa4f70f`.
-
-```text
-    "test:route-reattestation-dependency-direction": "node scripts/verify-route-reattestation-dependency-direction.mjs",
-```
-
-Source: `package.json`, commit `a8240a60bd33dd1d6ba2fee2966547cd109cc070`, lines 25–25.
-
-Full-source SHA-256: `2fba41886610b5320d614a2476be3e6ab855040dcda203ebbc4e017c09305a38`. Excerpt SHA-256: `38eb374230e9f8b8ce38861493f37aecda1ac3c90d067d5398004646839bbf2f`.
-
-```text
-    "test:serial-reference": "npm run test:reviewed-source-bindings && npm run test:main-write-lock-coverage && npm run test:production-test-seam-guard && npm run test:proof-or-stop-residue && npm run test:residue-inject-repro && npm run test:retired-authority-vocabulary-guard && npm run test:proof-or-stop-prompt-baseline && npm run test:codex-heartbeat-timeout && npm run test:audit-scan-bin-token && npm run test:review-convergence-smoke && npm run test:review-loop-smoke && npm run test:delivery-context-pack-smoke && npm run test:flow-stability-smoke && npm run test:review-assurance-floor-smoke && npm run test:proofstory-intent-hardening-smoke && npm run test:scope-shrinkage-withdrawal-floor-smoke && npm run test:withdrawn-disposition-smoke && npm run test:milestone-status && npm run test:global-core-realpath && npm run test:brand-path-resolver-smoke && npm run test:config-filename-migration-smoke && npm run test:core-package-rename && npm run test:state-dir-migration && npm run test:identity-state-migrate-atomicity && npm run test:migration-contract && npm run test:review-incremental-context-smoke && npm run test:review-assurance-floor-storyfileshash-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:graph-story-flag-smoke && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:review-epoch-certification-continuity && npm run test:route-reattestation-dependency-direction && npm run test:closeout-trust && npm run test:verifier-causal-preflight && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:done-escalation-drift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:brief-output && npm run test:experiments && npm run test:convergence-breaker && npm run test:proofstory-acceptance-rollout && npm run test:topology-signing-source-guard && npm run test:signing-guard-mutation-proof && npm run test:validation-tier-planner && npm run test:single-owner-extraction && npm run test:validation-protocol && npm run test:narrowing-repin && npm run test:review-inventory-epoch && npm run test:verification-run-and-guard-smoke && npm run test:dynamic-finding-applicability && npm run test:intent-owner-lease && npm run test:receipt-authority-v5 && npm run test:scope-diff-pack && npm run test:verification-key-location",
-```
-
-Source: `scripts/verify-route-reattestation-dependency-direction.mjs`, commit `a8240a60bd33dd1d6ba2fee2966547cd109cc070`, lines 23–28.
-
-Full-source SHA-256: `41277fd1b2c25a8dc93b046c2adc6af6213eb0c9abcb6d3780bb3c035cfe2a0c`. Excerpt SHA-256: `0d695645c0ef73c3f21ecea13e5fa2909028c4f65aa91ec0aea13cd793a3fe12`.
-
-```text
-const {execFileSync}=await import('node:child_process');
-for (const flags of [[], ['--head-continuity']]) {
- const output=execFileSync(process.execPath,['packages/main/dist/tasks/finding-material-reattestation-smoke.js','--route-restoration-port',...flags], {cwd:root,encoding:'utf8',stdio:'pipe',timeout:120000});
- process.stdout.write(output);
- assert(output.includes('ROUTE_RESTORATION_PORT PASS'), 'ROUTE_DIRECTION_REQUIRED native restoration port controls executed');
-}
-```
-
-## Second audit recovery: registered mutation coverage
-
-Audit `a0679828-9973-48b5-8e46-d8bc7c5f3bc5` is also retained. It correctly identified that the newly added mutation block needed suite reachability. The block now lives in `scripts/route-reader-wiring-controls.mjs`, imported and executed both by the durable Lab driver and by the existing registered `scripts/verify-route-reattestation-dependency-direction.mjs`. The latter retains its original native child loop unchanged, avoiding duplicate native executions. Its full changed file is now part of the audit snapshot. A committed registration regression recorded RED before that import/call was added. The third recovery below moves those mechanical checks from the Lab driver into the registered suite itself.
-
-The audit's statement that the earlier loose-guard RED existed only in an uncommitted intermediate state is incorrect: commit `cec884ccde` contains the durable driver and the then-loose callback, and the official target RED was recorded at that commit. To make this inspectable without access to prior commits, the shared helper embeds that exact callback as a bounded historical fixture. A single current run proves the fixture passes on real sources and accepts each of the three exact mutations, while the live extracted callback rejects each. The fixture grants no production exception and cannot substitute for the live checks.
-
-Historical source SHA-256: `705465caf93805e1a743df5b20dfe69925c9316f04b5432325e46e0f880f0b96`; extracted callback SHA-256: `61cf1669c978057f402b22de271bb7e700c6b70efb8fbb862b55d9760db2e090`. Extraction covers the callback argument for `REATTEST-gate-consumes-verified-closure` in `packages/main/tests/red/red-dynamic-finding-four-gaps.mjs` at `cec884ccde`.
-
-The four-gaps comment now explicitly limits these guards to direct specifiers. They do not prove arbitrary barrel, transitive, createRequire or computed-import behavior. The canonical dependency checker and native tests remain separate coverage with their existing bounds; no new universal dependency-graph claim is made.
-
-## Third audit recovery: replay prerequisites and registration owner
-
-Audit `78ac0073-b89e-4bd7-8d4b-a35b99b22c6c` is retained. The durable Lab driver now calls the existing `prepareVerification` with `shareBuild: true` before any compiled child. This builds via `ensure-dist.mjs` and checks current main and utils source/output bindings; a stale or failed prerequisite is unavailable proof, never GREEN. Its 180-second setup allowance and 540-second shared body allowance fit below the pinned 900-second Lab limit, retaining each child's 180-second maximum.
-
-The registration assertions now execute directly in the already registered dependency-direction suite, before its helper call, rather than only in the Lab driver. They inspect that suite's real import and top-level invocation. Removing the shared helper import or call leaves an executable registration refusal in the registered suite. No new npm registration or duplicate native child is added; the Lab driver is a local replay entry and delegates the same helper plus its existing three children.
-
-The shared helper now reads its four bounded production sources once before entering any VM. All guarded callbacks use that cached map and reject unexpected paths; the one-second VM limit measures cached assertions, not repeated filesystem reads. Timeout or non-assertion errors remain failures and do not count as successful mutation rejection.

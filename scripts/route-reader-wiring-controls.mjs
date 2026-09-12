@@ -28,21 +28,36 @@ export function verifyRouteReaderWiring() {
   const routePath = 'handlers/finding-route.ts';
   const adapterPath = 'handlers/finding-material-reattestation.ts';
   const adapter = source(adapterPath);
-  const declaration = 'export const readRouteSourceRestoration: RouteSourceRestorationReader = (ctx, source) => {';
-  assert.equal(adapter.split(declaration).length, 2, 'exact production adapter declaration must exist once');
+  const adapterTree = ts.createSourceFile(adapterPath, adapter, ts.ScriptTarget.Latest, true);
+  const declarations = adapterTree.statements.filter(ts.isVariableStatement)
+    .flatMap(node => [...node.declarationList.declarations])
+    .filter(node => node.name.getText(adapterTree) === 'readRouteSourceRestoration');
+  assert.equal(declarations.length, 1, 'one structural adapter declaration is required');
+  const initializer = declarations[0].initializer;
+  assert(initializer && ts.isArrowFunction(initializer), 'adapter initializer must be an arrow function');
+  const replacedAdapter = adapter.slice(0, initializer.getStart(adapterTree)) + '() => undefined'
+    + adapter.slice(initializer.end) + '\nconst unrelatedReader = ' + initializer.getText(adapterTree) + ';\n';
   const cases = [
     ['adapter body replaced while unrelated tokens survive', adapterPath,
-      adapter.replace(declaration, 'export const readRouteSourceRestoration: RouteSourceRestorationReader = () => undefined;\nconst unrelatedReader = (ctx, source) => {')],
+      replacedAdapter],
     ['alternate static import', routePath, source(routePath) + "\nimport { x } from '../handlers/finding-material-reattestation.js';\n"],
     ['dynamic import', routePath, source(routePath) + "\nawait import('../handlers/finding-material-reattestation.js');\n"],
   ];
   // Exact committed callback from cec884ccde (the official target RED revision).
   const historicalLooseCallback = "() => {\n  assert.match(source('core/finding-applicability-projection.ts'), /readMaterialDriftReattestation\\(/);\n  assert.match(source('registry.ts'), /createFindingRouteHandlers\\(ctx, readRouteSourceRestoration\\)/);\n  assert.match(source('registry.ts'), /createFindingHistoryHandlers\\(ctx, observeDeferralInvalidation, readRouteSourceRestoration\\)/);\n  assert.match(source('handlers/finding-material-reattestation.ts'), /readRouteSourceRestoration[\\s\\S]*readMaterialDriftReattestation\\(ctx, source\\.storyId, source\\.recordId\\)/);\n  assert.match(source('handlers/finding-route.ts'), /readRestoration\\?\\.\\(ctx, source\\)/);\n  assert.doesNotMatch(source('handlers/finding-route.ts'), /from ['\"]\\.\\/finding-material-reattestation\\.js['\"]/);\n}";
-  runInNewContext('(' + historicalLooseCallback + ')()', { assert, source }, { timeout: 1000 });
-  for (const [name, path, changed] of cases) {
+  // Historical characterization uses fixed text only, never live production.
+  const historicalSources = new Map(Object.entries({"core/finding-applicability-projection.ts": "readMaterialDriftReattestation();", "registry.ts": "createFindingRouteHandlers(ctx, readRouteSourceRestoration); createFindingHistoryHandlers(ctx, observeDeferralInvalidation, readRouteSourceRestoration);", "handlers/finding-material-reattestation.ts": "export const readRouteSourceRestoration: RouteSourceRestorationReader = (ctx, source) => { const restored = readMaterialDriftReattestation(ctx, source.storyId, source.recordId); return restored; };", "handlers/finding-route.ts": "readRestoration?.(ctx, source);"}));
+  const historicalSource = path => { assert(historicalSources.has(path)); return historicalSources.get(path); };
+  runInNewContext('(' + historicalLooseCallback + ')()', { assert, source: historicalSource }, { timeout: 1000 });
+  const historicalMutations = [
+    [adapterPath, 'const readRouteSourceRestoration = () => undefined; const unrelated = (ctx, source) => readMaterialDriftReattestation(ctx, source.storyId, source.recordId);'],
+    [routePath, historicalSource(routePath) + "\nimport { x } from '../handlers/finding-material-reattestation.js';"],
+    [routePath, historicalSource(routePath) + "\nawait import('../handlers/finding-material-reattestation.js');"],
+  ];
+  for (const [path, changed] of historicalMutations) {
     assert.doesNotThrow(() => runInNewContext('(' + historicalLooseCallback + ')()', {
-      assert, source: requested => requested === path ? changed : source(requested),
-    }, { timeout: 1000 }), name + ' must demonstrate the historical loose guard accepts this exact mutation');
+      assert, source: requested => requested === path ? changed : historicalSource(requested),
+    }, { timeout: 1000 }), 'fixed historical characterization accepts this mutation');
   }
   const missed = [];
   for (const [name, path, changed] of cases) {

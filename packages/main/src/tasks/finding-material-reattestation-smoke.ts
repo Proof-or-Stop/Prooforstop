@@ -178,12 +178,12 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
     ]) assert.throws(() => sourceRouteRecord(ctx, restorationSource, false, () => bad), /restoration source\/root\/current binding mismatch/);
     assert.throws(() => createFindingRouteHandlers(targetCtx).finding_route_verify(routeInput), /invalid proposal/);
     assert.equal(createToolHandlers(targetStore, targetRoot).finding_route_verify!(routeInput).valid, true);
-    // Internal proof may contain nullable fields; it is never a public command payload.
-    const nullablePublicProof = { ...proof, record: { ...proof.record, sourceCoverage: null } };
-    assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput,
-      readRestoration: nullablePublicProof }), /null\/undefined fields are forbidden/);
+    // Internal proof is not public JSON. Attribute each refusal to one validation layer.
     const publicRestoration = { sourceRoot: proof.sourceRoot, sourceRef: proof.sourceRef };
     assertIdentityJson(publicRestoration);
+    assertIdentityJson(routeInput);
+    assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput,
+      readRestoration: { ...publicRestoration, sourceCoverage: null } }), /null\/undefined fields are forbidden/);
     assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput,
       readRestoration: publicRestoration }), /[Uu]nrecognized/);
     process.chdir(targetRoot); process.env.PROOF_OR_STOP_SESSION_ID = 'target-fixture'; resetSessionIdForTest();
