@@ -11315,7 +11315,7 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
 // Remediation and convergence must consume authenticated V5 publication evidence.
 {
   const authority = read('packages/main/src/core/verification-receipt-authority.ts');
-  for (const token of ['validateVerificationReceipt', "validation.kind === 'split-v5'", 'storyId, intentRef:', 'freshness:', 'store.projectRoot']) {
+  for (const token of ['validateVerificationReceipt', "validation.kind === 'split-v5'", 'storyId, intentRef:', 'freshness:', 'store.projectRoot', 'Execution authority verifier unavailable', '{ cause: error }']) {
     nodeAssert(authority.includes(token), `execution authority missing V5 binding: ${token}`);
   }
   const remediation = read('packages/main/src/handlers/review-remediation.ts');
@@ -11324,7 +11324,7 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
 }
 
 const receiptScripts = JSON.parse(read('package.json')).scripts;
-nodeAssert(receiptScripts['test:serial-reference'].includes('npm run test:receipt-authority-v5'), 'V5 authority regression must run in canonical suite');
+nodeAssert(receiptScripts['test:receipt-authority-v5'] === 'node scripts/verify-review-remediation-close.mjs' && receiptScripts['test:serial-reference'].includes('npm run test:receipt-authority-v5'), 'V5 authority regression must run in canonical suite');
 nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:receipt-authority-v5',"), 'V5 authority needs canonical resource policy');
 
 if (failures.length) {

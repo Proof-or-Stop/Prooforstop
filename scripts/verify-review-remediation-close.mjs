@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { readVerificationOutputArtifact } from '../packages/main/dist/core/verification-execution-evidence.js';
 import { hasMechanicalExecutionAuthority } from '../packages/main/dist/core/verification-receipt-authority.js';
 import { mkdtempSync, writeFileSync, readFileSync, rmSync, chmodSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../packages/main/dist/core/store.js';
@@ -82,6 +83,10 @@ try {
     assert.equal(hasMechanicalExecutionAuthority(store, storyId, item, changed), false, 'tampered or legacy evidence must not gain execution authority');
   }
   assert.equal(hasMechanicalExecutionAuthority(store, 'B-other', item, evidence), false, 'receipt cannot cross Story boundaries');
+  const unavailable = structuredClone(evidence), failure = new Error('injected verifier access failure');
+  Object.defineProperty(unavailable.receipt, 'executionReceipt', { get() { throw failure; } });
+  assert.throws(() => hasMechanicalExecutionAuthority(store, storyId, item, unavailable),
+    error => error.message.includes('Execution authority verifier unavailable') && error.cause === failure);
   const proof = { itemId: 'CHK-001', intentRef: evidence.intentRef, evidenceDigest: canonicalHash(evidence) };
   const request = { storyId, repairSetId: 'repair-addition', epochId: 'E-1', repairCommit,
     findings: findings.map(({ id }) => ({ findingId: id, resolution: 'Addition restored and checked with real positive and zero inputs.', verification: [proof] })) };
@@ -102,7 +107,7 @@ try {
   const causalBytes = readFileSync(causalPath);
   rmSync(causalPath);
   assert.throws(() => readVerificationOutputArtifact(root, evidence.receipt.executionReceipt.outputArtifact, storyId), /not found/);
-  assert.throws(() => handlers.review_remediation_close(request), /authority|receipt/i);
+  assert.throws(() => handlers.review_remediation_close(request), /verification execution authority is missing or invalid/);
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'missing real execution receipt publishes no resolution');
   writeFileSync(causalPath, causalBytes);
   const originalReadInventory = store.readReviewInventoryEpochs.bind(store);
@@ -117,7 +122,7 @@ try {
       options.beforeRename?.(...argv);
     },
   });
-  assert.throws(() => handlers.review_remediation_close(request), /authority|receipt/i);
+  assert.throws(() => handlers.review_remediation_close(request), /execution authority changed before publication/);
   store.transactFindingLedger = originalTransaction;
   writeFileSync(causalPath, causalBytes);
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'output removed immediately before publication publishes no terminal facts');
@@ -176,5 +181,5 @@ try {
   console.log('PASS U04 complete atomic repairSet closeout');
 } finally { process.chdir(previousCwd); rmSync(root, { recursive: true, force: true }); }
 
-execFileSync(process.execPath, ['scripts/verify-convergence-progress-evidence.mjs'], { stdio: 'inherit' });
-execFileSync(process.execPath, ['scripts/verify-process-fact-contract.mjs'], { stdio: 'inherit' });
+const scriptRoot = dirname(fileURLToPath(import.meta.url));
+execFileSync(process.execPath, [join(scriptRoot, 'verify-convergence-progress-evidence.mjs')], { cwd: join(scriptRoot, '..'), stdio: 'inherit', timeout: 120_000 });
