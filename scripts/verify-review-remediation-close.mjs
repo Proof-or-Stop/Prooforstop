@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { hasMechanicalExecutionAuthority } from '../packages/main/dist/core/verification-receipt-authority.js';
 import { mkdtempSync, writeFileSync, readFileSync, rmSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -64,6 +65,20 @@ try {
     note: 'Executed the real repaired function for both positive and zero inputs and asserted exact sums.' });
   const evidence = store.readChecklist(storyId).items[0].verificationEvidence[0];
   assert.equal(evidence.mechanical, true);
+  const item = store.readChecklist(storyId).items[0];
+  assert.equal(hasMechanicalExecutionAuthority(store, storyId, item, evidence), true, 'V5_EXECUTION_AUTHORITY_REQUIRED');
+  for (const mutate of [
+    e => { e.receipt.publicationBinding.authenticity.signature = 'invalid'; },
+    e => { e.command = 'node other.cjs'; },
+    e => { e.intentRef = 'CHK-001:happy:9'; },
+    e => { e.headHash = 'a'.repeat(40); },
+    e => { e.receipt.outputTail = 'forged output'; },
+    e => { e.receipt = { exitCode: 0, selectorMatched: true, selector: e.receipt.selector }; },
+  ]) {
+    const changed = structuredClone(evidence); mutate(changed);
+    assert.equal(hasMechanicalExecutionAuthority(store, storyId, item, changed), false, 'tampered or legacy evidence must not gain execution authority');
+  }
+  assert.equal(hasMechanicalExecutionAuthority(store, 'B-other', item, evidence), false, 'receipt cannot cross Story boundaries');
   const proof = { itemId: 'CHK-001', intentRef: evidence.intentRef, evidenceDigest: canonicalHash(evidence) };
   const request = { storyId, repairSetId: 'repair-addition', epochId: 'E-1', repairCommit,
     findings: findings.map(({ id }) => ({ findingId: id, resolution: 'Addition restored and checked with real positive and zero inputs.', verification: [proof] })) };
@@ -77,7 +92,7 @@ try {
   assert.throws(() => handlers.review_remediation_close(request), /dirty material/);
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'uncommitted regression publishes no resolution');
   writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a+b;\n');
-  const causalPath = store.causalEvidenceReceiptPath(storyId, evidence.receipt.causalReceiptHash);
+  const causalPath = join(root, '.proof-or-stop/evidence/objects/sha256', evidence.receipt.executionReceipt.outputArtifact.artifactDigest + '.json');
   const causalBytes = readFileSync(causalPath);
   rmSync(causalPath);
   assert.throws(() => handlers.review_remediation_close(request), /authority|receipt/i);
@@ -89,6 +104,16 @@ try {
   store.readReviewInventoryEpochs = originalReadInventory;
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'invalid inventory signature publishes no resolution');
   const originalTransaction = store.transactFindingLedger.bind(store);
+  store.transactFindingLedger = (sid, fence, prepare, options = {}) => originalTransaction(sid, fence, prepare, {
+    ...options, beforeRename: (...argv) => {
+      rmSync(causalPath);
+      options.beforeRename?.(...argv);
+    },
+  });
+  assert.throws(() => handlers.review_remediation_close(request), /authority|receipt/i);
+  store.transactFindingLedger = originalTransaction;
+  writeFileSync(causalPath, causalBytes);
+  assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'output removed immediately before publication publishes no terminal facts');
   store.transactFindingLedger = (sid, fence, prepare, options = {}) => originalTransaction(sid, fence, prepare, {
     ...options, beforeRename: (...argv) => {
       writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a-b;\n');
