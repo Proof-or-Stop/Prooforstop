@@ -1,6 +1,6 @@
 # Route reader regression: bounded audit source context
 
-The Lab audit supplies complete changed files but does not supply unchanged production dependencies. These excerpts make the controlling composition, default refusal, signed reader and public schema available inside that snapshot. They are developer-provided source provenance, not independent audit findings or formal Story evidence. Production files are unchanged by this Lab.
+The Lab audit supplies complete changed files but does not supply unchanged production dependencies. These excerpts make the controlling composition, default refusal, signed reader and public schema available inside that snapshot. They are developer-provided source provenance, not independent audit findings or formal Story evidence. The controlling production dependencies excerpted here are unchanged by this Lab; official release preparation separately updates the CLI version constant and package manifests.
 
 Main-source excerpts below are from immutable baseline `62a5c2b385516541bdb3cd001544b83b783812e9`. Each block records its exact inclusive line range, full UTF-8 source SHA-256, Git blob and excerpt SHA-256 (including the final newline). The final block is explicitly historical B-e6d9 candidate context, not baseline production. Hashes identify the cited bytes; the audit must assess the code and changed tests rather than treating hashes as a correctness verdict. Helper implementations outside these bounded excerpts are not reproduced here.
 
@@ -282,4 +282,43 @@ Excerpt SHA-256: `294f2cbfcd467f208e70bb26e887a2282cf4af3c16f348a1cf1bab341d31ea
       return current.profile ? { profile: current.profile, priorHead: old.headHash, currentHead: currentApplicabilityContext(ctx.store, ctx.root, input.storyId).headHash,
         priorRows: prior.rows, currentRows: current.rows } : null;
     })(),
+```
+
+## Rejected audit and bounded recovery
+
+Audit run `435bf2b4-ea1c-41a1-8ff5-7fb29ac9cdcd` rejected the first prepared candidate. Its code assessment found the split public-input assertions sound. Its evidence findings are retained; this recovery does not erase or reroll that rejected content.
+
+The durable replay is now `node scripts/verify-route-reader-regression.mjs`, a committed script without inline evaluated command text. The old signed RED command did execute and its output printed the target marker: Node assertion diagnostics contained the literal `expected: /[Uu]nrecognized/,` in both native failures. Thus the old `includes('[Uu]nrecognized')` matched the actual assertion diagnostic, not an error message. Nevertheless, the rendered CHANGELOG lost template-literal delimiters, so a durable script removes that reproduction defect. The prior nullable-input RED remains a modeled candidate shape, not an original-main native failure.
+
+The new committed regression extracts and executes the actual four-gaps callback, first requiring it to pass on real sources, then requiring assertion failures for an adapter-body substitution retaining unrelated tokens, an alternate static import, and a dynamic import. It recorded target RED on the previously loose guards. The repaired guards anchor the actual adapter declaration/call and reject alternate import paths and dynamic imports. The same durable command then runs four-gaps and both native modes and requires successful exits and passing selectors. No process or timeout failure is accepted as GREEN.
+
+The existing registered dependency-direction suite already invokes both native modes. Its registration and invocation are copied below; no duplicate suite invocation was added. The four-gaps comment correctly distinguishes its wiring checks from this executable native coverage. The unchanged existing dependency-direction script also checks the canonical DAG using mutations and runs route/history and process-fact verification. Those additional runs are not claimed as part of this Lab's narrower pinned command.
+
+Source: `package.json`, commit `a8240a60bd33dd1d6ba2fee2966547cd109cc070`, lines 12–12.
+
+Full-source SHA-256: `2fba41886610b5320d614a2476be3e6ab855040dcda203ebbc4e017c09305a38`. Excerpt SHA-256: `e84ea3acebc169787675c43ea4d4ad4e3a30d67172d19343b769e22bcfa4f70f`.
+
+```text
+    "test:route-reattestation-dependency-direction": "node scripts/verify-route-reattestation-dependency-direction.mjs",
+```
+
+Source: `package.json`, commit `a8240a60bd33dd1d6ba2fee2966547cd109cc070`, lines 25–25.
+
+Full-source SHA-256: `2fba41886610b5320d614a2476be3e6ab855040dcda203ebbc4e017c09305a38`. Excerpt SHA-256: `38eb374230e9f8b8ce38861493f37aecda1ac3c90d067d5398004646839bbf2f`.
+
+```text
+    "test:serial-reference": "npm run test:reviewed-source-bindings && npm run test:main-write-lock-coverage && npm run test:production-test-seam-guard && npm run test:proof-or-stop-residue && npm run test:residue-inject-repro && npm run test:retired-authority-vocabulary-guard && npm run test:proof-or-stop-prompt-baseline && npm run test:codex-heartbeat-timeout && npm run test:audit-scan-bin-token && npm run test:review-convergence-smoke && npm run test:review-loop-smoke && npm run test:delivery-context-pack-smoke && npm run test:flow-stability-smoke && npm run test:review-assurance-floor-smoke && npm run test:proofstory-intent-hardening-smoke && npm run test:scope-shrinkage-withdrawal-floor-smoke && npm run test:withdrawn-disposition-smoke && npm run test:milestone-status && npm run test:global-core-realpath && npm run test:brand-path-resolver-smoke && npm run test:config-filename-migration-smoke && npm run test:core-package-rename && npm run test:state-dir-migration && npm run test:identity-state-migrate-atomicity && npm run test:migration-contract && npm run test:review-incremental-context-smoke && npm run test:review-assurance-floor-storyfileshash-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:graph-story-flag-smoke && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:review-epoch-certification-continuity && npm run test:route-reattestation-dependency-direction && npm run test:closeout-trust && npm run test:verifier-causal-preflight && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:done-escalation-drift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:brief-output && npm run test:experiments && npm run test:convergence-breaker && npm run test:proofstory-acceptance-rollout && npm run test:topology-signing-source-guard && npm run test:signing-guard-mutation-proof && npm run test:validation-tier-planner && npm run test:single-owner-extraction && npm run test:validation-protocol && npm run test:narrowing-repin && npm run test:review-inventory-epoch && npm run test:verification-run-and-guard-smoke && npm run test:dynamic-finding-applicability && npm run test:intent-owner-lease && npm run test:receipt-authority-v5 && npm run test:scope-diff-pack && npm run test:verification-key-location",
+```
+
+Source: `scripts/verify-route-reattestation-dependency-direction.mjs`, commit `a8240a60bd33dd1d6ba2fee2966547cd109cc070`, lines 23–28.
+
+Full-source SHA-256: `41277fd1b2c25a8dc93b046c2adc6af6213eb0c9abcb6d3780bb3c035cfe2a0c`. Excerpt SHA-256: `0d695645c0ef73c3f21ecea13e5fa2909028c4f65aa91ec0aea13cd793a3fe12`.
+
+```text
+const {execFileSync}=await import('node:child_process');
+for (const flags of [[], ['--head-continuity']]) {
+ const output=execFileSync(process.execPath,['packages/main/dist/tasks/finding-material-reattestation-smoke.js','--route-restoration-port',...flags], {cwd:root,encoding:'utf8',stdio:'pipe',timeout:120000});
+ process.stdout.write(output);
+ assert(output.includes('ROUTE_RESTORATION_PORT PASS'), 'ROUTE_DIRECTION_REQUIRED native restoration port controls executed');
+}
 ```
