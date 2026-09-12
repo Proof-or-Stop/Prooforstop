@@ -63,7 +63,7 @@ Lab patch refresh refuses a noncanonical manifest instead of reformatting it.
 After local-main `ee1b815a84`, the additional literal snapshot-binding reader was
 reviewed: its TypeScript AST checks read one source file and have no subprocess
 launches. The refreshed runtime-contract entries bind that reader and source,
-and the new exact callsite is registered as EX-LAB-SNAPSHOT-BINDING.
+and the new exact callsite is registered as EX-RUNTIME-SNAPSHOT-BINDING.
 
 Local-main `73bb02e52a` inserts two validation commands. All 166 prior command
 objects were matched byte-for-byte in order to their new indices; no existing
@@ -78,3 +78,8 @@ For manifest-bearing projects, manifest publication and rollback restoration use
 same-directory temporary files and rename, avoiding partially written individual
 files. This is per-file atomicity, not a crash-atomic multi-file transaction. A
 rename-failure regression verifies restoration and removal of temporary debris.
+
+The 0.3.343 merge retains the independently registered runtime snapshot edge,
+its precise read-only source-contract classification, and its additional
+removal/dependency/invocation regression controls. The duplicate local draft
+entry is superseded by that exact main entry.
