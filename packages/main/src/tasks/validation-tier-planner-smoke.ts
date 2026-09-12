@@ -2632,6 +2632,27 @@ testCase('explicit repository-full process-fact paths force full without overmat
       `invalid dependency seam shape must be refused: ${JSON.stringify(invalidDependencies)}`,
     );
   }
+  for (const invalidPath of [null, [], 0, true, {}]) {
+    assert.throws(
+      () => pathIsLegacyValidationSensitive(invalidPath as never),
+      /pathIsLegacyValidationSensitive: path must be a string/,
+      `legacy sensitivity helper must name an invalid path: ${JSON.stringify(invalidPath)}`,
+    );
+  }
+  for (const invalidPaths of [null, 'x', 0, true, [null]]) {
+    assert.throws(
+      () => classifySensitiveStoryPaths(invalidPaths as never),
+      /classifySensitiveStoryPaths: paths must be an array of strings/,
+      `sensitivity classifier must name invalid paths: ${JSON.stringify(invalidPaths)}`,
+    );
+  }
+  for (const invalidInjection of [null, [], 'x', 0, true, {}]) {
+    assert.throws(
+      () => classifySensitiveStoryPaths([], invalidInjection as never),
+      /classifySensitiveStoryPaths: injection must be an object with a projection property/,
+      `sensitivity classifier must name an invalid injection: ${JSON.stringify(invalidInjection)}`,
+    );
+  }
   const omittedDependencies = selectValidationTiers(invalidDependenciesInput);
   assert.ok(
     !omittedDependencies.escalationReasonCodes.includes('validation_floor_registry_unavailable'),
