@@ -13,7 +13,7 @@ import {
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import {
   classifyReviewerExecutionAuthority,
-  managedReviewerPromptDigest,
+  isCurrentManagedInventorySubject,
   verifyManagedReviewEvidence,
   verifyManagedReviewLiveBinding,
 } from './managed-review-evidence.js';
@@ -1771,6 +1771,12 @@ function validateEvidenceRunBinding(
     hasManagedEvidenceBinding: managedBinding !== undefined,
   });
   if (authority.reviewGatePath === 'managed-receipt' && managedBinding) {
+    if (!isCurrentManagedInventorySubject(store, run)) {
+      return { code: 'managed_receipt_invalid', kind: evidence.kind, evidenceId: evidence.id,
+        agent: evidence.agent, reviewRunId: evidence.reviewRunId,
+        message: `${evidence.kind} ${evidence.id} has an invalid current managed inventory subject` };
+    }
+
     const managed = verifyManagedReviewEvidence({
       root: projectRoot,
       storyId: story.storyId,
@@ -1785,7 +1791,10 @@ function validateEvidenceRunBinding(
         storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
         promptHash: run.promptHash,
         envelopeId: run.envelopeId ?? null,
-        managedPromptDigest: managedReviewerPromptDigest(run.workspaceBinding?.metadataRoot ?? projectRoot, run),
+        // verifyManagedReviewEvidence checks this against the authenticated launch
+        // binding and sealed promptDigest. Never rebuild a launch-time inventory
+        // pack after its epoch has legitimately transitioned to FINALIZED.
+        managedPromptDigest: managedBinding.managedPromptDigest,
       },
       ...(evidence.kind === 'pass' && evidence.pass
         ? { evidence: { kind: 'pass' as const, pass: evidence.pass } }

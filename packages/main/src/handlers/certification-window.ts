@@ -1,3 +1,4 @@
+import { isVerifiedReviewMaintenanceCommit } from '../core/review-maintenance-lineage.js';
 import { isPromptBodyArtifactPath } from '../core/prompt-body-store.js';
 import { REVIEW_EPOCH_COMMIT_ARTIFACTS } from '../core/review-metadata-batch.js';
 import { isDeepStrictEqual } from 'node:util';
@@ -352,6 +353,7 @@ function canonicalExistingPath(path: string): string | null {
 function hasVerifiedInventoryMetadataHeadContinuity(args: {
   gitCwd: string;
   storyMetadataPath: string;
+  metadataRoot: string;
   storyId: string;
   receiptHead?: string;
   currentHead?: string;
@@ -378,6 +380,10 @@ function hasVerifiedInventoryMetadataHeadContinuity(args: {
     const pathsText = gitText(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit]);
     if (!parents || parents.split(/\s+/).filter(Boolean).length !== 1 || !subject || pathsText === null) return false;
     const reviewEpochBatch = matchesRuntimeCommitSubject(subject, `record ${storyId} review epoch metadata`);
+    if (reviewEpochBatch || matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_add metadata`)) {
+      if (!isVerifiedReviewMaintenanceCommit({ gitCwd, metadataRoot: args.metadataRoot, storyId, commit, reviewedHeadHash: receiptHead })) return false;
+      continue;
+    }
     if (!reviewEpochBatch && !PRECERT_INVENTORY_METADATA_REASONS.some(reason => (
       matchesRuntimeCommitSubject(subject, `record ${storyId} ${reason} metadata`)
     ))) return false;
@@ -449,6 +455,7 @@ function collectAdmitFacts(
   }
   const inventory = recovery?.pair ?? readInventoryPair(apis, ctx.store, storyId);
   const inventoryHeadMetadataContinuity = hasVerifiedInventoryMetadataHeadContinuity({
+    metadataRoot: ctx.root,
     gitCwd,
     storyMetadataPath: ctx.store.storyDirPath(storyId),
     storyId,

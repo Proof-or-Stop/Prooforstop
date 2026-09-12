@@ -1,3 +1,4 @@
+import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
 import { StoryStore } from './store.js';
 /** Shared intake + REVIEW-gate verifier for managed reviewer evidence. */
 
@@ -26,7 +27,7 @@ import { digestCanonicalJson } from './digest.js';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { loadConfig } from './config.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
-import { verifyReviewInventoryEpoch } from './review-inventory-epoch.js';
+import { inventoryPurposeMatchesEpoch, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
 import { verifyReviewRun } from './review-run.js';
 
 export interface ManagedReviewEvidenceVerification {
@@ -61,8 +62,8 @@ export interface ManagedReviewLiveBindingVerification {
 }
 
 /**
- * Metadata from a managed receipt importer is the sole permitted HEAD advance
- * between the signed review run and receipt admission. The check is deliberately
+ * Managed importer commits and authenticated epoch/evidence publications are the
+ * bounded permitted HEAD advances between a signed run and consumption. The check is deliberately
  * mechanical: ancestry, exact command-owned subject, and exact story-local
  * changed paths must all hold for every intervening commit.
  */
@@ -114,7 +115,9 @@ function hasOnlyManagedReviewImporterCommits(args: {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
       }).trim();
-      if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) return false;
+      if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) {
+        return isVerifiedReviewMaintenanceCommit({ ...args, commit });
+      }
       const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], {
         cwd: args.gitCwd,
         encoding: 'utf8',
@@ -134,7 +137,7 @@ function hasOnlyManagedReviewImporterCommits(args: {
  * Canonical live binding rule for both receipt import and REVIEW consumption.
  * Material/story-file freshness remains the Proof Admissibility predicate, but
  * a same-material HEAD move is rejected unless every intervening commit is an
- * exact managed-review importer metadata commit.
+ * exact importer or authenticated review maintenance commit.
  */
 export function verifyManagedReviewLiveBinding(args: {
   gitCwd: string;
@@ -377,6 +380,28 @@ export function buildManagedInventoryCriticEvidencePack(args: {
     findings: args.findings.filter(row => Boolean(row.reviewRunId && runIds.has(row.reviewRunId))),
     passes: args.passes.filter(row => Boolean(row.reviewRunId && runIds.has(row.reviewRunId))),
   };
+}
+
+/** Launch accepts OPEN only; consumption accepts the authenticated completed wave too. */
+export function isCurrentManagedInventorySubject(store: StoryStore, run: ReviewRun): boolean {
+  if (run.reviewPurpose !== 'inventory-completeness') return true;
+  const binding = run.inventoryBinding;
+  if (!binding || !Number.isSafeInteger(binding.wave) || binding.wave < 1) return false;
+  const data = store.readReviewInventoryEpochs(run.storyId);
+  const epoch = data.epochs.find(e => e.epochId === binding.epochId);
+  if (!epoch || !verifyReviewInventoryEpoch(epoch) || !['OPEN','FINALIZED'].includes(epoch.state)) return false;
+  if (epoch.state === 'FINALIZED') {
+    const receipt = data.receipts.find(r => r.receiptId === epoch.receiptId);
+    if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt
+      || receipt.epochId !== epoch.epochId || receipt.storyId !== run.storyId
+      || receipt.reviewRound !== epoch.reviewRound || receipt.scopeDigest !== epoch.scopeDigest
+      || digestCanonicalJson(receipt.cutoff) !== digestCanonicalJson(epoch.cutoff)
+      || digestCanonicalJson(receipt.requiredLanes) !== digestCanonicalJson(epoch.requiredLanes)
+      || binding.wave > epoch.waves.length) return false;
+  } else if (binding.wave !== epoch.waves.length + 1) return false;
+  // Reconstruct only the wave's stable subject from signed history, never its
+  // provider prompt or a caller-authored terminal state.
+  return inventoryPurposeMatchesEpoch(binding, { ...epoch, waves: epoch.waves.slice(0, binding.wave - 1) });
 }
 
 function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun): string[] {

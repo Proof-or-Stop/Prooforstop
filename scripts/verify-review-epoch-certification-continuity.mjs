@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from "../packages/main/dist/tasks/native-review-fixture.js";
 import assert from 'node:assert/strict';
-import {verifyManagedReviewLiveBinding} from '../packages/main/dist/core/managed-review-evidence.js';
+import {createHostRunHandlers} from '../packages/main/dist/handlers/host-run.js';
+import {createManagedReviewEvidenceHandlers} from '../packages/main/dist/handlers/managed-review-evidence.js';
+import {getManagedHostRunStatus, managedHostRunReceipt} from '../packages/main/dist/core/managed-host-run.js';
+import {collectReviewerEvidenceState} from '../packages/main/dist/core/review-run.js';
+import {verifyManagedReviewLiveBinding, isCurrentManagedInventorySubject} from '../packages/main/dist/core/managed-review-evidence.js';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,7 +55,7 @@ function cli(root, command, payload, env = {}) {
     }
 }
 function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-stop-implementer@noreply.local' }) {
-    const root = mkdtempSync(join(tmpdir(), 'review-inventory-handler-'));
+    const root = realpathSync(mkdtempSync(join(tmpdir(), 'review-inventory-handler-')));
     isolatedFixtureRoots.add(root);
     mkdirSync(join(root, 'packages/main/src'), { recursive: true });
     mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
@@ -93,7 +97,8 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
 
 const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
-for(const mode of ['wrong-subject','wrong-story-path','outside-review-artifact','near-miss-prompt-body','cancelled','clean']) {
+const modes=['clean','wrong-subject','wrong-story-path','outside-review-artifact','near-miss-prompt-body','forged-publisher','forged-refresh','cancelled'];
+{
 const fixture=setup({name:'Harmonynet',email:'26995688+Harmonynet@users.noreply.github.com'});
 const primaryRoot=fixture.root;const worktreePath=join(primaryRoot,'.worktrees',storyId);
 fixture.store.writeStory(storyId,{...fixture.store.readStory(storyId),worktree:{path:worktreePath,branch:'story/'+storyId,createdAt:reviewRound}});
@@ -105,7 +110,10 @@ fixture.root=worktreePath;fixture.store=new StoryStore(worktreePath);isolatedFix
 console.log('SATURATED_FIXTURE_ROOT '+fixture.root);
 try {
 const env=(agent,session)=>({PROOF_OR_STOP_AGENT:agent,PROOF_OR_STOP_SESSION_ID:session});
-fixture.store.writeChecklist(storyId,{items:[]});
+fixture.store.writeChecklist(storyId,{items:[{id:'CHK-001',title:'Execute the bounded runtime witness',status:'done',relatedDocs:[],verificationIntent:{happy:[{desc:'The current node executable returns its version',type:'cli'}],edge:[],adversarial:[]}}]});
+const evidencePayload={storyId,itemId:'CHK-001',intentRef:'CHK-001:happy:0',kind:'integration_test',command:'node --version',selector:'v',note:'Execute the unchanged bounded runtime witness for authenticated evidence refresh.'};
+cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
+cli(fixture.root,'candidate_spec_route',{storyId,hosts:false,persist:true},env('main','saturation-owner'));
 cli(fixture.root,'review_inventory_begin',{storyId},env('main','saturation-owner'));
 const epoch=fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1);
 const readManifest={filesReadFully:['packages/main/src/subject.ts'],filesTriagedByName:[],scanEscalationReason:null};
@@ -119,11 +127,47 @@ for(const lane of epoch.requiredLanes){
 const critic='proof-or-stop-review-topology-critic',ce=env(critic,'saturation-critic');const purpose={reviewPurpose:'inventory-completeness',inventoryEpochId:epoch.epochId};
 cli(fixture.root,'dispatch',{storyId,agentType:critic,...purpose},ce);
 const co=cli(fixture.root,'review_run_start',{storyId,agent:critic,...purpose},ce);const cr=co.match(/Review run (\S+) started/)?.[1];assert(cr,co);
-await runBrokeredNativeReviewCli({root:fixture.root,store:fixture.store,storyId,agent:critic,reviewRunId:cr,command:'review_pass_set',payload:{storyId,agent:critic,reviewRunId:cr,note:'Disposable independent completeness critic inspected all required lanes and exact empty finding set.',readManifest,readEvents}});
+// The transport is synthetic only in this disposable fixture. The actual
+// managed worker, sealed receipt importer and REVIEW consumer remain in use.
+const ownerCwd=process.cwd();process.chdir(fixture.root);
+try {
+ const ctx={root:fixture.root,store:fixture.store,scanRoot:join(fixture.root,'packages/main')};
+ const host=createHostRunHandlers(ctx,{runner:async()=>{
+  const artifact=fixture.store.readCandidateSpecSet(storyId);
+  assert(artifact,'managed fixture requires a canonical candidate routing artifact');
+  const files=[...new Set(['packages/main/src/subject.ts',...(artifact?.candidateSpecSet??[])])].sort();
+  for(const file of files) readFileSync(join(fixture.root,file));
+  return {stdout:'',stderr:'',exitCode:0,timedOut:false,terminalReason:'completed',finalAssistantResultCount:1,finalAssistantResultTruncated:false,
+   finalAssistantResult:JSON.stringify({schemaVersion:'lattice.managed_review_final_proposal.v1',storyId,providerAgent:critic,lane:critic,reviewRunId:cr,conclusion:'pass',note:'Disposable managed critic inspected all current terminals and their exact bounded read inputs.',
+    readManifest:{filesReadFully:files,filesTriagedByName:[],scanEscalationReason:artifact?.scanEscalationReason??null,candidateSpecSetDigest:artifact?.artifactDigest,corpusDigest:artifact?.corpusDigest},
+    readLog:{filesReadFully:files,filesTriagedByName:[],summary:{readCount:files.length,tokenCount:null},digest:'a'.repeat(64)}})};
+ }});
+ const deadline=Date.now()+60000;let status,launched,attempt=0;
+ do {
+  launched=await host.host_run({host:'codex',storyId,agentType:critic,reviewRunId:cr,lane:critic,managedReview:true,detach:true,deadlineMs:60000,json:true,idempotencyKey:'isolated-critic-'+(++attempt)});
+  do {status=await getManagedHostRunStatus({root:fixture.root,runId:launched.run.runId});if(['completed','failed','timed_out','cancelled'].includes(status.run.state)) break;await new Promise(r=>setTimeout(r,100));}while(Date.now()<deadline);
+  if(status.run.terminal?.reason!=='concurrency_cap_exceeded') break;
+  // Observe actual shared capacity; never disable admission or retry verdict failures.
+  console.log('FIXTURE_CAPACITY_WAIT',attempt);await new Promise(r=>setTimeout(r,2000));
+ }while(Date.now()<deadline);
+ assert.equal(status.run.state,'completed',JSON.stringify(status));
+ const receipt=managedHostRunReceipt(fixture.root,launched.run.runId);
+ assert.match(createManagedReviewEvidenceHandlers(ctx).managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/Managed review evidence imported/);
+} finally {process.chdir(ownerCwd);}
+
 
 
 console.log(cli(fixture.root,'review_inventory_critic_set',{storyId,epochId:epoch.epochId,reviewRunId:cr,agent:critic,findingDispositions:[]},ce));
 console.log(cli(fixture.root,'review_inventory_finalize',{storyId},env('main','saturation-owner')));
+const persistedCritic=fixture.store.readReviewRuns(storyId).runs.find(r=>r.reviewRunId===cr);
+assert(collectReviewerEvidenceState(fixture.store,storyId,fixture.root).valid.some(e=>e.reviewRunId===cr),'actual managed REVIEW consumer accepts the finalized critic without rebuilding its launch pack');
+assert(isCurrentManagedInventorySubject(fixture.store,persistedCritic),'authenticated finalized critic remains consumable without rebuilding its OPEN launch pack');
+assert.equal(isCurrentManagedInventorySubject(fixture.store,{...persistedCritic,inventoryBinding:{...persistedCritic.inventoryBinding,epochId:'B-other:RI-999'}}),false,'wrong epoch is rejected');
+const savedEpochs=fixture.store.readReviewInventoryEpochs(storyId);
+const tampered=structuredClone(savedEpochs);tampered.epochs.at(-1).requiredLanes=[];
+fixture.store.writeReviewInventoryEpochs(storyId,tampered);
+assert.equal(isCurrentManagedInventorySubject(fixture.store,persistedCritic),false,'tampered signed epoch is rejected');
+fixture.store.writeReviewInventoryEpochs(storyId,savedEpochs);
 const publication=git(fixture.root,['log','-1','--format=%s']);
 assert.equal(publication,`proof-or-stop: record ${storyId} review epoch metadata`,'actual batch publisher must produce the canonical subject');
 const cutoff=fixture.store.readReviewInventoryEpochs(storyId).receipts.at(-1).cutoff.headHash;
@@ -133,6 +177,16 @@ assert.notEqual(git(fixture.root,['rev-parse','HEAD']),cutoff,'actual publicatio
 const storyPrefix=`.proof-or-stop/story/actives/${storyId}/`;
 const publishedPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r','HEAD']).split('\n');
 assert(publishedPaths.some(path=>path.startsWith(storyPrefix)&&isPromptBodyArtifactPath(path.slice(storyPrefix.length))), 'native publication must exercise the canonical prompt-body path branch');
+const publishedHead=git(fixture.root,['rev-parse','HEAD']);
+for(const mode of modes) {
+// Each counterexample starts from the same genuine signed publication. This
+// reset is restricted to the freshly created disposable Git fixture above.
+assert(isolatedFixtureRoots.has(fixture.root) && fixture.root.startsWith(primaryRoot+'/'));
+git(fixture.root,['reset','--hard',publishedHead]);
+for(const path of git(fixture.root,['ls-files','--others','--exclude-standard','--',storyPrefix]).split('\n').filter(Boolean)) {
+ assert(path.startsWith(storyPrefix) && !path.includes('..'));
+ rmSync(join(fixture.root,path),{force:true});
+}
 if(mode==='cancelled') {
  console.log(cli(fixture.root,'review_inventory_cancel',{storyId,reason:'Native regression verifies cancelled inventory cannot authorize certification'},env('main','saturation-owner')));
  assert.equal(git(fixture.root,['log','-1','--format=%s']),`proof-or-stop: record ${storyId} review epoch metadata`);
@@ -142,6 +196,18 @@ if(mode==='cancelled') {
  assert(cancelled.receipts.at(-1).invalidatedAt);
  assert(verifyReviewInventoryReceipt(cancelled.receipts.at(-1)));
  assert.equal(finalizedUnconsumedReviewInventory(fixture.store,storyId),null);
+ assert.equal(isCurrentManagedInventorySubject(fixture.store,persistedCritic),false,'cancelled critic cannot be consumed');
+} else if(mode==='forged-refresh') {
+ const checklist=fixture.store.readChecklist(storyId);
+ checklist.items[0].title='Unreviewed acceptance alteration';
+ fixture.store.writeChecklist(storyId,checklist);
+ git(fixture.root,['add','--',storyPrefix+'checklist.json']);
+ git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
+} else if(mode==='forged-publisher') {
+ const {appendFileSync}=await import('node:fs');
+ const path=storyPrefix+'review-inventory-epochs.json';
+ appendFileSync(join(fixture.root,path),'\n');git(fixture.root,['add','--',path]);
+ git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
 } else if(mode!=='clean') {
  const relative=mode==='near-miss-prompt-body'?`${storyPrefix}prompt-bodies/${'a'.repeat(63)}.txt`:mode==='wrong-story-path'?'.proof-or-stop/story/actives/B-other/note.txt':mode==='outside-review-artifact'?`.proof-or-stop/story/actives/${storyId}/not-a-review-artifact.txt`:`.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
  mkdirSync(join(fixture.root,relative,'..'),{recursive:true});
@@ -149,6 +215,18 @@ if(mode==='cancelled') {
  else writeFileSync(join(fixture.root,relative),'unrelated path must not gain review continuity\n');
  git(fixture.root,['add','--',relative]);
  git(fixture.root,['commit','-m',mode==='wrong-subject'?'ordinary bookkeeping claim':`proof-or-stop: record ${storyId} review epoch metadata`]);
+}
+if(mode==='clean') {
+ cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
+ const refreshed=verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected});
+ if(!refreshed.valid) {
+  console.log('REFRESH_LINEAGE_DIAGNOSTIC',JSON.stringify({refreshed,history:git(fixture.root,['log','--format=%h %s',publishedHead+'..HEAD']),paths:git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r','HEAD'])}));
+  const {hasMechanicalExecutionAuthority}=await import('../packages/main/dist/core/verification-receipt-authority.js');
+  for(const item of fixture.store.readChecklist(storyId).items) for(const evidence of item.verificationEvidence??[]) console.log('REFRESH_AUTHORITY',hasMechanicalExecutionAuthority(fixture.store,storyId,item,evidence));
+ }
+ assert(refreshed.valid,'authenticated evidence-only refresh preserves review lineage');
+} else {
+ assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,false,'forged metadata and cancelled epochs never preserve managed authority');
 }
 const cheap=JSON.parse(cli(fixture.root,'validate',{storyId,focus:'fast',json:true},env('main','saturation-owner')));assert.equal(cheap.status,'pass');
 let output='',error='';try{output=cli(fixture.root,'certification_window_begin',{storyId},env('main','saturation-owner'));}catch(e){error=String(e);}
@@ -163,6 +241,7 @@ if(mode==='clean') {
  else assert.match(error,/Inventory receipt is not on the current headHash lineage/,'negative must reach actual continuity verifier');
  assert.equal(fixture.store.readCertificationWindows(storyId).receipts.filter(r=>r.authority==='pre-cert').length,0);
  console.log('REVIEW_EPOCH_CONTINUITY_REFUSED '+mode);
+}
 }
 } finally {rmSync(primaryRoot,{recursive:true,force:true});}
 }

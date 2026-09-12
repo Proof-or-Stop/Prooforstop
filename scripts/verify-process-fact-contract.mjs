@@ -7274,6 +7274,17 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
+  const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts');
+  assert(maintenanceText.includes('verifyReviewInventoryEpoch(epoch)') && maintenanceText.includes('verifyReviewInventoryReceipt(receipt)')
+    && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,item,evidence)'), 'review maintenance lineage requires signed epoch and strict receipt authority');
+  assert(reviewGateText.includes('isCurrentManagedInventorySubject(store, run)')
+    && reviewGateText.includes('managedPromptDigest: managedBinding.managedPromptDigest')
+    && !reviewGateText.includes('managedPromptDigest: managedReviewerPromptDigest('), 'managed consumption must validate the current subject and authenticated launch digest without rebuilding the OPEN-only prompt');
+  assert(read('packages/main/src/handlers/certification-window.ts').includes('isVerifiedReviewMaintenanceCommit({')
+    && managedText.includes('isVerifiedReviewMaintenanceCommit({'), 'managed and certification consumers share bounded signed publication lineage');
+  assert(read('scripts/verify-review-epoch-certification-continuity.mjs').includes('FINALIZED_MANAGED_REVIEW_CONTINUITY_REQUIRED')
+    && read('package.json').includes('npm run test:review-epoch-certification-continuity'), 'actual writer-to-consumer regression remains in the canonical full suite');
+
   for (const token of ['proposalArtifacts.length === 1', 'exactEvidenceMatches', 'processCleanup?.reaped === true']) {
     assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required managed authority token missing: ${token}`);
   }
