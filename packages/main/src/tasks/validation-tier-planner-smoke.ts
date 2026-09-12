@@ -113,7 +113,6 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { z } from 'zod';
 
@@ -207,7 +206,11 @@ import { StoryStore } from '../core/store.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
-const REPOSITORY_ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
+const REPOSITORY_ROOT = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+assert.ok(
+  REPOSITORY_ROOT && existsSync(join(REPOSITORY_ROOT, 'packages/main/src/core/validation-tier-planner.ts')),
+  'validation-tier-planner-smoke source guards require a Git source checkout',
+);
 
 let failures = 0;
 
@@ -557,9 +560,12 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // identity delivery and RED commands. Recompute from the merged normalized
   // inventory before replacing this deliberate merge-time sentinel.
   // v0.3.317 integrates the explicitly registered dynamic-finding-evidence-closure suite.
-  // v0.3.345 retains B-83aa CHK-002's partial-snapshot RED command and adds
-  // B-83aa CHK-003's evidence-hash classifier command. The retention assertions
-  // above are the recomputation receipt for both exact argv entries.
+  // The pre-sync inventory had 166 normalized command+argv tuples. v0.3.345 has
+  // 168: B-83aa CHK-002 adds only red-partial-hash-snapshot-binding.mjs and
+  // B-83aa CHK-003 adds only evidence-hash-snapshot-classifier-smoke.js. The
+  // normalized set comparison recorded additions=2 and removals=0; the two
+  // exact argv retention assertions above plus this count preserve that result.
+  assert.equal(commands.length, 168, 'v0.3.345 merged inventory must retain all 166 prior commands plus exactly two B-83aa additions');
   assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
@@ -2216,37 +2222,23 @@ testCase('an unknown reason code has no gloss and is refused rather than glossed
   );
 });
 
-// This is the exact operator-facing matrix transcribed into the executable
-// contract. It is deliberately bidirectional: neither the spec nor the runtime
-// table may gain a row without updating the other side.
+// Parse the operator-facing document itself so its table and the runtime cannot
+// drift behind a test-local transcription.
 testCase('the code and spec fail-closed widening matrices are exactly equal', () => {
-  const specMatrixCodes = [
-    'changed_files_unavailable',
-    'hash_snapshot_unavailable',
-    'unclassified_material_input',
-    'impact_index_unusable',
-    'impact_projection_incomplete',
-    'workspace_snapshot_changed',
-    'selection_policy_changed',
-    'validation_floor_registry_unavailable',
-    'validation_framework_sensitive_change',
-    'story_risk_signal_present',
-    'build_graph_change',
-    'runtime_edge_unresolved',
-    'pinned_command_missing',
-    'pinned_command_non_inventory',
-    'pinned_command_ambiguous',
-    'command_exclusion_unproven',
-    'source_kind_atomic',
-    'no_validator',
-    'empty_selection_unclassified',
-    'docs_only_policy',
-    'duration_target_exceeded',
-  ] satisfies ValidationWideningReasonCode[];
+  const performanceDoc = readFileSync(join(REPOSITORY_ROOT, 'docs/validation-performance.md'), 'utf8');
+  const matrixSection = performanceDoc.match(
+    /^## Dynamic-tier fail-closed widening matrix\s*$([\s\S]*?)(?=^##\s)/mu,
+  )?.[1];
+  assert.ok(matrixSection, 'docs/validation-performance.md must retain the Dynamic-tier fail-closed widening matrix section');
+  const documentedCodes = [...matrixSection.matchAll(
+    /^\|[^|\n]*\|[^|\n]*\|\s*`([a-z0-9_]+)`\s*\|\s*$/gmu,
+  )].map((match) => match[1]);
+  assert.equal(new Set(documentedCodes).size, documentedCodes.length, 'the documented widening matrix may not repeat a reason code');
+  assert.ok(documentedCodes.length > 0, 'the documented widening matrix must contain reason-code rows');
   assert.deepEqual(
-    [...specMatrixCodes].sort(),
+    [...documentedCodes].sort(),
     [...VALIDATION_WIDENING_REASON_CODES].sort(),
-    'the executable widening table and documented matrix must contain the same reason codes',
+    'docs/validation-performance.md and the executable widening table must contain the same reason codes',
   );
 });
 
@@ -2593,6 +2585,20 @@ testCase('explicit repository-full process-fact paths force full without overmat
       `invalid dependency seam shape must be refused: ${JSON.stringify(invalidDependencies)}`,
     );
   }
+  const omittedDependencies = selectValidationTiers(invalidDependenciesInput);
+  assert.ok(
+    !omittedDependencies.escalationReasonCodes.includes('validation_floor_registry_unavailable'),
+    'omitting the internal dependency seam must use the valid live registry projection',
+  );
+  const explicitlyUnavailableDependencies = selectValidationTiers(
+    invalidDependenciesInput,
+    { registryFloorProjection: undefined },
+  );
+  assert.equal(explicitlyUnavailableDependencies.effectiveTier, 'repository-full');
+  assert.ok(
+    explicitlyUnavailableDependencies.escalationReasonCodes.includes('validation_floor_registry_unavailable'),
+    'an explicitly supplied undefined projection must remain distinguishable from omission and widen full',
+  );
 
   const plannerSource = readFileSync(join(REPOSITORY_ROOT, 'packages/main/src/core/validation-tier-planner.ts'), 'utf8');
   const handlerSource = readFileSync(join(REPOSITORY_ROOT, 'packages/main/src/handlers/validation-plan.ts'), 'utf8');
@@ -2611,9 +2617,9 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ts.forEachChild(node, visitPlanner);
   };
   visitPlanner(plannerAst);
-  assert.equal(productionCallSites.length, 1, 'production must have exactly one selectValidationTiers call site');
-  assert.equal(productionCallSites[0].arguments.length, 1, 'production may not populate the internal dependency seam');
-  assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'the CLI handler may not call the selector seam directly');
+  assert.equal(productionCallSites.length, 1, 'validation-tier-planner.ts must have exactly one internal selectValidationTiers call site');
+  assert.equal(productionCallSites[0].arguments.length, 1, 'validation-tier-planner.ts internal call may not populate the dependency seam');
+  assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'validation-plan.ts may not call the selector seam directly');
   assert.match(
     validationWideningReasonGloss('validation_floor_registry_unavailable'),
     /could not provide a complete repository-full floor set, or declares no floor at all/,
