@@ -43,3 +43,13 @@ Synthetic unit models remain appropriate for isolated logic tests. They must not
 stand in for native signatures, broker descriptors or certification admission in
 these CLI integration cases. A boundary change should rerun this contract before
 broader suites so fixture preparation failures are diagnosed at their source.
+
+The fixture CLI writers assert ownership of the newly allocated native root and
+pin both CLI/project-root routing after sanitizing ambient authority. Focused
+writer probes preserve preparation-time routine PASS; actual new PASS publication
+is asserted by the native dual-order queue cases. The fifteen-group capacity
+contract remains hermetic: its derived-refusal case checks that missing-evidence
+refusal waits for capacity, while admissible derived publication is tested in
+the separate native group. Contender queue observation is bounded below the
+probe hold deadline. Child cleanup has a two-second stream-close grace after
+SIGKILL. The contract driver resolves its repository from its own module URL.

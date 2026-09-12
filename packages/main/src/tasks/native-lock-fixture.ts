@@ -17,6 +17,7 @@ import {nativeReviewFixtureAmbientHost,nativeReviewFixtureBrokers,runBrokeredNat
 
 const cliPath=fileURLToPath(new URL('../cli.js',import.meta.url));
 const roots=new Set<string>();
+export function assertNativeLockFixture(root:string):void {assert(roots.has(root),'native setup can only operate on its own newly allocated disposable roots');}
 export function lockFixtureActorEnvironment(agent:string) {
  const provider=nativeReviewFixtureAmbientHost()==='claude'?'claude-code' as const:'codex' as const;
  return {...sanitizedFixtureChildEnvironment(process.env),PROOF_OR_STOP_SESSION_ID:undefined,
@@ -24,11 +25,11 @@ export function lockFixtureActorEnvironment(agent:string) {
   PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK:'native-lock:'+agent,PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT:agent};
 }
 export function lockFixtureCli(root:string,storyId:string,command:string,payload:Record<string,unknown>,agent='main'):string {
- assert(roots.has(root),'native setup can only operate on its own newly allocated disposable roots');
+ assertNativeLockFixture(root);
  const env=lockFixtureActorEnvironment(agent),start=performance.now();
  try {
   return execFileSync(process.execPath,[cliPath,'--root',root,command,JSON.stringify(payload)],
-   {cwd:root,env,encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:60000,maxBuffer:16*1024*1024}).trim();
+   {cwd:root,env:{...env,PROOF_OR_STOP_PROJECT_ROOT:root},encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:60000,maxBuffer:16*1024*1024}).trim();
  } finally {
   const directory=new StoryStore(root).storyDirPath(storyId);
   const session=deriveAdapterOwnerSessionId(root,env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER,env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK,agent);
@@ -79,7 +80,7 @@ console.log('native lock probe passed');\n`);
    const output=cli('review_run_start',{storyId,agent,...purpose},agent);
    const reviewRunId=output.match(/Review run (\S+) started/)?.[1];assert(reviewRunId,output);
    const before=performance.now();
-   try {await runBrokeredNativeReviewCli({root,store,storyId,agent,reviewRunId,command:'review_pass_set',payload:{storyId,agent,reviewRunId,note:'Disposable test actor read the complete subject and found no blocker.',readManifest,readEvents}});}
+   try {await runBrokeredNativeReviewCli({root,store,storyId,agent,reviewRunId,command:'review_pass_set',env:{PROOF_OR_STOP_PROJECT_ROOT:root},payload:{storyId,agent,reviewRunId,note:'Disposable test actor read the complete subject and found no blocker.',readManifest,readEvents}});}
    finally {console.log('NATIVE_LOCK_SETUP_TIMING '+JSON.stringify({storyId,command:'review_pass_set',agent,elapsedMs:performance.now()-before}));}
    return reviewRunId;
   };

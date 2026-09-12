@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import {createNativeLockFixture,lockFixtureCli} from './native-lock-fixture.js';
+import {createNativeLockFixture,lockFixtureCli,assertNativeLockFixture} from './native-lock-fixture.js';
+import {sanitizedFixtureChildEnvironment} from './fixture-environment.js';
 import {runBrokeredNativeReviewCli,withBrokeredNativeDeliveryInvocation} from './native-review-fixture.js';
 
 /**
@@ -91,7 +92,6 @@ type FixtureOptions = {
   priority?: StoryInfo['priority'];
   workflowProfile?: 'light' | 'balanced' | 'strict';
   doneRequired?: boolean;
-  admitCertification?: boolean;
 };
 
 function repoRoot(): string {
@@ -220,14 +220,16 @@ function spawnValidate(root: string, storyId: string, label: string, extraEnv: R
 
 async function waitChild(proc: SpawnedChild, timeoutMs: number): Promise<ChildResult> {
   let timer: ReturnType<typeof setTimeout>;
+  let grace: ReturnType<typeof setTimeout>;
   try {
     return await Promise.race([proc.done,new Promise<ChildResult>(resolve=>{
       timer=setTimeout(()=>{
         proc.child.kill('SIGKILL');
+        grace=setTimeout(()=>resolve({code:null,output:'timed out waiting for child pid '+proc.child.pid+': '+proc.output()}),2000);
         void proc.done.then(result=>resolve({code:null,output:'timed out waiting for child: '+result.output}));
       },timeoutMs);
     })]);
-  } finally {clearTimeout(timer!);}
+  } finally {clearTimeout(timer!);clearTimeout(grace!);}
 }
 
 async function runProofOrStop(root: string, command: string, args: Record<string, unknown>): Promise<string> {
@@ -245,20 +247,21 @@ function extractReviewRunId(output: string): string {
   return match![0];
 }
 
-const fixtureRoots = new Set<string>();
 async function reviewerFixtureCli(root: string, storyId: string, command: string, args: Record<string, unknown>): Promise<string> {
+  assertNativeLockFixture(root);
   const agent = 'proof-or-stop-review-quality';
   if(command==='review_pass_set')return runBrokeredNativeReviewCli({root,store:new StoryStore(root),storyId,agent,
-    reviewRunId:String(args.reviewRunId),command,payload:args});
+    reviewRunId:String(args.reviewRunId),command,payload:args,env:{PROOF_OR_STOP_PROJECT_ROOT:root}});
   return lockFixtureCli(root,storyId,command,args,agent);
 }
 async function deliveryFixtureCli(root:string,storyId:string,args:Record<string,unknown>):Promise<string> {
+  assertNativeLockFixture(root);
   return withBrokeredNativeDeliveryInvocation({root,store:new StoryStore(root),storyId,invoke:()=>{
     const fd=Number(process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD);
     assert.ok(Number.isInteger(fd)&&fd>=0,'real broker descriptor must exist');
-    return execFileSync(process.execPath,[join(repoRoot(),'packages/main/dist/cli.js'),'delivery_check_set',JSON.stringify(args)],{
+    return execFileSync(process.execPath,[join(repoRoot(),'packages/main/dist/cli.js'),'--root',root,'delivery_check_set',JSON.stringify(args)],{
       cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe',fd],timeout:10000,
-      env:{...process.env,LATTICE_NATIVE_REVIEW_ATTESTATION_FD:'3'},
+      env:{...sanitizedFixtureChildEnvironment(process.env),PROOF_OR_STOP_PROJECT_ROOT:root,LATTICE_NATIVE_REVIEW_ATTESTATION_FD:'3'},
     });
   }});
 }
@@ -279,7 +282,6 @@ function assertBusyRefusal(error: unknown): boolean {
 function setupFixture(options: FixtureOptions = {}): { root: string; storyId: string } {
   const storyId = options.storyId ?? DEFAULT_STORY_ID;
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-lock-'));
-  fixtureRoots.add(root);
   write(root, '.gitignore', [
     'entered.log',
     'bare-entered.log',
@@ -545,14 +547,13 @@ async function assertReviewerWritesCoordinateWithValidation(): Promise<void> {
     release(root);
     const result = await waitChild(validate, 12000);
     assert.equal(result.code, 0, result.output);
-    assert.equal(new StoryStore(root).readTestEvidence(storyId)?.result, 'PASS', 'review fixture validate must publish PASS: ' + result.output);
     await reviewerFixtureCli(root, storyId, 'review_pass_set', args);
     const afterPasses=new StoryStore(root).readReviewPasses(storyId).passes;
     assert.ok(afterPasses.some(row=>row.agent===lane&&row.reviewRunId===reviewRunId),'native retry persists this signed run');
     assert.deepEqual(afterPasses.filter(row=>row.agent!==lane),otherPasses,'retry preserves other admission reviewers');
     assert.deepEqual(new StoryStore(root).readTestEvidence(storyId),routineEvidence,'focused lock test preserves actual routine evidence');
     assert.equal(enteredCount(root), 1, 'review retry does not launch validation again');
-    console.log('REVIEW_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, PASS publication, retry, one execution');
+    console.log('REVIEW_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, routine evidence preserved, retry, one execution');
   } finally {
     if (validate && validate.child.exitCode === null) { release(root); await waitChild(validate, 12000); }
     rmSync(root, { recursive: true, force: true });
@@ -561,6 +562,7 @@ async function assertReviewerWritesCoordinateWithValidation(): Promise<void> {
 
 async function assertDeliveryCheckCoordinatesWithValidation(): Promise<void> {
   const { root, storyId } = await createNativeLockFixture('B-validate-delivery');
+  const routineEvidence=new StoryStore(root).readTestEvidence(storyId);
   lockFixtureCli(root,storyId,'dispatch',{storyId,agentType:'proof-or-stop-review-delivery'},'proof-or-stop-review-delivery');
   // Dispatch is HEAD-bound. Do not commit after issuing it; a focused lock
   // probe preserves routine evidence without creating a new certification publication.
@@ -595,11 +597,11 @@ async function assertDeliveryCheckCoordinatesWithValidation(): Promise<void> {
     release(root);
     const validateResult = await waitChild(validate, 12000);
     assert.equal(validateResult.code, 0, validateResult.output);
-    assert.equal(new StoryStore(root).readTestEvidence(storyId)?.result, 'PASS', 'delivery fixture validate must publish PASS: ' + validateResult.output);
+    assert.deepEqual(new StoryStore(root).readTestEvidence(storyId),routineEvidence,'focused delivery lock probe preserves preparation evidence');
     await deliveryFixtureCli(root, storyId, deliveryArgs);
     assert.equal(new StoryStore(root).readDeliveryCheck(storyId)?.agentId, 'proof-or-stop-review-delivery');
     assert.equal(enteredCount(root), 1, 'delivery retry does not launch validation again');
-    console.log('DELIVERY_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, PASS publication, retry, one execution');
+    console.log('DELIVERY_WRITER_COORDINATION_GREEN: busy refusal, unchanged guarded files/HEAD, routine evidence preserved, retry, one execution');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -673,7 +675,7 @@ async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
 }
 
 async function assertUnadmittedDoneRequiredNeverExecutes(): Promise<void> {
-  const { root, storyId } = setupFixture({ storyId: 'B-required-unadmitted', doneRequired: true, admitCertification: false });
+  const { root, storyId } = setupFixture({ storyId: 'B-required-unadmitted', doneRequired: true });
   new StoryStore(root).writeChecklist(storyId,{items:[]});
   commitAll(root,'isolate unadmitted certification without unrelated acceptance obligations');
   try {
@@ -700,7 +702,7 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
       JSON.stringify({ storyId, json: true }),
     ], 'done-required-contender');
     assert.equal(enteredCount(root), 1, 'done_required_validate must not enter the validation command while validate is held');
-    assert.equal(await waitForOutput(doneRequired, /waiting for workspace validation capacity/, NATIVE_ENTRY_WAIT_MS), true,
+    assert.equal(await waitForOutput(doneRequired, /waiting for workspace validation capacity/, 4000), true,
       `done_required_validate must visibly wait; output=${doneRequired.output()}`);
 
     release(root);
@@ -734,7 +736,7 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
     assert.equal(await waitForEntered(reverse.root, 1, NATIVE_ENTRY_WAIT_MS), true,
       'done_required_validate must enter before reverse validate starts: '+doneRequired.output());
     const validate = spawnValidate(reverse.root, reverse.storyId, 'reverse-validate-contender');
-    assert.equal(await waitForOutput(validate, /waiting for workspace validation capacity/, NATIVE_ENTRY_WAIT_MS), true,
+    assert.equal(await waitForOutput(validate, /waiting for workspace validation capacity/, 4000), true,
       `reverse validate must visibly wait; output=${validate.output()}`);
     assert.equal(enteredCount(reverse.root), 1, 'reverse validate must not enter while done_required holds capacity');
     release(reverse.root);
@@ -1382,6 +1384,31 @@ async function assertBareNpmAndReadOnlyCommandsBypassCapacity(): Promise<void> {
   }
 }
 
+// Hermetic contract: even a refusal must occur inside the capacity boundary.
+// Successful admissible publication is covered by the separate native case.
+async function assertDerivedVerdictRefusalWaitsForCapacity():Promise<void> {
+ const {root,storyId}=setupFixture({storyId:'B-derived-refusal-contract'});
+ const store=new StoryStore(root);
+ let releaseOwner!:()=>void;
+ let holder:Promise<void>|undefined;
+ try {
+  let ready!:()=>void;const entered=new Promise<void>(resolve=>{ready=resolve;});
+  const release=new Promise<void>(resolve=>{releaseOwner=resolve;});
+  holder=withWorkspaceValidationCapacity({root,workspaceRoot:root,requireGitIdentity:true,command:'derived-refusal-holder'},async()=>{ready();await release;});
+  await entered;
+  let settled=false;
+  const verdict=Promise.resolve(createVerdictHandlers({root,scanRoot:join(root,'packages/main'),store}).autopilot_review_submit({
+   storyId,runId:'refusal-contract',hostId:'fixture',provider:'codex',sessionId:'fixture',decision:'pass',deriveBindings:true,json:true,
+  }));
+  const refusal=verdict.then(()=>{settled=true;throw new Error('missing evidence must not publish a verdict');},error=>{settled=true;return error;});
+  await sleep(75);assert.equal(settled,false,'derived refusal must wait for capacity, even without PASS input');
+  assert.equal(store.readProcessEvents(storyId).filter(event=>event.type==='host_verdict').length,0);
+  releaseOwner();await holder;
+  assert.match(String(await refusal),/requires canonical current PASS validation evidence/);
+  assert.equal(store.readProcessEvents(storyId).filter(event=>event.type==='host_verdict').length,0);
+ } finally {releaseOwner?.();await holder;rmSync(root,{recursive:true,force:true});}
+}
+
 async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
   const { root, storyId } = await createNativeLockFixture('B-capacity-derived-verdict');
   const originalCwd = process.cwd();
@@ -1872,6 +1899,12 @@ function assertManagedVerificationIntentPinSchemaRoundTrip(): void {
 void (async () => {
   try {
     if (process.argv.includes('--native-prerequisites-only')) {
+      const unowned=mkdtempSync(join(tmpdir(),'native-lock-unowned-'));
+      try {
+       await assert.rejects(reviewerFixtureCli(unowned,'B-unowned','review_pass_set',{}),/own newly allocated disposable roots/);
+       await assert.rejects(deliveryFixtureCli(unowned,'B-unowned',{}),/own newly allocated disposable roots/);
+       assert.deepEqual(readdirSync(unowned),[],'unowned roots remain untouched');
+      } finally {rmSync(unowned,{recursive:true,force:true});}
       const cases = [assertReviewerWritesCoordinateWithValidation, assertDeliveryCheckCoordinatesWithValidation,
         assertUnadmittedDoneRequiredNeverExecutes, assertDoneRequiredSharesValidateLock,
         assertDerivedVerdictCannotBypassCapacity,assertQueuedDonePolicyDriftRefuses];
@@ -1893,7 +1926,7 @@ void (async () => {
     await assertCapacityStrictStaleClassifier();
     await assertCapacityAsyncWaitAbortReentrancyAndRelease();
     await assertBareNpmAndReadOnlyCommandsBypassCapacity();
-    await assertDerivedVerdictCannotBypassCapacity();
+    await assertDerivedVerdictRefusalWaitsForCapacity();
     await assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity();
     await assertCapacityReleaseFailureIsExplicitAndRecoverable();
     await assertQueuedWaitFailureCleanupIsRecoverable();
@@ -1905,6 +1938,7 @@ void (async () => {
       console.log('validate-execution-lock workspace capacity contract passed: 15 assertion groups');
       return;
     }
+    await assertDerivedVerdictCannotBypassCapacity();
     await assertPostCommandPersistenceHoldsLock();
     await assertRetiredRaceSeamIsProductionUnreachable();
     await assertDifferentWorktreesCanValidateConcurrently();
@@ -1930,7 +1964,7 @@ void (async () => {
   }
 })();
 
-import { acquireOwnerLease, readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
+import { acquireOwnerLease, readOwnerLease } from '../core/story-owner-lease.js';
 // Direct handler tests bypass the CLI ownership gate. Establish its prerequisite
 // only in these disposable fixtures; production heartbeat never acquires leases.
 function createVerifierHandlers(ctx: Parameters<typeof unownedcreateVerifierHandlers>[0]) {
