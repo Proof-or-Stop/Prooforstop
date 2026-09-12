@@ -996,6 +996,19 @@ async function waitForCapacityTicketCount(root: string, count: number, timeoutMs
   return capacityTicketPaths(root).length === count;
 }
 
+async function waitForCapacityConsumer(root:string,command:string,timeoutMs:number):Promise<boolean> {
+ const deadline=Date.now()+timeoutMs;
+ do {
+  const tickets=capacityTicketPaths(root);
+  if(tickets.length===2&&tickets.some(path=>{
+   try{return JSON.parse(readFileSync(join(path,MKDIR_LOCK_HOLDER_FILE),'utf8')).command===command;}
+   catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT'||error instanceof SyntaxError)return false;throw error;}
+  }))return true;
+  await sleep(10);
+ }while(Date.now()<deadline);
+ return false;
+}
+
 async function assertCapacityStrictStaleClassifier(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-stale-'));
   const base = { root, workspaceRoot: root, command: 'validate', pollMs: 15, progressIntervalMs: 15 };
@@ -1462,8 +1475,7 @@ async function assertDerivedVerdictRefusalWaitsForCapacity():Promise<void> {
   let settled=false;
   const queuedAt=performance.now();
   refusal=invoke().then(()=>{settled=true;return new Error('missing evidence must not publish a verdict');},error=>{settled=true;return error;});
-  if(!await waitForCapacityTicketCount(root,2,NATIVE_ENTRY_WAIT_MS))throw new Error('NATIVE_REFUSAL_PROOF_UNAVAILABLE: no observable waiting ticket within '+NATIVE_ENTRY_WAIT_MS+'ms');
-  assert(capacityTicketPaths(root).some(path=>JSON.parse(readFileSync(join(path,'holder.json'),'utf8')).command===`autopilot_review_submit --deriveBindings for ${storyId}`),'the actual derived-verdict consumer must own the waiting ticket');
+  if(!await waitForCapacityConsumer(root,`autopilot_review_submit --deriveBindings for ${storyId}`,NATIVE_ENTRY_WAIT_MS))throw new Error('NATIVE_REFUSAL_PROOF_UNAVAILABLE: no observable waiting ticket within '+NATIVE_ENTRY_WAIT_MS+'ms');
   assert.equal(settled,false,'derived refusal must remain pending while its queue ticket waits behind the holder');
   console.log('NATIVE_LOCK_REFUSAL_CONTROL_TIMING '+JSON.stringify({controlMs,queueReadyMs:performance.now()-queuedAt}));
   assert.equal(store.readProcessEvents(storyId).filter(event=>event.type==='host_verdict').length,0);
@@ -1971,13 +1983,30 @@ function assertManagedVerificationIntentPinSchemaRoundTrip(): void {
 }
 
 async function assertNativeCleanupContract():Promise<void> {
+ const completed=new Set(legacySelectorGroups());assertLegacySelectorCoverage(completed);
+ completed.delete(assertWorkspaceWaitAndRun);assert.throws(()=>assertLegacySelectorCoverage(completed),/legacy selector requires completed group/);
 
-      const timerChild=spawn(process.execPath,['-e','process.exit(0)'],{stdio:'ignore'});
+ const ticketRoot=mkdtempSync(join(tmpdir(),'native-ticket-publication-'));
+ const tickets=validationCapacityLockPath(ticketRoot);
+ mkdirSync(join(tickets,'1.ticket'),{recursive:true});mkdirSync(join(tickets,'2.ticket'));
+ writeFileSync(join(tickets,'1.ticket',MKDIR_LOCK_HOLDER_FILE),JSON.stringify({command:'owner'}));
+ const publication=setTimeout(()=>writeFileSync(join(tickets,'2.ticket',MKDIR_LOCK_HOLDER_FILE),JSON.stringify({command:'consumer'})),40);
+ try {assert.equal(await waitForCapacityConsumer(ticketRoot,'consumer',1000),true,'partial ticket publication must be retried');
+ assert.equal(await waitForCapacityConsumer(ticketRoot,'absent',30),false,'an unrelated holder cannot prove the target consumer');}
+ finally {clearTimeout(publication);rmSync(ticketRoot,{recursive:true,force:true});}
+
+      const timerChild=spawn(process.execPath,['-e',"console.log('TIMER_READY');process.stdin.once('data',()=>setTimeout(()=>process.exit(7),30));"],{stdio:['pipe','pipe','pipe']});
+      let timerOutput='';timerChild.stdout.on('data',chunk=>{timerOutput+=chunk.toString();});
       const originalKill=timerChild.kill.bind(timerChild);let lateSignals=0;
       timerChild.kill=((signal?:NodeJS.Signals|number)=>{lateSignals++;return originalKill(signal);}) as typeof timerChild.kill;
-      await new Promise<void>((resolve,reject)=>{timerChild.once('close',()=>resolve());timerChild.once('error',reject);});
-      const timerResult=await waitChild({child:timerChild,done:Promise.resolve({timedOut:false,code:0,output:''}),output:()=>'',stdout:()=>'',stderr:()=>''},50);
-      await sleep(100);assert.equal(timerResult.timedOut,false);assert.equal(timerResult.code,0);assert.equal(lateSignals,0,'completed wait must cancel delayed SIGKILL');
+      const timerDone=new Promise<ChildResult>((resolve,reject)=>{timerChild.once('close',code=>resolve({timedOut:false,code,output:timerOutput}));timerChild.once('error',reject);});
+      const timerProc:SpawnedChild={child:timerChild,done:timerDone,output:()=>timerOutput,stdout:()=>timerOutput,stderr:()=>''};
+      try {
+       assert.equal(await waitForOutput(timerProc,/TIMER_READY/,5000),true);
+       const pending=waitChild(timerProc,500);timerChild.stdin.write('exit');
+       const timerResult=await pending;
+       await sleep(600);assert.equal(timerResult.timedOut,false);assert.equal(timerResult.code,7);assert.equal(lateSignals,0,'completed wait must cancel delayed SIGKILL after a real pending close');
+      } finally {if(timerChild.exitCode===null&&timerChild.signalCode===null)originalKill('SIGKILL');await timerDone.catch(()=>undefined);}
 
       let output='';try{execFileSync(process.execPath,[fileURLToPath(import.meta.url),'--native-signal-child'],{encoding:'utf8',timeout:10000});assert.fail('signal child must exit nonzero');}
       catch(error){const child=error as {status?:number;stdout?:string;code?:string};if(child.code==='ETIMEDOUT')throw new Error('NATIVE_SIGNAL_CLEANUP_TIMEOUT exceeded 10000ms');assert.equal(child.status,143);output=String(child.stdout);}
@@ -2005,6 +2034,41 @@ async function assertNativeCleanupContract():Promise<void> {
  const releasedRoot=allocateNativeLockRoot();releaseNativeLockRoot(releasedRoot);mkdirSync(releasedRoot);
  try{assert.throws(()=>assertNativeLockFixture(releasedRoot),/own newly allocated disposable roots/);}finally{rmSync(releasedRoot,{recursive:true,force:true});}
  console.log('NATIVE_SIGNAL_CLEANUP_CONTRACT_PASS');
+}
+
+// Original fe96056b33 roster; renamed writer groups retain their original slots.
+const LEGACY_SELECTOR_GROUP_COUNT=26;
+function legacySelectorGroups(){return [
+ assertWorkspaceWaitAndRun,
+ assertCapacityAtomicStaleQuarantineStress,
+ assertKilledCapacityOwnerReplacement,
+ assertKilledBeforeCapacityPublicationDoesNotBlock,
+ assertCapacityStrictStaleClassifier,
+ assertCapacityAsyncWaitAbortReentrancyAndRelease,
+ assertBareNpmAndReadOnlyCommandsBypassCapacity,
+ assertDerivedVerdictCannotBypassCapacity,
+ assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity,
+ assertCapacityReleaseFailureIsExplicitAndRecoverable,
+ assertQueuedWaitFailureCleanupIsRecoverable,
+ assertCapacityRepositoryScopeAndSelectiveModes,
+ assertProtectedInventoryAndTimeoutSourcesUnchanged,
+ assertCapacityReclaimImplementationIsIdentityStable,
+ assertManagedVerificationIntentPinSchemaRoundTrip,
+ assertPostCommandPersistenceHoldsLock,
+ assertRetiredRaceSeamIsProductionUnreachable,
+ assertDifferentWorktreesCanValidateConcurrently,
+ assertReviewerWritesCoordinateWithValidation,
+ assertDeliveryCheckCoordinatesWithValidation,
+ assertStoryAdvanceInternalValidateDoesNotSelfLock,
+ assertDoneRequiredSharesValidateLock,
+ assertStaleLockReclaimed,
+ assertVanishedOwnerReclaimed,
+ assertMismatchedOwnerReclaimed,
+ assertReentrantButNotSiblingBypass];}
+function assertLegacySelectorCoverage(completed:Set<()=>void|Promise<void>>):void {
+ const groups=legacySelectorGroups();assert.equal(groups.length,LEGACY_SELECTOR_GROUP_COUNT);
+ assert.equal(new Set(groups).size,LEGACY_SELECTOR_GROUP_COUNT);
+ for(const group of groups)assert(completed.has(group),'legacy selector requires completed group '+group.name);
 }
 
 void (async () => {
@@ -2051,7 +2115,8 @@ void (async () => {
       return;
     }
     let executedGroups=0;
-    const runGroup=async(group:()=>void|Promise<void>)=>{await group();executedGroups++;};
+    const completedGroups=new Set<()=>void|Promise<void>>();
+    const runGroup=async(group:()=>void|Promise<void>)=>{await group();executedGroups++;completedGroups.add(group);};
     await runGroup(assertWorkspaceWaitAndRun);
     await runGroup(assertCapacityAtomicStaleQuarantineStress);
     await runGroup(assertKilledCapacityOwnerReplacement);
@@ -2092,7 +2157,8 @@ void (async () => {
       cwd: repoRoot(), stdio: 'inherit', timeout: 180000,
     });
     console.log(`validate-execution-lock smoke passed: ${executedGroups} assertion groups plus production regressions`);
-    console.log('Legacy verification selector (historical count): validate-execution-lock smoke passed: 26 assertion groups plus production regressions');
+    assertLegacySelectorCoverage(completedGroups);
+    console.log(`Legacy verification selector (verified original subset): validate-execution-lock smoke passed: ${LEGACY_SELECTOR_GROUP_COUNT} assertion groups plus production regressions`);
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
