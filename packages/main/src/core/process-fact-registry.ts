@@ -2590,7 +2590,12 @@ export function collectRepositoryFullProcessFactPaths(
     }
     const entry = candidate as { level?: unknown; validationTierFloor?: unknown; paths?: unknown };
     if (entry.validationTierFloor === undefined) continue;
-    if (entry.validationTierFloor !== 'repository-full' || entry.level !== 'L4' || !Array.isArray(entry.paths)) {
+    if (
+      entry.validationTierFloor !== 'repository-full'
+      || entry.level !== 'L4'
+      || !Array.isArray(entry.paths)
+      || entry.paths.length === 0
+    ) {
       rejectedEntryCount += 1;
       continue;
     }

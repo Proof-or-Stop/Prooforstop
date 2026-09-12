@@ -191,6 +191,7 @@ import {
   collectRepositoryFullProcessFactPaths,
   declareProcessFactMapping,
   getProcessFactRegistryEntry,
+  PROCESS_FACT_REGISTRY,
 } from '../core/process-fact-registry.js';
 import {
   describeRedGreenViolations,
@@ -2405,6 +2406,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
       { level: 'not-a-level', paths: 'irrelevant-without-a-floor' },
       { level: 'L4' },
       { level: 'L4', validationTierFloor: 'repository-full', paths: 'not-an-array' },
+      { level: 'L4', validationTierFloor: 'repository-full', paths: [] },
       { level: 'L3', validationTierFloor: 'repository-full', paths: ['ignored-level.ts'] },
       { level: 'L4', validationTierFloor: 'story-fast', paths: ['ignored-floor.ts'] },
       {
@@ -2418,7 +2420,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ]),
     {
       paths: ['packages/main/src/core/valid-full-path.ts'],
-      rejectedEntryCount: 8,
+      rejectedEntryCount: 9,
     },
     'malformed independently decoded registry entries must be reported while valid authority survives',
   );
@@ -2553,6 +2555,23 @@ testCase('explicit repository-full process-fact paths force full without overmat
     if (result.status !== 'plan') continue;
     assert.equal(result.effectiveTier, 'story-fast', `unrelated path must remain fast: ${unrelatedPath}`);
     assert.ok(!reasonCodes(result).includes('validation_framework_sensitive_change'), unrelatedPath);
+  }
+
+  const floorSet = new Set(gatePatterns);
+  const unrelatedL4SourceRefs = [...new Set(PROCESS_FACT_REGISTRY
+    .filter((entry) => entry.level === 'L4' && entry.validationTierFloor === undefined)
+    .flatMap((entry) => [...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]))]
+    .filter((path) => !floorSet.has(path) && !pathIsLegacyValidationSensitive(path));
+  assert.ok(
+    unrelatedL4SourceRefs.length > 0,
+    'the registry must expose at least one non-floored L4 source outside legacy sensitivity rules',
+  );
+  for (const unrelatedL4Path of unrelatedL4SourceRefs) {
+    const result = planForPath(unrelatedL4Path);
+    assert.equal(result.status, 'plan', unrelatedL4Path);
+    if (result.status !== 'plan') continue;
+    assert.equal(result.effectiveTier, 'story-fast', `unfloored L4 source must remain fast: ${unrelatedL4Path}`);
+    assert.ok(!reasonCodes(result).includes('validation_framework_sensitive_change'), unrelatedL4Path);
   }
 });
 
