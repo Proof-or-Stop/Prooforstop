@@ -56,7 +56,7 @@ brokers, not an external provider credential or LLM invocation. Contender queue 
 probe hold deadline. Child cleanup has a two-second stream-close grace after
 SIGKILL. The contract driver resolves its repository from its own module URL.
 
-Baseline boundary: on local main `5135144228` (0.3.342), the existing complete
+Baseline boundary: on local main `3fb8385a7d` (0.3.344), the existing complete
 `--workspace-capacity-contract-only` command already fails in
 `assertWorkspaceWaitAndRun` because its done CHK-001 has no intent or evidence.
 The Lab reproduces that same early failure and does not claim all fifteen groups
