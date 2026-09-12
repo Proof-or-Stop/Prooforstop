@@ -64,3 +64,11 @@ After local-main `ee1b815a84`, the additional literal snapshot-binding reader wa
 reviewed: its TypeScript AST checks read one source file and have no subprocess
 launches. The refreshed runtime-contract entries bind that reader and source,
 and the new exact callsite is registered as EX-LAB-SNAPSHOT-BINDING.
+
+Local-main `73bb02e52a` inserts two validation commands. All 166 prior command
+objects were matched byte-for-byte in order to their new indices; no existing
+invocation changed. The new classifier and partial-hash scripts contain only
+literal Git subprocess calls at their direct child-process sites, so the scanner
+adds no exception for them. Their package script insertion and the reviewed
+process-fact declaration changes are reflected in current source/dependency
+bindings; the complete 168-command scan passes without new exception categories.
