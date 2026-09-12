@@ -40,9 +40,11 @@ Its four signed producer commands, semantic verifiers, and lifecycle consumers
 map to concrete repository paths in the process-fact registry. Changing any of
 those paths forces `repository-full`; unrelated L4 implementation such as the
 repository-baseline reader remains eligible for ordinary relevance selection.
-If the Dynamic Finding mapping is absent, malformed, or empty, registry creation
-fails and the selector independently widens rather than silently treating the
-gate as fast.
+An absent floor mapping leaves the registry loadable; its empty projection makes
+the selector widen with `validation_floor_registry_unavailable`. A present floor
+declaration with malformed or empty paths is instead refused while the registry
+module initializes, before any selector can return a tier decision. Both paths
+fail closed, but they intentionally fail at different layers.
 
 ## PRE_CERT execution order
 

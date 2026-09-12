@@ -20,8 +20,32 @@ removed: []
 ```
 
 The first addition is owned by B-83aa CHK-003 and the second by B-83aa CHK-002.
-The real-inventory smoke pins the new count, both argv entries, and the resulting
-`commandSetDigest`.
+The real-inventory smoke pins both argv entries and the resulting
+`commandSetDigest`; it does not treat cardinality alone as retention proof.
+
+After the next main synchronization, local main `3f6397106a` still contained
+the 168-command configuration but retained the stale `ba34d4fe...` test pin.
+Running the smoke on that unchanged main exited 1 with this exact pre-existing
+baseline failure:
+
+```text
+FAIL F-023: the REAL inventory stays pinned and cwd-neutral, with no absolute-cwd warning: the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)
++ actual - expected
+
++ 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b'
+- 'ba34d4fed4c8b355657089907b79c01e62b1c12c134afa3bab6b6b8dbdf8f70e'
+```
+
+The literal recomputation command used the production path
+`configuredValidationCommands -> buildValidationCommandInventory` and printed:
+
+```json
+{"commandCount":168,"commandSetDigest":"e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b","warnings":["167 of 168 validation commands still lack a declared id and are running on provisional ids (prefix \"prov-\") derived from command, args, declared cwd and declared shell. Declare a stable id on each so its planner identity survives an edit to any of those fields."]}
+```
+
+Therefore this Lab repairs a pre-existing main-branch test pin after upstream
+B-83aa changed `proof-or-stop.config.json`; it does not claim that its own
+five-file diff changes the validation inventory.
 
 ## Original headline RED
 

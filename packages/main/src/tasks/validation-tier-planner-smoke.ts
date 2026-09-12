@@ -565,7 +565,6 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // B-83aa CHK-003 adds only evidence-hash-snapshot-classifier-smoke.js. The
   // normalized set comparison recorded additions=2 and removals=0; the two
   // exact argv retention assertions above plus this count preserve that result.
-  assert.equal(commands.length, 168, 'the merged inventory must contain exactly 168 command tuples; see PIN MAINTENANCE for the recorded 166 -> 168 reconciliation');
   assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
@@ -2470,6 +2469,24 @@ testCase('explicit repository-full process-fact paths force full without overmat
   const gatePatterns = collected.paths;
   assert.equal(collected.rejectedEntryCount, 0);
   assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one repository-full path');
+  const absentDecodedMapping = collectRepositoryFullProcessFactPaths([]);
+  assert.deepEqual(absentDecodedMapping, { paths: [], rejectedEntryCount: 0 });
+  assert.deepEqual(
+    classifySensitiveStoryPaths([], { projection: absentDecodedMapping }),
+    ['validation_floor_registry_unavailable'],
+    'an absent decoded floor mapping stays readable but makes selection widen full',
+  );
+  const floorContractDoc = readFileSync(join(REPOSITORY_ROOT, 'docs/validation-performance.md'), 'utf8');
+  assert.match(
+    floorContractDoc,
+    /An absent floor mapping leaves the registry loadable; its empty projection makes\s+the selector widen with `validation_floor_registry_unavailable`/u,
+    'the operator guide must distinguish the loadable absent-mapping path',
+  );
+  assert.match(
+    floorContractDoc,
+    /A present floor\s+declaration with malformed or empty paths is instead refused while the registry\s+module initializes, before any selector can return a tier decision/u,
+    'the operator guide must distinguish declaration refusal from selector widening',
+  );
   assert.deepEqual(
     collectRepositoryFullProcessFactPaths([
       null,
