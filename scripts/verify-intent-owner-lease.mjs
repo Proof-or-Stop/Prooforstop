@@ -9,6 +9,7 @@ import {acquireOwnerLease,readOwnerLease,resetSessionIdForTest} from '../package
 import {StoryStore} from '../packages/main/dist/core/store.js';
 import {resetConfigCache} from '../packages/main/dist/core/config.js';
 import {createChecklistHandlers} from '../packages/main/dist/handlers/checklist.js';
+import {createIntentAmendment,acceptanceIntentHash} from '../packages/main/dist/core/verification-intent-amendment.js';
 import {digestCanonicalJson} from '../packages/main/dist/core/digest.js';
 const root=mkdtempSync(join(tmpdir(),'intent-owner-proposal-'));
 const cwd=process.cwd(), env={...process.env};
@@ -88,7 +89,7 @@ try {
  session('fixture-independent','proof-or-stop-verification-intent');
  assert.equal(resolveEffectiveOwnershipClass('checklist_update',args,storyId),'storyScopedMutating','role environment never exempts owner lease');
  assert.throws(()=>enforceStoryOwnerLeaseGate('checklist_update',args,store,{storyId,phase:'PLAN'},root),/owned|owner|lease/i);
- assert.throws(()=>handlers.checklist_update(args),/INTENT_PROPOSAL_OWNER_REQUIRED/);
+ assert.throws(()=>handlers.checklist_update(args),/INTENT_PROPOSAL_ROLE_FORBIDDEN/);
  assert.equal(JSON.stringify(readOwnerLease(store.storyDirPath(storyId))),before);
  const foreign=spawnSync(process.execPath,[cli,'--root',root,'checklist_update',JSON.stringify(args)],{cwd:root,env:process.env,encoding:'utf8'});
  assert.notEqual(foreign.status,0);assert.match(foreign.stdout+foreign.stderr,/owner|lease/i);
@@ -98,22 +99,56 @@ try {
   assert.throws(()=>handlers.checklist_update(args),/\[verification_intent_writer_phase_invalid\]/);
  }
  store.writeStory(storyId,story);
- for(const bad of [{...args,intentProposalApproval:{...args.intentProposalApproval,digest:'0'.repeat(64)}},{...args,intentProposalApproval:{...args.intentProposalApproval,baseIntentHash:'0'.repeat(64)}},{...args,status:'done'}])assert.throws(()=>handlers.checklist_update(bad),/INTENT_PROPOSAL_(BINDING_INVALID|OWNER_REQUIRED)/);
+ for(const bad of [{...args,intentProposalApproval:{...args.intentProposalApproval,digest:'0'.repeat(64)}},{...args,intentProposalApproval:{...args.intentProposalApproval,baseIntentHash:'0'.repeat(64)}},{...args,status:'done'}])assert.throws(()=>handlers.checklist_update(bad),/INTENT_PROPOSAL_(BINDING_INVALID|FIELDS_INVALID)/);
+ const malformed=structuredClone(args);delete malformed.verificationIntent.happy[0].requirementSource;
+ malformed.intentProposalApproval.digest=digestCanonicalJson({storyId,itemId,baseIntentHash,verificationIntent:malformed.verificationIntent});
+ assert.throws(()=>handlers.checklist_update(malformed),/verification_intent_metadata_required/);
+ assert.throws(()=>handlers.checklist_update({...args,intentProposalApproval:{...args.intentProposalApproval,reason:'short'}}),/INTENT_PROPOSAL_REASON_INVALID.*received 5/);
+ session('fixture-independent');
+ assert.throws(()=>handlers.checklist_update(args),/INTENT_PROPOSAL_OWNER_REQUIRED/);
+ session('fixture-owner','proof-or-stop-verification-intent');
+ const direct={storyId,itemId,verificationIntent};
+ store.writeStory(storyId,{...story,phase:'INIT'});
+ assert.throws(()=>handlers.checklist_update(direct),/verification_intent_writer_phase_invalid/);
+ store.writeStory(storyId,story);
+ const original=store.readChecklist(storyId);
+ handlers.checklist_update(direct);
+ assert.deepEqual(store.readChecklist(storyId).items[0].verificationIntent.happy[0].plannedPathDeclarations,verificationIntent.happy[0].plannedPathDeclarations);
+ store.writeChecklist(storyId,original);
+ session('fixture-owner');
  const invoke=()=>new Promise((resolveRun,reject)=>{const child=spawn(process.execPath,[cli,'--root',root,'checklist_update',JSON.stringify(args)],{cwd:root,env:process.env});let out='';child.stdout.on('data',b=>out+=b);child.stderr.on('data',b=>out+=b);child.on('error',reject);child.on('close',status=>resolveRun({status,out}));});
  const attempts=await Promise.all([invoke(),invoke()]);
  assert.equal(attempts.filter(r=>r.status===0).length,1,'INTENT_OWNER_LEASE_CONFLICT: '+JSON.stringify(attempts));
- assert.match(attempts.find(r=>r.status!==0).out,/INTENT_PROPOSAL_BINDING_INVALID/,'concurrent duplicate must fail stale, not contend for git index');
+ assert.match(attempts.find(r=>r.status!==0).out,/INTENT_PROPOSAL_BINDING_INVALID|lock.*timeout|timed out.*lock/i,'concurrent duplicate must fail stale or explicit lock contention');
  assert.equal(readOwnerLease(store.storyDirPath(storyId)).sessionId,'fixture-owner');
  const saved=store.readChecklist(storyId);assert.deepEqual(saved.items[0].verificationIntent.happy[0].plannedPathDeclarations,verificationIntent.happy[0].plannedPathDeclarations);
  assert(saved.auditLog.some(row=>row.reason.includes(args.intentProposalApproval.digest)));
  assert.throws(()=>handlers.checklist_update(args),/INTENT_PROPOSAL_BINDING_INVALID/,'stale base is rejected even for owner');
  // Real CLI replan admission must match the existing INIT-only removal handler.
  store.writeStory(storyId,{...story,phase:'INIT'});
+ const removeArgs={storyId,itemId,disposition:'accept',justification:'Disposable fixture checks the supported INIT consolidation path.'};
+ for(const role of ['proof-or-stop-review-story-init','proof-or-stop-product-reviewer']){
+   session('fixture-owner',role);
+   assert.throws(()=>handlers.checklist_remove({...removeArgs,actor:'main-agent'}),/init_reviewer_checklist_mutation_blocked/);
+   const denied=spawnSync(process.execPath,[cli,'--root',root,'checklist_remove',JSON.stringify(removeArgs)],{cwd:root,env:process.env,encoding:'utf8'});
+   assert.notEqual(denied.status,0);assert.match(denied.stdout+denied.stderr,/init_reviewer_checklist_mutation_blocked/);
+ }
+ session('fixture-owner');
+ assert.throws(()=>handlers.checklist_remove({...removeArgs,agent:'proof-or-stop-product-reviewer'}),/init_reviewer_checklist_mutation_blocked/);
  const remove=spawnSync(process.execPath,[cli,'--root',root,'checklist_remove',JSON.stringify({storyId,itemId,disposition:'accept',justification:'Disposable fixture checks the supported INIT consolidation path.'})],{cwd:root,env:process.env,encoding:'utf8'});
  assert.equal(remove.status,0,'INIT_REMOVAL_UNREACHABLE: '+remove.stdout+remove.stderr);
  assert.equal(store.readChecklist(storyId).items.length,0);
  store.writeStory(storyId,story);store.writeChecklist(storyId,saved);
  const late=spawnSync(process.execPath,[cli,'--root',root,'checklist_remove',JSON.stringify({storyId,itemId,disposition:'accept',justification:'Must be refused after the INIT phase.'})],{cwd:root,env:process.env,encoding:'utf8'});
  assert.notEqual(late.status,0);assert.match(late.stdout+late.stderr,/PLAN phase does not allow removing|not available.*PLAN|Allowed phases: INIT/);
+ // A genuine signed amendment must not allow a foreign role to create a revision.
+ const amended=structuredClone(saved);const lease=readOwnerLease(store.storyDirPath(storyId));
+ const addition={edge:[{id:'SIGNED-EDGE',desc:'Additional signed boundary assertion',type:'cli',priority:'must'}]};
+ const signed=createIntentAmendment({item:amended.items[0],storyId,expectedIntentHash:acceptanceIntentHash(amended.items[0].verificationIntent),reason:'Independent fixture exercises owner-only signed revision protection.',addition,sessionId:lease.sessionId,leaseId:lease.leaseId,headHash:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),gitCwd:root});
+ amended.items[0].verificationIntent=signed.intent;amended.items[0].verificationIntentAmendments=[signed.amendment];store.writeChecklist(storyId,amended);
+ session('fixture-independent','proof-or-stop-verification-intent');
+ const revised=structuredClone(signed.intent);revised.edge[0].desc+=' Updated boundary.';Object.assign(revised.edge.at(-1),{scope:'focused',expectation:'absolute_pass',requirementSource:'story'});
+ assert.throws(()=>handlers.checklist_update({storyId,itemId,verificationIntent:revised}),/AMENDMENT_OWNER_REQUIRED/);
+ assert.deepEqual(store.readChecklist(storyId),amended,'refused signed revision must not persist');
  console.log('INTENT_OWNER_LEASE_PASS: real CLI owner application; foreign role refusal; exact proposal, phase and stale-base checks');
 } finally {process.chdir(cwd);for(const key of Object.keys(process.env))if(!(key in env))delete process.env[key];Object.assign(process.env,env);resetSessionIdForTest();rmSync(root,{recursive:true,force:true});}

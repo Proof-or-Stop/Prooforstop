@@ -11228,7 +11228,7 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   for (const token of ['INTENT_PROPOSAL_OWNER_REQUIRED','INTENT_PROPOSAL_BINDING_INVALID','verification_intent_writer_phase_invalid']) if(!handler.includes(token)) failures.push('intent proposal contract missing '+token);
   if (!read(processFactRegistryPath).includes('runtime:independent_intent_owner_lease')) failures.push('intent proposal process registration missing');
   const scripts=JSON.parse(read('package.json')).scripts;
-  if(!read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:intent-owner-lease')")) failures.push('intent proposal regression requires full-suite resource policy');
+  if(!read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:intent-owner-lease',")) failures.push('intent proposal regression requires full-suite resource policy');
   if(scripts['test:intent-owner-lease']!=='node scripts/verify-intent-owner-lease.mjs' || !scripts['test:serial-reference'].includes('npm run test:intent-owner-lease')) failures.push('intent proposal regression must remain in serial suite');
 }
 

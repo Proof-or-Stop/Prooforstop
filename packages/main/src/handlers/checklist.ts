@@ -229,7 +229,7 @@ function isInitReviewerChecklistActor(actor: string): boolean {
 
 function assertInitReviewerChecklistMutationAllowed(args: {
   story: StoryInfo;
-  command: 'checklist_add' | 'checklist_update';
+  command: 'checklist_add' | 'checklist_update' | 'checklist_remove';
   actor: string;
   mutatesDefinition: boolean;
 }): void {
@@ -2712,6 +2712,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
     },
 
     checklist_remove(args: {
+      agent?: string;
+      actor?: string;
       storyId: string;
       itemId: string;
       disposition: 'accept' | 'reject' | 'partial';
@@ -2749,6 +2751,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         throw new Error(`${story.phase} phase does not allow removing checklist items; from INIT_CHECK onward checklist title/context is frozen, to prevent remove+add bypass. New scope can only be added via checklist_add, the original item must remain for gate review`);
       }
 
+      // Check every asserted identity: a payload alias cannot hide a dispatched INIT reviewer.
+      for (const actor of [checklistActorFrom(args), args.agent, args.actor, readBrandEnv('AGENT')]) {
+        if (actor?.trim()) assertInitReviewerChecklistMutationAllowed({story, command: 'checklist_remove', actor: actor.trim(), mutatesDefinition: true});
+      }
       const removed = cl.items.splice(idx, 1)[0];
 
       // Audit log: record the complete removed item info + disposition, written automatically
@@ -2933,10 +2939,21 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       if (ownerProposalRequested) {
         const approval = args.intentProposalApproval!;
         const allowed = new Set(['storyId', 'itemId', 'verificationIntent', 'intentProposalApproval']);
-        if (Object.keys(args).some(key => !allowed.has(key)) || !args.verificationIntent
-          || !approval || typeof approval.reason !== 'string' || approval.reason.trim().length < 30
-          || authority.entry || !probeWriterLease(store.storyDirPath(args.storyId), resolveStoryGitCwd(args.storyId)).valid) {
-          throw new Error('INTENT_PROPOSAL_OWNER_REQUIRED: only the active owner may approve an intent-only proposal');
+        const unexpected = Object.keys(args).filter(key => !allowed.has(key));
+        if (unexpected.length) throw new Error(`INTENT_PROPOSAL_FIELDS_INVALID: unexpected fields ${unexpected.join(', ')}`);
+        if (!args.verificationIntent) throw new Error('INTENT_PROPOSAL_INTENT_REQUIRED: verificationIntent is required');
+        if (!approval || typeof approval.reason !== 'string' || approval.reason.trim().length < 30) {
+          throw new Error(`INTENT_PROPOSAL_REASON_INVALID: reason requires at least 30 characters; received ${typeof approval?.reason === 'string' ? approval.reason.trim().length : 0}`);
+        }
+        if (authority.entry) throw new Error(`INTENT_PROPOSAL_ROLE_FORBIDDEN: dispatched or asserted role ${authority.actor} cannot approve owner proposals`);
+        const owner = probeWriterLease(store.storyDirPath(args.storyId), resolveStoryGitCwd(args.storyId));
+        if (!owner.valid) throw new Error(`INTENT_PROPOSAL_OWNER_REQUIRED: ${owner.reason}`);
+        for (const lane of VERIFICATION_LANES) {
+          for (const [index, intent] of (args.verificationIntent[lane] ?? []).entries()) {
+            if (!intent.scope || !intent.expectation || !intent.requirementSource) {
+              throw new Error(`checklist_update refused: owner proposals must classify ${args.itemId}:${lane}:${index} with scope, expectation, and requirementSource [verification_intent_metadata_required]`);
+            }
+          }
         }
         const baseIntentHash = digestCanonicalJson(item.verificationIntent ?? null);
         const digest = digestCanonicalJson({storyId:args.storyId,itemId:args.itemId,baseIntentHash,verificationIntent:args.verificationIntent});

@@ -479,6 +479,8 @@ Behavior:
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('ID of the item to remove.'),
     disposition: z.enum(['accept', 'reject', 'partial']).describe('Disposition: accept=deletion is valid, reject=should not be deleted but remove it, partial=partially valid.'),
     justification: z.string().describe('Deletion justification (at least 10 characters).'),
+    agent: z.string().optional().describe('Actor identity; INIT reviewers cannot remove requirements.'),
+    actor: z.string().optional().describe('Actor alias; cannot hide a dispatched INIT reviewer.'),
   }},
   { name: 'checklist_update', description: 'Update a checklist item (status/relatedDocs; title/context/userSees frozen)', longHelp: CHECKLIST_UPDATE_LONG, schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('Item ID.'),
