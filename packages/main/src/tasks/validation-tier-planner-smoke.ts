@@ -158,10 +158,12 @@ import {
   VALIDATION_WIDENING_REASON_CODES,
   assertValidationTier,
   assertValidationTierSelectionSubsetInvariant,
+  buildValidationImpactIndexFromCatalog,
   isValidationStopReasonCode,
   resolveValidationTierPlan,
   classifySensitiveStoryPaths,
   pathIsLegacyValidationSensitive,
+  selectAutomaticValidationTier,
   selectValidationTiers,
   validationTierIsSubsetOf,
   validationTierRank,
@@ -2373,6 +2375,53 @@ testCase('a complete current impact index produces nested Story-relevant tiers w
     ],
   );
   assert.ok(decision.exclusionProofs.every((proof) => proof.snapshotDigest === 'snapshot-v1'));
+});
+
+testCase('the production catalog derives the canonical impact index and automatically promotes a docs Story to intermediate', () => {
+  const commandSetDigest = 'command-set-v2';
+  const catalog = [
+    {
+      id: 'build', assurance: 'always', riskTier: 'local', policySource: 'explicit',
+      inputRoots: ['packages/main/src/**'], triggerExtensions: { files: ['packages/main/src/**'] },
+    },
+    {
+      id: 'docs-links', assurance: 'story-selectable', riskTier: 'local', policySource: 'explicit',
+      inputRoots: ['docs/**'], triggerExtensions: { files: ['docs/**'] },
+    },
+    {
+      id: 'docs-contract', assurance: 'story-selectable', riskTier: 'shared', policySource: 'explicit',
+      inputRoots: ['docs/**'], triggerExtensions: { files: ['docs/**'] },
+    },
+    {
+      id: 'repo-sentinel', assurance: 'full-only', riskTier: 'gate', policySource: 'explicit',
+      inputRoots: ['proof-or-stop.config.json'], triggerExtensions: { files: ['proof-or-stop.config.json'] },
+    },
+  ] as const;
+  const impactIndex = buildValidationImpactIndexFromCatalog({ commandSetDigest, catalog });
+  assert.equal(impactIndex.commandSetDigest, commandSetDigest);
+  assert.deepEqual(impactIndex.entries.map((entry) => [entry.commandId, entry.selection]), [
+    ['build', 'always'],
+    ['docs-links', 'story-fast'],
+    ['docs-contract', 'story-intermediate'],
+    ['repo-sentinel', 'repository-full'],
+  ]);
+
+  const decision = selectAutomaticValidationTier({
+    storyId: 'B-docs-auto',
+    universeCommandIds: catalog.map((entry) => entry.id),
+    changedPaths: ['docs/guide.md'],
+    pinnedCommandIds: [],
+    forceFullReasons: [],
+    commandSetDigest,
+    snapshotDigest: 'snapshot-v2',
+    impactIndex,
+  });
+  assert.equal(decision.requestedTier, 'story-fast');
+  assert.equal(decision.effectiveTier, 'story-intermediate');
+  assert.deepEqual(decision.selectedUnitIds, ['build', 'docs-links', 'docs-contract']);
+  assert.deepEqual(decision.tierSelections['story-fast'], ['build', 'docs-links']);
+  assert.deepEqual(decision.tierSelections['story-intermediate'], ['build', 'docs-links', 'docs-contract']);
+  assert.deepEqual(decision.tierSelections['repository-full'], catalog.map((entry) => entry.id));
 });
 
 testCase('the wired resolver widens every validation and gate machinery surface even when the index marks it fast', () => {
