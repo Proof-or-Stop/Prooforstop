@@ -1,5 +1,29 @@
 # Changelog
 
+## Lab static-native-fixture-traversal - v0.3.335 - 2026-09-12
+
+The static validation scanner did not register the native certification helper newly imported by the quorum integration fixture. Its exact import inventory refused that literal, and the existing depth bound stopped the native review helper on the first transitive path, leaving two unexpanded coverage rows.
+
+This bounded repair allows the exact optional native-certification import without changing any original required literal, and permits only native-review-fixture at depth4 and fixture-environment at depths4/5 for the configured quorum entry. The default depth3 bound remains. These registrations only expand inspection; process invocation classification, argv/mode rules, exception requirements, dependency hashes, and unknown-helper refusal are unchanged.
+
+The committed regression uses the actual quorum→pure→integration→native-certification→native-review→fixture-environment graph. Official RED reproduced both precise missing-coverage rows (2.879303916 seconds outer). After the repair, the identical command passed (3.846044375 seconds outer), including every existing boundary control, reversed imports, a nested registered process at the deepest native helper, unknown/deeper helper refusal, computed import refusal, missing source refusal, and the same helper under a different entry.
+
+No Story state or source was modified by the Lab. New process call rows still require reviewed exception evidence; zero unexpanded rows alone is not global static acceptance. Lab records are local maintenance provenance, not formal Story DONE or product release evidence. The independent vendor audit remains required before integration.
+
+The first independent vendor audit returned FAIL; that result and the complete audit package are preserved. Its blocking changelog discrepancy is contradicted by the saved prompt diff, snapshot, and candidate Git blob: all three identify the exact boundary-verifier command. The byte comparison is retained at /tmp/B-e6d9-static-lab-audit-input-comparison.json. The correct changelog was not edited to satisfy that finding.
+
+The audit also identified two substantive regression omissions. The reopened Lab now explicitly requires exit status zero for the native positive and independently checks refusal when the required native import literal is absent. With these strengthened assertions, the original main scanner was restored and committed for official RED: 2.891174084 seconds, failing the explicit positive status assertion with the original two unexpanded rows. The bounded scanner repair was then restored byte-for-byte. The same official command passed GREEN in 4.184565459 seconds, including all original controls and the new missing-required-literal negative. This is a changed regression candidate requiring a fresh official independent audit, not a retry of an unchanged rejected candidate.
+
+Owner review identified and reproduced a compatibility regression in the earlier candidate: treating the new helper as required rejects the legitimate current-main quorum graph that does not import it. The committed existing-main positive recorded official RED in 3.580806417 seconds. The repair now registers native-certification-fixture only as an exact optional import of the integration helper; every original required import remains mandatory. The missing-required negative removes the original native-review-fixture import. Official GREEN on commit 9478dc63bf passed in 3.926921416 seconds, covering both old and expanded graphs, reversed order, nested invocation refusal, unknown depths, computed imports, missing required literal, missing imported source, and wrong entry. This compatibility correction is part of the final candidate and must be visible in the fresh vendor audit.
+
+The second independent audit FAIL is retained as run 60c842fa-6cb2-4dda-b152-40c5c2730b39. Follow-up adds exact registered-integration unknown-literal refusal and the named brand-role entry depth contrast while retaining its original byte-bound source refusal. No new traversal allowance was added. Original scanner replay recorded RED in 2.94607125 seconds; final GREEN at ddc3a4dd96 passed in 3.846859708 seconds. The first follow-up GREEN failed in 4.0840525 seconds because the synthetic brand entry correctly refused a changed witness source; the test oracle was corrected to require that exact refusal and actual helper traversal, without forging the witness hash.
+
+Durable evidence in docs/audits/static-native-fixture-traversal.md records actual scan summaries and caller/helper/config/report hashes: main 0.3.333 has 292 needsReview, 25 nested and zero unexpanded; current Story with repaired scanner has 300 needsReview, 25 nested and zero unexpanded. Existing debt is not a Lab regression; eight additional Story fixture edges require separate exact exception review. This Lab does not promise global zero, refresh exceptions, or treat its maintenance record as Story DONE. Both earlier audit records are preserved.
+
+Maintenance provenance: codex/lab-static-native-fixture-traversal, repair 6be80462ab0bf293f2310d0e2d70503daeaa32aa.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab route-direction-resource-policy - v0.3.334 - 2026-09-12
 
 Fix the missing resource policy for the canonical native route regression.
