@@ -218,6 +218,27 @@ export function classifyValidationExecutionLock(snapshot: ExistingMkdirLockSnaps
   return 'active';
 }
 
+/** Read-only observation of the same holder classifier and generation-bound
+ * async ownership used by acquisition. Story IDs and PIDs alone grant nothing. */
+export function observeValidationExecutionLock(
+  root: string, storyId: string, nowMs = Date.now(),
+): 'free' | 'active' | 'stale' | 'unknown' | 'self-reentry' {
+  let lockDir: string;
+  try { lockDir = validationExecutionLockPath(root, storyId); } catch { return 'unknown'; }
+  let ageMs: number;
+  try { ageMs = nowMs - statSync(lockDir).mtimeMs; }
+  catch (error) { return (error as NodeJS.ErrnoException).code === 'ENOENT' ? 'free' : 'unknown'; }
+  const holder = readMkdirLockHolder(lockDir);
+  const snapshot = { lockDir, holder, ageMs, nowMs, staleMs: VALIDATION_EXECUTION_LOCK_STALE_MS };
+  const state = holder?.lockClass === 'metadata-write'
+    ? classifyValidationMetadataLock(snapshot) : classifyValidationExecutionLock(snapshot);
+  const token = validationLockOwnerStore.getStore()?.get(lockDir);
+  if (state === 'active' && currentContextOwns(lockDir) && token && holder?.lockId === token && holder.pid === process.pid) {
+    return 'self-reentry';
+  }
+  return state;
+}
+
 /**
  * Workspace capacity is stricter than the legacy story-evidence lock. A lease
  * is reclaimable only when local process identity or holder/heartbeat identity

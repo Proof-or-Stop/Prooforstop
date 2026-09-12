@@ -360,7 +360,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'story_reconcile', description: 'Detect and repair zombie Stories or terminal worktree residue (default dry run)', schema: {
+  { name: 'story_reconcile', description: 'Detect and repair zombie Stories or terminal worktree residue (default dry run; preview is read-only, dryRun:false requires write admission)', schema: {
     dryRun: z.boolean().optional().describe('true=report only; false=perform repair (default true).'),
   }},
   { name: 'identity_state_migrate', description: 'One-shot, digest-verified migration of one exact story from retired state storage to canonical Proof-or-Stop storage', schema: {
@@ -554,7 +554,7 @@ Behavior:
   }},
   { name: 'verification_evidence_refresh_stale', description: 'Safely refresh stale verificationEvidence by selector-free execution identity. A proven-unchanged policy-owned capsule may reuse immutable evidence with zero subprocesses; otherwise freshness fails closed to at most one real rerun per affected execution key. Timeout/nonzero failure demotes every dependent row, selector mismatch demotes only that row, and no independently passing assertion means no pass receipt.', schema: {
     storyId: z.string().describe('Story ID'),
-    dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
+    dryRun: z.boolean().optional().describe('Read-only snapshot of stale evidence, without owner lease, mutation locks, command execution or evidence writes. Omit dryRun to execute under owner protection.'),
   }},
   { name: 'verification_intent_recover', description: 'Owner-only recovery of the exact signed acceptance checkpoint after missing/corrupt history or interrupted canonical publication. Default inspects the checkpoint without writes; apply requires its current digest and a reason. No test runs or evidence re-attestation.', schema: {
     storyId:z.string(), expectedCheckpointDigest:z.string().regex(/^[a-f0-9]{64}$/).optional(),reason:z.string().min(30).optional(),apply:z.boolean().optional(),
@@ -629,7 +629,7 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID to inspect.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
   }},
-  { name: 'capability_release_backfill', description: 'Record-then-bind migration: dry-run default links under-bound candidate playbooks (recording a capability release from a story’s artifact release when none exists) to their capability release; --apply requires the current plan --digest', schema: {
+  { name: 'capability_release_backfill', description: 'Record-then-bind migration: read-only dry-run default previews links for under-bound candidate playbooks (recording a capability release from a story’s artifact release when none exists) to their capability release; --apply requires the current plan --digest', schema: {
     storyId: z.string().min(1).optional().describe('Optional single-story filter (only candidates whose lineage.sourceStoryId matches).'),
     dryRun: z.boolean().optional().describe('Preview eligible candidates (plan=bind or record-then-bind) + plan digest without writing. Default true unless apply=true.'),
     apply: z.boolean().optional().describe('Record any missing capability release (from the story’s artifact release; git add -f + commit) then enrich the eligible candidates’ lineage with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId. Requires --digest; never activates, never changes status, never records outcomes.'),
@@ -658,7 +658,7 @@ Behavior:
     notes: z.string().optional().describe('Additional execution-boundary notes.'),
     actor: z.string().optional().describe('Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.'),
   }},
-  { name: 'scope_freeze_check', description: 'Write the INIT scope freeze check result (accepted extensions stale old freeze)', schema: {
+  { name: 'scope_freeze_check', description: 'Write the INIT scope freeze check result (accepted extensions stale old freeze); read current prerequisites with init_preflight', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     status: z.enum(['PASS', 'FAIL', 'pass', 'fail']).optional().describe('Optional assertion; cannot override the core evaluateScopeFreeze result.'),
     note: z.string().optional().describe('Freeze-check note; can also serve as repeated-discard mitigation text.'),
@@ -718,8 +718,9 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID in REVIEW.'),
     maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
   }},
-  { name: 'review_inventory_status', description: 'Inspect the latest inventory epoch; OPEN drift is fail-closed to INVALIDATED', schema: {
+  { name: 'review_inventory_status', description: 'Read current inventory progress and drift without changing evidence; only --refresh persists invalidation and requires the owner. Concurrent producer writes may cause a transient read failure; retry after the producer finishes. A persistent signature error still requires investigation.', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
+    refresh: z.boolean().optional().describe('Owner-only: persist detected invalidation under the inventory mutation lock.'),
   }},
   { name: 'review_inventory_critic_set', description: 'Record independent completeness-critic authority for the current frozen inventory wave', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
@@ -1050,7 +1051,7 @@ Behavior:
     storyId: z.string().optional().describe('Optional single story ID to include. Alias for storyIds=[storyId].'),
     storyIds: z.array(z.string()).optional().describe('Optional story IDs to include.'),
     activeOnly: z.boolean().optional().describe('Only include non-terminal stories (default true).'),
-    currentValidationStoryId: z.string().optional().describe('Test/diagnostic hint to render a validation lock as self-reentry.'),
+    currentValidationStoryId: z.string().optional().describe('Deprecated and ignored with a warning. Self-reentry requires the live lock acquisition context; a Story ID cannot grant ownership.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
@@ -1141,6 +1142,8 @@ Behavior:
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'queue_governance_status', description: 'Read-only active story queue governance projection with duplicate and experiment-batch grouping.', schema: {
+    gitProbeLimit: z.number().int().min(0).max(1000).optional().describe('Maximum optional Git progress probes (default 4; zero disables).'),
+    gitProbeBudgetMs: z.number().int().min(0).max(60000).optional().describe('Shared optional Git deadline in milliseconds (default 1000; up to 60000 for a broader diagnostic).'),
     expanded: z.boolean().optional().describe('Expand experiment-batch story membership (default false).'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
@@ -1416,7 +1419,8 @@ Behavior:
   }},
   { name: 'agent_prompt', description: 'Print the canonical package-registry host render: a body-free review_run_start bootstrap for migrated reviewers, or the role body for ordinary roles', schema: {
     role: z.string().min(1).describe('Proof-or-Stop agent role name, e.g. proof-or-stop-implementer, proof-or-stop-review-concept (the template basename without .md)'),
-    storyId: z.string().min(1).optional().describe('Optional Story ID for trusted full-context assembly when this role rollout flag is enabled.'),
+    storyId: z.string().min(1).optional().describe('Optional Story ID. With --readOnly, inspect current context without writes. Otherwise the owner prepares and records dispatch context.'),
+    readOnly: z.boolean().optional().describe('Read Story context without acquiring its owner lease, recording dispatch, or creating a Prompt Envelope. Independent readers should use this flag.'),
     format: z.enum(['text', 'json']).optional().describe('Story-aware full-context output format (default text); role-only output equals the canonical registry host render.'),
   }},
   { name: 'prompt_measurement_report', description: 'Report deterministic local prompt bytes, lines, estimated tokens, repetition, and three-layer input availability for all 16 package prompt roles (read-only L0)', schema: {
@@ -2075,7 +2079,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'verify_codex', description: 'Verify Codex adapter assets, entrypoint heartbeat, and hard evidence', schema: {
+  { name: 'verify_codex', description: 'Verify Codex adapter assets, entrypoint heartbeat, and hard evidence; read-only diagnostics use codex doctor without executing heartbeats', schema: {
     json: z.boolean().optional().describe('Structured JSON output.'),
     storyId: z.string().optional().describe('Optional Story ID; defaults to inferring from the story/* branch and recording process-event evidence.'),
     heartbeatTimeoutMs: z.number().int().positive().max(GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS, `heartbeatTimeoutMs must be <= ${GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS}ms`).optional().describe(`B-cdf6 bounded audited override: raise the GLOBAL-FALLBACK heartbeat budget above the ${DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS}ms default. session_brief aggregates every active story before writing its heartbeat, so a large repository legitimately needs longer and would otherwise fail this check with no honest way to pass. Requires heartbeatTimeoutReason. Cap ${GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS}ms; above the cap is REFUSED, never clamped. Does NOT affect the conservative local wrapper probe. The armed budget + reason are echoed into the check detail.`),
@@ -2725,7 +2729,7 @@ Behavior:
 
   // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into proof-or-stop dispatch, available in all phases;
   // B-a4e3 CHK-005: the deprecated story_dispatch / finding_dispatch aliases were removed — proof-or-stop dispatch is now the only entry).
-  { name: 'dispatch', description: 'Dispatch a registered subagent prompt using registry-defined story-only or exactly-one target cardinality', schema: {
+  { name: 'dispatch', description: 'Owner prepares and records a registered subagent dispatch; independent Story prompt readers use agent_prompt --role=ROLE --storyId=ID --readOnly. Scoped or purpose-bound dispatch still requires the owner', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx). Supply only when the registered agent type requires an item target; story-only roles must omit all identifiers.'),
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx). Supply only for a registered finding-target role; mutually exclusive with itemId/clusterId.'),
@@ -2996,7 +3000,7 @@ Behavior:
     status: z.never().optional(), codes: z.never().optional(), ok: z.never().optional(), mode: z.never().optional(),
     artifact: z.never().optional(), evidence: z.never().optional(), verdict: z.never().optional(), authority: z.never().optional(), write: z.never().optional(),
   }},
-  { name: 'acceptance_rollout_report', description: 'Run the registered real-Story cohort and persist a verifier-derived signed Wave 4 rollout report', schema: {
+  { name: 'acceptance_rollout_report', description: 'Run the registered real-Story cohort and persist a verifier-derived signed Wave 4 rollout report; use acceptance_rollout_report_read to inspect existing evidence', schema: {
     storyId: z.string().min(1), json: z.boolean().optional(),
     evaluationWindow: z.never().optional(), membership: z.never().optional(), eligibleMembership: z.never().optional(),
     sourceRecords: z.never().optional(), registeredSeedIds: z.never().optional(), adapterProfile: z.never().optional(),
@@ -3363,7 +3367,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'quorum_prune', description: 'Official B-bf52 recovery: list (dry-run by default) and, with apply:true or the equivalent dryRun:false, remove duplicate host_verdict events on the same runId + host/session/key identity from the committed process-events.jsonl. Executing writes a timestamped byte-identical backup before rewriting and commits through the same lifecycle-metadata transaction quorum_submit uses, holding the shared process-events append lock and installing the rewritten log by atomic rename. Recovery is restricted to the canonical collision shape: every member of a pruned group must be a complete decision=pass host_verdict, so a group containing a non-pass or malformed row is refused, reported, and left intact rather than having a failing verdict deleted. Contradictory pairs (apply:true with dryRun:true, or apply:false with dryRun:false) are refused.', schema: {
+  { name: 'quorum_prune', description: 'Official B-bf52 recovery: list (dry-run by default; available to read-only reviewers without an owner lease) and, with apply:true or the equivalent dryRun:false, remove duplicate host_verdict events on the same runId + host/session/key identity from the committed process-events.jsonl. Executing writes a timestamped byte-identical backup before rewriting and commits through the same lifecycle-metadata transaction quorum_submit uses, holding the shared process-events append lock and installing the rewritten log by atomic rename. Recovery is restricted to the canonical collision shape: every member of a pruned group must be a complete decision=pass host_verdict, so a group containing a non-pass or malformed row is refused, reported, and left intact rather than having a failing verdict deleted. Contradictory pairs (apply:true with dryRun:true, or apply:false with dryRun:false) are refused.', schema: {
     storyId: z.string().describe('Canonical Story id'),
     runIds: z.array(z.string()).optional().describe('Optional runId filter; only duplicates on these runIds are pruned, others are left untouched'),
     dryRun: z.boolean().optional().describe('Default dry-run: list the duplicate host_verdict events that would be removed without writing a backup, rewriting, or committing. Default true; an explicit dryRun:false executes exactly like apply:true rather than being a silent no-op. Contradictory pairs are refused: dryRun:true with apply:true, and dryRun:false with apply:false.'),
@@ -3645,7 +3649,7 @@ Behavior:
     agent: z.string().optional().describe('Actor.'),
     actor: z.string().optional().describe('Actor alias.'),
   }},
-  { name: 'red_evidence_envelope_check', description: 'W2d: READ-ONLY admissibility pre-flight for a candidate RED assertion envelope (§1.1). Validates matcher schema bounds, the §1.3 minimum-specificity rules, the §1.1.2 exit-class and adapter-linkage compatibility, the §1.1.3 supplementary-artifact path syntax, and the assertion against the story COMMITTED target binding, reporting §1.6-tagged rejections (R1-1/R1-2/R1-3/R1-5/R1-6) BEFORE a run is spent. On an admissible envelope it reports the computed assertionDigest, the matched binding reference, and the resolved policyDigest. It executes no envelope. Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Nothing outside that scope is covered: see the red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of exhaustiveness. In particular an inadmissible envelope is reported by THROWING, and cli-engine.ts prints that report TWICE — once before and once after it awaits the onError hooks, which run only when the hooks map has an exact red_evidence_envelope_check key or a * key.', schema: {
+  { name: 'red_evidence_envelope_check', description: 'W2d: READ-ONLY admissibility pre-flight for a candidate RED assertion envelope (§1.1). Validates matcher schema bounds, the §1.3 minimum-specificity rules, the §1.1.2 exit-class and adapter-linkage compatibility, the §1.1.3 supplementary-artifact path syntax, and the assertion against the story COMMITTED target binding, reporting §1.6-tagged rejections (R1-1/R1-2/R1-3/R1-5/R1-6) BEFORE a run is spent. On an admissible envelope it reports the computed assertionDigest, the matched binding reference, and the resolved policyDigest. It executes no envelope. Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. CLI pre/post hooks and generic Story events are gated by commandObservationEffects using resolved effective ownership, not compatibility name membership. Nothing outside that scope is covered: see the red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of exhaustiveness. In particular an inadmissible envelope is reported by THROWING, and cli-engine.ts prints that report TWICE — once before and once after it awaits the onError hooks, which run only when the hooks map has an exact red_evidence_envelope_check key or a * key.', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     assertionFile: z.string().min(1).describe('Path to the candidate §1.1 assertion envelope JSON (absolute, or resolved against the project root).'),
     json: z.boolean().optional().describe('Output deterministic structured JSON.'),

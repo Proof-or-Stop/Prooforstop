@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -10,6 +11,8 @@ import nodeAssert from 'node:assert/strict';
 import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../packages/main/tests/red/red-done-shared-predicates.mjs';
 
 const root = process.cwd();
+try { prepareVerification(root, { shareBuild: true }); }
+catch (error) { console.error(verificationFailureMessage('process contract prerequisite', error)); process.exit(1); }
 // --quiet suppresses only the verbose listings (registry entries, inventory
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
@@ -9302,7 +9305,7 @@ function assertStoryWriterRuntimeAdmissionContract() {
   const policyEntries = parseCommandPolicyEntries();
   const crossOwnershipEffects = new Map([
     ['story_create', 'always'],
-    ['story_reconcile', 'always'],
+    ['story_reconcile', 'whenDryRunFalse'],
     ['identity_state_migrate', 'whenConfirm'],
     ['story_discard', 'always'],
     ['story_draft_discard', 'always'],
@@ -9313,6 +9316,7 @@ function assertStoryWriterRuntimeAdmissionContract() {
     ['gap_log', 'always'],
     ['doctor', 'whenRepair'],
     ['certification_window_status', 'whenRefresh'],
+    ['review_inventory_status', 'whenRefresh'],
     ['reviewer_list', 'whenForceReviewer'],
     ['agent_prompt', 'whenStoryPromptEnvelope'],
     ['evaluate', 'whenEvaluatorPromptEnvelope'],
@@ -9524,6 +9528,8 @@ function assertStoryWriterRuntimeAdmissionContract() {
     ['reviewer_list', 'args.forceReviewer'],
     ['doctor', 'args.repair'],
     ['certification_window_status', 'args.refresh'],
+    ['review_inventory_status', 'args.refresh'],
+    ['check', 'args.upgrade'],
     ['agent_prompt', 'args.auditExperiment'],
     ['evaluate', 'hasEvaluatorTarget'],
   ]) {
@@ -11306,6 +11312,55 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
 execFileSync(process.execPath, [join(root, "packages/main/tests/certification-consumed-saturation.mjs")], { cwd: root, stdio: "inherit", timeout: 30000 });
 execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });
 
+// Each focused proof has separate 180s setup and 240s body budgets; outer 450s
+// reserves 30s for fixture IO. Setup/body timeout is unavailable evidence, not assertion RED.
+// A loaded machine can exhaust this bound; that never establishes a product defect or a PASS. These are failure budgets, not speed gains.
+// Real CLI reader admission and handler non-mutation, including protected negative paths.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {
+    cwd: root, encoding: 'utf8', timeout: 450000,
+  });
+  assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');
+} catch (error) {
+  assert(false, verificationFailureMessage('reviewer read boundary', error));
+}
+
+// Real preview calls, parameter admission, protected writer negatives and reader guidance.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-maintenance-preview-boundaries.mjs')], {
+    cwd: root, encoding: 'utf8', timeout: 450000,
+  });
+  assert(output.includes('MAINTENANCE_PREVIEW_GREEN'), 'maintenance preview executable proof must pass');
+} catch (error) {
+  assert(false, verificationFailureMessage('maintenance preview', error));
+}
+
+// Parameterized writes cannot inherit a name-only reader exemption.
+{
+  const engine = read('packages/main/src/cli-engine.ts');
+  assert(engine.includes('commandObservationEffects(effectiveOwnership,')
+    && engine.includes('commandObservationEffects(eventOwnership).recordStoryEvent'),
+    'Command effects and generic Story events must share effective admission ownership');
+  const engineAst = ts.createSourceFile('cli-engine.ts', engine, ts.ScriptTarget.Latest, true);
+  const legacy = new Set(['isReadOnlyCommand', 'READ_ONLY_COMMANDS', 'shouldWriteActivityLog']);
+  let legacyConsumption = false;
+  const inspect = node => {
+    if (ts.isImportSpecifier(node) && legacy.has((node.propertyName ?? node.name).text)) legacyConsumption = true;
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && legacy.has(node.expression.text)) legacyConsumption = true;
+    ts.forEachChild(node, inspect);
+  };
+  inspect(engineAst);
+  assert(!legacyConsumption, 'cli-engine must not consume compatibility name-only observation helpers; direct compatibility re-exports remain available');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes('Generic CLI command observation consumes argument-aware effective ownership'), 'Command observation semantics must be registered');
+  try {
+    const output = execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-boundaries.mjs')], {
+      cwd: root, encoding: 'utf8', timeout: 450000,
+    });
+    assert(output.includes('COMMAND_OBSERVATION_GREEN'), 'Real CLI, worktree and lock observation proof must pass');
+    execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-controls.mjs')], { cwd: root, stdio: 'pipe', timeout: 30000 });
+  } catch (error) { assert(false, verificationFailureMessage('Command observation', error)); }
+}
+
 // Structural inventory protection; executable behavior and mutation witnesses live in the focused Lab regression.
 for (const [path, tokens] of [
  ['packages/main/src/core/plan-touchpoint-coverage.ts',['projectProcessFactRegistry','signValidationArtifact','verifyValidationArtifact','validateOwnerDispositions']],
@@ -11372,6 +11427,27 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   if(scripts['test:intent-owner-lease']!=='node scripts/verify-intent-owner-lease.mjs' || !scripts['test:serial-reference'].includes('npm run test:intent-owner-lease')) failures.push('intent proposal regression must remain in serial suite');
 }
 
+// Executable audit regressions preserve argument refusals, pinned mode delegates,
+// ongoing Story activity, wrapper metadata roots and diagnostic compatibility.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-lab-audit-repairs.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });
+  assert(output.includes('CLI_LAB_AUDIT_REPAIRS_GREEN'), 'CLI Lab audit repair controls must pass');
+} catch (error) { assert(false, verificationFailureMessage('CLI Lab audit repairs', error)); }
+
+// Executable audit hardening: source recovery, strict handlers, non-vacuous pins,
+// conservative lock admission and bounded queue observations.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-hardening.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });
+  assert(output.includes('CLI_AUDIT_HARDENING_GREEN'), 'CLI audit hardening controls must pass');
+} catch (error) { assert(false, verificationFailureMessage('CLI audit hardening', error)); }
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-closure-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });
+  assert(output.includes('CLI_AUDIT_CLOSURE_GREEN'), 'Queue, admission, compatibility and shared prerequisite controls must pass');
+} catch (error) { assert(false, verificationFailureMessage('CLI audit closure', error)); }
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-budget-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 750000 });
+  assert(output.includes('CLI_AUDIT_BUDGET_GREEN'), 'CLI budget and companion diagnostic controls must pass');
+} catch (error) { assert(false, verificationFailureMessage('CLI budget and diagnostics', error)); }
 // Remediation and convergence must consume authenticated V5 publication evidence.
 {
   const authority = read('packages/main/src/core/verification-receipt-authority.ts');

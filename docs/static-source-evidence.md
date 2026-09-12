@@ -109,3 +109,29 @@ All version-transaction negatives use newly allocated disposable roots. The
 manifest-free path delegates before any version-path or source-content guard.
 The full disposable release also checks entry-level digest refresh. Child output
 capture has an explicit 32 MiB ceiling and a distinct output-limit diagnostic.
+
+## CLI runtime Lab integration reconciliation
+
+The CLI runtime Lab merged main `7dd2470088` before release preparation. Its
+three added root package test aliases leave every existing script, dependency,
+and version unchanged. The bootstrap dependency change only preserves runtime
+version refusals; the build-binding helper changes are comments. Process/runtime
+registry and verifier changes add the already reviewed CLI admission, observation,
+queue, and build-prerequisite contracts.
+
+This reconciliation refreshes 51 affected dependency bindings and re-anchors eight
+unchanged call expressions with newly generated current excerpts. Existing
+classifications, rationale, invocation bindings, and call digests are preserved.
+Eight added process-contract calls receive exact `fixture-regression` entries,
+binding their fixed child source, preparation helper, and build inputs. The budget
+fixture also binds its single final-controls companion. The observation fixture's
+self child is restricted to its lock-holder mode; it does not recursively run the
+suite. Their preparation is build work, and their disposable CLI/handler controls
+retain their assertion status and timeout behavior. These entries grant no root
+validation re-entry or arbitrary child-command permission.
+
+The unchanged production scanner reports 75 needs-review rows and eight stale
+entries before this reconciliation, then zero of either after it. This is source
+evidence consistency, not a Story delivery speedup or an independent audit PASS.
+Entry-removal and child-dependency drift controls accompany the standard static
+boundary and version-transaction regression before the real Claude release audit.

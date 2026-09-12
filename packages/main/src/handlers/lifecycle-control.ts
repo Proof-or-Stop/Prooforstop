@@ -137,7 +137,7 @@ export function createLifecycleControlHandlers(ctx: HandlerContext): Record<stri
       return wantsJson(args) ? report : renderWaterline(report);
     },
 
-    queue_governance_status(args: ({ expanded?: boolean } & FormatArgs) = {}) {
+    queue_governance_status(args: ({ expanded?: boolean; gitProbeLimit?: number; gitProbeBudgetMs?: number } & FormatArgs) = {}) {
       assertReadOnlyStatusBoundary('queue_governance_status', args as Record<string, unknown>);
       const report = projectQueueGovernance(ctx.store, ctx.root, args);
       return wantsJson(args) ? report : renderQueue(report);

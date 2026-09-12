@@ -141,6 +141,8 @@ function writeAssetManifest() {
     // (B-bcae F-008/F-017). Unlike build-lock-target.mjs this module is NOT dependency-free: it imports
     // proper-lockfile, whose runtime closure is listed below.
     'scripts/build-lock.mjs',
+    // The unconditional startup version guard resolves this manifest after runtime materialization.
+    // verify-cli-audit-runtime-coverage.mjs boots this generated entry with matching and stale versions.
     'packages/main/package.json',
     ...listFiles('packages/main/dist'),
     // Agent prompt bodies have a single source of truth: this template registry (they are deliberately
