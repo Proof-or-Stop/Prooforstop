@@ -55,6 +55,9 @@ try{
   for(const [name,imports]of Object.entries(graph))writeHelper(name,(reverse&&name==='quorum-submit-smoke-integration-cases.ts'?[...imports].reverse():imports).map(helper=>`import './${helper}.js';`).join('\n'));
   commands[0]={command:'node',args:[quorumEntry]};save();pin([]);
  };
+ writeGraph();writeHelper('quorum-submit-smoke-integration-cases.ts',graph['quorum-submit-smoke-integration-cases.ts'].filter(name=>name!=='native-certification-fixture').map(name=>`import './${name}.js';`).join('\n'));
+ const legacyReport=expect(0,'existing main quorum graph without optional native certification helper succeeds');
+ assert.equal(legacyReport.summary.unexpandedCommands,0);assert.equal(legacyReport.summary.needsReview,0);
  writeGraph();
  const nativeReport=expect(0,'native closure process succeeds with current configuration and no stale exception');
  assert.equal(nativeReport.summary.unexpandedCommands,0,'U18_NATIVE_FIXTURE_CLOSURE_UNEXPANDED '+JSON.stringify(nativeReport.coverage.filter(row=>row.state==='NEEDS_REVIEW')));
@@ -68,8 +71,8 @@ try{
  assert(expect(1,'unregistered helper depth remains bounded').coverage.some(row=>row.file===tasks+'unknown-helper.ts'&&row.reason==='helper depth exceeds declared bound'));
  writeGraph();fs.appendFileSync(path.join(root,tasks,'quorum-submit-smoke-integration-cases.ts'),"\nimport('./' + 'native-certification-fixture.js');");
  assert(expect(1,'computed registered helper remains refused').coverage.some(row=>row.reason==='Registered verifier imported helper changed or is not a literal'));
- writeGraph();writeHelper('quorum-submit-smoke-integration-cases.ts',graph['quorum-submit-smoke-integration-cases.ts'].filter(name=>name!=='native-certification-fixture').map(name=>`import './${name}.js';`).join('\n'));
- assert(expect(1,'missing required native import remains refused').coverage.some(row=>row.file===tasks+'quorum-submit-smoke-integration-cases.ts'&&row.reason==='Registered verifier required helper import missing'&&row.expected==='./native-certification-fixture.js'));
+ writeGraph();writeHelper('quorum-submit-smoke-integration-cases.ts',graph['quorum-submit-smoke-integration-cases.ts'].filter(name=>name!=='native-review-fixture').map(name=>`import './${name}.js';`).join('\n'));
+ assert(expect(1,'missing original required native import remains refused').coverage.some(row=>row.file===tasks+'quorum-submit-smoke-integration-cases.ts'&&row.reason==='Registered verifier required helper import missing'&&row.expected==='./native-review-fixture.js'));
  writeGraph();fs.unlinkSync(path.join(root,tasks,'native-certification-fixture.ts'));
  assert(expect(1,'missing registered native helper remains refused').coverage.some(row=>row.reason==='source missing'));
  writeGraph();fs.writeFileSync(path.join(root,'other-suite.mjs'),`import './${tasks}quorum-submit-smoke.js';`);commands[0]={command:'node',args:['other-suite.mjs']};save();pin([]);
