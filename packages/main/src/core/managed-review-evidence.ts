@@ -390,6 +390,7 @@ export function isSealedManagedPromptDigestCurrent(sealed: unknown, bindingDiges
 
 /** Launch accepts OPEN only; consumption accepts only the authenticated terminal wave. */
 export function isCurrentManagedInventorySubject(store: StoryStore, run: ReviewRun): boolean {
+  try {
   if (run.reviewPurpose !== 'inventory-completeness') return true;
   const binding = run.inventoryBinding;
   if (!binding || !Number.isSafeInteger(binding.wave) || binding.wave < 1) return false;
@@ -408,6 +409,7 @@ export function isCurrentManagedInventorySubject(store: StoryStore, run: ReviewR
   // Reconstruct only the wave's stable subject from signed history, never its
   // provider prompt or a caller-authored terminal state.
   return inventoryPurposeMatchesEpoch(binding, { ...epoch, waves: epoch.waves.slice(0, binding.wave - 1) });
+  } catch { return false; }
 }
 
 function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun): string[] {

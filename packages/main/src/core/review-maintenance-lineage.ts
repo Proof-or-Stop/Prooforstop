@@ -1,20 +1,19 @@
+import {reportHealthIssue} from './health.js';
+import {isVerifiedEvidenceRefreshCommit, isOwnerLeaseHeartbeatOnly} from './review-evidence-refresh.js';
 /** Narrow writer/consumer compatibility for authenticated review bookkeeping. */
-import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { relative } from 'node:path';
-import { realpathSync, readFileSync } from 'node:fs';
+import { realpathSync } from 'node:fs';
 import { StoryStore } from './store.js';
 import { matchesRuntimeCommitSubject } from './auto-commit-metadata.js';
-import { REVIEW_EPOCH_COMMIT_ARTIFACTS } from './review-metadata-batch.js';
+import { REVIEW_EPOCH_COMMIT_ARTIFACTS } from './review-metadata-surface.js';
 import { isPromptBodyArtifactPath } from './prompt-body-store.js';
 import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
-import { verifyCausalEvidenceReceipt, CAUSAL_RECEIPT_DIRECTORY, CAUSAL_RECEIPT_INDEX_FILE, CAUSAL_OUTPUT_DIRECTORY } from './causal-evidence.js';
-import { hasMechanicalExecutionAuthority } from './verification-receipt-authority.js';
 import { digestCanonicalJson } from './digest.js';
 import { CERTIFICATION_WINDOW_FILE, CERTIFICATION_WINDOW_FILE_SCHEMA, PRECERT_RECEIPT_SCHEMA, verifyCertificationWindow, verifyPrecertReceipt, verifyPrecertCheapCheckReceipt, isCertificationRunningOnlyAdvance, type CertificationWindowData } from './certification-window.js';
 import { CLOSEOUT_WRITE_RECEIPTS_PATH, closeoutArtifactPolicyFor, verifyCloseoutWriteReceipt, type CloseoutWriteReceipt } from './closeout-trust.js';
-import { evaluatePersistedReviewToTestIndexTransition } from './review-run.js';
-import type { ChecklistData, ReviewInventoryEpochData } from './types.js';
+import { evaluatePersistedReviewToTestIndexTransition } from './review-test-index-transition.js';
+import type { ReviewInventoryEpochData } from './types.js';
 
 export function isVerifiedReviewMaintenanceCommit(args: {
   gitCwd: string; metadataRoot: string; storyId: string; commit: string; reviewedHeadHash: string;
@@ -53,12 +52,16 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         try { git(['cat-file','-e',`${parents[0]}:${prefix}review-inventory-epochs.json`]); return false; } catch { /* absent */ }
       }
       if (previous?.epochs.some(e => e.epochId === epoch.epochId && e.state !== 'OPEN')) return false;
+      if (previous && (digestCanonicalJson(data.epochs.slice(0,previous.epochs.length))
+        !== digestCanonicalJson(previous.epochs.map(row => row.epochId === epoch.epochId ? epoch : row))
+        || digestCanonicalJson(data.receipts.slice(0,previous.receipts.length)) !== digestCanonicalJson(previous.receipts))) return false;
       // Finalization may append independent review records; it cannot erase or
       // rewrite earlier observations under the batch publisher's subject.
-      for (const [path,key] of [['review-runs.json','runs'],['review-passes.json','passes'],['findings.json','findings'],['prompt-envelopes.json','envelopes']]) {
+      for (const [path,key] of [['review-runs.json','runs'],['review-passes.json','passes'],['findings.json','findings'],['prompt-envelopes.json','envelopes'],['finding-ledger.json','records'],['finding-ledger.json','receipts'],['convergence-progress.json','completedEpochBindings'],['convergence-progress.json','revokedCompletedEpochIds'],['convergence-progress.json','humanDecisions']]) {
         if (!artifacts.includes(path)) continue;
         const next = readAt(commit,path);
         const prior = git(['ls-tree','--name-only',parents[0],'--',prefix + path]) ? readAt(parents[0],path) : {[key]:[]};
+        if (path === 'convergence-progress.json' && key === 'humanDecisions') { next[key] ??= []; prior[key] ??= []; }
         if (!Array.isArray(next[key]) || !Array.isArray(prior[key])
           || digestCanonicalJson(next[key].slice(0,prior[key].length)) !== digestCanonicalJson(prior[key])) return false;
       }
@@ -72,83 +75,28 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         && live.receiptId === receipt.receiptId && digestCanonicalJson(live.cutoff) === digestCanonicalJson(epoch.cutoff);
     }
     if (matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_add metadata`)) {
-      if (!artifacts.includes('checklist.json') || artifacts.some(p => p !== 'checklist.json' && p !== 'process-events.jsonl' && p !== 'owner-lease.json' && p !== CAUSAL_RECEIPT_INDEX_FILE
-        && !/^causal-evidence\/(outputs|receipts)\/[a-f0-9]{64}\.json$/.test(p))) return false;
-      for (const path of artifacts.filter(p => p.startsWith(CAUSAL_RECEIPT_DIRECTORY + '/'))) {
-        const causal = readAt(commit,path);
-        if (!verifyCausalEvidenceReceipt(causal) || causal.storyId !== storyId
-          || path !== `${CAUSAL_RECEIPT_DIRECTORY}/${causal.receiptHash}.json`) return false;
-      }
-      if (artifacts.includes(CAUSAL_RECEIPT_INDEX_FILE)) {
-        const index = readAt(commit,CAUSAL_RECEIPT_INDEX_FILE);
-        if (index.schemaVersion !== 'proof-or-stop.causal-evidence-index.v1' || !index.receipts || typeof index.receipts !== 'object') return false;
-        if (git(['ls-tree','--name-only',parents[0],'--',prefix + CAUSAL_RECEIPT_INDEX_FILE])) {
-          const prior = readAt(parents[0],CAUSAL_RECEIPT_INDEX_FILE);
-          if (!prior.receipts || Object.entries(prior.receipts).some(([key,hash]) => index.receipts[key] !== hash)) return false;
-        }
-        for (const [key, hash] of Object.entries(index.receipts)) {
-          if (typeof hash !== 'string' || !/^[a-f0-9]{64}$/.test(hash)) return false;
-          const causal = readAt(commit,`${CAUSAL_RECEIPT_DIRECTORY}/${hash}.json`);
-          if (!verifyCausalEvidenceReceipt(causal,key) || causal.storyId !== storyId || causal.receiptHash !== hash) return false;
-        }
-      }
-      for (const path of artifacts.filter(path => path.startsWith(CAUSAL_OUTPUT_DIRECTORY + '/'))) {
-        const payload = readAt(commit,path);
-        if (typeof payload.output !== 'string' || Object.keys(payload).join(',') !== 'output') return false;
-        const digest = createHash('sha256').update(payload.output).digest('hex');
-        if (path !== `${CAUSAL_OUTPUT_DIRECTORY}/${digest}.json`) return false;
-        const receiptPaths = git(['ls-tree','-r','--name-only',commit,'--',prefix + CAUSAL_RECEIPT_DIRECTORY]).split('\n').filter(Boolean);
-        if (!receiptPaths.some(receiptPath => {
-          const receipt = readAt(commit,receiptPath.slice(prefix.length));
-          return verifyCausalEvidenceReceipt(receipt) && receipt.storyId === storyId
-            && receiptPath === `${prefix}${CAUSAL_RECEIPT_DIRECTORY}/${receipt.receiptHash}.json`
-            && receipt.selectorOutput?.digest === digest && receipt.selectorOutput.length === payload.output.length;
-        })) return false;
-      }
-      const before = readAt(parents[0],'checklist.json') as ChecklistData;
-      const after = readAt(commit,'checklist.json') as ChecklistData;
-      const withoutEvidence = (data: ChecklistData) => ({ ...data, items: data.items.map(({ verificationEvidence, ...item }) => item) });
-      if (digestCanonicalJson(withoutEvidence(before)) !== digestCanonicalJson(withoutEvidence(after))) return false;
-      let changed = false;
-      for (const item of after.items) {
-        const old = before.items.find(i => i.id === item.id);
-        const priorEvidence = old?.verificationEvidence ?? [];
-        const nextEvidence = item.verificationEvidence ?? [];
-        const semanticRows = (rows: typeof priorEvidence) => rows.map(e => JSON.stringify([e.intentRef,e.kind,e.result])).sort();
-        if (priorEvidence.length !== nextEvidence.length
-          || digestCanonicalJson(semanticRows(priorEvidence)) !== digestCanonicalJson(semanticRows(nextEvidence))) return false;
-        // Consume exact rows first, then pair remaining rows one to one. A
-        // previously valid row cannot authorize multiple replacements.
-        const remaining = [...priorEvidence];
-        const replacements = nextEvidence.filter(evidence => {
-          const index = remaining.findIndex(prior => digestCanonicalJson(prior) === digestCanonicalJson(evidence));
-          if (index < 0) return true;
-          remaining.splice(index,1);
-          return false;
-        });
-        for (const evidence of replacements) {
-          const index = remaining.findIndex(prior => prior.intentRef === evidence.intentRef
-            && prior.kind === evidence.kind && prior.result === evidence.result
-            && hasMechanicalExecutionAuthority(store,storyId,old!,prior));
-          if (index < 0 || !hasMechanicalExecutionAuthority(store,storyId,item,evidence)) return false;
-          remaining.splice(index,1);
-          changed = true;
-        }
-        if (remaining.length) return false;
-      }
-      return changed;
+      return isVerifiedEvidenceRefreshCommit({...args,isProtectedArtifact:closeoutArtifactPolicyFor});
     }
     // Official certification and validation publications retain code review only.
     // Their specialized gates still decide whether certification/validation passes.
     const writer = ['certification_window_begin', 'validate', 'test-transition'].find(command =>
       matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`));
     if (!writer) return false;
-    // These four bookkeeping projections confer no gate authority. Their bytes
-    // are intentionally ignored even alongside a valid publication; a specialized
-    // consumer must never use this lineage verdict to trust telemetry contents.
-    // A future closeout policy entry fails closed below until explicitly handled.
-    const incidental = new Set(['process-events.jsonl', 'process-metrics.json', 'owner-lease.json', 'test-runs.json']);
+    // Bookkeeping never supplies a validation verdict here. Require parseable,
+    // subject-bound projections; owner-lease changes retain only an unchanged owner and a heartbeat/PID update.
+    const incidental = new Set(['process-events.jsonl', 'process-metrics.json', 'test-runs.json', 'owner-lease.json']);
     if (artifacts.some(path => incidental.has(path) && closeoutArtifactPolicyFor(path))) return false;
+    if (artifacts.includes('owner-lease.json') && !isOwnerLeaseHeartbeatOnly(readAt(parents[0],'owner-lease.json'),readAt(commit,'owner-lease.json'))) return false;
+    if (artifacts.includes('process-metrics.json')) {
+      const metrics = readAt(commit,'process-metrics.json');
+      if (metrics.storyId !== storyId || typeof metrics.generatedAt !== 'string' || !metrics.sourceSnapshot || !metrics.dimensions) return false;
+    }
+    if (artifacts.includes('test-runs.json')) {
+      const runs = readAt(commit,'test-runs.json').runs;
+      if (!Array.isArray(runs) || runs.some(row => !row || typeof row.timestamp !== 'string' || typeof row.command !== 'string'
+        || !['PASS','FAIL'].includes(row.result) || ['totalCases','passedCases','failedCases','durationMs'].some(key => !Number.isFinite(row[key]) || row[key] < 0)
+        || row.totalCases !== row.passedCases + row.failedCases)) return false;
+    }
     const substantive = artifacts.filter(path => !incidental.has(path) && path !== CLOSEOUT_WRITE_RECEIPTS_PATH);
     if (!substantive.length) return false;
     const priorExists = (path: string) => Boolean(git(['ls-tree','--name-only',parents[0],'--',prefix + path]));
@@ -221,24 +169,9 @@ export function isVerifiedReviewMaintenanceCommit(args: {
       if (receipt.sequence !== (prior?.sequence ?? 0) + 1 || receipt.previousIntegrityHash !== (prior?.integrityHash ?? null)) return false;
     }
     return true;
-  } catch { return false; }
-}
-
-/** Current byte-bound projection of a strict refresh, shared with scoped retention. */
-export function isCurrentVerifiedEvidenceRefreshArtifact(args: {
-  gitCwd: string; metadataRoot: string; storyId: string; artifactPath: string;
-}): boolean {
-  const {gitCwd,metadataRoot,storyId,artifactPath}=args;
-  if (artifactPath !== 'checklist.json' && artifactPath !== CAUSAL_RECEIPT_INDEX_FILE
-    && !/^causal-evidence\/(outputs|receipts)\/[a-f0-9]{64}\.json$/.test(artifactPath)) return false;
-  try {
-    const store = new StoryStore(metadataRoot);
-    const prefix = relative(realpathSync(gitCwd),realpathSync(store.storyDirPath(storyId))).replaceAll('\\','/') + '/';
-    if (prefix.startsWith('../') || prefix.startsWith('/')) return false;
-    const git = (argv: string[]) => execFileSync('git',argv,{cwd:gitCwd,encoding:'utf8',stdio:['ignore','pipe','pipe']});
-    const commit = git(['log','-1','--format=%H','--',prefix+artifactPath]).trim();
-    if (!commit || !matchesRuntimeCommitSubject(git(['show','-s','--format=%s',commit]).trim(),`record ${storyId} verification_evidence_add metadata`)) return false;
-    if (readFileSync(store.storyFilePath(storyId,artifactPath),'utf8') !== git(['show',`${commit}:${prefix}${artifactPath}`])) return false;
-    return isVerifiedReviewMaintenanceCommit({gitCwd,metadataRoot,storyId,commit,reviewedHeadHash:git(['rev-parse',commit+'^']).trim()});
-  } catch { return false; }
+  } catch (error) {
+    if (!(error && typeof error === 'object' && (('code' in error && error.code === 'ENOENT') || ('stderr' in error && /fatal: path .* does not exist in/.test(String(error.stderr))))))
+      reportHealthIssue('review-maintenance-lineage',error instanceof Error ? error : {message:String(error)},{storyId});
+    return false;
+  }
 }

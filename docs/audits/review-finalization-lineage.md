@@ -42,7 +42,7 @@ Managed fixture capacity and completion have separate bounded deadlines. Nonterm
 
 ## Coverage-preserving refresh follow-up
 
-Claude invocation 8a6cbaf7-e675-4ccc-9cf1-8a2e1f70fcc1 rejected a87c16cb997cf0aa223ac8e42b6bb6a287b7a936 with one medium and one low finding about coverage-changing publication. A retained refresh now requires identical covered intent references, evidence kind and result, and strict mechanical authority for both previous and replacement rows. New coverage and failure-to-pass upgrades require another review. The canonical checklist closeout policy names direct evidence publication explicitly, but only the shared strict refresh classifier can retain it; a generic closeout writer receipt alone cannot. Composite-scope retention also verifies each current causal projection against its exact committed bytes and the same complete refresh proof. Uncommitted or unrelated projections remain refused.
+Claude invocation 8a6cbaf7-e675-4ccc-9cf1-8a2e1f70fcc1 rejected a87c16cb997cf0aa223ac8e42b6bb6a287b7a936 with one medium and one low finding about coverage-changing publication. A retained refresh now requires identical covered intent references, evidence kind and result, and strict mechanical authority for both previous and replacement rows. New coverage and failure-to-pass upgrades require another review. Direct evidence publication is excluded from generic canonical checklist writers; only the shared strict refresh classifier can retain it; a generic closeout writer receipt alone cannot. Composite-scope retention also verifies each current causal projection against its exact committed bytes and the same complete refresh proof. Uncommitted or unrelated projections remain refused.
 
 The regression now records an actual managed ReviewRun with a scope contract and milestone ledger and asserts that its compositeScopeDigest exists, so scoped retention cannot silently short-circuit. Negative controls add optional previously uncovered intent evidence through the real CLI and check managed lineage plus the PRE_CERT blocker; a changed recorded-result boundary is also refused. The closeout-trust smoke failed at the same validate/test_story writer assertion in both the Lab and a contemporaneous main run. Both logs are retained as a baseline observation, not a claimed passing regression.
 
@@ -50,103 +50,9 @@ The regression now records an actual managed ReviewRun with a scope contract and
 
 Bounded exact source excerpts; SHA-256 binds each complete file. These excerpts supply dependency context, not independent audit or test evidence.
 
-packages/main/src/core/closeout-trust.ts — SHA-256 c24223d36ad4f6600f22b04370c166f2f70517dff081c080d4062418ec62611a, lines 40-87
 
-```ts
-/**
- * Gate-trusted lifecycle metadata is deliberately smaller than the lifecycle
- * path registry. Recognition as ProofOrStop-owned metadata never grants trust.
- * `milestone-closeout.json` is intentionally absent: B-9188 owns that artifact.
- */
-export const CLOSEOUT_ARTIFACT_POLICIES = [
-  { path: 'scope-contract.json', artifactClass: 'scope-defining', canonicalWriters: ['scope_contract_set', 'scope_contract_acknowledge'] },
-  { path: 'milestone-ledger.json', artifactClass: 'scope-defining', canonicalWriters: ['milestone_ledger_set', 'milestone_ledger_add', 'intent_collision_set'] },
-  { path: 'slice-plan.json', artifactClass: 'scope-defining', canonicalWriters: ['slice_plan_set'] },
-  { path: 'topology-critic-receipt.json', artifactClass: 'closeout-evidence', canonicalWriters: ['topology_critic_receipt_set'] },
-  // A stale-evidence refresh only re-executes already-pinned verification and
-  // replaces its evidence rows; it cannot create or change verification intent.
-  // Direct evidence publication is retained only by the strict V5 refresh
-  // classifier below: identical covered refs/results and unchanged requirements.
-  // Other checklist writers require re-review.
-  { path: 'checklist.json', artifactClass: 'closeout-evidence', canonicalWriters: ['verification_evidence_refresh_stale', 'verification_evidence_add'] },
-  { path: 'parent-ledger-rollup.json', artifactClass: 'closeout-evidence', canonicalWriters: ['parent_ledger_rollup_set'] },
-  { path: 'evidence/delivery-context-pack.json', artifactClass: 'closeout-evidence', canonicalWriters: ['delivery_context_pack'] },
-  { path: 'test-evidence.json', artifactClass: 'closeout-evidence', canonicalWriters: ['validate', 'test_add', 'test_story'] },
-  { path: 'done-required-evidence.json', artifactClass: 'closeout-evidence', canonicalWriters: ['done_required_validate'] },
-  { path: 'delivery-check.json', artifactClass: 'closeout-evidence', canonicalWriters: ['delivery_check_set', 'delivery_waiver_add'] },
-  { path: 'eval-evidence.json', artifactClass: 'closeout-evidence', canonicalWriters: ['evaluate_save'] },
-  { path: 'summary.json', artifactClass: 'closeout-evidence', canonicalWriters: ['summary_set'] },
-  { path: 'evidence/live-smoke-transcript.json', artifactClass: 'closeout-evidence', canonicalWriters: ['live_smoke_transcript'] },
-] as const satisfies readonly CloseoutArtifactPolicy[];
 
-export function closeoutArtifactPolicyFor(path: string): CloseoutArtifactPolicy | null {
-  return CLOSEOUT_ARTIFACT_POLICIES.find((entry) => entry.path === path) ?? null;
-}
 
-export function assertCanonicalCloseoutWrite(path: string, writer: string): CloseoutArtifactPolicy {
-  const policy = closeoutArtifactPolicyFor(path);
-  if (!policy) throw new Error(`untrusted closeout artifact path: ${path}`);
-  if (!policy.canonicalWriters.includes(writer)) {
-    throw new Error(`non-canonical writer for ${path}: ${writer}`);
-  }
-  return policy;
-}
-
-export function isCanonicalCloseoutEvidenceWrite(path: string, writer: string): boolean {
-  try {
-    return assertCanonicalCloseoutWrite(path, writer).artifactClass === 'closeout-evidence';
-  } catch {
-    return false;
-  }
-}
-
-function stable(value: unknown): string {
-```
-
-packages/main/src/core/closeout-trust.ts — SHA-256 c24223d36ad4f6600f22b04370c166f2f70517dff081c080d4062418ec62611a, lines 495-534
-
-```ts
-  artifactPath: string;
-  artifactBytes: string | Buffer;
-  projectRoot?: string;
-  metadataRoot?: string;
-}): { ok: boolean; reason?: string } {
-  if (!receipt || !isCloseoutWriteReceiptSchema(receipt.schemaVersion)) return { ok: false, reason: 'invalid receipt schema' };
-  if (receipt.storyId !== expected.storyId || receipt.artifactPath !== expected.artifactPath) return { ok: false, reason: 'receipt story/path mismatch' };
-  try { assertCanonicalCloseoutWrite(receipt.artifactPath, receipt.writerCommand); }
-  catch (error) { return { ok: false, reason: String((error as Error).message) }; }
-  const { integrityHash, ...unsigned } = receipt;
-  if (!integrityHash || integrityHash !== computeCloseoutWriteReceiptIntegrity(unsigned)) return { ok: false, reason: 'receipt integrity hash mismatch' };
-  if (receipt.artifactDigest !== rawArtifactDigest(expected.artifactBytes)) return { ok: false, reason: 'receipt artifact digest mismatch' };
-  for (const field of ['timestamp', 'phase', 'headHash', 'materialHash', 'storyFilesHash'] as const) {
-    if (!receipt[field]?.trim()) return { ok: false, reason: `receipt ${field} missing` };
-  }
-  if (Number.isNaN(Date.parse(receipt.timestamp))) return { ok: false, reason: 'receipt timestamp is invalid' };
-  if (expected.projectRoot) {
-    try {
-      execFileSync('git', ['merge-base', '--is-ancestor', receipt.headHash, 'HEAD'], {
-        cwd: expected.projectRoot,
-        stdio: ['ignore', 'ignore', 'ignore'],
-      });
-    } catch {
-      return { ok: false, reason: 'receipt headHash is not an ancestor of current HEAD' };
-    }
-    const metadataRoot = expected.metadataRoot ?? expected.projectRoot;
-    if (currentMaterialHash(expected.projectRoot, receipt.headHash, metadataRoot) !== receipt.materialHash) {
-      return { ok: false, reason: 'receipt materialHash is incoherent with headHash' };
-    }
-    if (currentStoryFilesHash(expected.projectRoot, receipt.headHash, metadataRoot) !== receipt.storyFilesHash) {
-      return { ok: false, reason: 'receipt storyFilesHash is incoherent with headHash' };
-    }
-  }
-  return { ok: true };
-}
-
-function validReceiptChain(receipts: CloseoutWriteReceipt[], storyId: string, artifactPath: string): boolean {
-  const artifactReceipts = receipts.filter((item) => item.artifactPath === artifactPath);
-  if (artifactReceipts.some((item) => !isCloseoutWriteReceiptSchema(item.schemaVersion))) return false;
-
-```
 
 packages/main/src/core/causal-evidence.ts — SHA-256 447e2885ec26d7e0c83f0b5cdbd6a39068b572e0cdebe46f6efdec8117d8cbc7, lines 28-38
 
@@ -223,18 +129,7 @@ packages/main/src/core/store.ts — SHA-256 d30f0483c6113dce4004fdb8a0d662ec35d8
   /** Read-only callers may verify an orphan receipt without rebuilding its index. */
 ```
 
-packages/main/src/core/review-metadata-batch.ts — SHA-256 452ff103a198aa858bb717a1f5dec82ceb82c1bb356097b740504aaca54ffbf9, lines 14-21
 
-```ts
-/** Exact review storage surface; never sweep unrelated staged files or Story authoring. */
-export const REVIEW_EPOCH_COMMIT_ARTIFACTS = [
-  'review-runs.json', 'prompt-envelopes.json', 'review-passes.json',
-  'findings.json', 'finding-ledger.json', 'review-inventory-epochs.json',
-  'convergence-progress.json', 'process-events.jsonl', 'process-metrics.json',
-] as const;
-
-/** Called only after individual signed results have passed durable readback. */
-```
 
 packages/main/src/core/certification-window.ts — SHA-256 3542fe7de8df26a862d5a39d0046cd5cf2e600d6b89c53f8aef764f628d0ad28, lines 330-365
 
@@ -339,9 +234,104 @@ sequence, previous integrity hash, parent HEAD, duplicate receipt count and
 prior-prefix replacement. Integrity hashes are recomputed for single-field
 controls so refusal tests more than a stale checksum.
 
-The four incidental bookkeeping files deliberately confer no authority through
-this classifier. Their content is ignored even alongside an authentic validate
-publication; this does not validate telemetry, authorize certification or replace
-any specialized gate. The mixed forged test-runs plus authentic evidence case
-explicitly preserves code-review lineage, while telemetry alone remains refused.
-A future closeout policy classification of any incidental path fails closed.
+The third round initially documented unchecked incidental telemetry. The fourth
+round supersedes that boundary: owner session/workspace identity must remain
+unchanged, malformed test-run projections are refused, and process metrics must
+retain their Story subject. The mixed forged-telemetry regression now refuses.
+
+## Fourth audit follow-up
+
+Audit 322cc98c-bb07-4333-840f-bd04281d252b produced seven findings. Generic
+checklist receipt builders now reject verification_evidence_add structurally;
+only the strict byte-bound classifier sets the explicit strictEvidenceRefresh
+fact consumed by scoped retention. Direct positive and negative assertions
+exercise both boundaries. Baseline closeout-trust writer-oracle failure is routed
+through docs/story/drafts/closeout-trust-validate-writer-oracle (official CLI,
+main commit 862001802d). gap_log failed invalid_binding_shape; no provenance
+record was forged and no full-suite success is claimed.
+
+Finalization preserves prior epochs and receipts, allowing only the target
+OPEN-to-FINALIZED replacement. Finding-ledger records and receipts and convergence
+completed/revoked/human-decision histories preserve prefixes. Current convergence
+state and open-finding projections are recomputed rather than append-only.
+Tests independently delete each ledger history and prior epoch/receipt after a
+positive preservation control. Historical markers in this disposable fixture
+are byte-preservation controls, not claimed independent reviewer authority.
+
+The owner check binds session identity, identity source, host and workspace,
+allowing the same owner to refresh or reacquire its lease. The fixture releases
+its own lease between child calls and now preserves the actual committed prior
+lease for comparison. Forged test-run records are refused and process metrics
+must bind the Story. Typed telemetry readers are handlers/story-query.ts and
+handlers/session.ts (rendering), handlers/review-remediation.ts (metrics update),
+handlers/summary.ts (fixture statistics), and core/process-metrics.ts (derived
+scores). This classifier does not authenticate those telemetry values or use
+them to issue validation PASS; closeout evidence remains separately receipted.
+Both evidence-refresh and generic branches refuse future closeout-policy claims
+on incidental files.
+
+review-evidence-refresh.ts, review-test-index-transition.ts and
+review-metadata-surface.ts separate strict refresh, exact index comparison and
+metadata paths from their consumers, removing the newly introduced direct
+importer cycles. Malformed inventory reads return a structured invalid result;
+unexpected maintenance reader errors report health diagnostics and refuse.
+
+Prepared-candidate provenance: the Lab finish command records GREEN before
+release preparation, then creates the version/CHANGELOG-only preparation commit
+and replays the same pinned command on that exact candidate before invoking
+Claude. Source behavior is unchanged by release preparation apart from the
+required CLI version constant. The signed Lab record stores a candidate-green history entry and
+its exact HEAD; CHANGELOG cannot self-reference its own future commit hash.
+
+
+packages/main/src/core/verification-receipt-authority.ts — SHA-256 3f988b87bbe517d18c72468b63496d314b1f27ddd48fa3226eda87cd0fd484ff, lines 1-25
+
+```ts
+/** Exact authenticated execution identity shared by remediation and progress observation. */
+import type { StoryStore } from './store.js';
+import type { ChecklistItem, VerificationEvidence } from './types.js';
+import { collectVerificationIntents } from './verification.js';
+import { validateVerificationReceipt } from './verification-execution-evidence.js';
+
+export function hasMechanicalExecutionAuthority(store: StoryStore, storyId: string, item: ChecklistItem, evidence: VerificationEvidence): boolean {
+  const executed = evidence.receipt;
+  const pin = collectVerificationIntents(item).find(i => i.ref === evidence.intentRef)?.intent.verification;
+  if (evidence.mechanical !== true || evidence.result !== 'pass' || evidence.kind === 'waiver'
+    || !executed || executed.exitCode !== 0 || executed.selectorMatched !== true
+    || !pin || !pin.selector || pin.command !== evidence.command || pin.selector !== executed.selector
+    || !evidence.headHash || !evidence.materialHash || !evidence.storyFilesHash) return false;
+  try {
+    const validation = validateVerificationReceipt(store.projectRoot, executed, {
+      storyId, intentRef: evidence.intentRef, command: pin.command, selector: pin.selector,
+      freshness: { headHash: evidence.headHash, materialHash: evidence.materialHash, storyFilesHash: evidence.storyFilesHash },
+    });
+    // Readable legacy bundles do not authenticate publication scope or freshness.
+    // Reuse eligibility is independent of authority for this recorded execution.
+    return validation.ok && validation.kind === 'split-v5';
+  } catch (error) {
+    throw new Error(`Execution authority verifier unavailable: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+  }
+}
+```
+
+
+packages/main/src/core/certification-window.ts — SHA-256 3542fe7de8df26a862d5a39d0046cd5cf2e600d6b89c53f8aef764f628d0ad28, lines 1467-1482
+
+```ts
+export function isCertificationRunningOnlyAdvance(before: CertificationWindowData, after: CertificationWindowData, storyId: string): boolean {
+  if (!before || !after || before.schemaVersion !== CERTIFICATION_WINDOW_FILE_SCHEMA || after.schemaVersion !== before.schemaVersion) return false;
+  if (!Array.isArray(before.windows) || !Array.isArray(after.windows) || before.windows.length === 0 || before.windows.length !== after.windows.length) return false;
+  if (!Array.isArray(before.receipts) || !Array.isArray(after.receipts) || !isDeepStrictEqual(before.receipts, after.receipts)) return false;
+  const prior = before.windows.at(-1)!;
+  const next = after.windows.at(-1)!;
+  if (prior.storyId !== storyId || next.storyId !== storyId || prior.state !== 'ADMITTED' || next.state !== 'RUNNING') return false;
+  if (!verifyCertificationWindow(prior) || !verifyCertificationWindow(next)) return false;
+  const receipt = before.receipts.find(row => row.receiptId === prior.receiptId);
+  if (!receipt || receipt.schemaVersion !== PRECERT_RECEIPT_SCHEMA || !verifyPrecertReceipt(receipt) || !windowAuthorizesHeavyCertification(prior, receipt)) return false;
+  if (!Number.isFinite(Date.parse(next.updatedAt)) || Date.parse(next.updatedAt) < Date.parse(prior.updatedAt)) return false;
+  return isDeepStrictEqual(after, {
+    ...before,
+    windows: [...before.windows.slice(0, -1), { ...prior, state: 'RUNNING', updatedAt: next.updatedAt, _hash: next._hash }],
+  });
+}
+```

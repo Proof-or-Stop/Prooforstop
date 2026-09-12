@@ -3260,7 +3260,7 @@ function assertCloseoutTrustBoundary() {
     assert(machineText.includes(token), `shared reviewer verdict must preserve ${token}`);
   }
   assert(/if \(!story\.currentReviewRound\)[\s\S]{0,300}review_round_missing/.test(machineText), 'reviewer-required lifecycle verdict must fail closed before legacy evidence validation when currentReviewRound is absent');
-  const reviewRunText = read('packages/main/src/core/review-run.ts');
+  const reviewRunText = read('packages/main/src/core/review-run.ts') + read('packages/main/src/core/review-test-index-transition.ts');
   for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'classifyCurrentCloseoutArtifactForReviewRetention', 'storyFilesUnchanged', 'stableEvaluationHead', 'relative(gitRoot, storyDir)', 'not writer authentication', "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);
   }
@@ -7282,10 +7282,13 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
-  const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts');
+  assert(!read('packages/main/src/core/closeout-trust.ts').includes("canonicalWriters: ['verification_evidence_refresh_stale', 'verification_evidence_add']"), 'direct checklist publication must not become a generic canonical writer');
+  assert(!read('packages/main/src/core/review-maintenance-lineage.ts').includes("from './review-run.js'") && !read('packages/main/src/core/closeout-trust.ts').includes("from './review-maintenance-lineage.js'"), 'maintenance readers must not introduce direct importer cycles');
+
+  const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts') + read('packages/main/src/core/review-evidence-refresh.ts');
   assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('semanticRows(priorEvidence)') && maintenanceText.includes('remaining.splice(index,1)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,old!,prior)'), 'review retention cannot add coverage or change the reviewed mechanical result');
-  assert(read('packages/main/src/core/closeout-trust.ts').includes('isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath})')
+  assert(read('packages/main/src/core/closeout-trust.ts').includes('isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId,artifactPath,isProtectedArtifact:closeoutArtifactPolicyFor})')
     && reviewGateText.includes("path.startsWith('causal-evidence/') && isCurrentVerifiedEvidenceRefreshArtifact("), 'scoped retention must use the same byte-bound strict refresh authority for checklist and causal projections');
 
   assert(managedText.includes('isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest)')

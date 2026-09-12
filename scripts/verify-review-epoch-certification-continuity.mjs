@@ -22,7 +22,13 @@ import { readOwnerLease, releaseOwnerLease } from "../packages/main/dist/core/st
 import { adapterSessionEnv, adapterSessionId } from "../packages/main/dist/tasks/adapter-session-env.js";
 import {isVerifiedReviewMaintenanceCommit} from '../packages/main/dist/core/review-maintenance-lineage.js';
 import {evaluatePersistedReviewToTestIndexTransition} from '../packages/main/dist/core/review-run.js';
-import {computeCloseoutWriteReceiptIntegrity} from '../packages/main/dist/core/closeout-trust.js';
+import {classifyCurrentCloseoutArtifactForReviewRetention, isCanonicalCloseoutEvidenceWrite, assertCanonicalCloseoutWrite, computeCloseoutWriteReceiptIntegrity} from '../packages/main/dist/core/closeout-trust.js';
+assert.equal(isCanonicalCloseoutEvidenceWrite('checklist.json','verification_evidence_add'),false);
+assert.throws(()=>assertCanonicalCloseoutWrite('checklist.json','verification_evidence_add'),/non-canonical writer/);
+import {isOwnerLeaseHeartbeatOnly} from '../packages/main/dist/core/review-evidence-refresh.js';
+const leaseControl={sessionId:'fixture-owner',pid:1,heartbeatAt:'2026-01-01T00:00:00.000Z'};
+assert(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,pid:2,heartbeatAt:'2026-01-01T00:00:01.000Z'}));
+assert.equal(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,sessionId:'foreign-owner'}),false);
 const digest='sha256:'+'a'.repeat(64);
 assert(isSealedManagedPromptDigestCurrent(digest,digest,digest));
 assert.equal(isSealedManagedPromptDigestCurrent(undefined,digest,digest),false,'missing launch digest seal must never compare caller values to themselves');
@@ -137,10 +143,13 @@ cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturat
 // fixture, so the next publication tests evidence-only change, not first pinning.
 cli(fixture.root,'verification_evidence_add',{...evidencePayload,intentRef:'CHK-001:happy:1'},env('main','saturation-owner'));
 const pinnedChecklist=fixture.store.readChecklist(storyId);
+const pinnedOwnerPath=fixture.store.storyFilePath(storyId,'owner-lease.json');
+const pinnedOwnerBytes=execFileSync('git',['show',`HEAD:.proof-or-stop/story/actives/${storyId}/owner-lease.json`],{cwd:fixture.root,encoding:'utf8'});
 for(const item of pinnedChecklist.items) item.verificationEvidence=item.verificationEvidence.filter(row=>row.intentRef!=='CHK-001:happy:1');
 // Retain the real earlier PASS as reviewed coverage; the next receipt refreshes it.
 git(fixture.root,['reset','--hard',unpinnedHead]);
 fixture.store.writeChecklist(storyId,pinnedChecklist);
+if(pinnedOwnerBytes!==null) {writeFileSync(pinnedOwnerPath,pinnedOwnerBytes);git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/owner-lease.json`]);}
 git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/checklist.json`]);
 git(fixture.root,['commit','-m','test: preserve the actual immutable execution pin']);
 cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturation-owner'));
@@ -246,6 +255,15 @@ try {
 
 assert.equal(isCurrentManagedInventorySubject(fixture.store,{...persistedCritic,inventoryBinding:{...persistedCritic.inventoryBinding,epochId:'B-other:RI-999'}}),false,'wrong epoch is rejected');
 const savedEpochs=fixture.store.readReviewInventoryEpochs(storyId);
+const epochPath=fixture.store.storyFilePath(storyId,'review-inventory-epochs.json');
+const epochBytes=readFileSync(epochPath,'utf8');
+try {
+ writeFileSync(epochPath,'{malformed');
+ assert.equal(isCurrentManagedInventorySubject(fixture.store,persistedCritic),false);
+ const state=collectReviewerEvidenceState(fixture.store,storyId,fixture.root);
+ assert(state.invalid.some(row=>row.code==='managed_receipt_invalid'),JSON.stringify(state));
+} finally {writeFileSync(epochPath,epochBytes);}
+
 const tampered=structuredClone(savedEpochs);tampered.epochs.at(-1).requiredLanes=[];
 fixture.store.writeReviewInventoryEpochs(storyId,tampered);
 assert.equal(isCurrentManagedInventorySubject(fixture.store,persistedCritic),false,'tampered signed epoch is rejected');
@@ -282,6 +300,34 @@ fixture.store.writeReviewInventoryEpochs(storyId,savedEpochs);
 git(fixture.root,['add','--',storyPrefix+'review-passes.json',storyPrefix+'review-inventory-epochs.json']);
 git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
 assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,'finalization cannot remove a prior signed review record');
+git(fixture.root,['reset','--hard',publishedHead]);
+
+for(const erased of ['prior-epoch','prior-receipt','ledger-record','ledger-receipt']) {
+ git(fixture.root,['reset','--hard',publishedHead+'^']);
+ const historicalEpoch={...structuredClone(savedEpochs.epochs.at(-1)),epochId:storyId+':RI-history'};
+ const historicalReceipt={...structuredClone(savedEpochs.receipts.at(-1)),receiptId:storyId+':RCP-history',epochId:historicalEpoch.epochId};
+ const beforeHistory={...savedEpochs,epochs:[historicalEpoch,epoch],receipts:[historicalReceipt]};
+ const afterHistory={...savedEpochs,epochs:[historicalEpoch,...savedEpochs.epochs],receipts:[historicalReceipt,...savedEpochs.receipts]};
+ fixture.store.writeReviewInventoryEpochs(storyId,beforeHistory);
+ const ledgerPath=storyPrefix+'finding-ledger.json';
+ const ledger={schemaVersion:'finding-ledger.v1',records:[{historical:'record'}],receipts:[{historical:'receipt'}]};
+ writeFileSync(join(fixture.root,ledgerPath),JSON.stringify(ledger));
+ git(fixture.root,['add','--',storyPrefix]);git(fixture.root,['commit','-m','test: establish prior history preservation boundary']);
+ const priorHistoryHead=git(fixture.root,['rev-parse','HEAD']);
+ fixture.store.writeReviewInventoryEpochs(storyId,afterHistory);
+ git(fixture.root,['add','--',storyPrefix]);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
+ assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),true,'control retains prior history before '+erased);
+ git(fixture.root,['reset','--hard',priorHistoryHead]);
+ const next=structuredClone(afterHistory);
+ if(erased==='prior-epoch') next.epochs.shift();
+ if(erased==='prior-receipt') next.receipts.shift();
+ fixture.store.writeReviewInventoryEpochs(storyId,next);
+ if(erased==='ledger-record') ledger.records=[];
+ if(erased==='ledger-receipt') ledger.receipts=[];
+ writeFileSync(join(fixture.root,ledgerPath),JSON.stringify(ledger));
+ git(fixture.root,['add','--',storyPrefix]);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
+ assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,erased);
+}
 git(fixture.root,['reset','--hard',publishedHead]);
 const trueCoverage=fixture.store.readChecklist(storyId);
 const failedCoverage=structuredClone(trueCoverage);failedCoverage.items[0].verificationEvidence[0].result='fail';
@@ -356,6 +402,7 @@ if(mode==='clean') {
   for(const item of fixture.store.readChecklist(storyId).items) for(const evidence of item.verificationEvidence??[]) console.log('REFRESH_AUTHORITY',hasMechanicalExecutionAuthority(fixture.store,storyId,item,evidence));
  }
  assert(refreshed.valid,'authenticated evidence-only refresh preserves review lineage');
+ assert.equal(classifyCurrentCloseoutArtifactForReviewRetention(fixture.store,storyId,'checklist.json',fixture.root,fixture.root).strictEvidenceRefresh,true,'strict refresh classifier directly retains byte-bound checklist');
 
 
 
@@ -414,7 +461,7 @@ if(mode==='clean') {
   if(fault==='mixed-telemetry') writeFileSync(join(fixture.root,extra),JSON.stringify({runs:[{forged:true}]}));
   git(fixture.root,['add','--',...validatePaths,...(fault==='mixed-telemetry'?[extra]:[])]);
   git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} validate metadata`]);
-  assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),fault==='mixed-telemetry',fault);
+  assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,commit:git(fixture.root,['rev-parse','HEAD']),reviewedHeadHash:expected.headHash}),false,fault);
   console.log('VALIDATE_PUBLICATION_BOUNDARY '+fault);
  }
  git(fixture.root,['reset','--hard',testHead]);
