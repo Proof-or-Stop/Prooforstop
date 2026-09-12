@@ -78,13 +78,20 @@ function checkSharedWitnesses(tables) {
   }
 }
 checkSharedWitnesses(witnessTables);
-for (const tableIndex of [0, 1]) {
-  for (const remove of [false, true]) {
-    const mutated = JSON.parse(JSON.stringify(witnessTables));
-    const index = mutated[tableIndex].findIndex(pin => pin.path === sharedPath);
-    if (remove) mutated[tableIndex].splice(index, 1);
-    else mutated[tableIndex][index].sha256 = '0'.repeat(64);
-    assert.throws(() => checkSharedWitnesses(mutated), /REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH/);
+const sharedPaths = [...new Set(witnessTables[0].map(pin => pin.path))]
+  .filter(path => witnessTables[1].some(pin => pin.path === path));
+assert.ok(sharedPaths.includes(sharedPath), 'reviewed runtime source must retain both consumers');
+for (const path of sharedPaths) {
+  for (const tableIndex of [0, 1]) {
+    for (const mutation of ['remove', 'stale', 'duplicate']) {
+      const mutated = JSON.parse(JSON.stringify(witnessTables));
+      const index = mutated[tableIndex].findIndex(pin => pin.path === path);
+      if (mutation === 'remove') mutated[tableIndex].splice(index, 1);
+      else if (mutation === 'duplicate') mutated[tableIndex].push({ ...mutated[tableIndex][index] });
+      else mutated[tableIndex][index].sha256 = '0'.repeat(64);
+      assert.throws(() => checkSharedWitnesses(mutated), /REVIEWED_SHARED_SOURCE_WITNESS_MUST_MATCH/,
+        'EVERY_SHARED_WITNESS_MUTATION_MUST_REFUSE: ' + path + ':' + tableIndex + ':' + mutation);
+    }
   }
 }
 console.log('PASS shared source witness closure: both actual scanner tables and four omission/stale controls');
