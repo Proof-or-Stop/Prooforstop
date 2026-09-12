@@ -1,5 +1,161 @@
 # Changelog
 
+## Lab benchmark-intent-authority - v0.3.332 - 2026-09-12
+
+### Owner-applied verification-intent proposal repair
+
+Benchmark M0 could not record new-file acceptance declarations because the role-only declaration writer and the owner lease guard were incompatible. The rejected first candidate tried a role-environment lease exemption. That approach was removed after Claude audit f7c25e70-30fe-433b-a149-d9bc14d49aaa identified an authority expansion.
+
+The final approach retains checklist_update ownership unchanged. Independent authors return a proposal; only the actual active owner can apply its exact Story/item/prior-intent/replacement digest in PLAN with a substantive reason. The audit log records owner approval, without claiming mechanically proven independent authorship. Foreign sessions cannot mutate checklist state, mint owner revisions or auto-commit through this path. Signed acceptance revisions now require the actual owner even when a role environment is supplied. Changed, stale and mixed-field proposals fail closed. The exact new checklist executable digest is pinned; mutation refusal stays enabled.
+
+During supported pre-implementation replanning, the CLI rejected checklist_remove in INIT although its handler only accepts INIT. Command policy and default phase tools now agree with that existing handler. PLAN and DEV removal remain forbidden. This bounded admission correction allows semantic consolidation through official INIT review without bypassing frozen requirements.
+
+Verification: the Lab's original assertion-based RED recorded INTENT_OWNER_LEASE_CONFLICT. The expanded pinned regression exercises real CLI owner application, foreign-role rejection, exact proposal binding, concurrent duplicate application (exactly one succeeds; the loser must reject the stale base or report explicit lock contention, with a separate deterministic stale replay assertion), persisted planned declarations, exact phase refusal including INIT_CHECK, and real INIT removal with PLAN refusal. The regression uses built modules, not Node registerHooks, and is pinned in both the serial reference and the full-suite resource policy. Existing owner-lease smoke and process-fact checks are run separately. The pinned template and baseline manifest are unchanged from current main. Owner handoff guidance is rendered by the dynamic verification-intent dispatch builder. The pre-existing prompt-baseline failure at the review-behavior modular body hash is retained; no added template drift is inferred from an early failing check.
+
+This is local system maintenance, not benchmark runner completion or Story DONE. No speed or token saving is claimed. Resume the real M0 planning and prerequisite Story through normal CLI gates after integration.
+
+Second audit 39f05c8e-34c1-4e16-a747-c1e8764c01f2 prompted these repairs: INIT removal checks every supplied and dispatched identity, preventing actor aliases from hiding INIT reviewers; owner proposals require all acceptance classifications; refusal messages distinguish fields, missing intent, short reason, role and owner lease failures; signed amendment rejection and legacy role phase behavior have isolated regression witnesses. The fact registry includes all policy and dispatch producers. Tests have bounded startup/lock headroom. Template changes and unrelated main-file reversions were removed after synchronizing local main 377c4faef1.
+
+Current main added whole-file reviewed-source identity bindings. Six affected rows in config, command-catalog and runtime-environment-checks were renewed after reviewing this Lab diff: every classified line is byte-identical, token count/classification/reason unchanged, and only line position/source hash changes. The source inventory digest and scanner reader digest are renewed together; no automatic repin mechanism or identity predicate changed. Existing negative mutation controls are rerun.
+
+Third audit a308883e-b4ac-4136-8753-594e26928496 rejected the prepared candidate. The subsequent repair records handler-owned verificationIntentAuthorship on the item and a verification_intent_applied process event. The marker distinguishes owner_applied_proposal, dispatched_verification_intent and owner_direct, binds the intent digest, and always states independentlyAttested=false. It is attribution, never a signed independence claim. Caller data cannot populate this field through checklist_update; the handler derives it. Declaration refusal text now states the supported owner proposal path. checklist_remove uses resolveAgentMutationAuthority and persists its resolved actor; no reviewer lane is granted removal permission in the dispatch registry.
+
+The reviewed resolver reads payloadActors and the AGENT environment, rejecting conflicting or unknown identities. The typed checklist_remove command is registered without adding it to any role's permittedMutations. Registered INIT roles are consequently refused by the same central resolver as other role-restricted mutations, and aliases cannot override the dispatched identity.
+
+Inspection of acceptance-topology.ts shows planned declarations provide structural source/file/endpoint references, not independent reviewer credentials. pre-review-check.ts separately demands an independent topology critic receipt where configured; the new attribution field is not an alternative receipt. The owner proposal remains a human/owner decision following an independently prepared proposal; its checksum does not prove independent authorship. Neither old role environment labels nor the new marker grant independent evidence.
+
+All verification below is performed on the repair worktree before integration. The Lab tool's generated final line describes its planned replay during and after integration; it must not be read as evidence that pre-integration testing already ran on main.
+
+### Executed verification and bounded baseline comparison
+
+Command: `node scripts/verify-intent-owner-lease.mjs`
+
+```text
+↻ Written and persistence confirmed: CHK-001 current status=pending. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.
+INTENT_OWNER_LEASE_PASS: real CLI owner application; foreign role refusal; exact proposal, phase and stale-base checks
+```
+
+Command: `npm --prefix packages/main run test:command-ownership-contract`
+
+```text
+> @proof-or-stop/core@0.3.331 test:command-ownership-contract
+> node dist/tasks/command-ownership-contract.js
+
+✓ scope_check_save allowedPhases: PLAN
+✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW
+✓ PROOF_OR_STOP_REVIEWER_READONLY=1 enables read-only reviewer mode
+✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified
+✓ with env unset, normal reviewerWrite reaches enforceStoryOwnerLeaseGate unblocked
+✓ ownerLeaseHelpBlock: owner-gated commands have takeover/forceTakeover guidance; readOnly/reviewerWrite/mainSharedMutating return null
+✓ command-ownership contract passed — 412 CLI commands all carry a valid ownershipClass and a dispatchable handler; unclassified commands fail-closed; finding B-META / validate --story / delivery_check_set boundary rules resolve as ruled; read-only reviewer command gate (B-4f15 CHK-002) assertions all pass; owner lease help block (B-a30e CHK-003) discoverable for gated commands, absent for read-only
+```
+
+Command: `npm --prefix packages/main run test:lifecycle-registry-contract`
+
+```text
+> @proof-or-stop/core@0.3.331 test:lifecycle-registry-contract
+> node dist/tasks/lifecycle-registry-contract.js
+
+lifecycle-registry consistency: PASS — command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle consistent with registry, 12 phases projected, 56 StoryStore top-level artifact filenames derived (floor 40; storyDir join-site pass: review-loops.jsonl) and registered-or-exempted, 0 divergences
+```
+
+Command: `npm run test:proofstory-intent-hardening-smoke`
+
+```text
+> proof-or-stop@0.3.331 test:proofstory-intent-hardening-smoke
+> npm --prefix packages/main run test:proofstory-intent-hardening-smoke
+
+
+> @proof-or-stop/core@0.3.331 test:proofstory-intent-hardening-smoke
+> node dist/tasks/proofstory-intent-hardening-smoke.js
+
+PROOF_OR_STOP_FULL_SUITE_SUMMARY={"assertions":["intent-hardening-matrix","scope-collision","red-evidence","milestone-intent"],"mutations":["scope-ambiguity","collision-omission","red-evidence-omission","milestone-coverage-omission"]}
+ProofStory intent hardening smoke passed
+```
+
+Command: `npm run test:reviewed-source-bindings`
+
+```text
+> proof-or-stop@0.3.331 test:reviewed-source-bindings
+> node scripts/verify-reviewed-source-bindings.mjs
+
+PASS routine registration: exact npm script and one serial-reference membership
+{"reviewedSourceBindingFailures":0,"errors":[]}
+PASS scanner reader bindings: 3 exact current modules
+PASS prompt context: exact before/after hashes, current full line, classification and count
+PASS source: 54 exact positives, 324 mutation refusals, 52 empty/missing controls
+PASS source inventory byte integrity: original accepted, deleted and duplicate rows refused
+```
+
+`node scripts/verify-process-fact-contract.mjs` exited 0; literal final output:
+
+```text
+
+Process fact contract verified
+execution_assertion_reuse_contract=PASS
+Process-fact contract verification passed
+```
+
+Three requested broad checks remain baseline failures; they are not reported as PASS. The same commands were run on unchanged local main 8153a0c592:
+
+npm run test:phase-gates exits 1 on both candidate and main. Literal shared failure:
+
+```text
+  phase: story_create phase must be IDEA or INIT; post-intake lifecycle phases require story_advance. [story_create_direct_lifecycle_phase_forbidden]
+```
+
+npm run test:proofstory-acceptance-topology-smoke exits 1 on both candidate and main. Literal shared failure:
+
+```text
+'Error: checklist_update refused: actor "verification-intent" is not registered in the agent dispatch registry. [agent_dispatch_actor_unknown]'
+```
+
+`npm run test:proof-or-stop-identity-cutover` exits 1 on both trees. Exact diagnostic-set comparison yields no candidate-only or main-only row. Literal current failure rows:
+
+```text
+- reviewed fixture changed: packages/main/src/tasks/finding-identity-lineage-smoke.ts:139
+- reviewed fixture changed: scripts/verify-acceptance-prompt-projection.mjs:20
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6489
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6491
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6498
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6506
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6516
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6525
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:7242
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:7264
+- reviewed fixture changed: scripts/verify-process-fact-contract.mjs:7293
+- reviewed negative source integrity changed: scripts/verify-process-fact-contract.mjs
+- reviewed negative source integrity changed: scripts/verify-runtime-fact-contract.mjs
+```
+
+Both runtime-environment-checks witness bindings (negative integrity and both-family) now use the reviewed current source digest; the scanner reader pin keeps the original single-line formatting to preserve its exact line-position controls. No scanner line allowlist, classification, predicate or baseline failure was waived. The source binding suite passes its positives and mutations separately even though the broader cutover suite remains red. The old topology alias failure does not exercise this repair; the new regression separately exercises the canonical dispatched verification-intent role and exact declaration validation through the built handler and real CLI.
+
+The authorship intent digest uses the existing acceptanceIntentHash semantics, excluding executor-owned verification command pins; later tool-owned evidence pinning therefore does not change the recorded acceptance identity. Proposal transfer binding still uses the exact original input bytes and prior-intent digest.
+
+Additional executable-source regression, command `node packages/main/tests/certification-mutator-identity.mjs`, exited 0. Literal output:
+
+```text
+CERTIFICATION_MUTATOR_PIN_GREEN begin-cancel reject-before-store restored-control
+```
+
+Final candidate c0b2e4b97b repeated the targeted checks after the semantic-digest adjustment: intent proposal regression, certification-mutator identity, reviewed source bindings and process-fact contract exit 0. Full identity cutover still exits 1 with exactly the unchanged main diagnostic set above. Literal final focused output:
+
+```text
+↻ Written and persistence confirmed: CHK-001 current status=pending. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.
+INTENT_OWNER_LEASE_PASS: real CLI owner application; foreign role refusal; exact proposal, phase and stale-base checks
+CERTIFICATION_MUTATOR_PIN_GREEN begin-cancel reject-before-store restored-control
+PASS routine registration: exact npm script and one serial-reference membership
+{"reviewedSourceBindingFailures":0,"errors":[]}
+PASS scanner reader bindings: 3 exact current modules
+PASS prompt context: exact before/after hashes, current full line, classification and count
+PASS source: 54 exact positives, 324 mutation refusals, 52 empty/missing controls
+PASS source inventory byte integrity: original accepted, deleted and duplicate rows refused
+```
+
+Maintenance provenance: codex/lab-benchmark-intent-authority, repair c0b2e4b97bd3df9157438c31b3711102de10e8d0.
+Verification command (replayed before integration and on main): `["node","scripts/verify-intent-owner-lease.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab identity-reviewed-source-bindings-20260911 - v0.3.331 - 2026-09-12
 
 Integrate the bounded identity-reviewed-source-bindings-20260911 Lab against
