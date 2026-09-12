@@ -43,6 +43,9 @@ try{
     const project=join(root,'prompt');mkdirSync(project);
     const config={...JSON.parse(readFileSync(join(repo,'proof-or-stop.config.json'))),scanRoot:'.',rootDir:'src',outDir:'dist',testsDir:'tests',fixturesDir:'tests/fixtures',storyDir:'.proof-or-stop/story/actives'};
     writeFileSync(join(project,'proof-or-stop.config.json'),JSON.stringify(config));
+    for(const args of [['init','-q','-b','main'],['config','user.name','Audit fixture'],['config','user.email','audit@example.invalid'],['add','.'],['commit','-qm','seed reader context']]) {
+      const result=spawnSync('git',args,{cwd:project,encoding:'utf8',timeout:15000});assert.equal(result.status,0,'SETUP_GIT: '+result.stderr);
+    }
     const {StoryStore}=await import(join(repo,'packages/main/dist/core/store.js'));
     const {createAgentPromptHandlers}=await import(join(repo,'packages/main/dist/handlers/agent-prompt.js'));
     const {resolvePromptRoleBody}=await import(join(repo,'packages/main/dist/core/prompt-role-contract-registry.js'));
