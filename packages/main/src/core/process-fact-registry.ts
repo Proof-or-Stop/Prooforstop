@@ -61,6 +61,8 @@ export type ProcessFactSemantic =
 
 export const REPRO_BOOTSTRAP_COMPONENT_IDS = ['P0m', 'P0p', 'P1', 'P1f', 'P2a', 'P2b'] as const;
 export type ReproBootstrapComponentId = typeof REPRO_BOOTSTRAP_COMPONENT_IDS[number];
+export const VALIDATION_TIER_FLOORS = ['repository-full'] as const;
+export type ValidationTierFloor = typeof VALIDATION_TIER_FLOORS[number];
 
 export interface ProcessFactArtifactRef {
   name: string;
@@ -86,7 +88,7 @@ export interface ProcessFactRegistryEntry {
   semantics: readonly ProcessFactSemantic[];
   level: ProcessFactLevel;
   /** Validation tier floor for changes to this fact's explicitly governed paths. */
-  validationTierFloor?: 'repository-full';
+  validationTierFloor?: ValidationTierFloor;
   lifecycle?: CommandLifecycleStatus;
   allowedPhases?: readonly CommandPhase[] | 'all';
   rootOnly?: boolean;
@@ -303,6 +305,12 @@ export function projectComponentProcessFactMapping(
 
 export function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration): ProcessFactRegistryEntry {
   if (entry.validationTierFloor !== undefined) {
+    if (!(VALIDATION_TIER_FLOORS as readonly unknown[]).includes(entry.validationTierFloor)) {
+      throw new ProcessFactRegistryMappingError(
+        'process-non-total',
+        `${entry.name} has unknown validationTierFloor: ${String(entry.validationTierFloor)}`,
+      );
+    }
     if (entry.level !== 'L4') {
       throw new ProcessFactRegistryMappingError(
         'process-non-total',
@@ -2560,17 +2568,34 @@ export function getProcessFactRegistryEntry(name: string): ProcessFactRegistryEn
  * crash while projecting a stale or independently decoded registry snapshot;
  * malformed entries contribute no validation authority.
  */
-export function collectRepositoryFullProcessFactPaths(entries: readonly unknown[] = PROCESS_FACT_REGISTRY): string[] {
+export function collectRepositoryFullProcessFactPaths(
+  entries: readonly unknown[] = PROCESS_FACT_REGISTRY,
+): { paths: string[]; rejectedEntryCount: number } {
   const paths = new Set<string>();
+  let rejectedEntryCount = 0;
   for (const candidate of entries) {
-    if (!candidate || typeof candidate !== 'object') continue;
+    if (!candidate || typeof candidate !== 'object') {
+      rejectedEntryCount += 1;
+      continue;
+    }
     const entry = candidate as { level?: unknown; validationTierFloor?: unknown; paths?: unknown };
-    if (entry.level !== 'L4' || entry.validationTierFloor !== 'repository-full' || !Array.isArray(entry.paths)) continue;
+    if (!['L0', 'L1', 'L2', 'L3', 'L4'].includes(String(entry.level))) {
+      rejectedEntryCount += 1;
+      continue;
+    }
+    if (entry.validationTierFloor === undefined) continue;
+    if (entry.validationTierFloor !== 'repository-full' || entry.level !== 'L4' || !Array.isArray(entry.paths)) {
+      rejectedEntryCount += 1;
+      continue;
+    }
+    let rejectedLeaf = false;
     for (const path of entry.paths) {
       if (typeof path === 'string' && path.trim() !== '') paths.add(path);
+      else rejectedLeaf = true;
     }
+    if (rejectedLeaf) rejectedEntryCount += 1;
   }
-  return [...paths];
+  return { paths: [...paths], rejectedEntryCount };
 }
 
 export function hasProcessFactSemantic(name: string, semantic: ProcessFactSemantic): boolean {

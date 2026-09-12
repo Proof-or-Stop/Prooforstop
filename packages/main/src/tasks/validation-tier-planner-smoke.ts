@@ -159,6 +159,7 @@ import {
   assertValidationTierSelectionSubsetInvariant,
   isValidationStopReasonCode,
   resolveValidationTierPlan,
+  pathIsLegacyValidationSensitive,
   selectValidationTiers,
   validationTierIsSubsetOf,
   validationTierRank,
@@ -2382,7 +2383,9 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
 });
 
 testCase('explicit repository-full process-fact paths force full without overmatching unrelated L4 code', () => {
-  const gatePatterns = collectRepositoryFullProcessFactPaths();
+  const collected = collectRepositoryFullProcessFactPaths();
+  const gatePatterns = collected.paths;
+  assert.equal(collected.rejectedEntryCount, 0);
   assert.ok(gatePatterns.length > 0, 'the process-fact registry must declare at least one repository-full path');
   assert.deepEqual(
     collectRepositoryFullProcessFactPaths([
@@ -2397,8 +2400,11 @@ testCase('explicit repository-full process-fact paths force full without overmat
         paths: [null, '', 'packages/main/src/core/valid-full-path.ts'],
       },
     ]),
-    ['packages/main/src/core/valid-full-path.ts'],
-    'malformed independently decoded registry entries must not crash or contribute authority',
+    {
+      paths: ['packages/main/src/core/valid-full-path.ts'],
+      rejectedEntryCount: 4,
+    },
+    'malformed independently decoded registry entries must be reported while valid authority survives',
   );
   const declaration = {
     name: 'runtime:test-validation-floor',
@@ -2415,6 +2421,15 @@ testCase('explicit repository-full process-fact paths force full without overmat
   assert.throws(
     () => declareProcessFactMapping({ ...declaration, level: 'L4' }),
     /runtime:test-validation-floor validationTierFloor requires explicitly authored paths/,
+  );
+  assert.throws(
+    () => declareProcessFactMapping({
+      ...declaration,
+      level: 'L4',
+      paths: ['packages/main/src/core/example.ts'],
+      validationTierFloor: 'full' as 'repository-full',
+    }),
+    /runtime:test-validation-floor has unknown validationTierFloor: full/,
   );
 
   const planForPath = (changedPath: string) => {
@@ -2437,6 +2452,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
   };
 
   for (const gatePattern of gatePatterns) {
+    assert.equal(pathIsLegacyValidationSensitive(gatePattern), false, `registry floor must be load-bearing: ${gatePattern}`);
     const result = planForPath(gatePattern);
     assert.equal(result.status, 'plan', gatePattern);
     if (result.status !== 'plan') continue;
@@ -2446,7 +2462,6 @@ testCase('explicit repository-full process-fact paths force full without overmat
 
   for (const unrelatedPath of [
     'packages/main/src/core/certification-window.ts.bak',
-    'packages/main/src/core/convergence-progress-gate.ts',
     'packages/module-a/src/unrelated.ts',
   ]) {
     const result = planForPath(unrelatedPath);

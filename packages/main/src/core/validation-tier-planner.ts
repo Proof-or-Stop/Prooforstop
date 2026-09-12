@@ -249,11 +249,12 @@ const VALIDATION_SENSITIVE_PATH_PATTERNS = [
  * use the same exact, directory-prefix and glob semantics as the other
  * sensitivity patterns.
  */
-const REGISTERED_REPOSITORY_FULL_FACT_PATTERNS = [...new Set(
-  collectRepositoryFullProcessFactPaths()
-    .map(normalizedPath)
-    .filter(Boolean),
-)];
+export function pathIsLegacyValidationSensitive(path: string): boolean {
+  const normalized = normalizedPath(path);
+  const basename = normalized.split('/').pop()?.toLowerCase() ?? '';
+  return (normalized.startsWith('packages/main/src/') && basename.includes('validat'))
+    || VALIDATION_SENSITIVE_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern));
+}
 
 const BUILD_GRAPH_PATH_PATTERNS = [
   'package.json',
@@ -272,14 +273,15 @@ const BUILD_GRAPH_PATH_PATTERNS = [
 
 function classifySensitiveStoryPaths(paths: readonly string[]): ValidationWideningReasonCode[] {
   const reasons = new Set<ValidationWideningReasonCode>();
+  const registered = collectRepositoryFullProcessFactPaths();
+  const registeredPatterns = [...new Set(registered.paths.map(normalizedPath).filter(Boolean))];
+  const registeredFloorUnavailable = registered.rejectedEntryCount > 0 || registeredPatterns.length === 0;
   for (const path of paths) {
     const normalized = normalizedPath(path);
-    const basename = normalized.split('/').pop()?.toLowerCase() ?? '';
-    const validationNamedSource = normalized.startsWith('packages/main/src/') && basename.includes('validat');
     if (
-      validationNamedSource
-      || REGISTERED_REPOSITORY_FULL_FACT_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
-      || VALIDATION_SENSITIVE_PATH_PATTERNS.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
+      registeredFloorUnavailable
+      || pathIsLegacyValidationSensitive(normalized)
+      || registeredPatterns.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
     ) {
       reasons.add('validation_framework_sensitive_change');
     }
