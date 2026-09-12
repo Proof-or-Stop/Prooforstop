@@ -1,5 +1,75 @@
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import assert from 'node:assert/strict';import crypto from 'node:crypto';import {createRequire} from 'node:module';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
 const repo=fileURLToPath(new URL('..',import.meta.url)),root=fs.mkdtempSync(path.join(os.tmpdir(),'u18-static-boundaries-'));
+
+// Real repository target; unrelated historical scanner debt is compared, not hidden.
+function verifyRuntimeSnapshotStaticEdge() {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'runtime-snapshot-static-'));
+  try {
+    const inventoryPath = path.join(repo, 'scripts/lab/u18-static-edges/exceptions.json');
+    const inventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
+    const caller = 'scripts/verify-runtime-fact-contract.mjs';
+    const target = 'scripts/verify-validation-snapshot-binding.mjs';
+    const readInput = 'packages/main/src/core/shared-validation-execution.ts';
+    const targetExpression = "execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],\n    { cwd: root, stdio: 'inherit', timeout: 30000 })";
+    const digest = text => crypto.createHash('sha256').update(text).digest('hex');
+    const matches = report => report.rows.filter(row => row.file === caller && row.expression === targetExpression);
+    const scan = (value, label) => {
+      const manifestPath = path.join(scratch, label + '.json');
+      const reportPath = path.join(scratch, label + '-report.json');
+      fs.writeFileSync(manifestPath, JSON.stringify(value));
+      const result = spawnSync(process.execPath, [path.join(repo, 'scripts/verify-validation-static-edges.mjs'), repo, manifestPath], {
+        encoding: 'utf8', timeout: 30000, maxBuffer: 32 * 1024 * 1024,
+        env: { ...process.env, U18_STATIC_REPORT_PATH: reportPath },
+      });
+      assert.equal(result.error, undefined, label + ' scanner setup');
+      assert.equal(result.signal, null, label + ' scanner interrupted');
+      assert.ok([0, 1].includes(result.status), label + ' scanner exited unexpectedly');
+      return JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    };
+    const current = scan(inventory, 'current');
+    const rows = matches(current);
+    assert.equal(rows.length, 1, 'exact current runtime snapshot launcher must be observed once');
+    assert.equal(rows[0].state, 'EXCEPTION', 'RUNTIME_SNAPSHOT_STATIC_EDGE_UNREVIEWED: current canonical scanner must recognize the exact reviewed child');
+    const entries = inventory.entries.filter(entry => entry.key === rows[0].key && entry.callDigest === rows[0].callDigest);
+    assert.equal(entries.length, 1, 'one exact reviewed edge');
+    const entry = entries[0];
+    assert.deepEqual(Object.keys(entry.dependencyDigests).sort(), [caller, target, readInput].sort());
+    for (const file of [caller, target, readInput]) {
+      assert.equal(entry.dependencyDigests[file], digest(fs.readFileSync(path.join(repo, file))));
+    }
+    assert.deepEqual(entry.invocations, [{ entry: caller, argv: [] }]);
+    assert.deepEqual(entry.configIndexes, [rows[0].index]);
+    const without = structuredClone(inventory);
+    without.entries = without.entries.filter(value => value.id !== entry.id);
+    const missing = scan(without, 'missing');
+    assert.equal(matches(missing)[0].state, 'NEEDS_REVIEW', 'entry removal must expose exact unresolved edge');
+    const otherRows = report => report.rows.filter(row => !(row.file === caller && row.expression === targetExpression));
+    assert.deepEqual(otherRows(current), otherRows(missing), 'unrelated scanner row behavior must remain unchanged');
+    assert.deepEqual(current.coverage, missing.coverage);
+    assert.deepEqual(current.staleExceptions, missing.staleExceptions);
+    assert.equal(current.configDrift, missing.configDrift);
+    for (const file of [caller, target, readInput]) {
+      const altered = structuredClone(inventory);
+      altered.entries.find(value => value.id === entry.id).dependencyDigests[file] = '0'.repeat(64);
+      const changed = scan(altered, 'drift-' + file.replaceAll('/', '-'));
+      assert.equal(matches(changed)[0].state, 'NEEDS_REVIEW', 'dependency drift must refuse: ' + file);
+      assert.equal(matches(changed)[0].reason, file === caller
+        ? 'exception dependency coverage missing or changed' : 'incomplete exception');
+    }
+    const wrongInvocation = structuredClone(inventory);
+    wrongInvocation.entries.find(value => value.id === entry.id).configIndexes = [rows[0].index + 10000];
+    assert.equal(matches(scan(wrongInvocation, 'wrong-invocation'))[0].state, 'NEEDS_REVIEW');
+    console.log('RUNTIME_SNAPSHOT_STATIC_EDGE_GREEN exact edge and dependency refusals; unrelated baseline preserved');
+  } finally {
+    fs.rmSync(scratch, { recursive: true, force: true });
+  }
+}
+if (process.argv.includes('--runtime-snapshot-edge')) {
+  verifyRuntimeSnapshotStaticEdge();
+  fs.rmSync(root, { recursive: true, force: true });
+  process.exit(0);
+}
+
 try{
  fs.writeFileSync(path.join(root,'package.json'),'{}');fs.mkdirSync(path.join(root,'node_modules'));fs.symlinkSync(path.dirname(createRequire(path.join(repo,'package.json')).resolve('typescript/package.json')),path.join(root,'node_modules/typescript'),'dir');
  const commands=[{command:'node',args:['a.mjs']},{command:'node',args:['b.mjs']}];fs.writeFileSync(path.join(root,'proof-or-stop.config.json'),JSON.stringify({validate:{commands}}));fs.writeFileSync(path.join(root,'b.mjs'),'');const manifest=path.join(root,'exceptions.json');fs.writeFileSync(manifest,JSON.stringify({entries:[],configDigest:crypto.createHash('sha256').update(JSON.stringify(commands)).digest('hex')}));
@@ -91,3 +161,5 @@ try{
  assert(expect(1,'brand-role entry retains generic depth-four refusal').coverage.some(row=>row.file===tasks+'brand-depth-four.ts'&&row.reason==='helper depth exceeds declared bound'));
  console.log('U18_STATIC_EDGE_BOUNDARIES_PASS');
 }finally{fs.rmSync(root,{recursive:true,force:true});}
+
+verifyRuntimeSnapshotStaticEdge();
