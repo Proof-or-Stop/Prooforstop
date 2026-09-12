@@ -61,8 +61,9 @@ export type ProcessFactSemantic =
 
 export const REPRO_BOOTSTRAP_COMPONENT_IDS = ['P0m', 'P0p', 'P1', 'P1f', 'P2a', 'P2b'] as const;
 export type ReproBootstrapComponentId = typeof REPRO_BOOTSTRAP_COMPONENT_IDS[number];
-export const VALIDATION_TIER_FLOORS = ['repository-full'] as const;
-export type ValidationTierFloor = typeof VALIDATION_TIER_FLOORS[number];
+/** The only process-fact floor the current selector implements. */
+export const VALIDATION_TIER_FLOOR = 'repository-full' as const;
+export type ValidationTierFloor = typeof VALIDATION_TIER_FLOOR;
 export const DYNAMIC_FINDING_VALIDATION_FLOOR_FACT_NAME = 'runtime:dynamic_finding_applicability_gate' as const;
 
 export interface ProcessFactArtifactRef {
@@ -315,7 +316,7 @@ export function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration)
     );
   }
   if (entry.validationTierFloor !== undefined) {
-    if (!(VALIDATION_TIER_FLOORS as readonly unknown[]).includes(entry.validationTierFloor)) {
+    if (entry.validationTierFloor !== VALIDATION_TIER_FLOOR) {
       throw new ProcessFactRegistryMappingError(
         'process-non-total',
         `${entry.name} has unknown validationTierFloor: ${String(entry.validationTierFloor)}`,
@@ -2693,7 +2694,7 @@ export function collectRepositoryFullProcessFactPaths(
         ? entry.name.trim()
         : '';
     if (
-      entry.validationTierFloor !== 'repository-full'
+      entry.validationTierFloor !== VALIDATION_TIER_FLOOR
       || entry.level !== 'L4'
       || !Array.isArray(entry.paths)
       || entry.paths.length === 0

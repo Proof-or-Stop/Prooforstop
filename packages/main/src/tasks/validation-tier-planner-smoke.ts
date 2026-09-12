@@ -194,6 +194,7 @@ import {
   declareProcessFactMapping,
   getProcessFactRegistryEntry,
   PROCESS_FACT_DYNAMIC_FINDING_POLICY,
+  VALIDATION_TIER_FLOOR,
 } from '../core/process-fact-registry.js';
 import {
   describeRedGreenViolations,
@@ -2522,6 +2523,11 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
 });
 
 testCase('explicit repository-full process-fact paths force full without overmatching unrelated L4 code', () => {
+  assert.equal(
+    VALIDATION_TIER_FLOOR,
+    'repository-full',
+    'the registry must expose the one floor the selector actually implements, not a plural extension point',
+  );
   const collected = collectRepositoryFullProcessFactPaths();
   const gatePatterns = collected.paths;
   assert.equal(collected.rejectedEntryCount, 0);

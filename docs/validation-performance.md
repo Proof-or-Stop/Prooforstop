@@ -42,6 +42,9 @@ matrix remains design context and does not override this executable contract.
 | Selected set exceeds target duration | Report only; never remove a command | `duration_target_exceeded` |
 
 Dynamic Finding is one explicit process-fact floor, not a filename heuristic.
+The current registry contract implements exactly one floor value,
+`repository-full`; adding another floor requires its own selector semantics and
+cannot be implied by extending a value list.
 Its four signed producer commands, semantic verifiers, and lifecycle consumers
 map to concrete repository paths in the process-fact registry. Changing any of
 those paths forces `repository-full`; unrelated L4 implementation such as the
