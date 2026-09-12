@@ -27,12 +27,18 @@ try {
   await check('generated-desktop-entry-version-guard', () => {
     const snapshot = join(scratch, 'desktop-snapshot'), desktopDir = join(snapshot, 'dist/desktop');
     fs.mkdirSync(desktopDir, { recursive: true });
-    const context = vm.createContext({ ...fs, join, dirname, repoRoot: repo, desktopDir,
+    // Desktop packaging also builds packages/lab; core ensure-dist does not.
+    // Compile that prerequisite into scratch, never into a shared package dist.
+    const labDist = join(scratch, 'lab-dist');
+    const built = spawn(process.execPath, [join(repo, 'node_modules/typescript/bin/tsc'), '-p', join(repo, 'packages/lab/tsconfig.json'), '--outDir', labDist], { cwd: repo, encoding: 'utf8', timeout: 60000 });
+    assert.equal(built.status, 0, `SETUP_BUILD_FAILED: desktop lab prerequisite: ${built.stdout} ${built.stderr}`);
+    const actualPath = path => path.startsWith(join(repo, 'packages/lab/dist')) ? labDist + path.slice(join(repo, 'packages/lab/dist').length) : path;
+    const context = vm.createContext({ ...fs, statSync: path => fs.statSync(actualPath(path)), readdirSync: (...args) => fs.readdirSync(actualPath(args[0]), ...args.slice(1)), join, dirname, repoRoot: repo, desktopDir,
       entryPath: join(desktopDir, 'pkg-entry.cjs'), assetManifestPath: join(desktopDir, 'asset-manifest.json') });
     for (const name of ['listFiles', 'writeAssetManifest', 'writePkgEntrypoint']) vm.runInContext(functionText('scripts/package-desktop.mjs', name), context);
     const files = vm.runInContext('writeAssetManifest()', context);
     assert.ok(files.includes('packages/main/package.json'), 'runtime manifest must be shipped');
-    for (const rel of files) { const dest = join(snapshot, rel); fs.mkdirSync(dirname(dest), { recursive: true }); fs.copyFileSync(join(repo, rel), dest); }
+    for (const rel of files) { const dest = join(snapshot, rel); fs.mkdirSync(dirname(dest), { recursive: true }); fs.copyFileSync(actualPath(join(repo, rel)), dest); }
     vm.runInContext('writePkgEntrypoint()', context);
     const env = { ...process.env };
     for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST', 'PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN', 'PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST']) delete env[key];
