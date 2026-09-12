@@ -1,14 +1,16 @@
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { resolveRepositoryBaseline, type RepositoryBaselineCache } from '../../git-baseline.js';
 
 export const QUEUE_GOVERNANCE_STATUS_SCHEMA_VERSION = 'proof-or-stop.queue_governance_status.v1' as const;
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync, appendFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 import { currentStoryFilesHash } from '../../evidence-freshness.js';
-import { resolveLocalAssuranceStories } from '../../local-assurance-story-projection.js';
+import { resolveLocalAssuranceStoryContexts } from '../../local-assurance-story-projection.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryInfo } from '../../types.js';
-import { getRepoRoot, resolveWorktreePath } from '../../worktree-runtime.js';
+import { getRepoRoot } from '../../worktree-runtime.js';
 import {
   CONTROL_QUEUE_CLASSIFICATIONS,
   DEFAULT_CONTROL_PLANE_CAPABILITIES,
@@ -52,6 +54,9 @@ export interface QueueGovernanceOptions {
   readonly expanded?: boolean;
   readonly now?: string;
   readonly staleWorktreeMs?: number;
+  /** Optional diagnostic probes: defaults 4 / 1000 ms; explicit limits up to 1000 / 60000 ms. */
+  readonly gitProbeLimit?: number;
+  readonly gitProbeBudgetMs?: number;
 }
 
 export interface QueueExceptionSetInput {
@@ -296,16 +301,39 @@ function malformedExperiment(story: StoryInfo): boolean {
   return /tier-c/i.test(story.title) && !titleInferredExperiment(story);
 }
 
-function worktreeIsStale(story: StoryInfo, root: string, thresholdMs: number, nowMs: number): boolean {
-  const path = story.worktree?.path;
-  if (!path) return false;
-  const absolute = resolveWorktreePath(getRepoRoot(root), path);
-  if (!absolute) return false;
-  try {
-    return nowMs - statSync(absolute).mtimeMs > thresholdMs;
-  } catch {
-    return true;
+interface ProgressProbeBudget {
+  remaining: number;
+  readonly deadlineMs: number;
+  readonly observations: Map<string, number | null | undefined>;
+  readonly baselineCandidates: RepositoryBaselineCache;
+}
+
+function storyProgressState(story: StoryInfo, gitCwd: string, thresholdMs: number, nowMs: number, budget: ProgressProbeBudget): 'active' | 'stale' | 'unknown' {
+  // Directory mtime measures direct child entries, not nested Story progress.
+  // Ignore invalid/future timestamps; unavailable evidence remains unknown.
+  const progress = [story.createdAt, story.startedAt, ...(story.events ?? []).map(event => event.timestamp)]
+    .map(value => typeof value === 'string' ? Date.parse(value) : NaN)
+    .filter(value => Number.isFinite(value) && value <= nowMs);
+  if (progress.some(time => nowMs - time <= thresholdMs)) return 'active';
+  // Only probe Git when recorded activity is old. An inherited main commit or
+  // a merge-only synchronization is not evidence of work on this Story.
+  if (!budget.observations.has(gitCwd)) {
+    if (budget.remaining <= 0 || performance.now() >= budget.deadlineMs) return 'unknown';
+    budget.remaining--;
+    budget.observations.set(gitCwd, undefined);
+    try {
+      const baseline = resolveRepositoryBaseline(gitCwd, 'HEAD', { deadlineMs: budget.deadlineMs, candidateCache: budget.baselineCandidates });
+      const remaining = Math.floor(budget.deadlineMs - performance.now());
+      if (!baseline || remaining <= 0) return 'unknown';
+      const value = execFileSync('git', ['log', '-1', '--no-merges', '--format=%ct', `${baseline.commit ?? baseline.ref}..HEAD`, '--'],
+        { cwd: gitCwd, encoding: 'utf8', timeout: remaining, stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      budget.observations.set(gitCwd, value ? Number(value) * 1000 : null);
+    } catch { /* Optional observation failure is not proof of staleness. */ }
   }
+  const committedAt = budget.observations.get(gitCwd);
+  if (committedAt === undefined || (committedAt !== null && (!Number.isFinite(committedAt) || committedAt > nowMs))) return 'unknown';
+  if (committedAt !== null && nowMs - committedAt <= thresholdMs) return 'active';
+  return progress.length > 0 ? 'stale' : 'unknown';
 }
 
 function queueRow(args: {
@@ -342,7 +370,7 @@ export function projectQueueGovernance(
   const staleWorktreeMs = options.staleWorktreeMs ?? 7 * 24 * 60 * 60 * 1000;
   const mainRepoRoot = getRepoRoot(root);
   const exceptions = explicitExceptionByStory(root);
-  const localProjection = resolveLocalAssuranceStories(store, root, { activeOnly: true, now });
+  const { projection: localProjection, workspaces } = resolveLocalAssuranceStoryContexts(store, root, { activeOnly: true, now });
   const localProjectionById = new Map(localProjection.stories.map((row) => [row.storyId, row]));
   const activeStories = store.listStoryIds()
     .map((storyId) => {
@@ -384,6 +412,14 @@ export function projectQueueGovernance(
     });
   }
 
+  const bounded = (value: number | undefined, fallback: number, maximum: number): number =>
+    value !== undefined && Number.isFinite(value) ? Math.min(maximum, Math.max(0, Math.floor(value))) : fallback;
+  const probeBudget: ProgressProbeBudget = {
+    remaining: bounded(options.gitProbeLimit, 4, 1000),
+    deadlineMs: performance.now() + bounded(options.gitProbeBudgetMs, 1000, 60000),
+    observations: new Map(),
+    baselineCandidates: new Map(),
+  };
   const rows = activeStories.map((story) => {
     const projectionRow = localProjectionById.get(story.storyId);
     const explicit = exceptions.get(story.storyId);
@@ -407,12 +443,19 @@ export function projectQueueGovernance(
       });
     }
     if (projectionRow?.stateSource === 'worktree') {
-      const stale = worktreeIsStale(story, root, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now());
+      const workspace = workspaces.get(story.storyId)!;
+      const progress = workspace.readFromStoryWorktree
+        ? storyProgressState(workspace.story, workspace.gitCwd, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now(), probeBudget)
+        : 'unknown';
       return queueRow({
+        // Selection, grouping and displayed phase share the queue mirror. Only
+        // progress evidence comes from the authoritative workspace above.
         story,
-        classification: stale ? 'stale-worktree' : 'active-worktree',
-        reason: stale
-          ? 'authoritative worktree exists but appears stale/missing'
+        classification: progress === 'unknown' ? 'unknown-worktree' : progress === 'stale' ? 'stale-worktree' : 'active-worktree',
+        reason: progress === 'unknown'
+          ? 'authoritative Story state or bounded Git progress evidence is unavailable; no staleness or cleanup conclusion'
+          : progress === 'stale'
+          ? 'authoritative Story progress is older than the threshold'
           : explicit
             ? 'authoritative worktree exists; experiment exception metadata is preserved'
             : 'authoritative worktree exists',
@@ -474,6 +517,7 @@ export function projectQueueGovernance(
   const summary = {
     activeWorktree: rows.filter((row) => row.classification === 'active-worktree').length,
     staleWorktree: rows.filter((row) => row.classification === 'stale-worktree').length,
+    unknownWorktree: rows.filter((row) => row.classification === 'unknown-worktree').length,
     mainInit: rows.filter((row) => row.classification === 'main-init').length,
     experimentBatchException: rows.filter((row) => row.classification === 'experiment-batch-exception').length,
     duplicateCandidate: rows.filter((row) => row.classification === 'duplicate-candidate').length,

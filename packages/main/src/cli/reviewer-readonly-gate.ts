@@ -3,6 +3,7 @@ import {
   type ExternalCommandOwnershipClasses,
   resolveEffectiveOwnershipClass,
   storyIdFromArgs,
+  reviewerReadRecoveryHint,
 } from './ownership-gate.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import type { ProofOrStopConfig } from '../core/config.js';
@@ -33,6 +34,7 @@ export function enforceReviewerReadOnlyCommandGate(
     `(effective ownershipClass: ${clsLabel}). ` +
     `Advisory read-only reviewers may only run read-only Proof-or-Stop commands and should return ` +
     `structured findings to the story owner. ` +
-    `To run write commands, unset ${REVIEWER_READONLY_ENV} and ensure you are the story owner.`,
+    `To run write commands, unset ${REVIEWER_READONLY_ENV} and ensure you are the story owner.`
+      + reviewerReadRecoveryHint(cmd, args, storyId),
   );
 }

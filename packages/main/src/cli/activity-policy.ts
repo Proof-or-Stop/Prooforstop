@@ -1,4 +1,6 @@
+import type { OwnershipClass } from '../core/command-policy.js';
 import { readBrandEnv } from '../core/brand-env.js';
+/** Compatibility inventory: cli-engine.ts admission/effects do not consume this set. */
 export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'session_brief',
   'next',
@@ -23,12 +25,12 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'acceptance_rollout_check',
   'topology_critic_receipt_check',
   // W2d (B-9ff1): read-only RED assertion-envelope admissibility pre-flight.
-  // Membership here settles TWO of the CLI's own write surfaces outright, because
-  // both are gated on isReadOnlyCommand alone with no second term: the preCommand
-  // and postCommand hooks in cli-engine.ts, and the class-wide early return in
-  // writeCodexProcessEvent. It settles NONE of the surfaces below, and they are
-  // stated plainly because the guarantee is easy to over-read. Treat the list as
-  // the surfaces known when this was written, not as a proof of exhaustiveness.
+  // Runtime authority comes from COMMAND_POLICIES ownershipClass, resolved with
+  // arguments by resolveEffectiveOwnershipClass. commandObservationEffects then
+  // gates preCommand/postCommand hooks and generic Story command events on that
+  // effective ownership. This compatibility set grants no runtime exemption.
+  // The scoped guarantee below does not cover the following runtime surfaces;
+  // this list describes known surfaces, not proof of exhaustiveness.
   //   A. THE onError HOOK STILL RUNS. Its call site in cli-engine.ts carries no
   //      read-only predicate at all: the `runHooks('onError', ...)` call there is
   //      UNCONDITIONAL. `config0?.hooks?.onError` guards only the informational
@@ -42,17 +44,17 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //      core/hooks.ts executes it via /bin/sh -c in the project root, so it can
   //      write RED or story evidence, append a process event, or invoke a
   //      gate-mutating command. Nothing in this file constrains what it does.
-  //   B. THE ACTIVITY LOG. Membership is necessary but not sufficient there, and
+  //   B. THE ACTIVITY LOG. Effective readOnly ownership still permits telemetry, and
   //      each of the two remaining conditions has a real operating mode that
   //      breaks it:
-  //        1. shouldWriteActivityLog (below) returns true for a read-only command
+  //        1. commandObservationEffects returns recordActivity for a read-only command
   //           when PROOF_OR_STOP_ACTIVITY_RECORD_READONLY === '1'. That is not a test
   //           knob: it is baked into GLOBAL_CODEX_FALLBACK_COMMAND
   //           (core/codex-adapter-checks.ts) and into the generated Codex wrapper
   //           (src/init-assets.ts), so under the documented Codex heartbeat mode
   //           read-only rows ARE recorded on purpose.
   //        2. Both writeLog call sites in cli-engine.ts read
-  //           `shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0`.
+  //           `shouldWriteEffectiveActivityLog || staleWarnings.length > 0`.
   //           While the story carries an uncooled stale warning
   //           (STALE_WARNING_COOLDOWN_MS, 30 minutes, in core/stale-detector.ts)
   //           that OR appends one generic session row for ANY command, read-only
@@ -228,19 +230,10 @@ function usageSweepWritesReport(args: Record<string, unknown>): boolean {
   return typeof out === 'string' && out.trim().length > 0;
 }
 
-/**
- * F-028: effective read-only classification for the CLI activity / hook layer —
- * the single predicate cli-engine consults to decide whether a command runs the
- * pre/post command hooks and writes an activity-log entry. Static
- * READ_ONLY_COMMANDS members are always read-only. usage_sweep is a read-only
- * diagnostic UNLESS an explicit non-empty --out makes it write a report file, in
- * which case it is a mutating command (runs hooks + records activity). This
- * mirrors resolveEffectiveOwnershipClass's F-014 --out boundary in
- * ownership-gate.ts: the SAME --out that dynamically escalates the ownership
- * class also flips the activity/hook classification, so a plain (no --out)
- * usage_sweep runs no hooks and writes no activity log, while --out is treated as
- * a write on both surfaces. All other commands are classified exactly as the
- * static set (arg-independent), so non-usage_sweep behaviour is unchanged.
+/** Compatibility query for historical callers and tests. No cli-engine.ts runtime consumer; other importers are outside this check.
+ * Runtime classification uses resolveEffectiveOwnershipClass, including all
+ * parameterized write modes, then commandObservationEffects for side effects.
+ * This helper retains only the old name inventory and usage_sweep convention.
  */
 export function isReadOnlyCommand(cmdName: string, args: Record<string, unknown> = {}): boolean {
   if (READ_ONLY_COMMANDS.has(cmdName)) return true;
@@ -266,12 +259,21 @@ export function inferCodexEntrypoint(): string {
 }
 
 export function shouldWriteActivityLog(cmdName: string, args: Record<string, unknown>): boolean {
-  // F-028: key the activity-log decision on the arg-aware read-only predicate, so
-  // a plain usage_sweep writes no activity row (read-only) while a --out sweep
-  // (a write) is recorded like any other mutating command.
+  // Legacy compatibility helper; runtime uses commandObservationEffects with
+  // effective ownership. This function must not become an admission authority.
   if (isReadOnlyCommand(cmdName, args)) {
     return readBrandEnv('ACTIVITY_RECORD_READONLY') === '1';
   }
   if (args.dryRun === true) return false;
   return true;
+}
+
+/** Runtime consumers must use the argument-aware admission result, not the
+ * legacy name-only compatibility helpers above. Telemetry opt-in never permits
+ * hooks or Story events for a read-only invocation. Existing dryRun writer
+ * telemetry suppression is preserved independently of admission authority. */
+export function commandObservationEffects(ownership: OwnershipClass | null, recordReadOnly = false, dryRun = false) {
+  const readOnly = ownership === 'readOnly';
+  const writer = ownership !== null && !readOnly;
+  return { readOnly, runHooks: writer, recordStoryEvent: writer, recordActivity: (writer && !dryRun) || (readOnly && recordReadOnly) };
 }

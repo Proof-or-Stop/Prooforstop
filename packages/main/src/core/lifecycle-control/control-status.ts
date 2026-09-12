@@ -180,6 +180,7 @@ export const CONTROL_QUEUE_CLASSIFICATIONS = [
   'cleanup-deferred',
   'active-worktree',
   'stale-worktree',
+  'unknown-worktree',
   'main-init',
   'experiment-batch-exception',
   'duplicate-candidate',
@@ -359,6 +360,7 @@ export interface QueueGovernanceReport {
   readonly summary: {
     readonly activeWorktree: number;
     readonly staleWorktree: number;
+    readonly unknownWorktree: number;
     readonly mainInit: number;
     readonly experimentBatchException: number;
     readonly duplicateCandidate: number;

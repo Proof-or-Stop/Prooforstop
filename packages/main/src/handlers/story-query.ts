@@ -1,3 +1,4 @@
+import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 
 import { execFileSync, execSync } from 'child_process';
@@ -716,7 +717,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      * dryRun=true (default) only reports without modifying; dryRun=false performs the repair.
      */
     story_reconcile(args?: { dryRun?: boolean }): string {
-      const dryRun = args?.dryRun !== false; // Default to dry run
+      const dryRun = !maintenanceCommandWrites('story_reconcile', args ?? {});
 
       const render = (repair: boolean): string => {
         const repoRoot = getRepoRoot(ctx.root);

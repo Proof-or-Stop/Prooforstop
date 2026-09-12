@@ -1,5 +1,6 @@
 import { withValidationSigningRoot } from './core/validation-signing-context.js';
 import {enforceExecutionImplementationPin,executionImplementationIdentity} from './core/execution-implementation.js';
+import { assertRuntimePackageVersion } from './core/runtime-package-version.js';
 /**
  * Proof-or-Stop engine
  *
@@ -45,9 +46,8 @@ import type { ToolDef } from './cli/main-tools.js';
 import {
   inferCodexEntrypoint,
   isCodexActivitySource,
-  isReadOnlyCommand,
+  commandObservationEffects,
   resolveActivitySource,
-  shouldWriteActivityLog,
 } from './cli/activity-policy.js';
 import {
   ownerLeaseHelpBlock,
@@ -85,6 +85,7 @@ import { resolveAgentMutationAuthority } from './core/agent-dispatch-registry.js
 import type { AgentDispatchMutationCommand } from './core/types.js';
 import {
   assertCanonicalActiveIdentityCommandConsumers,
+  assertCanonicalActiveIdentityArgumentDelegates,
   assertCanonicalActiveIdentityRuntime,
   classifyRuntimeEntrypointAuthority,
   renderRuntimeEntrypointAuthorityFailure,
@@ -105,11 +106,11 @@ class CanonicalTerminalCloseoutError extends Error {
 
 export {
   READ_ONLY_COMMANDS,
+  isReadOnlyCommand,
+  shouldWriteActivityLog,
   inferCodexEntrypoint,
   isCodexActivitySource,
-  isReadOnlyCommand,
   resolveActivitySource,
-  shouldWriteActivityLog,
 } from './cli/activity-policy.js';
 export {
   ownerLeaseHelpBlock,
@@ -762,6 +763,7 @@ export async function runCli(opts?: {
   extraOwnershipClasses?: Readonly<Record<string, import('./core/command-policy.js').OwnershipClass>>;
   extraAllowedPhases?: Readonly<Record<string, readonly string[] | 'all'>>;
 }): Promise<void> {
+  assertRuntimePackageVersion();
   const enforcedImplementationIdentity = enforceExecutionImplementationPin();
   if (process.argv.slice(2).includes('--implementation-identity')) {
     // This synchronous branch has no dispatch or intervening work: print the
@@ -820,22 +822,36 @@ export async function runCli(opts?: {
   const runtimeOwnershipConfig = cmd === 'agent_prompt' || cmd === 'evaluate'
     ? loadConfig(root0)
     : undefined;
-  const rawRuntimeOwnership = resolveRawRuntimeAdmissionOwnership(
-    cmd || 'help',
-    argv.slice(1),
-    externalAdmission.ownershipClasses,
-    { config: runtimeOwnershipConfig },
-  );
+  const admissionCommand = cmd || 'help';
+  let rawRuntimeOwnership: ReturnType<typeof resolveRawRuntimeAdmissionOwnership>;
+  let rawAdmissionError: unknown;
+  try {
+    // Mode delegates must be authenticated before they classify even a preview.
+    assertCanonicalActiveIdentityArgumentDelegates({ command: admissionCommand, projectRoot: root0 });
+    rawRuntimeOwnership = resolveRawRuntimeAdmissionOwnership(
+      admissionCommand, argv.slice(1), externalAdmission.ownershipClasses, { config: runtimeOwnershipConfig },
+    );
+  } catch (error) {
+    // Retain authoritative-runtime admission on malformed input, then report
+    // the precise refusal without misclassifying it as a bootstrap failure.
+    rawRuntimeOwnership = getCommandPolicy(admissionCommand)?.ownershipClass ?? externalAdmission.ownershipClasses?.[admissionCommand] ?? null;
+    rawAdmissionError = error;
+  }
   const runtimeAuthority = classifyRuntimeEntrypointAuthority({
-    command: cmd || 'help',
+    command: admissionCommand,
     commandArgs: argv.slice(1),
     projectRoot: root0,
     invokedEntrypoint: process.argv[1] ?? null,
     env: process.env,
-    requiresAuthoritativeRuntime: commandRequiresAuthoritativeRuntime(cmd || 'help', rawRuntimeOwnership),
+    requiresAuthoritativeRuntime: commandRequiresAuthoritativeRuntime(admissionCommand, rawRuntimeOwnership),
   });
   if (runtimeAuthority.status === 'blocked') {
     process.stderr.write(`${renderRuntimeEntrypointAuthorityFailure(runtimeAuthority)}\n`);
+    process.exitCode = 1;
+    return;
+  }
+  if (rawAdmissionError) {
+    process.stderr.write(`Error: ${rawAdmissionError instanceof Error ? rawAdmissionError.message : String(rawAdmissionError)}\n`);
     process.exitCode = 1;
     return;
   }
@@ -1402,19 +1418,31 @@ export async function runCli(opts?: {
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
       ? entry.args as Record<string, unknown>
       : {};
-    // F-032: appending a codex process event mutates STORY metadata
-    // (<story>/process-events.jsonl), so it is bound by the SAME F-028
-    // read-only contract as the pre/post command hooks and the activity log.
-    // A read-only command — a static READ_ONLY_COMMANDS member OR a plain
-    // (no --out) usage_sweep — must append NOTHING; a mutating command,
-    // including a `usage_sweep --out` that writes a report file, keeps its
-    // process event. This single guard is the class-wide choke point: it fires
-    // for BOTH the success and error call sites in run() (and any future
-    // caller), using the exact `isReadOnlyCommand` predicate the hook gates use,
-    // so no post-command process-event surface can bypass the contract.
+    // Story events follow the same resolved read/write mode as admission and
+    // hooks. A static read-command name cannot exempt a parameterized writer.
     const eventStoryId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
-    const eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses, { config: config0 });
-    if (eventOwnership === 'readOnly' || isReadOnlyCommand(entry.command, argsObject)) return;
+    const closeCanonicalTerminal = (entry.success || entry.canonicalFailure === true)
+      && (
+        entry.command === 'validate'
+        || (entry.command === 'story_advance' && argsObject.phase === 'TEST')
+      );
+    let eventOwnership: ReturnType<typeof resolveEffectiveOwnershipClass>;
+    try {
+      eventOwnership = resolveEffectiveOwnershipClass(entry.command, argsObject, eventStoryId, externalAdmission.ownershipClasses, { config: config0 });
+    } catch (error: unknown) {
+      if (closeCanonicalTerminal) {
+        reportHealthIssue('persist:codexProcessEvent', error as Error, { command: entry.command, storyId: eventStoryId });
+        // A successful command cannot advertise success after skipping its
+        // mandatory terminal. Already-failed commands retain their primary
+        // error while health records the additional closeout failure, matching
+        // the persistence-error policy below.
+        if (entry.success) throw new CanonicalTerminalCloseoutError(
+          `canonical terminal classification failed for ${entry.command}: ${(error as Error)?.message || String(error)}`,
+        );
+      }
+      return; // Ordinary observation remains best-effort; terminal failure is never silent.
+    }
+    if (!commandObservationEffects(eventOwnership).recordStoryEvent) return;
     // quorum_submit owns one exact immutable process-events transaction inside
     // its handler. A generic post-handler codex_cli append would make that
     // canonical commit dirty again (and would mutate pre-dirty refusal bytes).
@@ -1434,11 +1462,7 @@ export async function runCli(opts?: {
     if (entry.command === 'quorum_prune') return;
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
-    const closeCanonicalTerminal = (entry.success || entry.canonicalFailure === true)
-      && (
-        entry.command === 'validate'
-        || (entry.command === 'story_advance' && argsObject.phase === 'TEST')
-      );
+
     try {
       const terminalGitCwd = closeCanonicalTerminal
         ? resolveGitCwd({
@@ -1558,8 +1582,9 @@ export async function runCli(opts?: {
     // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
     // runs them like any other mutating command.
     const commandStoryId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
-    const effectiveOwnership = resolveEffectiveOwnershipClass(cmd, parsed, commandStoryId, externalAdmission.ownershipClasses, { config: config0 });
+    let effectiveOwnership: ReturnType<typeof resolveEffectiveOwnershipClass>;
     try {
+      effectiveOwnership = resolveEffectiveOwnershipClass(cmd, parsed, commandStoryId, externalAdmission.ownershipClasses, { config: config0 });
       enforceStoryRuntimeAdmission({
         command: cmd,
         commandArgs: argv.slice(1),
@@ -1575,20 +1600,12 @@ export async function runCli(opts?: {
       process.exitCode = 1;
       return;
     }
-    const effectiveReadOnly = effectiveOwnership === 'readOnly' || isReadOnlyCommand(cmd, parsed);
-    // Some commands are read-only only after argument-aware ownership resolution
-    // (for example role-only agent_prompt and the release-ledger readers). Keep
-    // activity logging on the same effective boundary as hooks and Story process
-    // events: a rejected read must not create a runtime output merely because its
-    // command name is absent from the older static READ_ONLY_COMMANDS set. The
-    // explicit telemetry opt-in still records read-only invocations by design.
-    const shouldWriteEffectiveActivityLog = effectiveReadOnly
-      ? readBrandEnv('ACTIVITY_RECORD_READONLY') === '1'
-      : shouldWriteActivityLog(cmd, parsed);
-    if (config0?.hooks?.preCommand && !effectiveReadOnly) {
+    const effects = commandObservationEffects(effectiveOwnership, readBrandEnv('ACTIVITY_RECORD_READONLY') === '1', parsed.dryRun === true);
+    const shouldWriteEffectiveActivityLog = effects.recordActivity;
+    if (config0?.hooks?.preCommand && effects.runHooks) {
       process.stderr.write(`[proof-or-stop-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
-    if (!effectiveReadOnly) {
+    if (effects.runHooks) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
     }
     try {
@@ -1691,10 +1708,10 @@ export async function runCli(opts?: {
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       // F-028: same arg-aware read-only gate as the preCommand hooks above.
-      if (config0?.hooks?.postCommand && !effectiveReadOnly) {
+      if (config0?.hooks?.postCommand && effects.runHooks) {
         process.stderr.write(`[proof-or-stop-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
-      if (!effectiveReadOnly) {
+      if (effects.runHooks) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
           PROOF_OR_STOP_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);

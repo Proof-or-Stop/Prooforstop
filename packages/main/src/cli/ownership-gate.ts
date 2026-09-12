@@ -1,3 +1,4 @@
+import { isMaintenancePreviewCommand, maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { StoryStore } from '../core/store.js';
@@ -16,6 +17,7 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
 import { managedHostRunStoryIdForOwnership } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 
 export interface ActiveStoryForOwnershipGate {
@@ -34,11 +36,15 @@ export type ExternalCommandOwnershipClasses = Readonly<Record<string, OwnershipC
 export function ownerLeaseHelpBlock(cmd: string): string | null {
   const policy = getCommandPolicy(cmd);
   if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
-  const cls = policy.ownershipClass;
+  const refreshWriter = policy.storyWriteEffect === 'whenRefresh' &&
+    resolveEffectiveOwnershipClass(cmd, { refresh: true }, null) === 'storyScopedMutating';
+  const cls = refreshWriter ? 'storyScopedMutating' : policy.ownershipClass;
   if (cls === 'readOnly' || cls === 'reviewerWrite' || cls === 'mainSharedMutating') return null;
   const note = cmd === 'validate'
     ? ' (applies when --story is supplied; diagnostic validate without --story is always read-only)'
-    : '';
+    : refreshWriter
+      ? ' (applies when --refresh is supplied; default status remains read-only)'
+      : '';
   return [
     ``,
     `  Owner lease meta options${note}:`,
@@ -131,6 +137,10 @@ export function resolveEffectiveOwnershipClass(
   if (!isOwnershipClass(declaredClass)) return null;
   let cls: OwnershipClass = declaredClass;
 
+  if (isMaintenancePreviewCommand(cmd)) {
+    return maintenanceCommandWrites(cmd, args, true) ? declaredClass : 'readOnly';
+  }
+
   if (['finding_resolve', 'finding_dismiss', 'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture'].includes(cmd)
     && storyId && storyId.startsWith('B-META-')) {
     cls = 'mainSharedMutating';
@@ -205,7 +215,7 @@ export function resolveEffectiveOwnershipClass(
     cls = typeof forced === 'string' && forced.trim().length > 0 ? 'storyScopedMutating' : 'readOnly';
   }
 
-  if (cmd === 'certification_window_status') {
+  if (cmd === 'certification_window_status' || cmd === 'review_inventory_status') {
     // Default status performs a read-only drift preflight. Only explicit
     // refresh may persist the detected INVALIDATED state.
     cls = args.refresh === true || args.refresh === 'true' ? 'storyScopedMutating' : 'readOnly';
@@ -215,6 +225,16 @@ export function resolveEffectiveOwnershipClass(
     // Health inspection writes nothing by default. Only explicit repair can
     // clean shared worktree state or append Story cleanup events.
     cls = args.repair === true || args.repair === 'true' ? 'mainSharedMutating' : 'readOnly';
+  }
+
+  if (cmd === 'check') {
+    const flag = (name: 'apply' | 'upgrade', value: unknown): boolean => {
+      if (value === undefined || value === false || value === 'false') return false;
+      if (value === true || value === 'true') return true;
+      throw new Error(`check: ${name} must be a boolean`);
+    };
+    const apply = flag('apply', args.apply), upgrade = flag('upgrade', args.upgrade);
+    cls = apply || upgrade ? 'mainSharedMutating' : 'readOnly';
   }
 
   if (cmd === 'agent_prompt') {
@@ -228,7 +248,8 @@ export function resolveEffectiveOwnershipClass(
     // conservatively for Story-aware calls so an unknown rollout cannot bypass
     // write admission; role-only prompt lookup remains unconditionally readOnly.
     const unknownStoryMode = hasStory && runtimeContext?.config === undefined;
-    cls = hasStory && (role.length > 0 || explicitAuditWrite || unknownStoryMode)
+    const readOnly = args.readOnly === true || args.readOnly === 'true';
+    cls = hasStory && (!readOnly || explicitAuditWrite || args.experimentalModeOverride !== undefined) && (role.length > 0 || explicitAuditWrite || unknownStoryMode)
       ? 'storyScopedMutating'
       : 'readOnly';
   }
@@ -458,7 +479,7 @@ export function enforceStoryOwnerLeaseGate(
       ownershipClass: cls,
       currentSessionId: getSessionId(),
       currentCwd: process.cwd(),
-    }));
+    }) + reviewerReadRecoveryHint(cmd, args, storyId));
   }
 
   const { lease, action } = acquireOrRefreshOwnerLease(storyDir, {
@@ -498,6 +519,20 @@ export function enforceStoryOwnerLeaseGate(
       ownershipClass: cls,
       currentSessionId: getSessionId(),
       currentCwd: process.cwd(),
-    }),
+    }) + reviewerReadRecoveryHint(cmd, args, storyId),
   );
+}
+
+/** Actionable reader recovery, never a substitute for a scoped/purpose-bound dispatch. */
+export function reviewerReadRecoveryHint(cmd: string, args: Record<string, unknown>, storyId?: string | null): string {
+  if (cmd === 'verify_codex') return '\nRead-only diagnostics: proof-or-stop codex doctor (does not run verification heartbeats or publish evidence)';
+  if (!storyId || !isCanonicalStoryId(storyId)) return '';
+  if (cmd === 'scope_freeze_check') return `\nRead-only prerequisites: proof-or-stop init_preflight --storyId=${storyId} (does not generate a freeze proof)`;
+  if (cmd === 'acceptance_rollout_report') return `\nRead-only existing report: proof-or-stop acceptance_rollout_report_read --storyId=${storyId} --json (does not generate new rollout evidence)`;
+  if (!['agent_prompt', 'dispatch'].includes(cmd)) return '';
+  if (['itemId', 'findingId', 'clusterId', 'reviewPurpose', 'inventoryEpochId'].some(key => args[key] !== undefined)) return '';
+  const actor = cmd === 'agent_prompt' ? args.role : args.agentType;
+  const entry = resolveRegisteredAgentActor(typeof actor === 'string' ? actor : undefined);
+  if (!entry || entry.targetCardinality !== 'story-only') return '';
+  return `\nRead-only prompt: proof-or-stop agent_prompt --role=${entry.canonicalName} --storyId=${storyId} --readOnly`;
 }

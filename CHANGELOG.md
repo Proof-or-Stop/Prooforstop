@@ -1,5 +1,41 @@
 # Changelog
 
+## Lab cli-runtime-sync-20260911 - v0.3.347 - 2026-09-12
+
+Repair CLI runtime identity, argument-aware observation, and bounded queue diagnostics through the existing Lab maintenance workflow.
+
+The local CLI now reports parameter errors without misclassifying them as build failures, rejects stale or invalid runtime version metadata before dispatch, and authenticates maintenance helper implementations before argument classification. Read-only reviewer prompts, inventory inspection, maintenance previews and default check retain read-only behavior, while refresh and execution variants retain their owner and runtime gates. Exact recovery guidance points to callable reader commands. Compatibility observation exports remain available.
+
+Queue activity uses authoritative business progress and bounded exclusive Git commits. Shared baseline resolution is cached per projection, with independent worktree ancestry checks. Unobservable worktrees remain unknown, and the dashboard no longer displays unknown or empty queues as ready. Queue selection and display use the same phase source. Lock self-reentry requires the live acquisition context and matching holder generation; unknown ownership grants no authority.
+
+Verification separates prerequisite build budgets from test-body budgets, permits reuse only after validating the current main and utils source/output bindings, preserves failure propagation for canonical successful closeout, and removes duplicate helper authentication. Full project and Story snapshots, actual OS launch argv, wrapper metadata and missing-dist negatives, and concurrent inventory read/signature controls protect the boundaries.
+
+Frozen RED/GREEN evidence: the original audit repair target improved from 2/8 to 8/8 groups, subsequent hardening from 10/14 to 14/14, closure controls from 0/6 to 6/6, and the latest unchanged target from 6/9 to 9/9. Two incorrect parameter diagnostics were corrected; four maintenance entrypoints reject tampered helpers before execution (sentinel executions 20 to 0). Controlled baseline resolutions decreased 4 to 1, helper reads 8 to 4, and nested prerequisite invocations 2 to 1. These counts do not establish overall Story speedup. A measured paired full-contract run was slower after added coverage; all observations and failed trials are retained.
+
+Before release preparation, both complete process-fact and runtime-fact contracts passed on d17aced0f3, and an independent native Claude CLI static audit returned PASS with no unresolved findings (run 9004be59-8374-45a2-a2a0-1025eaf8de2c). The exact prepared version must receive its own native audit and replay before integration. The proof package includes raw RED/GREEN, audit results, patches and 412 independently unpacked and checksummed evidence files.
+
+Scope: bounded CLI/Lab correctness and observation repairs. No claim of global owner/reviewer migration, whole-Story P50/P95 improvements, all-machine throughput, native packaged desktop execution, or formal Story DONE. Concurrent unlocked inventory reads may fail transiently and remain fail-closed with retry guidance. Follow the standard atomic patch release and post-merge checks; remote publishing is a separate approved operation.
+
+Maintenance provenance: codex/lab-cli-runtime-sync-20260911, repair c62e73625875fff0bef3c64507ec32f9c1b051ed.
+Verification command (replayed before integration and on main): `["node","scripts/verify-cli-audit-closure-controls.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab identity-reviewed-main-source - v0.3.346 - 2026-09-12
+
+This Lab repairs stale production-source identity metadata already present on local main. It refreshes the reviewed source inventory for process-fact-levels.ts, runtime-fact-registry.ts and runtime-environment-checks.ts, preserving the reviewed token lines, occurrence counts, classifications and reasons. The runtime registry token moves from line 479 to line 480. The inventory, reader digest and enclosing scanner digest are updated together. The runtime environment file's additional both-family and negative-source integrity bindings are updated to the same current digest. No production identity reader, command, allowance or rejection condition changes.
+
+Exact prior source files were recovered from Git and compared with current source before updating fingerprints. The existing registered source-binding regression retains its original positive, mutation, missing-source and inventory-tamper controls. Added controls protect every reviewed context field and inspect the actual scanner declarations. The shared-witness regression requires exactly one current binding in each consumer table for every path shared by those tables, and exercises missing, stale and duplicate bindings without deriving the expected path set from a mutated table.
+
+The latest main also introduced strict current-source evidence checks for the static scanner. The affected identity metadata dependencies and scanner source digests are refreshed while retaining all exception classifications, command identities, dependency keys and exact current excerpts. The static scanner has its own recorded target RED and GREEN. Release version changes use the official Lab transaction; they are not included in manual source-hash substitutions.
+
+The complete identity-cutover command and its self-test remain RED on the separate fixture and negative-source metadata already stale on main. The affected files are verify-process-fact-contract.mjs, verify-runtime-fact-contract.mjs, verify-acceptance-prompt-projection.mjs, verify-convergence-progress-evidence.mjs, verify-review-remediation-close.mjs and finding-identity-lineage-smoke.ts. Story B-e6d9 owns that existing fixture compatibility work, committed at 2be2dc22f1 and retained through its subsequent main merges. That Story must obtain full current canonical identity and self-test PASS before formal acceptance. This bounded Lab does not claim whole identity-suite success, Story DONE or product release capability.
+
+Prior audit rejections, main movement and the provider quota failure remain in the local Lab record. A repaired candidate must earn a fresh independent different-vendor audit before integration. No performance improvement is claimed from correctness-test duration. Command and provider durations are retained separately from overlapping parent operations and lock contention in the B-e6d9 timing ledger.
+
+Maintenance provenance: codex/lab-identity-reviewed-main-source, repair 248fb885582536f4db57d338b326ca6ce8104930.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab evidence-fixture-contracts - v0.3.345 - 2026-09-12
 
 Reject stale static-exception evidence mechanically: current excerpts must match source hashes, inclusive ranges and registered call coverage. Historical or narrative evidence cannot authorize current exceptions. Reconcile all 258 manifest entries and the 168-command registry against reviewed local-main source without weakening exception classifications.

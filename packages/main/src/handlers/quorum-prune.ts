@@ -1,3 +1,4 @@
+import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { randomUUID } from 'node:crypto';
 import { closeSync, existsSync, fsyncSync, openSync, readFileSync, renameSync, rmSync, writeFileSync, writeSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
@@ -413,7 +414,7 @@ export function createQuorumPruneHandlers(ctx: HandlerContext, testHooks: Quorum
           + 'alone) to recover, or omit both for the default projection.',
         );
       }
-      const apply = args.apply === true || args.dryRun === false;
+      const apply = maintenanceCommandWrites('quorum_prune', args);
       const keep: KeepSelector = args.keep === 'oldest-material' ? 'oldest-material' : 'newest-material';
       const runIdFilter = normalizeRunIdFilter(args.runIds);
 

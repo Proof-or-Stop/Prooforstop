@@ -1,3 +1,4 @@
+import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { execFileSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import {
@@ -11,10 +12,6 @@ interface CapabilityReleaseBackfillArgs {
   apply?: boolean;
   digest?: string;
   json?: boolean;
-}
-
-function normalizeOptionalBoolean(value: unknown): boolean {
-  return value === true;
 }
 
 /** Plain git runner; used to `git add -f` + commit a backfilled capability release. */
@@ -49,11 +46,7 @@ export function createCapabilityReleaseBackfillHandlers(
 ): Record<string, (...args: any[]) => any> {
   return {
     capability_release_backfill(args: CapabilityReleaseBackfillArgs = {}): string {
-      const apply = normalizeOptionalBoolean(args.apply);
-      const dryRunFlag = normalizeOptionalBoolean(args.dryRun);
-      if (apply && dryRunFlag) {
-        throw new Error('capability_release_backfill: pass either apply or dryRun, not both');
-      }
+      const apply = maintenanceCommandWrites('capability_release_backfill', args);
       const report = buildCapabilityReleaseBackfillReport({
         root: ctx.root,
         storyId: args.storyId,

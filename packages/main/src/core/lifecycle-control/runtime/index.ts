@@ -1,10 +1,9 @@
 import { existsSync, statSync } from 'node:fs';
 
 import { buildStoryReadinessReport, type LifecycleReadinessTarget } from '../../lifecycle-readiness.js';
-import { resolveLocalAssuranceStories } from '../../local-assurance-story-projection.js';
+import { resolveLocalAssuranceStoryContexts } from '../../local-assurance-story-projection.js';
 import { mainWriteLockPath, MAIN_WRITE_LOCK_STALE_MS } from '../../main-write-lock.js';
-import { readMkdirLockHolder } from '../../mkdir-lock.js';
-import { validationExecutionLockPath } from '../../validation-execution-lock.js';
+import { observeValidationExecutionLock } from '../../validation-execution-lock.js';
 import { getSessionId, readOwnerLease, STALE_LEASE_THRESHOLD_MS, isLeaseStale } from '../../story-owner-lease.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryPhase } from '../../types.js';
@@ -20,13 +19,12 @@ import { LIFECYCLE_CONTROL_MIGRATION_MILESTONES } from '../milestones.js';
 export * from '../control-status.js';
 export { buildProjectControlStatus, buildStoryControlStatus, isReadOnlyControlPlane, LIFECYCLE_CONTROL_MIGRATION_MILESTONES };
 
-const VALIDATION_LOCK_STALE_MS = 120000;
-
 export interface RuntimeClosureOptions {
   readonly storyId?: string;
   readonly storyIds?: readonly string[];
   readonly activeOnly?: boolean;
   readonly now?: string;
+  /** @deprecated Ignored with a warning; only a live acquisition context authorizes self-reentry. */
   readonly currentValidationStoryId?: string;
 }
 
@@ -49,7 +47,7 @@ export interface RuntimeEnforcementDecision {
   readonly mode: RuntimeEnforcementMode;
   readonly operation: RuntimeOperation;
   readonly blocked: boolean;
-  readonly reason: 'none' | 'wrong_authoritative_cwd' | 'material_dirty_tree' | 'stale_active_lock' | 'direct_main_mirror_when_worktree_authority' | 'main_write_lock_active';
+  readonly reason: 'none' | 'wrong_authoritative_cwd' | 'material_dirty_tree' | 'stale_active_lock' | 'direct_main_mirror_when_worktree_authority' | 'main_write_lock_active' | 'validation_lock_unknown';
   readonly dirtyState: RuntimeDirtyState;
   readonly rollback: 'set lifecycleControl.runtimeEnforcement=warn';
   readonly proofAdmissibilityEvaluated: false;
@@ -73,6 +71,8 @@ export function evaluateRuntimeEnforcement(input: RuntimeEnforcementInput): Runt
       : 'wrong_authoritative_cwd';
   } else if (input.operation === 'phase-advance' && dirtyState === 'material') {
     reason = 'material_dirty_tree';
+  } else if (input.validationLock === 'unknown') {
+    reason = 'validation_lock_unknown';
   } else if (input.validationLock === 'active' || input.validationLock === 'stale') {
     reason = 'stale_active_lock';
   } else if (input.operation === 'shared-main-write' && input.mainWriteLock === 'active') {
@@ -130,34 +130,6 @@ function mainWriteLockStatus(root: string, nowMs: number): RuntimeClosureRow['lo
   return 'active';
 }
 
-function validationLockPath(root: string, storyId: string): string {
-  // Delegate to the canonical shared-root lock path (CHK-001 / F-007). Hand-rolling
-  // `<root>/.proof-or-stop/locks/validation/<id>.lock` keyed the status probe off each
-  // worktree's OWN physical root, so a linked worktree reported a genuinely-held
-  // lock as free — silently defeating the cross-worktree lock visibility this story
-  // delivers. validationExecutionLockPath anchors at the shared git-common-dir root.
-  try {
-    return validationExecutionLockPath(root, storyId);
-  } catch {
-    return '';
-  }
-}
-
-function validationLockStatus(
-  root: string,
-  storyId: string,
-  nowMs: number,
-  currentValidationStoryId?: string,
-): RuntimeClosureRow['locks']['validationLock'] {
-  const path = validationLockPath(root, storyId);
-  if (!existsSync(path)) return 'free';
-  const age = lockAgeMs(path, nowMs);
-  if (age !== null && age >= VALIDATION_LOCK_STALE_MS) return 'stale';
-  const holder = readMkdirLockHolder(path);
-  if (currentValidationStoryId === storyId || holder?.pid === process.pid) return 'self-reentry';
-  return 'active';
-}
-
 function ownerLeaseStatus(store: StoryStore, storyId: string, nowMs: number): RuntimeClosureRow['locks']['ownerLease'] {
   const lease = readOwnerLease(store.storyDirPath(storyId));
   if (!lease) return 'missing';
@@ -186,6 +158,14 @@ function ownerLeaseIssue(status: RuntimeClosureRow['locks']['ownerLease']): Life
 }
 
 function validationLockIssue(status: RuntimeClosureRow['locks']['validationLock']): LifecycleControlIssue | null {
+  if (status === 'unknown') {
+    return {
+      check: 'validationLock',
+      reason: 'validation lock owner is unknown; availability is not proven',
+      remediation: 'retry after acquisition settles; inspect proof-or-stop doctor and runtime_closure_status. Manual orphan recovery requires stopping all processes sharing this repository and independently confirming no lock owner before backing up and removing only this lock directory; age or missing metadata alone never authorizes cleanup',
+      source: 'core/validation-execution-lock',
+    };
+  }
   if (status === 'active') {
     return {
       check: 'validationLock',
@@ -197,7 +177,7 @@ function validationLockIssue(status: RuntimeClosureRow['locks']['validationLock'
   if (status === 'self-reentry') {
     return {
       check: 'validationLock',
-      reason: 'current process/session already owns this validation lock',
+      reason: 'current async context owns this validation lock generation',
       remediation: 'treat as self-reentry rather than a foreign-host conflict',
       source: 'core/validation-execution-lock',
     };
@@ -225,19 +205,26 @@ function aggregate(rows: readonly RuntimeClosureRow[]): RuntimeClosureReport['ag
   return 'green';
 }
 
+let warnedLegacyValidationHint = false;
+
 export function projectRuntimeClosure(
   store: StoryStore,
   root: string,
   options: RuntimeClosureOptions = {},
 ): RuntimeClosureReport {
+  if (options.currentValidationStoryId !== undefined && !warnedLegacyValidationHint) {
+    warnedLegacyValidationHint = true;
+    console.warn('currentValidationStoryId is deprecated and ignored; validation self-reentry requires the live acquisition context, not a Story ID.');
+  }
   const now = options.now ?? new Date().toISOString();
   const nowMs = Date.parse(now);
-  const localProjection = resolveLocalAssuranceStories(store, root, {
+  const { projection: localProjection, workspaces } = resolveLocalAssuranceStoryContexts(store, root, {
     activeOnly: options.activeOnly,
     storyIds: options.storyId ? [options.storyId] : options.storyIds ? [...options.storyIds] : undefined,
     now,
   });
   const rows: RuntimeClosureRow[] = localProjection.stories.map((story) => {
+    const workspace = workspaces.get(story.storyId)!;
     const blockingItems: LifecycleControlIssue[] = [];
     const advisoryItems: LifecycleControlIssue[] = [];
     const mirrorDrift = story.mirrorPhase !== story.activePhase;
@@ -255,9 +242,9 @@ export function projectRuntimeClosure(
       const readiness = buildStoryReadinessReport({
         storyId: story.storyId,
         target: targetForPhase(story.activePhase),
-        store,
-        root,
-        gitCwd: story.activeCwd,
+        store: workspace.store,
+        root: workspace.store.projectRoot,
+        gitCwd: workspace.gitCwd,
       });
       for (const row of readiness.readiness) {
         const issue: LifecycleControlIssue = {
@@ -280,15 +267,15 @@ export function projectRuntimeClosure(
     }
 
     const locks: RuntimeClosureRow['locks'] = {
-      ownerLease: ownerLeaseStatus(store, story.storyId, Number.isFinite(nowMs) ? nowMs : Date.now()),
+      ownerLease: ownerLeaseStatus(workspace.store, story.storyId, Number.isFinite(nowMs) ? nowMs : Date.now()),
       mainWriteLock: mainWriteLockStatus(root, Number.isFinite(nowMs) ? nowMs : Date.now()),
-      validationLock: validationLockStatus(root, story.storyId, Number.isFinite(nowMs) ? nowMs : Date.now(), options.currentValidationStoryId),
+      validationLock: observeValidationExecutionLock(root, story.storyId, Number.isFinite(nowMs) ? nowMs : Date.now()),
     };
     const ownerIssue = ownerLeaseIssue(locks.ownerLease);
     if (ownerIssue) advisoryItems.push(ownerIssue);
     const validationIssue = validationLockIssue(locks.validationLock);
     if (validationIssue) {
-      if (locks.validationLock === 'active') blockingItems.push(validationIssue);
+      if (locks.validationLock === 'active' || locks.validationLock === 'unknown') blockingItems.push(validationIssue);
       else advisoryItems.push(validationIssue);
     }
     if (locks.mainWriteLock === 'active') {

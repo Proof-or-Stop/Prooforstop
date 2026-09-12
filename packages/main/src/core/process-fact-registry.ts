@@ -728,7 +728,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   },
   review_inventory_status: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
-    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch', producerCommand: 'review_inventory_status',
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch', producerCommand: 'review_inventory_status --refresh (default is unsigned observation only)',
     consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory freshness gate',
   },
   review_inventory_critic_set: {
@@ -760,7 +760,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'prompt-envelopes.json',
     path: 'prompt-envelopes.json',
     signed: false,
-    producerCommand: 'agent_prompt/review_run_start',
+    producerCommand: 'agent_prompt without --readOnly/review_run_start; readOnly inspection never publishes and its v1 JSON preserves roleBodyDigest and knownExecutionEnvironment with envelope:null/canMintReviewEvidence:false',
     consumerGate: 'audit-only for story-dispatch; review-run envelopeId is consumed through the signed ReviewRun by REVIEW, assurance-floor, and quorum gates. Fresh rows carry exact proof-or-stop.* Prompt identities; retired-family rows are inert and rejected by active readers without a compatibility fallback.',
   },
   closeout_write_receipt: {
@@ -824,6 +824,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     consumerGate: 'validate verification coverage and freshness gates after heartbeat-protected abort-atomic execution: batch command/cwd/effective-timeout/environment plus HEAD/material/story-files identity shares one process while each intent retains independent selector evaluation; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   verification_evidence_refresh_stale: {
+    // Explicit dry-run is an unsigned observation; only execution produces this artifact.
     name: 'checklist.json',
     path: 'checklist.json',
     signed: false,
@@ -2361,7 +2362,7 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     level: 'L4',
     producer: 'handlers/verifier',
     consumerGate: 'done_prepare convergence acceptance',
-    rationale: 'Command schedulerWaitMs is diagnostic intra-plan resource-conflict waiting only, excluding worker slots and cross-process capacity; it grants no gate or reuse authority. Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash, grouped per commandSetHash, materialHash, and storyFilesHash for duplicate-suite accounting. Blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at or after TEST entry (facts.testEntryAt, B-f824) plus reused terminals with commandExecutions > 0 in any phase; reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry.',
+    rationale: 'Generic CLI command observation consumes argument-aware effective ownership for hooks, activity and Story events; name-only read helpers never exempt writers. check apply/upgrade modes reject malformed values before ownership classification; compatibility helpers remain re-exported without being consumed internally. Ordinary observation classifier failures omit best-effort events instead of replacing command failures. Successful validate/TEST-advance canonical terminals instead fail loudly with CanonicalTerminalCloseoutError; already-failed canonical commands retain the primary error and report closeout faults to health. These command observations do not replace validation terminals or grant gate evidence. Runtime readiness uses the selected Store metadata root; queue activity includes recorded Story events and, only when those are old, non-merge commits exclusive to the integration baseline within a bounded shared probe budget; unavailable evidence is unknown-worktree, never stale proof or cleanup authority. Legacy currentValidationStoryId emits a deprecation and cannot authorize lock reentry. Command schedulerWaitMs is diagnostic intra-plan resource-conflict waiting only, excluding worker slots and cross-process capacity; it grants no gate or reuse authority. Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash, grouped per commandSetHash, materialHash, and storyFilesHash for duplicate-suite accounting. Blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at or after TEST entry (facts.testEntryAt, B-f824) plus reused terminals with commandExecutions > 0 in any phase; reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry.',
   },
 ] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
