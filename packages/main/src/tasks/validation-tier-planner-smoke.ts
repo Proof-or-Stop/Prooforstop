@@ -110,7 +110,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
@@ -2350,6 +2350,17 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
   assert.ok(gateFact.consumerGate?.trim(), 'Dynamic Finding L4 gate process fact must name its consumer gate');
   assert.equal(gateFact.validationTierFloor, 'repository-full');
   assert.ok(gateFact.paths.length > 0, 'Dynamic Finding L4 gate process fact must declare governed paths');
+  const declaredSourceRefs = [...new Set([
+    ...(gateFact.producerSourceRefs ?? []),
+    ...(gateFact.consumerSourceRefs ?? []),
+  ])];
+  assert.ok(declaredSourceRefs.length > 0, 'Dynamic Finding must declare its producer and consumer source surface');
+  const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
+  assert.ok(repoRoot, 'repository root must resolve for Dynamic Finding source coverage');
+  for (const sourceRef of declaredSourceRefs) {
+    assert.ok(gateFact.paths.includes(sourceRef), `validation floor must include declared source ref: ${sourceRef}`);
+    assert.ok(existsSync(join(repoRoot, sourceRef)), `declared Dynamic Finding source must exist: ${sourceRef}`);
+  }
   assert.ok(
     gateFact.paths.includes('packages/main/src/core/certification-window.ts'),
     'Dynamic Finding coverage must include a non-validation-named path outside the legacy sensitive-path list',
@@ -2401,10 +2412,13 @@ testCase('explicit repository-full process-fact paths force full without overmat
         validationTierFloor: 'repository-full',
         paths: [null, '', 'packages/main/src/core/valid-full-path.ts'],
       },
+      { level: 'L4', validationTierFloor: 'repository-full', paths: ['/absolute.ts'] },
+      { level: 'L4', validationTierFloor: 'repository-full', paths: ['../../escape.ts'] },
+      { level: 'L4', validationTierFloor: 'repository-full', paths: ['packages\\main\\escape.ts'] },
     ]),
     {
       paths: ['packages/main/src/core/valid-full-path.ts'],
-      rejectedEntryCount: 4,
+      rejectedEntryCount: 7,
     },
     'malformed independently decoded registry entries must be reported while valid authority survives',
   );
@@ -2456,6 +2470,9 @@ testCase('explicit repository-full process-fact paths force full without overmat
   for (const unavailable of [
     { paths: [], rejectedEntryCount: 0 },
     { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: 1 },
+    { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: Number.NaN },
+    { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: 'many' },
+    { paths: 'not-an-array', rejectedEntryCount: 0 },
   ]) {
     assert.deepEqual(
       classifySensitiveStoryPaths([], unavailable),
@@ -2468,7 +2485,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
       universeCommandIds: ['unit-suite', 'lint-suite'],
       changedPaths: [],
       pinnedCommandIds: [],
-      forceFullReasons: classifySensitiveStoryPaths([], unavailable),
+      forceFullReasons: [],
       commandSetDigest: 'floor-unavailable-command-set-v1',
       snapshotDigest: 'floor-unavailable-snapshot-v1',
       impactIndex: {
@@ -2480,7 +2497,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
           { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
         ],
       },
-    });
+    }, { registryFloorProjection: unavailable });
     assert.equal(decision.effectiveTier, 'repository-full');
     assert.ok(decision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
   }

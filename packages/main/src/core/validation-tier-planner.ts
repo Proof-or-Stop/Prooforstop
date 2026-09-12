@@ -159,6 +159,11 @@ export interface SelectValidationTiersInput {
   impactIndex: ValidationImpactIndex | null | undefined;
 }
 
+export interface SelectValidationTiersDependencies {
+  /** Internal verification seam; CLI/schema inputs never populate dependencies. */
+  registryFloorProjection?: unknown;
+}
+
 export interface ValidationCommandExclusionProof {
   commandId: string;
   reason:
@@ -273,11 +278,21 @@ const BUILD_GRAPH_PATH_PATTERNS = [
  */
 export function classifySensitiveStoryPaths(
   paths: readonly string[],
-  registered = collectRepositoryFullProcessFactPaths(),
+  registered: unknown = collectRepositoryFullProcessFactPaths(),
 ): ValidationWideningReasonCode[] {
   const reasons = new Set<ValidationWideningReasonCode>();
-  const registeredPatterns = [...new Set(registered.paths.map(normalizedPath).filter(Boolean))];
-  const registeredFloorUnavailable = registered.rejectedEntryCount > 0 || registeredPatterns.length === 0;
+  const candidate = registered as { paths?: unknown; rejectedEntryCount?: unknown } | null;
+  const projectionShapeValid = Boolean(candidate)
+    && Array.isArray(candidate?.paths)
+    && candidate.paths.every((path) => typeof path === 'string')
+    && Number.isInteger(candidate?.rejectedEntryCount)
+    && Number(candidate?.rejectedEntryCount) >= 0;
+  const registeredPatterns = projectionShapeValid
+    ? [...new Set((candidate!.paths as string[]).map(normalizedPath).filter(Boolean))]
+    : [];
+  const registeredFloorUnavailable = !projectionShapeValid
+    || Number(candidate?.rejectedEntryCount) > 0
+    || registeredPatterns.length === 0;
   if (registeredFloorUnavailable) reasons.add('validation_floor_registry_unavailable');
   for (const path of paths) {
     const normalized = normalizedPath(path);
@@ -339,7 +354,10 @@ function dynamicFullDecision(
  * declaration, an unknown changed path, a stale command-set binding, or any
  * pre-classified sensitive fact makes every tier equal repository-full.
  */
-export function selectValidationTiers(rawInput: SelectValidationTiersInput): ValidationTierSelectionDecision {
+export function selectValidationTiers(
+  rawInput: SelectValidationTiersInput,
+  dependencies: SelectValidationTiersDependencies = {},
+): ValidationTierSelectionDecision {
   const input = rawInput;
   const requestedTier = assertValidationTier(input?.requestedTier, 'selectValidationTiers');
   const universe = [...new Set((input?.universeCommandIds ?? []).map((id) => id.trim()).filter(Boolean))];
@@ -361,7 +379,10 @@ export function selectValidationTiers(rawInput: SelectValidationTiersInput): Val
 
   const impactIndexDigest = digestCanonicalJson(index);
   const reasons = new Set<ValidationWideningReasonCode>(forceFullReasons);
-  for (const reason of classifySensitiveStoryPaths(changedPaths)) reasons.add(reason);
+  const floorProjection = Object.prototype.hasOwnProperty.call(dependencies, 'registryFloorProjection')
+    ? dependencies.registryFloorProjection
+    : collectRepositoryFullProcessFactPaths();
+  for (const reason of classifySensitiveStoryPaths(changedPaths, floorProjection)) reasons.add(reason);
   if (malformedForceReason) reasons.add('impact_index_unusable');
   if (typeof input.commandSetDigest !== 'string' || input.commandSetDigest.trim() === '') reasons.add('impact_index_unusable');
   if (typeof input.snapshotDigest !== 'string' || input.snapshotDigest.trim() === '') reasons.add('hash_snapshot_unavailable');

@@ -1570,6 +1570,18 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/handlers/transition-orchestrator.ts',
     ],
   },
+  'runtime:dynamic_finding_applicability_gate': {
+    producerSourceRefs: [
+      'packages/main/src/core/finding-applicability.ts',
+      'packages/main/src/core/finding-applicability-projection.ts',
+      'packages/main/src/handlers/finding-applicability.ts',
+      'packages/main/src/handlers/finding-material-reattestation.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/handlers/transition-orchestrator.ts',
+      'packages/main/src/core/certification-window.ts',
+    ],
+  },
 };
 
 const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEVELS
@@ -1581,13 +1593,10 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
   return {
     name: entry.name,
-    ...(entry.name === 'runtime:dynamic_finding_applicability_gate' ? {validationTierFloor: 'repository-full' as const, paths: [
-      'packages/main/src/core/finding-applicability.ts',
-      'packages/main/src/core/finding-applicability-projection.ts',
-      'packages/main/src/handlers/transition-orchestrator.ts',
-      'packages/main/src/handlers/finding-material-reattestation.ts',
-      'packages/main/src/core/certification-window.ts',
-    ]} : {}),
+    ...(entry.name === 'runtime:dynamic_finding_applicability_gate' && sourceRefs ? {
+      validationTierFloor: 'repository-full' as const,
+      paths: [...new Set([...sourceRefs.producerSourceRefs, ...sourceRefs.consumerSourceRefs])],
+    } : {}),
     kind: commandFactKind(entry.name, entry.level),
     semantics: commandFactSemantics(entry.name, entry.level),
     level: entry.level,
@@ -2584,8 +2593,11 @@ export function collectRepositoryFullProcessFactPaths(
     }
     let rejectedLeaf = false;
     for (const path of entry.paths) {
-      if (typeof path === 'string' && path.trim() !== '') paths.add(path);
-      else rejectedLeaf = true;
+      try {
+        paths.add(normalizeProcessFactPath(path, 'process-non-total'));
+      } catch {
+        rejectedLeaf = true;
+      }
     }
     if (rejectedLeaf) rejectedEntryCount += 1;
   }
