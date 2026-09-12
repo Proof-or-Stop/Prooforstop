@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { registerHooks } from 'node:module';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import ts from 'typescript';
 
 registerHooks({
@@ -49,6 +52,7 @@ for (const legitimate of [
   { desc: 'The parser rejects unresolved symbolic references.', type: 'logic', priority: 'must' },
   { desc: 'A review screen renders unresolved findings for the user.', type: 'browser', priority: 'must' },
   { desc: 'A reviewer can open the generated report.', type: 'cli', priority: 'must' },
+  { desc: 'Independent review has no unresolved high or critical finding.', type: 'manual', priority: 'should' },
 ]) {
   assert.equal(
     classify(legitimate),
@@ -70,5 +74,67 @@ assert.match(
   /Do not encode .*review_pass_set.*finding_add.*verificationIntent/i,
   'REVIEW_GATE_INTENT_CYCLE: the PLAN authoring prompt must prohibit lifecycle review evidence as intent',
 );
+
+const fixtureRoot = mkdtempSync(join(tmpdir(), 'proof-review-gate-cycle-'));
+const cli = new URL('../packages/main/dist/cli.js', import.meta.url).pathname;
+const run = (command, payload) => execFileSync(process.execPath, [cli, '--root', fixtureRoot, command, JSON.stringify(payload)], {
+  encoding: 'utf8',
+  stdio: ['pipe', 'pipe', 'pipe'],
+});
+try {
+  mkdirSync(join(fixtureRoot, 'docs', 'story', 'actives'), { recursive: true });
+  mkdirSync(join(fixtureRoot, 'docs', 'requirements'), { recursive: true });
+  writeFileSync(join(fixtureRoot, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist',
+    testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures',
+    storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  }));
+  writeFileSync(join(fixtureRoot, 'docs', 'requirements', 'truth.md'), '# Review lifecycle truth\n');
+  const created = run('story_create', {
+    name: 'review-gate-cycle',
+    title: 'Reject review lifecycle evidence from acceptance intent',
+    description: 'Keep the DEV to REVIEW transition satisfiable.',
+    type: 'bug',
+    priority: 'low',
+    forceNew: true,
+    background: `## Trigger Event\nOn 2026-09-12, run LAB-review-intent-stage-cycle reproduced a DEV to REVIEW dependency cycle caused by a review verdict encoded as acceptance evidence.\n\n## Key Insights\nIndependent review evidence is created only after entering REVIEW, while verification intents are otherwise required before that transition. The two evidence classes must remain separate.\n\n## Solution Tradeoffs\nReject the narrow lifecycle-verdict shape during PLAN instead of weakening the DEV evidence gate. This preserves product-behavior acceptance while preventing the known impossible dependency.\n\n## Conversational Texture\nThe benchmark completed implementation and focused tests but delivered an empty patch because one impossible intent kept the Story in DEV. The repair must fail early with a useful instruction.`,
+    checklist: [{
+      title: 'Verify the focused behavior',
+      context: 'Exercise product behavior and keep lifecycle review separate.',
+      relatedDocs: ['docs/requirements/truth.md'],
+      verificationIntent: {
+        happy: [{ desc: 'The focused product command passes.', type: 'cli', priority: 'must' }],
+        edge: [{ desc: 'The product handles an empty input.', type: 'logic', priority: 'must' }],
+        adversarial: [{ desc: 'Independent review has no unresolved high or critical finding.', type: 'manual', priority: 'must' }],
+      },
+    }],
+  });
+  const storyId = created.match(/B-[a-f0-9]+/)?.[0];
+  assert.ok(storyId, 'REVIEW_GATE_INTENT_CYCLE: fixture Story must be created');
+  run('understanding_set', {
+    storyId,
+    task: 'reject lifecycle review outcomes in verification intent',
+    outcome: 'PLAN review reports a precise blocking issue',
+    facts: ['review evidence is produced in REVIEW'],
+    constraints: ['do not weaken DEV verification coverage'],
+    unknowns: [],
+    touchpoints: ['packages/main/src/handlers/story-review.ts'],
+  });
+  run('scope_check_save', {
+    storyId,
+    features: [{ feature: 'review intent cycle', covered_by: 'regression fixture', status: 'covered', excluded_by: null, source: 'Lab regression' }],
+    summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 },
+    readManifest: { filesReadFully: ['docs/requirements/truth.md'], filesTriagedByName: [], scanEscalationReason: null },
+    openQuestions: [],
+  });
+  const reviewText = run('story_review', { storyId });
+  const review = JSON.parse(reviewText.slice(reviewText.indexOf('{')));
+  const issue = review.issues.find((candidate) => candidate.type === 'review_gate_as_verification_intent');
+  assert.ok(issue, 'REVIEW_GATE_INTENT_CYCLE: real story_review must report the lifecycle dependency');
+  assert.equal(issue.intentRef, 'CHK-001:adversarial:0');
+  assert.equal(issue.severity, 'blocker');
+} finally {
+  rmSync(fixtureRoot, { recursive: true, force: true });
+}
 
 console.log('REVIEW_GATE_INTENT_CYCLE: review-only gate evidence is rejected during PLAN');

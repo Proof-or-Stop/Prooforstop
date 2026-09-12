@@ -22,6 +22,8 @@ not implementation work and not execution evidence.
 - Consider happy, edge, and adversarial cases. Make each check observable and
   choose a supported type such as `cli`, `browser`, `logic`, `manual`, or
   `docs`.
+- Do not encode REVIEW lifecycle results from `review_pass_set` or `finding_add`
+  as `verificationIntent`; those facts are produced only after entering REVIEW.
 - Write only the `verificationIntent` field through `checklist_update`:
 
   ```bash

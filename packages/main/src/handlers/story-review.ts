@@ -18,7 +18,7 @@ import { storyScopeBudgetBlocker } from '../core/story-scope-budget.js';
 
 import { assessPlanTouchpointCoverage, planOwnerCoverageFailure } from '../core/plan-touchpoint-coverage.js';
 import type { HandlerContext } from './context.js';
-import type { StoryInfo, ScopeContractData } from '../core/types.js';
+import type { StoryInfo, ScopeContractData, VerificationIntentItem } from '../core/types.js';
 import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
 import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
@@ -104,6 +104,30 @@ export function decompositionAdvisoryIssues(
 }
 
 /**
+ * REVIEW outcomes are lifecycle evidence, not acceptance evidence. Requiring a
+ * reviewer verdict as a must verificationIntent makes DEV -> REVIEW depend on
+ * evidence that the reviewer is only allowed to produce after that transition.
+ * Keep the classifier deliberately narrow: product UI or CLI behavior that
+ * happens to mention reviews/findings is still a legitimate verification target.
+ */
+export function reviewGateVerificationIntentIssue(intent: VerificationIntentItem): {
+  type: 'review_gate_as_verification_intent';
+  severity: 'blocker';
+  message: string;
+} | null {
+  if ((intent.priority ?? 'must') !== 'must') return null;
+  const text = intent.desc.normalize('NFKC').toLowerCase();
+  const lifecycleReviewSubject = /\b(?:independent|external|peer|code|quality|security|test(?:[- ]coverage)?)\s+review\b|\breviewer\s+(?:run|lane|pass|verdict|finding)|\breview\s+(?:run|lane|pass|verdict)\b|\breview_(?:run_start|pass_set)\b|\bfinding_add\b/.test(text);
+  const lifecycleOutcome = /\b(?:no|zero|without)\s+(?:unresolved\s+)?(?:(?:critical|high)(?:\s+or\s+(?:critical|high))?\s+)?(?:findings?|blockers?|issues?)\b|\b(?:passes?|passed|approves?|approved|approval|verdict|findings?|blockers?)\b/.test(text);
+  if (!lifecycleReviewSubject || !lifecycleOutcome) return null;
+  return {
+    type: 'review_gate_as_verification_intent',
+    severity: 'blocker',
+    message: 'A REVIEW lifecycle outcome cannot be a verificationIntent required before REVIEW. Remove this verificationIntent; independent reviewers record the lifecycle result with review_pass_set or finding_add after the Story enters REVIEW. Keep verificationIntent limited to product behavior that DEV can prove.',
+  };
+}
+
+/**
  * B-956f R8 (quality F-014): the story_review ProofStory diagnostic-input
  * material-classification wiring, extracted as a named export so the
  * language-neutral smoke can drive THIS production call site directly against a
@@ -169,7 +193,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // drive this exact site against a wrapper-root fixture.
       const materialClassification = buildStoryReviewMaterialClassification(store, args.storyId, ctx.root);
 
-      const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
+      const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; intentRef?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];
       const scopeBudgetBlocker = storyScopeBudgetBlocker(store, ctx.root, args.storyId);
       if (scopeBudgetBlocker) issues.push({ type: 'scope_budget', severity: 'blocker', message: scopeBudgetBlocker,
@@ -421,6 +445,14 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         for (const lane of VERIFICATION_LANES) {
           const entries = item.verificationIntent?.[lane] || [];
           for (const [index, intent] of entries.entries()) {
+            const reviewGateIssue = reviewGateVerificationIntentIssue(intent);
+            if (reviewGateIssue) {
+              issues.push({
+                ...reviewGateIssue,
+                itemId: item.id,
+                intentRef: intent.id ?? `${item.id}:${lane}:${index}`,
+              });
+            }
             const repositoryWide = intent.scope === 'repository'
               || (intent.scope === undefined
                 && /\bgo\s+test\s+\.\/\.\.\.|\bfull[- ]suite\b|\b(?:complete|entire|full)\s+repository\b|\brepository[- ]wide\b/i.test(intent.desc));

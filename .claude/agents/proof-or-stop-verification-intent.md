@@ -36,6 +36,8 @@ not implementation work and not execution evidence.
   `requirementSource=external_verifier`
   for an absolute repository-wide `must` only when the task, user, or official
   verifier explicitly requires it, and set `requirementRef` to that source.
+- Do not encode REVIEW lifecycle results from `review_pass_set` or `finding_add`
+  as `verificationIntent`; those facts are produced only after entering REVIEW.
 - Write only the `verificationIntent` field through `checklist_update`:
 
   ```bash
