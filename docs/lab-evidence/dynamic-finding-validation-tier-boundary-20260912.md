@@ -76,7 +76,7 @@ code-and-documentation diff changes the validation inventory.
 ### Current audited-base rebind
 
 After synchronizing local main again, the candidate was based on exact main SHA
-`62a5c2b385516541bdb3cd001544b83b783812e9`, CLI/package version `0.3.347`.
+`a8240a60bd33dd1d6ba2fee2966547cd109cc070`, CLI/package version `0.3.348`.
 The production recomputation was repeated in that synchronized Lab worktree:
 
 ```text
@@ -89,7 +89,7 @@ synchronized Lab candidate produced:
 Literal command:
 
 ```bash
-node --input-type=module - 62a5c2b385516541bdb3cd001544b83b783812e9 HEAD <<'NODE'
+node --input-type=module - a8240a60bd33dd1d6ba2fee2966547cd109cc070 HEAD <<'NODE'
 import { execFileSync } from 'node:child_process';
 import { normalizeConfiguredValidationCommands } from './packages/main/dist/core/validation-command-config.js';
 import { buildValidationCommandInventory } from './packages/main/dist/core/validation-command-identity.js';
@@ -108,7 +108,7 @@ NODE
 Verbatim stdout:
 
 ```json
-{"beforeRef":"62a5c2b385516541bdb3cd001544b83b783812e9","afterRef":"HEAD","beforeCount":168,"afterCount":168,"added":[],"removed":[]}
+{"beforeRef":"a8240a60bd33dd1d6ba2fee2966547cd109cc070","afterRef":"HEAD","beforeCount":168,"afterCount":168,"commandSetDigest":"e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b","warnings":["167 of 168 validation commands still lack a declared id and are running on provisional ids (prefix \"prov-\") derived from command, args, declared cwd and declared shell. Declare a stable id on each so its planner identity survives an edit to any of those fields."],"added":[],"removed":[]}
 ```
 
 ```text
@@ -121,13 +121,13 @@ removed: []
 The rebuilt candidate then ran
 `node packages/main/dist/tasks/validation-tier-planner-smoke.js` and ended with
 `validation-tier-planner-smoke: PASS`. This is the current-base binding. The
-literal `git diff --name-only 5fc1e8d4584a74b32e5b3964ee7c3710c7191960
-62a5c2b385516541bdb3cd001544b83b783812e9` listed only
-`.claude/agents/proof-or-stop-verification-intent.md` and `CHANGELOG.md`, so it
-did not change `proof-or-stop.config.json` or `docs/validation-performance.md`.
-The earlier 0.3.345, `3f6397106a`, `1da6c8e86e`, and `5fc1e8d458` records above
-are retained only as provenance of the original stale-pin discovery and prior
-rebinds.
+synchronized 0.3.348 identity-context release changed its named identity
+implementation, fixtures, verification scripts, package metadata, and static
+exception bindings. It did not change `proof-or-stop.config.json` or the 168
+normalized validation-command tuples, as the exact comparison above proves.
+The earlier 0.3.345, `3f6397106a`, `1da6c8e86e`, `5fc1e8d458`, and
+`62a5c2b385` records above are retained only as provenance of the original
+stale-pin discovery and prior rebinds.
 
 ## Original headline RED
 
