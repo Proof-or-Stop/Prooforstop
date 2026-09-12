@@ -9894,7 +9894,7 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   }
   const remediationSource = read('packages/main/src/handlers/review-remediation.ts');
   for (const invariant of ['withAtomicFindingLedgerWrites', 'verifyReviewInventoryEpoch', 'verifyReviewInventoryReceipt',
-    'verifyCausalEvidenceReceipt', 'isBlockingDirty', 'appendMarker(ctx.store)', 'exactStoryArtifactNames']) {
+    'hasMechanicalExecutionAuthority', 'isBlockingDirty', 'appendMarker(ctx.store)', 'exactStoryArtifactNames']) {
     assert(remediationSource.includes(invariant), `ReviewRemediation must preserve ${invariant}`);
   }
   assert(/review_remediation_close:[^\n]+ownershipClass: 'storyScopedMutating'[^\n]+allowedPhases: \['DEV'\]/.test(read('packages/main/src/core/command-policy.ts')), 'ReviewRemediation must remain owner-gated DEV repair');
@@ -11119,6 +11119,7 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
   assert(readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('optional fullStoryBaseHead'), 'Comparison-base process semantics must remain registered');
 }
 
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11372,6 +11373,20 @@ try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-budget-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 750000 });
   assert(output.includes('CLI_AUDIT_BUDGET_GREEN'), 'CLI budget and companion diagnostic controls must pass');
 } catch (error) { assert(false, verificationFailureMessage('CLI budget and diagnostics', error)); }
+// Remediation and convergence must consume authenticated V5 publication evidence.
+{
+  const authority = read('packages/main/src/core/verification-receipt-authority.ts');
+  for (const token of ['validateVerificationReceipt', "validation.kind === 'split-v5'", 'storyId, intentRef:', 'freshness:', 'store.projectRoot', 'Execution authority verifier unavailable', '{ cause: error }']) {
+    nodeAssert(authority.includes(token), `execution authority missing V5 binding: ${token}`);
+  }
+  const remediation = read('packages/main/src/handlers/review-remediation.ts');
+  nodeAssert(!remediation.includes('readCausalEvidenceReceipt'), 'publication recheck must not revert to legacy-only authority');
+  nodeAssert(remediation.match(/hasMechanicalExecutionAuthority\(ctx.store/g)?.length === 2, 'initial and publication authority must share the strict verifier');
+}
+
+const receiptScripts = JSON.parse(read('package.json')).scripts;
+nodeAssert(receiptScripts['test:receipt-authority-v5'] === 'node scripts/verify-review-remediation-close.mjs' && receiptScripts['test:serial-reference'].includes('npm run test:receipt-authority-v5'), 'V5 authority regression must run in canonical suite');
+nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:receipt-authority-v5',"), 'V5 authority needs canonical resource policy');
 
 if (failures.length) {
   console.error('');
@@ -11384,3 +11399,4 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
+
