@@ -2880,6 +2880,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       //   - userSees is a PLAN artifact (see CLAUDE.md checklist conventions), allowed to be added/modified during the PLAN phase,
       //     frozen from DEV onward (the executor must not tamper with the acceptance description during implementation)
       const story = assertChecklistMutationCwd(store, args.storyId);
+      if (isDispatchedVerificationIntentWriter && story.phase !== 'PLAN') {
+        throw new Error('Independent verification-intent writes require PLAN [verification_intent_writer_phase_invalid]');
+      }
       const titleContextFields = ['title', 'context'] as const;
       const titleContextProtectedPhases = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
       const userSeesProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];

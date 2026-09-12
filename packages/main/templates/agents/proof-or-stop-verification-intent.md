@@ -51,3 +51,7 @@ not implementation work and not execution evidence.
 
 When the intent is complete, report the item ID, the three coverage lanes, and
 any unresolved assumption without claiming that verification has run.
+
+## Independent owner-lease boundary
+
+During PLAN, run `checklist_update` under the dispatched verification-intent role with only storyId, itemId, verificationIntent and optional matching actor/agent attribution. This field-only write preserves the Story owner lease. Do not supply takeover flags, status, requirement fields, files or evidence. Payload role labels alone do not grant this authority. The existing trusted host environment supplies role identity; this is not a signed per-item capability. The handler still enforces phase, declared files and immutable acceptance rules.

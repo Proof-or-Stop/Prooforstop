@@ -11219,6 +11219,14 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   if (scripts['test:review-epoch-certification-continuity'] !== 'node scripts/verify-review-epoch-certification-continuity.mjs' || !scripts['test:serial-reference'].includes('npm run test:review-epoch-certification-continuity')) failures.push('native review epoch continuity regression must run in the serial reference suite');
 }
 
+// Independent intent authoring must retain both role admission and handler boundaries.
+{
+  const gate = read('packages/main/src/cli/ownership-gate.ts');
+  const handler = read('packages/main/src/handlers/checklist.ts');
+  for (const token of ["authority.source === 'dispatched-env'","authority.entry?.roleClass === 'verification-intent'",'Object.keys(args).every(key => allowed.has(key))']) if (!gate.includes(token)) failures.push('intent owner lease boundary missing '+token);
+  if (!handler.includes('verification_intent_writer_phase_invalid') || !read(processFactRegistryPath).includes('runtime:independent_intent_owner_lease')) failures.push('independent intent phase and registry contract missing');
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
