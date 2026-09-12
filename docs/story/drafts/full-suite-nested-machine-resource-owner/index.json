@@ -1,0 +1,9 @@
+{
+  "name": "full-suite-nested-machine-resource-owner",
+  "title": "Distinguish sibling resource holders from nested acquisition in full-suite smoke",
+  "description": "Default-job npm test aborts at full-suite-runner-smoke on main 1da6c8e86e because the cancellation fixture reports an ancestor machine resource conflict while a sibling heavy entry runs. Preserve admission protection and repair the ownership/context boundary with independent evidence.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [],
+  "createdAt": "2026-09-12T18:05:12.608Z"
+}
