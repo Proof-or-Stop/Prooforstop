@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {spawn,execFileSync} from 'node:child_process';
-import {mkdtempSync,writeFileSync,rmSync,existsSync} from 'node:fs';
+import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createNativeLockTestRuntime} from './native-lock-test-runtime.mjs';
@@ -12,13 +12,13 @@ const core=new URL('../packages/main/dist/core/validation-execution-lock.js',imp
 writeFileSync(bootstrap,`import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';const original=os.userInfo;os.userInfo=(...args)=>({...original(...args),homedir:${JSON.stringify(join(root,'outer-home'))}});syncBuiltinESMExports();`);
 const outerEnv={...process.env,NODE_OPTIONS:[process.env.NODE_OPTIONS??'','--import='+JSON.stringify(bootstrap)].join(' ').trim()};
 const isolated=createNativeLockTestRuntime(outerEnv);
-let holder,holderClosed=false,holderError,holderOutput='';
+let holder,holderClosed=false,holderError,holderExit,holderOutput='';
 const started=performance.now();
 const options={root,workspaceRoot:root,command:'native machine isolation control'};
 try {
  holder=spawn(process.execPath,['--input-type=module','-e',`import {existsSync} from 'node:fs';const {withMachineValidationResources}=await import(${JSON.stringify(core)});await withMachineValidationResources(${JSON.stringify(options)},async()=>{console.log('HOLDER_READY');while(!existsSync(${JSON.stringify(release)}))await new Promise(r=>setTimeout(r,10));});`],{env:outerEnv,stdio:['ignore','pipe','pipe']});
  holder.stdout.on('data',x=>{holderOutput+=x;});holder.stderr.on('data',x=>{holderOutput+=x;});
- holder.once('close',()=>{holderClosed=true;});holder.once('error',e=>{holderError=e;});
+ holder.once('close',(code,signal)=>{holderClosed=true;holderExit={code,signal};});holder.once('error',e=>{holderError=e;});
  const deadline=Date.now()+5000;
  while(!holderOutput.includes('HOLDER_READY')) {
   if(holderError)throw holderError;
@@ -48,5 +48,6 @@ try {
  if(holder&&!holderClosed&&!holderError){holder.kill('SIGKILL');const killDeadline=Date.now()+1000;while(!holderClosed&&Date.now()<killDeadline)await new Promise(r=>setTimeout(r,10));}
  if(holder&&!holderClosed&&!holderError)throw new Error('isolation holder cleanup did not observe close; retain runtime');
  isolated.dispose();rmSync(root,{recursive:true,force:true});
+ if(holderClosed)assert.deepEqual(holderExit,{code:0,signal:null},'outer queue holder must release and close successfully');
  console.log('NATIVE_MACHINE_ISOLATION_TOTAL '+JSON.stringify({elapsedMs:performance.now()-started}));
 }

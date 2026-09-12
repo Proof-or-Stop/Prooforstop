@@ -120,3 +120,21 @@ before matching diagnostics. A real child prints both expected refusal markers
 and then hangs; its deadline retains that output but cannot satisfy the shared
 refusal assertion. Controls also reject signal/null and successful exits, while
 an ordinary code-1 refusal remains admissible.
+
+## Machine-queue interference isolation
+
+The native fixture driver creates one private OS-user runtime namespace for its
+fixture processes and actual CLI descendants. All these children share that
+namespace, so their machine-capacity semantics remain active. The real Lab
+process and independent Claude audit keep the actual OS-user namespace. There is
+no production environment switch, queue bypass, timeout increase or credential
+reuse. These bounded fixtures use disposable paths and no fixed external ports;
+they do not claim to validate contention with unrelated real machine workloads.
+
+The controlled regression holds an exclusive machine queue in one temporary
+namespace. A same-namespace command must refuse at its 500 ms queue deadline;
+an independently isolated fixture must enter while that holder remains active.
+Before the repair the second command also timed out. The driver runs this control
+before the original cleanup, refusal and six native cases, and removes its owned
+runtime after the children close. Abnormal host termination can retain the
+private temporary runtime; it never authorizes deleting real-user queue state.
