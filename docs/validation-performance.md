@@ -11,7 +11,9 @@ omitted command has positive coverage. The following matrix is the exact
 operator-facing reason-code contract. Adding or removing a row requires the
 runtime table and its bidirectional regression to change in the same commit.
 For the shipped runtime, this operator guide is authoritative for the exact
-reason-code, outcome, and condition text. The earlier
+reason-code, outcome, and condition text under the accepted authority decision
+`docs/requirements/decisions/validation-widening-matrix-authority.md`. The
+branch-owned
 `docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md`
 matrix remains design context and does not override this executable contract.
 

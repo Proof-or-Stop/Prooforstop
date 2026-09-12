@@ -2,9 +2,11 @@
  * B-a745 CHK-004 — language-neutral planner types and the fail-closed widening
  * matrix.
  *
- * Spec: `docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md`
- * sections "Terminology and invariants", "Selection algorithm" (steps 1, 2 and
- * 5) and "Fail-closed widening matrix" (owned by story B-ccf4, not yet on main).
+ * Design source: the branch-owned
+ * `docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md`.
+ * Shipped matrix authority:
+ * `docs/requirements/decisions/validation-widening-matrix-authority.md` and
+ * `docs/validation-performance.md`.
  *
  * The compatibility path remains fail-closed repository-full. A configured,
  * command-set-bound impact index may now opt into the pure

@@ -2235,6 +2235,25 @@ testCase('an unknown reason code has no gloss and is refused rather than glossed
 // drift behind a test-local transcription.
 testCase('the operator guide and runtime widening matrices have identical codes, outcomes, and conditions', () => {
   const performanceDoc = readFileSync(join(repositorySourceRoot(), 'docs/validation-performance.md'), 'utf8');
+  const authorityDecision = readFileSync(
+    join(repositorySourceRoot(), 'docs/requirements/decisions/validation-widening-matrix-authority.md'),
+    'utf8',
+  );
+  assert.match(
+    performanceDoc,
+    /docs\/requirements\/decisions\/validation-widening-matrix-authority\.md/,
+    'the operator guide must cite the canonical authority decision',
+  );
+  assert.match(
+    authorityDecision,
+    /docs\/validation-performance\.md/,
+    'the canonical authority decision must point back to the executable operator contract',
+  );
+  assert.match(
+    authorityDecision,
+    /story-relevance-dynamic-validation-tiers-execution-plan\.md[\s\S]*design history[\s\S]*pointer to this decision/,
+    'the authority decision must state how the branch-owned design matrix is superseded when integrated',
+  );
   const matrixSection = performanceDoc.match(
     /^## Dynamic-tier fail-closed widening matrix\s*$([\s\S]*?)(?=^##\s)/mu,
   )?.[1];

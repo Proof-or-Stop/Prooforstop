@@ -11,6 +11,32 @@ The Lab pre-sync inventory contained 166 normalized command/argv/cwd/shell
 tuples. Local main 0.3.345 contained 168. A normalized set comparison reported
 exactly these additions and no removals:
 
+Literal command (the two refs are the pre-sync candidate and the merge commit
+that brought in the then-current main configuration):
+
+```bash
+node --input-type=module - 61cfece9ef4a88cd4e15ead0b203e82430c9961a 4f259323d44196cb753e82399207ef1a51e5ddf9 <<'NODE'
+import { execFileSync } from 'node:child_process';
+import { normalizeConfiguredValidationCommands } from './packages/main/dist/core/validation-command-config.js';
+import { buildValidationCommandInventory } from './packages/main/dist/core/validation-command-identity.js';
+const [beforeRef, afterRef] = process.argv.slice(2);
+const tuples = (ref) => {
+  const config = JSON.parse(execFileSync('git', ['show', `${ref}:proof-or-stop.config.json`], { encoding: 'utf8' }));
+  return buildValidationCommandInventory({ commands: normalizeConfiguredValidationCommands(config) }).entries
+    .map((entry) => JSON.stringify(entry.tuple)).sort();
+};
+const before = tuples(beforeRef);
+const after = tuples(afterRef);
+console.log(JSON.stringify({ beforeRef, afterRef, beforeCount: before.length, afterCount: after.length, added: after.filter((entry) => !before.includes(entry)), removed: before.filter((entry) => !after.includes(entry)) }));
+NODE
+```
+
+Verbatim stdout:
+
+```json
+{"beforeRef":"61cfece9ef4a88cd4e15ead0b203e82430c9961a","afterRef":"4f259323d44196cb753e82399207ef1a51e5ddf9","beforeCount":166,"afterCount":168,"added":["{\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/evidence-hash-snapshot-classifier-smoke.js\"],\"cwdRelative\":\".\",\"shell\":false}","{\"command\":\"node\",\"args\":[\"packages/main/tests/red/red-partial-hash-snapshot-binding.mjs\"],\"cwdRelative\":\".\",\"shell\":false}"],"removed":[]}
+```
+
 ```text
 before: 166
 after: 168
@@ -45,7 +71,7 @@ The literal recomputation command used the production path
 
 Therefore this Lab repairs a pre-existing main-branch test pin after upstream
 B-83aa changed `proof-or-stop.config.json`; it does not claim that its own
-five-file diff changes the validation inventory.
+code-and-documentation diff changes the validation inventory.
 
 ### Current audited-base rebind
 
@@ -59,6 +85,31 @@ The production recomputation was repeated in that synchronized Lab worktree:
 
 Comparing normalized command/argv/cwd/shell tuples from that exact base to the
 synchronized Lab candidate produced:
+
+Literal command:
+
+```bash
+node --input-type=module - 1da6c8e86ec0e586571f27d520a1bd052f0c7fb9 HEAD <<'NODE'
+import { execFileSync } from 'node:child_process';
+import { normalizeConfiguredValidationCommands } from './packages/main/dist/core/validation-command-config.js';
+import { buildValidationCommandInventory } from './packages/main/dist/core/validation-command-identity.js';
+const [beforeRef, afterRef] = process.argv.slice(2);
+const tuples = (ref) => {
+  const config = JSON.parse(execFileSync('git', ['show', `${ref}:proof-or-stop.config.json`], { encoding: 'utf8' }));
+  return buildValidationCommandInventory({ commands: normalizeConfiguredValidationCommands(config) }).entries
+    .map((entry) => JSON.stringify(entry.tuple)).sort();
+};
+const before = tuples(beforeRef);
+const after = tuples(afterRef);
+console.log(JSON.stringify({ beforeRef, afterRef, beforeCount: before.length, afterCount: after.length, added: after.filter((entry) => !before.includes(entry)), removed: before.filter((entry) => !after.includes(entry)) }));
+NODE
+```
+
+Verbatim stdout:
+
+```json
+{"beforeRef":"1da6c8e86ec0e586571f27d520a1bd052f0c7fb9","afterRef":"HEAD","beforeCount":168,"afterCount":168,"added":[],"removed":[]}
+```
 
 ```text
 baseCount: 168
