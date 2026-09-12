@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab evidence-fixture-contracts - v0.3.344 - 2026-09-12
+
+Reject stale static-exception evidence mechanically: current excerpts must match source hashes, inclusive ranges and registered call coverage. Historical or narrative evidence cannot authorize current exceptions. Reconcile all 258 manifest entries and the 168-command registry against reviewed local-main source without weakening exception classifications.
+
+Official Lab patch releases refresh only already-valid version-bound evidence. Strict version/output/format guards reject non-version changes and stale inputs with byte restoration; individual evidence writes and restores use temporary-file rename. Generic projects without this manifest retain ordinary version behavior. This is per-file atomicity, not crash-atomic multi-file publication.
+
+Verification: original target RED; exact negative controls for stale hashes, excerpt/range/coverage mismatch, symlink escape, malformed history, version bounds, output/format guards and rollback; complete current scanner GREEN. The version contract covers an actual disposable Lab finish, no-manifest compatibility and injected rename failure. Existing node scripts/verify-lab-worktree.mjs passed all 146 command checks plus state, version and cleanup assertions after commit 3a33762f8d. Synthetic providers are used only by disposable regression fixtures; the real prepared release requires independent Claude CLI audit.
+
+This is local Lab maintenance, with a patch version, change record and signed timings. It is not formal Story DONE or remote publication.
+
+Maintenance provenance: codex/lab-evidence-fixture-contracts, repair bbf3efd6e2618a82c6fc1a521607a026102a9acc.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab runtime-snapshot-static-edge - v0.3.343 - 2026-09-12
 
 Register the exact runtime verifier child that checks shared validation snapshot source bindings. The child parses shared-validation-execution.ts with TypeScript and rejects five in-memory source mutations; it does not import that production module or execute a validation suite. Add one source/call/invocation-bound reviewed exception with caller, child and read-only source dependency hashes. Preserve all unrelated exception entries, scanner classifications and configuration drift.
