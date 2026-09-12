@@ -50,7 +50,7 @@ Configuration digest: `f9a7f49d9946b9c5106b4007032a2674861a30b6c5bdbc2daf08a6a83
 
 ## Brand-role depth boundary
 
-The scanner adds native-review-fixture directly for the exact brand-role-migration entry at depth 0. Its native-review child is depth 1 and fixture-environment is depth 2, within the unchanged generic maximum of 3. The regression exercises that exact entry name, requires both helpers SCANNED with exit 0, then extends the fixture graph to depth 4 and requires the original generic refusal. No brand-role allowance is added.
+The scanner adds native-review-fixture directly for the exact brand-role-migration entry at depth 0. Its native-review child is depth 1 and fixture-environment is depth 2, within the unchanged generic maximum of 3. The regression exercises that exact entry name, requires both helpers SCANNED while preserving the existing exact-source refusal for the minimal synthetic named entry (it does not spoof the real witness hash), then extends the fixture graph to depth 4 and requires the original generic refusal. No brand-role allowance is added.
 
 ## Retained independent audits
 

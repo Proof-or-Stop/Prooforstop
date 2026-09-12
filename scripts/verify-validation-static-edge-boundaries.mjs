@@ -82,7 +82,8 @@ try{
  writeGraph();const brandEntry='packages/main/tests/brand-role-migration.test.mjs';
  fs.mkdirSync(path.dirname(path.join(root,brandEntry)),{recursive:true});fs.writeFileSync(path.join(root,brandEntry),'');
  commands[0]={command:'node',args:[brandEntry]};save();pin([]);
- const brandReport=expect(0,'actual brand-role entry native fixture uses generic depths one and two');
+ const brandReport=expect(1,'brand-role named entry preserves source pin while traversing generic depths one and two');
+ assert.deepEqual(brandReport.coverage.filter(row=>row.state==='NEEDS_REVIEW').map(row=>row.reason),['Reviewed nested witness source changed']);
  for(const name of ['native-review-fixture.ts','fixture-environment.ts'])assert(brandReport.coverage.some(row=>row.file===tasks+name&&row.state==='SCANNED'));
  writeHelper('fixture-environment.ts',"import './brand-depth-three.js';");writeHelper('brand-depth-three.ts',"import './brand-depth-four.js';");writeHelper('brand-depth-four.ts','');
  assert(expect(1,'brand-role entry retains generic depth-four refusal').coverage.some(row=>row.file===tasks+'brand-depth-four.ts'&&row.reason==='helper depth exceeds declared bound'));
