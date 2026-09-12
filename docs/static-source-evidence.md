@@ -104,3 +104,8 @@ remain subject to the surrounding Lab clean-tree assertion.
 
 See [Lab verification provenance](static-evidence-lab-verification.md) for official
 draft creation/discovery counter-evidence and measured child timeout headroom.
+
+All version-transaction negatives use newly allocated disposable roots. The
+manifest-free path delegates before any version-path or source-content guard.
+The full disposable release also checks entry-level digest refresh. Child output
+capture has an explicit 32 MiB ceiling and a distinct output-limit diagnostic.

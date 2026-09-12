@@ -9,6 +9,7 @@ export function assertLabVersionFixtureTransport(result,action) {
 
 export const STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS=60000;
 export function assertLabRegressionTransport(result,label,budgetMs) {
+ if(result.error?.code==='ENOBUFS')throw new Error(`LAB_REGRESSION_OUTPUT_LIMIT: ${label} exceeded captured output capacity`);
  if(result.error?.code==='ETIMEDOUT')throw new Error(`LAB_REGRESSION_BUDGET_EXCEEDED: ${label} exceeded ${budgetMs}ms`);
  if(result.error||result.signal)throw new Error(`LAB_REGRESSION_TRANSPORT_FAILED: ${label}: ${String(result.error??result.signal)}`);
  return result;

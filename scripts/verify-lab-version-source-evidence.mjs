@@ -10,16 +10,27 @@ import {LAB_VERSION_FIXTURE_CLI_TIMEOUT_MS,assertLabVersionFixtureTransport,STAT
 import {withLabVersionSourceEvidence as versionTransaction} from './lab-version-source-evidence.mjs';
 const fixtureVersionPaths=['package.json','package-lock.json','packages/main/package.json','packages/main/package-lock.json','packages/main/src/core/proof-or-stop-brand.ts','packages/lab/package-lock.json','packages/utils/package-lock.json'];
 const withLabVersionSourceEvidence=(root,bump)=>versionTransaction(root,bump,fixtureVersionPaths.slice(0,5));
-assert.throws(()=>versionTransaction('.',()=>assert.fail('drift must refuse before mutation'),[...fixtureVersionPaths.slice(0,5),'new-version-output.json']),error=>error.message.split('\n')[0]==='version output allowlist drifted from VERSION_SYNC_PATHS');
+const driftRoot=mkdtempSync(join(tmpdir(),'lab-version-allowlist-'));
+try {
+ assert.equal(versionTransaction(driftRoot,()=>42,['different-producer-path']),42,'manifest-free producer keeps ordinary path behavior');
+ mkdirSync(join(driftRoot,'scripts/lab/u18-static-edges'),{recursive:true});
+ writeFileSync(join(driftRoot,'scripts/lab/u18-static-edges/exceptions.json'),'{}');
+ assert.throws(()=>versionTransaction(driftRoot,()=>assert.fail('drift must refuse before mutation'),[...fixtureVersionPaths.slice(0,5),'new-version-output.json']),error=>error.message.split('\n')[0]==='version output allowlist drifted from VERSION_SYNC_PATHS');
+} finally {rmSync(driftRoot,{recursive:true,force:true});}
+
 import {copyLabFixtureSources} from './lab-fixture-sources.mjs';
 import {installLabAuditFixtureProviders} from './lab-audit-fixture-provider.mjs';
 const invalidVersionRoot=mkdtempSync(join(tmpdir(),'lab-invalid-version-utf8-'));
 try {const bytes=Buffer.from([0xff]);writeFileSync(join(invalidVersionRoot,'package.json'),bytes);
+ mkdirSync(join(invalidVersionRoot,'scripts/lab/u18-static-edges'),{recursive:true});writeFileSync(join(invalidVersionRoot,'scripts/lab/u18-static-edges/exceptions.json'),'{}');
  assert.throws(()=>withLabVersionSourceEvidence(invalidVersionRoot,()=>assert.fail('invalid bytes must refuse before producer')),error=>error.message.split('\n')[0]==='version source must be valid UTF-8');
  assert.deepEqual(readFileSync(join(invalidVersionRoot,'package.json')),bytes);
 } finally {rmSync(invalidVersionRoot,{recursive:true,force:true});}
 const timedOutChild=spawnSync(process.execPath,['-e','setTimeout(()=>{},10000)'],{timeout:20,encoding:'utf8'});
 assert.equal(timedOutChild.error?.code,'ETIMEDOUT');
+const outputOverflow=spawnSync(process.execPath,['-e',"console.log('x'.repeat(4096))"],{encoding:'utf8',maxBuffer:128});
+assert.equal(outputOverflow.error?.code,'ENOBUFS');
+assert.throws(()=>assertLabRegressionTransport(outputOverflow,'large-output',1000),error=>error.message==='LAB_REGRESSION_OUTPUT_LIMIT: large-output exceeded captured output capacity');
 assert.throws(()=>assertLabRegressionTransport(timedOutChild,'live-static-scan',STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS),error=>error.message==='LAB_REGRESSION_BUDGET_EXCEEDED: live-static-scan exceeded 60000ms');
 assert.throws(()=>assertLabRegressionTransport({signal:'SIGTERM'},'version-release-contract',270000),error=>error.message==='LAB_REGRESSION_TRANSPORT_FAILED: version-release-contract: SIGTERM');
 assert.equal(assertLabRegressionTransport({status:1},'contract',1).status,1,'ordinary failure remains distinct from budget overrun');
@@ -127,11 +138,11 @@ try {
  write('bin/proof-or-stop.js',"console.log('Proof-or-Stop '+require('fs').readFileSync('built-version','utf8'));\n");
  write('bug.txt','broken');
  const file='packages/main/package.json',text=readFileSync(join(root,file),'utf8'),digest=createHash('sha256').update(text).digest('hex');
- write('scripts/lab/u18-static-edges/exceptions.json',JSON.stringify({schema:'u18-static-exceptions.v1',entries:[{id:'version-evidence',key:file+':3:fixture',reason:'Disposable source binding regression',requiredEvidence:[{file,startLine:1,endLine:text.split('\n').length,sourceDigest:digest,excerpt:text}],dependencyDigests:{[file]:digest}}]},null,2)+'\n');
+ write('scripts/lab/u18-static-edges/exceptions.json',JSON.stringify({schema:'u18-static-exceptions.v1',entries:[{id:'version-evidence',key:file+':3:fixture',sourceDigest:digest,reason:'Disposable source binding regression',requiredEvidence:[{file,startLine:1,endLine:text.split('\n').length,sourceDigest:digest,excerpt:text}],dependencyDigests:{[file]:digest}}]},null,2)+'\n');
  write('check.cjs',`const fs=require('fs'),assert=require('assert/strict'),hash=s=>require('crypto').createHash('sha256').update(s).digest('hex');
 assert.equal(fs.readFileSync('bug.txt','utf8'),'fixed','TARGET fixture regression');
 const entry=JSON.parse(fs.readFileSync('scripts/lab/u18-static-edges/exceptions.json')).entries[0],e=entry.requiredEvidence[0],text=fs.readFileSync(e.file,'utf8');
-assert.equal(e.sourceDigest,hash(text),'VERSION_SOURCE_EVIDENCE_STALE');assert.equal(e.excerpt,text);assert.equal(entry.dependencyDigests[e.file],hash(text));\n`);
+assert.equal(entry.sourceDigest,hash(text),'VERSION_ENTRY_DIGEST_STALE');assert.equal(e.sourceDigest,hash(text),'VERSION_SOURCE_EVIDENCE_STALE');assert.equal(e.excerpt,text);assert.equal(entry.dependencyDigests[e.file],hash(text));\n`);
  commit(root,'seed version source evidence fixture');
  ok(['create','version-source','--developer','codex']);const lab=join(root,'.worktrees/Lab-version-source');
  ok(['red','version-source','--expect','TARGET fixture regression','--',process.execPath,'check.cjs']);

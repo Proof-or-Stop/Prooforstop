@@ -46,14 +46,12 @@ function assertVersionOnly(file,before,after,from,to) {
 
 /** Lab-only version transaction: refresh already-valid evidence, never its rationale. */
 export function withLabVersionSourceEvidence(root,bump,canonicalFiles) {
- // Main owns the five core outputs; its two optional extension locks are
- // separately pinned below because the producer does not export their list.
+ const manifestBefore=fs.existsSync(path.join(root,manifestFile))?read(root,manifestFile):null;
+ // No manifest means no source-evidence transaction or path-contract restriction.
+ if(manifestBefore===null)return bump();
+ // Main owns the five core outputs; optional extension locks remain pinned.
  assert.deepEqual([...canonicalFiles].sort(),files.slice(0,5).sort(),'version output allowlist drifted from VERSION_SYNC_PATHS');
  const before=new Map(files.filter(file=>fs.existsSync(path.join(root,file))).map(file=>[file,read(root,file)]));
- const manifestBefore=fs.existsSync(path.join(root,manifestFile))?read(root,manifestFile):null;
- // Generic Labs without this repository-specific manifest retain their existing
- // official version-bump behavior; there is no source evidence to refresh.
- if(manifestBefore===null)return bump();
  try {
   const result=bump();
   assert(typeof result.from==='string'&&typeof result.to==='string'&&/^\d+\.\d+\.\d+$/.test(result.from)&&/^\d+\.\d+\.\d+$/.test(result.to),'malformed patch version');
@@ -70,7 +68,6 @@ export function withLabVersionSourceEvidence(root,bump,canonicalFiles) {
    assertVersionOnly(file,text,after,result.from,result.to);
    changed.set(file,{before:text,after,oldHash:hash(text),newHash:hash(after)});
   }
-  if(manifestBefore===null)return result;
   assert.equal(read(root,manifestFile),manifestBefore,'version producer cannot modify source evidence');
   const manifest=JSON.parse(manifestBefore);
   assert.equal(canonicalManifest(manifest),manifestBefore,'version refresh refuses manifest reformatting');
@@ -106,9 +103,8 @@ export function withLabVersionSourceEvidence(root,bump,canonicalFiles) {
   return {...result,files:[...result.files,manifestFile]};
  } catch(error) {
   for(const file of files)if(!before.has(file))fs.rmSync(path.join(root,file),{force:true});
-  if(manifestBefore===null)fs.rmSync(path.join(root,manifestFile),{force:true});
   for(const [file,text] of before)atomicWrite(path.join(root,file),text);
-  if(manifestBefore!==null)atomicWrite(path.join(root,manifestFile),manifestBefore);
+  atomicWrite(path.join(root,manifestFile),manifestBefore);
   throw error;
  }
 }

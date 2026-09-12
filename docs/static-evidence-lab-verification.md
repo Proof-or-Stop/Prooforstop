@@ -64,8 +64,8 @@ zero). These are observations, not portable performance promises.
 
 | Child | Observed ms | Budget ms | Observed headroom |
 |---|---:|---:|---:|
-| version-release-contract | 4543.767 | 270000 | 59.4x |
-| live-static-scan | 1259.184 | 60000 | 47.6x |
+| version-release-contract | 4543.7675 | 270000 | 59.4x |
+| live-static-scan | 1259.183583 | 60000 | 47.6x |
 
 The live scan budget is the named STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS constant.
 The release budget conservatively sums four 60-second CLI allowances plus 30
@@ -74,3 +74,10 @@ includes that setup. Both remain comfortably above the observed execution and
 emit measured elapsed/budget/status fields on every replay. A budget overrun has
 LAB_REGRESSION_BUDGET_EXCEEDED, distinct from transport failure and ordinary
 assertion failure. A real timed-out subprocess pins the budget diagnostic.
+
+Literal child timing records from the measured run:
+```json
+{"label":"version-release-contract","elapsedMs":4543.7675,"budgetMs":270000,"status":0,"signal":null}
+{"label":"live-static-scan","elapsedMs":1259.183583,"budgetMs":60000,"status":0,"signal":null}
+```
+Observed headroom, computed from those literals: 59.4x and 47.6x respectively.

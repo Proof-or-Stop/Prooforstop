@@ -213,7 +213,7 @@ try{
  writeHelper('fixture-environment.ts',"import './brand-depth-three.js';");writeHelper('brand-depth-three.ts',"import './brand-depth-four.js';");writeHelper('brand-depth-four.ts','');
  assert(expect(1,'brand-role entry retains generic depth-four refusal').coverage.some(row=>row.file===tasks+'brand-depth-four.ts'&&row.reason==='helper depth exceeds declared bound'));
  const releaseStarted=performance.now();
- const releaseCase=spawnSync(process.execPath,[path.join(repo,'scripts/verify-lab-version-source-evidence.mjs')],{encoding:'utf8',timeout:LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS});
+ const releaseCase=spawnSync(process.execPath,[path.join(repo,'scripts/verify-lab-version-source-evidence.mjs')],{encoding:'utf8',timeout:LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS,maxBuffer:32*1024*1024});
  console.log('STATIC_EVIDENCE_CHILD_TIMING '+JSON.stringify({label:'version-release-contract',elapsedMs:performance.now()-releaseStarted,budgetMs:LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS,status:releaseCase.status,signal:releaseCase.signal}));
  assertLabRegressionTransport(releaseCase,'version-release-contract',LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS);
  assert.equal(releaseCase.status,0,'LAB_VERSION_MUST_REFRESH_CURRENT_SOURCE_EVIDENCE '+releaseCase.stdout+releaseCase.stderr);
@@ -223,12 +223,13 @@ try{
  for(const entry of liveManifest.entries){
   const match=entry.key.match(/^(.*):(\d+):[^:]+$/);assert(match,'manifest key must identify its source callsite');
   assert.equal(entry.sourceDigest,hash(fs.readFileSync(path.join(repo,match[1]))),entry.id+' current source digest');
-  for(const [file,digest] of Object.entries(entry.dependencyDigests))assert.equal(digest,hash(fs.readFileSync(path.join(repo,file))),entry.id+' dependency '+file);
+  const deps=entry.dependencyDigests;assert(deps&&typeof deps==='object'&&!Array.isArray(deps)&&Object.keys(deps).length>0,entry.id+' must bind a non-empty dependency set');
+  for(const [file,digest] of Object.entries(deps))assert.equal(digest,hash(fs.readFileSync(path.join(repo,file))),entry.id+' dependency '+file);
   assert.equal(staticSourceEvidenceError(repo,entry.requiredEvidence,{file:match[1],line:Number(match[2])}),null,entry.id+' current manifest evidence');
  }
  console.log('PASS all '+liveManifest.entries.length+' committed manifest entries have current covering source evidence');
  const liveStarted=performance.now();
- const liveScan=spawnSync(process.execPath,[path.join(repo,'scripts/verify-validation-static-edges.mjs'),repo],{encoding:'utf8',timeout:STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS});
+ const liveScan=spawnSync(process.execPath,[path.join(repo,'scripts/verify-validation-static-edges.mjs'),repo],{encoding:'utf8',timeout:STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS,maxBuffer:32*1024*1024});
  console.log('STATIC_EVIDENCE_CHILD_TIMING '+JSON.stringify({label:'live-static-scan',elapsedMs:performance.now()-liveStarted,budgetMs:STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS,status:liveScan.status,signal:liveScan.signal}));
  assertLabRegressionTransport(liveScan,'live-static-scan',STATIC_EVIDENCE_LIVE_SCAN_TIMEOUT_MS);
  assert.equal(liveScan.status,0,'Current repository static scanner must pass: '+liveScan.stdout+liveScan.stderr);
