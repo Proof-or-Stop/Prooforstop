@@ -301,7 +301,21 @@ export function projectComponentProcessFactMapping(
   return tuples;
 }
 
-function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration): ProcessFactRegistryEntry {
+export function declareProcessFactMapping(entry: ProcessFactRegistryDeclaration): ProcessFactRegistryEntry {
+  if (entry.validationTierFloor !== undefined) {
+    if (entry.level !== 'L4') {
+      throw new ProcessFactRegistryMappingError(
+        'process-non-total',
+        `${entry.name} validationTierFloor requires level L4`,
+      );
+    }
+    if (!Array.isArray(entry.paths) || entry.paths.length === 0) {
+      throw new ProcessFactRegistryMappingError(
+        'process-non-total',
+        `${entry.name} validationTierFloor requires explicitly authored paths`,
+      );
+    }
+  }
   const declaredPaths = entry.paths ?? PROCESS_FACT_DECLARATION_PATHS_BY_KIND[entry.kind];
   if (!declaredPaths) {
     throw new ProcessFactRegistryMappingError('process-missing', `${entry.name} has no authored mapping for kind ${entry.kind}`);

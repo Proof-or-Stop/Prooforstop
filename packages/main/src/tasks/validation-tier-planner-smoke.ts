@@ -187,6 +187,7 @@ import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } 
 import { getCommandPolicy } from '../core/command-policy.js';
 import {
   collectRepositoryFullProcessFactPaths,
+  declareProcessFactMapping,
   getProcessFactRegistryEntry,
 } from '../core/process-fact-registry.js';
 import {
@@ -2398,6 +2399,22 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ]),
     ['packages/main/src/core/valid-full-path.ts'],
     'malformed independently decoded registry entries must not crash or contribute authority',
+  );
+  const declaration = {
+    name: 'runtime:test-validation-floor',
+    kind: 'runtime-behavior' as const,
+    semantics: ['runtime-behavior' as const],
+    producer: 'validation-tier-planner-smoke',
+    rationale: 'Fixture declaration used to prove invalid validation tier floors fail loudly.',
+    validationTierFloor: 'repository-full' as const,
+  };
+  assert.throws(
+    () => declareProcessFactMapping({ ...declaration, level: 'L3', paths: ['packages/main/src/core/example.ts'] }),
+    /runtime:test-validation-floor validationTierFloor requires level L4/,
+  );
+  assert.throws(
+    () => declareProcessFactMapping({ ...declaration, level: 'L4' }),
+    /runtime:test-validation-floor validationTierFloor requires explicitly authored paths/,
   );
 
   const planForPath = (changedPath: string) => {
