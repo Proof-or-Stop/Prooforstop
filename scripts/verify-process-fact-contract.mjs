@@ -343,6 +343,7 @@ const requiredRuntimeFactSemantics = {
   'runtime:causal_execution_key_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'workspace-binding', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:causal_receipt_import_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'atomic-persistence', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   'runtime:causal_dependency_preflight_metrics_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'freshness-policy', 'verification-policy', 'gate-evidence'],
+  'runtime:evidence_hash_snapshot_fail_closed_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'verification-evidence', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
   'proof-or-stop-review-story-init',
@@ -530,6 +531,13 @@ const requiredRuntimeEntries = [
     level: 'L4',
     owner: 'core/evidence-freshness',
     line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate',
+  },
+  {
+    // B-83aa: a returned partial hash snapshot is not a verified binding.
+    name: 'runtime:evidence_hash_snapshot_fail_closed_gate',
+    level: 'L4',
+    owner: 'core/evidence-freshness',
+    line: '- runtime:evidence_hash_snapshot_fail_closed_gate [L4] owner=core/evidence-freshness gate=checkEvidenceFreshnessForGit fail-closed reader, lifecycle-readiness DONE hash rows, done-oracle evidence-hash-snapshot row, runDoneOracleGate, verifier routine validation reuse, and session_brief DONE pre-check',
   },
   {
     // B-137a: absence of a managed receipt is not proof of native execution.
@@ -7417,6 +7425,56 @@ function assertReviewRunStoryFilesHashContract(registry, levelRegistry) {
   }
 }
 
+function assertEvidenceHashSnapshotFailClosedContract(registry, levelRegistry) {
+  const runtimeName = 'runtime:evidence_hash_snapshot_fail_closed_gate';
+  const expectedConsumer = 'checkEvidenceFreshnessForGit fail-closed reader, lifecycle-readiness DONE hash rows, done-oracle evidence-hash-snapshot row, runDoneOracleGate, verifier routine validation reuse, and session_brief DONE pre-check';
+  const levelEntry = levelRegistry.get(runtimeName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required ${runtimeName} entry missing`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
+    assert(levelEntry.owner === 'core/evidence-freshness', `${processFactLevelRegistryPath}: ${runtimeName} owner drifted`);
+    assert(levelEntry.gateConsumer === expectedConsumer, `${processFactLevelRegistryPath}: ${runtimeName} consumer drifted`);
+    for (const token of ['classifyEvidenceHashSnapshot', 'fails closed', 'DONE target blocks', 'session_brief']) {
+      assert(levelEntry.rationale.includes(token), `${processFactLevelRegistryPath}: ${runtimeName} rationale missing ${token}`);
+    }
+  }
+  const registryEntry = registry.get(runtimeName);
+  assert(registryEntry, `${processFactRegistryPath}: required ${runtimeName} entry missing`);
+  if (registryEntry) {
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${runtimeName} registry level drifted`);
+    assert(registryEntry.consumerGate === expectedConsumer, `${processFactRegistryPath}: ${runtimeName} registry consumer drifted`);
+    for (const semantic of requiredRuntimeFactSemantics[runtimeName]) {
+      assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${runtimeName} missing ${semantic}`);
+    }
+  }
+
+  const freshness = read('packages/main/src/core/evidence-freshness.ts');
+  for (const token of [
+    'export function classifyEvidenceHashSnapshot(',
+    'EVIDENCE_FRESHNESS_HEAD_UNREADABLE_REASON',
+    'runtimeUnavailable',
+    'the evidence materialHash binding cannot be verified (fail closed)',
+  ]) {
+    assert(freshness.includes(token), `evidence-freshness.ts: fail-closed contract missing ${token}`);
+  }
+  assert(!freshness.includes('Unable to get git HEAD, skipping freshness check'), 'evidence-freshness.ts: unreadable HEAD must not be accepted as fresh');
+
+  const consumers = [
+    'packages/main/src/core/done-oracle.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/handlers/verifier.ts',
+  ];
+  for (const relPath of consumers) {
+    assert(read(relPath).includes('classifyEvidenceHashSnapshot'), `${relPath}: shared partial-snapshot classifier is not consumed`);
+  }
+  const phaseGates = read('packages/main/src/handlers/phase-gates.ts');
+  for (const token of ["r.id === 'evidence-hash-snapshot'", 'Evidence hash snapshot binding (', 'bindingRow.detail']) {
+    assert(phaseGates.includes(token), `packages/main/src/handlers/phase-gates.ts: partial capture disclosure is not load-bearing: ${token}`);
+  }
+  assert(existsSync(join(root, 'packages/main/src/tasks/evidence-hash-snapshot-classifier-smoke.ts')), 'classifier smoke source missing');
+  assert(existsSync(join(root, 'packages/main/tests/red/red-partial-hash-snapshot-binding.mjs')), 'partial-hash RED/GREEN proof missing');
+}
+
 function assertCurrentPromptIdentityBoundary() {
   const contracts = read('packages/main/src/core/prompt-contracts.ts');
   const envelope = read('packages/main/src/core/prompt-envelope.ts');
@@ -9682,6 +9740,7 @@ function assertProcessFactCommandInventory() {
     'packages/main/src/cli/command-catalog.ts: story_create phase help must disclose lifecycle admission policy',
   );
   assertReviewRunStoryFilesHashContract(registry, levelRegistry);
+  assertEvidenceHashSnapshotFailClosedContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
   assertDeliveryCheckStoryFilesHashContract(registry, levelRegistry);
   assertDeliveryPromiseOutcomeContract(registry, levelRegistry);

@@ -689,9 +689,18 @@ export function runDoneOracleGate(
 
   if (failed.length > 0) {
     const hints = failed.flatMap(r => r.hint ? [r.hint] : []);
+    // B-83aa CHK-003 (DISCLOSED): use the row produced by buildDoneChecklist as
+    // the sole resolved snapshot classification. The builder may deliberately
+    // recapture a caller-supplied partial/stale snapshot, so independently
+    // classifying the original argument could contradict the rendered rows.
+    const bindingRow = checkRows.find(r => r.id === 'evidence-hash-snapshot');
+    const bindingLine = bindingRow
+      ? `\n\nEvidence hash snapshot binding (${bindingRow.status === 'fail' ? 'fail closed' : 'disclosed'}): ${bindingRow.detail}`
+      : '';
     throw new Error(
       rendered + '\n\n' +
       `Cannot enter DONE: ${failed.length} 项检查未通过` +
+      bindingLine +
       (hints.length > 0 ? '\n\n修复建议:\n' + hints.map(h => `→ ${h}`).join('\n') : '')
     );
   }

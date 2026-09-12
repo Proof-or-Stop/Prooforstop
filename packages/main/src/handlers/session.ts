@@ -56,7 +56,7 @@ import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import type { ReviewLoopIteration } from '../core/types.js';
 import { renderScopeAntiExpansionSummary } from '../core/machine.js';
-import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { evaluateStoryDirConfigInsideGitRoot, resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { resolveStoryWorkspace, type StoryWorkspace } from '../core/story-workspace.js';
 import { evaluateStoryEvidenceBindingGate } from '../core/repro-evidence-binding-gate.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack, type RuntimeConsumer } from '../core/playbook-runtime-memory.js';
@@ -434,6 +434,13 @@ export interface NextStepCtx {
    */
   configuredGitRootResolved: boolean;
   donePrecheck: DonePrecheckSummary | null;
+  /**
+   * B-83aa CHK-003: one-line reason when the TEST-phase DONE pre-check could not
+   * be computed (partial evidence hash snapshot or a thrown probe). Disclosed in
+   * the brief and in the next-step hint instead of being swallowed.
+   */
+  donePrecheckUnavailable?: string | null;
+  donePrecheckUnavailableKind?: 'git' | 'probe' | null;
   reviewerStatus: ReviewerStatusSummary | null;
   certificationWindowState?: CertificationWindowState | 'UNVERIFIED' | null;
   reviewInventoryState?: 'OPEN' | 'FINALIZED' | 'INVALIDATED' | 'CANCELLED' | null;
@@ -702,6 +709,12 @@ export function computeNextStep(c: NextStepCtx): string {
       }
       if (!c.hasPassingTestEvidence) {
         return `TEST phase, last verification failed. Next: proof-or-stop story_advance --storyId=${sid} --phase=DEV to repair failing items and restore PRE_CERT`;
+      }
+      if (c.donePrecheckUnavailable) {
+        const repair = c.donePrecheckUnavailableKind === 'git'
+          ? 'repair the git state of the story worktree (readable HEAD and material tree)'
+          : 'inspect and repair the reported DONE pre-check probe failure';
+        return `TEST phase, DONE pre-check unavailable: ${c.donePrecheckUnavailable}. Next: ${repair}, then rerun proof-or-stop session_brief`;
       }
       if (c.donePrecheck && c.donePrecheck.blocking.length > 0) {
         const ids = c.donePrecheck.blocking.slice(0, 4).map(r => r.id).join(', ');
@@ -1395,11 +1408,30 @@ export function createSessionHandlers(ctx: HandlerContext) {
 
       // DONE pre-check list for TEST phase stories
       let donePrecheck: DonePrecheckSummary | null = null;
+      // B-83aa CHK-003 (DISCLOSED): the DONE pre-check is never silently omitted.
+      // buildDoneChecklist is the same source used by TEST->DONE. It classifies
+      // partial snapshots and retains every other blocker; a blocking hash row
+      // also emits one `## DONE pre-check unavailable: <reason>` line and keeps
+      // the next-step hint from recommending DONE. A thrown non-oracle probe is
+      // disclosed separately.
+      //
+      // B-83aa CHK-003 follow-up (wrapper-root layouts): the snapshot and the
+      // checklist git probes run from the RESOLVED git cwd (B-6666 pattern, the
+      // same resolver done-oracle / machine callers thread), never from the
+      // bare ctx.root. On a wrapper-root layout ctx.root is the non-git
+      // metadataRoot while the configured gitRoot / story worktree is the
+      // authoritative repository; probing ctx.root there yields a partial
+      // snapshot for a perfectly readable repo and wrongly suppresses DONE.
+      // ctx.root stays the metadataRoot / store root for every non-git read.
+      // Plain repos are byte-identical: resolveGitCwd falls back to ctx.root.
+      let donePrecheckUnavailable: string | null = null;
+      let donePrecheckUnavailableKind: 'git' | 'probe' | null = null;
       if (story.phase === 'TEST') {
         try {
-          const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd: ctx.root, metadataRoot: ctx.root, ref: 'HEAD' });
+          const doneGitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+          const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd: doneGitCwd, metadataRoot: ctx.root, ref: 'HEAD' });
           const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
-            gitCwd: ctx.root,
+            gitCwd: doneGitCwd,
             evidenceHashSnapshot,
           });
           donePrecheck = summarizeDonePrecheck(rows);
@@ -1409,7 +1441,20 @@ export function createSessionHandlers(ctx: HandlerContext) {
             const marker = row.status === 'pass' ? 'PASS' : (row.status === 'fail' ? 'FAIL' : 'warn');
             lines.push(`  [${marker}] ${row.label}${row.detail ? `: ${row.detail}` : ''}`);
           }
-        } catch { /* probe: DONE pre-check unavailable */ }
+          const bindingRow = rows.find((row) => row.id === 'evidence-hash-snapshot' && row.blocking);
+          if (bindingRow) {
+            donePrecheckUnavailable = bindingRow.detail ?? 'evidence hash snapshot binding is incomplete';
+            donePrecheckUnavailableKind = 'git';
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          donePrecheckUnavailable = `DONE pre-check probe failed: ${message.replace(/\s*[\r\n]+\s*/g, ' ').trim()}`;
+          donePrecheckUnavailableKind = 'probe';
+        }
+        if (donePrecheckUnavailable) {
+          lines.push('');
+          lines.push(`## DONE pre-check unavailable: ${donePrecheckUnavailable}`);
+        }
       }
 
       // B-abd8: process metrics in session brief
@@ -1482,6 +1527,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
         gitReady,
         configuredGitRootResolved: !gitReady && !!configuredGitRootStatus?.signedWorkspaceRoot,
         donePrecheck,
+        donePrecheckUnavailable,
+        donePrecheckUnavailableKind,
         reviewerStatus,
         reviewInventoryState,
         certificationWindowState,
