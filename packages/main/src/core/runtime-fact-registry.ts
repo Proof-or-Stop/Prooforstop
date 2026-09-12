@@ -12,7 +12,7 @@ export const MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY = { maxConcurrent: 4, dir
 export const REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY = {
   environmentKey: 'PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET',
   entry: 'test:review-epoch-certification-continuity',
-  standaloneMs: 360000, maxConcurrentMs: 540000, outerStandaloneMs: 450000,
+  standaloneMs: 420000, maxConcurrentMs: 540000, outerStandaloneMs: 450000,
   maxOuterMs: 675000, cleanupMarginMs: 30000,
 } as const;
 export const MACHINE_HEAVY_RESOURCE_POLICY = { cpuKey: 'heavy', processKey: 'fanout', access: 'exclusive', admission: 'one-heavy-member-per-os-user' } as const;

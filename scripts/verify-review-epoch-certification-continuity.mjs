@@ -150,16 +150,16 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
 
 const {runIsolatedFindingFixture,reviewEpochFixtureBudgetMs}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
 const budgetEnv=(timeoutMs,deadlineAt=timeoutMs+1000,entry='test:review-epoch-certification-continuity')=>({PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET:JSON.stringify({entry,timeoutMs,deadlineAt})});
-assert.equal(reviewEpochFixtureBudgetMs({},1000),360000);
-assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(450000),1000),360000);
+assert.equal(reviewEpochFixtureBudgetMs({},1000),420000);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(450000),1000),420000);
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675000),1000),540000);
-assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(200000),1000),160000);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(200000),1000),170000);
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675000,101000),1000),70000);
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675001),1000),540000);
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(900000,101000),1000),70000,'over-cap clamp still honors the original remaining deadline');
 for (const value of [0,-1,null,'675000']) assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(value),1000),/Invalid/);
 assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(450000,1000),1000),/exhausted/);
-assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(450000,451000,'other'),1000),360000,'foreign ancestor envelope does not replace the standalone watchdog');
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(450000,451000,'other'),1000),420000,'foreign ancestor envelope does not replace the standalone watchdog');
 assert.throws(()=>reviewEpochFixtureBudgetMs({PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET:'bad'},1000));
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const modes=['clean','coverage-added','wrong-subject','wrong-story-path','missing-epochs','forged-publisher','forged-refresh','cancelled'];

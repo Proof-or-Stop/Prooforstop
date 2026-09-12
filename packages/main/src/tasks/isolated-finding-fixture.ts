@@ -67,9 +67,9 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
     // The 58-case routes integration performs real target executions and
     // exceeded 120 s twice at case 46 under the independent Claude host.
     // Keep its bounded fixture budget separate from production command limits.
-    // The current variant measured 271801 ms standalone at 722a066079.
-    // 360 s adds 32% margin; concurrent scheduling scales it to at most 540 s,
-    // clamped to the remaining outer deadline minus 30 s for cleanup.
+    // Expanded authority controls exhausted 360 s in three recorded Lab runs.
+    // Use the existing 450 s outer budget minus 30 s cleanup; concurrent
+    // execution remains capped at 540 s and the original remaining deadline.
     const budgetStartedAt=Date.now();
     const budgetMs = file.endsWith('/finding-identity-lineage-smoke.js') ? 300_000
       : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? reviewEpochFixtureBudgetMs(process.env,budgetStartedAt) : 120_000;

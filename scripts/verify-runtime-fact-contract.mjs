@@ -127,6 +127,8 @@ async function main() {
     && read(root,'packages/main/src/tasks/isolated-finding-fixture.ts').includes('Number(value.deadlineAt) - now'), 'review epoch fixture watchdog must consume the scheduler remaining outer deadline through registered test-only policy');
   const {REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY: epochPolicy, MACHINE_FIXED_PORT_RUNTIME_POLICY: machinePolicy} = await importDist(root,'packages/main/dist/core/runtime-fact-registry.js');
   const {RESOURCE_POLICY, CONCURRENCY_HEADROOM_FACTOR, runEntry, createFullSuiteRunState} = await importDist(root,'packages/main/dist/tasks/full-suite-runner.js');
+  assert.equal(epochPolicy.standaloneMs,epochPolicy.outerStandaloneMs-epochPolicy.cleanupMarginMs,
+    'standalone watchdog uses only the existing entry budget less cleanup');
   assert.equal(epochPolicy.outerStandaloneMs, RESOURCE_POLICY[epochPolicy.entry].timeoutMs,
     'review epoch outerStandaloneMs must equal the registered full-suite entry timeoutMs');
   assert.equal(epochPolicy.maxOuterMs, Math.round(epochPolicy.outerStandaloneMs * CONCURRENCY_HEADROOM_FACTOR),
