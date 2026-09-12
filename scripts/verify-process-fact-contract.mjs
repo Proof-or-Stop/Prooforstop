@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -11249,7 +11250,8 @@ execFileSync(process.execPath, [join(root, "packages/main/tests/certification-co
 execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });
 
 // Each focused proof has separate 180s setup and 240s body budgets; outer 450s
-// reserves 30s for fixture IO. Setup timeout is unavailable evidence, not assertion RED. These are failure budgets, not speed gains.
+// reserves 30s for fixture IO. Setup/body timeout is unavailable evidence, not assertion RED.
+// A loaded machine can exhaust this bound; that never establishes a product defect or a PASS. These are failure budgets, not speed gains.
 // Real CLI reader admission and handler non-mutation, including protected negative paths.
 try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {
@@ -11257,7 +11259,7 @@ try {
   });
   assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');
 } catch (error) {
-  assert(false, `reviewer read boundary executable proof failed: ${error.message}`);
+  assert(false, verificationFailureMessage('reviewer read boundary', error));
 }
 
 // Real preview calls, parameter admission, protected writer negatives and reader guidance.
@@ -11267,7 +11269,7 @@ try {
   });
   assert(output.includes('MAINTENANCE_PREVIEW_GREEN'), 'maintenance preview executable proof must pass');
 } catch (error) {
-  assert(false, `maintenance preview executable proof failed: ${error.message}`);
+  assert(false, verificationFailureMessage('maintenance preview', error));
 }
 
 // Parameterized writes cannot inherit a name-only reader exemption.
@@ -11284,7 +11286,7 @@ try {
     });
     assert(output.includes('COMMAND_OBSERVATION_GREEN'), 'Real CLI, worktree and lock observation proof must pass');
     execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-controls.mjs')], { cwd: root, stdio: 'pipe', timeout: 30000 });
-  } catch (error) { assert(false, `Command observation proof failed: ${error.message}`); }
+  } catch (error) { assert(false, verificationFailureMessage('Command observation', error)); }
 }
 
 // Structural inventory protection; executable behavior and mutation witnesses live in the focused Lab regression.
@@ -11358,18 +11360,18 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
 try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-lab-audit-repairs.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });
   assert(output.includes('CLI_LAB_AUDIT_REPAIRS_GREEN'), 'CLI Lab audit repair controls must pass');
-} catch (error) { assert(false, `CLI Lab audit repairs failed: ${error.message}`); }
+} catch (error) { assert(false, verificationFailureMessage('CLI Lab audit repairs', error)); }
 
 // Executable audit hardening: source recovery, strict handlers, non-vacuous pins,
 // conservative lock admission and bounded queue observations.
 try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-hardening.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });
   assert(output.includes('CLI_AUDIT_HARDENING_GREEN'), 'CLI audit hardening controls must pass');
-} catch (error) { assert(false, `CLI audit hardening failed: ${error.message}`); }
+} catch (error) { assert(false, verificationFailureMessage('CLI audit hardening', error)); }
 try {
   const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-budget-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 750000 });
   assert(output.includes('CLI_AUDIT_BUDGET_GREEN'), 'CLI budget and companion diagnostic controls must pass');
-} catch (error) { assert(false, `CLI budget and diagnostic controls failed: ${error.message}`); }
+} catch (error) { assert(false, verificationFailureMessage('CLI budget and diagnostics', error)); }
 
 if (failures.length) {
   console.error('');

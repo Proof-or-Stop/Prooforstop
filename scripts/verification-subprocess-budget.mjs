@@ -1,6 +1,18 @@
 import { spawnSync as spawn } from 'node:child_process';
 import { join } from 'node:path';
 
+// Evidence can be unavailable without a product assertion being false. Both
+// outcomes remain non-PASS; retain child output so a caller can diagnose/retry.
+export function verificationFailureMessage(label, error) {
+  const detail = [error?.message ?? String(error), error?.stdout, error?.stderr]
+    .filter(value => value !== undefined && value !== null).map(String).join('\n');
+  const marker = '(?:SETUP_BUILD_TIMEOUT|SETUP_BUILD_FAILED|VERIFICATION_BUDGET_EXHAUSTED|VERIFICATION_SUBPROCESS_TIMEOUT)';
+  const unavailable = error?.code === 'ETIMEDOUT'
+    || new RegExp(`^(?:Error: )?${marker}:`, 'm').test(detail)
+    || new RegExp(`"error"\\s*:\\s*"${marker}:`).test(detail);
+  return `${unavailable ? 'PROOF_UNAVAILABLE' : 'PROOF_ASSERTION_FAILED'}: ${label}\n${detail}`;
+}
+
 // The prerequisite owns a separate budget. A slow successful build cannot spend
 // the subsequent proof body's allowance. Setup timeout is unavailable evidence,
 // not an assertion RED. No automatic retry is started here.

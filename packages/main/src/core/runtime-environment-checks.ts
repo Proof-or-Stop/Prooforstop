@@ -708,7 +708,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase("packages/main/src/handlers/playbook.ts", "proof-or-stop.playbook-promotion-decision.v1"),
     ]),
     identityFreePaths: Object.freeze([
-      identityFreePath('packages/main/src/core/experience-layer-types.ts', 'type-only declarations compile to no emitted identity bytes'),
+      identityFreePath('packages/main/src/core/experience-layer-types.ts', 'type-only source has no artifact or role identity literal; its emitted module (including export marker) is independently pinned'),
     ]),
   }),
   identityBoundary({
@@ -774,7 +774,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase("packages/main/src/core/lifecycle-control/queue/index.ts", "proof-or-stop.queue_exception_set.v1"),
     ]),
     identityFreePaths: Object.freeze([
-      identityFreePath('packages/main/src/core/lifecycle-control/control-status.ts', 'type-only schema declarations compile to no emitted identity bytes'),
+      identityFreePath('packages/main/src/core/lifecycle-control/control-status.ts', 'Emitted constants are classification/lane/status vocabulary, carry no artifact or reviewer-role identity literal, and are independently pinned'),
     ]),
   }),
   identityBoundary({

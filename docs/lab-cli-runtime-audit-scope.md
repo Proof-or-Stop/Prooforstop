@@ -37,3 +37,10 @@ companion diagnostic suite; its outer 750-second bound covers 180-second setup,
 controlled delay/timeout probes, a 30-second mutation child, the companion's
 450-second envelope and fixture IO. The companion is not scheduled a second time
 by the process contract. These are failure budgets, not measured speed gains.
+
+The focused proof scripts retain bounded setup/body deadlines. Contract reports
+label setup failure and deadline exhaustion PROOF_UNAVAILABLE and preserve the
+child output; an assertion failure is PROOF_ASSERTION_FAILED. Both are non-PASS.
+A loaded-machine timeout requires usable evidence on retry, not a product-defect
+claim or a larger default timeout. The snapshot proof excludes permitted activity
+telemetry while retaining managed assets and the independent complete Story snapshot.

@@ -207,7 +207,8 @@ try {
     for (const rel of ['.claude/hooks/reader-control', '.proof-or-stop-codex/agents/reader-control']) {
       mkdirSync(dirname(join(root, rel)), { recursive: true }); writeFileSync(join(root, rel), 'preserve this adapter\n');
     }
-    const assets = () => snapshot(root, new Set(['.git', '.proof-or-stop/story']));
+    // Activity telemetry is explicitly allowed; Story and managed assets remain protected.
+    const assets = () => snapshot(root, new Set(['.git', '.proof-or-stop/story', '.proof-or-stop/activity.jsonl']));
     const assetsBefore = assets();
 
     const control = invoke('check', ['--json'], { reviewer: false });

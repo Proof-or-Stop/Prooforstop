@@ -52,3 +52,11 @@ If source matches the manifest but the expected build script is absent, the
 refusal says both facts explicitly: compiled output is stale, source is verified,
 and build tooling is missing. Restore that installation's build tooling or use
 its documented build command. This is distinct from unavailable source.
+
+Desktop packaging already ships `packages/main/package.json` in its derived asset
+manifest. Its generated entry materializes those assets before importing the
+bootstrap. `verify-cli-audit-runtime-coverage.mjs` executes that actual generated
+entry against the derived asset set: matching version succeeds, changed manifest
+is refused, and restoration succeeds. This covers the materialization/bootstrap
+path under Node, not native pkg snapshot embedding or every desktop platform.
+The guard remains mandatory in desktop mode.

@@ -102,9 +102,12 @@ phase, readiness and owner lease. It does not renew a lease or acquire a lock.
 Validation self-reentry requires the live async context's acquisition token to
 match the current holder generation. Matching the Story ID or operating-system
 PID alone is insufficient. Unknown lock state grants neither ownership nor availability: it appears as a
-blocking issue in runtime closure. In enforce mode it refuses phase advances,
-validation writes, shared main writes and guarded main-mirror reads. Status
-observation itself still runs. A nascent directory without holder metadata is
+blocking issue in runtime closure. The transition orchestrator passes the observed
+lock to enforce-mode phase-advance / DONE preflight. This source binding
+only proves phase-advance and DONE preflight wiring; evaluator policy for validation
+writes and guarded main-mirror reads does not prove those callers are integrated.
+The new unknown-lock tests exercise the observer and evaluator separately, not a
+full lifecycle command. Status observation itself still runs. A nascent directory without holder metadata is
 indistinguishable from an interrupted acquisition, so neither its age nor a
 caller-supplied Story ID grants a write exemption. Retry after acquisition settles
 and inspect `proof-or-stop doctor` plus `runtime_closure_status`. An orphan may be

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
@@ -79,9 +80,12 @@ async function main() {
     // Separate setup 180s + body 240s; reserve 30s for fixture IO.
     execFileSync(process.execPath, ['scripts/verify-cli-runtime-version.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });
   } catch (error) {
-    fail(`CLI runtime version regression failed: ${error.message}\n${String(error.stdout ?? '')}\n${String(error.stderr ?? '')}`);
+    fail(verificationFailureMessage('CLI runtime version', error));
     // Collect the other runtime contract failures in this same run as well.
   }
+  try {
+    execFileSync(process.execPath, ['scripts/verify-cli-audit-runtime-coverage.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });
+  } catch (error) { fail(verificationFailureMessage('CLI runtime coverage', error)); }
   check(registrySource.includes('VALIDATION_SOURCE_PROVENANCE_SCHEMA') && read(root, 'packages/main/src/core/validation-executor.ts').includes('schemaVersion: VALIDATION_SOURCE_PROVENANCE_SCHEMA'), 'executor source provenance requires a registered runtime schema');
   const physicalTraceVersion = 'validation-runtime-trace.physical-read.v2';
   check(registrySource.includes(physicalTraceVersion) && read(root, 'packages/main/src/core/validation-runtime-tracer.cjs').includes(physicalTraceVersion), 'CJS tracer and runtime policy schema must agree');
