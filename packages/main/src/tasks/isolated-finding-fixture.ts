@@ -14,7 +14,10 @@ export function reviewEpochFixtureBudgetMs(environment: NodeJS.ProcessEnv = proc
   const raw = environment[epochBudget.environmentKey];
   if (raw === undefined) return epochBudget.standaloneMs;
   const value = JSON.parse(raw) as {entry?:unknown;timeoutMs?:unknown;deadlineAt?:unknown};
-  if (value.entry !== epochBudget.entry || !Number.isFinite(value.timeoutMs) || !Number.isFinite(value.deadlineAt)
+  if (!value || typeof value !== 'object' || typeof value.entry !== 'string') throw new Error('Malformed review epoch fixture budget envelope');
+  // A descendant may inherit another member's envelope; it is not this fixture's budget.
+  if (value.entry !== epochBudget.entry) return epochBudget.standaloneMs;
+  if (!Number.isFinite(value.timeoutMs) || !Number.isFinite(value.deadlineAt)
     || Number(value.timeoutMs) <= 0) throw new Error(`Invalid review epoch fixture outer budget for ${epochBudget.entry}`);
   const outerMs = Math.min(Number(value.timeoutMs), epochBudget.maxOuterMs);
   if (Number(value.timeoutMs) > epochBudget.maxOuterMs) process.stderr.write(`Review epoch fixture ${epochBudget.entry}: outer timeoutMs=${value.timeoutMs} exceeds REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.maxOuterMs=${epochBudget.maxOuterMs}; clamping watchdog input to ${outerMs} ms\n`);

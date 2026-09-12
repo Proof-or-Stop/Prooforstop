@@ -125,7 +125,7 @@ async function main() {
     && read(root,'packages/main/src/tasks/full-suite-runner.ts').includes('cwd, npmCommand, onSpawn, state, deadlineAt)')
     && read(root,'packages/main/src/tasks/full-suite-runner.ts').includes('deadlineAt:outerDeadlineAt')
     && read(root,'packages/main/src/tasks/isolated-finding-fixture.ts').includes('Number(value.deadlineAt) - now'), 'review epoch fixture watchdog must consume the scheduler remaining outer deadline through registered test-only policy');
-  const {REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY: epochPolicy} = await importDist(root,'packages/main/dist/core/runtime-fact-registry.js');
+  const {REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY: epochPolicy, MACHINE_FIXED_PORT_RUNTIME_POLICY: machinePolicy} = await importDist(root,'packages/main/dist/core/runtime-fact-registry.js');
   const {RESOURCE_POLICY, CONCURRENCY_HEADROOM_FACTOR, runEntry, createFullSuiteRunState} = await importDist(root,'packages/main/dist/tasks/full-suite-runner.js');
   assert.equal(epochPolicy.outerStandaloneMs, RESOURCE_POLICY[epochPolicy.entry].timeoutMs,
     'review epoch outerStandaloneMs must equal the registered full-suite entry timeoutMs');
@@ -133,6 +133,15 @@ async function main() {
     'review epoch maxOuterMs must equal outerStandaloneMs times full-suite concurrency headroom');
   // Execute the actual writer and deadline transport without launching the heavy
   // suite member. This tiny child only prints its received framework envelope.
+  let probeTimeoutMs=machinePolicy.queueDeadlineMs+30000;
+  const inheritedBudget=process.env[epochPolicy.environmentKey];
+  if(inheritedBudget!==undefined) {
+    const outer=JSON.parse(inheritedBudget);
+    assert(outer && Number.isFinite(outer.timeoutMs) && outer.timeoutMs>0 && Number.isFinite(outer.deadlineAt),
+      'runtime contract requires a valid inherited scheduler budget');
+    probeTimeoutMs=Math.floor(Math.min(outer.timeoutMs,outer.deadlineAt-Date.now())-1000);
+    assert(probeTimeoutMs>0,'runtime contract deadline exhausted before the nested transport probe');
+  }
   const budgetScratch=mkdtempSync(join(tmpdir(),'review-epoch-budget-transport-'));
   try {
     const child=join(budgetScratch,'print-budget.mjs');
@@ -140,15 +149,15 @@ async function main() {
     const realNow=Date.now;let entryStarted;let pending;
     try {
       Date.now=()=>{const value=realNow();entryStarted??=value;return value;};
-      pending=runEntry({name:epochPolicy.entry,resources:[],tempOwnership:'runner-owned-unique',timeoutMs:10000},root,child,undefined,createFullSuiteRunState());
+      pending=runEntry({name:epochPolicy.entry,resources:[],tempOwnership:'runner-owned-unique',timeoutMs:probeTimeoutMs},root,child,undefined,createFullSuiteRunState());
     } finally {Date.now=realNow;}
     const result=await pending;
-    assert.equal(result.status,'PASS',result.output);
+    assert.equal(result.status,'PASS',JSON.stringify({probeTimeoutMs,status:result.status,failureOutcome:result.failureOutcome,output:result.output}));
     const envelope=JSON.parse(result.output.trim());
     assert.equal(envelope.entry,epochPolicy.entry);
-    assert(envelope.timeoutMs>0 && envelope.timeoutMs<=10000,'writer must send the remaining entry budget');
+    assert(envelope.timeoutMs>0 && envelope.timeoutMs<=probeTimeoutMs,'writer must send the remaining entry budget');
     assert(Number.isFinite(entryStarted),'record the actual runEntry clock read without fabricating time');
-    assert.equal(envelope.deadlineAt,entryStarted+10000,'writer must transport the exact original absolute entry deadline');
+    assert.equal(envelope.deadlineAt,entryStarted+probeTimeoutMs,'writer must transport the exact original absolute entry deadline');
     console.log('REVIEW_EPOCH_BUDGET_TRANSPORT_PASS');
   } finally {rmSync(budgetScratch,{recursive:true,force:true});}
   check(registrySource.includes('MACHINE_HEAVY_RESOURCE_POLICY') && read(root,'packages/main/src/core/keyed-scheduler.ts').includes('MACHINE_HEAVY_RESOURCE_POLICY.cpuKey'), 'machine CPU/process claims must share the runtime policy');

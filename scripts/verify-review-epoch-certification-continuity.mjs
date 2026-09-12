@@ -19,6 +19,7 @@ import { StoryStore } from "../packages/main/dist/core/store.js";
 import { resetConfigCache } from "../packages/main/dist/core/config.js";
 import { evaluateReviewInventoryWave, finalizedUnconsumedReviewInventory, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt, signReviewInventoryEpoch } from "../packages/main/dist/core/review-inventory-epoch.js";
 import { isPromptBodyArtifactPath } from "../packages/main/dist/core/prompt-body-store.js";
+import { domainSeparatedDigest } from "../packages/main/dist/core/prompt-contracts.js";
 import { readOwnerLease, releaseOwnerLease } from "../packages/main/dist/core/story-owner-lease.js";
 import { adapterSessionEnv, adapterSessionId } from "../packages/main/dist/tasks/adapter-session-env.js";
 import {isVerifiedReviewMaintenanceCommit} from '../packages/main/dist/core/review-maintenance-lineage.js';
@@ -158,7 +159,7 @@ assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(675001),1000),540000);
 assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(900000,101000),1000),70000,'over-cap clamp still honors the original remaining deadline');
 for (const value of [0,-1,null,'675000']) assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(value),1000),/Invalid/);
 assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(450000,1000),1000),/exhausted/);
-assert.throws(()=>reviewEpochFixtureBudgetMs(budgetEnv(450000,451000,'other'),1000),/Invalid/);
+assert.equal(reviewEpochFixtureBudgetMs(budgetEnv(450000,451000,'other'),1000),360000,'foreign ancestor envelope does not replace the standalone watchdog');
 assert.throws(()=>reviewEpochFixtureBudgetMs({PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET:'bad'},1000));
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const modes=['clean','coverage-added','wrong-subject','wrong-story-path','outside-review-artifact','near-miss-prompt-body','forged-publisher','forged-refresh','cancelled'];
@@ -508,6 +509,39 @@ assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedMa
 assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedStoryFilesHash:'0'.repeat(64)}),false,'wrong consumer Story binding is refused');
 assertNoReaderHealth(()=>assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,reviewedHeadHash:smallPinnedHead}),false,'a consumer before the epoch cutoff is refused'));
 const publishPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r',publishedHead]).split('\n').filter(Boolean);
+// Reconstruct a genuine publication INCLUDING its epochs file so the artifact
+// allowlist, rather than the missing-epochs guard, decides each sibling case.
+for(const mode of ['canonical-body','outside-artifact','near-miss-body','extra-epoch','extra-receipt']) {
+ git(fixture.root,['reset','--hard',publishedHead+'^']);
+ for(const path of publishPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),execFileSync('git',['show',publishedHead+':'+path],{cwd:fixture.root}));}
+ const epochsPath=storyPrefix+'review-inventory-epochs.json';
+ const data=JSON.parse(readFileSync(join(fixture.root,epochsPath),'utf8'));
+ const terminal=data.epochs.at(-1);assert(verifyReviewInventoryEpoch(terminal));
+ assert(verifyReviewInventoryReceipt(data.receipts.find(row=>row.receiptId===terminal.receiptId)));
+ let sibling;
+ if(mode==='extra-epoch') {
+  const genuinePrefix=structuredClone(data.epochs);
+  data.epochs.push({epochId:'unsigned-extra',storyId,state:'OPEN'},structuredClone(terminal));
+  assert.deepEqual(data.epochs.slice(0,genuinePrefix.length),genuinePrefix,'extra rows must preserve the genuine publication prefix');
+  assert(verifyReviewInventoryEpoch(data.epochs.at(-1)),'terminal authentication must still pass before the count refusal');
+ }
+ else if(mode==='extra-receipt') data.receipts.push({receiptId:'unsigned-extra',storyId,epochId:'unsigned-extra'});
+ else {
+  const body='Bounded additional publication prompt body\n';
+  const digest=domainSeparatedDigest('assembled-prompt.raw-utf8.v1',body);
+  sibling=storyPrefix+(mode==='outside-artifact'?'not-a-review-artifact.txt':`prompt-bodies/${mode==='near-miss-body'?digest.slice(0,63):digest}.txt`);
+  mkdirSync(join(fixture.root,sibling,'..'),{recursive:true});writeFileSync(join(fixture.root,sibling),body);
+  assert.equal(isPromptBodyArtifactPath(sibling.slice(storyPrefix.length)),mode==='canonical-body');
+ }
+ writeFileSync(join(fixture.root,epochsPath),JSON.stringify(data));
+ git(fixture.root,['add','--',...publishPaths,...(sibling?[sibling]:[])]);
+ git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} review epoch metadata`]);
+ const commit=git(fixture.root,['rev-parse','HEAD']);
+ assert(git(fixture.root,['diff-tree','--no-commit-id','--name-only','-r',commit]).split('\n').includes(epochsPath),'the epochs prerequisite must be present in the tested commit');
+ assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit}),mode==='canonical-body',mode);
+ console.log((mode==='canonical-body'?'EPOCH_ARTIFACT_ALLOWLIST_CONTROL':mode.startsWith('extra-')?'EPOCH_EXTRA_HISTORY_REFUSED':'EPOCH_ARTIFACT_ALLOWLIST_REFUSED')+' '+mode);
+}
+git(fixture.root,['reset','--hard',publishedHead]);
 const observedMetrics=computeProcessMetrics(storyId,fixture.store,fixture.root);
 for(const validMetrics of [true,false]) {
  git(fixture.root,['reset','--hard',publishedHead+'^']);

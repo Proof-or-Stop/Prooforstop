@@ -589,3 +589,15 @@ Prompt guidance, the process registry and these notes now describe that exact ru
 Fresh contract checks, formal GREEN and actual candidate audit remain required.
 
 Tenth repair verification: ensure-dist build56, full targeted regression46, runtime contract3 (including exact deadline transport), and process-fact contract21 all exited zero. No whole-suite or concurrent-headroom PASS is claimed.
+
+## Eleventh repair after the tenth rejected audit
+
+Audit ea9152fa-8612-49a7-8118-328d7761c3ce rejected candidate 71ca38d1a0 with five findings. No local integration occurred. The core authority checks were accepted; this delta addresses the five reported issues.
+
+Epoch publication now preserves the prior prefix and permits exactly the authenticated target pair: an existing target is replaced in place; only an absent target adds one row. Initial publication has exactly one epoch and receipt. Negative controls reconstruct the full genuine publication, including its epochs file, before adding a forbidden sibling or 63-hex prompt-body filename. The positive body uses the writer's domain-separated digest. Extra-history controls preserve the genuine prefix and authenticated terminal pair, so rejection exercises the new count bound instead of earlier signature or prefix guards.
+
+The runtime contract's real child probe uses the enclosing entry's remaining budget, reserving 1000 ms, or the machine queue deadline plus 30000 ms when standalone. Admission failures remain failures with structured diagnostics; no skip, resource exemption, provider allowance, or suite cap increase is introduced. A foreign fixture envelope uses the documented standalone watchdog; malformed envelopes and invalid or exhausted matching budgets still fail. The native subject-order and coverage assertions run inside the existing aggregated process contract before any success banner.
+
+Verification is in progress. A bounded canonical scheduler execution of test:runtime-fact-contract is required and will be recorded separately from whole-suite success.
+
+Eleventh verification: build58, full targeted regression47, and process-fact contract22 passed. The exact canonical test:runtime-fact-contract inventory entry passed through runScheduled/runEntry with jobs=3 and unchanged resource/admission policy in 21836.646084 ms (driver elapsed 21856 ms), including REVIEW_EPOCH_BUDGET_TRANSPORT_PASS. Only that canonical member was selected; this is not a whole-suite or concurrent-heavy-workload PASS. The independent read-only delta review found no remaining concrete defect. Formal GREEN and exact-candidate Claude audit follow.

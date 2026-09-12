@@ -65,6 +65,12 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         try { git(['cat-file','-e',`${parents[0]}:${prefix}review-inventory-epochs.json`]); return false; } catch { /* absent */ }
       }
       if (previous?.epochs.some(e => e.epochId === epoch.epochId && e.state !== 'OPEN')) return false;
+      // Only the authenticated terminal target may be newly appended. Prefix
+      // preservation alone must not admit unrelated unsigned history rows.
+      const priorEpochs = previous?.epochs ?? [];
+      const priorReceipts = previous?.receipts ?? [];
+      if (data.epochs.length !== priorEpochs.length + (priorEpochs.some(row => row.epochId === epoch.epochId) ? 0 : 1)
+        || data.receipts.length !== priorReceipts.length + (priorReceipts.some(row => row.receiptId === receipt.receiptId) ? 0 : 1)) return false;
       if (previous && (digestCanonicalJson(data.epochs.slice(0,previous.epochs.length))
         !== digestCanonicalJson(previous.epochs.map(row => row.epochId === epoch.epochId ? epoch : row))
         || digestCanonicalJson(data.receipts.slice(0,previous.receipts.length)) !== digestCanonicalJson(previous.receipts))) return false;
