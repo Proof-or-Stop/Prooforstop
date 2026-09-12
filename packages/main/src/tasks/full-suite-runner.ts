@@ -143,6 +143,12 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:main-write-lock-coverage'),
   // Reads exact identity bindings; all mutation controls use private temp roots.
   repoRead('test:reviewed-source-bindings'),
+  // The native review-epoch continuity matrix reads the repository bootstrap
+  // and exercises all positive and refusal cases in runner-owned temporary Git
+  // repositories. It holds no shared port or runtime lock, so a shared repo-read
+  // claim is sufficient. Omitting this row leaves a canonical serial-reference
+  // member without resource policy and fails the suite closed as unknownPolicy.
+  repoRead('test:review-epoch-certification-continuity'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
   repoRead('test:proof-or-stop-residue'),
   // B-cc10 identity-migration members of test:serial-reference. A serial-reference

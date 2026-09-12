@@ -51,6 +51,98 @@ Maintenance provenance: codex/lab-identity-reviewed-source-bindings-20260911, re
 Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## v0.3.331 — Review Continuity, Audited Lab Integration, and Identity Binding Reliability — 2026-09-12
+
+### Release scope
+
+This cumulative release promotes the complete `v0.3.319` through `v0.3.331` line on top of `v0.3.318`. It includes the amendment protocol repairs, Dynamic Finding continuity and collection work, Lab release and independent-audit hardening, local-main baseline selection, PLAN owner coverage, qualification census integrity, convergence history preservation, completeness-critic purpose retention, native review-epoch certification continuity, and exact reviewed-source binding reconciliation.
+
+The release is ancestry-complete: it does not replace or replay earlier fixes as disconnected patches. Every change reachable from `v0.3.318`, including the previously integrated performance and production-validation foundation, remains in the `v0.3.331` history.
+
+### Problems resolved
+
+- Amendment reviewers could emit a semantically approving but structurally nested response that the strict parser correctly rejected, while the prompt did not expose the exact flat output schema clearly enough.
+- Eligible low- and medium-severity Finding deferrals could become unrecoverable after head-only drift even when material, base, dependencies, command evidence, and independent proof remained valid.
+- Qualification collection could lose useful historical diagnostics when current prerequisites were unavailable, and the scorecard reducer read protected storage instead of consuming the signed public census.
+- Lab finish could ignore an explicit patch-release request for non-runtime inputs, and executable maintenance scripts did not consistently trigger versioned delivery.
+- PLAN declarations could omit a canonical implementation owner in both understanding touchpoints and checklist files without a mechanical coverage decision.
+- Linked Story worktrees could compare against stale remote state instead of the locally advanced primary branch, producing false scope changes for already-integrated main files.
+- Lab integration did not mechanically require a successful independent audit from a different registered vendor, and several audit input, identity, cleanup, locking, and retry boundaries were incomplete.
+- Historical recall depended in the wrong direction on applicability code, creating an unnecessary reverse dependency between Dynamic Finding workstreams.
+- Certification consumption could invalidate already completed convergence history by introducing a later signed lifecycle output into the completion projection.
+- Native completeness-critic evidence could be revalidated under the wrong dispatch purpose and rejected despite valid signed inventory evidence.
+- PRE_CERT continuity recognized individual reviewer commits but omitted the canonical batched native review-epoch metadata commit, preventing genuine finalized evidence from reaching certification.
+- Reviewed identity-source bindings retained stale line and source digests after legitimate process-fact, runtime-fact, and prompt changes, leaving exact source verification red even though token identities, classifications, and occurrence counts were unchanged.
+- The canonical native review-epoch continuity verifier was present in the serial reference chain but absent from the full-suite resource manifest, so inventory validation stopped the suite before executing any member.
+
+### Resolution
+
+- Render and verify the strict amendment response schema in the reviewer prompt, require top-level bindings, and keep nested-binding rejection explicit.
+- Permit narrowly bounded head-only deferral recovery only after fresh command evidence and independent proof, while preserving ancestry, material, dependency, signature, expiry, and route checks.
+- Add read-only collection and history guidance, retain verified historical denominators when current evidence is unavailable, and obtain qualification census data through the signed public query contract.
+- Separate the Lab version decision from the runtime build predicate, persist prepared release decisions across retries, and refuse incompatible late upgrade requests.
+- Require signed per-owner PLAN dispositions for canonical selected process-fact implementation owners and verify them at both review and transition boundaries.
+- Select a contained, locally advanced primary branch as the linked-worktree baseline only when the remote tip is its proven ancestor; divergent and unsafe candidates retain conservative behavior.
+- Require an independent cross-vendor Lab audit before integration, bind the audit to immutable candidate inputs, validate developer and provider identities before persistence, and preserve rejection lineage across repair rounds.
+- Move the signed historical-recall invalidation observer to its existing owner and inject a typed internal provider, eliminating the applicability-to-recall reverse dependency.
+- Exclude only the signed certification-consumption lifecycle output from the completed convergence projection; all original signatures and completion claims remain enforced.
+- Forward the native review purpose and inventory binding through completeness-critic revalidation.
+- Admit the exact canonical native review-epoch publication commit only when every changed path is a registered review artifact or prompt-body path and all same-Story, ancestry, material, signature, and inventory checks pass.
+- Reconcile only the reviewed source rows proven to retain their exact token semantics, update the inventory and nested reader bindings together, register the focused verifier in the serial reference suite, and preserve fail-closed mutation controls.
+- Register the native review-epoch verifier as a shared repository reader in the canonical resource policy, preserving the separate membership and scheduling authorities while restoring exact inventory agreement.
+
+### Before and after
+
+| Area | Before | After |
+| --- | --- | --- |
+| Amendment review transport | Prompt shape could lead to nested binding output rejected by the parser | Prompt and parser share one explicit flat top-level schema with negative nested controls |
+| Finding head continuity | Harmless head-only drift could strand an otherwise eligible deferral | Fresh evidence can recover the exact safe case; rewritten or unknown dependencies still fail closed |
+| Finding diagnostics | Current prerequisite failure could obscure verified historical diagnostic coverage | Current unavailability is reported separately while trustworthy historical diagnostics remain visible |
+| Qualification census | Reducer accessed protected ledger storage directly | Reducer consumes the signed public census and verifies identity, counts, hashes, signatures, and Story binding |
+| Lab patch delivery | Explicit patch upgrades could be skipped for non-runtime changes | Explicit upgrades are honored, executable scripts auto-trigger a patch, and retries remain idempotent |
+| PLAN owner coverage | Two declaration surfaces could omit the same canonical owner | Every selected owner receives one signed modify, test, or justified unchanged disposition |
+| Linked-worktree baseline | Stale remote state could classify integrated main files as Story changes | A proven descendant local primary branch becomes the comparison baseline without rewriting refs |
+| Lab audit gate | Integration could proceed without a mechanically verified independent vendor audit | Missing, stale, malformed, rejected, duplicate, or same-vendor audits block integration |
+| Recall architecture | Historical recall imported applicability in the reverse direction | Recall consumes a typed provider owned by the correct workstream |
+| Convergence history | Certification consumption could make completed history appear incomplete | Completion remains stable while certification authority stays independently verified |
+| Completeness critic | Revalidation could substitute the topology purpose | The signed native inventory-completeness purpose is preserved end to end |
+| PRE_CERT continuity | Canonical batched review publication was not recognized | Exact native epoch metadata commits are admitted under bounded path and authority checks |
+| Reviewed source identity | Legitimate source movement left exact reviewed bindings stale | Five reviewed rows and their reader witnesses are rebound after exact diff review; automatic repinning remains forbidden |
+| Full-suite inventory | Review-epoch verification was runnable directly but unknown to the resource scheduler | Serial membership, npm script registration, and resource policy now agree exactly |
+
+### Direct effects
+
+- Review providers receive a response contract that matches the production parser.
+- Operators can distinguish unavailable current Finding evidence from verified historical observations without weakening enforcement prerequisites.
+- Existing linked Story worktrees stop treating already-integrated local-main files as Story-owned changes when ancestry proves the local baseline is safe.
+- Lab releases have deterministic patch-version behavior and a stronger independent-audit boundary.
+- Qualification, recall, convergence, critic, and certification paths preserve their signed authority through the specific transitions they are designed to survive.
+- Native finalized review epochs can reach PRE_CERT without admitting arbitrary metadata or unrelated commits.
+- Exact reviewed-source verification returns to zero source failures while retaining line, occurrence, inventory-byte, reader-digest, and mutation integrity checks.
+- The canonical full-suite runner no longer aborts at inventory validation when it encounters the review-epoch continuity verifier.
+
+### Verification evidence
+
+The integrated maintenance entries below preserve their exact RED/GREEN commands, measured observations, independent audit records, negative controls, and limitations. Release verification replays the current build, process-fact and runtime-fact contracts, Lab integration contract, Dynamic Finding focused contracts, linked-worktree baseline checks, convergence/critic continuity, and native review-epoch certification continuity before publication.
+
+The principal current commands are:
+
+- `npm run build`
+- `node scripts/verify-process-fact-contract.mjs`
+- `node scripts/verify-runtime-fact-contract.mjs`
+- `node scripts/verify-lab-worktree.mjs`
+- `node scripts/verify-local-main-baseline.mjs`
+- `node scripts/verify-finding-scorecard-public-census.mjs`
+- `node scripts/verify-recall-dependency-direction.mjs`
+- `node scripts/verify-convergence-certification-consumption.mjs`
+- `node scripts/verify-native-critic-dispatch-purpose.mjs`
+- `node scripts/verify-review-epoch-certification-continuity.mjs`
+- `node scripts/verify-reviewed-source-bindings.mjs`
+- `npm run test:full-suite-runner-smoke`
+
+### Compatibility and limits
+
+This remains a patch release with no intentional public CLI removal. Historical Story worktrees are immutable Git branches and do not automatically acquire a newer main commit; the linked-worktree fixes make comparison and lifecycle behavior safe when main is synchronized through the supported workflow, but a tag alone does not rewrite an existing Story branch. Lab evidence remains bounded maintenance evidence rather than formal Story DONE, operational qualification, or permission to weaken gate predicates. Dynamic Finding enforcement still follows the configured observe/warn/enforce and kill-switch policy.
 ## Lab review-epoch-certification-continuity - v0.3.330 - 2026-09-12
 
 PRE_CERT now recognizes the exact canonical same-Story review epoch metadata commit produced by native inventory finalization. The previous continuity allowlist recognized individual reviewer command commits but omitted the real batched publisher, so genuine signed lanes and completeness-critic evidence in a linked Story worktree could not be admitted after finalization.

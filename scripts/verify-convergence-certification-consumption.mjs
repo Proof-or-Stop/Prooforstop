@@ -198,8 +198,11 @@ const { assessConvergenceProgressGate }=await import('../packages/main/dist/core
 const progress=assessConvergenceProgressGate(fixture.store,storyId,fixture.root);
 assert.equal(progress.blocked,false,JSON.stringify(progress));
 console.log('CONVERGENCE_CONSUMPTION_SIGNED_HISTORY_AND_GATE PASS');
-git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}/process-events.jsonl`]);
-git(fixture.root,['commit','-m','record native admission process events']);
+// Freeze every canonical fixture artifact before testing the transition. Earlier
+// versions stopped at the downstream critic attestation and never reached the
+// dirty-metadata guard; the repaired critic and epoch-continuity path now does.
+git(fixture.root,['add','--',`.proof-or-stop/story/actives/${storyId}`]);
+git(fixture.root,['commit','-m','record native admission fixture metadata']);
 const routine=JSON.parse(cli(fixture.root,'validate',{storyId,json:true},caseEnv));assert.equal(routine.status,'pass');
 console.log('CONVERGENCE_CONSUMPTION_ROUTINE_SETUP PASS');
 let output='',error='';try{output=cli(fixture.root,'story_advance',{storyId,phase:'TEST'},caseEnv);}catch(e){error=String(e);}
