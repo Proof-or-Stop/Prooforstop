@@ -177,7 +177,8 @@
     "test:intent-owner-lease": "node scripts/verify-intent-owner-lease.mjs",
     "test:receipt-authority-v5": "node scripts/verify-review-remediation-close.mjs",
     "test:scope-diff-pack": "node packages/main/tests/scope-diff-pack.test.mjs",
-    "test:verification-key-location": "node scripts/verify-verification-key-location.mjs"
+    "test:verification-key-location": "node scripts/verify-verification-key-location.mjs",
+    "test:memory-query-timing": "node scripts/verify-memory-query-timing.mjs"
   },
   "repository": {
     "type": "git"

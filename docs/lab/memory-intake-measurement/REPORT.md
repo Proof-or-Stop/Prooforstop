@@ -7,19 +7,19 @@ This bounded Lab corrects per-query benchmark timing. It does not remove full-sc
 The identical command is `node scripts/verify-memory-query-timing.mjs`.
 RED commit `1da2aac95f` records `MEMORY_QUERY_TIMING_EXCLUDES_BUILD`: two constructions costing 11 and 17 clock units report [0,0]. The source-level unit executes the actual extracted query runner and indexed batch function with a deterministic clock and controlled collaborators. It proves the timing boundary, not real-machine latency or semantic pack parity by itself.
 
-The repair times each actual construction. Indexed batches accept an optional observation callback; existing callers retain the same packs and source freshness checks. Shared source validation remains outside per-query values and inside batch elapsed. Expected corrected values are [11,17], with direct total28 and indexed total33 including5 units of setup. Whole-runtime parity is checked separately using the real benchmark.
+The repair times each actual construction. Indexed batches accept an optional observation callback; existing callers retain the same packs and source freshness checks. Shared source validation remains outside per-query values and inside batch elapsed. Expected corrected values are [11,17], with direct total 28 and indexed total 33 including 5 units of setup. Whole-runtime parity is checked separately using the real benchmark.
 
 ## Real workload measurements
 
-`before-full.log` and `before-intake.json` are captured from main 0.3.349 (`3d4aaca544`) before the repair. `after-full.log` and `after-intake.json` execute this Lab's independently built source. Both run the existing million-record performance smoke with the same fixed generator, query policy and target2000ms, under the committed diagnostic observer. This is a sequential shared-host comparison, not a statistical speed claim. The change corrects measurement and is not expected to accelerate execution.
+`before-full.log` and `before-intake.json` are captured from main 0.3.349 (`3d4aaca544`) before the repair. `after-full.log` and `after-intake.json` execute this Lab's independently built source. Both run the existing million-record performance smoke with the same fixed generator, query policy and target 2000ms, under the committed diagnostic observer. This is a sequential shared-host comparison, not a statistical speed claim. The change corrects measurement and is not expected to accelerate execution.
 
-The observer measures four existing fallback sites:1 expanded indexed tokens whose exact bucket overflowed;2 direct exact bucket overflow;3 fuzzy map overflow;4 substring expansion overflow. Its counters cover the entire smoke process, including reference/indexed/prime and semantic controls. Do not equate the whole-process78 fallbacks with the cold report's26 or attribute all fallback milliseconds to cold. Source scanning preserves uncapped result coverage.
+The observer measures four existing fallback sites: 1 expanded indexed tokens whose exact bucket overflowed; 2 direct exact bucket overflow; 3 fuzzy map overflow; 4 substring expansion overflow. Its counters cover the entire smoke process, including reference/indexed/prime and semantic controls. Do not equate the whole-process 78 fallbacks with the cold report's 26 or attribute all fallback milliseconds to cold. Source scanning preserves uncapped result coverage.
 
 ## Actual CLI sampling
 
-`live-intake.json` contains two fresh processes each for session_brief, aux_doc_list, slim story_get and REVIEW story_list on real main. Both session_brief calls build one pack and hit the durable cache; the other six calls build none. All eight observed zero query fallbacks. This is a selected8-call sample, not historical production frequency.
+`live-intake.json` contains two fresh processes each for session_brief, aux_doc_list, slim story_get and REVIEW story_list on real main. Both session_brief calls build one pack and hit the durable cache; the other six calls build none. All eight observed zero query fallbacks. This is a selected 8-call sample, not historical production frequency.
 
-Both session_brief calls still built an in-memory index before cache lookup. A separate sample (`session-timed.json`) measured183.041ms for that build. The implementation's fallback calls buildRuntimeMemoryIndex, not the explicit persistence operation rebuildRuntimeMemoryIndex. This observation is a candidate for later cost investigation; it does not justify changing cache freshness or writing a persistent index on every CLI call in this Lab.
+Both session_brief calls still built an in-memory index before cache lookup. A separate sample (`session-timed.json`) measured 183.041ms for that build. The implementation's fallback calls buildRuntimeMemoryIndex, not the explicit persistence operation rebuildRuntimeMemoryIndex. This observation is a candidate for later cost investigation; it does not justify changing cache freshness or writing a persistent index on every CLI call in this Lab.
 
 ## Verification and environment
 
@@ -29,7 +29,7 @@ The new worktree initially lacked @types/ws. Its first build failed for that dep
 
 | Measurement | Before | After |
 |---|---:|---:|
-| Deterministic query construction11/17ms | [0,0] | [11,17] |
+| Deterministic query construction 11/17ms | [0,0] | [11,17] |
 | Reference full batch |42047ms|43263ms|
 | Indexed cold batch |13666ms|14055ms|
 | Indexed warm batch |263ms|280ms|
@@ -39,4 +39,12 @@ The new worktree initially lacked @types/ws. Its first build failed for that dep
 | Whole-smoke fallback visits |78|78|
 | Whole-smoke fallback scan time |12840.041ms|12676.241ms|
 
-The warm percentiles remain rounded0 in this real workload: after correction they enclose actual cache-hit construction and may legitimately round sub-millisecond samples to0. They do not represent shared batch preparation. The deterministic fixture distinguishes correct sampling from the old post-construction timer even when real warm integer percentiles happen to match. No speedup is claimed; other local tasks and a small verification command were active during the shared-host measurements. Both actual million-record runs pass semantic parity and the unchanged2000ms warm target, with equal reference/optimized digest19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8. The existing M3-M6 smoke also passed its cache mutation, cross-process hit, selection window and semantic controls.
+The warm percentiles remain rounded 0 in this real workload: after correction they enclose actual cache-hit construction and may legitimately round sub-millisecond samples to 0. They do not represent shared batch preparation. The deterministic fixture distinguishes correct sampling from the old post-construction timer even when real warm integer percentiles happen to match. No speedup is claimed; other local tasks and a small verification command were active during the shared-host measurements. Both actual million-record runs pass semantic parity and the unchanged 2000ms warm target, with equal reference/optimized digest `19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8`. The existing M3-M6 smoke also passed its cache mutation, cross-process hit, selection window and semantic controls.
+
+## Audit corrections and release boundary
+
+The first independent audit confirmed the repair and rejected its standing regression wiring. The runtime contract now executes the deterministic verifier with a bounded child timeout, and a named npm script exposes it. The verifier binds its sources to its own module location. The original eight-call capture predates the indexRebuildMs observer field; it is preserved as live-intake-v1.json. The committed sampling driver and current observer produce live-intake.json.
+
+No runtime release has been performed. The repository Lab maintenance guide, Explicit release and cleanup, requires an explicit integration request; finish then chooses the current patch version, updates both manifests/lockfiles and CLI brand constant, builds the candidate and main, and checks the new CLI version. This isolated Lab therefore retains its base version until finish. It is never installed globally or presented as released main; there is no exemption permitting two released implementations under one version.
+
+The refreshed eight-call sample is explicitly bound to main commit `de2b236e1ae09e21edfe77bc3eaee4cc9725849c`, which advanced during this Lab. It again observes two session_brief cache hits, zero fallbacks in all eight calls, and index construction of 129.574ms and 139.424ms. It does not establish historical cold frequency or comparable before/after CLI latency.

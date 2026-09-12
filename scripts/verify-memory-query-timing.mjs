@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import ts from 'typescript';
-const root=process.cwd();
+import {fileURLToPath} from 'node:url';
+import {dirname,resolve} from 'node:path';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 function body(path,name){const text=fs.readFileSync(path,'utf8');const ast=ts.createSourceFile(path,text,ts.ScriptTarget.Latest,true);const fn=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert(fn,name);return ts.transpileModule(fn.getText(ast),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText.replace(/^export /gm,'');}
 const batch=body(root+'/packages/main/src/core/playbook-runtime-memory.ts','buildMemoryFreshnessPacksWithRuntimeIndex');
 const runner=body(root+'/packages/main/src/core/playbook-runtime-baseline.ts','runRuntimePackQueries');

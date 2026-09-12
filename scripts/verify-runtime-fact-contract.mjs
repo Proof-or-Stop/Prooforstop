@@ -77,9 +77,10 @@ async function main() {
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
   check(registrySource.includes('memory-query-latency-boundary')
     && read(root, 'packages/main/src/core/playbook-runtime-baseline.ts').includes('overrides.runtimeIndex, observeQueryElapsed')
-    && read(root, 'packages/main/src/core/playbook-runtime-memory.ts').includes('observeQueryElapsed?.(Math.max(0, performance.now() - started))')
-    && read(root, 'scripts/verify-memory-query-timing.mjs').includes('MEMORY_QUERY_TIMING_EXCLUDES_BUILD'),
+    && read(root, 'packages/main/src/core/playbook-runtime-memory.ts').includes('observeQueryElapsed?.(Math.max(0, performance.now() - started))'),
   'Memory benchmark timing boundary must retain its runtime registration and executable regression');
+  execFileSync(process.execPath, [join(root, 'scripts/verify-memory-query-timing.mjs')],
+    { cwd: root, stdio: 'inherit', timeout: 60_000 });
   check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')
     && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),
   'CLI startup must bind its compiled version to the installed runtime package');
