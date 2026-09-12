@@ -1,27 +1,23 @@
 # Static scanner AST reuse Lab
 
-This Lab removes duplicate syntax parsing, not invocation analysis. The scanner still reads each source, hashes raw bytes and evaluates every configured argv, traversal, exception, dependency and evidence boundary. It retains one current text/AST entry per source path for the lifetime of the process. Changed text replaces the entry. There is no cross-process cache or cache of authorization results.
+The bounded repair retains one current text/AST per source path within a scanner process. Raw reads, source hashes and every invocation's argv, traversal, exception, dependency and evidence checks remain separate. Changed text replaces the entry. There is no cross-process or authorization-result cache.
 
-## Same-command RED/GREEN
+## Evidence
 
-Pinned command: `node scripts/verify-static-ast-reuse.mjs`.
+Pinned command: `node scripts/verify-static-ast-reuse.mjs`. It executes current scanner source twice, observes actual TypeScript parser calls, and disables only the syntax-cache lookup in the reference arm. Imports and policy paths stay bound to this checkout. Source transformation refuses drift. This portable source observer replaces the initial Node 24 module hook and supports the repository Node 20 runtime floor.
 
-RED commit `7957bbc731` observed reference368 and candidate368 AST calls for234 unique inputs and failed `STATIC_AST_REPEATED_IDENTICAL_INPUT`. The repair reduces candidate calls to234. The reference arm disables only the new cache lookup through a diagnostic module loader; both arms run the actual current scanner against the same current checkout. Both complete JSON reports must be byte-identical. Old code contains no lookup, so the RED reference is the unmodified scanner. The driver refuses if the reference has no duplicate workload.
+The current real-workload comparison reports 368 reference builds versus 234 candidate builds for 234 unique inputs: 134 fewer builds (36.4%). Both scanner exits must be zero and complete JSON reports must be byte-identical. One shared-host pair measured 3150.312ms versus 2647.004ms. This pair is illustrative, not a statistical wall-time guarantee. No whole-Story speedup or fixed memory ceiling is claimed.
 
-The exploratory post-fix run measured1809.436ms reference and1609.160ms candidate. These are one shared-host pair, not a statistical speed guarantee. The deterministic claim is134 fewer AST builds (36.4%) with full-report parity. All original per-invocation analysis remains, so parsing once does not imply scanning once. No saved wall time is promised for an entire Story.
+The final managed RED/GREEN uses this same strict-zero driver. RED disables the cache hit in the actual scanner and fails STATIC_AST_REPEATED_IDENTICAL_INPUT; GREEN restores the hit. The signed Lab records preserve commit IDs, command output and timings.
 
-## Controls and limits
+## Controls
 
-`node scripts/verify-static-ast-reuse-boundaries.mjs` executes the actual extracted parser helper and checks same-content reuse, changed-content and different-path misses, replacement rather than revision accumulation, malformed-source diagnostics and recovery. It is a source unit test; the pinned command provides the real whole-scanner report comparison. The existing `node scripts/verify-validation-static-edge-boundaries.mjs` remains the separate broader regression. Missing files still fail before the parser helper at the unchanged exists/read boundary.
+The runtime contract executes both new regressions rather than checking their source strings. The boundary verifier checks exact-source hits, changed-text/path misses, malformed syntax and recovery, and one revision per path. It also executes the real scanner with the same file under two different argv lists, and the real narrowing source under valid and invalid identity modes. Negative fixtures must refuse; cached ASTs cannot share invocation authorization. The scanner and identityChildClosure/extraMode consumers keep analysis maps, sets and edges inside their invocation functions; they read AST nodes without transforming them.
 
-The cache retains ASTs until process exit; its bound is the set of scanned paths, not a newly claimed fixed memory ceiling. This trades retained AST memory for fewer parses. No generic mutable AST consumer is promised safe: this reuse applies to the current scanner, whose analysis stores invocation-specific state in separate maps/sets. No scanner exception is broadened or source digest rewritten.
+The broader static boundary output is regenerated for this candidate in boundaries.log, with command and source hashes in boundaries-provenance.json. Exact existing evidence pins are refreshed only for changed sources, retaining policy, invocation bounds and unrelated entries. A new exact runtime child entry binds both executable controls and their source dependencies.
 
-Runtime facts register the cache boundary and retain source/test inventory checks. The dedicated new regressions are Lab commands, not claimed as newly scheduled canonical full-suite entries. No full repository PASS or formal Story DONE is asserted. Integration is a later explicit user action; this worktree is retained for review.
+## Audit corrections
 
-## Refusal-preserving comparison correction
+The first candidate was rejected: registry edits invalidated exact scanner pins, the initial driver accepted exit 1, and an earlier boundary log no longer represented the candidate. Those claims are superseded. Final verification requires real scanner exit 0, truthful pins, executable standing controls, and fresh boundary evidence. Earlier local RED/GREEN records remain historical evidence, not approval of that rejected state.
 
-The first managed GREEN after runtime-registry registration failed because changing that source made existing exact static evidence stale. The original driver required global exit0 and never reached its AST budget. No exception digest or scanner policy was changed to conceal this.
-
-The corrected identical driver is committed at `af87f9f17b` together with the actual pre-repair scanner bytes. Its recorded RED has reference/candidate exit1, identical complete reports and368/368 parser calls (234 unique), and fails only the named duplicate-AST assertion. The final repair restores the same minimal syntax cache. The driver accepts only scanner exits0 or1, requires identical exit status and byte-identical full reports, then asserts the actual parse budget. Crashes, signals, missing reports and output drift still fail. This proves preservation of the current refusal, not a globally passing scanner or approval of stale evidence.
-
-The runtime registry change is part of this candidate, so this known pre-integration evidence refresh obligation is not described as unrelated pre-existing main debt. It remains for any subsequent integration request and is not waived by the Lab performance GREEN.
+This is isolated Lab maintenance, not formal Story DONE or a released version. Only an explicit integration request authorizes finish; that operation must choose the current patch version, update package manifests/locks and CLI brand, build candidate/main and verify the resulting version. The worktree stays on its base version until then.

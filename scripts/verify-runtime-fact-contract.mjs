@@ -75,11 +75,11 @@ async function main() {
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
-  check(registrySource.includes('static-scanner-source-ast-reuse')
-    && read(root, 'scripts/verify-validation-static-edges.mjs').includes('cached?.text === text')
-    && read(root, 'scripts/verify-static-ast-reuse.mjs').includes('STATIC_AST_REPEATED_IDENTICAL_INPUT')
-    && read(root, 'scripts/verify-static-ast-reuse-boundaries.mjs').includes('Changed invalid syntax'),
-  'Static AST reuse must retain content checks and executable parity/freshness regressions');
+  check(registrySource.includes('static-scanner-source-ast-reuse'), 'Static AST runtime fact is registered');
+  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN']]) {
+    const output = execFileSync(process.execPath, [join(root, 'scripts', test)], { cwd: root, encoding: 'utf8', timeout: 60_000 });
+    check(output.includes(marker), 'Executed static AST control: ' + test);
+  }
   check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')
     && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),
   'CLI startup must bind its compiled version to the installed runtime package');
