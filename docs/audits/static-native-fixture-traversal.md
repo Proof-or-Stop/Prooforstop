@@ -57,3 +57,13 @@ The scanner adds native-review-fixture directly for the exact brand-role-migrati
 The first rejected audit is retained under run `12f30c08-62e3-4b07-96ea-52c04ca835a8`. Its claimed changelog discrepancy was disproven by equal prompt-diff, snapshot and candidate text; the snapshot/candidate CHANGELOG SHA-256 was `37cff938a4e5b98b155b17a96b433634b14be65e349e7afdee3fc83ec45ae249`. The correct command was `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
 
 The second rejected audit is retained under run `60c842fa-6cb2-4dda-b152-40c5c2730b39`. It confirmed bounded implementation correctness and requested actual-source observations and additional controls. This revision adds the exact unregistered-literal negative at the registered integration caller and the brand-role depth contrast. It does not adopt the requested global-zero invocation claim. The optional map currently contains one correctly keyed entry; no new hypothetical registry framework is introduced.
+
+## Third audit counterexamples and discriminating controls
+
+Rejected audit `7dcc833a-5ca2-46e4-acb3-0fcb46e26487` remains preserved. It correctly identified two insufficient test oracles; the production registration was unchanged.
+
+The alternate entry now imports the integration helper directly: integration at depth 1, native-certification at 2, native-review at 3, and fixture-environment at 4. The assertion requires refusal for that exact environment file. A disposable scanner mutant removing only the quorum entry equality failed this exact oracle with exit 1 in 3.095155375 seconds.
+
+The second control imports the optional native-certification literal from the registered worker caller and requires the exact literal-inventory refusal at that worker. A disposable scanner mutant flattening only the optional per-file lookup into global membership failed this exact oracle with exit 1 in 2.615921542 seconds. Both mutants used unchanged test oracles and isolated copies; neither changed the production scanner or exception inventory. A preceding scratch launcher failed to resolve TypeScript and is retained as setup failure, not a product RED.
+
+These are regression discrimination results, not global static acceptance or new invocation approvals. The same official boundary command must pass on the committed unmutated candidate before integration.

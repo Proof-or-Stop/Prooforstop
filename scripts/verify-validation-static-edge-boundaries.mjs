@@ -69,6 +69,8 @@ try{
  assert(expect(1,'deep native fixture child still requires review').summary.nested>0);
  writeGraph();fs.appendFileSync(path.join(root,tasks,'native-certification-fixture.ts'),"\nimport './unknown-helper.js';");writeHelper('unknown-helper.ts','');
  assert(expect(1,'unregistered helper depth remains bounded').coverage.some(row=>row.file===tasks+'unknown-helper.ts'&&row.reason==='helper depth exceeds declared bound'));
+ writeGraph();fs.appendFileSync(path.join(root,tasks,'quorum-submit-smoke-worker.ts'),"\nimport './native-certification-fixture.js';");
+ assert(expect(1,'optional native helper remains confined to integration caller').coverage.some(row=>row.file===tasks+'quorum-submit-smoke-worker.ts'&&row.reason==='Registered verifier imported helper changed or is not a literal'));
  writeGraph();fs.appendFileSync(path.join(root,tasks,'quorum-submit-smoke-integration-cases.ts'),"\nimport './stray-helper.js';");writeHelper('stray-helper.ts','');
  assert(expect(1,'unregistered literal helper in registered integration remains refused').coverage.some(row=>row.file===tasks+'quorum-submit-smoke-integration-cases.ts'&&row.reason==='Registered verifier imported helper changed or is not a literal'));
  writeGraph();fs.appendFileSync(path.join(root,tasks,'quorum-submit-smoke-integration-cases.ts'),"\nimport('./' + 'native-certification-fixture.js');");
@@ -77,8 +79,8 @@ try{
  assert(expect(1,'missing original required native import remains refused').coverage.some(row=>row.file===tasks+'quorum-submit-smoke-integration-cases.ts'&&row.reason==='Registered verifier required helper import missing'&&row.expected==='./native-review-fixture.js'));
  writeGraph();fs.unlinkSync(path.join(root,tasks,'native-certification-fixture.ts'));
  assert(expect(1,'missing registered native helper remains refused').coverage.some(row=>row.reason==='source missing'));
- writeGraph();fs.writeFileSync(path.join(root,'other-suite.mjs'),`import './${tasks}quorum-submit-smoke.js';`);commands[0]={command:'node',args:['other-suite.mjs']};save();pin([]);
- assert(expect(1,'native depth extension is confined to exact quorum entry').coverage.some(row=>row.reason==='helper depth exceeds declared bound'));
+ writeGraph();fs.writeFileSync(path.join(root,'other-suite.mjs'),`import './${tasks}quorum-submit-smoke-integration-cases.js';`);commands[0]={command:'node',args:['other-suite.mjs']};save();pin([]);
+ assert(expect(1,'native depth extension is confined to exact quorum entry').coverage.some(row=>row.file===tasks+'fixture-environment.ts'&&row.reason==='helper depth exceeds declared bound'));
  writeGraph();const brandEntry='packages/main/tests/brand-role-migration.test.mjs';
  fs.mkdirSync(path.dirname(path.join(root,brandEntry)),{recursive:true});fs.writeFileSync(path.join(root,brandEntry),'');
  commands[0]={command:'node',args:[brandEntry]};save();pin([]);
