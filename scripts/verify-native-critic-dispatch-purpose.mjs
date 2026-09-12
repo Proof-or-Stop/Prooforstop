@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from "../packages/main/dist/tasks/native-review-fixture.js";
-import {collectReviewerEvidenceState,verifyCurrentReviewerDispatchBinding} from "../packages/main/dist/core/review-run.js";
+import {assertCurrentReviewRunForEvidence,collectReviewerEvidenceState,verifyCurrentReviewerDispatchBinding} from "../packages/main/dist/core/review-run.js";
 import {verifyNativeReviewEvidenceBinding} from '../packages/main/dist/core/native-review-evidence.js';
 import {evaluateReviewInventoryWave} from '../packages/main/dist/core/review-inventory-epoch.js';
 import assert from 'node:assert/strict';
@@ -195,13 +195,32 @@ try {
     assert(source.includes('subject must equal zero')&&source.includes('subject = 1'),'real fixture defect must be present before reporting');
     const text=await runBrokeredNativeReviewCli({...common,command:'finding_add',payload:{storyId,agent:lane,reviewRunId,
       desc:'The isolated source contract requires subject zero, but its implementation exports one; retain this genuine defect across the next inventory wave.',severity:'low',category:'edge',evidenceState:'verified',files:['packages/main/src/subject.ts'],readManifest:manifest,readEvents:events}});
-    observedFinding=text.match(/(B-inventory-handler:F-\d+)/)?.[1];assert(observedFinding,text);
+    const persisted=historical.store.readFindings(storyId).findings;
+    assert.equal(persisted.length,1,'native producer must persist exactly one genuine Finding');
+    observedFinding=persisted[0].id;assert.equal(persisted[0].reviewRunId,reviewRunId);
    }else await runBrokeredNativeReviewCli({...common,command:'review_pass_set',payload:{storyId,agent:lane,reviewRunId,note:'Read exact isolated source; no new family beyond the retained numeric export observation.',readManifest:manifest,readEvents:events}});
+  }
+  if(wave===2){
+   assert.throws(()=>cli(historical.root,'review_inventory_finalize',{storyId}),
+    error=>String(error.stderr??error.message).includes('REVIEW_INVENTORY_CRITIC_INCOMPLETE'),
+    'retained wave-one critic cannot finalize wave two before its own critic');
+   assert.throws(()=>assertCurrentReviewRunForEvidence(historical.store,historical.store.readStory(storyId),historical.root,
+    'proof-or-stop-review-topology-critic',critics[0].reviewRunId),
+    /requires the same current OPEN epoch\/wave\/cutoff/,
+    'historically readable wave-one critic cannot publish current-wave evidence');
+   assert.equal(historical.store.readReviewInventoryEpochs(storyId).epochs.at(-1).state,'OPEN');
+   console.log('NATIVE_HISTORICAL_CURRENT_WAVE_REFUSALS PASS');
   }
   const lane='proof-or-stop-review-topology-critic',actorEnv={PROOF_OR_STOP_AGENT:lane,PROOF_OR_STOP_SESSION_ID:`history-${wave}-critic`};
   const purpose={reviewPurpose:'inventory-completeness',inventoryEpochId:firstEpoch.epochId};
   cli(historical.root,'dispatch',{storyId,agentType:lane,...purpose},actorEnv);
   const text=cli(historical.root,'review_run_start',{storyId,agent:lane,...purpose},actorEnv),reviewRunId=text.match(/Review run (\S+) started/)?.[1];assert(reviewRunId,text);
+  // An official same-subject redispatch after run publication remains supported.
+  // Neither original producer nor original consumer imposed envelope/native digest equality.
+  const publishedRun=historical.store.readReviewRuns(storyId).runs.find(row=>row.reviewRunId===reviewRunId);
+  cli(historical.root,'dispatch',{storyId,agentType:lane,...purpose},actorEnv);
+  assert.deepEqual(historical.store.readReviewRuns(storyId).runs.find(row=>row.reviewRunId===reviewRunId),publishedRun,
+   'redispatch must not rewrite the signed ReviewRun or its envelope identity');
   await runBrokeredNativeReviewCli({root:historical.root,store:historical.store,storyId,agent:lane,reviewRunId,command:'review_pass_set',payload:{storyId,agent:lane,reviewRunId,note:'Independent critic retains exact existing source family and accounts for every current required lane.',readManifest:manifest,readEvents:events}});
   critics.push(historical.store.readReviewPasses(storyId).passes.find(p=>p.reviewRunId===reviewRunId));assert(critics.at(-1)?.nativeEvidenceBinding);
   const currentEpoch=historical.store.readReviewInventoryEpochs(storyId).epochs.at(-1);
@@ -233,5 +252,6 @@ try {
  // rule for open Findings must remain intact; this is not a claimed full TEST pass.
  assert(historical.store.readFindings(storyId).findings.some(f=>f.id===observedFinding&&f.status==='open'));
  assert(state.invalid.some(x=>x.evidenceId===observedFinding&&x.code==='stale_run'),'open Finding latest-run protection must remain strict');
+ console.log('NATIVE_SAME_SUBJECT_REDISPATCH_COMPATIBILITY PASS');
  console.log('NATIVE_HISTORICAL_DISPATCH GREEN');
 }finally{rmSync(historical.root,{recursive:true,force:true});}

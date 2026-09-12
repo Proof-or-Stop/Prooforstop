@@ -1058,7 +1058,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'findings.json',
     path: 'findings.json',
     signed: true,
-    signature: 'signFinding/verifyFinding; direct native records bind category/evidenceState/uncertaintyReason/files/disprovenEvidence in the signed domain, and reviewRunId-inclusive records do not fall back to legacy signatures',
+    signature: 'signFinding/verifyFinding; direct native records bind category/evidenceState/uncertaintyReason/files/disprovenEvidence in the signed domain, native invocation consumers select the exact sealed dispatch digest while preserving purpose, inventory subject, host, broker signature and nonce-consumption checks; open Findings still require the latest lane run, and reviewRunId-inclusive records do not fall back to legacy signatures',
     producerCommand: 'finding_add',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
