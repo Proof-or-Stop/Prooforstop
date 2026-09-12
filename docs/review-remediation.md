@@ -37,3 +37,8 @@ facts again. A completed retry preserves ledger bytes and commit identity.
 Changing a request under the same ID is an idempotency conflict. Resolve an
 unrelated staged-path or commit-hook refusal before retrying; do not amend the
 repair claim or manually rewrite the ledger.
+
+The canonical `test:receipt-authority-v5` suite exercises both atomic remediation
+and convergence progress with real V5 evidence. Invalid bundles are refused; an
+unexpected verifier exception reports `Execution authority verifier unavailable`
+with its cause instead of silently classifying it as ordinary invalid evidence.

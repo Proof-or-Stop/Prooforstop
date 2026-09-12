@@ -19,7 +19,7 @@ export function hasMechanicalExecutionAuthority(store: StoryStore, storyId: stri
     // Readable legacy bundles do not authenticate publication scope or freshness.
     // Reuse eligibility is independent of authority for this recorded execution.
     return validation.ok && validation.kind === 'split-v5';
-  } catch {
-    return false;
+  } catch (error) {
+    throw new Error(`Execution authority verifier unavailable: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
   }
 }

@@ -11115,6 +11115,7 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
   assert(readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('optional fullStoryBaseHead'), 'Comparison-base process semantics must remain registered');
 }
 
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11311,6 +11312,21 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   if(scripts['test:intent-owner-lease']!=='node scripts/verify-intent-owner-lease.mjs' || !scripts['test:serial-reference'].includes('npm run test:intent-owner-lease')) failures.push('intent proposal regression must remain in serial suite');
 }
 
+// Remediation and convergence must consume authenticated V5 publication evidence.
+{
+  const authority = read('packages/main/src/core/verification-receipt-authority.ts');
+  for (const token of ['validateVerificationReceipt', "validation.kind === 'split-v5'", 'storyId, intentRef:', 'freshness:', 'store.projectRoot']) {
+    nodeAssert(authority.includes(token), `execution authority missing V5 binding: ${token}`);
+  }
+  const remediation = read('packages/main/src/handlers/review-remediation.ts');
+  nodeAssert(!remediation.includes('readCausalEvidenceReceipt'), 'publication recheck must not revert to legacy-only authority');
+  nodeAssert(remediation.match(/hasMechanicalExecutionAuthority\(ctx.store/g)?.length === 2, 'initial and publication authority must share the strict verifier');
+}
+
+const receiptScripts = JSON.parse(read('package.json')).scripts;
+nodeAssert(receiptScripts['test:serial-reference'].includes('npm run test:receipt-authority-v5'), 'V5 authority regression must run in canonical suite');
+nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:receipt-authority-v5',"), 'V5 authority needs canonical resource policy');
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11323,13 +11339,3 @@ console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
 
-// Remediation and convergence must consume authenticated V5 publication evidence.
-{
-  const authority = read('packages/main/src/core/verification-receipt-authority.ts');
-  for (const token of ['validateVerificationReceipt', "validation.kind === 'split-v5'", 'storyId, intentRef:', 'freshness:', 'store.projectRoot']) {
-    assert(authority.includes(token), `execution authority missing V5 binding: ${token}`);
-  }
-  const remediation = read('packages/main/src/handlers/review-remediation.ts');
-  assert(!remediation.includes('readCausalEvidenceReceipt'), 'publication recheck must not revert to legacy-only authority');
-  assert(remediation.match(/hasMechanicalExecutionAuthority\(ctx.store/g)?.length === 2, 'initial and publication authority must share the strict verifier');
-}

@@ -143,6 +143,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:main-write-lock-coverage'),
   // Repeated real CLI startups plus competing owner writes need bounded contention headroom.
   repoRead('test:intent-owner-lease', { timeoutMs: 180_000 }),
+  repoRead('test:receipt-authority-v5', { timeoutMs: 180_000 }),
   // Reads exact identity bindings; all mutation controls use private temp roots.
   repoRead('test:reviewed-source-bindings'),
   // The native review-epoch continuity matrix reads the repository bootstrap

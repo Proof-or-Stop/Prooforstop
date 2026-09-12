@@ -34,18 +34,23 @@ try {
   assert.equal(progress.state.snapshot.missingRequired, 0);
   assert.ok(progress.progressReasons.includes('missing-required-decreased'));
   const evidence = store.readChecklist(storyId).items[0].verificationEvidence[0];
-  const receiptPath = store.causalEvidenceReceiptPath(storyId, evidence.receipt.causalReceiptHash), receiptBytes = readFileSync(receiptPath);
+  const validChecklist = store.readChecklist(storyId);
+  for (const mutate of [
+    e => { e.receipt.publicationBinding.authenticity.signature = 'invalid'; },
+    e => { e.receipt = { exitCode: 0, selectorMatched: true, selector: e.receipt.selector }; },
+  ]) {
+    const changed = structuredClone(validChecklist); mutate(changed.items[0].verificationEvidence[0]);
+    store.writeChecklist(storyId, changed);
+    assert.throws(() => recordConvergenceProgress(store, storyId, root), /execution authority|receipt/i);
+  }
+  store.writeChecklist(storyId, validChecklist);
+  const receiptPath = join(root, '.proof-or-stop/evidence/objects/sha256', evidence.receipt.executionReceipt.outputArtifact.artifactDigest + '.json');
+  const receiptBytes = readFileSync(receiptPath);
   rmSync(receiptPath);
   assert.throws(() => recordConvergenceProgress(store, storyId, root), /execution authority|receipt/i);
+  assert.equal(existsSync(receiptPath), false, 'read-only progress never repairs missing evidence');
   writeFileSync(receiptPath, receiptBytes);
-  const indexPath = store.storyFilePath(storyId, 'causal-evidence/index.json');
-  const indexBytes = readFileSync(indexPath);
-  rmSync(indexPath);
   assert.equal(evaluateConvergenceProgress(store, storyId, root).state.snapshot.missingRequired, 0);
-  assert.equal(existsSync(indexPath), false, 'U11 read-only progress must not repair the receipt index');
-  store.readCausalEvidenceReceipt(storyId, evidence.receipt.executionKey);
-  assert.equal(existsSync(indexPath), true, 'normal execution reads retain orphan recovery');
-  writeFileSync(indexPath, indexBytes);
   const complete = readFileSync(path, 'utf8');
   writeFileSync(join(root, 'subject.cjs'), 'module.exports=2;\n');
   assert.throws(() => recordConvergenceProgress(store, storyId, root), /dirty|source/i, 'dirty source cannot borrow a committed PASS');

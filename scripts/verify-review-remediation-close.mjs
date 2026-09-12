@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readVerificationOutputArtifact } from '../packages/main/dist/core/verification-execution-evidence.js';
 import { hasMechanicalExecutionAuthority } from '../packages/main/dist/core/verification-receipt-authority.js';
 import { mkdtempSync, writeFileSync, readFileSync, rmSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
@@ -72,6 +73,8 @@ try {
     e => { e.command = 'node other.cjs'; },
     e => { e.intentRef = 'CHK-001:happy:9'; },
     e => { e.headHash = 'a'.repeat(40); },
+    e => { e.materialHash = 'b'.repeat(64); },
+    e => { e.storyFilesHash = 'c'.repeat(64); },
     e => { e.receipt.outputTail = 'forged output'; },
     e => { e.receipt = { exitCode: 0, selectorMatched: true, selector: e.receipt.selector }; },
   ]) {
@@ -92,9 +95,13 @@ try {
   assert.throws(() => handlers.review_remediation_close(request), /dirty material/);
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'uncommitted regression publishes no resolution');
   writeFileSync(join(root, 'sum.cjs'), 'module.exports=(a,b)=>a+b;\n');
+  // The store exposes no V5 object-path accessor. Confirm this isolated CAS
+  // deletion targets the exact artifact read by the public authenticated reader.
+  readVerificationOutputArtifact(root, evidence.receipt.executionReceipt.outputArtifact, storyId);
   const causalPath = join(root, '.proof-or-stop/evidence/objects/sha256', evidence.receipt.executionReceipt.outputArtifact.artifactDigest + '.json');
   const causalBytes = readFileSync(causalPath);
   rmSync(causalPath);
+  assert.throws(() => readVerificationOutputArtifact(root, evidence.receipt.executionReceipt.outputArtifact, storyId), /not found/);
   assert.throws(() => handlers.review_remediation_close(request), /authority|receipt/i);
   assert.deepEqual(readFileSync(store.findingLedgerPath(storyId)), beforeBytes, 'missing real execution receipt publishes no resolution');
   writeFileSync(causalPath, causalBytes);
@@ -168,3 +175,6 @@ try {
   assert.equal(git('rev-parse', 'HEAD'), recoveredHead, 'recovered projection has stable replay');
   console.log('PASS U04 complete atomic repairSet closeout');
 } finally { process.chdir(previousCwd); rmSync(root, { recursive: true, force: true }); }
+
+execFileSync(process.execPath, ['scripts/verify-convergence-progress-evidence.mjs'], { stdio: 'inherit' });
+execFileSync(process.execPath, ['scripts/verify-process-fact-contract.mjs'], { stdio: 'inherit' });
