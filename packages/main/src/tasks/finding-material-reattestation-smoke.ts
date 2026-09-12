@@ -12,11 +12,12 @@ import { resetSessionIdForTest } from '../core/owner-session.js';
 import { withMkdirLock, captureMkdirLockFence } from '../core/mkdir-lock.js';
 import { createFindingLedgerHandlers, appendFindingLedger, findingLedgerSignerFromWorkspace, exactLedgerRecordHash } from '../handlers/finding-ledger.js';
 import { createFindingApplicabilityHandlers } from '../handlers/finding-applicability.js';
-import { createFindingRouteHandlers } from '../handlers/finding-route.js';
+import { createToolHandlers } from '../registry.js';
+import { createFindingRouteHandlers, sourceRouteRecord } from '../handlers/finding-route.js';
 import { buildConfirmedCanonicalDefect, signIdentityEnvelope, validateCanonicalDefect } from '../core/finding-identity.js';
 import { applicabilityDigest, FINDING_PROTECTED_SURFACES } from '../core/finding-applicability.js';
 import { currentApplicabilityContext } from '../core/finding-applicability-projection.js';
-import { prepareMaterialDriftReattestation, readMaterialDriftReattestation } from '../handlers/finding-material-reattestation.js';
+import { prepareMaterialDriftReattestation, readMaterialDriftReattestation, readRouteSourceRestoration } from '../handlers/finding-material-reattestation.js';
 import { seedCurrentReviewFixture, bindCurrentFixtureFinding } from './current-review-fixture.js';
 import { nativeReviewFixtureBrokers, withNativeReviewFixtureHostIdentity, runBrokeredNativeReviewCli } from './native-review-fixture.js';
 import { RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY } from '../core/evidence/artifact-store.js';
@@ -154,6 +155,44 @@ checkedIntentRefs:['CHK-001:happy:0'],protectedSurfaceEvaluation:${JSON.stringif
   const result = withNativeReviewFixtureHostIdentity({ agent: reviewer, invoke: () => handlers.finding_material_reattest(input) });
   assert.equal(result.replayed, false); assert.equal(readMaterialDriftReattestation(ctx, storyId, proposed.proposalRef.recordId)?.materialDriftState, 'unrelated_re_attested');
   assert.equal(handlers.finding_triage({ storyId }).rows[0]!.decision.dynamicBlocking, false); pass('fresh runtime plus independent signed dependencies restores valid deferral');
+  if (process.argv.includes('--route-restoration-port')) {
+    const restorationSource = proposed.proposalRef as Parameters<typeof sourceRouteRecord>[1];
+    const routeInput = { storyId: targetId, receipt: { storyId: targetId, recordId: consent.record.recordId, recordHash: exactLedgerRecordHash(consent.record) } };
+    const proof = readRouteSourceRestoration(ctx, restorationSource)!;
+    assert.ok(proof, 'real signed reader returns full native restoration');
+    assert.deepEqual(sourceRouteRecord(ctx, restorationSource, false, readRouteSourceRestoration).restored, proof);
+    assert.throws(() => sourceRouteRecord(ctx, restorationSource, false), /invalid proposal/);
+    assert.throws(() => sourceRouteRecord(ctx, restorationSource, false, () => undefined), /invalid proposal/);
+    assert.throws(() => sourceRouteRecord(ctx, restorationSource, false, () => true as never), /restoration source\/root\/current binding mismatch/);
+    assert.throws(() => sourceRouteRecord(ctx, restorationSource, true, readRouteSourceRestoration), /reviewer evidence not current|invalid proposal/);
+    assert.throws(() => readRouteSourceRestoration(ctx, { ...restorationSource, recordHash: '0'.repeat(64) }), /route source reference mismatch/);
+    assert.equal(readRouteSourceRestoration(ctx, { ...restorationSource, recordId: 'missing-proof' }), undefined);
+    assert.equal(readRouteSourceRestoration(targetCtx, restorationSource), undefined, 'wrong workspace has no native restoration');
+    assert.throws(() => sourceRouteRecord(targetCtx, restorationSource, false, readRouteSourceRestoration));
+    for (const bad of [
+      { ...proof, sourceRoot: targetRoot },
+      { ...proof, sourceRef: { ...proof.sourceRef, recordHash: '0'.repeat(64) } },
+      { ...proof, record: { ...proof.record, proposalRecordId: 'other-proposal' } },
+      { ...proof, current: { ...proof.current, headHash: '0'.repeat(40) } },
+      { ...proof, assessment: { ...proof.assessment, proposalRef: { ...restorationSource, recordHash: '0'.repeat(64) } } },
+    ]) assert.throws(() => sourceRouteRecord(ctx, restorationSource, false, () => bad), /restoration source\/root\/current binding mismatch/);
+    assert.throws(() => createFindingRouteHandlers(targetCtx).finding_route_verify(routeInput), /invalid proposal/);
+    assert.equal(createToolHandlers(targetStore, targetRoot).finding_route_verify!(routeInput).valid, true);
+    assert.throws(() => createToolHandlers(targetStore, targetRoot).finding_route_verify!({ ...routeInput, readRestoration: proof }), /[Uu]nrecognized/);
+    process.chdir(targetRoot); process.env.PROOF_OR_STOP_SESSION_ID = 'target-fixture'; resetSessionIdForTest();
+    try {
+      const official = createToolHandlers(targetStore, targetRoot);
+      const recall = official.finding_history_recall!({ storyId: targetId, route: routeInput.receipt,
+        trigger: 'scope_contract_match', idempotencyKey: 'restored-route-recall' });
+      assert.equal(recall.currentConsent, true, 'official history recall uses verified restored consent');
+      const progressInput = { storyId: targetId, receipt: routeInput.receipt, idempotencyKey: 'restored-progress-baseline-refusal',
+        kind: 'target_status_transition', predecessor: routeInput.receipt, previousDeferralRef: { storyId, recordId: restorationSource.recordId, recordHash: restorationSource.recordHash } };
+      assert.throws(() => createFindingRouteHandlers(targetCtx).finding_progress_capture(progressInput), /invalid proposal/);
+      assert.throws(() => official.finding_progress_capture!(progressInput), /caller replaced verifier-selected baseline/,
+        'actual progress preparation verifies restored source before independently refusing wrong baseline');
+    } finally { process.chdir(root); process.env.PROOF_OR_STOP_SESSION_ID = 'source-fixture'; resetSessionIdForTest(); }
+    console.log('ROUTE_RESTORATION_PORT PASS realSignedProof=true exactSourceRoot=true absentPortRefuses=true strictReviewerPreserved=true officialComposition=true');
+  }
   if (headContinuity) {
     assert.equal(result.record.driftKind, 'head_only');
     assert.equal(result.record.expiresAt, assessment.assessment.integrity.expiresAt);

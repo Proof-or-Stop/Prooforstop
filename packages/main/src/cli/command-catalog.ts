@@ -452,6 +452,8 @@ Behavior:
   // Checklist
   { name: 'checklist_get', description: 'Read the checklist', schema: {
     storyId: z.string().describe('Story ID'),
+    proposalFor: z.string().optional().describe('Read-only current baseIntentHash for this checklist item; combine with proposalIntent to compute an exact approval digest.'),
+    proposalIntent: verificationIntentSchema.optional().describe('Proposed intent JSON; with proposalFor returns digest only, never applies or approves the proposal.'),
     slim: z.boolean().optional().describe('Opt-in compact checklist view. Default output is unchanged when omitted.'),
     fields: z.array(z.string()).optional().describe('Opt-in top-level field filter. With slim=true, filter storyId/counts/items.'),
   }},
@@ -479,6 +481,8 @@ Behavior:
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('ID of the item to remove.'),
     disposition: z.enum(['accept', 'reject', 'partial']).describe('Disposition: accept=deletion is valid, reject=should not be deleted but remove it, partial=partially valid.'),
     justification: z.string().describe('Deletion justification (at least 10 characters).'),
+    agent: z.string().optional().describe('Actor identity; INIT reviewers cannot remove requirements.'),
+    actor: z.string().optional().describe('Actor alias; cannot hide a dispatched INIT reviewer.'),
   }},
   { name: 'checklist_update', description: 'Update a checklist item (status/relatedDocs; title/context/userSees frozen)', longHelp: CHECKLIST_UPDATE_LONG, schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('Item ID.'),
@@ -494,6 +498,7 @@ Behavior:
       test: z.array(z.string()),
     }).optional().describe('B-45ed: affected file set declared in PLAN.'),
     verificationIntent: verificationIntentSchema.optional().describe('Happy-path, edge-case, and adversarial verification intent; frozen from DEV.'),
+    intentProposalApproval: z.object({digest:z.string().regex(/^[a-f0-9]{64}$/),baseIntentHash:z.string().regex(/^[a-f0-9]{64}$/),reason:z.string().min(30)}).strict().optional().describe('PLAN owner approval of exact proposed intent bytes, bound to Story/item and prior intent hash. Intent-only payload; preserves lease and does not attest independent authorship.'),
     verificationEvidence: z.array(verificationEvidenceSchema).optional().describe('Evidence list covering verificationIntent.'),
     reason: z.string().optional().describe('Change reason.'), agent: z.string().optional().describe('Actor.'),
     actor: z.string().optional().describe('Actor alias; INIT reviewer lanes may not directly change requirement definitions.'),

@@ -31,6 +31,8 @@ export function intentSemantics(intent: VerificationIntent): VerificationIntent 
 export function acceptanceIntentHash(intent: VerificationIntent): string {
   return digestCanonicalJson(intentSemantics(intent));
 }
+// Diagnostic verificationIntentAuthorship is intentionally outside signed acceptance scope.
+// Attribution-only changes must not create semantic acceptance revisions.
 export function acceptanceScopeHash(item: ChecklistItem): string {
   return digestCanonicalJson({title:item.title,context:item.context,userSees:item.userSees,excludes:item.excludes,files:item.files});
 }

@@ -260,6 +260,8 @@ export function resolveEffectiveOwnershipClass(
     cls = 'readOnly';
   }
 
+  // checklist_update intentionally retains owner gating, including reviewed
+  // intent proposals. A declared role is never a lease exemption for that writer.
   if (cmd === 'delivery_check_set') {
     cls = isDeliveryReviewerActor(args) ? 'reviewerWrite' : 'storyScopedMutating';
   }

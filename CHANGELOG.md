@@ -1,5 +1,281 @@
 # Changelog
 
+## Lab static-native-fixture-traversal - v0.3.335 - 2026-09-12
+
+The static validation scanner did not register the native certification helper newly imported by the quorum integration fixture. Its exact import inventory refused that literal, and the existing depth bound stopped the native review helper on the first transitive path, leaving two unexpanded coverage rows.
+
+This bounded repair allows the exact optional native-certification import without changing any original required literal, and permits only native-review-fixture at depth4 and fixture-environment at depths4/5 for the configured quorum entry. The default depth3 bound remains. These registrations only expand inspection; process invocation classification, argv/mode rules, exception requirements, dependency hashes, and unknown-helper refusal are unchanged.
+
+The committed regression uses the actual quorum→pure→integration→native-certification→native-review→fixture-environment graph. Official RED reproduced both precise missing-coverage rows (2.879303916 seconds outer). After the repair, the identical command passed (3.846044375 seconds outer), including every existing boundary control, reversed imports, a nested registered process at the deepest native helper, unknown/deeper helper refusal, computed import refusal, missing source refusal, and the same helper under a different entry.
+
+No Story state or source was modified by the Lab. New process call rows still require reviewed exception evidence; zero unexpanded rows alone is not global static acceptance. Lab records are local maintenance provenance, not formal Story DONE or product release evidence. The independent vendor audit remains required before integration.
+
+The first independent vendor audit returned FAIL; that result and the complete audit package are preserved. Its blocking changelog discrepancy is contradicted by the saved prompt diff, snapshot, and candidate Git blob: all three identify the exact boundary-verifier command. The byte comparison is retained at /tmp/B-e6d9-static-lab-audit-input-comparison.json. The correct changelog was not edited to satisfy that finding.
+
+The audit also identified two substantive regression omissions. The reopened Lab now explicitly requires exit status zero for the native positive and independently checks refusal when the required native import literal is absent. With these strengthened assertions, the original main scanner was restored and committed for official RED: 2.891174084 seconds, failing the explicit positive status assertion with the original two unexpanded rows. The bounded scanner repair was then restored byte-for-byte. The same official command passed GREEN in 4.184565459 seconds, including all original controls and the new missing-required-literal negative. This is a changed regression candidate requiring a fresh official independent audit, not a retry of an unchanged rejected candidate.
+
+Owner review identified and reproduced a compatibility regression in the earlier candidate: treating the new helper as required rejects the legitimate current-main quorum graph that does not import it. The committed existing-main positive recorded official RED in 3.580806417 seconds. The repair now registers native-certification-fixture only as an exact optional import of the integration helper; every original required import remains mandatory. The missing-required negative removes the original native-review-fixture import. Official GREEN on commit 9478dc63bf passed in 3.926921416 seconds, covering both old and expanded graphs, reversed order, nested invocation refusal, unknown depths, computed imports, missing required literal, missing imported source, and wrong entry. This compatibility correction is part of the final candidate and must be visible in the fresh vendor audit.
+
+The second independent audit FAIL is retained as run 60c842fa-6cb2-4dda-b152-40c5c2730b39. Follow-up adds exact registered-integration unknown-literal refusal and the named brand-role entry depth contrast while retaining its original byte-bound source refusal. No new traversal allowance was added. Original scanner replay recorded RED in 2.94607125 seconds; final GREEN at ddc3a4dd96 passed in 3.846859708 seconds. The first follow-up GREEN failed in 4.0840525 seconds because the synthetic brand entry correctly refused a changed witness source; the test oracle was corrected to require that exact refusal and actual helper traversal, without forging the witness hash.
+
+Durable evidence in docs/audits/static-native-fixture-traversal.md records actual scan summaries and caller/helper/config/report hashes: main 0.3.333 has 292 needsReview, 25 nested and zero unexpanded; current Story with repaired scanner has 300 needsReview, 25 nested and zero unexpanded. Existing debt is not a Lab regression; eight additional Story fixture edges require separate exact exception review. This Lab does not promise global zero, refresh exceptions, or treat its maintenance record as Story DONE. Both earlier audit records are preserved.
+
+Third audit run 7dcc833a-5ca2-46e4-acb3-0fcb46e26487 remains FAIL and retained. Its two real oracle counterexamples are repaired in ed9777bee4: alternate entry now reaches the exact environment helper at mapped depth4; a different registered worker attempts the exact optional literal. Disposable entry-equality-removal and global-optional-membership mutants fail the respective unchanged oracles (3.095155375s and 2.615921542s), while the unmutated committed candidate passes official GREEN in 4.183136125s. The scanner production bytes, generic bound and invocation rules remain unchanged. Full details are in docs/audits/static-native-fixture-traversal.md.
+
+Maintenance provenance: codex/lab-static-native-fixture-traversal, repair ed9777bee4e4fca23c36352dca1a5876490ebe86.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab route-direction-resource-policy - v0.3.334 - 2026-09-12
+
+Fix the missing resource policy for the canonical native route regression.
+
+The v0.3.332 serial-reference added test:route-reattestation-dependency-direction without a policy row, so the actual inventory builder refused the configured suite with unknownPolicy naming exactly that member. Register its shared repository reads, private fixture ownership and finite 600-second outer timeout. The route command and all its native assertions and internal deadlines remain unchanged.
+
+The sequential child suites use disposable Git roots; a bounded two-child history race does not require machine-wide heavy serialization. Only the shared repository read is registered, allowing unrelated members to overlap.
+
+The existing full-suite runner smoke now requires this exact entry and its resource/budget properties, and proves deletion fails with the exact dedicated inventory error. Preserve the existing full runner smoke and live inventory coverage. This is local Lab engineering provenance, not Story acceptance or a whole-suite pass claim. No push.
+
+The Lab guide requires the existing live inventory smoke after canonical serial-reference membership changes.
+
+Maintenance provenance: codex/lab-route-direction-resource-policy, repair 6dfe9a0742feac332f5e333beb3db379be7c7b2a.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/full-suite-runner-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-intent-authority - v0.3.333 - 2026-09-12
+
+Benchmark planning could not record new-file acceptance declarations: the dedicated intent role could author declarations but held no owner lease, while the owner held the lease but could not apply those declarations. This repair keeps the lease gate intact and supplies an explicit owner-approved proposal handoff. It also corrects checklist_remove admission to match its existing INIT-only handler.
+
+### Supported operation
+
+1. Independently prepare the complete verificationIntent proposal.
+2. Run `proof-or-stop checklist_get --storyId=B-xxxx --proposalFor=CHK-001 --proposalIntent='<intent JSON>'`. This read-only preview returns the current baseIntentHash and exact digest, approvalRequired=true and authority=diagnostic_only. Omitting proposalIntent returns the base hash alone. Existing checklist_get output remains unchanged unless this view is explicitly requested.
+3. After reviewing the proposal, the active owner calls checklist_update with only storyId, itemId, verificationIntent and intentProposalApproval {baseIntentHash, digest, reason}. The reason needs at least 30 characters. Both hashes come from step 2; no internal module import is required. checklist_update --help and the intent dispatch prompt document this sequence. Refusal identifies a stale base separately from a mismatched proposal digest.
+
+The preview does not approve, validate acceptance or grant identity. Application remains PLAN-only, requires the actual non-stale owner lease and matching worktree cwd, refuses registered role identities and mixed-field payloads, and rechecks the exact Story/item/prior-intent/replacement binding inside the checklist lock. Existing classification, file-declaration, scope and signed-revision checks still execute. A role environment never exempts checklist_update from ownership. Independent proposal authorship is advisory, not host-attested reviewer evidence.
+
+### Attribution and lifecycle boundaries
+
+The handler stamps verificationIntentAuthorship on the applied item and emits an ancillary process event. The committed marker contains kind, actor, semantic intent digest, optional proposal digest and independentlyAttested=false; it contains no session identifier. It is assigned before the signed-revision block. Signed acceptance scope uses its existing explicit field list, and acceptanceIntentHash excludes executor-owned command pins; neither treats diagnostic attribution as independent authority. A semantically changed owner update on an already amended item produces one valid revision. Reapplying identical acceptance semantics produces no extra revision.
+
+Semantic append and legacy reconstruction clear superseded attribution. Exact signed checkpoint recovery restores intent and its matching marker together; consumers must check its semantic digest before interpreting attribution. No runtime reader currently enforces that convention. Event logging failure warns after the durable item write and still reaches metadata auto-commit and the persisted-state conclusion. No event is used as a substitute for the primary item record or for gate evidence.
+
+checklist_remove remains forbidden after INIT. Its central resolver rejects unknown/conflicting/unauthorized role identities, and the deletion audit record names the resolved actor. The type vocabulary supports calling that resolver, while VALID_MUTATIONS still excludes checklist_remove, preventing registry definitions from granting any role deletion authority. Planned declarations remain structural endpoint inputs; reviewer and critic receipts remain separate authority checks. Focused comments expose these contracts in the relevant dependency snapshots without changing their behavior.
+
+### Pre-release observations at 0.3.332 (not released-version smoke evidence)
+
+Repair commit f926bb1def is based on synchronized main 86a13b239ec0982c04b66773bee0a08db3d15252. The following observations are from the repair before the tool-generated release bump. They are not represented as smoke executions on the future release commit. Lab finish separately rebuilds and runs the exact pinned regression on its prepared release and on main after integration.
+
+Passed: ensure-dist; verify-intent-owner-lease.mjs; verify-process-fact-contract.mjs; verify-reviewed-source-bindings.mjs; packages/main test:command-catalog-smoke (412 commands), test:command-ownership-contract and test:lifecycle-registry-contract (0 divergences), and test:proofstory-intent-hardening-smoke. The focused regression exercises the actual executable boundary with a removed-guard negative control; real CLI owner proposal application; foreign role/owner refusal; phase, digest and concurrent duplicate controls; exact actor and final persisted status in append-only audit history; signed owner revision and semantic no-op; semantic append and exact recovery; ancillary event failure with real Story-branch auto-commit; and owner-only INIT deletion.
+
+The CLI preview and submit share the existing intent schema. A real CLI regression proves their consistent behavior: unknown top-level fields are stripped before preview/application, unknown intent-entry keys are rejected by both with no writes, and a normalized semantic no-op creates no extra revision. Ownership classification is tested programmatically across empty, agent, actor and approval argument shapes; the redundant source-substring guard was removed.
+
+### Retained baseline limitations
+
+No full-suite PASS is claimed. The first three broad checks below were also run on unchanged main 8153a0c592; they are historical observations only. The full identity-cutover comparison was freshly repeated against current 0.3.332 main 86a13b239e:
+
+- test:phase-gates stops because its old fixture requests story_create phase PLAN, which the current CLI refuses. It fails on both trees before reaching phase assertions.
+- test:proofstory-acceptance-topology-smoke stops at the old unregistered verification-intent alias on both trees.
+- agent-dispatch-registry-smoke stops at a fixture lacking required intent classification. The dispatched-role diagnostic was restored byte-for-byte; comparison of emitted Error diagnostics yields the same singleton set on candidate and main. This is not proof of unexecuted downstream cases.
+- test:proof-or-stop-identity-cutover remains red. Its exact emitted failure-row set is identical on candidate and main. No scanner predicate, classification, line-position allowlist or baseline failure was waived.
+
+Literal shared registry diagnostic:
+
+```text
+Error: checklist_update refused: verification-intent roles must classify CHK-001:happy:0 with scope, expectation, and requirementSource before PLAN acceptance is frozen [verification_intent_metadata_required]
+```
+
+Literal current identity-cutover failure rows:
+
+```text
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:7242
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6489
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6491
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6498
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6506
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6516
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:6525
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:7264
+  - reviewed fixture changed: scripts/verify-process-fact-contract.mjs:7293
+  - reviewed fixture changed: scripts/verify-acceptance-prompt-projection.mjs:20
+  - reviewed fixture changed: packages/main/src/tasks/finding-identity-lineage-smoke.ts:139
+  - reviewed negative source integrity changed: scripts/verify-process-fact-contract.mjs
+  - reviewed negative source integrity changed: scripts/verify-runtime-fact-contract.mjs
+```
+
+The changed checklist executable pin is checked by the pinned regression, not inferred from a source hash. Reviewed-source inventory rows for config, command-catalog and runtime-environment-checks keep their exact classified lines and token counts; only current source hashes and the catalog line position are renewed. Both runtime negative/both-family witness digests and the outer reader digest are renewed together. The focused source suite passes its current positives, mutation refusals and restoration controls independently of the broader baseline failure.
+
+### Delivery boundary
+
+This is authorized local maintenance, not benchmark runner delivery, formal Story DONE or remote release. After successful integration, continue B-0980 formal review and B-65ca planning through normal CLI gates. Earlier rejected audit records remain under the Lab audit directory; the role-environment lease exemption from the first candidate was removed and is not part of this implementation. No time or token saving is asserted by this repair.
+
+### Audit repair disposition
+
+The sixth audit accepted the core lease and binding boundary but rejected attribution and robustness defects. The proposal audit row now names the resolved checklistActor and is appended after signed revision handling, preserving the pre-write status and final persisted status. Its in_progress-to-pending path is executable-tested. The intent-role closing instruction now explicitly requests complete verificationIntent JSON for owner handoff. Runtime registry and type prose expressly identify semantic-digest interpretation as a reader convention with no runtime reader enforcement. Historical smoke observations are labelled pre-release at their actual version, not release evidence. Earlier rejected audit records are retained; no finding is relabelled as a pass.
+
+Maintenance provenance: codex/lab-benchmark-intent-authority, repair f926bb1def603d58f28a615996fbece728c1afbb.
+Verification command (replayed before integration and on main): `["node","scripts/verify-intent-owner-lease.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab route-reattestation-dependency-direction - v0.3.332 - 2026-09-12
+
+Fix the reverse dependency from Story2 route consent to the Story1 material re-attestation reader. Registry and Story1 composition now provide an internal signed restoration reader for exact source references and current workspace bindings, including route verification, progress revalidation, history recall and automatic deferral recall. Standalone drift remains strict; current-reviewer acceptance does not consume restoration. The original signed material/head-only verifier and target-only dependency tuple retain their validation and recursion boundary. Public command JSON cannot supply the reader or proof.
+
+The process contract now checks actual primitive component owners and canonical Story2 runtime providers with exact forbidden-edge diagnostics and static import, export, dynamic import and require mutation controls, while preserving allowed edges and existing mutations. The regression is registered in the serial reference suite.
+
+Target RED executes the actual old checker, which accepted the live forbidden import, then fails the precise route-direction assertion. The pinned GREEN command executes the repaired source/DAG checks, both complete native material/head-only fixtures with additional wrong-root/reference/missing-proof/boolean/strict-reviewer and official route/history controls, the existing route/progress/history suite, and the actual process contract. Progress preparation's wrong-baseline refusal is not presented as a restored successful progress commit. Test setup corrections and measured command timings are recorded in the local Lab logs. This is a bounded local maintenance repair, not signed Story DONE or operational rollout qualification. No remote push is requested.
+
+The unchanged local main 0.3.331 exact history command passed all 82 cases in 237.373 seconds. The initially chosen 120-second child budget was therefore insufficient; it is recorded as a failed fixture-budget attempt, not a product regression. The candidate retains all 82 cases under the existing documented 300-second lineage budget, with SIGKILL directed at only that spawned child on timeout. Production timeouts are unchanged.
+
+Official candidate GREEN completed in 350.117 seconds with both native restoration modes, all 82 original history cases and the process contract passing. The exact command remains pinned for the mandatory integration replays.
+
+Maintenance provenance: codex/lab-route-reattestation-dependency-direction, repair e669ed2d4d8e93b49cf70f11fb81699d2c00072f.
+Verification command (replayed before integration and on main): `["node","scripts/verify-route-reattestation-dependency-direction.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab identity-reviewed-source-bindings-20260911 - v0.3.331 - 2026-09-12
+
+Integrate the bounded identity-reviewed-source-bindings-20260911 Lab against
+local main 0.3.330. The original 0.3.323 repair covered four source inventory
+rows; latest-main synchronization exposed renewed process-fact drift and a
+runtime-fact row shifted by the independent vendor audit policy. Complete source
+diff review confirms retained token identities, classifications and occurrence
+counts. The repair renews exactly five rows out of 54 and synchronizes the data
+digest, reader digest, and outer scanner reader witness. It introduces no
+automatic repinning, predicate relaxation, identity-runtime behavior change, or Story state
+transition. Ordinary release version changes are tool-generated separately.
+The focused test is registered as test:reviewed-source-bindings, included once
+in the serial reference chain, and declared repository-read-only in the full
+suite's resource policy. Exact reconstructed before/after prompt strings are
+checked against their fixed historical/current line hashes and current source.
+
+The unchanged pinned Lab command is:
+node scripts/verify-reviewed-source-bindings.mjs
+
+Original RED observed four source failures. Post-main-sync RED at b7bbaa02de
+observed two remaining stale bindings after the earlier repair. GREEN returns
+zero source failures, three exact reader bindings, 54 exact source positives,
+324 observed mutation refusals, 52 empty/missing-source refusals, and source
+inventory byte-integrity controls. Compared with untouched 0.3.330 main, source
+binding failures decrease from five to zero. These are correctness/control
+counts, not Story elapsed-time savings or independent isolation of each guard.
+The amendment prompt/parser shape test also passes for both supported hosts.
+
+The previous direct Claude CLI review passed and actually executed both focused
+commands on the earlier candidate. It is retained as historical evidence only.
+The current official finish must execute its required different-vendor audit on
+the prepared release candidate; that current record, not the earlier prose,
+authorizes local integration.
+
+Known unrelated baseline: eleven fixture binding errors over process-fact
+verification, acceptance prompt projection, and the identity-lineage smoke
+remain unchanged. The combined fixture/source/JSON suite still fails on that
+baseline. No full repository or full identity-suite PASS is claimed, and no
+unrelated repair or other active Lab is included.
+
+Detailed root causes, source commit provenance, RED/GREEN and independent review
+limitations are in docs/audits/reviewed-source-binding-reconciliation.md.
+Finish performs the patch upgrade, fresh candidate verification, local main
+integration, post-merge verification and cleanup. GitHub publication remains
+separate and requires the human-created one-shot approval for the final main
+SHA. No push authorization is inferred from these release notes.
+
+Maintenance provenance: codex/lab-identity-reviewed-source-bindings-20260911, repair 5b939e8cf0810c5f3c000e22fc06c5b1ebc6580d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## v0.3.331 — Review Continuity, Audited Lab Integration, and Identity Binding Reliability — 2026-09-12
+
+### Release scope
+
+This cumulative release promotes the complete `v0.3.319` through `v0.3.331` line on top of `v0.3.318`. It includes the amendment protocol repairs, Dynamic Finding continuity and collection work, Lab release and independent-audit hardening, local-main baseline selection, PLAN owner coverage, qualification census integrity, convergence history preservation, completeness-critic purpose retention, native review-epoch certification continuity, and exact reviewed-source binding reconciliation.
+
+The release is ancestry-complete: it does not replace or replay earlier fixes as disconnected patches. Every change reachable from `v0.3.318`, including the previously integrated performance and production-validation foundation, remains in the `v0.3.331` history.
+
+### Problems resolved
+
+- Amendment reviewers could emit a semantically approving but structurally nested response that the strict parser correctly rejected, while the prompt did not expose the exact flat output schema clearly enough.
+- Eligible low- and medium-severity Finding deferrals could become unrecoverable after head-only drift even when material, base, dependencies, command evidence, and independent proof remained valid.
+- Qualification collection could lose useful historical diagnostics when current prerequisites were unavailable, and the scorecard reducer read protected storage instead of consuming the signed public census.
+- Lab finish could ignore an explicit patch-release request for non-runtime inputs, and executable maintenance scripts did not consistently trigger versioned delivery.
+- PLAN declarations could omit a canonical implementation owner in both understanding touchpoints and checklist files without a mechanical coverage decision.
+- Linked Story worktrees could compare against stale remote state instead of the locally advanced primary branch, producing false scope changes for already-integrated main files.
+- Lab integration did not mechanically require a successful independent audit from a different registered vendor, and several audit input, identity, cleanup, locking, and retry boundaries were incomplete.
+- Historical recall depended in the wrong direction on applicability code, creating an unnecessary reverse dependency between Dynamic Finding workstreams.
+- Certification consumption could invalidate already completed convergence history by introducing a later signed lifecycle output into the completion projection.
+- Native completeness-critic evidence could be revalidated under the wrong dispatch purpose and rejected despite valid signed inventory evidence.
+- PRE_CERT continuity recognized individual reviewer commits but omitted the canonical batched native review-epoch metadata commit, preventing genuine finalized evidence from reaching certification.
+- Reviewed identity-source bindings retained stale line and source digests after legitimate process-fact, runtime-fact, and prompt changes, leaving exact source verification red even though token identities, classifications, and occurrence counts were unchanged.
+- The canonical native review-epoch continuity verifier was present in the serial reference chain but absent from the full-suite resource manifest, so inventory validation stopped the suite before executing any member.
+
+### Resolution
+
+- Render and verify the strict amendment response schema in the reviewer prompt, require top-level bindings, and keep nested-binding rejection explicit.
+- Permit narrowly bounded head-only deferral recovery only after fresh command evidence and independent proof, while preserving ancestry, material, dependency, signature, expiry, and route checks.
+- Add read-only collection and history guidance, retain verified historical denominators when current evidence is unavailable, and obtain qualification census data through the signed public query contract.
+- Separate the Lab version decision from the runtime build predicate, persist prepared release decisions across retries, and refuse incompatible late upgrade requests.
+- Require signed per-owner PLAN dispositions for canonical selected process-fact implementation owners and verify them at both review and transition boundaries.
+- Select a contained, locally advanced primary branch as the linked-worktree baseline only when the remote tip is its proven ancestor; divergent and unsafe candidates retain conservative behavior.
+- Require an independent cross-vendor Lab audit before integration, bind the audit to immutable candidate inputs, validate developer and provider identities before persistence, and preserve rejection lineage across repair rounds.
+- Move the signed historical-recall invalidation observer to its existing owner and inject a typed internal provider, eliminating the applicability-to-recall reverse dependency.
+- Exclude only the signed certification-consumption lifecycle output from the completed convergence projection; all original signatures and completion claims remain enforced.
+- Forward the native review purpose and inventory binding through completeness-critic revalidation.
+- Admit the exact canonical native review-epoch publication commit only when every changed path is a registered review artifact or prompt-body path and all same-Story, ancestry, material, signature, and inventory checks pass.
+- Reconcile only the reviewed source rows proven to retain their exact token semantics, update the inventory and nested reader bindings together, register the focused verifier in the serial reference suite, and preserve fail-closed mutation controls.
+- Register the native review-epoch verifier as a shared repository reader in the canonical resource policy, preserving the separate membership and scheduling authorities while restoring exact inventory agreement.
+
+### Before and after
+
+| Area | Before | After |
+| --- | --- | --- |
+| Amendment review transport | Prompt shape could lead to nested binding output rejected by the parser | Prompt and parser share one explicit flat top-level schema with negative nested controls |
+| Finding head continuity | Harmless head-only drift could strand an otherwise eligible deferral | Fresh evidence can recover the exact safe case; rewritten or unknown dependencies still fail closed |
+| Finding diagnostics | Current prerequisite failure could obscure verified historical diagnostic coverage | Current unavailability is reported separately while trustworthy historical diagnostics remain visible |
+| Qualification census | Reducer accessed protected ledger storage directly | Reducer consumes the signed public census and verifies identity, counts, hashes, signatures, and Story binding |
+| Lab patch delivery | Explicit patch upgrades could be skipped for non-runtime changes | Explicit upgrades are honored, executable scripts auto-trigger a patch, and retries remain idempotent |
+| PLAN owner coverage | Two declaration surfaces could omit the same canonical owner | Every selected owner receives one signed modify, test, or justified unchanged disposition |
+| Linked-worktree baseline | Stale remote state could classify integrated main files as Story changes | A proven descendant local primary branch becomes the comparison baseline without rewriting refs |
+| Lab audit gate | Integration could proceed without a mechanically verified independent vendor audit | Missing, stale, malformed, rejected, duplicate, or same-vendor audits block integration |
+| Recall architecture | Historical recall imported applicability in the reverse direction | Recall consumes a typed provider owned by the correct workstream |
+| Convergence history | Certification consumption could make completed history appear incomplete | Completion remains stable while certification authority stays independently verified |
+| Completeness critic | Revalidation could substitute the topology purpose | The signed native inventory-completeness purpose is preserved end to end |
+| PRE_CERT continuity | Canonical batched review publication was not recognized | Exact native epoch metadata commits are admitted under bounded path and authority checks |
+| Reviewed source identity | Legitimate source movement left exact reviewed bindings stale | Five reviewed rows and their reader witnesses are rebound after exact diff review; automatic repinning remains forbidden |
+| Full-suite inventory | Review-epoch verification was runnable directly but unknown to the resource scheduler | Serial membership, npm script registration, and resource policy now agree exactly |
+
+### Direct effects
+
+- Review providers receive a response contract that matches the production parser.
+- Operators can distinguish unavailable current Finding evidence from verified historical observations without weakening enforcement prerequisites.
+- Existing linked Story worktrees stop treating already-integrated local-main files as Story-owned changes when ancestry proves the local baseline is safe.
+- Lab releases have deterministic patch-version behavior and a stronger independent-audit boundary.
+- Qualification, recall, convergence, critic, and certification paths preserve their signed authority through the specific transitions they are designed to survive.
+- Native finalized review epochs can reach PRE_CERT without admitting arbitrary metadata or unrelated commits.
+- Exact reviewed-source verification returns to zero source failures while retaining line, occurrence, inventory-byte, reader-digest, and mutation integrity checks.
+- The canonical full-suite runner no longer aborts at inventory validation when it encounters the review-epoch continuity verifier.
+
+### Verification evidence
+
+The integrated maintenance entries below preserve their exact RED/GREEN commands, measured observations, independent audit records, negative controls, and limitations. Release verification replays the current build, process-fact and runtime-fact contracts, Lab integration contract, Dynamic Finding focused contracts, linked-worktree baseline checks, convergence/critic continuity, and native review-epoch certification continuity before publication.
+
+The principal current commands are:
+
+- `npm run build`
+- `node scripts/verify-process-fact-contract.mjs`
+- `node scripts/verify-runtime-fact-contract.mjs`
+- `node scripts/verify-lab-worktree.mjs`
+- `node scripts/verify-local-main-baseline.mjs`
+- `node scripts/verify-finding-scorecard-public-census.mjs`
+- `node scripts/verify-recall-dependency-direction.mjs`
+- `node scripts/verify-convergence-certification-consumption.mjs`
+- `node scripts/verify-native-critic-dispatch-purpose.mjs`
+- `node scripts/verify-review-epoch-certification-continuity.mjs`
+- `node scripts/verify-reviewed-source-bindings.mjs`
+- `npm run test:full-suite-runner-smoke`
+
+### Compatibility and limits
+
+This remains a patch release with no intentional public CLI removal. Historical Story worktrees are immutable Git branches and do not automatically acquire a newer main commit; the linked-worktree fixes make comparison and lifecycle behavior safe when main is synchronized through the supported workflow, but a tag alone does not rewrite an existing Story branch. Lab evidence remains bounded maintenance evidence rather than formal Story DONE, operational qualification, or permission to weaken gate predicates. Dynamic Finding enforcement still follows the configured observe/warn/enforce and kill-switch policy.
 ## Lab review-epoch-certification-continuity - v0.3.330 - 2026-09-12
 
 PRE_CERT now recognizes the exact canonical same-Story review epoch metadata commit produced by native inventory finalization. The previous continuity allowlist recognized individual reviewer command commits but omitted the real batched publisher, so genuine signed lanes and completeness-critic evidence in a linked Story worktree could not be admitted after finalization.

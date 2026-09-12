@@ -528,7 +528,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_route_accept', 'finding_route_reject', 'finding_route_revoke', 'finding_progress_capture',
     'verification_intent_recover',
     'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set
-    'story_update', 'checklist_update',
+    'story_update', 'checklist_update', 'checklist_remove',
     'init_check_set', // B-e71f CHK-003: proof-or-stop-review-story-init reviewer 在 INIT 阶段写 init-check.json
     'init_check_repair', // B-95d8 CHK-001: 受控 fallback——无 subagent 环境下显式生成签名 init-check.json
     'scope_boundary_set', 'execution_boundary_set',
@@ -550,7 +550,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
     'story_update', 'story_review', 'story_review_dismiss',
-    'checklist_add', 'checklist_update', 'checklist_remove',
+    'checklist_add', 'checklist_update',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill (refused in INIT/INIT_CHECK/terminal)
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',
@@ -585,7 +585,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
-    'checklist_add', 'checklist_update', 'checklist_remove',
+    'checklist_add', 'checklist_update',
     'verification_intent_append',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'decision_doc_proposal', 'decision_doc_save',

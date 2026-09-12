@@ -41,6 +41,11 @@ The recorded command should cover the reproduction and relevant regressions.
 Performance assertions must compare equivalent conditions and define a threshold.
 Command exit status cannot prove that a test is meaningful; maintainers must still
 review test intent, coverage, and whether an optimization weakens a contract.
+When changing `test:serial-reference` or `test:serial-reference-prefix`, build and
+run `node packages/main/dist/tasks/full-suite-runner-smoke.js` before GREEN. Its
+live inventory check verifies every canonical member has a resource policy;
+per-command success alone does not establish suite membership completeness.
+
 Keep hooks enabled and preserve prompt plus mechanical enforcement for process
 facts. Local records are not formal Story REVIEW, TEST, DONE, or signed
 artifact/capability-release evidence. No Story JSON is created or advanced.
@@ -330,3 +335,15 @@ Provider audit has a registered 15-minute total budget and 90-second startup bud
 The pinned Lab worktree verifier also executes the isolated lock-scope regression. Audit input refuses changed paths that collide as file/directory prefixes before snapshot creation. Binary content and size overflow have separate diagnostics naming the cause; these refusals occur before main integration.
 
 Developer IDs must exist in the trusted provider configuration. Creation rejects unknown IDs before creating the worktree; legacy attribution is persisted only after the provider configuration and audit subject validate, so a typo cannot permanently pin an invalid identity.
+
+### Route restoration dependency boundary
+
+Story2 route and history handlers accept an internal source restoration reader
+from registry composition. The Story1 adapter rederives the signed material or
+head-only restoration against the exact proposal and current workspace on each
+read. Public command JSON cannot supply the reader or restoration payload.
+Standalone Story2 callers remain strict under drift; current-reviewer acceptance
+never uses the restoration port. Progress revalidation reads the proof again.
+`node scripts/verify-route-reattestation-dependency-direction.mjs` checks the real
+component DAG and native signed restoration with missing, substituted and wrong
+workspace controls. These disposable tests are not Story completion evidence.

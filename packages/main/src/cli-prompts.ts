@@ -121,6 +121,15 @@ STEP-BY-STEP
 `.trim();
 
 export const CHECKLIST_UPDATE_LONG = `
+Owner-applied intent proposals (PLAN only):
+  1. Independently prepare the complete verificationIntent JSON.
+  2. Run checklist_get --storyId=B-xxxx --proposalFor=CHK-001 --proposalIntent='<intent JSON>'.
+     This read-only view returns baseIntentHash and digest; it grants no authority and writes nothing.
+  3. The active owner reviews the proposal and calls checklist_update with only storyId, itemId,
+     verificationIntent and intentProposalApproval:{baseIntentHash,digest,reason}; reason needs 30 characters.
+     Copy both hashes from step 2. A stale base is refused; regenerate the read-only view and review again.
+  No internal module import or hand-written hashing is required. Never pass an agent role for owner approval.
+
 ══════════════════════════════════════════════════════════
   proof-or-stop checklist_update — Update one checklist item
 ══════════════════════════════════════════════════════════
