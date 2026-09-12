@@ -1608,6 +1608,7 @@
       "callDigest": "628eccc650cf0a9a6c9f04a5907baa18b732eeb1a9d9f832d70fdcc4880dc287",
       "sourceDigest": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
       "configIndexes": [
+        0,
         2,
         12,
         24,
@@ -1630,7 +1631,16 @@
           "endLine": 197,
           "sourceDigest": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
           "excerpt": "  const invocation = fixtureInvocation(args);\n  return new Promise<string>((resolvePromise, reject) => {\n    const child = spawn(process.execPath, [CLI, args.command, JSON.stringify(args.payload)], {\n      cwd: args.root,\n      env: {\n        ...sanitizedFixtureChildEnvironment({ ...process.env, ...args.env }),\n        ...invocation.env,\n        LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '3',\n      },\n      stdio: ['ignore', 'pipe', 'pipe', 'pipe'],\n    });"
-        }
+        },
+        {
+          "file": "packages/main/src/tasks/native-review-fixture.ts",
+          "startLine": 178,
+          "endLine": 197,
+          "sourceDigest": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
+          "excerpt": "  store: StoryStore;\n  storyId: string;\n  agent: string;\n  reviewRunId: string;\n  command: 'review_pass_set' | 'finding_add';\n  payload: Record<string, unknown>;\n  /** Test-only process controls; broker identity and descriptor remain authoritative. */\n  env?: NodeJS.ProcessEnv;\n}): Promise<string> {\n  const invocation = fixtureInvocation(args);\n  return new Promise<string>((resolvePromise, reject) => {\n    const child = spawn(process.execPath, [CLI, args.command, JSON.stringify(args.payload)], {\n      cwd: args.root,\n      env: {\n        ...sanitizedFixtureChildEnvironment({ ...process.env, ...args.env }),\n        ...invocation.env,\n        LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '3',\n      },\n      stdio: ['ignore', 'pipe', 'pipe', 'pipe'],\n    });"
+        },
+        "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors.",
+        "2026-09-12 conservative union: former EX-1032 is absorbed into EX-0061 without losing its config index 0, six invocation forms, dependency closure or evidence. Same ordinary CLI call; the stable existing ID is retained. No duplicate-key lookup assumption is needed."
       ],
       "dependencyDigests": {
         "package-lock.json": "4912d8f0a73d4e7f8f651b01895470dfc5b47f2d7f35270630e9a91f6ddf3e91",
@@ -1645,7 +1655,14 @@
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/codex-registry-mode-smoke.ts": "4ec6686ba239958830ac167b5fb5d5bfcbf3e94bc12b74ae133bf38e78cf06c2",
         "packages/main/src/tasks/current-implementation-fixture.ts": "85e94bd7cae8c4bb94501342f928c0f3803bcb620d11a79c82e75b83274481fe",
+        "packages/main/src/tasks/current-review-fixture.ts": "6500145ff4581959e88da06b3a1c2a4f0e74e4f5b1de833a83672e9ee612a950",
+        "packages/main/src/tasks/dynamic-finding-evidence-closure-smoke.ts": "043da70daa06c3d5a3aac49575ba22f2fc3f6d617683e7414ed545f77373ec58",
+        "packages/main/src/tasks/dynamic-finding-runtime-integration-smoke.ts": "456315fb31f53aeb23c2b2baa7ea2e783ef4557410511c64577aa53ea6615028",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "0c657b59ed2824c053d6a9201aa06cde09d3a718d5c5f86e281d7f9afdf405cb",
+        "packages/main/src/tasks/finding-material-reattestation-smoke.ts": "8bd7a6787c63e89ffabf1cc1331459057434fd91efca8e1915744401a180ee54",
+        "packages/main/src/tasks/finding-qualification-events-smoke.ts": "3984139146e306a77ea001514592914dba2749f7045bcce77f543e32ec1895e0",
+        "packages/main/src/tasks/finding-qualification-independence-smoke.ts": "07f0ffa65cf996e3347553deba8664053611b0c3b43ff0e48aee42cc476e937e",
+        "packages/main/src/tasks/finding-runtime-pair-smoke.ts": "892333d45824a8eed4cf1b032f1c2b002a50652f7d6b56219d159217113ce293",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
         "packages/main/src/tasks/flow-stability-smoke.ts": "da31a60868832fd8fee5d7280a062d26e3789c8818e0d17915d084852c9dbc69",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "12f6ea16b4aca5333581f2070b3c4e8935638d229d11f26093d6906462f55389",
@@ -1673,6 +1690,11 @@
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
         "packages/main/tests/red/red-b03b7-identity-lineage.mjs": "eadb7f4137bedab446a89aea0f3813400b3324dc7e49cf8631486390c09fce5e",
+        "packages/main/tests/red/red-dynamic-finding-audit-closure.mjs": "1d640dc1bcc7fbecc8ca2e82488c34a192eaf65dce2b47973e8842bf76c65df4",
+        "packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs": "76fe89dc46c45d381dc3bf06de726d466e8b8414caf3eb28e0b248488e6534e4",
+        "packages/main/tests/red/red-dynamic-finding-final-contracts.mjs": "4f2ba41620b4a48d7f05173d48fb91648968b6132d08d90cc393f1197d224e54",
+        "packages/main/tests/red/red-dynamic-finding-four-gaps.mjs": "e0bf5cc16e9dbec28a202faa8d7856c055f713a7400def23d634610b7eb8a9c8",
+        "packages/main/tests/red/red-dynamic-finding-qualification-audit.mjs": "0db055edd1318d439b9cd6309cb75f2529b1e7f3d0c20990c99ca326cf4aea4d",
         "packages/main/tests/release-push-approval-migration.test.mjs": "e45306331efdcbb30c7ba79060f40279a46964a54bc2bf49a9c9d9913353fd7a",
         "packages/utils/package-lock.json": "bbae198fe1024b3c74f7209dc07dd4e7dd4c9d2ed90e742749ab62e2a52f198b",
         "packages/utils/package.json": "402c98821a0e5c623493a50536f9444afab19192e1aa31296537975b6cd3ae94",
@@ -1737,6 +1759,36 @@
           "entry": "packages/main/dist/tasks/flow-stability-smoke.js",
           "argv": [
             "--canonical-core"
+          ]
+        },
+        {
+          "entry": "packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js",
+          "argv": []
+        },
+        {
+          "entry": "packages/main/dist/tasks/finding-material-reattestation-smoke.js",
+          "argv": []
+        },
+        {
+          "entry": "packages/main/dist/tasks/finding-qualification-independence-smoke.js",
+          "argv": []
+        },
+        {
+          "entry": "packages/main/dist/tasks/finding-material-reattestation-smoke.js",
+          "argv": [
+            "--head-continuity"
+          ]
+        },
+        {
+          "entry": "packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js",
+          "argv": [
+            "--collection-proof"
+          ]
+        },
+        {
+          "entry": "packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js",
+          "argv": [
+            "--qualification-history-proof"
           ]
         }
       ]
@@ -10328,77 +10380,6 @@
       ]
     },
     {
-      "id": "EX-1032",
-      "key": "packages/main/src/tasks/native-review-fixture.ts:189:spawn",
-      "callDigest": "628eccc650cf0a9a6c9f04a5907baa18b732eeb1a9d9f832d70fdcc4880dc287",
-      "sourceDigest": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-      "configIndexes": [
-        0
-      ],
-      "kind": "ordinary-cli",
-      "reason": "Same ordinary CLI edge as EX-0061, with separate exact config-index-0 invocation coverage retained for stable registry identity. Fixed ../cli.js is the Node entry; review_pass_set/finding_add and payload are CLI data, never Node script paths or registered suite dispatch. Signed native reviewer FD and helper-owned fixture roots remain required.",
-      "requiredEvidence": [
-        {
-          "file": "packages/main/src/tasks/native-review-fixture.ts",
-          "startLine": 178,
-          "endLine": 197,
-          "sourceDigest": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-          "excerpt": "  store: StoryStore;\n  storyId: string;\n  agent: string;\n  reviewRunId: string;\n  command: 'review_pass_set' | 'finding_add';\n  payload: Record<string, unknown>;\n  /** Test-only process controls; broker identity and descriptor remain authoritative. */\n  env?: NodeJS.ProcessEnv;\n}): Promise<string> {\n  const invocation = fixtureInvocation(args);\n  return new Promise<string>((resolvePromise, reject) => {\n    const child = spawn(process.execPath, [CLI, args.command, JSON.stringify(args.payload)], {\n      cwd: args.root,\n      env: {\n        ...sanitizedFixtureChildEnvironment({ ...process.env, ...args.env }),\n        ...invocation.env,\n        LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '3',\n      },\n      stdio: ['ignore', 'pipe', 'pipe', 'pipe'],\n    });"
-        },
-        "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
-      ],
-      "dependencyDigests": {
-        "packages/main/package.json": "ee52c6496aa7797e1d7161dd04b0be444a6e1431a97b7d779debeeeb32dd1d94",
-        "packages/main/src/tasks/current-review-fixture.ts": "6500145ff4581959e88da06b3a1c2a4f0e74e4f5b1de833a83672e9ee612a950",
-        "packages/main/src/tasks/dynamic-finding-evidence-closure-smoke.ts": "043da70daa06c3d5a3aac49575ba22f2fc3f6d617683e7414ed545f77373ec58",
-        "packages/main/src/tasks/dynamic-finding-runtime-integration-smoke.ts": "456315fb31f53aeb23c2b2baa7ea2e783ef4557410511c64577aa53ea6615028",
-        "packages/main/src/tasks/finding-material-reattestation-smoke.ts": "8bd7a6787c63e89ffabf1cc1331459057434fd91efca8e1915744401a180ee54",
-        "packages/main/src/tasks/finding-qualification-events-smoke.ts": "3984139146e306a77ea001514592914dba2749f7045bcce77f543e32ec1895e0",
-        "packages/main/src/tasks/finding-qualification-independence-smoke.ts": "07f0ffa65cf996e3347553deba8664053611b0c3b43ff0e48aee42cc476e937e",
-        "packages/main/src/tasks/finding-runtime-pair-smoke.ts": "892333d45824a8eed4cf1b032f1c2b002a50652f7d6b56219d159217113ce293",
-        "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/isolated-finding-fixture.ts": "0494bd62bff952982742e0e6986c73dfdace0009ff159857eea91ed26d56de20",
-        "packages/main/src/tasks/native-review-fixture.ts": "ebf7d36a10f9aa68fb8df1410637f31518f30236588ca767d85669b7878faa4d",
-        "packages/main/tests/red/red-dynamic-finding-audit-closure.mjs": "1d640dc1bcc7fbecc8ca2e82488c34a192eaf65dce2b47973e8842bf76c65df4",
-        "packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs": "76fe89dc46c45d381dc3bf06de726d466e8b8414caf3eb28e0b248488e6534e4",
-        "packages/main/tests/red/red-dynamic-finding-final-contracts.mjs": "4f2ba41620b4a48d7f05173d48fb91648968b6132d08d90cc393f1197d224e54",
-        "packages/main/tests/red/red-dynamic-finding-four-gaps.mjs": "e0bf5cc16e9dbec28a202faa8d7856c055f713a7400def23d634610b7eb8a9c8",
-        "packages/main/tests/red/red-dynamic-finding-qualification-audit.mjs": "0db055edd1318d439b9cd6309cb75f2529b1e7f3d0c20990c99ca326cf4aea4d"
-      },
-      "invocations": [
-        {
-          "entry": "packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js",
-          "argv": []
-        },
-        {
-          "entry": "packages/main/dist/tasks/finding-material-reattestation-smoke.js",
-          "argv": []
-        },
-        {
-          "entry": "packages/main/dist/tasks/finding-qualification-independence-smoke.js",
-          "argv": []
-        },
-        {
-          "entry": "packages/main/dist/tasks/finding-material-reattestation-smoke.js",
-          "argv": [
-            "--head-continuity"
-          ]
-        },
-        {
-          "entry": "packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js",
-          "argv": [
-            "--collection-proof"
-          ]
-        },
-        {
-          "entry": "packages/main/dist/tasks/dynamic-finding-runtime-integration-smoke.js",
-          "argv": [
-            "--qualification-history-proof"
-          ]
-        }
-      ]
-    },
-    {
       "id": "EX-1033",
       "key": "packages/main/src/tasks/isolated-finding-fixture.ts:39:spawn",
       "callDigest": "592fae828d90f1456f019f06b89adfb71041738550dd0c20046178afa7a26127",
@@ -10916,7 +10897,15 @@
           "endLine": 156,
           "sourceDigest": "ee52c6496aa7797e1d7161dd04b0be444a6e1431a97b7d779debeeeb32dd1d94",
           "excerpt": "  \"scripts\": {\n    \"build\": \"node ../../scripts/build-main-with-binding.mjs\",\n    \"dev\": \"tsc --watch\",\n    \"start\": \"node dist/index.js\",\n    \"test:e2e\": \"node dist/tasks/cli-e2e.js\",\n    \"test:cross-host-review\": \"node dist/tasks/cross-host-review-smoke.js\",\n    \"test:experience-layer-finding-signals\": \"node dist/tasks/experience-layer-finding-signals-smoke.js\",\n    \"test:experience-layer-finding-enums\": \"node dist/tasks/experience-layer-finding-enums-smoke.js\",\n    \"test:experience-layer-hint-injection\": \"node dist/tasks/experience-layer-hint-injection-smoke.js\",\n    \"test:experience-layer-ab-shadow-gate\": \"node dist/tasks/experience-layer-ab-shadow-gate-smoke.js\",\n    \"test:experience-layer-review-dispatch-hint\": \"node dist/tasks/experience-layer-review-dispatch-hint-smoke.js\",\n    \"test:experience-layer-digest-extract\": \"node dist/tasks/experience-layer-digest-extract-smoke.js\",\n    \"test:experience-layer-playbook\": \"node dist/tasks/experience-layer-playbook-smoke.js\",\n    \"test:playbook-evidence-activation\": \"node dist/tasks/playbook-evidence-activation-smoke.js\",\n    \"test:experience-layer-recall\": \"node dist/tasks/experience-layer-recall-smoke.js\",\n    \"test:experience-layer-revalidation\": \"node dist/tasks/experience-layer-revalidation-smoke.js\",\n    \"test:experience-layer-revalidation-cli\": \"node dist/tasks/experience-layer-revalidation-cli-smoke.js\",\n    \"test:experience-layer-learning-scan\": \"node dist/tasks/experience-layer-learning-scan-smoke.js\",\n    \"test:experience-layer-signature-capture\": \"node dist/tasks/experience-layer-signature-capture-smoke.js\",\n    \"test:experience-layer-signature-backfill\": \"node dist/tasks/experience-layer-signature-backfill-smoke.js\",\n    \"test:experience-layer-effectiveness\": \"node dist/tasks/experience-layer-effectiveness-smoke.js\",\n    \"test:run-all-smokes-smoke\": \"node dist/tasks/run-all-smokes-smoke.js\",\n    \"test:full-suite-runner-smoke\": \"node dist/tasks/full-suite-runner-smoke.js\",\n    \"test:milestone-status\": \"node tests/milestone-status.test.mjs\",\n    \"test:global-core-realpath\": \"node tests/global-core-realpath.test.mjs\",\n    \"test:docs-drift-smoke\": \"node dist/tasks/docs-drift-path-drift-smoke.js\",\n    \"test:docs-drift-wrapper-root\": \"node dist/tasks/docs-drift-wrapper-root-smoke.js\",\n    \"test:managed-assets-wrapper-root\": \"node dist/tasks/managed-assets-wrapper-root-smoke.js\",\n    \"test:done-oracle-wrapper-root\": \"node dist/tasks/done-oracle-wrapper-root-smoke.js\",\n    \"test:review-run-metadataroot-wrapper-root\": \"node dist/tasks/review-run-metadataroot-wrapper-root-smoke.js\",\n    \"test:review-escalation-freshness-root\": \"node dist/tasks/review-escalation-freshness-root-smoke.js\",\n    \"test:done-required-validation-smoke\": \"node dist/tasks/done-required-validation-smoke.js\",\n    \"test:done-required-freshness-smoke\": \"node dist/tasks/done-required-freshness-smoke.js\",\n    \"test:done-required-head-drift-proof\": \"node dist/tasks/done-required-head-drift-proof.js\",\n    \"test:done-prepare-closure-heartbeat-smoke\": \"node dist/tasks/done-prepare-closure-heartbeat-smoke.js\",\n    \"test:done-prepare-auto-closeout-smoke\": \"node dist/tasks/done-prepare-auto-closeout-smoke.js\",\n    \"test:done-prepare-merge-rerun-smoke\": \"node dist/tasks/done-prepare-merge-rerun-smoke.js\",\n    \"test:porcelain-first-row-audit\": \"node dist/tasks/porcelain-first-row-audit-smoke.js\",\n    \"test:review-assurance-surfacing-smoke\": \"node dist/tasks/review-assurance-surfacing-smoke.js\",\n    \"test:done-readiness-flow-benchmark\": \"node dist/tasks/done-readiness-flow-benchmark.js\",\n    \"test:storydir-inside-gitroot-smoke\": \"node dist/tasks/storydir-inside-gitroot-smoke.js\",\n    \"test:storydir-inside-gitroot-suite\": \"node dist/tasks/storydir-inside-gitroot-suite.js\",\n    \"test:runtime-fact-contract\": \"node ../../scripts/verify-runtime-fact-contract.mjs\",\n    \"test:red-p0m-component-mapping\": \"npm run build && node tests/red/red-repro-first-p0m-component-mapping.mjs\",\n    \"test:orphan-surface\": \"node ../../scripts/verify-orphan-surface.mjs\",\n    \"test:lifecycle-dispatch-smoke\": \"node dist/tasks/lifecycle-dispatch-smoke.js\",\n    \"test:lifecycle-check-smoke\": \"node dist/tasks/lifecycle-check-smoke.js\",\n    \"test:anti-stall\": \"cd ../.. && node scripts/verify-anti-stall-guardrails.mjs\",\n    \"test:lifecycle-registry-contract\": \"node dist/tasks/lifecycle-registry-contract.js\",\n    \"test:main-write-lock-coverage\": \"node dist/tasks/main-write-lock-coverage.js\",\n    \"test:command-ownership-contract\": \"node dist/tasks/command-ownership-contract.js\",\n    \"test:unattended-dispatch-smoke\": \"node dist/tasks/unattended-dispatch-smoke.js\",\n    \"test:autopilot-v2-reliability-smoke\": \"node dist/tasks/autopilot-v2-reliability-smoke.js\",\n    \"test:evidence-quality-contract\": \"node ../../scripts/verify-evidence-quality.mjs\",\n    \"test:review-convergence-smoke\": \"node dist/tasks/review-convergence-smoke.js\",\n    \"test:review-loop-smoke\": \"node dist/tasks/review-loop-smoke.js\",\n    \"test:delivery-context-pack-smoke\": \"node dist/tasks/delivery-context-pack-smoke.js\",\n    \"test:flow-stability-smoke\": \"node dist/tasks/flow-stability-smoke.js\",\n    \"test:review-assurance-floor-smoke\": \"node dist/tasks/review-assurance-floor-smoke.js\",\n    \"test:brand-path-resolver-smoke\": \"node dist/tasks/brand-path-resolver-smoke.js\",\n    \"test:review-incremental-context-smoke\": \"node dist/tasks/review-incremental-context-smoke.js\",\n    \"test:reviewer-scan-budget-guard\": \"node dist/tasks/reviewer-scan-budget-guard-smoke.js\",\n    \"test:review-pass-provenance\": \"node dist/tasks/review-pass-provenance-smoke.js\",\n    \"test:story-review-corpus-budget\": \"node dist/tasks/story-review-corpus-budget-smoke.js\",\n    \"test:review-host-launcher-readiness-smoke\": \"node dist/tasks/review-host-execution-readiness-smoke.js\",\n    \"test:command-catalog-smoke\": \"node dist/tasks/command-catalog-smoke.js\",\n    \"test:cli-surface-smoke\": \"node dist/tasks/cli-surface-smoke.js\",\n    \"test:story-owner-lease-smoke\": \"node dist/tasks/story-owner-lease-smoke.js\",\n    \"test:retired-root-guard\": \"node dist/tasks/retired-root-guard-smoke.js\",\n    \"test:owner-session-guardrail\": \"node dist/tasks/owner-session-guardrail.js\",\n    \"test:usage-ledger-prototype-pollution\": \"node dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\n    \"test:host-run-usage\": \"node dist/tasks/host-run-usage-smoke.js\",\n    \"test:usage-sweep\": \"node dist/tasks/usage-sweep-smoke.js\",\n    \"test:usage-burn-alert\": \"node dist/tasks/usage-burn-alert-smoke.js\",\n    \"test:repro-first-candidate\": \"node dist/tasks/repro-first-candidate-smoke.js\",\n    \"test:repro-evidence-binding-dev-gate\": \"node dist/tasks/repro-evidence-binding-dev-gate-smoke.js\",\n    \"test:proof-admissibility\": \"node dist/tasks/proof-admissibility-smoke.js\",\n    \"test:proof-admissibility-hardening\": \"node dist/tasks/proof-admissibility-hardening-smoke.js\",\n    \"test:pinn-claim-admissibility\": \"node dist/tasks/pinn-claim-admissibility-smoke.js\",\n    \"test:claim-admissibility-pack-framework\": \"node dist/tasks/claim-admissibility-pack-framework-smoke.js\",\n    \"test:evidence-environment-adapter\": \"node dist/tasks/evidence-environment-adapter-smoke.js\",\n    \"test:tool-executed-evidence-receipt-smoke\": \"node dist/tasks/tool-executed-evidence-receipt-smoke.js\",\n    \"test:verification-run-and-guard-smoke\": \"node dist/tasks/verification-run-and-guard-smoke.js\",\n    \"test:quantum-claim-admissibility\": \"node dist/tasks/quantum-claim-admissibility-smoke.js\",\n    \"test:quantum-claim-benchmark\": \"node dist/tasks/quantum-claim-benchmark-smoke.js\",\n    \"test:pre-review-semantic-binding\": \"node dist/tasks/pre-review-semantic-binding-smoke.js\",\n    \"test:proofstory-intent-hardening-smoke\": \"node dist/tasks/proofstory-intent-hardening-smoke.js\",\n    \"test:scope-shrinkage-withdrawal-floor-smoke\": \"node dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js\",\n    \"test:withdrawn-disposition-smoke\": \"node dist/tasks/withdrawn-disposition-smoke.js\",\n    \"test:review-budget-stall-adjudication-smoke\": \"node dist/tasks/review-budget-stall-adjudication-smoke.js\",\n    \"test:proofstory-acceptance-topology-smoke\": \"node dist/tasks/proofstory-acceptance-topology-smoke.js\",\n    \"test:proofstory-acceptance-basis-smoke\": \"node dist/tasks/proofstory-acceptance-basis-smoke.js\",\n    \"test:external-worktree-go-pre-review\": \"node ../../scripts/verify-external-worktree-go-pre-review.mjs\",\n    \"test:retired-authority-server-semantics\": \"node dist/tasks/retired-authority-server-semantics-smoke.js\",\n    \"test:source-structure-convergence\": \"node dist/tasks/source-structure-convergence-smoke.js\",\n    \"usage-ledger-report\": \"node dist/tasks/usage-ledger-report.js\",\n    \"test:config-filename-migration-smoke\": \"node dist/tasks/config-filename-migration-smoke.js\",\n    \"test:core-package-rename\": \"node scripts/verify-core-package-rename.mjs\",\n    \"test:state-dir-migration\": \"node scripts/verify-state-dir-migration.mjs\",\n    \"test:identity-state-migrate-atomicity\": \"node tests/identity-state-migrate-atomicity.test.mjs\",\n    \"test:proof-or-stop-residue\": \"node ../../scripts/verify-proof-or-stop-residue.mjs\",\n    \"test:retired-authority-vocabulary-guard\": \"node dist/tasks/retired-authority-vocabulary-guard-smoke.js\",\n    \"test:finding-identity-delivery\": \"node dist/tasks/finding-identity-lineage-smoke.js --section=delivery\",\n    \"test:dynamic-finding-applicability\": \"node dist/tasks/dynamic-finding-applicability-smoke.js && node tests/red/red-dynamic-finding-applicability.mjs\",\n    \"test:dynamic-finding-evidence-closure\": \"node dist/tasks/dynamic-finding-evidence-closure-smoke.js && node dist/tasks/dynamic-finding-runtime-integration-smoke.js && node dist/tasks/finding-runtime-pair-smoke.js && node dist/tasks/finding-material-reattestation-smoke.js && node dist/tasks/finding-qualification-events-smoke.js && node tests/red/red-dynamic-finding-evidence-closure.mjs && node tests/red/red-dynamic-finding-audit-closure.mjs && node tests/red/red-dynamic-finding-four-gaps.mjs && node tests/red/red-dynamic-finding-qualification-audit.mjs && node dist/tasks/finding-qualification-independence-smoke.js && node tests/red/red-dynamic-finding-final-contracts.mjs && node dist/tasks/finding-material-reattestation-smoke.js --head-continuity && node dist/tasks/dynamic-finding-runtime-integration-smoke.js --collection-proof && node dist/tasks/dynamic-finding-runtime-integration-smoke.js --qualification-history-proof\",\n    \"test:residue-inject-repro\": \"node ../../scripts/verify-residue-inject-repro.mjs\",\n    \"test:migration-contract\": \"node scripts/verify-migration-contract.mjs\",\n    \"test:topology-signing-source-guard\": \"node dist/tasks/topology-signing-source-guard-smoke.js\",\n    \"test:signing-guard-mutation-proof\": \"node dist/tasks/signing-guard-mutation-proof-smoke.js\",\n    \"test:story-aware-validation\": \"node dist/tasks/story-aware-validation-smoke.js\",\n    \"test:story-aware-validation-mutation\": \"node dist/tasks/story-aware-validation-mutation-smoke.js\",\n    \"test:story-aware-validation-production\": \"bun src/tasks/story-aware-validation-production-smoke.ts\",\n    \"test:historical-replay-artifact\": \"node dist/tasks/historical-replay-artifact-smoke.js\",\n    \"test:dynamic-validation-change-manifest\": \"node ../../scripts/run-dynamic-validation-audit.mjs change-manifest\",\n    \"test:dynamic-validation-dual-graph\": \"node ../../scripts/run-dynamic-validation-audit.mjs dual-graph\",\n    \"test:dynamic-validation-scope-escalation\": \"node ../../scripts/run-dynamic-validation-audit.mjs scope-escalation\",\n    \"test:dynamic-validation-selection\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection\",\n    \"test:dynamic-validation-selection-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection-mutations\",\n    \"test:dynamic-validation-selection-fail-closed\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection-fail-closed\",\n    \"test:dynamic-validation-observe-equivalence\": \"node ../../scripts/run-dynamic-validation-audit.mjs observe-equivalence\",\n    \"test:dynamic-validation-trace-isolation\": \"node ../../scripts/run-dynamic-validation-audit.mjs trace-isolation\",\n    \"test:dynamic-validation-observe-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs observe-mutations\",\n    \"test:dynamic-validation-receipts\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipts\",\n    \"test:dynamic-validation-receipt-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipt-mutations\",\n    \"test:dynamic-validation-receipt-forgery\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipt-forgery\",\n    \"test:dynamic-validation-shadow-equivalence\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-equivalence\",\n    \"test:dynamic-validation-shadow-rejections\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-rejections\",\n    \"test:dynamic-validation-shadow-false-negative\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-false-negative\",\n    \"test:dynamic-validation-test-gate\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate\",\n    \"test:dynamic-validation-test-gate-escalation\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate-escalation\",\n    \"test:dynamic-validation-test-gate-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate-mutations\",\n    \"test:dynamic-validation-operations\": \"node ../../scripts/run-dynamic-validation-audit.mjs operations\",\n    \"test:dynamic-validation-operations-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations\",\n    \"test:story-create-direct-lifecycle\": \"node tests/red/red-story-create-direct-done-bypass.mjs\"\n  },"
-        }
+        },
+        {
+          "file": "proof-or-stop.config.json",
+          "startLine": 2766,
+          "endLine": 2789,
+          "sourceDigest": "a366d11f161a003e48140382b78def64b721745a465ca374c89e5214400f8c45",
+          "excerpt": "      {\n        \"command\": \"node\",\n        \"args\": [\n          \"scripts/verify-external-worktree-go-pre-review.mjs\"\n        ],\n        \"timeoutMs\": 120000,\n        \"resources\": [\n          {\n            \"class\": \"git-common-dir\",\n            \"key\": \".\",\n            \"access\": \"shared\"\n          },\n          {\n            \"class\": \"fixed-path\",\n            \"key\": \"packages/main/dist\",\n            \"access\": \"exclusive\"\n          }\n        ],\n        \"assurance\": \"full-only\",\n        \"riskTier\": \"validation-infra\",\n        \"closurePolicy\": \"whole-repository\",\n        \"fullBaselineReusePolicy\": \"forbidden\",\n        \"policySource\": \"external-worktree-go-pre-review-v1\"\n      },"
+        },
+        "Entry-local resource-policy dependency: the complete configuration file is hashed above. The scanner also independently hashes all validate.commands including resources at its top-level configDigest; these are separate checks, not a claim that raw resource drift previously bypassed the scanner."
       ],
       "dependencyDigests": {
         "package.json": "386681e6aa35fc2325cfd3f91d99208316760abe040478910b12196148ec0912",
@@ -10927,7 +10916,8 @@
         "scripts/build-main-with-binding.mjs": "5679bcdf1d09393ce17906d9fc3cb18ed1cebf51d7d8294bed16233216bfb794",
         "scripts/full-suite-build-binding.mjs": "da1e28ccc81d7ce8444b848b03d83bf94dfab4dac92826ae62e3cdb3df5eaf53",
         "scripts/promote-dist.mjs": "7c39b36371fb6e13d45dfdf8e784b7402b582290d751051bc592f8243dc3851a",
-        "scripts/verify-external-worktree-go-pre-review.mjs": "0b4910cfaf944fe95e6665097c804bfa97ece7b9d57805b83e2dc690cc7d2d3f"
+        "scripts/verify-external-worktree-go-pre-review.mjs": "0b4910cfaf944fe95e6665097c804bfa97ece7b9d57805b83e2dc690cc7d2d3f",
+        "proof-or-stop.config.json": "a366d11f161a003e48140382b78def64b721745a465ca374c89e5214400f8c45"
       },
       "invocations": [
         {
