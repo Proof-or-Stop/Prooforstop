@@ -358,7 +358,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
   'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
-  'packages/main/src/core/evidence-freshness.ts': 'c70a4868a94474a3fd1a36a3c4bdaa18a74cd2154500f1146773f0eb5448cd94',
+  'packages/main/src/core/evidence-freshness.ts': '6eca17a48ac39083a7a601c52b49eb24300fad0ac5a7628efb12f8096d644df7',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
   'packages/main/src/core/verification-execution-evidence.ts': 'ecd665658003dd342c888427da8d474ea7fbe23a3a37eed6587d1408259481e6',
   'packages/main/src/handlers/checklist.ts': '43ed1f9d7a7c9193b8e1215afd5f23b62ebd1521aa27b233b903e3a56eac5d82',
@@ -1243,6 +1243,8 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 // consumers. A local syntactic decoy cannot authorize a different live dataflow.
 // Intentional implementation changes require explicit review and re-pinning;
 // the runtime never computes a new expected digest from the candidate itself.
+
+
 
 
 function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {

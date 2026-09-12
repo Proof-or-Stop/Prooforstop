@@ -715,6 +715,29 @@
         "policySource": "explicit-dyn1-audit-v1"
       },
       {
+        "label": "B-83aa CHK-003: shared evidence hash snapshot classifier + per-consumer classification (done-oracle fail-closed, phase-gates disclosed, verifier tolerable, lifecycle-readiness DONE fail-closed / REVIEW-TEST advisory, session_brief DONE pre-check disclosed)",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/evidence-hash-snapshot-classifier-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ],
+        "assurance": "story-selectable",
+        "riskTier": "shared",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "policySource": "explicit-dyn1-audit-v1"
+      },
+      {
         "command": "node",
         "args": [
           "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
@@ -3258,6 +3281,20 @@
             "class": "runtime-lock",
             "key": "proof-or-stop-real-root-admission",
             "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-partial-hash-snapshot-binding.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
           }
         ]
       },

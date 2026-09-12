@@ -1,7 +1,7 @@
 import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amendment.js';
 import { execFileSync } from 'child_process';
 import { buildDoneChecklist, type DoneCheckRow } from './done-oracle.js';
-import { tryCaptureEvidenceHashSnapshot, type EvidenceHashSnapshot } from './evidence-freshness.js';
+import { classifyEvidenceHashSnapshot, tryCaptureEvidenceHashSnapshot, type EvidenceHashSnapshot } from './evidence-freshness.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { createVerificationEvidenceGateEvaluator } from './proof-admissibility.js';
 import { isTerminalChecklistStatus, isWithdrawnChecklistStatus } from './checklist-status.js';
@@ -623,6 +623,14 @@ function classifyDoneRow(storyId: string, row: DoneCheckRow): Pick<StoryReadines
       return { source: 'validate', owner: 'host', category: row.status === 'pass' ? 'advisory' : 'missing', code: row.status === 'pass' ? 'verification_intent_coverage_passed' : 'missing_verification_coverage', nextCommand: next };
     case 'evidence-freshness':
       return { source: 'validate', owner: 'host', category: row.status === 'pass' ? 'advisory' : 'stale', code: row.status === 'pass' ? 'verification_evidence_fresh' : 'stale_verification_evidence', nextCommand: next };
+    case 'evidence-hash-snapshot':
+      return {
+        source: 'storyMachine',
+        owner: 'host',
+        category: row.status === 'pass' ? 'advisory' : row.blocking ? 'missing' : 'advisory',
+        code: row.blocking ? 'evidence_hash_snapshot_partial' : 'evidence_hash_snapshot_advisory',
+        nextCommand: next,
+      };
     case 'done-required-validation':
       if (row.status === 'pass' && !row.blocking) return { source: 'validate', owner: 'host', category: 'advisory', code: 'done_required_validation_passed', nextCommand: next };
       if (/not required|no done|required/.test(lowerDetail) && !row.blocking) return { source: 'validate', owner: 'host', category: 'advisory', code: 'done_required_validation_not_required', nextCommand: next };
@@ -781,32 +789,50 @@ function buildPhaseRow(storyId: string, phase: StoryPhase, target: LifecycleRead
   });
 }
 
-function buildHashRows(headHash: string | null, materialHash: string | null, storyFilesHash: string | null): StoryReadinessRow[] {
+// B-83aa CHK-001: the readiness target decides whether a partial evidence hash
+// snapshot is advisory or blocking. For target DONE an unreadable HEAD or an
+// underivable materialHash means the DONE binding cannot be verified, so the
+// head/material rows FAIL CLOSED (status blocked, category blocking). REVIEW /
+// TEST keep the advisory disclosure. storyFilesHash stays advisory at every
+// target: it is legitimately absent when no main / origin/main merge-base exists
+// and every consumer falls back to strict materialHash in that case.
+function buildHashRows(
+  target: LifecycleReadinessTarget,
+  headHash: string | null,
+  materialHash: string | null,
+  storyFilesHash: string | null,
+): StoryReadinessRow[] {
   const rows: StoryReadinessRow[] = [];
+  const classification = classifyEvidenceHashSnapshot({ headHash, materialHash, storyFilesHash });
+  const failClosed = target === 'DONE';
   if (!headHash) {
     rows.push(row({
       id: 'state.head_hash',
-      status: 'warn',
+      status: failClosed ? 'blocked' : 'warn',
       source: 'storyMachine',
       sourceRef: 'git rev-parse HEAD',
       owner: 'host',
-      category: 'advisory',
+      category: failClosed ? 'blocking' : 'advisory',
       code: 'head_hash_unavailable',
-      reason: 'Current git HEAD could not be read',
-      blocking: false,
+      reason: failClosed
+        ? `Current git HEAD could not be read; the DONE evidence binding cannot be verified (fail closed) — ${classification.detail}`
+        : 'Current git HEAD could not be read',
+      blocking: failClosed,
     }));
   }
   if (!materialHash) {
     rows.push(row({
       id: 'state.material_hash',
-      status: 'warn',
+      status: failClosed ? 'blocked' : 'warn',
       source: 'storyMachine',
       sourceRef: 'currentMaterialHash',
       owner: 'host',
-      category: 'advisory',
+      category: failClosed ? 'blocking' : 'advisory',
       code: 'material_hash_unavailable',
-      reason: 'Current material hash could not be derived',
-      blocking: false,
+      reason: failClosed
+        ? `Current material hash could not be derived; the DONE evidence binding cannot be verified (fail closed) — ${classification.detail}`
+        : 'Current material hash could not be derived',
+      blocking: failClosed,
     }));
   }
   if (!storyFilesHash) {
@@ -865,7 +891,7 @@ export function buildStoryReadinessReport(input: BuildStoryReadinessReportInput)
   }
   const readiness: StoryReadinessRow[] = [
     buildPhaseRow(storyId, story.phase, target),
-    ...buildHashRows(headHash, materialHash, storyFilesHash),
+    ...buildHashRows(target, headHash, materialHash, storyFilesHash),
   ];
   if (reviewRoster?.error) readiness.push(row({ id: 'review.roster', status: 'blocked', source: 'review', sourceRef: 'computeFinalReviewRoster', owner: 'host', category: 'missing', code: 'review_roster_unavailable', reason: reviewRoster.error, blocking: true }));
   if (target === 'REVIEW' || target === 'TEST') {
