@@ -26,42 +26,42 @@ The added response producer is the readOnly JSON branch with the existing respon
 
 ### proof-or-stop.config.json
 
-Two earlier validate command insertions shift the JSON pointers for existing configuration-path literals. All thirteen literal uses remain; this updates exact pointer context, not an exemption for additional keys. The same two insertions also shift the eight existing proof-or-stop-real-root-admission resource-key contexts. Their classification, count8, reason and independent admission mutation proof remain unchanged; only context digest changes from 1e3cf33861d44a2b554472098e53779355359f7759f8e67ea2e084c4cb311ba8 to 6925f132289490e9370c679f50b5c425477621b904ff14ce6d94fc8eb7ddcc41, independently reproduced from the same old config source.
+Two earlier validate command insertions shift the JSON pointers for existing configuration-path literals. All thirteen literal uses remain; this updates exact pointer context, not an exemption for additional keys. The same two insertions also shift the eight existing proof-or-stop-real-root-admission resource-key contexts. Their classification, count 8, reason and independent admission mutation proof remain unchanged; only context digest changes from 1e3cf33861d44a2b554472098e53779355359f7759f8e67ea2e084c4cb311ba8 to 6925f132289490e9370c679f50b5c425477621b904ff14ce6d94fc8eb7ddcc41, independently reproduced from the same old config source.
 
 - site checkpoint from `4f94fb6ddb23a08e0bdd79f41129b423a598a9c9`; old source SHA-256 `a366d11f161a003e48140382b78def64b721745a465ca374c89e5214400f8c45`.
 - Context 13 → 13; old `6673b9408c13aaa802df2bda44f961685b09eb98d4703f36553f80137fc29f32`; current `b069aeffc954e08bcf57cea9a89b33738dc193f25494041081d00f91e5e271d6`.
 
 ### packages/main/src/core/evidence-freshness.ts
 
-The imported withGitTreeObservation callback now contains the integrated partial-snapshot fail-closed branch. Import use count stays174; its full callback context changes, preserving missing-head/material refusal instead of the former permissive fallback.
+The imported withGitTreeObservation callback now contains the integrated partial-snapshot fail-closed branch. Import use count stays 174; its full callback context changes, preserving missing-head/material refusal instead of the former permissive fallback.
 
 - import checkpoint from `3adf7bd961dd2007c66ffdd0052adc0fb1926ab6`; old source SHA-256 `ec29b6acca4331529068616853c4ca3f1e2da9300c4c7f27a010ddb96f14c929`.
 - Context 174 → 174; old `335ef9f1df85f17b63a0cc3160d6c2f4b616443086b5f8db3d2f48efab1d6a39`; current `d83318dacae758180af3e7695fc307768b7a92aa21dff0d464e5fe01a972a50c`.
 
 ### packages/main/src/core/lifecycle-control/queue/index.ts
 
-Authoritative workspace context and bounded Git progress replace directory-mtime probing. Removed statSync/resolveWorktreePath uses and added shared baseline/execFileSync observations account for the exact70-to53 import-context projection. Unknown observations cannot claim stale or ready.
+Authoritative workspace context and bounded Git progress replace directory-mtime probing. Removed statSync/resolveWorktreePath uses and added shared baseline/execFileSync observations account for the exact 70-to-53 import-context projection. Unknown observations cannot claim stale or ready.
 
 - import checkpoint from `ef854edb5a16f01dbd7f92a4f1130649d7f80e1a`; old source SHA-256 `7492887795ebd3441e562b5f3cd4e21caa7b4d04ee22d116e93057034875f6a6`.
 - Context 70 → 53; old `316bdc446bd34ad1a82298235f31156095a826b0aab86adb11c66ef3bd6de4b0`; current `8cb59637cafa3ec554118d5a2a6134d668c14983ad73f73928c28cbff3db0398`.
 
 ### packages/main/src/core/process-fact-registry.ts
 
-Two COMMAND_PROCESS_FACTS.push consumers register selected-owner scope coverage and independent-intent owner lease policy. No import/classification is removed;21-to23 contexts bind the two new declarations.
+Two COMMAND_PROCESS_FACTS.push consumers register selected-owner scope coverage and independent-intent owner lease policy. No import/classification is removed; 21-to-23 contexts bind the two new declarations.
 
 - import checkpoint from `101541a8b2400570423f041d5ba69b078af38ef3`; old source SHA-256 `5d083b5549c3f25fb61ac74fbcfff58fb9b5f5f3671cf3ced1e6903b70187c6b`.
 - Context 21 → 23; old `35c1318f2c126e116817bc3b0f44a925fbaac780ce9798a88e1ddddaa9f3fb30`; current `483e3d1d942af7a36fb81b4ff1ed25c37bd70d55d18b8699dfa0d11c7d1c1960`.
 
 ### packages/main/src/core/prompt-registry.ts
 
-The accepted acceptanceReviewJsonSchema import and JSON.stringify invocation add the exact response schema to the independent acceptance reviewer prompt, accounting for62-to64 import observations.
+The accepted acceptanceReviewJsonSchema import and JSON.stringify invocation add the exact response schema to the independent acceptance reviewer prompt, accounting for 62-to-64 import observations.
 
 - import checkpoint from `ae4c68235d6add39cd4bfa93b28b6993bad2c963`; old source SHA-256 `a0fb36694e750a2bff9079e98602c970ee9e27d77ed4d1372440e6e40fb5a971`.
 - Context 62 → 64; old `33ff0dd7bd015d325ce6a762c11488c8eb53e6d4d490a465308e7f9dcfd3d6e7`; current `c2c708cc827fcd45f8d24a5843a26d59e2d0324fc1b0e776f2e0e1b5a160461b`.
 
 ### packages/main/src/handlers/checklist.ts
 
-Integrated owner-bound proposal digests, lease/role checks, attribution, and diagnostic preview separation add or move exact existing imported calls. The scope of review is the831-context projection against the recovered803-context baseline, preserving all declaration/owner checks and adding no authority in this repair.
+Integrated owner-bound proposal digests, lease/role checks, attribution, and diagnostic preview separation add or move exact existing imported calls. The scope of review is the 831-context projection against the recovered 803-context baseline, preserving all declaration/owner checks and adding no authority in this repair.
 
 - import checkpoint from `b75d3cabbb16ca827d4dd5fba44671f7d3c1b6d8`; old source SHA-256 `0254ddec43ab0a90cc4f4f23bb1fff3261d5d4b642269504b1d4ea300ab80bb2`.
 - Context 803 → 831; old `180413cf1a13bdf5cc50b5fba0ff089ff63d845e602020dc7e11b5c8e51dc443`; current `4052f4949f849e15ef1c81064355ce8366821cc9f77ff6089eb3969b101e9f4a`.
@@ -73,3 +73,88 @@ Commit def69f3212 changed story_reconcile from an unconditional writer to whenDr
 ## Verification boundary
 
 The pinned Lab command executes both original groups. Added source mutations move the signer read to a different directory without changing its identity count, add identity/config uses, and add actual imported-binding uses to all seven reconciled import consumers. Every mutation must still be refused. Existing all-site omission, typed-producer, unresolved-import, emitted-source, and historical-counterpart controls remain intact. Source-evidence hashes are refreshed only after exact prior lines and call digests are verified. These checks are local maintenance evidence, not formal Story DONE.
+
+## Review closure: actual default and executable record
+
+The optional schema does not inject a value. The shared predicate returns false when dryRun is undefined, true only for explicit false, and the handler negates it before choosing render(false). Consequently both omitted arguments and dryRun:true execute the report-only branch, while dryRun:false enters the main write lock and render(true). This follows the handler and shared predicate, not merely an ownership-class label. The exact unchanged dependency excerpts below are included so the independent auditor can inspect the controlling code in the changed-file snapshot.
+
+packages/main/src/core/maintenance-command-mode.ts:11-24; complete source SHA-256 `cc6549caa517cc8996e6a995557c9fe2c4f6d5b11742bc73be82b8e999b6c4a7`.
+
+```ts
+export function maintenanceCommandWrites(
+  command: MaintenancePreviewCommand,
+  args: { dryRun?: unknown; apply?: unknown },
+  rawAdmission = false,
+): boolean {
+  const boolean = (name: 'dryRun' | 'apply'): boolean | undefined => {
+    const value = args[name];
+    if (value === undefined || typeof value === 'boolean') return value;
+    if (rawAdmission && (value === 'true' || value === 'false')) return value === 'true';
+    throw new Error(`${command}: ${name} must be a boolean`);
+  };
+  const dryRun = boolean('dryRun');
+  if (command === 'story_reconcile') return dryRun === false;
+  if (command === 'verification_evidence_refresh_stale') return dryRun !== true;
+```
+
+packages/main/src/handlers/story-query.ts:715-723; complete source SHA-256 `7c0baf364e24795b242efc0122fa26989b6a603c0950d00983f9341e212e15c5`.
+
+```ts
+     *
+     * Scenario: branch has been manually merged back to main or deleted, but the story state file remains in a non-terminal state.
+     * dryRun=true (default) only reports without modifying; dryRun=false performs the repair.
+     */
+    story_reconcile(args?: { dryRun?: boolean }): string {
+      const dryRun = !maintenanceCommandWrites('story_reconcile', args ?? {});
+
+      const render = (repair: boolean): string => {
+        const repoRoot = getRepoRoot(ctx.root);
+```
+
+packages/main/src/handlers/story-query.ts:867-878; complete source SHA-256 `7c0baf364e24795b242efc0122fa26989b6a603c0950d00983f9341e212e15c5`.
+
+```ts
+
+        if (!repair) {
+          lines.push('');
+          lines.push('Above is dry run result, no modifications made.');
+          lines.push('Apply fixes: proof-or-stop story_reconcile \'{"dryRun":false}\'');
+        }
+
+        return lines.join('\n');
+      };
+
+      if (dryRun) return render(false);
+      return withMainWriteLock(getRepoRoot(ctx.root), () => render(true), { label: 'story_reconcile repair' });
+```
+
+packages/main/src/cli/command-catalog.ts:363-365; complete source SHA-256 `4c2f5e2c8c55b2ed020a1d39f5bf33b5c8fda12fa890be5656860c43d0cc32be`.
+
+```ts
+  { name: 'story_reconcile', description: 'Detect and repair zombie Stories or terminal worktree residue (default dry run; preview is read-only, dryRun:false requires write admission)', schema: {
+    dryRun: z.boolean().optional().describe('true=report only; false=perform repair (default true).'),
+  }},
+```
+
+packages/main/src/cli/ownership-gate.ts:135-142; complete source SHA-256 `9526221362e576bebff1171ff8c811c5a85f874991cc273a1a377a04c56c74ef`.
+
+```ts
+  const policy = getCommandPolicy(cmd);
+  const declaredClass = policy?.ownershipClass ?? externalOwnershipClasses?.[cmd];
+  if (!isOwnershipClass(declaredClass)) return null;
+  let cls: OwnershipClass = declaredClass;
+
+  if (isMaintenancePreviewCommand(cmd)) {
+    return maintenanceCommandWrites(cmd, args, true) ? declaredClass : 'readOnly';
+  }
+```
+
+packages/main/src/core/command-policy.ts:195-195; complete source SHA-256 `d1aad748dc9b9b362692499621812a93be514ee9c7da3f211045acccf1e9f55b`.
+
+```ts
+  story_reconcile: { status: 'maintenance', ownershipClass: 'mainSharedMutating', storyWriteEffect: 'whenDryRunFalse', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Default and --dryRun previews are observational without owner or main write locks; explicit dryRun:false repairs zombie story/worktree residue through maintenance flow; touches shared worktree state, not single-story authoring.' },
+```
+
+The durable verification command is `node scripts/verify-canonical-context-reconciliation.mjs`. Its committed driver invokes both original child groups with ordinary argv strings. The original defect was deliberately re-established using the exact old signer pin in a committed checkpoint, then the official RED record was replaced through the Lab CLI and the reviewed pin restored for GREEN. The earlier RED and rejected-audit history remain; no signed Lab record was edited directly. This avoids embedding backticks in the generated changelog command.
+
+A new source-level negative moves one actual scheduler resource claim between two configured commands, proves the total remains eight and the JSON context digest changes, then requires the classification-context refusal. This supplements the pre-existing derived-row classification mutations with an actual source relocation.

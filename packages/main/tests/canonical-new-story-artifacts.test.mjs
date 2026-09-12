@@ -2639,7 +2639,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/certification-window.ts", "proof-or-stop.precert-cheap-check-receipt.v1", 2, "598ac97fb601b4d8dd9a16f9a46e45b6df8d930c31731ae6c40f789d0ccce537"],
   ["packages/main/src/core/certification-window.ts", "proof-or-stop.precert_cheap_check_receipt.v1", 5, "88e1c3e63b56dede315423f02f00b5bc011a34610f487ad731d80226c5b4932b"],
 
-  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop-verification-receipt-signer-v1.key",2,"b2272c84d648eadbca1dfa2c1d2629361ac2e5ca967740a7b76223ccb30d4047"],
+  ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop-verification-receipt-signer-v1.key",3,"c70020b7249196738a7ec9eb21c662e7b6805a5c80e5b6662d05e79257151fd3"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v1",3,"4c05dc6a06dda209a6b3c012a5695335f6fec81c6d728d482457206fe7d0267f"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-assertion-receipt.v2",3,"7a26aa6c00db0c5ac11494b858642fa2015f4aab088ee4331a6c6494624eb1b8"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-execution-identity.v1",2,"7ea346cece80347dedf317a977b42205c3c6dd96fafe7168cbb5c4c560a92b9d"],
@@ -3198,6 +3198,23 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers 
   config.unreviewedIdentityConsumer = 'proof-or-stop.config.json';
   changedConfig.set('proof-or-stop.config.json', JSON.stringify(config));
   assert.throws(() => assertOwnedIdentitySiteTotality(changedConfig), /owned identity use count changed/, 'reviewed command-index movement does not admit a new config use');
+  // Move one actual scheduler claim to another command without adding/removing
+  // any canonical literal. Classification context must reject this too.
+  const resourceMoved = new Map(sources);
+  const movedConfig = JSON.parse(sources.get('proof-or-stop.config.json'));
+  const resourceKey = 'proof-or-stop-real-root-admission';
+  const from = movedConfig.validate.commands.find(command => command.resources?.some(resource => resource.key === resourceKey));
+  const to = movedConfig.validate.commands.find(command => !command.resources?.some(resource => resource.key === resourceKey));
+  assert.ok(from && to && from !== to, 'the movement control needs distinct configured commands');
+  const index = from.resources.findIndex(resource => resource.key === resourceKey);
+  const [claim] = from.resources.splice(index, 1);
+  (to.resources ??= []).push(claim);
+  resourceMoved.set('proof-or-stop.config.json', JSON.stringify(movedConfig));
+  const movedResource = deriveOwnedIdentityLiterals(resourceMoved).find(row => row.sourcePath === 'proof-or-stop.config.json' && row.canonical === resourceKey);
+  const resourcePin = OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS.find(row => row.sourcePath === 'proof-or-stop.config.json' && row.canonical === resourceKey);
+  assert.equal(movedResource.occurrences, resourcePin.occurrences, 'movement must preserve all eight resource claims');
+  assert.notEqual(movedResource.contextSha256, resourcePin.contextSha256, 'movement must actually change the structural location');
+  assert.throws(() => assertOwnedIdentitySiteTotality(resourceMoved), /owned identity classification context drift/, 'same-count scheduler claim movement must remain rejected');
   for (const path of [
     'packages/main/src/core/evidence-freshness.ts',
     'packages/main/src/core/lifecycle-control/queue/index.ts',
