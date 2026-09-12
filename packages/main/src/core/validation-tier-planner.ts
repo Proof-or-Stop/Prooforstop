@@ -241,14 +241,7 @@ const VALIDATION_SENSITIVE_PATH_PATTERNS = [
   'docs/requirements/decisions/*validation*.md',
 ] as const;
 
-/**
- * Process facts may explicitly set a repository-full validation floor for
- * their governed path patterns. Dynamic Finding uses that contract so its gate
- * implementation cannot be labelled fast, without treating every unrelated
- * L4 producer/consumer reference as validation framework code. Declarations
- * use the same exact, directory-prefix and glob semantics as the other
- * sensitivity patterns.
- */
+/** Pre-registry hardcoded sensitivity rules, retained as an additive baseline. */
 export function pathIsLegacyValidationSensitive(path: string): boolean {
   const normalized = normalizedPath(path);
   const basename = normalized.split('/').pop()?.toLowerCase() ?? '';
@@ -271,16 +264,25 @@ const BUILD_GRAPH_PATH_PATTERNS = [
   '**/tsconfig.*.json',
 ] as const;
 
-function classifySensitiveStoryPaths(paths: readonly string[]): ValidationWideningReasonCode[] {
+/**
+ * Merge explicit process-fact validation floors with the legacy rules. Dynamic
+ * Finding uses this contract so its gate implementation cannot be labelled
+ * fast, without treating every unrelated L4 reference as validation framework
+ * code. An unavailable floor projection is repository-scoped and widens even
+ * when the changed-path set is empty.
+ */
+export function classifySensitiveStoryPaths(
+  paths: readonly string[],
+  registered = collectRepositoryFullProcessFactPaths(),
+): ValidationWideningReasonCode[] {
   const reasons = new Set<ValidationWideningReasonCode>();
-  const registered = collectRepositoryFullProcessFactPaths();
   const registeredPatterns = [...new Set(registered.paths.map(normalizedPath).filter(Boolean))];
   const registeredFloorUnavailable = registered.rejectedEntryCount > 0 || registeredPatterns.length === 0;
+  if (registeredFloorUnavailable) reasons.add('validation_floor_registry_unavailable');
   for (const path of paths) {
     const normalized = normalizedPath(path);
     if (
-      registeredFloorUnavailable
-      || pathIsLegacyValidationSensitive(normalized)
+      pathIsLegacyValidationSensitive(normalized)
       || registeredPatterns.some((pattern) => pathMatchesImpactPattern(normalized, pattern))
     ) {
       reasons.add('validation_framework_sensitive_change');
@@ -610,6 +612,13 @@ export const VALIDATION_WIDENING_REASONS = {
     gloss:
       'The set of validation commands or the rules for choosing among them changed, so any earlier narrowing ' +
       'decision no longer applies.',
+  },
+  validation_floor_registry_unavailable: {
+    condition: 'Declared repository-full process-fact floors cannot be read completely',
+    outcome: 'repository-full',
+    gloss:
+      'The declared repository-full validation floors could not be read from the process-fact registry, so no ' +
+      'path can be cleared as insensitive and the complete validation set has to run.',
   },
   validation_framework_sensitive_change: {
     condition:

@@ -159,6 +159,7 @@ import {
   assertValidationTierSelectionSubsetInvariant,
   isValidationStopReasonCode,
   resolveValidationTierPlan,
+  classifySensitiveStoryPaths,
   pathIsLegacyValidationSensitive,
   selectValidationTiers,
   validationTierIsSubsetOf,
@@ -2390,6 +2391,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
   assert.deepEqual(
     collectRepositoryFullProcessFactPaths([
       null,
+      { level: 'not-a-level', paths: 'irrelevant-without-a-floor' },
       { level: 'L4' },
       { level: 'L4', validationTierFloor: 'repository-full', paths: 'not-an-array' },
       { level: 'L3', validationTierFloor: 'repository-full', paths: ['ignored-level.ts'] },
@@ -2402,7 +2404,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ]),
     {
       paths: ['packages/main/src/core/valid-full-path.ts'],
-      rejectedEntryCount: 5,
+      rejectedEntryCount: 4,
     },
     'malformed independently decoded registry entries must be reported while valid authority survives',
   );
@@ -2451,8 +2453,43 @@ testCase('explicit repository-full process-fact paths force full without overmat
     });
   };
 
+  for (const unavailable of [
+    { paths: [], rejectedEntryCount: 0 },
+    { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: 1 },
+  ]) {
+    assert.deepEqual(
+      classifySensitiveStoryPaths([], unavailable),
+      ['validation_floor_registry_unavailable'],
+      'an unavailable registry floor must widen independently of changed paths',
+    );
+    const decision = selectValidationTiers({
+      storyId: 'B-floor-unavailable',
+      requestedTier: 'story-fast',
+      universeCommandIds: ['unit-suite', 'lint-suite'],
+      changedPaths: [],
+      pinnedCommandIds: [],
+      forceFullReasons: classifySensitiveStoryPaths([], unavailable),
+      commandSetDigest: 'floor-unavailable-command-set-v1',
+      snapshotDigest: 'floor-unavailable-snapshot-v1',
+      impactIndex: {
+        schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+        version: 'floor-unavailable-index-v1',
+        commandSetDigest: 'floor-unavailable-command-set-v1',
+        entries: [
+          { commandId: 'unit-suite', selection: 'story-fast', inputPatterns: ['packages/module-a/**'], coverage: 'complete' },
+          { commandId: 'lint-suite', selection: 'always', inputPatterns: [], coverage: 'complete' },
+        ],
+      },
+    });
+    assert.equal(decision.effectiveTier, 'repository-full');
+    assert.ok(decision.escalationReasonCodes.includes('validation_floor_registry_unavailable'));
+  }
+
+  assert.ok(
+    gatePatterns.some((path) => !pathIsLegacyValidationSensitive(path)),
+    'at least one declared floor path must lie outside the legacy sensitivity list',
+  );
   for (const gatePattern of gatePatterns) {
-    assert.equal(pathIsLegacyValidationSensitive(gatePattern), false, `registry floor must be load-bearing: ${gatePattern}`);
     const result = planForPath(gatePattern);
     assert.equal(result.status, 'plan', gatePattern);
     if (result.status !== 'plan') continue;
