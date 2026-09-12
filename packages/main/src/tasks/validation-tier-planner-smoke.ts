@@ -565,7 +565,7 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // B-83aa CHK-003 adds only evidence-hash-snapshot-classifier-smoke.js. The
   // normalized set comparison recorded additions=2 and removals=0; the two
   // exact argv retention assertions above plus this count preserve that result.
-  assert.equal(commands.length, 168, 'v0.3.345 merged inventory must retain all 166 prior commands plus exactly two B-83aa additions');
+  assert.equal(commands.length, 168, 'the merged inventory must contain exactly 168 command tuples; see PIN MAINTENANCE for the recorded 166 -> 168 reconciliation');
   assert.equal(real.commandSetDigest, 'e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
@@ -2230,9 +2230,10 @@ testCase('the code and spec fail-closed widening matrices are exactly equal', ()
     /^## Dynamic-tier fail-closed widening matrix\s*$([\s\S]*?)(?=^##\s)/mu,
   )?.[1];
   assert.ok(matrixSection, 'docs/validation-performance.md must retain the Dynamic-tier fail-closed widening matrix section');
-  const documentedCodes = [...matrixSection.matchAll(
-    /^\|[^|\n]*\|[^|\n]*\|\s*`([a-z0-9_]+)`\s*\|\s*$/gmu,
-  )].map((match) => match[1]);
+  const documentedRows = [...matrixSection.matchAll(
+    /^\|\s*([^|\n]*?)\s*\|\s*([^|\n]*?)\s*\|\s*`([a-z0-9_]+)`\s*\|\s*$/gmu,
+  )].map((match) => ({ condition: match[1], result: match[2], code: match[3] }));
+  const documentedCodes = documentedRows.map((row) => row.code);
   assert.equal(new Set(documentedCodes).size, documentedCodes.length, 'the documented widening matrix may not repeat a reason code');
   assert.ok(documentedCodes.length > 0, 'the documented widening matrix must contain reason-code rows');
   assert.deepEqual(
@@ -2240,6 +2241,35 @@ testCase('the code and spec fail-closed widening matrices are exactly equal', ()
     [...VALIDATION_WIDENING_REASON_CODES].sort(),
     'docs/validation-performance.md and the executable widening table must contain the same reason codes',
   );
+  const documentedOutcomeMap = {
+    'Repository-full': 'repository-full',
+    'Replan; repeated movement widens to repository-full': 'replan',
+    'Stop; no PASS artifact': 'stop',
+    'Atomic repository-full': 'atomic-repository-full',
+    'Preserve no-validator compatibility; no validation tier can PASS': 'no-tier-pass',
+    'Run that docs policy': 'docs-policy',
+    'Report only; never remove a command': 'report-only',
+  } as const;
+  assert.deepEqual(
+    [...new Set(Object.values(documentedOutcomeMap))].sort(),
+    [...VALIDATION_WIDENING_OUTCOMES].sort(),
+    'the documented-result normalization must cover every runtime widening outcome',
+  );
+  assert.deepEqual(
+    [...new Set(documentedRows.map((row) => row.result))].sort(),
+    Object.keys(documentedOutcomeMap).sort(),
+    'every documented result label must be used and every used label must be recognized',
+  );
+  for (const row of documentedRows) {
+    assert.ok(row.result in documentedOutcomeMap, `documented result is not normalized: ${row.result}`);
+    const code = row.code as ValidationWideningReasonCode;
+    assert.equal(
+      documentedOutcomeMap[row.result as keyof typeof documentedOutcomeMap],
+      VALIDATION_WIDENING_REASONS[code].outcome,
+      `documented effective result must match runtime outcome for ${row.code}`,
+    );
+    assert.ok(row.condition.trim(), `documented condition must not be empty for ${row.code}`);
+  }
 });
 
 // ---------------------------------------------------------------------------

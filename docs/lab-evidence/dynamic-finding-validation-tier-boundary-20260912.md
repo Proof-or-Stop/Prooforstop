@@ -23,15 +23,39 @@ The first addition is owned by B-83aa CHK-003 and the second by B-83aa CHK-002.
 The real-inventory smoke pins the new count, both argv entries, and the resulting
 `commandSetDigest`.
 
-## Focused RED and GREEN
+## Original headline RED
 
-The audit-repair RED ran:
+The Lab's original pre-repair RED was recorded at
+`82e51d5f036b21395858f99d07e3ba09b2a65333`. It ran:
 
 ```text
 node packages/main/dist/tasks/validation-tier-planner-smoke.js
 ```
 
-It failed at the two intended boundaries:
+The exact headline failure was:
+
+```text
+FAIL Dynamic Finding L4 gate paths force repository-full even when the impact index marks them fast: Dynamic Finding L4 gate path must force repository-full: packages/main/src/core/certification-window.ts
++ actual - expected
+
++ 'story-fast'
+- 'repository-full'
+```
+
+That observation proves the named Lab boundary failed before the registry floor
+repair: a Dynamic Finding lifecycle-consumer source could be classified fast.
+
+## Audit-repair staged RED and final GREEN
+
+After the headline floor repair was already present, the audit-repair staged RED
+ran the same command to expose only the two accessory gaps added by the first
+Claude audit. It did not claim to reproduce the original headline failure.
+
+```text
+node packages/main/dist/tasks/validation-tier-planner-smoke.js
+```
+
+It failed at these two intended accessory boundaries:
 
 ```text
 FAIL Dynamic Finding L4 gate paths force repository-full even when the impact index marks them fast:
