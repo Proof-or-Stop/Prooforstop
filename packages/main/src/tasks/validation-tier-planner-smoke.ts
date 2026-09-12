@@ -113,6 +113,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 
 import {
@@ -2356,8 +2357,7 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
     ...(gateFact.consumerSourceRefs ?? []),
   ])];
   assert.ok(declaredSourceRefs.length > 0, 'Dynamic Finding must declare its producer and consumer source surface');
-  const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
-  assert.ok(repoRoot, 'repository root must resolve for Dynamic Finding source coverage');
+  const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url));
   for (const sourceRef of declaredSourceRefs) {
     assert.ok(gateFact.paths.includes(sourceRef), `validation floor must include declared source ref: ${sourceRef}`);
     assert.ok(existsSync(join(repoRoot, sourceRef)), `declared Dynamic Finding source must exist: ${sourceRef}`);
@@ -2366,6 +2366,20 @@ testCase('Dynamic Finding L4 gate paths force repository-full even when the impa
     gateFact.paths.includes('packages/main/src/core/certification-window.ts'),
     'Dynamic Finding coverage must include a non-validation-named path outside the legacy sensitive-path list',
   );
+  for (const policyAuthorityPath of [
+    'packages/main/src/handlers/finding-applicability-proof.ts',
+    'packages/main/src/handlers/finding-deferral-proof.ts',
+    'packages/main/src/core/lifecycle-readiness.ts',
+    'packages/main/src/core/reviewer-status.ts',
+    'packages/main/src/core/review-convergence.ts',
+    'packages/main/src/core/machine.ts',
+  ]) {
+    assert.ok(
+      gateFact.paths.includes(policyAuthorityPath),
+      `Dynamic Finding validation floor must cover policy authority: ${policyAuthorityPath}`,
+    );
+    assert.ok(existsSync(join(repoRoot, policyAuthorityPath)), `policy authority source must exist: ${policyAuthorityPath}`);
+  }
 
   for (const sensitivePath of gateFact.paths) {
     const input = planInput({
@@ -2445,7 +2459,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
       ...declaration,
       level: 'L4',
       paths: ['packages/main/src/core/example.ts'],
-      validationTierFloor: 'full' as 'repository-full',
+      validationTierFloor: 'full' as never,
     }),
     /runtime:test-validation-floor has unknown validationTierFloor: full/,
   );
@@ -2470,6 +2484,7 @@ testCase('explicit repository-full process-fact paths force full without overmat
   };
 
   for (const unavailable of [
+    undefined,
     { paths: [], rejectedEntryCount: 0 },
     { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: 1 },
     { paths: ['packages/main/src/core/valid-full-path.ts'], rejectedEntryCount: Number.NaN },
@@ -2506,6 +2521,11 @@ testCase('explicit repository-full process-fact paths force full without overmat
   assert.match(
     validationWideningReasonGloss('validation_floor_registry_unavailable'),
     /could not provide a complete repository-full floor set, or declares no floor at all/,
+  );
+  assert.match(
+    VALIDATION_WIDENING_REASONS.validation_framework_sensitive_change.condition,
+    /declared repository-full process-fact path/,
+    'the widening condition must describe the implemented legacy-pattern plus declared-floor boundary',
   );
 
   const dynamicPath = 'packages/main/src/core/finding-applicability.ts';
@@ -2557,21 +2577,16 @@ testCase('explicit repository-full process-fact paths force full without overmat
     assert.ok(!reasonCodes(result).includes('validation_framework_sensitive_change'), unrelatedPath);
   }
 
-  const floorSet = new Set(gatePatterns);
-  const unrelatedL4SourceRefs = [...new Set(PROCESS_FACT_REGISTRY
-    .filter((entry) => entry.level === 'L4' && entry.validationTierFloor === undefined)
-    .flatMap((entry) => [...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]))]
-    .filter((path) => !floorSet.has(path) && !pathIsLegacyValidationSensitive(path));
-  assert.ok(
-    unrelatedL4SourceRefs.length > 0,
-    'the registry must expose at least one non-floored L4 source outside legacy sensitivity rules',
-  );
-  for (const unrelatedL4Path of unrelatedL4SourceRefs) {
-    const result = planForPath(unrelatedL4Path);
-    assert.equal(result.status, 'plan', unrelatedL4Path);
-    if (result.status !== 'plan') continue;
-    assert.equal(result.effectiveTier, 'story-fast', `unfloored L4 source must remain fast: ${unrelatedL4Path}`);
-    assert.ok(!reasonCodes(result).includes('validation_framework_sensitive_change'), unrelatedL4Path);
+  const baselineFact = getProcessFactRegistryEntry('runtime:repository_default_baseline_gate');
+  const explicitUnflooredL4Path = 'packages/main/src/core/git-baseline.ts';
+  assert.equal(baselineFact?.level, 'L4');
+  assert.equal(baselineFact?.validationTierFloor, undefined);
+  assert.ok(baselineFact?.producerSourceRefs?.includes(explicitUnflooredL4Path));
+  const baselineResult = planForPath(explicitUnflooredL4Path);
+  assert.equal(baselineResult.status, 'plan');
+  if (baselineResult.status === 'plan') {
+    assert.equal(baselineResult.effectiveTier, 'story-fast');
+    assert.ok(!reasonCodes(baselineResult).includes('validation_framework_sensitive_change'));
   }
 });
 
