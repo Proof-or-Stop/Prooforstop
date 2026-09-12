@@ -1,59 +1,5 @@
 # Changelog
 
-## Lab native-lock-prerequisites - v0.3.350 - 2026-09-12
-
-Repair native validation-lock fixture prerequisites using actual CLI inventory, dispatch, broker-bound review, critic, validation and certification admission. Initial disposable subjects contain no fabricated PASS or admitted window. Focused probes exercise reviewer and delivery write exclusion while preserving routine evidence; native dual-order queues prove real routine and DONE-required publication.
-
-Pin fixture root authority, reject unowned roots and verify misleading ambient project-root isolation. Require exact busy and missing-window refusals, exact retry signed-run cardinality while preserving historical passes, concrete focused execution fields and signed publication where the production API supplies it. Use coherent bounded fixture budgets, preserve primary errors, clean owned roots/children on signals, cancel completed-child timers and restore cwd even if capacity cleanup rejects.
-
-Verification includes the original missing-signature RED, the cleanup and supplemental derived-refusal contracts, and all six native consumer cases. The existing fifteen-group workspace-capacity selector retains its stronger admissible publication assertion; it is not replaced by a refusal-only check. Its earlier CHK-001 acceptance preparation failure was reproduced separately on local main 3fb8385a7d at version 0.3.344 and again on 7dd2470088 at 0.3.345 and 3f6397106a at 0.3.346 and remains a baseline limitation, not a claim of full-suite GREEN.
-
-Each build, prerequisite CLI operation, fixture role interaction and native case emits elapsed milliseconds. Fixture roles are local test actors, not LLM audit calls. Independent real Claude CLI audit timings are recorded separately. Complete this local Lab with a patch release and current prepared-candidate audit; this is not formal Story DONE or remote publication.
-
-The terminal PASS producer uses agent, reviewRound and reviewRunId as its identity and appends history. A whole-lane count of one incorrectly rejects retained admission history; the regression therefore requires exactly one pass for the new signed run and byte-equivalent preservation of every previous pass.
-
-Capacity holder readiness is bounded and propagates acquisition failure. Both queue directions release and reap owned probes on assertion failure. Official draft docs/story/drafts/native-lock-regression-coverage owns automatic routine registration and a combined full-validation writer witness; focused writer preservation and dual-order fresh publication remain distinct, explicitly documented proofs.
-
-Real held-child regression and an extracted old/new waitChild witness prove timeout classification survives prompt child close. Released roots lose fixture authority, including recreated-path rejection. Default smoke execution now invokes cleanup and derived-refusal supplements after the unchanged fifteen-group early return; separate driver registration stays deferred. The refusal comparison has a measured uncontended control and private cwd restoration. CLI draft provenance is documented against the current creation/list handler.
-
-Spawned refusal consumers now reject structured timeout outcomes and null signal/spawn exits before matching expected text. The RED/GREEN witness and a real marker-printing hung child cover the previously possible false GREEN; ordinary exit-1 refusal remains accepted.
-
-A controlled additional RED/GREEN isolates temporary native fixtures from unrelated OS-user machine-validation holders. Each driver creates a private OS-user namespace inherited by its actual CLI descendants through a generated test-only import. Same-pool exclusion remains enforced while an independent fixture progresses under an active outer holder. Production queues and real Claude audit admission are untouched; no timeout increase or credential reuse is introduced. The new control executes alongside the existing cleanup, refusal and six native cases.
-
-Final audit closure adds assertions on the actual actor and delivery child environments, preserving the private bootstrap through sanitization. Isolation cleanup retains primary errors. The derived-refusal control now requires the target consumer's persisted waiting ticket and pending promise, then its exact ordinary refusal after release; a hard host-speed threshold and observation sleep are removed. Default smoke output counts completed groups dynamically and reports 30, with the historical 26-group selector on an explicitly labelled compatibility line; the focused 15-group pin remains unchanged.
-
-A diagnostic preload now observes the actual CLI descendant launched through lockFixtureCli and requires its distinct PID, canonical CLI entry file and private OS-user home while the unrelated holder remains active. This test observation is not a signed Story receipt.
-
-The admissible derived-verdict case now retains and joins its live consumer before deleting the fixture on failure. A controlled real queued-consumer RED/GREEN observes false then true completion at root deletion while preserving the intentional primary failure. Machine namespace isolation is explicitly limited to the standalone Lab driver; the default smoke entry remains exposed to unrelated real-user holders and is tracked in CHK-001 of the CLI-reissued native-lock-regression-coverage draft. This is a disclosed follow-up, not a claim of default-entry or repository-wide GREEN.
-
-
-## Recorded timing comparison
-
-Seconds below are historical wall-clock observations, not a controlled end-to-end speedup claim. The earlier successful run is repair 24f73f9fa2; the later successful candidate is d322a5297c. Different code snapshots, host load and helper coverage prevent attributing the total difference solely to this repair. Nested command timings must not be added again to their parent totals.
-
-| Measurement | Earlier successful run | Later successful candidate |
-| --- | ---: | ---: |
-| Complete verification driver | 240.365 s | 169.336 s |
-| Native prerequisite preparation | 198.436 s | 138.648 s |
-| Review dispatch | 21.505 s | 16.072 s |
-| Review run start | 47.313 s | 33.204 s |
-| Broker-bound review pass recording | 43.348 s | 29.770 s |
-| Validation commands during setup | 24.977 s | 17.431 s |
-| Inventory finalization | 18.319 s | 12.519 s |
-| Certification window admission | 12.041 s | 8.609 s |
-
-The controlled machine-queue witness has a different purpose: under an active unrelated exclusive holder, the pre-repair independent probe failed after 0.725 s; after isolation it admitted in 0.188 s while the same-pool negative control still refused. This proves removal of unrelated queue interference for the standalone driver, not a percentage throughput improvement or default-smoke isolation.
-
-Historical actual Claude CLI audit d64eb575-9b5c-4f14-85bc-25642e02fd47 passed with zero findings in 523.401 s for d322a5297c. Subsequent main movement made that result insufficient for the new release baseline; finish must earn a new candidate-bound audit. These audit and integration retries are distinct from native test execution. Fixture reviewer roles are local actors; their timings are not LLM API timings. Analysis/edit intervals without recorded boundaries are not reconstructed.
-
-## Integration and release evidence
-
-The official Lab record retains the original missing-signature RED, the additional machine-isolation RED, each committed GREEN, candidate and post-merge replays, exact command arguments, audit input bindings, process results and elapsed milliseconds. Finish starts from current local main, applies the shared patch-version helper, checks the built CLI version, and integrates only after candidate verification and real different-vendor audit. GitHub publication and its tag are separate actions against the verified integration commit. This release does not assert formal completion of B-e6d9 or any other Story.
-
-Maintenance provenance: codex/lab-native-lock-prerequisites, repair 16ef5d8ded7ebeda488f743464eafc14e852de5d.
-Verification command (replayed before integration and on main): `["node","scripts/verify-native-lock-prerequisites.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab dynamic-finding-validation-tier-boundary - v0.3.349 - 2026-09-12
 
 ### Problem
