@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import childProcess from 'node:child_process';
+import { syncBuiltinESMExports } from 'node:module';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
 import { prepareVerification } from './verification-subprocess-budget.mjs';
 import { createHash } from 'node:crypto';
@@ -24,6 +26,19 @@ for (const key of Object.keys(env)) {
 env.CODEX_THREAD_ID = `preview-owner-${process.pid}`;
 const git = (...args) => {
   const r = spawnSync('git', args, { cwd: root, encoding: 'utf8' }); assert.equal(r.status, 0, r.stderr); return r.stdout.trim();
+};
+const projectSnapshot = () => {
+  const rows=[];
+  const walk=(path,relative='')=>{
+    for(const entry of readdirSync(path,{withFileTypes:true})) {
+      const key=relative ? relative+'/'+entry.name : entry.name;
+      if(['.git','.proof-or-stop/story','.proof-or-stop/activity.jsonl'].includes(key)) continue;
+      const file=join(path,entry.name);
+      if(entry.isDirectory()){rows.push([key,'directory']);walk(file,key);}
+      else rows.push([key,createHash('sha256').update(readFileSync(file)).digest('hex')]);
+    }
+  };
+  walk(root);return rows.sort();
 };
 const storySnapshot = () => {
   const rows = [];
@@ -62,16 +77,23 @@ try {
       command: 'node should-not-run.cjs', note: 'Legacy diagnostic sample; not authoritative evidence.' }] }] });
   writeFileSync(join(root, 'should-not-run.cjs'), "require('fs').writeFileSync('unexpected-execution', 'ran');\n");
   const invoke = (command, args, kind = 'readonly') => {
-    const before = storySnapshot(); const headBefore = git('rev-parse', 'HEAD');
-    const r = spawnSync(process.execPath, [join(repo, 'bin/proof-or-stop.js'), command, ...args], {
+    const before = storySnapshot(), projectBefore = projectSnapshot(); const headBefore = git('rev-parse', 'HEAD');
+    const actualLaunches=[], originalSpawn=childProcess.spawnSync;let r;
+    childProcess.spawnSync=function(executable,argv,...rest){actualLaunches.push({executable,argv:[...argv]});return originalSpawn.call(this,executable,argv,...rest);};syncBuiltinESMExports();
+    try { r = spawnSync(process.execPath, [join(repo, 'bin/proof-or-stop.js'), command, ...args], {
       cwd: root, env: { ...env, CODEX_THREAD_ID: kind === 'owner' ? env.CODEX_THREAD_ID : `preview-reader-${process.pid}`,
         ...(kind === 'readonly' ? { PROOF_OR_STOP_REVIEWER_READONLY: '1' } : {}) }, encoding: 'utf8', timeout: 30000,
     });
+    } finally {childProcess.spawnSync=originalSpawn;syncBuiltinESMExports();}
+    assert.equal(actualLaunches.length,1,'observe the actual CLI OS launch');
+    assert.equal(actualLaunches[0].executable,process.execPath);
+    assert.equal(actualLaunches[0].argv[0],join(repo,'bin/proof-or-stop.js'));
     assert.equal(r.error, undefined); assert.equal(r.signal, null, 'timeout is not target RED');
     const after = storySnapshot();
     const oldFiles = new Map(before), newFiles = new Map(after);
     const changedStoryFiles = [...new Set([...oldFiles.keys(), ...newFiles.keys()])].filter(k => oldFiles.get(k) !== newFiles.get(k));
-    const row = { command, args, kind, exitCode: r.status, stdout: r.stdout, stderr: r.stderr, changedStoryFiles,
+    const row = { command:actualLaunches[0].argv[1], args:actualLaunches[0].argv.slice(2), kind, exitCode: r.status, stdout: r.stdout, stderr: r.stderr, changedStoryFiles,
+      projectUnchanged: JSON.stringify(projectBefore) === JSON.stringify(projectSnapshot()),
       headUnchanged: headBefore === git('rev-parse', 'HEAD') };
     rows.push(row); return row;
   };
@@ -91,7 +113,7 @@ try {
       const row = invoke(command, args, kind);
       assert.equal(row.exitCode, 0, `${command} preview refused: ${row.stderr}`);
       assert.match(row.stdout, marker); assert.deepEqual(row.changedStoryFiles, [], 'preview must not refresh owner lease or evidence');
-      assert.equal(row.headUnchanged, true);
+      assert.equal(row.headUnchanged, true); assert.equal(row.projectUnchanged,true,'preview must preserve capability releases, learning, worktrees and project files');
     }
   });
   const { resolveEffectiveOwnershipClass, reviewerReadRecoveryHint } = await import(join(repo, 'packages/main/dist/cli/ownership-gate.js'));

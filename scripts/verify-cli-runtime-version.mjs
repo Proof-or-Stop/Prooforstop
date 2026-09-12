@@ -64,11 +64,21 @@ try {
   writeFileSync(manifest, JSON.stringify({ ...original, version: null }));
   const invalid = invoke(direct);
   assert.ok(invalid.exitCode !== 0 && invalid.stderr.includes('CLI_RUNTIME_VERSION_METADATA_INVALID'), 'invalid runtime version must not dispatch');
+  const invalidWrapper = invoke(wrapper);
+  assert.notEqual(invalidWrapper.exitCode, 0);
+  assert.ok(invalidWrapper.stderr.startsWith('CLI_RUNTIME_VERSION_METADATA_INVALID:'));
+  assert.ok(!invalidWrapper.stderr.includes('Fallbacks:'));
   writeFileSync(manifest, JSON.stringify(original));
   const restored = invoke(direct);
   assert.equal(restored.exitCode, 0, `exact restoration must recover: ${restored.stderr}`);
+  // Break only the copied installation. A missing dist remains an ordinary bootstrap failure.
+  rmSync(join(pkg, 'dist'), { recursive: true });
+  const unavailable = invoke(wrapper);
+  assert.notEqual(unavailable.exitCode, 0);
+  assert.ok(unavailable.stderr.includes('Recovery:') && unavailable.stderr.includes('Fallbacks:'));
+  assert.ok(!unavailable.stderr.includes('CLI_RUNTIME_VERSION_'));
   assert.deepEqual(readdirSync(external).sort(), before, 'entry checks must not write into the caller project');
-  console.log('CLI_RUNTIME_VERSION_GREEN ' + JSON.stringify({ control, wrapperControl, results, invalid, restored, callerUnchanged: true }));
+  console.log('CLI_RUNTIME_VERSION_GREEN ' + JSON.stringify({ control, wrapperControl, results, invalid, invalidWrapper, restored, unavailable, callerUnchanged: true }));
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }

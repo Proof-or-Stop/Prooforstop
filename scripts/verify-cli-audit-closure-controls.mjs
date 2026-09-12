@@ -37,7 +37,59 @@ try {
     measurements.renderedPhases=observed;
     assert.deepEqual(observed,['DEV','DEV'],'mirror selection and displayed queue phase must agree');
   });
-  await group('check-invalid-modes-refuse-at-ownership', async () => {
+  await group('unknown-queue-row-does-not-roll-up-green', async () => {
+    const { StoryStore } = await import(join(repo,'packages/main/dist/core/store.js'));
+    const { projectQueueGovernance } = await import(join(repo,'packages/main/dist/core/lifecycle-control/queue/index.js'));
+    const { buildGlobalControlStatus } = await import(join(repo,'packages/main/dist/core/lifecycle-control/dashboard/index.js'));
+    const main=join(root,'main'), store=new StoryStore(main);
+    const old=new Date(Date.now()-14*86400000).toISOString();
+    const existing=store.readStory('B-phase-observation');
+    const first={...existing,createdAt:old,events:[],phase:'DEV'};
+    store.writeStory(first.storyId,first);new StoryStore(first.worktree.path).writeStory(first.storyId,first);
+    for(let i=0;i<4;i++) {
+      const sid='B-queue-budget-'+i,work=join(root,'budget-work-'+i);
+      git(main,'worktree','add','-qb','story/'+sid,work,'main');
+      const story={...first,storyId:sid,name:sid,title:'Distinct budget subject '+i,worktree:{path:work,branch:'story/'+sid}};
+      store.writeStory(sid,story);store.writeChecklist(sid,{items:[]});
+      const local=new StoryStore(work);local.writeStory(sid,story);local.writeChecklist(sid,{items:[]});
+    }
+    const observed=projectQueueGovernance(store,main);
+    const unknown=observed.rows.find(row=>row.classification==='unknown-worktree');
+    assert.ok(unknown,'five old worktrees exhaust the actual default four-probe budget');
+    const report=buildGlobalControlStatus(store,main,{storyIds:[unknown.storyId]});
+    assert.equal(report.stories.length,1);
+    assert.equal(report.stories[0].queue.classification,'unknown-worktree');
+    measurements.unknownQueueAggregate=report.project.queueAggregate;
+    measurements.unknownQueueSummary=report.project.queueSummary.classification;
+    assert.notEqual(report.project.queueAggregate,'green','unverified worktree cannot be healthy');
+    assert.notEqual(report.project.queueSummary.classification,'ready');
+    assert.equal(report.stories[0].readyForNextSafeAction,false);
+  });
+  await group('empty-queue-does-not-claim-ready', async () => {
+    const { StoryStore } = await import(join(repo,'packages/main/dist/core/store.js'));
+    const { buildGlobalControlStatus } = await import(join(repo,'packages/main/dist/core/lifecycle-control/dashboard/index.js'));
+    const empty=join(root,'empty-project');fs.mkdirSync(empty);
+    fs.copyFileSync(join(root,'main/proof-or-stop.config.json'),join(empty,'proof-or-stop.config.json'));
+    const report=buildGlobalControlStatus(new StoryStore(empty),empty);
+    assert.equal(report.project.queueAggregate,'unknown');
+    measurements.emptyQueueSummary=report.project.queueSummary.classification;
+    assert.notEqual(report.project.queueSummary.classification,'ready');
+  });
+  await group('refresh-writer-help-preserves-owner-options', async () => {
+    const { ownerLeaseHelpBlock,resolveEffectiveOwnershipClass } = await import(join(repo,'packages/main/dist/cli/ownership-gate.js'));
+    const observations=[];
+    for(const command of ['review_inventory_status','certification_window_status']) {
+      assert.equal(resolveEffectiveOwnershipClass(command,{},'B-control'),'readOnly');
+      assert.equal(resolveEffectiveOwnershipClass(command,{refresh:true},'B-control'),'storyScopedMutating');
+      const text=execFileSync(process.execPath,[join(repo,'bin/proof-or-stop.js'),command,'--help'],{cwd:repo,encoding:'utf8',timeout:15000});
+      observations.push({command,hasTakeover:text.includes('--takeover'),hasForce:text.includes('--forceTakeover')});
+    }
+    measurements.refreshHelp=observations;
+    assert.ok(observations.every(row=>row.hasTakeover&&row.hasForce));
+    for(const command of ['review_inventory_status','certification_window_status']) assert.match(ownerLeaseHelpBlock(command),/applies when --refresh/);
+    for(const command of ['doctor','check']) assert.equal(ownerLeaseHelpBlock(command),null,'shared repair is not a Story lease takeover');
+  });
+  await group('check-invalid-modes-refuse-at-ownership' , async () => {
     const { resolveEffectiveOwnershipClass } = await import(join(repo,'packages/main/dist/cli/ownership-gate.js'));
     const values=[{apply:'yes'},{upgrade:1},{apply:{}},{apply:true,upgrade:'yes'}];
     const refused=values.map(args=>{try{resolveEffectiveOwnershipClass('check',args);return false;}catch(e){return /must be a boolean/.test(e.message);}});
