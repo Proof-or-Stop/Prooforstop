@@ -1,25 +1,5 @@
 # Changelog
 
-## Lab static-native-fixture-traversal - v0.3.334 - 2026-09-12
-
-The static validation scanner did not register the native certification helper newly imported by the quorum integration fixture. Its exact import inventory refused that literal, and the existing depth bound stopped the native review helper on the first transitive path, leaving two unexpanded coverage rows.
-
-This bounded repair allows the exact optional native-certification import without changing any original required literal, and permits only native-review-fixture at depth4 and fixture-environment at depths4/5 for the configured quorum entry. The default depth3 bound remains. These registrations only expand inspection; process invocation classification, argv/mode rules, exception requirements, dependency hashes, and unknown-helper refusal are unchanged.
-
-The committed regression uses the actual quorum→pure→integration→native-certification→native-review→fixture-environment graph. Official RED reproduced both precise missing-coverage rows (2.879303916 seconds outer). After the repair, the identical command passed (3.846044375 seconds outer), including every existing boundary control, reversed imports, a nested registered process at the deepest native helper, unknown/deeper helper refusal, computed import refusal, missing source refusal, and the same helper under a different entry.
-
-No Story state or source was modified by the Lab. New process call rows still require reviewed exception evidence; zero unexpanded rows alone is not global static acceptance. Lab records are local maintenance provenance, not formal Story DONE or product release evidence. The independent vendor audit remains required before integration.
-
-The first independent vendor audit returned FAIL; that result and the complete audit package are preserved. Its blocking changelog discrepancy is contradicted by the saved prompt diff, snapshot, and candidate Git blob: all three identify the exact boundary-verifier command. The byte comparison is retained at /tmp/B-e6d9-static-lab-audit-input-comparison.json. The correct changelog was not edited to satisfy that finding.
-
-The audit also identified two substantive regression omissions. The reopened Lab now explicitly requires exit status zero for the native positive and independently checks refusal when the required native import literal is absent. With these strengthened assertions, the original main scanner was restored and committed for official RED: 2.891174084 seconds, failing the explicit positive status assertion with the original two unexpanded rows. The bounded scanner repair was then restored byte-for-byte. The same official command passed GREEN in 4.184565459 seconds, including all original controls and the new missing-required-literal negative. This is a changed regression candidate requiring a fresh official independent audit, not a retry of an unchanged rejected candidate.
-
-Owner review identified and reproduced a compatibility regression in the earlier candidate: treating the new helper as required rejects the legitimate current-main quorum graph that does not import it. The committed existing-main positive recorded official RED in 3.580806417 seconds. The repair now registers native-certification-fixture only as an exact optional import of the integration helper; every original required import remains mandatory. The missing-required negative removes the original native-review-fixture import. Official GREEN on commit 9478dc63bf passed in 3.926921416 seconds, covering both old and expanded graphs, reversed order, nested invocation refusal, unknown depths, computed imports, missing required literal, missing imported source, and wrong entry. This compatibility correction is part of the final candidate and must be visible in the fresh vendor audit.
-
-Maintenance provenance: codex/lab-static-native-fixture-traversal, repair 9478dc63bf51f7df0fc94fb316827f819322b1c5.
-Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edge-boundaries.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-intent-authority - v0.3.333 - 2026-09-12
 
 Benchmark planning could not record new-file acceptance declarations: the dedicated intent role could author declarations but held no owner lease, while the owner held the lease but could not apply those declarations. This repair keeps the lease gate intact and supplies an explicit owner-approved proposal handoff. It also corrects checklist_remove admission to match its existing INIT-only handler.
