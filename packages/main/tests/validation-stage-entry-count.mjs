@@ -6,10 +6,25 @@ import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import childProcess, {execFileSync} from 'node:child_process';
 import {syncBuiltinESMExports} from 'node:module';
+const STAGE_MODE_TIMEOUT_MS = 30000;
 function assertStageModeResult(mode, result) {
+  if (result.error?.code === 'ETIMEDOUT') throw new Error(`STAGE_MODE_${mode}_BUDGET_${STAGE_MODE_TIMEOUT_MS}MS_EXCEEDED`);
   assert.equal(result.error, undefined, 'Stage contract child must execute');
   assert.equal(result.signal, null, 'Stage contract child must finish without a signal');
   assert.equal(result.status, 0, mode === 'abort' ? 'PRESPAWN_ABORT_ORACLE_MUST_MATCH_COMMAND_RESULT' : `STAGE_MODE_${mode}_MUST_PASS`);
+  const lines = (result.stdout ?? '').split('\n');
+  if (mode === 'normal') {
+    assert.equal(lines.filter(line => line === 'STAGE_ENTRY_GREEN').length, 1, 'normal branch marker required');
+    assert(!lines.includes('PRESPAWN_GREEN'), 'normal branch must not execute cancellation mode');
+  } else {
+    assert.equal(lines.filter(line => line === 'PRESPAWN_GREEN').length, 1, 'cancellation branch marker required');
+    assert(!lines.includes('STAGE_ENTRY_GREEN'), 'cancellation branch must not execute normal mode');
+    const rows = lines.filter(line => line.startsWith('PRESPAWN_LEDGER='));
+    assert.equal(rows.length, 1, 'one cancellation branch ledger required');
+    const row = JSON.parse(rows[0].slice('PRESPAWN_LEDGER='.length));
+    assert.equal(row.mode, mode, 'cancellation branch mode mismatch');
+    assert.equal(row.childStarts, 0, 'cancellation branch started a child');
+  }
 }
 // Bounded Lab replay includes all original mode contracts in one pinned command.
 if (process.argv.includes('--contract-suite')) {
@@ -17,11 +32,14 @@ if (process.argv.includes('--contract-suite')) {
   assert.throws(() => assertStageModeResult('abort', wrongMode), /branch/, 'PRESPAWN_ABORT_ORACLE_MUST_MATCH_COMMAND_RESULT');
   assert.throws(() => assertStageModeResult('deadline', wrongMode), /branch/);
   assert.throws(() => assertStageModeResult('normal', { ...wrongMode, stdout: 'PRESPAWN_GREEN\n' }), /branch/);
+  assert.throws(() => assertStageModeResult('deadline', { ...wrongMode,
+    stdout: 'PRESPAWN_LEDGER={"mode":"abort","childStarts":0}\nPRESPAWN_GREEN\n' }), /branch mode mismatch/);
+  assert.throws(() => assertStageModeResult('abort', { error: { code: 'ETIMEDOUT' } }), /STAGE_MODE_abort_BUDGET_30000MS_EXCEEDED/);
   for (const mode of ['normal', 'abort', 'deadline']) {
     const env = { ...process.env };
     if (mode === 'normal') delete env.LAB_SAFETY_MODE;
     else env.LAB_SAFETY_MODE = mode;
-    const result = childProcess.spawnSync(process.execPath, [fileURLToPath(import.meta.url)], { env, encoding: 'utf8' });
+    const result = childProcess.spawnSync(process.execPath, [fileURLToPath(import.meta.url)], { env, encoding: 'utf8', timeout: STAGE_MODE_TIMEOUT_MS, killSignal: 'SIGKILL' });
     process.stdout.write(result.stdout ?? '');
     process.stderr.write(result.stderr ?? '');
     assertStageModeResult(mode, result);
