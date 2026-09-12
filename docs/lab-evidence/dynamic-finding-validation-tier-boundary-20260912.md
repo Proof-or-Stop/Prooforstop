@@ -108,7 +108,7 @@ NODE
 Verbatim stdout:
 
 ```json
-{"beforeRef":"a8240a60bd33dd1d6ba2fee2966547cd109cc070","afterRef":"HEAD","beforeCount":168,"afterCount":168,"commandSetDigest":"e9e563a8552803860f4bf9b5fbbecf229f3ab680863d4abaf71cd21735d9509b","warnings":["167 of 168 validation commands still lack a declared id and are running on provisional ids (prefix \"prov-\") derived from command, args, declared cwd and declared shell. Declare a stable id on each so its planner identity survives an edit to any of those fields."],"added":[],"removed":[]}
+{"beforeRef":"a8240a60bd33dd1d6ba2fee2966547cd109cc070","afterRef":"HEAD","beforeCount":168,"afterCount":168,"added":[],"removed":[]}
 ```
 
 ```text
