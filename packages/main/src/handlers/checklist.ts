@@ -2390,7 +2390,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       checklist: store.readChecklist(deps.storyId), freshness,
       ownerGeneration: readOwnerLease(store.storyDirPath(deps.storyId))?.leaseId,
       executionKey: plan.executionKey,
-      implementationDigest: executionImplementationIdentity().digest,
+      // Bind the request to its plan snapshot; execution and publication recheck independently.
+      implementationDigest: plan.preparedIdentity.implementationDigest,
     });
     const pending = store.readPendingPublication(deps.storyId, requestKey, deps.cwd);
     let publication: SharedVerificationPublication | undefined;

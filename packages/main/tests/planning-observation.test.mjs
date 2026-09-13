@@ -34,3 +34,38 @@ assert.equal(scopes.filter(n=>n.getText(ast).includes('buildVerificationCoverage
 assert.equal(scopes.filter(n=>n.getText(ast).includes('for (const entry of stale)')).length,1);
 assert.equal(scopes.filter(n=>n.getText(ast).includes('for (const entry of computed.stale)')).length,1);
 console.log('REFRESH_OBSERVATION_BOUNDARIES PASS three synchronous scopes, independent timeout, no execution or publication inside');
+
+// Execute the actual compiled recovery closure with controlled collaborators.
+// These are orchestration boundary tests, not native execution receipts.
+const compiled=fs.readFileSync('packages/main/dist/handlers/checklist.js','utf8');
+const compiledAst=ts.createSourceFile('checklist.js',compiled,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+let recoveryExpression;
+function findRecovery(n){if(ts.isVariableDeclaration(n)&&n.name.getText(compiledAst)==='enforceWithPublicationRecovery')recoveryExpression=n.initializer.getText(compiledAst);ts.forEachChild(n,findRecovery);}findRecovery(compiledAst);
+assert.ok(recoveryExpression);
+const recoveryDependencies=['verificationProducerPlan','enforceAndStampEvidence','captureVerificationFreshness','causalDigest','store','readOwnerLease','root','executionImplementationIdentity','isSplitVerificationReceipt','executionMatchesPlan','validateVerificationReceipt','createCausalPublicationRecovery'];
+let implementation='implementation-A',plan,request,executionReads=[],pending,failPlan=false,drift=false,directReads=0;
+const recovery=new Function(...recoveryDependencies,'return ('+recoveryExpression+');')(
+ ()=>{plan=failPlan?undefined:{executionKey:'execution-'+implementation,preparedIdentity:{implementationDigest:implementation}};return plan;},
+ async(_item,_input,deps)=>{executionReads.push({implementation,shared:deps.sharedExecutionReceipt});await Promise.resolve();return {evidencePatch:{result:'fail'}};},
+ ()=>{if(drift)implementation='implementation-B';return {};},
+ value=>{request=value;return JSON.stringify(value);},
+ {readChecklist:()=>({items:[]}),storyDirPath:()=>'.',readPendingPublication:()=>pending},
+ ()=>({leaseId:'lease'}),process.cwd(),()=>{directReads++;return {digest:implementation};},
+ ()=>false,()=>false,()=>({ok:false}),()=>{throw Error('failure must not create recovery authority');}
+);
+const recoveryArgs=[{id:'item'},{intentRef:'intent'},{cwd:process.cwd(),storyId:'story'}];
+await recovery(...recoveryArgs);assert.equal(request.implementationDigest,plan.preparedIdentity.implementationDigest);assert.equal(directReads,0,'request key consumes its plan observation');
+drift=true;await recovery(...recoveryArgs);assert.equal(request.implementationDigest,'implementation-A','request binds the same snapshot as executionKey');assert.equal(executionReads.at(-1).implementation,'implementation-B','execution independently observes intervening mutation');
+drift=false;await recovery(...recoveryArgs);assert.equal(request.implementationDigest,'implementation-B','next recovery call obtains a fresh plan');
+pending={publication:{receipt:{}}};const count=executionReads.length;await assert.rejects(recovery(...recoveryArgs),/publication_recovery_invalid/);assert.equal(executionReads.length,count,'invalid pending receipt cannot reach execution');
+pending=undefined;failPlan=true;await recovery(...recoveryArgs);assert.equal(executionReads.length,count+1,'no-plan fallback still delegates');
+console.log('RECOVERY_REQUEST_OBSERVATION_BOUNDARIES PASS snapshot coherence, intervening drift reaches execution, fresh next call, invalid pending refusal, fallback');
+let sharedGuard;
+function findSharedGuard(n){if(ts.isIfStatement(n)&&n.thenStatement.getText(compiledAst).includes('[verification_shared_execution_identity_mismatch]'))sharedGuard=n.getText(compiledAst);ts.forEachChild(n,findSharedGuard);}findSharedGuard(compiledAst);
+assert.ok(sharedGuard);
+const checkShared=new Function('sharedExecution','pinCommand','deps','effectiveTimeoutMs','sharedIdentity',sharedGuard);
+const currentReceipt={command:'node --version',cwd:process.cwd(),effectiveTimeoutMs:2000,executionIdentityDigest:'current'};
+const checkReceipt=receipt=>checkShared(receipt,'node --version',{cwd:process.cwd()},2000,{executionIdentityDigest:'current'});
+assert.doesNotThrow(()=>checkReceipt(currentReceipt));
+for(const patch of [{executionIdentityDigest:'old'},{command:'node different.js'},{cwd:'/different'},{effectiveTimeoutMs:1000}])assert.throws(()=>checkReceipt({...currentReceipt,...patch}),/verification_shared_execution_identity_mismatch/);
+console.log('RECOVERY_SHARED_RECEIPT_GUARD PASS actual compiled guard rejects stale identity, command, cwd and unauthorized timeout');
