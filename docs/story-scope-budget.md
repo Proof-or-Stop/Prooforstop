@@ -60,6 +60,28 @@ For a pending DEV amendment, pass its `--amendmentId` to both check and approval
 Obtain scope approval before independent amendment review; the decision does not
 replace that review. Read projections never create authority.
 
+An exact-match miss may retain the original signed acknowledgement for the current
+applied scope when `approvalContinuity` proves a narrow bookkeeping-only change.
+The original signature and expiry remain unchanged. This path reconstructs both
+original digests from an authenticated `APPROVED` amendment and its published
+configuration in bounded first-parent Git history. Requirements, scope restrictions,
+topology, policy, counts and responsibility identities must remain equal.
+Only authentic first-pin insertion and additive validation registration qualify.
+Original commands remain an exact ordered subsequence; explicit fields and stable
+identities remain exact, and every scope-group reference must still resolve uniquely
+to the same command. Generated positional labels may shift. New duplicate execution
+tuples are refused. A retained first pin must have been executed for the approved
+requirement meaning, and its selected first-parent publication chain may contain
+no pin disappearance or replacement. This does not inspect every side branch.
+
+Compatibility is read-only and applies neither to a proposed `next`/`base` subject
+nor to decomposition. Missing history, invalid signatures, expired authority,
+changed live inputs or exhausted registered proof limits return no compatibility.
+It preserves no validation selection, command-set digest, cached execution evidence
+or freshness. Current verification, independent review and all other gates remain
+required; never request another terminal acknowledgement merely to repair a proven
+bookkeeping-only mismatch that this reader can authenticate.
+
 Declared decomposition uses existing `milestone_ledger_set`, `slice_plan_set` and
 `parent_ledger_rollup_set` artifacts. Create the child Stories through the normal
 CLI, assign every parent milestone to exactly one child in all three artifacts,

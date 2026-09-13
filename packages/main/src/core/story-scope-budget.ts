@@ -13,6 +13,7 @@ import { collectVerificationIntents } from './verification.js';
 import { canonicalFilesystemPath } from './keyed-scheduler.js';
 import { readScopeDecomposition, type ScopeDecompositionReport } from './story-scope-decomposition.js';
 import { currentScopeBudgetApproval } from './story-scope-budget-decisions.js';
+import { resolveScopeApprovalContinuity, type ScopeApprovalContinuity } from './scope-approval-continuity.js';
 import { isMalformedScopeGlob, pathMatchesScopePattern } from './scope-path-classifier.js';
 import type { StoryStore } from './store.js';
 import type { ChecklistData, ProofStoryContractData, ScopeContractData } from './types.js';
@@ -50,6 +51,7 @@ export interface StoryScopeBudgetReport {
   bindingDigest: string;
   paths: string[];
   decomposition?: ScopeDecompositionReport;
+  approvalContinuity?: ScopeApprovalContinuity['provenance'];
 }
 const emptyFacts = (): Record<ScopeBudgetDimension, string[]> => Object.fromEntries(
   SCOPE_BUDGET_DIMENSIONS.map(key => [key, [] as string[]]),
@@ -306,6 +308,12 @@ function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: st
     try {
       if (currentScopeBudgetApproval(store, root, storyId, report.bindingDigest)) {
         report.status = 'approved_large_story'; report.blocking = false;
+      } else if (!next && !base && !report.decomposition) {
+        const continuity = resolveScopeApprovalContinuity(store, root, subject, report, evaluateStoryScopeBudget);
+        if (continuity) {
+          report.approvalContinuity = continuity.provenance;
+          report.status = 'approved_large_story'; report.blocking = false;
+        }
       }
     } catch (error) {
       report.status = 'unknown'; report.blocking = true;

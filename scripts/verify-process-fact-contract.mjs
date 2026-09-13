@@ -9987,6 +9987,14 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     assert(budgetDecision.includes(invariant), `scope budget approval requires ${invariant}`);
   }
   assert(registrySource.includes("name: 'scope-budget-decisions.json'"), 'scope approval signed artifact must be registered');
+  const approvalContinuity = read('packages/main/src/core/scope-approval-continuity.ts');
+  for (const invariant of ['unexpiredScopeBudgetApprovals', 'readAuthenticatedAcceptanceAmendmentJournal', 'approval.resultingScopeDigest', 'approval.bindingDigest', 'hasMechanicalExecutionAuthority', 'equivalentConfiguration', '--first-parent', 'firstPinCommits', 'checkBudget()']) {
+    assert(approvalContinuity.includes(invariant), `scope continuity requires ${invariant}`);
+  }
+  assert(read('packages/main/src/core/story-scope-budget.ts').includes('!next && !base && !report.decomposition'), 'scope continuity must not authorize a new amendment or decomposition');
+  assert(!approvalContinuity.includes('signValidationArtifact(') && !approvalContinuity.includes('writeScopeBudgetDecisions('), 'scope continuity cannot create or rewrite approval authority');
+  assert(approvalContinuity.includes('projected({items:[historical]})') && approvalContinuity.includes('projected({items:[original]})'), 'first-pin execution must bind the approved requirement meaning');
+  assert(registrySource.includes('packages/main/src/core/scope-approval-continuity.ts'), 'scope continuity consumer must be registered');
   assert(read('packages/main/src/core/lifecycle-registry.ts').includes("'scope-budget-decisions.json'"), 'scope decisions must be lifecycle metadata');
   const budgetMachine = read('packages/main/src/core/machine.ts');
   for (const guard of ['canStartDevGuard', 'canSkipPlanGuard', 'canReenterDevGuard']) {

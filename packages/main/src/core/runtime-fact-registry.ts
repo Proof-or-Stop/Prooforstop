@@ -485,6 +485,12 @@ export const KEYED_SCHEDULER_RUNTIME_POLICY = {
 
 export const SCOPE_BUDGET_DECISION_RUNTIME_POLICY = {
   approvalLifetimeMs: 7 * 24 * 60 * 60 * 1000,
+  continuityHistoryCommits: 256,
+  continuityGitTimeoutMs: 5000,
+  continuityGitOutputBytes: 4 * 1024 * 1024,
+  continuityTotalGitCommands: 512,
+  continuityTotalGitBytes: 32 * 1024 * 1024,
+  continuityTotalMs: 15000,
   agentEnvironmentMarkers: ['PROOF_OR_STOP_AGENT', 'LATTICE_AGENT', 'CODEX_THREAD_ID', 'CODEX_SESSION_ID',
     'CLAUDE_CODE_SESSION_ID', 'CLAUDE_SESSION_ID', 'AGY_SESSION_ID', 'ANTIGRAVITY_SESSION_ID',
     'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT', 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK'],

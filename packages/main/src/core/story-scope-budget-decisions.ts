@@ -51,6 +51,13 @@ export function currentScopeBudgetApproval(store: StoryStore, root: string, stor
     && Date.parse(decision.issuedAt) <= Date.now() && Date.parse(decision.expiresAt) > Date.now()) ?? null;
 }
 
+/** Read-only original authority; compatibility consumers cannot mint or extend it. */
+export function unexpiredScopeBudgetApprovals(store: StoryStore, root: string, storyId: string): ScopeBudgetApproval[] {
+  const now = Date.now();
+  return journalFor(store, root, storyId)?.decisions.filter(decision =>
+    Date.parse(decision.issuedAt) <= now && Date.parse(decision.expiresAt) > now) ?? [];
+}
+
 export function scopeBudgetDecisionReport(store: StoryStore, root: string, storyId: string, amendmentId?: string): StoryScopeBudgetReport {
   if (!amendmentId) return readStoryScopeBudget(store, root, storyId);
   if (store.readStory(storyId).phase !== 'DEV') throw new Error('An amendment budget decision requires DEV');
