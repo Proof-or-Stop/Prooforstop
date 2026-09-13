@@ -1,0 +1,12 @@
+check: M3 pack cache hits unchanged requests and misses contributing source changes - PASS
+check: M3 pack cache treats stale-irrelevant broad source changes as soft hits - PASS
+check: M3 cache freshness is derived from current sources, not caller index manifest - PASS
+check: M3 pack cache separates indexed candidateLimit selection windows - PASS
+check: M4 shared optimized API covers lifecycle consumers as advisory-only packs - PASS
+m4DurableCache crossProcessCacheHit=true cacheKeyDigest=662a2f7a47350b279866612ede01bc5507435503f1bf78b59f804e1656f0b417 staleMutationMiss=true gateEvidence=false
+check: M4 durable cache survives a second process and misses on contributing mutation - PASS
+check: M5 reference and optimized matrix preserves surfacing boundaries - PASS
+check: M5 render line cap reports omittedCount for large packs - PASS
+m6Report semanticParity=pass recordCount=1000000 candidateFalseSurfaceRate=0 supersededFalseSurfaceRate=0 deprecatedFalseSurfaceRate=0 malformedRowsSkipped=5 resultDigestSource=MemoryFreshnessPack referenceResultDigest=19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8 optimizedResultDigest=19e61cac88d5e038e5114c0059eb7b259ba7e8685c04dc7fdd41ed2c63bf1dc8 runtimeCorpusRecords=1000000 referenceFullScanMs=40557 indexedColdMs=13175 indexedWarmCacheMs=366 targetWarmMs=2000 targetStatus=met p50WarmMs=0 p95WarmMs=0 warmCacheHits=8 cacheHitRate=0.500 indexBuildMs=10736 exactFastPathHits=100 fuzzyIndexHits=103 fuzzyFallbacks=1 tokenScanFallbacks=26 performancePolicy=report-first
+check: M6 report-first million-record parity report includes optimized timings - PASS
+playbook-runtime-memory M3-M6 smoke passed: TOTAL 9 | PASS 9 | FAIL 0

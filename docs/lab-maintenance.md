@@ -361,3 +361,5 @@ covered by the audit input digest and does not grant independent approval. Early
 audits without an accepted candidate measurement receive null rather than an
 invented pass. This external-to-Git measurement avoids requiring a candidate commit
 to contain its own SHA or its future execution result.
+
+Large audit bodies use complete `diff.patch` and per-file snapshots, with a path/size/digest manifest in the initial prompt. The original full-input digest and complete changed-path read-reference requirement remain unchanged. Both diff and file bytes are checked after the provider exits. `scripts/verify-lab-audit-prompt-budget.mjs` exercises real transport with a disposable synthetic adapter; it is not independent audit evidence.

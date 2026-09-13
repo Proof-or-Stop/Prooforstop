@@ -1,0 +1,27 @@
+[
+  {
+    "driver": "verify-static-ast-reuse.mjs",
+    "injectedFailure": "assertion expectation changed only in temporary verifier copy",
+    "exitCode": 1,
+    "retainedPath": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/static-ast-compare-UGFeiz",
+    "verifiedArtifacts": [
+      "reference.report",
+      "candidate.report",
+      "reference.counts",
+      "candidate.counts"
+    ],
+    "stdout": "STATIC_AST_COMPARISON [{\"arm\":\"reference\",\"exitCode\":0,\"elapsedMs\":1677.7976250000002,\"calls\":368,\"unique\":234,\"maxRSSKiB\":536016},{\"arm\":\"candidate\",\"exitCode\":0,\"elapsedMs\":1398.356625,\"calls\":234,\"unique\":234,\"maxRSSKiB\":495680}]\n",
+    "stderr": "STATIC_AST_FAILURE_ARTIFACTS /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/static-ast-compare-UGFeiz\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: STATIC_AST_REPEATED_IDENTICAL_INPUT: parse each exact source once within the command\n\n234 !== 235\n\n    at file:///private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/ast-failure-controls-nj0_xrm8/verify-static-ast-reuse.mjs:42:9\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 234,\n  expected: 235,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v26.8.1\n"
+  },
+  {
+    "driver": "verify-static-ast-reuse-boundaries.mjs",
+    "injectedFailure": "assertion expectation changed only in temporary verifier copy",
+    "exitCode": 1,
+    "retainedPath": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/static-ast-invocations-0lbsP2",
+    "verifiedArtifacts": [
+      "argv.json"
+    ],
+    "stdout": "STATIC_AST_REUSE_HELPER_GREEN same-content hit; changed-content/path miss; invalid syntax preserved; recovery; one revision per path\n",
+    "stderr": "STATIC_AST_BOUNDARY_FAILURE_ARTIFACTS /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/static-ast-invocations-0lbsP2\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(argvReport.rows.some(r=>r.file==='a.mjs'&&r.index===999&&r.state==='CONFIG_BRANCH_SKIPPED'))\n\n    at file:///private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/ast-failure-controls-nj0_xrm8/verify-static-ast-reuse-boundaries.mjs:34:2\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v26.8.1\n"
+  }
+]

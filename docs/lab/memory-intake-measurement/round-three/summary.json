@@ -1,0 +1,42 @@
+{
+  "memory-abba.json": {
+    "before": {
+      "warmMs": 69.07345859999997,
+      "coldMs": 439.9742295,
+      "coldGit": 32,
+      "warmGitPerQuery": 6.0,
+      "coldFallbacks": 0
+    },
+    "after": {
+      "warmMs": 23.714241499999996,
+      "coldMs": 63.352604,
+      "coldGit": 2,
+      "warmGitPerQuery": 2.0,
+      "coldFallbacks": 0
+    },
+    "reductionPercent": {
+      "warmMs": 65.66808441238237,
+      "coldMs": 85.6008375599644
+    }
+  },
+  "memory-overflow-abba.json": {
+    "before": {
+      "warmMs": 68.59023760000001,
+      "coldMs": 464.33852049999996,
+      "coldGit": 32,
+      "warmGitPerQuery": 6.0,
+      "coldFallbacks": 2
+    },
+    "after": {
+      "warmMs": 24.420616699999993,
+      "coldMs": 94.62210399999998,
+      "coldGit": 2,
+      "warmGitPerQuery": 2.0,
+      "coldFallbacks": 2
+    },
+    "reductionPercent": {
+      "warmMs": 64.39636666311827,
+      "coldMs": 79.62217222510188
+    }
+  }
+}
