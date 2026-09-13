@@ -46,3 +46,36 @@ exclusion policy permits deferred Story/runtime metadata. Unknown Git status
 fails closed. Both uncommitted and committed material drift are refusal cases.
 The repository validation command runs the same full transport suite pinned
 for this Lab, including successful imports, replay, crash recovery and refusals.
+
+## Follow-up to the first independent audit
+
+The first actual Claude CLI audit rejected candidate 8e77ab1c7e with seven
+findings. Its original verdict and failed test records remain in Lab evidence.
+The follow-up completes terminal process-event bookkeeping and invokes the
+official metadata commit-or-defer helper before critic validation. A critic
+refusal still returns failure and creates no critic receipt. Repeating that
+refusal preserves one terminal record and one process event. OPEN inventory
+metadata legitimately remains deferred under the existing policy; this repair
+does not force Git commits or widen review lineage acceptance.
+
+Own finding references must use proposal indexes, including canonical references.
+Resolved primary finding identities must be unique. Distinct duplicates may
+share a canonical finding; the original signed Finding evidence is not rewritten
+by a critic disposition. The managed critic receipt has an explicit additional
+artifact-producer registration alongside the existing managed evidence binding.
+
+The fixed verification command includes twelve disposable integration scenarios:
+normal findings, pass, crash recovery, wrong wave, uncommitted and committed
+material drift, missing disposition with terminal bookkeeping, duplicate canonical
+mapping, not_verified classification, guessed own-ID refusal, existing-ID
+mapping, and index ambiguity. The pass scenario additionally tests legitimate
+pending metadata and Git-status failure. A synthetic read proxy supplies an
+ambiguous index only inside the disposable fixture; it grants no real authority.
+
+The verifier guard runs before its final failure gate. Subprocess controls execute
+that actual guard and gate against a positive input and five removed-authority-token
+inputs, checking nonzero refusal before success banners. Two fixture children run
+per batch, with a 120-second inner cleanup watchdog and a 135-second outer timeout.
+Six batches allow up to 810 seconds plus 90 seconds of overhead within the pinned
+900-second command budget. A failed batch waits for both children before returning.
+No fresh audit or integration is asserted by this follow-up description.

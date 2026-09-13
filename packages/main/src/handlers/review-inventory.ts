@@ -465,17 +465,24 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
       && f.managedEvidenceBinding?.runId === args.runId && f.managedEvidenceBinding?.receiptId === args.receiptId
       && verifyFinding(storyId, f));
     const resolve = (ref: ManagedInventoryFindingRef): string => {
-      if ('findingId' in ref) return ref.findingId;
+      if ('findingId' in ref) {
+        if (ownFindings.some(f => f.id === ref.findingId)) throw new Error('managed inventory critic: own findings require proposalFindingIndex');
+        return ref.findingId;
+      }
       const matches = ownFindings.filter(f => f.managedEvidenceBinding?.proposalFindingIndex === ref.proposalFindingIndex);
       if (matches.length !== 1) throw new Error('managed inventory critic: own finding index not uniquely imported');
       return matches[0].id;
     };
     const dirty = readMaterialDirtyFiles(run.workspaceBinding?.signedWorkspaceRoot ?? ctx.root, ctx.root);
-    if (dirty.error || dirty.files.length) throw new Error(`managed inventory critic: material drift or unavailable status: ${dirty.files.join(', ')}`);
-    return persistCriticReceipt(ctx, {storyId, epochId: block.epochId, reviewRunId: run.reviewRunId,
-      findingDispositions: block.findingDispositions.map(row => ({findingId: resolve(row.finding),
-        disposition: row.disposition, reason: row.reason, ...(row.familyKey ? {familyKey: row.familyKey} : {}),
-        ...(row.canonicalFinding ? {canonicalFindingId: resolve(row.canonicalFinding)} : {})}))});
+    if (dirty.error) throw new Error(`managed inventory critic: material status-unavailable: ${dirty.error}`);
+    if (dirty.files.length) throw new Error(`managed inventory critic: material drift: ${dirty.files.join(', ')}`);
+    const findingDispositions = block.findingDispositions.map(row => ({findingId: resolve(row.finding),
+      disposition: row.disposition, reason: row.reason, ...(row.familyKey ? {familyKey: row.familyKey} : {}),
+      ...(row.canonicalFinding ? {canonicalFindingId: resolve(row.canonicalFinding)} : {})}));
+    if (new Set(findingDispositions.map(row => row.findingId)).size !== findingDispositions.length) {
+      throw new Error('managed inventory critic: duplicate resolved finding identity');
+    }
+    return persistCriticReceipt(ctx, {storyId, epochId: block.epochId, reviewRunId: run.reviewRunId, findingDispositions});
   });
 }
 

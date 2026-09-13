@@ -11589,6 +11589,24 @@ nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRe
  nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:verification-key-location')"), 'Location regression needs canonical resource policy');
 }
 
+const managedCriticArtifact = parseRegistryArrayEntriesFromSource(read(processFactRegistryPath), 'PROCESS_FACT_ARTIFACTS')
+  .find(entry => entry.name === 'artifact:managed-inventory-critic-receipt');
+assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.managed_review_evidence_import'
+  && managedCriticArtifact.kind === 'signed-artifact', 'Managed importer must explicitly register its second signed critic artifact');
+
+// Managed inventory transport checks must precede the final failure gate.
+{
+ const source = read('packages/main/src/handlers/review-inventory.ts');
+ const required = ['export function importManagedInventoryCritic', 'createManagedReviewEvidenceBinding',
+   'verifyManagedReviewLiveBinding', 'proposalFindingIndex',
+   'only proof-or-stop-review-topology-critic may write critic authority'];
+ const missing = candidate => required.filter(token => !candidate.includes(token));
+ assert(missing(source).length === 0, 'Managed critic transport must authenticate its receipt and preserve native actor checks');
+ for (const token of required) {
+   nodeAssert(missing(source.replaceAll(token, '')).includes(token), 'Managed critic negative control must detect removed authority token: ' + token);
+ }
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');
@@ -11600,12 +11618,3 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
-
-// Managed inventory transport must preserve native actor enforcement and never accept owner dispositions.
-{
- const source = read('packages/main/src/handlers/review-inventory.ts');
- assert(source.includes('export function importManagedInventoryCritic') && source.includes('createManagedReviewEvidenceBinding')
-   && source.includes('verifyManagedReviewLiveBinding') && source.includes('proposalFindingIndex')
-   && source.includes('only proof-or-stop-review-topology-critic may write critic authority'),
-   'Managed critic transport must authenticate its receipt and preserve native actor checks');
-}

@@ -186,7 +186,8 @@ export function createManagedReviewEvidenceHandlers(
       const assertLiveReviewBinding = (): void => {
         if (inventoryCriticImport) {
           const dirty = readMaterialDirtyFiles(gitCwd, ctx.root);
-          if (dirty.error || dirty.files.length) throw new Error(`managed inventory critic: material drift or unavailable status: ${dirty.files.join(', ')}`);
+          if (dirty.error) throw new Error(`managed_review_evidence_import: material status-unavailable: ${dirty.error}`);
+          if (dirty.files.length) throw new Error(`managed_review_evidence_import: material drift: ${dirty.files.join(', ')}`);
         }
         const live = verifyManagedReviewLiveBinding({
           gitCwd,
@@ -462,11 +463,6 @@ export function createManagedReviewEvidenceHandlers(
       }, { label: `managed review ${proposal.conclusion} metadata` }));
 
       const { importedIds, created } = importResult;
-      // Metadata locks are released before taking the inventory lock. A crash
-      // here is recoverable: the existing-terminal branch still executes this
-      // authenticated receipt-only ingress on replay.
-      const criticHint = proposal.inventoryCritic !== undefined
-        ? importManagedInventoryCritic(ctx, {runId, receiptId}) : '';
       // A crash may have persisted the reviewer evidence before recording its
       // process event or committing the Story metadata. On recovery, repair
       // those bookkeeping effects once for this exact sealed receipt. Normal
@@ -497,13 +493,26 @@ export function createManagedReviewEvidenceHandlers(
         exactStoryArtifactNames: [
           proposal.conclusion === 'pass' ? 'review-passes.json' : 'findings.json',
           ...(alreadyAudited ? [] : ['process-events.jsonl']),
-          ...(proposal.inventoryCritic !== undefined ? ['review-inventory-epochs.json'] : []),
         ],
       } });
+      // Complete terminal bookkeeping before critic validation: a deterministic
+      // refusal must not strand signed terminal evidence without its audit event.
+      // OPEN inventory uses the existing metadata deferral policy, not forced Git commits.
+      let criticHint = '';
+      let criticCommitHint = '';
+      if (proposal.inventoryCritic !== undefined) {
+        try { criticHint = importManagedInventoryCritic(ctx, {runId, receiptId}); }
+        catch (error) {
+          throw new Error(`managed_review_evidence_import: terminal evidence imported; completeness critic incomplete: ${error instanceof Error ? error.message : String(error)}${commitHint}`);
+        }
+        criticCommitHint = commitReviewResultMetadata({root: ctx.root, store: ctx.store, storyId: proposal.storyId,
+          reviewRunId: proposal.reviewRunId, reason: 'managed_review_evidence_import',
+          options: {exactStoryArtifactNames: ['review-inventory-epochs.json']}});
+      }
       const summary = created
         ? `Managed review evidence imported from ${runId}: ${importedIds.join(', ')}`
         : `Managed review evidence already imported from ${runId}: ${importedIds.join(', ')}`;
-      return `${summary}${criticHint ? `\n${criticHint}` : ''}${commitHint}`;
+      return `${summary}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
     },
   };
 }

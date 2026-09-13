@@ -104,7 +104,7 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
 const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const scenario=process.argv.find(a=>a.startsWith('--case='))?.slice(7) ?? 'findings';
-assert(['findings','pass','crash','wrong-wave','drift','committed-drift'].includes(scenario));
+assert(['findings','pass','crash','wrong-wave','drift','committed-drift','missing-disposition','duplicate','not-verified','own-id','existing-id','index-ambiguity'].includes(scenario));
 const fixture=setup();
 const primary=fixture.root;
 const worktree=join(primary,'.worktrees',storyId);
@@ -127,7 +127,11 @@ for(const lane of epoch.requiredLanes){
  cli(worktree,'dispatch',{storyId,agentType:lane},env);
  const out=cli(worktree,'review_run_start',{storyId,agent:lane},env);
  const reviewRunId=out.match(/Review run (\S+) started/)[1];
+ if(scenario==='existing-id'&&lane===epoch.requiredLanes[0]) {
+  await runBrokeredNativeReviewCli({root:worktree,store:fixture.store,storyId,agent:lane,reviewRunId,command:'finding_add',payload:{storyId,agent:lane,reviewRunId,desc:'The baseline reviewer identifies a bounded verified observation for existing-ID transport.',severity:'medium',category:'missing',files:['packages/main/src/subject.ts'],evidenceState:'verified',readManifest,readEvents}});
+ } else {
  await runBrokeredNativeReviewCli({root:worktree,store:fixture.store,storyId,agent:lane,reviewRunId,command:'review_pass_set',payload:{storyId,agent:lane,reviewRunId,note:'Disposable native lane fully read the bounded candidate set.',readManifest,readEvents}});
+ }
 }
 const lane='proof-or-stop-review-topology-critic';
 const purpose={reviewPurpose:'inventory-completeness',inventoryEpochId:epoch.epochId};
@@ -137,12 +141,20 @@ const out=cli(worktree,'review_run_start',{storyId,agent:lane,...purpose},env);
 const reviewRunId=out.match(/Review run (\S+) started/)[1];
 process.chdir(worktree);
 const ctx={root:worktree,store:fixture.store,scanRoot:join(worktree,'packages/main')};
+const baselineFindings=fixture.store.readFindings(storyId).findings;
+const baseFinding={desc:'A disposable verified observation tests own-index mapping without guessing its allocated ID.',severity:'medium',category:'missing',files:['packages/main/src/subject.ts'],evidenceState:'verified'};
+const proposalFindings=scenario==='duplicate'?[baseFinding,{...baseFinding,desc:'A second disposable observation duplicates the first bounded family.'}]:[baseFinding];
+const dispositions=[{finding:{proposalFindingIndex:0},disposition:'verified_family',familyKey:'fixture-family',reason:'Independent synthetic provider classifies its own observation.'}];
+if(scenario==='duplicate') dispositions.push({finding:{proposalFindingIndex:1},disposition:'duplicate',familyKey:'fixture-family',canonicalFinding:{proposalFindingIndex:0},reason:'Both observations identify the same bounded family.'});
+if(scenario==='not-verified') {dispositions[0]={finding:{proposalFindingIndex:0},disposition:'not_verified',reason:'The critic does not classify this observation as a verified family; original Finding evidence remains unchanged.'};}
+if(scenario==='own-id') dispositions[0].finding={findingId:storyId+':F-001'};
+if(scenario==='existing-id') {assert.equal(baselineFindings.length,1);dispositions.push({finding:{findingId:baselineFindings[0].id},disposition:'verified_family',familyKey:'existing-family',reason:'This signed finding predates the managed receipt.'});}
 const host=createHostRunHandlers(ctx,{runner:async()=>{
  for(const path of files) readFileSync(join(worktree,path));
  return {stdout:'',stderr:'',exitCode:0,timedOut:false,terminalReason:'completed',finalAssistantResultCount:1,finalAssistantResultTruncated:false,
  finalAssistantResult:JSON.stringify({schemaVersion:'lattice.managed_review_final_proposal.v1',storyId,providerAgent:lane,lane,reviewRunId,conclusion:scenario==='pass'?'pass':'findings',
- ...(scenario==='pass'?{note:'The independent fixture critic confirms complete bounded coverage.'}:{findings:[{desc:'A disposable verified observation tests own-index mapping without guessing its allocated ID.',severity:'medium',category:'missing',files:['packages/main/src/subject.ts'],evidenceState:'verified'}]}),
- inventoryCritic:{epochId:epoch.epochId,wave:scenario==='wrong-wave'?2:1,findingDispositions:scenario==='pass'?[]:[{finding:{proposalFindingIndex:0},disposition:'verified_family',familyKey:'fixture-family',reason:'Independent synthetic provider classifies its own observation.'}]},
+ ...(scenario==='pass'?{note:'The independent fixture critic confirms complete bounded coverage.'}:{findings:proposalFindings}),
+ inventoryCritic:{epochId:epoch.epochId,wave:scenario==='wrong-wave'?2:1,findingDispositions:['pass','missing-disposition'].includes(scenario)?[]:dispositions},
  readManifest,readLog:{filesReadFully:files,filesTriagedByName:[],summary:{readCount:files.length,tokenCount:null},digest:'a'.repeat(64)}})};
 }});
 const launched=await host.host_run({host:'codex',storyId,agentType:lane,reviewRunId,lane,managedReview:true,detach:true,deadlineMs:60000,json:true});
@@ -152,10 +164,29 @@ assert.equal(status.run.state,'completed',JSON.stringify(status));
 const receipt=managedHostRunReceipt(worktree,launched.run.runId);
 const importer=createManagedReviewEvidenceHandlers(ctx);
 assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:'sha256:'+'0'.repeat(64)}));
-assert.equal(fixture.store.readFindings(storyId).findings.length,0,'Bad receipt cannot import evidence');
+assert.equal(fixture.store.readFindings(storyId).findings.length,baselineFindings.length,'Bad receipt cannot import evidence');
 if(scenario==='drift'||scenario==='committed-drift') writeFileSync(join(worktree,'packages/main/src/subject.ts'),'export const subject = 99;\n');
 if(scenario==='committed-drift') {git(worktree,['add','packages/main/src/subject.ts']);git(worktree,['commit','-m','fixture: change reviewed material']);}
-if(scenario==='wrong-wave'||scenario==='drift'||scenario==='committed-drift') {
+if(scenario==='index-ambiguity') {
+ const crashing=createManagedReviewEvidenceHandlers(ctx,{afterManagedHostRunEvidenceBindingWrite:()=>{throw new Error('FIXTURE_TERMINAL_READY');}});
+ assert.throws(()=>crashing.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/FIXTURE_TERMINAL_READY/);
+ const {importManagedInventoryCritic}=await import('../packages/main/dist/handlers/review-inventory.js');
+ const originalRead=fixture.store.readFindings.bind(fixture.store);
+ fixture.store.readFindings=(id)=>{const current=originalRead(id);return {...current,findings:[...current.findings,...current.findings]};};
+ try {assert.throws(()=>importManagedInventoryCritic(ctx,{runId:launched.run.runId,receiptId:receipt.receiptId}),/own finding index not uniquely imported/);}
+ finally {fixture.store.readFindings=originalRead;}
+ assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0);
+ assert.match(importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/Completeness critic: complete/);
+ console.log('MANAGED_INVENTORY_CRITIC_INDEX_AMBIGUITY_GREEN');
+} else if(['missing-disposition','own-id'].includes(scenario)) {
+ for(let retry=0;retry<2;retry++) {
+  assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),scenario==='own-id'?/own findings require proposalFindingIndex/:/DISPOSITION_INCOMPLETE/);
+  assert.equal(fixture.store.readFindings(storyId).findings.length,1);
+  assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0);
+  assert.equal(fixture.store.readProcessEvents(storyId).filter(event=>event.command==='managed_review_evidence_import'&&event.managedReceiptId===receipt.receiptId).length,1,'Deterministic critic refusal preserves exactly one terminal event');
+ }
+ console.log('MANAGED_INVENTORY_CRITIC_TERMINAL_BOOKKEEPING_GREEN '+scenario);
+} else if(scenario==='wrong-wave'||scenario==='drift'||scenario==='committed-drift') {
  assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),scenario==='wrong-wave'?/purpose or wave/:/moved|changed|drift|stale|live/);
  assert.equal(fixture.store.readFindings(storyId).findings.length,0);
  assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0);
@@ -174,17 +205,36 @@ if(scenario==='crash') {
  assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0,'Drift retry cannot publish critic receipt');
  writeFileSync(subjectPath,originalSubject);
 }
+if(scenario==='pass') {
+ assert.match(git(worktree,['status','--porcelain','--untracked-files=all']),/review-inventory-epochs.json/,'Positive import retains legitimate pending inventory metadata');
+ const childProcess=(await import('node:child_process')).default;
+ const {syncBuiltinESMExports}=await import('node:module');
+ const originalExec=childProcess.execFileSync;
+ childProcess.execFileSync=(command,args,...rest)=>{if(command==='git'&&args[0]==='status')throw new Error('FIXTURE_GIT_STATUS_UNAVAILABLE');return originalExec(command,args,...rest);};
+ syncBuiltinESMExports();
+ try {assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/material status-unavailable: FIXTURE_GIT_STATUS_UNAVAILABLE/);}
+ finally {childProcess.execFileSync=originalExec;syncBuiltinESMExports();}
+ assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0);
+}
 const result=importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId});
 assert.match(result,/Completeness critic: complete/);
 const records=fixture.store.readReviewInventoryEpochs(storyId);
 assert.equal(records.criticReceipts.length,1);
 const finding=fixture.store.readFindings(storyId).findings.find(row=>row.reviewRunId===reviewRunId);
 if(scenario==='pass') assert.equal(records.criticReceipts[0].findingDispositions.length,0);
-else {assert(finding);assert.equal(records.criticReceipts[0].findingDispositions[0].findingId,finding.id);}
+else {assert(finding);assert(records.criticReceipts[0].findingDispositions.some(row=>row.findingId===finding.id));}
 const bytes=JSON.stringify(records.criticReceipts[0]);
 assert.match(importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/already imported/);
 assert.equal(JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts[0]),bytes,'Retry preserves exact authenticated critic receipt');
-assert.equal(fixture.store.readFindings(storyId).findings.length,scenario==='pass'?0:1);
+assert.equal(fixture.store.readFindings(storyId).findings.length,baselineFindings.length+(scenario==='pass'?0:proposalFindings.length));
+if(scenario==='duplicate') {
+ const own=fixture.store.readFindings(storyId).findings;
+ const canonical=own.find(f=>f.managedEvidenceBinding?.proposalFindingIndex===0);
+ const duplicate=own.find(f=>f.managedEvidenceBinding?.proposalFindingIndex===1);
+ assert.equal(records.criticReceipts[0].findingDispositions.find(row=>row.findingId===duplicate.id).canonicalFindingId,canonical.id);
+}
+if(scenario==='existing-id') assert(records.criticReceipts[0].findingDispositions.some(row=>row.findingId===baselineFindings[0].id));
+if(scenario==='not-verified') assert.equal(records.criticReceipts[0].findingDispositions[0].disposition,'not_verified');
 console.log('MANAGED_INVENTORY_CRITIC_AUTHENTICATED_IMPORT_GREEN '+scenario);
 }
 } finally {process.chdir(oldCwd);rmSync(primary,{recursive:true,force:true});}

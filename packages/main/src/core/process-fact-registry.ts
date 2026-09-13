@@ -1746,6 +1746,19 @@ export const PROCESS_FACT_REVIEWER_LANES = PROCESS_FACT_REVIEWER_LANE_DEFINITION
 
 export const PROCESS_FACT_ARTIFACTS = [
   {
+    name: 'artifact:managed-inventory-critic-receipt',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'schema-contract'],
+    level: 'L4',
+    producer: 'handlers/managed-review-evidence.managed_review_evidence_import',
+    producerSourceRefs: ['packages/main/src/handlers/managed-review-evidence.ts', 'packages/main/src/handlers/review-inventory.ts'],
+    consumerGate: 'review_inventory_finalize current-wave independent completeness critic gate',
+    artifact: {name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
+      producerCommand: 'managed_review_evidence_import',
+      signature: 'Authenticated managed receipt and sealed dispositions feed the shared signed critic writer'},
+    rationale: 'The managed importer produces a critic receipt in addition to its existing evidence binding; native producer authority remains separate.',
+  },
+  {
     name: 'artifact:.proof-or-stop/capability-releases.jsonl',
     kind: 'artifact',
     semantics: ['artifact', 'schema-contract', 'normalization-policy'],
