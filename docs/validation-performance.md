@@ -434,9 +434,12 @@ under `scripts/lab/u09-paired-fault` measure bounded functional detection and
 command selection, not population noninferiority or external LLM review quality.
 
 The selector's command-set identity is independently rebuilt from the current
-execution inventory. Its snapshot identity is independently rebuilt from the
-current Story id, immutable base/head and signed change-manifest digest. A
-caller cannot make either value authoritative merely by re-signing a
+execution inventory. Before launch, its snapshot identity is independently rebuilt
+from Git using the current Story id, immutable base/head and change-manifest digest.
+Stored TEST/DONE admission re-derives that snapshot from the signed manifest and
+independently recomputes the dependency-graph digest from the immutable base/head;
+it does not claim a second Git rebuild of the change manifest. A caller cannot make
+the command inventory or dependency graph authoritative merely by re-signing a
 self-consistent selector object. Graph construction and traversal use bounded
 process caches for immutable revisions and commit pairs plus the catalog: the
 dual-revision cache retains at most eight entries and the full source-tree cache

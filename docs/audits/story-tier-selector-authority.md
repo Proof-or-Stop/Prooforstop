@@ -512,6 +512,22 @@ TEST/DONE admission, 30-class mutation, process-fact and static-edge/boundary
 checks pass on the repair tree. A new committed GREEN and independent audit are
 still required before integration.
 
+## Nineteenth Claude audit and remediation
+
+The exact repair-head audit of `daf848c898` returned `fail` under run
+`7c340897-e13f-46ef-bd4e-41da92999669` after 861,038 ms. Claude found no
+selector, executor or consumer authority bypass and retained three low-severity
+evidence/documentation defects. No failed candidate was integrated:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A19-F1 proof-digest test was confounded | The test changed the impact index and its digest while claiming to isolate exclusion-proof binding | The paired decision now holds the impact index, command set, snapshot, tier selections and command input declaration constant; only the proof-bound changed path differs, and the selection digest must change |
+| A19-F2 snapshot prose overstated stored admission | The document described both pre-launch and stored TEST/DONE admission as independently rebuilding the Git change manifest | The document now distinguishes the pre-launch Git rebuild from stored admission, which re-derives the signed snapshot and independently rebuilds the immutable-revision dependency graph |
+| A19-F3 static exception diff contained encoding noise | A registry refresh re-serialized unrelated escaped Unicode excerpts as literal characters | The registry is mechanically normalized back to its established ASCII `\\uXXXX` representation, leaving only the validation-authority dependency, line and digest updates in the diff |
+
+Fresh planner, static-edge and formal Lab GREEN evidence is required on the
+committed repair before another independent audit.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,

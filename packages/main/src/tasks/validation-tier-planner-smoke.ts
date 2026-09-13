@@ -2468,23 +2468,23 @@ testCase('the production catalog derives the canonical impact index and automati
   });
   const originalProof = fastDecision.exclusionProofs.find((proof) => proof.commandId === 'docs-contract');
   assert.ok(originalProof, 'story-fast must carry a positive exclusion proof for the wider docs-contract row');
-  const proofChangedIndex = {
-    ...impactIndex,
-    entries: impactIndex.entries.map((entry) => entry.commandId === 'docs-contract'
-      ? { ...entry, inputPatterns: ['docs/**', 'requirements/**'] }
-      : entry),
-  };
   const proofChanged = selectValidationTiers({
     storyId: 'B-docs-proof', requestedTier: 'story-fast', universeCommandIds: catalog.map((entry) => entry.id),
-    changedPaths: ['docs/guide.md'], pinnedCommandIds: [], forceFullReasons: [], commandSetDigest,
-    snapshotDigest: 'snapshot-v2', impactIndex: proofChangedIndex,
+    changedPaths: ['docs/other.md'], pinnedCommandIds: [], forceFullReasons: [], commandSetDigest,
+    snapshotDigest: 'snapshot-v2', impactIndex,
   });
   const changedProof = proofChanged.exclusionProofs.find((proof) => proof.commandId === 'docs-contract');
-  assert.ok(changedProof, 'mutated story-fast decision must retain the proof-bearing omitted row');
-  assert.notDeepEqual(changedProof.commandInputPatterns, originalProof.commandInputPatterns,
-    'the positive exclusion proof must bind the changed command input patterns');
+  assert.ok(changedProof, 'the second story-fast decision must retain the proof-bearing omitted row');
+  assert.equal(proofChanged.impactIndexDigest, fastDecision.impactIndexDigest,
+    'the exclusion-proof witness must hold the canonical impact index byte-identical');
+  assert.deepEqual(proofChanged.tierSelections, fastDecision.tierSelections,
+    'the exclusion-proof witness must not change any tier membership');
+  assert.deepEqual(changedProof.commandInputPatterns, originalProof.commandInputPatterns,
+    'the exclusion-proof witness must hold the command input declaration constant');
+  assert.notDeepEqual(changedProof.changedPaths, originalProof.changedPaths,
+    'only the proof-bound Story path must change between the two decisions');
   assert.notEqual(proofChanged.selectionDigest, fastDecision.selectionDigest,
-    'changing a positive exclusion proof must change the signed selector decision digest');
+    'changing only a positive exclusion proof path must change the signed selector decision digest');
 });
 
 testCase('automatic selection reaches intermediate when fast is empty but a shared boundary matches', () => {
