@@ -15,6 +15,7 @@ import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js'
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
+import ts from 'typescript';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
 import type { ResourceClaim } from './keyed-scheduler.js';
@@ -33,6 +34,7 @@ import {
 import {
   buildValidationImpactIndexFromCatalog,
   selectAutomaticValidationTier,
+  VALIDATION_TIERS,
   type AutomaticValidationTierSelectionBinding,
   type ValidationTier,
 } from './validation-tier-planner.js';
@@ -516,12 +518,19 @@ interface GraphData {
 const graphTreeCache = new Map<string, Map<string, string>>();
 function parseImports(source: string): string[] {
   const output: string[] = [];
-  const patterns = [
-    /(?:import|export)\s+(?:[^'";]+?\s+from\s+)?['"]([^'"]+)['"]/g,
-    /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-    /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-  ];
-  for (const pattern of patterns) for (const match of source.matchAll(pattern)) if (match[1]) output.push(match[1]);
+  const file = ts.createSourceFile('dependency-graph.ts', source, ts.ScriptTarget.Latest, true);
+  const add = (node: ts.Expression | undefined) => {
+    if (node && ts.isStringLiteralLike(node)) output.push(node.text);
+  };
+  const walk = (node: ts.Node) => {
+    if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier) add(node.moduleSpecifier);
+    else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) add(node.moduleReference.expression);
+    else if (ts.isCallExpression(node)
+      && (node.expression.kind === ts.SyntaxKind.ImportKeyword
+        || (ts.isIdentifier(node.expression) && node.expression.text === 'require'))) add(node.arguments[0]);
+    ts.forEachChild(node, walk);
+  };
+  walk(file);
   return output;
 }
 function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
@@ -537,7 +546,8 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
         const separator = row.indexOf(' ');
         return separator > 0 ? { oid: row.slice(0, separator), path: normalPath(row.slice(separator + 1)) } : undefined;
       }).filter((row): row is { oid: string; path: string } => Boolean(row))
-        .filter(row => /\.(?:c?js|mjs|tsx?|jsx?|json)$/.test(row.path));
+        .filter(row => /\.(?:[cm]?jsx?|[cm]?tsx?|json)$/.test(row.path))
+        .filter(row => !isMaterialExcludedPath(row.path, gitCwd));
       tree = new Map<string, string>();
       if (rows.length) {
         const batchInput = Buffer.from(rows.map(row => `${row.oid}\n`).join(''));
@@ -565,6 +575,12 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
     for (const path of allPaths) paths.add(path);
     for (const path of allPaths) {
       const deps = new Set<string>();
+      // JSON files may be dependency targets, but arbitrary stored strings are
+      // not JavaScript import syntax and must never poison graph availability.
+      if (path.endsWith('.json')) {
+        imports.set(path, deps);
+        continue;
+      }
       for (const specifier of parseImports(tree.get(path) || '')) {
         if (specifier.startsWith('.')) {
           const base = normalPath(posix.normalize(posix.join(posix.dirname(path), specifier)));
@@ -573,17 +589,27 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
           // the literal specifier and its extension-stripped source forms so
           // reverse dependencies are not silently lost across transpilation.
           const sourceBase = base.replace(/\.(?:c|m)?js$/, '');
+          const sourceTreeBase = sourceBase.replace('/dist/', '/src/');
           const candidates = [
-            base, base + '.ts', base + '.tsx', base + '.js', base + '.mjs', base + '/index.ts', base + '/index.js',
-            sourceBase, sourceBase + '.ts', sourceBase + '.tsx', sourceBase + '.js', sourceBase + '.mjs', sourceBase + '/index.ts', sourceBase + '/index.js',
+            base, base + '.ts', base + '.tsx', base + '.mts', base + '.cts', base + '.js', base + '.mjs', base + '.cjs',
+            base + '/index.ts', base + '/index.tsx', base + '/index.mts', base + '/index.cts', base + '/index.js', base + '/index.mjs', base + '/index.cjs',
+            sourceBase, sourceBase + '.ts', sourceBase + '.tsx', sourceBase + '.mts', sourceBase + '.cts', sourceBase + '.js', sourceBase + '.mjs', sourceBase + '.cjs',
+            sourceBase + '/index.ts', sourceBase + '/index.tsx', sourceBase + '/index.mts', sourceBase + '/index.cts', sourceBase + '/index.js', sourceBase + '/index.mjs', sourceBase + '/index.cjs',
+            sourceTreeBase + '.ts', sourceTreeBase + '.tsx', sourceTreeBase + '.mts', sourceTreeBase + '.cts', sourceTreeBase + '/index.ts', sourceTreeBase + '/index.tsx',
           ];
           const resolved = candidates.find(candidate => paths.has(candidate));
           if (resolved) deps.add(resolved);
-          else resolutionFailures.push(`unresolved-relative-import:${path}:${specifier}`);
+          else if (authority.members.has(path)
+            && (!/\.[a-z0-9]+(?:[?#].*)?$/i.test(specifier)
+            || /\.(?:[cm]?jsx?|[cm]?tsx?|json)(?:[?#].*)?$/i.test(specifier))) {
+            resolutionFailures.push(`unresolved-relative-import:${path}:${specifier}`);
+          }
         } else if (specifier.startsWith('packages/')) {
           const normalized = normalPath(specifier);
           if (paths.has(normalized)) deps.add(normalized);
-          else resolutionFailures.push(`unresolved-package-import:${path}:${specifier}`);
+          // Repository aliases and package exports are not relative module
+          // claims. Keep a positive edge when the tracked path is exact, but
+          // do not make an unresolved alias poison the entire graph.
         }
       }
       imports.set(path, deps);
@@ -1119,6 +1145,8 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
   return manifest;
 }
 export function verifyValidationSelectionManifest(manifest: ValidationSelectionManifest, current?: Partial<Pick<ValidationSelectionManifest, 'storyId' | 'head' | 'baseHead'>>): boolean {
+  try {
+  if (!manifest || typeof manifest !== 'object' || !Array.isArray(manifest.rows)) return false;
   if (manifest.schema !== VALIDATION_SELECTION_SCHEMA || !verifyPayload(withoutSignature(manifest), manifest.signature)) return false;
   if (current && ((current.storyId !== undefined && current.storyId !== manifest.storyId) || (current.head !== undefined && current.head !== manifest.head) || (current.baseHead !== undefined && current.baseHead !== manifest.baseHead))) return false;
   if (!Array.isArray(manifest.singletonContributions)) return false;
@@ -1151,6 +1179,17 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
       && manifest.tierSelections['repository-full']
       && stableDigest(manifest.tierSelections['repository-full']) === stableDigest(commandIds));
   if (manifest.tierSelections) {
+    if (!VALIDATION_TIERS.every((tier) => Array.isArray(manifest.tierSelections?.[tier])
+      && manifest.tierSelections[tier].every((id) => typeof id === 'string'))
+      || !manifest.effectiveTier
+      || !(VALIDATION_TIERS as readonly string[]).includes(manifest.effectiveTier)
+      || !Array.isArray(manifest.tierSelections[manifest.effectiveTier])) return false;
+    if (!Array.isArray(selectorBinding?.input?.universeCommandIds)
+      || !selectorBinding.input.universeCommandIds.every((id) => typeof id === 'string')
+      || !Array.isArray(selectorBinding.input.pinnedCommandIds)
+      || !selectorBinding.input.pinnedCommandIds.every((id) => typeof id === 'string')
+      || !Array.isArray(selectorBinding.input.changedPaths)
+      || !selectorBinding.input.changedPaths.every((path) => typeof path === 'string')) return false;
     const fast = new Set(manifest.tierSelections['story-fast']);
     const intermediate = new Set(manifest.tierSelections['story-intermediate']);
     const full = new Set(manifest.tierSelections['repository-full']);
@@ -1171,13 +1210,20 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
     && [...contributedIds].every(id => accountedIds.has(id))
     && tierBindingValid
     && manifest.rows.every(row => row.disposition !== 'unverified');
+  } catch {
+    return false;
+  }
 }
 /** Independently verify every positive-proof omission in a tiered manifest. */
 export function verifyValidationTierExclusions(manifest: ValidationSelectionManifest): boolean {
+  try {
   const binding = manifest.selectorBinding;
   if (!binding || !manifest.tierSelections || !manifest.effectiveTier) {
     return manifest.rows.every((row) => row.disposition !== 'excluded');
   }
+  if (!(VALIDATION_TIERS as readonly string[]).includes(manifest.effectiveTier)
+    || !Array.isArray(manifest.tierSelections[manifest.effectiveTier])
+    || !Array.isArray(binding.decision?.exclusionProofs)) return false;
   const effective = new Set(manifest.tierSelections[manifest.effectiveTier]);
   return manifest.rows.every((row) => {
     if (row.disposition !== 'excluded') return true;
@@ -1186,6 +1232,9 @@ export function verifyValidationTierExclusions(manifest: ValidationSelectionMani
       && proof!.snapshotDigest === binding.input.snapshotDigest
       && proof!.indexDigest === binding.decision.impactIndexDigest;
   });
+  } catch {
+    return false;
+  }
 }
 export const buildSelectionManifest = buildDynamicValidationPlan;
 export const verifySelectionManifest = verifyValidationSelectionManifest;

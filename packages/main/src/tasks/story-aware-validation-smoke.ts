@@ -74,15 +74,16 @@ try {
   const git = (...args: string[]) => execFileSync('git', args, {
     cwd: graphFixtureRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
   }).trim();
-  mkdirSync(join(graphFixtureRoot, 'packages/main/src'), { recursive: true });
+  mkdirSync(join(graphFixtureRoot, 'packages/main/src/core'), { recursive: true });
   git('init', '-q', '-b', 'main');
   git('config', 'user.name', 'Graph Fixture');
   git('config', 'user.email', 'graph-fixture@example.invalid');
-  writeFileSync(join(graphFixtureRoot, 'packages/main/src/entry.ts'), 'export const value = 1;\n');
+  const authorityFixture = join(graphFixtureRoot, 'packages/main/src/core/process-fact-registry.ts');
+  writeFileSync(authorityFixture, 'export const value = 1;\n');
   git('add', '.');
   git('commit', '-qm', 'base');
   const baseHead = git('rev-parse', 'HEAD');
-  writeFileSync(join(graphFixtureRoot, 'packages/main/src/entry.ts'),
+  writeFileSync(authorityFixture,
     "import './missing.js';\nexport const value = 2;\n");
   git('add', '.');
   git('commit', '-qm', 'unresolved import');
@@ -223,6 +224,10 @@ const completeTierGraph = {
   baseHead: 'base', head: 'head', baseGraphDigest: 'base-graph', headGraphDigest: 'head-graph', graphUnknown: false,
   resolutionFailures: [], authorityReasons: () => [], commandsAffectedBy: () => ['local'],
 };
+const completeNoImpactGraph = {
+  ...completeTierGraph,
+  commandsAffectedBy: () => [],
+};
 const tierBoundSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes, closures,
   baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
@@ -265,8 +270,10 @@ const wholeClosures = new Map(wholeRepositoryCatalog.map((entry) => [entry.id, c
 const wholePlan = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory: wholeRepositoryInventory,
   catalog: wholeRepositoryCatalog, changes, closures: wholeClosures, baselineEpochId: 'epoch',
-  buildProofDigest: 'build', mode: 'observe', tierSelection: wholeBinding,
+  buildProofDigest: 'build', mode: 'observe', graph: completeNoImpactGraph, tierSelection: wholeBinding,
 });
+assert.equal(wholePlan.fullEscalated, false,
+  'whole-repository floor fixture must exercise the row policy without blanket escalation');
 assert.equal(wholePlan.rows.find((row) => row.commandId === 'whole-scan')?.disposition, 'execute',
   'whole-repository closure must never become a positive-proof exclusion');
 
@@ -286,11 +293,29 @@ const fullOnlyClosures = new Map(fullOnlyCatalog.map((entry) => [entry.id, creat
   commandId: entry.id, baseHead: 'base', inventoryDigest: fullOnlyInventory.digest,
   catalogDigest: stableDigest(fullOnlyCatalog), staticPaths: entry.inputRoots,
 })]));
+const fullOnlySeed = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory: fullOnlyInventory,
+  catalog: fullOnlyCatalog, changes, closures: fullOnlyClosures, baselineEpochId: 'epoch',
+  buildProofDigest: 'build', mode: 'observe', graph: completeNoImpactGraph, tierSelection: fullOnlyBinding,
+});
+const fullOnlyRow = fullOnlySeed.rows.find((row) => row.commandId === 'full-sentinel')!;
+const fullOnlyReceipt = createValidationCommandReceipt({
+  id: 'full-only-baseline', commandId: 'full-sentinel', commandIdentityDigest: 'full-sentinel',
+  inputDigest: fullOnlyRow.inputDigest, closureCertificateDigest: fullOnlyClosures.get('full-sentinel')!.signature,
+  catalogDigest: stableDigest(fullOnlyCatalog), inventoryDigest: fullOnlyInventory.digest,
+  runnerDigest: '', toolchainDigest: '', buildProofDigest: 'build', sourceHead: 'head', sourceBaseHead: 'base',
+  canonicalBaselineEpochId: 'epoch', producedBy: 'canonical-full-baseline', cleanTreeDigest: 'clean',
+  executionEnvironmentDigest: 'environment', result: 'PASS', exitCode: 0, outputDigest: 'output', durationMs: 1,
+  createdAt: new Date().toISOString(), revocationLedgerDigest: stableDigest({}),
+});
 const fullOnlyPlan = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory: fullOnlyInventory,
   catalog: fullOnlyCatalog, changes, closures: fullOnlyClosures, baselineEpochId: 'epoch',
-  buildProofDigest: 'build', mode: 'observe', tierSelection: fullOnlyBinding,
+  buildProofDigest: 'build', mode: 'observe', graph: completeNoImpactGraph, tierSelection: fullOnlyBinding,
+  receipts: [fullOnlyReceipt],
 });
+assert.equal(fullOnlyPlan.fullEscalated, false,
+  'full-only floor fixture must exercise the row policy without blanket escalation');
 assert.notEqual(fullOnlyPlan.rows.find((row) => row.commandId === 'full-sentinel')?.disposition, 'excluded',
   'full-only rows require canonical-baseline receipt reuse or execution');
 assert.throws(

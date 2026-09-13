@@ -62,7 +62,7 @@ they are not relabelled as Lab-owned evidence or as post-bump receipts.
 | Command | Result | What it proves |
 | --- | --- | --- |
 | `npm --prefix packages/main run build` | PASS | TypeScript implementation and generated runtime build compile |
-| `npm run test:validation-tier-planner` | PASS; CHK-004 30 cases, CHK-005 20 cases | Dynamic tier sets, automatic docs promotion, fallback, CLI reporting, and subset invariants |
+| `npm run test:validation-tier-planner` | PASS; CHK-004 32 cases, CHK-005 21 cases | Dynamic tier sets, automatic docs promotion, fallback, CLI reporting, and subset invariants |
 | `npm --prefix packages/main run test:story-aware-validation` | PASS | Runtime manifest consumes and binds the canonical selector decision |
 | `npm --prefix packages/main run test:story-aware-validation-mutation` | PASS; 30 replay classes and FI-1..FI-5 | Digest, catalog, receipt, closure, selection, scheduler, and shard mutations fail safely |
 | `npm --prefix packages/main run test:dynamic-validation-selection` | `complete ledger PASS` | Every inventory member is accounted for |
@@ -170,7 +170,7 @@ directory; none of its findings was discarded.
 
 | Finding | Before | Repair / executable evidence |
 | --- | --- | --- |
-| A3-F1 selector context binding | A self-consistent caller binding could describe a different catalog or omit a changed path | The binding now includes the executor catalog digest; prepare and stored-evidence admission rebuild the current catalog/index, compare the exact command universe, and require actual changed and old paths to be covered |
+| A3-F1 selector context binding | A self-consistent caller binding could describe a different catalog or omit a changed path | The binding includes the executor catalog digest; prepare compares the live graph-augmented index, catalog, exact command universe and changed paths, while stored admission rechecks the signed base/head dependency-graph digest plus that same current catalog/universe/path contract without fabricating a scope-free Story manifest |
 | A3-F2 durable exclusion proof | Signed manifests kept tier arrays but discarded the proofs behind excluded commands | The complete selector binding, including snapshot/index-bound exclusion proofs, is now signed; manifest verification reconstructs the pure selector and stored TEST/DONE admission rechecks it against the current catalog/change set |
 | A3-F3 executor-only widening | A wave-0, never-reuse, finding-required, or otherwise forced row outside the tier invalidated the whole manifest | Only omissions are constrained: every excluded row must be outside the effective tier with a current proof; extra executed rows safely widen the plan. A wave-0 command outside fast is an explicit positive control |
 | A3-F4 full escalation accounting | Escalation could retain reuse while hard-zeroing coverage gaps on the stale claim that every command was selected | Full escalation again selects every catalog row for execution; the regression asserts the full disposition and escalation reason |
@@ -233,7 +233,7 @@ repaired on the Lab branch:
 | A5-F5 DONE evidence-read exception | `readTestEvidence` could throw before the rendered DONE checklist existed | Evidence read and admissibility are inside one guard; injected `readTestEvidence` failure appears as a blocking row in the complete rendered checklist |
 | A5-F6 shared-execution behavior | The observe/shadow predicate change was implicit and untested | A named helper pins off/observe/shadow/enforce behavior and explicit opt-in; DEV/REVIEW consequences are documented |
 | A5-F7 catalog digest domain | Manifest and selector binding used separate canonical-digest entry points | Production baseline, preparation, receipt admission, input digest and manifest binding all use `digestCanonicalJson(catalog)` |
-| A5-F8 malformed selector input | Hostile non-array impact entries could make a boolean verifier throw | Array guards force the planner's safe fallback and authority evaluation converts verifier exceptions to `selection-manifest-invalid` |
+| A5-F8 malformed selector input | Hostile non-array impact entries could make a boolean verifier throw | Tier arrays, tier names, universe IDs, pins and changed paths are type-checked and the complete verifier catches malformed signed shapes, returning `false`; authority evaluation additionally converts refusal to `selection-manifest-invalid` |
 | A5-F9 dependency seam | Sorted call arities lost the identity of the authorized seam argument | AST regression separately pins one public one-argument call and three internal calls whose second argument is exactly the `dependencies` identifier |
 | A5-F10 wrapper markers | Public modes trusted unconditional marker strings printed at the mutation-smoke tail | Tail markers were removed. Every public mode requires the complete core and 30-class mutation smokes; TEST modes additionally run the real signed TEST/DONE fixture, and the adapter emits the requested marker only after those proofs pass |
 
@@ -263,6 +263,28 @@ version bump, then reported seven remaining integration/evidence issues:
 A new repair commit, pinned GREEN and exact post-bump independent audit are still
 required. Supporting checks remain non-authoritative until they are rerun on the
 new repair head; no failed candidate is described as released.
+
+## Seventh Claude audit and remediation
+
+The Lab-finish audit of candidate `d6b0c374f1` returned `fail` under run
+`20144da9-914b-460d-bb21-dcc402cb50a1` after 587,456 ms. Finish stopped before
+main integration and the candidate was reopened. The nine reported findings are
+addressed as follows:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A7-F1 vacuous policy-floor tests | Whole-repository and full-only assertions passed only because a missing graph escalated every row | Both fixtures supply a complete no-impact graph and assert `fullEscalated=false` before checking the policy disposition; the full-only fixture supplies an exact signed baseline receipt |
+| A7-F2 stored graph context drift | Admission rebuilt a different scope-free change manifest and could reject a valid PASS | The signed manifest's base/head graph digest is recomputed directly from immutable Git revisions and current catalog, then compared before selector reconstruction; the real gate fixture carries a scope contract across TEST and DONE |
+| A7-F3 evidence counts | The table retained obsolete 30/20 counts | Counts now match the pinned output: CHK-004 32 and CHK-005 21 |
+| A7-F4 narrow Lab GREEN | The immutable original RED/GREEN command covers build plus planner smoke only | The Lab-owned GREEN remains its exact mandatory RED replay; the repair head additionally runs the runtime, mutation, real TEST/DONE and process-fact checks listed in the evidence table, with literal outputs retained in Lab history/release notes rather than mislabeled as the original GREEN |
+| A7-F5 selector reachability | Regex discovery treated JSON, examples, generated imports and aliases as missing edges; whole-catalog risk disabled narrowing | Module discovery now uses the TypeScript AST, excludes runtime artifacts, supports `.mts`/`.cts` and source/dist mapping, and limits missing-edge failure to real authority modules. A real 168-command measurement reports `graphUnknown=false`, zero resolution failures and risk counts 51 local / 50 shared / 2 gate / 65 validation-infra. Authority risk uses participating execute/reuse rows, so any selected non-local row still refuses while unrelated exclusions do not |
+| A7-F6 unintended DONE widening | Every stored PASS inherited the complete generic admissibility evaluator and intent-integrity errors were flattened | DONE invokes the added evaluator only for a dynamic claim or existing Story-owned dynamic artifacts; marker stripping cannot downgrade it, legacy full evidence is not widened, and intent-amendment integrity errors are rethrown |
+| A7-F7 throwing manifest verifier | Unknown tier keys and hostile arrays could escape as `TypeError` | The verifier validates all tier arrays and selector string arrays inside a fail-closed boolean boundary; an unknown-effective-tier mutation proves no throw and `false` |
+| A7-F8 stale verdict guidance | Error text said only canonical evidence was allowed | Guidance now names canonical full or a signed complete dynamic ledger |
+| A7-F9 stale dist / missing Bun | Bun mode could import old `dist`; an explicitly missing Bun binary had no useful fallback | TEST-gate modes build canonically before importing the consumer fixture, and any Bun `ENOENT` uses the same built Node task fallback |
+
+The next candidate still requires a fresh committed-head GREEN and independent
+Claude decision. No failed candidate is described as released.
 
 ## Rollback
 

@@ -1,6 +1,6 @@
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
-import { storedDynamicReceiptIntegrityReasons } from './story-aware-validation.js';
+import { hasStoryAwareValidationArtifacts, storedDynamicReceiptIntegrityReasons } from './story-aware-validation.js';
 import type { HandlerContext } from './context.js';
 import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -81,6 +81,24 @@ export function dynamicValidationCoverageAdmission(
   return dynamicOrigin && !allowDynamicCoverage
     ? { dynamicOrigin, allowed: false, reasonCode: 'dynamic_requires_canonical_full_plan' }
     : { dynamicOrigin, allowed: true };
+}
+
+/**
+ * Decide whether DONE must run the dynamic admission path. The strict evaluator
+ * invoked next requires a valid signature; an unsigned artifact that merely
+ * claims dynamic origin is also routed into the strict evaluator so the claim
+ * can only cause refusal, never bypass verification. Legacy full evidence that
+ * makes no dynamic claim keeps its existing DONE contract.
+ */
+export function requiresDynamicValidationAdmission(ctx: HandlerContext, storyId: string): boolean {
+  const evidence = ctx.store.readTestEvidence(storyId);
+  if (!evidence || evidence.result !== 'PASS') return false;
+  try {
+    const claimedDynamicOrigin = dynamicValidationCoverageAdmission(JSON.parse(evidence.output), true).dynamicOrigin;
+    return claimedDynamicOrigin || hasStoryAwareValidationArtifacts(ctx.root, storyId);
+  } catch {
+    return hasStoryAwareValidationArtifacts(ctx.root, storyId);
+  }
 }
 
 export function assessStoredValidationPassAdmissibility(

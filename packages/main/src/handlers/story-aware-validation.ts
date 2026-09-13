@@ -29,6 +29,7 @@ import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { buildDualRevisionImpactGraph } from '../core/dual-revision-impact-graph.js';
 import { buildStoryChangeManifest } from '../core/story-change-resolver.js';
 import {
+  buildDualRevisionImpactGraph as buildCanonicalDualRevisionImpactGraph,
   buildDynamicValidationPlan,
   augmentValidationCatalogWithGraphInputs,
   buildRevocationLedger,
@@ -507,29 +508,20 @@ export function storedDynamicReceiptIntegrityReasons(
     const inventory = discoverValidationInventory(projectRoot);
     const catalog = compileValidationCatalog(inventory);
     if (manifest.selectorBinding) try {
-      const currentChangeManifest = buildStoryChangeManifest({
-        storyId,
-        gitCwd,
-        baseHead: manifest.baseHead,
-        head: manifest.head,
-        changedFiles: manifest.changedFiles,
-      });
       let graph: DualRevisionImpactGraph | undefined;
-      try {
+      if (manifest.dependencyGraphDigest) {
         execFileSync('git', ['cat-file', '-e', `${manifest.baseHead}^{commit}`], { cwd: gitCwd, stdio: 'ignore' });
         execFileSync('git', ['cat-file', '-e', `${manifest.head}^{commit}`], { cwd: gitCwd, stdio: 'ignore' });
-        graph = buildDualRevisionImpactGraph({
+        graph = buildCanonicalDualRevisionImpactGraph({
           gitCwd,
-          storyId,
           baseHead: manifest.baseHead,
           head: manifest.head,
           catalog,
-          changeManifest: currentChangeManifest,
-          changedFiles: manifest.changedFiles,
         });
-      } catch {
-        // Invalid legacy/fabricated refs cannot add positive graph inputs. The
-        // binding check below still has to match the unaugmented fail-closed catalog.
+        const currentGraphDigest = stableDigest({ base: graph.baseGraphDigest, head: graph.headGraphDigest });
+        if (currentGraphDigest !== manifest.dependencyGraphDigest) {
+          return ['dynamic_selector_context_changed'];
+        }
       }
       assertAutomaticTierSelectionBindingCurrent(manifest.selectorBinding, {
         catalog,
@@ -588,6 +580,12 @@ export interface DynamicShardArtifact {
 function artifactDir(projectRoot: string, storyId: string): string {
   const safe = storyId.replace(/[^A-Za-z0-9._-]/g, '_');
   return join(projectRoot, PROOF_OR_STOP_STATE_DIR, 'runtime', 'dynamic-validation', safe);
+}
+
+/** Read-only provenance hint: presence can require stricter checks, never grant authority. */
+export function hasStoryAwareValidationArtifacts(projectRoot: string, storyId: string): boolean {
+  const dir = artifactDir(projectRoot, storyId);
+  return existsSync(join(dir, 'receipts.json')) || existsSync(join(dir, 'revocation-ledger.json'));
 }
 
 /** Whole-PASS reuse must not turn an invalid existing ledger into an empty ledger. */
@@ -1286,7 +1284,10 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     mode: args.mode || 'observe',
     // A non-local row cannot disappear from the Story risk decision merely
     // because the selector produced an exclusion proof for its paths.
-    riskTier: final.catalog.every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
+    riskTier: final.catalog
+      .filter((entry) => final.manifest.rows.some((row) => row.commandId === entry.id
+        && (row.disposition === 'execute' || row.disposition === 'reuse')))
+      .every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
     manifest: final.manifest,
     prerequisites: {
       // The gate-owned evidence provider below computes every prerequisite from

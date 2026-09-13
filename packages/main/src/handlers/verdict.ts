@@ -138,7 +138,7 @@ async function submitWithDerivedBindings(ctx: HandlerContext, args: SubmitArgs) 
   }, () => {
     const admissibility = assessStoredValidationPassAdmissibility(ctx, identity.storyId, { allowDynamicCoverage: true });
     if (!admissibility.ok || !admissibility.evidence || !admissibility.headHash || !admissibility.materialHash || !admissibility.storyFilesHash) {
-      throw new Error(`autopilot_review_submit --deriveBindings requires canonical current PASS validation evidence: ${admissibility.reasons.join('; ')}`);
+      throw new Error(`autopilot_review_submit --deriveBindings requires current admissible PASS validation evidence (canonical full plan or a signed complete dynamic ledger): ${admissibility.reasons.join('; ')}`);
     }
     const materialDigest = admissibility.materialHash;
     const storyFilesHash = admissibility.storyFilesHash;

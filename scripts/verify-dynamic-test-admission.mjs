@@ -43,6 +43,12 @@ async function runCase(phase, full) {
         const now = new Date().toISOString();
         store.writeStory(storyId, { storyId, name: 'authority-fixture', title: 'Authority fixture', description: 'Isolated dynamic validation boundary test', type: 'bug', phase, priority: 'low', createdAt: now, startedAt: now, endedAt: null, events: [] });
         store.writeChecklist(storyId, { items: [] });
+        store.writeScopeContract(storyId, {
+          storyId, mode: 'enforce', allowedModify: ['packages/main/src/local-input.ts'],
+          allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
+          pathCanonicalizerVersion: 'repo-relative-v1', pathCanonicalizationMode: 'enforce',
+          createdAt: now, updatedAt: now,
+        });
         writeFileSync(join(store.storyDirPath(storyId), 'closeout-write-receipts.jsonl'), '');
         git('add', '.');
         git('commit', '-qm', 'fixture');
@@ -90,6 +96,7 @@ async function runCase(phase, full) {
         assert.equal(canonicalConsumer.ok,false);
         assert.ok(canonicalConsumer.reasonCodes.includes('dynamic_requires_canonical_full_plan'),JSON.stringify(canonicalConsumer.reasonCodes));
         assert.equal(assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:true}).ok,true);
+        assert.ok(store.readScopeContract(storyId), 'dynamic admission fixture must carry a real Story scope contract');
         // PRE_CERT authorizes one routine execution. A repeat may reuse that
         // signed result only while preserving its dynamic authority and live checks.
         const originalExecutionHead = parsed.dynamicValidation.manifest.head;

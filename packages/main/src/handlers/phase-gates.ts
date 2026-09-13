@@ -61,7 +61,7 @@ import {
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import type { ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
-import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
+import { assessStoredValidationPassAdmissibility, requiresDynamicValidationAdmission } from './validation-pass-admissibility.js';
 export { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 import { assertTestAdmissibleRoutineValidationWindow } from './verifier.js';
 import { PRE_CERT_ROUTINE_PASS_REQUIRED } from '../core/certification-window.js';
@@ -685,7 +685,8 @@ export function runDoneOracleGate(
   let storedValidationAdmissionFailure: DoneCheckRow | undefined;
   try {
     const storedEvidence = store.readTestEvidence(storyId);
-    if (storedEvidence?.result === 'PASS') {
+    if (storedEvidence?.result === 'PASS'
+      && requiresDynamicValidationAdmission({ root, store } as HandlerContext, storyId)) {
       // Authenticate first. Execution-mode markers live inside the signed output
       // and therefore cannot decide whether DONE performs this check.
       const admissibility = assessStoredValidationPassAdmissibility(
@@ -706,6 +707,7 @@ export function runDoneOracleGate(
       }
     }
   } catch (error) {
+    rethrowIntentAmendmentIntegrityError(error);
     storedValidationAdmissionFailure = {
       id: 'stored-validation-admission',
       label: 'Stored routine validation admission',

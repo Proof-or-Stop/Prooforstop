@@ -50,7 +50,7 @@ function runSourceTask(task, taskArgs = []) {
   // emits the same registered task under dist, so an ENOENT launch (status
   // null) falls back to Node over that exact compiled task, never to a second
   // test implementation.
-  if (result.status === null && result.error?.code === 'ENOENT' && !process.env.BUN_BINARY) {
+  if (result.status === null && result.error?.code === 'ENOENT') {
     const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
       cwd: root,
       encoding: 'utf8',
@@ -90,6 +90,15 @@ if (!mutationOutput.includes(`DYNAMIC_VALIDATION_ASSERTION:${mode}:${selector}`)
 // crosses the real TEST/DONE gates. The public selector is emitted by this
 // adapter only after both layers complete, never trusted from a tail marker.
 if (mode === 'test-gate' || mode === 'test-gate-mutations') {
+  const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  if (build.status !== 0) {
+    process.stdout.write(`${build.stdout || ''}${build.stderr || ''}`);
+    throw new Error('dynamic TEST/DONE fixture refused stale dist because the canonical packages/main build failed');
+  }
   await import('./verify-dynamic-test-admission.mjs');
 }
 

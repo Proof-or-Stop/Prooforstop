@@ -1466,7 +1466,7 @@ async function assertDerivedVerdictRefusalWaitsForCapacity():Promise<void> {
  try {
   process.chdir(root);
   const invoke=()=>Promise.resolve(createVerdictHandlers({root,scanRoot:join(root,'packages/main'),store}).autopilot_review_submit({storyId,runId:'refusal-contract',hostId:'fixture',provider:'codex',sessionId:'fixture',decision:'pass',deriveBindings:true,json:true}));
-  const controlStarted=performance.now();await assert.rejects(invoke,/requires canonical current PASS validation evidence/);
+  const controlStarted=performance.now();await assert.rejects(invoke,/requires current admissible PASS validation evidence/);
   const controlMs=performance.now()-controlStarted;
   let ready!:()=>void;const entered=new Promise<void>(resolve=>{ready=resolve;});
   const holderRelease=new Promise<void>(resolve=>{releaseOwner=resolve;});
@@ -1480,7 +1480,7 @@ async function assertDerivedVerdictRefusalWaitsForCapacity():Promise<void> {
   console.log('NATIVE_LOCK_REFUSAL_CONTROL_TIMING '+JSON.stringify({controlMs,queueReadyMs:performance.now()-queuedAt}));
   assert.equal(store.readProcessEvents(storyId).filter(event=>event.type==='host_verdict').length,0);
   releaseOwner();await holder;
-  assert.match(String(await refusal),/requires canonical current PASS validation evidence/);
+  assert.match(String(await refusal),/requires current admissible PASS validation evidence/);
   assert.equal(store.readProcessEvents(storyId).filter(event=>event.type==='host_verdict').length,0);
  } finally {
   releaseOwner?.();

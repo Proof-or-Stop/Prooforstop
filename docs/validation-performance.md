@@ -411,18 +411,25 @@ validator. It also follows their source dependencies in both Git revisions, so
 removing a dependency in HEAD does not erase the baseline authority relationship.
 The graph identity binds authority roots, members, uncertainty and policy version.
 Missing graphs, unavailable source, parse failures and opaque or unresolved
-authority imports force full rather than establish an unaffected result.
+authority imports force full rather than establish an unaffected result. Graph
+discovery parses real TypeScript/JavaScript module syntax, excludes registered
+runtime artifacts, accepts `.mts`/`.cts`, and maps tracked `dist` imports back to
+their source counterparts. JSON contents, asset imports, package aliases and
+example strings are not treated as missing relative module edges.
 
 Runner v8 is a new execution identity. Existing dynamic receipts and canonical
 baselines produced by an older runner are intentionally stale; an in-flight
 Story in TEST must obtain a fresh complete run before dynamic reuse can resume.
 
-This conservative resolver currently treats non-builtin package/alias imports
-in an authority closure as unresolved. Projects with such imports can lose
-incremental eligibility until those resolutions are proven; this change does not
-claim improved speed for those projects. External projects without these
-registered tool-source identities do not have to recreate them. Existing final
-full-validation requirements remain unchanged. The six paired fault witnesses
+The repository measurement on the 168-command inventory produced
+`graphUnknown=false` and zero resolution failures; its catalog contained 51
+local, 50 shared, 2 gate and 65 validation-infrastructure rows. Risk eligibility
+is evaluated over the signed manifest rows that execute or reuse, not every
+unrelated excluded catalog row. A participating non-local row still forces the
+canonical fallback. This is a reachability measurement, not a wall-time or
+false-negative claim. External projects without these registered tool-source
+identities do not have to recreate them. Existing final full-validation
+requirements remain unchanged. The six paired fault witnesses
 under `scripts/lab/u09-paired-fault` measure bounded functional detection and
 command selection, not population noninferiority or external LLM review quality.
 
@@ -527,7 +534,11 @@ and subdirectory cases.
 ## Dynamic PASS consumption
 
 The REVIEW-to-TEST consumer first authenticates the complete stored PASS record
-with its Story-bound signature, before reading its execution mode. Git-backed
+with its Story-bound signature, before reading its execution mode. DONE applies
+this added strict evaluator to dynamic-origin evidence only: a signed dynamic
+claim or existing Story-owned dynamic artifacts trigger it, including when an
+attacker strips the unsigned presentation marker; unrelated legacy full PASS
+records retain their prior DONE contract. Git-backed
 FAIL records are also authenticated, preserving existing command-PASS reuse after
 a verification-coverage-only failure is repaired; non-Git failure reporting stays
 available. Both canonical
@@ -539,7 +550,8 @@ dynamic marker, changing the output, or stripping the signature cannot downgrade
 verification. Older unsigned PASS records require a fresh `validate` run.
 
 The consumer then rechecks dynamic receipt integrity at consumption:
-the signed manifest, its execution HEAD, current baseline/closure bindings,
+the signed manifest, its execution HEAD, current baseline/closure bindings and
+its signed base/head dependency-graph digest,
 current toolchain, each required receipt signature and expiry, and the live signed
 revocation ledger. Missing or malformed runtime records are refused rather than
 recovered as an empty ledger. The normal evidence freshness check first proves

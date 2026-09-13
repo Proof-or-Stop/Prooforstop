@@ -433,6 +433,14 @@ assert.doesNotThrow(() => {
   }));
 }, 'malformed changedPaths must be a boolean refusal, not a verifier exception');
 assert.equal(malformedChangedPathsResult, false);
+let unknownEffectiveTierResult: boolean | undefined;
+assert.doesNotThrow(() => {
+  unknownEffectiveTierResult = verifyValidationSelectionManifest(resign({
+    ...tieredManifest,
+    effectiveTier: 'unknown-tier',
+  }));
+}, 'an unknown effective tier must be a boolean refusal, not a verifier exception');
+assert.equal(unknownEffectiveTierResult, false);
 const prooflessExcludedRows = baseline.rows.map((row, index) => index === 0
   ? { ...row, disposition: 'excluded' as const, reasons: ['forged-proofless-exclusion'] }
   : row);
