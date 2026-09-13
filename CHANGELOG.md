@@ -1,29 +1,5 @@
 # Changelog
 
-## Lab nested-verification-machine-owner - v0.3.360 - 2026-09-13
-
-# Controlled nested verification reservation repair
-
-An admitted verification command can launch an isolated Finding worker whose original OS ancestry disappears. Its nested verification previously queued behind the machine reservation already held for that work, so a real leaf command reached its deadline without launching. The Lab original RED executed this native executor-to-isolated-worker-to-executor path and failed with NESTED_VERIFICATION_MACHINE_OWNER_REQUIRED; a direct leaf setup control succeeded. This is local framework maintenance for the blocked B-e6d9 validation path.
-
-The repair supplies controlled macOS reservation delegation. A read-only, unlinked descriptor 4 bootstrap is checked against the actual admitted owner and its ticket. Descriptor 3 remains available for native attestation or IPC. The issuer retains its private signing key. Actual process identity, ticket resources, immutable enrolled ancestry, signed resource subsets, and original remaining deadlines constrain prepare/register/confirm/cancel. Environment values only locate descriptors and do not authenticate grants. Delegation grants no Story or reviewer authority. Non-macOS execution retains the existing non-delegated path.
-
-Release and cancellation retain exclusion until registered work and its known groups are absent. Recovery from a disappearing registration requires both PID and complete group ESRCH; live or unknown subjects remain refused. An isolated worker that exits without an outcome can stop waiting only after its known group is absent and the outcome has been rechecked. A valid outcome still wins. Failure diagnostics retain bounded snapshots of the callback result and preserve the original thrown error as Error.cause, without invoking accessors or exposing the issuer key. Unknown groups are not signaled merely to make a test pass.
-
-Two bounded efficiency changes preserve these checks. Exhausted descendant grants are visited before their ancestors, avoiding extra retirement passes while retaining every live-work predicate. A fresh PID/PGID/start observation uses one targeted, bounded ps query instead of a system-wide table query followed by a separate start query. It validates the requested PID before spawning and refuses malformed, ambiguous, mismatched or unavailable observations. Ancestry-table queries and later liveness checks remain. The source-only fixture loader also delays loading the same TypeScript compiler until a TS module is needed, using fileURLToPath for actual file-URL resolution. This does not change compiler options or production authentication.
-
-Pre-release checkpoint 3869fb3f65fa61c8a950d7bd4865f2796509f826 passed the original pinned command, node scripts/verify-nested-verification-machine-owner.mjs, on 2026-09-13 at 17:55 UTC. The official Lab command recorded 41.649 seconds; the surrounding command wrapper measured 43.025936833 seconds. These are nested intervals, not additive. All five original native groups and the added actual-function controls passed with the original 60-second outer, 15-second group and 1500-millisecond leaf limits. The exact candidate and post-merge results are produced by the official Finish replays; this earlier checkpoint is not a claim that those later replays already ran.
-
-Focused retirement RED/GREEN preserves pending fences, live registered groups, connected descendants and branching chains. Identity controls exercise the actual function and include one-query enforcement, malformed output, invalid-PID no-spawn, command failure, and a genuinely reaped OS-issued PID. Ten paired parent/owned-child observations had conventional medians of 24.824750 milliseconds before and 3.346521 milliseconds after, with observed identity parity. This measures the observation operation on that host; it is not an idle-host whole-suite guarantee. Previous full-target failures and their original output are retained, including the unsuccessful retirement-only replay. No timeout was raised to obtain GREEN.
-
-Additional historical controls cover resource widening, descriptor loss, copied bootstrap/key refusal, owner loss, registration races, cleanup diagnostics and worker outcomes. Their exact checkpoints and timings remain in the preserved Lab history and external development ledger; they are not presented as fresh executions by the pinned command. Derived identity and static dependency bindings preserve their owning records and are checked against the final merged source before release.
-
-The independent vendor audit, final local-main synchronization, candidate replay, post-merge replay and cleanup remain the responsibility of the official Lab Finish operation. This Lab does not mark B-e6d9 DONE, create formal Story review evidence, authorize a push, or claim arbitrary descriptor-dropping wrappers and process-group escapes are supported. Detailed development history remains in docs/lab/nested-verification-machine-owner.md and the original out-of-tree timing records.
-
-Maintenance provenance: codex/lab-nested-verification-machine-owner, repair 40980f1780f9366d869e3bbaa95a42ec17265b4c.
-Verification command (replayed before integration and on main): `["node","scripts/verify-nested-verification-machine-owner.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab managed-inventory-critic-transport - v0.3.359 - 2026-09-13
 
 # Managed inventory critic transport repair
