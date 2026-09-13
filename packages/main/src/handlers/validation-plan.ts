@@ -217,7 +217,7 @@ export function projectValidationImpactIndexForPlan(
     project?: typeof buildValidationImpactIndexFromCatalog;
   } = {},
 ): { impactIndex?: ValidationImpactIndex; failure?: string } {
-  if (args.configuredImpactIndex) return { impactIndex: args.configuredImpactIndex };
+  // Legacy configured indexes are advisory only; execution owns the catalog.
   if (args.routine.sourceKind !== 'configured') return {};
   try {
     const discover = dependencies.discover ?? discoverValidationInventory;
@@ -911,6 +911,9 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         result,
         unitLabels,
       });
+      if (configuredImpactIndex !== undefined) {
+        report.inventoryWarnings.push('validate.dynamic.impactIndex is deprecated and ignored; command input ownership comes from the production validation catalog.');
+      }
 
       return renderValidationPlanReport(report, { json: request.json, explain: request.explain });
     },

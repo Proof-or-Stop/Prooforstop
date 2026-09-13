@@ -261,8 +261,8 @@ try {
   const ledger = buildRevocationLedger([]);
   const toolchainDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
   writeFileSync(`${storedRoot}/proof-or-stop.config.json`, JSON.stringify({ validate: { commands: [
-    { id: 'stored-unit', label: 'stored-unit', ...replayCommand('stored-unit'), inputRoots: ['packages/main/src/stored.ts'], inputsComplete: true, resources: [] },
-    { id: 'excluded-unit', label: 'excluded-unit', ...replayCommand('excluded-unit'), inputRoots: ['packages/main/src/excluded.ts'], inputsComplete: true, resources: [] },
+    { id: 'stored-unit', label: 'stored-unit', ...replayCommand('stored-unit'), inputRoots: ['packages/main/src/stored.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', resources: [] },
+    { id: 'excluded-unit', label: 'excluded-unit', ...replayCommand('excluded-unit'), inputRoots: ['packages/main/src/excluded.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', resources: [] },
   ] } }));
   const storedInventory = discoverValidationInventory(storedRoot);
   const storedCatalog = compileValidationCatalog(storedInventory);
@@ -413,8 +413,8 @@ try {
   assert.deepEqual(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', noBindingManifest), [],
     'a fully receipted injected-inventory row absent from the config-only catalog must remain admissible when nothing is excluded');
   writeFileSync(`${storedRoot}/proof-or-stop.config.json`, JSON.stringify({ validate: { commands: [
-    { id: 'stored-unit', label: 'stored-unit', ...replayCommand('stored-unit'), inputRoots: ['packages/main/src/stored.ts'], inputsComplete: true, resources: [] },
-    { id: 'excluded-unit', label: 'excluded-unit', ...replayCommand('excluded-unit'), inputRoots: ['packages/main/src/excluded.ts'], inputsComplete: true, resources: [] },
+    { id: 'stored-unit', label: 'stored-unit', ...replayCommand('stored-unit'), inputRoots: ['packages/main/src/stored.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', resources: [] },
+    { id: 'excluded-unit', label: 'excluded-unit', ...replayCommand('excluded-unit'), inputRoots: ['packages/main/src/excluded.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', resources: [] },
   ] } }));
   const bindinglessExcludedBody = {
     ...noBindingRest,

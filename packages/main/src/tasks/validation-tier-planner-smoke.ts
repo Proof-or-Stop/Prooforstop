@@ -3903,8 +3903,8 @@ testCase('the printed counts are derived at runtime, not written into the render
 
 testCase('the real config-to-CLI path renders a narrowed plan with bound exclusion proofs', () => {
   const commands: ValidationCommand[] = [
-    { label: 'build', command: 'npm', args: ['run', 'build'], id: 'build' },
-    { label: 'docs contract', command: 'npm', args: ['run', 'docs'], id: 'docs-contract' },
+    { label: 'build', command: 'npm', args: ['run', 'build'], id: 'build', assurance: 'always', riskTier: 'local', inputRoots: ['src/**'], inputsComplete: true },
+    { label: 'docs contract', command: 'npm', args: ['run', 'docs'], id: 'docs-contract', assurance: 'story-selectable', riskTier: 'shared', inputRoots: ['docs/**'], inputsComplete: true },
   ];
   const commandSetDigest = buildValidationCommandInventory({ commands }).commandSetDigest;
   const impactIndex: ValidationImpactIndex = {

@@ -404,6 +404,16 @@ the seven-member trace is bounded coverage, not a whole-registry trace.
 
 ## Authority changes in dynamic validation
 
+For configured commands, `validation_plan` and the runtime selector both project
+ownership from the production command catalog. The legacy
+`validate.dynamic.impactIndex` option is ignored with an operator warning; it
+cannot replace that ownership map. Selector completeness requires explicit
+command policy and complete declared inputs. Defaulted policy stays partial,
+and execution independently checks catalog ownership before granting authority.
+Runtime graph, receipt and risk checks can still widen execution beyond a
+requested preview tier. The atomic validate-file entrypoint carries no selector
+binding and retains complete-command fallback when enforcing dynamic validation.
+
 Dynamic runner v9 binds the canonical fast/intermediate/full selector decision
 and digest into the signed execution manifest, and upgrades changes to registered gate/schema/verification
 authority sources to full validation, including the full task scope inventory

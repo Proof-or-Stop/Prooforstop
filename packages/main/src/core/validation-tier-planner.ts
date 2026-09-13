@@ -177,7 +177,9 @@ export function validationCatalogEntryRequiresParticipation(entry: ValidationImp
  * Project the production validation catalog into the canonical tier selector's
  * versioned ownership map.  This is the bridge that keeps explanation and
  * execution on one membership authority instead of maintaining a second list.
- * A defaulted or pathless row is deliberately partial and therefore widens.
+ * Completeness requires explicit policy plus declared complete input ownership.
+ * Defaulted policy stays partial here; deriveGateOwnedPrerequisites also checks
+ * explicit catalog ownership independently before granting execution authority.
  */
 export function buildValidationImpactIndexFromCatalog(args: {
   commandSetDigest: string;
@@ -197,7 +199,7 @@ export function buildValidationImpactIndexFromCatalog(args: {
       commandId: entry.id,
       selection,
       inputPatterns,
-      coverage: entry.selectionInputCoverage === 'complete' ? 'complete' : 'partial',
+      coverage: entry.policySource === 'explicit' && entry.selectionInputCoverage === 'complete' ? 'complete' : 'partial',
     };
   });
   return {

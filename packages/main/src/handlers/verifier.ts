@@ -2645,7 +2645,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 deadlineError: args.deadlineError,
                 progress: validationProgressReporter(ctx),
                 ...dynamicInputs,
-                ...(dynamic.manifest.selectorBinding ? { tierSelection: dynamic.manifest.selectorBinding } : {}),
+                // Atomic validate-file has no tier resolver or selector binding.
               });
               dynamicValidation = {
                 mode: dynamicMode,

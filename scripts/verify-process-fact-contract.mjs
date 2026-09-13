@@ -9326,7 +9326,9 @@ function assertStoryAwareDynamicValidationRuntime() {
   for (const token of ['selectValidationTiers', 'selectAutomaticValidationTier', 'buildAutomaticValidationTierSelectionBinding', 'buildValidationImpactIndexFromCatalog', 'command_exclusion_unproven', 'snapshotDigest', 'finalAuthority: false', "selectionInputCoverage === 'complete'"]) {
     assert(tierPlannerText.includes(token), `Story-relevance tier selector must retain fail-closed token ${token}`);
   }
-  assert(tierPlanHandlerText.includes('dynamic?.impactIndex'), 'validation_plan must read the configured versioned impact index');
+  assert(tierPlanHandlerText.includes('catalog: compile(discover(args.projectRoot))') && !tierPlanHandlerText.includes('return { impactIndex: args.configuredImpactIndex }'), 'validation_plan must derive ownership from the execution catalog');
+  assert(tierPlanHandlerText.includes('impactIndex is deprecated and ignored'), 'validation_plan must disclose ignored legacy impact indexes');
+  assert(tierPlannerText.includes("entry.policySource === 'explicit' && entry.selectionInputCoverage === 'complete'"), 'defaulted policy cannot establish complete selector ownership');
   assert(tierPlanHandlerText.includes('selectorDecisionDigest'), 'validation_plan must expose the snapshot-bound selector decision digest');
 }
 

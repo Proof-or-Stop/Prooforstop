@@ -543,6 +543,31 @@ was integrated:
 Fresh real TEST/DONE, static-edge, formal GREEN and independent audit evidence
 are required before integration.
 
+## Twenty-first Claude audit and remediation
+
+Run `a49535ac-9b1d-4bc3-9f42-071960d863e4` audited `f33ad0a4a9` for
+747,243 ms and returned three low Findings, with no observed gate bypass.
+The following repairs address those Findings together:
+
+| Finding | Before | Repair and regression |
+| --- | --- | --- |
+| A21-F1 preview ownership diverged | A configured impactIndex replaced the explain catalog while execution always projected the production catalog | Explain now projects the production catalog and warns that the legacy index is ignored. One Story fixture supplies a deliberately conflicting legacy index and requires exact equality with the runtime binding builder's impact index; the CLI must disclose the ignored option |
+| A21-F2 defaulted policy comment was stronger than the projector | The projector accepted declared complete inputs even with defaulted policy; the explicit-policy check lived only in later authority prerequisites | The projector now consumes policySource and keeps defaulted rows partial. A real catalog fixture with complete declared inputs and defaulted policy requires partial selector coverage; the independent execution prerequisite remains |
+| A21-F3 atomic selector spread was unreachable | The validate-file branch forwarded a selector binding it could never construct | The dead spread is removed and the atomic entrypoint is documented; the existing real validate-file admission fixture pins the absent binding and full fallback |
+
+The stored-admission mutation fixture's narrowing control now declares explicit
+local, Story-selectable policy both when creating and when restoring its catalog.
+Its previous defaulted policy correctly widens under A21-F2; the revised input
+keeps the positive reuse/exclusion control eligible without weakening that rule.
+The planner's separate defaulted-policy negative case pins the refusal boundary.
+
+The two new behavior regressions were committed at `9cb9af779d` before the
+repair. The Lab RED command reported exactly those two assertion failures and
+recorded the target marker `A21 explain and runtime must use the same catalog
+ownership`. Finish will build and verify the versioned candidate and obtain its
+independent audit before local integration. These records do not mark B-0aa0
+DONE or activate repository-wide dynamic rollout.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,
