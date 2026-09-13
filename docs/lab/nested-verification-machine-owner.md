@@ -100,3 +100,13 @@ source-loader inputs or signals the diagnostic's own controlled processes. No
 production alternate-pool switch, forged ticket, receipt or authority is used.
 Their results must be rerun against the final source/HEAD, separately from the
 pinned command; source hashes alone do not claim these behaviors passed.
+
+Cleanup refusal retains a bounded `validation-reservation-cleanup.v1` diagnostic
+with the original callback error as its cause, or a bounded snapshot of known
+child result fields. It records enrolled PID/start/group identities separately
+from current group presence observations; unresolved pending work has no invented
+group identity. Accessor properties are not evaluated. This failure-only record
+does not relax retirement, add waiting, or identify the retrospective cause of
+an earlier generic refusal. `verify-nested-reservation-cleanup-diagnostics.mjs`
+uses actual private-home queue admission and deliberately unresolved no-spawn
+fences to check error/result preservation and normal unchanged returns.

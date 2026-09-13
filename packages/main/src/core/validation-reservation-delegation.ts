@@ -168,6 +168,24 @@ export function machineReservationResidualsPresent(ticket: string): boolean {
   const path = join(ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); if (!existsSync(path)) return false;
   try { const rows = JSON.parse(readFileSync(path, 'utf8')); if (!Array.isArray(rows)) return true; return rows.some(row => !Number.isSafeInteger(row.pgid) || !groupGone(row.pgid)); } catch { return true; }
 }
+/** Failure-only diagnostics; these observations never release or authorize work. */
+function machineCleanupFailure(owner: MachineReservationOwner, registered: Iterable<ProcessIdentity>, pending: Iterable<{pid:number;start:number}>, callbackStarted:boolean, callbackThrew:boolean, callbackError:unknown, callbackResult:unknown): Error {
+  let truncated=false, remaining=Math.floor(LIMIT/8);
+  const text=(value:string):string=>{const max=Math.min(value.length,remaining),part=value.slice(0,max);remaining-=max;if(part.length!==value.length)truncated=true;return part;};
+  const own=(value:unknown,key:string):unknown=>{try {if(value===null||typeof value!=='object')return undefined;const descriptor=Object.getOwnPropertyDescriptor(value,key);return descriptor&&'value' in descriptor?descriptor.value:undefined;}catch{return undefined;}};
+  const callback: {state:string;error?:string;result?:Record<string,unknown>}={state:!callbackStarted?'not_entered':callbackThrew?'threw':'returned'};
+  if(callbackThrew){const message=own(callbackError,'message');callback.error=text(typeof message==='string'?message:typeof callbackError==='string'?callbackError:'callback threw a non-message value');}
+  else if(callbackStarted) {callback.result={};for(const key of ['code','exitCode','signal','timedOut','durationMs','timeoutMs','output','stdout','stderr']){const value=own(callbackResult,key);if(typeof value==='string')callback.result[key]=text(value);else if(value===null||typeof value==='boolean'||typeof value==='number'&&Number.isFinite(value))callback.result[key]=value;}}
+  const residuals: Array<Record<string,unknown>>=[];let residualCount=0;
+  for(const row of registered){residualCount++;if(residuals.length>=16){truncated=true;continue;}let reason='group present',code:string|undefined;try{process.kill(-row.pgid,0);}catch(error){const observed=own(error,'code');code=typeof observed==='string'?observed:undefined;reason=code==='ESRCH'?'group absent':'group observation unavailable';}residuals.push({kind:'registered',pid:row.pid,start:row.start,pgid:row.pgid,reason,...(code?{code}:{}),identityBasis:'recorded enrollment; no new start-time observation'});}
+  for(const row of pending){residualCount++;if(residuals.length>=16){truncated=true;continue;}residuals.push({kind:'pending',pid:row.pid,start:row.start,reason:'unresolved pre-spawn fence'});}
+  const diagnostics={schema:'validation-reservation-cleanup.v1',owner:{pid:owner.pid,start:owner.start,deadlineAt:owner.deadlineAt},callback,residuals,residualCount,truncated};
+  // Strings share a small budget; enforce the serialized bound even for escaped
+  // or multi-byte text. This fallback never drops the original Error cause.
+  if(Buffer.byteLength(JSON.stringify(diagnostics))>LIMIT){diagnostics.truncated=true;if(callback.error)callback.error=callback.error.slice(0,256);if(callback.result)for(const key of Object.keys(callback.result))if(typeof callback.result[key]==='string')callback.result[key]=(callback.result[key] as string).slice(0,256);}
+  const error=new Error('VALIDATION_DELEGATION_REFUSED: owned group cleanup unproven; VALIDATION_RESERVATION_CLEANUP_DIAGNOSTICS '+JSON.stringify(diagnostics),{cause:callbackThrew?callbackError:undefined});
+  Object.defineProperty(error,'cleanupDiagnostics',{value:diagnostics,enumerable:true});return error;
+}
 export async function withMachineReservationController<T>(owner: MachineReservationOwner, isLive: () => boolean, fn: () => Promise<T> | T): Promise<T> {
   if (process.platform !== policy.platform) return await fn();
   const admitted=inspectMachineReservationOwner(owner.ticket,owner.lockId);
@@ -179,6 +197,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   const grantTimers = new Map<Socket, NodeJS.Timeout>();
   const sockets = new Set<Socket>(), pending: Array<{ socket: Socket; input: Request }> = [];
   let alive = true, fd = -1; let frame: Frame | undefined;
+  let callbackStarted=false, callbackThrew=false, callbackError:unknown, callbackResult:unknown;
   const abort = new AbortController();
   const live = () => alive && isLive() && Date.now() < owner.deadlineAt;
   const publish = () => { const path = join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); writeFileSync(path + '.pending', JSON.stringify([...registered.values(),...[...pendingChildren].map(([pending,subject])=>({pending,...subject}))]), { mode: 0o600 }); renameSync(path + '.pending', path); };
@@ -297,7 +316,8 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     writeFileSync(bootstrapPath, '', { mode: 0o600 }); fd = openSync(bootstrapPath, constants.O_RDONLY);
     const bootstrap: Bootstrap = { ...owner, schema: 'validation-reservation-delegation.v1', rootFd: fd, publicKey: keys.publicKey, socket: socketPath };
     writeFileSync(bootstrapPath, JSON.stringify(bootstrap)); unlinkSync(bootstrapPath);
-    frame={active:true,resources:owner.resources,fd,bootstrap,abort,register:(pid,token)=>register(pid,process.pid,[],token),prepare:()=>prepare(),cancel:token=>cancel(token)};return await frames.run(frame, fn);
+    frame={active:true,resources:owner.resources,fd,bootstrap,abort,register:(pid,token)=>register(pid,process.pid,[],token),prepare:()=>prepare(),cancel:token=>cancel(token)};
+    try {callbackStarted=true;const result=await frames.run(frame, fn);callbackResult=result;return result;}catch(error){callbackThrew=true;callbackError=error;throw error;}
   } finally {
     alive = false; clearInterval(retirementTimer); for(const timer of grantTimers.values())clearTimeout(timer); if(frame)frame.active=false; abort.abort(failure('reservation ended')); for (const socket of sockets) socket.destroy();
     for (const group of registered.values()) {
@@ -312,7 +332,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
       await new Promise(resolve => setTimeout(resolve, 20));
     }
     await new Promise<void>(resolve => server.close(() => resolve())); if (fd >= 0) closeSync(fd); rmSync(directory, { recursive: true, force: true });
-    if (machineReservationResidualsPresent(owner.ticket)) throw failure('owned group cleanup unproven');
+    if (machineReservationResidualsPresent(owner.ticket)) throw machineCleanupFailure(owner,registered.values(),pendingChildren.values(),callbackStarted,callbackThrew,callbackError,callbackResult);
     rmSync(join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE), { force: true });
   }
 }
