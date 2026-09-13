@@ -1,29 +1,5 @@
 # Changelog
 
-## Lab route-reader-regression - v0.3.351 - 2026-09-13
-
-The four-gaps test retained a stale direct-reader expectation after the authorized registry-to-adapter dependency repair. It now preserves projection consumption and verifies the composition chain, exact adapter call and direct-specifier boundary. The accompanying live mutation helper rejects an adapter-body substitution and alternate static/dynamic imports. Historical loose behavior uses fixed inline source text only; its callback came from committed RED cec884ccde. These direct-specifier checks do not claim arbitrary transitive or computed-import coverage.
-
-The native negative-input fixture previously passed an entire internal proof while expecting the later unknown-property diagnostic. Original main native modes passed, while B-e6d9 exposed sourceCoverage:null in an internal record. The compatibility RED modeled that candidate shape. The final repair validates a minimal public projection and route input, adds exactly one null leaf to attribute null refusal, and retains the exact Unrecognized assertion on the valid JSON projection. Signed positive proof and existing missing, undefined, boolean, substituted, wrong-root, current-reviewer, history and progress controls remain unchanged.
-
-The existing root test:route-reattestation-dependency-direction entry now invokes the durable node scripts/verify-route-reader-regression.mjs driver. A committed consolidated RED failed because that entry still bypassed the driver. Independent AST checks in the driver demonstrate refusal after removing either helper import or invocation from the sibling suite. The driver prepares and verifies current main/utils builds, then runs four-gaps, the complete existing dependency suite, and the U18 static verifier. The existing native material/head-only cases run once, followed by original history and process-fact checks. Original child budgets remain; the proof body is bounded at600seconds and setup at180seconds under the pinned900second Lab budget. Missing/stale setup cannot produce GREEN.
-
-The precommit static verifier reported needsReview=0, nested=0, exceptions=326 and unexpandedCommands=0; the same verifier is now required by the pinned GREEN and finish replay. This consolidation updated exactly42 preimage-bound digest values (38 root package bindings and4 smoke bindings), preserving every other manifest byte, record identity, duplicate row, excerpt and serialization. Official version preparation may additionally refresh its existing manifest dependencies. The provenance document re-cites all controlling sources at current main de2b236e1a (0.3.350) and verifies byte equality with the old citation and current candidate; full-source and excerpt hashes are included.
-
-Four rejected independent audit records are preserved with their concrete repairs. The local Lab records do not constitute formal Story DONE or signed product-release evidence. No Story metadata or candidate was changed, and no remote push is performed.
-
-An initial full replay exposed incomplete Lab setup: the root node_modules directory was absent, so three disposable CLI fixtures linked a missing dependency directory. The identical fixtures passed on main and then passed in Lab after standard root npm ci; the lockfile and tracked files were unchanged. A subsequent full replay exceeded the unchanged420second history-child limit under overlapping certification work. That timeout is retained as unavailable evidence, not a passing run or a source regression. The coordinated retry uses the same command, assertions and budgets after the other run completes.
-
-The main 0.3.350 sync preserved the incoming static manifest and propagated exactly 46 path-and-preimage-bound hash values (38 root package, 4 smoke, 4 four-gaps), retaining all 326 records, duplicate IDs, order and excerpts. All nine controlling excerpts remained byte-identical. Two prior official timeouts remain failures. A separate streaming diagnostic completed the unchanged original suite in 531.289 seconds (material 59.160, head 60.160, history 331.493, process-fact 80.304); it is diagnostic evidence only and does not establish a CPU cause or replace official GREEN. No timeout or production semantics changed.
-
-A real-child regression reproduces lost timeout diagnostics through the registered driver. The shared helper now retains bounded stdout/stderr and timeout code/status/signal; the caller renders the streams once and rethrows. The exact caller catch body and ordinary success, nonzero, signal and missing-executable controls pass. Eight exact helper dependency hashes and eight preimage-bound full-source evidence copies were propagated with all record identities preserved. Original suite budgets and acceptance remain unchanged; timeout remains unavailable proof.
-
-Fresh official GREEN at 9df97a514f passed in 593.594 seconds on main 0.3.350: real timeout diagnostics, four-gaps4, both signed restoration modes, history/routes/candidates82, complete process-fact checks and U18 static326 all passed. All prior failures remain recorded. This duration is verification evidence, not a performance improvement claim.
-
-Maintenance provenance: codex/lab-route-reader-regression, repair 9df97a514fb3842b387743429ab21a1b4477f559.
-Verification command (replayed before integration and on main): `["node","scripts/verify-route-reader-regression.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab native-lock-prerequisites - v0.3.350 - 2026-09-12
 
 Repair native validation-lock fixture prerequisites using actual CLI inventory, dispatch, broker-bound review, critic, validation and certification admission. Initial disposable subjects contain no fabricated PASS or admitted window. Focused probes exercise reviewer and delivery write exclusion while preserving routine evidence; native dual-order queues prove real routine and DONE-required publication.
