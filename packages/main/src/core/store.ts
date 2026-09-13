@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { VALIDATION_EVIDENCE_BOUND_BYTES, isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationMetadataWrite } from './validation-execution-lock.js';
 import { writePromptBody, readReviewPromptBody } from './prompt-body-store.js';
 import type { ConvergenceProgressJournal } from './convergence-progress-journal.js';
@@ -559,7 +561,13 @@ class StoryArtifactMissingError extends Error {
   }
 }
 
+export interface PreparedTestEvidence {
+  readonly bytes: number;
+  readonly sha256: string;
+}
+
 export class StoryStore {
+  private readonly preparedTestEvidence = new WeakMap<PreparedTestEvidence, { storyId: string; serialized: string }>();
   private baseDir: string;
   private legacyBaseDirs: string[];
   private storyDirRelValue: string;
@@ -690,6 +698,10 @@ export class StoryStore {
 
   private writeJsonFile<T>(filePath: string, data: T): void {
     const serialized = JSON.stringify(data, null, 2) + '\n';
+    this.writeSerializedJsonFile(filePath, serialized);
+  }
+
+  private writeSerializedJsonFile(filePath: string, serialized: string): void {
     const tmpPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
     try {
       mkdirSync(dirname(filePath), { recursive: true });
@@ -841,8 +853,31 @@ export class StoryStore {
     }
   }
 
+  /** Side-effect-free final serialization. The opaque token binds exact bytes to this store and Story. */
+  prepareTestEvidence(storyId: string, data: TestEvidenceData): PreparedTestEvidence {
+    const serialized = JSON.stringify(data, null, 2) + '\n';
+    const bytes = Buffer.byteLength(serialized, 'utf8');
+    if (!isWithinValidationEvidenceWriteBound(bytes)) {
+      throw new Error(`VALIDATION_EVIDENCE_WRITE_BOUND_EXCEEDED: ${bytes} bytes exceeds ${VALIDATION_EVIDENCE_BOUND_BYTES} bytes`);
+    }
+    JSON.parse(serialized);
+    const token = Object.freeze({ bytes, sha256: createHash('sha256').update(serialized).digest('hex') });
+    this.preparedTestEvidence.set(token, { storyId, serialized });
+    return token;
+  }
+
+  writePreparedTestEvidence(storyId: string, token: PreparedTestEvidence): void {
+    const prepared = this.preparedTestEvidence.get(token);
+    if (!prepared || prepared.storyId !== storyId) throw new Error('VALIDATION_EVIDENCE_PREPARATION_INVALID');
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      this.ensureDir(storyId);
+      this.writeSerializedJsonFile(join(this.storyDir(storyId), 'test-evidence.json'), prepared.serialized);
+      this.preparedTestEvidence.delete(token); // Spend only after successful atomic publication.
+    });
+  }
+
   writeTestEvidence(storyId: string, data: TestEvidenceData): void {
-    this.writeJson(storyId, 'test-evidence.json', data);
+    this.writePreparedTestEvidence(storyId, this.prepareTestEvidence(storyId, data));
   }
 
   // ── CausalEvidence CAS receipts ──

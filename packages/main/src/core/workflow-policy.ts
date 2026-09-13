@@ -167,7 +167,8 @@ export function computeChannel(
   return 'normal';
 }
 
-function countVerificationIntentEntries(checklist: ChannelChecklist): number {
+/** Historical authored intents retain explicit-policy membership even after withdrawal. */
+export function countVerificationIntentEntries(checklist: ChannelChecklist): number {
   if (!Array.isArray(checklist.items)) return 0;
   return checklist.items.reduce<number>((total, item: any) => {
     const vi = item?.verificationIntent;

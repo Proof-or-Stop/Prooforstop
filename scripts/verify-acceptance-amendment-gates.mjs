@@ -72,6 +72,9 @@ try {
   const coverage = () => buildVerificationCoverage(store.readChecklist(storyId), git('rev-parse', 'HEAD'),
     (head, evidence) => checkEvidenceFreshnessForGit(root, head, evidence?.materialHash, root, evidence?.storyFilesHash).fresh);
   assert.equal(coverage().covered, 35, JSON.stringify(coverage()));
+  assert.equal(coverage().total, 36, 'bare CHK-006 remains visible before amendment');
+  assert.equal(coverage().missingRequired, 1, '35 executed receipts do not cover the omitted item');
+  assert.match(coverage().entries.find(e => e.itemId === 'CHK-006').desc, /acceptance_amendment_propose/);
   const preservedHistory = store.readChecklist(storyId).items.slice(0, 5);
   const verifiedHandlers = createAcceptanceAmendmentHandlers(ctx, { launchWorker: request => {
     const entry = store.readAcceptanceAmendments(storyId).entries.find(e => e.review?.runId === request.runId);
