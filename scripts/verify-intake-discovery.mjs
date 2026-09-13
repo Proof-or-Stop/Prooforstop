@@ -3,7 +3,7 @@ import cp from 'node:child_process';
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 const { resolveStoryWorkspace } = await import('../packages/main/dist/core/story-workspace.js');
 const { resolveRepositoryBaseline } = await import('../packages/main/dist/core/git-baseline.js');
@@ -40,10 +40,15 @@ try {
   const wrapper = join(root, 'wrapper'); fs.mkdirSync(wrapper); const nested = join(wrapper, 'repo'); fs.mkdirSync(nested); original('git', ['init', '-q', '-b', 'main'], { cwd: nested }); ctx.root = wrapper; assert.equal(workspace({ gitRoot: nested }).gitCwd, nested); ctx.root = root;
   git('commit', '--allow-empty', '-qm', 'advance'); assert.notEqual(resolveRepositoryBaseline(root).mergeBase, head);
   assert.equal(resolveRepositoryBaseline(root, 'missing-ref'), undefined);
-  assert.equal(resolveRepositoryBaseline(root, 'HEAD', { deadlineMs: performance.now() - 1 }), undefined);
+  const expired = observe(() => resolveRepositoryBaseline(root, 'HEAD', { deadlineMs: performance.now() - 1 }));
+  assert.equal(expired.outputs[0], undefined); assert.equal(expired.commands.length, 0);
   // A malformed conventional ref pointing to a blob must remain ineligible.
   const blob = git('hash-object', '-w', '--stdin'); git('update-ref', 'refs/remotes/origin/main', blob); git('branch', '-m', 'integration');
   assert.equal(resolveRepositoryBaseline(root).ref, 'refs/heads/integration');
+  const unusual = join(root, 'newline\nrepo'); fs.mkdirSync(unusual);
+  const unusualGit = (...args) => original('git', args, { cwd: unusual, encoding: 'utf8', stdio: 'pipe' }).trim();
+  unusualGit('init', '-q', '-b', 'main'); unusualGit('-c', 'user.name=Lab', '-c', 'user.email=lab@example.invalid', 'commit', '--allow-empty', '-qm', 'unusual');
+  assert.equal(resolveRepositoryBaseline(unusual).mergeBase, unusualGit('rev-parse', 'HEAD'));
   console.log('INTAKE_DISCOVERY_BOUNDARIES_GREEN add/remove persisted terminal wrapper ref-movement invalid-ref deadline blob-ref');
   assert.equal(failures.length, 0, 'INTAKE_DISCOVERY_RED: ' + failures.join('; '));
   console.log('INTAKE_DISCOVERY_GREEN');

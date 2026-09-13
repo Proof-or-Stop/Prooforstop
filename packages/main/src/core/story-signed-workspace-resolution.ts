@@ -193,6 +193,13 @@ export interface ResolveGitCwdOptions {
 }
 
 export function resolveGitCwd(opts: ResolveGitCwdOptions): string {
+  return resolveGitCwdWithWorkspace(opts).gitCwd;
+}
+
+/** Reuse the same authoritative observation when the caller also needs its worktree.
+ * An undefined worktreePath denotes unresolved/error fallback, not an observed absence.
+ */
+export function resolveGitCwdWithWorkspace(opts: ResolveGitCwdOptions): { gitCwd: string; worktreePath?: string | null } {
   try {
     const resolution = resolveStorySignedWorkspace({
       store: opts.store,
@@ -202,12 +209,12 @@ export function resolveGitCwd(opts: ResolveGitCwdOptions): string {
       config: opts.config,
     });
     if (resolution.resolved && resolution.authoritativeCwd) {
-      return resolution.authoritativeCwd;
+      return { gitCwd: resolution.authoritativeCwd, worktreePath: resolution.worktreePath };
     }
   } catch {
     // Resolver error (absent story metadata, etc.): fail safe to projectRoot.
   }
-  return opts.projectRoot;
+  return { gitCwd: opts.projectRoot };
 }
 
 /**

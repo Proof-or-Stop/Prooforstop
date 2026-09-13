@@ -21,8 +21,17 @@ try{
   cp.execFileSync=function(cmd,args,opts){if(cmd==='git'&&args[0]==='ls-tree')reads++;return original.call(this,cmd,args,opts)};syncBuiltinESMExports();
   let after;try{fs.writeFileSync(join(cwd,'src/original'),'B');git(cwd,['add','.']);git(cwd,['commit','-qm','changed']);after=capture({gitCwd:cwd});}finally{cp.execFileSync=original;syncBuiltinESMExports();}
   assert(reads>=1);assert.notEqual(after.materialHash,before.materialHash);
-  cp.execFileSync=function(cmd,args,opts){if(cmd==='git'&&args[0]==='ls-tree')throw Object.assign(new Error('injected'),{code:'ENOBUFS'});return original.call(this,cmd,args,opts)};syncBuiltinESMExports();
-  try{assert.equal(material(cwd),undefined);assert.throws(()=>changed(cwd),/could not read tree/);}finally{cp.execFileSync=original;syncBuiltinESMExports();}
+  // A warm immutable tree is valid even if a future subprocess would fail.
+  // Require a cold commit and count actual injected failures, not just outputs.
+  let faults=0;
+  cp.execFileSync=function(cmd,args,opts){if(cmd==='git'&&args[0]==='ls-tree'){faults++;throw Object.assign(new Error('injected'),{code:'ENOBUFS'});}return original.call(this,cmd,args,opts)};syncBuiltinESMExports();
+  try{
+   assert.equal(material(cwd),after.materialHash);assert.equal(faults,0);
+   fs.writeFileSync(join(cwd,'src/original'),'C');git(cwd,['add','.']);git(cwd,['commit','-qm','cold failure witness']);
+   assert.equal(material(cwd),undefined);assert.equal(faults,1);
+   assert.throws(()=>changed(cwd),error=>error.code==='ENOBUFS');assert.equal(faults,2);
+   console.log('TREE_FAILURE_WITNESS '+JSON.stringify({format,warmFaults:0,coldFaults:faults}));
+  }finally{cp.execFileSync=original;syncBuiltinESMExports();}
   assert(capture({gitCwd:cwd}).materialHash);checks.push({format,cases:['unicode-space-tab-newline','subdir','annotated-tag','wrapper-root','next-batch-reads','ENOBUFS-error-contract','retry-after-failure']});
  }
  assert.notEqual(capture({gitCwd:join(root,'sha1')}).materialHash,capture({gitCwd:join(root,'sha256')}).materialHash);

@@ -19,6 +19,14 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
   // Optional monotonic deadline applies to the entire resolution, including
   // unsuccessful fallbacks; an expired budget never starts another subprocess.
   const probe = (cwd: string, args: string[]): string => git(cwd, args, options.deadlineMs);
+  // Read both paths in one subprocess. Ambiguous newline-containing output
+  // retains the independent probes instead of changing linked-checkout policy.
+  const directories = (): { common: string; gitDir: string } => {
+    const rows = probe(gitCwd, ['rev-parse', '--path-format=absolute', '--absolute-git-dir', '--git-common-dir']).split('\n');
+    if (rows.length === 2 && rows.every(Boolean)) return { gitDir: rows[0], common: rows[1] };
+    return { gitDir: probe(gitCwd, ['rev-parse', '--absolute-git-dir']),
+      common: probe(gitCwd, ['rev-parse', '--path-format=absolute', '--git-common-dir']) };
+  };
   // Only callers owning a single observation snapshot provide this cache. Keep
   // ordinary and linked checkout policy separate, and still check each HEAD's
   // ancestry. A cached ref's commit is fixed for that snapshot, not a moving ref.
@@ -35,8 +43,7 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
   };
   if (options.candidateCache) {
     try {
-      const common = probe(gitCwd, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
-      const gitDir = probe(gitCwd, ['rev-parse', '--absolute-git-dir']);
+      const { common, gitDir } = directories();
       observedLinked = common !== gitDir;
       cacheKey = JSON.stringify([common, observedLinked]);
       const cached = options.candidateCache.get(cacheKey);
@@ -57,9 +64,8 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
   } catch { /* no trustworthy worktree inventory */ }
   let linkedWorktree = observedLinked ?? false;
   if (observedLinked === undefined) try {
-    const gitDir = probe(gitCwd, ['rev-parse', '--absolute-git-dir']);
-    const commonDir = probe(gitCwd, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
-    linkedWorktree = gitDir !== commonDir;
+    const { gitDir, common } = directories();
+    linkedWorktree = gitDir !== common;
   } catch { /* conventional fallbacks remain available */ }
   // Local integration can advance without publishing. Only the same primary
   // branch containing the remote tip may supersede origin/HEAD in a linked
@@ -90,7 +96,8 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
   }
   for (const ref of candidates) {
     try {
-      probe(gitCwd, ['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`]);
+      // merge-base itself rejects missing refs and non-commit objects. Keep
+      // the live ref resolution here; do not cache a moving baseline.
       const mergeBase = probe(gitCwd, ['merge-base', ref, head]);
       if (mergeBase) return { ref, mergeBase };
     } catch { /* try the next conventional baseline */ }
