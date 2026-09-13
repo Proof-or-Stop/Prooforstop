@@ -652,25 +652,27 @@ export function selectAutomaticValidationTier(
   input: Omit<SelectValidationTiersInput, 'requestedTier'>,
   dependencies: SelectValidationTiersDependencies = {},
 ): ValidationTierSelectionDecision {
-  const initial = selectValidationTiers({ ...input, requestedTier: 'story-fast' }, dependencies);
+  const changedPaths = Array.isArray(input?.changedPaths) ? input.changedPaths : [];
+  const normalizedInput = { ...input, changedPaths };
+  const initial = selectValidationTiers({ ...normalizedInput, requestedTier: 'story-fast' }, dependencies);
   const impactEntries = Array.isArray(input.impactIndex?.entries) ? input.impactIndex.entries : [];
   const needsIntermediate = impactEntries.some((entry) =>
     entry.selection === 'story-intermediate'
     && Array.isArray(entry.inputPatterns)
-    && input.changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern))));
+    && changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern))));
   if (initial.effectiveTier === REPOSITORY_FULL_TIER) {
     // An empty fast set is not a PASS, but it must not prevent a directly
     // affected shared/boundary command from being tried at intermediate.
     // Every other fast-tier escalation remains repository-full.
     if (needsIntermediate && initial.escalationReasonCodes.length === 1
       && initial.escalationReasonCodes[0] === 'empty_selection_unclassified') {
-      return selectValidationTiers({ ...input, requestedTier: 'story-intermediate' }, dependencies);
+      return selectValidationTiers({ ...normalizedInput, requestedTier: 'story-intermediate' }, dependencies);
     }
     return initial;
   }
   if (!needsIntermediate) return initial;
 
-  return selectValidationTiers({ ...input, requestedTier: 'story-intermediate' }, dependencies);
+  return selectValidationTiers({ ...normalizedInput, requestedTier: 'story-intermediate' }, dependencies);
 }
 
 /** Build the exact selector input shared by validation_plan and validate. */

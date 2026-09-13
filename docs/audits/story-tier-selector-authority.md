@@ -53,7 +53,11 @@ Recorded result: exit 2. The compiler reported that
 were not exported. This is the target failure: production catalog projection
 and automatic tier choice did not exist.
 
-## GREEN and safety evidence
+## GREEN and developer-run safety evidence
+
+Only the pinned build-plus-planner command is the Lab tool-owned GREEN receipt.
+The remaining rows are developer-run supporting checks at the repair commits;
+they are not relabelled as Lab-owned evidence or as post-bump receipts.
 
 | Command | Result | What it proves |
 | --- | --- | --- |
@@ -174,7 +178,7 @@ directory; none of its findings was discarded.
 | A3-F6 activation claims | Shared help and L4 rationale incorrectly claimed this repository was already in enforce mode | Help is repository-neutral; the L4 fact says unconfigured is off and each repository must opt in only after current rollout evidence. This repository remains observe |
 | A3-F7 missing mutations | Excluded/effective-tier, wave-0 widening, and DONE marker stripping were not all exercised | Re-signed mutations cover excluded-inside-tier, excluded-under-full, missing proof and tier invariants; the real DONE consumer now rejects stripped markers and tampered signatures |
 | A3-F8 unauthenticated DONE branch | DONE used an unsigned output marker to decide whether to authenticate dynamic evidence | Every stored PASS is authenticated first; a refusal is appended as a blocking DONE checklist row so the rest of the checklist remains visible |
-| A3-F9 explain-plan cost | `validation_plan` built a dual-revision whole-repository graph per query | It now projects the catalog directly into the same selector used by execution, without reading both repository revisions; the runtime executor retains its safety graph for positive impact and fail-closed escalation |
+| A3-F9 explain-plan cost | `validation_plan` built a dual-revision whole-repository graph per query | It now uses the same pure selector function over an explain-side catalog projection without runtime graph augmentation; the runtime executor separately retains its safety graph for positive impact and fail-closed escalation |
 | A3-F10 digest domain drift | Intermediate promotion redundantly rebuilt an equivalent decision with a third digest body shape | The automatic selector returns the canonical promoted decision directly |
 | A3-F11 accounting shape | Runtime JSON emitted `excluded`, but its TypeScript accounting declaration omitted it | `excluded` is now a declared field and covered by the real `2 -> 1 execute + 1 excluded` fixture |
 
@@ -236,6 +240,29 @@ repaired on the Lab branch:
 The repaired source build, planner smoke, Story-aware smoke, 30-class mutation
 audit, real TEST/DONE fixture and dynamic admission mutations pass. A fresh Lab
 GREEN and a new post-version-bump Claude audit remain mandatory before finish.
+
+## Sixth Claude CLI audit and remediation
+
+The Lab-finish audit of candidate `04c80f7bf2` returned `fail` under run
+`36cf4169-e4a8-4c91-958f-9388d0d550dc` after 754,208 ms. Finish stopped before
+main integration and the candidate was reopened. The audit confirmed the core
+selector binding, unconditional exclusion proof, exact-universe reconstruction,
+full escalation, declared-only completeness, conservative risk floor and atomic
+version bump, then reported seven remaining integration/evidence issues:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A6-F1 bindingless atomic source | A bindingless zero-exclusion manifest could be rejected even though it omitted nothing, creating a future deadlock if an atomic source ever gained authority | Binding is required exactly when at least one row is `excluded`; a fully receipted zero-exclusion manifest passes consumer integrity, while the real validate-file enforce fixture remains canonical `full-fallback` and crosses TEST/DONE without deadlock |
+| A6-F2 wrapper-root Git cwd | Stored admission rebuilt refs and graphs under metadata root | The consumer receives the already resolved `gitCwd`; config/runtime reads remain under project root while change-manifest, ref and graph reads use the Git tree |
+| A6-F3 production graph proof | Tests used handwritten graph literals, leaving unresolved-import hardening unproven at the imported wrapper | The smoke calls the production `core/dual-revision-impact-graph` entry over a real repository with an unresolved relative import and requires `graphUnknown` plus a retained resolution failure |
+| A6-F4 evidence wording | Supporting developer checks were described as if all were the single Lab GREEN receipt | The table now distinguishes the pinned tool-owned GREEN from developer-run checks; release notes claim only the replayed command as Lab-owned verification |
+| A6-F5 malformed changed paths | Automatic promotion could throw on non-array `changedPaths` | The selector normalizes it to an empty safe input and a re-signed hostile manifest is a boolean refusal without throwing |
+| A6-F6 mode-marker conflation | The adapter emitted mode markers without an internal per-mode assertion, while the TEST fixture printed both public markers | The mutation smoke accepts only a registered audit mode and emits a mode-bound internal assertion after its complete suite; the adapter requires it and alone emits the public selector |
+| A6-F7 explain projection failure | A catalog projection error escaped the read-only `validation_plan` handler | Projection errors fall back to the compatibility path and append the bounded parse failure to `impact_index_unusable`; the documentation distinguishes explain projection from runtime graph augmentation |
+
+A new repair commit, pinned GREEN and exact post-bump independent audit are still
+required. Supporting checks remain non-authoritative until they are rerun on the
+new repair head; no failed candidate is described as released.
 
 ## Rollback
 

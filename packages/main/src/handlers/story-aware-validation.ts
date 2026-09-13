@@ -475,9 +475,18 @@ export interface DynamicValidationArtifacts {
 }
 
 /** Consumer-side integrity checks; never executes commands or repairs runtime evidence. */
-export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyId: string, head: string, value: unknown): string[] {
+export function storedDynamicReceiptIntegrityReasons(
+  projectRoot: string,
+  storyId: string,
+  head: string,
+  value: unknown,
+  gitCwd: string = projectRoot,
+): string[] {
   try {
     const manifest = value as ValidationSelectionManifest;
+    const hasExcludedRows = Array.isArray(manifest?.rows)
+      && manifest.rows.some((row) => row?.disposition === 'excluded');
+    if (hasExcludedRows && !manifest.selectorBinding) return ['dynamic_selector_binding_missing'];
     if (!verifyValidationSelectionManifest(manifest, { storyId, head })
       || manifest.mode !== 'enforce-low-risk' || manifest.fullEscalated) return ['dynamic_manifest_invalid'];
     if (manifest.toolchainDigest !== stableDigest({ node: process.version, platform: process.platform, arch: process.arch }))
@@ -495,23 +504,22 @@ export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyI
       || baseline.inventoryDigest !== manifest.inventoryDigest || baseline.catalogDigest !== manifest.catalogDigest
       || baseline.runnerDigest !== DYNAMIC_RUNNER_DIGEST || baseline.toolchainDigest !== manifest.toolchainDigest)
       return ['dynamic_baseline_invalid'];
-    if (!manifest.selectorBinding) return ['dynamic_selector_binding_missing'];
     const inventory = discoverValidationInventory(projectRoot);
     const catalog = compileValidationCatalog(inventory);
-    try {
+    if (manifest.selectorBinding) try {
       const currentChangeManifest = buildStoryChangeManifest({
         storyId,
-        gitCwd: projectRoot,
+        gitCwd,
         baseHead: manifest.baseHead,
         head: manifest.head,
         changedFiles: manifest.changedFiles,
       });
       let graph: DualRevisionImpactGraph | undefined;
       try {
-        execFileSync('git', ['cat-file', '-e', `${manifest.baseHead}^{commit}`], { cwd: projectRoot, stdio: 'ignore' });
-        execFileSync('git', ['cat-file', '-e', `${manifest.head}^{commit}`], { cwd: projectRoot, stdio: 'ignore' });
+        execFileSync('git', ['cat-file', '-e', `${manifest.baseHead}^{commit}`], { cwd: gitCwd, stdio: 'ignore' });
+        execFileSync('git', ['cat-file', '-e', `${manifest.head}^{commit}`], { cwd: gitCwd, stdio: 'ignore' });
         graph = buildDualRevisionImpactGraph({
-          gitCwd: projectRoot,
+          gitCwd,
           storyId,
           baseHead: manifest.baseHead,
           head: manifest.head,
@@ -532,7 +540,7 @@ export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyI
     } catch {
       return ['dynamic_selector_context_changed'];
     }
-    if (manifest.selectorBinding.catalogDigest !== digestCanonicalJson(catalog))
+    if (manifest.selectorBinding && manifest.selectorBinding.catalogDigest !== digestCanonicalJson(catalog))
       return ['dynamic_selector_context_changed'];
     for (const row of manifest.rows) {
       const closure = baseline.closureCertificates[row.commandId];

@@ -39,9 +39,9 @@ const selectors = {
 const selector = selectors[mode];
 if (!selector) throw new Error(`unknown dynamic validation audit mode: ${mode || '<missing>'}`);
 
-function runSourceTask(task) {
+function runSourceTask(task, taskArgs = []) {
   const sourcePath = join(root, task);
-  let result = spawnSync(process.env.BUN_BINARY || 'bun', [sourcePath], {
+  let result = spawnSync(process.env.BUN_BINARY || 'bun', [sourcePath, ...taskArgs], {
     cwd: root,
     encoding: 'utf8',
     maxBuffer: 16 * 1024 * 1024,
@@ -62,7 +62,7 @@ function runSourceTask(task) {
     }
     const compiledTask = task.replace('/src/', '/dist/').replace(/\.ts$/, '.js');
     process.stdout.write(`dynamic-validation-audit runtime=node compiledArtifact=${compiledTask} freshness=canonical-build\n`);
-    result = spawnSync(process.execPath, [join(root, compiledTask)], {
+    result = spawnSync(process.execPath, [join(root, compiledTask), ...taskArgs], {
       cwd: root,
       encoding: 'utf8',
       maxBuffer: 16 * 1024 * 1024,
@@ -78,9 +78,12 @@ function runSourceTask(task) {
 
 const coreOutput = runSourceTask('packages/main/src/tasks/story-aware-validation-smoke.ts');
 if (!coreOutput.includes('story-aware-validation smoke passed')) throw new Error('core smoke selector missing');
-const mutationOutput = runSourceTask('packages/main/src/tasks/story-aware-validation-mutation-smoke.ts');
+const mutationOutput = runSourceTask('packages/main/src/tasks/story-aware-validation-mutation-smoke.ts', [`--audit-mode=${mode}`]);
 if (!mutationOutput.includes('dynamic-validation mutation audit PASS')) throw new Error('mutation audit selector missing');
 if (!mutationOutput.includes('replay classes: 30')) throw new Error('replay threshold selector missing');
+if (!mutationOutput.includes(`DYNAMIC_VALIDATION_ASSERTION:${mode}:${selector}`)) {
+  throw new Error(`requested assertion marker missing: ${mode}`);
+}
 
 // Gate modes require both layers: the complete core/mutation smokes above must
 // pass first; this in-process fixture then proves the resulting signed evidence

@@ -137,7 +137,13 @@ export function assessStoredValidationPassAdmissibility(
     // The canonical PASS writer may append metadata commits after execution.
     // Generic admissibility above proves current material/story identity and
     // trusted metadata-only ancestry; the signed manifest binds execution HEAD.
-    const failures = storedDynamicReceiptIntegrityReasons(ctx.root, storyId, evidence.headHash || '', output?.dynamicValidation?.manifest);
+    const failures = storedDynamicReceiptIntegrityReasons(
+      ctx.root,
+      storyId,
+      evidence.headHash || '',
+      output?.dynamicValidation?.manifest,
+      gitCwd,
+    );
     if (failures.length) return { ...result, ok: false, reasonCodes: [...result.reasonCodes, ...failures],
       reasons: [...result.reasons, ...failures.map(reason => 'stored dynamic validation rejected: ' + reason)] };
   }

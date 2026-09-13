@@ -180,11 +180,13 @@ import {
   VALIDATION_PLAN_OUTCOME_BEARING_LINE_PREFIXES,
   VALIDATION_PLAN_STATUS_LINES,
   VALIDATION_PLAN_TIER_ALIASES,
+  attachImpactProjectionFailure,
   assertValidationPlanStatusInvariant,
   buildValidationPlanReport,
   createValidationPlanHandlers,
   renderValidationPlanReport,
   renderValidationPlanText,
+  projectValidationImpactIndexForPlan,
   resolveValidationPlanRequest,
 } from '../handlers/validation-plan.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -3768,6 +3770,24 @@ testCase('the provisional-id migration warning reaches the operator instead of b
   );
   const text = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
   for (const warning of report.inventoryWarnings) assert.ok(text.includes(warning), 'every warning is printed');
+});
+
+testCase('a failed explain-side catalog projection falls back with the bounded parse error', () => {
+  const projection = projectValidationImpactIndexForPlan({
+    projectRoot: '/tmp/explain-projection-failure',
+    routine: { sourceKind: 'configured', commands: [] },
+    commandSetDigest: 'fixture-command-set',
+  }, {
+    discover: () => { throw new Error('fixture malformed validation resources'); },
+  });
+  assert.equal(projection.impactIndex, undefined);
+  assert.equal(projection.failure, 'fixture malformed validation resources');
+  const compatibility = resolveValidationTierPlan({ input: planInput(), requestedTier: 'story-fast' });
+  assert.ok(compatibility.escalationReasons.some((reason) => reason.code === 'impact_index_unusable'));
+  const diagnosed = attachImpactProjectionFailure(compatibility, projection.failure);
+  assert.ok(diagnosed.escalationReasons.some((reason) =>
+    reason.code === 'impact_index_unusable'
+      && reason.detail.includes('catalog projection failed: fixture malformed validation resources')));
 });
 
 testCase('without --explain the unit list is previewed, and --explain lists every unit', () => {

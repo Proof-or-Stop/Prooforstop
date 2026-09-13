@@ -9,6 +9,7 @@ const dist = join(repo, 'packages/main/dist');
 const load = p => import(join(dist, p));
 const { StoryStore } = await load('core/store.js');
 const { createVerifierHandlers, configuredValidationCommands } = await load('handlers/verifier.js');
+const { buildValidateFileCommand } = await load('handlers/validation-identity.js');
 const { acquireOwnerLease, releaseOwnerLease } = await load('core/story-owner-lease.js');
 const { persistSyntheticAdmittedWindowForTest } = await load('core/certification-window.js');
 const { deriveCertificationDomainInputHashes } = await load('handlers/certification-window.js');
@@ -233,7 +234,62 @@ async function runCase(phase, full) {
         rmSync(root, { recursive: true, force: true });
     }
 }
+async function runValidateFileBindinglessCase() {
+    const root = mkdtempSync(join(tmpdir(), 'u09-validate-file-authority-'));
+    const oldCwd = process.cwd();
+    const storyId = 'B-u09-validate-file';
+    let store;
+    const git = (...a) => execFileSync('git', a, { cwd: root, encoding: 'utf8', stdio: 'pipe' }).trim();
+    try {
+        writeFileSync(join(root, '.gitignore'), '.proof-or-stop/runtime/\n.proof-or-stop/locks/\n.proof-or-stop/activity.jsonl\n**/owner-lease.json\n**/certification-window.json\n');
+        writeFileSync(join(root, 'validate.js'), 'console.log(JSON.stringify({provider:"validate-file-dynamic",status:"pass",allPass:true}));\n');
+        writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+          storyDir: '.proof-or-stop/story/actives',
+          validate: { dynamic: { mode: 'enforce-low-risk', policyDefaults: {
+            assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
+            fullBaselineReusePolicy: 'not-applicable',
+          } } },
+        }));
+        git('init', '-q', '-b', 'main');
+        git('config', 'user.name', 'Audit');
+        git('config', 'user.email', 'audit@example.invalid');
+        store = new StoryStore(root);
+        const now = new Date().toISOString();
+        store.writeStory(storyId, { storyId, name: 'validate-file-authority', title: 'Validate file authority fixture', description: 'Bindingless atomic dynamic validation admission test', type: 'bug', phase: 'REVIEW', priority: 'low', createdAt: now, startedAt: now, endedAt: null, events: [] });
+        store.writeChecklist(storyId, { items: [] });
+        writeFileSync(join(store.storyDirPath(storyId), 'closeout-write-receipts.jsonl'), '');
+        git('add', '.');
+        git('commit', '-qm', 'validate-file fixture');
+        const head = git('rev-parse', 'HEAD');
+        process.chdir(root);
+        const ctx = { root, scanRoot: root, store, log: () => {} };
+        const identityCommand = buildValidateFileCommand(ctx, { story: storyId }, 'validate.js');
+        const baseline = await executeValidationPlan({ provider: 'validate-file-full-baseline', commands: [identityCommand], warnings: [] }, root, head, storyId);
+        assert.equal(baseline.allPass, true);
+        assert.ok(persistCanonicalFullBaseline({ projectRoot: root, sourceHead: head, result: baseline, commands: [identityCommand] }));
+        acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
+        persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: deriveCertificationDomainInputHashes(root, 'HEAD', root) });
+        const facts = { cli: { available: true, path: process.execPath }, worktree: { expected: root, actual: root }, gitIndex: { readable: true, path: join(root, '.git/index'), contentDigest: 'stable' }, gitMaterial: { available: true, headHash: head, materialHash: 'stable', storyFilesHash: 'stable' }, writerLease: { available: true, valid: true }, providerCapability: { required: ['validation-plan', 'bounded-output'], available: ['validation-plan', 'bounded-output'] }, resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } }, evidenceTarget: { writable: true, path: join(root, '.proof-or-stop/causal-evidence') }, sideChannel: { available: true, maxOutputChars: 12000, maxProgressEvents: 1 } };
+        const parsed = JSON.parse(await createVerifierHandlers({ ...ctx, causalPreflightFacts: () => structuredClone(facts) }).validate({ story: storyId, json: true, noSync: true }));
+        assert.equal(parsed.status, 'pass', JSON.stringify(parsed));
+        assert.equal(parsed.dynamicValidation?.authority, 'full-fallback', JSON.stringify(parsed.dynamicValidation));
+        assert.equal(parsed.dynamicValidation?.manifest?.selectorBinding, undefined);
+        assert.equal(parsed.dynamicValidation?.manifest?.totals?.excluded, 0);
+        const admission = assessStoredValidationPassAdmissibility(ctx, storyId, { allowDynamicCoverage: true });
+        assert.equal(admission.ok, true, JSON.stringify(admission.reasonCodes));
+        await runValidateGate(ctx, storyId, { stop() {} });
+        let doneError = '';
+        try { runDoneOracleGate(storyId, store, root, { stop() {} }, root); }
+        catch (error) { doneError = error instanceof Error ? error.message : String(error); }
+        assert.doesNotMatch(doneError, /Stored routine validation admission|dynamic_selector_binding_missing/,
+          'a bindingless validate-file PASS that excludes nothing must cross TEST and DONE admission');
+        console.log('VALIDATE_FILE_BINDINGLESS_CANONICAL_ADMISSION_PASS');
+    } finally {
+        if (store) releaseOwnerLease(store.storyDirPath(storyId));
+        process.chdir(oldCwd);
+        rmSync(root, { recursive: true, force: true });
+    }
+}
 await runCase('REVIEW',true);
 await runCase('REVIEW',false);
-console.log('low-risk dynamic TEST PASS');
-console.log('authority mutations rejected');
+await runValidateFileBindinglessCase();

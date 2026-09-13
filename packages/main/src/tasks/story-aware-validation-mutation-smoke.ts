@@ -336,8 +336,23 @@ try {
   const noBindingManifest = { ...noBindingBody, signature: signPayload(noBindingBody) };
   assert.equal(verifyValidationSelectionManifest(noBindingManifest), true,
     'the missing-selector consumer branch requires an otherwise valid legacy-shaped manifest');
-  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', noBindingManifest)
-    .includes('dynamic_selector_binding_missing'));
+  const noBindingReasons = storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', noBindingManifest);
+  assert.equal(noBindingReasons.includes('dynamic_selector_binding_missing'), false,
+    'a manifest that excludes nothing does not need selector omission proof');
+  assert.deepEqual(noBindingReasons, [],
+    'a fully receipted manifest that excludes nothing remains admissible without selector metadata');
+  const bindinglessExcludedBody = {
+    ...noBindingRest,
+    rows: storedManifest.rows,
+    totals: storedManifest.totals,
+  };
+  const bindinglessExcludedManifest = {
+    ...bindinglessExcludedBody,
+    signature: signPayload(bindinglessExcludedBody),
+  };
+  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', bindinglessExcludedManifest)
+    .includes('dynamic_selector_binding_missing'),
+  'a manifest that excludes a command must retain its selector binding');
   const originalConfig = readFileSync(`${storedRoot}/proof-or-stop.config.json`, 'utf8');
   const changedConfig = JSON.parse(originalConfig);
   changedConfig.validate.commands.push({
@@ -401,6 +416,23 @@ assert.equal(verifyValidationSelectionManifest(resign({
 const missingTierFields = { ...baseline, selectorDecisionDigest: 'present-without-tier-fields' } as Record<string, unknown>;
 assert.equal(verifyValidationSelectionManifest(resign(missingTierFields)), false,
   'a selector digest without requested/effective tier arrays must be refused');
+const malformedChangedPathsBinding = {
+  ...tieredManifest.selectorBinding!,
+  input: { ...tieredManifest.selectorBinding!.input, changedPaths: 'not-an-array' as unknown as string[] },
+};
+malformedChangedPathsBinding.bindingDigest = digestCanonicalJson({
+  catalogDigest: malformedChangedPathsBinding.catalogDigest,
+  input: malformedChangedPathsBinding.input,
+  decision: malformedChangedPathsBinding.decision,
+});
+let malformedChangedPathsResult: boolean | undefined;
+assert.doesNotThrow(() => {
+  malformedChangedPathsResult = verifyValidationSelectionManifest(resign({
+    ...tieredManifest,
+    selectorBinding: malformedChangedPathsBinding,
+  }));
+}, 'malformed changedPaths must be a boolean refusal, not a verifier exception');
+assert.equal(malformedChangedPathsResult, false);
 const prooflessExcludedRows = baseline.rows.map((row, index) => index === 0
   ? { ...row, disposition: 'excluded' as const, reasons: ['forged-proofless-exclusion'] }
   : row);
@@ -611,3 +643,31 @@ console.log('dynamic-validation mutation audit PASS');
 console.log(`replay classes: ${replayClasses}`);
 console.log(`fault injections: ${faultInjections.map(([name]) => name).join(', ')}`);
 console.log('mutation guards: catalog/receipt/closure/selection/scheduler/shards');
+const requestedAuditMode = process.argv.find((arg) => arg.startsWith('--audit-mode='))?.slice('--audit-mode='.length);
+if (requestedAuditMode) {
+  const auditSelectors: Record<string, string> = {
+    'change-manifest': 'change manifest PASS',
+    'dual-graph': 'delete and rename coverage PASS',
+    'scope-escalation': 'scope escalation PASS',
+    selection: 'complete ledger PASS',
+    'selection-mutations': 'monotonicity PASS',
+    'selection-fail-closed': 'fail-closed escalation PASS',
+    'observe-equivalence': 'observe/full equivalence PASS',
+    'trace-isolation': 'isolated observe telemetry PASS',
+    'observe-mutations': 'observer mutation rejected',
+    receipts: 'admissible per-command reuse PASS',
+    'receipt-mutations': 'receipt rejection matrix PASS',
+    'receipt-forgery': 'forged receipt rejected',
+    'shadow-equivalence': 'shadow/full oracle equivalent',
+    'shadow-rejections': 'shadow discrepancy reported',
+    'shadow-false-negative': 'false negative detected',
+    'test-gate': 'low-risk dynamic TEST PASS',
+    'test-gate-escalation': 'mandatory full escalation PASS',
+    'test-gate-mutations': 'authority mutations rejected',
+    operations: 'safe recovery and rollback PASS',
+    'operations-mutations': 'operations mutation rejected',
+  };
+  const assertionSelector = auditSelectors[requestedAuditMode];
+  assert.ok(assertionSelector, `unknown dynamic validation audit mode: ${requestedAuditMode}`);
+  console.log(`DYNAMIC_VALIDATION_ASSERTION:${requestedAuditMode}:${assertionSelector}`);
+}

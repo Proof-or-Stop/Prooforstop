@@ -7,6 +7,10 @@
  * authoritative oracle in observe/shadow mode.
  */
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   aggregateValidationShards,
   augmentValidationCatalogWithGraphInputs,
@@ -36,6 +40,7 @@ import {
 } from '../core/validation-tier-planner.js';
 import type { StoryRelevanceInput } from '../core/validation-relevance-input.js';
 import { assertAutomaticTierSelectionBindingCurrent } from '../handlers/story-aware-validation.js';
+import { buildDualRevisionImpactGraph as buildProductionDualRevisionImpactGraph } from '../core/dual-revision-impact-graph.js';
 
 const inventory = discoverValidationInventory('/tmp', [
   { id: 'always', label: 'always', command: 'node', args: ['always.js'], inputRoots: ['packages/main/src/always.ts'], inputsComplete: true, assurance: 'always', riskTier: 'local', originalIndex: 0 },
@@ -63,6 +68,43 @@ const graphUnknownCatalog = augmentValidationCatalogWithGraphInputs({
   },
 });
 assert.deepEqual(graphUnknownCatalog, catalog, 'an incomplete dependency graph must contribute no selector inputs');
+
+const graphFixtureRoot = mkdtempSync(join(tmpdir(), 'story-aware-production-graph-'));
+try {
+  const git = (...args: string[]) => execFileSync('git', args, {
+    cwd: graphFixtureRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+  mkdirSync(join(graphFixtureRoot, 'packages/main/src'), { recursive: true });
+  git('init', '-q', '-b', 'main');
+  git('config', 'user.name', 'Graph Fixture');
+  git('config', 'user.email', 'graph-fixture@example.invalid');
+  writeFileSync(join(graphFixtureRoot, 'packages/main/src/entry.ts'), 'export const value = 1;\n');
+  git('add', '.');
+  git('commit', '-qm', 'base');
+  const baseHead = git('rev-parse', 'HEAD');
+  writeFileSync(join(graphFixtureRoot, 'packages/main/src/entry.ts'),
+    "import './missing.js';\nexport const value = 2;\n");
+  git('add', '.');
+  git('commit', '-qm', 'unresolved import');
+  const head = git('rev-parse', 'HEAD');
+  const changeManifest = buildStoryChangeManifest({
+    storyId: 'B-production-graph', gitCwd: graphFixtureRoot, baseHead, head,
+  });
+  const productionGraph = buildProductionDualRevisionImpactGraph({
+    gitCwd: graphFixtureRoot,
+    storyId: 'B-production-graph',
+    baseHead,
+    head,
+    catalog,
+    changeManifest,
+  });
+  assert.equal(productionGraph.graphUnknown, true,
+    'the production graph entrypoint must fail closed on an unresolved import');
+  assert.ok((productionGraph.resolutionFailures ?? []).some((reason) => reason.includes('unresolved-relative-import')),
+    'the production graph entrypoint must retain the unresolved-import witness');
+} finally {
+  rmSync(graphFixtureRoot, { recursive: true, force: true });
+}
 const changes = buildStoryChangeManifest({
   storyId: 'B-smoke',
   gitCwd: '.',

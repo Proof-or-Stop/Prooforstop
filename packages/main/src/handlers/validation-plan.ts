@@ -203,6 +203,49 @@ export function resolveRoutineValidationSourceForPlan(projectRoot: string): Rout
   return { sourceKind: 'no-validator', commands: [] };
 }
 
+export function projectValidationImpactIndexForPlan(
+  args: {
+    projectRoot: string;
+    routine: RoutineValidationSourceForPlan;
+    commandSetDigest: string;
+    configuredImpactIndex?: ValidationImpactIndex;
+  },
+  dependencies: {
+    discover?: typeof discoverValidationInventory;
+    compile?: typeof compileValidationCatalog;
+    project?: typeof buildValidationImpactIndexFromCatalog;
+  } = {},
+): { impactIndex?: ValidationImpactIndex; failure?: string } {
+  if (args.configuredImpactIndex) return { impactIndex: args.configuredImpactIndex };
+  if (args.routine.sourceKind !== 'configured') return {};
+  try {
+    const discover = dependencies.discover ?? discoverValidationInventory;
+    const compile = dependencies.compile ?? compileValidationCatalog;
+    const project = dependencies.project ?? buildValidationImpactIndexFromCatalog;
+    return {
+      impactIndex: project({
+        commandSetDigest: args.commandSetDigest,
+        catalog: compile(discover(args.projectRoot)),
+      }),
+    };
+  } catch (error) {
+    return { failure: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+export function attachImpactProjectionFailure(
+  result: ValidationTierPlanResult,
+  failure: string | undefined,
+): ValidationTierPlanResult {
+  if (!failure) return result;
+  return {
+    ...result,
+    escalationReasons: result.escalationReasons.map((reason) => reason.code === 'impact_index_unusable'
+      ? { ...reason, detail: `${reason.detail}; catalog projection failed: ${failure}` }
+      : reason),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Report shape. The human text and the --json object are rendered from ONE
 // report, so they cannot report different facts.
@@ -831,20 +874,20 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
       const projectConfig = loadConfig(projectRoot);
       const validationConfig = projectConfig.validate ?? projectConfig.validation;
       const configuredImpactIndex = validationConfig?.dynamic?.impactIndex as ValidationImpactIndex | undefined;
-      const impactIndex = configuredImpactIndex ?? (routine.sourceKind === 'configured'
-        ? (() => {
-            const catalog = compileValidationCatalog(discoverValidationInventory(projectRoot));
-            return buildValidationImpactIndexFromCatalog({
-              commandSetDigest: input.executionInventory.commandSetDigest,
-              catalog,
-            });
-          })()
-        : undefined);
-      const result = resolveValidationTierPlan({
+      const projection = projectValidationImpactIndexForPlan({
+        projectRoot,
+        routine,
+        commandSetDigest: input.executionInventory.commandSetDigest,
+        configuredImpactIndex,
+      });
+      const impactIndex = projection.impactIndex;
+      const impactProjectionFailure = projection.failure ?? '';
+      const unresolvedResult = resolveValidationTierPlan({
         input,
         requestedTier: request.requestedTier,
         ...(impactIndex ? { impactIndex } : {}),
       });
+      const result = attachImpactProjectionFailure(unresolvedResult, impactProjectionFailure);
 
       // Display labels, resolved through the SAME canonical inventory builder the
       // ids came from, so a label can never be attached to the wrong unit. A label
