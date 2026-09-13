@@ -15,6 +15,7 @@ import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js'
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
+import ts from 'typescript';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
 import type { ResourceClaim } from './keyed-scheduler.js';
@@ -24,6 +25,22 @@ import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 import { resolveRepositoryBaseline } from './git-baseline.js';
+import { digestCanonicalJson } from './digest.js';
+import { normalizeConfiguredValidationCommands } from './validation-command-config.js';
+import { buildValidationCommandInventory } from './validation-command-identity.js';
+import {
+  narrowPortableValidationCommandTuple,
+  provisionalValidationCommandId,
+} from './validation-command-portable-id.js';
+import {
+  buildValidationImpactIndexFromCatalog,
+  automaticValidationTierSnapshotDigest,
+  selectAutomaticValidationTier,
+  validationCatalogEntryRequiresParticipation,
+  VALIDATION_TIERS,
+  type AutomaticValidationTierSelectionBinding,
+  type ValidationTier,
+} from './validation-tier-planner.js';
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
@@ -37,7 +54,18 @@ export type Assurance = 'always' | 'story-selectable' | 'full-only';
 export type ClosurePolicy = 'static-and-traced' | 'whole-repository' | 'never-reuse';
 export type RiskTier = 'local' | 'shared' | 'gate' | 'validation-infra';
 export type FullBaselineReusePolicy = 'not-applicable' | 'exact-current-epoch-only' | 'forbidden';
-export type DynamicDisposition = 'execute' | 'reuse' | 'unverified';
+
+export class ValidationSelectorContextError extends Error {
+  readonly code = 'selector_context_mismatch' as const;
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationSelectorContextError';
+  }
+}
+
+export { validationCatalogEntryRequiresParticipation } from './validation-tier-planner.js';
+export type DynamicDisposition = 'execute' | 'reuse' | 'excluded' | 'unverified';
 const MAX_RECEIPT_AGE_MS = 24 * 60 * 60 * 1000;
 const HEX64 = /^[0-9a-f]{64}$/i;
 
@@ -260,7 +288,7 @@ export const resolveStoryChangeManifest = buildStoryChangeManifest;
 
 export interface ValidationInventoryCommand {
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; runnerSourceDigest?: string; declaredEnvironmentKeys?: string[];
+  env?: Record<string, string>; timeoutMs?: number; optional?: boolean; focus?: string[]; executionReuse?: 'exact-inputs'; executionInputs?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; runnerSourceDigest?: string; declaredEnvironmentKeys?: string[]; inputRoots?: string[]; inputsComplete?: boolean;
   assurance?: Assurance; riskTier?: RiskTier; closurePolicy?: ClosurePolicy; fullBaselineReusePolicy?: FullBaselineReusePolicy; cpuWeight?: number; expectedP50Ms?: number; originalIndex: number;
 }
 export interface ValidationCatalogEntry {
@@ -271,16 +299,22 @@ export interface ValidationCatalogEntry {
   originalIndex: number;
   triggerExtensions: { files?: string[]; symbols?: string[]; processFacts?: string[]; capabilities?: string[]; packages?: string[] };
   inputRoots: string[]; closurePolicy: ClosurePolicy; assurance: Assurance; riskTier: RiskTier;
+  /** Selector-only roots and proof grade. Runtime closure keeps using inputRoots. */
+  selectionInputRoots: string[];
+  selectionInputCoverage: 'complete' | 'partial';
+  selectionInputCoverageSource: 'declared' | 'dual-revision-graph' | 'heuristic';
   fullBaselineReusePolicy: FullBaselineReusePolicy; cpuWeight: number; expectedP50Ms?: number;
 }
 export interface ValidationInventory {
   schema: 'proof-or-stop.validation-inventory.v1';
   commands: ValidationInventoryCommand[]; digest: string; source: 'proof-or-stop.config.json' | 'injected';
 }
-function commandId(row: { command: string; args: string[]; label?: string }, index: number): string {
-  // Labels are presentation metadata; command identity is stable when a label
-  // is edited or inventory order changes.
-  return 'validation-' + stableDigest({ command: row.command, args: row.args }).slice(0, 16);
+function commandId(row: { command: string; args: string[]; label?: string; cwd?: string; shell?: boolean }, _index: number): string {
+  // One portable command identity is shared by validation_plan and the runtime
+  // executor. Labels and array positions are presentation/provenance only.
+  return provisionalValidationCommandId(narrowPortableValidationCommandTuple({
+    command: { label: row.label ?? row.command, command: row.command, args: row.args, cwd: row.cwd, shell: row.shell },
+  }));
 }
 export function discoverValidationInventory(projectRoot: string, injected?: ValidationInventoryCommand[]): ValidationInventory {
   let commands: ValidationInventoryCommand[] = injected ? injected.map((row, index) => ({ ...row, originalIndex: row.originalIndex ?? index })) : [];
@@ -290,42 +324,16 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
   // name a different file than `raw` was actually read from.
   const picked = injected ? null : pickProjectConfigPath(projectRoot);
   if (!injected) {
-    // Reuse the canonical resolver instead of duplicating its lookup here.
+    // Reuse the exact execution-side normalizer. A second partial parser used
+    // to lose focus/optional/execution-reuse fields and choose a different
+    // default label, making a freshly persisted dynamic PASS impossible to
+    // admit at TEST/DONE even though the config had not changed.
     const raw = picked ? JSON.parse(readFileSync(picked.path, 'utf8')) as Record<string, unknown> : {};
-    const validation = ((raw.validate || raw.validation) as Record<string, unknown> | undefined) || {};
-    const dynamic = validation.dynamic && typeof validation.dynamic === 'object' ? validation.dynamic as Record<string, unknown> : {};
-    const policyDefaults = dynamic.policyDefaults && typeof dynamic.policyDefaults === 'object'
-      ? dynamic.policyDefaults as Record<string, unknown>
-      : {};
-    const rows: unknown[] = Array.isArray(validation.commands) ? validation.commands : typeof validation.command === 'string' ? [validation.command] : [];
-    commands = rows.flatMap((rawRow: unknown, index: number): ValidationInventoryCommand[] => {
-      if (typeof rawRow === 'string') {
-        const parts = rawRow.trim().split(/\s+/);
-        return parts[0] ? [{
-          id: commandId({ command: parts[0], args: parts.slice(1), label: parts[0] }, index),
-          label: parts[0], command: parts[0], args: parts.slice(1),
-          ...(typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}),
-          ...(typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}),
-          ...(typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}),
-          ...(typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}),
-          ...(typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}),
-          originalIndex: index,
-        }] : [];
-      }
-      if (!rawRow || typeof rawRow !== 'object') return [];
-      const value = rawRow as Record<string, unknown>;
-      if (typeof value.command !== 'string') return [];
-      const args = Array.isArray(value.args) ? value.args.filter((v): v is string => typeof v === 'string') : [];
-      const label = typeof value.label === 'string' ? value.label : value.command + '-' + (index + 1);
-      const resources = Array.isArray(value.resources) ? value.resources as ResourceClaim[] : [];
-      const env = value.env && typeof value.env === 'object' && !Array.isArray(value.env)
-        ? Object.fromEntries(Object.entries(value.env as Record<string, unknown>).filter(([, item]) => typeof item === 'string')) as Record<string, string>
-        : undefined;
-      const declaredEnvironmentKeys = Array.isArray(value.declaredEnvironmentKeys)
-        ? value.declaredEnvironmentKeys.filter((item): item is string => typeof item === 'string')
-        : undefined;
-      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(typeof value.runnerSourcePath === 'string' ? { runnerSourcePath: value.runnerSourcePath } : {}), ...(declaredEnvironmentKeys ? { declaredEnvironmentKeys } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : typeof policyDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: policyDefaults.expectedP50Ms } : {}), resources, originalIndex: index }];
-    });
+    commands = normalizeConfiguredValidationCommands(raw).map((row, index) => ({
+      ...row,
+      id: row.id || commandId(row, index),
+      originalIndex: index,
+    }));
   }
   const normalized = commands.map((row, index) => ({
     ...row,
@@ -341,6 +349,16 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
     ? 'injected' as const
     : PROOF_OR_STOP_CONFIG_FILENAME;
   return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source };
+}
+
+/** Rebuild the portable command-set digest without misreading tool-derived ids as declarations. */
+export function validationInventoryCommandSetDigest(inventory: ValidationInventory | ValidationInventoryCommand[]): string {
+  const rows = Array.isArray(inventory) ? inventory : inventory.commands;
+  const commands = rows.map((row, index) => {
+    const derivedId = commandId(row, index);
+    return row.id === derivedId ? { ...row, id: undefined } : row;
+  });
+  return buildValidationCommandInventory({ commands }).commandSetDigest;
 }
 function validRelativePath(path: string): boolean {
   const value = normalPath(path);
@@ -371,8 +389,14 @@ export function validateValidationCatalog(inventory: ValidationInventory | Valid
     const triggerFiles = Array.isArray(trigger?.files) ? trigger.files : [];
     if (roots.length === 0 || roots.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
       errors.push('invalid or dist-only inputRoots: ' + entry.id);
+    // Schema-bypass backstop: compileValidationCatalog cannot produce this
+    // contradiction, but a forged catalog must receive a stable named refusal.
+    if (entry.selectionInputCoverage === 'complete' && roots.length === 0)
+      errors.push('complete selector inputs require at least one declared input root: ' + entry.id);
     if (entry.runnerSourcePath && (!validRelativePath(entry.runnerSourcePath) || !entry.runnerSourceDigest))
       errors.push('runner source digest missing or path invalid: ' + entry.id);
+    if (entry.closurePolicy === 'whole-repository' && entry.selectionInputCoverage === 'complete')
+      errors.push('whole-repository closure cannot claim narrow complete selector inputs: ' + entry.id);
     if (triggerFiles.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
       errors.push('invalid or dist-only trigger files: ' + entry.id);
     if (!['static-and-traced', 'whole-repository', 'never-reuse'].includes(entry.closurePolicy)) errors.push('invalid closurePolicy: ' + entry.id);
@@ -397,16 +421,39 @@ export function assertValidValidationCatalog(inventory: ValidationInventory | Va
 }
 export const validateCatalog = validateValidationCatalog;
 export function compileValidationCatalog(inventory: ValidationInventory, options: Partial<Pick<ValidationCatalogEntry, 'assurance' | 'riskTier' | 'closurePolicy' | 'fullBaselineReusePolicy' | 'cpuWeight' | 'expectedP50Ms'>> & { inputRoots?: string[] } = {}): ValidationCatalogEntry[] {
-  return inventory.commands.map(row => ({
+  return inventory.commands.map(row => {
+    const heuristicRoots = [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : []), ...(row.runnerSourcePath ? [row.runnerSourcePath] : [])];
+    const filteredDeclaredRoots = Array.isArray(row.inputRoots)
+      ? row.inputRoots.filter((path): path is string => typeof path === 'string' && path.trim().length > 0)
+      : row.inputRoots === undefined && Array.isArray(options.inputRoots)
+        ? options.inputRoots.filter((path): path is string => typeof path === 'string' && path.trim().length > 0)
+        : [];
+    const selectionInputRoots = filteredDeclaredRoots.length > 0 ? filteredDeclaredRoots : heuristicRoots;
+    // Runtime tracing and direct triggers retain the command's own registered
+    // runner/case-registry paths even when selector ownership is narrower.
+    const inputRoots = uniqueSorted([
+      ...(filteredDeclaredRoots.length > 0 ? filteredDeclaredRoots : heuristicRoots),
+      ...(row.caseRegistryPath ? [row.caseRegistryPath] : []),
+      ...(row.runnerSourcePath ? [row.runnerSourcePath] : []),
+    ]);
+    // A caller-wide root override is useful for runtime closure fixtures, but
+    // it is not per-command ownership proof. Only the command's own explicit
+    // inputsComplete + inputRoots declaration may authorize selector omission.
+    const declaredComplete = row.inputsComplete === true && Array.isArray(row.inputRoots) && row.inputRoots.length > 0
+      && row.inputRoots.every((path) => typeof path === 'string' && path.trim().length > 0);
+    return ({
     ...row, schema: VALIDATION_CATALOG_SCHEMA,
-    inputRoots: options.inputRoots || [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : []), ...(row.runnerSourcePath ? [row.runnerSourcePath] : [])],
-    triggerExtensions: { files: options.inputRoots || [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : []), ...(row.runnerSourcePath ? [row.runnerSourcePath] : [])] },
+    inputRoots,
+    selectionInputRoots,
+    selectionInputCoverage: declaredComplete ? 'complete' : 'partial',
+    selectionInputCoverageSource: declaredComplete ? 'declared' : 'heuristic',
+    triggerExtensions: { files: inputRoots },
     closurePolicy: options.closurePolicy || row.closurePolicy || 'static-and-traced', assurance: options.assurance || row.assurance || 'story-selectable',
     riskTier: options.riskTier || row.riskTier || 'local', fullBaselineReusePolicy: options.fullBaselineReusePolicy || row.fullBaselineReusePolicy || 'not-applicable',
     policySource: options.assurance || options.riskTier || options.closurePolicy || options.fullBaselineReusePolicy || row.assurance || row.riskTier || row.closurePolicy || row.fullBaselineReusePolicy ? 'explicit' : 'default',
     resources: Array.isArray(row.resources) ? row.resources : [], cpuWeight: options.cpuWeight || row.cpuWeight || 1,
     ...(options.expectedP50Ms === undefined ? {} : { expectedP50Ms: options.expectedP50Ms }),
-  })) as ValidationCatalogEntry[];
+  }); }) as ValidationCatalogEntry[];
 }
 
 function sourceRootForCommand(row: ValidationInventoryCommand): string {
@@ -502,31 +549,67 @@ export function verifyCanonicalFullBaseline(baseline: CanonicalFullBaseline, now
     && verifyPayload(withoutSignature(baseline), baseline.signature);
 }
 
-interface GraphData { paths: Set<string>; imports: Map<string, Set<string>>; authority: ReturnType<typeof authorityRevisionClosure>; }
+interface GraphData {
+  paths: Set<string>;
+  imports: Map<string, Set<string>>;
+  authority: ReturnType<typeof authorityRevisionClosure>;
+  resolutionFailures: string[];
+}
 const graphTreeCache = new Map<string, Map<string, string>>();
-function parseImports(source: string): string[] {
+const dualRevisionGraphCache = new Map<string, DualRevisionImpactGraph>();
+const DUAL_REVISION_GRAPH_CACHE_MAX = 8;
+const GRAPH_TREE_CACHE_MAX = DUAL_REVISION_GRAPH_CACHE_MAX * 2;
+
+/** Read-only diagnostics used to prove both repository-graph caches stay bounded. */
+export function validationGraphCacheStats(): {
+  graphTrees: number;
+  dualRevisionGraphs: number;
+  graphTreeLimit: number;
+  dualRevisionGraphLimit: number;
+} {
+  return {
+    graphTrees: graphTreeCache.size,
+    dualRevisionGraphs: dualRevisionGraphCache.size,
+    graphTreeLimit: GRAPH_TREE_CACHE_MAX,
+    dualRevisionGraphLimit: DUAL_REVISION_GRAPH_CACHE_MAX,
+  };
+}
+function parseImports(source: string, path: string): string[] {
   const output: string[] = [];
-  const patterns = [
-    /(?:import|export)\s+(?:[^'";]+?\s+from\s+)?['"]([^'"]+)['"]/g,
-    /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-    /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-  ];
-  for (const pattern of patterns) for (const match of source.matchAll(pattern)) if (match[1]) output.push(match[1]);
+  const scriptKind = /\.(?:jsx|tsx)$/.test(path) ? ts.ScriptKind.TSX
+    : /\.(?:mjs|mts)$/.test(path) ? ts.ScriptKind.TS
+      : /\.(?:js|cjs)$/.test(path) ? ts.ScriptKind.JS : ts.ScriptKind.TS;
+  const file = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, scriptKind);
+  const add = (node: ts.Expression | undefined) => {
+    if (node && ts.isStringLiteralLike(node)) output.push(node.text);
+  };
+  const walk = (node: ts.Node) => {
+    if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier) add(node.moduleSpecifier);
+    else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) add(node.moduleReference.expression);
+    else if (ts.isCallExpression(node)
+      && (node.expression.kind === ts.SyntaxKind.ImportKeyword
+        || (ts.isIdentifier(node.expression) && node.expression.text === 'require'))) add(node.arguments[0]);
+    ts.forEachChild(node, walk);
+  };
+  walk(file);
   return output;
 }
 function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
   const paths = new Set<string>(); const imports = new Map<string, Set<string>>();
+  const resolutionFailures: string[] = [];
   let authority = authorityRevisionClosure(undefined);
   try {
-    const cacheKey = `${gitCwd}\0${ref}`;
-    let tree = graphTreeCache.get(cacheKey);
+    const immutableRef = /^[0-9a-f]{40}$/i.test(ref);
+    const cacheKey = immutableRef ? `${resolve(gitCwd)}\0${ref}` : '';
+    let tree = cacheKey ? graphTreeCache.get(cacheKey) : undefined;
     if (!tree) {
       const listing = execFileSync('git', ['ls-tree', '-r', '-z', '--format=%(objectname) %(path)', ref], { cwd: gitCwd, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 });
       const rows = listing.split('\0').filter(Boolean).map(row => {
         const separator = row.indexOf(' ');
         return separator > 0 ? { oid: row.slice(0, separator), path: normalPath(row.slice(separator + 1)) } : undefined;
       }).filter((row): row is { oid: string; path: string } => Boolean(row))
-        .filter(row => /\.(?:c?js|mjs|tsx?|jsx?|json)$/.test(row.path));
+        .filter(row => /\.(?:[cm]?jsx?|[cm]?tsx?|json)$/.test(row.path))
+        .filter(row => !isMaterialExcludedPath(row.path, gitCwd));
       tree = new Map<string, string>();
       if (rows.length) {
         const batchInput = Buffer.from(rows.map(row => `${row.oid}\n`).join(''));
@@ -547,14 +630,27 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
           offset = bodyStart + Math.max(0, size) + 1;
         }
       }
-      graphTreeCache.set(cacheKey, tree);
+      if (cacheKey) {
+        graphTreeCache.set(cacheKey, tree);
+        while (graphTreeCache.size > GRAPH_TREE_CACHE_MAX) {
+          const oldest = graphTreeCache.keys().next().value as string | undefined;
+          if (!oldest) break;
+          graphTreeCache.delete(oldest);
+        }
+      }
     }
     authority = authorityRevisionClosure(tree);
     const allPaths = [...tree.keys()];
     for (const path of allPaths) paths.add(path);
     for (const path of allPaths) {
       const deps = new Set<string>();
-      for (const specifier of parseImports(tree.get(path) || '')) {
+      // JSON files may be dependency targets, but arbitrary stored strings are
+      // not JavaScript import syntax and must never poison graph availability.
+      if (path.endsWith('.json')) {
+        imports.set(path, deps);
+        continue;
+      }
+      for (const specifier of parseImports(tree.get(path) || '', path)) {
         if (specifier.startsWith('.')) {
           const base = normalPath(posix.normalize(posix.join(posix.dirname(path), specifier)));
           // TypeScript/ESM source commonly imports the emitted `.js` name
@@ -562,18 +658,35 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
           // the literal specifier and its extension-stripped source forms so
           // reverse dependencies are not silently lost across transpilation.
           const sourceBase = base.replace(/\.(?:c|m)?js$/, '');
+          const sourceTreeBase = sourceBase.replace('/dist/', '/src/');
           const candidates = [
-            base, base + '.ts', base + '.tsx', base + '.js', base + '.mjs', base + '/index.ts', base + '/index.js',
-            sourceBase, sourceBase + '.ts', sourceBase + '.tsx', sourceBase + '.js', sourceBase + '.mjs', sourceBase + '/index.ts', sourceBase + '/index.js',
+            base, base + '.ts', base + '.tsx', base + '.mts', base + '.cts', base + '.js', base + '.mjs', base + '.cjs',
+            base + '/index.ts', base + '/index.tsx', base + '/index.mts', base + '/index.cts', base + '/index.js', base + '/index.mjs', base + '/index.cjs',
+            sourceBase, sourceBase + '.ts', sourceBase + '.tsx', sourceBase + '.mts', sourceBase + '.cts', sourceBase + '.js', sourceBase + '.mjs', sourceBase + '.cjs',
+            sourceBase + '/index.ts', sourceBase + '/index.tsx', sourceBase + '/index.mts', sourceBase + '/index.cts', sourceBase + '/index.js', sourceBase + '/index.mjs', sourceBase + '/index.cjs',
+            sourceTreeBase + '.ts', sourceTreeBase + '.tsx', sourceTreeBase + '.mts', sourceTreeBase + '.cts', sourceTreeBase + '/index.ts', sourceTreeBase + '/index.tsx',
           ];
           const resolved = candidates.find(candidate => paths.has(candidate));
           if (resolved) deps.add(resolved);
-        } else if (specifier.startsWith('packages/')) deps.add(normalPath(specifier));
+          else if (authority.members.has(path)
+            && (!/\.[a-z0-9]+(?:[?#].*)?$/i.test(specifier)
+            || /\.(?:[cm]?jsx?|[cm]?tsx?|json)(?:[?#].*)?$/i.test(specifier))) {
+            resolutionFailures.push(`unresolved-relative-import:${path}:${specifier}`);
+          }
+        } else if (specifier.startsWith('packages/')) {
+          const normalized = normalPath(specifier);
+          if (paths.has(normalized)) deps.add(normalized);
+          // Repository aliases and package exports are not relative module
+          // claims. Keep a positive edge when the tracked path is exact, but
+          // do not make an unresolved alias poison the entire graph.
+        }
       }
       imports.set(path, deps);
     }
-  } catch { /* graphUnknown is consumed by fail-closed selection */ }
-  return { paths, imports, authority };
+  } catch (error) {
+    resolutionFailures.push(`graph-build-failed:${error instanceof Error ? error.name : 'unknown'}`);
+  }
+  return { paths, imports, authority, resolutionFailures: uniqueSorted(resolutionFailures) };
 }
 export interface DualRevisionImpactGraph {
   baseHead: string;
@@ -582,34 +695,97 @@ export interface DualRevisionImpactGraph {
   headGraphDigest: string;
   commandsAffectedBy(change: StoryChangedFile): string[];
   graphUnknown: boolean;
+  resolutionFailures?: string[];
   authorityReasons(change: StoryChangedFile): string[];
 }
 export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: string; head: string; catalog?: ValidationCatalogEntry[] }): DualRevisionImpactGraph {
+  const immutableRefs = /^[0-9a-f]{40}$/i.test(args.baseHead) && /^[0-9a-f]{40}$/i.test(args.head);
+  const cacheKey = immutableRefs
+    ? stableDigest({ gitCwd: resolve(args.gitCwd), baseHead: args.baseHead, head: args.head, catalog: args.catalog || [] })
+    : '';
+  const cached = cacheKey ? dualRevisionGraphCache.get(cacheKey) : undefined;
+  if (cached) return cached;
   const base = buildGraphAtRef(args.gitCwd, args.baseHead); const head = buildGraphAtRef(args.gitCwd, args.head);
-  const digest = (graph: GraphData) => stableDigest({ authorityPolicy: 'registered-authority-closure.v1', authorityRoots: validationAuthoritySources(), authorityMembers: uniqueSorted(graph.authority.members), authorityUnknown: graph.authority.unknown, paths: uniqueSorted(graph.paths), imports: [...graph.imports.entries()].map(row => [row[0], uniqueSorted(row[1])]) });
+  const digest = (graph: GraphData) => stableDigest({ authorityPolicy: 'registered-authority-closure.v1', authorityRoots: validationAuthoritySources(), authorityMembers: uniqueSorted(graph.authority.members), authorityUnknown: graph.authority.unknown, resolutionFailures: graph.resolutionFailures, paths: uniqueSorted(graph.paths), imports: [...graph.imports.entries()].map(row => [row[0], uniqueSorted(row[1])]) });
   const roots = new Map((args.catalog || []).map(entry => [entry.id, uniqueSorted([...(entry.inputRoots || []), ...(entry.triggerExtensions.files || [])])]));
-  const affected = (graph: GraphData, change: StoryChangedFile): string[] => {
-    const targets = new Set([normalPath(change.path), ...(change.oldPath ? [normalPath(change.oldPath)] : [])]);
+  const reverseFor = (graph: GraphData) => {
     const reverse = new Map<string, Set<string>>();
     for (const [from, deps] of graph.imports) for (const dep of deps) {
       const set = reverse.get(dep) || new Set<string>(); set.add(from); reverse.set(dep, set);
     }
+    return reverse;
+  };
+  const baseReverse = reverseFor(base); const headReverse = reverseFor(head);
+  const affectedCache = new Map<string, string[]>();
+  const affected = (graph: GraphData, reverse: Map<string, Set<string>>, revision: 'base' | 'head', change: StoryChangedFile): string[] => {
+    const cacheKey = `${revision}\0${normalPath(change.path)}\0${normalPath(change.oldPath || '')}`;
+    const cached = affectedCache.get(cacheKey);
+    if (cached) return cached;
+    const targets = new Set([normalPath(change.path), ...(change.oldPath ? [normalPath(change.oldPath)] : [])]);
     const impacted = new Set(targets); const queue = [...targets];
     while (queue.length) {
       const current = queue.shift()!;
       for (const dependent of reverse.get(current) || []) if (!impacted.has(dependent)) { impacted.add(dependent); queue.push(dependent); }
     }
-    return [...roots.entries()].filter(([, values]) => values.some(root => impacted.has(root) || [...impacted].some(path => path.startsWith(root + '/')))).map(row => row[0]);
+    const impactedPaths = [...impacted];
+    const result = [...roots.entries()].filter(([, values]) => values.some(root => impacted.has(root)
+      || impactedPaths.some(path => path.startsWith(root + '/')))).map(row => row[0]);
+    affectedCache.set(cacheKey, result);
+    return result;
   };
-  return {
+  const result: DualRevisionImpactGraph = {
     baseHead: args.baseHead, head: args.head, baseGraphDigest: digest(base), headGraphDigest: digest(head),
-    graphUnknown: base.paths.size === 0 || head.paths.size === 0,
+    graphUnknown: base.paths.size === 0 || head.paths.size === 0
+      || base.resolutionFailures.length > 0 || head.resolutionFailures.length > 0,
+    resolutionFailures: uniqueSorted([...base.resolutionFailures, ...head.resolutionFailures]),
     authorityReasons: change => uniqueSorted([...base.authority.unknown, ...head.authority.unknown,
       ...[change.path, change.oldPath].filter((path): path is string => Boolean(path))
         .filter(path => base.authority.members.has(normalPath(path)) || head.authority.members.has(normalPath(path)))
         .map(path => 'authority-source-changed:' + path)]),
-    commandsAffectedBy: change => uniqueSorted([...affected(base, change), ...affected(head, change)]),
+    commandsAffectedBy: change => uniqueSorted([
+      ...affected(base, baseReverse, 'base', change),
+      ...affected(head, headReverse, 'head', change),
+    ]),
   };
+  if (cacheKey) {
+    dualRevisionGraphCache.set(cacheKey, result);
+    while (dualRevisionGraphCache.size > DUAL_REVISION_GRAPH_CACHE_MAX) {
+      const oldest = dualRevisionGraphCache.keys().next().value as string | undefined;
+      if (!oldest) break;
+      dualRevisionGraphCache.delete(oldest);
+    }
+  }
+  return result;
+}
+
+/** Add graph-proven Story paths that can reach each command to its selector inputs. */
+export function augmentValidationCatalogWithGraphInputs(args: {
+  catalog: ValidationCatalogEntry[];
+  graph?: DualRevisionImpactGraph;
+  changedFiles: StoryChangedFile[];
+}): ValidationCatalogEntry[] {
+  if (!args.graph || args.graph.graphUnknown) return args.catalog;
+  const affectedByChange = args.changedFiles.map((change) => ({
+    change,
+    commandIds: new Set(args.graph!.commandsAffectedBy(change)),
+  }));
+  return args.catalog.map((entry) => {
+    const graphInputs = affectedByChange.flatMap(({ change, commandIds }) => commandIds.has(entry.id)
+        ? [change.path, ...(change.oldPath ? [change.oldPath] : [])]
+        : []);
+    const priorInputs = entry.selectionInputRoots || [];
+    return {
+      ...entry,
+      selectionInputRoots: uniqueSorted([...priorInputs, ...graphInputs]),
+      // A regex/static reverse graph can prove a positive affected edge, but
+      // it cannot prove that subprocess, generated, fixture, or non-code
+      // inputs do not exist. Never upgrade a partial row to complete here.
+      selectionInputCoverage: entry.selectionInputCoverage,
+      selectionInputCoverageSource: entry.selectionInputCoverageSource === 'declared'
+        ? 'declared'
+        : graphInputs.length > 0 ? 'dual-revision-graph' : entry.selectionInputCoverageSource,
+    };
+  });
 }
 
 export interface ValidationCommandReceipt {
@@ -694,12 +870,17 @@ export interface ValidationSingletonContribution {
 }
 export interface ValidationSelectionManifest {
   findingConstraintDigest?: string;
+  selectorBinding?: AutomaticValidationTierSelectionBinding;
+  selectorDecisionDigest?: string;
+  requestedTier?: ValidationTier;
+  effectiveTier?: ValidationTier;
+  tierSelections?: Record<ValidationTier, string[]>;
   schema: typeof VALIDATION_SELECTION_SCHEMA; storyId: string; baseHead: string; head: string; changeDigest: string;
   scopeContractDigest: string; catalogDigest: string; inventoryDigest: string; dependencyGraphDigest: string;
   closureCertificateSetDigest: string; toolchainDigest: string; buildProofDigest: string; canonicalBaselineEpochId: string;
   receiptRevocationLedgerDigest: string; changedFiles: StoryChangedFile[]; rows: SelectionRow[];
   singletonContributions: ValidationSingletonContribution[];
-  totals: { inventory: number; executed: number; reused: number; unverified: number; uncovered: number; unmappedChanges: number };
+  totals: { inventory: number; executed: number; reused: number; excluded: number; unverified: number; uncovered: number; unmappedChanges: number };
   escalationReasons: string[]; fullEscalated: boolean; mode: DynamicValidationMode; signature: string;
 }
 export interface DynamicValidationContext {
@@ -713,6 +894,8 @@ export interface DynamicValidationContext {
   graph?: DualRevisionImpactGraph; scopeContract?: ScopeContractData; gitCwd?: string; now?: number;
   /** Stable build/Wave-0 command that must execute on every dynamic run. */
   buildCommandId?: string;
+  /** Canonical Story-relevance decision generated from the same Story snapshot as validation_plan. */
+  tierSelection?: AutomaticValidationTierSelectionBinding;
 }
 function closureMap(value: DynamicValidationContext['closures']): Map<string, ValidationClosureCertificate> {
   return value instanceof Map ? value : new Map(Object.entries(value || {}));
@@ -773,7 +956,7 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   const currentLedgerDigest = ctx.revocationLedger?.digest || stableDigest({});
   if (receipt.revocationLedgerDigest !== currentLedgerDigest) return false;
   if (!verifyValidationClosureCertificate(closure) || receipt.closureCertificateDigest !== closure.signature) return false;
-  if (receipt.catalogDigest !== stableDigest(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
+  if (receipt.catalogDigest !== digestCanonicalJson(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
   if (ctx.runnerDigest && receipt.runnerDigest !== ctx.runnerDigest) return false;
   if (ctx.buildProofDigest && receipt.buildProofDigest !== ctx.buildProofDigest) return false;
   if (receipt.sourceBaseHead !== ctx.baseHead || receipt.canonicalBaselineEpochId !== (ctx.baselineEpochId || '')) return false;
@@ -818,6 +1001,12 @@ export function classifyFullValidationReasons(changes: StoryChangeManifest, cata
   return uniqueSorted(reasons);
 }
 function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): ValidationSelectionManifest {
+  if (!verifyStoryChangeManifest(ctx.changes)
+    || ctx.changes.storyId !== ctx.storyId
+    || ctx.changes.baseHead !== ctx.baseHead
+    || ctx.changes.head !== ctx.head) {
+    throw new Error('dynamic selection requires a current signed Story change manifest');
+  }
   const inventory = Array.isArray(ctx.inventory) ? ctx.inventory : ctx.inventory.commands;
   const catalogById = new Map(ctx.catalog.map(entry => [entry.id, entry]));
   const closures = closureMap(ctx.closures); const selected = new Map<string, string[]>(); const unmapped: string[] = [];
@@ -835,10 +1024,62 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const reasons = selected.get(id) || []; if (!reasons.includes(reason)) reasons.push(reason); selected.set(id, reasons);
     contribute(source, [id]);
   };
+  let canonicalTierDecision: AutomaticValidationTierSelectionBinding['decision'] | undefined;
+  const compatibilityWideningReasons: string[] = [];
+  if (ctx.tierSelection) {
+    if (digestCanonicalJson({ catalogDigest: ctx.tierSelection.catalogDigest, input: ctx.tierSelection.input, decision: ctx.tierSelection.decision }) !== ctx.tierSelection.bindingDigest) {
+      throw new ValidationSelectorContextError('selector decision digest mismatch before validation execution');
+    }
+    const boundDecision = ctx.tierSelection.decision;
+    const inventoryIds = inventory.map((row) => row.id);
+    const selectorCatalog = augmentValidationCatalogWithGraphInputs({
+      catalog: ctx.catalog,
+      graph: ctx.graph,
+      changedFiles: ctx.changes.changedFiles,
+    });
+    const expectedImpactIndex = buildValidationImpactIndexFromCatalog({
+      commandSetDigest: validationInventoryCommandSetDigest(ctx.inventory),
+      catalog: selectorCatalog,
+    });
+    const executorChangedPaths = uniqueSorted(ctx.changes.changedFiles.flatMap((change) => [change.path, ...(change.oldPath ? [change.oldPath] : [])]).map(normalPath));
+    const selectorChangedPaths = new Set(ctx.tierSelection.input.changedPaths.map(normalPath));
+    const currentCommandSetDigest = validationInventoryCommandSetDigest(ctx.inventory);
+    const currentSnapshotDigest = automaticValidationTierSnapshotDigest({
+      storyId: ctx.storyId,
+      baseHead: ctx.baseHead,
+      head: ctx.head,
+      changeDigest: ctx.changes.changeDigest,
+    });
+    if (ctx.tierSelection.catalogDigest !== digestCanonicalJson(ctx.catalog)
+      || ctx.tierSelection.input.commandSetDigest !== currentCommandSetDigest
+      || ctx.tierSelection.input.snapshotDigest !== currentSnapshotDigest
+      || digestCanonicalJson(ctx.tierSelection.input.impactIndex) !== digestCanonicalJson(expectedImpactIndex)
+      || stableDigest(ctx.tierSelection.input.universeCommandIds) !== stableDigest(inventoryIds)
+      || executorChangedPaths.some((path) => !selectorChangedPaths.has(path))) {
+      throw new ValidationSelectorContextError('selector input does not match executor catalog, inventory, or changed paths');
+    }
+    if (stableDigest(boundDecision.tierSelections['repository-full']) !== stableDigest(inventoryIds)) {
+      throw new ValidationSelectorContextError('selector repository-full membership does not match executor inventory');
+    }
+    const fast = new Set(boundDecision.tierSelections['story-fast']);
+    const intermediate = new Set(boundDecision.tierSelections['story-intermediate']);
+    const full = new Set(boundDecision.tierSelections['repository-full']);
+    if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) {
+      throw new ValidationSelectorContextError('selector tier subset invariant mismatch before validation execution');
+    }
+    canonicalTierDecision = boundDecision;
+  }
   for (const entry of ctx.catalog) if (entry.assurance === 'always') select(entry.id, 'always', 'always');
   if (ctx.buildCommandId) select(ctx.buildCommandId, 'wave-0-build', 'wave-0-build');
   for (const pin of ctx.changes.pinnedValidationCommands) {
     const row = inventory.find(command => command.id === pin || command.label === pin || command.command === pin);
+    // The compatibility shape is accepted only after the complete pin list has
+    // been authenticated above as part of the current Story change manifest.
+    if (!row && /^validation-[0-9a-f]{16}$/i.test(pin)) {
+      for (const candidate of inventory) select(candidate.id, 'legacy-validation-pin-full-compatibility', `legacy-pin:${pin}`);
+      compatibilityWideningReasons.push(`legacy-validation-pin-unresolved:${pin}`);
+      continue;
+    }
     if (!row) throw new Error('pinned command absent: ' + pin);
     select(row.id, 'verification-intent-pin', 'pin:' + pin);
   }
@@ -871,7 +1112,12 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   for (const entry of ctx.catalog) {
     if (entry.closurePolicy === 'never-reuse') select(entry.id, 'never-reuse-policy', 'never-reuse-policy');
   }
-  const escalationReasons = uniqueSorted([...classifyFullValidationReasons(ctx.changes, ctx.catalog), ...ctx.changes.changedFiles.flatMap(change => ctx.graph ? ctx.graph.authorityReasons(change) : ['authority-graph-unavailable']), ...unmapped.map(path => 'unmapped-change:' + path)]);
+  const escalationReasons = uniqueSorted([
+    ...compatibilityWideningReasons,
+    ...classifyFullValidationReasons(ctx.changes, ctx.catalog),
+    ...ctx.changes.changedFiles.flatMap(change => ctx.graph ? ctx.graph.authorityReasons(change) : ['authority-graph-unavailable']),
+    ...unmapped.map(path => 'unmapped-change:' + path),
+  ]);
   escalationReasons.push(...(ctx.findingConstraints?.reassessFindingIds ?? []).map(id => 'finding-reassessment-required:' + id));
   // Normative full-only semantics: an impacted full-only command escalates the
   // complete plan. An unimpacted command may avoid that escalation only when
@@ -901,7 +1147,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
-      catalogDigest: stableDigest(ctx.catalog),
+      catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
       toolchainDigest: ctx.toolchainDigest, buildProofDigest: ctx.buildProofDigest, runnerDigest: ctx.runnerDigest,
@@ -915,7 +1161,11 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   }
   if (ctx.graph && ctx.graph.graphUnknown) escalationReasons.push('dependency-graph-unavailable');
   const fullEscalated = escalationReasons.length > 0;
-  if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation:' + escalationReasons.join(','), 'full-escalation');
+  // Escalation is the canonical full oracle, not a receipt-aware narrow plan.
+  // Selecting every row keeps the gap accounting and diagnostic truthful even
+  // though the caller normally routes directly to its complete-plan fallback.
+  if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation', 'full-escalation');
+  const selectorRepositoryFull = canonicalTierDecision?.effectiveTier === 'repository-full';
   const rows: SelectionRow[] = inventory.map(row => {
     const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id);
     const closure = closures.get(row.id);
@@ -923,13 +1173,27 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
-      catalogDigest: stableDigest(ctx.catalog),
+      catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
       toolchainDigest: ctx.toolchainDigest, buildProofDigest: ctx.buildProofDigest, runnerDigest: ctx.runnerDigest,
     });
-    if (selected.has(row.id) || entry.assurance === 'always' || entry.closurePolicy === 'never-reuse') {
-      return { commandId: row.id, disposition: 'execute', reasons: selected.get(row.id) || [entry.closurePolicy === 'never-reuse' ? 'never-reuse-policy' : 'always'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
+    const tierSelected = !canonicalTierDecision || canonicalTierDecision.selectedUnitIds.includes(row.id);
+    const mustParticipate = fullEscalated || tierSelected || selected.has(row.id)
+      || validationCatalogEntryRequiresParticipation(entry);
+    if (selectorRepositoryFull || selected.has(row.id) || entry.assurance === 'always' || entry.closurePolicy === 'never-reuse') {
+      return { commandId: row.id, disposition: 'execute', reasons: selected.get(row.id) || [selectorRepositoryFull ? 'selector-repository-full' : entry.closurePolicy === 'never-reuse' ? 'never-reuse-policy' : 'always'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
+    }
+    if (!mustParticipate) {
+      const proof = canonicalTierDecision?.exclusionProofs.find((candidate) => candidate.commandId === row.id);
+      if (!proof) return { commandId: row.id, disposition: 'unverified', reasons: ['selector-exclusion-proof-missing'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
+      return {
+        commandId: row.id,
+        disposition: 'excluded',
+        reasons: [`canonical-tier-exclusion:${proof.reason}`, `effective-tier:${canonicalTierDecision!.effectiveTier}`],
+        inputDigest,
+        ...(closure ? { closureCertificateDigest: closure.signature } : {}),
+      };
     }
     // `forbidden` is stronger than receipt provenance: these full-only
     // commands must execute on every dynamic run and can never reuse.
@@ -950,12 +1214,16 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     // logical ledger: either an admissible receipt reused it or the absence of
     // one forces execution. Record that terminal decision explicitly so the
     // signed union cannot silently omit a command.
-    contribute(row.disposition === 'reuse' ? 'admissible-receipt-reuse' : 'default-execution', [row.commandId]);
+    contribute(row.disposition === 'reuse'
+      ? 'admissible-receipt-reuse'
+      : row.disposition === 'excluded' ? 'canonical-tier-exclusion' : 'default-execution', [row.commandId]);
   }
   const singletonContributions = normalizeSingletonContributions([...contributionSets.entries()].map(([source, ids]) => ({ source, commandIds: [...ids] })));
   const totals = {
     inventory: rows.length, executed: rows.filter(row => row.disposition === 'execute').length,
-    reused: rows.filter(row => row.disposition === 'reuse').length, unverified: rows.filter(row => row.disposition === 'unverified').length,
+    reused: rows.filter(row => row.disposition === 'reuse').length,
+    excluded: rows.filter(row => row.disposition === 'excluded').length,
+    unverified: rows.filter(row => row.disposition === 'unverified').length,
     // An unmapped change is a trigger for the complete-plan escalation, not a
     // final inventory gap: once every command is selected, the oracle covers
     // that change and the signed manifest remains gap-free.
@@ -965,13 +1233,20 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   const body = {
     schema: VALIDATION_SELECTION_SCHEMA, storyId: ctx.storyId, baseHead: ctx.baseHead, head: ctx.head, changeDigest: ctx.changes.changeDigest,
     scopeContractDigest: ctx.scopeContract && ctx.scopeContract.digest || stableDigest(ctx.scopeContract || {}),
-    catalogDigest: stableDigest(ctx.catalog), inventoryDigest: currentInventoryDigest(ctx.inventory),
+    catalogDigest: digestCanonicalJson(ctx.catalog), inventoryDigest: currentInventoryDigest(ctx.inventory),
     dependencyGraphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
     closureCertificateSetDigest: stableDigest([...closures.entries()]), toolchainDigest: ctx.toolchainDigest || '',
     buildProofDigest: ctx.buildProofDigest || '', canonicalBaselineEpochId: ctx.baselineEpochId || '',
     receiptRevocationLedgerDigest: ctx.revocationLedger ? ctx.revocationLedger.digest : stableDigest({}),
     changedFiles: ctx.changes.changedFiles, rows, singletonContributions, totals, escalationReasons: uniqueSorted(escalationReasons),
     fullEscalated, mode: ctx.mode || 'observe',
+    ...(canonicalTierDecision ? {
+      selectorBinding: ctx.tierSelection,
+      selectorDecisionDigest: canonicalTierDecision.selectionDigest,
+      requestedTier: canonicalTierDecision.requestedTier,
+      effectiveTier: canonicalTierDecision.effectiveTier,
+      tierSelections: canonicalTierDecision.tierSelections,
+    } : {}),
     ...(ctx.findingConstraints ? { findingConstraintDigest: ctx.findingConstraints.digest } : {}),
   };
   return { ...body, signature: signPayload(body) };
@@ -982,6 +1257,8 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
   return manifest;
 }
 export function verifyValidationSelectionManifest(manifest: ValidationSelectionManifest, current?: Partial<Pick<ValidationSelectionManifest, 'storyId' | 'head' | 'baseHead'>>): boolean {
+  try {
+  if (!manifest || typeof manifest !== 'object' || !Array.isArray(manifest.rows)) return false;
   if (manifest.schema !== VALIDATION_SELECTION_SCHEMA || !verifyPayload(withoutSignature(manifest), manifest.signature)) return false;
   if (current && ((current.storyId !== undefined && current.storyId !== manifest.storyId) || (current.head !== undefined && current.head !== manifest.head) || (current.baseHead !== undefined && current.baseHead !== manifest.baseHead))) return false;
   if (!Array.isArray(manifest.singletonContributions)) return false;
@@ -994,30 +1271,142 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
   const commandIds = manifest.rows.map(row => row.commandId);
   const executed = manifest.rows.filter(row => row.disposition === 'execute').length;
   const reused = manifest.rows.filter(row => row.disposition === 'reuse').length;
+  const excluded = manifest.rows.filter(row => row.disposition === 'excluded').length;
   const unverified = manifest.rows.filter(row => row.disposition === 'unverified').length;
-  const selectedIds = new Set(manifest.rows.filter(row => row.disposition === 'execute' || row.disposition === 'reuse').map(row => row.commandId));
+  const accountedIds = new Set(manifest.rows.map(row => row.commandId));
   const contributedIds = singletonUnion(normalizedContributions);
+  const selectorBinding = manifest.selectorBinding;
+  const expectedSelectorDecision = selectorBinding ? selectAutomaticValidationTier(selectorBinding.input) : undefined;
+  const manifestChangedPaths = Array.isArray(manifest.changedFiles)
+    ? uniqueSorted(manifest.changedFiles.flatMap((change) => [change?.path, change?.oldPath]
+      .filter((path): path is string => typeof path === 'string' && path.length > 0)
+      .map(normalPath)))
+    : undefined;
+  const selectorChangedPaths = new Set(Array.isArray(selectorBinding?.input?.changedPaths)
+    ? selectorBinding.input.changedPaths.map(normalPath)
+    : []);
+  const tierBindingValid = manifest.selectorDecisionDigest === undefined
+    ? selectorBinding === undefined && manifest.requestedTier === undefined && manifest.effectiveTier === undefined && manifest.tierSelections === undefined
+    : Boolean(selectorBinding && manifest.requestedTier && manifest.effectiveTier && manifest.tierSelections
+      && selectorBinding.catalogDigest === manifest.catalogDigest
+      && selectorBinding.input.snapshotDigest === automaticValidationTierSnapshotDigest({
+        storyId: manifest.storyId,
+        baseHead: manifest.baseHead,
+        head: manifest.head,
+        changeDigest: manifest.changeDigest,
+      })
+      && manifestChangedPaths !== undefined
+      && manifestChangedPaths.every((path) => selectorChangedPaths.has(path))
+      && selectorBinding.bindingDigest === digestCanonicalJson({ catalogDigest: selectorBinding.catalogDigest, input: selectorBinding.input, decision: selectorBinding.decision })
+      && digestCanonicalJson(selectorBinding.decision) === digestCanonicalJson(expectedSelectorDecision)
+      && selectorBinding.decision.selectionDigest === manifest.selectorDecisionDigest
+      && selectorBinding.decision.requestedTier === manifest.requestedTier
+      && selectorBinding.decision.effectiveTier === manifest.effectiveTier
+      && digestCanonicalJson(selectorBinding.decision.tierSelections) === digestCanonicalJson(manifest.tierSelections)
+      && manifest.selectorDecisionDigest.length > 0
+      && manifest.tierSelections['repository-full']
+      && stableDigest(manifest.tierSelections['repository-full']) === stableDigest(commandIds));
+  if (manifest.tierSelections) {
+    if (!VALIDATION_TIERS.every((tier) => Array.isArray(manifest.tierSelections?.[tier])
+      && manifest.tierSelections[tier].every((id) => typeof id === 'string'))
+      || !manifest.effectiveTier
+      || !(VALIDATION_TIERS as readonly string[]).includes(manifest.effectiveTier)
+      || !Array.isArray(manifest.tierSelections[manifest.effectiveTier])) return false;
+    if (!Array.isArray(selectorBinding?.input?.universeCommandIds)
+      || !selectorBinding.input.universeCommandIds.every((id) => typeof id === 'string')
+      || !Array.isArray(selectorBinding.input.pinnedCommandIds)
+      || !selectorBinding.input.pinnedCommandIds.every((id) => typeof id === 'string')
+      || !Array.isArray(selectorBinding.input.changedPaths)
+      || !selectorBinding.input.changedPaths.every((path) => typeof path === 'string')) return false;
+    const fast = new Set(manifest.tierSelections['story-fast']);
+    const intermediate = new Set(manifest.tierSelections['story-intermediate']);
+    const full = new Set(manifest.tierSelections['repository-full']);
+    if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) return false;
+  }
+  if (!verifyValidationTierExclusions(manifest)) return false;
   return manifest.totals.unverified === unverified
     && manifest.totals.executed === executed
     && manifest.totals.reused === reused
+    && manifest.totals.excluded === excluded
     && manifest.totals.inventory === manifest.rows.length
     && new Set(commandIds).size === commandIds.length
-    && executed + reused + unverified === manifest.rows.length
+    && executed + reused + excluded + unverified === manifest.rows.length
     && manifest.totals.unverified === 0
     && manifest.totals.uncovered === 0
     && manifest.totals.unmappedChanges === 0
-    && contributedIds.size === selectedIds.size
-    && [...contributedIds].every(id => selectedIds.has(id))
+    && contributedIds.size === accountedIds.size
+    && [...contributedIds].every(id => accountedIds.has(id))
+    && tierBindingValid
     && manifest.rows.every(row => row.disposition !== 'unverified');
+  } catch {
+    return false;
+  }
+}
+/**
+ * Independently verify every positive-proof omission in a tiered manifest.
+ * This boundary recomputes the selector decision before trusting its proof
+ * rows; a self-consistent caller-authored decision is not an admission fact.
+ */
+export function verifyValidationTierExclusions(manifest: ValidationSelectionManifest): boolean {
+  try {
+  const binding = manifest.selectorBinding;
+  if (!binding || !manifest.tierSelections || !manifest.effectiveTier) {
+    return manifest.rows.every((row) => row.disposition !== 'excluded');
+  }
+  if (!(VALIDATION_TIERS as readonly string[]).includes(manifest.effectiveTier)
+    || !Array.isArray(manifest.tierSelections[manifest.effectiveTier])
+    || !Array.isArray(binding.decision?.exclusionProofs)) return false;
+  const expectedDecision = selectAutomaticValidationTier(binding.input);
+  const manifestChangedPaths = Array.isArray(manifest.changedFiles)
+    ? uniqueSorted(manifest.changedFiles.flatMap((change) => [change?.path, change?.oldPath]
+      .filter((path): path is string => typeof path === 'string' && path.length > 0)
+      .map(normalPath)))
+    : undefined;
+  const selectorChangedPaths = new Set(Array.isArray(binding.input.changedPaths)
+    ? binding.input.changedPaths.map(normalPath)
+    : []);
+  if (binding.bindingDigest !== digestCanonicalJson({
+    catalogDigest: binding.catalogDigest,
+    input: binding.input,
+    decision: binding.decision,
+  })
+    || digestCanonicalJson(binding.decision) !== digestCanonicalJson(expectedDecision)
+    || binding.input.snapshotDigest !== automaticValidationTierSnapshotDigest({
+      storyId: manifest.storyId,
+      baseHead: manifest.baseHead,
+      head: manifest.head,
+      changeDigest: manifest.changeDigest,
+    })
+    || manifestChangedPaths === undefined
+    || manifestChangedPaths.some((path) => !selectorChangedPaths.has(path))) return false;
+  const effective = new Set(manifest.tierSelections[manifest.effectiveTier]);
+  return manifest.rows.every((row) => {
+    if (row.disposition !== 'excluded') return true;
+    const proof = binding.decision.exclusionProofs.find((candidate) => candidate.commandId === row.commandId);
+    return !manifest.fullEscalated && !effective.has(row.commandId) && Boolean(proof)
+      && proof!.snapshotDigest === binding.input.snapshotDigest
+      && proof!.indexDigest === binding.decision.impactIndexDigest;
+  });
+  } catch {
+    return false;
+  }
 }
 export const buildSelectionManifest = buildDynamicValidationPlan;
 export const verifySelectionManifest = verifyValidationSelectionManifest;
-export function assertCompleteInventoryCoverage(inventory: ValidationInventory | ValidationInventoryCommand[], rows: SelectionRow[]): void {
+export function assertCompleteInventoryCoverage(
+  inventory: ValidationInventory | ValidationInventoryCommand[],
+  rows: SelectionRow[],
+  options: { allowExcluded?: boolean } = {},
+): void {
   const commands = Array.isArray(inventory) ? inventory : inventory.commands; const ids = new Set(commands.map(row => row.id));
-  if (rows.length !== ids.size || rows.some(row => !ids.has(row.commandId)) || rows.some(row => row.disposition === 'unverified')) throw new Error('selection inventory coverage is incomplete');
+  if (rows.length !== ids.size || rows.some(row => !ids.has(row.commandId))
+    || rows.some(row => row.disposition === 'unverified')
+    || (!options.allowExcluded && rows.some(row => row.disposition === 'excluded'))) {
+    throw new Error('selection inventory coverage is incomplete; excluded rows require explicit allowExcluded');
+  }
 }
 export function assertSelectionIsSingletonUnionMonotonic(context: DynamicValidationContext, manifest: ValidationSelectionManifest): void {
-  if (manifest.totals.executed + manifest.totals.reused + manifest.totals.unverified !== manifest.totals.inventory) throw new Error('selection ledger does not partition inventory');
+  if (manifest.totals.executed + manifest.totals.reused + manifest.totals.excluded + manifest.totals.unverified !== manifest.totals.inventory) throw new Error('selection ledger does not partition inventory');
   if (manifest.totals.unverified !== 0 || manifest.totals.uncovered !== 0) throw new Error('selection monotonicity cannot be certified with gaps');
   if (!verifyValidationSelectionManifest(manifest, { storyId: context.storyId, head: context.head, baseHead: context.baseHead })) throw new Error('selection monotonicity manifest is invalid');
   const expected = buildDynamicValidationPlanInternal(context);
@@ -1070,7 +1459,11 @@ export function evaluateDynamicAuthority(args: {
   if (args.mode === 'off') reasons.push('dynamic-mode-off');
   if (args.focused) reasons.push('focused-validation-is-not-authoritative');
   if (args.riskTier !== 'local') reasons.push('risk-tier-not-dynamic-authority');
-  if (!verifyValidationSelectionManifest(args.manifest)) reasons.push('selection-manifest-invalid');
+  try {
+    if (!verifyValidationSelectionManifest(args.manifest)) reasons.push('selection-manifest-invalid');
+  } catch {
+    reasons.push('selection-manifest-invalid');
+  }
   if (args.manifest.fullEscalated) reasons.push('full-escalation-required');
   if (args.pinnedCommandsExecuted === false) reasons.push('verification-intent-pin-not-executed');
   const allPrerequisites = enforcementPrerequisites.every(row => row.pass);
@@ -1084,7 +1477,7 @@ export function formatDynamicValidationReport(args: { manifest: ValidationSelect
   const m = args.manifest;
   const lines = [
     'Dynamic validation plan', '  inventory: ' + m.totals.inventory, '  changed files: ' + m.changedFiles.length,
-    '  pinned commands: ' + m.rows.filter((row) => row.reasons.includes('verification-intent-pin')).length, '  executed: ' + m.totals.executed, '  reused: ' + m.totals.reused,
+    '  pinned commands: ' + m.rows.filter((row) => row.reasons.includes('verification-intent-pin')).length, '  executed: ' + m.totals.executed, '  reused: ' + m.totals.reused, '  excluded: ' + m.totals.excluded,
     '  unverified: ' + m.totals.unverified, '  uncovered: ' + m.totals.uncovered, '  unmapped changes: ' + m.totals.unmappedChanges,
     '  escalation: ' + (m.fullEscalated ? 'yes' : 'no'), '  selection digest: ' + stableDigest(m),
   ];

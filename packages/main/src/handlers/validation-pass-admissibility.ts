@@ -1,7 +1,6 @@
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
-import { storedDynamicReceiptIntegrityReasons } from './story-aware-validation.js';
-import type { HandlerContext } from './context.js';
+import { hasStoryAwareValidationArtifacts, storedDynamicReceiptIntegrityReasons } from './story-aware-validation.js';
 import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { checkEvidenceFreshnessForGit, currentGitHead } from '../core/evidence-freshness.js';
@@ -9,6 +8,8 @@ import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { classifyGitStatusRows, classifierOptionsForCheck, isBlockingDirty, readGitStatusLines } from '../core/dirty-worktree-gate.js';
+import type { StoryStore } from '../core/store.js';
+import { resolve } from 'node:path';
 
 function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
   if (!Array.isArray(coverage?.entries)) return null;
@@ -38,10 +39,11 @@ function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
   });
 }
 
-function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string): string {
+type ValidationAdmissionContext = { root: string; store: StoryStore; resolvedStoryGitCwd?: string };
+
+function currentChecklistCoverageSnapshot(ctx: ValidationAdmissionContext, storyId: string, gitCwd: string): string {
   const story = ctx.store.readStory(storyId);
   const checklist = ctx.store.readChecklist(storyId);
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   const head = currentGitHead(gitCwd);
   const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
   const coverage = buildVerificationCoverage(
@@ -59,7 +61,7 @@ function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string):
   return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
 }
 
-function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCwd: string): string {
+function blockingDirtyWorktreeReason(ctx: ValidationAdmissionContext, storyId: string, gitCwd: string): string {
   const status = readGitStatusLines(gitCwd);
   if (!status.ok) return `unable to read git status for validation evidence skip (${status.error})`;
   const config = loadConfig(ctx.root);
@@ -71,7 +73,49 @@ function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCw
   return `current worktree has blocking dirty path(s): ${sample}${suffix}`;
 }
 
-export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, storyId: string): ValidationEvidenceAdmissibility {
+export function dynamicValidationCoverageAdmission(
+  output: unknown,
+  allowDynamicCoverage: boolean,
+): { dynamicOrigin: boolean; allowed: boolean; reasonCode?: string } {
+  const value = output as any;
+  const dynamicOrigin = value?.dynamicValidation?.authority === 'enforce-authority'
+    || String(value?.provider || '').includes('dynamic-authoritative');
+  return dynamicOrigin && !allowDynamicCoverage
+    ? { dynamicOrigin, allowed: false, reasonCode: 'dynamic_requires_canonical_full_plan' }
+    : { dynamicOrigin, allowed: true };
+}
+
+/**
+ * Decide whether DONE must run the dynamic admission path. This is origin
+ * routing, not authentication: a stored dynamic claim or enforce-mode runtime
+ * lineage selects the strict evaluator, and that evaluator authenticates the
+ * complete PASS before granting admission. An unsigned dynamic claim can only
+ * route to refusal; legacy full evidence with no dynamic discriminator keeps
+ * its existing DONE contract.
+ */
+export function requiresDynamicValidationAdmission(
+  ctx: { root: string; store: StoryStore },
+  storyId: string,
+): boolean {
+  const evidence = ctx.store.readTestEvidence(storyId);
+  if (!evidence || evidence.result !== 'PASS') return false;
+  try {
+    const claimedDynamicOrigin = dynamicValidationCoverageAdmission(JSON.parse(evidence.output), true).dynamicOrigin;
+    const hasDynamicLineage = hasStoryAwareValidationArtifacts(ctx.root, storyId);
+    return claimedDynamicOrigin || hasDynamicLineage;
+  } catch {
+    return hasStoryAwareValidationArtifacts(ctx.root, storyId);
+  }
+}
+
+export function assessStoredValidationPassAdmissibility(
+  ctx: ValidationAdmissionContext,
+  storyId: string,
+  options: { allowDynamicCoverage: boolean },
+): ValidationEvidenceAdmissibility {
+  if (!options || typeof options.allowDynamicCoverage !== 'boolean') {
+    throw new Error('assessStoredValidationPassAdmissibility: options.allowDynamicCoverage must be an explicit boolean');
+  }
   const evidence = ctx.store.readTestEvidence(storyId);
   // Preserve the legacy gate's cheap path: absent or failed evidence means
   // "run validate", not "load every PASS-only freshness dependency first".
@@ -94,7 +138,11 @@ export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, sto
       evidence,
     };
   }
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const authoritativeGitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  if (ctx.resolvedStoryGitCwd && resolve(ctx.resolvedStoryGitCwd) !== resolve(authoritativeGitCwd)) {
+    throw new Error('assessStoredValidationPassAdmissibility: resolvedStoryGitCwd must match the Story workspace');
+  }
+  const gitCwd = ctx.resolvedStoryGitCwd ?? authoritativeGitCwd;
   if (!verifyTestValidationEvidence(storyId, evidence, gitCwd)) {
     return { ok: false, reasons: ['validation evidence signature is missing or invalid; run validate again'],
       reasonCodes: ['validation_evidence_signature_invalid'], lineage: 'rejected', evidence };
@@ -102,7 +150,7 @@ export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, sto
   const result = evaluateValidationEvidenceAdmissibility({
     evidence,
     expectedCommand: `proof-or-stop validate --story=${storyId} --json`,
-    currentCoverageSnapshot: currentChecklistCoverageSnapshot(ctx, storyId),
+    currentCoverageSnapshot: currentChecklistCoverageSnapshot(ctx, storyId, gitCwd),
     recordedCoverageSnapshot: canonicalCoverageSnapshotFromReport(evidence?.verificationCoverage),
     blockingDirtyReason: blockingDirtyWorktreeReason(ctx, storyId, gitCwd),
     gitCwd,
@@ -110,12 +158,24 @@ export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, sto
   });
   if (!result.ok) return result;
   const output = JSON.parse(evidence.output);
-  if (output?.dynamicValidation?.authority === 'enforce-authority'
-    || String(output?.provider || '').includes('dynamic-authoritative')) {
+  const dynamicAdmission = dynamicValidationCoverageAdmission(output, options.allowDynamicCoverage);
+  if (!dynamicAdmission.allowed) return {
+    ...result,
+    ok: false,
+    reasonCodes: [...result.reasonCodes, dynamicAdmission.reasonCode!],
+    reasons: [...result.reasons, 'stored dynamic validation cannot satisfy a canonical full-plan consumer'],
+  };
+  if (dynamicAdmission.dynamicOrigin) {
     // The canonical PASS writer may append metadata commits after execution.
     // Generic admissibility above proves current material/story identity and
     // trusted metadata-only ancestry; the signed manifest binds execution HEAD.
-    const failures = storedDynamicReceiptIntegrityReasons(ctx.root, storyId, evidence.headHash || '', output?.dynamicValidation?.manifest);
+    const failures = storedDynamicReceiptIntegrityReasons(
+      ctx.root,
+      storyId,
+      evidence.headHash || '',
+      output?.dynamicValidation?.manifest,
+      gitCwd,
+    );
     if (failures.length) return { ...result, ok: false, reasonCodes: [...result.reasonCodes, ...failures],
       reasons: [...result.reasons, ...failures.map(reason => 'stored dynamic validation rejected: ' + reason)] };
   }
