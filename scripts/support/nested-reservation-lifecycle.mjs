@@ -1,3 +1,5 @@
+import ts from 'typescript';
+import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
@@ -21,6 +23,26 @@ for(const [options,expected]of [[{},0],[{branching:true},0],[{pending:true},2],[
  assert.equal(fixture.active.size,expected,'EXHAUSTED_DESCENDANTS_SINGLE_DRAIN '+JSON.stringify(options));
 }
 console.log('NESTED_RETIREMENT_ORDER_UNIT_CONTROLS PASS');
+
+// Actual identity-function controls with explicit stubbed ps output, plus a real
+// absent-PID refusal. Observation stubs are unit inputs, never kernel authority.
+const mkdirIdentitySource=readFileSync(new URL('../../packages/main/src/core/mkdir-lock.ts',import.meta.url),'utf8');
+function identityDeclaration(source,name){const file=ts.createSourceFile('identity.ts',source,ts.ScriptTarget.Latest,true);const rows=file.statements.filter(node=>ts.isFunctionDeclaration(node)&&node.name?.text===name);assert.equal(rows.length,1,name);return rows[0].getText(file).replace(/^export /,'');}
+const identityFunctions=['failure','table','identity'].map(name=>identityDeclaration(retirementSource,name)).join('\n')+'\n'+identityDeclaration(mkdirIdentitySource,'observedProcessStartTimeMs');
+const identityCompiled=ts.transpileModule(identityFunctions+'\nidentity;',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
+function identityUnit(query){return vm.runInNewContext(identityCompiled,{execFileSync:query,policy:{kernelObservationMs:1000}});}
+const observationDate='Sun Sep 13 18:00:00 2026';let observationQueries=0;
+const identityPositive=identityUnit((_file,args)=>{observationQueries++;if(args.includes('pid=,ppid=,pgid='))return '321 1 321\n';if(args.includes('lstart='))return observationDate;return '321 321 '+observationDate;});
+assert.equal(JSON.stringify(identityPositive(321)),JSON.stringify({pid:321,start:Date.parse(observationDate),pgid:321}));
+assert.equal(observationQueries,1,'IDENTITY_SINGLE_COHERENT_QUERY_REQUIRED');
+for(const raw of ['', '999 321 '+observationDate,'321 0 '+observationDate,'321 321 invalid','321 321 '+observationDate+'\n321 321 '+observationDate])assert.throws(()=>identityUnit(()=>raw)(321),/process identity unavailable/);
+assert.throws(()=>identityUnit(()=>{throw Error('controlled observation unavailable');})(321),/process identity unavailable/);
+for(const pid of [0,1,-1,NaN,Infinity,1.5]){let calls=0;assert.throws(()=>identityUnit(()=>{calls++;throw Error('INVALID_PID_SPAWNED');})(pid),/process identity unavailable/);assert.equal(calls,0,'invalid PID must not spawn ps');}
+const absentPid=2147483647;
+let pidAbsent=false;try{process.kill(absentPid,0);}catch(error){pidAbsent=error.code==='ESRCH';}
+assert.equal(pidAbsent,true,'identity absent-PID control unavailable');
+assert.throws(()=>identityUnit(execFileSync)(absentPid),/process identity unavailable/);
+console.log('NESTED_IDENTITY_OBSERVATION_UNIT_CONTROLS PASS');
 
 // Source-only native protocol controls, embedded into the actual isolated worker.
 export function nestedReservationLifecycleProgram({loader, delegation, lock}) {
