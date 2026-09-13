@@ -42,6 +42,9 @@ import {
 import { tryBuildMaterialClassificationSnapshotForDiagnostics, type MaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
+import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
+
+export { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 
 // B-7c05 CHK-004: RENDER-ONLY brief projection of the story_review result.
 //
@@ -169,7 +172,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // drive this exact site against a wrapper-root fixture.
       const materialClassification = buildStoryReviewMaterialClassification(store, args.storyId, ctx.root);
 
-      const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
+      const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; intentRef?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];
       const scopeBudgetBlocker = storyScopeBudgetBlocker(store, ctx.root, args.storyId);
       if (scopeBudgetBlocker) issues.push({ type: 'scope_budget', severity: 'blocker', message: scopeBudgetBlocker,
@@ -421,6 +424,14 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         for (const lane of VERIFICATION_LANES) {
           const entries = item.verificationIntent?.[lane] || [];
           for (const [index, intent] of entries.entries()) {
+            const reviewGateIssue = reviewGateVerificationIntentIssue(intent);
+            if (reviewGateIssue) {
+              issues.push({
+                ...reviewGateIssue,
+                itemId: item.id,
+                intentRef: intent.id ?? `${item.id}:${lane}:${index}`,
+              });
+            }
             const repositoryWide = intent.scope === 'repository'
               || (intent.scope === undefined
                 && /\bgo\s+test\s+\.\/\.\.\.|\bfull[- ]suite\b|\b(?:complete|entire|full)\s+repository\b|\brepository[- ]wide\b/i.test(intent.desc));

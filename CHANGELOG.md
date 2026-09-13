@@ -327,6 +327,18 @@ Maintenance provenance: codex/lab-route-reader-regression, repair dec07e5c8e2f30
 Verification command (replayed before integration and on main): `["node","scripts/verify-route-reader-regression.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## Lab review-intent-stage-cycle - v0.3.351 - 2026-09-13
+
+The Lab migrates the review-intent-stage-cycle repair from the remote host onto the current local main baseline.
+
+The repair prevents PLAN verification intent from requiring a REVIEW lifecycle verdict that can only be produced after entering REVIEW. Direct Story creation, draft materialization, checklist addition or replacement, and DEV intent amendment reject the bounded invalid shapes before persistence; Story review also reports a blocking, actionable issue for retained legacy data. Legitimate product tests for review pages, review-related CLI behavior, and complete executable pins remain admissible. Verification-intent prompts for Codex, Claude, templates, and the handoff handler teach the same boundary, and the process-fact registry records the writer and consumer contract.
+
+The migrated regression covers common lifecycle wording, canonical reviewer lane names, every persistence path, legacy-data coverage, malformed-input handling, lifecycle-command pin bypasses, and false-positive controls. It is registered in test:serial-reference and has an isolated full-suite resource policy. A different-vendor Anthropic audit passed the final committed candidate.
+
+Maintenance provenance: codex/lab-review-intent-stage-cycle, repair 82365ddd9d57bebd96617e58bfa054434de9e293.
+Verification command: `["node","scripts/verify-review-gate-intent-cycle.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-finalization-lineage - v0.3.351 - 2026-09-13
 
 Restore authenticated review continuity after signed inventory finalization and bounded evidence refresh. B-0980 exposed the original rejection; this Lab does not implement the benchmark runner or complete a Story.

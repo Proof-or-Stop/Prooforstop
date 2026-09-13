@@ -2211,6 +2211,15 @@ function assertProofStoryProgressiveBoundary() {
   assert(coreText.includes('active_disposable_spike_code') && coreText.includes('disposableCodePaths'), 'core/proofstory.ts: active disposable spike code must be a ProofStory diagnostic');
   assert(handlerText.includes('slice_plan_set') && handlerText.includes('parent_ledger_rollup_set'), 'handlers/proofstory.ts: slice plan and parent roll-up writers must be implemented');
   assert(read('packages/main/src/handlers/story-review.ts').includes('ProofStory advisory diagnostics') || read('packages/main/src/handlers/story-review.ts').includes('ProofStory Diagnostics'), 'story-review.ts: story_review must surface ProofStory advisory diagnostics');
+  const storyReviewSource = read('packages/main/src/handlers/story-review.ts');
+  const reviewGateIntentSource = read('packages/main/src/core/review-gate-verification-intent.ts');
+  assert(storyReviewSource.includes('reviewGateVerificationIntentIssue(intent)') && reviewGateIntentSource.includes('review_gate_as_verification_intent'), 'story-review.ts: PLAN review must consume the shared REVIEW lifecycle-verdict classifier');
+  const storyCreateIntentGuards = read('packages/main/src/handlers/story-create.ts').match(/assertNoReviewGateVerificationIntent\(\s*'story_create'/gu) ?? [];
+  assert(storyCreateIntentGuards.length >= 2, 'story-create.ts: direct and from-draft Story intake must reject REVIEW lifecycle verdicts before persistence');
+  const checklistIntentWriters = read('packages/main/src/handlers/checklist.ts');
+  assert(checklistIntentWriters.includes("assertNoReviewGateVerificationIntent('checklist_add'") && checklistIntentWriters.includes("assertNoReviewGateVerificationIntent('checklist_update'") && checklistIntentWriters.includes("assertNoReviewGateVerificationIntent('verification_intent_append'"), 'checklist.ts: PLAN add/replacement and DEV append writers must reject REVIEW lifecycle verdicts before persistence');
+  assert(read('packages/main/src/handlers/testintent-handoff.ts').includes('Do not encode REVIEW lifecycle results from review_pass_set or finding_add as verificationIntent'), 'testintent handoff: prompt guidance must prohibit the same REVIEW lifecycle dependency that story_review rejects');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes('runtime:review_gate_intent_cycle_rejection'), 'process-fact registry: REVIEW lifecycle intent-cycle rejection must remain registered');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('candidate routing escalation is unresolved'), 'candidate routing: gate binding must fail closed on unresolved requiresEscalation');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('DEFAULT_MAX_QUERY_DOCUMENT_FREQUENCY_RATIO'), 'candidate routing: generic query terms must use the recorded document-frequency filter');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('MIN_RANKING_AFFECTING_CUTOFF_SCORE'), 'candidate routing: low-confidence body-only cutoff ties must not force broad review');

@@ -33,6 +33,7 @@ import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/pla
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
+import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -506,6 +507,9 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       fromDraft?: string; // B-9975 CHK-003: from-draft mode
       reproFirstBypassReason?: string; // Allows story_create_from_repro/emergency intake to create the envelope before binding exists.
     }): string {
+      for (const [index, item] of (args.checklist ?? []).entries()) {
+        assertNoReviewGateVerificationIntent('story_create', item.verificationIntent, `CHK-${String(index + 1).padStart(3, '0')}`);
+      }
       if (args.checklist?.some(item => verificationIntentHasPlannedPathDeclarations(item.verificationIntent))) {
         throw new Error(
           'story_create refused: plannedPathDeclarations may only be authored by the dispatched verification-intent role through checklist_update during PLAN [planned_path_writer_not_authorized]',
@@ -582,6 +586,13 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const draftIndex = JSON.parse(readFileSync(join(draftsDir, 'index.json'), 'utf-8'));
         const draftBg = readFileSync(join(draftsDir, 'background.md'), 'utf-8');
         const draftChecklist = JSON.parse(readFileSync(join(draftsDir, 'checklist.json'), 'utf-8'));
+        for (const [index, item] of (draftChecklist.items ?? []).entries()) {
+          assertNoReviewGateVerificationIntent(
+            'story_create',
+            item.verificationIntent,
+            typeof item.id === 'string' ? item.id : `CHK-${String(index + 1).padStart(3, '0')}`,
+          );
+        }
 
         // Shift-left English-only policy: refuse CJK author text from the draft
         // before any artifact is materialized, reusing the same detectCjk
