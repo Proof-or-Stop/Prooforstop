@@ -2957,7 +2957,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/core/acceptance-amendment-journal.ts", "occurrences": 142, "contextSha256": "d28ea6092aab3965a3cd60fe223b52a5a872555987eddbc3dd8759a2556c66e1"},
   {"sourcePath": "packages/main/src/core/convergence-effective-progress.ts", "occurrences": 10, "contextSha256": "bc2270202ea1d97d87984dcb1d4b9b100d761160d5cef8791985d335eff515ed"},
   {"sourcePath": "packages/main/src/core/convergence-progress-journal.ts", "occurrences": 78, "contextSha256": "f10c90cfef4cc8702ef4747345bce332cc539ded292a04fae34ce7dbb304b1fd"},
-  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 393, "contextSha256": "3bfe702a55627bbdf65cf1b6568e9d84e5428f0d540f765557ed08b21255d593"},
+  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 402, "contextSha256": "5bdc72dd75d2f7ace96fdaa4ef9edc6443002e311e631e77c4adb856250728d3"},
 
   {"sourcePath":"packages/main/src/core/delivery-review-authority.ts","occurrences":68,"contextSha256":"d140fc7cff221fdaddf92834a0e97b7fa777608ae309f08b574a6f169c72e893"},
   {"sourcePath": "packages/main/src/core/acceptance-amendment-review.ts", "occurrences": 0, "contextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
@@ -3072,7 +3072,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {"sourcePath": "packages/main/src/core/review-incremental-context.ts", "occurrences": 319, "contextSha256": "9b927d4281078f740c35c5998b03478484b328c5862c8f2d03fcefb3596dd497"},
   {"sourcePath": "packages/main/src/core/review-inventory-epoch.ts", "occurrences": 63, "contextSha256": "0c751e0c5d92604e461b1fd5d0df82538f3313cc4b3840c818a3a06157972aa7"},
-  {"sourcePath": "packages/main/src/core/review-run.ts", "occurrences": 283, "contextSha256": "6c8bc759963a8e0d464760faa2089ecb6595dab69014f4e5353f9fbafb4dcc0d"},
+  {"sourcePath": "packages/main/src/core/review-run.ts", "occurrences": 289, "contextSha256": "23fc9eb3c28ad727261f9e4645dcffb6eedf56e2fbd252d871bffb0cea3098a3"},
   {
     "sourcePath": "packages/main/src/core/source-lineage-audit.ts",
     "occurrences": 131,
@@ -3113,7 +3113,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {
     "sourcePath": "packages/main/src/handlers/story-dispatch.ts",
     "occurrences": 316,
-    "contextSha256": "9f8e92cecf77ba8183e2c59e90e90961e7301dba1ba43b3c4b6542c867e26025"
+    "contextSha256": "5dd9126eaeb21f160d6e9fc526e1c4576eeaa3c1587fd6e2202dd47e10c6bccb"
   },
   {
     "sourcePath": "packages/main/src/core/claim-admissibility/pack-framework.ts",

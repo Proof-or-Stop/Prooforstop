@@ -17,6 +17,7 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
 const quiet = process.argv.slice(2).includes('--quiet');
+const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
 for (const path of readonlyLaneSources) if (!existsSync(join(root,path))) failures.push(`Missing managed readonly source ${path}`);
@@ -3263,7 +3264,7 @@ function assertCloseoutTrustBoundary() {
     assert(machineText.includes(token), `shared reviewer verdict must preserve ${token}`);
   }
   assert(/if \(!story\.currentReviewRound\)[\s\S]{0,300}review_round_missing/.test(machineText), 'reviewer-required lifecycle verdict must fail closed before legacy evidence validation when currentReviewRound is absent');
-  const reviewRunText = read('packages/main/src/core/review-run.ts');
+  const reviewRunText = read('packages/main/src/core/review-run.ts') + read('packages/main/src/core/review-test-index-transition.ts');
   for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'classifyCurrentCloseoutArtifactForReviewRetention', 'storyFilesUnchanged', 'stableEvaluationHead', 'relative(gitRoot, storyDir)', 'not writer authentication', "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);
   }
@@ -7232,6 +7233,18 @@ function assertDeliveryPromiseOutcomeContract(registry, levelRegistry) {
 }
 
 function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
+  const subjectReader = read('packages/main/src/core/review-run.ts');
+  const subjectOffset = subjectReader.indexOf('const inventorySubject = managedInventorySubjectState(store, run,');
+  const managedOffset = subjectReader.indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding)");
+  assert(subjectOffset >= 0 && managedOffset >= 0 && subjectOffset < managedOffset,
+    'inventory subject classification must precede both execution authority paths');
+  const nativeOffset=subjectReader.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)");
+  const supersededOffset=subjectReader.indexOf("if (inventorySubject === 'superseded') return {");
+  assert(nativeOffset>=0 && supersededOffset>managedOffset && supersededOffset>nativeOffset,
+    'forgivable inventory supersession must follow both authentication paths');
+  assert(read('scripts/verify-review-epoch-certification-continuity.mjs').includes('NATIVE_TWO_WAVE_COLLECTION_GREEN'),
+    'native inventory supersession requires behavioral coverage');
+
   const runtimeName = 'runtime:review_execution_authority_gate';
   const levelEntry = levelRegistry.get(runtimeName);
   assert(levelEntry, `${processFactLevelRegistryPath}: required review execution authority runtime fact missing`);
@@ -7285,6 +7298,59 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
+  assert(managedText.includes('isMissingReviewSnapshotError(error)') && managedText.includes("reportHealthIssue('review-maintenance-lineage', error") && reviewGateText.includes('inventorySubjectCause'),
+    'unexpected inventory reader errors must retain health diagnostics and blocker cause');
+  assert(!read('packages/main/src/core/review-evidence-refresh.ts').includes('proof-or-stop.causal-evidence-index')
+    && read('packages/main/src/core/store.ts').includes('schemaVersion: CAUSAL_EVIDENCE_INDEX_SCHEMA'),
+    'causal index writer and refresh reader must share the owning schema constant');
+  assert(closeoutPolicyModule.CLOSEOUT_ARTIFACT_POLICIES.every(policy => !policy.canonicalWriters.includes('verification_evidence_add')),
+    'no closeout policy may grant generic canonical authority to direct evidence writes');
+  assert(JSON.stringify(closeoutPolicyModule.closeoutArtifactPolicyFor('checklist.json')?.canonicalWriters) === JSON.stringify(['verification_evidence_refresh_stale']),
+    'checklist canonical writers must remain exactly the registered stale refresh command');
+  for (const path of ['packages/main/src/core/review-evidence-refresh.ts','packages/main/src/core/review-run.ts']) {
+    assert(!read(path).includes('causal-evidence/'), 'refresh path consumers must derive paths from owning constants: ' + path);
+    assert(read(path).includes('isRefreshRetainableArtifactPath'), 'refresh consumers must share the path predicate: ' + path);
+  }
+  assert(read('scripts/verify-review-epoch-certification-continuity.mjs').includes('VALIDATE_PROCESS_METRICS_STORY_BOUNDARY'),
+    'validate publication must exercise its own metrics Story boundary');
+  assert(!read('packages/main/src/core/review-maintenance-lineage.ts').includes("from './review-run.js'") && !read('packages/main/src/core/closeout-trust.ts').includes("from './review-maintenance-lineage.js'"), 'maintenance readers must not introduce direct importer cycles');
+
+  assert(read('packages/main/src/core/closeout-trust.ts').includes("import type { StoryStore } from './store.js'") && !read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'"), 'closeout -> refresh -> store runtime edge must remain absent');
+  const maintenanceText = read('packages/main/src/core/review-maintenance-lineage.ts') + read('packages/main/src/core/review-evidence-refresh.ts');
+  const convergenceSchema = read('packages/main/src/core/convergence-progress-journal.ts');
+  assert(convergenceSchema.includes('completedEpochBindings: { epochId: string; claimDigest: string }[];')
+    && convergenceSchema.includes('revokedCompletedEpochIds: string[];') && convergenceSchema.includes('humanDecisions?:'), 'convergence history arrays are mandatory except humanDecisions; reader assumptions bind persisted schema');
+  assert(maintenanceText.split('isMissingReviewSnapshotError(error)').length === 4, 'all three maintenance reader catches share the missing-snapshot classifier');
+
+  assert(maintenanceText.includes('const reviewedRemaining=[...reviewedEvidence]')
+    && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,reviewedItem,prior)'),
+    'parent matches cannot grandfather evidence absent from the reviewed authority anchor');
+  assert(maintenanceText.split('reviewRefreshStoryPrefix(gitCwd,store.storyDirPath(storyId))').length===3
+    && !read('packages/main/src/core/review-evidence-refresh.ts').includes("prefix.startsWith('../')"), 'refresh readers share one Story containment guard');
+  assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('semanticRows(priorEvidence)') && maintenanceText.includes('remaining.splice(index,1)')
+    && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,old!,prior)'), 'review retention cannot add coverage or change the reviewed mechanical result');
+  assert(!read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'")
+    && reviewGateText.includes("isRefreshRetainableArtifactPath(path) && isCurrentVerifiedEvidenceRefreshArtifact("), 'production scoped retention owns strict refresh; generic closeout must retain its type-only store dependency');
+
+  assert(maintenanceText.includes("readAt(reviewedHeadHash,'checklist.json')") && maintenanceText.includes('semanticRows(reviewedEvidence)'), 'refresh proof must bind requirements and coverage to the original reviewed snapshot');
+  assert(reviewGateText.includes('const refreshCache=createReviewRefreshReadCache();') && maintenanceText.includes('new WeakMap<ReviewRefreshReadCache,RefreshCacheState>()'), 'one collector-scoped opaque cache prevents repeated full receipt scans');
+  assert(!read('packages/main/src/core/closeout-trust.ts').includes('strictEvidenceRefresh'), 'caller boolean input must not confer strict refresh authority');
+  assert(managedText.includes('isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest)')
+    && !managedText.includes('sealedManagedPromptDigest ?? args.expected.managedPromptDigest'), 'managed launch seal is mandatory; caller bindings never supply a missing digest');
+  assert(managedText.includes('epoch.storyId !== run.storyId') && managedText.includes("binding.wave === currentWave ? 'current' : 'superseded'") && reviewGateText.includes("'superseded_inventory_wave'"), 'finalized managed critic belongs to the current Story and terminal wave');
+
+  assert(maintenanceText.includes('verifyReviewInventoryEpoch(epoch)') && maintenanceText.includes('verifyReviewInventoryReceipt(receipt)')
+    && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,item,evidence)'), 'review maintenance lineage requires signed epoch and strict receipt authority');
+  assert(maintenanceText.includes('verifyCloseoutWriteReceipt(receipt,') && maintenanceText.includes('evaluatePersistedReviewToTestIndexTransition(gitCwd,')
+    && maintenanceText.includes('verifyCertificationWindow(window)') && maintenanceText.includes('consumedByCertificationWindowId !== window.windowId'), 'post-review official lifecycle commits require typed receipt, consumption and exact phase delta checks');
+  assert(reviewGateText.includes('managedInventorySubjectState(store, run,')
+    && managedText.includes('isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest)')
+    && !reviewGateText.includes('managedPromptDigest: managedReviewerPromptDigest('), 'managed consumption must validate the current subject and authenticated launch digest without rebuilding the OPEN-only prompt');
+  assert(read('packages/main/src/handlers/certification-window.ts').includes('isVerifiedReviewMaintenanceCommit({')
+    && managedText.includes('isVerifiedReviewMaintenanceCommit({'), 'managed and certification consumers share bounded signed publication lineage');
+  assert(read('scripts/verify-review-epoch-certification-continuity.mjs').includes('FINALIZED_MANAGED_REVIEW_CONTINUITY_REQUIRED')
+    && read('package.json').includes('npm run test:review-epoch-certification-continuity'), 'actual writer-to-consumer regression remains in the canonical full suite');
+
   for (const token of ['proposalArtifacts.length === 1', 'exactEvidenceMatches', 'processCleanup?.reaped === true']) {
     assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required managed authority token missing: ${token}`);
   }
@@ -10148,9 +10214,9 @@ const inventory = [
     name: 'Explicit Lab maintenance integration boundary',
     files: [
       { relPath: 'scripts/verify-lab-lock-scope.mjs', patterns: ['main changed while the audit ran', 'LAB_FIXTURE_AUDIT_HOLD'] },
-      { relPath: 'scripts/lab-audit.mjs', patterns: ['selectAuditor', 'runHostRun', 'parseAuditResult', 'processCleanup', 'inputDigest', 'readRefs'] },
+      { relPath: 'scripts/lab-audit.mjs', patterns: ['selectAuditor', 'runHostRun', 'parseAuditResult', 'processCleanup', 'inputDigest', 'readRefs', 'candidateVerificationContext', 'checkoutVerified===true', 'row.verifiedHead===head', '!row.error', 'files, verification'] },
       { relPath: 'packages/main/src/core/process-fact-registry.ts', patterns: ['runtime:lab_local_maintenance_integration', 'never Story REVIEW/TEST/DONE'] },
-      { relPath: 'scripts/lab-worktree.mjs', patterns: ['ensureAudit', 'auditIsFresh', 'repairContentDigest', 'changed repair content', 'resumeMainHead', 'no pinned developer', 'acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', 'candidate-story-baseline', 'main-story-baseline', 'candidate-story-integration', 'main-story-integration', '--ff-only', "phase = 'verified'", "'branch', '-d'", "action === 'carry'", "action === 'baseline'", 'story-baseline-supplement', 'baselineWitnesses', 'finishBaselineWitnesses', 'integrationWitnesses', 'createVerificationEvidenceGateEvaluator', 'currentMaterialHash', 'currentStoryFilesHash', 'failureIdentity', "['node', 'scripts/ensure-dist.mjs']", "!path.startsWith('.proof-or-stop/')", 'preservedMainDirty', 'Dirty main changed during Story carry-forward integration'] },
+      { relPath: 'scripts/lab-worktree.mjs', patterns: ['candidateVerificationContext(s.history,head,s.red?.command)', 'record.checkoutVerified=true', 'record.verifiedHead=before', 'selection: selected, verification', 'ensureAudit', 'auditIsFresh', 'repairContentDigest', 'changed repair content', 'resumeMainHead', 'no pinned developer', 'acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', 'candidate-story-baseline', 'main-story-baseline', 'candidate-story-integration', 'main-story-integration', '--ff-only', "phase = 'verified'", "'branch', '-d'", "action === 'carry'", "action === 'baseline'", 'story-baseline-supplement', 'baselineWitnesses', 'finishBaselineWitnesses', 'integrationWitnesses', 'createVerificationEvidenceGateEvaluator', 'currentMaterialHash', 'currentStoryFilesHash', 'failureIdentity', "['node', 'scripts/ensure-dist.mjs']", "!path.startsWith('.proof-or-stop/')", 'preservedMainDirty', 'Dirty main changed during Story carry-forward integration'] },
       { relPath: 'scripts/verify-lab-story-carry-forward.mjs', patterns: ['tamper Story hash binding', 'tamper Story receipt authenticity', 'add open Finding', 'exceed bounded baseline failures', 'product change after evidence', 'overlaps dirty main paths', 'trace_incomplete', 'candidate-story-integration', 'main-story-integration'] },
       { relPath: 'docs/lab-maintenance.md', patterns: ['not formal Story', 'RED', 'GREEN', '--confirm', 'Carry a blocked Story patch', 'not Story DONE', 'strict authoritative', 'normalized diagnostic identity', 'bounded dynamic revalidation'] },
     ],
@@ -11291,7 +11357,7 @@ assert(read('packages/main/src/handlers/verifier.ts').includes('dynamicCoverageA
   assert(effective.includes('schemaVersion: EFFECTIVE_PROGRESS_SCHEMA') && effective.includes('prior.schemaVersion !== state.schemaVersion'), 'Nested progress must reject incompatible domains');
   const store = read('packages/main/src/core/store.ts');
   const outputReader = store.slice(store.indexOf('  causalEvidenceOutputPaths('), store.indexOf('  private recoverOrphanedCausalEvidenceReceipt('));
-  assert(outputReader.includes("index.schemaVersion === 'proof-or-stop.causal-evidence-index.v1'")
+  assert(outputReader.includes("index.schemaVersion === CAUSAL_EVIDENCE_INDEX_SCHEMA")
     && outputReader.includes('verifyCausalEvidenceReceipt(receipt)')
     && outputReader.includes('verified.get(key) === hash'), 'CAS output exemption must match canonical writer and authenticated exact receipt map');
   const regression = read('scripts/verify-canonical-journal-authority.mjs');
@@ -11406,8 +11472,12 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
 // Canonical batched review publication must retain PRE_CERT identity without broadening its path surface.
 {
   const cert = read('packages/main/src/handlers/certification-window.ts');
-  for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS', 'reviewEpochBatch', 'record ${storyId} review epoch metadata', 'path.slice(storyPrefix.length)', 'isPromptBodyArtifactPath(artifact)']) {
+  for (const token of ['reviewEpochBatch', 'record ${storyId} review epoch metadata', 'isVerifiedReviewMaintenanceCommit({']) {
     if (!cert.includes(token)) failures.push(`PRE_CERT canonical review epoch continuity missing ${token}`);
+  }
+  const epochReader=read('packages/main/src/core/review-maintenance-lineage.ts');
+  for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS','p.slice(prefix.length)','isPromptBodyArtifactPath(p)']) {
+    if (!epochReader.includes(token)) failures.push(`PRE_CERT shared canonical reader missing ${token}`);
   }
   if (cert.includes('prompt-bodies')) failures.push('PRE_CERT must reuse the canonical prompt-body path owner');
   if (!read(processFactRegistryPath).includes('prompt-body paths recognized by the canonical prompt-body store')) failures.push('bounded canonical review epoch continuity must be registered');

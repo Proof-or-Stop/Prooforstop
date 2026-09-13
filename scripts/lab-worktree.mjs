@@ -8,7 +8,7 @@ import { join, resolve, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as labPolicy } from '../packages/main/src/core/runtime-fact-registry.ts';
 import { shouldBumpLabVersionForChangedPaths, shouldBuildDoneMainPackageForChangedPaths } from '../packages/main/src/core/runtime-version-policy.ts';
-import { repairContentDigest, auditInput, auditIsFresh, developerHost, executeLabAudit } from './lab-audit.mjs';
+import { repairContentDigest, auditInput, candidateVerificationContext, auditIsFresh, developerHost, executeLabAudit } from './lab-audit.mjs';
 import { auditProviders, selectAuditor } from './lab-audit-providers.mjs';
 
 const help = `Local Lab maintenance (Node 24+; no Story lifecycle, no remote push)
@@ -321,7 +321,8 @@ async function main() {
       const cached = s.audit?.base === base && s.audit?.head === head && s.audit?.configDigest === configDigest
         ? providers.find(provider => provider.id === s.audit.auditorHost && provider.vendor !== dev?.vendor && (!config.preferredAuditor || provider.id === config.preferredAuditor)) : undefined;
       const selected = cached && dev ? { developer: dev, auditor: cached } : selectAuditor(host, config);
-      return { config, selected, expected: { labName: name, developerHost: host, developerVendor: selected.developer.vendor, auditorHost: selected.auditor.id, auditorVendor: selected.auditor.vendor, configDigest, base, head, inputDigest: auditInput(root, base, head).inputDigest } };
+      const verification=candidateVerificationContext(s.history,head,s.red?.command);
+      return { config, selected, verification, expected: { labName: name, developerHost: host, developerVendor: selected.developer.vendor, auditorHost: selected.auditor.id, auditorVendor: selected.auditor.vendor, configDigest, base, head, inputDigest: auditInput(root, base, head, verification).inputDigest } };
     };
     const ensureAudit = async (base, head, auditRoot = s.path) => {
       assertAncestor(auditRoot, base, head);
@@ -329,7 +330,7 @@ async function main() {
       const host = s.developerHost ?? declaredDeveloper;
       if (!host) fail('This Lab has no pinned developer; rerun with --developer PROVIDER naming the provider that implemented the repair.');
       if (declaredDeveloper && declaredDeveloper !== host) fail('Declared developer conflicts with the pinned Lab developer.');
-      const { config, selected, expected } = expectedAudit(auditRoot, base, head, host);
+      const { config, selected, verification, expected } = expectedAudit(auditRoot, base, head, host);
       if (!s.developerHost) { s.developerHost = host; save(s); }
       if (auditIsFresh(s.audit, expected)) return;
       const repairHead = s.phase !== 'active' && s.candidate === head ? git(auditRoot, 'rev-parse', `${head}^`) : head;
@@ -342,7 +343,7 @@ async function main() {
       const resumeMainHead = mainLock ? sha(mainRoot) : undefined;
       // The per-Lab lock remains held; independent main writers may work while the provider runs.
       if (mainLock) { mainLock.release(); mainLock = undefined; }
-      try { audit = await executeLabAudit({ cwd: auditRoot, base, head, developer: host, labName: name, evidenceRoot: join(dir, name + '-audits'), config, selection: selected }); }
+      try { audit = await executeLabAudit({ cwd: auditRoot, base, head, developer: host, labName: name, evidenceRoot: join(dir, name + '-audits'), config, selection: selected, verification }); }
       catch (error) { s.history.push({ kind: 'cross-host-audit-error', head, base, developerHost: host, elapsedMs: Date.now() - started, error: error.message }); save(s); throw error; }
       if (auditRoot === s.path) {
         if (sha(s.path) !== head) fail('Lab changed during audit; result is stale.');
@@ -711,10 +712,11 @@ async function main() {
     };
     const check = (root, kind) => {
       const before = sha(root), r = run(root, s.red.command, s.red.timeoutMs);
-      s.history.push({ kind, ...r }); save(s);
+      const record={kind,...r}; s.history.push(record); save(s);
       if (root === mainRoot) assertMainStable();
       else assertClean(root, s.override);
       if (!passed(r) || sha(root) !== before) fail(`${kind} failed or modified the checkout; workspace retained.`);
+      if(kind==='candidate-green') { record.checkoutVerified=true; record.verifiedHead=before; save(s); }
     };
     const build = root => {
       if (s.build ?? s.bump) {
