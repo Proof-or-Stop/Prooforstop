@@ -1,3 +1,4 @@
+import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
 import { withMachineValidationResources } from './validation-execution-lock.js';
@@ -585,7 +586,7 @@ export function boundValidationEvidenceOutput(
       ...base,
       serializedBytes: Buffer.byteLength(unreduced, 'utf8'),
       reduced: false,
-      outputWithinBound: Buffer.byteLength(unreduced, 'utf8') < VALIDATION_EVIDENCE_BOUND_BYTES,
+      outputWithinBound: isWithinValidationEvidenceWriteBound(Buffer.byteLength(unreduced, 'utf8')),
       elidedCommandOutputs: 0,
       elidedCommandEntries: 0,
       elidedDetailLines: 0,
@@ -681,7 +682,7 @@ export function boundValidationEvidenceOutput(
     ...base,
     serializedBytes,
     reduced: true,
-    outputWithinBound: serializedBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
+    outputWithinBound: isWithinValidationEvidenceWriteBound(serializedBytes),
     elidedCommandOutputs,
     elidedCommandEntries,
     elidedDetailLines,
@@ -936,7 +937,7 @@ export function boundPersistedValidationEvidence<T>(args: {
     : {
       record,
       fileBytes,
-      withinBound: fileBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
+      withinBound: isWithinValidationEvidenceWriteBound(fileBytes),
       disposition,
       state: classifyValidationEvidenceSize(fileBytes),
       sizing,
@@ -970,7 +971,7 @@ export function boundPersistedValidationEvidence<T>(args: {
     return finish(
       plain.record,
       plain.bytes,
-      plain.bytes < VALIDATION_EVIDENCE_BOUND_BYTES ? 'unmodified' : 'refused',
+      isWithinValidationEvidenceWriteBound(plain.bytes) ? 'unmodified' : 'refused',
       null,
     );
   }
@@ -990,7 +991,7 @@ export function boundPersistedValidationEvidence<T>(args: {
     });
     sizing = bounded;
     const reduced = measureWith(bounded.output);
-    if (reduced.bytes !== null && reduced.bytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
+    if (reduced.bytes !== null && isWithinValidationEvidenceWriteBound(reduced.bytes)) {
       return finish(reduced.record, reduced.bytes, bounded.reduced ? 'reduced' : 'unmodified', sizing);
     }
   } catch {
@@ -1000,7 +1001,7 @@ export function boundPersistedValidationEvidence<T>(args: {
 
   const fallback = measureWith(verdictOnlyRecord(args.result, measuredBytes));
   if (fallback.bytes === null) return finish(fallback.record, Number.MAX_SAFE_INTEGER, 'refused', sizing);
-  if (fallback.bytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
+  if (isWithinValidationEvidenceWriteBound(fallback.bytes)) {
     return finish(fallback.record, fallback.bytes, 'verdict_only', sizing);
   }
   return finish(fallback.record, fallback.bytes, 'refused', sizing);

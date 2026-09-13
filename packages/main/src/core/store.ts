@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { VALIDATION_EVIDENCE_BOUND_BYTES } from './validation-evidence-size-policy.js';
+import { VALIDATION_EVIDENCE_BOUND_BYTES, isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationMetadataWrite } from './validation-execution-lock.js';
 import { writePromptBody, readReviewPromptBody } from './prompt-body-store.js';
 import type { ConvergenceProgressJournal } from './convergence-progress-journal.js';
@@ -857,7 +857,7 @@ export class StoryStore {
   prepareTestEvidence(storyId: string, data: TestEvidenceData): PreparedTestEvidence {
     const serialized = JSON.stringify(data, null, 2) + '\n';
     const bytes = Buffer.byteLength(serialized, 'utf8');
-    if (bytes > VALIDATION_EVIDENCE_BOUND_BYTES) {
+    if (!isWithinValidationEvidenceWriteBound(bytes)) {
       throw new Error(`VALIDATION_EVIDENCE_WRITE_BOUND_EXCEEDED: ${bytes} bytes exceeds ${VALIDATION_EVIDENCE_BOUND_BYTES} bytes`);
     }
     JSON.parse(serialized);
@@ -872,6 +872,7 @@ export class StoryStore {
     return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
       this.ensureDir(storyId);
       this.writeSerializedJsonFile(join(this.storyDir(storyId), 'test-evidence.json'), prepared.serialized);
+      this.preparedTestEvidence.delete(token); // Spend only after successful atomic publication.
     });
   }
 

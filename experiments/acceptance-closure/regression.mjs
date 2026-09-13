@@ -5,6 +5,7 @@ import path from 'node:path';
 import { StoryStore } from '../../packages/main/dist/core/store.js';
 import { boundPersistedValidationEvidence, VALIDATION_EVIDENCE_BOUND_BYTES as limit } from '../../packages/main/dist/core/validation-executor.js';
 import { buildVerificationCoverage, getBlockingVerificationEvidenceIssues } from '../../packages/main/dist/core/verification.js';
+import { resolveVerificationIntentPolicy } from '../../packages/main/dist/core/workflow-policy.js';
 const rows = [], failures = [];
 const check = (name, fn) => { try { rows.push({name, ...fn(), passed:true}); } catch(e) { failures.push(name); rows.push({name, passed:false, error:e.message}); } };
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'acceptance-closure-'));
@@ -27,6 +28,8 @@ try {
  check('exact bound admitted; one UTF-8 byte over rejected atomically', () => {
   const base={...initial,output:''}, overhead=Buffer.byteLength(JSON.stringify(base,null,2)+'\n');
   const exact={...base,output:'x'.repeat(limit-overhead)};
+  const exactReduced=boundPersistedValidationEvidence({result:{allPass:true,status:'PASS',commands:[]},buildRecord:()=>exact});
+  assert.equal(exactReduced.withinBound,true,'reducer and writer share the inclusive final cap');
   store.writeTestEvidence(id,exact);assert.equal(fs.statSync(file).size,limit);
   assert.throws(()=>store.writeTestEvidence(id,{...exact,output:exact.output+'x'}),/VALIDATION_EVIDENCE_WRITE_BOUND_EXCEEDED/);
   assert.equal(fs.statSync(file).size,limit);
@@ -45,6 +48,9 @@ try {
   const report=buildVerificationCoverage(cl);
   console.log(JSON.stringify({case:'unbound checklist item',total:report.total,covered:report.covered,missingRequired:report.missingRequired,issues:getBlockingVerificationEvidenceIssues(cl)}));
   assert.equal(report.missingRequired,1);
+  assert.match(report.entries.find(e=>e.itemId==='CHK-006').desc,/acceptance_amendment_propose/);
+  assert.equal(resolveVerificationIntentPolicy({riskSignals:[]},cl).policy,'explicit-intent','existing mixed express policy opts into explicit verification');
+  assert.equal(resolveVerificationIntentPolicy({riskSignals:[]},{items:[{id:'CHK-006',status:'done'}]}).policy,'express-exempt');
   assert.ok(getBlockingVerificationEvidenceIssues(cl).some(x=>x.includes('CHK-006')&&x.includes('verificationIntent')));
   return {missingRequired:report.missingRequired};
  });

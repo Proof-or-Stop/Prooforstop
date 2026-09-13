@@ -20,6 +20,7 @@ try{
  assert.throws(()=>new StoryStore(path.join(temp,'token-control')).writePreparedTestEvidence('B-token',token),/PREPARATION_INVALID/);
  assert.throws(()=>tokenStore.writePreparedTestEvidence('B-token',{...token}),/PREPARATION_INVALID/);
  tokenStore.writePreparedTestEvidence('B-token',token);assert.equal(serializationCalls,1);
+ assert.throws(()=>tokenStore.writePreparedTestEvidence('B-token',token),/PREPARATION_INVALID/);
  fs.writeFileSync(path.join(root,'.gitignore'),'.proof-or-stop/runtime/\n.proof-or-stop/locks/\n.proof-or-stop/activity.jsonl\n');
  fs.writeFileSync(path.join(root,'probe.mjs'),`import fs from 'node:fs';fs.appendFileSync(${JSON.stringify(counter)},'run\\n');console.log('PROBE_PASS');\n`);
  fs.writeFileSync(path.join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'.',rootDir:'.',storyDir:'.proof-or-stop/story/actives',requirementsDir:'docs/requirements',workflow:{profile:'light'},validate:{commands:[{label:'probe',command:process.execPath,args:['probe.mjs'],timeoutMs:30000}]}}));
@@ -40,7 +41,16 @@ try{
  assert.notDeepEqual(fs.readFileSync(file),firstBytes,'new canonical reuse evidence must actually publish');
  const beforeReject=fs.readFileSync(file);const rejected=run('reject');assert.notEqual(rejected.status,0);assert.equal(JSON.parse(rejected.stdout).status,'fail');assert.match(rejected.stdout+rejected.stderr,/canonical-pass-persistence-failed/);assert.deepEqual(fs.readFileSync(file),beforeReject);
  const retry=run('off');assert.equal(retry.status,0);assert.notDeepEqual(fs.readFileSync(file),beforeReject);
+ const configPath=path.join(root,'proof-or-stop.config.json'), config=JSON.parse(fs.readFileSync(configPath));
+ config.validate.commands[0].label='probe-fresh';fs.writeFileSync(configPath,JSON.stringify(config));git('add','proof-or-stop.config.json');git('commit','-qm','change routine identity for executed refusal');
+ const freshHashes=deriveCertificationDomainInputHashes(root,'HEAD',root);assert.ok(freshHashes);persistSyntheticAdmittedWindowForTest({store,storyId:id,projectRoot:root,causalInputHashes:freshHashes});git('add','.proof-or-stop');git('commit','-qm','re-admit isolated fixture after intentional config change');
+ const beforeFreshReject=fs.readFileSync(file);const freshRejected=run('reject');assert.equal(freshRejected.status,1);assert.equal(JSON.parse(freshRejected.stdout).status,'fail');assert.match(freshRejected.stdout+freshRejected.stderr,/canonical-validation-persistence-failed/);assert.deepEqual(fs.readFileSync(file),beforeFreshReject);
+ const consumedRetry=run('off');assert.equal(consumedRetry.status,1);assert.match(consumedRetry.stderr,/pre_cert_window_already_consumed/);assert.deepEqual(fs.readFileSync(file),beforeFreshReject);
+ // A real executed failure spends the heavy window. Recovery must respect that policy.
+ config.validate.commands[0].label='probe-repaired';fs.writeFileSync(configPath,JSON.stringify(config));git('add','proof-or-stop.config.json');git('commit','-qm','new isolated material identity for authorized retry');
+ persistSyntheticAdmittedWindowForTest({store,storyId:id,projectRoot:root,causalInputHashes:deriveCertificationDomainInputHashes(root,'HEAD',root)});git('add','.proof-or-stop');git('commit','-qm','new isolated retry window');
+ const freshRetry=run('off');assert.equal(freshRetry.status,0);assert.notDeepEqual(fs.readFileSync(file),beforeFreshReject);
  const final=store.readStory(id);assert.equal(final.phase,state.phase);assert.equal(final.currentReviewRound,state.currentReviewRound);assert.deepEqual(final.events,state.events);
- assert.deepEqual(fs.readFileSync(counter,'utf8').trim().split(/\r?\n/),['run'],'one actual project execution across publication, refusal and retry');
- console.log('PUBLICATION_LIFECYCLE_GREEN phaseUnchanged=true reviewRoundUnchanged=true projectExecutions=1 refusalNotPass=true retry=PASS');
+ assert.deepEqual(fs.readFileSync(counter,'utf8').trim().split(/\r?\n/),['run','run','run'],'initial execution, forced executed refusal and its retry');
+ console.log('PUBLICATION_LIFECYCLE_GREEN phaseUnchanged=true reviewRoundUnchanged=true projectExecutions=3 executedAndReuseRefusalNotPass=true retry=PASS');
 }finally{fs.rmSync(temp,{recursive:true,force:true});}

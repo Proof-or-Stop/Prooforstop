@@ -17,13 +17,20 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
 const quiet = process.argv.slice(2).includes('--quiet');
-// Real writer and coverage consumer regression; part of the canonical contract command.
-execFileSync(process.execPath, ['experiments/acceptance-closure/regression.mjs'], {
-  cwd: root, stdio: 'pipe', timeout: 60000,
-});
-
-execFileSync(process.execPath, ['experiments/acceptance-closure/publication-snapshot.mjs'], { cwd: root, stdio: 'pipe', timeout: 60000 });
-execFileSync(process.execPath, ['experiments/acceptance-closure/publication-lifecycle.mjs'], { cwd: root, stdio: 'pipe', encoding: 'utf8', timeout: 480000 });
+// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
+for (const [file, marker, timeout] of [
+  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
+]) {
+  try {
+    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
+    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
+    if (!quiet) process.stdout.write(output);
+  } catch (error) {
+    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
+  }
+}
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
@@ -10279,7 +10286,7 @@ const inventory = [
         relPath: 'packages/main/src/handlers/verifier.ts',
         patterns: [
           'persistStoryValidationEvidence',
-          'ctx.store.writeTestEvidence',
+          'ctx.store.writePreparedTestEvidence',
           "disposition: 'reused'",
           'canonical-pass-persistence-failed',
           'commitValidationReuseMetadataTransaction',
@@ -10640,7 +10647,7 @@ const inventory = [
         relPath: 'packages/main/src/handlers/verifier.ts',
         patterns: [
           'persistStoryValidationEvidence',
-          'ctx.store.writeTestEvidence',
+          'ctx.store.writePreparedTestEvidence',
           "disposition: 'reused'",
           'canonical-pass-persistence-failed',
           'commitValidationReuseMetadataTransaction',

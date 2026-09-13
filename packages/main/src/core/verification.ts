@@ -258,7 +258,7 @@ export function buildVerificationCoverage(
       // A diagnostic obligation, never a stored intent or caller-authored receipt.
       entries.push({
         intentRef: `${item.id}:missing-verification-intent`, itemId: item.id,
-        lane: 'happy', desc: 'Checklist item has no verificationIntent; explicit verification coverage is incomplete',
+        lane: 'happy', desc: 'Checklist item has no verificationIntent; explicit verification coverage is incomplete. In INIT/PLAN, author intent through checklist_update. After PLAN, use acceptance_amendment_propose, acceptance_amendment_review and acceptance_amendment_approve in DEV, then verification_evidence_add. In REVIEW/TEST, first complete the required review_inventory_finalize --remediation receipt (REVIEW) and guarded story_advance DEV recovery; a receipt or waiver cannot replace the missing requirement.',
         type: 'docs', priority: 'must', status: 'missing',
       });
     }
