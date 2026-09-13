@@ -9,8 +9,8 @@ const proposal = {
   lane: 'proof-or-stop-review-topology-critic', reviewRunId: 'B-fixture:RR-001',
   conclusion: 'pass', note: 'The bounded fixture inventory has complete terminal evidence.',
   readManifest: {filesReadFully: files, filesTriagedByName: [],
-    candidateSpecSetDigest: 'fixture-candidates', corpusDigest: 'fixture-corpus', scanEscalationReason: null},
-  readLog: {filesReadFully: files, filesTriagedByName: [], summary: {readCount: 1, tokenCount: null}},
+    candidateSpecSetDigest: 'a'.repeat(64), corpusDigest: 'b'.repeat(64), scanEscalationReason: null},
+  readLog: {filesReadFully: files, filesTriagedByName: [], summary: {readCount: 1, tokenCount: null}, digest: 'c'.repeat(64)},
 };
 const classify = value => classifyManagedReviewFinalEnvelope(JSON.stringify(value)).kind;
 assert.equal(classify(proposal), 'valid', 'Existing managed review transport must remain valid');
