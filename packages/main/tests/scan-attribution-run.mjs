@@ -8,7 +8,7 @@ assert.equal(fs.readdirSync(directory).length,0,'new empty attribution directory
 verifyBuildBinding(root);verifyUtilsBuildBinding(root);
 const fixture=createFixtureMachineEnvironment();
 const args=['packages/main/dist/tasks/verification-run-and-guard-smoke.js','--baa5f-verification-fanout-shard'];
-const env={...fixture.env,SCAN_ATTRIBUTION_DIR:directory,NODE_OPTIONS:[fixture.env.NODE_OPTIONS,'--import='+path.join(root,'packages/main/tests/scan-attribution-profile.mjs')].filter(Boolean).join(' ')};
+const env={...fixture.env,SCAN_ATTRIBUTION_DIR:directory,NODE_OPTIONS:[fixture.env.NODE_OPTIONS,'--import='+path.join(root,process.argv[4]==='--four-costs'?'packages/main/tests/four-costs-profile.mjs':'packages/main/tests/scan-attribution-profile.mjs')].filter(Boolean).join(' ')};
 const start=performance.now();let native;
 try{native=spawnSync(process.execPath,args,{cwd:root,env,encoding:'utf8',timeout:1200000,maxBuffer:96*1024*1024});}finally{fixture.cleanup();}
 const wallMs=performance.now()-start;
