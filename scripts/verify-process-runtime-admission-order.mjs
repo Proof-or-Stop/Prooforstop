@@ -43,5 +43,7 @@ try {
  assert(barrierText.includes('process.exit(1)'),'actual barrier must terminate nonzero');
  assert(barrierText.includes('failures.sort()'),'actual barrier must retain all sorted diagnostics');
  assert(!barrierText.includes('PASS'),'refusal cannot emit PASS');
+ const registrationIndex=statements.findIndex(n=>ts.isVariableStatement(n)&&n.declarationList.declarations.some(d=>ts.isIdentifier(d.name)&&d.name.text==='admissionOrderOutput'));
+ assert(registrationIndex>loopIndex,'recursive ordering witness must be unreachable until after actual refusal barrier and positive proof loop');
  console.log('PASS process runtime admission order: actual refusal precedes positive proofs; dependencies and failure barrier retained');
 } finally {rmSync(scratch,{recursive:true,force:true});}
