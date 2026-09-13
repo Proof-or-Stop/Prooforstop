@@ -1,25 +1,5 @@
 # Changelog
 
-## Lab scope-approval-continuity - v0.3.352 - 2026-09-13
-
-# Preserve authenticated scope approval through workflow bookkeeping
-
-B-0980 has a genuine unexpired operator acknowledgement, but a tool-owned first verification pin and additive validation registration changed its digest without changing approved scope. The bounded repair retains that exact signed decision only after independently reconstructing its applied amendment and historical configuration. It issues no new human acknowledgement and changes no interactive issuer policy.
-
-Current-applied-scope reads only: pending next/base subjects and decomposition cannot inherit compatibility. Requirements, scope restrictions, topology, policy, counts and scope-group command resolution remain exact. First pins need genuine V5 historical execution; changed, removed, forged or restored-after-removal retained pins are refused along the selected first-parent publication chain; every authentic first pin must bind the approved requirement meaning. Original raw validation entries remain an ordered subsequence. Stable command identities stay exact; only mechanically generated positional labels may move. Duplicate execution tuples and ambiguous group references are refused. Validation cache/selection and execution freshness remain invalidated independently.
-
-Proof uses immutable first-parent ancestry with invocation-local read reuse and registered aggregate time/command/byte bounds. Live HEAD, config, subject, amendment authority and original expiry are checked before returning. Missing or invalid proof creates no authority. The original journal is never rewritten.
-
-Validation recorded so far: build7 PASS; new regression5 PASS with3 positive scenarios and31 negative controls, including expiry during proof, bounded history/time, changed live inputs, forged history and pin disappearance. The original command-identity regression and runtime-fact contract PASS. The actual amendment application regression PASS. Process-fact contract2 PASS, including the final historical-semantics assertion. Existing verify-scope-budget-approval.mjs fails at its pre-existing DEV guard assertion line56 on both main0.3.351 and the Lab; this is not reported as PASS.
-
-A development-only read of actual B-0980 reconstructed the original signature and returned approved_large_story in597.18ms after the final historical-semantics guard, leaving the approval unchanged. This is a diagnostic, not deployed gate evidence or a benchmark performance comparison. Committed GREEN, exact-candidate independent vendor audit, local integration and post-merge verification remain required. This Lab does not mark B-0980 or any benchmark feature DONE. No remote push is authorized.
-
-Committed GREEN: 1337eaaed0f257f0e8aa9e04db536b66509cab56 PASS 14068ms for the exact pinned RED command. The repair commit is1337eaaed0; exact-candidate audit and integration remain pending.
-
-Maintenance provenance: codex/lab-scope-approval-continuity, repair 1337eaaed0f257f0e8aa9e04db536b66509cab56.
-Verification command (replayed before integration and on main): `["node","scripts/verify-scope-approval-continuity.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab review-finalization-lineage - v0.3.351 - 2026-09-13
 
 Restore authenticated review continuity after signed inventory finalization and bounded evidence refresh. B-0980 exposed the original rejection; this Lab does not implement the benchmark runner or complete a Story.
