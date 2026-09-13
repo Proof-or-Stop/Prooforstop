@@ -22,7 +22,7 @@ export interface ScopeApprovalContinuity {
   provenance: {kind: 'verified-applied-scope-continuity'; approvalSignature: string; historicalCommit: string;
     amendmentId: string; currentBindingDigest: string; firstPinCommits: string[]; validationConfigurationChanged: boolean};
 }
-export type ScopeApprovalContinuityRefusal = 'history_limit' | 'command_limit' | 'byte_limit' | 'time_limit' | 'proof_unavailable' | 'equivalence_not_proven';
+export type ScopeApprovalContinuityRefusal = 'history_limit' | 'command_limit' | 'byte_limit' | 'time_limit' | 'proof_unavailable' | 'equivalence_not_proven' | 'live_input_changed';
 class ContinuityProofLimit extends Error {
   constructor(readonly code: ScopeApprovalContinuityRefusal) { super(`Scope continuity refused: ${code}`); }
 }
@@ -67,7 +67,7 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
   onRefusal?: (reason: ScopeApprovalContinuityRefusal)=>void): ScopeApprovalContinuity|null {
   if(report.status!=='decision_required'||report.diagnostics.length||report.decomposition) return null;
   const approvals=unexpiredScopeBudgetApprovals(store,root,subject.storyId);
-  if(!approvals.length) return null;
+  if(!approvals.length) { onRefusal?.('proof_unavailable'); return null; }
   try {
     const deadline=Date.now()+policy.continuityTotalMs;
     let commands=0,bytes=0;
@@ -75,21 +75,26 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
     const git=(...args: string[])=>{
       checkBudget();
       if(++commands>policy.continuityTotalGitCommands) throw new ContinuityProofLimit('command_limit');
-      const output=execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],
+      let output: string;
+      try { output=execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],
         timeout:Math.max(1,Math.min(policy.continuityGitTimeoutMs,deadline-Date.now())),maxBuffer:policy.continuityGitOutputBytes});
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOBUFS') throw new ContinuityProofLimit('byte_limit');
+        throw error;
+      }
       bytes+=Buffer.byteLength(output);
       if(bytes>policy.continuityTotalGitBytes) throw new ContinuityProofLimit('byte_limit');
       checkBudget();return output.trim();
     };
     const head=git('rev-parse','HEAD');
-    if(realpathSync(git('rev-parse','--show-toplevel'))!==realpathSync(root)) return null;
+    if(realpathSync(git('rev-parse','--show-toplevel'))!==realpathSync(root)) { onRefusal?.('proof_unavailable'); return null; }
     const path=(absolute: string)=>{
       const rel=relative(realpathSync(root),realpathSync(absolute)).replaceAll('\\','/');
       if(!rel||isAbsolute(rel)||rel==='..'||rel.startsWith('../')) throw new Error('Scope continuity path escapes project');
       return rel;
     };
     const configPath=pickProjectConfigPath(root);
-    if(!configPath) return null;
+    if(!configPath) { onRefusal?.('proof_unavailable'); return null; }
     const configText=readFileSync(configPath.path,'utf8');
     const configFile=path(configPath.path),currentConfig=JSON.parse(configText) as ProofOrStopConfig;
     const approvalFile=path(store.storyFilePath(subject.storyId,'scope-budget-decisions.json'));
@@ -101,6 +106,7 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
       // First-parent publication order is one ancestry chain, including merge publications.
       const commits=git('log','--first-parent','--full-history',`--max-count=${policy.continuityHistoryCommits+1}`,'--format=%H',head,'--',file).split('\n').filter(Boolean);
       if(commits.length>policy.continuityHistoryCommits) throw new ContinuityProofLimit('history_limit');
+      if(!commits.length) onRefusal?.('proof_unavailable');
       commits.reverse();histories.set(file,commits);return commits;
     };
     const read=<T>(commit: string,file: string): T=>{
@@ -129,14 +135,14 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
         const normalized=structuredClone(subject.checklist),pins:Array<{itemId:string;ref:string;pin:unknown}>=[];
         if(normalized.items.length!==approved.checklist.items.length) continue;
         let requirementsMatch=true;
-        for(let i=0;i<normalized.items.length;i++) {
+        requirements: for(let i=0;i<normalized.items.length;i++) {
           const current=normalized.items[i]!,original=approved.checklist.items[i]!;
           if(current.id!==original.id||(current.status==='withdrawn')!==(original.status==='withdrawn')) {requirementsMatch=false;break;}
           const oldIntents=collectVerificationIntents(original),newIntents=collectVerificationIntents(current);
           if(oldIntents.length!==newIntents.length) {requirementsMatch=false;break;}
           for(let j=0;j<oldIntents.length;j++) {
             const a=oldIntents[j]!,b=newIntents[j]!;
-            if(a.ref!==b.ref) {requirementsMatch=false;break;}
+            if(a.ref!==b.ref) {requirementsMatch=false;break requirements;}
             if(!a.intent.verification&&b.intent.verification) {
               pins.push({itemId:current.id,ref:b.ref,pin:structuredClone(b.intent.verification)});
               delete b.intent.verification;
@@ -179,7 +185,7 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
         if(git('rev-parse','HEAD')!==head||readFileSync(configPath.path,'utf8')!==configText
           ||!equal(subject,{storyId:subject.storyId,scope:store.readScopeContract(subject.storyId),checklist:store.readChecklist(subject.storyId),proofStory:store.readProofStoryContract(subject.storyId)})
           ||!equal(entries,readAuthenticatedAcceptanceAmendmentJournal(store,subject.storyId,root).entries)
-          ||!unexpiredScopeBudgetApprovals(store,root,subject.storyId).some(current=>equal(current,approval))) return null;
+          ||!unexpiredScopeBudgetApprovals(store,root,subject.storyId).some(current=>equal(current,approval))) { onRefusal?.('live_input_changed'); return null; }
         checkBudget();
         return {approval,provenance:{kind:'verified-applied-scope-continuity',approvalSignature:approval.signature,historicalCommit:commit,
           amendmentId:entry.amendmentId,currentBindingDigest:report.bindingDigest,firstPinCommits:[...new Set(pinCommits)],validationConfigurationChanged:!equal(oldConfig,currentConfig)}};

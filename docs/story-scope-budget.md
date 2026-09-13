@@ -82,7 +82,7 @@ or freshness. Current verification, independent review and all other gates remai
 required; never request another terminal acknowledgement merely to repair a proven
 bookkeeping-only mismatch that this reader can authenticate.
 
-The reader considers at most 256 first-parent publications per input file, with
+Each top-level continuity attempt considers at most 256 first-parent publications per input file, with
 776 reader-owned Git commands, 32 MiB aggregate Git output, 4 MiB per command,
 and a 15-second aggregate proof budget. These are independent limits, not a
 promise that every maximum-size history can be proven within the time/byte cap.
@@ -127,3 +127,5 @@ signed disposable approval fixtures, genuine V5 first-pin executions and negativ
 historical-authority controls. It is registered in the canonical serial-reference
 chain and full-suite resource policy; Lab verification alone is not its ongoing
 regression coverage.
+
+Continuity is attempted only for the top-level report, never recursively for decomposition children. Approval issuance computes its exact current report under the existing mutation lock with continuity disabled. Each separate read revalidates its bounded proof; there is no persistent grant cache. `live_input_changed` identifies a successful reconstruction invalidated by the final live-input check, and a per-command output overflow reports `byte_limit`.

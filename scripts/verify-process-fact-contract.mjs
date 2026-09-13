@@ -9995,6 +9995,9 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(!approvalContinuity.includes('signValidationArtifact(') && !approvalContinuity.includes('writeScopeBudgetDecisions('), 'scope continuity cannot create or rewrite approval authority');
   assert(approvalContinuity.includes('projected({items:[historical]})') && approvalContinuity.includes('projected({items:[original]})'), 'first-pin execution must bind the approved requirement meaning');
   assert(registrySource.includes('packages/main/src/core/scope-approval-continuity.ts'), 'scope continuity consumer must be registered');
+  assert(read('packages/main/src/core/story-scope-budget.ts').includes('undefined, undefined, lineage, false'), 'recursive children must not repeat continuity scans');
+  assert(budgetDecision.includes('scopeBudgetDecisionReport(store, root, args.storyId, args.amendmentId, false)'), 'approval issuance must compute exact reports without historical continuity');
+  assert(approvalContinuity.includes('break requirements') && approvalContinuity.includes('live_input_changed'), 'mismatched intent references and live drift must stop continuity');
   const continuityPackage = JSON.parse(read('package.json'));
   assert(continuityPackage.scripts?.['test:scope-approval-continuity'] === 'node scripts/verify-scope-approval-continuity.mjs', 'behavioral scope continuity regression must be executable');
   assert(continuityPackage.scripts?.['test:serial-reference']?.includes('npm run test:scope-approval-continuity'), 'behavioral scope continuity regression must remain in the canonical pipeline');

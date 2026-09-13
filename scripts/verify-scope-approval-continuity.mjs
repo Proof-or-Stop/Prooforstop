@@ -19,6 +19,8 @@ import {hasMechanicalExecutionAuthority} from '../packages/main/dist/core/verifi
 import {validateVerificationReceipt, VERIFICATION_RECEIPT_BUNDLE_V4} from '../packages/main/dist/core/verification-execution-evidence.js';
 import {SCOPE_BUDGET_DECISION_RUNTIME_POLICY as runtimePolicy} from '../packages/main/dist/core/runtime-fact-registry.js';
 import {parseAllowlistedCommand, runValidationCommand} from '../packages/main/dist/core/validation-executor.js';
+import {scopeBudgetDecisionReport} from '../packages/main/dist/core/story-scope-budget-decisions.js';
+import {buildMilestoneLedger,buildSlicePlan,buildParentLedgerRollup} from '../packages/main/dist/core/proofstory.js';
 import {base,delta} from './verify-acceptance-amendment-delta.mjs';
 
 const root=mkdtempSync(join(tmpdir(),'scope-approval-continuity-')), priorCwd=process.cwd();
@@ -89,9 +91,30 @@ try {
   console.log('SCOPE_APPROVAL_CONTINUITY_OBSERVATIONS '+JSON.stringify({pinOnly:pinOnly.status,commandsOnly:commandsOnly.status,combined:combined.status}));
   for(const [label,r] of Object.entries({pinOnly,commandsOnly,combined}))assert.equal(r.status,'approved_large_story',`SCOPE_APPROVAL_BOOKKEEPING_INVALIDATION: ${label} must retain the original authenticated scope approval`);
   assert.equal(canonicalDigest(approval),canonicalDigest(store.readScopeBudgetDecisions(storyId).decisions[0]));
-  const negativeLabels=[];
+  const exactCurrent=evaluateStoryScopeBudget({...approved,checklist:pinned},additive);
+  let historicalCalls=0;
+  const originalGit=child.execFileSync;
+  child.execFileSync=function(file,args,options){if(file==='git'&&args[0]==='log')historicalCalls++;return Reflect.apply(originalGit,this,[file,args,options]);};syncBuiltinESMExports();
+  try { const issuer=scopeBudgetDecisionReport(store,root,storyId,undefined,false);assert.equal(issuer.status,'decision_required');assert.equal(issuer.bindingDigest,exactCurrent.bindingDigest);assert.equal(historicalCalls,0,'issuer report must never scan history'); } finally { child.execFileSync=originalGit;syncBuiltinESMExports(); }
+  const parentId='B-continuity-parent';
+  store.writeStory(parentId,{storyId:parentId,name:parentId,title:'Synthetic decomposition parent',phase:'PLAN',priority:'medium',createdAt:now,events:[]});
+  store.writeChecklist(parentId,approved.checklist);store.writeScopeContract(parentId,{...approved.scope,storyId:parentId,allowedModify:[],allowedCreate:[],allowedTest:[]});store.writeProofStoryContract(parentId,{...approved.proofStory,storyId:parentId});
+  const rows=[storyId,'B-unused-second-child'].map((assignedStory,i)=>({id:`M-${i+1}`,sourceRequirementId:`REQ-${i+1}`,claim:'Preserve assigned behavior',doneMeans:'Assigned behavior is observable',requiredEvidence:['cli_blackbox'],checklistRefs:['CHK-001'],verificationIntentRefs:['CHK-001:happy:0'],assignedStory,status:'planned'}));
+  const ledger=buildMilestoneLedger({storyId:parentId,milestones:rows});store.writeMilestoneLedger(parentId,ledger);
+  const slicePlan=buildSlicePlan({storyId:parentId,ledger,slices:rows.map(row=>({id:`slice-${row.id}`,milestoneIds:[row.id],reason:'One assignment per child',assignedStory:row.assignedStory}))});store.writeProofStorySlicePlan(parentId,slicePlan);
+  store.writeProofStoryParentLedgerRollup(parentId,buildParentLedgerRollup({storyId:parentId,ledger,slicePlan,children:rows.map(row=>({storyId:row.assignedStory,milestoneIds:[row.id],status:'planned',evidenceRefs:[]}))}));
+  historicalCalls=0;child.execFileSync=function(file,args,options){if(file==='git'&&args[0]==='log')historicalCalls++;return Reflect.apply(originalGit,this,[file,args,options]);};syncBuiltinESMExports();
+  try {
+    const parentReport=readStoryScopeBudget(store,root,parentId);
+    assert(parentReport.decomposition?.diagnostics.includes(`child ${storyId} is not independently within budget: decision_required`),'decomposition must reach the intended over-budget child');
+    assert.equal(historicalCalls,0,'decomposition child must not scan history');
+    assert.equal(report().status,'approved_large_story','the same child still qualifies as a top-level continuity read');
+    assert(historicalCalls>0,'positive control must actually scan history');
+  } finally {child.execFileSync=originalGit;syncBuiltinESMExports();}
+  const negativeLabels=['exact issuer report skips historical continuity','decomposition child skips historical continuity'];
   const refused=(label)=>{const r=report();assert.notEqual(r.status,'approved_large_story',label);negativeLabels.push(label);return r;};
   const withChecklist=(label,mutate)=>{const changed=structuredClone(pinned);mutate(changed);store.writeChecklist(storyId,changed);try{refused(label);}finally{store.writeChecklist(storyId,pinned);}};
+  withChecklist('changed early intent reference',c=>{c.items[0].verificationIntent.edge.push(c.items[0].verificationIntent.happy.pop());});
   withChecklist('changed requirement',c=>{c.items[0].title+=' changed';});
   withChecklist('changed declared file',c=>{c.items[5].files.modify.push('src/other.ts');});
   withChecklist('withdrawn requirement',c=>{c.items[0].status='withdrawn';});
@@ -141,7 +164,8 @@ try {
     },'time_limit');
     assert(timeBoundTriggered);
   }finally{Date.now=originalNow;}
-  withGitObserver('missing historical approval publication',(file,args)=>file==='git'&&args[0]==='log'&&args.at(-1).endsWith('scope-budget-decisions.json')?'':undefined);
+  withGitObserver('per-command output overflow',(file,args)=>{if(file==='git'&&args[0]==='log')throw Object.assign(new Error('synthetic maxBuffer overflow'),{code:'ENOBUFS'});},'byte_limit');
+  withGitObserver('missing historical approval publication',(file,args)=>file==='git'&&args[0]==='log'&&args.at(-1).endsWith('scope-budget-decisions.json')?'':undefined,'proof_unavailable');
   withGitObserver('oversized historical publication inventory',(file,args)=>file==='git'&&args[0]==='log'?
     Array.from({length:runtimePolicy.continuityHistoryCommits+1},(_,i)=>i.toString(16).padStart(40,'0')).join('\n'):undefined,'history_limit');
   assert(runtimePolicy.continuityTotalGitCommands>=3*runtimePolicy.continuityHistoryCommits+5,'command bound accommodates all three bounded file inventories and Git identity checks');
@@ -149,13 +173,13 @@ try {
   try {
     withGitObserver('configuration changes during proof',(file,args)=>{
       if(file==='git'&&args[0]==='log'&&!configDrifted){configDrifted=true;const changed=structuredClone(additive);changed.validate.extra='concurrent change';setConfig(changed);}
-    });
+    },'live_input_changed');
     assert(configDrifted);
   }finally{setConfig(additive);}
   let headDrifted=false;
   withGitObserver('HEAD changes during proof',(file,args,options,original)=>{
     if(file==='git'&&args[0]==='log'&&!headDrifted){headDrifted=true;original('git',['commit','--allow-empty','-qm','synthetic concurrent HEAD move'],{cwd:root,stdio:'pipe'});}
-  });
+  },'live_input_changed');
   assert(headDrifted);
   assert.equal(report().status,'approved_large_story','a stable subsequent read can reconstruct current authority');
   const staleEvidence=structuredClone(pinned);staleEvidence.items[5].verificationEvidence[0].receipt.selectorMatched=false;store.writeChecklist(storyId,staleEvidence);
@@ -208,16 +232,27 @@ try {
   git('add','.');git('commit','-qm','synthetic original approval already contains an immutable pin');
   assert.equal(readStoryScopeBudget(store,root,storyId).status,'approved_large_story');
   setConfig(additive);
-  const missingOriginalPin=structuredClone(initiallyPinned.checklist);delete missingOriginalPin.items[0].verificationIntent.happy[0].verification;store.writeChecklist(storyId,missingOriginalPin);
+  assert.equal(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','additive registration retains an originally pinned approval');
+  console.log('SCOPE_APPROVAL_CONTINUITY_ORIGINAL_PIN_POSITIVE_PASS');
+  await createChecklistHandlers({root,scanRoot:root,store,verificationCommandRunner,log(){}}).verification_evidence_add({storyId,itemId:'CHK-001',intentRef:'CHK-001:happy:1',kind:'integration_test',command:'node verify.cjs',selector:'CONTINUITY_REAL_EXECUTION_PASS',note:'Real new pin alongside a different immutable pin already bound by the signed approval.'});
+  const retainedAndNewPins=store.readChecklist(storyId);
+  git('add','.');git('commit','-qm','publish new pin beside original approved pin');
+  assert.equal(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','historical authentication retains original pin while stripping only new pin');
+  console.log('SCOPE_APPROVAL_CONTINUITY_MIXED_PINS_POSITIVE_PASS');
+  const missingOriginalPin=structuredClone(retainedAndNewPins);delete missingOriginalPin.items[0].verificationIntent.happy[0].verification;store.writeChecklist(storyId,missingOriginalPin);
   assert.notEqual(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','an originally approved pin cannot be removed');negativeLabels.push('original approved pin removal');
-  const replacedOriginalPin=structuredClone(initiallyPinned.checklist);replacedOriginalPin.items[0].verificationIntent.happy[0].verification.command='node --version';store.writeChecklist(storyId,replacedOriginalPin);
+  const replacedOriginalPin=structuredClone(retainedAndNewPins);replacedOriginalPin.items[0].verificationIntent.happy[0].verification.command='node --version';store.writeChecklist(storyId,replacedOriginalPin);
   assert.notEqual(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','an originally approved pin cannot be replaced');negativeLabels.push('original approved pin replacement');
-  store.writeChecklist(storyId,initiallyPinned.checklist);setConfig(config);
+  store.writeChecklist(storyId,retainedAndNewPins);
+  assert.equal(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','restoring the exact original pin restores continuity');
+  setConfig(config);
+  git('add','.');git('commit','-qm','restore disposable config after mixed-pin witness');
   git('switch','-q',`story/${storyId}`);
   const removed=structuredClone(pinned);removed.items=removed.items.filter(i=>i.id!=='CHK-006');store.writeChecklist(storyId,removed);
   git('add','.');git('commit','-qm','synthetic removed pinned item');
   store.writeChecklist(storyId,pinned);git('add','.');git('commit','-qm','synthetic restored pinned item');
   refused('removed then restored pinned item cannot erase transition');
+  console.log('SCOPE_APPROVAL_CONTINUITY_SCENARIO_COUNTS '+JSON.stringify({positive:5,negative:negativeLabels.length}));
   console.log('SCOPE_APPROVAL_CONTINUITY_NEGATIVES '+JSON.stringify(negativeLabels));
   console.log('SCOPE_APPROVAL_CONTINUITY_PASS');
 } finally {process.chdir(priorCwd);rmSync(root,{recursive:true,force:true});}

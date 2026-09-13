@@ -58,8 +58,8 @@ export function unexpiredScopeBudgetApprovals(store: StoryStore, root: string, s
     Date.parse(decision.issuedAt) <= now && Date.parse(decision.expiresAt) > now) ?? [];
 }
 
-export function scopeBudgetDecisionReport(store: StoryStore, root: string, storyId: string, amendmentId?: string): StoryScopeBudgetReport {
-  if (!amendmentId) return readStoryScopeBudget(store, root, storyId);
+export function scopeBudgetDecisionReport(store: StoryStore, root: string, storyId: string, amendmentId?: string, allowApprovalContinuity = true): StoryScopeBudgetReport {
+  if (!amendmentId) return readStoryScopeBudget(store, root, storyId, undefined, undefined, { allowApprovalContinuity });
   if (store.readStory(storyId).phase !== 'DEV') throw new Error('An amendment budget decision requires DEV');
   const entry = createAcceptanceAmendmentController(store, root).show(storyId).entries.find(entry => entry.amendmentId === amendmentId);
   if (!entry || !['PROPOSED', 'REVIEWING', 'APPLYING'].includes(entry.state)) throw new Error('Scope budget requires a current pending signed amendment');
@@ -74,7 +74,7 @@ export function scopeBudgetDecisionReport(store: StoryStore, root: string, story
       if (digest !== canonicalDigest(entry.base[key]) && digest !== canonicalDigest(next[key])) throw new Error('Scope budget interrupted amendment drift');
     }
   }
-  return readStoryScopeBudget(store, root, storyId, next, entry.base);
+  return readStoryScopeBudget(store, root, storyId, next, entry.base, { allowApprovalContinuity });
 }
 
 export interface ScopeBudgetApprovalArgs {
@@ -100,7 +100,7 @@ export function approveStoryScopeBudget(store: StoryStore, root: string, args: S
   assertOperator(args);
   return withReviewInventoryMutationLock(store, args.storyId, () => {
     if (!['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST'].includes(store.readStory(args.storyId).phase)) throw new Error('Scope budget approval is available only before or during implementation and verification');
-    const report = scopeBudgetDecisionReport(store, root, args.storyId, args.amendmentId);
+    const report = scopeBudgetDecisionReport(store, root, args.storyId, args.amendmentId, false);
     if (!report.bindingDigest || report.bindingDigest !== args.bindingDigest) throw new Error('Scope budget approval binding is stale; inspect the current scope again');
     if (report.diagnostics.length || !report.exceeded.length || !['decision_required', 'approved_large_story'].includes(report.status)) {
       throw new Error('Only known over-budget scope may receive a large-Story approval; unknown scope requires repair');
@@ -114,7 +114,7 @@ export function approveStoryScopeBudget(store: StoryStore, root: string, args: S
     if (args.amendmentId) {
       const entry = createAcceptanceAmendmentController(store, root).show(args.storyId).entries.find(entry => entry.amendmentId === args.amendmentId);
       if (!entry) throw new Error('Scope budget amendment disappeared');
-      resultingScopeDigest = readStoryScopeBudget(store, root, args.storyId, deriveAcceptanceAmendment(entry.base, entry.delta)).bindingDigest;
+      resultingScopeDigest = readStoryScopeBudget(store, root, args.storyId, deriveAcceptanceAmendment(entry.base, entry.delta), undefined, { allowApprovalContinuity: false }).bindingDigest;
     }
     const issued = Date.now();
     const claims = { schemaVersion: 'story-scope-budget-approval.v1' as const, kind: 'human-large-story' as const,
