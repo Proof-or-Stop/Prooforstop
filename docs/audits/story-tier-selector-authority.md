@@ -398,6 +398,28 @@ After repair, the canonical build, core smoke, 30-class mutation audit, real
 material-plus-metadata TEST/DONE admission fixture and live static-edge scan pass.
 A new committed-head GREEN and a fresh Claude PASS remain mandatory.
 
+## Thirteenth Claude audit and remediation
+
+The exact repair-head audit of `050c6a9359` returned `fail` under run
+`c897a03b-580f-4555-8e68-5d0a17f346d3` after 582,016 ms. Claude confirmed the
+three selector reconstructions, proof binding, fail-closed hostile input handling,
+repository-full no-reuse rule, auth-first DONE classification, graph cache and
+static dependency digests, then found one high-risk participation-floor
+asymmetry and four adjacent contract gaps:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A13-F1 gate rows could disappear | Gate and validation-infrastructure rows projected to repository-full membership, but the executor could positively exclude an unaffected row and the risk calculation then ignored excluded rows | A shared participation predicate now makes `always`, `full-only`, whole-repository, never-reuse, gate and validation-infrastructure rows non-omittable. Authority risk is derived from the complete live catalog. Tests prove an otherwise-unselected gate row executes and an excluded gate mutation forces full fallback |
+| A13-F2 consumer did not re-derive floors | Stored TEST/DONE admission validated selector proofs but skipped catalog policy after seeing `excluded` | The stored consumer runs `validationManifestExcludedRowFloorReasons` over the live catalog before receipts; a mutation independently asserts `dynamic_excluded_row_not_omittable` for an excluded gate row |
+| A13-F3 observe/shadow shared reuse drift | A helper silently enabled cross-invocation shared execution for observe/shadow by default while prose called it retained behavior | Only `off` enables the previous default. Observe, shadow and enforce require explicit `validate.sharedExecution=true`; planner cases pin all mode/opt-in combinations and the operations guide states this boundary directly |
+| A13-F4 mixed invalid complete roots | Complete roots rejected empty/all-invalid arrays but filtered a mixed invalid array into an authoritative valid subset | Complete declarations are accepted only when the original array is non-empty and every original element is a non-empty string. The mixed string-plus-number case is rejected by config, remains partial through schema-bypassing injection, widens with `command_exclusion_unproven`, and yields no proof |
+| A13-F5 DONE used two Git trees | Classification used the supplied resolved Git tree, then admission silently resolved another | DONE passes the same tree through `resolvedStoryGitCwd`; the admission boundary compares it with canonical Story resolution. The real fixture derives that tree through the production resolver and a wrong-tree DONE call emits the named refusal |
+
+The canonical build, core smoke, 30-class mutation audit and real TEST/DONE
+fixture pass on the repair tree. Static digests were refreshed for the changed
+core, handler and planner-smoke dependency closure; committed-head GREEN and a
+fresh Claude PASS remain mandatory.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,

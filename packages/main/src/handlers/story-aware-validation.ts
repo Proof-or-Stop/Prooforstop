@@ -75,6 +75,7 @@ import {
   isReceiptRevoked,
   verifyValidationShardReceipt,
   ValidationSelectorContextError,
+  validationCatalogEntryRequiresParticipation,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import {
@@ -528,6 +529,8 @@ export function storedDynamicReceiptIntegrityReasons(
       return ['dynamic_baseline_invalid'];
     const inventory = discoverValidationInventory(projectRoot);
     const catalog = compileValidationCatalog(inventory);
+    const excludedFloorReasons = validationManifestExcludedRowFloorReasons(catalog, manifest);
+    if (excludedFloorReasons.length > 0) return excludedFloorReasons;
     if (manifest.selectorBinding) try {
       let graph: DualRevisionImpactGraph | undefined;
       if (manifest.dependencyGraphDigest) {
@@ -578,6 +581,21 @@ export function storedDynamicReceiptIntegrityReasons(
     }
     return [];
   } catch { return ['dynamic_evidence_unavailable_or_malformed']; }
+}
+
+export function validationManifestExcludedRowFloorReasons(
+  catalog: ValidationCatalogEntry[],
+  manifest: ValidationSelectionManifest,
+): string[] {
+  const byId = new Map(catalog.map((entry) => [entry.id, entry]));
+  for (const row of manifest.rows) {
+    const entry = byId.get(row.commandId);
+    if (!entry) return ['dynamic_selector_context_changed'];
+    if (row.disposition === 'excluded' && validationCatalogEntryRequiresParticipation(entry)) {
+      return ['dynamic_excluded_row_not_omittable'];
+    }
+  }
+  return [];
 }
 
 export interface DynamicShardArtifact {
@@ -1138,12 +1156,9 @@ export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
  */
 export function participatingValidationRiskTier(
   catalog: ValidationCatalogEntry[],
-  manifest: ValidationSelectionManifest,
+  _manifest: ValidationSelectionManifest,
 ): 'local' | 'shared' {
-  return catalog
-    .filter((entry) => manifest.rows.some((row) => row.commandId === entry.id
-      && (row.disposition === 'execute' || row.disposition === 'reuse')))
-    .every((entry) => entry.riskTier === 'local') ? 'local' : 'shared';
+  return catalog.every((entry) => entry.riskTier === 'local') ? 'local' : 'shared';
 }
 
 export function deriveGateOwnedPrerequisites(args: {
@@ -1195,11 +1210,9 @@ export function deriveGateOwnedPrerequisites(args: {
     changedTestPropagationVerified,
     sourceFirstBuildProofActive: Boolean(args.buildProofDigest) && args.buildResult?.allPass === true,
     buildAlwaysExecuted: args.buildResult?.commands.length === 1 && args.buildResult?.allPass === true,
-    // Gate/validation-infra rows remain in the inventory and are selected by
-    // impact/full-escalation rules, but their mere presence must not make every
-    // unrelated local Story ineligible.  Eligibility is about the rows this
-    // manifest actually executes or reuses; a selected gate row still forces
-    // full fallback through `manifest.fullEscalated`/risk below.
+    // Risk is derived from the complete live catalog. Gate and validation
+    // infrastructure rows are participation floors and can never disappear
+    // from authority eligibility through an excluded-row mutation.
     storyRiskEligible: participatingValidationRiskTier(args.prepared.catalog, manifest) === 'local'
       && !manifest.fullEscalated && shardEvidenceClean,
     periodicFullPolicyActive: baselineCurrent,

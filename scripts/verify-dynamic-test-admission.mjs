@@ -19,6 +19,7 @@ const {readStoryAwareValidationArtifacts,persistStoryAwareValidationArtifacts} =
 const {appendReceiptRevocation,createValidationCommandReceipt} = await load('core/story-aware-validation.js');
 const { runValidateGate, runDoneOracleGate } = await load('handlers/phase-gates.js');
 const { assessStoredValidationPassAdmissibility, requiresDynamicValidationAdmission } = await load('handlers/validation-pass-admissibility.js');
+const { resolveGitCwd } = await load('core/story-signed-workspace-resolution.js');
 assert.throws(
   () => assessStoredValidationPassAdmissibility({}, 'B-invalid-options'),
   /options\.allowDynamicCoverage must be an explicit boolean/,
@@ -78,6 +79,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         git('add', 'packages/main/src/local-input.ts', `.proof-or-stop/story/actives/${storyId}/index.json`);
         git('commit', '-qm', 'change build input and story metadata');
         const head = git('rev-parse', 'HEAD');
+        const storyGitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
         await runStoryAwareDynamicValidation({ projectRoot: root, gitCwd: root, storyId, baseHead, head, mode: dynamicMode, commands: configured });
         acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
         persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: deriveCertificationDomainInputHashes(root, 'HEAD', root) });
@@ -97,7 +99,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
           assert.equal(requiresDynamicValidationAdmission({ root, store, gitCwd: root }, storyId), false,
             'observe artifacts beside a canonical PASS must not widen DONE admission');
           let observeDoneError = '';
-          try { runDoneOracleGate(storyId, store, root, { stop() {} }, root); }
+          try { runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd); }
           catch (error) { observeDoneError = error instanceof Error ? error.message : String(error); }
           assert.doesNotMatch(observeDoneError, /Stored routine validation admission/,
             'observe artifacts plus canonical PASS retain the pre-existing DONE contract');
@@ -132,6 +134,9 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         }, storyId, { allowDynamicCoverage: true }),
         /resolvedStoryGitCwd must match the Story workspace/,
         'an explicitly supplied admission Git tree must match the Story-resolved workspace');
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, join(root, 'wrong-story-workspace')),
+          /resolvedStoryGitCwd must match the Story workspace/,
+          'DONE must surface a mismatch between its supplied Git tree and the Story workspace');
         assert.equal(assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:true}).ok,true);
         assert.ok(store.readScopeContract(storyId), 'dynamic admission fixture must carry a real Story scope contract');
         // PRE_CERT authorizes one routine execution. A repeat may reuse that
@@ -153,7 +158,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         const signedEvidence = store.readTestEvidence(storyId);
         assert.ok(signedEvidence.validationArtifactSignature);
         let downstreamDoneError = '';
-        try { runDoneOracleGate(storyId, store, root, { stop() {} }, root); }
+        try { runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd); }
         catch (error) { downstreamDoneError = error instanceof Error ? error.message : String(error); }
         assert.ok(downstreamDoneError, 'the bounded fixture should reach ordinary downstream DONE prerequisites');
         assert.doesNotMatch(downstreamDoneError, /Stored routine validation admission|dynamic_.*(?:invalid|changed|missing)/,
@@ -168,7 +173,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
           }
           return originalReadTestEvidence(...callArgs);
         };
-        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
           /DONE Gate Checklist \(B-u09-authority\)[\s\S]*Stored routine validation admission[\s\S]*INJECTED_STORED_EVIDENCE_READ_FAILURE/,
           'a thrown stored-evidence read must remain a rendered DONE checklist row');
         store.readTestEvidence = originalReadTestEvidence;
@@ -181,7 +186,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
           }
           return originalReadChecklist(...callArgs);
         };
-        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
           /DONE Gate Checklist \(B-u09-authority\)[\s\S]*Stored routine validation admission[\s\S]*INJECTED_STORED_ADMISSION_FAILURE/,
           'a thrown stored-PASS assessment must remain a rendered DONE checklist row');
         store.readChecklist = originalReadChecklist;
@@ -202,7 +207,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
           store.writeTestEvidence(storyId, mutated);
           assertSignatureRefusal();
           await assert.rejects(() => runValidateGate(ctx, storyId, { stop() {} }), /validation evidence signature is missing or invalid/);
-          assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+          assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
             /Stored routine validation admission|validation evidence signature is missing or invalid/,
             'DONE must authenticate the complete stored PASS before reading its execution mode');
           store.writeTestEvidence(storyId, signedEvidence);
@@ -228,7 +233,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
           persist(receipts);
           await refuse(label);
           if (label === 'missing reused receipt') {
-            assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+            assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
               /Stored routine validation admission|dynamic_receipt_missing_invalid_expired_or_revoked/,
               'DONE must re-check the same required dynamic receipt');
           }
@@ -262,7 +267,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         });
         await assert.rejects(() => runValidateGate(ctx, storyId, { stop() {} }), /validation evidence signature is missing or invalid/,
           'STRIPPED_DYNAMIC_AUTHORITY_MUST_NOT_BYPASS_REVOKED_RECEIPTS');
-        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
           /Stored routine validation admission|validation evidence signature is missing or invalid/,
           'DONE must not let a stripped dynamic marker skip stored-PASS authentication');
         assertSignatureRefusal();
@@ -272,7 +277,7 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         const originalReceipts = readFileSync(receiptsPath);
         writeFileSync(selectionPath, JSON.stringify({ mode: 'observe' }));
         rmSync(receiptsPath);
-        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
           /Stored routine validation admission|validation evidence signature is missing or invalid/,
           'DONE authenticates before classification even when marker, selection mode, and receipts are all stripped');
         writeFileSync(selectionPath, originalSelection);

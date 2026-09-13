@@ -165,7 +165,7 @@ export function dynamicRoutineCoverageAllowed(mode: DynamicValidationMode, story
 }
 
 export function sharedValidationExecutionEnabled(mode: DynamicValidationMode, explicitOptIn = false): boolean {
-  return mode !== 'enforce-low-risk' || explicitOptIn;
+  return mode === 'off' || explicitOptIn;
 }
 
 export function dynamicValidationDegradation(error: unknown): { escalationReasons: string[]; report: string } {

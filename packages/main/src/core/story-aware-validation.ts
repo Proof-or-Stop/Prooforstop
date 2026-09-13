@@ -62,6 +62,15 @@ export class ValidationSelectorContextError extends Error {
     this.name = 'ValidationSelectorContextError';
   }
 }
+
+export function validationCatalogEntryRequiresParticipation(entry: ValidationCatalogEntry): boolean {
+  return entry.assurance === 'always'
+    || entry.assurance === 'full-only'
+    || entry.closurePolicy === 'whole-repository'
+    || entry.closurePolicy === 'never-reuse'
+    || entry.riskTier === 'gate'
+    || entry.riskTier === 'validation-infra';
+}
 export type DynamicDisposition = 'execute' | 'reuse' | 'excluded' | 'unverified';
 const MAX_RECEIPT_AGE_MS = 24 * 60 * 60 * 1000;
 const HEX64 = /^[0-9a-f]{64}$/i;
@@ -1142,8 +1151,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     });
     const tierSelected = !canonicalTierDecision || canonicalTierDecision.selectedUnitIds.includes(row.id);
     const mustParticipate = fullEscalated || tierSelected || selected.has(row.id)
-      || entry.assurance === 'always' || entry.assurance === 'full-only'
-      || entry.closurePolicy === 'whole-repository' || entry.closurePolicy === 'never-reuse';
+      || validationCatalogEntryRequiresParticipation(entry);
     if (selectorRepositoryFull || selected.has(row.id) || entry.assurance === 'always' || entry.closurePolicy === 'never-reuse') {
       return { commandId: row.id, disposition: 'execute', reasons: selected.get(row.id) || [selectorRepositoryFull ? 'selector-repository-full' : entry.closurePolicy === 'never-reuse' ? 'never-reuse-policy' : 'always'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
     }

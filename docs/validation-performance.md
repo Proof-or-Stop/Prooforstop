@@ -589,14 +589,14 @@ environment and rollout evidence chain before expanding dynamic authority. In
 particular, root full-only policies and unknown graph dependencies remain intact.
 Direct validation invoked in TEST resolves to dynamic authority only when the
 repository explicitly configures `enforce-low-risk`; `observe` and `shadow`
-retain the prior canonical/shared-reuse path. Enforcement still requires the complete inventory partition and the existing
+resolve to `off` and retain the prior canonical execution path. Enforcement still requires the complete inventory partition and the existing
 baseline, closure, freshness, expiry, revocation, selector-input and exclusion-
 proof prerequisites pass. Explicit `--full`, DONE-phase invocation, and
 DONE-required evidence remain on their independent canonical policies.
-In DEV and REVIEW, non-authoritative `observe`/`shadow` also keep the canonical
-oracle eligible for explicitly declared exact-input shared-execution reuse;
-`enforce-low-risk` disables that cross-invocation path unless the repository
-separately sets `validate.sharedExecution=true`.
+In DEV and REVIEW, non-authoritative `observe`/`shadow` keep the canonical oracle
+but do not newly enable cross-invocation shared execution. Any dynamic mode may
+use that path only when the repository explicitly sets
+`validate.sharedExecution=true`; ordinary `off` retains its prior eligibility.
 
 The focused regression is `node scripts/verify-dynamic-test-admission.mjs`. The
 stable package-level TEST-gate wrapper first runs both source smokes and verifies

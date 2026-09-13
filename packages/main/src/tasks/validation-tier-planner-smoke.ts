@@ -2499,9 +2499,11 @@ testCase('dynamic authority requires explicit configuration and only DEV REVIEW 
   assert.equal(dynamicRoutineCoverageAllowed('off', 'TEST'), false);
   assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'DONE'), false);
   assert.equal(sharedValidationExecutionEnabled('off'), true);
-  assert.equal(sharedValidationExecutionEnabled('observe'), true);
-  assert.equal(sharedValidationExecutionEnabled('shadow'), true);
+  assert.equal(sharedValidationExecutionEnabled('observe'), false);
+  assert.equal(sharedValidationExecutionEnabled('shadow'), false);
   assert.equal(sharedValidationExecutionEnabled('enforce-low-risk'), false);
+  assert.equal(sharedValidationExecutionEnabled('observe', true), true);
+  assert.equal(sharedValidationExecutionEnabled('shadow', true), true);
   assert.equal(sharedValidationExecutionEnabled('enforce-low-risk', true), true);
   const dynamicOutput = { provider: 'proof-or-stop-verifier-dynamic-authoritative', dynamicValidation: { authority: 'enforce-authority' } };
   assert.deepEqual(dynamicValidationCoverageAdmission(dynamicOutput, true), { dynamicOrigin: true, allowed: true });

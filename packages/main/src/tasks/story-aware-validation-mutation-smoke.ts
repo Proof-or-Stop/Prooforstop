@@ -50,6 +50,7 @@ import {
   deriveGateOwnedPrerequisites,
   participatingValidationRiskTier,
   storedDynamicReceiptIntegrityReasons,
+  validationManifestExcludedRowFloorReasons,
 } from '../handlers/story-aware-validation.js';
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 import { buildAutomaticValidationTierSelectionBinding, selectAutomaticValidationTier } from '../core/validation-tier-planner.js';
@@ -567,11 +568,25 @@ const riskPrepared = (riskBoundCatalog: ValidationCatalogEntry[]) => ({
   revocationLedger: buildRevocationLedger([]),
 });
 const excludedGateCatalog = riskCatalog(excludedCommandId);
-assert.equal(participatingValidationRiskTier(excludedGateCatalog, tieredManifest), 'local',
-  'a positively excluded non-local command must not disable a local Story');
+assert.deepEqual(validationManifestExcludedRowFloorReasons(excludedGateCatalog, tieredManifest),
+  ['dynamic_excluded_row_not_omittable'],
+  'the stored-consumer floor independently rejects an excluded gate row against the live catalog');
+assert.equal(participatingValidationRiskTier(excludedGateCatalog, tieredManifest), 'shared',
+  'an excluded gate command remains in the complete-catalog authority risk floor');
 assert.equal(deriveGateOwnedPrerequisites({
   projectRoot: storedRoot, prepared: riskPrepared(excludedGateCatalog), receipts: [], shardArtifacts: [],
-}).storyRiskEligible, true);
+}).storyRiskEligible, false);
+const excludedRiskAuthority = evaluateDynamicAuthority({
+  mode: 'enforce-low-risk', riskTier: participatingValidationRiskTier(excludedGateCatalog, tieredManifest),
+  manifest: tieredManifest, prerequisites: {
+    baselineCurrent: true, expiryPolicyActive: true, environmentPolicyComplete: true,
+    wholeRepoScannersClassified: true, processFactBindingsComplete: true, changedTestPropagationVerified: true,
+    sourceFirstBuildProofActive: true, buildAlwaysExecuted: true, storyRiskEligible: false,
+    periodicFullPolicyActive: true, revocationLedgerCurrent: true, catalogOwnershipGatePassed: true,
+  }, pinnedCommandsExecuted: true,
+});
+assert.equal(excludedRiskAuthority.authoritative, false);
+assert.equal(excludedRiskAuthority.fallbackToFull, true);
 const participatingGateCatalog = riskCatalog(participatingCommandId);
 assert.equal(participatingValidationRiskTier(participatingGateCatalog, tieredManifest), 'shared',
   'a participating gate command must raise the authority risk floor');

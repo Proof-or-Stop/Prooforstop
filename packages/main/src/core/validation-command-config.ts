@@ -93,8 +93,10 @@ export function configuredValidationCommandEntries(config: unknown): { commands:
         const configuredInputRoots = Array.isArray(entry.inputRoots)
           ? entry.inputRoots.filter((item: unknown): item is string => typeof item === 'string' && item.trim().length > 0)
           : undefined;
-        if (entry.inputsComplete === true && (!configuredInputRoots || configuredInputRoots.length === 0)) {
-          throw new Error(`configured validate.commands[${i}]: inputsComplete requires at least one non-empty string inputRoots entry`);
+        if (entry.inputsComplete === true && (!Array.isArray(entry.inputRoots)
+          || entry.inputRoots.length === 0
+          || entry.inputRoots.some((item: unknown) => typeof item !== 'string' || item.trim().length === 0))) {
+          throw new Error(`configured validate.commands[${i}]: inputsComplete requires inputRoots to contain only non-empty strings and at least one entry`);
         }
         const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
         const focus = normalizeValidateFocus(entry.focus);

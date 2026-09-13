@@ -235,11 +235,12 @@ assert.equal(compileValidationCatalog(malformedCompleteInventory)[0]?.selectionI
 const hostileRootCases: Array<{ label: string; roots: string[] }> = [
   { label: 'empty', roots: [] },
   { label: 'non-string-only', roots: [123, null] as unknown as string[] },
+  { label: 'mixed-valid-invalid', roots: ['packages/main/src', 123] as unknown as string[] },
 ];
 for (const { label, roots: hostileRoots } of hostileRootCases) {
   assert.throws(() => configuredValidationCommandEntries({
     validate: { commands: [{ command: 'node', args: ['hostile.js'], inputsComplete: true, inputRoots: hostileRoots }] },
-  }), /inputsComplete requires at least one non-empty string inputRoots entry/,
+  }), /inputsComplete requires inputRoots to contain only non-empty strings and at least one entry/,
   `${label} configured input ownership must be rejected before inventory projection`);
   const hostileInventory = discoverValidationInventory('/tmp', [{
     id: `hostile-${label}`, label: `hostile-${label}`, command: 'node', args: ['hostile.js'],
@@ -248,10 +249,12 @@ for (const { label, roots: hostileRoots } of hostileRootCases) {
   const hostileCatalog = compileValidationCatalog(hostileInventory);
   assert.equal(hostileCatalog[0]?.selectionInputCoverage, 'partial',
     `${label} schema-bypassing ownership must remain partial`);
-  assert.ok(validateValidationCatalog(hostileInventory, [{
-    ...hostileCatalog[0]!, selectionInputCoverage: 'complete',
-  }]).errors.includes(`complete selector inputs require at least one declared input root: hostile-${label}`),
-  `${label} complete coverage with zero roots must have a named catalog error`);
+  if (hostileCatalog[0]!.inputRoots.length === 0) {
+    assert.ok(validateValidationCatalog(hostileInventory, [{
+      ...hostileCatalog[0]!, selectionInputCoverage: 'complete',
+    }]).errors.includes(`complete selector inputs require at least one declared input root: hostile-${label}`),
+    `${label} complete coverage with zero roots must have a named catalog error`);
+  }
   const hostileCommandSetDigest = buildValidationCommandInventory({ commands: hostileInventory.commands }).commandSetDigest;
   const hostileBinding = buildAutomaticValidationTierSelectionBinding({
     input: {
@@ -434,6 +437,27 @@ assert.equal(fullOnlyPlan.fullEscalated, false,
   'full-only floor fixture must exercise the row policy without blanket escalation');
 assert.notEqual(fullOnlyPlan.rows.find((row) => row.commandId === 'full-sentinel')?.disposition, 'excluded',
   'full-only rows require canonical-baseline receipt reuse or execution');
+const gateFloorCatalog = catalog.map((entry) => entry.id === 'unrelated'
+  ? { ...entry, riskTier: 'gate' as const }
+  : entry);
+const gateFloorBinding = buildAutomaticValidationTierSelectionBinding({
+  input: productionRelevanceInput,
+  catalog: gateFloorCatalog,
+  storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
+});
+assert.equal(gateFloorBinding.decision.selectedUnitIds.includes('unrelated'), false,
+  'the fixture must prove the selector would otherwise omit the unaffected gate row');
+const gateFloorClosures = new Map(gateFloorCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
+  commandId: entry.id, baseHead: 'base', inventoryDigest: inventory.digest,
+  catalogDigest: stableDigest(gateFloorCatalog), staticPaths: entry.inputRoots,
+})]));
+const gateFloorPlan = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog: gateFloorCatalog,
+  changes, closures: gateFloorClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+  graph: completeTierGraph, tierSelection: gateFloorBinding,
+});
+assert.equal(gateFloorPlan.rows.find((row) => row.commandId === 'unrelated')?.disposition, 'execute',
+  'gate and validation-infrastructure rows are participation floors even when unaffected');
 assert.throws(
   () => buildDynamicValidationPlan({
     storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory,
