@@ -11,7 +11,7 @@ const {runSingleAllowlistedCommand}=await import('../packages/main/src/core/vali
 const started=performance.now();
 const scratch=mkdtempSync(join(tmpdir(),'nested-verification-owner-'));
 const loader=join(scratch,'source-loader.mjs');
-writeFileSync(loader,`import ${JSON.stringify(new URL('./lab-source-loader.mjs',import.meta.url).href)};import {registerHooks} from 'node:module';import {readFileSync} from 'node:fs';import ts from ${JSON.stringify(import.meta.resolve('typescript'))};registerHooks({load(url,context,next){if(url.endsWith('.ts'))return {format:'module',shortCircuit:true,source:ts.transpileModule(readFileSync(new URL(url),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText};return next(url,context);}});`);
+writeFileSync(loader,`import ${JSON.stringify(new URL('./lab-source-loader.mjs',import.meta.url).href)};import {registerHooks,createRequire} from 'node:module';import {readFileSync} from 'node:fs';import {fileURLToPath} from 'node:url';const loadCompiler=createRequire(import.meta.url);let compiler;const ts=()=>compiler??=(loadCompiler(fileURLToPath(${JSON.stringify(import.meta.resolve('typescript'))})));registerHooks({load(url,context,next){if(url.endsWith('.ts'))return {format:'module',shortCircuit:true,source:ts().transpileModule(readFileSync(new URL(url),'utf8'),{compilerOptions:{target:ts().ScriptTarget.ES2022,module:ts().ModuleKind.ESNext}}).outputText};return next(url,context);}});`);
 const executor=new URL('../packages/main/src/core/validation-executor.ts',import.meta.url).href;
 const isolation=new URL('../packages/main/src/tasks/isolated-finding-fixture.ts',import.meta.url).href;
 const originalNodeOptions=process.env.NODE_OPTIONS;

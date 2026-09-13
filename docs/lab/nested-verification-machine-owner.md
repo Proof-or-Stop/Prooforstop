@@ -146,3 +146,31 @@ diagnostic limit (6.066747 seconds); after repair it passed in 4.108328 seconds.
 The `--normal` control passed in 4.381860 seconds. Both controls independently
 observed the worker group absent. These are supplemental controls, not an
 aggregate target GREEN or a changed workload budget.
+
+### Generated loader setup cost
+
+An external five-pair, alternating-order comparison of fresh plain Node leaves
+measured eager compiler loading at a median172.252ms and lazy loading at52.809ms.
+All pairs used the same `console.log(12345)` command and1500ms cap. The shared
+Lab resolver already uses native TS stripping and does not import the compiler;
+only the generated loader now loads the same compiler lazily on its first TS
+load-hook call. Compiler options, source bytes, resolver and original target
+commands/groups/assertions/deadlines are unchanged. TS-using workers still load
+the compiler. This measured local startup saving does not guarantee aggregate
+completion within60seconds or explain every prior timeout.
+
+The separate `node scripts/verify-nested-source-loader-semantics.mjs` control
+checks that a plain leaf does not load the compiler, and compares actual helper
+exports, budget value and emitted module hashes against the eager preimage's
+semantics. Its semantic checks are separate from the original target; the
+five-pair benchmark is not added to that target. The external initial comparison
+matched173 emitted modules. Its exact source fingerprints and all timings are
+retained with the Lab report. The modified driver has no existing static-edge
+source, evidence or dependency binding, so this change needs no manifest repin.
+
+The external benchmark resolved a compiler filesystem path. Subsequent owner
+review identified that the actual driver resolves a file URL: passing that
+string directly to `createRequire` was observed to fail with MODULE_NOT_FOUND.
+The generated loader therefore converts its exact resolved URL with
+`fileURLToPath`; the durable companion uses `import.meta.resolve` as well. The
+initial path-based benchmark is not evidence of URL-handling correctness.
