@@ -202,15 +202,16 @@ try {
   const byteCap=runtimePolicy.continuityTotalGitBytes;
   let observedBytes=0,observedOutputs=0;
   try {
-    runtimePolicy.continuityTotalGitBytes=180;
+    runtimePolicy.continuityTotalGitBytes=768;
     withGitObserver('aggregate bytes across individually admissible outputs',(file,args,options,original)=>{
       if(options?.maxBuffer!==runtimePolicy.continuityGitOutputBytes)return undefined;
       const output=original(file,args,options);
-      const padded=output.trimEnd()+' '.repeat(60)+'\n';
+      assert(Buffer.byteLength(output.trimEnd())<511,'fixture Git identity output fits fixed padding');
+      const padded=output.trimEnd()+' '.repeat(511-Buffer.byteLength(output.trimEnd()))+'\n';
       assert(Buffer.byteLength(padded)<=runtimePolicy.continuityTotalGitBytes,'each continuity output fits even the injected aggregate cap');
       observedBytes+=Buffer.byteLength(padded);observedOutputs++;return padded;
     },'byte_limit');
-    assert(observedOutputs>=2&&observedBytes>180,'aggregate control crosses cap across multiple outputs');
+    assert(observedOutputs>=2&&observedBytes>768,'aggregate control crosses cap across multiple outputs');
   }finally{runtimePolicy.continuityTotalGitBytes=byteCap;}
   for(const kind of ['journal-signature','historical-policy']) {
     let replaced=0;
