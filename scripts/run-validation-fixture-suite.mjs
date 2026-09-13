@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { runProviderNeutralFixture } from './helpers/provider-neutral-fixture.mjs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { createFixtureMachineEnvironment } from '../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
+import { createFixtureMachineEnvironment, inspectFixtureCompileCache } from '../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
 
 export const FIXTURE_ENTRIES = new Set([
   'packages/main/dist/tasks/withdrawn-disposition-smoke.js',
@@ -40,6 +40,9 @@ delete env.LATTICE_HEALTH_PATH;
 const result = entry.endsWith('/quorum-submit-smoke.js')
   ? await runProviderNeutralFixture(entry, rest, env)
   : spawnSync(process.execPath, [entry, ...rest], { env, stdio: 'inherit' });
+if (entry.endsWith('/quorum-submit-smoke.js')) {
+  console.log('FIXTURE_COMPILE_CACHE ' + JSON.stringify(inspectFixtureCompileCache(join(fixture.root, 'node-compile-cache'))));
+}
 if (result.status === 0) {
   fixture.cleanup();
 } else {
