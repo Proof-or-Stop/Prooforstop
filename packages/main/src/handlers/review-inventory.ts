@@ -2,7 +2,7 @@ import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { commitReviewEpochMetadata } from '../core/review-metadata-batch.js';
 import { readManagedHostRunBinding, readManagedReviewEvidenceProposal } from '../core/managed-host-run.js';
 import { createManagedReviewEvidenceBinding, managedReviewerPromptDigest, verifyManagedReviewLiveBinding } from '../core/managed-review-evidence.js';
-import { isManagedInventoryCritic, type ManagedInventoryFindingRef } from '../core/managed-inventory-critic.js';
+import { isManagedInventoryCritic, validInventoryCriticReason, type ManagedInventoryFindingRef } from '../core/managed-inventory-critic.js';
 import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-journal.js';
 import { collectOrphanPromptBodies } from '../core/prompt-body-gc.js';
 import type { HandlerContext } from './context.js';
@@ -506,6 +506,11 @@ function persistCriticReceipt(ctx: HandlerContext, args: CriticReceiptInput): st
   const findingDispositions = [...args.findingDispositions]
     .map(row => ({ ...row, findingId: row.findingId.trim(), familyKey: row.familyKey?.trim(), canonicalFindingId: row.canonicalFindingId?.trim(), reason: row.reason.trim() }))
     .sort((a, b) => a.findingId.localeCompare(b.findingId));
+  if (findingDispositions.some(row => !validInventoryCriticReason(row.reason)
+    || !row.findingId || (row.familyKey !== undefined && !row.familyKey)
+    || (row.canonicalFindingId !== undefined && !row.canonicalFindingId))) {
+    throw new Error('REVIEW_INVENTORY_DISPOSITION_FIELD_INVALID: reason requires at least 10 trimmed characters and supplied identifiers must be nonblank');
+  }
   const evaluation = evaluateCurrentWave(ctx, epoch, findingDispositions);
   if (evaluation.unresolvedFindingIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE: ${evaluation.unresolvedFindingIds.join(', ')}`);
   if (evaluation.invalidDispositionIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: ${evaluation.invalidDispositionIds.join(', ')}`);

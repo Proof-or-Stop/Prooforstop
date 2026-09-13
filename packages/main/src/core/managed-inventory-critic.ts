@@ -1,3 +1,8 @@
+// Shared runtime floor for native and managed critic receipt writers.
+export const INVENTORY_CRITIC_REASON_MIN_LENGTH = 10;
+export function validInventoryCriticReason(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length >= INVENTORY_CRITIC_REASON_MIN_LENGTH;
+}
 /** Provider-authored transport data. Shape validation grants no signing authority. */
 export type ManagedInventoryFindingRef = { findingId: string } | { proposalFindingIndex: number };
 export interface ManagedInventoryDisposition {
@@ -24,7 +29,7 @@ export const managedInventoryCriticJsonSchema = {
     findingDispositions: {type: 'array', items: {
       type: 'object', additionalProperties: false, required: ['finding', 'disposition', 'reason'],
       properties: {finding: referenceSchema, disposition: {type: 'string', enum: ['verified_family', 'duplicate', 'not_verified']},
-        familyKey: {type: 'string'}, canonicalFinding: referenceSchema, reason: {type: 'string'}},
+        familyKey: {type: 'string'}, canonicalFinding: referenceSchema, reason: {type: 'string', minLength: INVENTORY_CRITIC_REASON_MIN_LENGTH}},
     }},
   },
 };
@@ -44,7 +49,7 @@ export function isManagedInventoryCritic(value: unknown, lane: string, agent: st
   const seen = new Set<string>();
   return value.findingDispositions.every(row => {
     if (!record(row) || !keys(row, ['finding', 'disposition', 'familyKey', 'canonicalFinding', 'reason'])
-      || !ref(row.finding, findingCount) || !text(row.reason)) return false;
+      || !ref(row.finding, findingCount) || !validInventoryCriticReason(row.reason)) return false;
     const identity = JSON.stringify(row.finding);
     if (seen.has(identity)) return false;
     seen.add(identity);

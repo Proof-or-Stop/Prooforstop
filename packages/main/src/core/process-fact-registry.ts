@@ -1755,7 +1755,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'review_inventory_finalize current-wave independent completeness critic gate',
     artifact: {name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
       producerCommand: 'managed_review_evidence_import',
-      signature: 'Authenticated managed receipt and sealed dispositions feed the shared signed critic writer'},
+      signature: 'Authenticated managed receipt and sealed dispositions feed the shared signed critic writer with a common ten-trimmed-character reason floor'},
     rationale: 'The managed importer produces a critic receipt in addition to its existing evidence binding; native producer authority remains separate.',
   },
   {

@@ -64,18 +64,39 @@ share a canonical finding; the original signed Finding evidence is not rewritten
 by a critic disposition. The managed critic receipt has an explicit additional
 artifact-producer registration alongside the existing managed evidence binding.
 
-The fixed verification command includes twelve disposable integration scenarios:
+The fixed verification command includes thirteen disposable integration scenarios:
 normal findings, pass, crash recovery, wrong wave, uncommitted and committed
 material drift, missing disposition with terminal bookkeeping, duplicate canonical
 mapping, not_verified classification, guessed own-ID refusal, existing-ID
-mapping, and index ambiguity. The pass scenario additionally tests legitimate
+mapping, index ambiguity, and cancellation before first import. The pass scenario additionally tests legitimate
 pending metadata and Git-status failure. A synthetic read proxy supplies an
 ambiguous index only inside the disposable fixture; it grants no real authority.
 
 The verifier guard runs before its final failure gate. Subprocess controls execute
 that actual guard and gate against a positive input and five removed-authority-token
-inputs, checking nonzero refusal before success banners. Two fixture children run
+inputs, checking nonzero refusal before success banners. Three fixture children run
 per batch, with a 120-second inner cleanup watchdog and a 135-second outer timeout.
-Six batches allow up to 810 seconds plus 90 seconds of overhead within the pinned
-900-second command budget. A failed batch waits for both children before returning.
+Five batches allow up to 675 seconds, plus 60 seconds for six subprocess controls,
+leaving 165 seconds of margin within the pinned 900-second budget. Scenario names
+are emitted before launch. A failed batch waits for all children before returning.
 No fresh audit or integration is asserted by this follow-up description.
+
+## Second-audit triage and compatibility boundary
+
+The shared native schema in cli/command-catalog.ts requires reason.min(10).
+Native and managed receipt ingress now share validInventoryCriticReason in the
+runtime writer; early managed shape validation uses the same trimmed floor.
+Whitespace-only optional identifiers also refuse before signing. This closes
+an actual parity gap while preserving existing disposition semantics.
+
+Historical epoch rejection is an existing admission rule, not a new terminal
+loss mechanism. core/review-run.ts at pre-Lab baseline 2433b80377 and the current
+checkout is byte-identical (SHA256 3c1fcd86e8bd33db2d1e11da4d286bcf62a2f70f47c8809b473a2fe2d142fbc9). Its
+assertCurrentReviewRunForEvidence verifies the signed run and then requires the
+same current OPEN epoch/wave/cutoff for inventory-completeness evidence, before
+the importer reaches the newly added critic block preflight. Moving that preflight
+cannot admit cancelled or old-wave evidence. This repair deliberately preserves
+the pre-existing refusal; it does not introduce a historical mutation exemption.
+Original host-run results/receipts remain inspectable, and prior terminal records
+remain durable. Official wave/cancel fixtures verify refusal without changing
+stored findings, events, inventory records, or the original provider receipt.

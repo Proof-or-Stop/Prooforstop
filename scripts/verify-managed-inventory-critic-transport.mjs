@@ -27,6 +27,13 @@ for (const invalid of [null, {}, {...inventory.inventoryCritic, wave: 0},
   {...inventory.inventoryCritic, findingDispositions: [{finding: {findingId: 'B-fixture:F-001'}, disposition: 'resolved'}]}]) {
   assert.equal(classify({...proposal, inventoryCritic: invalid}), 'malformed', 'Malformed critic payload must fail closed');
 }
+for (const reason of ['', 'short', '123456789', '   123456789   ']) {
+ const shortReason = {...inventory, inventoryCritic: {...inventory.inventoryCritic,
+   findingDispositions: inventory.inventoryCritic.findingDispositions.map(row => ({...row, reason}))}};
+ assert.equal(classify(shortReason), 'malformed', 'Managed critic reason must meet the shared trimmed ten-character floor');
+}
+assert.equal(classify({...inventory, inventoryCritic: {...inventory.inventoryCritic,
+ findingDispositions: inventory.inventoryCritic.findingDispositions.map(row => ({...row, reason:'1234567890'}))}}), 'valid');
 console.log('MANAGED_INVENTORY_CRITIC_TRANSPORT_PARSER_GREEN');
 
 // Execute the actual final guard and failure gate in a disposable subprocess.
@@ -47,21 +54,22 @@ for (const token of [null, 'export function importManagedInventoryCritic', 'crea
 }
 console.log('MANAGED_INVENTORY_CONTRACT_NEGATIVE_CONTROLS_GREEN');
 
-// Two bounded fixture children per batch. Each inner watchdog is 120 seconds;
-// the outer grace is 15 seconds. Six batches fit within the pinned 900s budget.
+// Three bounded fixture children per batch. Each inner watchdog is 120 seconds;
+// the outer grace is 15 seconds. Five batches (675s) plus subprocess controls (60s) leave 165s of the pinned 900s budget.
 const {execFile} = await import('node:child_process');
 const {fileURLToPath} = await import('node:url');
 const scenarios = ['findings', 'pass', 'crash', 'wrong-wave', 'drift', 'committed-drift',
-  'missing-disposition', 'duplicate', 'not-verified', 'own-id', 'existing-id', 'index-ambiguity'];
+  'missing-disposition', 'duplicate', 'not-verified', 'own-id', 'existing-id', 'index-ambiguity', 'cancel-before-import'];
 const run = scenario => new Promise((resolve, reject) => {
+  process.stderr.write(`Starting managed critic scenario: ${scenario}\n`);
   execFile(process.execPath, [fileURLToPath(new URL('./verify-managed-inventory-critic-import.mjs', import.meta.url)), `--case=${scenario}`],
     {timeout: 135000, maxBuffer: 8 * 1024 * 1024}, (error, stdout, stderr) => {
       process.stdout.write(stdout); process.stderr.write(stderr);
       if (error) reject(error); else resolve();
     });
 });
-for (let offset = 0; offset < scenarios.length; offset += 2) {
-  const batch = await Promise.allSettled(scenarios.slice(offset, offset + 2).map(run));
+for (let offset = 0; offset < scenarios.length; offset += 3) {
+  const batch = await Promise.allSettled(scenarios.slice(offset, offset + 3).map(run));
   const failure = batch.find(result => result.status === 'rejected');
   if (failure) throw failure.reason;
 }

@@ -104,7 +104,7 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
 const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const scenario=process.argv.find(a=>a.startsWith('--case='))?.slice(7) ?? 'findings';
-assert(['findings','pass','crash','wrong-wave','drift','committed-drift','missing-disposition','duplicate','not-verified','own-id','existing-id','index-ambiguity'].includes(scenario));
+assert(['findings','pass','crash','wrong-wave','drift','committed-drift','missing-disposition','duplicate','not-verified','own-id','existing-id','index-ambiguity','cancel-before-import'].includes(scenario));
 const fixture=setup();
 const primary=fixture.root;
 const worktree=join(primary,'.worktrees',storyId);
@@ -167,7 +167,14 @@ assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.ru
 assert.equal(fixture.store.readFindings(storyId).findings.length,baselineFindings.length,'Bad receipt cannot import evidence');
 if(scenario==='drift'||scenario==='committed-drift') writeFileSync(join(worktree,'packages/main/src/subject.ts'),'export const subject = 99;\n');
 if(scenario==='committed-drift') {git(worktree,['add','packages/main/src/subject.ts']);git(worktree,['commit','-m','fixture: change reviewed material']);}
-if(scenario==='index-ambiguity') {
+if(scenario==='cancel-before-import') {
+ cli(worktree,'review_inventory_cancel',{storyId,reason:'Disposable cancellation before provider evidence import.'});
+ const before=JSON.stringify({findings:fixture.store.readFindings(storyId),events:fixture.store.readProcessEvents(storyId),inventory:fixture.store.readReviewInventoryEpochs(storyId)});
+ assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/same current OPEN epoch/);
+ assert.equal(JSON.stringify({findings:fixture.store.readFindings(storyId),events:fixture.store.readProcessEvents(storyId),inventory:fixture.store.readReviewInventoryEpochs(storyId)}),before);
+ assert.deepEqual(managedHostRunReceipt(worktree,launched.run.runId),receipt,'Cancelled late import retains original provider receipt');
+ console.log('MANAGED_INVENTORY_CANCELLED_LATE_IMPORT_PRESERVED_GREEN');
+} else if(scenario==='index-ambiguity') {
  const crashing=createManagedReviewEvidenceHandlers(ctx,{afterManagedHostRunEvidenceBindingWrite:()=>{throw new Error('FIXTURE_TERMINAL_READY');}});
  assert.throws(()=>crashing.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/FIXTURE_TERMINAL_READY/);
  const {importManagedInventoryCritic}=await import('../packages/main/dist/handlers/review-inventory.js');
@@ -235,6 +242,13 @@ if(scenario==='duplicate') {
 }
 if(scenario==='existing-id') assert(records.criticReceipts[0].findingDispositions.some(row=>row.findingId===baselineFindings[0].id));
 if(scenario==='not-verified') assert.equal(records.criticReceipts[0].findingDispositions[0].disposition,'not_verified');
+if(scenario==='findings') {
+ cli(worktree,'review_inventory_wave_advance',{storyId});
+ const before=JSON.stringify({findings:fixture.store.readFindings(storyId),events:fixture.store.readProcessEvents(storyId),inventory:fixture.store.readReviewInventoryEpochs(storyId)});
+ assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/same current OPEN epoch/);
+ assert.equal(JSON.stringify({findings:fixture.store.readFindings(storyId),events:fixture.store.readProcessEvents(storyId),inventory:fixture.store.readReviewInventoryEpochs(storyId)}),before,'Old-wave replay cannot change historical evidence');
+ assert.deepEqual(managedHostRunReceipt(worktree,launched.run.runId),receipt);
+}
 console.log('MANAGED_INVENTORY_CRITIC_AUTHENTICATED_IMPORT_GREEN '+scenario);
 }
 } finally {process.chdir(oldCwd);rmSync(primary,{recursive:true,force:true});}
