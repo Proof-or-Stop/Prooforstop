@@ -48,6 +48,7 @@ import type { ValidationCommand } from '../core/validation-types.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
 import {
   DYNAMIC_RUNNER_DIGEST,
+  assertAutomaticTierSelectionBindingCurrent,
   catalogValidationRiskFloor,
   deriveGateOwnedPrerequisites,
   storedDynamicReceiptIntegrityReasons,
@@ -58,6 +59,7 @@ import { buildAutomaticValidationTierSelectionBinding, selectAutomaticValidation
 import type { StoryRelevanceInput } from '../core/validation-relevance-input.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
+import { dynamicValidationDegradation } from '../handlers/verifier.js';
 
 const replayRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-replay-`);
 const replayCommand = (name: string) => ({
@@ -574,6 +576,32 @@ assert.doesNotThrow(() => {
   }));
 }, 'a null impact-index row must be a boolean refusal, not a verifier exception');
 assert.equal(malformedImpactEntriesResult, false);
+const promotionManifest = rebindTieredManifest({
+  ...tieredManifest.selectorBinding!.input,
+  impactIndex: {
+    ...tieredManifest.selectorBinding!.input.impactIndex!,
+    entries: tieredManifest.selectorBinding!.input.impactIndex!.entries.map((entry, index) =>
+      index === 0 ? { ...entry, selection: 'story-intermediate' } : entry),
+  },
+});
+assert.equal(verifyValidationSelectionManifest(promotionManifest), true, 'the promotion mutation control must be valid');
+const promotionBinding = promotionManifest.selectorBinding!;
+assert.doesNotThrow(() => assertAutomaticTierSelectionBindingCurrent(promotionBinding));
+for (const input of [
+  { ...promotionBinding.input, impactIndex: { ...promotionBinding.input.impactIndex!, entries: promotionBinding.input.impactIndex!.entries.map((entry, index) => index === 0 ? { ...entry, inputPatterns: [42] as never } : entry) } },
+  { ...promotionBinding.input, changedPaths: [42] as never },
+]) {
+  const binding = { ...promotionBinding, input, bindingDigest: '' };
+  binding.bindingDigest = digestCanonicalJson({ catalogDigest: binding.catalogDigest, input, decision: binding.decision });
+  const mutant = resign({ ...promotionManifest, selectorBinding: binding });
+  let valid: boolean | undefined;
+  assert.doesNotThrow(() => { valid = verifyValidationSelectionManifest(mutant); });
+  assert.equal(valid, false, 'malformed promotion fields must be a boolean manifest refusal');
+  let refusal: unknown;
+  try { assertAutomaticTierSelectionBindingCurrent(binding); } catch (error) { refusal = error; }
+  assert.ok(refusal);
+  assert.deepEqual(dynamicValidationDegradation(refusal).escalationReasons, ['selector_context_mismatch']);
+}
 let unknownEffectiveTierResult: boolean | undefined;
 assert.doesNotThrow(() => {
   unknownEffectiveTierResult = verifyValidationSelectionManifest(resign({

@@ -675,14 +675,19 @@ export function selectAutomaticValidationTier(
   input: Omit<SelectValidationTiersInput, 'requestedTier'>,
   dependencies: SelectValidationTiersDependencies = {},
 ): ValidationTierSelectionDecision {
-  const changedPaths = Array.isArray(input?.changedPaths) ? input.changedPaths : [];
-  const normalizedInput = { ...input, changedPaths };
+  const validChangedPaths = Array.isArray(input?.changedPaths) && input.changedPaths.every((path) => typeof path === 'string');
+  const changedPaths = validChangedPaths ? input.changedPaths : [];
+  const normalizedInput: Omit<SelectValidationTiersInput, 'requestedTier'> = {
+    ...input, changedPaths,
+    ...(!validChangedPaths ? { forceFullReasons: [...(Array.isArray(input?.forceFullReasons) ? input.forceFullReasons : []), 'impact_index_unusable'] } : {}),
+  };
   const initial = selectValidationTiers({ ...normalizedInput, requestedTier: 'story-fast' }, dependencies);
-  const impactEntries = Array.isArray(input.impactIndex?.entries) ? input.impactIndex.entries : [];
+  const impactEntries = Array.isArray(input?.impactIndex?.entries) ? input.impactIndex.entries : [];
   const needsIntermediate = impactEntries.some((entry) =>
     entry !== null && typeof entry === 'object'
     && entry.selection === 'story-intermediate'
     && Array.isArray(entry.inputPatterns)
+    && entry.inputPatterns.every((pattern) => typeof pattern === 'string')
     && changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern))));
   if (initial.effectiveTier === REPOSITORY_FULL_TIER) {
     // An empty fast set is not a PASS, but it must not prevent a directly

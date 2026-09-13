@@ -4788,7 +4788,7 @@
         "packages/main/src/tasks/review-inventory-epoch-smoke.ts": "62322ea011ecba104c963c88f4a41bb7ac01c506510025e48af70a09d121c4d4",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts": "23623cc823310a46a36cde468fab6e974a5c62504d980d7613bbe9f4367c4e4e",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
-        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "53d01523b5a169b12a0d6a5965ebe9b8b81a8a7860da8e2ad32bc2545dadba0a",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts": "596db7bf75c155cfa7ad13d467d4078021dfbbf1e742b4bc256f11bcccbd0609",
         "scripts/extra-modes.mjs": "39a5b63bb88b84f1a24184fff6f9e347a540b00d37e33ffd2811555662b1360d",
         "scripts/helpers/provider-neutral-fixture.mjs": "945a656ada3b5b0f5fff7c58692436d0dd7ec1c5fd1d357bb86da51dd3b80188",
         "scripts/identity-child-closure.mjs": "8d27aef7e74cbd77dd0a878d41984f7a3b74680adb00c71b822de2441bf9a46d",
@@ -4797,7 +4797,7 @@
         "packages/main/src/core/runtime-fact-registry.ts": "cce634fccb7b787a22ef40e3b951b8840eb76ec09f211c545d0142a76274f83f",
         "packages/main/src/core/story-aware-validation.ts": "a554f0f6e0c677393fe87f097b6fe0e1e0b8d9eaf21ee223fed9c5201ea6e607",
         "packages/main/src/handlers/validation-pass-admissibility.ts": "e36f651792fef520cd5bb42b8cab7dea6e030ba5d3a6e5384ef50552f81e712c",
-        "packages/main/src/handlers/story-aware-validation.ts": "03b6313e94794976c753921434f5d2cca45073df7a9d441a9a8c444c12f15b3c"
+        "packages/main/src/handlers/story-aware-validation.ts": "9dd397de512ca1237b156280fa3ecc581d762db03c63e64939ee7075cd1b4d86"
       },
       "invocations": [
         {
@@ -10732,9 +10732,9 @@
     },
     {
       "id": "EX-1036",
-      "key": "scripts/verify-process-fact-contract.mjs:11201:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11205:execFileSync",
       "callDigest": "f0eec71b277ecbbeff696a765d62cc710990d336cb8c4b3c0c1a0f07b862516a",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -10743,9 +10743,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11190,
-          "endLine": 11215,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11194,
+          "endLine": 11219,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "// while the compiled projection proves the complete runtime registry is\n// deterministic and refuses an unavailable mapping instead of dropping it.\n{\n  const mappingSource = read(processFactRegistryPath);\n  for (const token of [\n    'projectProcessFactRegistry',\n    'projectComponentProcessFactMapping',\n    'registry-component-mapping-unavailable',\n    'process-generated-without-lineage',\n    'runtime:registry_component_mapping_projection',\n  ]) assert(mappingSource.includes(token), `${processFactRegistryPath}: P0m mapping contract missing ${token}`);\n  const sourceProbe = execFileSync(process.execPath, [\n    '--import', join(root, 'scripts/lab-source-loader.mjs'),\n    '--input-type=module',\n    '--eval',\n    `import { PROCESS_FACT_REGISTRY, projectProcessFactRegistry, projectComponentProcessFactMapping } from './packages/main/src/core/process-fact-registry.ts';\nconst projection = projectProcessFactRegistry();\nconst p0m = projectComponentProcessFactMapping('P0m');\nlet refusal = null;\ntry { projectProcessFactRegistry([{ kind: 'artifact', paths: ['missing-id.ts'] }]); } catch (error) { refusal = error?.code; }\nprocess.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => entry.factId === 'runtime:plan_selected_owner_coverage'), registry: PROCESS_FACT_REGISTRY.length, projection: projection.length, generatedInWhole: projection.some(entry => Object.hasOwn(entry, 'generatedFrom')), p0m: p0m.length, p0mOnly: p0m.every(entry => entry.componentId === 'P0m'), refusal }));`,\n  ], { cwd: root, encoding: 'utf8' });\n  const sourceResult = JSON.parse(sourceProbe);\n  assert(sourceResult.ownerCoverage?.paths?.includes('packages/main/src/core/plan-touchpoint-coverage.ts'), 'selected owner coverage must be canonically registered');\n  assert(sourceResult.registry > 0 && sourceResult.projection === sourceResult.registry,\n    'current source process registry component mapping must be total');"
         },
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
@@ -10753,7 +10753,7 @@
       "dependencyDigests": {
         "packages/main/src/core/process-fact-registry.ts": "16186dfad2accedd0672aa99bd997ff32e50f53d8946f972a9f22a84378615a8",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe"
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf"
       },
       "invocations": [
         {
@@ -10766,9 +10766,9 @@
     },
     {
       "id": "EX-1037",
-      "key": "scripts/verify-process-fact-contract.mjs:11420:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11424:execFileSync",
       "callDigest": "c4ef23467613c369aa1b02c5ad9daca6a41632d8617ee8cd3006780fd7dbb63c",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -10777,16 +10777,16 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11409,
-          "endLine": 11434,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11413,
+          "endLine": 11438,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "\n// Finalized inventory advice must share persisted authority across all surfaces.\n{\n  const core = read('packages/main/src/core/review-inventory-epoch.ts');\n  const handler = read('packages/main/src/handlers/review-inventory.ts');\n  assert(core.includes('export function reviewInventoryFinalizedNextCommand'), 'inventory advice must have one receipt-bound selector');\n  assert(core.includes('verifyReviewInventoryReceipt(receipt)') && core.includes('REVIEW_INVENTORY_RECEIPT_INVALID'), 'inventory advice must refuse invalid authority');\n  assert(handler.includes('reviewInventoryFinalizedNextCommand(pendingReceipt.epoch, pendingReceipt.receipt)'), 'duplicate begin must retain finalized receipt guidance');\n  assert(handler.includes('reviewInventoryFinalizedNextCommand(epoch, projection.receipt)'), 'status must use the same finalized authority');\n  assert(handler.includes('Authority: ${receipt.authority}'), 'first finalize must print actual authority');\n}\nexecFileSync(process.execPath, [join(root, \"packages/main/tests/certification-consumed-saturation.mjs\")], { cwd: root, stdio: \"inherit\", timeout: 30000 });\nexecFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });\n\n// Each focused proof has separate 180s setup and 240s body budgets; outer 450s\n// reserves 30s for fixture IO. Setup/body timeout is unavailable evidence, not assertion RED.\n// A loaded machine can exhaust this bound; that never establishes a product defect or a PASS. These are failure budgets, not speed gains.\n// Real CLI reader admission and handler non-mutation, including protected negative paths.\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {\n    cwd: root, encoding: 'utf8', timeout: 450000,\n  });\n  assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');\n} catch (error) {\n  assert(false, verificationFailureMessage('reviewer read boundary', error));\n}"
         },
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
       ],
       "dependencyDigests": {
         "packages/main/tests/certification-consumed-saturation.mjs": "ecf7dd46c3be59e0c01bfe98ff6dbb2d5b762f6360c799070da8d7d05e3f4939",
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe"
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf"
       },
       "invocations": [
         {
@@ -10799,9 +10799,9 @@
     },
     {
       "id": "EX-1038",
-      "key": "scripts/verify-process-fact-contract.mjs:11421:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11425:execFileSync",
       "callDigest": "a51372cb920473409be9378f62aa3b4af33e40cec693bf6ebd33322719b8efe4",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -10810,16 +10810,16 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11410,
-          "endLine": 11435,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11414,
+          "endLine": 11439,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "// Finalized inventory advice must share persisted authority across all surfaces.\n{\n  const core = read('packages/main/src/core/review-inventory-epoch.ts');\n  const handler = read('packages/main/src/handlers/review-inventory.ts');\n  assert(core.includes('export function reviewInventoryFinalizedNextCommand'), 'inventory advice must have one receipt-bound selector');\n  assert(core.includes('verifyReviewInventoryReceipt(receipt)') && core.includes('REVIEW_INVENTORY_RECEIPT_INVALID'), 'inventory advice must refuse invalid authority');\n  assert(handler.includes('reviewInventoryFinalizedNextCommand(pendingReceipt.epoch, pendingReceipt.receipt)'), 'duplicate begin must retain finalized receipt guidance');\n  assert(handler.includes('reviewInventoryFinalizedNextCommand(epoch, projection.receipt)'), 'status must use the same finalized authority');\n  assert(handler.includes('Authority: ${receipt.authority}'), 'first finalize must print actual authority');\n}\nexecFileSync(process.execPath, [join(root, \"packages/main/tests/certification-consumed-saturation.mjs\")], { cwd: root, stdio: \"inherit\", timeout: 30000 });\nexecFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mutator-identity.mjs')], { cwd: root, stdio: 'inherit', timeout: 30000 });\n\n// Each focused proof has separate 180s setup and 240s body budgets; outer 450s\n// reserves 30s for fixture IO. Setup/body timeout is unavailable evidence, not assertion RED.\n// A loaded machine can exhaust this bound; that never establishes a product defect or a PASS. These are failure budgets, not speed gains.\n// Real CLI reader admission and handler non-mutation, including protected negative paths.\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {\n    cwd: root, encoding: 'utf8', timeout: 450000,\n  });\n  assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');\n} catch (error) {\n  assert(false, verificationFailureMessage('reviewer read boundary', error));\n}\n"
         },
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
       ],
       "dependencyDigests": {
         "packages/main/tests/certification-mutator-identity.mjs": "2a3dd83a42fa12d8c46761bb759c4584d5b855b3324dc2535c8564fe01fd968f",
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe"
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf"
       },
       "invocations": [
         {
@@ -11175,9 +11175,9 @@
     },
     {
       "id": "EX-CLI-REVIEWER-READ-BOUNDARIES",
-      "key": "scripts/verify-process-fact-contract.mjs:11428:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11432:execFileSync",
       "callDigest": "302377883a523f0398af7797dda1bcbc0fe9d68d0989d1a0e06b4841ee1db26a",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11186,9 +11186,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11426,
-          "endLine": 11433,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11430,
+          "endLine": 11437,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "// Real CLI reader admission and handler non-mutation, including protected negative paths.\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {\n    cwd: root, encoding: 'utf8', timeout: 450000,\n  });\n  assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');\n} catch (error) {\n  assert(false, verificationFailureMessage('reviewer read boundary', error));"
         },
         {
@@ -11208,7 +11208,7 @@
         "Source review of the fixed fixture invocation; not an execution receipt, formal Story PASS, or production speedup measurement."
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-reviewer-read-boundaries.mjs": "3a65a1bc993173630bc16841752cc853e8659bd9c2d19a9cf5dadaa994b18093",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -11225,9 +11225,9 @@
     },
     {
       "id": "EX-CLI-MAINTENANCE-PREVIEW-BOUNDARIES",
-      "key": "scripts/verify-process-fact-contract.mjs:11438:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11442:execFileSync",
       "callDigest": "5a199cacf4423186c05e7d94eae64e6feee13cf60a7809cbfa26a85a559f012a",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11236,9 +11236,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11436,
-          "endLine": 11443,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11440,
+          "endLine": 11447,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "// Real preview calls, parameter admission, protected writer negatives and reader guidance.\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-maintenance-preview-boundaries.mjs')], {\n    cwd: root, encoding: 'utf8', timeout: 450000,\n  });\n  assert(output.includes('MAINTENANCE_PREVIEW_GREEN'), 'maintenance preview executable proof must pass');\n} catch (error) {\n  assert(false, verificationFailureMessage('maintenance preview', error));"
         },
         {
@@ -11258,7 +11258,7 @@
         "Source review of the fixed fixture invocation; not an execution receipt, formal Story PASS, or production speedup measurement."
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-maintenance-preview-boundaries.mjs": "78d2f2f607ce9b9b8a61e757a58990335baf04461285abee40c69156171f3748",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -11275,9 +11275,9 @@
     },
     {
       "id": "EX-CLI-COMMAND-OBSERVATION-BOUNDARIES",
-      "key": "scripts/verify-process-fact-contract.mjs:11464:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11468:execFileSync",
       "callDigest": "630a8a92f959cdd275c5b28e044717349c2449fff1404ad7a9e75acfa53f0f54",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11286,9 +11286,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11462,
-          "endLine": 11469,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11466,
+          "endLine": 11473,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "  assert(read('packages/main/src/core/process-fact-registry.ts').includes('Generic CLI command observation consumes argument-aware effective ownership'), 'Command observation semantics must be registered');\n  try {\n    const output = execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-boundaries.mjs')], {\n      cwd: root, encoding: 'utf8', timeout: 450000,\n    });\n    assert(output.includes('COMMAND_OBSERVATION_GREEN'), 'Real CLI, worktree and lock observation proof must pass');\n    execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-controls.mjs')], { cwd: root, stdio: 'pipe', timeout: 30000 });\n  } catch (error) { assert(false, verificationFailureMessage('Command observation', error)); }"
         },
         {
@@ -11308,7 +11308,7 @@
         "Source review of the fixed fixture invocation; not an execution receipt, formal Story PASS, or production speedup measurement."
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-command-observation-boundaries.mjs": "cf3cc8ac41d26e2ee58e7ae462652a63ee297ac28db88d74d5e87d64d0a9063a",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -11325,9 +11325,9 @@
     },
     {
       "id": "EX-CLI-COMMAND-OBSERVATION-CONTROLS",
-      "key": "scripts/verify-process-fact-contract.mjs:11468:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11472:execFileSync",
       "callDigest": "bb4dbd1da6e28e07644bacebbea9422f5d02f76461a46f97572012a5b8e2e173",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11336,9 +11336,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11466,
-          "endLine": 11473,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11470,
+          "endLine": 11477,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "    });\n    assert(output.includes('COMMAND_OBSERVATION_GREEN'), 'Real CLI, worktree and lock observation proof must pass');\n    execFileSync(process.execPath, [join(root, 'scripts/verify-command-observation-controls.mjs')], { cwd: root, stdio: 'pipe', timeout: 30000 });\n  } catch (error) { assert(false, verificationFailureMessage('Command observation', error)); }\n}\n\n// Structural inventory protection; executable behavior and mutation witnesses live in the focused Lab regression.\nfor (const [path, tokens] of ["
         },
         {
@@ -11358,7 +11358,7 @@
         "Source review of the fixed fixture invocation; not an execution receipt, formal Story PASS, or production speedup measurement."
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-command-observation-controls.mjs": "2fc05aae310e08d0253fc7c00dadd7803e6c134dae3b2b8a92a3bf45dcdf10f6",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -11375,9 +11375,9 @@
     },
     {
       "id": "EX-CLI-CLI-LAB-AUDIT-REPAIRS",
-      "key": "scripts/verify-process-fact-contract.mjs:11545:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11549:execFileSync",
       "callDigest": "a1ebb6b213af605b7358ed9a551916851569235e22365f0a3f58a8f3750b71b9",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11386,9 +11386,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11543,
-          "endLine": 11550,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11547,
+          "endLine": 11554,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "// ongoing Story activity, wrapper metadata roots and diagnostic compatibility.\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-lab-audit-repairs.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });\n  assert(output.includes('CLI_LAB_AUDIT_REPAIRS_GREEN'), 'CLI Lab audit repair controls must pass');\n} catch (error) { assert(false, verificationFailureMessage('CLI Lab audit repairs', error)); }\n\n// Executable audit hardening: source recovery, strict handlers, non-vacuous pins,\n// conservative lock admission and bounded queue observations."
         },
         {
@@ -11408,7 +11408,7 @@
         "Source review of the fixed fixture invocation; not an execution receipt, formal Story PASS, or production speedup measurement."
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-cli-lab-audit-repairs.mjs": "c4444971664cd421dac41bad3d3bd0d7e862e36606cfe6c254056ff6332c2e6a",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -11425,9 +11425,9 @@
     },
     {
       "id": "EX-CLI-CLI-AUDIT-HARDENING",
-      "key": "scripts/verify-process-fact-contract.mjs:11552:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11556:execFileSync",
       "callDigest": "06f09e67c179d15970ae7421f4eeb2d9d824257ecb1ed9498235a61e06df6e28",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11436,9 +11436,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11550,
-          "endLine": 11557,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11554,
+          "endLine": 11561,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "// conservative lock admission and bounded queue observations.\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-hardening.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });\n  assert(output.includes('CLI_AUDIT_HARDENING_GREEN'), 'CLI audit hardening controls must pass');\n} catch (error) { assert(false, verificationFailureMessage('CLI audit hardening', error)); }\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-closure-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });\n  assert(output.includes('CLI_AUDIT_CLOSURE_GREEN'), 'Queue, admission, compatibility and shared prerequisite controls must pass');"
         },
         {
@@ -11458,7 +11458,7 @@
         "Source review of the fixed fixture invocation; not an execution receipt, formal Story PASS, or production speedup measurement."
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-cli-audit-hardening.mjs": "36cd079ce94178d8a26632cf6d9dccc0b87eaaa7dc29d271bbdebb16edfd6232",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -11475,9 +11475,9 @@
     },
     {
       "id": "EX-CLI-CLI-AUDIT-CLOSURE-CONTROLS",
-      "key": "scripts/verify-process-fact-contract.mjs:11556:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11560:execFileSync",
       "callDigest": "c24bb3849585ee7d44eca69cb2e7d911bc56fc3c215a59b7166143671d3c390f",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11486,9 +11486,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11554,
-          "endLine": 11561,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11558,
+          "endLine": 11565,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "} catch (error) { assert(false, verificationFailureMessage('CLI audit hardening', error)); }\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-closure-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 450000 });\n  assert(output.includes('CLI_AUDIT_CLOSURE_GREEN'), 'Queue, admission, compatibility and shared prerequisite controls must pass');\n} catch (error) { assert(false, verificationFailureMessage('CLI audit closure', error)); }\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-budget-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 750000 });\n  assert(output.includes('CLI_AUDIT_BUDGET_GREEN'), 'CLI budget and companion diagnostic controls must pass');"
         },
         {
@@ -11508,7 +11508,7 @@
         "Source review of the fixed fixture invocation; not an execution receipt, formal Story PASS, or production speedup measurement."
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-cli-audit-closure-controls.mjs": "f452881b23e711b5e5e7801eef265caa414fe9ca10d0dd798612be5ec4d2026a",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -11525,9 +11525,9 @@
     },
     {
       "id": "EX-CLI-CLI-AUDIT-BUDGET-CONTROLS",
-      "key": "scripts/verify-process-fact-contract.mjs:11560:execFileSync",
+      "key": "scripts/verify-process-fact-contract.mjs:11564:execFileSync",
       "callDigest": "b26bd473ad71755212ca62dc4f5ecbfa483f84681fb38a43c4c7748e8a3b5ea3",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11536,9 +11536,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-process-fact-contract.mjs",
-          "startLine": 11558,
-          "endLine": 11565,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "startLine": 11562,
+          "endLine": 11569,
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "} catch (error) { assert(false, verificationFailureMessage('CLI audit closure', error)); }\ntry {\n  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-cli-audit-budget-controls.mjs')], { cwd: root, encoding: 'utf8', timeout: 750000 });\n  assert(output.includes('CLI_AUDIT_BUDGET_GREEN'), 'CLI budget and companion diagnostic controls must pass');\n} catch (error) { assert(false, verificationFailureMessage('CLI budget and diagnostics', error)); }\n// Remediation and convergence must consume authenticated V5 publication evidence.\n{\n  const authority = read('packages/main/src/core/verification-receipt-authority.ts');"
         },
         {
@@ -11558,7 +11558,7 @@
         "Source review of the fixed fixture invocation; not an execution receipt, formal Story PASS, or production speedup measurement."
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-cli-audit-budget-controls.mjs": "64aeac4856ce4b4e6b5c06345bd3eeb2a86203c0d4f8be0cc929363a6cb67c67",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -11580,7 +11580,7 @@
       "kind": "bounded-isolated-fixture",
       "reason": "Only the three literal acceptance-closure fixtures in this loop are admitted. Snapshot and writer checks use temporary stores; publication-lifecycle launches git and the real CLI validate only in its freshly created temporary project with one local probe command. It never recursively validates the repository or restores a historical Story. Timeout failures are unavailable evidence; each child must emit its specific GREEN marker. Full fixture sources and publication dependencies are digest-bound below.",
       "callDigest": "45e1ca215a0dab6b4657cb7e33eaeb95595e15e58228f82708cdc441bbea303e",
-      "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+      "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
       "configIndexes": [
         15
       ],
@@ -11589,7 +11589,7 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "startLine": 20,
           "endLine": 34,
-          "sourceDigest": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+          "sourceDigest": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
           "excerpt": "// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.\nfor (const [file, marker, timeout] of [\n  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],\n  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],\n  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],\n]) {\n  try {\n    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });\n    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');\n    if (!quiet) process.stdout.write(output);\n  } catch (error) {\n    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));\n  }\n}\nconst closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);"
         },
         {
@@ -11643,7 +11643,7 @@
         }
       ],
       "dependencyDigests": {
-        "scripts/verify-process-fact-contract.mjs": "2e512f2030de5f48a9655a77d2971a5c3061f8e48e3664185aea618f8bf9fbfe",
+        "scripts/verify-process-fact-contract.mjs": "aceae4e73339ced24bcfa3f20771a93b141ccf4bdd7bfa1ea240f130daf545cf",
         "scripts/verify-reviewer-read-boundaries.mjs": "3a65a1bc993173630bc16841752cc853e8659bd9c2d19a9cf5dadaa994b18093",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",

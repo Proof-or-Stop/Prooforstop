@@ -16,7 +16,8 @@ const { deriveCertificationDomainInputHashes } = await load('handlers/certificat
 const { executeValidationPlan } = await load('core/validation-executor.js');
 const { persistCanonicalFullBaseline, runStoryAwareDynamicValidation } = await load('handlers/story-aware-validation.js');
 const {readStoryAwareValidationArtifacts,persistStoryAwareValidationArtifacts} = await load('handlers/story-aware-validation.js');
-const {appendReceiptRevocation,createValidationCommandReceipt} = await load('core/story-aware-validation.js');
+const {appendReceiptRevocation,buildDynamicValidationPlan,buildStoryChangeManifest,compileValidationCatalog,createValidationCommandReceipt,discoverValidationInventory,verifyValidationSelectionManifest} = await load('core/story-aware-validation.js');
+const { withValidationSigningRoot } = await load('core/validation-signing-context.js');
 const { runValidateGate, runDoneOracleGate } = await load('handlers/phase-gates.js');
 const { assessStoredValidationPassAdmissibility, requiresDynamicValidationAdmission } = await load('handlers/validation-pass-admissibility.js');
 const { resolveGitCwd } = await load('core/story-signed-workspace-resolution.js');
@@ -303,6 +304,27 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
           /Stored routine validation admission|validation evidence signature is missing or invalid/,
           'tampered runtime mode plus stripped output marker must fail inside strict admission');
+        const foreignObserve = withValidationSigningRoot(root, () => {
+          const foreignStoryId = `${storyId}-foreign-observe`;
+          const inventory = discoverValidationInventory(root);
+          const { baseHead, head } = parsed.dynamicValidation.manifest;
+          const manifest = buildDynamicValidationPlan({
+            storyId: foreignStoryId, baseHead, head, inventory, catalog: compileValidationCatalog(inventory),
+            closures: new Map(), mode: 'observe',
+            changes: buildStoryChangeManifest({ storyId: foreignStoryId, gitCwd: storyGitCwd, baseHead, head, changedFiles: [] }),
+          });
+          assert.equal(verifyValidationSelectionManifest(manifest), true, 'foreign manifest must be validly repository-signed');
+          assert.equal(verifyValidationSelectionManifest(manifest, { storyId }), false);
+          return manifest;
+        });
+        writeFileSync(selectionPath, JSON.stringify(foreignObserve));
+        assert.equal(requiresDynamicValidationAdmission({ root, store }, storyId), true,
+          'a foreign signed observe manifest cannot suppress current Story strict admission while enforce receipts remain');
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
+          /Stored routine validation admission/,
+          'foreign observe lineage must retain the blocking stored-validation-admission DONE row');
+        console.log('FOREIGN_STORY_OBSERVE_CANNOT_SUPPRESS_DONE_ADMISSION');
+        writeFileSync(selectionPath, JSON.stringify(remodedSelection));
         rmSync(receiptsPath);
         assert.equal(requiresDynamicValidationAdmission({ root, store }, storyId), false,
           'after every dynamic discriminator is removed, the unsigned record retains only the legacy DONE shape');

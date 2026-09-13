@@ -142,6 +142,9 @@ export function assertAutomaticTierSelectionBindingCurrent(
     head: string;
   },
 ): void {
+  if (!Array.isArray(binding?.input?.changedPaths) || binding.input.changedPaths.some((path) => typeof path !== 'string')) {
+    throw new ValidationSelectorContextError('automatic selector changed paths are malformed');
+  }
   const expectedDecision = selectAutomaticValidationTier(binding.input);
   const expectedBindingDigest = digestCanonicalJson({ catalogDigest: binding.catalogDigest, input: binding.input, decision: expectedDecision });
   if (binding.bindingDigest !== expectedBindingDigest
@@ -639,7 +642,7 @@ export function hasStoryAwareValidationArtifacts(projectRoot: string, storyId: s
   if (!existsSync(selectionPath)) return existsSync(receiptsPath);
   try {
     const selection = JSON.parse(readFileSync(selectionPath, 'utf8')) as ValidationSelectionManifest;
-    if (!verifyValidationSelectionManifest(selection)) return existsSync(receiptsPath);
+    if (!verifyValidationSelectionManifest(selection, { storyId })) return existsSync(receiptsPath);
     return selection.mode === 'enforce-low-risk' && existsSync(receiptsPath);
   } catch {
     // Malformed selection beside receipts may be stripped dynamic provenance,

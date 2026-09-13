@@ -568,6 +568,25 @@ ownership`. Finish will build and verify the versioned candidate and obtain its
 independent audit before local integration. These records do not mark B-0aa0
 DONE or activate repository-wide dynamic rollout.
 
+## Twenty-second Claude audit and remediation
+
+Audit `5da129d0-f901-462c-afa7-39f93474136e` examined candidate
+`ba9cd7f9fd` against main `939d721523` and returned two low Findings after
+649,437 ms. It reported no observed selector/executor/consumer authority bypass
+and no regression of the prior canonical paths. Finish refused integration.
+The candidate was reopened through the official Lab command; main was unchanged.
+
+| Finding | Before | Repair and discriminating control |
+| --- | --- | --- |
+| A22-F1 malformed promotion fields | A numeric pattern escaped as TypeError, which was labelled dynamic preparation unavailable instead of selector context mismatch | Automatic promotion validates path and pattern elements; the adapter explicitly rejects malformed changed paths with its typed context error. A valid intermediate control passes, while numeric-pattern and numeric-path mutations widen to full and invalidate the binding with selector_context_mismatch. The signed-manifest mutation suite also requires a boolean refusal rather than an exception |
+| A22-F2 foreign Story observe lineage | A repository-signed observe manifest for another Story could suppress current-Story strict routing despite retained enforce receipts | Routing verifies the signature with the requested storyId. The same-Story signed observe control remains non-authoritative; a valid foreign signed observe manifest retains strict routing. The real DONE fixture checks that the stored-validation-admission row remains blocking with stripped output and retained enforce receipts |
+
+The fixed build-plus-planner RED at `b71706521b` reproduces both actual
+assertion failures. Earlier fixture bootstrap failures were setup failures, not
+proof of A22-F2; the final RED initializes its temporary Git signing repository
+and reaches the intended foreign-Story assertion. The fixed command remains
+bounded: these two regression cases do not add repository-wide validation runs.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,

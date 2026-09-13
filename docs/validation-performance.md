@@ -414,6 +414,12 @@ Runtime graph, receipt and risk checks can still widen execution beyond a
 requested preview tier. The atomic validate-file entrypoint carries no selector
 binding and retains complete-command fallback when enforcing dynamic validation.
 
+DONE origin routing authenticates the selection manifest for the current Story
+before using its mode. A valid signature for another Story cannot suppress the
+strict stored-PASS check while receipts remain. Automatic tier promotion also
+rejects non-string paths and patterns without allowing an incidental TypeError
+to replace the selector's classified refusal.
+
 Dynamic runner v9 binds the canonical fast/intermediate/full selector decision
 and digest into the signed execution manifest, and upgrades changes to registered gate/schema/verification
 authority sources to full validation, including the full task scope inventory
