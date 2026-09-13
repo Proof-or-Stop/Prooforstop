@@ -30,6 +30,17 @@ try {
   console.log('TOP5_IDENTITY_PROFILE '+JSON.stringify({firstReads,secondReads,durationMs:performance.now()-started,freshByteDrift:true}));
   assert.equal(firstReads,1,'TOP5_1_RED: one identity observation rereads the same Node binary');
   assert.equal(secondReads,1,'every separate identity observation rereads exactly once');
+  const {withExecutableDigestObservation,readObservedExecutableDigest}=await import(pathToFileURL(path.resolve('packages/main/dist/core/executable-digest-observation.js')));
+  let captured;
+  assert.throws(()=>withExecutableDigestObservation(()=>{captured=readObservedExecutableDigest(fakeNode);throw new Error('abort-observation');}),/abort-observation/);
+  fs.writeFileSync(fakeNode,'#!/bin/sh\necho tri\n');
+  assert.notEqual(readObservedExecutableDigest(fakeNode),captured,'throwing observations release their bytes');
+  await withExecutableDigestObservation(async()=>{
+    const old=readObservedExecutableDigest(fakeNode);
+    await Promise.resolve();
+    fs.writeFileSync(fakeNode,'#!/bin/sh\necho end\n');
+    assert.notEqual(readObservedExecutableDigest(fakeNode),old,'no observation survives an await');
+  });
   console.log('TOP5_1_IDENTITY_GREEN');
 } finally {
   fs.readFileSync=originalRead;syncBuiltinESMExports();

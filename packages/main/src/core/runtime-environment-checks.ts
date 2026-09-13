@@ -355,13 +355,14 @@ type ActiveIdentityOperationBoundarySeed = Omit<ActiveIdentityOperationBoundary,
 };
 
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
+  'packages/main/src/core/executable-digest-observation.ts': 'efaa0e0be32dd9e8833d6de120081b32f9c56c27b4d749b7eb2fa309445e0c4d',
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
   'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
   'packages/main/src/core/evidence-freshness.ts': '6eca17a48ac39083a7a601c52b49eb24300fad0ac5a7628efb12f8096d644df7',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
-  'packages/main/src/core/verification-execution-evidence.ts': 'ecd665658003dd342c888427da8d474ea7fbe23a3a37eed6587d1408259481e6',
-  'packages/main/src/handlers/checklist.ts': '43ed1f9d7a7c9193b8e1215afd5f23b62ebd1521aa27b233b903e3a56eac5d82',
+  'packages/main/src/core/verification-execution-evidence.ts': '86891f7a917087ffd570a84f60b4dc902fbbebf73799b59b507a26c296a274ab',
+  'packages/main/src/handlers/checklist.ts': '99fa4cb011bdce45b0d6d9072264222d684e4ba85e39e625bf3da87fbd47d0be',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
@@ -509,11 +510,12 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       runtimeSource('packages/main/src/core/git-tree-observation.ts'),
       runtimeSource('packages/main/src/core/evidence-freshness.ts'),
       runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
+      runtimeSource('packages/main/src/core/executable-digest-observation.ts'),
       runtimeSource('packages/main/src/core/impact-classification-policy.ts'),
       runtimeSource('packages/main/src/core/review-incremental-context.ts'),
       runtimeSource('packages/main/src/handlers/review-run.ts'),
     ]),
-    identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/git-tree-observation.ts', 'Raw Git observation delegate contains no artifact/domain/role identity literal; its emitted executable bytes are independently pinned and mutation-tested')]),
+    identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/executable-digest-observation.ts', 'Synchronous executable byte observation has no artifact or role identity literal; emitted delegate bytes are independently pinned and mutation-tested'), identityFreePath('packages/main/src/core/git-tree-observation.ts', 'Raw Git observation delegate contains no artifact/domain/role identity literal; its emitted executable bytes are independently pinned and mutation-tested')]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_VERSION' } },
@@ -569,8 +571,10 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     paths: Object.freeze([
       runtimeSource('packages/main/src/core/review-inventory-epoch.ts'),
       runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
+      runtimeSource('packages/main/src/core/executable-digest-observation.ts'),
       runtimeSource('packages/main/src/handlers/checklist.ts'),
     ]),
+    identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/executable-digest-observation.ts', 'Synchronous executable byte observation has no artifact or role identity literal; emitted delegate bytes are independently pinned and mutation-tested')]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
       { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'), valueBinding: { kind: 'property', name: 'schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
