@@ -303,7 +303,7 @@ export function persistCanonicalFullBaseline(args: {
   const inventory = discoverValidationInventory(args.projectRoot, injected);
   const catalog = compileValidationCatalog(inventory);
   assertValidValidationCatalog(inventory, catalog);
-  const catalogDigest = stableDigest(catalog);
+  const catalogDigest = digestCanonicalJson(catalog);
   const traces: Record<string, ValidationRuntimeTrace> = {};
   const closureCertificates: Record<string, ValidationClosureCertificate> = {};
   for (const entry of catalog) {
@@ -361,7 +361,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   const catalog = compileValidationCatalog(inventory);
   assertValidValidationCatalog(inventory, catalog);
   for (const entry of catalog) validateResourceClaims(entry.resources, entry.id);
-  const catalogDigest = stableDigest(catalog);
+  const catalogDigest = digestCanonicalJson(catalog);
   const changes = buildStoryChangeManifest({
     storyId: args.storyId,
     gitCwd,
@@ -1276,10 +1276,9 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const pinnedExecuted = final.manifest.rows.filter((row) => row.reasons.includes('verification-intent-pin')).every((row) => row.disposition === 'execute');
   const authority = evaluateDynamicAuthority({
     mode: args.mode || 'observe',
-    riskTier: final.catalog
-      .filter((entry) => final.manifest.rows.some((row) => row.commandId === entry.id
-        && (row.disposition === 'execute' || row.disposition === 'reuse')))
-      .every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
+    // A non-local row cannot disappear from the Story risk decision merely
+    // because the selector produced an exclusion proof for its paths.
+    riskTier: final.catalog.every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
     manifest: final.manifest,
     prerequisites: {
       // The gate-owned evidence provider below computes every prerequisite from

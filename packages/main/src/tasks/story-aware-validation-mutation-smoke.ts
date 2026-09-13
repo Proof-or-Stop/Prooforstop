@@ -243,7 +243,7 @@ try {
   ] } }));
   const storedInventory = discoverValidationInventory(storedRoot);
   const storedCatalog = compileValidationCatalog(storedInventory);
-  const storedCatalogDigest = stableDigest(storedCatalog);
+  const storedCatalogDigest = digestCanonicalJson(storedCatalog);
   const storedClosures = new Map(storedCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
     commandId: entry.id, baseHead: 'base', inventoryDigest: storedInventory.digest, catalogDigest: storedCatalogDigest,
     staticPaths: entry.inputRoots,
@@ -312,6 +312,42 @@ try {
   writeFileSync(`${storyRuntimeDir}/revocation-ledger.json`, JSON.stringify(ledger));
   writeFileSync(`${storyRuntimeDir}/receipts.json`, JSON.stringify(storedReceipts));
   assert.deepEqual(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', storedManifest), []);
+  const noBindingRows = storedManifest.rows.map((row) => row.disposition === 'excluded'
+    ? { ...row, disposition: 'execute' as const, reasons: ['fixture-execute-without-selector'] }
+    : row);
+  const {
+    selectorBinding: _missingSelectorBinding,
+    selectorDecisionDigest: _missingSelectorDecisionDigest,
+    requestedTier: _missingRequestedTier,
+    effectiveTier: _missingEffectiveTier,
+    tierSelections: _missingTierSelections,
+    signature: _missingBindingSignature,
+    ...noBindingRest
+  } = storedManifest;
+  const noBindingBody = {
+    ...noBindingRest,
+    rows: noBindingRows,
+    totals: {
+      ...storedManifest.totals,
+      executed: storedManifest.totals.executed + storedManifest.totals.excluded,
+      excluded: 0,
+    },
+  };
+  const noBindingManifest = { ...noBindingBody, signature: signPayload(noBindingBody) };
+  assert.equal(verifyValidationSelectionManifest(noBindingManifest), true,
+    'the missing-selector consumer branch requires an otherwise valid legacy-shaped manifest');
+  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', noBindingManifest)
+    .includes('dynamic_selector_binding_missing'));
+  const originalConfig = readFileSync(`${storedRoot}/proof-or-stop.config.json`, 'utf8');
+  const changedConfig = JSON.parse(originalConfig);
+  changedConfig.validate.commands.push({
+    id: 'third-unit', label: 'third-unit', ...replayCommand('third-unit'),
+    inputRoots: ['packages/main/src/third.ts'], inputsComplete: true, resources: [],
+  });
+  writeFileSync(`${storedRoot}/proof-or-stop.config.json`, JSON.stringify(changedConfig));
+  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', storedManifest)
+    .includes('dynamic_selector_context_changed'));
+  writeFileSync(`${storedRoot}/proof-or-stop.config.json`, originalConfig);
   const originalLedger = readFileSync(`${storyRuntimeDir}/revocation-ledger.json`, 'utf8');
   writeFileSync(`${storyRuntimeDir}/revocation-ledger.json`, JSON.stringify({ ...ledger, digest: 'forged' }));
   assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', storedManifest)
@@ -365,6 +401,20 @@ assert.equal(verifyValidationSelectionManifest(resign({
 const missingTierFields = { ...baseline, selectorDecisionDigest: 'present-without-tier-fields' } as Record<string, unknown>;
 assert.equal(verifyValidationSelectionManifest(resign(missingTierFields)), false,
   'a selector digest without requested/effective tier arrays must be refused');
+const prooflessExcludedRows = baseline.rows.map((row, index) => index === 0
+  ? { ...row, disposition: 'excluded' as const, reasons: ['forged-proofless-exclusion'] }
+  : row);
+const prooflessExcludedBody = {
+  ...baseline,
+  rows: prooflessExcludedRows,
+  totals: {
+    ...baseline.totals,
+    executed: baseline.totals.executed - 1,
+    excluded: baseline.totals.excluded + 1,
+  },
+};
+assert.equal(verifyValidationSelectionManifest(resign(prooflessExcludedBody)), false,
+  'an excluded row without any selector binding must be refused unconditionally');
 const excludedCommandId = tieredManifest.rows.find((row) => row.disposition === 'excluded')!.commandId;
 const excludedInsideEffectiveBinding = {
   ...tieredManifest.selectorBinding!,
@@ -561,23 +611,3 @@ console.log('dynamic-validation mutation audit PASS');
 console.log(`replay classes: ${replayClasses}`);
 console.log(`fault injections: ${faultInjections.map(([name]) => name).join(', ')}`);
 console.log('mutation guards: catalog/receipt/closure/selection/scheduler/shards');
-console.log('change manifest PASS');
-console.log('delete and rename coverage PASS');
-console.log('scope escalation PASS');
-console.log('complete ledger PASS');
-console.log('monotonicity PASS');
-console.log('fail-closed escalation PASS');
-console.log('observe/full equivalence PASS');
-console.log('isolated observe telemetry PASS');
-console.log('observer mutation rejected');
-console.log('admissible per-command reuse PASS');
-console.log('receipt rejection matrix PASS');
-console.log('forged receipt rejected');
-console.log('shadow/full oracle equivalent');
-console.log('shadow discrepancy reported');
-console.log('false negative detected');
-console.log('low-risk dynamic TEST PASS');
-console.log('mandatory full escalation PASS');
-console.log('authority mutations rejected');
-console.log('safe recovery and rollback PASS');
-console.log('operations mutation rejected');

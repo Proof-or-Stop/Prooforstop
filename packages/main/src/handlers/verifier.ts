@@ -164,6 +164,10 @@ export function dynamicRoutineCoverageAllowed(mode: DynamicValidationMode, story
   return mode === 'enforce-low-risk' && Boolean(storyPhase && ['DEV', 'REVIEW', 'TEST'].includes(storyPhase));
 }
 
+export function sharedValidationExecutionEnabled(mode: DynamicValidationMode, explicitOptIn = false): boolean {
+  return mode !== 'enforce-low-risk' || explicitOptIn;
+}
+
 
 /** Read-only projection of the existing transition scope policy, never PASS evidence. */
 export function validationScopePrerequisite(ctx: HandlerContext, storyId: string, gitCwd: string): string | undefined {
@@ -1864,7 +1868,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         command: 'validate',
         ...(!args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot)
           ? declaredValidationCapacity(configuredValidationCommands(projectRoot), handlerGitCwd) : {}),
-        sharedExecution: args.story && (dynamicMode !== 'enforce-low-risk' || projectConfig?.validate?.sharedExecution === true) ? {
+        sharedExecution: args.story && sharedValidationExecutionEnabled(dynamicMode, projectConfig?.validate?.sharedExecution === true) ? {
           storyId: args.story, receiptStore: ctx.store, reuseEconomics: 'measured',
           probe: input => probeValidationCausalPreflightFacts(ctx, args.story!, input),
         } : undefined,

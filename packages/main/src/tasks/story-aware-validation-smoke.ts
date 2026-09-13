@@ -26,10 +26,12 @@ import {
   verifyValidationSchedule,
   assertSelectionIsSingletonUnionMonotonic,
   stableDigest,
+  validateValidationCatalog,
 } from '../core/story-aware-validation.js';
 import {
   VALIDATION_IMPACT_INDEX_SCHEMA,
   buildAutomaticValidationTierSelectionBinding,
+  buildValidationImpactIndexFromCatalog,
   selectAutomaticValidationTier,
 } from '../core/validation-tier-planner.js';
 import type { StoryRelevanceInput } from '../core/validation-relevance-input.js';
@@ -195,6 +197,60 @@ assert.equal(tierBoundSelection.totals.excluded, 1);
 assert.equal(tierBoundSelection.selectorDecisionDigest, tierBinding.decision.selectionDigest);
 assert.deepEqual(tierBoundSelection.tierSelections, tierBinding.decision.tierSelections);
 assert.equal(tierBoundSelection.selectorBinding?.catalogDigest, tierBinding.catalogDigest);
+
+const wholeRepositoryInventory = discoverValidationInventory('/tmp', [
+  { id: 'whole-build', label: 'build', command: 'node', args: ['build.js'], inputRoots: ['packages/main/src/local.ts'], inputsComplete: true, assurance: 'always', riskTier: 'local', originalIndex: 0 },
+  { id: 'whole-scan', label: 'whole-scan', command: 'node', args: ['scan.js'], inputRoots: ['docs/narrow.md'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'whole-repository', originalIndex: 1 },
+]);
+const wholeRepositoryCatalog = compileValidationCatalog(wholeRepositoryInventory);
+assert.equal(validateValidationCatalog(wholeRepositoryInventory, wholeRepositoryCatalog).ok, false,
+  'whole-repository closure may not claim narrow complete selector inputs');
+const wholeImpact = buildValidationImpactIndexFromCatalog({
+  commandSetDigest: 'whole-command-set', catalog: wholeRepositoryCatalog,
+});
+assert.equal(wholeImpact.entries.find((entry) => entry.commandId === 'whole-scan')?.selection, 'repository-full');
+const wholeBinding = buildAutomaticValidationTierSelectionBinding({
+  input: {
+    ...productionRelevanceInput,
+    executionInventory: { sourceKind: 'configured', commandSetDigest: 'whole-command-set', commandIds: wholeRepositoryInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
+  },
+  catalog: wholeRepositoryCatalog,
+});
+const wholeClosures = new Map(wholeRepositoryCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
+  commandId: entry.id, baseHead: 'base', inventoryDigest: wholeRepositoryInventory.digest,
+  catalogDigest: stableDigest(wholeRepositoryCatalog), staticPaths: entry.inputRoots,
+})]));
+const wholePlan = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory: wholeRepositoryInventory,
+  catalog: wholeRepositoryCatalog, changes, closures: wholeClosures, baselineEpochId: 'epoch',
+  buildProofDigest: 'build', mode: 'observe', tierSelection: wholeBinding,
+});
+assert.equal(wholePlan.rows.find((row) => row.commandId === 'whole-scan')?.disposition, 'execute',
+  'whole-repository closure must never become a positive-proof exclusion');
+
+const fullOnlyInventory = discoverValidationInventory('/tmp', [
+  { id: 'full-build', label: 'build', command: 'node', args: ['build.js'], inputRoots: ['packages/main/src/local.ts'], inputsComplete: true, assurance: 'always', riskTier: 'local', originalIndex: 0 },
+  { id: 'full-sentinel', label: 'full-sentinel', command: 'node', args: ['sentinel.js'], inputRoots: ['docs/narrow.md'], inputsComplete: true, assurance: 'full-only', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'exact-current-epoch-only', originalIndex: 1 },
+]);
+const fullOnlyCatalog = compileValidationCatalog(fullOnlyInventory);
+const fullOnlyBinding = buildAutomaticValidationTierSelectionBinding({
+  input: {
+    ...productionRelevanceInput,
+    executionInventory: { sourceKind: 'configured', commandSetDigest: 'full-command-set', commandIds: fullOnlyInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
+  },
+  catalog: fullOnlyCatalog,
+});
+const fullOnlyClosures = new Map(fullOnlyCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
+  commandId: entry.id, baseHead: 'base', inventoryDigest: fullOnlyInventory.digest,
+  catalogDigest: stableDigest(fullOnlyCatalog), staticPaths: entry.inputRoots,
+})]));
+const fullOnlyPlan = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory: fullOnlyInventory,
+  catalog: fullOnlyCatalog, changes, closures: fullOnlyClosures, baselineEpochId: 'epoch',
+  buildProofDigest: 'build', mode: 'observe', tierSelection: fullOnlyBinding,
+});
+assert.notEqual(fullOnlyPlan.rows.find((row) => row.commandId === 'full-sentinel')?.disposition, 'excluded',
+  'full-only rows require canonical-baseline receipt reuse or execution');
 assert.throws(
   () => buildDynamicValidationPlan({
     storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory,

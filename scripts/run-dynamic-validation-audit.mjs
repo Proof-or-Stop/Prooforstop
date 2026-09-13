@@ -81,13 +81,11 @@ if (!coreOutput.includes('story-aware-validation smoke passed')) throw new Error
 const mutationOutput = runSourceTask('packages/main/src/tasks/story-aware-validation-mutation-smoke.ts');
 if (!mutationOutput.includes('dynamic-validation mutation audit PASS')) throw new Error('mutation audit selector missing');
 if (!mutationOutput.includes('replay classes: 30')) throw new Error('replay threshold selector missing');
-if (!mutationOutput.includes(selector)) throw new Error(`requested selector missing: ${selector}`);
 
-// Gate modes require both layers: the source smokes above prove the selector
-// and authority mutation that owns the public marker; this in-process fixture
-// then proves the resulting signed evidence crosses the real TEST/DONE gates.
-// Keeping the import here prevents the fixture's own summary markers from
-// satisfying the source-smoke assertions.
+// Gate modes require both layers: the complete core/mutation smokes above must
+// pass first; this in-process fixture then proves the resulting signed evidence
+// crosses the real TEST/DONE gates. The public selector is emitted by this
+// adapter only after both layers complete, never trusted from a tail marker.
 if (mode === 'test-gate' || mode === 'test-gate-mutations') {
   await import('./verify-dynamic-test-admission.mjs');
 }

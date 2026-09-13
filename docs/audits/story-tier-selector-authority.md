@@ -196,7 +196,7 @@ retained and repaired:
 | Finding | Before | Repair / executable evidence |
 | --- | --- | --- |
 | A4-F1 admission catalog parity | Stored admission used a second partial config parser, losing focus/optional/reuse fields and choosing another default label | Inventory discovery now delegates to the same `normalizeConfiguredValidationCommands` used by execution. The real fixture includes focus, optional, and an omitted label and still crosses TEST/DONE |
-| A4-F2 marker-only package tasks | Gate modes returned before the core and mutation smokes, while the consumer fixture printed both public markers | The wrapper now proves the requested marker in the source mutation smoke first, then runs the real TEST/DONE fixture, and emits the registered selector only after both layers pass |
+| A4-F2 marker-only package tasks | Gate modes returned before the core and mutation smokes, while the consumer fixture printed both public markers | The wrapper now requires the complete core and mutation smokes to finish first, then runs the real TEST/DONE fixture, and itself emits the registered selector only after both layers pass; unconditional smoke-tail selector markers were removed |
 | A4-F3 observe-mode TEST cost | `observe` in TEST disabled shared reuse and built the dual-revision graph despite no authority activation | TEST preserves `off` semantics for `observe`/`shadow`; only explicit `enforce-low-risk` enables dynamic TEST authority. Non-authoritative modes retain shared execution |
 | A4-F4 catalog digest mirror | Generic manifest verification reconstructed the selector but did not compare its catalog digest to the execution manifest | `selectorBinding.catalogDigest` must equal signed `manifest.catalogDigest`; a re-signed unrelated-catalog mutation is rejected |
 | A4-F5 DONE contract wording | The DONE consumer accepted signed dynamic evidence while L4 prose could be read as requiring a new full run | The contract now distinguishes evidence consumption from execution: DONE may admit the signed complete dynamic ledger, while explicit full, DONE-phase execution, and DONE-required evidence remain canonical |
@@ -211,6 +211,31 @@ retained and repaired:
 The repaired head must receive a new GREEN. Lab finish will create the patch
 candidate and run the mandatory different-vendor audit over the exact bumped
 commit; a pre-bump audit is not substituted for that release-candidate check.
+
+## Fifth Claude CLI audit and remediation
+
+The Lab-finish audit of release candidate `898a4383b2` returned `fail` under run
+`55c40805-78c5-49f8-b43c-3a78268252af` after 573,680 ms. The release tool
+stopped before local-main integration and the candidate was reopened, so the
+failed candidate did not change `main`. All ten findings were retained and
+repaired on the Lab branch:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A5-F1 unconditional exclusion proof | A signed manifest with excluded rows but no selector binding skipped the exclusion verifier | Exclusion verification is unconditional; a re-signed proofless exclusion without tier fields is rejected |
+| A5-F2 whole-repository closure | Catalog projection ignored `closurePolicy`, allowing narrow positive exclusion of a whole-tree command | `whole-repository` projects to `repository-full`, always participates, and contradictory narrow-complete catalog declarations are invalid; the smoke proves the row executes |
+| A5-F3 full-only and risk floor | An exact-epoch `full-only` row could be excluded and excluded non-local rows disappeared from authority risk | Every `full-only` row must execute or present an admissible receipt; authority risk considers the complete catalog, so excluded gate/validation-infra rows cannot lower risk |
+| A5-F4 stored selector negatives | Stored TEST/DONE admission had only a positive selector-binding case | Re-signed missing-binding and changed-live-catalog cases prove `dynamic_selector_binding_missing` and `dynamic_selector_context_changed` |
+| A5-F5 DONE evidence-read exception | `readTestEvidence` could throw before the rendered DONE checklist existed | Evidence read and admissibility are inside one guard; injected `readTestEvidence` failure appears as a blocking row in the complete rendered checklist |
+| A5-F6 shared-execution behavior | The observe/shadow predicate change was implicit and untested | A named helper pins off/observe/shadow/enforce behavior and explicit opt-in; DEV/REVIEW consequences are documented |
+| A5-F7 catalog digest domain | Manifest and selector binding used separate canonical-digest entry points | Production baseline, preparation, receipt admission, input digest and manifest binding all use `digestCanonicalJson(catalog)` |
+| A5-F8 malformed selector input | Hostile non-array impact entries could make a boolean verifier throw | Array guards force the planner's safe fallback and authority evaluation converts verifier exceptions to `selection-manifest-invalid` |
+| A5-F9 dependency seam | Sorted call arities lost the identity of the authorized seam argument | AST regression separately pins one public one-argument call and three internal calls whose second argument is exactly the `dependencies` identifier |
+| A5-F10 wrapper markers | Public modes trusted unconditional marker strings printed at the mutation-smoke tail | Tail markers were removed. Every public mode requires the complete core and 30-class mutation smokes; TEST modes additionally run the real signed TEST/DONE fixture, and the adapter emits the requested marker only after those proofs pass |
+
+The repaired source build, planner smoke, Story-aware smoke, 30-class mutation
+audit, real TEST/DONE fixture and dynamic admission mutations pass. A fresh Lab
+GREEN and a new post-version-bump Claude audit remain mandatory before finish.
 
 ## Rollback
 

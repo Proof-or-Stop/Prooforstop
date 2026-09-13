@@ -114,6 +114,19 @@ async function runCase(phase, full) {
         assert.doesNotMatch(downstreamDoneError, /Stored routine validation admission|dynamic_.*(?:invalid|changed|missing)/,
           'a valid dynamic TEST PASS must cross the DONE dynamic-consumer boundary');
         console.log('DYNAMIC_DONE_CONSUMER_ACCEPTED');
+        const originalReadTestEvidence = store.readTestEvidence.bind(store);
+        let injectEvidenceReadThrow = true;
+        store.readTestEvidence = (...callArgs) => {
+          if (injectEvidenceReadThrow) {
+            injectEvidenceReadThrow = false;
+            throw new Error('INJECTED_STORED_EVIDENCE_READ_FAILURE');
+          }
+          return originalReadTestEvidence(...callArgs);
+        };
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+          /DONE Gate Checklist \(B-u09-authority\)[\s\S]*Stored routine validation admission[\s\S]*INJECTED_STORED_EVIDENCE_READ_FAILURE/,
+          'a thrown stored-evidence read must remain a rendered DONE checklist row');
+        store.readTestEvidence = originalReadTestEvidence;
         const originalReadChecklist = store.readChecklist.bind(store);
         let injectAdmissionThrow = true;
         store.readChecklist = (...callArgs) => {

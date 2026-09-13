@@ -562,6 +562,10 @@ retain the prior canonical/shared-reuse path. Enforcement still requires the com
 baseline, closure, freshness, expiry, revocation, selector-input and exclusion-
 proof prerequisites pass. Explicit `--full`, DONE-phase invocation, and
 DONE-required evidence remain on their independent canonical policies.
+In DEV and REVIEW, non-authoritative `observe`/`shadow` also keep the canonical
+oracle eligible for explicitly declared exact-input shared-execution reuse;
+`enforce-low-risk` disables that cross-invocation path unless the repository
+separately sets `validate.sharedExecution=true`.
 
 The focused regression is `node scripts/verify-dynamic-test-admission.mjs`. The
 stable package-level TEST-gate wrapper first runs both source smokes and verifies

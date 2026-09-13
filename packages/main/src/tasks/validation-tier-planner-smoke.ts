@@ -147,7 +147,7 @@ import {
   validationCommandUsesShell,
   validationIdentityDigest,
 } from '../core/validation-evidence-reuse.js';
-import { configuredValidationCommands, dynamicRoutineCoverageAllowed, resolveValidationDynamicMode, sourceInputSnapshot } from '../handlers/verifier.js';
+import { configuredValidationCommands, dynamicRoutineCoverageAllowed, resolveValidationDynamicMode, sharedValidationExecutionEnabled, sourceInputSnapshot } from '../handlers/verifier.js';
 import {
   REPOSITORY_FULL_TIER,
   VALIDATION_IMPACT_INDEX_SCHEMA,
@@ -2496,6 +2496,11 @@ testCase('dynamic authority requires explicit configuration and only DEV REVIEW 
   assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'INIT'), false);
   assert.equal(dynamicRoutineCoverageAllowed('off', 'TEST'), false);
   assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'DONE'), false);
+  assert.equal(sharedValidationExecutionEnabled('off'), true);
+  assert.equal(sharedValidationExecutionEnabled('observe'), true);
+  assert.equal(sharedValidationExecutionEnabled('shadow'), true);
+  assert.equal(sharedValidationExecutionEnabled('enforce-low-risk'), false);
+  assert.equal(sharedValidationExecutionEnabled('enforce-low-risk', true), true);
   const dynamicOutput = { provider: 'proof-or-stop-verifier-dynamic-authoritative', dynamicValidation: { authority: 'enforce-authority' } };
   assert.deepEqual(dynamicValidationCoverageAdmission(dynamicOutput, true), { dynamicOrigin: true, allowed: true });
   assert.deepEqual(dynamicValidationCoverageAdmission(dynamicOutput, false), {
@@ -3000,11 +3005,12 @@ testCase('explicit repository-full process-fact paths force full without overmat
   };
   visitPlanner(plannerAst);
   assert.equal(productionCallSites.length, 4, 'only the plan resolver and automatic-tier wrapper may call the canonical selector');
-  assert.deepEqual(
-    productionCallSites.map((call) => call.arguments.length).sort(),
-    [1, 2, 2, 2],
-    'the plan resolver keeps the live registry seam implicit while the automatic wrapper forwards its internal dependency seam',
-  );
+  const resolverCalls = productionCallSites.filter((call) => call.arguments.length === 1);
+  const automaticCalls = productionCallSites.filter((call) => call.arguments.length === 2);
+  assert.equal(resolverCalls.length, 1, 'the public plan resolver must keep the live registry seam implicit');
+  assert.equal(automaticCalls.length, 3, 'the automatic wrapper owns exactly three explicit-tier calls');
+  assert.ok(automaticCalls.every((call) => ts.isIdentifier(call.arguments[1]!) && call.arguments[1]!.text === 'dependencies'),
+    'automatic-tier calls may forward only the named internal dependencies seam, never a fabricated literal');
   assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'validation-plan.ts may not call the selector seam directly');
   assert.match(
     validationWideningReasonGloss('validation_floor_registry_unavailable'),

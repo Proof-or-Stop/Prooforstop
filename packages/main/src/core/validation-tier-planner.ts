@@ -154,6 +154,7 @@ export interface ValidationImpactCatalogEntry {
   id: string;
   assurance: 'always' | 'story-selectable' | 'full-only';
   riskTier: 'local' | 'shared' | 'gate' | 'validation-infra';
+  closurePolicy?: 'static-and-traced' | 'whole-repository' | 'never-reuse';
   policySource: 'explicit' | 'default';
   inputRoots: readonly string[];
   selectionInputRoots?: readonly string[];
@@ -179,7 +180,8 @@ export function buildValidationImpactIndexFromCatalog(args: {
     ].map(normalizedPath).filter(Boolean))].sort();
     const selection: ValidationImpactSelection = entry.assurance === 'always'
       ? 'always'
-      : entry.assurance === 'full-only' || entry.riskTier === 'gate' || entry.riskTier === 'validation-infra'
+      : entry.assurance === 'full-only' || entry.closurePolicy === 'whole-repository'
+        || entry.riskTier === 'gate' || entry.riskTier === 'validation-infra'
         ? REPOSITORY_FULL_TIER
         : entry.riskTier === 'shared'
           ? 'story-intermediate'
@@ -651,9 +653,11 @@ export function selectAutomaticValidationTier(
   dependencies: SelectValidationTiersDependencies = {},
 ): ValidationTierSelectionDecision {
   const initial = selectValidationTiers({ ...input, requestedTier: 'story-fast' }, dependencies);
-  const needsIntermediate = Boolean(input.impactIndex?.entries.some((entry) =>
+  const impactEntries = Array.isArray(input.impactIndex?.entries) ? input.impactIndex.entries : [];
+  const needsIntermediate = impactEntries.some((entry) =>
     entry.selection === 'story-intermediate'
-    && input.changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern)))));
+    && Array.isArray(entry.inputPatterns)
+    && input.changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern))));
   if (initial.effectiveTier === REPOSITORY_FULL_TIER) {
     // An empty fast set is not a PASS, but it must not prevent a directly
     // affected shared/boundary command from being tried at intermediate.

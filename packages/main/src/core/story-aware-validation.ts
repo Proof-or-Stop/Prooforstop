@@ -365,6 +365,8 @@ export function validateValidationCatalog(inventory: ValidationInventory | Valid
       errors.push('invalid or dist-only inputRoots: ' + entry.id);
     if (entry.runnerSourcePath && (!validRelativePath(entry.runnerSourcePath) || !entry.runnerSourceDigest))
       errors.push('runner source digest missing or path invalid: ' + entry.id);
+    if (entry.closurePolicy === 'whole-repository' && entry.selectionInputCoverage === 'complete')
+      errors.push('whole-repository closure cannot claim narrow complete selector inputs: ' + entry.id);
     if (triggerFiles.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
       errors.push('invalid or dist-only trigger files: ' + entry.id);
     if (!['static-and-traced', 'whole-repository', 'never-reuse'].includes(entry.closurePolicy)) errors.push('invalid closurePolicy: ' + entry.id);
@@ -825,7 +827,7 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   const currentLedgerDigest = ctx.revocationLedger?.digest || stableDigest({});
   if (receipt.revocationLedgerDigest !== currentLedgerDigest) return false;
   if (!verifyValidationClosureCertificate(closure) || receipt.closureCertificateDigest !== closure.signature) return false;
-  if (receipt.catalogDigest !== stableDigest(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
+  if (receipt.catalogDigest !== digestCanonicalJson(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
   if (ctx.runnerDigest && receipt.runnerDigest !== ctx.runnerDigest) return false;
   if (ctx.buildProofDigest && receipt.buildProofDigest !== ctx.buildProofDigest) return false;
   if (receipt.sourceBaseHead !== ctx.baseHead || receipt.canonicalBaselineEpochId !== (ctx.baselineEpochId || '')) return false;
@@ -1007,7 +1009,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
-      catalogDigest: stableDigest(ctx.catalog),
+      catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
       toolchainDigest: ctx.toolchainDigest, buildProofDigest: ctx.buildProofDigest, runnerDigest: ctx.runnerDigest,
@@ -1032,14 +1034,15 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
-      catalogDigest: stableDigest(ctx.catalog),
+      catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
       toolchainDigest: ctx.toolchainDigest, buildProofDigest: ctx.buildProofDigest, runnerDigest: ctx.runnerDigest,
     });
     const tierSelected = !canonicalTierDecision || canonicalTierDecision.selectedUnitIds.includes(row.id);
     const mustParticipate = fullEscalated || tierSelected || selected.has(row.id)
-      || entry.assurance === 'always' || entry.closurePolicy === 'never-reuse';
+      || entry.assurance === 'always' || entry.assurance === 'full-only'
+      || entry.closurePolicy === 'whole-repository' || entry.closurePolicy === 'never-reuse';
     if (selected.has(row.id) || entry.assurance === 'always' || entry.closurePolicy === 'never-reuse') {
       return { commandId: row.id, disposition: 'execute', reasons: selected.get(row.id) || [entry.closurePolicy === 'never-reuse' ? 'never-reuse-policy' : 'always'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
     }
@@ -1092,7 +1095,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   const body = {
     schema: VALIDATION_SELECTION_SCHEMA, storyId: ctx.storyId, baseHead: ctx.baseHead, head: ctx.head, changeDigest: ctx.changes.changeDigest,
     scopeContractDigest: ctx.scopeContract && ctx.scopeContract.digest || stableDigest(ctx.scopeContract || {}),
-    catalogDigest: stableDigest(ctx.catalog), inventoryDigest: currentInventoryDigest(ctx.inventory),
+    catalogDigest: digestCanonicalJson(ctx.catalog), inventoryDigest: currentInventoryDigest(ctx.inventory),
     dependencyGraphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
     closureCertificateSetDigest: stableDigest([...closures.entries()]), toolchainDigest: ctx.toolchainDigest || '',
     buildProofDigest: ctx.buildProofDigest || '', canonicalBaselineEpochId: ctx.baselineEpochId || '',
@@ -1152,8 +1155,8 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
     const intermediate = new Set(manifest.tierSelections['story-intermediate']);
     const full = new Set(manifest.tierSelections['repository-full']);
     if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) return false;
-    if (!verifyValidationTierExclusions(manifest)) return false;
   }
+  if (!verifyValidationTierExclusions(manifest)) return false;
   return manifest.totals.unverified === unverified
     && manifest.totals.executed === executed
     && manifest.totals.reused === reused
@@ -1244,7 +1247,11 @@ export function evaluateDynamicAuthority(args: {
   if (args.mode === 'off') reasons.push('dynamic-mode-off');
   if (args.focused) reasons.push('focused-validation-is-not-authoritative');
   if (args.riskTier !== 'local') reasons.push('risk-tier-not-dynamic-authority');
-  if (!verifyValidationSelectionManifest(args.manifest)) reasons.push('selection-manifest-invalid');
+  try {
+    if (!verifyValidationSelectionManifest(args.manifest)) reasons.push('selection-manifest-invalid');
+  } catch {
+    reasons.push('selection-manifest-invalid');
+  }
   if (args.manifest.fullEscalated) reasons.push('full-escalation-required');
   if (args.pinnedCommandsExecuted === false) reasons.push('verification-intent-pin-not-executed');
   const allPrerequisites = enforcementPrerequisites.every(row => row.pass);

@@ -682,12 +682,12 @@ export function runDoneOracleGate(
   // behavior is byte-identical.
   gitCwd: string = root,
 ): string {
-  const storedEvidence = store.readTestEvidence(storyId);
   let storedValidationAdmissionFailure: DoneCheckRow | undefined;
-  if (storedEvidence?.result === 'PASS') {
-    // Authenticate first. Execution-mode markers live inside the signed output
-    // and therefore cannot decide whether DONE performs this check.
-    try {
+  try {
+    const storedEvidence = store.readTestEvidence(storyId);
+    if (storedEvidence?.result === 'PASS') {
+      // Authenticate first. Execution-mode markers live inside the signed output
+      // and therefore cannot decide whether DONE performs this check.
       const admissibility = assessStoredValidationPassAdmissibility(
         { root, store } as HandlerContext,
         storyId,
@@ -704,17 +704,17 @@ export function runDoneOracleGate(
           hint: `Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
         };
       }
-    } catch (error) {
-      storedValidationAdmissionFailure = {
-        id: 'stored-validation-admission',
-        label: 'Stored routine validation admission',
-        status: 'fail',
-        blocking: true,
-        source: 'assessStoredValidationPassAdmissibility',
-        detail: error instanceof Error ? error.message : String(error),
-        hint: `Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
-      };
     }
+  } catch (error) {
+    storedValidationAdmissionFailure = {
+      id: 'stored-validation-admission',
+      label: 'Stored routine validation admission',
+      status: 'fail',
+      blocking: true,
+      source: 'assessStoredValidationPassAdmissibility',
+      detail: error instanceof Error ? error.message : String(error),
+      hint: `Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
+    };
   }
   const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
   const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root, { gitCwd, evidenceHashSnapshot });
