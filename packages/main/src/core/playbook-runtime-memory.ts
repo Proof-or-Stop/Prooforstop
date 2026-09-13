@@ -14,6 +14,7 @@ import {
   type DevMemoryEntry,
 } from './dev-memory.js';
 import {
+  withLearningRootScope,
   computePlaybookDigest,
   readPlaybooks,
   readSignatureRegistry,
@@ -27,6 +28,7 @@ import {
   buildRuntimeMemoryIndex,
   isRuntimeMemoryIndexFresh,
   readRuntimeMemoryIndex,
+  resolveRuntimeMemoryIndexPath,
   readRuntimeMemorySourceDigests,
   selectRuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndex,
@@ -38,6 +40,8 @@ import {
   buildRuntimeMemoryPackCacheContext,
   computeMemoryPackDigest,
   getRuntimeMemoryPackCacheHit,
+  selectRuntimeMemoryPackCandidates,
+  type RuntimeMemoryPackCacheContext,
   rememberRuntimeMemoryPackCache,
 } from './playbook-runtime-memory-cache.js';
 
@@ -634,7 +638,7 @@ function sameRuntimeMemoryIndexSourceDigests(
     && a.signatureRegistryDigest === b.signatureRegistryDigest;
 }
 
-function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackInternalOptions): RuntimeMemoryIndex | null {
+function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackInternalOptions, onBuild?: () => void): RuntimeMemoryIndex | null {
   if (options.useIndex === false) return null;
   if (options.runtimeIndex) {
     if (options.currentSourceDigests) {
@@ -646,13 +650,18 @@ function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackInternalOpt
   const stored = readRuntimeMemoryIndex(options.projectRoot);
   if (stored && isRuntimeMemoryIndexFresh(stored, options.projectRoot)) return stored;
   try {
+    onBuild?.();
     return buildRuntimeMemoryIndex(options.projectRoot);
   } catch {
     return null;
   }
 }
 
-function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInternalOptions): MemoryFreshnessPack {
+function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInternalOptions, inheritLearningScope = false): MemoryFreshnessPack {
+  return withLearningRootScope(() => buildMemoryFreshnessPackObserved(options), inheritLearningScope);
+}
+
+function buildMemoryFreshnessPackObserved(options: BuildMemoryFreshnessPackInternalOptions): MemoryFreshnessPack {
   const query = options.query?.trim() ?? '';
   const maxEntries = Math.max(0, Math.floor(options.maxEntries ?? DEFAULT_MAX_ENTRIES));
   const maxPlaybooks = Math.max(0, Math.floor(options.maxPlaybooks ?? DEFAULT_MAX_PLAYBOOKS));
@@ -661,7 +670,20 @@ function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInter
     : Math.max(0, Math.floor(options.candidateLimit));
   const maxLines: 60 = RENDER_MAX_LINES;
   const consumer = options.consumer ?? 'session_brief';
-  const runtimeIndex = resolveRuntimeIndexForPack(options);
+  // This early path only reuses packs built from source-derived ephemeral indexes.
+  // Stored and explicit indexes retain their existing version/integrity checks.
+  const allowSourceOnlyReuse = options.useIndex !== false && options.useCache !== false
+    && !options.runtimeIndex && !existsSync(resolveRuntimeMemoryIndexPath(options.projectRoot));
+  if (allowSourceOnlyReuse) {
+    const earlyContext = buildRuntimeMemoryPackCacheContext(options, {
+      schemaVersion: SCHEMA_VERSION, query, consumer, maxEntries, maxPlaybooks, maxLines,
+      candidateLimit, allowSourceOnlyReuse: true,
+    });
+    const early = getRuntimeMemoryPackCacheHit(earlyContext, true);
+    if (early.hit) return { ...early.pack, generatedAt: options.generatedAt ?? early.pack.generatedAt };
+  }
+  let indexBuiltFromSource = false;
+  const runtimeIndex = resolveRuntimeIndexForPack(options, () => { indexBuiltFromSource = true; });
   const cacheContext = options.useIndex === false || options.useCache === false
     ? null
     : buildRuntimeMemoryPackCacheContext(options, {
@@ -673,6 +695,7 @@ function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInter
       maxLines,
       candidateLimit,
       runtimeIndex,
+      allowSourceOnlyReuse: allowSourceOnlyReuse && indexBuiltFromSource,
       ...(options.currentSourceDigests ? { currentSourceDigests: options.currentSourceDigests } : {}),
     });
   if (cacheContext) {
@@ -686,7 +709,7 @@ function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInter
   }
 
   const indexedOptions = candidateLimit === undefined ? options : { ...options, candidateLimit };
-  const indexed = resolveIndexedCandidates(indexedOptions, query, maxEntries, maxPlaybooks, runtimeIndex);
+  const indexed = resolveIndexedCandidates(indexedOptions, query, maxEntries, maxPlaybooks, runtimeIndex, cacheContext);
   const allEntries = indexed?.devMemoryEntries
     ?? mergeEntries(readProjectMemoryEntries(options.projectRoot), readGlobalMemoryEntries());
   const { selected, suppressed } = selectDevMemoryEntries(allEntries, query, maxEntries);
@@ -710,7 +733,7 @@ function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInter
     generatedAt: options.generatedAt ?? new Date().toISOString(),
     projectRoot: options.projectRoot,
     query,
-    sourceDigests: readSourceDigests(options.projectRoot),
+    sourceDigests: options.currentSourceDigests ? { ...options.currentSourceDigests } : readSourceDigests(options.projectRoot),
     results: {
       devMemoryEntryIds: selected.map((entry) => entry.id),
       playbookIds: playbookMatches.map((match) => match.playbook.id),
@@ -766,35 +789,51 @@ export function buildMemoryFreshnessPack(options: BuildMemoryFreshnessPackOption
 export function buildMemoryFreshnessPacksWithRuntimeIndex(
   packs: BuildMemoryFreshnessPackOptions[],
   runtimeIndex: RuntimeMemoryIndex,
+  observeQueryElapsed?: (elapsedMs: number) => void,
 ): MemoryFreshnessPack[] {
-  if (packs.length === 0) return [];
-  const projectRoot = packs[0]!.projectRoot;
-  for (const options of packs) {
-    if (options.projectRoot !== projectRoot) {
-      throw new Error('buildMemoryFreshnessPacksWithRuntimeIndex requires one projectRoot per batch');
+  return withLearningRootScope(() => {
+    if (packs.length === 0) return [];
+    const projectRoot = packs[0]!.projectRoot;
+    for (const options of packs) {
+      if (options.projectRoot !== projectRoot) {
+        throw new Error('buildMemoryFreshnessPacksWithRuntimeIndex requires one projectRoot per batch');
+      }
     }
-  }
-  const currentSourceDigests = readRuntimeMemorySourceDigests(projectRoot);
-  const runtimeIndexIsFresh = sameRuntimeMemoryIndexSourceDigests(
-    runtimeIndex.manifest.sourceDigests,
-    currentSourceDigests,
-  );
-  return packs.map((options) => buildMemoryFreshnessPackInternal({
-    ...options,
-    ...(runtimeIndexIsFresh ? { runtimeIndex, currentSourceDigests } : {}),
-  }));
+    const currentSourceDigests = readRuntimeMemorySourceDigests(projectRoot);
+    const runtimeIndexIsFresh = sameRuntimeMemoryIndexSourceDigests(
+      runtimeIndex.manifest.sourceDigests,
+      currentSourceDigests,
+    );
+    return packs.map((options) => {
+      // Batch source validation stays outside individual query latency. The
+      // benchmark's enclosing timer still includes that shared preparation.
+      const started = observeQueryElapsed ? performance.now() : 0;
+      const pack = buildMemoryFreshnessPackInternal({
+        ...options,
+        ...(runtimeIndexIsFresh ? { runtimeIndex, currentSourceDigests } : {}),
+      }, true);
+      observeQueryElapsed?.(Math.max(0, performance.now() - started));
+      return pack;
+    });
+  });
 }
 
 function resolveIndexedCandidates(
-  options: BuildMemoryFreshnessPackOptions,
+  options: BuildMemoryFreshnessPackInternalOptions,
   query: string,
   maxEntries: number,
   maxPlaybooks: number,
   runtimeIndex?: RuntimeMemoryIndex | null,
+  cacheContext?: RuntimeMemoryPackCacheContext | null,
 ): RuntimeMemoryIndexCandidates | null {
   if (options.useIndex === false) return null;
   const index = runtimeIndex ?? options.runtimeIndex ?? readRuntimeMemoryIndex(options.projectRoot);
-  if (!index || !isRuntimeMemoryIndexFresh(index, options.projectRoot)) return null;
+  if (!index) return null;
+  const fresh = options.currentSourceDigests
+    ? sameRuntimeMemoryIndexSourceDigests(index.manifest.sourceDigests, options.currentSourceDigests)
+    : isRuntimeMemoryIndexFresh(index, options.projectRoot);
+  if (!fresh) return null;
+  if (cacheContext?.runtimeIndex === index) return selectRuntimeMemoryPackCandidates(cacheContext);
   return selectRuntimeMemoryIndexCandidates(index, {
     query,
     consumer: options.consumer ?? 'session_brief',

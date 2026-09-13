@@ -1116,7 +1116,7 @@ group('CHK-003 story workspace resolution is owned by core/story-workspace.ts', 
       assert.equal(source.split(retiredStateDir).length - 1, 0, `retired state-dir spelling found in core/story-workspace.ts`);
       assert.equal(source.split(`'${PROOF_OR_STOP_STATE_DIR}`).length - 1, 0, 'the canonical state-dir name must not be a literal either; it is derived via config -> proof-or-stop-paths -> brand-paths');
       assert.ok(!/\bjoin\s*\(/.test(source) && !source.includes('storyDirPath('), 'the helper builds no metadata path of its own (F-003 removed the unconsumed storyDir field); every read goes through StoryStore');
-      assert.ok(source.includes('resolveGitCwd('), 'the helper must obtain gitCwd from resolveGitCwd');
+      assert.ok(source.includes('resolveGitCwdWithWorkspace('), 'the helper must obtain gitCwd and worktree from the shared authoritative observation');
       assert.match(source, /export function resolveStoryWorkspace\(/);
     },
   },
@@ -1708,11 +1708,11 @@ function describeReads(reads: RootRead[]): string {
 /** The label of a workspace-rooted caller that read nothing at all. One constant, shared with the F-005 guard below, so a rename cannot desynchronise them (F-008). */
 const VACUOUS_WORKSPACE_LABEL = 'workspace-rooted (no story/checklist/config read and no delegation on ctx at all)';
 
-function classificationOf(caller: ResolverScan): string {
+function classificationOf(caller: ResolverScan, verbose = true): string {
   if (caller.workspaceRooted) return caller.workspaceReads > 0 ? 'workspace-rooted' : VACUOUS_WORKSPACE_LABEL;
   const kinds: string[] = (['story', 'checklist', 'config'] as RootReadKind[]).filter((kind) => caller.remainingReads.some((read) => read.kind === kind));
   const delegations = [...new Set(caller.remainingReads.filter((read) => read.kind === 'handler').map((read) => read.via.replace(/\(.*\)$/, '')))].sort();
-  if (delegations.length) kinds.push(`via-handler(${delegations.join(', ')})`);
+  if (delegations.length) kinds.push(verbose ? `via-handler(${delegations.join(', ')})` : `via-handler[${delegations.length}]`);
   return `reads ctx.root: ${kinds.join(', ')}`;
 }
 
@@ -1737,7 +1737,7 @@ function renderResolverAudit(report: ResolverAudit, verbose: boolean = AUDIT_VER
     const calls = callsOf(caller);
     if (!verbose) {
       // F-010: the call lines are printed by default as one compact column; per-read detail stays verbose-only.
-      lines.push(`    ${caller.file}  ${calls}  ${classificationOf(caller)}`);
+      lines.push(`    ${caller.file}  ${calls}  ${classificationOf(caller, false)}`);
       continue;
     }
     const detail = caller.remainingReads.length ? `  -- ${describeReads(caller.remainingReads)}` : '';
@@ -1881,8 +1881,9 @@ group('CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically 
       for (const caller of report.callers) {
         assert.equal(compact.filter((line) => line.startsWith(`    ${caller.file} `)).length, 1, `${caller.file}: exactly one default line`);
         assert.ok(compact.some((line) => line.startsWith(`    ${caller.file} `) && line.includes(`  ${caller.callLines.map((n) => `L${n}`).join(',')}  `)), `${caller.file}: the default line lists its call lines`);
-        assert.ok(compact.some((line) => line.startsWith(`    ${caller.file} `) && line.trimEnd().endsWith(classificationOf(caller))), `${caller.file}: the default line ends with its classification`);
+        assert.ok(compact.some((line) => line.startsWith(`    ${caller.file} `) && line.trimEnd().endsWith(classificationOf(caller, false))), `${caller.file}: the default line ends with its classification`);
         assert.ok(verboseLines.some((line) => line.startsWith(`    ${caller.file} `) && line.includes(`calls ${caller.callLines.map((n) => `L${n}`).join(',')}`)), `${caller.file}: the verbose line carries its call lines`);
+        assert.ok(verboseLines.some(line => line.startsWith(`    ${caller.file} `) && line.includes(classificationOf(caller))), `${caller.file}: full delegation identities remain in verbose output`);
       }
     },
   },

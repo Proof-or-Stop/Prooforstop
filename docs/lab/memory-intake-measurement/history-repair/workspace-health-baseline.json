@@ -1,0 +1,13 @@
+{
+  "mainHead": "de2b236e1ae09e21edfe77bc3eaee4cc9725849c",
+  "command": [
+    "node",
+    "packages/main/dist/tasks/single-owner-extraction-smoke.js"
+  ],
+  "exitCode": 1,
+  "cases": 40,
+  "failures": [
+    "[FAIL] structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed: handlers/validation-plan.ts: still contains \"loadConfig(\"",
+    "[FAIL] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars: default stdout is 11252 chars, not under 11000: the audit block (4788 chars by default) must stay compact -- one line per caller with a call-line column; the full rule and per-read detail only under SINGLE_OWNER_AUDIT_VERBOSE=1"
+  ]
+}

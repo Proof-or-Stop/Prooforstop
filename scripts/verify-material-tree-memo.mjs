@@ -1,8 +1,9 @@
 import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
+import ts from 'typescript';
 import cp from 'node:child_process';
-import { syncBuiltinESMExports } from 'node:module';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { syncBuiltinESMExports, registerHooks } from 'node:module';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const original = cp.execFileSync;
@@ -12,7 +13,18 @@ cp.execFileSync = function(command, args, ...rest) {
   return original.call(this, command, args, ...rest);
 };
 syncBuiltinESMExports();
-const { currentMaterialHash } = await import('../packages/main/src/core/evidence-freshness.ts');
+// This verifier follows the real source closure, which can contain non-erasable
+// TypeScript after main synchronization. Keep source execution and all assertions.
+const sourceHook = registerHooks({
+  load(url, context, nextLoad) {
+    if (url.endsWith('.ts')) return {format: 'module', shortCircuit: true,
+      source: ts.transpileModule(readFileSync(new URL(url), 'utf8'), {compilerOptions: {target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext}}).outputText};
+    return nextLoad(url, context);
+  },
+});
+let currentMaterialHash;
+try { ({currentMaterialHash} = await import('../packages/main/src/core/evidence-freshness.ts')); }
+finally { sourceHook.deregister(); }
 const root = mkdtempSync(join(tmpdir(), 'material-memo-'));
 const git = (...args) => original('git', args, { cwd: root, stdio: 'pipe' });
 try {
