@@ -2454,18 +2454,29 @@ testCase('the production catalog derives the canonical impact index and automati
     'a never-reuse row is a shared participation floor and cannot receive an omission proof');
   assert.ok(decision.inclusionReasonsByCommand['never-reuse']?.includes('declared-always'),
     'validation_plan must report a never-reuse row as included');
+  const fastDecision = selectValidationTiers({
+    storyId: 'B-docs-proof', requestedTier: 'story-fast', universeCommandIds: catalog.map((entry) => entry.id),
+    changedPaths: ['docs/guide.md'], pinnedCommandIds: [], forceFullReasons: [], commandSetDigest,
+    snapshotDigest: 'snapshot-v2', impactIndex,
+  });
+  const originalProof = fastDecision.exclusionProofs.find((proof) => proof.commandId === 'docs-contract');
+  assert.ok(originalProof, 'story-fast must carry a positive exclusion proof for the wider docs-contract row');
   const proofChangedIndex = {
     ...impactIndex,
-    entries: impactIndex.entries.map((entry) => entry.commandId === 'repo-sentinel'
-      ? { ...entry, inputPatterns: ['another-config.json'] }
+    entries: impactIndex.entries.map((entry) => entry.commandId === 'docs-contract'
+      ? { ...entry, inputPatterns: ['docs/**', 'requirements/**'] }
       : entry),
   };
-  const proofChanged = selectAutomaticValidationTier({
-    storyId: 'B-docs-auto', universeCommandIds: catalog.map((entry) => entry.id),
+  const proofChanged = selectValidationTiers({
+    storyId: 'B-docs-proof', requestedTier: 'story-fast', universeCommandIds: catalog.map((entry) => entry.id),
     changedPaths: ['docs/guide.md'], pinnedCommandIds: [], forceFullReasons: [], commandSetDigest,
     snapshotDigest: 'snapshot-v2', impactIndex: proofChangedIndex,
   });
-  assert.notEqual(proofChanged.selectionDigest, decision.selectionDigest,
+  const changedProof = proofChanged.exclusionProofs.find((proof) => proof.commandId === 'docs-contract');
+  assert.ok(changedProof, 'mutated story-fast decision must retain the proof-bearing omitted row');
+  assert.notDeepEqual(changedProof.commandInputPatterns, originalProof.commandInputPatterns,
+    'the positive exclusion proof must bind the changed command input patterns');
+  assert.notEqual(proofChanged.selectionDigest, fastDecision.selectionDigest,
     'changing a positive exclusion proof must change the signed selector decision digest');
 });
 

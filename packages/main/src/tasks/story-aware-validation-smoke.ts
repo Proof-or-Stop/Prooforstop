@@ -282,6 +282,15 @@ assert.deepEqual(registeredRunnerCatalog.inputRoots, [
 ], 'runtime closure must retain declared ownership plus runner and case-registry paths');
 assert.deepEqual(registeredRunnerCatalog.triggerExtensions.files, registeredRunnerCatalog.inputRoots,
   'direct triggers must consume the complete runtime closure roots');
+const registeredRunnerImpact = buildValidationImpactIndexFromCatalog({
+  commandSetDigest: 'registered-runner-command-set',
+  catalog: [registeredRunnerCatalog],
+});
+assert.deepEqual(registeredRunnerImpact.entries[0]?.inputPatterns, [
+  'packages/main/src/domain.ts',
+  'packages/main/src/tasks/registered-runner.ts',
+  'packages/main/tests/registered-runner-cases.json',
+], 'selector matching must include registered direct triggers without changing declaration-owned completeness');
 const emptyDeclaredRunner = compileValidationCatalog(discoverValidationInventory('/tmp', [{
   id: 'empty-declared-runner', label: 'empty-declared-runner', command: 'node', args: ['packages/main/dist/tasks/empty-runner.js'],
   inputRoots: [], inputsComplete: false,

@@ -686,9 +686,9 @@ export function runDoneOracleGate(
   try {
     const storedEvidence = store.readTestEvidence(storyId);
     if (storedEvidence?.result === 'PASS'
-      && requiresDynamicValidationAdmission({ root, store, gitCwd }, storyId)) {
-      // Authenticate first. Execution-mode markers live inside the signed output
-      // and therefore cannot decide whether DONE performs this check.
+      && requiresDynamicValidationAdmission({ root, store }, storyId)) {
+      // The stored marker or enforce-mode runtime lineage selects this strict
+      // path; the evaluator below authenticates the complete PASS before use.
       const admissibility = assessStoredValidationPassAdmissibility(
         { root, store, resolvedStoryGitCwd: gitCwd },
         storyId,

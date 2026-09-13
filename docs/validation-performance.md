@@ -446,15 +446,18 @@ affected commands are resolved once per changed file rather than once per
 catalog row. Exact identity, eviction, moving-ref and call-count tests protect
 those bounds; this is a complexity boundary, not a repository wall-time claim.
 
-Configured `inputRoots` are the selector's exclusion-ownership declaration.
-Runtime closure and direct triggers additionally retain a command's
-`runnerSourcePath` and `caseRegistryPath`; an empty non-authoritative declaration
-falls back to heuristic runtime roots but never becomes complete selector
-ownership.
+Configured `inputRoots` are the declaration that can establish complete
+selector exclusion ownership. The impact index matching surface is the union of
+those roots with the registered `runnerSourcePath` and `caseRegistryPath`, so a
+runner or case-registry change selects its command directly instead of becoming
+an unclassified repository-wide change. Those registered direct triggers do not
+independently upgrade a partial declaration to complete coverage. Runtime
+closure uses the same union; an empty non-authoritative declaration falls back
+to heuristic runtime roots but never becomes complete selector ownership.
 
 The twenty compatibility package entrypoints now dispatch twenty distinct
 mode-specific executable assertions over the corresponding manifest,
-graph/scope, receipt, oracle, authority, scheduler, or recovery object. They no
+graph/scope, receipt, oracle, authority, or scheduler object. They no
 longer prove a mode by relabeling one unconditional tail marker. TEST-gate modes
 also rebuild runtime output and cross the real TEST and DONE consumers. These
 package scripts are not twenty configured `validate.commands` rows, so Story

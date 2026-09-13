@@ -86,32 +86,23 @@ export function dynamicValidationCoverageAdmission(
 }
 
 /**
- * Decide whether DONE must run the dynamic admission path. The strict evaluator
- * invoked next requires a valid signature; an unsigned artifact that merely
- * claims dynamic origin is also routed into the strict evaluator so the claim
- * can only cause refusal, never bypass verification. Legacy full evidence that
- * makes no dynamic claim keeps its existing DONE contract.
+ * Decide whether DONE must run the dynamic admission path. This is origin
+ * routing, not authentication: a stored dynamic claim or enforce-mode runtime
+ * lineage selects the strict evaluator, and that evaluator authenticates the
+ * complete PASS before granting admission. An unsigned dynamic claim can only
+ * route to refusal; legacy full evidence with no dynamic discriminator keeps
+ * its existing DONE contract.
  */
 export function requiresDynamicValidationAdmission(
-  ctx: { root: string; store: StoryStore; gitCwd: string },
+  ctx: { root: string; store: StoryStore },
   storyId: string,
 ): boolean {
-  if (typeof ctx?.gitCwd !== 'string' || ctx.gitCwd.trim() === '') {
-    throw new Error('requiresDynamicValidationAdmission: gitCwd must be a non-empty string');
-  }
   const evidence = ctx.store.readTestEvidence(storyId);
   if (!evidence || evidence.result !== 'PASS') return false;
-  // Authentication runs before origin classification. An invalid signature
-  // cannot grant anything: a dynamic claim or enforce-mode runtime lineage
-  // routes to strict refusal, while an unrelated unsigned legacy full record
-  // remains owned by the pre-existing DONE validation row.
-  const signatureValid = verifyTestValidationEvidence(storyId, evidence, ctx.gitCwd);
   try {
     const claimedDynamicOrigin = dynamicValidationCoverageAdmission(JSON.parse(evidence.output), true).dynamicOrigin;
     const hasDynamicLineage = hasStoryAwareValidationArtifacts(ctx.root, storyId);
-    const requiresStrictDynamicAdmission = claimedDynamicOrigin || hasDynamicLineage;
-    if (!signatureValid && !requiresStrictDynamicAdmission) return false;
-    return requiresStrictDynamicAdmission;
+    return claimedDynamicOrigin || hasDynamicLineage;
   } catch {
     return hasStoryAwareValidationArtifacts(ctx.root, storyId);
   }
