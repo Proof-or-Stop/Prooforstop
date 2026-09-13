@@ -1,3 +1,5 @@
+import { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY as delegationPolicy } from '../core/runtime-fact-registry.js';
+import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, observeValidationReservationChild, validationReservationChildIdentityMatches, validationReservationGroupIsAbsent } from '../core/validation-reservation-delegation.js';
 import { REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY as epochBudget } from '../core/runtime-fact-registry.js';
 /** Test-only OS isolation for native-broker fixtures. Never used by production
  * handlers: no host policy, process observer or broker verification is replaced.
@@ -40,7 +42,15 @@ export async function runIsolatedFindingFixture(entry: string): Promise<boolean>
   const output = join(scratch, 'output.log'); const outcome = join(scratch, 'outcome.json');
   const fd = openSync(output, 'w', 0o600);
   let workerPid: number | undefined;
+  let workerIdentity: ReturnType<typeof observeValidationReservationChild> | undefined;
+  let workerPending: string | undefined;
+  let launcherSpawned = false;
+  let outputWritten = false;
+  let fixtureFailure: unknown;
   const code = `import {writeFileSync,renameSync} from 'node:fs';
+import {confirmValidationReservationRegistration} from ${JSON.stringify(new URL('../core/validation-reservation-delegation' + (import.meta.url.endsWith('.ts') ? '.ts' : '.js'),import.meta.url).href)};
+await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('isolated worker registration unavailable')),${delegationPolicy.workerRegistrationMs});process.once('disconnect',()=>reject(new Error('launcher disconnected before worker ACK')));process.once('message',async message=>{try{if(message?.registered!==true)throw new Error('worker registration refused');await confirmValidationReservationRegistration();clearTimeout(timer);resolve();}catch(error){clearTimeout(timer);reject(error);}});});
+process.send({ready:true});process.disconnect();
 const launcher = Number(process.argv[1]);
 while (process.ppid === launcher) await new Promise(resolve => setTimeout(resolve, 10));
 process.argv.push(...${JSON.stringify(process.argv.slice(2))}, ${JSON.stringify(MARKER)});
@@ -51,18 +61,39 @@ writeFileSync(${JSON.stringify(outcome + '.pending')}, JSON.stringify({code}));
 renameSync(${JSON.stringify(outcome + '.pending')}, ${JSON.stringify(outcome)});
 process.exit(code);`;
   const launcherCode = `import {spawn} from 'node:child_process';
+import {validationReservationChildStdio,validationReservationChildEnvironment} from ${JSON.stringify(new URL('../core/validation-reservation-delegation' + (import.meta.url.endsWith('.ts') ? '.ts' : '.js'),import.meta.url).href)};
+let workerReady = false;
 const worker = spawn(process.execPath, ['--input-type=module', '--eval', ${JSON.stringify(code)}, String(process.pid)],
-  {detached:true, stdio:['ignore',1,2], env:process.env});
-worker.once('spawn', () => { process.send({pid:worker.pid}, () => {worker.unref(); process.disconnect();}); });
+  {detached:true, stdio:validationReservationChildStdio(['ignore',1,2,'ipc']), env:validationReservationChildEnvironment(process.env)});
+worker.once('spawn', () => { process.send({pid:worker.pid}); });
+process.once('message', message => {if(message?.registered!==true){worker.kill('SIGTERM');process.exitCode=1;process.disconnect();}else worker.send({registered:true});});
+worker.once('exit',()=>{if(!workerReady){process.exitCode=1;if(process.connected)process.disconnect();}});
+worker.once('message', message=>{workerReady=message?.ready===true;if(message?.ready!==true){worker.kill('SIGTERM');process.exitCode=1;}worker.unref();process.disconnect();});
 worker.once('error', error => {console.error(error); process.exitCode=1; process.disconnect();});`;
   try {
+    workerPending = await prepareValidationReservationChild();
     const launcher = spawn(process.execPath, ['--input-type=module', '--eval', launcherCode], {
-      cwd: process.cwd(), env: sanitizedFixtureChildEnvironment(process.env), stdio: ['ignore', fd, fd, 'ipc'],
+      cwd: process.cwd(), env: validationReservationChildEnvironment(sanitizedFixtureChildEnvironment(process.env)), stdio: validationReservationChildStdio(['ignore', fd, fd, 'ipc']),
     });
-    launcher.on('message', value => { workerPid = (value as { pid: number }).pid; });
+    launcherSpawned = launcher.pid !== undefined;
+    let registration = Promise.resolve();
+    const acknowledge = (registered: boolean) => {
+      if (!launcher.connected) return;
+      launcher.send({registered}, error => { if (error) console.error('isolated registration ACK unavailable', error.message); });
+    };
+    launcher.on('message', value => {
+      if (workerPid !== undefined) return;
+      workerPid = (value as {pid: number}).pid;
+      registration = Promise.resolve().then(() => {
+        const observed=observeValidationReservationChild(workerPid!);
+        if(observed.pgid!==observed.pid)throw new Error('isolated worker group identity unavailable');
+        workerIdentity=observed;
+        return registerValidationReservationChild(workerPid!,workerPending);
+      }).then(() => acknowledge(true), error => { acknowledge(false); console.error(error); });
+    });
     await new Promise<void>((resolve, reject) => {
       launcher.once('error', reject);
-      launcher.once('exit', code => code === 0 && workerPid ? resolve() : reject(new Error('isolated fixture launcher failed')));
+      launcher.once('exit', code => { void registration.then(() => code === 0 && workerPid ? resolve() : reject(new Error('isolated fixture launcher failed'))); });
     });
     // The 58-case routes integration performs real target executions and
     // exceeded 120 s twice at case 46 under the independent Claude host.
@@ -76,14 +107,32 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
     const deadline = budgetStartedAt + budgetMs;
     if(file.endsWith('/verify-review-epoch-certification-continuity.mjs')) process.stdout.write(`REVIEW_EPOCH_FIXTURE_BUDGET ${JSON.stringify({budgetMs,deadline,outerEnvelope:process.env[epochBudget.environmentKey]??null})}\n`);
     while (!existsSync(outcome) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));
-    process.stdout.write(readFileSync(output, 'utf8'));
+    process.stdout.write(readFileSync(output, 'utf8')); outputWritten = true;
     if (!existsSync(outcome)) throw new Error('isolated Finding fixture timed out');
     const result = JSON.parse(readFileSync(outcome, 'utf8')) as { code: number };
     if (result.code !== 0) throw new Error(`isolated Finding fixture failed with exit ${result.code}`);
     return true;
-  } finally {
-    // Only the process group created by this invocation; never a host/provider.
-    if (workerPid && !existsSync(outcome)) { try { process.kill(-workerPid, 'SIGTERM'); } catch { /* already exited */ } }
-    closeSync(fd); rmSync(scratch, { recursive: true, force: true });
+  } catch(error) { fixtureFailure=error;throw error; } finally {
+    // The original workload deadline is unchanged. Cleanup has its separately
+    // registered bounded window and may signal only a still-matching own leader.
+    const signalOwnWorker=(signal:'SIGTERM'|'SIGKILL')=>{
+      if(!workerIdentity||workerIdentity.pid<=1||workerIdentity.pgid!==workerIdentity.pid||!validationReservationChildIdentityMatches(workerIdentity))return;
+      try{process.kill(-workerIdentity.pgid,signal);}catch{/* Absence below is decisive. */}
+    };
+    if(workerIdentity&&!existsSync(outcome))signalOwnWorker('SIGTERM');
+    const cleanupUntil=Date.now()+delegationPolicy.cleanupMs;
+    while(workerIdentity&&!validationReservationGroupIsAbsent(workerIdentity.pgid)&&Date.now()<cleanupUntil){
+      if(Date.now()>=cleanupUntil-delegationPolicy.cleanupMs/2)signalOwnWorker('SIGKILL');
+      await new Promise(resolve=>setTimeout(resolve,20));
+    }
+    if (!outputWritten && existsSync(output)) process.stdout.write(readFileSync(output, 'utf8'));
+    let cleanupFailure: unknown;
+    if (!launcherSpawned) {try{await cancelValidationReservationChild(workerPending);}catch(error){cleanupFailure=error;}}
+    closeSync(fd);
+    if(cleanupFailure||launcherSpawned&&(!workerIdentity||!validationReservationGroupIsAbsent(workerIdentity.pgid))){
+      const primary=fixtureFailure===undefined?'':(fixtureFailure instanceof Error?fixtureFailure.message:String(fixtureFailure))+'; ';
+      throw new Error(primary+'isolated Finding fixture cleanup unproven; retained '+scratch+(cleanupFailure?'; '+String(cleanupFailure):''),{cause:fixtureFailure??cleanupFailure});
+    }
+    rmSync(scratch, { recursive: true, force: true });
   }
 }

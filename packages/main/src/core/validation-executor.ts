@@ -1,3 +1,4 @@
+import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, currentValidationReservationAbortSignal } from './validation-reservation-delegation.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
 import { withMachineValidationResources } from './validation-execution-lock.js';
@@ -1411,10 +1412,13 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
   }
 }
 
-function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions, reportedTimeoutMs: number): Promise<CapturedValidationCommandResult> {
+async function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions, reportedTimeoutMs: number): Promise<CapturedValidationCommandResult> {
+  const delegationSignal = currentValidationReservationAbortSignal();
+  if (delegationSignal) options = { ...options, abortSignal: options.abortSignal ? AbortSignal.any([options.abortSignal, delegationSignal]) : delegationSignal };
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
+  options = { ...options, deadlineAt: Math.min(options.deadlineAt ?? Infinity, started + configuredTimeoutMs) };
   const deadlineRemainingMs = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt)
     ? Math.max(1, Math.floor(options.deadlineAt - Date.now()))
     : undefined;
@@ -1458,7 +1462,9 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
     spawnEnv.NODE_OPTIONS = `${spawnEnv.NODE_OPTIONS || ''} --require ${tracer}`.trim();
   }
 
-  return new Promise((resolveResult) => {
+  const pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal});
+  let spawned = false;
+  try { return await new Promise((resolveResult) => {
     const isWindows = process.platform === 'win32';
     let output = '';
     let timedOut = false;
@@ -1469,9 +1475,11 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
     let heartbeatTimer: NodeJS.Timeout | undefined;
     const runtimeEvents: string[] = ['spawn-request'];
 
-    const finish = (rawCode: number | null) => {
+    let childRegistration: Promise<void> = Promise.resolve();
+    const finish = async (rawCode: number | null) => {
       if (settled) return;
       settled = true;
+      try { await childRegistration; } catch (error) { runnerFailure = true; rawCode = 1; output += '\n' + String(error); }
       if (timer) clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
@@ -1559,9 +1567,9 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
     }
     const child = spawn(command.command, command.args, {
       cwd,
-      env: spawnEnv,
+      env: options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv),
       shell: command.shell || isWindows,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
       // POSIX: give the child its own process group (it becomes group leader) so the
       // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
       // grandchildren that survive a direct child.kill() and keep the stdout/stderr pipe
@@ -1569,6 +1577,9 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       // re-introducing the exact hang this guards against. Not unref'd: we still await it.
       ...(isWindows ? {} : { detached: true }),
     });
+    spawned = child.pid !== undefined;
+    childRegistration = child.pid ? registerValidationReservationChild(child.pid, pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal}) : Promise.resolve();
+    childRegistration.catch(() => { try { child.kill('SIGTERM'); } catch { /* finish reports registration failure. */ } });
     runtimeEvents.push('spawn');
 
     emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
@@ -1645,7 +1656,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
     // stray timer never keeps the event loop alive on its own (the awaited child does).
     timer = setTimeout(() => {
       timeOutCommand(1000);
-    }, timeoutMs);
+    }, Math.max(1, options.deadlineAt! - Date.now()));
     timer.unref?.();
 
     child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
@@ -1657,7 +1668,7 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       output += output ? `\n${e.message}` : e.message;
       finish(null);
     });
-  });
+  }); } finally { if (!spawned) await cancelValidationReservationChild(pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
 }
 
 /**

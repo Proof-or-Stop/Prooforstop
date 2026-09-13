@@ -1,3 +1,4 @@
+import { withInheritedMachineReservation, withMachineReservationController, machineReservationResidualsPresent, inheritedValidationReservationPortAlreadyHeld, currentValidationReservationAbortSignal } from './validation-reservation-delegation.js';
 import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
@@ -652,7 +653,7 @@ function activeCapacityCandidates(
       staleMs,
       nowMs: Date.now(),
     });
-    if (classification !== 'stale') {
+    if (classification !== 'stale' || lockRoot === join(userInfo().homedir, PROOF_OR_STOP_DIR, 'locks', MACHINE_FIXED_PORT_ARTIFACT.directoryName) && machineReservationResidualsPresent(candidate.path)) {
       active.push(candidate);
       continue;
     }
@@ -773,6 +774,12 @@ export async function withMachineValidationResources<T>(options: ValidationCapac
   const claims = declared ? canonicalizeEntries([{ name: options.command, resources: [
     { class: 'machine-validation', key: MACHINE_FIXED_PORT_RUNTIME_POLICY.barrierKey, access: 'shared' }, ...machineResources,
   ] }], options.workspaceRoot)[0]!.resources : undefined;
+  const inherited = await withInheritedMachineReservation(claims ?? null, options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, options.abortSignal, async () => {
+    for (const claim of (claims ?? []).filter(claim => claim.class === 'fixed-port' && claim.access === 'exclusive')) if(!inheritedValidationReservationPortAlreadyHeld(claim.key)) await probeMachineFixedPort(Number(claim.key));
+    currentValidationReservationAbortSignal()?.throwIfAborted();
+    assertCapacityWaitActive(options); return await fn();
+  });
+  if (inherited.inherited) return inherited.value;
   const nested = currentContextOwns(lockKey);
   const held = nested ? activeCapacityDeclarations.get(validationLockOwnerStore.getStore()!.get(lockKey)!) : undefined;
   return withValidationCapacityQueue({ ...options, resources: claims, maxConcurrent: MAX_JOBS,
@@ -920,7 +927,7 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
     assertCapacityWaitActive(options);
     callbackResult = await validationLockOwnerStore.run(
       extendedOwnerTokens(lockKey, acquisitionToken),
-      async () => await fn(),
+      async () => rejectAncestorConflict ? await withMachineReservationController({ ticket: ticketPath, lockId: acquisitionToken, pid: process.pid, start: observedProcessStartTimeMs(process.pid)!, deadlineAt: options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, resources: declaration?.resources ?? null }, () => activeValidationLockTokens.get(lockKey)?.has(acquisitionToken) === true && readMkdirLockHolder(ticketPath)?.lockId === acquisitionToken, fn) : await fn(),
     );
   } catch (error) {
     callbackFailed = true;
@@ -931,6 +938,7 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
   activeCapacityDeclarations.delete(acquisitionToken);
   let releaseError: unknown;
   try {
+    if (rejectAncestorConflict && machineReservationResidualsPresent(ticketPath)) throw new Error('VALIDATION_DELEGATION_CLEANUP_UNPROVEN');
     await releaseValidationCapacityTicket(ticketPath, holderInfo);
   } catch (error) {
     releaseError = error;
@@ -1232,4 +1240,16 @@ export function declaredValidationCapacity(
   // Preserve access, ownership and resolved cwd; validate every input before dedup.
   const distinctResources = [...new Map(resources.map(claim => [JSON.stringify(claim), claim])).values()];
   return { resources: distinctResources, maxConcurrent: VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.declaredInvocationCapacity };
+}
+
+/** Read-only resolution from the canonical machine queue, never a bootstrap-selected root. */
+export function inspectMachineReservationOwner(ticket: string, lockId: string): {pid:number;start:number;resources:ResourceClaim[]|null} | null {
+  const root = join(userInfo().homedir, PROOF_OR_STOP_DIR, 'locks', MACHINE_FIXED_PORT_ARTIFACT.directoryName);
+  if (dirname(ticket) !== root || !basename(ticket).endsWith('-' + lockId + '.ticket')) return null;
+  const candidates = capacityCandidates(root, '.ticket').filter(candidate => classifyValidationCapacityLock({lockDir:candidate.path,holder:candidate.holder,ageMs:candidate.ageMs,staleMs:VALIDATION_EXECUTION_LOCK_STALE_MS,nowMs:Date.now()}) !== 'stale' || machineReservationResidualsPresent(candidate.path)).sort((a,b)=>a.name.localeCompare(b.name));
+  const candidate = candidates.find(row=>row.path===ticket), holder = candidate?.holder;
+  if (!holder || holder.lockId !== lockId || holder.hostname !== hostname() || !capacityTicketAdmitted(candidates,ticket)) return null;
+  const start=observedProcessStartTimeMs(holder.pid);
+  if (start === undefined || holder.processStartTimeMs === undefined || Math.abs(start-holder.processStartTimeMs)>2000) return null;
+  return {pid:holder.pid,start,resources:readCapacityDeclaration(ticket)?.resources??null};
 }

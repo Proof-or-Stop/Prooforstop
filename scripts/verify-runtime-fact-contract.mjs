@@ -22,6 +22,7 @@ const requiredFacts = [
 ];
 
 const requiredEvidenceFacts = [
+  'validation-machine-reservation-delegation',
   'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
@@ -88,6 +89,7 @@ async function main() {
   try {
     execFileSync(process.execPath, ['scripts/verify-cli-audit-runtime-coverage.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });
   } catch (error) { fail(verificationFailureMessage('CLI runtime coverage', error)); }
+  check(read(root, 'packages/main/src/core/validation-reservation-delegation.ts').includes('VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY'), 'Controlled machine delegation must consume its registered runtime policy');
   check(registrySource.includes('validation-invocation-baseline-serialization'), 'Invocation-local baseline serialization must be registered');
   execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30000 });

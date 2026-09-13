@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { validationReservationChildEnvironment, validationReservationChildStdio } from '../core/validation-reservation-delegation.js';
 /**
  * B-0e53 — DONE pre-merge mainSha re-check smoke.
  *
@@ -112,9 +113,9 @@ function runProofOrStopFromCwd(
   }
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd,
-    env,
+    env: validationReservationChildEnvironment(env),
     encoding: 'utf-8',
-    stdio: ['pipe', 'pipe', 'pipe'],
+    stdio: validationReservationChildStdio(['pipe', 'pipe', 'pipe']),
   });
 }
 

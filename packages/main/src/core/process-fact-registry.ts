@@ -2530,6 +2530,13 @@ export const PROCESS_FACT_VALIDATION_EXECUTION = [{
   consumerGate: 'Canonical full baseline production; ordinary unscoped validation retains actual command outcome',
   rationale: 'Target-aware producers and consumers bind the same async-local signing root, including concurrent invocations; explicit signing roots retain precedence. No resolvable HEAD means no reusable Git epoch: skip baseline production before signing and log the reason. Command failure remains failure; Story authority and existing committed baseline checks remain unchanged.',
 }, {
+  name: 'runtime:validation_machine_reservation_delegation', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'verification-policy', 'workspace-binding'],
+  level: 'L4', producer: 'core/validation-reservation-delegation',
+  producerSourceRefs: ['packages/main/src/core/validation-reservation-delegation.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/validation-executor.ts'],
+  consumerGate: 'Actual nested validation execution admission and machine reservation release',
+  rationale: 'A live admitted machine owner alone issues ephemeral subject-bound resource loans to kernel-observed controlled descendants. Inherited descriptor identity anchors the issuer; environment locators grant nothing. Exact active invocation ancestry and claim subsets permit nesting while conflicting siblings serialize and foreign unclassified commands retain global exclusion. Pending or live detached descendants prevent successful release and stale reclaim. No Story or reviewer authority is conveyed.',
+}, {
   name: 'runtime:shared_validation_execution', kind: 'runtime-behavior',
   semantics: ['runtime-behavior', 'validation-result', 'signed-artifact', 'freshness-policy', 'workspace-binding'],
   level: 'L4', producer: 'core/shared-validation-execution',
