@@ -1,8 +1,10 @@
+import { verifyRouteReaderWiring } from './route-reader-wiring-controls.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
-const root=process.cwd(),require=createRequire(resolve(root,'package.json')),ts=require('typescript');
+const root=resolve(import.meta.dirname,'..'),require=createRequire(resolve(root,'package.json')),ts=require('typescript');
+verifyRouteReaderWiring();
 const contract=readFileSync(resolve(root,'scripts/verify-process-fact-contract.mjs'),'utf8');
 const source=readFileSync(resolve(root,'packages/main/src/handlers/finding-route.ts'),'utf8');
 const parsed=ts.createSourceFile('contract.mjs',contract,ts.ScriptTarget.Latest,true);
