@@ -117,8 +117,10 @@ export function reviewGateVerificationIntentIssue(intent: VerificationIntentItem
 } | null {
   if ((intent.priority ?? 'must') !== 'must') return null;
   const text = intent.desc.normalize('NFKC').toLowerCase();
-  const lifecycleReviewSubject = /\b(?:independent|external|peer|code|quality|security|test(?:[- ]coverage)?)\s+review\b|\breviewer\s+(?:run|lane|pass|verdict|finding)|\breview\s+(?:run|lane|pass|verdict)\b|\breview_(?:run_start|pass_set)\b|\bfinding_add\b/.test(text);
-  const lifecycleOutcome = /\b(?:no|zero|without)\s+(?:unresolved\s+)?(?:(?:critical|high)(?:\s+or\s+(?:critical|high))?\s+)?(?:findings?|blockers?|issues?)\b|\b(?:passes?|passed|approves?|approved|approval|verdict|findings?|blockers?)\b/.test(text);
+  const lifecycleReviewSubject = /\b(?:independent|external|peer|code|quality|security|test(?:[- ]coverage)?)\s+review(?:s|ers?)?\b|\breviewers?\s+(?:run|lane|pass|verdict|finding|record|report)|\breview\s+(?:runs?|lanes?|pass|verdict)\b|\breview_(?:run_start|pass_set)\b|\bfinding_add\b/.test(text);
+  const noOpenReviewProblems = /\b(?:no|zero|without)\s+(?:unresolved\s+)?(?:(?:critical|high)(?:\s+or\s+(?:critical|high))?\s+)?(?:blocking\s+)?(?:findings?|blockers?|issues?)\b/.test(text);
+  const formalReviewVerdict = /\b(?:pass|approve(?:d|s)?|approval)\s+verdict\b|\b(?:records?|reports?|produces?|returns?|has|gets?|receives?)\s+(?:a\s+)?(?:pass|approved|approval|verdict)\b|\breview\s+(?:runs?|lanes?)\s+pass(?:es|ed)?\b|\b(?:independent|external|peer|code|quality|security|test(?:[- ]coverage)?)\s+reviews?\s+pass(?:es|ed)?\b/.test(text);
+  const lifecycleOutcome = noOpenReviewProblems || formalReviewVerdict;
   if (!lifecycleReviewSubject || !lifecycleOutcome) return null;
   return {
     type: 'review_gate_as_verification_intent',

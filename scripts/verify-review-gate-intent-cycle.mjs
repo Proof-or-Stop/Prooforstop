@@ -48,10 +48,23 @@ assert.equal(blocked.severity, 'blocker');
 assert.match(blocked.message, /review_pass_set|finding_add/);
 assert.match(blocked.message, /remove.*verificationIntent/i);
 
+for (const lifecycleVerdict of [
+  'Independent reviewers report no unresolved high or critical findings.',
+  'All required review lanes pass with no blocking findings.',
+  'The quality reviewer records a pass verdict.',
+]) {
+  assert.ok(
+    classify({ desc: lifecycleVerdict, type: 'manual', priority: 'must' }),
+    `REVIEW_GATE_INTENT_CYCLE: common REVIEW verdict wording must be rejected: ${lifecycleVerdict}`,
+  );
+}
+
 for (const legitimate of [
   { desc: 'The parser rejects unresolved symbolic references.', type: 'logic', priority: 'must' },
   { desc: 'A review screen renders unresolved findings for the user.', type: 'browser', priority: 'must' },
   { desc: 'A reviewer can open the generated report.', type: 'cli', priority: 'must' },
+  { desc: 'The code review page passes accessibility checks.', type: 'browser', priority: 'must' },
+  { desc: 'review_pass_set rejects an invalid signature.', type: 'cli', priority: 'must' },
   { desc: 'Independent review has no unresolved high or critical finding.', type: 'manual', priority: 'should' },
 ]) {
   assert.equal(

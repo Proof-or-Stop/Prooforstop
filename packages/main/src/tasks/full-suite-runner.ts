@@ -220,7 +220,8 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // default two-worker scheduler.
   isolatedHeavy('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
-  isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'), repoRead('test:process-fact-contract'),
+  isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'),
+  isolated('test:review-gate-intent-cycle'), repoRead('test:process-fact-contract'),
   isolated('test:closeout-trust'),
   // B-5a15:F-402. RESOURCE_POLICY is a SECOND membership authority alongside
   // test:serial-reference (see the note above: "a member without a policy entry
