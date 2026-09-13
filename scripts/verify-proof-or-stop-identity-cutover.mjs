@@ -19,8 +19,8 @@ const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept
 const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'b97d6d33dc481c3e16a928606c44827bae2986bc69156bfc7ed108ab32a3b963';
 const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 51;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'de47d523b721c1be067de039dc57d397ac5447bd7234f69b7aac333de35055ab';
-const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 199;
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'c18c553699aa57f86a04fdfd63876d7052698005c7a20238530a006094dc0206';
+const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 202;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const STORY_INIT_COMMIT = '1bde8a8280d68fe652dadfcdf42aad5190350ba7';
 // Rewritten from 1dab23ae287f by the authorized repository-wide Git identity
@@ -3144,7 +3144,7 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"3a9d67cdc00fc68ca9f7a69565e8b7c532cc953c10d4b4a592d588fe02747c0f"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"e617c5209eaf981b79222da24ac7e173bc0a880939da440319b1cd4f0bfb4927"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "173b375e436424fae6b073aaf407e0e0b132250f0d0fc44c5387def8b3009027"
@@ -3223,7 +3223,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7"
+    "sha256": "f4ef1c653d98e03b3578ac95f3c351a5d324b29ec50b388f791b533394ced1d5"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "c4486554d092dbeece2a0b461eccf2e8c6e44f625a60d524076082d8fe7cd9ba"
+    "sha256": "cfb2470cf85838219f70d4ec722bbd13b73e885e42c5300055fe209cad483a22"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "7bee4a0fe6b4551a694f81af5ae115b33d1293e8bd5f12558a58a924a8910b47"
+    "sha256": "d6547010b0af33ee9e15cb439953577bbd858d5e71fb09180f98754b0207f23a"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3603,7 +3603,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7"],
+  [4,"f4ef1c653d98e03b3578ac95f3c351a5d324b29ec50b388f791b533394ced1d5"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -3639,7 +3639,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"3a9d67cdc00fc68ca9f7a69565e8b7c532cc953c10d4b4a592d588fe02747c0f"],
+  [52,"e617c5209eaf981b79222da24ac7e173bc0a880939da440319b1cd4f0bfb4927"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -4338,17 +4338,17 @@ const SCANNER_RETIRED_LINE_CONTEXTS = [
   ["4a1e42cea269e577e5273724dbdad851cca273683e95ce4f92b5096de6e71a28",1,[7071]],
   ["580d08037f5467d9d2f8beeeafbc3a727eb2f14d2520a2abf102a5b0eb5cb56b",1,[7072]],
   ["082583da93f52a1ab8bba465cc7f03bcac21ce53e1da7db0d577c65b302e488b",1,[7388]],
-  ["8cf86b9695e64d03dc57e77d2e72137cdca62019f0ada5bebe1a3ec93be2c6c8",1,[7629]],
-  ["89ccfd14489425fcb56c3d73259421da9f7f7c9e94a8766d4e8e524b1bf1dade",1,[7630]],
-  ["d84137314d16fda9982ea9e1ed9ddd96075b96d8a0748369ccb6855f8d585cdf",1,[7631]],
-  ["96dc3ab16a41abba4060bbe2a8e64c5fad90cf81af6feeb833143b37ffa6941d",1,[7632]],
-  ["963c7080e32d784acd2c648e61448bdd0bcc5233f66b63c42b467b0ca53272fa",1,[7633]],
-  ["0325c3dca2d5c5eb392316644efec1fbf2760f5b104e6341dcea12853d261a94",1,[7634]],
-  ["42105b00f31d8747b978364998d48ac7ad0dbdc5da51623639a8ce649ccb51b9",1,[7635]],
+  ["8cf86b9695e64d03dc57e77d2e72137cdca62019f0ada5bebe1a3ec93be2c6c8",1,[7633]],
+  ["89ccfd14489425fcb56c3d73259421da9f7f7c9e94a8766d4e8e524b1bf1dade",1,[7634]],
+  ["d84137314d16fda9982ea9e1ed9ddd96075b96d8a0748369ccb6855f8d585cdf",1,[7635]],
+  ["96dc3ab16a41abba4060bbe2a8e64c5fad90cf81af6feeb833143b37ffa6941d",1,[7636]],
+  ["963c7080e32d784acd2c648e61448bdd0bcc5233f66b63c42b467b0ca53272fa",1,[7637]],
+  ["0325c3dca2d5c5eb392316644efec1fbf2760f5b104e6341dcea12853d261a94",1,[7638]],
+  ["42105b00f31d8747b978364998d48ac7ad0dbdc5da51623639a8ce649ccb51b9",1,[7639]],
 ];
 
 EXACT_ALLOWLIST.push(...MAINTENANCE_SCHEMA_PROVENANCE_ROWS);
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 691;
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 694;
 
 // Historical artifact bytes can contain retired salts, but active source may not.
 const FROZEN_SALTS = [];
@@ -6702,7 +6702,7 @@ function createOrderingSelfTestFixture(productionBeforePolicy = false, productio
 function runSelfTest(root, files) {
   if (verifyBothFamilyContexts(root).length > 0) throw new Error('both-family exact contexts or witnesses are not current');
   const failures = [...verifyImportedFinishDecisionBoundary(root, files), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-e256.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-29bc.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-42f6.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-5a52.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-adc3.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-88c7.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-0208.json')];
-  const expect = (condition, message) => { if (!condition) failures.push(message); };
+  const expect = (condition, message) => { if (!condition) failures.push(message); }; verifyCurrentWitnessCoverage(root, files, expect);
   expect(verifyReviewedNegativeSourceIntegrity(root).length === 0, 'reviewed negative source integrity failed');
   const customWitnessControls = new Map([
     ['packages/main/src/core/runtime-environment-checks.ts', 'if (exactOccurrenceDrift || countNeedle(site.sourceNeedle) === 0 || (!counts && countNeedle(site.retiredNeedle) > 0)) {'],
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "552b459f926ff4b12cc52540c1f5726ab6f33d1f767c32e3a94ab5abd9693087"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "c87dca3ad59bdaaa776df0de4abb5c0b276affb27fa0043a1f7447ff6a3052c0"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
+    "sha256": "3fe5857f4c791b8e6c05ac01d86089d0fc8615dbba86938b1ed3a9795747ddae"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "afae82e5f51f3253966239eb9c1177f1430f858f0550dc2ee04ee9404aa56595"
+    "sha256": "f361c0d9681fae9936b0835f66084684a8da95627130ef6bbbb7e3c5dbf03d3e"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7514,6 +7514,7 @@ function main() {
   // scanner invocation or an integrity-hash substitute for behavioral proof.
   const identitySitesCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=identity-sites'], { cwd: root, encoding: 'utf8', timeout: 60000 });
   if (!identitySitesCheck.includes('GREEN B-49df: identity-sites group pass.')) throw new Error('independent owned identity totality verification did not produce its required selector');
+  process.stdout.write(identitySitesCheck);
 
   // Disposable immutable-boundary controls require the same structural scan
   // and independent source/emitted identity totality, but do not certify the
@@ -7534,6 +7535,9 @@ function main() {
   // five-minute ceiling instead of truncating the behavioral proof.
   const runtimeCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: 300000 });
   if (!runtimeCheck.includes('GREEN B-49df: runtime group pass.')) throw new Error('runtime deny-only verification did not produce its required selector');
+  for (const line of runtimeCheck.split('\n')) {
+    if (line.startsWith('CANONICAL_VERIFIER_EXECUTION ')) process.stdout.write(line + '\n');
+  }
   const markerCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/managed-marker-migration.test.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
   if (!markerCheck.includes('managed-marker migration test passed')) throw new Error('managed-marker migration verification did not produce its required selector');
 
@@ -7640,4 +7644,94 @@ function mainIntegrationNegativeContextRows() {
     disposition: 'frozen', verificationCommand: 'internal:verify-exact-frozen-occurrence',
     expectedVerification: 'PASS exact reviewed negative occurrence and bounded context',
   }));
+}
+
+// Exercise the actual existing readers on each newly reviewed witness.
+function verifyCurrentWitnessCoverage(root, files, expect) {
+  const record = expect; let failed = false;
+  expect = (condition, message) => { if (!condition) failed = true; record(condition, message); };
+  const read = path => readFileSync(resolve(root, path), 'utf8');
+  const jsonEntries = JSON.parse(read('scripts/identity-reviewed-json-data.json')).entries;
+  const jsonRows = jsonEntries.slice(729, 774);
+  const incomingJsonRows = jsonEntries.slice(774);
+  expect(incomingJsonRows.length === 2 && incomingJsonRows.every((row, index) =>
+    row.path === 'docs/lab/memory-intake-measurement/u18-static-report.json' && row.jsonPointer === '/rows/187/reason' &&
+    row.token === [`${LEGACY_WORD}.js`, `${LEGACY_WORD}-codex`][index]),
+    'incoming witness coverage requires the two exact historical report contexts');
+  const allJsonRows = [...jsonRows, ...incomingJsonRows];
+  const fixtureRows = JSON.parse(read('scripts/identity-reviewed-fixture-data.json')).entries.slice(268);
+  const provenanceRows = CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.id.startsWith('current-witness-coverage-'));
+  expect(jsonRows.length === 45 && fixtureRows.length === 4 && provenanceRows.length === 3,
+    'current witness coverage requires every reviewed addition');
+  const scratch = mkdtempSync(join(tmpdir(), 'identity-current-witness-'));
+  let controls = 0;
+  try {
+    for (const row of allJsonRows) {
+      const text = read(row.path), parsed = JSON.parse(text);
+      const keys = row.jsonPointer.slice(1).split('/').map(key => key.replaceAll('~1', '/').replaceAll('~0', '~'));
+      const parent = keys.slice(0, -1).reduce((value, key) => value[key], parsed);
+      const key = keys.at(-1), value = parent[key];
+      expect(typeof value === 'string', 'reviewed JSON pointer must name its actual string');
+      const check = (document, file = row.path) => {
+        const input = JSON.stringify(document);
+        if (file !== row.path) return reviewedDataResidueAllowed({path: file, token: row.token, lineNumber: 1, line: input, text: input});
+        return validateReviewedDataSources(path => path === row.path ? input : read(path)).length === 0;
+      };
+      expect(check(parsed), 'exact current JSON witness rejected'); controls++;
+      for (const replacement of [value + row.token, value + ' changed-context']) {
+        parent[key] = replacement;
+        expect(!check(parsed), 'changed JSON count or same-count context admitted'); controls++;
+        expect(validateReviewedDataSources(path => path === row.path ? JSON.stringify(parsed) : read(path)).length > 0,
+          'actual JSON source integrity accepted changed witness'); controls++;
+      }
+      delete parent[key];
+      expect(!check(parsed), 'removed JSON pointer admitted'); controls++;
+      parent[key + '-unlisted'] = value;
+      expect(!check(parsed), 'relocated JSON pointer admitted'); controls++;
+      delete parent[key + '-unlisted']; parent[key] = value;
+      expect(!check(parsed, row.path + '.unlisted.json'), 'unlisted JSON path admitted'); controls++;
+    }
+    for (const row of fixtureRows) {
+      const text = read(row.path), lines = text.split(/\r?\n/), line = lines[row.lineNumber - 1];
+      const check = (input, file = row.path) => reviewedFixtureResidueAllowed({path: file, token: row.token,
+        lineNumber: row.lineNumber, line: input.split(/\r?\n/)[row.lineNumber - 1], text: input});
+      expect(check(text), 'exact private or metadata fixture witness rejected'); controls++;
+      for (const input of [text + '\n' + row.token, text.replace(line, line + ' // changed-context'), text.replace(line, '')]) {
+        expect(!check(input), 'changed fixture count/context/removal admitted'); controls++;
+        expect(validateReviewedFixtureSources(path => path === row.path ? input : read(path)).length > 0,
+          'actual fixture source integrity accepted mutation'); controls++;
+      }
+      expect(!check(text, row.path + '.unlisted.ts'), 'unlisted fixture path admitted'); controls++;
+    }
+    const tracked = new Set(files);
+    for (const row of provenanceRows) {
+      const text = read(row.path);
+      expect(validateExactRows(EXACT_ALLOWLIST, tracked, root).length === 0, 'current provenance positive refused'); controls++;
+      for (const input of [text + '\n' + row.token, text.replace(row.token, row.token + ' changed-context'), text.replaceAll(row.token, '')]) {
+        expect(validateExactRows(EXACT_ALLOWLIST, tracked, root, path => path === row.path ? input : read(path)).length > 0,
+          'provenance count/context/removal mutation admitted'); controls++;
+      }
+      expect(validateExactRows(EXACT_ALLOWLIST.filter(candidate => candidate !== row), tracked, root).length > 0,
+        'removed provenance inventory row admitted'); controls++;
+      expect(validateExactRows(EXACT_ALLOWLIST.map(candidate => candidate === row ? {...row, path: 'docs/unlisted-witness.md'} : candidate), tracked, root).length > 0,
+        'changed provenance path admitted'); controls++;
+    }
+    for (const entrypoint of TRUTH_SOURCE_ENTRYPOINTS) {
+      mkdirSync(dirname(resolve(scratch, entrypoint)), {recursive:true});
+      writeFileSync(resolve(scratch, entrypoint), read(entrypoint));
+    }
+    const targets = [...new Set([...allJsonRows, ...fixtureRows, ...provenanceRows].map(row => row.path))];
+    for (const file of targets) {
+      const destination = resolve(scratch, file);
+      mkdirSync(dirname(destination), {recursive:true}); writeFileSync(destination, read(file));
+    }
+    expect(scanActiveResidue(scratch, targets).length === 0, 'exact current witnesses still produce residue'); controls++;
+    // Same-directory neighbors remain active, even when they copy approved bytes.
+    for (const file of targets) {
+      const dot = file.lastIndexOf('.'), neighbor = file.slice(0, dot) + '-unlisted' + file.slice(dot);
+      writeFileSync(resolve(scratch, neighbor), read(file));
+      expect(scanActiveResidue(scratch, [neighbor]).length > 0, 'unlisted neighboring witness escaped actual scanner'); controls++;
+    }
+  } finally { rmSync(scratch, {recursive:true, force:true}); }
+  if (!failed) console.log(`PASS current witness consumers: ${allJsonRows.length} JSON, ${fixtureRows.length} fixture, ${provenanceRows.length} provenance rows; ${controls} actual checks`);
 }

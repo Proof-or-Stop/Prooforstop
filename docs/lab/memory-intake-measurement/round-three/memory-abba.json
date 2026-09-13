@@ -1,0 +1,555 @@
+{
+  "baseline": "bbefc8adece3ff6a0d4ddbaeae3de05bfd7326b2",
+  "candidate": "9bf03ba3f66bd147fb352059b7cdd990fe4c41ec",
+  "binding": {
+    "schema": "proof-or-stop.main-build-binding.v1",
+    "sourceDigest": "809aa685c424e5d8117fae4db449c046b40a2e9ef9cee40e9ef025587241cb22",
+    "distDigest": "6ca52b63246bcee8c016a11f2fc921b8f0b269f3b553e7cbb83b102338eadebf"
+  },
+  "rows": [
+    {
+      "mode": "before",
+      "cold": {
+        "ms": 484.503125,
+        "gitCalls": 32,
+        "commands": [
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ]
+        ],
+        "builds": 1,
+        "stats": {
+          "queryTokenCount": 6,
+          "exactFastPathHits": 2,
+          "exactOverflowFallbacks": 0,
+          "fuzzyIndexHits": 2,
+          "fuzzyFallbacks": 0,
+          "tokenScanFallbacks": 0,
+          "tokenMapScannedEntries": 0,
+          "devMemoryCandidateIds": 400,
+          "playbookCandidateIds": 0
+        }
+      },
+      "warmGitCalls": 30,
+      "warmStats": {
+        "queryTokenCount": 0,
+        "exactFastPathHits": 0,
+        "exactOverflowFallbacks": 0,
+        "fuzzyIndexHits": 0,
+        "fuzzyFallbacks": 0,
+        "tokenScanFallbacks": 0,
+        "tokenMapScannedEntries": 0,
+        "devMemoryCandidateIds": 0,
+        "playbookCandidateIds": 0
+      },
+      "records": 2000,
+      "queries": 5,
+      "ms": [
+        75.02175,
+        70.21341700000005,
+        67.01808399999982,
+        67.87629200000015,
+        67.27074999999991
+      ],
+      "warmBuilds": 0,
+      "digests": [
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c"
+      ],
+      "modules": [
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory.ts",
+          "sha256": "872cc83d933470a229e293ab306d876a95bcf11533e064766e0ba07a16d0953c"
+        },
+        {
+          "path": "packages/main/src/core/learning-store.ts",
+          "sha256": "1eae678ce19564b4c48f452cae93cd665867b245ed039539d2461a6246c6bb18"
+        },
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+        },
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+          "sha256": "58d8bfdd00b38af7fef918bf6c765cf49ed319c07a33533c4431d9e8135a2607"
+        }
+      ]
+    },
+    {
+      "mode": "after",
+      "cold": {
+        "ms": 64.070333,
+        "gitCalls": 2,
+        "commands": [
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ]
+        ],
+        "builds": 1,
+        "stats": {
+          "queryTokenCount": 6,
+          "exactFastPathHits": 2,
+          "exactOverflowFallbacks": 0,
+          "fuzzyIndexHits": 2,
+          "fuzzyFallbacks": 0,
+          "tokenScanFallbacks": 0,
+          "tokenMapScannedEntries": 0,
+          "devMemoryCandidateIds": 400,
+          "playbookCandidateIds": 0
+        }
+      },
+      "warmGitCalls": 10,
+      "warmStats": {
+        "queryTokenCount": 0,
+        "exactFastPathHits": 0,
+        "exactOverflowFallbacks": 0,
+        "fuzzyIndexHits": 0,
+        "fuzzyFallbacks": 0,
+        "tokenScanFallbacks": 0,
+        "tokenMapScannedEntries": 0,
+        "devMemoryCandidateIds": 0,
+        "playbookCandidateIds": 0
+      },
+      "records": 2000,
+      "queries": 5,
+      "ms": [
+        25.57099999999997,
+        23.98275000000001,
+        25.067416000000037,
+        24.388207999999963,
+        25.12729200000001
+      ],
+      "warmBuilds": 0,
+      "digests": [
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c"
+      ],
+      "modules": []
+    },
+    {
+      "mode": "after",
+      "cold": {
+        "ms": 62.634874999999994,
+        "gitCalls": 2,
+        "commands": [
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ]
+        ],
+        "builds": 1,
+        "stats": {
+          "queryTokenCount": 6,
+          "exactFastPathHits": 2,
+          "exactOverflowFallbacks": 0,
+          "fuzzyIndexHits": 2,
+          "fuzzyFallbacks": 0,
+          "tokenScanFallbacks": 0,
+          "tokenMapScannedEntries": 0,
+          "devMemoryCandidateIds": 400,
+          "playbookCandidateIds": 0
+        }
+      },
+      "warmGitCalls": 10,
+      "warmStats": {
+        "queryTokenCount": 0,
+        "exactFastPathHits": 0,
+        "exactOverflowFallbacks": 0,
+        "fuzzyIndexHits": 0,
+        "fuzzyFallbacks": 0,
+        "tokenScanFallbacks": 0,
+        "tokenMapScannedEntries": 0,
+        "devMemoryCandidateIds": 0,
+        "playbookCandidateIds": 0
+      },
+      "records": 2000,
+      "queries": 5,
+      "ms": [
+        23.47929099999999,
+        23.12829099999999,
+        22.086375000000032,
+        22.434792000000016,
+        21.876999999999953
+      ],
+      "warmBuilds": 0,
+      "digests": [
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c"
+      ],
+      "modules": []
+    },
+    {
+      "mode": "before",
+      "cold": {
+        "ms": 395.44533399999995,
+        "gitCalls": 32,
+        "commands": [
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ],
+          [
+            "worktree",
+            "list",
+            "--porcelain"
+          ],
+          [
+            "rev-parse",
+            "--git-common-dir"
+          ]
+        ],
+        "builds": 1,
+        "stats": {
+          "queryTokenCount": 6,
+          "exactFastPathHits": 2,
+          "exactOverflowFallbacks": 0,
+          "fuzzyIndexHits": 2,
+          "fuzzyFallbacks": 0,
+          "tokenScanFallbacks": 0,
+          "tokenMapScannedEntries": 0,
+          "devMemoryCandidateIds": 400,
+          "playbookCandidateIds": 0
+        }
+      },
+      "warmGitCalls": 30,
+      "warmStats": {
+        "queryTokenCount": 0,
+        "exactFastPathHits": 0,
+        "exactOverflowFallbacks": 0,
+        "fuzzyIndexHits": 0,
+        "fuzzyFallbacks": 0,
+        "tokenScanFallbacks": 0,
+        "tokenMapScannedEntries": 0,
+        "devMemoryCandidateIds": 0,
+        "playbookCandidateIds": 0
+      },
+      "records": 2000,
+      "queries": 5,
+      "ms": [
+        72.416292,
+        67.24691699999994,
+        67.27016600000002,
+        66.18308400000001,
+        70.21783399999981
+      ],
+      "warmBuilds": 0,
+      "digests": [
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c",
+        "e56951a4990a808c0a052154e5c9191732cb9f7e91c5ce42b93552fb34afa65c"
+      ],
+      "modules": [
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory.ts",
+          "sha256": "872cc83d933470a229e293ab306d876a95bcf11533e064766e0ba07a16d0953c"
+        },
+        {
+          "path": "packages/main/src/core/learning-store.ts",
+          "sha256": "1eae678ce19564b4c48f452cae93cd665867b245ed039539d2461a6246c6bb18"
+        },
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+        },
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+          "sha256": "58d8bfdd00b38af7fef918bf6c765cf49ed319c07a33533c4431d9e8135a2607"
+        }
+      ]
+    }
+  ]
+}

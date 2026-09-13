@@ -89,7 +89,7 @@ function readBranches(root: string, args: string[]): Set<string> {
   return new Set(raw.split('\n').map((line) => line.trim()).filter(Boolean));
 }
 
-export function listGitWorktrees(root: string): GitWorktreeEntry[] {
+export function listGitWorktrees(root: string, options: { throwOnError?: boolean } = {}): GitWorktreeEntry[] {
   // Git resolves its own worktree/common directory from this cwd. Keep the
   // inventory live without two redundant rev-parse subprocesses per read.
   let raw = '';
@@ -99,7 +99,8 @@ export function listGitWorktrees(root: string): GitWorktreeEntry[] {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-  } catch {
+  } catch (error) {
+    if (options.throwOnError) throw error;
     return [];
   }
 

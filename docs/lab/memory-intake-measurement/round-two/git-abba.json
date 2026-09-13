@@ -1,0 +1,1050 @@
+{
+  "baseline": "b9c99c15ab8582e6673c97de78197e82bbf9a541",
+  "candidate": "b9e9c92364f5b70142af43d5f40f764c0ad148a8",
+  "binding": {
+    "schema": "proof-or-stop.main-build-binding.v1",
+    "sourceDigest": "ab7bfd9639e02d56431cdf5f55f1e523a165d7f71bbfc8b99f84eeec2457b5da",
+    "distDigest": "ca3601d56ac2ffe899c048ed460dc383a7bdadd7e9f29a59f3cff30046e606fe"
+  },
+  "fixtureHead": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d",
+  "rows": [
+    {
+      "mode": "before",
+      "modules": [
+        {
+          "path": "packages/main/src/core/story-workspace.ts",
+          "sha256": "a1e3bacd2c89f9d2ebc094b59ce0655793e1c861ab1395c3c9fc62f03661542a"
+        },
+        {
+          "path": "packages/main/src/core/git-baseline.ts",
+          "sha256": "907986be4839344439e926b2c50e967ec84b03a4d138bd389f23fefa20bc720d"
+        },
+        {
+          "path": "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "sha256": "c9cecc7aa3ad6c0cca529c61d82748a91f98bb2a9f026dbd773de498c5638039"
+        },
+        {
+          "path": "packages/main/src/core/worktree-runtime.ts",
+          "sha256": "c3d5a001eec2e2121680aa0a3e5a4f5c3a5bf32dd692e05a538e5dfe00afed2e"
+        }
+      ],
+      "workspace": {
+        "ms": 483.9575,
+        "gitCalls": 40,
+        "worktreeCalls": 20,
+        "treeCalls": 0,
+        "diffCalls": 0,
+        "values": [
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          }
+        ]
+      },
+      "hash": {
+        "ms": 1216.5712079999998,
+        "gitCalls": 109,
+        "worktreeCalls": 20,
+        "treeCalls": 1,
+        "diffCalls": 1,
+        "values": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ]
+      },
+      "baseline": {
+        "ms": 860.6008749999996,
+        "gitCalls": 80,
+        "worktreeCalls": 20,
+        "treeCalls": 0,
+        "diffCalls": 0,
+        "values": [
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          }
+        ]
+      }
+    },
+    {
+      "mode": "after",
+      "modules": [],
+      "workspace": {
+        "ms": 448.28312500000004,
+        "gitCalls": 40,
+        "worktreeCalls": 20,
+        "treeCalls": 0,
+        "diffCalls": 0,
+        "values": [
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          }
+        ]
+      },
+      "hash": {
+        "ms": 1035.629375,
+        "gitCalls": 89,
+        "worktreeCalls": 0,
+        "treeCalls": 1,
+        "diffCalls": 1,
+        "values": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ]
+      },
+      "baseline": {
+        "ms": 676.0895419999999,
+        "gitCalls": 60,
+        "worktreeCalls": 0,
+        "treeCalls": 0,
+        "diffCalls": 0,
+        "values": [
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          }
+        ]
+      }
+    },
+    {
+      "mode": "after",
+      "modules": [],
+      "workspace": {
+        "ms": 437.597416,
+        "gitCalls": 40,
+        "worktreeCalls": 20,
+        "treeCalls": 0,
+        "diffCalls": 0,
+        "values": [
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          }
+        ]
+      },
+      "hash": {
+        "ms": 972.1922500000001,
+        "gitCalls": 89,
+        "worktreeCalls": 0,
+        "treeCalls": 1,
+        "diffCalls": 1,
+        "values": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ]
+      },
+      "baseline": {
+        "ms": 647.536208,
+        "gitCalls": 60,
+        "worktreeCalls": 0,
+        "treeCalls": 0,
+        "diffCalls": 0,
+        "values": [
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          }
+        ]
+      }
+    },
+    {
+      "mode": "before",
+      "modules": [
+        {
+          "path": "packages/main/src/core/story-workspace.ts",
+          "sha256": "a1e3bacd2c89f9d2ebc094b59ce0655793e1c861ab1395c3c9fc62f03661542a"
+        },
+        {
+          "path": "packages/main/src/core/git-baseline.ts",
+          "sha256": "907986be4839344439e926b2c50e967ec84b03a4d138bd389f23fefa20bc720d"
+        },
+        {
+          "path": "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "sha256": "c9cecc7aa3ad6c0cca529c61d82748a91f98bb2a9f026dbd773de498c5638039"
+        },
+        {
+          "path": "packages/main/src/core/worktree-runtime.ts",
+          "sha256": "c3d5a001eec2e2121680aa0a3e5a4f5c3a5bf32dd692e05a538e5dfe00afed2e"
+        }
+      ],
+      "workspace": {
+        "ms": 458.24600000000004,
+        "gitCalls": 40,
+        "worktreeCalls": 20,
+        "treeCalls": 0,
+        "diffCalls": 0,
+        "values": [
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          },
+          {
+            "gitCwd": "/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-history-abba-aXEVIs",
+            "worktreePath": null,
+            "source": "invocation-root",
+            "rootReason": "same-tree"
+          }
+        ]
+      },
+      "hash": {
+        "ms": 1306.783625,
+        "gitCalls": 109,
+        "worktreeCalls": 20,
+        "treeCalls": 1,
+        "diffCalls": 1,
+        "values": [
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ]
+      },
+      "baseline": {
+        "ms": 902.3138749999998,
+        "gitCalls": 80,
+        "worktreeCalls": 20,
+        "treeCalls": 0,
+        "diffCalls": 0,
+        "values": [
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          },
+          {
+            "ref": "refs/heads/main",
+            "mergeBase": "3b116ade9a795c2eff2563e1b8dfd9bb0b92d49d"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -3,9 +3,9 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
 const inventoryBytes = fs.readFileSync(new URL('./identity-reviewed-json-data.json', import.meta.url));
-if (createHash('sha256').update(inventoryBytes).digest('hex') !== '7afc39830fc6043ee95a15a7e6f8a83e96f21b79af009805c55c46601155ec2e') throw new Error('Reviewed JSON context inventory bytes changed');
+if (createHash('sha256').update(inventoryBytes).digest('hex') !== 'bd9aa9023d9ce498d850edfb44bb1589d351bf2e9fe56b3c043b9af2f45dd784') throw new Error('Reviewed JSON context inventory bytes changed');
 const inventory = JSON.parse(inventoryBytes.toString('utf8'));
-if (inventory.schemaVersion !== 'identity-reviewed-json-contexts.v1' || !Array.isArray(inventory.entries) || inventory.entries.length !== 729) throw new Error('Invalid reviewed JSON inventory');
+if (inventory.schemaVersion !== 'identity-reviewed-json-contexts.v1' || !Array.isArray(inventory.entries) || inventory.entries.length !== 776) throw new Error('Invalid reviewed JSON inventory');
 const seen = new Set();
 for (const row of inventory.entries) {
   const key = JSON.stringify([row.path,row.jsonPointer,row.nodeKind,row.class,row.token]);

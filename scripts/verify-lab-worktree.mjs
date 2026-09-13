@@ -45,6 +45,7 @@ const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced sy
 const finish = name => ['finish', name, '--notes', notes, '--confirm'];
 try {
   await import('./verify-lab-audit-contract.mjs');
+  await import('./verify-lab-audit-prompt-budget.mjs');
   await import('./verify-lab-fixture-sources.mjs');
   await import('./verify-lab-lock-scope.mjs');
   assert.notEqual(process.exitCode,1,'Lab lock-scope assertions must pass');

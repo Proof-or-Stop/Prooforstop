@@ -1,0 +1,34 @@
+{
+  "recordedAt": "2026-09-13T00:04:55.151223+00:00",
+  "sourceDigests": {
+    "packages/main/src/core/runtime-fact-registry.ts": "1f9fe1fca3334fa0808b41a68c022bb2bc999b326510eb20dcb17da4516f2009",
+    "scripts/verify-runtime-fact-contract.mjs": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
+    "scripts/lab/u18-static-edges/exceptions.json": "d635d2daf6437cfa9a18b2758133b14b780afdeb059c1e0cc6e87966240d9455",
+    "scripts/lab/verify-intake-consolidation.mjs": "95adac7532f057116cc541e1925d9de0e85571b4153dd41be83cc4975e1134c2",
+    "scripts/verify-memory-query-timing.mjs": "c2368e58d994392cc6077baa7acc8c0b457f464882df8d4787f6c63c046d410e",
+    "scripts/verify-static-ast-reuse.mjs": "96334fddfce5ffb6e2440b4a69052030a7f224f1f08555bc27a7579975b78887",
+    "scripts/verify-static-ast-reuse-boundaries.mjs": "6965785265b0b18e66b87c7fee88d0a318cf3ebd5a50acd2bcd4cc90514bef48",
+    "scripts/verify-validation-static-edges.mjs": "f13e39ced42c35820397c73050ad3c0558e5db35451e83d3d5a2f1e3d4c4e0f2",
+    "scripts/verify-validation-static-edge-boundaries.mjs": "1619096bd9b33617500686bb176e956a4c67444e2e52c188c89b0949bff3f482"
+  },
+  "runs": [
+    {
+      "command": [
+        "node",
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "exitCode": 0,
+      "log": "runtime-contract.log",
+      "logSha256": "ae8e1aee8fc87462d9a830dd5518672a6c7270c29731d832762da7c371381e40"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/verify-validation-static-edge-boundaries.mjs"
+      ],
+      "exitCode": 0,
+      "log": "static-boundaries.log",
+      "logSha256": "fc173cf77ed6aa979754b4207b0db820640b75ef4538448c0720d06fb36fffb5"
+    }
+  ]
+}
