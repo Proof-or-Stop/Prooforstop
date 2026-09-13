@@ -138,7 +138,26 @@ function gitProbe(searchOrigin: string, args: string[]): string {
   });
 }
 
+// Successful discovery is reusable only within one synchronous read operation.
+// Every new operation starts fresh; failed probes remain retryable in the scope.
+let learningRootScope: Map<string, string> | undefined;
+// Inheritance is explicit for a caller-owned batch observation; ordinary nested
+// operations still create fresh scopes by default.
+export function withLearningRootScope<T>(read: () => T, inherit = false): T {
+  if (inherit && learningRootScope) return read();
+  const previous = learningRootScope;
+  learningRootScope = new Map();
+  try { return read(); } finally { learningRootScope = previous; }
+}
+
 function resolveLearningRoot(searchOrigin: string): string {
+  const cached = learningRootScope?.get(searchOrigin);
+  if (cached !== undefined) return cached;
+  let failedProbe = false;
+  const observed = (root: string): string => {
+    if (!failedProbe) learningRootScope?.set(searchOrigin, root);
+    return root;
+  };
   try {
     // The main (primary) worktree root is the FIRST `worktree <path>` entry.
     let mainWorktree = '';
@@ -148,7 +167,7 @@ function resolveLearningRoot(searchOrigin: string): string {
         const m = line.match(/^worktree (.+)$/);
         if (m) { mainWorktree = m[1].trim(); break; }
       }
-    } catch { /* fall through to --show-toplevel */ }
+    } catch { failedProbe = true; /* fall through to --show-toplevel */ }
 
     if (mainWorktree) {
       // For separate-git-dir / bare-backed layouts git reports the EXTERNAL git
@@ -159,13 +178,13 @@ function resolveLearningRoot(searchOrigin: string): string {
       let commonDir = '';
       try {
         commonDir = resolve(searchOrigin, gitProbe(searchOrigin, ['rev-parse', '--git-common-dir']).trim());
-      } catch { /* leave commonDir empty => treat the worktree entry as genuine */ }
-      if (!commonDir || resolve(mainWorktree) !== commonDir) return mainWorktree;
+      } catch { failedProbe = true; /* leave commonDir empty => treat the worktree entry as genuine */ }
+      if (!commonDir || resolve(mainWorktree) !== commonDir) return observed(mainWorktree);
     }
 
     // separate-git-dir / bare-backed: the actual working tree of THIS checkout.
     const top = gitProbe(searchOrigin, ['rev-parse', '--show-toplevel']).trim();
-    if (top) return top;
+    if (top) return observed(top);
     return mainWorktree || searchOrigin;
   } catch {
     return searchOrigin;

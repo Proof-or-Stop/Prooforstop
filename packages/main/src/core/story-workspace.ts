@@ -42,7 +42,7 @@ import { realpathSync } from 'node:fs';
 
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { StoryStore } from './store.js';
-import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+import { resolveGitCwdWithWorkspace } from './story-signed-workspace-resolution.js';
 import type { StoryInfo } from './types.js';
 import { listGitWorktrees } from './worktree-runtime.js';
 
@@ -162,14 +162,19 @@ export function resolveStoryWorkspace(
     return atInvocationRoot(ctx, config, rootStory, ctx.root, 'terminal-phase', null);
   }
 
-  const gitCwd = resolveGitCwd({
+  const observation = resolveGitCwdWithWorkspace({
     store: ctx.store,
     storyId,
     metadataRoot: ctx.root,
     projectRoot: ctx.root,
     config,
   });
-  const worktreePath = linkedStoryWorktreePath(gitCwd, rootStory);
+  const { gitCwd } = observation;
+  // A successful resolver already observed the branch binding, including absence.
+  // Preserve the historical inventory fallback only when authority was unresolved.
+  const worktreePath = observation.worktreePath === undefined
+    ? linkedStoryWorktreePath(gitCwd, rootStory)
+    : observation.worktreePath;
 
   if (canonicalPath(gitCwd) === canonicalPath(ctx.root)) {
     return atInvocationRoot(ctx, config, rootStory, gitCwd, 'same-tree', worktreePath);

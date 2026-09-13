@@ -1,0 +1,121 @@
+{
+  "baseline": "b9c99c15ab8582e6673c97de78197e82bbf9a541",
+  "candidate": "b9e9c92364f5b70142af43d5f40f764c0ad148a8",
+  "binding": {
+    "schema": "proof-or-stop.main-build-binding.v1",
+    "sourceDigest": "ab7bfd9639e02d56431cdf5f55f1e523a165d7f71bbfc8b99f84eeec2457b5da",
+    "distDigest": "ca3601d56ac2ffe899c048ed460dc383a7bdadd7e9f29a59f3cff30046e606fe"
+  },
+  "rows": [
+    {
+      "mode": "before",
+      "records": 2000,
+      "queries": 5,
+      "ms": [
+        260.9452909999999,
+        197.80504200000018,
+        184.89629100000002,
+        162.7326250000001,
+        365.1458329999998
+      ],
+      "warmBuilds": 5,
+      "digests": [
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245"
+      ],
+      "modules": [
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory.ts",
+          "sha256": "99e1b98fa50f8912b0fa5f00f119cef4c6c397227562891580b9db3a186a8cb1"
+        },
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+        },
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+          "sha256": "b0ae410e79c74406aa035e9f1e778fcc60a2652d00f34f6eed894585a19c5f21"
+        }
+      ]
+    },
+    {
+      "mode": "after",
+      "records": 2000,
+      "queries": 5,
+      "ms": [
+        72.541291,
+        70.14441700000009,
+        63.72445800000003,
+        62.524332999999956,
+        59.50666699999999
+      ],
+      "warmBuilds": 0,
+      "digests": [
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245"
+      ],
+      "modules": []
+    },
+    {
+      "mode": "after",
+      "records": 2000,
+      "queries": 5,
+      "ms": [
+        58.535249999999905,
+        61.748833000000104,
+        59.60729099999992,
+        60.49154199999998,
+        62.83208300000001
+      ],
+      "warmBuilds": 0,
+      "digests": [
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245"
+      ],
+      "modules": []
+    },
+    {
+      "mode": "before",
+      "records": 2000,
+      "queries": 5,
+      "ms": [
+        165.11250000000007,
+        158.96912499999996,
+        171.25370799999996,
+        159.2180840000001,
+        157.63908300000003
+      ],
+      "warmBuilds": 5,
+      "digests": [
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245",
+        "9d1f6c74f1cbf47499f0e93fbabc39a89f99e1643d85dfc6bb20a7ec08872245"
+      ],
+      "modules": [
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory.ts",
+          "sha256": "99e1b98fa50f8912b0fa5f00f119cef4c6c397227562891580b9db3a186a8cb1"
+        },
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+          "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+        },
+        {
+          "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+          "sha256": "b0ae410e79c74406aa035e9f1e778fcc60a2652d00f34f6eed894585a19c5f21"
+        }
+      ]
+    }
+  ]
+}

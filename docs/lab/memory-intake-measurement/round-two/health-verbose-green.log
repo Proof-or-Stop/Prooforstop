@@ -1,0 +1,95 @@
+# CHK-001 rename-aware diff reader parses NUL-delimited output and fails loudly
+[PASS] rename of a path with a space reports both sides through both reader functions
+[PASS] rename of a path with a non-ASCII reports both sides through both reader functions
+[PASS] rename of a path with a quote reports both sides through both reader functions
+[PASS] changedStoryFilesBetween reports both sides of every tricky rename (old side deleted, new side live)
+[PASS] a deleted path is still reported by all three readers
+[PASS] a copy record (C100) reports both sides through all three readers
+[PASS] plain-path repository: new reader equals the local tab-parser reference for all three readers
+[PASS] plain-path repository: materialHash and storyFilesHash are byte-identical to the reference formulas
+[PASS] an unresolvable ref still throws from all three readers (contract unchanged)
+[PASS] a malformed record makes every reader throw an Error naming the raw record instead of skipping it
+[PASS] exported parseNameStatusRecords rejects a malformed record and never drops a well-formed one
+[PASS] no reader body catches, and no caller wraps these readers in catch { return [] }
+# CHK-002 done-required command parse is owned by parseLegacyValidationCommandString
+[PASS] corpus: the canonical parser produces the pinned {shell, command, args} for every entry
+[PASS] corpus: the DONE-required executor path and handlers/verifier.ts produce the same {shell, command, args} for every entry
+[PASS] shape: the argv branch omits the shell key at both call sites, the shell branch sets shell=true (pre-CHK-002 shape preserved)
+[PASS] structural: done-required-validation.ts defines no private parser and imports the canonical one
+# CHK-003 story workspace resolution is owned by core/story-workspace.ts
+[PASS] helper: from the main checkout an active story resolves to its linked worktree (gitCwd from resolveGitCwd, store and config rooted there, source=linked-worktree)
+[PASS] helper: from inside the story worktree the same story resolves to the same gitCwd with source=invocation-root (same tree)
+[PASS] guard: a DONE story whose worktree was merged and removed never resolves a linked worktree, with the guard on or off
+[PASS] guard: a DONE story with a residual worktree is refused under the guard (rootReason=terminal-phase) and read from the residue only when the option is off
+[PASS] wrapper-root: gitRoot configured below the invocation root resolves the story worktree through the helper
+[PASS] structural: core/story-workspace.ts contains no state-dir literal (retired or canonical) and takes its paths from StoryStore
+[PASS] structural: the four implementations delegate to resolveStoryWorkspace and their own resolution logic is removed
+[PASS] validation_plan: the report (selectionDigest included) is identical from the story worktree and from the main checkout
+[PASS] validation_plan: a DONE story is never planned from a linked worktree (merged-and-removed AND residual worktree both plan from the invocation root; rootReason=terminal-phase; the call site passes terminalPhaseGuard: true)
+[PASS] story_list: the projected phase and checklist are identical from the main checkout and from the story worktree, and a DONE story is read from main even with a residual worktree
+[PASS] session_brief: from the main checkout the active-story line carries authority:worktree and a cd hint; a DONE story with a residual worktree is not active
+[PASS] local assurance projection: rows agree from both roots, the wrapper-root layout resolves the worktree, and DONE-story reads are unchanged (residue still read, removed worktree falls back to main)
+# CHK-004 resolveGitCwd call sites in handlers are enumerated mechanically and classified
+resolveGitCwd call sites
+  scope: packages/main/src/handlers/*.ts -- 169 files scanned, 34 real callers, 5 comment-only mentions, 0 unbound code mentions
+  rule: caller = a CALL EXPRESSION of the resolver binding imported from core/story-signed-workspace-resolution (aliases resolved; comments, strings, templates, regexes masked);
+        workspace-rooted = every readStory/readChecklist receiver is <ws>.store, no `new StoryStore(`, every loadConfig/configuredValidationCommands/resolveDoneRequiredPolicy argument starts with <ws>., and no handler is invoked on the context, where <ws> is assigned from resolveStoryWorkspace(); otherwise reads ctx.root: <story|checklist|config|via-handler(...)>
+        via-handler(<callee>) = a transitive ctx.root read (B-41c8 F-005): a method on a <factory>Handlers(<ctx>) result, an unbound <factory>Handlers(<ctx>).m(), or a callee outside this file receiving the bare context or the context's store (a HandlerContext['store'] parameter); local callees, arrow parameters and resolveStoryWorkspace itself are not delegations
+  callers (34):
+    acceptance-amendment.ts           calls L17                 reads ctx.root: story  -- ctx.store.readStory L22
+    candidate-spec-routing.ts         calls L147                reads ctx.root: story, checklist, config, via-handler(refreshReviewInventoryContextLocked)  -- ctx.store.readStory L265,L276,L335; ctx.store.readChecklist L277; loadConfig L336; refreshReviewInventoryContextLocked(ctx) L413
+    certification-window.ts           calls L402,L503,L580      reads ctx.root: story, checklist, config, via-handler(assessStoredValidationPassAdmissibility, currentPrecertFastIdentity)  -- ctx.store.readChecklist L417; ctx.store.readStory L430,L727; loadConfig L431; currentPrecertFastIdentity(ctx) L463; assessStoredValidationPassAdmissibility(ctx) L728
+    checklist.ts                      calls L1671,L1977,L2356   reads ctx.root: story, checklist, config, via-handler(acceptanceAmendmentBlocker, assertCwdInWorktree)  -- configuredValidationCommands L106; store.readStory L215,L3025,L3090,L3225; assertCwdInWorktree(store) L216; store.readChecklist L1673,L1986,L2161,L2379,L2616,L2656,L2754,L2951,L3180,L3229,L3303,L3310,L3340,L3462,L3481,L3538,L3637,L3696,L3741,L4083,L4129; acceptanceAmendmentBlocker(store) L3068
+    cross-host-review.ts              calls L1051               reads ctx.root: story  -- ctx.store.readStory L390,L1152
+    delivery-check.ts                 calls L180                reads ctx.root: story  -- store.readStory L137
+    delivery-context-pack.ts          calls L462                reads ctx.root: checklist  -- ctx.store.readChecklist L207
+    done-prepare.ts                   calls L1841,L2524         reads ctx.root: story, checklist, config, via-handler(buildDoneClosureRunbook, doneRequiredHandlers.done_required_validate, refreshStaleEvidenceMetadataOnly, validationScopePrerequisite, verifier.validate)  -- loadConfig L405; refreshStaleEvidenceMetadataOnly(ctx) L1186,L2006; ctx.store.readChecklist L1187; ctx.store.readStory L1830; validationScopePrerequisite(ctx) L2012; verifier.validate() L2035; resolveDoneRequiredPolicy L2095; doneRequiredHandlers.done_required_validate() L2110; buildDoneClosureRunbook(ctx) L2246
+    done-required-validation.ts       calls L54                 reads ctx.root: config, via-handler(currentCertificationIdentity, probeValidationCausalPreflightFacts)  -- resolveDoneRequiredPolicy L58,L76; probeValidationCausalPreflightFacts(ctx) L69; currentCertificationIdentity(ctx) L81,L92
+    evidence-plan.ts                  calls L280                reads ctx.root: checklist  -- ctx.store.readChecklist L115
+    evidence-refresh.ts               calls L305                reads ctx.root: checklist, via-handler(refreshStaleEvidenceMetadataOnly)  -- ctx.store.readChecklist L120; refreshStaleEvidenceMetadataOnly(ctx) L337
+    frozen-claim-drift-check.ts       calls L95                 reads ctx.root: checklist  -- store.readChecklist L119
+    init-check.ts                     calls L361                reads ctx.root: story, checklist  -- store.readStory L113,L324; store.readChecklist L135,L336
+    live-smoke-transcript.ts          calls L514                reads ctx.root: checklist  -- ctx.store.readChecklist L184
+    milestone-status.ts               calls L64                 reads ctx.root: story, checklist  -- store.readStory L110; store.readChecklist L111; ctx.store.readStory L155; ctx.store.readChecklist L176
+    phase-gates.ts                    calls L104,L123,L463      reads ctx.root: story, checklist, config, via-handler(assertTestAdmissibleRoutineValidationWindow, assessStoredValidationPassAdmissibility)  -- store.readChecklist L175; store.readStory L182; loadConfig L218; ctx.store.readChecklist L496,L546; assertTestAdmissibleRoutineValidationWindow(ctx) L637; assessStoredValidationPassAdmissibility(ctx) L638
+    prewrite-guard.ts                 calls L199                reads ctx.root: story, via-handler(currentOpenReviewInventory)  -- store.readStory L50,L140; currentOpenReviewInventory(store) L202
+    proof-or-stop-handoff.ts          calls L579                reads ctx.root: via-handler(devMemoryHandlers.dev_memory_preflight, gapHandlers.gap_analyze, learningHandlers.learning_validate, sessionHandlers.session_brief, storyHandlers.story_get, summaryHandlers.summary_get)  -- sessionHandlers.session_brief() L555; storyHandlers.story_get() L557; summaryHandlers.summary_get() L558; devMemoryHandlers.dev_memory_preflight() L560; gapHandlers.gap_analyze() L561; learningHandlers.learning_validate() L563
+    proofstory.ts                     calls L388,L410           reads ctx.root: story, checklist, config  -- loadConfig L152,L246,L303,L738; ctx.store.readChecklist L164; store.readStory L275,L448,L623,L669,L684,L719,L795,L824,L861,L898,L934,L981,L1092,L1139,L1285,L1400; store.readChecklist L380,L1167
+    recover-evidence.ts               calls L141                reads ctx.root: config, via-handler(refreshStaleEvidenceMetadataOnly, verifierHandlers.validate)  -- loadConfig L82; refreshStaleEvidenceMetadataOnly(ctx) L164; verifierHandlers.validate() L181
+    red-evidence.ts                   calls L229                reads ctx.root: story, config  -- store.readStory L282,L463,L621; loadConfig L482
+    review-escalation.ts              calls L266,L313,L410,L483  reads ctx.root: story, via-handler(recordDispatchPreflight, recordDispatchUnavailableFinal)  -- recordDispatchPreflight(ctx) L225; recordDispatchUnavailableFinal(ctx) L234; ctx.store.readStory L256
+    review-preflight.ts               calls L389                reads ctx.root: story, checklist  -- store.readStory L232,L272; store.readChecklist L233
+    review-remediation.ts             calls L50                 reads ctx.root: story, checklist, config  -- ctx.store.readStory L48; loadConfig L84,L106; ctx.store.readChecklist L102,L125
+    reviewer-batch.ts                 calls L233                reads ctx.root: story, checklist, config  -- ctx.store.readStory L331; ctx.store.readChecklist L337; loadConfig L354
+    session.ts                        calls L1431               reads ctx.root: story, checklist, config  -- ctx.store.readStory L117; loadConfig L186; ctx.store.readChecklist L1092,L1132
+    story-create.ts                   calls L544                reads ctx.root: story, config, via-handler(nextStoryId)  -- loadConfig L145; store.readStory L393,L433,L761,L988; nextStoryId(store) L636,L836
+    story-review.ts                   calls L140                reads ctx.root: story, checklist, config, via-handler(assertCwdInWorktree, computeProcessMetrics, planOwnerCoverageFailure, safeReadScopeContract, storyScopeBudgetBlocker)  -- store.readStory L152,L662,L942; assertCwdInWorktree(store) L153; store.readChecklist L154; loadConfig L156; storyScopeBudgetBlocker(store) L174; planOwnerCoverageFailure(store) L514; safeReadScopeContract(store) L665,L668; computeProcessMetrics(store) L748
+    story.ts                          calls L75                 reads ctx.root: story  -- store.readStory L24
+    transition-effects.ts             calls L181                reads ctx.root: story, checklist, config  -- loadConfig L95; store.readChecklist L142,L234,L261,L314; store.readStory L179,L233,L259,L312,L392
+    transition-orchestrator.ts        calls L1132,L1270,L1396,L1417,L1587  reads ctx.root: story, checklist, config, via-handler(applyDoneMergeEffects, assertCwdInWorktree, assertReviewInventoryContextFreshLocked, buildNextSteps, canSendStoryEventWithoutSnapshotCan, captureMilestoneCloseoutSnapshotFromStore, consumeReviewInventoryReceipt, createStoryActor, evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext, recomputeProcessMetrics, renderRelatedDocsHint, resolveGuardFailure, runDonePreMergeGate, runGuardSessionGate, runLegacyReceiptTransitionGate, runPlanToDevScopeAdvice, runReviewToTestPreflightGate, runScopeTransitionGate, runValidateGate)  -- evaluatePreReviewCheckForContext(ctx) L124; store.readStory L142,L640,L666,L1017,L1494; evaluateAcceptanceRolloutForContext(ctx) L213; canSendStoryEventWithoutSnapshotCan(store) L324; loadConfig L360,L383; new StoryStore L846; assertCwdInWorktree(store) L1057; evaluateAcceptanceTopologyForContext(ctx) L1065; createStoryActor(store) L1176; resolveGuardFailure(store) L1208; runScopeTransitionGate(ctx) L1214; runGuardSessionGate(ctx) L1218; runPlanToDevScopeAdvice(ctx) L1223; runReviewToTestPreflightGate(ctx) L1229,L1255; runValidateGate(ctx) L1236; runLegacyReceiptTransitionGate(ctx) L1237,L1260; runDonePreMergeGate(store) L1259; captureMilestoneCloseoutSnapshotFromStore(store) L1315; store.readChecklist L1541; consumeReviewInventoryReceipt(store) L1557; assertReviewInventoryContextFreshLocked(ctx) L1561; recomputeProcessMetrics(store) L1645; renderRelatedDocsHint(store) L1684; buildNextSteps(store) L1687; applyDoneMergeEffects(store) L1705
+    validation-identity.ts            calls L95                 reads ctx.root: story, checklist, config  -- loadConfig L20,L69; ctx.store.readStory L64; ctx.store.readChecklist L65; configuredValidationCommands L132
+    validation-pass-admissibility.ts  calls L44,L97             reads ctx.root: story, checklist, config  -- ctx.store.readStory L42; ctx.store.readChecklist L43; loadConfig L46,L65
+    verifier.ts                       calls L701,L719,L743,L1337,L1621,L1793,L1876  reads ctx.root: story, checklist, config, via-handler(buildValidateFileCommand, createAuthoritativeFindingMutation, currentCertificationIdentity, routineIdentityPolicySnapshot, sessionHandlers.session_brief)  -- ctx.store.readStory L146,L169,L694,L1197,L1224,L1779,L2761; ctx.store.readChecklist L152,L170,L695,L719,L1225,L2759; loadConfig L271,L700,L1769,L2762; configuredValidationCommands L369,L1807,L1939; routineIdentityPolicySnapshot(ctx) L742; currentCertificationIdentity(ctx) L1508,L1517; createAuthoritativeFindingMutation(ctx) L1712; buildValidateFileCommand(ctx) L2427; sessionHandlers.session_brief() L2803
+  comment-only mentions (5):
+    done-effects.ts                   L91, L95
+    story-aware-validation.ts         L110
+    validate-channel.ts               L424
+    validate-concept.ts               L1014
+    validation-plan.ts                L777
+  flagged callers (reads ctx.root): 34 of 34
+[PASS] audit: every handler with a real resolveGitCwd call expression is listed with its call lines and a classification, and the block headed `resolveGitCwd call sites` is printed
+[PASS] completeness: every handler file containing the raw token appears in exactly one of callers / comment-only mentions / unbound code mentions
+[PASS] edge: validate-channel.ts is a comment-only mention (it receives gitCwd threaded from review-preflight.ts as deps.gitCwd); review-preflight.ts is a real caller whose call lines are exactly its code-level resolveGitCwd( lines
+[PASS] edge: a temporary handler file importing the resolver under an alias is detected as a caller at the aliased call line only, classified by its own reads, and cleaned up
+[PASS] adversarial: the scanner ignores the token inside line comments, block comments, string / template / regex literals and foreign-object calls, follows template ${} expressions, and separates workspace-rooted reads from ctx.root reads
+[PASS] edge (F-005): an aggregator that delegates to handlers constructed on ctx is flagged, never workspace-rooted: proof-or-stop-handoff.ts (storyHandlers.story_get / summaryHandlers.summary_get) and done-required-validation.ts (currentCertificationIdentity(ctx); resolveDoneRequiredPolicy(ctx.root) loads config)
+[PASS] guard (F-008): the guarded vacuous label is the classifier's own, and the guard fires when proof-or-stop-handoff.ts prints it
+[PASS] adversarial (F-005): the delegation rule flags handler-factory methods bound on ctx, unbound factory calls on ctx and non-local callees receiving bare ctx; it ignores local callees, arrow parameter lists, the helper itself and ws-derived handler sets
+[PASS] adversarial (F-011): generic local callees are local; HandlerContext['store'] is a context name, HandlerContext<...> is not; no caller is flagged via its own function
+flagged callers: 34
+[PASS] adversarial: the flagged list is non-empty (this story does not migrate the callers; the printed list is the scope of draft migrate-resolvegitcwd-callers-to-workspace) and its count is printed
+[PASS] registration: test:single-owner-extraction is in root package.json scripts and test:serial-reference, in full-suite-runner RESOURCE_POLICY (entriesFromSerialReference accepts the real inventory), and in proof-or-stop.config.json validate.commands
+default stdout projection: 9450 chars (bound 11000; audit block 3145 chars)
+[PASS] bound (F-007): the default (SINGLE_OWNER_AUDIT_VERBOSE unset) total stdout of this smoke is under 11000 chars
+40/40 cases passed
+single-owner-extraction-smoke: PASS
