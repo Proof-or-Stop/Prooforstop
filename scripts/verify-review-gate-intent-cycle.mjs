@@ -52,6 +52,10 @@ for (const lifecycleVerdict of [
   'Independent reviewers report no unresolved high or critical findings.',
   'All required review lanes pass with no blocking findings.',
   'The quality reviewer records a pass verdict.',
+  'Independent review has no open findings.',
+  'The independent review is approved.',
+  'Peer review signs off with no defects.',
+  'Code review completes with zero defects.',
 ]) {
   assert.ok(
     classify({ desc: lifecycleVerdict, type: 'manual', priority: 'must' }),
@@ -94,6 +98,14 @@ const run = (command, payload) => execFileSync(process.execPath, [cli, '--root',
   encoding: 'utf8',
   stdio: ['pipe', 'pipe', 'pipe'],
 });
+const runFailure = (command, payload) => {
+  try {
+    run(command, payload);
+  } catch (error) {
+    return `${error.stdout ?? ''}\n${error.stderr ?? ''}`;
+  }
+  assert.fail(`REVIEW_GATE_INTENT_CYCLE: ${command} unexpectedly accepted REVIEW lifecycle intent`);
+};
 try {
   mkdirSync(join(fixtureRoot, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(fixtureRoot, 'docs', 'requirements'), { recursive: true });
@@ -103,27 +115,54 @@ try {
     storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
   }));
   writeFileSync(join(fixtureRoot, 'docs', 'requirements', 'truth.md'), '# Review lifecycle truth\n');
-  const created = run('story_create', {
+  const background = `## Trigger Event\nOn 2026-09-12, run LAB-review-intent-stage-cycle reproduced a DEV to REVIEW dependency cycle caused by a review verdict encoded as acceptance evidence.\n\n## Key Insights\nIndependent review evidence is created only after entering REVIEW, while verification intents are otherwise required before that transition. The two evidence classes must remain separate.\n\n## Solution Tradeoffs\nReject the narrow lifecycle-verdict shape during PLAN instead of weakening the DEV evidence gate. This preserves product-behavior acceptance while preventing the known impossible dependency.\n\n## Conversational Texture\nThe benchmark completed implementation and focused tests but delivered an empty patch because one impossible intent kept the Story in DEV. The repair must fail early with a useful instruction.`;
+  const baseStory = {
     name: 'review-gate-cycle',
     title: 'Reject review lifecycle evidence from acceptance intent',
     description: 'Keep the DEV to REVIEW transition satisfiable.',
     type: 'bug',
     priority: 'low',
     forceNew: true,
-    background: `## Trigger Event\nOn 2026-09-12, run LAB-review-intent-stage-cycle reproduced a DEV to REVIEW dependency cycle caused by a review verdict encoded as acceptance evidence.\n\n## Key Insights\nIndependent review evidence is created only after entering REVIEW, while verification intents are otherwise required before that transition. The two evidence classes must remain separate.\n\n## Solution Tradeoffs\nReject the narrow lifecycle-verdict shape during PLAN instead of weakening the DEV evidence gate. This preserves product-behavior acceptance while preventing the known impossible dependency.\n\n## Conversational Texture\nThe benchmark completed implementation and focused tests but delivered an empty patch because one impossible intent kept the Story in DEV. The repair must fail early with a useful instruction.`,
+    background,
+  };
+  const invalidIntent = {
+    happy: [{ desc: 'The focused product command passes.', type: 'cli', priority: 'must' }],
+    edge: [{ desc: 'The product handles an empty input.', type: 'logic', priority: 'must' }],
+    adversarial: [{ desc: 'Independent review has no open findings.', type: 'manual', priority: 'must' }],
+  };
+  const createFailure = runFailure('story_create', {
+    ...baseStory,
     checklist: [{
       title: 'Verify the focused behavior',
       context: 'Exercise product behavior and keep lifecycle review separate.',
       relatedDocs: ['docs/requirements/truth.md'],
-      verificationIntent: {
-        happy: [{ desc: 'The focused product command passes.', type: 'cli', priority: 'must' }],
-        edge: [{ desc: 'The product handles an empty input.', type: 'logic', priority: 'must' }],
-        adversarial: [{ desc: 'Independent review has no unresolved high or critical finding.', type: 'manual', priority: 'must' }],
-      },
+      verificationIntent: invalidIntent,
+    }],
+  });
+  assert.match(createFailure, /story_create refused.*review_gate_as_verification_intent/s);
+
+  const legitimateIntent = {
+    happy: [{ desc: 'The code review page passes accessibility checks.', type: 'browser', priority: 'must' }],
+    edge: [{ desc: 'A review screen renders an empty findings list.', type: 'browser', priority: 'must' }],
+    adversarial: [{ desc: 'review_pass_set rejects an invalid signature.', type: 'cli', priority: 'must' }],
+  };
+  const created = run('story_create', {
+    ...baseStory,
+    checklist: [{
+      title: 'Verify the focused behavior',
+      context: 'Exercise product behavior and keep lifecycle review separate.',
+      relatedDocs: ['docs/requirements/truth.md'],
+      verificationIntent: legitimateIntent,
     }],
   });
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'REVIEW_GATE_INTENT_CYCLE: fixture Story must be created');
+  const updateFailure = runFailure('checklist_update', {
+    storyId,
+    itemId: 'CHK-001',
+    verificationIntent: invalidIntent,
+  });
+  assert.match(updateFailure, /checklist_update refused.*review_gate_as_verification_intent/s);
   run('understanding_set', {
     storyId,
     task: 'reject lifecycle review outcomes in verification intent',
@@ -140,6 +179,20 @@ try {
     readManifest: { filesReadFully: ['docs/requirements/truth.md'], filesTriagedByName: [], scanEscalationReason: null },
     openQuestions: [],
   });
+  const legitimateReviewText = run('story_review', { storyId });
+  const legitimateReview = JSON.parse(legitimateReviewText.slice(legitimateReviewText.indexOf('{')));
+  assert.equal(
+    legitimateReview.issues.some((candidate) => candidate.type === 'review_gate_as_verification_intent'),
+    false,
+    'REVIEW_GATE_INTENT_CYCLE: real story_review must preserve legitimate product review behavior',
+  );
+
+  // Simulate a Story persisted by an older CLI before writer-side rejection
+  // existed. The consumer gate must still block this retained legacy state.
+  const checklistPath = join(fixtureRoot, 'docs', 'story', 'actives', storyId, 'checklist.json');
+  const checklist = JSON.parse(readFileSync(checklistPath, 'utf8'));
+  checklist.items[0].verificationIntent = invalidIntent;
+  writeFileSync(checklistPath, JSON.stringify(checklist, null, 2) + '\n');
   const reviewText = run('story_review', { storyId });
   const review = JSON.parse(reviewText.slice(reviewText.indexOf('{')));
   const issue = review.issues.find((candidate) => candidate.type === 'review_gate_as_verification_intent');

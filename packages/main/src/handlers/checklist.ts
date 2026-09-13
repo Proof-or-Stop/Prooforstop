@@ -50,6 +50,7 @@ import {
   checklistEnglishAuthoringFields,
 } from './english-artifact-gate.js';
 import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
+import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import {
   assertVerificationInputUnchanged,
@@ -2867,6 +2868,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       });
       const checklistActor = authority.actor || process.env.USER?.trim() || 'main-agent';
       const dispatchedRole = authority.entry;
+      assertNoReviewGateVerificationIntent('checklist_update', args.verificationIntent, args.itemId);
       const incomingHasPlannedDeclarations = verificationIntentHasPlannedPathDeclarations(args.verificationIntent);
       const isDispatchedVerificationIntentWriter = dispatchedRole?.roleClass === 'verification-intent'
         && authority.source === 'dispatched-env';
@@ -4093,6 +4095,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const headHash = currentGitHead(gitCwd);
         if (!headHash) throw new Error('AMENDMENT_HEAD_REQUIRED');
         const {intent, amendment} = createIntentAmendment({...args,item,sessionId:getSessionId(),leaseId:lease.leaseId,headHash,gitCwd});
+        assertNoReviewGateVerificationIntent('verification_intent_append', intent, args.itemId);
         assertEnglishAuthoringText('verification_intent_append', checklistEnglishAuthoringFields({verificationIntent:intent}, args.itemId));
         assertChecklistScopeChangeAllowed(store,args.storyId,{title:item.title,context:JSON.stringify(args.addition),excludes:item.excludes,itemId:item.id});
         item.verificationIntent = intent;

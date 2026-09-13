@@ -18,7 +18,7 @@ import { storyScopeBudgetBlocker } from '../core/story-scope-budget.js';
 
 import { assessPlanTouchpointCoverage, planOwnerCoverageFailure } from '../core/plan-touchpoint-coverage.js';
 import type { HandlerContext } from './context.js';
-import type { StoryInfo, ScopeContractData, VerificationIntentItem } from '../core/types.js';
+import type { StoryInfo, ScopeContractData } from '../core/types.js';
 import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
 import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
@@ -42,6 +42,9 @@ import {
 import { tryBuildMaterialClassificationSnapshotForDiagnostics, type MaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
+import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
+
+export { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 
 // B-7c05 CHK-004: RENDER-ONLY brief projection of the story_review result.
 //
@@ -101,32 +104,6 @@ export function decompositionAdvisoryIssues(
   if (cfg.mode === 'off') return [];
   const { advisories } = evaluateDecompositionGate(story, peers, contracts, cfg);
   return advisories.map((message) => ({ type: 'decomposition_advisory' as const, severity: 'advisory' as const, message }));
-}
-
-/**
- * REVIEW outcomes are lifecycle evidence, not acceptance evidence. Requiring a
- * reviewer verdict as a must verificationIntent makes DEV -> REVIEW depend on
- * evidence that the reviewer is only allowed to produce after that transition.
- * Keep the classifier deliberately narrow: product UI or CLI behavior that
- * happens to mention reviews/findings is still a legitimate verification target.
- */
-export function reviewGateVerificationIntentIssue(intent: VerificationIntentItem): {
-  type: 'review_gate_as_verification_intent';
-  severity: 'blocker';
-  message: string;
-} | null {
-  if ((intent.priority ?? 'must') !== 'must') return null;
-  const text = intent.desc.normalize('NFKC').toLowerCase();
-  const lifecycleReviewSubject = /\b(?:independent|external|peer|code|quality|security|test(?:[- ]coverage)?)\s+review(?:s|ers?)?\b|\breviewers?\s+(?:run|lane|pass|verdict|finding|record|report)|\breview\s+(?:runs?|lanes?|pass|verdict)\b|\breview_(?:run_start|pass_set)\b|\bfinding_add\b/.test(text);
-  const noOpenReviewProblems = /\b(?:no|zero|without)\s+(?:unresolved\s+)?(?:(?:critical|high)(?:\s+or\s+(?:critical|high))?\s+)?(?:blocking\s+)?(?:findings?|blockers?|issues?)\b/.test(text);
-  const formalReviewVerdict = /\b(?:pass|approve(?:d|s)?|approval)\s+verdict\b|\b(?:records?|reports?|produces?|returns?|has|gets?|receives?)\s+(?:a\s+)?(?:pass|approved|approval|verdict)\b|\breview\s+(?:runs?|lanes?)\s+pass(?:es|ed)?\b|\b(?:independent|external|peer|code|quality|security|test(?:[- ]coverage)?)\s+reviews?\s+pass(?:es|ed)?\b/.test(text);
-  const lifecycleOutcome = noOpenReviewProblems || formalReviewVerdict;
-  if (!lifecycleReviewSubject || !lifecycleOutcome) return null;
-  return {
-    type: 'review_gate_as_verification_intent',
-    severity: 'blocker',
-    message: 'A REVIEW lifecycle outcome cannot be a verificationIntent required before REVIEW. Remove this verificationIntent; independent reviewers record the lifecycle result with review_pass_set or finding_add after the Story enters REVIEW. Keep verificationIntent limited to product behavior that DEV can prove.',
-  };
 }
 
 /**
