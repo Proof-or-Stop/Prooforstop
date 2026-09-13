@@ -11,7 +11,7 @@ export async function prepareBenchmarkCheckout(sourceRoot) {
   const git=(cwd,args)=>{const r=spawnSync('git',args,{cwd,encoding:'utf8',timeout:120000,maxBuffer:8*1024*1024});assert.equal(r.status,0,r.stderr);return r.stdout.trim();};
   const head=git(sourceRoot,['rev-parse','HEAD']),branch=git(sourceRoot,['branch','--show-current']);assert.ok(branch);
   const sourceMain=verifyBuildBinding(sourceRoot),sourceUtils=verifyUtilsBuildBinding(sourceRoot);
-  const checkoutBase=path.join(homedir(),'Documents','top5-benchmark-checkouts');
+  const checkoutBase=path.join(homedir(),'Library','Caches','proof-or-stop-top5-benchmarks');
   mkdirSync(checkoutBase,{recursive:true});
   const parent=mkdtempSync(path.join(checkoutBase,'top5-checkout-')),root=path.join(parent,'repo');
   console.log('TOP5_CHECKOUT_PREPARING '+JSON.stringify({root,head}));
@@ -46,6 +46,8 @@ export async function prepareBenchmarkCheckout(sourceRoot) {
   assert.deepEqual(verifyBuildBinding(root),sourceMain,'main compiled bytes must match the candidate');
   assert.deepEqual(verifyUtilsBuildBinding(root),sourceUtils,'utils compiled bytes must match the candidate');
   assert.equal(git(sourceRoot,['rev-parse','HEAD']),head,'source candidate cannot change during preparation');
+  const preflight = spawnSync(process.execPath,['--input-type=module','-e',"const {createQuorumSmokeProtectedMutationGuard}=await import('./packages/main/dist/tasks/quorum-submit-smoke-worker.js');const g=createQuorumSmokeProtectedMutationGuard([process.cwd()]);await new Promise(r=>setTimeout(r,2000));const result=await g.close();console.log(JSON.stringify(result));if(!result.clean)process.exitCode=1;"],{cwd:root,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024});
+  assert.equal(preflight.status,0,'idle protected-root preflight: '+preflight.stdout.slice(0,2000)+preflight.stderr);
   console.log('TOP5_CHECKOUT_READY '+JSON.stringify({root,head,setupMs:performance.now()-started,independentDependencies:true,independentDist:true}));
   return root;
 }
