@@ -1,3 +1,27 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+
+// Deterministic internal-state unit controls, separate from the real native
+// lifecycle below. These maps/predicates create no reservation or authority.
+const retirementSource=readFileSync(new URL('../../packages/main/src/core/validation-reservation-delegation.ts',import.meta.url),'utf8');
+const retirementStart='  const retireReleasedGrants = () => {';
+const retirementEnd='  const drain = () => {';
+assert.equal(retirementSource.split(retirementStart).length,2);
+assert.equal(retirementSource.split(retirementEnd).length,2);
+const retirementBody=retirementSource.slice(retirementSource.indexOf(retirementStart),retirementSource.indexOf(retirementEnd));
+function retirementFixture({pending=false,registeredLive=false,subjectLive=false,connectedLeaf=false,single=false,branching=false}={}) {
+ const names=single?['a']:branching?['a','b','c','d']:['a','b','c'];
+ const active=new Map(names.map((id,i)=>[id,{grantId:id,parents:branching&&id==='d'?['a']:names.slice(0,i),disconnected:!(connectedLeaf&&id==='c'),terminal:true,subject:{pid:i+100,pgid:i+100},resources:null}]));
+ const context={active,pendingChildren:new Map(pending?[['pending',{parents:['a','b']}]]:[]),registered:new Map(registeredLive?[[101,{parents:['a','b'],pgid:777}]]:[]),grantTimers:new Map(),clearTimeout,groupGone:()=>!registeredLive,subjectGroupWorkPresent:(subject,terminal)=>{assert.equal(terminal,true);return subjectLive&&subject.pid===102;}};
+ return {active,retire:vm.runInNewContext(retirementBody+'\nretireReleasedGrants;',context)};
+}
+for(const [options,expected]of [[{},0],[{branching:true},0],[{pending:true},2],[{registeredLive:true},2],[{subjectLive:true},3],[{connectedLeaf:true},3],[{single:true},0]]) {
+ const fixture=retirementFixture(options);fixture.retire();
+ assert.equal(fixture.active.size,expected,'EXHAUSTED_DESCENDANTS_SINGLE_DRAIN '+JSON.stringify(options));
+}
+console.log('NESTED_RETIREMENT_ORDER_UNIT_CONTROLS PASS');
+
 // Source-only native protocol controls, embedded into the actual isolated worker.
 export function nestedReservationLifecycleProgram({loader, delegation, lock}) {
  return `
