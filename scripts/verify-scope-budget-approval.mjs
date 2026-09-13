@@ -11,7 +11,7 @@ import {createStoryScopeBudgetHandlers} from '../packages/main/dist/handlers/sto
 import {base,delta} from './verify-acceptance-amendment-delta.mjs';
 import {createAcceptanceAmendmentController} from '../packages/main/dist/core/acceptance-amendment-journal.js';
 import {deriveAcceptanceAmendment} from '../packages/main/dist/core/acceptance-amendment.js';
-import {readStoryScopeBudget} from '../packages/main/dist/core/story-scope-budget.js';
+import {readStoryScopeBudget,storyScopeBudgetBlocker} from '../packages/main/dist/core/story-scope-budget.js';
 
 const root=mkdtempSync(join(tmpdir(),'scope-budget-approval-'));
 const storyId='B-budget-approval',at=new Date().toISOString();
@@ -31,8 +31,10 @@ try {
   store.writeScopeContract(storyId,{storyId,mode:'enforce',allowedModify:['src/alpha/a.ts','src/beta/b.ts'],allowedCreate:[],allowedTest:[],protectedFiles:[],explicitExcludes:[],acknowledgements:[],createdAt:at,updatedAt:at});
   store.writeProofStoryContract(storyId,{schemaVersion:'proofstory.contract.v1',storyId,diagnosticOnly:true,hardeningLevel:'high_assurance',triggerReasons:[],acceptanceBindings:[],diagnosticGaps:[],createdAt:at,updatedAt:at});
   store.writeDevMemoryPreflightAck(storyId,{schemaVersion:'lattice.dev_memory_preflight_ack.v1',storyId,packDigest:'budget-approval-control',topHitIds:[],acknowledgedAt:at,acknowledgedBy:'fixture'});
+  const budgetAllows=()=>{const r=readStoryScopeBudget(store,root,storyId);assert.equal(storyScopeBudgetBlocker(store,root,storyId)===null,!r.blocking);return !r.blocking;};
   const handlers=createStoryScopeBudgetHandlers({store,root});
-  assert.equal(canStartDevGuard(context),false,'over-budget scope initially blocks');
+  assert.equal(canStartDevGuard(context),false,'over-budget scope initially blocks DEV');
+  assert.equal(budgetAllows(),false,'over-budget scope initially blocks');
   assert.equal(typeof handlers.scope_budget_approve,'function','U06 explicit large Story approval must be available without widening policy');
   const report=JSON.parse(handlers.scope_budget_check({storyId,json:true}));
   const args={storyId,ack:true,bindingDigest:report.bindingDigest,confirmationToken:`APPROVE LARGE STORY ${storyId} ${report.bindingDigest}`,
@@ -53,19 +55,19 @@ try {
   delete process.env.PROOF_OR_STOP_AGENT;
   const accepted=JSON.parse(handlers.scope_budget_approve(args));
   assert.equal(accepted.decision.kind,'human-large-story');
-  assert.equal(canStartDevGuard(context),true,'current signed approval allows large scope without raising the limit');
+  assert.equal(budgetAllows(),true,'current signed approval allows large scope without raising the limit');
   assert.equal(config.storyScopeBudget.limits.responsibilityDomains,1);
   const journal=store.readScopeBudgetDecisions(storyId);
   assert.deepEqual(JSON.parse(handlers.scope_budget_approve(args)).decision,accepted.decision,'exact acknowledgement retry is idempotent');
   const forged=structuredClone(journal);forged.decisions[0].reason='caller changed signed authority';store.writeScopeBudgetDecisions(storyId,forged);
-  assert.equal(canStartDevGuard(context),false,'tampered decision cannot authorize DEV');
+  assert.equal(budgetAllows(),false,'tampered decision cannot authorize DEV');
   store.writeScopeBudgetDecisions(storyId,journal);
   const scope=store.readScopeContract(storyId);scope.allowedModify.push('src/alpha/new.ts');store.writeScopeContract(storyId,scope);
-  assert.equal(canStartDevGuard(context),false,'changed scope invalidates the approval even within the same domains');
+  assert.equal(budgetAllows(),false,'changed scope invalidates the approval even within the same domains');
   scope.allowedModify.pop();store.writeScopeContract(storyId,scope);
-  assert.equal(canStartDevGuard(context),true,'exact original subject retains its valid approval');
+  assert.equal(budgetAllows(),true,'exact original subject retains its valid approval');
   const clock=Date.now;
-  try {Date.now=()=>Date.parse(accepted.decision.expiresAt)+1;assert.equal(canStartDevGuard(context),false,'expired approval is not authority');}
+  try {Date.now=()=>Date.parse(accepted.decision.expiresAt)+1;assert.equal(budgetAllows(),false,'expired approval is not authority');}
   finally {Date.now=clock;}
   const amendmentConfig=structuredClone(config);
   amendmentConfig.storyScopeBudget.responsibilities=[{id:'addition',paths:['src/**','tests/**'],hostAdapters:[],validationGroups:[]}];

@@ -208,6 +208,10 @@ async function main() {
   for (const field of ['approvalLifetimeMs', 'agentEnvironmentMarkers']) {
     check(registrySource.includes('SCOPE_BUDGET_DECISION_RUNTIME_POLICY') && scopeDecision.includes(`SCOPE_BUDGET_DECISION_RUNTIME_POLICY.${field}`), `scope decision runtime policy must consume ${field}`);
   }
+  const scopeContinuity = read(root, 'packages/main/src/core/scope-approval-continuity.ts');
+  for (const field of ['continuityHistoryCommits', 'continuityGitTimeoutMs', 'continuityGitOutputBytes', 'continuityTotalGitCommands', 'continuityTotalGitBytes', 'continuityTotalMs']) {
+    check(registrySource.includes(field) && scopeContinuity.includes(`policy.${field}`), `scope continuity must consume registered ${field}`);
+  }
   check(registrySource.includes('KEYED_SCHEDULER_RUNTIME_POLICY')
     && read(root, 'packages/main/src/core/keyed-scheduler.ts').includes('KEYED_SCHEDULER_RUNTIME_POLICY.blockedCancellationPollMs'),
   'scheduler coordination scope and cancellable wait cadence must be registered and consumed');
