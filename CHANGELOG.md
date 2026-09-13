@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab identity-main352-closure - v0.3.353 - 2026-09-13
+
+Restore the reviewed identity bindings that became stale on local main d788f9a. The bounded repair preserves existing source and fixture contexts and classification semantics, refreshes exact provenance-backed hashes and positions, and adds separately verified negative causal-origin and disposable review-response context coverage. The original six-context digest and original 89 compatibility rows remain protected; the new rows receive exact-context and mutation checks. No production gate behavior or validation budgets change.
+
+The official RED reproduced seven stale source bindings. The exact pinned verifier subsequently passed (official GREEN wrapper 1.821793 seconds). At committed candidate 776200ab7977dd5069ecc3b8c2cb42825a2b4ad6, scanner self-test passed in 21.359952 seconds and static verification passed in 1.548393 seconds. These are execution observations, not a claimed performance improvement.
+
+Full identity scanning remains non-green on inherited main residues. An external read-only diagnostic of the unchanged active-residue function compared exact baseline and candidate: 74 versus 52 tuples, zero added tuples. All remaining 52 are explicitly retained; this Lab does not expand into their cleanup or claim full repository success. Exact provenance, residue comparison and supplemental command logs are preserved in /tmp/B-e6d9-identity-main352-closure. This authorized local Lab integration is not Story B-e6d9 DONE or remote release.
+
+Maintenance provenance: codex/lab-identity-main352-closure, repair 776200ab7977dd5069ecc3b8c2cb42825a2b4ad6.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab route-reader-regression - v0.3.352 - 2026-09-13
 
 The four-gaps regression now checks the real registry-to-adapter reader composition while retaining projection consumption and the direct-import boundary. Seven live mutation cases cover both registry compositions, adapter-body substitution, route consumption, projection consumption, and alternate static/dynamic imports. The fixed historical callback illustrates former loose behavior; committed RED records remain the historical evidence, and no runtime Git-provenance claim is made.
