@@ -1648,7 +1648,15 @@
           "excerpt": "  store: StoryStore;\n  storyId: string;\n  agent: string;\n  reviewRunId: string;\n  command: 'review_pass_set' | 'finding_add';\n  payload: Record<string, unknown>;\n  /** Test-only process controls; broker identity and descriptor remain authoritative. */\n  env?: NodeJS.ProcessEnv;\n}): Promise<string> {\n  const invocation = fixtureInvocation(args);\n  return new Promise<string>((resolvePromise, reject) => {\n    const child = spawn(process.execPath, [CLI, args.command, JSON.stringify(args.payload)], {\n      cwd: args.root,\n      env: {\n        ...sanitizedFixtureChildEnvironment({ ...process.env, ...args.env }),\n        ...invocation.env,\n        LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '3',\n      },\n      stdio: ['ignore', 'pipe', 'pipe', 'pipe'],\n    });"
         },
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors.",
-        "2026-09-12 conservative union: former EX-1032 is absorbed into EX-0061 without losing its config index 0, six invocation forms, dependency closure or evidence. Same ordinary CLI call; the stable existing ID is retained. No duplicate-key lookup assumption is needed."
+        "2026-09-12 conservative union: former EX-1032 is absorbed into EX-0061 without losing its config index 0, six invocation forms, dependency closure or evidence. Same ordinary CLI call; the stable existing ID is retained. No duplicate-key lookup assumption is needed.",
+        "The registered route driver additionally executes the exact canonical-new-story-artifacts identity-sites group, whose source/emitted totality and context-mutation assertions are required. This supplements proof coverage and grants no new child-execution exception or identity exemption. Original native/history/process/static controls and shared budget remain required.",
+        {
+          "file": "scripts/verify-route-reader-regression.mjs",
+          "startLine": 1,
+          "endLine": 84,
+          "sourceDigest": "46e46f4a4132ec0f821cf8d9dede234b933f4164eec7254d79846356acf4ecfb",
+          "excerpt": "import './verify-verification-timeout-diagnostics.mjs';\nimport assert from 'node:assert/strict';\nimport { readFileSync } from 'node:fs';\nimport { createHash } from 'node:crypto';\nimport { createRequire } from 'node:module';\nimport { resolve } from 'node:path';\nimport { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';\n\nconst root = resolve(import.meta.dirname, '..');\nconst require = createRequire(resolve(root, 'package.json'));\nconst ts = require('typescript');\nconst suitePath = 'scripts/verify-route-reattestation-dependency-direction.mjs';\nconst registered = readFileSync(resolve(root, suitePath), 'utf8');\nfunction verifyRegistration(text) {\n  const tree = ts.createSourceFile(suitePath, text, ts.ScriptTarget.Latest, true);\n  assert(tree.statements.some(node => ts.isImportDeclaration(node)\n    && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs'\n    && node.importClause?.namedBindings?.elements?.some(binding => binding.name.text === 'verifyRouteReaderWiring'\n      && !binding.propertyName)), 'ROUTE_READER_REGISTERED_MUTATION_RED suite must import actual helper');\n  assert(tree.statements.some(node => ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)\n    && node.expression.expression.getText(tree) === 'verifyRouteReaderWiring' && node.expression.arguments.length === 0),\n    'ROUTE_READER_REGISTERED_MUTATION_RED suite must execute actual helper');\n}\nverifyRegistration(registered);\nconst parsed = ts.createSourceFile(suitePath, registered, ts.ScriptTarget.Latest, true);\nfor (const node of parsed.statements.filter(node =>\n  (ts.isImportDeclaration(node) && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs')\n  || (ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)\n    && node.expression.expression.getText(parsed) === 'verifyRouteReaderWiring'))) {\n  assert.throws(() => verifyRegistration(registered.slice(0, node.getStart(parsed)) + registered.slice(node.end)),\n    /ROUTE_READER_REGISTERED_MUTATION_RED/, 'removing either import or invocation must be refused independently');\n}\nconst scripts = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).scripts;\nassert.equal(scripts['test:route-reattestation-dependency-direction'], 'node scripts/verify-route-reader-regression.mjs',\n  'ROUTE_READER_CONSOLIDATED_RED existing registered entry must execute durable driver');\nassert(scripts['test:serial-reference'].split(' && ').includes('npm run test:route-reattestation-dependency-direction'));\nconst closure = JSON.parse(readFileSync(resolve(root, 'scripts/lab/u18-static-edges/exceptions.json'), 'utf8')).entries\n  .filter(entry => entry.dependencyDigests?.['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs']);\nassert.equal(closure.length, 4, 'reviewed four-gaps dependency closure must remain complete');\nfor (const file of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs',\n  'scripts/verify-verification-timeout-diagnostics.mjs', 'scripts/verify-route-reattestation-dependency-direction.mjs',\n  'scripts/verification-subprocess-budget.mjs', 'packages/main/tests/canonical-new-story-artifacts.test.mjs',\n  'scripts/verify-proof-or-stop-identity-cutover.mjs',\n  'scripts/verify-proof-or-stop-pack-boundary.mjs',\n  'packages/main/tests/support/active-identity-operation-ownership.mjs',\n  'packages/main/tests/support/private-mutation-observer.mjs',\n  'scripts/verify-acceptance-amendment-delta.mjs',\n  'scripts/identity-maintenance-boundaries.mjs',\n  'scripts/identity-child-closure.mjs',\n  'scripts/identity-child-contract.json',\n  'packages/main/src/core/store.ts',\n  'packages/main/src/core/causal-evidence.ts',\n  'packages/main/src/core/runtime-environment-checks.ts',\n  ...['source', 'json', 'fixture'].flatMap(kind => [`scripts/identity-reviewed-${kind}-contexts.mjs`, `scripts/identity-reviewed-${kind}-data.json`])]) {\n  const digest = createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex');\n  assert(closure.every(entry => entry.dependencyDigests[file] === digest), 'route verifier helper dependency must match current source: ' + file);\n}\nconsole.log('ROUTE_READER_REGISTRATION PASS independent import/call removal controls');\n\n// Keep the existing suite's native/history/contract children and budgets intact.\n// The registered suite is run once; this driver adds no duplicate native modes.\nconst spawnSync = prepareVerification(root, { shareBuild: true, bodyBudgetMs: 600000 });\nfor (const [path, timeout, selector, args = []] of [\n  ['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs', 180000, ['DYNAMIC_FINDING_FOUR_GAPS PASS']],\n  ['packages/main/tests/canonical-new-story-artifacts.test.mjs', 180000, ['GREEN B-49df: identity-sites group pass.'], ['--group=identity-sites']],\n  [suitePath, 600000, ['ROUTE_DIRECTION_NATIVE_GREEN', 'ROUTE_READER_WIRING_MUTATIONS PASS']],\n  ['scripts/verify-validation-static-edges.mjs', 180000, ['U18_STATIC_PASS']],\n]) {\n  let result;\n  try {\n    result = spawnSync(process.execPath, [path, ...args], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 32 * 1024 * 1024 });\n  } catch (error) {\n    process.stderr.write(verificationFailureMessage('route verification child', error) + '\\n');\n    throw error;\n  }\n  const output = (result.stdout ?? '') + (result.stderr ?? '');\n  process.stdout.write(output);\n  assert.equal(result.error, undefined, 'child execution must complete');\n  assert.equal(result.signal, null, 'child execution must not be signaled');\n  assert.equal(result.status, 0, path + ' must preserve existing controls');\n  for (const required of selector) assert(output.includes(required), path + ' must report ' + required);\n}\nconsole.log('ROUTE_READER_REGRESSION_GREEN registered full suite, current builds and static evidence passed');\n"
+        }
       ],
       "dependencyDigests": {
         "package-lock.json": "dcf34786630707c7ea2a7685540ae1304a8dbdc30384eca2588442c59e755f0d",
@@ -1692,7 +1700,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/data/finding-identity-gold-set.mjs": "b61fbd4d056dcca4a4a7244455411ebd0e45f2cde81a5d8e8ffdef8a2baf6fe2",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
@@ -4972,7 +4980,7 @@
       "reason": "Adds actual proposal canonical-journal consumer matrix and zero-write rejection; default verifier is run once, disposable clones use boundary-only with no full claim. Current implementation author fixture replaces unavailable historical object without dropping critic cases. Mode-aware source contract preserves original negatives.",
       "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:124:spawnSync",
       "callDigest": "7fbb709a080d20459325e003473d66562fa0268f79e547d9cbc83d44a2036c07",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -4995,7 +5003,7 @@
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
           "startLine": 122,
           "endLine": 132,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "\nfunction runCli(root, command, payload, env = {}, options = {}) {\n  return spawnSync(process.execPath, [options.entrypoint ?? cliPath, '--root', root, command, JSON.stringify(payload)], {\n    cwd: options.cwd ?? root,\n    encoding: 'utf8',\n    // A real source-lineage audit can emit several thousand structured records;\n    // bound capture explicitly instead of killing a valid CLI at Node's 1 MiB default.\n    maxBuffer: 32 * 1024 * 1024,\n    env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'sess-b49df-fixture', PROOF_OR_STOP_ACTIVITY_SOURCE: 'test', ...(command === 'acceptance_amendment_propose' ? { PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex' } : {}), ...env },\n  });\n}"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 7fbb709a080d20459325e003473d66562fa0268f79e547d9cbc83d44a2036c07 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5014,7 +5022,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5047,14 +5055,14 @@
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
           "startLine": 2224,
           "endLine": 2234,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "    writeFileSync(measurementBaselinePath, `${JSON.stringify(mutant, null, 2)}\\n`);\n    const beforeVerify = snapshotPublicOperationState(measurementRoot, ['B-49df']);\n    const rejected = spawnSync('npm', ['run', 'test:proof-or-stop-prompt-baseline'], {\n      cwd: measurementRoot,\n      encoding: 'utf8',\n      maxBuffer: 64 * 1024 * 1024,\n      env: { ...process.env, PROOF_OR_STOP_SESSION_ID: 'sess-b49df-measurement-public' },\n    });\n    assert.notEqual(rejected.status, 0, `${label}: public prompt-baseline verifier accepted retired identity`);\n    assert.match(\n      `${rejected.stdout}${rejected.stderr}`,"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 23a17520352b3795718911973d51941cd40853ef33f75a9adb16df9f1e370062 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
       "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:2226:spawnSync",
       "callDigest": "23a17520352b3795718911973d51941cd40853ef33f75a9adb16df9f1e370062",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -5072,7 +5080,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5114,14 +5122,14 @@
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
           "startLine": 2323,
           "endLine": 2333,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "    const canonicalLedgerBytes = existsSync(ledgerPath) ? readFileSync(ledgerPath) : Buffer.from('');\n    writeFileSync(ledgerPath, `${canonicalLedgerBytes.toString('utf8')}${JSON.stringify({ schemaVersion: releaseWriter.retiredSchema })}\\n`);\n    const injectedVerifier = spawnSync(process.execPath, [verifier.verifierPath], { cwd: verifier.root, encoding: 'utf8' });\n    assert.notEqual(injectedVerifier.status, 0, `${releaseWriter.label}: injected retired boundary left the verifier green`);\n    assert.match(\n      `${injectedVerifier.stdout}${injectedVerifier.stderr}`,\n      /retired|proofbound|unsupported|unexpected|pinned|provenance|allowlist/i,\n      `${releaseWriter.label}: verifier did not identify the injected retired boundary: ${injectedVerifier.stdout}${injectedVerifier.stderr}`,\n    );\n    const beforeWrite = snapshotPublicOperationState(verifier.root, ['B-49df']);\n    const gitCalls = [];"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 5f158a47f18ef3c840d5f004c2de1205ba2b02c606dc7a3cef485567a1d118bd is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
       "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:2325:spawnSync",
       "callDigest": "5f158a47f18ef3c840d5f004c2de1205ba2b02c606dc7a3cef485567a1d118bd",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -5139,7 +5147,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5176,9 +5184,9 @@
       "id": "EX-1007",
       "kind": "REVIEWED_MODE_BOUND_FIXTURE",
       "reason": "Adds actual proposal canonical-journal consumer matrix and zero-write rejection; default verifier is run once, disposable clones use boundary-only with no full claim. Current implementation author fixture replaces unavailable historical object without dropping critic cases. Mode-aware source contract preserves original negatives.",
-      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4032:spawnSync",
+      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4075:spawnSync",
       "callDigest": "2d61bc08d07bb4b870471eae2d5f9542fb71c6a54beec96cab1abe2122660507",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -5193,9 +5201,9 @@
       "requiredEvidence": [
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-          "startLine": 4030,
-          "endLine": 4040,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "startLine": 4073,
+          "endLine": 4083,
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "let identityVerifierResult = null;\nfunction runIdentityVerifier() {\n  identityVerifierResult ??= spawnSync(process.execPath, [join(repoRoot, 'scripts/verify-proof-or-stop-identity-cutover.mjs')], {\n    cwd: repoRoot,\n    encoding: 'utf8',\n  });\n  return identityVerifierResult;\n}\n\nawait check(['identity-cutover'], 'complete identity certification includes real runtime and package witnesses once', () => {\n  const result = runIdentityVerifier();"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 2d61bc08d07bb4b870471eae2d5f9542fb71c6a54beec96cab1abe2122660507 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5214,7 +5222,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5242,9 +5250,9 @@
       "id": "EX-1008",
       "kind": "REVIEWED_MODE_BOUND_FIXTURE",
       "reason": "Adds actual proposal canonical-journal consumer matrix and zero-write rejection; default verifier is run once, disposable clones use boundary-only with no full claim. Current implementation author fixture replaces unavailable historical object without dropping critic cases. Mode-aware source contract preserves original negatives.",
-      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4104:spawnSync",
+      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4147:spawnSync",
       "callDigest": "7d4910f6fbc0c7b8a4bd985b9a5a7442ff87ee5ec4735df475ba14310860a29e",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -5259,9 +5267,9 @@
       "requiredEvidence": [
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-          "startLine": 4104,
-          "endLine": 4104,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "startLine": 4147,
+          "endLine": 4147,
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "  const verifier = spawnSync(process.execPath, [verifierPath, '--boundary-only'], { cwd: root, encoding: 'utf8' });"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 7d4910f6fbc0c7b8a4bd985b9a5a7442ff87ee5ec4735df475ba14310860a29e is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5280,7 +5288,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5350,7 +5358,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5420,7 +5428,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5490,7 +5498,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5554,7 +5562,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5618,7 +5626,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5682,7 +5690,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5746,7 +5754,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5810,7 +5818,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5836,9 +5844,9 @@
     },
     {
       "id": "EX-0240",
-      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4627:spawnSync",
+      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4670:spawnSync",
       "callDigest": "144a8bf685d90b3833774981bcaadaa22388a5343c7d06984c5a94ff9acde39e",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -5851,9 +5859,9 @@
         "standalone dev-memory calls same property unconditionally",
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-          "startLine": 4625,
-          "endLine": 4635,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "startLine": 4668,
+          "endLine": 4678,
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "// Keep its focused memory-identity and unfiltered reference entrypoints intact.\nawait check(['memory-identity'], 'CHK-007 finish-decision unsupported identity diagnostics reach the real DONE guard and oracle [CHK-007:adversarial:0] [CHK-007:edge:0]', () => {\n  const result = spawnSync(process.execPath, [join(distRoot, 'tasks/dev-memory-lifecycle-gates-smoke.js'), '--finish-schema-only'],\n    { cwd: repoRoot, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });\n  assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);\n  assert.match(result.stdout, /finish-decision identity diagnostic smoke passed:/);\n});\n\nawait check(['memory-identity'], 'normal memory selection excludes retired identities while audit bytes stay immutable', async () => {\n  const memory = await import('../dist/core/dev-memory.js');\n  const runtime = await import('../dist/core/playbook-runtime-memory.js');"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 144a8bf685d90b3833774981bcaadaa22388a5343c7d06984c5a94ff9acde39e is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5872,7 +5880,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5913,14 +5921,14 @@
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
           "startLine": 919,
           "endLine": 929,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "await check(['runtime'], 'CHK-003:happy:1 process/runtime verifiers pin the registry-derived pre-hook choke point', () => {\n  for (const script of ['scripts/verify-process-fact-contract.mjs', 'scripts/verify-runtime-fact-contract.mjs']) {\n    const result = spawnSync(process.execPath, [join(repoRoot, script), ...(script.includes('process') ? ['--quiet'] : [])], {\n      cwd: repoRoot,\n      encoding: 'utf8',\n    });\n    assert.equal(result.status, 0, `${script}\\n${result.stdout}${result.stderr}`);\n  }\n});\n\nawait check(['runtime'], 'CHK-003 external installed-package consumers remain outside the self-host rejection', () => {"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest f6dbf2ec6babe329e0cd77ce56b776e7135bca172af5f5e5d2230e3c0127bc7f is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
       "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:921:spawnSync",
       "callDigest": "f6dbf2ec6babe329e0cd77ce56b776e7135bca172af5f5e5d2230e3c0127bc7f",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -5938,7 +5946,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -5980,14 +5988,14 @@
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
           "startLine": 956,
           "endLine": 958,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "    const pack = spawnSync('npm', ['pack', '--silent', productRoot, '--pack-destination', consumerRoot], {\n      cwd: consumerRoot, encoding: 'utf8', env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false', npm_config_cache: npmCache },\n    });"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 2112e14c657f1d73f80bdcadca9e4b3ac49b48839df48e80bc50f7909aaa8171 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
       "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:956:spawnSync",
       "callDigest": "2112e14c657f1d73f80bdcadca9e4b3ac49b48839df48e80bc50f7909aaa8171",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -6005,7 +6013,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6047,14 +6055,14 @@
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
           "startLine": 967,
           "endLine": 969,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "  const installed = spawnSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--offline', '--omit=optional', '--package-lock=false', '--install-strategy=nested', ...tarballs], {\n    cwd: consumerRoot, encoding: 'utf8', env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false', npm_config_cache: npmCache },\n  });"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 936ce4f001ffcfaae365e5901e847822704c0bbf42cff33baf5a333c3a585381 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
       "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:967:spawnSync",
       "callDigest": "936ce4f001ffcfaae365e5901e847822704c0bbf42cff33baf5a333c3a585381",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -6072,7 +6080,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6112,16 +6120,16 @@
         "runtime group only; offline synthetic-story-writer-partial-runtime-admission mutation must reject.",
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-          "startLine": 3954,
-          "endLine": 3963,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "startLine": 3997,
+          "endLine": 4006,
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "\nawait check(['runtime'], 'CHK-003:adversarial:1 synthetic writer omitted by partial admission makes contract verifier fail', () => {\n  const result = spawnSync(process.execPath, [join(repoRoot, 'scripts/verify-process-fact-contract.mjs'), '--quiet'], {\n    cwd: repoRoot,\n    encoding: 'utf8',\n    env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: 'synthetic-story-writer-partial-runtime-admission' },\n  });\n  assert.notEqual(result.status, 0, 'mutated partial admission contract must fail');\n  assert.match(`${result.stdout}${result.stderr}`, /actual Story-write capability|Story runtime admission|coverage must derive from the effective ownership registry/i);\n});"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 1d4a1e7117d0762904c6f8afe838dce73ef70b44f42b66c3cb93b5fe398f67bd is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
-      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3956:spawnSync",
+      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3999:spawnSync",
       "callDigest": "1d4a1e7117d0762904c6f8afe838dce73ef70b44f42b66c3cb93b5fe398f67bd",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -6139,7 +6147,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6179,16 +6187,16 @@
         "runtime group only; offline omitted writer inventory mutation must name every missing writer.",
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-          "startLine": 3965,
-          "endLine": 3975,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "startLine": 4008,
+          "endLine": 4018,
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "await check(['runtime'], 'F-013/F-014 omitting any current Story writer makes the contract verifier fail', () => {\n  assert.ok(STORY_WRITE_CAPABILITY_COMMANDS.length > 0, 'current Story writer inventory must not be empty');\n  const result = spawnSync(process.execPath, [join(repoRoot, 'scripts/verify-process-fact-contract.mjs'), '--quiet'], {\n    cwd: repoRoot,\n    encoding: 'utf8',\n    env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_OMIT_STORY_WRITER: '*' },\n  });\n  assert.notEqual(result.status, 0, 'omitting the current Story-write capability inventory must fail');\n  const output = `${result.stdout}${result.stderr}`;\n  for (const command of STORY_WRITE_CAPABILITY_COMMANDS) {\n    assert.match(output, new RegExp(`Story-write capability registry missing ${command}`, 'i'));"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest d9dd96995de4ec47bacce10ca414afc12e96a5a1e9489cb6ccfec6624d37f3bc is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
-      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3967:spawnSync",
+      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4010:spawnSync",
       "callDigest": "d9dd96995de4ec47bacce10ca414afc12e96a5a1e9489cb6ccfec6624d37f3bc",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -6206,7 +6214,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6246,16 +6254,16 @@
         "runtime group only; offline omit-direct-story-writer-effects mutation must identify agent_prompt/evaluate.",
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-          "startLine": 3978,
-          "endLine": 3988,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "startLine": 4021,
+          "endLine": 4031,
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "\nawait check(['runtime'], 'F-015 direct handler Story writes cannot escape the policy-derived inventory', () => {\n  const result = spawnSync(process.execPath, [join(repoRoot, 'scripts/verify-process-fact-contract.mjs'), '--quiet'], {\n    cwd: repoRoot,\n    encoding: 'utf8',\n    env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: 'omit-direct-story-writer-effects' },\n  });\n  assert.notEqual(result.status, 0, 'removing direct handler Story-write effects must fail');\n  const output = `${result.stdout}${result.stderr}`;\n  assert.match(output, /direct Story-writing handler agent_prompt is absent from the capability inventory/i);\n  assert.match(output, /direct Story-writing handler evaluate is absent from the capability inventory/i);"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 530dc1929c61fb62d45fc2a45069ec4b257c68b6008b0317bedad5dd5d2aada0 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
-      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3980:spawnSync",
+      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4023:spawnSync",
       "callDigest": "530dc1929c61fb62d45fc2a45069ec4b257c68b6008b0317bedad5dd5d2aada0",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -6273,7 +6281,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6313,16 +6321,16 @@
         "runtime group only; offline dispatch omission mutation must identify transitive writer.",
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-          "startLine": 3990,
-          "endLine": 3999,
-          "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+          "startLine": 4033,
+          "endLine": 4042,
+          "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
           "excerpt": "\nawait check(['runtime'], 'F-017 transitive helper Story writes cannot escape the policy-derived inventory', () => {\n  const result = spawnSync(process.execPath, [join(repoRoot, 'scripts/verify-process-fact-contract.mjs'), '--quiet'], {\n    cwd: repoRoot,\n    encoding: 'utf8',\n    env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_OMIT_STORY_WRITER: 'dispatch' },\n  });\n  assert.notEqual(result.status, 0, 'omitting a transitive helper Story writer must fail');\n  assert.match(`${result.stdout}${result.stderr}`, /transitive Story-writing handler dispatch is absent from the capability inventory/i);\n});"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest d3aa16a0963d138ceccc85590c91627b5e7869c9912bc329afe380322f068c22 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
       ],
-      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:3992:spawnSync",
+      "key": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4035:spawnSync",
       "callDigest": "d3aa16a0963d138ceccc85590c91627b5e7869c9912bc329afe380322f068c22",
-      "sourceDigest": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+      "sourceDigest": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
       "configIndexes": [
         147
       ],
@@ -6340,7 +6348,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6412,7 +6420,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6475,7 +6483,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6538,7 +6546,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6601,7 +6609,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6666,7 +6674,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6729,7 +6737,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6795,7 +6803,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6866,7 +6874,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -6938,7 +6946,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -7003,7 +7011,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -7068,7 +7076,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -7134,7 +7142,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -7199,7 +7207,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -7264,7 +7272,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -7330,7 +7338,7 @@
         "packages/main/tests/artifact-schema-migration.test.mjs": "f8fc062c976d719f418e44df0535d65634fdd65c4df5fcb80e4eff1793ee3216",
         "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "62fff7845ae675d28a583aca2aa49fcee1af7e56c8d61bbf96743a132d9aeae1",
         "packages/main/tests/brand-role-migration.test.mjs": "6f071e656feca9ab2a4f6e5208023f0c89538fda00613e3e61f407c715d213de",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "packages/main/tests/legacy-role-alias-sunset.test.mjs": "399506981692f1fd53815b2a87f189f1f4d39d756262e852773e825937249856",
         "packages/main/tests/managed-marker-migration.test.mjs": "ac923854f781ab1a96ad1430b4234531df5811aa64200cd35e6cdfe5e50950e9",
         "packages/main/tests/prompt-role-migration.test.mjs": "64d8b8595ea8803596857eafe06b9f95a212ed86978ca4407748ebbac680ce30",
@@ -10446,6 +10454,14 @@
           "endLine": 52,
           "sourceDigest": "5a1232af7d0e9d216207b3bd11908081452b5786bb70ff06119ceaa914ef4997",
           "excerpt": "const MARKER = '--isolated-finding-fixture-worker';\nexport async function runIsolatedFindingFixture(entry: string): Promise<boolean> {\n  if (process.argv.includes(MARKER)) return false;\n  const file = fileURLToPath(entry);\n  if (!['dynamic-finding-runtime-integration-smoke.js', 'finding-material-reattestation-smoke.js', 'evidence-state-gate-smoke.js',\n    'finding-qualification-independence-smoke.js', 'finding-pre-existing-e2e-smoke.js', 'finding-identity-lineage-smoke.js', 'reviewer-batch-smoke.js', 'verify-convergence-certification-consumption.mjs', 'verify-native-critic-dispatch-purpose.mjs', 'verify-review-epoch-certification-continuity.mjs'].some(name => file.endsWith('/' + name))) {\n    throw new Error('isolated Finding fixture entry is not allowlisted');\n  }\n  const scratch = mkdtempSync(join(tmpdir(), 'dfec-native-worker-'));\n  const output = join(scratch, 'output.log'); const outcome = join(scratch, 'outcome.json');\n  const fd = openSync(output, 'w', 0o600);\n  let workerPid: number | undefined;\n  const code = `import {writeFileSync,renameSync} from 'node:fs';\nconst launcher = Number(process.argv[1]);\nwhile (process.ppid === launcher) await new Promise(resolve => setTimeout(resolve, 10));\nprocess.argv.push(...${JSON.stringify(process.argv.slice(2))}, ${JSON.stringify(MARKER)});\nlet code = 0;\ntry { await import(${JSON.stringify(entry)}); code = Number(process.exitCode || 0); }\ncatch (error) { console.error(error); code = 1; }\nwriteFileSync(${JSON.stringify(outcome + '.pending')}, JSON.stringify({code}));\nrenameSync(${JSON.stringify(outcome + '.pending')}, ${JSON.stringify(outcome)});\nprocess.exit(code);`;"
+        },
+        "The registered route driver additionally executes the exact canonical-new-story-artifacts identity-sites group, whose source/emitted totality and context-mutation assertions are required. This supplements proof coverage and grants no new child-execution exception or identity exemption. Original native/history/process/static controls and shared budget remain required.",
+        {
+          "file": "scripts/verify-route-reader-regression.mjs",
+          "startLine": 1,
+          "endLine": 84,
+          "sourceDigest": "46e46f4a4132ec0f821cf8d9dede234b933f4164eec7254d79846356acf4ecfb",
+          "excerpt": "import './verify-verification-timeout-diagnostics.mjs';\nimport assert from 'node:assert/strict';\nimport { readFileSync } from 'node:fs';\nimport { createHash } from 'node:crypto';\nimport { createRequire } from 'node:module';\nimport { resolve } from 'node:path';\nimport { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';\n\nconst root = resolve(import.meta.dirname, '..');\nconst require = createRequire(resolve(root, 'package.json'));\nconst ts = require('typescript');\nconst suitePath = 'scripts/verify-route-reattestation-dependency-direction.mjs';\nconst registered = readFileSync(resolve(root, suitePath), 'utf8');\nfunction verifyRegistration(text) {\n  const tree = ts.createSourceFile(suitePath, text, ts.ScriptTarget.Latest, true);\n  assert(tree.statements.some(node => ts.isImportDeclaration(node)\n    && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs'\n    && node.importClause?.namedBindings?.elements?.some(binding => binding.name.text === 'verifyRouteReaderWiring'\n      && !binding.propertyName)), 'ROUTE_READER_REGISTERED_MUTATION_RED suite must import actual helper');\n  assert(tree.statements.some(node => ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)\n    && node.expression.expression.getText(tree) === 'verifyRouteReaderWiring' && node.expression.arguments.length === 0),\n    'ROUTE_READER_REGISTERED_MUTATION_RED suite must execute actual helper');\n}\nverifyRegistration(registered);\nconst parsed = ts.createSourceFile(suitePath, registered, ts.ScriptTarget.Latest, true);\nfor (const node of parsed.statements.filter(node =>\n  (ts.isImportDeclaration(node) && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs')\n  || (ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)\n    && node.expression.expression.getText(parsed) === 'verifyRouteReaderWiring'))) {\n  assert.throws(() => verifyRegistration(registered.slice(0, node.getStart(parsed)) + registered.slice(node.end)),\n    /ROUTE_READER_REGISTERED_MUTATION_RED/, 'removing either import or invocation must be refused independently');\n}\nconst scripts = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).scripts;\nassert.equal(scripts['test:route-reattestation-dependency-direction'], 'node scripts/verify-route-reader-regression.mjs',\n  'ROUTE_READER_CONSOLIDATED_RED existing registered entry must execute durable driver');\nassert(scripts['test:serial-reference'].split(' && ').includes('npm run test:route-reattestation-dependency-direction'));\nconst closure = JSON.parse(readFileSync(resolve(root, 'scripts/lab/u18-static-edges/exceptions.json'), 'utf8')).entries\n  .filter(entry => entry.dependencyDigests?.['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs']);\nassert.equal(closure.length, 4, 'reviewed four-gaps dependency closure must remain complete');\nfor (const file of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs',\n  'scripts/verify-verification-timeout-diagnostics.mjs', 'scripts/verify-route-reattestation-dependency-direction.mjs',\n  'scripts/verification-subprocess-budget.mjs', 'packages/main/tests/canonical-new-story-artifacts.test.mjs',\n  'scripts/verify-proof-or-stop-identity-cutover.mjs',\n  'scripts/verify-proof-or-stop-pack-boundary.mjs',\n  'packages/main/tests/support/active-identity-operation-ownership.mjs',\n  'packages/main/tests/support/private-mutation-observer.mjs',\n  'scripts/verify-acceptance-amendment-delta.mjs',\n  'scripts/identity-maintenance-boundaries.mjs',\n  'scripts/identity-child-closure.mjs',\n  'scripts/identity-child-contract.json',\n  'packages/main/src/core/store.ts',\n  'packages/main/src/core/causal-evidence.ts',\n  'packages/main/src/core/runtime-environment-checks.ts',\n  ...['source', 'json', 'fixture'].flatMap(kind => [`scripts/identity-reviewed-${kind}-contexts.mjs`, `scripts/identity-reviewed-${kind}-data.json`])]) {\n  const digest = createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex');\n  assert(closure.every(entry => entry.dependencyDigests[file] === digest), 'route verifier helper dependency must match current source: ' + file);\n}\nconsole.log('ROUTE_READER_REGISTRATION PASS independent import/call removal controls');\n\n// Keep the existing suite's native/history/contract children and budgets intact.\n// The registered suite is run once; this driver adds no duplicate native modes.\nconst spawnSync = prepareVerification(root, { shareBuild: true, bodyBudgetMs: 600000 });\nfor (const [path, timeout, selector, args = []] of [\n  ['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs', 180000, ['DYNAMIC_FINDING_FOUR_GAPS PASS']],\n  ['packages/main/tests/canonical-new-story-artifacts.test.mjs', 180000, ['GREEN B-49df: identity-sites group pass.'], ['--group=identity-sites']],\n  [suitePath, 600000, ['ROUTE_DIRECTION_NATIVE_GREEN', 'ROUTE_READER_WIRING_MUTATIONS PASS']],\n  ['scripts/verify-validation-static-edges.mjs', 180000, ['U18_STATIC_PASS']],\n]) {\n  let result;\n  try {\n    result = spawnSync(process.execPath, [path, ...args], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 32 * 1024 * 1024 });\n  } catch (error) {\n    process.stderr.write(verificationFailureMessage('route verification child', error) + '\\n');\n    throw error;\n  }\n  const output = (result.stdout ?? '') + (result.stderr ?? '');\n  process.stdout.write(output);\n  assert.equal(result.error, undefined, 'child execution must complete');\n  assert.equal(result.signal, null, 'child execution must not be signaled');\n  assert.equal(result.status, 0, path + ' must preserve existing controls');\n  for (const required of selector) assert(output.includes(required), path + ' must report ' + required);\n}\nconsole.log('ROUTE_READER_REGRESSION_GREEN registered full suite, current builds and static evidence passed');\n"
         }
       ],
       "dependencyDigests": {
@@ -10477,7 +10493,7 @@
         "scripts/verify-route-reattestation-dependency-direction.mjs": "696012614c4241f7bd20671e992d8b1fd13cf0d185513bd392041407b76581bb",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "packages/main/src/core/runtime-fact-registry.ts": "2a50979405c7a3a56466c259f02591c83aa6c678f9c1db6a25fe670c6d4d8231",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "scripts/verify-proof-or-stop-identity-cutover.mjs": "6d807eb44da861f0fbc2c0add67f01e85536398e3b72e741196d47fe6f1c60e6",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "packages/main/tests/support/active-identity-operation-ownership.mjs": "d83abd659e8c13b865f3a2a8baf0b39c5a9751fa96909dbb0f2fdb4c705c0182",
@@ -10562,7 +10578,15 @@
           "sourceDigest": "0f5861db4167cd50b40a0af6e2010c908fc70f1d3d1e27cabda09def0197ad04",
           "excerpt": "  \"scripts\": {\n    \"build\": \"node ../../scripts/build-main-with-binding.mjs\",\n    \"dev\": \"tsc --watch\",\n    \"start\": \"node dist/index.js\",\n    \"test:e2e\": \"node dist/tasks/cli-e2e.js\",\n    \"test:cross-host-review\": \"node dist/tasks/cross-host-review-smoke.js\",\n    \"test:experience-layer-finding-signals\": \"node dist/tasks/experience-layer-finding-signals-smoke.js\",\n    \"test:experience-layer-finding-enums\": \"node dist/tasks/experience-layer-finding-enums-smoke.js\",\n    \"test:experience-layer-hint-injection\": \"node dist/tasks/experience-layer-hint-injection-smoke.js\",\n    \"test:experience-layer-ab-shadow-gate\": \"node dist/tasks/experience-layer-ab-shadow-gate-smoke.js\",\n    \"test:experience-layer-review-dispatch-hint\": \"node dist/tasks/experience-layer-review-dispatch-hint-smoke.js\",\n    \"test:experience-layer-digest-extract\": \"node dist/tasks/experience-layer-digest-extract-smoke.js\",\n    \"test:experience-layer-playbook\": \"node dist/tasks/experience-layer-playbook-smoke.js\",\n    \"test:playbook-evidence-activation\": \"node dist/tasks/playbook-evidence-activation-smoke.js\",\n    \"test:experience-layer-recall\": \"node dist/tasks/experience-layer-recall-smoke.js\",\n    \"test:experience-layer-revalidation\": \"node dist/tasks/experience-layer-revalidation-smoke.js\",\n    \"test:experience-layer-revalidation-cli\": \"node dist/tasks/experience-layer-revalidation-cli-smoke.js\",\n    \"test:experience-layer-learning-scan\": \"node dist/tasks/experience-layer-learning-scan-smoke.js\",\n    \"test:experience-layer-signature-capture\": \"node dist/tasks/experience-layer-signature-capture-smoke.js\",\n    \"test:experience-layer-signature-backfill\": \"node dist/tasks/experience-layer-signature-backfill-smoke.js\",\n    \"test:experience-layer-effectiveness\": \"node dist/tasks/experience-layer-effectiveness-smoke.js\",\n    \"test:run-all-smokes-smoke\": \"node dist/tasks/run-all-smokes-smoke.js\",\n    \"test:full-suite-runner-smoke\": \"node dist/tasks/full-suite-runner-smoke.js\",\n    \"test:milestone-status\": \"node tests/milestone-status.test.mjs\",\n    \"test:global-core-realpath\": \"node tests/global-core-realpath.test.mjs\",\n    \"test:docs-drift-smoke\": \"node dist/tasks/docs-drift-path-drift-smoke.js\",\n    \"test:docs-drift-wrapper-root\": \"node dist/tasks/docs-drift-wrapper-root-smoke.js\",\n    \"test:managed-assets-wrapper-root\": \"node dist/tasks/managed-assets-wrapper-root-smoke.js\",\n    \"test:done-oracle-wrapper-root\": \"node dist/tasks/done-oracle-wrapper-root-smoke.js\",\n    \"test:evidence-hash-snapshot-classifier\": \"node dist/tasks/evidence-hash-snapshot-classifier-smoke.js\",\n    \"test:review-run-metadataroot-wrapper-root\": \"node dist/tasks/review-run-metadataroot-wrapper-root-smoke.js\",\n    \"test:review-escalation-freshness-root\": \"node dist/tasks/review-escalation-freshness-root-smoke.js\",\n    \"test:done-required-validation-smoke\": \"node dist/tasks/done-required-validation-smoke.js\",\n    \"test:done-required-freshness-smoke\": \"node dist/tasks/done-required-freshness-smoke.js\",\n    \"test:done-required-head-drift-proof\": \"node dist/tasks/done-required-head-drift-proof.js\",\n    \"test:done-prepare-closure-heartbeat-smoke\": \"node dist/tasks/done-prepare-closure-heartbeat-smoke.js\",\n    \"test:done-prepare-auto-closeout-smoke\": \"node dist/tasks/done-prepare-auto-closeout-smoke.js\",\n    \"test:done-prepare-merge-rerun-smoke\": \"node dist/tasks/done-prepare-merge-rerun-smoke.js\",\n    \"test:porcelain-first-row-audit\": \"node dist/tasks/porcelain-first-row-audit-smoke.js\",\n    \"test:review-assurance-surfacing-smoke\": \"node dist/tasks/review-assurance-surfacing-smoke.js\",\n    \"test:done-readiness-flow-benchmark\": \"node dist/tasks/done-readiness-flow-benchmark.js\",\n    \"test:storydir-inside-gitroot-smoke\": \"node dist/tasks/storydir-inside-gitroot-smoke.js\",\n    \"test:storydir-inside-gitroot-suite\": \"node dist/tasks/storydir-inside-gitroot-suite.js\",\n    \"test:runtime-fact-contract\": \"node ../../scripts/verify-runtime-fact-contract.mjs\",\n    \"test:red-p0m-component-mapping\": \"npm run build && node tests/red/red-repro-first-p0m-component-mapping.mjs\",\n    \"test:orphan-surface\": \"node ../../scripts/verify-orphan-surface.mjs\",\n    \"test:lifecycle-dispatch-smoke\": \"node dist/tasks/lifecycle-dispatch-smoke.js\",\n    \"test:lifecycle-check-smoke\": \"node dist/tasks/lifecycle-check-smoke.js\",\n    \"test:anti-stall\": \"cd ../.. && node scripts/verify-anti-stall-guardrails.mjs\",\n    \"test:lifecycle-registry-contract\": \"node dist/tasks/lifecycle-registry-contract.js\",\n    \"test:main-write-lock-coverage\": \"node dist/tasks/main-write-lock-coverage.js\",\n    \"test:command-ownership-contract\": \"node dist/tasks/command-ownership-contract.js\",\n    \"test:unattended-dispatch-smoke\": \"node dist/tasks/unattended-dispatch-smoke.js\",\n    \"test:autopilot-v2-reliability-smoke\": \"node dist/tasks/autopilot-v2-reliability-smoke.js\",\n    \"test:evidence-quality-contract\": \"node ../../scripts/verify-evidence-quality.mjs\",\n    \"test:review-convergence-smoke\": \"node dist/tasks/review-convergence-smoke.js\",\n    \"test:review-loop-smoke\": \"node dist/tasks/review-loop-smoke.js\",\n    \"test:delivery-context-pack-smoke\": \"node dist/tasks/delivery-context-pack-smoke.js\",\n    \"test:flow-stability-smoke\": \"node dist/tasks/flow-stability-smoke.js\",\n    \"test:review-assurance-floor-smoke\": \"node dist/tasks/review-assurance-floor-smoke.js\",\n    \"test:brand-path-resolver-smoke\": \"node dist/tasks/brand-path-resolver-smoke.js\",\n    \"test:review-incremental-context-smoke\": \"node dist/tasks/review-incremental-context-smoke.js\",\n    \"test:reviewer-scan-budget-guard\": \"node dist/tasks/reviewer-scan-budget-guard-smoke.js\",\n    \"test:review-pass-provenance\": \"node dist/tasks/review-pass-provenance-smoke.js\",\n    \"test:story-review-corpus-budget\": \"node dist/tasks/story-review-corpus-budget-smoke.js\",\n    \"test:review-host-launcher-readiness-smoke\": \"node dist/tasks/review-host-execution-readiness-smoke.js\",\n    \"test:command-catalog-smoke\": \"node dist/tasks/command-catalog-smoke.js\",\n    \"test:cli-surface-smoke\": \"node dist/tasks/cli-surface-smoke.js\",\n    \"test:story-owner-lease-smoke\": \"node dist/tasks/story-owner-lease-smoke.js\",\n    \"test:retired-root-guard\": \"node dist/tasks/retired-root-guard-smoke.js\",\n    \"test:owner-session-guardrail\": \"node dist/tasks/owner-session-guardrail.js\",\n    \"test:usage-ledger-prototype-pollution\": \"node dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\n    \"test:host-run-usage\": \"node dist/tasks/host-run-usage-smoke.js\",\n    \"test:usage-sweep\": \"node dist/tasks/usage-sweep-smoke.js\",\n    \"test:usage-burn-alert\": \"node dist/tasks/usage-burn-alert-smoke.js\",\n    \"test:repro-first-candidate\": \"node dist/tasks/repro-first-candidate-smoke.js\",\n    \"test:repro-evidence-binding-dev-gate\": \"node dist/tasks/repro-evidence-binding-dev-gate-smoke.js\",\n    \"test:proof-admissibility\": \"node dist/tasks/proof-admissibility-smoke.js\",\n    \"test:proof-admissibility-hardening\": \"node dist/tasks/proof-admissibility-hardening-smoke.js\",\n    \"test:pinn-claim-admissibility\": \"node dist/tasks/pinn-claim-admissibility-smoke.js\",\n    \"test:claim-admissibility-pack-framework\": \"node dist/tasks/claim-admissibility-pack-framework-smoke.js\",\n    \"test:evidence-environment-adapter\": \"node dist/tasks/evidence-environment-adapter-smoke.js\",\n    \"test:tool-executed-evidence-receipt-smoke\": \"node dist/tasks/tool-executed-evidence-receipt-smoke.js\",\n    \"test:verification-run-and-guard-smoke\": \"node dist/tasks/verification-run-and-guard-smoke.js\",\n    \"test:quantum-claim-admissibility\": \"node dist/tasks/quantum-claim-admissibility-smoke.js\",\n    \"test:quantum-claim-benchmark\": \"node dist/tasks/quantum-claim-benchmark-smoke.js\",\n    \"test:pre-review-semantic-binding\": \"node dist/tasks/pre-review-semantic-binding-smoke.js\",\n    \"test:proofstory-intent-hardening-smoke\": \"node dist/tasks/proofstory-intent-hardening-smoke.js\",\n    \"test:scope-shrinkage-withdrawal-floor-smoke\": \"node dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js\",\n    \"test:withdrawn-disposition-smoke\": \"node dist/tasks/withdrawn-disposition-smoke.js\",\n    \"test:review-budget-stall-adjudication-smoke\": \"node dist/tasks/review-budget-stall-adjudication-smoke.js\",\n    \"test:proofstory-acceptance-topology-smoke\": \"node dist/tasks/proofstory-acceptance-topology-smoke.js\",\n    \"test:proofstory-acceptance-basis-smoke\": \"node dist/tasks/proofstory-acceptance-basis-smoke.js\",\n    \"test:external-worktree-go-pre-review\": \"node ../../scripts/verify-external-worktree-go-pre-review.mjs\",\n    \"test:retired-authority-server-semantics\": \"node dist/tasks/retired-authority-server-semantics-smoke.js\",\n    \"test:source-structure-convergence\": \"node dist/tasks/source-structure-convergence-smoke.js\",\n    \"usage-ledger-report\": \"node dist/tasks/usage-ledger-report.js\",\n    \"test:config-filename-migration-smoke\": \"node dist/tasks/config-filename-migration-smoke.js\",\n    \"test:core-package-rename\": \"node scripts/verify-core-package-rename.mjs\",\n    \"test:state-dir-migration\": \"node scripts/verify-state-dir-migration.mjs\",\n    \"test:identity-state-migrate-atomicity\": \"node tests/identity-state-migrate-atomicity.test.mjs\",\n    \"test:proof-or-stop-residue\": \"node ../../scripts/verify-proof-or-stop-residue.mjs\",\n    \"test:retired-authority-vocabulary-guard\": \"node dist/tasks/retired-authority-vocabulary-guard-smoke.js\",\n    \"test:finding-identity-delivery\": \"node dist/tasks/finding-identity-lineage-smoke.js --section=delivery\",\n    \"test:dynamic-finding-applicability\": \"node dist/tasks/dynamic-finding-applicability-smoke.js && node tests/red/red-dynamic-finding-applicability.mjs\",\n    \"test:dynamic-finding-evidence-closure\": \"node dist/tasks/dynamic-finding-evidence-closure-smoke.js && node dist/tasks/dynamic-finding-runtime-integration-smoke.js && node dist/tasks/finding-runtime-pair-smoke.js && node dist/tasks/finding-material-reattestation-smoke.js && node dist/tasks/finding-qualification-events-smoke.js && node tests/red/red-dynamic-finding-evidence-closure.mjs && node tests/red/red-dynamic-finding-audit-closure.mjs && node tests/red/red-dynamic-finding-four-gaps.mjs && node tests/red/red-dynamic-finding-qualification-audit.mjs && node dist/tasks/finding-qualification-independence-smoke.js && node tests/red/red-dynamic-finding-final-contracts.mjs && node dist/tasks/finding-material-reattestation-smoke.js --head-continuity && node dist/tasks/dynamic-finding-runtime-integration-smoke.js --collection-proof && node dist/tasks/dynamic-finding-runtime-integration-smoke.js --qualification-history-proof\",\n    \"test:residue-inject-repro\": \"node ../../scripts/verify-residue-inject-repro.mjs\",\n    \"test:migration-contract\": \"node scripts/verify-migration-contract.mjs\",\n    \"test:topology-signing-source-guard\": \"node dist/tasks/topology-signing-source-guard-smoke.js\",\n    \"test:signing-guard-mutation-proof\": \"node dist/tasks/signing-guard-mutation-proof-smoke.js\",\n    \"test:story-aware-validation\": \"node dist/tasks/story-aware-validation-smoke.js\",\n    \"test:story-aware-validation-mutation\": \"node dist/tasks/story-aware-validation-mutation-smoke.js\",\n    \"test:story-aware-validation-production\": \"bun src/tasks/story-aware-validation-production-smoke.ts\",\n    \"test:historical-replay-artifact\": \"node dist/tasks/historical-replay-artifact-smoke.js\",\n    \"test:dynamic-validation-change-manifest\": \"node ../../scripts/run-dynamic-validation-audit.mjs change-manifest\",\n    \"test:dynamic-validation-dual-graph\": \"node ../../scripts/run-dynamic-validation-audit.mjs dual-graph\",\n    \"test:dynamic-validation-scope-escalation\": \"node ../../scripts/run-dynamic-validation-audit.mjs scope-escalation\",\n    \"test:dynamic-validation-selection\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection\",\n    \"test:dynamic-validation-selection-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection-mutations\",\n    \"test:dynamic-validation-selection-fail-closed\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection-fail-closed\",\n    \"test:dynamic-validation-observe-equivalence\": \"node ../../scripts/run-dynamic-validation-audit.mjs observe-equivalence\",\n    \"test:dynamic-validation-trace-isolation\": \"node ../../scripts/run-dynamic-validation-audit.mjs trace-isolation\",\n    \"test:dynamic-validation-observe-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs observe-mutations\",\n    \"test:dynamic-validation-receipts\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipts\",\n    \"test:dynamic-validation-receipt-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipt-mutations\",\n    \"test:dynamic-validation-receipt-forgery\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipt-forgery\",\n    \"test:dynamic-validation-shadow-equivalence\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-equivalence\",\n    \"test:dynamic-validation-shadow-rejections\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-rejections\",\n    \"test:dynamic-validation-shadow-false-negative\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-false-negative\",\n    \"test:dynamic-validation-test-gate\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate\",\n    \"test:dynamic-validation-test-gate-escalation\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate-escalation\",\n    \"test:dynamic-validation-test-gate-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate-mutations\",\n    \"test:dynamic-validation-operations\": \"node ../../scripts/run-dynamic-validation-audit.mjs operations\",\n    \"test:dynamic-validation-operations-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations\",\n    \"test:story-create-direct-lifecycle\": \"node tests/red/red-story-create-direct-done-bypass.mjs\"\n  },"
         },
-        "All configured npm run targets were expanded from their actual --prefix package.json scripts. Only config index 0 selects any named child module; its complete script is shown above. Exact nonempty child flags are distinct from its empty-argv entries. Other command inventories such as test scripts not selected by validate.commands are not registration."
+        "All configured npm run targets were expanded from their actual --prefix package.json scripts. Only config index 0 selects any named child module; its complete script is shown above. Exact nonempty child flags are distinct from its empty-argv entries. Other command inventories such as test scripts not selected by validate.commands are not registration.",
+        "The registered route driver additionally executes the exact canonical-new-story-artifacts identity-sites group, whose source/emitted totality and context-mutation assertions are required. This supplements proof coverage and grants no new child-execution exception or identity exemption. Original native/history/process/static controls and shared budget remain required.",
+        {
+          "file": "scripts/verify-route-reader-regression.mjs",
+          "startLine": 1,
+          "endLine": 84,
+          "sourceDigest": "46e46f4a4132ec0f821cf8d9dede234b933f4164eec7254d79846356acf4ecfb",
+          "excerpt": "import './verify-verification-timeout-diagnostics.mjs';\nimport assert from 'node:assert/strict';\nimport { readFileSync } from 'node:fs';\nimport { createHash } from 'node:crypto';\nimport { createRequire } from 'node:module';\nimport { resolve } from 'node:path';\nimport { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';\n\nconst root = resolve(import.meta.dirname, '..');\nconst require = createRequire(resolve(root, 'package.json'));\nconst ts = require('typescript');\nconst suitePath = 'scripts/verify-route-reattestation-dependency-direction.mjs';\nconst registered = readFileSync(resolve(root, suitePath), 'utf8');\nfunction verifyRegistration(text) {\n  const tree = ts.createSourceFile(suitePath, text, ts.ScriptTarget.Latest, true);\n  assert(tree.statements.some(node => ts.isImportDeclaration(node)\n    && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs'\n    && node.importClause?.namedBindings?.elements?.some(binding => binding.name.text === 'verifyRouteReaderWiring'\n      && !binding.propertyName)), 'ROUTE_READER_REGISTERED_MUTATION_RED suite must import actual helper');\n  assert(tree.statements.some(node => ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)\n    && node.expression.expression.getText(tree) === 'verifyRouteReaderWiring' && node.expression.arguments.length === 0),\n    'ROUTE_READER_REGISTERED_MUTATION_RED suite must execute actual helper');\n}\nverifyRegistration(registered);\nconst parsed = ts.createSourceFile(suitePath, registered, ts.ScriptTarget.Latest, true);\nfor (const node of parsed.statements.filter(node =>\n  (ts.isImportDeclaration(node) && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs')\n  || (ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)\n    && node.expression.expression.getText(parsed) === 'verifyRouteReaderWiring'))) {\n  assert.throws(() => verifyRegistration(registered.slice(0, node.getStart(parsed)) + registered.slice(node.end)),\n    /ROUTE_READER_REGISTERED_MUTATION_RED/, 'removing either import or invocation must be refused independently');\n}\nconst scripts = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).scripts;\nassert.equal(scripts['test:route-reattestation-dependency-direction'], 'node scripts/verify-route-reader-regression.mjs',\n  'ROUTE_READER_CONSOLIDATED_RED existing registered entry must execute durable driver');\nassert(scripts['test:serial-reference'].split(' && ').includes('npm run test:route-reattestation-dependency-direction'));\nconst closure = JSON.parse(readFileSync(resolve(root, 'scripts/lab/u18-static-edges/exceptions.json'), 'utf8')).entries\n  .filter(entry => entry.dependencyDigests?.['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs']);\nassert.equal(closure.length, 4, 'reviewed four-gaps dependency closure must remain complete');\nfor (const file of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs',\n  'scripts/verify-verification-timeout-diagnostics.mjs', 'scripts/verify-route-reattestation-dependency-direction.mjs',\n  'scripts/verification-subprocess-budget.mjs', 'packages/main/tests/canonical-new-story-artifacts.test.mjs',\n  'scripts/verify-proof-or-stop-identity-cutover.mjs',\n  'scripts/verify-proof-or-stop-pack-boundary.mjs',\n  'packages/main/tests/support/active-identity-operation-ownership.mjs',\n  'packages/main/tests/support/private-mutation-observer.mjs',\n  'scripts/verify-acceptance-amendment-delta.mjs',\n  'scripts/identity-maintenance-boundaries.mjs',\n  'scripts/identity-child-closure.mjs',\n  'scripts/identity-child-contract.json',\n  'packages/main/src/core/store.ts',\n  'packages/main/src/core/causal-evidence.ts',\n  'packages/main/src/core/runtime-environment-checks.ts',\n  ...['source', 'json', 'fixture'].flatMap(kind => [`scripts/identity-reviewed-${kind}-contexts.mjs`, `scripts/identity-reviewed-${kind}-data.json`])]) {\n  const digest = createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex');\n  assert(closure.every(entry => entry.dependencyDigests[file] === digest), 'route verifier helper dependency must match current source: ' + file);\n}\nconsole.log('ROUTE_READER_REGISTRATION PASS independent import/call removal controls');\n\n// Keep the existing suite's native/history/contract children and budgets intact.\n// The registered suite is run once; this driver adds no duplicate native modes.\nconst spawnSync = prepareVerification(root, { shareBuild: true, bodyBudgetMs: 600000 });\nfor (const [path, timeout, selector, args = []] of [\n  ['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs', 180000, ['DYNAMIC_FINDING_FOUR_GAPS PASS']],\n  ['packages/main/tests/canonical-new-story-artifacts.test.mjs', 180000, ['GREEN B-49df: identity-sites group pass.'], ['--group=identity-sites']],\n  [suitePath, 600000, ['ROUTE_DIRECTION_NATIVE_GREEN', 'ROUTE_READER_WIRING_MUTATIONS PASS']],\n  ['scripts/verify-validation-static-edges.mjs', 180000, ['U18_STATIC_PASS']],\n]) {\n  let result;\n  try {\n    result = spawnSync(process.execPath, [path, ...args], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 32 * 1024 * 1024 });\n  } catch (error) {\n    process.stderr.write(verificationFailureMessage('route verification child', error) + '\\n');\n    throw error;\n  }\n  const output = (result.stdout ?? '') + (result.stderr ?? '');\n  process.stdout.write(output);\n  assert.equal(result.error, undefined, 'child execution must complete');\n  assert.equal(result.signal, null, 'child execution must not be signaled');\n  assert.equal(result.status, 0, path + ' must preserve existing controls');\n  for (const required of selector) assert(output.includes(required), path + ' must report ' + required);\n}\nconsole.log('ROUTE_READER_REGRESSION_GREEN registered full suite, current builds and static evidence passed');\n"
+        }
       ],
       "dependencyDigests": {
         "packages/main/package.json": "0f5861db4167cd50b40a0af6e2010c908fc70f1d3d1e27cabda09def0197ad04",
@@ -10590,7 +10614,7 @@
         "scripts/verify-route-reattestation-dependency-direction.mjs": "696012614c4241f7bd20671e992d8b1fd13cf0d185513bd392041407b76581bb",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "packages/main/src/core/runtime-fact-registry.ts": "2a50979405c7a3a56466c259f02591c83aa6c678f9c1db6a25fe670c6d4d8231",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "scripts/verify-proof-or-stop-identity-cutover.mjs": "6d807eb44da861f0fbc2c0add67f01e85536398e3b72e741196d47fe6f1c60e6",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "packages/main/tests/support/active-identity-operation-ownership.mjs": "d83abd659e8c13b865f3a2a8baf0b39c5a9751fa96909dbb0f2fdb4c705c0182",
@@ -10643,7 +10667,15 @@
           "sourceDigest": "0f5861db4167cd50b40a0af6e2010c908fc70f1d3d1e27cabda09def0197ad04",
           "excerpt": "  \"scripts\": {\n    \"build\": \"node ../../scripts/build-main-with-binding.mjs\",\n    \"dev\": \"tsc --watch\",\n    \"start\": \"node dist/index.js\",\n    \"test:e2e\": \"node dist/tasks/cli-e2e.js\",\n    \"test:cross-host-review\": \"node dist/tasks/cross-host-review-smoke.js\",\n    \"test:experience-layer-finding-signals\": \"node dist/tasks/experience-layer-finding-signals-smoke.js\",\n    \"test:experience-layer-finding-enums\": \"node dist/tasks/experience-layer-finding-enums-smoke.js\",\n    \"test:experience-layer-hint-injection\": \"node dist/tasks/experience-layer-hint-injection-smoke.js\",\n    \"test:experience-layer-ab-shadow-gate\": \"node dist/tasks/experience-layer-ab-shadow-gate-smoke.js\",\n    \"test:experience-layer-review-dispatch-hint\": \"node dist/tasks/experience-layer-review-dispatch-hint-smoke.js\",\n    \"test:experience-layer-digest-extract\": \"node dist/tasks/experience-layer-digest-extract-smoke.js\",\n    \"test:experience-layer-playbook\": \"node dist/tasks/experience-layer-playbook-smoke.js\",\n    \"test:playbook-evidence-activation\": \"node dist/tasks/playbook-evidence-activation-smoke.js\",\n    \"test:experience-layer-recall\": \"node dist/tasks/experience-layer-recall-smoke.js\",\n    \"test:experience-layer-revalidation\": \"node dist/tasks/experience-layer-revalidation-smoke.js\",\n    \"test:experience-layer-revalidation-cli\": \"node dist/tasks/experience-layer-revalidation-cli-smoke.js\",\n    \"test:experience-layer-learning-scan\": \"node dist/tasks/experience-layer-learning-scan-smoke.js\",\n    \"test:experience-layer-signature-capture\": \"node dist/tasks/experience-layer-signature-capture-smoke.js\",\n    \"test:experience-layer-signature-backfill\": \"node dist/tasks/experience-layer-signature-backfill-smoke.js\",\n    \"test:experience-layer-effectiveness\": \"node dist/tasks/experience-layer-effectiveness-smoke.js\",\n    \"test:run-all-smokes-smoke\": \"node dist/tasks/run-all-smokes-smoke.js\",\n    \"test:full-suite-runner-smoke\": \"node dist/tasks/full-suite-runner-smoke.js\",\n    \"test:milestone-status\": \"node tests/milestone-status.test.mjs\",\n    \"test:global-core-realpath\": \"node tests/global-core-realpath.test.mjs\",\n    \"test:docs-drift-smoke\": \"node dist/tasks/docs-drift-path-drift-smoke.js\",\n    \"test:docs-drift-wrapper-root\": \"node dist/tasks/docs-drift-wrapper-root-smoke.js\",\n    \"test:managed-assets-wrapper-root\": \"node dist/tasks/managed-assets-wrapper-root-smoke.js\",\n    \"test:done-oracle-wrapper-root\": \"node dist/tasks/done-oracle-wrapper-root-smoke.js\",\n    \"test:evidence-hash-snapshot-classifier\": \"node dist/tasks/evidence-hash-snapshot-classifier-smoke.js\",\n    \"test:review-run-metadataroot-wrapper-root\": \"node dist/tasks/review-run-metadataroot-wrapper-root-smoke.js\",\n    \"test:review-escalation-freshness-root\": \"node dist/tasks/review-escalation-freshness-root-smoke.js\",\n    \"test:done-required-validation-smoke\": \"node dist/tasks/done-required-validation-smoke.js\",\n    \"test:done-required-freshness-smoke\": \"node dist/tasks/done-required-freshness-smoke.js\",\n    \"test:done-required-head-drift-proof\": \"node dist/tasks/done-required-head-drift-proof.js\",\n    \"test:done-prepare-closure-heartbeat-smoke\": \"node dist/tasks/done-prepare-closure-heartbeat-smoke.js\",\n    \"test:done-prepare-auto-closeout-smoke\": \"node dist/tasks/done-prepare-auto-closeout-smoke.js\",\n    \"test:done-prepare-merge-rerun-smoke\": \"node dist/tasks/done-prepare-merge-rerun-smoke.js\",\n    \"test:porcelain-first-row-audit\": \"node dist/tasks/porcelain-first-row-audit-smoke.js\",\n    \"test:review-assurance-surfacing-smoke\": \"node dist/tasks/review-assurance-surfacing-smoke.js\",\n    \"test:done-readiness-flow-benchmark\": \"node dist/tasks/done-readiness-flow-benchmark.js\",\n    \"test:storydir-inside-gitroot-smoke\": \"node dist/tasks/storydir-inside-gitroot-smoke.js\",\n    \"test:storydir-inside-gitroot-suite\": \"node dist/tasks/storydir-inside-gitroot-suite.js\",\n    \"test:runtime-fact-contract\": \"node ../../scripts/verify-runtime-fact-contract.mjs\",\n    \"test:red-p0m-component-mapping\": \"npm run build && node tests/red/red-repro-first-p0m-component-mapping.mjs\",\n    \"test:orphan-surface\": \"node ../../scripts/verify-orphan-surface.mjs\",\n    \"test:lifecycle-dispatch-smoke\": \"node dist/tasks/lifecycle-dispatch-smoke.js\",\n    \"test:lifecycle-check-smoke\": \"node dist/tasks/lifecycle-check-smoke.js\",\n    \"test:anti-stall\": \"cd ../.. && node scripts/verify-anti-stall-guardrails.mjs\",\n    \"test:lifecycle-registry-contract\": \"node dist/tasks/lifecycle-registry-contract.js\",\n    \"test:main-write-lock-coverage\": \"node dist/tasks/main-write-lock-coverage.js\",\n    \"test:command-ownership-contract\": \"node dist/tasks/command-ownership-contract.js\",\n    \"test:unattended-dispatch-smoke\": \"node dist/tasks/unattended-dispatch-smoke.js\",\n    \"test:autopilot-v2-reliability-smoke\": \"node dist/tasks/autopilot-v2-reliability-smoke.js\",\n    \"test:evidence-quality-contract\": \"node ../../scripts/verify-evidence-quality.mjs\",\n    \"test:review-convergence-smoke\": \"node dist/tasks/review-convergence-smoke.js\",\n    \"test:review-loop-smoke\": \"node dist/tasks/review-loop-smoke.js\",\n    \"test:delivery-context-pack-smoke\": \"node dist/tasks/delivery-context-pack-smoke.js\",\n    \"test:flow-stability-smoke\": \"node dist/tasks/flow-stability-smoke.js\",\n    \"test:review-assurance-floor-smoke\": \"node dist/tasks/review-assurance-floor-smoke.js\",\n    \"test:brand-path-resolver-smoke\": \"node dist/tasks/brand-path-resolver-smoke.js\",\n    \"test:review-incremental-context-smoke\": \"node dist/tasks/review-incremental-context-smoke.js\",\n    \"test:reviewer-scan-budget-guard\": \"node dist/tasks/reviewer-scan-budget-guard-smoke.js\",\n    \"test:review-pass-provenance\": \"node dist/tasks/review-pass-provenance-smoke.js\",\n    \"test:story-review-corpus-budget\": \"node dist/tasks/story-review-corpus-budget-smoke.js\",\n    \"test:review-host-launcher-readiness-smoke\": \"node dist/tasks/review-host-execution-readiness-smoke.js\",\n    \"test:command-catalog-smoke\": \"node dist/tasks/command-catalog-smoke.js\",\n    \"test:cli-surface-smoke\": \"node dist/tasks/cli-surface-smoke.js\",\n    \"test:story-owner-lease-smoke\": \"node dist/tasks/story-owner-lease-smoke.js\",\n    \"test:retired-root-guard\": \"node dist/tasks/retired-root-guard-smoke.js\",\n    \"test:owner-session-guardrail\": \"node dist/tasks/owner-session-guardrail.js\",\n    \"test:usage-ledger-prototype-pollution\": \"node dist/tasks/usage-ledger-prototype-pollution-smoke.js\",\n    \"test:host-run-usage\": \"node dist/tasks/host-run-usage-smoke.js\",\n    \"test:usage-sweep\": \"node dist/tasks/usage-sweep-smoke.js\",\n    \"test:usage-burn-alert\": \"node dist/tasks/usage-burn-alert-smoke.js\",\n    \"test:repro-first-candidate\": \"node dist/tasks/repro-first-candidate-smoke.js\",\n    \"test:repro-evidence-binding-dev-gate\": \"node dist/tasks/repro-evidence-binding-dev-gate-smoke.js\",\n    \"test:proof-admissibility\": \"node dist/tasks/proof-admissibility-smoke.js\",\n    \"test:proof-admissibility-hardening\": \"node dist/tasks/proof-admissibility-hardening-smoke.js\",\n    \"test:pinn-claim-admissibility\": \"node dist/tasks/pinn-claim-admissibility-smoke.js\",\n    \"test:claim-admissibility-pack-framework\": \"node dist/tasks/claim-admissibility-pack-framework-smoke.js\",\n    \"test:evidence-environment-adapter\": \"node dist/tasks/evidence-environment-adapter-smoke.js\",\n    \"test:tool-executed-evidence-receipt-smoke\": \"node dist/tasks/tool-executed-evidence-receipt-smoke.js\",\n    \"test:verification-run-and-guard-smoke\": \"node dist/tasks/verification-run-and-guard-smoke.js\",\n    \"test:quantum-claim-admissibility\": \"node dist/tasks/quantum-claim-admissibility-smoke.js\",\n    \"test:quantum-claim-benchmark\": \"node dist/tasks/quantum-claim-benchmark-smoke.js\",\n    \"test:pre-review-semantic-binding\": \"node dist/tasks/pre-review-semantic-binding-smoke.js\",\n    \"test:proofstory-intent-hardening-smoke\": \"node dist/tasks/proofstory-intent-hardening-smoke.js\",\n    \"test:scope-shrinkage-withdrawal-floor-smoke\": \"node dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js\",\n    \"test:withdrawn-disposition-smoke\": \"node dist/tasks/withdrawn-disposition-smoke.js\",\n    \"test:review-budget-stall-adjudication-smoke\": \"node dist/tasks/review-budget-stall-adjudication-smoke.js\",\n    \"test:proofstory-acceptance-topology-smoke\": \"node dist/tasks/proofstory-acceptance-topology-smoke.js\",\n    \"test:proofstory-acceptance-basis-smoke\": \"node dist/tasks/proofstory-acceptance-basis-smoke.js\",\n    \"test:external-worktree-go-pre-review\": \"node ../../scripts/verify-external-worktree-go-pre-review.mjs\",\n    \"test:retired-authority-server-semantics\": \"node dist/tasks/retired-authority-server-semantics-smoke.js\",\n    \"test:source-structure-convergence\": \"node dist/tasks/source-structure-convergence-smoke.js\",\n    \"usage-ledger-report\": \"node dist/tasks/usage-ledger-report.js\",\n    \"test:config-filename-migration-smoke\": \"node dist/tasks/config-filename-migration-smoke.js\",\n    \"test:core-package-rename\": \"node scripts/verify-core-package-rename.mjs\",\n    \"test:state-dir-migration\": \"node scripts/verify-state-dir-migration.mjs\",\n    \"test:identity-state-migrate-atomicity\": \"node tests/identity-state-migrate-atomicity.test.mjs\",\n    \"test:proof-or-stop-residue\": \"node ../../scripts/verify-proof-or-stop-residue.mjs\",\n    \"test:retired-authority-vocabulary-guard\": \"node dist/tasks/retired-authority-vocabulary-guard-smoke.js\",\n    \"test:finding-identity-delivery\": \"node dist/tasks/finding-identity-lineage-smoke.js --section=delivery\",\n    \"test:dynamic-finding-applicability\": \"node dist/tasks/dynamic-finding-applicability-smoke.js && node tests/red/red-dynamic-finding-applicability.mjs\",\n    \"test:dynamic-finding-evidence-closure\": \"node dist/tasks/dynamic-finding-evidence-closure-smoke.js && node dist/tasks/dynamic-finding-runtime-integration-smoke.js && node dist/tasks/finding-runtime-pair-smoke.js && node dist/tasks/finding-material-reattestation-smoke.js && node dist/tasks/finding-qualification-events-smoke.js && node tests/red/red-dynamic-finding-evidence-closure.mjs && node tests/red/red-dynamic-finding-audit-closure.mjs && node tests/red/red-dynamic-finding-four-gaps.mjs && node tests/red/red-dynamic-finding-qualification-audit.mjs && node dist/tasks/finding-qualification-independence-smoke.js && node tests/red/red-dynamic-finding-final-contracts.mjs && node dist/tasks/finding-material-reattestation-smoke.js --head-continuity && node dist/tasks/dynamic-finding-runtime-integration-smoke.js --collection-proof && node dist/tasks/dynamic-finding-runtime-integration-smoke.js --qualification-history-proof\",\n    \"test:residue-inject-repro\": \"node ../../scripts/verify-residue-inject-repro.mjs\",\n    \"test:migration-contract\": \"node scripts/verify-migration-contract.mjs\",\n    \"test:topology-signing-source-guard\": \"node dist/tasks/topology-signing-source-guard-smoke.js\",\n    \"test:signing-guard-mutation-proof\": \"node dist/tasks/signing-guard-mutation-proof-smoke.js\",\n    \"test:story-aware-validation\": \"node dist/tasks/story-aware-validation-smoke.js\",\n    \"test:story-aware-validation-mutation\": \"node dist/tasks/story-aware-validation-mutation-smoke.js\",\n    \"test:story-aware-validation-production\": \"bun src/tasks/story-aware-validation-production-smoke.ts\",\n    \"test:historical-replay-artifact\": \"node dist/tasks/historical-replay-artifact-smoke.js\",\n    \"test:dynamic-validation-change-manifest\": \"node ../../scripts/run-dynamic-validation-audit.mjs change-manifest\",\n    \"test:dynamic-validation-dual-graph\": \"node ../../scripts/run-dynamic-validation-audit.mjs dual-graph\",\n    \"test:dynamic-validation-scope-escalation\": \"node ../../scripts/run-dynamic-validation-audit.mjs scope-escalation\",\n    \"test:dynamic-validation-selection\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection\",\n    \"test:dynamic-validation-selection-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection-mutations\",\n    \"test:dynamic-validation-selection-fail-closed\": \"node ../../scripts/run-dynamic-validation-audit.mjs selection-fail-closed\",\n    \"test:dynamic-validation-observe-equivalence\": \"node ../../scripts/run-dynamic-validation-audit.mjs observe-equivalence\",\n    \"test:dynamic-validation-trace-isolation\": \"node ../../scripts/run-dynamic-validation-audit.mjs trace-isolation\",\n    \"test:dynamic-validation-observe-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs observe-mutations\",\n    \"test:dynamic-validation-receipts\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipts\",\n    \"test:dynamic-validation-receipt-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipt-mutations\",\n    \"test:dynamic-validation-receipt-forgery\": \"node ../../scripts/run-dynamic-validation-audit.mjs receipt-forgery\",\n    \"test:dynamic-validation-shadow-equivalence\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-equivalence\",\n    \"test:dynamic-validation-shadow-rejections\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-rejections\",\n    \"test:dynamic-validation-shadow-false-negative\": \"node ../../scripts/run-dynamic-validation-audit.mjs shadow-false-negative\",\n    \"test:dynamic-validation-test-gate\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate\",\n    \"test:dynamic-validation-test-gate-escalation\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate-escalation\",\n    \"test:dynamic-validation-test-gate-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs test-gate-mutations\",\n    \"test:dynamic-validation-operations\": \"node ../../scripts/run-dynamic-validation-audit.mjs operations\",\n    \"test:dynamic-validation-operations-mutations\": \"node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations\",\n    \"test:story-create-direct-lifecycle\": \"node tests/red/red-story-create-direct-done-bypass.mjs\"\n  },"
         },
-        "All configured npm run targets were expanded from their actual --prefix package.json scripts. Only config index 0 selects any named child module; its complete script is shown above. Exact nonempty child flags are distinct from its empty-argv entries. Other command inventories such as test scripts not selected by validate.commands are not registration."
+        "All configured npm run targets were expanded from their actual --prefix package.json scripts. Only config index 0 selects any named child module; its complete script is shown above. Exact nonempty child flags are distinct from its empty-argv entries. Other command inventories such as test scripts not selected by validate.commands are not registration.",
+        "The registered route driver additionally executes the exact canonical-new-story-artifacts identity-sites group, whose source/emitted totality and context-mutation assertions are required. This supplements proof coverage and grants no new child-execution exception or identity exemption. Original native/history/process/static controls and shared budget remain required.",
+        {
+          "file": "scripts/verify-route-reader-regression.mjs",
+          "startLine": 1,
+          "endLine": 84,
+          "sourceDigest": "46e46f4a4132ec0f821cf8d9dede234b933f4164eec7254d79846356acf4ecfb",
+          "excerpt": "import './verify-verification-timeout-diagnostics.mjs';\nimport assert from 'node:assert/strict';\nimport { readFileSync } from 'node:fs';\nimport { createHash } from 'node:crypto';\nimport { createRequire } from 'node:module';\nimport { resolve } from 'node:path';\nimport { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';\n\nconst root = resolve(import.meta.dirname, '..');\nconst require = createRequire(resolve(root, 'package.json'));\nconst ts = require('typescript');\nconst suitePath = 'scripts/verify-route-reattestation-dependency-direction.mjs';\nconst registered = readFileSync(resolve(root, suitePath), 'utf8');\nfunction verifyRegistration(text) {\n  const tree = ts.createSourceFile(suitePath, text, ts.ScriptTarget.Latest, true);\n  assert(tree.statements.some(node => ts.isImportDeclaration(node)\n    && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs'\n    && node.importClause?.namedBindings?.elements?.some(binding => binding.name.text === 'verifyRouteReaderWiring'\n      && !binding.propertyName)), 'ROUTE_READER_REGISTERED_MUTATION_RED suite must import actual helper');\n  assert(tree.statements.some(node => ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)\n    && node.expression.expression.getText(tree) === 'verifyRouteReaderWiring' && node.expression.arguments.length === 0),\n    'ROUTE_READER_REGISTERED_MUTATION_RED suite must execute actual helper');\n}\nverifyRegistration(registered);\nconst parsed = ts.createSourceFile(suitePath, registered, ts.ScriptTarget.Latest, true);\nfor (const node of parsed.statements.filter(node =>\n  (ts.isImportDeclaration(node) && node.moduleSpecifier.text === './route-reader-wiring-controls.mjs')\n  || (ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)\n    && node.expression.expression.getText(parsed) === 'verifyRouteReaderWiring'))) {\n  assert.throws(() => verifyRegistration(registered.slice(0, node.getStart(parsed)) + registered.slice(node.end)),\n    /ROUTE_READER_REGISTERED_MUTATION_RED/, 'removing either import or invocation must be refused independently');\n}\nconst scripts = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).scripts;\nassert.equal(scripts['test:route-reattestation-dependency-direction'], 'node scripts/verify-route-reader-regression.mjs',\n  'ROUTE_READER_CONSOLIDATED_RED existing registered entry must execute durable driver');\nassert(scripts['test:serial-reference'].split(' && ').includes('npm run test:route-reattestation-dependency-direction'));\nconst closure = JSON.parse(readFileSync(resolve(root, 'scripts/lab/u18-static-edges/exceptions.json'), 'utf8')).entries\n  .filter(entry => entry.dependencyDigests?.['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs']);\nassert.equal(closure.length, 4, 'reviewed four-gaps dependency closure must remain complete');\nfor (const file of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs',\n  'scripts/verify-verification-timeout-diagnostics.mjs', 'scripts/verify-route-reattestation-dependency-direction.mjs',\n  'scripts/verification-subprocess-budget.mjs', 'packages/main/tests/canonical-new-story-artifacts.test.mjs',\n  'scripts/verify-proof-or-stop-identity-cutover.mjs',\n  'scripts/verify-proof-or-stop-pack-boundary.mjs',\n  'packages/main/tests/support/active-identity-operation-ownership.mjs',\n  'packages/main/tests/support/private-mutation-observer.mjs',\n  'scripts/verify-acceptance-amendment-delta.mjs',\n  'scripts/identity-maintenance-boundaries.mjs',\n  'scripts/identity-child-closure.mjs',\n  'scripts/identity-child-contract.json',\n  'packages/main/src/core/store.ts',\n  'packages/main/src/core/causal-evidence.ts',\n  'packages/main/src/core/runtime-environment-checks.ts',\n  ...['source', 'json', 'fixture'].flatMap(kind => [`scripts/identity-reviewed-${kind}-contexts.mjs`, `scripts/identity-reviewed-${kind}-data.json`])]) {\n  const digest = createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex');\n  assert(closure.every(entry => entry.dependencyDigests[file] === digest), 'route verifier helper dependency must match current source: ' + file);\n}\nconsole.log('ROUTE_READER_REGISTRATION PASS independent import/call removal controls');\n\n// Keep the existing suite's native/history/contract children and budgets intact.\n// The registered suite is run once; this driver adds no duplicate native modes.\nconst spawnSync = prepareVerification(root, { shareBuild: true, bodyBudgetMs: 600000 });\nfor (const [path, timeout, selector, args = []] of [\n  ['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs', 180000, ['DYNAMIC_FINDING_FOUR_GAPS PASS']],\n  ['packages/main/tests/canonical-new-story-artifacts.test.mjs', 180000, ['GREEN B-49df: identity-sites group pass.'], ['--group=identity-sites']],\n  [suitePath, 600000, ['ROUTE_DIRECTION_NATIVE_GREEN', 'ROUTE_READER_WIRING_MUTATIONS PASS']],\n  ['scripts/verify-validation-static-edges.mjs', 180000, ['U18_STATIC_PASS']],\n]) {\n  let result;\n  try {\n    result = spawnSync(process.execPath, [path, ...args], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 32 * 1024 * 1024 });\n  } catch (error) {\n    process.stderr.write(verificationFailureMessage('route verification child', error) + '\\n');\n    throw error;\n  }\n  const output = (result.stdout ?? '') + (result.stderr ?? '');\n  process.stdout.write(output);\n  assert.equal(result.error, undefined, 'child execution must complete');\n  assert.equal(result.signal, null, 'child execution must not be signaled');\n  assert.equal(result.status, 0, path + ' must preserve existing controls');\n  for (const required of selector) assert(output.includes(required), path + ' must report ' + required);\n}\nconsole.log('ROUTE_READER_REGRESSION_GREEN registered full suite, current builds and static evidence passed');\n"
+        }
       ],
       "dependencyDigests": {
         "packages/main/package.json": "0f5861db4167cd50b40a0af6e2010c908fc70f1d3d1e27cabda09def0197ad04",
@@ -10669,7 +10701,7 @@
         "scripts/verify-route-reattestation-dependency-direction.mjs": "696012614c4241f7bd20671e992d8b1fd13cf0d185513bd392041407b76581bb",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "packages/main/src/core/runtime-fact-registry.ts": "2a50979405c7a3a56466c259f02591c83aa6c678f9c1db6a25fe670c6d4d8231",
-        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "c79bd400249acdc0ddbd004557ceacb7bcaae391c073150823eedf5399fc6aa1",
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7",
         "scripts/verify-proof-or-stop-identity-cutover.mjs": "6d807eb44da861f0fbc2c0add67f01e85536398e3b72e741196d47fe6f1c60e6",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "packages/main/tests/support/active-identity-operation-ownership.mjs": "d83abd659e8c13b865f3a2a8baf0b39c5a9751fa96909dbb0f2fdb4c705c0182",

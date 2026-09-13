@@ -302,3 +302,106 @@ if(process.env.U18_STATIC_REPORT_PATH)fs.writeFileSync(process.env.U18_STATIC_RE
 Audit 05f8d31c-20f9-4451-b74d-d42c65df95ce remains FAIL. Its accepted wiring, null-refusal, budget-description and descriptor repairs remain intact. The driver now binds all five modified members of its verification path: itself, wiring controls, timeout diagnostics, original dependency suite and the shared subprocess helper. The four existing four-gaps entries hold the exact hashes; the registered diagnostic executes the actual driver binding program against current positive bytes and rejects replacement of each of the five members independently. Existing four-gaps and native smoke inputs remain bound in those entries. The shared helper imports unchanged full-suite build-binding code; no claim of a repository-wide import closure is made.
 
 The caller test now finds the unique try statement with the direct spawnSync assignment using the TypeScript AST. An earlier unrelated catch is present in the test input, and removal of the actual spawn call must fail discovery instead of accepting the unrelated handler. Official target RED recorded this lookup defect. The negative no-readiness fixture keeps its one-second timeout and five-second local ceiling. Only the newly introduced positive fault-injection fixture changes to ten seconds with a fifteen-second local ceiling; it still intentionally times out after emitting both streams. These are fixture limits before build setup, not native-suite performance acceptance thresholds. Original setup 180 seconds, shared body 600 seconds, Lab 900 seconds and internal 120/120/420/120-second caps are unchanged.
+
+## Inherited main baseline closure and canonical proof
+
+Main `362b421aff21168dce1138afe285638f72a739ff` independently reproduced 115 static needs-review rows and 14 nested rows. All twelve old source preimages were recovered from Git. The reviewed static repair changes 80 existing entries while preserving 266 rows, IDs, duplicate IDs, ordering, classifications and invocation membership. Fifty report rows retain their exact call digest with relocated source/line evidence; four contexts refer to the one EX-0178 spawn whose sole AST-call delta is the canonical watchdog environment property shown below. Removing only that property reconstructs the old call. The remaining drift is dependency binding. Twenty-six runtime-policy keys bind entries already dependent on the changed executor/isolated fixture; no new exception is granted. Review confirmed the configured inventory consumers still do not execute the full-suite executor.
+
+The canonical fixture separately restores the exact store-to-causal-evidence imported origin, keeps its two uses, and updates the reviewed process-fact registry import context from 23 to 24 after its new default-parameter use. It retains source/emitted totality and central-literal, added-reference and same-count mutation refusal. Main certification count remains 65. The official identity-sites group RED exposed the registry pin drift; the causal-specific oracle RED is separate evidence. Actual identity-sites group GREEN passed in 20.185 seconds after both bounded fixes, and combined static GREEN passed in 1.288 seconds with 326 exceptions and zero pending work. These focused results do not replace full official Lab GREEN.
+
+The original pinned driver now requires the exact identity-sites group selector before the unchanged native suite, followed by static verification. The added child has a maximum of 180 seconds capped by remaining shared body time; overall budgets are unchanged. Four existing closure entries bind 23 explicit source/context paths and include the actual driver invocation as structured source evidence. This list covers the six modified verification members, controlled context/data imports and causal inputs; it does not claim every recursively loaded module. Broader source/emitted coverage remains the canonical census and current build binding. Every listed member is independently replaced by the registered diagnostic refusal control.
+
+Incoming main witness `packages/main/src/tasks/full-suite-runner.ts`, lines 684–692, full-source SHA-256 `56d468ece510aff2cbc082ce4a36c6f756c029814acea4601928381c29f0e058`, excerpt SHA-256 `9aa587771bb6d2623c25b1f393f435088dbcd9b8019536554dbd28e5349364f8`.
+
+```typescript
+    const usePosixTime = process.platform !== 'win32' && existsSync('/usr/bin/time') && npmCommand === 'npm';
+    const command = usePosixTime ? '/usr/bin/time' : npmCommand;
+    const timingPath = join(tempRoot, 'cpu.time');
+    const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];
+    const child = spawn(command, commandArgs, {
+      cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, [REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.environmentKey]: JSON.stringify({entry:entry.name,timeoutMs:entry.timeoutMs ?? DEFAULT_TIMEOUT_MS,deadlineAt:outerDeadlineAt}), PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
+    });
+    // B-137a: capture the child's kernel start identity BEFORE any cleanup can
+```
+
+Incoming main witness `packages/main/src/tasks/isolated-finding-fixture.ts`, lines 10–29, full-source SHA-256 `5a1232af7d0e9d216207b3bd11908081452b5786bb70ff06119ceaa914ef4997`, excerpt SHA-256 `9af4fd593c007d5d4037bcaf417eee9531895906d6aba44e59c54c51db3585ab`.
+
+```typescript
+import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
+
+/** Bound the inner watchdog by the scheduler's actual remaining outer deadline. */
+export function reviewEpochFixtureBudgetMs(environment: NodeJS.ProcessEnv = process.env, now = Date.now()): number {
+  const raw = environment[epochBudget.environmentKey];
+  if (raw === undefined) return epochBudget.standaloneMs;
+  const value = JSON.parse(raw) as {entry?:unknown;timeoutMs?:unknown;deadlineAt?:unknown};
+  if (!value || typeof value !== 'object' || typeof value.entry !== 'string') throw new Error('Malformed review epoch fixture budget envelope');
+  // A descendant may inherit another member's envelope; it is not this fixture's budget.
+  if (value.entry !== epochBudget.entry) return epochBudget.standaloneMs;
+  if (!Number.isFinite(value.timeoutMs) || !Number.isFinite(value.deadlineAt)
+    || Number(value.timeoutMs) <= 0) throw new Error(`Invalid review epoch fixture outer budget for ${epochBudget.entry}`);
+  const outerMs = Math.min(Number(value.timeoutMs), epochBudget.maxOuterMs);
+  if (Number(value.timeoutMs) > epochBudget.maxOuterMs) process.stderr.write(`Review epoch fixture ${epochBudget.entry}: outer timeoutMs=${value.timeoutMs} exceeds REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.maxOuterMs=${epochBudget.maxOuterMs}; clamping watchdog input to ${outerMs} ms\n`);
+  const scaled = Math.min(epochBudget.maxConcurrentMs, epochBudget.standaloneMs * outerMs / epochBudget.outerStandaloneMs);
+  const remaining = Math.min(outerMs, Number(value.deadlineAt) - now) - epochBudget.cleanupMarginMs;
+  const budget = Math.floor(Math.min(scaled, remaining));
+  if (budget <= 0) throw new Error('Review epoch fixture outer deadline exhausted');
+  return budget;
+}
+```
+
+Incoming main witness `packages/main/src/core/runtime-fact-registry.ts`, lines 12–21, full-source SHA-256 `2a50979405c7a3a56466c259f02591c83aa6c678f9c1db6a25fe670c6d4d8231`, excerpt SHA-256 `18c755ac3a951eb64141ffe27112c868b6c39059ba9ad091b54e90ef066f029c`.
+
+```typescript
+export const REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY = {
+  environmentKey: 'PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET',
+  entry: 'test:review-epoch-certification-continuity',
+  standaloneMs: 420000, maxConcurrentMs: 540000, outerStandaloneMs: 450000,
+  maxOuterMs: 675000, cleanupMarginMs: 30000,
+} as const;
+export const MACHINE_HEAVY_RESOURCE_POLICY = { cpuKey: 'heavy', processKey: 'fanout', access: 'exclusive', admission: 'one-heavy-member-per-os-user' } as const;
+export const MACHINE_FIXED_PORT_RUNTIME_POLICY = { directoryMode: 0o700, probeTimeoutMs: 1000, queueDeadlineMs: 300000, scope: 'same-os-user-across-repositories', admissionBoundary: 'actual-command-child', unknownResources: 'exclusive-machine-queue', classifiedEmptyResources: 'shared-machine-barrier', barrierKey: 'admission' } as const;
+export const MANAGED_REVIEW_TEMP_RUNTIME_POLICY = { environmentKeys: ['TMPDIR', 'TMP', 'TEMP'], directoryMode: 0o700, isolation: 'per-managed-review-scratch' } as const;
+export const OWNER_SESSION_IDENTITY_RUNTIME_POLICY = {
+```
+
+Incoming main witness `packages/main/src/core/causal-evidence.ts`, lines 28–33, full-source SHA-256 `414a2f3a612b4b10601c3c6d071c3ab67440c68305e2c4d2bbc8760d1ca2df9f`, excerpt SHA-256 `d86e435b069b221b31f9b9d29aebbd9541fa3dce3a1ef3d9c701d4554827331a`.
+
+```typescript
+export const CAUSAL_LEDGER_SCHEMA = 'proof-or-stop.causal-evidence-ledger.v1' as const;
+export const CAUSAL_PREFLIGHT_SCHEMA = 'proof-or-stop.causal-evidence-preflight.v1' as const;
+export const CAUSAL_DEPENDENCY_SCHEMA = 'proof-or-stop.causal-dependency-decision.v1' as const;
+export const CAUSAL_EVIDENCE_INDEX_SCHEMA = 'proof-or-stop.causal-evidence-index.v1' as const;
+export const CAUSAL_RECEIPT_DIRECTORY = 'causal-evidence/receipts';
+export const CAUSAL_OUTPUT_DIRECTORY = 'causal-evidence/outputs';
+```
+
+Incoming main witness `packages/main/src/core/store.ts`, lines 870–878, full-source SHA-256 `be0cbd652539eb44ecc66a435d909e632a551f25c6e64efeff72b7c502d2a5d6`, excerpt SHA-256 `c73efa627679f616423a166b5d6dd2efd7c409e49e6dd54903f961b6499a1b03`.
+
+```typescript
+    const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
+    if (existsSync(indexPath)) {
+      try {
+        const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+        if (index.schemaVersion === CAUSAL_EVIDENCE_INDEX_SCHEMA
+          && index.receipts && typeof index.receipts === 'object' && !Array.isArray(index.receipts)
+          && Object.entries(index.receipts).every(([key, hash]) => verified.get(key) === hash)) outputs.push(indexPath);
+      } catch { /* Invalid index remains workspace pollution. */ }
+    }
+```
+
+Incoming main witness `packages/main/src/core/process-fact-registry.ts`, lines 2673–2683, full-source SHA-256 `885d7a13f1d8b2d37dcf6ed320e71854c6b18dfc32b8f25cdd2b491abbe447bc`, excerpt SHA-256 `d560d4cb2b792f4a571d8e01233b21fcc95aa895ac523dab5be3b4c38d3c08b4`.
+
+```typescript
+ * malformed entries contribute no validation authority.
+ */
+export function collectRepositoryFullProcessFactPaths(
+  entries: readonly unknown[] = PROCESS_FACT_REGISTRY,
+): { paths: string[]; rejectedEntryCount: number; floorOwnerIds: string[] } {
+  const paths = new Set<string>();
+  const floorOwnerIds = new Set<string>();
+  let rejectedEntryCount = 0;
+  for (const candidate of entries) {
+    if (!candidate || typeof candidate !== 'object') {
+      rejectedEntryCount += 1;
+```
