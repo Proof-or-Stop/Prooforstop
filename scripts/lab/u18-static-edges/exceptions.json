@@ -10694,7 +10694,7 @@
       "id": "EX-1039",
       "key": "scripts/verify-runtime-fact-contract.mjs:75:execFileSync",
       "callDigest": "3790ef9717124377ebac08f9d0681dc1bc3883714925623b015033d0cd1b8c7a",
-      "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+      "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
       "configIndexes": [
         16
       ],
@@ -10704,15 +10704,15 @@
         {
           "file": "scripts/verify-runtime-fact-contract.mjs",
           "startLine": 64,
-          "endLine": 92,
-          "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
-          "excerpt": "async function importDist(root, relPath) {\n  const abs = join(root, relPath);\n  check(existsSync(abs), `${relPath} should exist; run npm run build first`);\n  if (!existsSync(abs)) return null;\n  return import(pathToFileURL(abs).href);\n}\n\nasync function main() {\n  const root = findRepoRoot(process.cwd());\n  try { prepareVerification(root, { shareBuild: true }); }\n  catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }\n  execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],\n    { cwd: root, stdio: 'inherit', timeout: 30_000 });\n  const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');\n  check(registrySource.includes('memory-query-latency-boundary'), 'Memory query timing runtime fact is registered');\n  execFileSync(process.execPath, [join(root, 'scripts/verify-memory-query-timing.mjs')],\n    { cwd: root, stdio: 'inherit', timeout: 60_000 });\n  check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')\n    && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),\n  'CLI startup must bind its compiled version to the installed runtime package');\n  try {\n    // Separate setup 180s + body 240s; reserve 30s for fixture IO.\n    execFileSync(process.execPath, ['scripts/verify-cli-runtime-version.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });\n  } catch (error) {\n    fail(verificationFailureMessage('CLI runtime version', error));\n    // Collect the other runtime contract failures in this same run as well.\n  }\n  try {\n    execFileSync(process.execPath, ['scripts/verify-cli-audit-runtime-coverage.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });"
+          "endLine": 98,
+          "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
+          "excerpt": "async function importDist(root, relPath) {\n  const abs = join(root, relPath);\n  check(existsSync(abs), `${relPath} should exist; run npm run build first`);\n  if (!existsSync(abs)) return null;\n  return import(pathToFileURL(abs).href);\n}\n\nasync function main() {\n  const root = findRepoRoot(process.cwd());\n  try { prepareVerification(root, { shareBuild: true }); }\n  catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }\n  execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],\n    { cwd: root, stdio: 'inherit', timeout: 30_000 });\n  const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');\n  check(registrySource.includes('memory-query-latency-boundary'), 'Memory query timing runtime fact is registered');\n  execFileSync(process.execPath, [join(root, 'scripts/verify-memory-query-timing.mjs')],\n    { cwd: root, stdio: 'inherit', timeout: 60_000 });\n  check(registrySource.includes('static-scanner-source-ast-reuse'), 'Static AST runtime fact is registered');\n  // Outer 180s exceeds two 60s scanner arms plus setup and failure reporting.\n  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN']]) {\n    const output = execFileSync(process.execPath, [join(root, 'scripts', test)], { cwd: root, encoding: 'utf8', timeout: 180_000 });\n    check(output.includes(marker), 'Executed static AST control: ' + test);\n  }\n  check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')\n    && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),\n  'CLI startup must bind its compiled version to the installed runtime package');\n  try {\n    // Separate setup 180s + body 240s; reserve 30s for fixture IO.\n    execFileSync(process.execPath, ['scripts/verify-cli-runtime-version.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });\n  } catch (error) {\n    fail(verificationFailureMessage('CLI runtime version', error));\n    // Collect the other runtime contract failures in this same run as well.\n  }\n  try {\n    execFileSync(process.execPath, ['scripts/verify-cli-audit-runtime-coverage.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });"
         },
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
       ],
       "dependencyDigests": {
         "scripts/verify-pending-performance-reconciliation.mjs": "b0f4b5fa91bd2b4a9784a2becb3100ea66b3e067916c852b99c1291650186386",
-        "scripts/verify-runtime-fact-contract.mjs": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+        "scripts/verify-runtime-fact-contract.mjs": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
         "scripts/verify-validation-snapshot-binding.mjs": "d62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8",
         "packages/main/src/core/shared-validation-execution.ts": "fa73cd94ee33cee45cfcee2dbdd859122f08aa211e0daaa8a820a00a6b59f8c9"
       },
@@ -10725,9 +10725,9 @@
     },
     {
       "id": "EX-1040",
-      "key": "scripts/verify-runtime-fact-contract.mjs:530:execFileSync",
+      "key": "scripts/verify-runtime-fact-contract.mjs:536:execFileSync",
       "callDigest": "04a801ec388118eddfd32f18df4a7ee564b6ecae011fd99462fdfdf0f700f3cb",
-      "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+      "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
       "configIndexes": [
         16
       ],
@@ -10736,17 +10736,17 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-runtime-fact-contract.mjs",
-          "startLine": 519,
-          "endLine": 544,
-          "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+          "startLine": 525,
+          "endLine": 550,
+          "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
           "excerpt": "        && componentProjection.every(entry => entry.componentId === 'P0m'),\n      'runtime component-filtered mapping must filter and UTF-8 sort explicit tuples');\n      try {\n        registryModule.projectRuntimeFactRegistry([{ kind: 'environment-check', paths: ['missing-id.ts'] }]);\n        fail('runtime registry verifier accepted a missing mapping');\n      } catch (error) {\n        check(error?.code === 'registry-component-mapping-unavailable', 'runtime registry missing mapping must use the typed unavailable diagnostic');\n      }\n    }\n  }\n\n  const runtimeMappingSourceProbe = execFileSync(process.execPath, [\n    '--import', join(root, 'scripts/lab-source-loader.mjs'),\n    '--input-type=module',\n    '--eval',\n    `import { RUNTIME_FACT_REGISTRY, projectRuntimeFactRegistry, projectComponentRuntimeFactMapping } from './packages/main/src/core/runtime-fact-registry.ts';\nconst projection = projectRuntimeFactRegistry();\nconst component = projectComponentRuntimeFactMapping('P0m', [{ runtimeFactId: 'source-probe', kind: 'environment-check', paths: ['source.ts'], componentId: 'P0m' }]);\nlet refusal = null;\ntry { projectRuntimeFactRegistry([{ kind: 'environment-check', paths: ['missing-id.ts'] }]); } catch (error) { refusal = error?.code; }\nprocess.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, projection: projection.length, generatedInWhole: projection.some(entry => Object.hasOwn(entry, 'generatedFrom')), component: component.length, refusal }));`,\n  ], { cwd: root, encoding: 'utf8' });\n  const runtimeMappingSource = JSON.parse(runtimeMappingSourceProbe);\n  check(runtimeMappingSource.registry > 0 && runtimeMappingSource.projection === runtimeMappingSource.registry,\n    'current source runtime registry component mapping must be total');\n  check(runtimeMappingSource.generatedInWhole === false, 'current source whole runtime projection must omit generatedFrom');"
         },
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "cf31f9c4a9db8afad0ca7ecd28450c65dadc341f1b2f8d4e786d742ae26b5ca5",
+        "packages/main/src/core/runtime-fact-registry.ts": "1f9fe1fca3334fa0808b41a68c022bb2bc999b326510eb20dcb17da4516f2009",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-runtime-fact-contract.mjs": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+        "scripts/verify-runtime-fact-contract.mjs": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
         "scripts/verify-validation-snapshot-binding.mjs": "d62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8",
         "packages/main/src/core/shared-validation-execution.ts": "fa73cd94ee33cee45cfcee2dbdd859122f08aa211e0daaa8a820a00a6b59f8c9"
       },
@@ -10759,9 +10759,9 @@
     },
     {
       "id": "EX-1041",
-      "key": "scripts/verify-runtime-fact-contract.mjs:729:execFileSync",
+      "key": "scripts/verify-runtime-fact-contract.mjs:735:execFileSync",
       "callDigest": "9bf81dfbae8a8b58aa4dc125c38054bb21e983f9e75af0b3952ea261ccfd7db2",
-      "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+      "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
       "configIndexes": [
         16
       ],
@@ -10770,9 +10770,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-runtime-fact-contract.mjs",
-          "startLine": 718,
-          "endLine": 743,
-          "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+          "startLine": 724,
+          "endLine": 749,
+          "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
           "excerpt": "      check(typeof text === 'string' && text.includes('Runtime scan:'), 'doctor text missing Runtime scan section');\n      for (const [id] of requiredFacts) {\n        check(text.includes(id), `doctor text Runtime scan missing runtime fact: ${id}`);\n      }\n    }\n  } finally {\n    rmSync(tmp, { recursive: true, force: true });\n  }\n\n  // Real CLI scan refusal and bounded cache migration share the default runtime contract.\n  for (const test of ['verify-doctor-runtime-scan.mjs', 'verify-doctor-runtime-cache.mjs']) {\n    execFileSync(process.execPath, [join(root, 'scripts', test)], {cwd: root, stdio: 'inherit', timeout: 120000});\n  }\n\n  execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});\n\n  if (failures.length > 0) {\n    console.error('Runtime fact contract failed:');\n    for (const failure of failures) console.error(`- ${failure}`);\n    process.exit(1);\n  }\n\n  console.log(`Runtime fact contract verified (${requiredFacts.map(([id]) => id).join(', ')})`);\n  console.log('execution_assertion_reuse_contract=PASS');\n}\n"
         },
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
@@ -10780,7 +10780,7 @@
       "dependencyDigests": {
         "scripts/verify-doctor-runtime-cache.mjs": "392b25c9c7a321c1e5f0dc00d156d4bb488e9abfbec607c56625a7e4be861596",
         "scripts/verify-doctor-runtime-scan.mjs": "fc5e432202cd4818b89cc897bab8110a6a4d5f4fb2525097c5291cbe4647efce",
-        "scripts/verify-runtime-fact-contract.mjs": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+        "scripts/verify-runtime-fact-contract.mjs": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
         "scripts/verify-validation-snapshot-binding.mjs": "d62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8",
         "packages/main/src/core/shared-validation-execution.ts": "fa73cd94ee33cee45cfcee2dbdd859122f08aa211e0daaa8a820a00a6b59f8c9"
       },
@@ -10793,9 +10793,9 @@
     },
     {
       "id": "EX-1042",
-      "key": "scripts/verify-runtime-fact-contract.mjs:732:execFileSync",
+      "key": "scripts/verify-runtime-fact-contract.mjs:738:execFileSync",
       "callDigest": "aa3c927d2261771cecf090da6ed78873014cd267fc331da1123bda633b21bc60",
-      "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+      "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
       "configIndexes": [
         16
       ],
@@ -10804,16 +10804,16 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-runtime-fact-contract.mjs",
-          "startLine": 721,
-          "endLine": 746,
-          "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+          "startLine": 727,
+          "endLine": 752,
+          "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
           "excerpt": "      }\n    }\n  } finally {\n    rmSync(tmp, { recursive: true, force: true });\n  }\n\n  // Real CLI scan refusal and bounded cache migration share the default runtime contract.\n  for (const test of ['verify-doctor-runtime-scan.mjs', 'verify-doctor-runtime-cache.mjs']) {\n    execFileSync(process.execPath, [join(root, 'scripts', test)], {cwd: root, stdio: 'inherit', timeout: 120000});\n  }\n\n  execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});\n\n  if (failures.length > 0) {\n    console.error('Runtime fact contract failed:');\n    for (const failure of failures) console.error(`- ${failure}`);\n    process.exit(1);\n  }\n\n  console.log(`Runtime fact contract verified (${requiredFacts.map(([id]) => id).join(', ')})`);\n  console.log('execution_assertion_reuse_contract=PASS');\n}\n\nmain().catch((error) => {\n  console.error('Runtime fact contract failed:');\n  console.error(`- ${error instanceof Error ? error.message : String(error)}`);"
         },
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
       ],
       "dependencyDigests": {
         "packages/main/tests/validation-tree-delegate-binding.mjs": "3111099df87c3e6556018e9764040bee1d5a75cc0896d469389616935dc55710",
-        "scripts/verify-runtime-fact-contract.mjs": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+        "scripts/verify-runtime-fact-contract.mjs": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
         "scripts/verify-validation-snapshot-binding.mjs": "d62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8",
         "packages/main/src/core/shared-validation-execution.ts": "fa73cd94ee33cee45cfcee2dbdd859122f08aa211e0daaa8a820a00a6b59f8c9"
       },
@@ -10995,9 +10995,9 @@
     },
     {
       "id": "EX-RUNTIME-SNAPSHOT-BINDING",
-      "key": "scripts/verify-runtime-fact-contract.mjs:95:execFileSync",
+      "key": "scripts/verify-runtime-fact-contract.mjs:101:execFileSync",
       "callDigest": "66efa03c51da9d40d226e8349a70c2c934301212b0d8100da9b409f1f8584caa",
-      "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+      "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
       "configIndexes": [
         16
       ],
@@ -11006,9 +11006,9 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-runtime-fact-contract.mjs",
-          "startLine": 95,
-          "endLine": 96,
-          "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+          "startLine": 101,
+          "endLine": 102,
+          "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
           "excerpt": "  execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],\n    { cwd: root, stdio: 'inherit', timeout: 30000 });"
         },
         {
@@ -11021,7 +11021,7 @@
         "The declared shared-validation-execution.ts dependency is read as text only. Source and invocation changes retain scanner refusal. Existing unrelated stale inventory remains separately reported."
       ],
       "dependencyDigests": {
-        "scripts/verify-runtime-fact-contract.mjs": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+        "scripts/verify-runtime-fact-contract.mjs": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
         "scripts/verify-validation-snapshot-binding.mjs": "d62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8",
         "packages/main/src/core/shared-validation-execution.ts": "fa73cd94ee33cee45cfcee2dbdd859122f08aa211e0daaa8a820a00a6b59f8c9"
       },
@@ -11437,7 +11437,7 @@
       "id": "EX-MEMORY-QUERY-TIMING",
       "key": "scripts/verify-runtime-fact-contract.mjs:79:execFileSync",
       "callDigest": "edfdb648df0b4d0d34759480b823240bcdeefcaf904cbe0bfc9300c8243d0996",
-      "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+      "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
       "configIndexes": [
         16
       ],
@@ -11448,7 +11448,7 @@
           "file": "scripts/verify-runtime-fact-contract.mjs",
           "startLine": 79,
           "endLine": 80,
-          "sourceDigest": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+          "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
           "excerpt": "  execFileSync(process.execPath, [join(root, 'scripts/verify-memory-query-timing.mjs')],\n    { cwd: root, stdio: 'inherit', timeout: 60_000 });"
         },
         {
@@ -11460,12 +11460,63 @@
         }
       ],
       "dependencyDigests": {
-        "scripts/verify-runtime-fact-contract.mjs": "14c4ecb9166efe1f59377aa80678e8ca79a8ccacc8750dd7b68a1bb6e772090e",
+        "scripts/verify-runtime-fact-contract.mjs": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
         "scripts/verify-memory-query-timing.mjs": "c2368e58d994392cc6077baa7acc8c0b457f464882df8d4787f6c63c046d410e",
         "packages/main/src/core/playbook-runtime-baseline.ts": "c3e6a9f96d8a8b28faeea78b18787f6fb9204edb9b7837982e380392a9568901",
         "packages/main/src/core/playbook-runtime-memory.ts": "99e1b98fa50f8912b0fa5f00f119cef4c6c397227562891580b9db3a186a8cb1",
         "package.json": "74981f730d31719ea9c288187886fbba79ac43cb25d622a65368c7ae947bd52c",
         "package-lock.json": "1f10c898d17fc0b6c06b684358ca21acb647a10af1d78120cc0622d6657b8829"
+      },
+      "invocations": [
+        {
+          "entry": "scripts/verify-runtime-fact-contract.mjs",
+          "argv": []
+        }
+      ]
+    },
+    {
+      "id": "EX-STATIC-AST-CONTROLS",
+      "key": "scripts/verify-runtime-fact-contract.mjs:84:execFileSync",
+      "callDigest": "cf569a32d7a5e26003d1c11898147c74833bb8a66a099fd6be667a4c1ab39c88",
+      "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
+      "configIndexes": [
+        16
+      ],
+      "kind": "REVIEWED_READONLY_SOURCE_CONTRACT",
+      "reason": "Exact bounded source regression pair. The constant two-element loop runs only AST report parity and isolated invocation controls; no user-supplied command or argv. Temporary scanners use current source with original helper and policy locations.",
+      "requiredEvidence": [
+        {
+          "file": "scripts/verify-runtime-fact-contract.mjs",
+          "startLine": 83,
+          "endLine": 86,
+          "sourceDigest": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
+          "excerpt": "  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN']]) {\n    const output = execFileSync(process.execPath, [join(root, 'scripts', test)], { cwd: root, encoding: 'utf8', timeout: 180_000 });\n    check(output.includes(marker), 'Executed static AST control: ' + test);\n  }"
+        },
+        {
+          "file": "scripts/verify-static-ast-reuse.mjs",
+          "startLine": 1,
+          "endLine": 44,
+          "sourceDigest": "96334fddfce5ffb6e2440b4a69052030a7f224f1f08555bc27a7579975b78887",
+          "excerpt": "import assert from 'node:assert/strict';\nimport fs from 'node:fs';\nimport os from 'node:os';\nimport path from 'node:path';\nimport {fileURLToPath, pathToFileURL} from 'node:url';\nimport {spawnSync} from 'node:child_process';\nconst root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');\nconst tmp=fs.mkdtempSync(path.join(os.tmpdir(),'static-ast-compare-'));\nconst scanner=path.join(root,'scripts/verify-validation-static-edges.mjs');\nconst original=fs.readFileSync(scanner,'utf8');\nconst runs=[];\nlet completed=false;\nfunction replaceRequired(source,needle,value){assert(source.includes(needle),'STATIC_AST_REFERENCE_PATCH_NOT_APPLIED: '+needle);return source.replace(needle,value);}\ntry {\n for(const arm of ['reference','candidate']) {\n  const counts=path.join(tmp,arm+'.counts'),report=path.join(tmp,arm+'.report');\n  let source=original;\n  // Execute current scanner source with unchanged helper imports and manifest\n  // location; only the parser observer and reference cache bypass differ.\n  for(const helper of ['static-source-evidence.mjs','identity-child-closure.mjs'])source=replaceRequired(source,\"'./\"+helper+\"'\",JSON.stringify(pathToFileURL(path.join(root,'scripts',helper)).href));\n  source=replaceRequired(source,'here=path.dirname(fileURLToPath(import.meta.url))','here='+JSON.stringify(path.join(root,'scripts')));\n  if(arm==='reference' && source.includes('function parseStaticSource'))source=replaceRequired(source,'const cached = parsedSourceCache.get(file);','const cached = undefined;');\n  const occurrences=source.split('ts.createSourceFile(').length-1;\n  assert.equal(occurrences,1,'STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT');\n  source=source.replace('ts.createSourceFile(','observedCreateSourceFile(');\n  source='let observedCalls=0; const observedInputs=new Set();\\nfunction observedCreateSourceFile(...args){observedCalls++;observedInputs.add(crypto.createHash(\"sha256\").update(String(args[0])+\"\\\\0\"+String(args[1])+\"\\\\0\"+JSON.stringify(args.slice(2))).digest(\"hex\"));return ts.createSourceFile(...args);}\\n'+source+'\\nfs.writeFileSync('+JSON.stringify(counts)+',JSON.stringify({calls:observedCalls,unique:observedInputs.size,maxRSSKiB:process.resourceUsage().maxRSS}));\\n';\n  const script=path.join(tmp,arm+'.mjs');fs.writeFileSync(script,source);\n  const started=performance.now();\n  const child=spawnSync(process.execPath,[script,root],{cwd:root,encoding:'utf8',timeout:60000,maxBuffer:8*1024*1024,env:{...process.env,U18_STATIC_REPORT_PATH:report}});\n  assert.equal(child.signal,null);assert.equal(child.status,0,child.stdout+child.stderr);\n  runs.push({arm,exitCode:child.status,elapsedMs:performance.now()-started,...JSON.parse(fs.readFileSync(counts,'utf8')),report:fs.readFileSync(report,'utf8')});\n }\n assert.equal(runs[0].exitCode,runs[1].exitCode);\n if(runs[0].report!==runs[1].report){\n  const before=JSON.parse(runs[0].report),after=JSON.parse(runs[1].report);\n  const row=before.rows.find((r,i)=>JSON.stringify(r)!==JSON.stringify(after.rows[i]));\n  const field=Object.keys(before).find(key=>JSON.stringify(before[key])!==JSON.stringify(after[key]));\n  assert.fail('Complete scanner report differs: '+(row?.key??field??'serialization')+'; retained reports: '+tmp);\n }\n console.log('STATIC_AST_COMPARISON '+JSON.stringify(runs.map(({report,...r})=>r)));\n assert(runs[0].calls>runs[0].unique,'Witness must contain duplicate parser requests');\n assert.equal(runs[1].calls,runs[1].unique,'STATIC_AST_REPEATED_IDENTICAL_INPUT: parse each exact source once within the command');\n console.log('STATIC_AST_REUSE_GREEN complete report parity and bounded parser calls');\n completed=true;"
+        },
+        {
+          "file": "scripts/verify-static-ast-reuse-boundaries.mjs",
+          "startLine": 1,
+          "endLine": 43,
+          "sourceDigest": "6965785265b0b18e66b87c7fee88d0a318cf3ebd5a50acd2bcd4cc90514bef48",
+          "excerpt": "import fs from 'node:fs';import {fileURLToPath} from 'node:url';import path from 'node:path';import vm from 'node:vm';import assert from 'node:assert/strict';import ts from 'typescript';\nconst root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');const file=path.join(root,'scripts/verify-validation-static-edges.mjs'),source=fs.readFileSync(file,'utf8'),parsed=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true);\nconst helper=parsed.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='parseStaticSource');assert(helper);\nconst box={ts};vm.createContext(box);vm.runInContext('const parsedSourceCache=new Map();'+helper.getText(parsed)+';globalThis.parse=parseStaticSource;globalThis.size=()=>parsedSourceCache.size;',box);\nconst a=box.parse('same.ts','const oldName=1;');assert.equal(box.parse('same.ts','const oldName=1;'),a);\nconst b=box.parse('same.ts','const newName=2;');assert.notEqual(b,a);assert.equal(b.statements[0].declarationList.declarations[0].name.text,'newName');assert.equal(box.size(),1,'One cached revision per path');\nconst c=box.parse('other.ts','const newName=2;');assert.notEqual(c,b);assert.equal(c.fileName,'other.ts');\nconst broken=box.parse('same.ts','const =');assert(broken.parseDiagnostics.length>0,'Changed invalid syntax must not inherit a valid AST');\nassert.equal(box.parse('same.ts','const repaired=3;').parseDiagnostics.length,0);assert.equal(box.size(),2);\nconsole.log('STATIC_AST_REUSE_HELPER_GREEN same-content hit; changed-content/path miss; invalid syntax preserved; recovery; one revision per path');\n\n// Real scanner, one parsed source used by two distinct configured invocations.\nimport os from 'node:os';\nimport crypto from 'node:crypto';\nimport {createRequire} from 'node:module';\nimport {spawnSync} from 'node:child_process';\nconst fixture=fs.mkdtempSync(path.join(os.tmpdir(),'static-ast-invocations-'));\nlet completed=false;\ntry {\n fs.writeFileSync(path.join(fixture,'package.json'),'{}');\n fs.mkdirSync(path.join(fixture,'node_modules'));\n fs.symlinkSync(path.dirname(createRequire(path.join(root,'package.json')).resolve('typescript/package.json')),path.join(fixture,'node_modules/typescript'),'dir');\n const scan=(commands,label)=>{\n  fs.writeFileSync(path.join(fixture,'proof-or-stop.config.json'),JSON.stringify({validate:{commands}}));\n  const manifest=path.join(fixture,'exceptions.json'),report=path.join(fixture,label+'.json');\n  fs.writeFileSync(manifest,JSON.stringify({entries:[],configDigest:crypto.createHash('sha256').update(JSON.stringify(commands)).digest('hex')}));\n  const child=spawnSync(process.execPath,[file,fixture,manifest],{encoding:'utf8',timeout:30000,env:{...process.env,U18_STATIC_REPORT_PATH:report}});\n  assert.equal(child.signal,null);assert.equal(child.status,1,'Isolated negative witness must refuse: '+child.stdout+child.stderr);\n  return JSON.parse(fs.readFileSync(report,'utf8'));\n };\n fs.writeFileSync(path.join(fixture,'a.mjs'),\"import {spawn} from 'node:child_process';if(!process.argv.includes('--canonical-core'))spawn(process.execPath,['b.mjs']);\");\n fs.writeFileSync(path.join(fixture,'b.mjs'),'');\n const argvReport=scan([{command:'node',args:['a.mjs','--canonical-core']},{command:'node',args:['a.mjs']},{command:'node',args:['b.mjs']}],'argv');\n assert(argvReport.rows.some(r=>r.file==='a.mjs'&&r.index===0&&r.state==='CONFIG_BRANCH_SKIPPED'));\n assert(argvReport.rows.some(r=>r.file==='a.mjs'&&r.index===1&&r.state==='NESTED_REGISTERED'));\n const narrowing='packages/main/src/tasks/narrowing-repin-smoke.ts';\n fs.mkdirSync(path.dirname(path.join(fixture,narrowing)),{recursive:true});fs.copyFileSync(path.join(root,narrowing),path.join(fixture,narrowing));\n const runtime='packages/main/dist/tasks/narrowing-repin-smoke.js';\n const identity=scan([{command:'node',args:[runtime,'--case-shard=0/4']},{command:'node',args:[runtime,'--bad']}],'identity');\n assert(!identity.coverage.some(r=>r.index===0&&r.reason?.includes('Unreviewed narrowing shard argv')));\n assert(identity.coverage.some(r=>r.index===1&&r.reason?.includes('Unreviewed narrowing shard argv')));\n console.log('STATIC_AST_REUSE_BOUNDARIES_GREEN source freshness, argv isolation and identity child mode isolation');\n completed=true;"
+        }
+      ],
+      "dependencyDigests": {
+        "scripts/verify-runtime-fact-contract.mjs": "7d9c023451ea62af61cb56f74e9958e694a4f19eb9447286e58a2c98f5060b0a",
+        "scripts/verify-static-ast-reuse.mjs": "96334fddfce5ffb6e2440b4a69052030a7f224f1f08555bc27a7579975b78887",
+        "scripts/verify-static-ast-reuse-boundaries.mjs": "6965785265b0b18e66b87c7fee88d0a318cf3ebd5a50acd2bcd4cc90514bef48",
+        "scripts/verify-validation-static-edges.mjs": "f13e39ced42c35820397c73050ad3c0558e5db35451e83d3d5a2f1e3d4c4e0f2",
+        "scripts/identity-child-closure.mjs": "8d27aef7e74cbd77dd0a878d41984f7a3b74680adb00c71b822de2441bf9a46d",
+        "scripts/extra-modes.mjs": "39a5b63bb88b84f1a24184fff6f9e347a540b00d37e33ffd2811555662b1360d",
+        "scripts/static-source-evidence.mjs": "18e24dbb33327dc1b9ac862018b98c02613e797ccbb05f985e7b1829582db86f",
+        "scripts/identity-child-contract.json": "31ae63cfafd90993ecfd02e8ea1853f04ac97fd21bc3b37cb8665623953bd785",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts": "25652fdafb05abb43a5e622b259634c2630aaed73d691322096d83560f834378"
       },
       "invocations": [
         {

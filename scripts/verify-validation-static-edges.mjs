@@ -36,8 +36,19 @@ const QUORUM_NATIVE_HELPER_DEPTHS = new Map([
 ]);
 const source=p=>{const mapped=p.replace('/dist/','/src/').replace(/\.js$/,'.ts');return fs.existsSync(path.join(root,mapped))?mapped:p;};
 const runtime=p=>p.includes('/src/')?p.replace('/src/','/dist/').replace(/\.ts$/,'.js'):p;
+// Syntax is independent of the configured invocation. Retain at most one AST
+// per source path for this process; every scan still reads the current bytes,
+// compares the text, and performs its own argv, coverage and evidence checks.
+const parsedSourceCache = new Map();
+function parseStaticSource(file, text) {
+ const cached = parsedSourceCache.get(file);
+ if (cached?.text === text) return cached.ast;
+ const ast = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+ parsedSourceCache.set(file, { text, ast });
+ return ast;
+}
 function scan(file,index,entry,argv,seen,depth=0){const invocationKey=JSON.stringify([file,entry,argv]);if(seen.has(invocationKey))return;seen.add(invocationKey);if(depth>3 && !(entry==='packages/main/dist/tasks/quorum-submit-smoke.js' && QUORUM_NATIVE_HELPER_DEPTHS.get(file)?.includes(depth))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'helper depth exceeds declared bound'});return;}if(!fs.existsSync(path.join(root,file))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source missing'});return;}
- const sourceBytes=fs.readFileSync(path.join(root,file)),text=sourceBytes.toString('utf8'),ast=ts.createSourceFile(file,text,ts.ScriptTarget.Latest,true),decls=new Map(),cpNames=new Map(),spaces=new Set(),helpers=[],fileTargets=new Set(),mutable=new Set(),aliases=[],pureNames=new Map(),pureSpaces=new Map(),bindings=[];
+ const sourceBytes=fs.readFileSync(path.join(root,file)),text=sourceBytes.toString('utf8'),ast=parseStaticSource(file,text),decls=new Map(),cpNames=new Map(),spaces=new Set(),helpers=[],fileTargets=new Set(),mutable=new Set(),aliases=[],pureNames=new Map(),pureSpaces=new Map(),bindings=[];
  if(ast.parseDiagnostics?.length)coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source parse diagnostics'});
  const moduleFile=path.join(root,runtime(file));
  const identityPlan=identityChildClosure({ts,file,text,ast,entry,argv,contract:identityContract});
