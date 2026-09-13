@@ -50,6 +50,7 @@ import {
   VALIDATION_TIERS,
   buildValidationImpactIndexFromCatalog,
   resolveValidationTierPlan,
+  validationWideningReason,
   validationWideningReasonGloss,
   type ValidationTier,
   type ValidationTierPlanResult,
@@ -238,11 +239,15 @@ export function attachImpactProjectionFailure(
   failure: string | undefined,
 ): ValidationTierPlanResult {
   if (!failure) return result;
+  const detail = `catalog projection failed: ${failure}`;
+  const hasImpactReason = result.escalationReasons.some((reason) => reason.code === 'impact_index_unusable');
   return {
     ...result,
-    escalationReasons: result.escalationReasons.map((reason) => reason.code === 'impact_index_unusable'
-      ? { ...reason, detail: `${reason.detail}; catalog projection failed: ${failure}` }
-      : reason),
+    escalationReasons: hasImpactReason
+      ? result.escalationReasons.map((reason) => reason.code === 'impact_index_unusable'
+        ? { ...reason, detail: `${reason.detail}; ${detail}` }
+        : reason)
+      : [...result.escalationReasons, validationWideningReason('impact_index_unusable', detail)],
   };
 }
 

@@ -27,6 +27,7 @@ import {
   stableDigest,
   validateValidationCatalog,
   evaluateDynamicAuthority,
+  assertCompleteInventoryCoverage,
   assertSelectionIsSingletonUnionMonotonic,
   assertSelectionMonotonicity,
   runObserveOracle,
@@ -362,8 +363,8 @@ try {
   'a self-consistent re-signed command-set binding must be rejected against the live inventory');
   const snapshotInput = { ...storedTierBinding.input, snapshotDigest: 'forged-snapshot' };
   assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', rebindStoredManifest(snapshotInput))
-    .includes('dynamic_selector_context_changed'),
-  'a self-consistent re-signed snapshot binding must be rejected against current Story refs and changed paths');
+    .includes('dynamic_manifest_invalid'),
+  'manifest self-verification rejects a re-signed snapshot before stored-context admission');
   const noBindingRows = storedManifest.rows.map((row) => row.disposition === 'excluded'
     ? { ...row, disposition: 'execute' as const, reasons: ['fixture-execute-without-selector'] }
     : row);
@@ -463,6 +464,43 @@ const tieredManifest = { ...tieredManifestUnsigned, signature: signPayload(tiere
 const manifestCommandIds = tieredManifest.rows.map((row) => row.commandId);
 assert.equal(verifyValidationSelectionManifest(tieredManifest), true);
 const resign = (body: Record<string, unknown>) => ({ ...body, signature: signPayload({ ...body, signature: undefined }) }) as ValidationSelectionManifest;
+const rebindTieredManifest = (input: NonNullable<typeof tieredManifest.selectorBinding>['input']): ValidationSelectionManifest => {
+  const decision = selectAutomaticValidationTier(input);
+  const binding = {
+    ...tieredManifest.selectorBinding!,
+    input,
+    decision,
+    bindingDigest: digestCanonicalJson({
+      catalogDigest: tieredManifest.selectorBinding!.catalogDigest,
+      input,
+      decision,
+    }),
+  };
+  return resign({
+    ...tieredManifest,
+    selectorBinding: binding,
+    selectorDecisionDigest: decision.selectionDigest,
+    requestedTier: decision.requestedTier,
+    effectiveTier: decision.effectiveTier,
+    tierSelections: decision.tierSelections,
+  });
+};
+assert.equal(verifyValidationSelectionManifest(rebindTieredManifest({
+  ...tieredManifest.selectorBinding!.input,
+  snapshotDigest: 'caller-authored-story-snapshot',
+})), false, 'manifest verification binds the selector snapshot to its own Story/base/head/change identity');
+assert.equal(verifyValidationSelectionManifest(resign({
+  ...tieredManifest,
+  changedFiles: [...tieredManifest.changedFiles, {
+    path: 'packages/main/src/not-declared-by-selector.ts', status: 'modified', blobId: 'caller-authored-blob',
+  }],
+})), false, 'manifest verification requires every signed changed path to appear in the selector input');
+const coverageRowsWithExclusion = baseline.rows.map((row, index) => index === 0
+  ? { ...row, disposition: 'excluded' as const }
+  : row);
+assert.throws(() => assertCompleteInventoryCoverage(inventory, coverageRowsWithExclusion), /allowExcluded/,
+  'complete inventory coverage rejects excluded rows unless a tier-aware caller opts in explicitly');
+assert.doesNotThrow(() => assertCompleteInventoryCoverage(inventory, coverageRowsWithExclusion, { allowExcluded: true }));
 assert.equal(verifyValidationSelectionManifest(resign({
   ...tieredManifest,
   tierSelections: { ...tieredManifest.tierSelections, 'story-fast': ['not-in-intermediate'] },
@@ -785,74 +823,141 @@ if (requestedAuditMode) {
       return 'scope escalation PASS';
     },
     selection: () => {
-      assert.equal(verifyValidationSelectionManifest(tieredManifest), true);
-      assert.equal(tieredManifest.rows.length, tieredManifest.totals.inventory);
+      const subject = buildDynamicValidationPlan(context('packages/main/src/audit-selection.ts'));
+      assert.equal(verifyValidationSelectionManifest(subject), true);
+      assert.equal(subject.rows.length, subject.totals.inventory);
       return 'complete ledger PASS';
     },
     'selection-mutations': () => {
-      assert.equal(verifyValidationSelectionManifest(contributionMutation), false);
+      const subject = buildDynamicValidationPlan(context('packages/main/src/audit-selection-mutation.ts'));
+      const mutated = resign({ ...subject, rows: subject.rows.slice(1) });
+      assert.equal(verifyValidationSelectionManifest(mutated), false);
       return 'monotonicity PASS';
     },
     'selection-fail-closed': () => {
-      assert.equal(verifyValidationSelectionManifest(ignoredEscalationMutant), false);
+      const subject = buildDynamicValidationPlan(context('packages/main/dist/audit-fail-closed.js'));
+      assert.equal(subject.fullEscalated, true);
+      const rows = subject.rows.map((row, index) => index === 0
+        ? { ...row, disposition: 'excluded' as const, reasons: ['audit-forged-exclusion'] }
+        : row);
+      const mutant = resign({
+        ...subject,
+        rows,
+        fullEscalated: false,
+        totals: { ...subject.totals, executed: subject.totals.executed - 1, excluded: 1 },
+      });
+      assert.equal(verifyValidationSelectionManifest(mutant), false);
       return 'fail-closed escalation PASS';
     },
     'observe-equivalence': () => {
-      assert.equal(observeEquivalent.equivalent, true);
+      const subject = buildDynamicValidationPlan(context('packages/main/src/audit-observe-equivalent.ts'));
+      const selected = subject.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
+      const observed = runObserveOracle({ manifest: subject, fullOracle: { allPass: true },
+        instrumentedOrder: selected, authoritativeOrder: subject.rows.map((row) => row.commandId) });
+      assert.equal(observed.equivalent, true);
       return 'observe/full equivalence PASS';
     },
     'trace-isolation': () => {
-      assert.equal(cleanRun.rows.find((row) => row.commandId === 'unit')?.disposition, 'reuse');
+      const subject = receipt({ id: 'audit-trace-isolation' });
+      const unrelatedLedger = buildRevocationLedger(['unrelated-receipt']);
+      assert.equal(verifyValidationCommandReceipt(subject).ok, true);
+      assert.equal(isReceiptRevoked(subject, unrelatedLedger), false);
       return 'isolated observe telemetry PASS';
     },
     'observe-mutations': () => {
-      assert.equal(falseNegative.equivalent, false);
+      const subject = buildDynamicValidationPlan(context('packages/main/src/audit-observe-mutation.ts'));
+      const selected = subject.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
+      const observed = runObserveOracle({ manifest: subject,
+        fullOracle: { allPass: false, failedCommandIds: ['audit-observe-outside-selection'] },
+        instrumentedOrder: selected, authoritativeOrder: subject.rows.map((row) => row.commandId) });
+      assert.equal(observed.equivalent, false);
       return 'observer mutation rejected';
     },
     receipts: () => {
-      assert.equal(verifyValidationCommandReceipt(validReceipt).ok, true);
+      const subject = receipt({ id: 'audit-receipt-positive', outputDigest: 'audit-receipt-output' });
+      assert.equal(verifyValidationCommandReceipt(subject).ok, true);
       return 'admissible per-command reuse PASS';
     },
     'receipt-mutations': () => {
-      assert.equal(verifyValidationCommandReceipt(staleReceipt).ok, false);
-      assert.equal(isReceiptRevoked(validReceipt, revokedLedger), true);
+      const subject = receipt({ id: 'audit-receipt-stale', createdAt: '2020-01-01T00:00:00.000Z', expiresAt: '2020-01-02T00:00:00.000Z' });
+      const revoked = buildRevocationLedger([subject.id]);
+      assert.equal(verifyValidationCommandReceipt(subject).ok, false);
+      assert.equal(isReceiptRevoked(subject, revoked), true);
       return 'receipt rejection matrix PASS';
     },
     'receipt-forgery': () => {
-      assert.equal(verifyValidationCommandReceipt(forgedByArtifactWriter).ok, false);
+      const subject = receipt({ id: 'audit-receipt-forgery' });
+      const { signature: _subjectSignature, ...unsignedSubject } = subject;
+      const inputDigest = 'audit-forged-input';
+      const forged = { ...subject, inputDigest,
+        signature: `ed25519:validation-artifact-v1:${signCanonical({ ...unsignedSubject, inputDigest }, artifactWriterKey.privateKey)}` };
+      assert.equal(verifyValidationCommandReceipt(forged).ok, false);
       return 'forged receipt rejected';
     },
     'shadow-equivalence': () => {
-      assert.equal(observeEquivalent.equivalent, true);
+      const subject = buildDynamicValidationPlan(context('packages/main/src/audit-shadow-equivalent.ts'));
+      const selected = subject.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
+      const shadow = runObserveOracle({ manifest: subject, fullOracle: { allPass: true },
+        instrumentedOrder: selected, authoritativeOrder: subject.rows.map((row) => row.commandId) });
+      assert.equal(shadow.equivalent, true);
       return 'shadow/full oracle equivalent';
     },
     'shadow-rejections': () => {
-      assert.equal(falseNegative.equivalent, false);
+      const subject = buildDynamicValidationPlan(context('packages/main/src/audit-shadow-rejection.ts'));
+      const selected = subject.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
+      const shadow = runObserveOracle({ manifest: subject,
+        fullOracle: { allPass: false, failedCommandIds: ['audit-shadow-rejected-command'] },
+        instrumentedOrder: selected, authoritativeOrder: subject.rows.map((row) => row.commandId) });
+      assert.equal(shadow.equivalent, false);
       return 'shadow discrepancy reported';
     },
     'shadow-false-negative': () => {
-      assert.deepEqual(falseNegative.falseNegativeCommandIds, ['outside-dynamic-row']);
+      const subject = buildDynamicValidationPlan(context('packages/main/src/audit-shadow-false-negative.ts'));
+      const selected = subject.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
+      const shadow = runObserveOracle({ manifest: subject,
+        fullOracle: { allPass: false, failedCommandIds: ['audit-shadow-false-negative-id'] },
+        instrumentedOrder: selected, authoritativeOrder: subject.rows.map((row) => row.commandId) });
+      assert.deepEqual(shadow.falseNegativeCommandIds, ['audit-shadow-false-negative-id']);
       return 'false negative detected';
     },
     'test-gate': () => {
-      assert.equal(authority.authoritative, true);
+      const manifest = buildDynamicValidationPlan({ ...cleanContext, mode: 'enforce-low-risk' });
+      const subject = evaluateDynamicAuthority({ mode: 'enforce-low-risk', riskTier: 'local', manifest,
+        prerequisites: allAuthorityPrerequisites, pinnedCommandsExecuted: true });
+      assert.equal(subject.authoritative, true, JSON.stringify(subject));
       return 'low-risk dynamic TEST PASS';
     },
     'test-gate-escalation': () => {
-      assert.equal(participatingRiskAuthority.fallbackToFull, true);
+      const manifest = buildDynamicValidationPlan(context('packages/main/src/audit-test-gate-escalation.ts'));
+      const subject = evaluateDynamicAuthority({ mode: 'enforce-low-risk', riskTier: 'shared', manifest,
+        prerequisites: { ...allAuthorityPrerequisites, storyRiskEligible: false }, pinnedCommandsExecuted: true });
+      assert.equal(subject.fallbackToFull, true);
       return 'mandatory full escalation PASS';
     },
     'test-gate-mutations': () => {
-      assert.equal(authorityMutation.authoritative, false);
+      const manifest = buildDynamicValidationPlan(context('packages/main/src/audit-test-gate-mutation.ts'));
+      const subject = evaluateDynamicAuthority({ mode: 'enforce-low-risk', riskTier: 'local',
+        manifest: { ...manifest, signature: 'audit-tampered-signature' },
+        prerequisites: allAuthorityPrerequisites, pinnedCommandsExecuted: true });
+      assert.equal(subject.authoritative, false);
       return 'authority mutations rejected';
     },
     operations: () => {
-      assert.equal(verifyValidationSchedule(scheduled, scheduled).ok, true);
-      assert.equal(isReceiptRevoked(validReceipt, revokedLedger), true);
+      const entries = [
+        { commandId: 'audit-operation-a', originalIndex: 0, cpuWeight: 1, expectedP50Ms: 7, resources: [] },
+        { commandId: 'audit-operation-b', originalIndex: 1, cpuWeight: 1, expectedP50Ms: 5, resources: [] },
+      ];
+      const subject = buildValidationSchedule(entries, { workerCapacity: 2, cpuCapacity: 2 });
+      assert.equal(verifyValidationSchedule(subject, entries, { workerCapacity: 2, cpuCapacity: 2 }).ok, true);
       return 'safe recovery and rollback PASS';
     },
     'operations-mutations': () => {
-      assert.equal(verifyValidationSchedule(overCapacitySchedule, overCapacitySchedule, { workerCapacity: 2, cpuCapacity: 2 }).ok, false);
+      const entries = [
+        { commandId: 'audit-over-capacity-a', originalIndex: 0, cpuWeight: 1, expectedP50Ms: 10, resources: [], wave: 0, startOffsetMs: 0, endOffsetMs: 10 },
+        { commandId: 'audit-over-capacity-b', originalIndex: 1, cpuWeight: 1, expectedP50Ms: 10, resources: [], wave: 0, startOffsetMs: 0, endOffsetMs: 10 },
+        { commandId: 'audit-over-capacity-c', originalIndex: 2, cpuWeight: 1, expectedP50Ms: 10, resources: [], wave: 0, startOffsetMs: 0, endOffsetMs: 10 },
+      ];
+      assert.equal(verifyValidationSchedule(entries, entries, { workerCapacity: 2, cpuCapacity: 2 }).ok, false);
       return 'operations mutation rejected';
     },
   };

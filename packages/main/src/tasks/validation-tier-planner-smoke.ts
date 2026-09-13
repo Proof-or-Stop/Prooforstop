@@ -3788,6 +3788,15 @@ testCase('a failed explain-side catalog projection falls back with the bounded p
   assert.ok(diagnosed.escalationReasons.some((reason) =>
     reason.code === 'impact_index_unusable'
       && reason.detail.includes('catalog projection failed: fixture malformed validation resources')));
+  const withoutImpactReason = {
+    ...compatibility,
+    escalationReasons: compatibility.escalationReasons.filter((reason) => reason.code !== 'impact_index_unusable'),
+  };
+  const appended = attachImpactProjectionFailure(withoutImpactReason, projection.failure);
+  assert.ok(appended.escalationReasons.some((reason) =>
+    reason.code === 'impact_index_unusable'
+      && reason.detail === 'catalog projection failed: fixture malformed validation resources'),
+  'projection failure remains visible even when the underlying result did not already carry its reason code');
 });
 
 testCase('without --explain the unit list is previewed, and --explain lists every unit', () => {

@@ -1226,10 +1226,26 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
   const contributedIds = singletonUnion(normalizedContributions);
   const selectorBinding = manifest.selectorBinding;
   const expectedSelectorDecision = selectorBinding ? selectAutomaticValidationTier(selectorBinding.input) : undefined;
+  const manifestChangedPaths = Array.isArray(manifest.changedFiles)
+    ? uniqueSorted(manifest.changedFiles.flatMap((change) => [change?.path, change?.oldPath]
+      .filter((path): path is string => typeof path === 'string' && path.length > 0)
+      .map(normalPath)))
+    : undefined;
+  const selectorChangedPaths = new Set(Array.isArray(selectorBinding?.input?.changedPaths)
+    ? selectorBinding.input.changedPaths.map(normalPath)
+    : []);
   const tierBindingValid = manifest.selectorDecisionDigest === undefined
     ? selectorBinding === undefined && manifest.requestedTier === undefined && manifest.effectiveTier === undefined && manifest.tierSelections === undefined
     : Boolean(selectorBinding && manifest.requestedTier && manifest.effectiveTier && manifest.tierSelections
       && selectorBinding.catalogDigest === manifest.catalogDigest
+      && selectorBinding.input.snapshotDigest === automaticValidationTierSnapshotDigest({
+        storyId: manifest.storyId,
+        baseHead: manifest.baseHead,
+        head: manifest.head,
+        changeDigest: manifest.changeDigest,
+      })
+      && manifestChangedPaths !== undefined
+      && manifestChangedPaths.every((path) => selectorChangedPaths.has(path))
       && selectorBinding.bindingDigest === digestCanonicalJson({ catalogDigest: selectorBinding.catalogDigest, input: selectorBinding.input, decision: selectorBinding.decision })
       && digestCanonicalJson(selectorBinding.decision) === digestCanonicalJson(expectedSelectorDecision)
       && selectorBinding.decision.selectionDigest === manifest.selectorDecisionDigest
@@ -1309,9 +1325,17 @@ export function verifyValidationTierExclusions(manifest: ValidationSelectionMani
 }
 export const buildSelectionManifest = buildDynamicValidationPlan;
 export const verifySelectionManifest = verifyValidationSelectionManifest;
-export function assertCompleteInventoryCoverage(inventory: ValidationInventory | ValidationInventoryCommand[], rows: SelectionRow[]): void {
+export function assertCompleteInventoryCoverage(
+  inventory: ValidationInventory | ValidationInventoryCommand[],
+  rows: SelectionRow[],
+  options: { allowExcluded?: boolean } = {},
+): void {
   const commands = Array.isArray(inventory) ? inventory : inventory.commands; const ids = new Set(commands.map(row => row.id));
-  if (rows.length !== ids.size || rows.some(row => !ids.has(row.commandId)) || rows.some(row => row.disposition === 'unverified')) throw new Error('selection inventory coverage is incomplete');
+  if (rows.length !== ids.size || rows.some(row => !ids.has(row.commandId))
+    || rows.some(row => row.disposition === 'unverified')
+    || (!options.allowExcluded && rows.some(row => row.disposition === 'excluded'))) {
+    throw new Error('selection inventory coverage is incomplete; excluded rows require explicit allowExcluded');
+  }
 }
 export function assertSelectionIsSingletonUnionMonotonic(context: DynamicValidationContext, manifest: ValidationSelectionManifest): void {
   if (manifest.totals.executed + manifest.totals.reused + manifest.totals.excluded + manifest.totals.unverified !== manifest.totals.inventory) throw new Error('selection ledger does not partition inventory');

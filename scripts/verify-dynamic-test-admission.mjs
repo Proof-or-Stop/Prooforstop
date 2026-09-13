@@ -255,6 +255,17 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
           /Stored routine validation admission|validation evidence signature is missing or invalid/,
           'DONE must not let a stripped dynamic marker skip stored-PASS authentication');
         assertSignatureRefusal();
+        const selectionPath = join(root, '.proof-or-stop/runtime/dynamic-validation', storyId, 'selection.json');
+        const receiptsPath = join(root, '.proof-or-stop/runtime/dynamic-validation', storyId, 'receipts.json');
+        const originalSelection = readFileSync(selectionPath);
+        const originalReceipts = readFileSync(receiptsPath);
+        writeFileSync(selectionPath, JSON.stringify({ mode: 'observe' }));
+        rmSync(receiptsPath);
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+          /Stored routine validation admission|validation evidence signature is missing or invalid/,
+          'DONE authenticates before classification even when marker, selection mode, and receipts are all stripped');
+        writeFileSync(selectionPath, originalSelection);
+        writeFileSync(receiptsPath, originalReceipts);
         store.writeTestEvidence(storyId, originalEvidence);
         persist(artifacts.receipts);
         await runValidateGate(ctx, storyId, { stop() {} });

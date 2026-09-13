@@ -100,6 +100,10 @@ export function requiresDynamicValidationAdmission(
   }
   const evidence = ctx.store.readTestEvidence(storyId);
   if (!evidence || evidence.result !== 'PASS') return false;
+  // Classification follows authentication. Invalid evidence is deliberately
+  // routed into the strict evaluator so stripping both presentation markers
+  // and writable runtime hints cannot restore the legacy DONE path.
+  if (!verifyTestValidationEvidence(storyId, evidence, ctx.gitCwd)) return true;
   try {
     const claimedDynamicOrigin = dynamicValidationCoverageAdmission(JSON.parse(evidence.output), true).dynamicOrigin;
     return claimedDynamicOrigin || hasStoryAwareValidationArtifacts(ctx.root, storyId);

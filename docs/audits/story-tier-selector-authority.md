@@ -336,6 +336,26 @@ static-edge verification with 326 exceptions and zero pending/nested rows, and
 the complete process-fact contract. The final repair still requires commit,
 fresh Lab GREEN, and another exact post-bump Claude audit.
 
+## Tenth Claude audit and remediation
+
+The Lab-finish audit of candidate `6c629a88a9` returned `fail` under run
+`d0efd603-0717-4512-a00e-1b0b602027fc` after 879,982 ms. Finish stopped before
+main integration. Claude confirmed the central selector, graph, digest,
+ownership, observe-mode, cache, portable-id and version transactions, then
+returned five remaining evidence-boundary findings:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A10-F1 mode assertions reused prior subjects | Twenty named blocks mostly re-asserted module-scope subjects, and two observe/shadow pairs were byte-identical | Every mode now constructs a new mode-specific manifest, mutation, receipt, oracle comparison, authority decision or schedule inside its own block. Observe and shadow modes use distinct paths, failure ids and oracle calls. Each registered mode is executed after the shared mutation floor and can fail independently on its own newly constructed subject |
+| A10-F2 unsigned DONE classification | Strict DONE admission was selected from unsigned output markers and writable runtime hints | `requiresDynamicValidationAdmission` authenticates the Story test evidence first; any invalid signature is routed into the strict evaluator before classification. A negative fixture strips the output marker, changes selection mode to observe and removes receipts, yet DONE still emits the blocking signature refusal. A valid signed legacy full PASS and a valid observe PASS retain their prior contract |
+| A10-F3 manifest self-binding | Generic manifest verification recomputed the decision but did not compare its snapshot and changed paths with the manifest's own Story fields | Verification now recomputes the Story/base/head/change snapshot digest and requires every normalized `path`/`oldPath` in `manifest.changedFiles` to appear in selector input. Re-signed snapshot and added-path mutations are both rejected without relying on a later stored consumer |
+| A10-F4 ambiguous complete-coverage helper | `assertCompleteInventoryCoverage` accepted positive exclusions implicitly | Exclusions are rejected by default and require the caller to pass `{ allowExcluded: true }`; the mutation suite proves both default refusal and explicit tier-aware opt-in |
+| A10-F5 dropped explain projection error | `attachImpactProjectionFailure` only decorated an already-present `impact_index_unusable` row | If that row is absent, the adapter appends a canonical widening reason with the bounded projection failure. The planner smoke removes the pre-existing reason and proves the error remains visible |
+
+This repair requires a new build, all twenty mode entrypoints, real TEST/DONE
+admission, static-edge and process-fact checks before the next committed GREEN.
+No candidate rejected by this or an earlier audit is a release.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,
