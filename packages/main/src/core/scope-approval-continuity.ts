@@ -68,6 +68,7 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
   if(report.status!=='decision_required'||report.diagnostics.length||report.decomposition) return null;
   const approvals=unexpiredScopeBudgetApprovals(store,root,subject.storyId);
   if(!approvals.length) { onRefusal?.('proof_unavailable'); return null; }
+  let unavailableHistory=false;
   try {
     const deadline=Date.now()+policy.continuityTotalMs;
     let commands=0,bytes=0;
@@ -79,8 +80,8 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
       try { output=execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],
         timeout:Math.max(1,Math.min(policy.continuityGitTimeoutMs,deadline-Date.now())),maxBuffer:policy.continuityGitOutputBytes});
       } catch (error) {
-        checkBudget();
         if ((error as NodeJS.ErrnoException).code === 'ENOBUFS') throw new ContinuityProofLimit('byte_limit');
+        if ((error as NodeJS.ErrnoException).code === 'ETIMEDOUT') checkBudget();
         throw error;
       }
       bytes+=Buffer.byteLength(output);
@@ -107,7 +108,7 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
       // First-parent publication order is one ancestry chain, including merge publications.
       const commits=git('log','--first-parent','--full-history',`--max-count=${policy.continuityHistoryCommits+1}`,'--format=%H',head,'--',file).split('\n').filter(Boolean);
       if(commits.length>policy.continuityHistoryCommits) throw new ContinuityProofLimit('history_limit');
-      if(!commits.length) onRefusal?.('proof_unavailable');
+      if(!commits.length) unavailableHistory=true;
       commits.reverse();histories.set(file,commits);return commits;
     };
     const read=<T>(commit: string,file: string): T=>{
@@ -194,6 +195,8 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
     }
   } catch (error) {
     onRefusal?.(error instanceof ContinuityProofLimit ? error.code : 'proof_unavailable');
+    return null;
   }
+  if(unavailableHistory) onRefusal?.('proof_unavailable');
   return null;
 }

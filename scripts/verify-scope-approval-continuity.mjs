@@ -84,7 +84,7 @@ try {
   git('add','.');git('commit','-qm','publish synthetic signed applied scope approval');
   const approvalCommit=git('rev-parse','HEAD');
   const approvalPath=store.storyFilePath(storyId,'scope-budget-decisions.json'),approvalBytes=readFileSync(approvalPath);
-  const report=()=>{const r=readStoryScopeBudget(store,root,storyId);assert.deepEqual(readFileSync(approvalPath),approvalBytes,'budget reads cannot rewrite authorization');return r;};
+  const report=(expectedApprovalBytes=approvalBytes)=>{const r=readStoryScopeBudget(store,root,storyId);assert.deepEqual(readFileSync(approvalPath),expectedApprovalBytes,'budget reads cannot rewrite authorization');return r;};
   assert.equal(report().status,'approved_large_story','exact signed binding remains accepted');
   assert.deepEqual(store.readScopeContract(storyId),approved.scope,'fixture applied scope must round-trip exactly');
   await createChecklistHandlers({root,scanRoot:root,store,verificationCommandRunner,log(){}}).verification_evidence_add({storyId,itemId:'CHK-006',intentRef:'CHK-006:happy:0',kind:'integration_test',command:'node verify.cjs',selector:'CONTINUITY_REAL_EXECUTION_PASS',note:'Real disposable Node execution provides the first immutable intent pin.'});
@@ -97,7 +97,8 @@ try {
   store.writeChecklist(storyId,approved.checklist);const commandsOnly=report();
   store.writeChecklist(storyId,pinned);
   console.log('SCOPE_APPROVAL_CONTINUITY_OBSERVATIONS '+JSON.stringify({pinOnly:pinOnly.status,commandsOnly:commandsOnly.status,combined:combined.status}));
-  for(const [label,r] of Object.entries({pinOnly,commandsOnly,combined}))assert.equal(r.status,'approved_large_story',`SCOPE_APPROVAL_BOOKKEEPING_INVALIDATION: ${label} must retain the original authenticated scope approval`);
+  const positiveLabels=[];
+  for(const [label,r] of Object.entries({pinOnly,commandsOnly,combined})) {assert.equal(r.status,'approved_large_story',`SCOPE_APPROVAL_BOOKKEEPING_INVALIDATION: ${label} must retain the original authenticated scope approval`);positiveLabels.push(label);}
   assert.equal(canonicalDigest(approval),canonicalDigest(store.readScopeBudgetDecisions(storyId).decisions[0]));
   const exactCurrent=evaluateStoryScopeBudget({...approved,checklist:pinned},additive);
   let historicalCalls=0;
@@ -125,7 +126,8 @@ try {
     assert(historicalCalls>0,'positive control must actually scan history');
   } finally {child.execFileSync=originalGit;syncBuiltinESMExports();}
   const negativeLabels=['observe mode skips historical continuity','exact issuer report skips historical continuity','decomposition child skips historical continuity'];
-  const refused=(label)=>{const r=report();assert.notEqual(r.status,'approved_large_story',label);negativeLabels.push(label);return r;};
+  const refused=(label,reason='equivalence_not_proven',expectedApprovalBytes=approvalBytes)=>{const r=report(expectedApprovalBytes);assert.equal(r.status,'decision_required',label);assert.equal(r.approvalContinuityRefusal,reason,label);negativeLabels.push(label);return r;};
+  const refusedBeforeContinuity=(label,status)=>{const r=report();assert.equal(r.status,status,label);assert.equal(r.approvalContinuityRefusal,undefined,label);negativeLabels.push(label);return r;};
   const withChecklist=(label,mutate)=>{const changed=structuredClone(pinned);mutate(changed);store.writeChecklist(storyId,changed);try{refused(label);}finally{store.writeChecklist(storyId,pinned);}};
   withChecklist('changed early intent reference',c=>{c.items[0].verificationIntent.edge.push(c.items[0].verificationIntent.happy.pop());});
   withChecklist('changed requirement',c=>{c.items[0].title+=' changed';});
@@ -133,40 +135,42 @@ try {
   withChecklist('withdrawn requirement',c=>{c.items[0].status='withdrawn';});
   withChecklist('changed first pin command',c=>{c.items[5].verificationIntent.happy[0].verification.command='node --version';});
   withChecklist('changed first pin selector',c=>{c.items[5].verificationIntent.happy[0].verification.selector='different';});
-  const withConfig=(label,mutate)=>{const changed=structuredClone(additive);mutate(changed);setConfig(changed);try{refused(label);}finally{setConfig(additive);}};
-  withConfig('removed original command',c=>{c.validate.commands.splice(1,1);});
-  withConfig('modified original command',c=>{c.validate.commands[1]='node different.cjs';});
+  const withConfig=(label,mutate,earlyStatus)=>{const changed=structuredClone(additive);mutate(changed);setConfig(changed);try{if(earlyStatus)refusedBeforeContinuity(label,earlyStatus);else refused(label);}finally{setConfig(additive);}};
+  withConfig('removed original command',c=>{c.validate.commands.splice(1,1);},'unknown');
+  withConfig('modified original command',c=>{c.validate.commands[1]='node different.cjs';},'unknown');
+  withConfig('removed unreferenced original command',c=>{c.validate.commands.pop();});
+  withConfig('modified unreferenced original command',c=>{c.validate.commands[2]='node --trace-warnings';});
   withConfig('reordered original commands',c=>{[c.validate.commands[1],c.validate.commands[2]]=[c.validate.commands[2],c.validate.commands[1]];});
-  withConfig('explicit lookalike label changes raw entry',c=>{c.validate.commands[1]={command:'node',args:['verify.cjs'],label:'configured validate.commands[1]'};});
+  withConfig('explicit lookalike label changes raw entry',c=>{c.validate.commands[1]={command:'node',args:['verify.cjs'],label:'configured validate.commands[1]'};},'unknown');
   withConfig('duplicate execution tuple under a new ID',c=>{c.validate.commands.push({id:'duplicate-original',label:'different label',command:'node',args:['verify.cjs']});});
-  withConfig('ambiguous group label',c=>{c.validate.commands.push({id:'ambiguous-group',label:'node verify.cjs',command:'node',args:['--experimental-default-type=module','--version']});});
+  withConfig('ambiguous group label',c=>{c.validate.commands.push({id:'ambiguous-group',label:'node verify.cjs',command:'node',args:['--experimental-default-type=module','--version']});},'unknown');
   withConfig('changed validation defaults',c=>{c.validate.dynamic={policyDefaults:{assurance:'advisory'}};});
   withConfig('changed budget limit',c=>{c.storyScopeBudget.limits.acceptanceTopology=2;});
-  withConfig('unknown scope map',c=>{c.storyScopeBudget.responsibilities[0].paths=['unmapped/**'];});
+  const unmapped=structuredClone(additive);unmapped.storyScopeBudget.responsibilities[0].paths=['unmapped/**'];setConfig(unmapped);try{refusedBeforeContinuity('unknown scope map','unknown');}finally{setConfig(additive);}
   const changedScope=structuredClone(approved.scope);changedScope.explicitExcludes.push('new-exclusion/**');store.writeScopeContract(storyId,changedScope);
   try{refused('changed scope exclusions');}finally{store.writeScopeContract(storyId,approved.scope);}
   const changedTopology=structuredClone(approved.proofStory);changedTopology.acceptanceBindings[0].milestoneIds.push('changed');store.writeProofStoryContract(storyId,changedTopology);
   try{refused('changed topology');}finally{store.writeProofStoryContract(storyId,approved.proofStory);}
   const originalNow=Date.now;
-  try{Date.now=()=>Date.parse(approval.expiresAt)+1;refused('expired original approval');}finally{Date.now=originalNow;}
+  try{Date.now=()=>Date.parse(approval.expiresAt)+1;refused('expired original approval','proof_unavailable');}finally{Date.now=originalNow;}
   const decisionJournal=store.readScopeBudgetDecisions(storyId),altered=structuredClone(decisionJournal);altered.decisions[0].reason+=' forged';store.writeScopeBudgetDecisions(storyId,altered);
   try{assert.equal(readStoryScopeBudget(store,root,storyId).status,'unknown');negativeLabels.push('forged original approval');}finally{store.writeScopeBudgetDecisions(storyId,decisionJournal);}
   const signedAmendmentJournal=store.readAcceptanceAmendments(storyId),badAmendment=structuredClone(signedAmendmentJournal);badAmendment.entries[0].base.checklist.items[0].title+=' forged';store.writeAcceptanceAmendments(storyId,badAmendment);
-  try{refused('forged amendment base');}finally{store.writeAcceptanceAmendments(storyId,signedAmendmentJournal);}
+  try{refused('forged amendment base','proof_unavailable');}finally{store.writeAcceptanceAmendments(storyId,signedAmendmentJournal);}
   assert.notEqual(readStoryScopeBudget(store,root,storyId,{...approved,checklist:pinned}).status,'approved_large_story','projected next scope never inherits compatibility');
   negativeLabels.push('projected amendment next is not current-scope continuity');
   const withGitObserver=(label,observe,expectedReason)=>{
     const original=child.execFileSync;
     child.execFileSync=function(file,args,options){const override=observe(file,args,options,original);return override===undefined?Reflect.apply(original,this,[file,args,options]):override;};
     syncBuiltinESMExports();
-    try{const r=refused(label);if(expectedReason)assert.equal(r.approvalContinuityRefusal,expectedReason,'refusal diagnostics never grant authority');}finally{child.execFileSync=original;syncBuiltinESMExports();}
+    try{const r=refused(label,expectedReason??'equivalence_not_proven');if(expectedReason)assert.equal(r.approvalContinuityRefusal,expectedReason,'refusal diagnostics never grant authority');}finally{child.execFileSync=original;syncBuiltinESMExports();}
   };
   let expiryTriggered=false,virtualNow=Date.parse(approval.expiresAt)-1000;
   try {
     Date.now=()=>virtualNow;
     withGitObserver('expiry during historical proof is rechecked',(file,args)=>{
       if(file==='git'&&args[0]==='log'){expiryTriggered=true;virtualNow=Date.parse(approval.expiresAt)+1;}
-    });
+    },'live_input_changed');
     assert(expiryTriggered,'expiry control must enter history with initially valid approval');
   }finally{Date.now=originalNow;}
   let timeBoundTriggered=false;virtualNow=originalNow();
@@ -187,6 +191,18 @@ try {
       }
     },'time_limit');
   }finally{Date.now=originalNow;}
+  for(const code of ['ENOENT','ENOBUFS']) {
+    virtualNow=originalNow();
+    try {
+      Date.now=()=>virtualNow;
+      withGitObserver(`actual ${code} preserves cause after deadline`,(file,args)=>{
+        if(file==='git'&&args[0]==='log') {
+          virtualNow+=runtimePolicy.continuityTotalMs+1;
+          throw Object.assign(new Error('synthetic non-timeout Git failure'),{code});
+        }
+      },code==='ENOBUFS'?'byte_limit':'proof_unavailable');
+    }finally{Date.now=originalNow;}
+  }
   withGitObserver('per-command output overflow',(file,args)=>{if(file==='git'&&args[0]==='log')throw Object.assign(new Error('synthetic maxBuffer overflow'),{code:'ENOBUFS'});},'byte_limit');
   withGitObserver('missing historical approval publication',(file,args)=>file==='git'&&args[0]==='log'&&args.at(-1).endsWith('scope-budget-decisions.json')?'':undefined,'proof_unavailable');
   withGitObserver('oversized historical publication inventory',(file,args)=>file==='git'&&args[0]==='log'?
@@ -197,7 +213,7 @@ try {
   const commandCap=runtimePolicy.continuityTotalGitCommands;
   try {
     runtimePolicy.continuityTotalGitCommands=2;
-    assert.equal(refused('defensive command counter at injected fixture cap').approvalContinuityRefusal,'command_limit');
+    assert.equal(refused('defensive command counter at injected fixture cap','command_limit').approvalContinuityRefusal,'command_limit');
   }finally{runtimePolicy.continuityTotalGitCommands=commandCap;}
   const byteCap=runtimePolicy.continuityTotalGitBytes;
   let observedBytes=0,observedOutputs=0;
@@ -287,21 +303,24 @@ try {
   const pinnedApproval=signed({...approvalClaims,bindingDigest:evaluateStoryScopeBudget(initiallyPinned,config,pinnedBase).bindingDigest,resultingScopeDigest:evaluateStoryScopeBudget(initiallyPinned,config).bindingDigest});
   store.writeScopeBudgetDecisions(storyId,signed({schemaVersion:'story-scope-budget-decisions.v1',storyId,decisions:[pinnedApproval]}));
   git('add','.');git('commit','-qm','synthetic original approval already contains an immutable pin');
-  assert.equal(readStoryScopeBudget(store,root,storyId).status,'approved_large_story');
+  const branchApprovalBytes=readFileSync(approvalPath);
+  assert.equal(report(branchApprovalBytes).status,'approved_large_story');
   setConfig(additive);
-  assert.equal(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','additive registration retains an originally pinned approval');
+  assert.equal(report(branchApprovalBytes).status,'approved_large_story','additive registration retains an originally pinned approval');
+  positiveLabels.push('originalPin');
   console.log('SCOPE_APPROVAL_CONTINUITY_ORIGINAL_PIN_POSITIVE_PASS');
   await createChecklistHandlers({root,scanRoot:root,store,verificationCommandRunner,log(){}}).verification_evidence_add({storyId,itemId:'CHK-001',intentRef:'CHK-001:happy:1',kind:'integration_test',command:'node verify.cjs',selector:'CONTINUITY_REAL_EXECUTION_PASS',note:'Real new pin alongside a different immutable pin already bound by the signed approval.'});
   const retainedAndNewPins=store.readChecklist(storyId);
   git('add','.');git('commit','-qm','publish new pin beside original approved pin');
-  assert.equal(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','historical authentication retains original pin while stripping only new pin');
+  assert.equal(report(branchApprovalBytes).status,'approved_large_story','historical authentication retains original pin while stripping only new pin');
+  positiveLabels.push('mixedPins');
   console.log('SCOPE_APPROVAL_CONTINUITY_MIXED_PINS_POSITIVE_PASS');
   const missingOriginalPin=structuredClone(retainedAndNewPins);delete missingOriginalPin.items[0].verificationIntent.happy[0].verification;store.writeChecklist(storyId,missingOriginalPin);
-  assert.notEqual(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','an originally approved pin cannot be removed');negativeLabels.push('original approved pin removal');
+  refused('original approved pin removal','equivalence_not_proven',branchApprovalBytes);
   const replacedOriginalPin=structuredClone(retainedAndNewPins);replacedOriginalPin.items[0].verificationIntent.happy[0].verification.command='node --version';store.writeChecklist(storyId,replacedOriginalPin);
-  assert.notEqual(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','an originally approved pin cannot be replaced');negativeLabels.push('original approved pin replacement');
+  refused('original approved pin replacement','equivalence_not_proven',branchApprovalBytes);
   store.writeChecklist(storyId,retainedAndNewPins);
-  assert.equal(readStoryScopeBudget(store,root,storyId).status,'approved_large_story','restoring the exact original pin restores continuity');
+  assert.equal(report(branchApprovalBytes).status,'approved_large_story','restoring the exact original pin restores continuity');
   setConfig(config);
   git('add','.');git('commit','-qm','restore disposable config after mixed-pin witness');
   git('switch','-q',`story/${storyId}`);
@@ -309,7 +328,9 @@ try {
   git('add','.');git('commit','-qm','synthetic removed pinned item');
   store.writeChecklist(storyId,pinned);git('add','.');git('commit','-qm','synthetic restored pinned item');
   refused('removed then restored pinned item cannot erase transition');
-  console.log('SCOPE_APPROVAL_CONTINUITY_SCENARIO_COUNTS '+JSON.stringify({positive:5,negative:negativeLabels.length}));
+  assert.equal(positiveLabels.length,5,'all required positive scenarios ran');
+  console.log('SCOPE_APPROVAL_CONTINUITY_POSITIVES '+JSON.stringify(positiveLabels));
+  console.log('SCOPE_APPROVAL_CONTINUITY_SCENARIO_COUNTS '+JSON.stringify({positive:positiveLabels.length,negative:negativeLabels.length}));
   console.log('SCOPE_APPROVAL_CONTINUITY_NEGATIVES '+JSON.stringify(negativeLabels));
   console.log('SCOPE_APPROVAL_CONTINUITY_PASS');
 } finally {process.chdir(priorCwd);rmSync(root,{recursive:true,force:true});}

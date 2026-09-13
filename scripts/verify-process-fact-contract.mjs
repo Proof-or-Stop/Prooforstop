@@ -9999,6 +9999,7 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(budgetDecision.includes('scopeBudgetDecisionReport(store, root, args.storyId, args.amendmentId, false)'), 'approval issuance must compute exact reports without historical continuity');
   assert(approvalContinuity.includes('break requirements') && approvalContinuity.includes('live_input_changed'), 'mismatched intent references and live drift must stop continuity');
   assert(read('packages/main/src/core/story-scope-budget.ts').includes('allowApprovalContinuity && report.blocking') && read('packages/main/src/core/story-scope-budget.ts').includes('delete report.approvalContinuityRefusal'), 'nonblocking reads skip continuity and grants clear refusal diagnostics');
+  assert(approvalContinuity.includes("code === 'ETIMEDOUT'") && approvalContinuity.includes('if(unavailableHistory)'), 'continuity diagnostics preserve terminal Git cause and defer empty-history reporting');
   const continuityPackage = JSON.parse(read('package.json'));
   assert(continuityPackage.scripts?.['test:scope-approval-continuity'] === 'node scripts/verify-scope-approval-continuity.mjs', 'behavioral scope continuity regression must be executable');
   assert(continuityPackage.scripts?.['test:serial-reference']?.includes('npm run test:scope-approval-continuity'), 'behavioral scope continuity regression must remain in the canonical pipeline');

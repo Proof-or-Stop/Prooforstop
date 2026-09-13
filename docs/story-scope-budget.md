@@ -140,3 +140,19 @@ maximum of 773 commands (three identity reads, two histories, and at most three
 Regression fixtures lower the in-memory counter solely to exercise its refusal
 branch; production policy is unchanged. Aggregate byte exhaustion is tested
 across multiple individually admissible outputs.
+
+
+Refusal diagnostics describe the terminal reconstruction outcome. ENOBUFS means
+byte_limit; an ETIMEDOUT that exhausts the total deadline means time_limit.
+Other Git errors remain proof_unavailable even if time also elapsed. Empty
+history is remembered during the search and reported only if no candidate
+succeeds; a successful reconstruction carries no refusal field.
+
+The canonical continuity member is test:scope-approval-continuity. Two separate
+focused scripts cover the underlying subsystem: scripts/verify-story-scope-budget.mjs
+checks policy and scope evaluation, while scripts/verify-scope-budget-approval.mjs
+checks issuance, interactive-channel refusal, exact binding, tamper and expiry.
+Their positive budget assertions consume readStoryScopeBudget and
+storyScopeBudgetBlocker, because satisfying the budget alone does not satisfy
+unrelated DEV ownership, memory, ProofStory and evidence gates. Negative DEV
+integration checks and the process-fact guard wiring contract remain in place.
