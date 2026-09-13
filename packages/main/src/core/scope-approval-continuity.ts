@@ -22,6 +22,10 @@ export interface ScopeApprovalContinuity {
   provenance: {kind: 'verified-applied-scope-continuity'; approvalSignature: string; historicalCommit: string;
     amendmentId: string; currentBindingDigest: string; firstPinCommits: string[]; validationConfigurationChanged: boolean};
 }
+export type ScopeApprovalContinuityRefusal = 'history_limit' | 'command_limit' | 'byte_limit' | 'time_limit' | 'proof_unavailable' | 'equivalence_not_proven';
+class ContinuityProofLimit extends Error {
+  constructor(readonly code: ScopeApprovalContinuityRefusal) { super(`Scope continuity refused: ${code}`); }
+}
 const equal=(a: unknown,b: unknown)=>canonicalDigest(a)===canonicalDigest(b);
 
 /** Additions preserve raw entries and scope reference identities, never validation cache freshness. */
@@ -59,21 +63,22 @@ function equivalentConfiguration(old: ProofOrStopConfig, current: ProofOrStopCon
 }
 
 export function resolveScopeApprovalContinuity(store: StoryStore,root: string,subject: ScopeBudgetSubject,
-  report: StoryScopeBudgetReport,evaluate: (subject: ScopeBudgetSubject,config: ProofOrStopConfig,base?: ScopeBudgetSubject)=>StoryScopeBudgetReport): ScopeApprovalContinuity|null {
+  report: StoryScopeBudgetReport,evaluate: (subject: ScopeBudgetSubject,config: ProofOrStopConfig,base?: ScopeBudgetSubject)=>StoryScopeBudgetReport,
+  onRefusal?: (reason: ScopeApprovalContinuityRefusal)=>void): ScopeApprovalContinuity|null {
   if(report.status!=='decision_required'||report.diagnostics.length||report.decomposition) return null;
   const approvals=unexpiredScopeBudgetApprovals(store,root,subject.storyId);
   if(!approvals.length) return null;
   try {
     const deadline=Date.now()+policy.continuityTotalMs;
     let commands=0,bytes=0;
-    const checkBudget=()=>{if(Date.now()>=deadline) throw new Error('Scope continuity proof time bound exhausted');};
+    const checkBudget=()=>{if(Date.now()>=deadline) throw new ContinuityProofLimit('time_limit');};
     const git=(...args: string[])=>{
       checkBudget();
-      if(++commands>policy.continuityTotalGitCommands) throw new Error('Scope continuity command bound exhausted');
+      if(++commands>policy.continuityTotalGitCommands) throw new ContinuityProofLimit('command_limit');
       const output=execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],
         timeout:Math.max(1,Math.min(policy.continuityGitTimeoutMs,deadline-Date.now())),maxBuffer:policy.continuityGitOutputBytes});
       bytes+=Buffer.byteLength(output);
-      if(bytes>policy.continuityTotalGitBytes) throw new Error('Scope continuity byte bound exhausted');
+      if(bytes>policy.continuityTotalGitBytes) throw new ContinuityProofLimit('byte_limit');
       checkBudget();return output.trim();
     };
     const head=git('rev-parse','HEAD');
@@ -95,7 +100,7 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
       const cached=histories.get(file);if(cached) return cached;
       // First-parent publication order is one ancestry chain, including merge publications.
       const commits=git('log','--first-parent','--full-history',`--max-count=${policy.continuityHistoryCommits+1}`,'--format=%H',head,'--',file).split('\n').filter(Boolean);
-      if(commits.length>policy.continuityHistoryCommits) throw new Error('Scope continuity history bound exhausted');
+      if(commits.length>policy.continuityHistoryCommits) throw new ContinuityProofLimit('history_limit');
       commits.reverse();histories.set(file,commits);return commits;
     };
     const read=<T>(commit: string,file: string): T=>{
@@ -104,7 +109,7 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
       return blobs.get(key) as T;
     };
     const entries=readAuthenticatedAcceptanceAmendmentJournal(store,subject.storyId,root).entries;
-    if(entries.length>policy.continuityHistoryCommits||approvals.length>policy.continuityHistoryCommits) return null;
+    if(entries.length>policy.continuityHistoryCommits||approvals.length>policy.continuityHistoryCommits) throw new ContinuityProofLimit('history_limit');
     const publications=history(approvalFile);
     for(const approval of approvals.slice().reverse()) for(const commit of publications) {
       const journal=read<{schemaVersion:string;storyId:string;decisions:ScopeBudgetApproval[];signature:string}>(commit,approvalFile);
@@ -180,6 +185,8 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
           amendmentId:entry.amendmentId,currentBindingDigest:report.bindingDigest,firstPinCommits:[...new Set(pinCommits)],validationConfigurationChanged:!equal(oldConfig,currentConfig)}};
       }
     }
-  } catch { /* Missing, malformed, ambiguous or unverifiable proof never creates authority. */ }
+  } catch (error) {
+    onRefusal?.(error instanceof ContinuityProofLimit ? error.code : 'proof_unavailable');
+  }
   return null;
 }

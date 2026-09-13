@@ -82,6 +82,13 @@ or freshness. Current verification, independent review and all other gates remai
 required; never request another terminal acknowledgement merely to repair a proven
 bookkeeping-only mismatch that this reader can authenticate.
 
+The reader considers at most 256 first-parent publications per input file, with
+776 reader-owned Git commands, 32 MiB aggregate Git output, 4 MiB per command,
+and a 15-second aggregate proof budget. These are independent limits, not a
+promise that every maximum-size history can be proven within the time/byte cap.
+`approvalContinuityRefusal` distinguishes a reached limit, unavailable proof,
+or unproven equivalence. It is diagnostic only and never authorizes scope.
+
 Declared decomposition uses existing `milestone_ledger_set`, `slice_plan_set` and
 `parent_ledger_rollup_set` artifacts. Create the child Stories through the normal
 CLI, assign every parent milestone to exactly one child in all three artifacts,
@@ -114,3 +121,9 @@ guards, all seven dimensions, unknown inputs, unchanged read projections, actual
 additive derivation, and a managed review whose approval is rejected before any
 over-budget acceptance write. The existing parallel decomposition integration
 smoke checks compatibility of valid projects without the new policy.
+
+`npm run test:scope-approval-continuity` executes the actual continuity reader,
+signed disposable approval fixtures, genuine V5 first-pin executions and negative
+historical-authority controls. It is registered in the canonical serial-reference
+chain and full-suite resource policy; Lab verification alone is not its ongoing
+regression coverage.

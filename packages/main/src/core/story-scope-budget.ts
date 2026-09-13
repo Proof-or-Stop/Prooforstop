@@ -13,7 +13,7 @@ import { collectVerificationIntents } from './verification.js';
 import { canonicalFilesystemPath } from './keyed-scheduler.js';
 import { readScopeDecomposition, type ScopeDecompositionReport } from './story-scope-decomposition.js';
 import { currentScopeBudgetApproval } from './story-scope-budget-decisions.js';
-import { resolveScopeApprovalContinuity, type ScopeApprovalContinuity } from './scope-approval-continuity.js';
+import { resolveScopeApprovalContinuity, type ScopeApprovalContinuity, type ScopeApprovalContinuityRefusal } from './scope-approval-continuity.js';
 import { isMalformedScopeGlob, pathMatchesScopePattern } from './scope-path-classifier.js';
 import type { StoryStore } from './store.js';
 import type { ChecklistData, ProofStoryContractData, ScopeContractData } from './types.js';
@@ -52,6 +52,8 @@ export interface StoryScopeBudgetReport {
   paths: string[];
   decomposition?: ScopeDecompositionReport;
   approvalContinuity?: ScopeApprovalContinuity['provenance'];
+  /** Diagnostic only: a refusal code grants no scope authority. */
+  approvalContinuityRefusal?: ScopeApprovalContinuityRefusal;
 }
 const emptyFacts = (): Record<ScopeBudgetDimension, string[]> => Object.fromEntries(
   SCOPE_BUDGET_DIMENSIONS.map(key => [key, [] as string[]]),
@@ -309,10 +311,13 @@ function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: st
       if (currentScopeBudgetApproval(store, root, storyId, report.bindingDigest)) {
         report.status = 'approved_large_story'; report.blocking = false;
       } else if (!next && !base && !report.decomposition) {
-        const continuity = resolveScopeApprovalContinuity(store, root, subject, report, evaluateStoryScopeBudget);
+        const continuity = resolveScopeApprovalContinuity(store, root, subject, report, evaluateStoryScopeBudget,
+          reason => { report.approvalContinuityRefusal = reason; });
         if (continuity) {
           report.approvalContinuity = continuity.provenance;
           report.status = 'approved_large_story'; report.blocking = false;
+        } else {
+          report.approvalContinuityRefusal ??= 'equivalence_not_proven';
         }
       }
     } catch (error) {

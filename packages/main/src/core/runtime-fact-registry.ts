@@ -483,12 +483,13 @@ export const KEYED_SCHEDULER_RUNTIME_POLICY = {
   blockedCancellationPollMs: 50,
 } as const;
 
+const SCOPE_APPROVAL_CONTINUITY_HISTORY_COMMITS = 256;
 export const SCOPE_BUDGET_DECISION_RUNTIME_POLICY = {
   approvalLifetimeMs: 7 * 24 * 60 * 60 * 1000,
-  continuityHistoryCommits: 256,
+  continuityHistoryCommits: SCOPE_APPROVAL_CONTINUITY_HISTORY_COMMITS,
   continuityGitTimeoutMs: 5000,
   continuityGitOutputBytes: 4 * 1024 * 1024,
-  continuityTotalGitCommands: 512,
+  continuityTotalGitCommands: 3 * SCOPE_APPROVAL_CONTINUITY_HISTORY_COMMITS + 8,
   continuityTotalGitBytes: 32 * 1024 * 1024,
   continuityTotalMs: 15000,
   agentEnvironmentMarkers: ['PROOF_OR_STOP_AGENT', 'LATTICE_AGENT', 'CODEX_THREAD_ID', 'CODEX_SESSION_ID',

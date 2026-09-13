@@ -16,13 +16,24 @@ import {evaluateStoryScopeBudget, readStoryScopeBudget} from '../packages/main/d
 import {createChecklistHandlers} from '../packages/main/dist/handlers/checklist.js';
 import {acquireOwnerLease} from '../packages/main/dist/core/story-owner-lease.js';
 import {hasMechanicalExecutionAuthority} from '../packages/main/dist/core/verification-receipt-authority.js';
+import {validateVerificationReceipt, VERIFICATION_RECEIPT_BUNDLE_V4} from '../packages/main/dist/core/verification-execution-evidence.js';
 import {SCOPE_BUDGET_DECISION_RUNTIME_POLICY as runtimePolicy} from '../packages/main/dist/core/runtime-fact-registry.js';
+import {parseAllowlistedCommand, runValidationCommand} from '../packages/main/dist/core/validation-executor.js';
 import {base,delta} from './verify-acceptance-amendment-delta.mjs';
 
 const root=mkdtempSync(join(tmpdir(),'scope-approval-continuity-')), priorCwd=process.cwd();
 const git=(...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:'pipe'}).trim();
 const signed=claims=>({...claims,signature:signValidationArtifact(claims,root)});
 const storyId=base.storyId;
+// The existing fixture runner seam executes the real leaf with its actual read-only
+// temporary-path claim. No shell, result stub, queue bypass, or production policy change.
+const verificationCommandRunner=async(command,cwd,timeoutMs)=>{
+  const {executable,args}=parseAllowlistedCommand(command);
+  assert.equal(command,'node verify.cjs');
+  const result=await runValidationCommand({label:'continuity-fixture-leaf',command:executable,args,cwd,timeoutMs,
+    resources:[{class:'fixed-path',key:root,access:'shared'}]},root,30000);
+  return {executable,args,code:result.code,output:result.output,timedOut:Boolean(result.timedOut),durationMs:result.durationMs,timeoutMs:result.timeoutMs};
+};
 try {
   process.chdir(root);
   git('init','-q','-b','main');git('config','user.name','Synthetic approval fixture');git('config','user.email','fixture@example.invalid');
@@ -66,7 +77,7 @@ try {
   const report=()=>{const r=readStoryScopeBudget(store,root,storyId);assert.deepEqual(readFileSync(approvalPath),approvalBytes,'budget reads cannot rewrite authorization');return r;};
   assert.equal(report().status,'approved_large_story','exact signed binding remains accepted');
   assert.deepEqual(store.readScopeContract(storyId),approved.scope,'fixture applied scope must round-trip exactly');
-  await createChecklistHandlers({root,scanRoot:root,store,log(){}}).verification_evidence_add({storyId,itemId:'CHK-006',intentRef:'CHK-006:happy:0',kind:'integration_test',command:'node verify.cjs',selector:'CONTINUITY_REAL_EXECUTION_PASS',note:'Real disposable Node execution provides the first immutable intent pin.'});
+  await createChecklistHandlers({root,scanRoot:root,store,verificationCommandRunner,log(){}}).verification_evidence_add({storyId,itemId:'CHK-006',intentRef:'CHK-006:happy:0',kind:'integration_test',command:'node verify.cjs',selector:'CONTINUITY_REAL_EXECUTION_PASS',note:'Real disposable Node execution provides the first immutable intent pin.'});
   const pinned=store.readChecklist(storyId),item=pinned.items.find(i=>i.id==='CHK-006');
   assert(item.verificationEvidence.some(e=>hasMechanicalExecutionAuthority(store,storyId,item,e)),'first pin requires an actual V5 execution');
   git('add','.');git('commit','-qm','publish genuine first-pin execution');
@@ -79,7 +90,7 @@ try {
   for(const [label,r] of Object.entries({pinOnly,commandsOnly,combined}))assert.equal(r.status,'approved_large_story',`SCOPE_APPROVAL_BOOKKEEPING_INVALIDATION: ${label} must retain the original authenticated scope approval`);
   assert.equal(canonicalDigest(approval),canonicalDigest(store.readScopeBudgetDecisions(storyId).decisions[0]));
   const negativeLabels=[];
-  const refused=(label)=>{assert.notEqual(report().status,'approved_large_story',label);negativeLabels.push(label);};
+  const refused=(label)=>{const r=report();assert.notEqual(r.status,'approved_large_story',label);negativeLabels.push(label);return r;};
   const withChecklist=(label,mutate)=>{const changed=structuredClone(pinned);mutate(changed);store.writeChecklist(storyId,changed);try{refused(label);}finally{store.writeChecklist(storyId,pinned);}};
   withChecklist('changed requirement',c=>{c.items[0].title+=' changed';});
   withChecklist('changed declared file',c=>{c.items[5].files.modify.push('src/other.ts');});
@@ -108,11 +119,11 @@ try {
   try{refused('forged amendment base');}finally{store.writeAcceptanceAmendments(storyId,signedAmendmentJournal);}
   assert.notEqual(readStoryScopeBudget(store,root,storyId,{...approved,checklist:pinned}).status,'approved_large_story','projected next scope never inherits compatibility');
   negativeLabels.push('projected amendment next is not current-scope continuity');
-  const withGitObserver=(label,observe)=>{
+  const withGitObserver=(label,observe,expectedReason)=>{
     const original=child.execFileSync;
     child.execFileSync=function(file,args,options){const override=observe(file,args,options,original);return override===undefined?Reflect.apply(original,this,[file,args,options]):override;};
     syncBuiltinESMExports();
-    try{refused(label);}finally{child.execFileSync=original;syncBuiltinESMExports();}
+    try{const r=refused(label);if(expectedReason)assert.equal(r.approvalContinuityRefusal,expectedReason,'refusal diagnostics never grant authority');}finally{child.execFileSync=original;syncBuiltinESMExports();}
   };
   let expiryTriggered=false,virtualNow=Date.parse(approval.expiresAt)-1000;
   try {
@@ -127,12 +138,13 @@ try {
     Date.now=()=>virtualNow;
     withGitObserver('aggregate proof time bound',(file,args)=>{
       if(file==='git'&&args[0]==='log'){timeBoundTriggered=true;virtualNow+=runtimePolicy.continuityTotalMs+1;}
-    });
+    },'time_limit');
     assert(timeBoundTriggered);
   }finally{Date.now=originalNow;}
   withGitObserver('missing historical approval publication',(file,args)=>file==='git'&&args[0]==='log'&&args.at(-1).endsWith('scope-budget-decisions.json')?'':undefined);
   withGitObserver('oversized historical publication inventory',(file,args)=>file==='git'&&args[0]==='log'?
-    Array.from({length:runtimePolicy.continuityHistoryCommits+1},(_,i)=>i.toString(16).padStart(40,'0')).join('\n'):undefined);
+    Array.from({length:runtimePolicy.continuityHistoryCommits+1},(_,i)=>i.toString(16).padStart(40,'0')).join('\n'):undefined,'history_limit');
+  assert(runtimePolicy.continuityTotalGitCommands>=3*runtimePolicy.continuityHistoryCommits+5,'command bound accommodates all three bounded file inventories and Git identity checks');
   let configDrifted=false;
   try {
     withGitObserver('configuration changes during proof',(file,args)=>{
@@ -157,9 +169,27 @@ try {
   const forgedPin=structuredClone(pinned);forgedPin.items[5].verificationEvidence[0].receipt.selectorMatched=false;store.writeChecklist(storyId,forgedPin);
   git('add','.');git('commit','-qm','synthetic unauthenticated first pin');
   try{refused('unauthenticated historical first pin');}finally{git('switch','-q',`story/${storyId}`);}
+  for(const kind of ['forged-signature','legacy-readable','valid-v4']) {
+    git('switch','-qc',`witness/${kind}`,approvalCommit);
+    // Restore the genuine immutable execution output so refusal tests the receipt, not a missing artifact.
+    git('restore',`--source=story/${storyId}`,'--','.proof-or-stop/evidence');
+    const historical=structuredClone(pinned),historicalItem=historical.items[5],evidence=historicalItem.verificationEvidence[0];
+    assert.equal(validateVerificationReceipt(root,evidence.receipt,{storyId,intentRef:evidence.intentRef,selector:'CONTINUITY_REAL_EXECUTION_PASS'}).ok,true,'historical control starts with readable genuine V5 evidence');
+    if(kind==='forged-signature')evidence.receipt.publicationBinding.authenticity.signature='ed25519:forged-fixture-signature';
+    else if(kind==='legacy-readable')evidence.receipt={exitCode:0,selectorMatched:true,selector:'CONTINUITY_REAL_EXECUTION_PASS'};
+    else {
+      evidence.receipt.schemaVersion=VERIFICATION_RECEIPT_BUNDLE_V4;delete evidence.receipt.publicationBinding;
+      const validation=validateVerificationReceipt(root,evidence.receipt,{storyId,intentRef:evidence.intentRef,command:evidence.command,selector:'CONTINUITY_REAL_EXECUTION_PASS',
+        freshness:{headHash:evidence.headHash,materialHash:evidence.materialHash,storyFilesHash:evidence.storyFilesHash}});
+      assert.equal(validation.ok,true,`V4 control remains cryptographically readable: ${JSON.stringify(validation.errors)}`);assert.equal(validation.kind,'split-v4');
+    }
+    assert.equal(hasMechanicalExecutionAuthority(store,storyId,historicalItem,evidence),false,`${kind} cannot authenticate historical publication`);
+    store.writeChecklist(storyId,historical);git('add','.');git('commit','-qm',`synthetic ${kind} first-pin publication`);
+    try{refused(`historical ${kind} pin`);}finally{git('switch','-q',`story/${storyId}`);}
+  }
   git('switch','-qc','witness/changed-first-pin-semantics',approvalCommit);
   const differentMeaning=structuredClone(approved.checklist);differentMeaning.items[5].verificationIntent.happy[0].desc='A different unapproved requirement is being pinned';store.writeChecklist(storyId,differentMeaning);
-  await createChecklistHandlers({root,scanRoot:root,store,log(){}}).verification_evidence_add({storyId,itemId:'CHK-006',intentRef:'CHK-006:happy:0',kind:'integration_test',command:'node verify.cjs',selector:'CONTINUITY_REAL_EXECUTION_PASS',note:'Real execution for a deliberately altered disposable intent meaning.'});
+  await createChecklistHandlers({root,scanRoot:root,store,verificationCommandRunner,log(){}}).verification_evidence_add({storyId,itemId:'CHK-006',intentRef:'CHK-006:happy:0',kind:'integration_test',command:'node verify.cjs',selector:'CONTINUITY_REAL_EXECUTION_PASS',note:'Real execution for a deliberately altered disposable intent meaning.'});
   const differentPinned=store.readChecklist(storyId),differentItem=differentPinned.items[5];
   assert(differentItem.verificationEvidence.some(e=>hasMechanicalExecutionAuthority(store,storyId,differentItem,e)),'semantic laundering control uses authentic execution');
   git('add','.');git('commit','-qm','genuine execution for altered synthetic intent');

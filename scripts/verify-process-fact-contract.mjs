@@ -9995,6 +9995,11 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(!approvalContinuity.includes('signValidationArtifact(') && !approvalContinuity.includes('writeScopeBudgetDecisions('), 'scope continuity cannot create or rewrite approval authority');
   assert(approvalContinuity.includes('projected({items:[historical]})') && approvalContinuity.includes('projected({items:[original]})'), 'first-pin execution must bind the approved requirement meaning');
   assert(registrySource.includes('packages/main/src/core/scope-approval-continuity.ts'), 'scope continuity consumer must be registered');
+  const continuityPackage = JSON.parse(read('package.json'));
+  assert(continuityPackage.scripts?.['test:scope-approval-continuity'] === 'node scripts/verify-scope-approval-continuity.mjs', 'behavioral scope continuity regression must be executable');
+  assert(continuityPackage.scripts?.['test:serial-reference']?.includes('npm run test:scope-approval-continuity'), 'behavioral scope continuity regression must remain in the canonical pipeline');
+  assert(read('packages/main/src/tasks/full-suite-runner.ts').includes("isolated('test:scope-approval-continuity')"), 'scope continuity regression must have its isolated scheduler policy');
+  assert(approvalContinuity.includes('onRefusal?.(') && read('packages/main/src/core/story-scope-budget.ts').includes('approvalContinuityRefusal'), 'continuity exhaustion must expose non-authorizing diagnostics');
   assert(read('packages/main/src/core/lifecycle-registry.ts').includes("'scope-budget-decisions.json'"), 'scope decisions must be lifecycle metadata');
   const budgetMachine = read('packages/main/src/core/machine.ts');
   for (const guard of ['canStartDevGuard', 'canSkipPlanGuard', 'canReenterDevGuard']) {
