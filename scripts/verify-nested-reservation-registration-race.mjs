@@ -7,8 +7,8 @@ const preimage=process.argv.find(arg=>arg.startsWith('--preimage='))?.slice('--p
 const modes=['gone','gone-before-ancestry','alive','unknown','nonleader','unknown-pid','unknown-group','known-exit'];if(process.argv[2])assert.ok(modes.includes(process.argv[2]));
 for(const mode of process.argv[2]?[process.argv[2]]:modes){
  const runtime=nestedSourceRuntime(process.cwd()),{base,delegation,lock,env,writeLoader}=runtime;
- const anchor=['gone-before-ancestry','known-exit'].includes(mode)?'if (!ancestors(pid).includes(parent))':'target = identity(pid);';
- const replacement=['gone-before-ancestry','known-exit'].includes(mode)?'if (!(globalThis.__registrationRace?.(pid),ancestors(pid)).includes(parent))':'target = (()=>{globalThis.__registrationRace?.(pid);return identity(pid);})();';
+ const anchor=mode==='known-exit'?'registered.set(pid, { ...target, parents:inheritedParents });':mode==='gone-before-ancestry'?'if (!ancestors(pid).includes(parent))':'target = identity(pid);';
+ const replacement=mode==='known-exit'?'globalThis.__registrationRace?.(pid);registered.set(pid, { ...target, parents:inheritedParents });':mode==='gone-before-ancestry'?'if (!(globalThis.__registrationRace?.(pid),ancestors(pid)).includes(parent))':'target = (()=>{globalThis.__registrationRace?.(pid);return identity(pid);})();';
  writeLoader(`function patch(url,source){if(url!==${JSON.stringify(delegation)})return source;${preimage?'source='+JSON.stringify(readFileSync(preimage,'utf8'))+';':''}const anchor=${JSON.stringify(anchor)};if(source.split(anchor).length!==2)throw Error('registration race anchor mismatch');return source.replace(anchor,${JSON.stringify(replacement)});}`);
  const launcher=join(base,'launcher.mjs'),owner=join(base,'owner.mjs');
  writeFileSync(launcher,`import {spawn} from 'node:child_process';const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{detached:${JSON.stringify(mode!=='nonleader')},stdio:'ignore'});process.send({pid:child.pid});child.once('exit',()=>process.send({gone:true}));process.on('message',()=>process.exit(0));`);
