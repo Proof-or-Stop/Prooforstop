@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab route-reader-regression - v0.3.351 - 2026-09-13
+
+The four-gaps regression now checks the real registry-to-adapter reader composition while retaining projection consumption and the direct-import boundary. Seven live mutation cases cover both registry compositions, adapter-body substitution, route consumption, projection consumption, and alternate static/dynamic imports. The fixed historical callback illustrates former loose behavior; committed RED records remain the historical evidence, and no runtime Git-provenance claim is made.
+
+The native negative-input fixture now separates a minimal one-null-leaf refusal from unknown-property refusal on a validated null-free public projection. Original main native cases passed; the Story candidate exposed the nullable internal shape that made the old negative fixture brittle. Signed positive proof and all existing absence, substitution, wrong-root, current-reviewer, history and progress controls remain intact.
+
+The existing route dependency npm entry invokes the durable driver. It independently checks helper registration, requires the wiring and native selectors, and verifies current driver/helper digests in the four existing four-gaps dependency closures. It prepares current builds, runs the complete original suite once, and requires static verification. Setup has a maximum of 180 seconds; four-gaps, the suite and static verification share a 600-second body under the pinned 900-second Lab ceiling. Each child receives the lesser of its configured maximum and remaining body time. The suite retains its internal 120/120/420/120-second maxima. These are failure ceilings, not additive guaranteed allowances; four-gaps time reduces the effective suite cap and static receives the remainder. No budget or completion guarantee was added, and no performance improvement is claimed.
+
+Timeout errors retain bounded stdout/stderr and code/status/signal; the caller renders the streams once. Buffers remain non-enumerable, writable and configurable. A real child without readiness output before the unchanged one-second diagnostic timeout is unavailable proof. Real started-child, ordinary success, nonzero-exit, signal and missing-executable controls remain checked.
+
+Digest propagation is scoped by operation: initial consolidation changed 38 root-package hash strings plus four smoke hash strings. During the main 0.3.350 sync, manual reconciliation started from the exact incoming main manifest and changed only 38 root package.json, four smoke and four four-gaps hash strings. This subset excludes the package-lock and other version dependency pins already supplied by incoming main. Timeout repair refreshed eight helper dependency hashes and eight full-source evidence objects. Fifth-audit closure adds current driver/helper dependencies to four existing entries. IDs, duplicate rows, order and unrelated evidence are preserved; official version preparation separately refreshes version dependencies. The pinned static verifier previously passed with 326 exceptions and zero needs-review, nested or unexpanded work.
+
+Five rejected independent audits and all failed runs remain in the Lab record. Official GREEN and finish replays passed in 593.594, 547.759 and 536.637 seconds before the fifth audit; those results do not stand in for verification of this recovery. Earlier incomplete dependency setup was repaired by standard root npm ci without changing the lockfile. Timeouts remain unavailable proof, and no CPU cause was established. This local Lab neither completes the Story nor authorizes a remote push.
+
+Fresh official GREEN for fifth-audit recovery at 14dddb183b passed in 456.513 seconds: diagnostics, seven wiring mutations, four-gaps, both native modes, 82 history/route/candidate cases, process-fact verification and static checks all passed. This is a measured verification result, not a claimed performance improvement.
+
+Maintenance provenance: codex/lab-route-reader-regression, repair 14dddb183b3fe56574fb6d0611f9db79cac4d471.
+Verification command (replayed before integration and on main): `["node","scripts/verify-route-reader-regression.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab native-lock-prerequisites - v0.3.350 - 2026-09-12
 
 Repair native validation-lock fixture prerequisites using actual CLI inventory, dispatch, broker-bound review, critic, validation and certification admission. Initial disposable subjects contain no fabricated PASS or admitted window. Focused probes exercise reviewer and delivery write exclusion while preserving routine evidence; native dual-order queues prove real routine and DONE-required publication.
