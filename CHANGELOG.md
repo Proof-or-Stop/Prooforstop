@@ -475,9 +475,9 @@ Maintenance provenance: codex/lab-route-reader-regression, repair dec07e5c8e2f30
 Verification command (replayed before integration and on main): `["node","scripts/verify-route-reader-regression.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
-## Lab review-intent-stage-cycle - v0.3.351 - 2026-09-13
+## Imported remote provenance: review-intent-stage-cycle - source v0.3.351 - 2026-09-13
 
-The Lab migrates the review-intent-stage-cycle repair from the remote host onto the current local main baseline.
+This is the source-host maintenance record imported from origin/main 6c163f9693, which already contains repair 82365ddd9d57bebd96617e58bfa054434de9e293. Its 0.3.351 label describes that source host, not the availability of this refusal on the previously divergent local main. The validation-top5-performance maintenance release incorporates this existing remote repair into local main; its actual local integration version is recorded in the new release entry. The original source-host verification and provenance follow.
 
 The repair prevents PLAN verification intent from requiring a REVIEW lifecycle verdict that can only be produced after entering REVIEW. Direct Story creation, draft materialization, checklist addition or replacement, and DEV intent amendment reject the bounded invalid shapes before persistence; Story review also reports a blocking, actionable issue for retained legacy data. Legitimate product tests for review pages, review-related CLI behavior, and complete executable pins remain admissible. Verification-intent prompts for Codex, Claude, templates, and the handoff handler teach the same boundary, and the process-fact registry records the writer and consumer contract.
 

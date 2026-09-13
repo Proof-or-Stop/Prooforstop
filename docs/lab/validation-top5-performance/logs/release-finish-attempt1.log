@@ -1,0 +1,135 @@
+
+> proof-or-stop@0.3.358 lab:worktree
+> node scripts/lab-worktree.mjs finish validation-top5-performance --notes /Users/jek/Documents/validation-daily-optimization-20260913/release-notes.md --confirm --bump patch
+
+TOP5_NATIVE_OUTPUT {"outputRoot":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/top5-native-output-Ipo1UG"}
+TOP5_PROFILE {"suite":5,"command":["node","scripts/run-validation-fixture-suite.mjs","packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"],"wallMs":130782.81650000002,"nativeExitCode":0,"nativeSignal":null,"formalStoryEvidence":false}
+B29BC_DELAYED_FIXTURE_READINESS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertDelayedFixtureReadiness","wallMs":6075.523458000001}
+B29BC_READINESS_TERMINAL_AND_CLOSE_CONTROLS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertReadinessFailureControls","wallMs":481.0989580000005}
+HEARTBEAT_GROUP_TIMING {"name":"runValidate","wallMs":12825.47175}
+HEARTBEAT_GROUP_TIMING {"name":"assertMainDirectHandlerClosesTerminal","wallMs":9761.566917}
+HEARTBEAT_GROUP_TIMING {"name":"assertStoryAdvanceReceivesHeartbeat","wallMs":20891.399250000002}
+HEARTBEAT_GROUP_TIMING {"name":"assertMidValidationForeignAppendFailsClosed","wallMs":15787.518542000005}
+HEARTBEAT_GROUP_TIMING {"name":"assertFailedStoryAdvancePreservesValidationEvidence","wallMs":6723.544875000007}
+HEARTBEAT_GROUP_TIMING {"name":"assertTrueHangFailsClosedWithNamedDiagnostics","wallMs":1769.6067089999997}
+HEARTBEAT_GROUP_TIMING {"name":"assertDirectDoneRequiredTimeoutMatrix","wallMs":20413.178541999994}
+HEARTBEAT_GROUP_TIMING {"name":"assertDonePrepareRoutineTimeoutMatrix","wallMs":13641.397666000004}
+HEARTBEAT_GROUP_TIMING {"name":"assertOuterWatchdogsKillDescendants","wallMs":14312.009415999986}
+HEARTBEAT_GROUP_TIMING {"name":"assertNonDivisibleMaxUsesNamedDeadline","wallMs":7318.299082999991}
+validate-progress-heartbeat smoke passed
+FIXTURE_COMPILE_CACHE {"files":680,"bytes":6946728}
+PATH_OPERATION_COUNTS {"warm":8,"cold":8}
+{
+  "groups": [
+    {
+      "name": "runtime-path-semantics",
+      "pass": true,
+      "parityCases": 691,
+      "liveMutationAndRegexControls": true
+    },
+    {
+      "name": "runtime-path-operation-budget",
+      "pass": true,
+      "warmReplaceCalls": 8,
+      "coldReplaceCalls": 8
+    },
+    {
+      "name": "quorum-refusal-diagnostic-integrity",
+      "pass": true,
+      "controls": 11
+    }
+  ],
+  "boundary": "Source-level helper and runtime path checks; not Story completion or elapsed Story performance."
+}
+PENDING_RECONCILIATION_GREEN
+MEMORY_QUERY_TIMING {"indexed":false,"elapsedMs":28,"resultDigest":"one:1|two:2","queryElapsedMs":[11,17],"semanticGuard":{"pass":true}}
+MEMORY_QUERY_TIMING {"indexed":true,"elapsedMs":33,"resultDigest":"one:1|two:2","queryElapsedMs":[11,17],"semanticGuard":{"pass":true}}
+MEMORY_QUERY_TIMING_GREEN actual construction included; batch setup separately retained
+TOP5_IDENTITY_PROFILE {"firstReads":1,"secondReads":1,"durationMs":555.3835839999999,"freshByteDrift":true}
+TOP5_1_IDENTITY_GREEN
+IDENTITY_CANONICAL_DIGEST_MEMO_GREEN same-size restored-mtime mutation rejected; separate roots and deletion stay fresh
+SNAPSHOT_BINDING_RUNTIME {"node":"v26.8.1","executable":"/opt/homebrew/Cellar/node/26.8.1/bin/node","argv":["/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/scripts/verify-validation-snapshot-binding.mjs"]}
+VALIDATION_SNAPSHOT_BINDING_GREEN actual-owner five-mutations-refused no-module-hooks
+REVIEW_EPOCH_BUDGET_TRANSPORT_PASS
+CAUSAL_INDEX_SCHEMA_WRITER_AND_ORIGIN_REFUSAL_GREEN
+DOCTOR_REAL_FAILED_SCAN_NULL_AND_REPAIR_REFUSAL_GREEN
+DOCTOR_SCAN_FAILURES_AND_FOCUSED_CACHE_REPAIR_GREEN
+PLANNING_OBSERVATION_BOUNDARIES PASS reuse, fresh calls, throwing scope, await, nested scope
+TREE_DELEGATE_BINDING_GREEN actual-delegate-mutation-refused restored-control
+Runtime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)
+execution_assertion_reuse_contract=PASS
+PLANNING_PROFILE {"directory":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/planning-profile-ZmnRob","command":["node","packages/main/dist/tasks/verification-run-and-guard-smoke.js","--baa5f-verification-fanout-shard"],"wallMs":293519.050041,"nativeExit":0,"scanCalls":1049,"scanMs":96284.82255799987,"readBytes":57000512997,"plans":[{"pid":66405,"kind":"planning","calls":1,"scanMs":463.5318750000006,"bytes":54328749,"wallMs":541.1004170000087}]}
+baa5f-execution-failure-fans-out timeout=true subprocessExecutionCount=1 assertionsFailed=2 passReceiptCount=0 persistedReason="verification_evidence_refresh_stale: shared execution was attempted and timed out; executionKey=518d35544d454411fac424b1050a17840996e08fffd09383e5cfb6d2f55425d6; timeoutMs=500; no pass receipt was issued [verification_refresh_execution_timeout]"
+B-aa5f fanout actualExecutionCount=2 expectedExecutionCount=2 executionReceiptCount=2 assertionReceiptCount=71 outputArtifactCount=2
+BAA5F_VERIFICATION_FANOUT_SHARD_RECEIPT={"codexNote":"NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.","fanout":{"subprocessExecutionCount":2,"executionReceiptCount":2,"assertionReceiptCount":71,"outputArtifactCount":2}}
+PLANNING_SCAN_GREEN
+TOP5_5_GREEN
+Proof-or-Stop 0.3.359
+TOP5_NATIVE_OUTPUT {"outputRoot":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/top5-native-output-Yf6U8g"}
+TOP5_PROFILE {"suite":5,"command":["node","scripts/run-validation-fixture-suite.mjs","packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"],"wallMs":131911.754625,"nativeExitCode":0,"nativeSignal":null,"formalStoryEvidence":false}
+B29BC_DELAYED_FIXTURE_READINESS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertDelayedFixtureReadiness","wallMs":6076.318292}
+B29BC_READINESS_TERMINAL_AND_CLOSE_CONTROLS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertReadinessFailureControls","wallMs":427.5663749999994}
+HEARTBEAT_GROUP_TIMING {"name":"runValidate","wallMs":12405.468833000003}
+HEARTBEAT_GROUP_TIMING {"name":"assertMainDirectHandlerClosesTerminal","wallMs":7968.805709}
+HEARTBEAT_GROUP_TIMING {"name":"assertStoryAdvanceReceivesHeartbeat","wallMs":17935.308791999996}
+HEARTBEAT_GROUP_TIMING {"name":"assertMidValidationForeignAppendFailsClosed","wallMs":14664.809665999994}
+HEARTBEAT_GROUP_TIMING {"name":"assertFailedStoryAdvancePreservesValidationEvidence","wallMs":7783.4214169999905}
+HEARTBEAT_GROUP_TIMING {"name":"assertTrueHangFailsClosedWithNamedDiagnostics","wallMs":1861.4447500000097}
+HEARTBEAT_GROUP_TIMING {"name":"assertDirectDoneRequiredTimeoutMatrix","wallMs":23542.095583999995}
+HEARTBEAT_GROUP_TIMING {"name":"assertDonePrepareRoutineTimeoutMatrix","wallMs":16291.400834}
+HEARTBEAT_GROUP_TIMING {"name":"assertOuterWatchdogsKillDescendants","wallMs":14723.740416}
+HEARTBEAT_GROUP_TIMING {"name":"assertNonDivisibleMaxUsesNamedDeadline","wallMs":7745.625166999991}
+validate-progress-heartbeat smoke passed
+FIXTURE_COMPILE_CACHE {"files":680,"bytes":6946768}
+PATH_OPERATION_COUNTS {"warm":8,"cold":8}
+{
+  "groups": [
+    {
+      "name": "runtime-path-semantics",
+      "pass": true,
+      "parityCases": 691,
+      "liveMutationAndRegexControls": true
+    },
+    {
+      "name": "runtime-path-operation-budget",
+      "pass": true,
+      "warmReplaceCalls": 8,
+      "coldReplaceCalls": 8
+    },
+    {
+      "name": "quorum-refusal-diagnostic-integrity",
+      "pass": true,
+      "controls": 11
+    }
+  ],
+  "boundary": "Source-level helper and runtime path checks; not Story completion or elapsed Story performance."
+}
+PENDING_RECONCILIATION_GREEN
+MEMORY_QUERY_TIMING {"indexed":false,"elapsedMs":28,"resultDigest":"one:1|two:2","queryElapsedMs":[11,17],"semanticGuard":{"pass":true}}
+MEMORY_QUERY_TIMING {"indexed":true,"elapsedMs":33,"resultDigest":"one:1|two:2","queryElapsedMs":[11,17],"semanticGuard":{"pass":true}}
+MEMORY_QUERY_TIMING_GREEN actual construction included; batch setup separately retained
+TOP5_IDENTITY_PROFILE {"firstReads":1,"secondReads":1,"durationMs":482.94350000000003,"freshByteDrift":true}
+TOP5_1_IDENTITY_GREEN
+IDENTITY_CANONICAL_DIGEST_MEMO_GREEN same-size restored-mtime mutation rejected; separate roots and deletion stay fresh
+SNAPSHOT_BINDING_RUNTIME {"node":"v26.8.1","executable":"/opt/homebrew/Cellar/node/26.8.1/bin/node","argv":["/Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/scripts/verify-validation-snapshot-binding.mjs"]}
+VALIDATION_SNAPSHOT_BINDING_GREEN actual-owner five-mutations-refused no-module-hooks
+REVIEW_EPOCH_BUDGET_TRANSPORT_PASS
+CAUSAL_INDEX_SCHEMA_WRITER_AND_ORIGIN_REFUSAL_GREEN
+DOCTOR_REAL_FAILED_SCAN_NULL_AND_REPAIR_REFUSAL_GREEN
+DOCTOR_SCAN_FAILURES_AND_FOCUSED_CACHE_REPAIR_GREEN
+PLANNING_OBSERVATION_BOUNDARIES PASS reuse, fresh calls, throwing scope, await, nested scope
+TREE_DELEGATE_BINDING_GREEN actual-delegate-mutation-refused restored-control
+Runtime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)
+execution_assertion_reuse_contract=PASS
+PLANNING_PROFILE {"directory":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/planning-profile-nE0ZfP","command":["node","packages/main/dist/tasks/verification-run-and-guard-smoke.js","--baa5f-verification-fanout-shard"],"wallMs":294609.201,"nativeExit":0,"scanCalls":1049,"scanMs":95680.73910400004,"readBytes":57000512997,"plans":[{"pid":86551,"kind":"planning","calls":1,"scanMs":79.10545800000546,"bytes":54328749,"wallMs":102.28120800000033}]}
+baa5f-execution-failure-fans-out timeout=true subprocessExecutionCount=1 assertionsFailed=2 passReceiptCount=0 persistedReason="verification_evidence_refresh_stale: shared execution was attempted and timed out; executionKey=95e7904c438f114b41cbd86f6c20c36acbb920064d5fe44ad41f11d016cf2107; timeoutMs=500; no pass receipt was issued [verification_refresh_execution_timeout]"
+B-aa5f fanout actualExecutionCount=2 expectedExecutionCount=2 executionReceiptCount=2 assertionReceiptCount=71 outputArtifactCount=2
+BAA5F_VERIFICATION_FANOUT_SHARD_RECEIPT={"codexNote":"NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.","fanout":{"subprocessExecutionCount":2,"executionReceiptCount":2,"assertionReceiptCount":71,"outputArtifactCount":2}}
+PLANNING_SCAN_GREEN
+TOP5_5_GREEN
+Running independent claude (anthropic) CLI Lab audit for c9b66d93e9a08403392fe6813658e084d08876fc...
+Lab stopped: Lab audit omitted changed-file read references; evidence: /Users/jek/Documents/GitHub/Prooforstop/.git/lab-maintenance/validation-top5-performance-audits/425b62c8-9bd0-42c8-bf0d-b9914cb30e0b
