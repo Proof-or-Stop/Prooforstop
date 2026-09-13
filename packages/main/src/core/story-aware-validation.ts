@@ -377,6 +377,8 @@ export function validateValidationCatalog(inventory: ValidationInventory | Valid
     const triggerFiles = Array.isArray(trigger?.files) ? trigger.files : [];
     if (roots.length === 0 || roots.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
       errors.push('invalid or dist-only inputRoots: ' + entry.id);
+    if (entry.selectionInputCoverage === 'complete' && roots.length === 0)
+      errors.push('complete selector inputs require at least one declared input root: ' + entry.id);
     if (entry.runnerSourcePath && (!validRelativePath(entry.runnerSourcePath) || !entry.runnerSourceDigest))
       errors.push('runner source digest missing or path invalid: ' + entry.id);
     if (entry.closurePolicy === 'whole-repository' && entry.selectionInputCoverage === 'complete')
@@ -407,12 +409,14 @@ export const validateCatalog = validateValidationCatalog;
 export function compileValidationCatalog(inventory: ValidationInventory, options: Partial<Pick<ValidationCatalogEntry, 'assurance' | 'riskTier' | 'closurePolicy' | 'fullBaselineReusePolicy' | 'cpuWeight' | 'expectedP50Ms'>> & { inputRoots?: string[] } = {}): ValidationCatalogEntry[] {
   return inventory.commands.map(row => {
     const heuristicRoots = [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : []), ...(row.runnerSourcePath ? [row.runnerSourcePath] : [])];
-    const declaredRoots = row.inputRoots ?? options.inputRoots;
+    const declaredRoots = Array.isArray(row.inputRoots)
+      ? row.inputRoots.filter((path): path is string => typeof path === 'string' && path.trim().length > 0)
+      : row.inputRoots === undefined ? options.inputRoots : [];
     const inputRoots = declaredRoots ?? heuristicRoots;
     // A caller-wide root override is useful for runtime closure fixtures, but
     // it is not per-command ownership proof. Only the command's own explicit
     // inputsComplete + inputRoots declaration may authorize selector omission.
-    const declaredComplete = row.inputsComplete === true && Array.isArray(row.inputRoots)
+    const declaredComplete = row.inputsComplete === true && Array.isArray(row.inputRoots) && row.inputRoots.length > 0
       && row.inputRoots.every((path) => typeof path === 'string' && path.trim().length > 0);
     return ({
     ...row, schema: VALIDATION_CATALOG_SCHEMA,
@@ -1306,11 +1310,28 @@ export function verifyValidationTierExclusions(manifest: ValidationSelectionMani
     || !Array.isArray(manifest.tierSelections[manifest.effectiveTier])
     || !Array.isArray(binding.decision?.exclusionProofs)) return false;
   const expectedDecision = selectAutomaticValidationTier(binding.input);
+  const manifestChangedPaths = Array.isArray(manifest.changedFiles)
+    ? uniqueSorted(manifest.changedFiles.flatMap((change) => [change?.path, change?.oldPath]
+      .filter((path): path is string => typeof path === 'string' && path.length > 0)
+      .map(normalPath)))
+    : undefined;
+  const selectorChangedPaths = new Set(Array.isArray(binding.input.changedPaths)
+    ? binding.input.changedPaths.map(normalPath)
+    : []);
   if (binding.bindingDigest !== digestCanonicalJson({
     catalogDigest: binding.catalogDigest,
     input: binding.input,
     decision: binding.decision,
-  }) || digestCanonicalJson(binding.decision) !== digestCanonicalJson(expectedDecision)) return false;
+  })
+    || digestCanonicalJson(binding.decision) !== digestCanonicalJson(expectedDecision)
+    || binding.input.snapshotDigest !== automaticValidationTierSnapshotDigest({
+      storyId: manifest.storyId,
+      baseHead: manifest.baseHead,
+      head: manifest.head,
+      changeDigest: manifest.changeDigest,
+    })
+    || manifestChangedPaths === undefined
+    || manifestChangedPaths.some((path) => !selectorChangedPaths.has(path))) return false;
   const effective = new Set(manifest.tierSelections[manifest.effectiveTier]);
   return manifest.rows.every((row) => {
     if (row.disposition !== 'excluded') return true;

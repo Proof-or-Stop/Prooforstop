@@ -635,11 +635,25 @@ const proofRemovedBinding = {
 assert.equal(verifyValidationSelectionManifest(resign({
   ...tieredManifest,
   selectorBinding: proofRemovedBinding,
-})), false, 'an excluded row without its signed selector proof must be refused');
+})), false, 'full manifest verification recomputes and rejects a selector decision with a removed proof');
+const selectedWithoutProofId = tieredManifest.tierSelections![tieredManifest.effectiveTier!]
+  .find((commandId) => !tieredManifest.selectorBinding!.decision.exclusionProofs.some((proof) => proof.commandId === commandId));
+assert.ok(selectedWithoutProofId, 'the isolated missing-proof fixture needs a canonically selected command');
 assert.equal(verifyValidationTierExclusions({
   ...tieredManifest,
-  selectorBinding: proofRemovedBinding,
-}), false, 'the isolated excluded-row rule rejects a missing positive proof');
+  tierSelections: {
+    ...tieredManifest.tierSelections!,
+    [tieredManifest.effectiveTier!]: tieredManifest.tierSelections![tieredManifest.effectiveTier!]
+      .filter((commandId) => commandId !== selectedWithoutProofId),
+  },
+  rows: tieredManifest.rows.map((row) => row.commandId === selectedWithoutProofId
+    ? { ...row, disposition: 'excluded' as const }
+    : row),
+}), false, 'the isolated excluded-row rule reaches and rejects the missing positive-proof branch');
+assert.equal(verifyValidationTierExclusions({
+  ...tieredManifest,
+  storyId: 'B-standalone-snapshot-mismatch',
+}), false, 'the standalone exclusion verifier binds the selector snapshot to the manifest Story identity');
 const forgedStandaloneDecision = {
   ...tieredManifest.selectorBinding!.decision,
   selectionDigest: 'caller-authored-selection-digest',

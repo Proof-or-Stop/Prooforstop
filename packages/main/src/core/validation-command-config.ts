@@ -90,8 +90,11 @@ export function configuredValidationCommandEntries(config: unknown): { commands:
         const cmd = commandFromString(`configured validate.commands[${i}]`, entry);
         if (cmd) { commands.push(applyDynamicDefaults(cmd)); legacyLabels.push(entry); }
       } else if (entry && typeof entry === 'object' && typeof entry.command === 'string') {
-        if (entry.inputsComplete === true && !Array.isArray(entry.inputRoots)) {
-          throw new Error(`configured validate.commands[${i}]: inputsComplete requires an explicit inputRoots array`);
+        const configuredInputRoots = Array.isArray(entry.inputRoots)
+          ? entry.inputRoots.filter((item: unknown): item is string => typeof item === 'string' && item.trim().length > 0)
+          : undefined;
+        if (entry.inputsComplete === true && (!configuredInputRoots || configuredInputRoots.length === 0)) {
+          throw new Error(`configured validate.commands[${i}]: inputsComplete requires at least one non-empty string inputRoots entry`);
         }
         const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
         const focus = normalizeValidateFocus(entry.focus);
@@ -108,7 +111,7 @@ export function configuredValidationCommandEntries(config: unknown): { commands:
           ...(Array.isArray(entry.declaredEnvironmentKeys) ? { declaredEnvironmentKeys: entry.declaredEnvironmentKeys.filter((item: unknown): item is string => typeof item === 'string') } : {}),
           ...(typeof entry.caseRegistryPath === 'string' ? { caseRegistryPath: entry.caseRegistryPath } : {}),
           ...(typeof entry.runnerSourcePath === 'string' ? { runnerSourcePath: entry.runnerSourcePath } : {}),
-          ...(Array.isArray(entry.inputRoots) ? { inputRoots: entry.inputRoots.filter((item: unknown): item is string => typeof item === 'string') } : {}),
+          ...(configuredInputRoots ? { inputRoots: configuredInputRoots } : {}),
           ...(typeof entry.inputsComplete === 'boolean' ? { inputsComplete: entry.inputsComplete } : {}),
           ...(typeof entry.assurance === 'string' ? { assurance: entry.assurance } : typeof dynamicDefaults.assurance === 'string' ? { assurance: dynamicDefaults.assurance } : {}),
           ...(typeof entry.riskTier === 'string' ? { riskTier: entry.riskTier } : typeof dynamicDefaults.riskTier === 'string' ? { riskTier: dynamicDefaults.riskTier } : {}),

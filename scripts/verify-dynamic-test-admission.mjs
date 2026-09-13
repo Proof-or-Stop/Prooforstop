@@ -72,8 +72,11 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         assert.ok(canonicalBaseline, 'canonical baseline must be persisted');
         git('checkout', '-qb', 'story');
         writeFileSync(join(root, 'packages/main/src/local-input.ts'), 'export const localInput = 2;\n');
-        git('add', 'packages/main/src/local-input.ts');
-        git('commit', '-qm', 'change build input');
+        const storyMetadataPath = join(store.storyDirPath(storyId), 'index.json');
+        const storyMetadata = JSON.parse(readFileSync(storyMetadataPath, 'utf8'));
+        writeFileSync(storyMetadataPath, JSON.stringify({ ...storyMetadata, title: 'Authority fixture metadata update' }, null, 2) + '\n');
+        git('add', 'packages/main/src/local-input.ts', `.proof-or-stop/story/actives/${storyId}/index.json`);
+        git('commit', '-qm', 'change build input and story metadata');
         const head = git('rev-parse', 'HEAD');
         await runStoryAwareDynamicValidation({ projectRoot: root, gitCwd: root, storyId, baseHead, head, mode: dynamicMode, commands: configured });
         acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
@@ -118,6 +121,9 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
           return;
         }
         assert.deepEqual(parsed.commands.map(c => c.label), ['build'], JSON.stringify(parsed.dynamicValidation));
+        assert.equal(parsed.dynamicValidation?.authority, 'enforce-authority', JSON.stringify(parsed.dynamicValidation));
+        assert.ok(!parsed.dynamicValidation?.escalationReasons?.includes('selector_context_mismatch'),
+          'real Story metadata churn must not silently downgrade the material-path selection');
         const canonicalConsumer = assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:false});
         assert.equal(canonicalConsumer.ok,false);
         assert.ok(canonicalConsumer.reasonCodes.includes('dynamic_requires_canonical_full_plan'),JSON.stringify(canonicalConsumer.reasonCodes));

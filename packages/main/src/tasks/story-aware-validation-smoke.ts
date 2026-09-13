@@ -40,6 +40,8 @@ import {
 } from '../core/validation-tier-planner.js';
 import type { StoryRelevanceInput } from '../core/validation-relevance-input.js';
 import { assertAutomaticTierSelectionBindingCurrent } from '../handlers/story-aware-validation.js';
+import { configuredValidationCommandEntries } from '../core/validation-command-config.js';
+import { dynamicValidationDegradation } from '../handlers/verifier.js';
 import { buildDualRevisionImpactGraph as buildProductionDualRevisionImpactGraph } from '../core/dual-revision-impact-graph.js';
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
 
@@ -229,6 +231,45 @@ const malformedCompleteInventory = discoverValidationInventory('/tmp', [{
 }]);
 assert.equal(compileValidationCatalog(malformedCompleteInventory)[0]?.selectionInputCoverage, 'partial',
   'schema-bypassing non-array inputRoots must never obtain complete exclusion authority');
+const hostileRootCases: Array<{ label: string; roots: string[] }> = [
+  { label: 'empty', roots: [] },
+  { label: 'non-string-only', roots: [123, null] as unknown as string[] },
+];
+for (const { label, roots: hostileRoots } of hostileRootCases) {
+  assert.throws(() => configuredValidationCommandEntries({
+    validate: { commands: [{ command: 'node', args: ['hostile.js'], inputsComplete: true, inputRoots: hostileRoots }] },
+  }), /inputsComplete requires at least one non-empty string inputRoots entry/,
+  `${label} configured input ownership must be rejected before inventory projection`);
+  const hostileInventory = discoverValidationInventory('/tmp', [{
+    id: `hostile-${label}`, label: `hostile-${label}`, command: 'node', args: ['hostile.js'],
+    inputRoots: hostileRoots, inputsComplete: true, originalIndex: 0,
+  }]);
+  const hostileCatalog = compileValidationCatalog(hostileInventory);
+  assert.equal(hostileCatalog[0]?.selectionInputCoverage, 'partial',
+    `${label} schema-bypassing ownership must remain partial`);
+  assert.ok(validateValidationCatalog(hostileInventory, [{
+    ...hostileCatalog[0]!, selectionInputCoverage: 'complete',
+  }]).errors.includes(`complete selector inputs require at least one declared input root: hostile-${label}`),
+  `${label} complete coverage with zero roots must have a named catalog error`);
+  const hostileCommandSetDigest = buildValidationCommandInventory({ commands: hostileInventory.commands }).commandSetDigest;
+  const hostileBinding = buildAutomaticValidationTierSelectionBinding({
+    input: {
+      ...productionRelevanceInput,
+      executionInventory: {
+        sourceKind: 'configured', commandSetDigest: hostileCommandSetDigest,
+        commandIds: hostileInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [],
+      },
+    },
+    catalog: hostileCatalog,
+    storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
+  });
+  assert.equal(hostileBinding.decision.effectiveTier, 'repository-full');
+  assert.ok(hostileBinding.decision.escalationReasonCodes.includes('command_exclusion_unproven'),
+    `${label} ownership must widen instead of issuing a positive exclusion proof`);
+  assert.equal(hostileBinding.decision.exclusionProofs.some((proof) => proof.commandId === `hostile-${label}`), false);
+}
+assert.deepEqual(dynamicValidationDegradation(new Error('selector input does not match executor catalog')),
+  { escalationReasons: ['selector_context_mismatch'], report: 'dynamic validation unavailable; canonical oracle retained (selector_context_mismatch)' });
 const subprocessGraphCatalog = augmentValidationCatalogWithGraphInputs({
   catalog: subprocessCatalog,
   changedFiles: [{ path: 'packages/main/src/hidden-runner.ts', status: 'modified', blobId: 'hidden' }],

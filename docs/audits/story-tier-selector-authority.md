@@ -214,7 +214,7 @@ retained and repaired:
 | A4-F8 graph augmentation reachability | Graph augmentation existed only in a smoke | Production selector input, executor pre-launch recheck, and stored-evidence recheck all use the same augmentation. Graph edges add positive impact but never upgrade completeness |
 | A4-F9 empty-fast intermediate | The automatic selector returned full before testing a directly matching intermediate-only row | When the sole fast refusal is empty selection, the selector tries intermediate; a no-always/no-pin fixture proves `story-intermediate` rather than full |
 | A4-F10 legacy pin provenance | Any correctly shaped legacy id appeared caller-shaped | The plan now authenticates the complete current Story change manifest before reading pins; only pins from that signed artifact can take the conservative full-compatibility path |
-| A4-F11 mutation precision | Two full-manifest mutations failed first at generic decision recomputation | The positive-proof row invariant is now an independently callable verifier; isolated tests exercise inside-effective-tier and missing-proof refusals, while full manifest mutations retain end-to-end coverage |
+| A4-F11 mutation precision | Two full-manifest mutations failed first at generic decision recomputation | The standalone verifier separately exercises membership refusal and, with a canonical binding plus a forged narrower manifest tier, reaches the missing-proof predicate. The proof-removal mutation remains an end-to-end recomputation check |
 | A4-F12 repeated relevance collection and version | One run could resolve the same tier binding up to three times; the repair head was not yet version-bumped | The prepared signed binding is passed through both execution preparations and reused after Wave-0. The atomic patch version remains owned by Lab finish so both manifests, lockfiles, CLI brand, build, and post-bump audit move together |
 
 The repaired head must receive a new GREEN. Lab finish will create the patch
@@ -355,6 +355,28 @@ returned five remaining evidence-boundary findings:
 This repair requires a new build, all twenty mode entrypoints, real TEST/DONE
 admission, static-edge and process-fact checks before the next committed GREEN.
 No candidate rejected by this or an earlier audit is a release.
+
+## Eleventh Claude audit and remediation
+
+The Lab-finish audit of candidate `971bada371` returned `fail` under run
+`87b03032-e696-4f1d-b403-8c5fd7dd2d5f` after 622,747 ms. Finish stopped before
+main integration. Claude confirmed the three independent selector-binding
+reconstructions, current command/snapshot/change bindings, unconditional
+exclusion-proof admission, portable identity, auth-first DONE handling, bounded
+graph construction, version transaction and compatibility behavior. Four
+remaining boundary and evidence defects were retained and repaired:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A11-F1 empty complete ownership | `inputsComplete=true` plus `inputRoots=[]` passed `every`, and config could filter non-string-only roots into the same empty array | Configuration rejects empty post-filter ownership, catalog validation names complete coverage with zero roots, compilation requires at least one non-empty declared root, and both empty and non-string-only mutation subjects widen with `command_exclusion_unproven` and no positive exclusion proof |
+| A11-F2 real Story metadata path | The production TEST/DONE fixture changed only one material source path, leaving Story-metadata behavior inferred | The same commit now changes the material input and `.proof-or-stop/story/actives/<id>/index.json`; the real resolver still reaches enforce authority, executes only `build`, excludes exactly one unrelated command, and does not report `selector_context_mismatch` |
+| A11-F3 structured degradation | A selector refusal retained the canonical oracle but exposed its reason only through an ephemeral log line | Both validate entrypoints attach a stable structured `selector_context_mismatch` or `dynamic_preparation_unavailable` reason and bounded report to `dynamicValidation`; a focused smoke pins the selector mismatch projection |
+| A11-F4 standalone proof admission | The named missing-proof test failed earlier at decision recomputation, and the standalone verifier relied on its parent for Story snapshot/path binding | The isolated test keeps the canonical decision, forges only a narrower manifest tier and excluded row, and reaches the missing-proof predicate. The standalone verifier now recomputes manifest Story/base/head/change identity and checks every changed/old path against selector input; a rewritten Story id is refused |
+
+The canonical build, Story-aware core smoke, 30-class mutation audit and real
+TEST/DONE fixture passed on the repair tree, including the material-plus-metadata
+2-to-1 selection case. A committed-head GREEN and a fresh exact-candidate Claude
+PASS remain mandatory before integration.
 
 ## Rollback
 

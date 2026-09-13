@@ -168,6 +168,17 @@ export function sharedValidationExecutionEnabled(mode: DynamicValidationMode, ex
   return mode !== 'enforce-low-risk' || explicitOptIn;
 }
 
+export function dynamicValidationDegradation(error: unknown): { escalationReasons: string[]; report: string } {
+  const message = error instanceof Error ? error.message : String(error);
+  const reason = /(?:automatic )?selector (?:input|decision|binding|context)/i.test(message)
+    ? 'selector_context_mismatch'
+    : 'dynamic_preparation_unavailable';
+  return {
+    escalationReasons: [reason],
+    report: `dynamic validation unavailable; canonical oracle retained (${reason})`,
+  };
+}
+
 
 /** Read-only projection of the existing transition scope policy, never PASS evidence. */
 export function validationScopePrerequisite(ctx: HandlerContext, storyId: string, gitCwd: string): string | undefined {
@@ -2145,6 +2156,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             };
             observeOracle?: ReturnType<typeof runObserveOracle>;
             catalog?: ValidationCatalogEntry[];
+            escalationReasons?: string[];
           } | undefined;
           // Focused validation is explicitly non-authoritative and may pass a
           // filtered command list; keep dynamic inventory/execution aligned
@@ -2265,7 +2277,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             } catch (error) {
               launchGate.rethrowRefusal();
               ctx.log?.('dynamic validation execution unavailable; retaining complete-plan oracle: ' + (error instanceof Error ? error.message : String(error)));
-              dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle' };
+              dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle', ...dynamicValidationDegradation(error) };
             }
           }
           // A project-level dynamic invocation is intentionally a bounded
@@ -2665,7 +2677,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           } catch (error) {
             launchGate.rethrowRefusal();
             ctx.log?.('dynamic validation execution unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
-            dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', report: 'dynamic validation unavailable; validate-file oracle retained' };
+            dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', ...dynamicValidationDegradation(error) };
           }
         }
         if (args.story && dynamicMode === 'enforce-low-risk' && dynamicValidation?.authority === 'enforce-authority' && dynamicValidation.authoritativeResult) {
