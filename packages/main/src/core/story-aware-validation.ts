@@ -36,6 +36,7 @@ import {
   buildValidationImpactIndexFromCatalog,
   automaticValidationTierSnapshotDigest,
   selectAutomaticValidationTier,
+  validationCatalogEntryRequiresParticipation,
   VALIDATION_TIERS,
   type AutomaticValidationTierSelectionBinding,
   type ValidationTier,
@@ -63,14 +64,7 @@ export class ValidationSelectorContextError extends Error {
   }
 }
 
-export function validationCatalogEntryRequiresParticipation(entry: ValidationCatalogEntry): boolean {
-  return entry.assurance === 'always'
-    || entry.assurance === 'full-only'
-    || entry.closurePolicy === 'whole-repository'
-    || entry.closurePolicy === 'never-reuse'
-    || entry.riskTier === 'gate'
-    || entry.riskTier === 'validation-infra';
-}
+export { validationCatalogEntryRequiresParticipation } from './validation-tier-planner.js';
 export type DynamicDisposition = 'execute' | 'reuse' | 'excluded' | 'unverified';
 const MAX_RECEIPT_AGE_MS = 24 * 60 * 60 * 1000;
 const HEX64 = /^[0-9a-f]{64}$/i;
@@ -427,10 +421,19 @@ export const validateCatalog = validateValidationCatalog;
 export function compileValidationCatalog(inventory: ValidationInventory, options: Partial<Pick<ValidationCatalogEntry, 'assurance' | 'riskTier' | 'closurePolicy' | 'fullBaselineReusePolicy' | 'cpuWeight' | 'expectedP50Ms'>> & { inputRoots?: string[] } = {}): ValidationCatalogEntry[] {
   return inventory.commands.map(row => {
     const heuristicRoots = [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : []), ...(row.runnerSourcePath ? [row.runnerSourcePath] : [])];
-    const declaredRoots = Array.isArray(row.inputRoots)
+    const filteredDeclaredRoots = Array.isArray(row.inputRoots)
       ? row.inputRoots.filter((path): path is string => typeof path === 'string' && path.trim().length > 0)
-      : row.inputRoots === undefined ? options.inputRoots : [];
-    const inputRoots = declaredRoots ?? heuristicRoots;
+      : row.inputRoots === undefined && Array.isArray(options.inputRoots)
+        ? options.inputRoots.filter((path): path is string => typeof path === 'string' && path.trim().length > 0)
+        : [];
+    const selectionInputRoots = filteredDeclaredRoots.length > 0 ? filteredDeclaredRoots : heuristicRoots;
+    // Runtime tracing and direct triggers retain the command's own registered
+    // runner/case-registry paths even when selector ownership is narrower.
+    const inputRoots = uniqueSorted([
+      ...(filteredDeclaredRoots.length > 0 ? filteredDeclaredRoots : heuristicRoots),
+      ...(row.caseRegistryPath ? [row.caseRegistryPath] : []),
+      ...(row.runnerSourcePath ? [row.runnerSourcePath] : []),
+    ]);
     // A caller-wide root override is useful for runtime closure fixtures, but
     // it is not per-command ownership proof. Only the command's own explicit
     // inputsComplete + inputRoots declaration may authorize selector omission.
@@ -439,7 +442,7 @@ export function compileValidationCatalog(inventory: ValidationInventory, options
     return ({
     ...row, schema: VALIDATION_CATALOG_SCHEMA,
     inputRoots,
-    selectionInputRoots: inputRoots,
+    selectionInputRoots,
     selectionInputCoverage: declaredComplete ? 'complete' : 'partial',
     selectionInputCoverageSource: declaredComplete ? 'declared' : 'heuristic',
     triggerExtensions: { files: inputRoots },
@@ -553,6 +556,22 @@ interface GraphData {
 const graphTreeCache = new Map<string, Map<string, string>>();
 const dualRevisionGraphCache = new Map<string, DualRevisionImpactGraph>();
 const DUAL_REVISION_GRAPH_CACHE_MAX = 8;
+const GRAPH_TREE_CACHE_MAX = DUAL_REVISION_GRAPH_CACHE_MAX * 2;
+
+/** Read-only diagnostics used to prove both repository-graph caches stay bounded. */
+export function validationGraphCacheStats(): {
+  graphTrees: number;
+  dualRevisionGraphs: number;
+  graphTreeLimit: number;
+  dualRevisionGraphLimit: number;
+} {
+  return {
+    graphTrees: graphTreeCache.size,
+    dualRevisionGraphs: dualRevisionGraphCache.size,
+    graphTreeLimit: GRAPH_TREE_CACHE_MAX,
+    dualRevisionGraphLimit: DUAL_REVISION_GRAPH_CACHE_MAX,
+  };
+}
 function parseImports(source: string, path: string): string[] {
   const output: string[] = [];
   const scriptKind = /\.(?:jsx|tsx)$/.test(path) ? ts.ScriptKind.TSX
@@ -578,8 +597,9 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
   const resolutionFailures: string[] = [];
   let authority = authorityRevisionClosure(undefined);
   try {
-    const cacheKey = `${gitCwd}\0${ref}`;
-    let tree = graphTreeCache.get(cacheKey);
+    const immutableRef = /^[0-9a-f]{40}$/i.test(ref);
+    const cacheKey = immutableRef ? `${resolve(gitCwd)}\0${ref}` : '';
+    let tree = cacheKey ? graphTreeCache.get(cacheKey) : undefined;
     if (!tree) {
       const listing = execFileSync('git', ['ls-tree', '-r', '-z', '--format=%(objectname) %(path)', ref], { cwd: gitCwd, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 });
       const rows = listing.split('\0').filter(Boolean).map(row => {
@@ -608,7 +628,14 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
           offset = bodyStart + Math.max(0, size) + 1;
         }
       }
-      graphTreeCache.set(cacheKey, tree);
+      if (cacheKey) {
+        graphTreeCache.set(cacheKey, tree);
+        while (graphTreeCache.size > GRAPH_TREE_CACHE_MAX) {
+          const oldest = graphTreeCache.keys().next().value as string | undefined;
+          if (!oldest) break;
+          graphTreeCache.delete(oldest);
+        }
+      }
     }
     authority = authorityRevisionClosure(tree);
     const allPaths = [...tree.keys()];

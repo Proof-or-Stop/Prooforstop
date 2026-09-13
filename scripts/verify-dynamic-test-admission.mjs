@@ -80,7 +80,9 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         git('commit', '-qm', 'change build input and story metadata');
         const head = git('rev-parse', 'HEAD');
         const storyGitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
-        await runStoryAwareDynamicValidation({ projectRoot: root, gitCwd: root, storyId, baseHead, head, mode: dynamicMode, commands: configured });
+        if (!full) {
+          await runStoryAwareDynamicValidation({ projectRoot: root, gitCwd: root, storyId, baseHead, head, mode: dynamicMode, commands: configured });
+        }
         acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
         persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: deriveCertificationDomainInputHashes(root, 'HEAD', root) });
         const facts = { cli: { available: true, path: process.execPath }, worktree: { expected: root, actual: root }, gitIndex: { readable: true, path: join(root, '.git/index'), contentDigest: 'stable' }, gitMaterial: { available: true, headHash: head, materialHash: 'stable', storyFilesHash: 'stable' }, writerLease: { available: true, valid: true }, providerCapability: { required: ['validation-plan', 'bounded-output'], available: ['validation-plan', 'bounded-output'] }, resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } }, evidenceTarget: { writable: true, path: join(root, '.proof-or-stop/causal-evidence') }, sideChannel: { available: true, maxOutputChars: 12000, maxProgressEvents: 1 } };
@@ -119,6 +121,29 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
           assert.ok(store.readTestEvidence(storyId).validationArtifactSignature);
           assert.equal(assessStoredValidationPassAdmissibility(ctx, storyId, {allowDynamicCoverage:false}).ok, true);
           await runValidateGate(ctx, storyId, { stop() {} });
+          const signedLegacyEvidence = store.readTestEvidence(storyId);
+          assert.equal(requiresDynamicValidationAdmission({ root, store, gitCwd: root }, storyId), false,
+            'a valid signed canonical full PASS must not enter the dynamic-only DONE evaluator');
+          const doneFailure = () => {
+            try { runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd); }
+            catch (error) { return error instanceof Error ? error.message : String(error); }
+            return '';
+          };
+          const signedLegacyDoneRows = doneFailure();
+          assert.match(signedLegacyDoneRows, /Test evidence[\s\S]*PASS/,
+            'the canonical full control must expose its existing DONE test-evidence row');
+          assert.doesNotMatch(signedLegacyDoneRows, /Stored routine validation admission/);
+          const { validationArtifactSignature: _legacySignature, ...unsignedLegacyEvidence } = signedLegacyEvidence;
+          store.writeTestEvidence(storyId, unsignedLegacyEvidence);
+          assert.equal(requiresDynamicValidationAdmission({ root, store, gitCwd: root }, storyId), false,
+            'an unrelated unsigned legacy full PASS keeps the pre-existing DONE contract');
+          const unsignedLegacyDoneRows = doneFailure();
+          const testEvidenceRow = value => value.split('\n').find(line => line.includes('Test evidence:'));
+          assert.equal(testEvidenceRow(unsignedLegacyDoneRows), testEvidenceRow(signedLegacyDoneRows),
+            'signed and unsigned non-dynamic legacy PASS records must produce the same test-evidence DONE row');
+          assert.doesNotMatch(unsignedLegacyDoneRows, /Stored routine validation admission/,
+            'an unsigned legacy PASS must not gain the dynamic-only DONE row');
+          store.writeTestEvidence(storyId, signedLegacyEvidence);
           console.log('CANONICAL_FULL_SIGNED_TEST_ADMISSION_PASS');
           return;
         }
@@ -277,9 +302,14 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         const originalReceipts = readFileSync(receiptsPath);
         writeFileSync(selectionPath, JSON.stringify({ mode: 'observe' }));
         rmSync(receiptsPath);
-        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
-          /Stored routine validation admission|validation evidence signature is missing or invalid/,
-          'DONE authenticates before classification even when marker, selection mode, and receipts are all stripped');
+        assert.equal(requiresDynamicValidationAdmission({ root, store, gitCwd: root }, storyId), false,
+          'after every dynamic discriminator is removed, the unsigned record retains only the legacy DONE shape');
+        let fullyStrippedDoneError = '';
+        try { runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd); }
+        catch (error) { fullyStrippedDoneError = error instanceof Error ? error.message : String(error); }
+        assert.ok(fullyStrippedDoneError, 'ordinary downstream DONE prerequisites remain blocking in the bounded fixture');
+        assert.doesNotMatch(fullyStrippedDoneError, /Stored routine validation admission/,
+          'a record with no dynamic claim or lineage must not inherit the dynamic-only DONE evaluator');
         writeFileSync(selectionPath, originalSelection);
         writeFileSync(receiptsPath, originalReceipts);
         store.writeTestEvidence(storyId, originalEvidence);

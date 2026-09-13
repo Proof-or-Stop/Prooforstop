@@ -437,12 +437,20 @@ The selector's command-set identity is independently rebuilt from the current
 execution inventory. Its snapshot identity is independently rebuilt from the
 current Story id, immutable base/head and signed change-manifest digest. A
 caller cannot make either value authoritative merely by re-signing a
-self-consistent selector object. Graph construction and traversal use a bounded
-process cache for immutable commit pairs plus the catalog: each revision's
-TypeScript/JavaScript AST graph and reverse dependency map are built once,
-while affected commands are resolved once per changed file rather than once
-per catalog row. Exact identity and call-count tests protect those bounds;
-this is a complexity boundary, not a repository wall-time claim.
+self-consistent selector object. Graph construction and traversal use bounded
+process caches for immutable revisions and commit pairs plus the catalog: the
+dual-revision cache retains at most eight entries and the full source-tree cache
+at most sixteen. Symbolic refs are never cached. Each revision's
+TypeScript/JavaScript AST graph and reverse dependency map are built once while
+affected commands are resolved once per changed file rather than once per
+catalog row. Exact identity, eviction, moving-ref and call-count tests protect
+those bounds; this is a complexity boundary, not a repository wall-time claim.
+
+Configured `inputRoots` are the selector's exclusion-ownership declaration.
+Runtime closure and direct triggers additionally retain a command's
+`runnerSourcePath` and `caseRegistryPath`; an empty non-authoritative declaration
+falls back to heuristic runtime roots but never becomes complete selector
+ownership.
 
 The twenty compatibility package entrypoints now dispatch twenty distinct
 mode-specific executable assertions over the corresponding manifest,

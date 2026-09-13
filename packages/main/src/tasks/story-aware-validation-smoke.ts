@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import {
   aggregateValidationShards,
   augmentValidationCatalogWithGraphInputs,
+  buildDualRevisionImpactGraph as buildCanonicalDualRevisionImpactGraph,
   buildDynamicValidationPlan,
   buildRevocationLedger,
   buildStoryChangeManifest,
@@ -32,6 +33,7 @@ import {
   stableDigest,
   ValidationSelectorContextError,
   validateValidationCatalog,
+  validationGraphCacheStats,
 } from '../core/story-aware-validation.js';
 import {
   VALIDATION_IMPACT_INDEX_SCHEMA,
@@ -140,6 +142,38 @@ try {
     'an immutable commit-pair and catalog must reuse one process-cached dual-revision AST graph');
   assert.ok(jsxGraph.commandsAffectedBy({ path: 'packages/main/src/jsx-dependency.ts', status: 'modified' }).includes('tsx-consumer'),
     'an import following JSX must remain a positive reverse-dependency edge');
+
+  const cacheHeads: string[] = [];
+  for (let index = 0; index < 18; index += 1) {
+    writeFileSync(join(graphFixtureRoot, `packages/main/src/cache-sequence-${index}.ts`), `export const cacheSequence = ${index};\n`);
+    git('add', '.');
+    git('commit', '-qm', `cache sequence ${index}`);
+    cacheHeads.push(git('rev-parse', 'HEAD'));
+  }
+  for (let index = 0; index < cacheHeads.length; index += 2) {
+    buildCanonicalDualRevisionImpactGraph({
+      gitCwd: graphFixtureRoot,
+      baseHead: cacheHeads[index]!,
+      head: cacheHeads[index + 1]!,
+      catalog,
+    });
+  }
+  const boundedCache = validationGraphCacheStats();
+  assert.ok(boundedCache.dualRevisionGraphs <= boundedCache.dualRevisionGraphLimit,
+    'dual-revision graph cache must evict beyond its fixed process bound');
+  assert.ok(boundedCache.graphTrees <= boundedCache.graphTreeLimit,
+    'full source-tree cache must evict beyond its fixed process bound');
+
+  git('branch', '-f', 'moving-cache', cacheHeads[1]!);
+  const symbolicBefore = buildCanonicalDualRevisionImpactGraph({
+    gitCwd: graphFixtureRoot, baseHead: cacheHeads[0]!, head: 'moving-cache', catalog,
+  });
+  git('branch', '-f', 'moving-cache', cacheHeads[3]!);
+  const symbolicAfter = buildCanonicalDualRevisionImpactGraph({
+    gitCwd: graphFixtureRoot, baseHead: cacheHeads[0]!, head: 'moving-cache', catalog,
+  });
+  assert.notEqual(symbolicAfter.headGraphDigest, symbolicBefore.headGraphDigest,
+    'a moving symbolic ref must never reuse a stale full-tree cache entry');
 } finally {
   rmSync(graphFixtureRoot, { recursive: true, force: true });
 }
@@ -232,6 +266,30 @@ const malformedCompleteInventory = discoverValidationInventory('/tmp', [{
 }]);
 assert.equal(compileValidationCatalog(malformedCompleteInventory)[0]?.selectionInputCoverage, 'partial',
   'schema-bypassing non-array inputRoots must never obtain complete exclusion authority');
+const registeredRunnerInventory = discoverValidationInventory('/tmp', [{
+  id: 'registered-runner', label: 'registered-runner', command: 'node', args: ['packages/main/dist/tasks/registered-runner.js'],
+  inputRoots: ['packages/main/src/domain.ts'], inputsComplete: true,
+  runnerSourcePath: 'packages/main/src/tasks/registered-runner.ts', runnerSourceDigest: 'runner-digest',
+  caseRegistryPath: 'packages/main/tests/registered-runner-cases.json', originalIndex: 0,
+}]);
+const registeredRunnerCatalog = compileValidationCatalog(registeredRunnerInventory)[0]!;
+assert.deepEqual(registeredRunnerCatalog.selectionInputRoots, ['packages/main/src/domain.ts'],
+  'selector exclusion ownership must remain limited to the explicit declaration');
+assert.deepEqual(registeredRunnerCatalog.inputRoots, [
+  'packages/main/src/domain.ts',
+  'packages/main/src/tasks/registered-runner.ts',
+  'packages/main/tests/registered-runner-cases.json',
+], 'runtime closure must retain declared ownership plus runner and case-registry paths');
+assert.deepEqual(registeredRunnerCatalog.triggerExtensions.files, registeredRunnerCatalog.inputRoots,
+  'direct triggers must consume the complete runtime closure roots');
+const emptyDeclaredRunner = compileValidationCatalog(discoverValidationInventory('/tmp', [{
+  id: 'empty-declared-runner', label: 'empty-declared-runner', command: 'node', args: ['packages/main/dist/tasks/empty-runner.js'],
+  inputRoots: [], inputsComplete: false,
+  runnerSourcePath: 'packages/main/src/tasks/empty-runner.ts', runnerSourceDigest: 'runner-digest', originalIndex: 0,
+}]))[0]!;
+assert.ok(emptyDeclaredRunner.inputRoots.includes('packages/main/src/tasks/empty-runner.ts'));
+assert.ok(emptyDeclaredRunner.inputRoots.length > 0,
+  'an empty non-authoritative declaration must fall back to heuristic runtime roots');
 const hostileRootCases: Array<{ label: string; roots: string[] }> = [
   { label: 'empty', roots: [] },
   { label: 'non-string-only', roots: [123, null] as unknown as string[] },
@@ -371,7 +429,7 @@ assert.equal(validateValidationCatalog(wholeRepositoryInventory, wholeRepository
 const wholeImpact = buildValidationImpactIndexFromCatalog({
   commandSetDigest: wholeCommandSetDigest, catalog: wholeRepositoryCatalog,
 });
-assert.equal(wholeImpact.entries.find((entry) => entry.commandId === 'whole-scan')?.selection, 'repository-full');
+assert.equal(wholeImpact.entries.find((entry) => entry.commandId === 'whole-scan')?.selection, 'always');
 const wholeBinding = buildAutomaticValidationTierSelectionBinding({
   input: {
     ...productionRelevanceInput,
@@ -445,8 +503,10 @@ const gateFloorBinding = buildAutomaticValidationTierSelectionBinding({
   catalog: gateFloorCatalog,
   storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
 });
-assert.equal(gateFloorBinding.decision.selectedUnitIds.includes('unrelated'), false,
-  'the fixture must prove the selector would otherwise omit the unaffected gate row');
+assert.equal(gateFloorBinding.decision.selectedUnitIds.includes('unrelated'), true,
+  'the selector and executor must share the non-omittable gate-row floor');
+assert.equal(gateFloorBinding.decision.exclusionProofs.some((proof) => proof.commandId === 'unrelated'), false,
+  'a gate-row participation floor must never receive an omission proof');
 const gateFloorClosures = new Map(gateFloorCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
   commandId: entry.id, baseHead: 'base', inventoryDigest: inventory.digest,
   catalogDigest: stableDigest(gateFloorCatalog), staticPaths: entry.inputRoots,

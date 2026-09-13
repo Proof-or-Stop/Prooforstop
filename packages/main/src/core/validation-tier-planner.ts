@@ -163,6 +163,16 @@ export interface ValidationImpactCatalogEntry {
   triggerExtensions?: { files?: readonly string[] };
 }
 
+/** Commands the executor may never omit must occupy every selector tier. */
+export function validationCatalogEntryRequiresParticipation(entry: ValidationImpactCatalogEntry): boolean {
+  return entry.assurance === 'always'
+    || entry.assurance === 'full-only'
+    || entry.closurePolicy === 'whole-repository'
+    || entry.closurePolicy === 'never-reuse'
+    || entry.riskTier === 'gate'
+    || entry.riskTier === 'validation-infra';
+}
+
 /**
  * Project the production validation catalog into the canonical tier selector's
  * versioned ownership map.  This is the bridge that keeps explanation and
@@ -178,20 +188,16 @@ export function buildValidationImpactIndexFromCatalog(args: {
       ...(entry.selectionInputRoots ?? entry.inputRoots ?? []),
       ...(entry.triggerExtensions?.files ?? []),
     ].map(normalizedPath).filter(Boolean))].sort();
-    const selection: ValidationImpactSelection = entry.assurance === 'always'
+    const selection: ValidationImpactSelection = validationCatalogEntryRequiresParticipation(entry)
       ? 'always'
-      : entry.assurance === 'full-only' || entry.closurePolicy === 'whole-repository'
-        || entry.riskTier === 'gate' || entry.riskTier === 'validation-infra'
-        ? REPOSITORY_FULL_TIER
-        : entry.riskTier === 'shared'
-          ? 'story-intermediate'
-          : 'story-fast';
+      : entry.riskTier === 'shared'
+        ? 'story-intermediate'
+        : 'story-fast';
     return {
       commandId: entry.id,
       selection,
       inputPatterns,
       coverage: entry.selectionInputCoverage === 'complete' ? 'complete' : 'partial',
-      ...(selection === REPOSITORY_FULL_TIER ? { fullReason: 'command_exclusion_unproven' as const } : {}),
     };
   });
   return {

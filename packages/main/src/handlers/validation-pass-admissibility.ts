@@ -101,13 +101,17 @@ export function requiresDynamicValidationAdmission(
   }
   const evidence = ctx.store.readTestEvidence(storyId);
   if (!evidence || evidence.result !== 'PASS') return false;
-  // Classification follows authentication. Invalid evidence is deliberately
-  // routed into the strict evaluator so stripping both presentation markers
-  // and writable runtime hints cannot restore the legacy DONE path.
-  if (!verifyTestValidationEvidence(storyId, evidence, ctx.gitCwd)) return true;
+  // Authentication runs before origin classification. An invalid signature
+  // cannot grant anything: a dynamic claim or enforce-mode runtime lineage
+  // routes to strict refusal, while an unrelated unsigned legacy full record
+  // remains owned by the pre-existing DONE validation row.
+  const signatureValid = verifyTestValidationEvidence(storyId, evidence, ctx.gitCwd);
   try {
     const claimedDynamicOrigin = dynamicValidationCoverageAdmission(JSON.parse(evidence.output), true).dynamicOrigin;
-    return claimedDynamicOrigin || hasStoryAwareValidationArtifacts(ctx.root, storyId);
+    const hasDynamicLineage = hasStoryAwareValidationArtifacts(ctx.root, storyId);
+    const requiresStrictDynamicAdmission = claimedDynamicOrigin || hasDynamicLineage;
+    if (!signatureValid && !requiresStrictDynamicAdmission) return false;
+    return requiresStrictDynamicAdmission;
   } catch {
     return hasStoryAwareValidationArtifacts(ctx.root, storyId);
   }

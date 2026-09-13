@@ -437,6 +437,25 @@ naming, test-strength and historical-documentation inconsistencies:
 The focused audit modes and process-fact contract pass on the repair tree. A
 committed-head GREEN and fresh Claude PASS remain mandatory before Lab finish.
 
+## Fifteenth Claude audit and remediation
+
+The exact repair-head audit of `7585e8b996` returned `fail` under run
+`388dc899-e300-43d4-a2b1-cb0539697223` after 675,262 ms. Claude again confirmed
+that no unproven command can be omitted from a manifest accepted by TEST or
+DONE, then retained four explain/execute, compatibility, cache and ownership
+defects:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A15-F1 never-reuse explain/execute drift | Planner could issue an omission proof for an unaffected `never-reuse` row while the executor forced it to execute | Planner and executor now import one `validationCatalogEntryRequiresParticipation` predicate. Every non-omittable row occupies all three selector tiers, is reported included and can never receive an exclusion proof; planner and runtime smokes pin the shared behavior |
+| A15-F2 legacy full DONE widening | Any invalid PASS signature entered the dynamic-only DONE evaluator, including unrelated legacy full evidence | Authentication still occurs before classification, but strict dynamic admission now requires a dynamic output claim or authoritative dynamic artifact lineage. An isolated canonical-full fixture proves signed and unsigned legacy records produce the same test-evidence DONE row and neither gains `stored-validation-admission`; marker-stripped evidence with retained enforce lineage still refuses |
+| A15-F3 unbounded graph source cache | The eight-entry dual graph cache retained source trees in an unbounded raw-ref cache | Full source trees are cached only for immutable 40-hex revisions and evicted at sixteen entries. A real 18-commit fixture exceeds both bounds and a moved symbolic ref produces a different graph digest |
+| A15-F4 declared roots dropped runner paths | Explicit roots replaced runner/case paths, while empty roots became an invalid runtime closure | Selector roots remain declaration-driven, while runtime closure and direct triggers use the union with runner/case-registry paths. Empty non-authoritative roots fall back to heuristics; source types and focused fixtures document and prove both surfaces |
+
+The existing rename-aware relevance-input fixture already proves that both old
+and new paths enter the production selector input. Build, planner, runtime and
+real TEST/DONE checks must pass again before the next committed GREEN.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,

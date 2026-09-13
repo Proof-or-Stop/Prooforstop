@@ -2419,6 +2419,10 @@ testCase('the production catalog derives the canonical impact index and automati
       id: 'repo-sentinel', assurance: 'full-only', riskTier: 'gate', policySource: 'explicit',
       inputRoots: ['proof-or-stop.config.json'], selectionInputRoots: ['proof-or-stop.config.json'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['proof-or-stop.config.json'] },
     },
+    {
+      id: 'never-reuse', assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'never-reuse', policySource: 'explicit',
+      inputRoots: ['scripts/never-reuse.ts'], selectionInputRoots: ['scripts/never-reuse.ts'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['scripts/never-reuse.ts'] },
+    },
   ] as const;
   const impactIndex = buildValidationImpactIndexFromCatalog({ commandSetDigest, catalog });
   assert.equal(impactIndex.commandSetDigest, commandSetDigest);
@@ -2426,7 +2430,8 @@ testCase('the production catalog derives the canonical impact index and automati
     ['build', 'always'],
     ['docs-links', 'story-fast'],
     ['docs-contract', 'story-intermediate'],
-    ['repo-sentinel', 'repository-full'],
+    ['repo-sentinel', 'always'],
+    ['never-reuse', 'always'],
   ]);
 
   const decision = selectAutomaticValidationTier({
@@ -2441,10 +2446,14 @@ testCase('the production catalog derives the canonical impact index and automati
   });
   assert.equal(decision.requestedTier, 'story-intermediate');
   assert.equal(decision.effectiveTier, 'story-intermediate');
-  assert.deepEqual(decision.selectedUnitIds, ['build', 'docs-links', 'docs-contract']);
-  assert.deepEqual(decision.tierSelections['story-fast'], ['build', 'docs-links']);
-  assert.deepEqual(decision.tierSelections['story-intermediate'], ['build', 'docs-links', 'docs-contract']);
+  assert.deepEqual(decision.selectedUnitIds, ['build', 'docs-links', 'docs-contract', 'repo-sentinel', 'never-reuse']);
+  assert.deepEqual(decision.tierSelections['story-fast'], ['build', 'docs-links', 'repo-sentinel', 'never-reuse']);
+  assert.deepEqual(decision.tierSelections['story-intermediate'], ['build', 'docs-links', 'docs-contract', 'repo-sentinel', 'never-reuse']);
   assert.deepEqual(decision.tierSelections['repository-full'], catalog.map((entry) => entry.id));
+  assert.equal(decision.exclusionProofs.some((proof) => proof.commandId === 'never-reuse'), false,
+    'a never-reuse row is a shared participation floor and cannot receive an omission proof');
+  assert.ok(decision.inclusionReasonsByCommand['never-reuse']?.includes('declared-always'),
+    'validation_plan must report a never-reuse row as included');
   const proofChangedIndex = {
     ...impactIndex,
     entries: impactIndex.entries.map((entry) => entry.commandId === 'repo-sentinel'
