@@ -28,6 +28,7 @@ try {
   const w = observe(() => workspace(), 20); const b = observe(() => resolveRepositoryBaseline(root), 20);
   for (const out of w.outputs) assert.deepEqual(out, { gitCwd: root, worktreePath: null, source: 'invocation-root', rootReason: 'same-tree' });
   for (const out of b.outputs) assert.deepEqual(out, { ref: 'refs/heads/main', mergeBase: head });
+  assert(b.commands.filter(args => args[0] === 'merge-base').every(args => args[1] === '--end-of-options'), 'INTAKE_BASELINE_OPTIONS_UNGUARDED');
   const scans = w.commands.filter(args => args[0] === 'worktree').length;
   console.log('INTAKE_DISCOVERY_MEASURE ' + JSON.stringify({ workspace: { ms: w.ms, scans, gitCalls: w.commands.length }, baseline: { ms: b.ms, gitCalls: b.commands.length }, outputsEqual: true }));
   if (scans !== 20) failures.push(`workspace inventory budget expected 20, got ${scans}`);
