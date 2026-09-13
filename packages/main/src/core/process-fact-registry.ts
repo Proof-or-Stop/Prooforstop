@@ -2216,10 +2216,10 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
     producer: 'handlers/story-scope-budget.scope_budget_approve',
     producerSourceRefs: ['packages/main/src/core/story-scope-budget-decisions.ts'],
-    consumerSourceRefs: ['packages/main/src/core/story-scope-budget.ts'],
+    consumerSourceRefs: ['packages/main/src/core/story-scope-budget.ts', 'packages/main/src/core/scope-approval-continuity.ts'],
     consumerGate: 'machine DEV guards and acceptance amendment application',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_budget_approve,
-    rationale: 'Interactive operator acknowledgement binds exact scope and amendment base plus resulting scope. Signed journal and entries enforce identity, seven-day expiry, immutable configured limits and agent refusal; unknown scope cannot be approved.',
+    rationale: 'Interactive operator acknowledgement binds exact scope and amendment base plus resulting scope. Signed journal and entries enforce identity, seven-day expiry, immutable configured limits and agent refusal; unknown scope cannot be approved. Read-only applied-scope continuity preserves original authority only through authenticated historical digest reconstruction, exact requirement/scope/topology equivalence, genuine first-pin history and additive validation registration with unchanged stable identities and scope-group resolution. Bounded immutable first-parent reads, live-input and expiry rechecks fail closed. Continuity runs only for blocking top-level reads, never observe-mode reports, decomposition children or exact approval issuance under the mutation lock; refusals distinguish unavailable proof, limits and final live-input drift; only actual timeout errors can be attributed to elapsed time, and empty history is reported after an unsuccessful search. This grants no new acknowledgement and preserves no execution freshness, validation cache or independent review.',
   },
   {
     name: 'artifact:acceptance-amendments.json',

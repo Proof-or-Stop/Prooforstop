@@ -10010,6 +10010,24 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     assert(budgetDecision.includes(invariant), `scope budget approval requires ${invariant}`);
   }
   assert(registrySource.includes("name: 'scope-budget-decisions.json'"), 'scope approval signed artifact must be registered');
+  const approvalContinuity = read('packages/main/src/core/scope-approval-continuity.ts');
+  for (const invariant of ['unexpiredScopeBudgetApprovals', 'readAuthenticatedAcceptanceAmendmentJournal', 'approval.resultingScopeDigest', 'approval.bindingDigest', 'hasMechanicalExecutionAuthority', 'equivalentConfiguration', '--first-parent', 'firstPinCommits', 'checkBudget()']) {
+    assert(approvalContinuity.includes(invariant), `scope continuity requires ${invariant}`);
+  }
+  assert(read('packages/main/src/core/story-scope-budget.ts').includes('!next && !base && !report.decomposition'), 'scope continuity must not authorize a new amendment or decomposition');
+  assert(!approvalContinuity.includes('signValidationArtifact(') && !approvalContinuity.includes('writeScopeBudgetDecisions('), 'scope continuity cannot create or rewrite approval authority');
+  assert(approvalContinuity.includes('projected({items:[historical]})') && approvalContinuity.includes('projected({items:[original]})'), 'first-pin execution must bind the approved requirement meaning');
+  assert(registrySource.includes('packages/main/src/core/scope-approval-continuity.ts'), 'scope continuity consumer must be registered');
+  assert(read('packages/main/src/core/story-scope-budget.ts').includes('undefined, undefined, lineage, false'), 'recursive children must not repeat continuity scans');
+  assert(budgetDecision.includes('scopeBudgetDecisionReport(store, root, args.storyId, args.amendmentId, false)'), 'approval issuance must compute exact reports without historical continuity');
+  assert(approvalContinuity.includes('break requirements') && approvalContinuity.includes('live_input_changed'), 'mismatched intent references and live drift must stop continuity');
+  assert(read('packages/main/src/core/story-scope-budget.ts').includes('allowApprovalContinuity && report.blocking') && read('packages/main/src/core/story-scope-budget.ts').includes('delete report.approvalContinuityRefusal'), 'nonblocking reads skip continuity and grants clear refusal diagnostics');
+  assert(approvalContinuity.includes("code === 'ETIMEDOUT'") && approvalContinuity.includes('if(unavailableHistory)'), 'continuity diagnostics preserve terminal Git cause and defer empty-history reporting');
+  const continuityPackage = JSON.parse(read('package.json'));
+  assert(continuityPackage.scripts?.['test:scope-approval-continuity'] === 'node scripts/verify-scope-approval-continuity.mjs', 'behavioral scope continuity regression must be executable');
+  assert(continuityPackage.scripts?.['test:serial-reference']?.includes('npm run test:scope-approval-continuity'), 'behavioral scope continuity regression must remain in the canonical pipeline');
+  assert(read('packages/main/src/tasks/full-suite-runner.ts').includes("isolated('test:scope-approval-continuity', { timeoutMs: 120_000 })"), 'scope continuity regression must have its isolated scheduler policy');
+  assert(approvalContinuity.includes('onRefusal?.(') && read('packages/main/src/core/story-scope-budget.ts').includes('approvalContinuityRefusal'), 'continuity exhaustion must expose non-authorizing diagnostics');
   assert(read('packages/main/src/core/lifecycle-registry.ts').includes("'scope-budget-decisions.json'"), 'scope decisions must be lifecycle metadata');
   const budgetMachine = read('packages/main/src/core/machine.ts');
   for (const guard of ['canStartDevGuard', 'canSkipPlanGuard', 'canReenterDevGuard']) {
