@@ -1391,6 +1391,8 @@ function persistStoryValidationEvidence(
   // and not about what reaches the writer: the gate below and the write that follows read the same
   // mutable record, so a line inserted between them that mutates it in place diverges the written
   // bytes from the measured ones without adding a second computation (B-3434:F-037).
+  // StoryStore now independently measures its one serialized string and refuses an
+  // oversized write; the reducer remains best-effort and is not that final boundary.
   const persistedBound = boundEvidence(hashes);
   const sizingAdvisory = formatValidationEvidenceAdvisory(persistedBound);
   if (sizingAdvisory) ctx.log?.(sizingAdvisory);

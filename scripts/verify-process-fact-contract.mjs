@@ -17,6 +17,11 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
 const quiet = process.argv.slice(2).includes('--quiet');
+// Real writer and coverage consumer regression; part of the canonical contract command.
+execFileSync(process.execPath, ['experiments/acceptance-closure/regression.mjs'], {
+  cwd: root, stdio: 'pipe', timeout: 60000,
+});
+
 const failures = [];
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
 for (const path of readonlyLaneSources) if (!existsSync(join(root,path))) failures.push(`Missing managed readonly source ${path}`);

@@ -742,7 +742,7 @@ function validationResult(
   // Read out of the document rather than restated beside it: a hardcoded list here would be one more
   // sentence owned somewhere else, which is the defect class this whole story kept reopening.
   const namedFindings = [...new Set(rationaleText.match(/B-3434:F-\d+/g) ?? [])].sort();
-  console.log('✓ CHK-004 disposition observed: outcome B shipped, its limitations remain recorded, and no writer-owned-boundary follow-up is currently active');
+  console.log('✓ Historical CHK-004 outcome B and reviewed Finding IDs preserved; current writer protection is tested by the acceptance-closure contract');
   console.log(`    rationale=${rationalePath} bytes=${Buffer.byteLength(rationaleText, 'utf8')} findingIdsNamed=${namedFindings.join(',')}`);
 }
 

@@ -245,11 +245,23 @@ export function buildVerificationCoverage(
   const attestationIssues: AttestationIssue[] = [];
   const actorTrustIssues: ActorTrustIssue[] = [];
   const factProvenanceIssues: FactProvenanceIssue[] = [];
+  // Once a checklist opts into explicit verification, every delivered item needs
+  // an intent. Preserve the all-empty legacy/express policy owned by the caller.
+  const hasExplicitIntents = cl.items.some(item =>
+    !isWithdrawnChecklistStatus(item.status) && collectVerificationIntents(item).length > 0);
   for (const item of cl.items) {
     // B-1909 CHK-002: a withdrawn item is recorded-undeliverable; its verification
     // intents are no longer part of the story's required coverage, so they never
     // appear as required/blocking entries. (Terminal but not delivered.)
     if (isWithdrawnChecklistStatus(item.status)) continue;
+    if (hasExplicitIntents && collectVerificationIntents(item).length === 0) {
+      // A diagnostic obligation, never a stored intent or caller-authored receipt.
+      entries.push({
+        intentRef: `${item.id}:missing-verification-intent`, itemId: item.id,
+        lane: 'happy', desc: 'Checklist item has no verificationIntent; explicit verification coverage is incomplete',
+        type: 'docs', priority: 'must', status: 'missing',
+      });
+    }
     for (const collected of collectVerificationIntents(item)) {
       const priority = collected.intent.priority || 'must';
       let evidence = pickEvidence(item, collected.ref);

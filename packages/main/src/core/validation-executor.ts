@@ -326,22 +326,16 @@ function trimOutput(output: string, retainFailureTail: boolean): string {
  * bounding does, and what it leaves open, is described where it is performed - on
  * boundPersistedValidationEvidence, measurePersistedEvidenceBytes and snapshotPersistedRecord.
  */
-export const VALIDATION_EVIDENCE_READ_CEILING_BYTES = METADATA_BLOB_READ_MAX_BUFFER_BYTES;
-/**
- * Advisory at a quarter of the ceiling (8 MiB against a 32 MiB ceiling). Chosen against the
- * measured growth curve, not by taste: 8 MiB is roughly 6x the 1,369,692-byte artifact that caused
- * the incident, which is far enough ahead that an operator meets the advisory with room to act, and
- * far enough behind the bound that the advisory is not a synonym for it.
- */
-export const VALIDATION_EVIDENCE_ADVISORY_FRACTION = 0.25;
-/** Hard bound at three quarters of the ceiling, leaving 25 percent headroom for the read itself. */
-export const VALIDATION_EVIDENCE_BOUND_FRACTION = 0.75;
-export const VALIDATION_EVIDENCE_ADVISORY_BYTES = Math.floor(
-  VALIDATION_EVIDENCE_READ_CEILING_BYTES * VALIDATION_EVIDENCE_ADVISORY_FRACTION,
-);
-export const VALIDATION_EVIDENCE_BOUND_BYTES = Math.floor(
-  VALIDATION_EVIDENCE_READ_CEILING_BYTES * VALIDATION_EVIDENCE_BOUND_FRACTION,
-);
+export {
+  VALIDATION_EVIDENCE_READ_CEILING_BYTES, VALIDATION_EVIDENCE_ADVISORY_FRACTION,
+  VALIDATION_EVIDENCE_BOUND_FRACTION, VALIDATION_EVIDENCE_ADVISORY_BYTES,
+  VALIDATION_EVIDENCE_BOUND_BYTES,
+} from './validation-evidence-size-policy.js';
+import {
+  VALIDATION_EVIDENCE_READ_CEILING_BYTES, VALIDATION_EVIDENCE_ADVISORY_FRACTION,
+  VALIDATION_EVIDENCE_BOUND_FRACTION, VALIDATION_EVIDENCE_ADVISORY_BYTES,
+  VALIDATION_EVIDENCE_BOUND_BYTES,
+} from './validation-evidence-size-policy.js';
 
 /** Three tiers, mirroring the buildLedgerSizing shape in core/proofstory.ts. */
 export type ValidationEvidenceSizingState = 'within_budget' | 'advisory' | 'bounded';
@@ -859,7 +853,8 @@ export function measurePersistedEvidenceBytes(record: unknown): number | null {
  * Measured through the real StoryStore, on a record the builder produced as a fresh plain object
  * literal: 67 bytes reported and within bound, 31,457,342 bytes on disk against a 25,165,824-byte
  * bound. Closing that route means one serialisation owned by the writer, in core/store.ts, which is
- * out of this story's scope.
+ * outside the historical Story scope. The acceptance-closure Lab adds that writer-owned
+ * byte ceiling; this reducer still makes no equality promise about its earlier measurement.
  *
  * Returns null if either step fails, which the caller treats as "no record" rather than a small one.
  */

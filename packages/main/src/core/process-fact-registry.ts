@@ -2299,7 +2299,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/verifier',
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.validate,
-    rationale: 'Validation status artifact is authenticated before TEST/DONE consumption; dynamic reuse preserves its manifest and rechecks live receipts. Unsigned historical PASS requires fresh validate. Zero-command reuse must use the shared immutable-tree/CAS metadata primitive to commit canonical PASS, terminal, and receipt before returning PASS.',
+    rationale: 'Explicit verification coverage includes a required diagnostic obligation for every non-withdrawn item with no intent. StoryStore serializes test-evidence once, measures the exact UTF-8 bytes, and refuses an oversized atomic replacement before writing. Validation status artifact is authenticated before TEST/DONE consumption; dynamic reuse preserves its manifest and rechecks live receipts. Unsigned historical PASS requires fresh validate. Zero-command reuse must use the shared immutable-tree/CAS metadata primitive to commit canonical PASS, terminal, and receipt before returning PASS.',
   },
   {
     name: 'artifact:done-required-evidence.json',

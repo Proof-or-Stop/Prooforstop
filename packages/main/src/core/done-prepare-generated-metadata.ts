@@ -1,3 +1,5 @@
+import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './validation-evidence-size-policy.js';
+export { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './validation-evidence-size-policy.js';
 import childProcess from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -32,7 +34,7 @@ export { DONE_PREPARE_GENERATED_METADATA_SCHEMA };
  * describeContentReadFailure, which names the ceiling and the measured capture and never returns
  * content - rather than being assumed unreachable.
  */
-export const METADATA_BLOB_READ_MAX_BUFFER_BYTES = 32 * 1024 * 1024;
+// The shared leaf policy also supplies the writer limit.
 
 /** Why a blob read did not produce a digest. Absent and unreadable are deliberately distinct. */
 export type MetadataBlobReadFailureKind = 'absent' | 'unreadable';

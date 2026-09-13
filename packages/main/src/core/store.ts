@@ -1,3 +1,4 @@
+import { VALIDATION_EVIDENCE_BOUND_BYTES } from './validation-evidence-size-policy.js';
 import { withValidationMetadataWrite } from './validation-execution-lock.js';
 import { writePromptBody, readReviewPromptBody } from './prompt-body-store.js';
 import type { ConvergenceProgressJournal } from './convergence-progress-journal.js';
@@ -680,15 +681,21 @@ export class StoryStore {
     throw new StoryArtifactMissingError(`File not found: ${tried.join(' or ')}`);
   }
 
-  private writeJson<T>(storyId: string, file: string, data: T): void {
+  private writeJson<T>(storyId: string, file: string, data: T, maxBytes?: number): void {
     return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
       this.ensureDir(storyId);
-      this.writeJsonFile(join(this.storyDir(storyId), file), data);
+      this.writeJsonFile(join(this.storyDir(storyId), file), data, maxBytes);
     });
   }
 
-  private writeJsonFile<T>(filePath: string, data: T): void {
+  private writeJsonFile<T>(filePath: string, data: T, maxBytes?: number): void {
     const serialized = JSON.stringify(data, null, 2) + '\n';
+    // Measure the exact UTF-8 string that will be written, including its newline.
+    // Reject before creating a temporary file or replacing existing evidence.
+    const bytes = Buffer.byteLength(serialized, 'utf8');
+    if (maxBytes !== undefined && bytes > maxBytes) {
+      throw new Error(`VALIDATION_EVIDENCE_WRITE_BOUND_EXCEEDED: ${bytes} bytes exceeds ${maxBytes} bytes`);
+    }
     const tmpPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
     try {
       mkdirSync(dirname(filePath), { recursive: true });
@@ -841,7 +848,7 @@ export class StoryStore {
   }
 
   writeTestEvidence(storyId: string, data: TestEvidenceData): void {
-    this.writeJson(storyId, 'test-evidence.json', data);
+    this.writeJson(storyId, 'test-evidence.json', data, VALIDATION_EVIDENCE_BOUND_BYTES);
   }
 
   // ── CausalEvidence CAS receipts ──
