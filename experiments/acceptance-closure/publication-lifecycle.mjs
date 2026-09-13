@@ -3,13 +3,13 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import cp from 'node:child_process';
-import {pathToFileURL} from 'node:url';
+import {pathToFileURL,fileURLToPath} from 'node:url';
 import {StoryStore} from '../../packages/main/dist/core/store.js';
 import {persistSyntheticAdmittedWindowForTest} from '../../packages/main/dist/core/certification-window.js';
 import {deriveCertificationDomainInputHashes} from '../../packages/main/dist/handlers/certification-window.js';
-const lab=process.cwd(), temp=fs.mkdtempSync(path.join(os.tmpdir(),'lab-publication-lifecycle-')),root=path.join(temp,'project'),id='B-lab-publication';
+const lab=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'), temp=fs.mkdtempSync(path.join(os.tmpdir(),'lab-publication-lifecycle-')),root=path.join(temp,'project'),id='B-lab-publication';
 fs.mkdirSync(root);const switchFile=path.join(temp,'mode'),counter=path.join(temp,'counter'),hook=path.join(temp,'hook.mjs');
-const git=(...args)=>cp.execFileSync('git',args,{cwd:root,encoding:'utf8',env:{...process.env,GIT_AUTHOR_NAME:'Lab',GIT_AUTHOR_EMAIL:'lab@example.test',GIT_COMMITTER_NAME:'Lab',GIT_COMMITTER_EMAIL:'lab@example.test'}}).trim();
+const git=(...args)=>cp.execFileSync('git',args,{cwd:root,encoding:'utf8',env:{...process.env,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_SYSTEM:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_COUNT:'0',GIT_AUTHOR_NAME:'Lab',GIT_AUTHOR_EMAIL:'lab@example.test',GIT_COMMITTER_NAME:'Lab',GIT_COMMITTER_EMAIL:'lab@example.test'}}).trim();
 const store=new StoryStore(root);
 try{
  const tokenStore = new StoryStore(path.join(temp,'token-control'));
@@ -32,8 +32,7 @@ try{
  fs.writeFileSync(hook,`import fs from 'node:fs';import {StoryStore} from ${JSON.stringify(pathToFileURL(path.join(lab,'packages/main/dist/core/store.js')).href)};
  const mode=()=>fs.readFileSync(${JSON.stringify(switchFile)},'utf8');const originals=new WeakMap();
  const prep=StoryStore.prototype.prepareTestEvidence,write=StoryStore.prototype.writePreparedTestEvidence;
- if(prep&&write){StoryStore.prototype.prepareTestEvidence=function(id,data){if(mode()==='reject')data.output+='x'.repeat(60*1024*1024);const t=prep.call(this,id,data);originals.set(t,data);return t;};StoryStore.prototype.writePreparedTestEvidence=function(id,t){if(mode()==='late')originals.get(t).output+='x'.repeat(60*1024*1024);return write.call(this,id,t);};}
- else{const original=StoryStore.prototype.writeTestEvidence;StoryStore.prototype.writeTestEvidence=function(id,data){if(mode()!=='off')data.output+='x'.repeat(60*1024*1024);return original.call(this,id,data);};}
+ StoryStore.prototype.prepareTestEvidence=function(id,data){if(mode()==='reject')data.output+='x'.repeat(60*1024*1024);const t=prep.call(this,id,data);originals.set(t,data);return t;};StoryStore.prototype.writePreparedTestEvidence=function(id,t){if(mode()==='late')originals.get(t).output+='x'.repeat(60*1024*1024);return write.call(this,id,t);};
  `);
  const run=mode=>{fs.writeFileSync(switchFile,mode);const r=cp.spawnSync(process.execPath,['--import',hook,path.join(lab,'packages/main/dist/cli.js'),'validate',`--story=${id}`,'--json'],{cwd:root,encoding:'utf8',timeout:120000,maxBuffer:10e6,env:{...process.env,PROOF_OR_STOP_PROJECT_ROOT:root,PROOF_OR_STOP_SESSION_ID:'lab-publication-lifecycle'}});console.log(JSON.stringify({mode,status:r.status,stdout:r.stdout,stderr:r.stderr}));return r;};
  const baseline=run('late');assert.equal(baseline.status,0);const state=store.readStory(id), file=path.join(store.storyDirPath(id),'test-evidence.json');

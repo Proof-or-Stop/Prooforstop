@@ -39,6 +39,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isWithinValidationEvidenceWriteBound } from '../core/validation-evidence-size-policy.js';
 import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from '../core/done-prepare-generated-metadata.js';
 import {
   VALIDATION_EVIDENCE_ADVISORY_BYTES,
@@ -130,7 +131,7 @@ function assertFlagAgreesWithMeasurement(bound: ReturnType<typeof persist>): voi
   assert.equal(bound.fileBytes, actual, 'fileBytes is the check-time measurement of the returned candidate record');
   assert.equal(
     bound.withinBound,
-    actual! < VALIDATION_EVIDENCE_BOUND_BYTES,
+    isWithinValidationEvidenceWriteBound(actual!),
     `withinBound must be derived from the candidate measurement (flag=${bound.withinBound}, actual=${actual}, bound=${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
 }
@@ -746,4 +747,17 @@ function validationResult(
   console.log(`    rationale=${rationalePath} bytes=${Buffer.byteLength(rationaleText, 'utf8')} findingIdsNamed=${namedFindings.join(',')}`);
 }
 
+
+
+// The shared final artifact cap is inclusive, including the JSON newline.
+{
+  const make = (extra: number) => {
+    const empty = { output: '' };
+    const overhead = measurePersistedEvidenceBytes(empty)!;
+    return boundPersistedValidationEvidence({ result: {}, buildRecord: () => ({ output: 'x'.repeat(VALIDATION_EVIDENCE_BOUND_BYTES - overhead + extra) }) });
+  };
+  const exact = make(0); assertFlagAgreesWithMeasurement(exact);
+  assert.equal(exact.fileBytes, VALIDATION_EVIDENCE_BOUND_BYTES); assert.equal(exact.withinBound, true);
+  const over = make(1); assertFlagAgreesWithMeasurement(over); assert.equal(over.withinBound, false);
+}
 console.log('validation-evidence-buffer-smoke: PASS');

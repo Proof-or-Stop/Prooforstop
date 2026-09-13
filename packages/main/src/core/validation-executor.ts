@@ -570,7 +570,7 @@ export function boundValidationEvidenceOutput(
     const measured = measure(output);
     return measured === null ? Number.MAX_SAFE_INTEGER : measured;
   };
-  const fits = (output: string): boolean => sizeOf(output) < budget;
+  const fits = (output: string): boolean => isWithinValidationEvidenceWriteBound(sizeOf(output), budget);
   const serialized = safeJsonStringify(result);
   const measuredBytes = Buffer.byteLength(serialized ?? 'null', 'utf8');
   const base = {
@@ -828,9 +828,10 @@ export interface PersistedValidationEvidenceBound<T = unknown> {
  * smoke does not import StoryStore; it re-types the same formula and compares two hand-written
  * copies, so a format change in store.ts moves both copies together, this measurement reads low,
  * and the assertions keep passing. Measured on a two-space to four-space change: the smoke compares
- * 158 to 158 while the writer emits 168. core/store.ts is outside this story's scope; the
- * divergence, its transcripts and the named repair are recorded in
- * docs/requirements/decisions/validation-evidence-artifact-growth.md.
+ * 158 to 158 while the writer emits 168. This check-time helper still duplicates the format.
+ * The writer-owned final ceiling and immutable publication are now documented in
+ * docs/requirements/decisions/acceptance-closure-writer-boundary.md; the old divergence
+ * transcript remains in validation-evidence-artifact-growth.md as historical evidence.
  */
 export function measurePersistedEvidenceBytes(record: unknown): number | null {
   const serialized = safeJsonStringify(record, 2);
@@ -902,8 +903,10 @@ function snapshotPersistedRecord<T>(record: T): { record: T; bytes: number } | n
  * What this does NOT establish is that `fileBytes` equals the bytes StoryStore writes. Routes by
  * which they diverge are open and measured: a serialisation format duplicated from core/store.ts
  * rather than shared with it (measurePersistedEvidenceBytes), an inherited toJSON on the shared
- * prototype (snapshotPersistedRecord), and a caller that mutates the returned record between the
- * gate and the write (B-3434:F-037).
+ * prototype (snapshotPersistedRecord). Caller mutation between this measurement and publication
+ * (B-3434:F-037) is now bounded by StoryStore.prepareTestEvidence/writePreparedTestEvidence: the
+ * published bytes are the writer's prepared snapshot. A larger inherited-toJSON result may differ
+ * from fileBytes, but the final writer refuses it above the cap instead of publishing oversize data.
  *
  * Every disposition, the refusal included, runs its record through snapshotPersistedRecord. The
  * plain-data shape of the RETURNED record comes from the terminal call alone: the reduction loop

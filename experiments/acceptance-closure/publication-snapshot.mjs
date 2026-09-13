@@ -13,10 +13,8 @@ try {
  const store=new StoryStore(root), id='B-lab-snapshot';
  const record={command:'lab',result:'PASS',timestamp:'2026-09-13T00:00:00.000Z',output:'verified result'};
  const target=path.join(store.storyDirPath(id),'test-evidence.json');
- // Baseline adapter reproduces the current verifier's measured mutable record.
- // Once available, use the actual store-owned preparation and publication APIs.
- const prepare=data=>store.prepareTestEvidence?store.prepareTestEvidence(id,data):{bytes:Buffer.byteLength(JSON.stringify(data,null,2)+'\n'),sha256:hash(JSON.stringify(data,null,2)+'\n'),legacyRecord:data};
- const publish=token=>store.writePreparedTestEvidence?store.writePreparedTestEvidence(id,token):store.writeTestEvidence(id,token.legacyRecord);
+ const prepare=data=>store.prepareTestEvidence(id,data);
+ const publish=token=>store.writePreparedTestEvidence(id,token);
  test('post-check mutation cannot cause late size refusal or change published proof',()=>{
   store.writeTestEvidence(id,{...record,output:'old result'});
   const data={...record},token=prepare(data);
@@ -35,7 +33,7 @@ try {
  });
  test('oversized preparation preserves previous proof; valid retry succeeds',()=>{
   store.writeTestEvidence(id,record);const old=fs.readFileSync(target);
-  assert.throws(()=>{const token=prepare({...record,output:'x'.repeat(limit)});publish(token);});
+  assert.throws(()=>{const token=prepare({...record,output:'x'.repeat(limit)});publish(token);},/VALIDATION_EVIDENCE_WRITE_BOUND_EXCEEDED/);
   assert.deepEqual(fs.readFileSync(target),old);
   publish(prepare({...record,output:'retry result'}));assert.equal(JSON.parse(fs.readFileSync(target)).output,'retry result');
   return {oldPreserved:true,retry:true};

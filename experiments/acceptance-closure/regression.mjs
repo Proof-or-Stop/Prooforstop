@@ -54,6 +54,16 @@ try {
   assert.ok(getBlockingVerificationEvidenceIssues(cl).some(x=>x.includes('CHK-006')&&x.includes('verificationIntent')));
   return {missingRequired:report.missingRequired};
  });
+ check('legacy schema repair and withdrawn policy membership',()=>{
+  const legacy={id:'CHK-L',status:'done',verificationEvidence:[{intentRef:'CHK-L:happy:0',result:'pass'}]};
+  const report=buildVerificationCoverage({items:[covered,legacy]});
+  const entry=report.entries.filter(e=>e.itemId==='CHK-L');assert.equal(entry.length,1);
+  assert.match(entry[0].desc,/verification_intent_repair/);assert.doesNotMatch(entry[0].desc,/acceptance_amendment_propose/);
+  const cl={items:[{...covered,status:'withdrawn'},{id:'CHK-BARE',status:'done'}]};
+  assert.equal(resolveVerificationIntentPolicy({riskSignals:[]},cl).policy,'explicit-intent');
+  assert.equal(buildVerificationCoverage(cl).missingRequired,1,'withdrawal cannot erase another delivered item');
+  return {legacyRepairHint:true,withdrawnPolicyConsistent:true};
+ });
  check('withdrawn items excluded and historical all-empty compatibility preserved',()=>{
   assert.equal(buildVerificationCoverage({items:[covered,{id:'CHK-X',status:'withdrawn'}]}).missingRequired,0);
   assert.equal(buildVerificationCoverage({items:[{id:'CHK-X',status:'done'}]}).total,0);

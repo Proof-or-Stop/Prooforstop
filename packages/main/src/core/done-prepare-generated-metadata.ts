@@ -12,28 +12,6 @@ import { DONE_PREPARE_GENERATED_METADATA_SCHEMA } from './artifact-schema.js';
 
 export { DONE_PREPARE_GENERATED_METADATA_SCHEMA };
 
-/**
- * Explicit output ceiling for every `git` read this module performs.
- *
- * Node applies a 1,048,576-byte `maxBuffer` default to `execFileSync`, and a read above it throws
- * ENOBUFS rather than returning truncated content. The managed metadata this module commits is not
- * bounded by that number: `test-evidence.json` serialises one entry per configured validate command,
- * so it grows with the command count, and it measured 1,369,692 bytes on story B-9ff1. Under the
- * default every such read failed, and the failure surfaced as a digest comparison against a null,
- * i.e. as "verified metadata changed after manifest verification".
- *
- * 32 MiB is 32x the Node default, far above any observed artifact, and cheap: Node grows the pipe
- * buffer on demand, so a high ceiling costs nothing until content actually arrives. The evidence
- * writer in core/validation-executor.ts derives its warning and bounding thresholds from THIS
- * constant so the two cannot drift apart.
- *
- * What this ceiling does NOT promise: that every managed file stays under it. Only
- * `test-evidence.json` has an aggregate bound. `process-events.jsonl` is append-only and never
- * truncated, and `done-required-evidence.json` is written by other paths entirely, so either can
- * reach the ceiling in time. That is why a read above the ceiling must fail DIAGNOSTICALLY - see
- * describeContentReadFailure, which names the ceiling and the measured capture and never returns
- * content - rather than being assumed unreachable.
- */
 // The shared leaf policy also supplies the writer limit.
 
 /** Why a blob read did not produce a digest. Absent and unreadable are deliberately distinct. */
