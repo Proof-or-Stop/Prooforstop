@@ -9,6 +9,7 @@ import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { classifyGitStatusRows, classifierOptionsForCheck, isBlockingDirty, readGitStatusLines } from '../core/dirty-worktree-gate.js';
 import type { StoryStore } from '../core/store.js';
+import { resolve } from 'node:path';
 
 function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
   if (!Array.isArray(coverage?.entries)) return null;
@@ -38,7 +39,7 @@ function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
   });
 }
 
-type ValidationAdmissionContext = { root: string; store: StoryStore; gitCwd?: string };
+type ValidationAdmissionContext = { root: string; store: StoryStore; resolvedStoryGitCwd?: string };
 
 function currentChecklistCoverageSnapshot(ctx: ValidationAdmissionContext, storyId: string, gitCwd: string): string {
   const story = ctx.store.readStory(storyId);
@@ -142,8 +143,11 @@ export function assessStoredValidationPassAdmissibility(
       evidence,
     };
   }
-  const gitCwd = ctx.gitCwd
-    ?? resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const authoritativeGitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  if (ctx.resolvedStoryGitCwd && resolve(ctx.resolvedStoryGitCwd) !== resolve(authoritativeGitCwd)) {
+    throw new Error('assessStoredValidationPassAdmissibility: resolvedStoryGitCwd must match the Story workspace');
+  }
+  const gitCwd = ctx.resolvedStoryGitCwd ?? authoritativeGitCwd;
   if (!verifyTestValidationEvidence(storyId, evidence, gitCwd)) {
     return { ok: false, reasons: ['validation evidence signature is missing or invalid; run validate again'],
       reasonCodes: ['validation_evidence_signature_invalid'], lineage: 'rejected', evidence };

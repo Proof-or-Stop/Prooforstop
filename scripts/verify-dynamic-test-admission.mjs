@@ -127,6 +127,11 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         const canonicalConsumer = assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:false});
         assert.equal(canonicalConsumer.ok,false);
         assert.ok(canonicalConsumer.reasonCodes.includes('dynamic_requires_canonical_full_plan'),JSON.stringify(canonicalConsumer.reasonCodes));
+        assert.throws(() => assessStoredValidationPassAdmissibility({
+          ...ctx, resolvedStoryGitCwd: join(root, 'wrong-story-workspace'),
+        }, storyId, { allowDynamicCoverage: true }),
+        /resolvedStoryGitCwd must match the Story workspace/,
+        'an explicitly supplied admission Git tree must match the Story-resolved workspace');
         assert.equal(assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:true}).ok,true);
         assert.ok(store.readScopeContract(storyId), 'dynamic admission fixture must carry a real Story scope contract');
         // PRE_CERT authorizes one routine execution. A repeat may reuse that

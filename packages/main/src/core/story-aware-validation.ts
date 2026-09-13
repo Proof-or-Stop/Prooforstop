@@ -53,6 +53,15 @@ export type Assurance = 'always' | 'story-selectable' | 'full-only';
 export type ClosurePolicy = 'static-and-traced' | 'whole-repository' | 'never-reuse';
 export type RiskTier = 'local' | 'shared' | 'gate' | 'validation-infra';
 export type FullBaselineReusePolicy = 'not-applicable' | 'exact-current-epoch-only' | 'forbidden';
+
+export class ValidationSelectorContextError extends Error {
+  readonly code = 'selector_context_mismatch' as const;
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationSelectorContextError';
+  }
+}
 export type DynamicDisposition = 'execute' | 'reuse' | 'excluded' | 'unverified';
 const MAX_RECEIPT_AGE_MS = 24 * 60 * 60 * 1000;
 const HEX64 = /^[0-9a-f]{64}$/i;
@@ -981,7 +990,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   const compatibilityWideningReasons: string[] = [];
   if (ctx.tierSelection) {
     if (digestCanonicalJson({ catalogDigest: ctx.tierSelection.catalogDigest, input: ctx.tierSelection.input, decision: ctx.tierSelection.decision }) !== ctx.tierSelection.bindingDigest) {
-      throw new Error('selector decision digest mismatch before validation execution');
+      throw new ValidationSelectorContextError('selector decision digest mismatch before validation execution');
     }
     const boundDecision = ctx.tierSelection.decision;
     const inventoryIds = inventory.map((row) => row.id);
@@ -1009,16 +1018,16 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
       || digestCanonicalJson(ctx.tierSelection.input.impactIndex) !== digestCanonicalJson(expectedImpactIndex)
       || stableDigest(ctx.tierSelection.input.universeCommandIds) !== stableDigest(inventoryIds)
       || executorChangedPaths.some((path) => !selectorChangedPaths.has(path))) {
-      throw new Error('selector input does not match executor catalog, inventory, or changed paths');
+      throw new ValidationSelectorContextError('selector input does not match executor catalog, inventory, or changed paths');
     }
     if (stableDigest(boundDecision.tierSelections['repository-full']) !== stableDigest(inventoryIds)) {
-      throw new Error('selector repository-full membership does not match executor inventory');
+      throw new ValidationSelectorContextError('selector repository-full membership does not match executor inventory');
     }
     const fast = new Set(boundDecision.tierSelections['story-fast']);
     const intermediate = new Set(boundDecision.tierSelections['story-intermediate']);
     const full = new Set(boundDecision.tierSelections['repository-full']);
     if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) {
-      throw new Error('selector tier subset invariant mismatch before validation execution');
+      throw new ValidationSelectorContextError('selector tier subset invariant mismatch before validation execution');
     }
     canonicalTierDecision = boundDecision;
   }
@@ -1118,6 +1127,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   // Selecting every row keeps the gap accounting and diagnostic truthful even
   // though the caller normally routes directly to its complete-plan fallback.
   if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation', 'full-escalation');
+  const selectorRepositoryFull = canonicalTierDecision?.effectiveTier === 'repository-full';
   const rows: SelectionRow[] = inventory.map(row => {
     const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id);
     const closure = closures.get(row.id);
@@ -1134,8 +1144,8 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const mustParticipate = fullEscalated || tierSelected || selected.has(row.id)
       || entry.assurance === 'always' || entry.assurance === 'full-only'
       || entry.closurePolicy === 'whole-repository' || entry.closurePolicy === 'never-reuse';
-    if (selected.has(row.id) || entry.assurance === 'always' || entry.closurePolicy === 'never-reuse') {
-      return { commandId: row.id, disposition: 'execute', reasons: selected.get(row.id) || [entry.closurePolicy === 'never-reuse' ? 'never-reuse-policy' : 'always'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
+    if (selectorRepositoryFull || selected.has(row.id) || entry.assurance === 'always' || entry.closurePolicy === 'never-reuse') {
+      return { commandId: row.id, disposition: 'execute', reasons: selected.get(row.id) || [selectorRepositoryFull ? 'selector-repository-full' : entry.closurePolicy === 'never-reuse' ? 'never-reuse-policy' : 'always'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
     }
     if (!mustParticipate) {
       const proof = canonicalTierDecision?.exclusionProofs.find((candidate) => candidate.commandId === row.id);

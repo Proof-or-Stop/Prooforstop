@@ -690,7 +690,7 @@ export function runDoneOracleGate(
       // Authenticate first. Execution-mode markers live inside the signed output
       // and therefore cannot decide whether DONE performs this check.
       const admissibility = assessStoredValidationPassAdmissibility(
-        { root, store, gitCwd },
+        { root, store },
         storyId,
         { allowDynamicCoverage: true },
       );

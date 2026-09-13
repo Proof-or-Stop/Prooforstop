@@ -112,7 +112,7 @@ import {
   verifyCausalPreflight,
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
-import { appendReceiptRevocation, augmentValidationCatalogWithGraphInputs, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry, type DualRevisionImpactGraph, type StoryChangeManifest } from '../core/story-aware-validation.js';
+import { appendReceiptRevocation, augmentValidationCatalogWithGraphInputs, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, ValidationSelectorContextError, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry, type DualRevisionImpactGraph, type StoryChangeManifest } from '../core/story-aware-validation.js';
 import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, readRoutineReuseRevocationBasis, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 import { collectStoryRelevanceInput } from '../core/validation-relevance-input.js';
 import { buildAutomaticValidationTierSelectionBinding, type AutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
@@ -169,9 +169,8 @@ export function sharedValidationExecutionEnabled(mode: DynamicValidationMode, ex
 }
 
 export function dynamicValidationDegradation(error: unknown): { escalationReasons: string[]; report: string } {
-  const message = error instanceof Error ? error.message : String(error);
-  const reason = /(?:automatic )?selector (?:input|decision|binding|context)/i.test(message)
-    ? 'selector_context_mismatch'
+  const reason = error instanceof ValidationSelectorContextError
+    ? error.code
     : 'dynamic_preparation_unavailable';
   return {
     escalationReasons: [reason],

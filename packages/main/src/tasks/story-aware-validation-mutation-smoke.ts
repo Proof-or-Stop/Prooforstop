@@ -834,7 +834,7 @@ if (requestedAuditMode) {
       const plan = buildDynamicValidationPlan(context('packages/main/dist/audit-generated.js'));
       assert.equal(plan.fullEscalated, true);
       assert.equal(plan.totals.executed, plan.totals.inventory);
-      return 'scope escalation PASS';
+      return 'generated-output full escalation PASS';
     },
     selection: () => {
       const subject = buildDynamicValidationPlan(context('packages/main/src/audit-selection.ts'));
@@ -876,7 +876,7 @@ if (requestedAuditMode) {
       const unrelatedLedger = buildRevocationLedger(['unrelated-receipt']);
       assert.equal(verifyValidationCommandReceipt(subject).ok, true);
       assert.equal(isReceiptRevoked(subject, unrelatedLedger), false);
-      return 'isolated observe telemetry PASS';
+      return 'unrelated receipt revocation isolation PASS';
     },
     'observe-mutations': () => {
       const subject = buildDynamicValidationPlan(context('packages/main/src/audit-observe-mutation.ts'));
@@ -914,7 +914,7 @@ if (requestedAuditMode) {
       const shadow = runObserveOracle({ manifest: subject, fullOracle: { allPass: true },
         instrumentedOrder: selected, authoritativeOrder: subject.rows.map((row) => row.commandId) });
       assert.equal(shadow.equivalent, true);
-      return 'shadow/full oracle equivalent';
+      return 'oracle equivalence replay PASS';
     },
     'shadow-rejections': () => {
       const subject = buildDynamicValidationPlan(context('packages/main/src/audit-shadow-rejection.ts'));
@@ -923,7 +923,7 @@ if (requestedAuditMode) {
         fullOracle: { allPass: false, failedCommandIds: ['audit-shadow-rejected-command'] },
         instrumentedOrder: selected, authoritativeOrder: subject.rows.map((row) => row.commandId) });
       assert.equal(shadow.equivalent, false);
-      return 'shadow discrepancy reported';
+      return 'oracle discrepancy replay PASS';
     },
     'shadow-false-negative': () => {
       const subject = buildDynamicValidationPlan(context('packages/main/src/audit-shadow-false-negative.ts'));
@@ -963,7 +963,7 @@ if (requestedAuditMode) {
       ];
       const subject = buildValidationSchedule(entries, { workerCapacity: 2, cpuCapacity: 2 });
       assert.equal(verifyValidationSchedule(subject, entries, { workerCapacity: 2, cpuCapacity: 2 }).ok, true);
-      return 'safe recovery and rollback PASS';
+      return 'valid two-command schedule PASS';
     },
     'operations-mutations': () => {
       const entries = [

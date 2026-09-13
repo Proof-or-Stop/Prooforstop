@@ -30,6 +30,7 @@ import {
   verifyValidationSchedule,
   assertSelectionIsSingletonUnionMonotonic,
   stableDigest,
+  ValidationSelectorContextError,
   validateValidationCatalog,
 } from '../core/story-aware-validation.js';
 import {
@@ -268,8 +269,19 @@ for (const { label, roots: hostileRoots } of hostileRootCases) {
     `${label} ownership must widen instead of issuing a positive exclusion proof`);
   assert.equal(hostileBinding.decision.exclusionProofs.some((proof) => proof.commandId === `hostile-${label}`), false);
 }
-assert.deepEqual(dynamicValidationDegradation(new Error('selector input does not match executor catalog')),
-  { escalationReasons: ['selector_context_mismatch'], report: 'dynamic validation unavailable; canonical oracle retained (selector_context_mismatch)' });
+for (const message of [
+  'selector decision digest mismatch before validation execution',
+  'selector input does not match executor catalog, inventory, or changed paths',
+  'selector repository-full membership does not match executor inventory',
+  'selector tier subset invariant mismatch before validation execution',
+  'automatic selector decision changed before validation execution',
+  'automatic selector input does not match the execution catalog, inventory, or changed paths',
+]) {
+  assert.deepEqual(dynamicValidationDegradation(new ValidationSelectorContextError(message)),
+    { escalationReasons: ['selector_context_mismatch'], report: 'dynamic validation unavailable; canonical oracle retained (selector_context_mismatch)' });
+}
+assert.deepEqual(dynamicValidationDegradation(new Error('configuration could not be read')),
+  { escalationReasons: ['dynamic_preparation_unavailable'], report: 'dynamic validation unavailable; canonical oracle retained (dynamic_preparation_unavailable)' });
 const subprocessGraphCatalog = augmentValidationCatalogWithGraphInputs({
   catalog: subprocessCatalog,
   changedFiles: [{ path: 'packages/main/src/hidden-runner.ts', status: 'modified', blobId: 'hidden' }],
@@ -486,6 +498,27 @@ const noPinReuse = buildDynamicValidationPlan({
 });
 assert.equal(noPinReuse.rows.filter((row) => row.commandId !== 'always').every((row) => row.disposition === 'reuse'), true,
   'the compatibility fixture must first prove the otherwise-unaffected commands would reuse');
+const selectorFullBinding = buildAutomaticValidationTierSelectionBinding({
+  input: {
+    ...productionRelevanceInput,
+    changedFiles: { status: 'available', baseRef: 'base', headRef: 'head', statuses: {}, paths: [] },
+    seeds: [],
+  },
+  catalog,
+  storySnapshot: { baseHead: noPinChanges.baseHead, head: noPinChanges.head, changeDigest: noPinChanges.changeDigest },
+  additionalForceFullReasons: ['command_exclusion_unproven'],
+});
+const selectorFullSelection = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: noPinChanges, closures,
+  receipts: legacyReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+  tierSelection: selectorFullBinding,
+});
+assert.equal(selectorFullSelection.effectiveTier, 'repository-full');
+assert.equal(selectorFullSelection.fullEscalated, false,
+  'the fixture must isolate selector-side repository-full from executor escalation');
+assert.equal(selectorFullSelection.totals.reused, 0,
+  'selector-side repository-full is the conservative oracle and may not reuse receipts');
+assert.equal(selectorFullSelection.rows.every((row) => row.disposition === 'execute'), true);
 const legacyPinSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: legacyPinChanges, closures,
   receipts: legacyReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',

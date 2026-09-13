@@ -74,6 +74,7 @@ import {
   validationInventoryCommandSetDigest,
   isReceiptRevoked,
   verifyValidationShardReceipt,
+  ValidationSelectorContextError,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import {
@@ -144,7 +145,7 @@ export function assertAutomaticTierSelectionBindingCurrent(
   const expectedBindingDigest = digestCanonicalJson({ catalogDigest: binding.catalogDigest, input: binding.input, decision: expectedDecision });
   if (binding.bindingDigest !== expectedBindingDigest
     || digestCanonicalJson(binding.decision) !== digestCanonicalJson(expectedDecision)) {
-    throw new Error('automatic selector decision changed before validation execution');
+    throw new ValidationSelectorContextError('automatic selector decision changed before validation execution');
   }
   if (current) {
     const selectorCatalog = augmentValidationCatalogWithGraphInputs({
@@ -171,7 +172,7 @@ export function assertAutomaticTierSelectionBindingCurrent(
       || digestCanonicalJson(binding.input.impactIndex) !== digestCanonicalJson(expectedImpactIndex)
       || digestCanonicalJson(binding.input.universeCommandIds) !== digestCanonicalJson(current.universeCommandIds)
       || currentPaths.some((path) => !selectorPaths.has(path))) {
-      throw new Error('automatic selector input does not match the execution catalog, inventory, or changed paths');
+      throw new ValidationSelectorContextError('automatic selector input does not match the execution catalog, inventory, or changed paths');
     }
   }
 }

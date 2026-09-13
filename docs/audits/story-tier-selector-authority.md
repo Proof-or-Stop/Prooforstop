@@ -378,6 +378,26 @@ TEST/DONE fixture passed on the repair tree, including the material-plus-metadat
 2-to-1 selection case. A committed-head GREEN and a fresh exact-candidate Claude
 PASS remain mandatory before integration.
 
+## Twelfth Claude audit and remediation
+
+The exact repair-head audit of `ca64a0fa50` returned `fail` under run
+`68ceeac3-a5a9-4bd3-a0e6-eb2cba50ab54` after 620,112 ms. Claude confirmed the
+selector reconstruction, exclusion proof, graph, ownership, DONE authentication,
+mode rollout and compatibility boundaries, then retained five consistency and
+evidence findings:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A12-F1 selector-side repository-full reuse | Selector widening selected the complete universe but rows with admissible receipts could still become `reuse`, contradicting the documented conservative oracle | `effectiveTier=repository-full` now makes every catalog row `execute`, even when a matching receipt exists. A focused fixture first proves those receipts reusable, then forces only selector-side full, asserts `fullEscalated=false`, `reused=0`, and every row executed |
+| A12-F2 audit selector overclaim | Four audit markers named scope, telemetry, recovery/rollback or shadow-specific guarantees that their assertion blocks did not establish | Public markers now name the exact exercised properties: generated-output full escalation, unrelated-receipt revocation isolation, valid two-command scheduling, and oracle equivalence/discrepancy replay. No marker claims a broader mechanism than its subject |
+| A12-F3 free-text selector error classification | Two selector refusal messages missed the regex and appeared as generic preparation failures | All six pre-launch selector context refusals use `ValidationSelectorContextError` with stable code `selector_context_mismatch`; projection tests cover every message plus a non-selector control |
+| A12-F4 admission context collision | An optional structural field named `gitCwd` could later collide with a broad `HandlerContext` field | The override is renamed `resolvedStoryGitCwd`, is compared to the authoritative Story workspace, and a wrong-workspace fixture is refused. Broad contexts continue through the canonical resolver |
+| A12-F5 static dependency closure | The registered validation-tier planner exception bound two new handler dependencies but omitted its new core Story-aware validation import | The same exception now binds the current SHA-256 of `core/story-aware-validation.ts` alongside the current handler digests; the live static scan reports 326 reviewed exceptions, zero pending review, and zero nested expansion |
+
+After repair, the canonical build, core smoke, 30-class mutation audit, real
+material-plus-metadata TEST/DONE admission fixture and live static-edge scan pass.
+A new committed-head GREEN and a fresh Claude PASS remain mandatory.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,
