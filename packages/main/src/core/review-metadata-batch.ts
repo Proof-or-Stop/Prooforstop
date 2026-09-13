@@ -11,12 +11,8 @@ import { commitImmutableMetadataTree } from './done-prepare-generated-metadata.j
 import { rawArtifactDigest } from './closeout-trust.js';
 import { readPromptBody } from './prompt-body-store.js';
 
-/** Exact review storage surface; never sweep unrelated staged files or Story authoring. */
-export const REVIEW_EPOCH_COMMIT_ARTIFACTS = [
-  'review-runs.json', 'prompt-envelopes.json', 'review-passes.json',
-  'findings.json', 'finding-ledger.json', 'review-inventory-epochs.json',
-  'convergence-progress.json', 'process-events.jsonl', 'process-metrics.json',
-] as const;
+import {REVIEW_EPOCH_COMMIT_ARTIFACTS} from './review-metadata-surface.js';
+export {REVIEW_EPOCH_COMMIT_ARTIFACTS} from './review-metadata-surface.js';
 
 /** Called only after individual signed results have passed durable readback. */
 export function commitReviewResultMetadata(args: {

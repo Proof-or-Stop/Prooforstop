@@ -1,3 +1,6 @@
+import {evaluatePersistedReviewToTestIndexTransition} from './review-test-index-transition.js';
+export {evaluatePersistedReviewToTestIndexTransition} from './review-test-index-transition.js';
+import { isRefreshRetainableArtifactPath, isCurrentVerifiedEvidenceRefreshArtifact, createReviewRefreshReadCache, type ReviewRefreshReadCache } from './review-evidence-refresh.js';
 import { readReviewPromptBody } from './prompt-body-store.js';
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
@@ -13,14 +16,13 @@ import {
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import {
   classifyReviewerExecutionAuthority,
-  managedReviewerPromptDigest,
+  managedInventorySubjectState,
   verifyManagedReviewEvidence,
   verifyManagedReviewLiveBinding,
 } from './managed-review-evidence.js';
 import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
 import { isReviewRetentionProtocolMetadataPath } from './lifecycle-registry.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, ReviewInventoryPurposeBinding, StoryInfo } from './types.js';
-import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
 import { resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
@@ -32,6 +34,7 @@ import {
   type ScopeBindingComparison,
 } from './review-scope-binding.js';
 import {
+  closeoutArtifactPolicyFor,
   classifyCurrentCloseoutArtifactForReviewRetention,
   evaluateMetadataOnlyReviewRetention,
   readTrustedProofStoryScopeArtifacts,
@@ -116,7 +119,8 @@ export type ReviewRunIssueCode =
   | 'prompt_envelope_tampered'
   | 'prompt_envelope_mismatch'
   | 'review_execution_authority_missing'
-  | 'managed_receipt_invalid';
+  | 'managed_receipt_invalid'
+  | 'superseded_inventory_wave';
 
 export interface ReviewRunIssue {
   code: ReviewRunIssueCode;
@@ -185,6 +189,7 @@ export interface ReviewerEvidenceCollectionOptions {
 }
 
 const SUPERSEDED_PASS_ISSUE_CODES = new Set<ReviewRunIssueCode>([
+  'superseded_inventory_wave',
   'stale_run',
   'stale_run_hash',
   'missing_scope_binding',
@@ -1250,62 +1255,6 @@ function uncommittedPathsUnder(gitCwd: string, prefix: string): string[] {
   return [...paths];
 }
 
-export function evaluatePersistedReviewToTestIndexTransition(
-  gitCwd: string,
-  indexGitPath: string,
-  run: ReviewRun,
-  currentStory: StoryInfo,
-): { ok: boolean; reason?: string } {
-  let reviewedStory: StoryInfo;
-  try {
-    reviewedStory = JSON.parse(execFileSync('git', ['show', `${run.headHash}:${indexGitPath}`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    })) as StoryInfo;
-  } catch {
-    return { ok: false, reason: 'signed REVIEW index snapshot is unreadable' };
-  }
-  if (reviewedStory.storyId !== run.storyId || currentStory.storyId !== run.storyId) {
-    return { ok: false, reason: 'index storyId does not match the signed review run' };
-  }
-  if (reviewedStory.phase !== 'REVIEW' || currentStory.phase !== 'TEST') {
-    return { ok: false, reason: `phase delta is ${reviewedStory.phase}->${currentStory.phase}, not REVIEW->TEST` };
-  }
-  if (!run.reviewRound || reviewedStory.currentReviewRound !== run.reviewRound || currentStory.currentReviewRound !== run.reviewRound) {
-    return { ok: false, reason: 'currentReviewRound changed or does not match the signed review run' };
-  }
-  const reviewedEvents = reviewedStory.events ?? [];
-  const currentEvents = currentStory.events ?? [];
-  if (currentEvents.length !== reviewedEvents.length + 1 || canonicalJson(currentEvents.slice(0, -1)) !== canonicalJson(reviewedEvents)) {
-    return { ok: false, reason: 'events are not the reviewed prefix plus exactly one transition event' };
-  }
-  const event = currentEvents.at(-1)!;
-  const allowedEventKeys = new Set(['phase', 'action', 'timestamp', 'branch', 'user', 'sessionId', 'agent']);
-  if (Object.keys(event).some((key) => !allowedEventKeys.has(key))) {
-    return { ok: false, reason: 'transition event contains fields not emitted by collectContext' };
-  }
-  if (event.phase !== 'TEST' || event.action !== 'advance') {
-    return { ok: false, reason: 'transition event is not exactly TEST/advance' };
-  }
-  // Local event identity/timing strings are cooperative runtime audit context,
-  // not writer authentication, and git user.name is legitimately absent in
-  // env-only commit setups. They therefore cannot affect retention. Only
-  // reject malformed types when a field exists;
-  // the gate authority comes from the already-verified signed review
-  // run/pass/round plus the exact stable index delta above/below.
-  for (const key of ['timestamp', 'branch', 'user', 'sessionId', 'agent'] as const) {
-    if (event[key] !== undefined && typeof event[key] !== 'string') {
-      return { ok: false, reason: `transition event audit field ${key} is not a string` };
-    }
-  }
-  const { phase: _reviewedPhase, events: _reviewedEvents, ...reviewedStable } = reviewedStory;
-  const { phase: _currentPhase, events: _currentEvents, ...currentStable } = currentStory;
-  if (canonicalJson(reviewedStable) !== canonicalJson(currentStable)) {
-    return { ok: false, reason: 'index fields outside the canonical phase/event delta changed' };
-  }
-  return { ok: true };
-}
 
 export function evaluateReviewRunMetadataRetention(
   store: StoryStore,
@@ -1313,6 +1262,7 @@ export function evaluateReviewRunMetadataRetention(
   run: ReviewRun,
   projectRoot: string,
   scopeContext: CurrentScopeContext | null,
+  refreshCache:ReviewRefreshReadCache = createReviewRefreshReadCache(),
 ): { ok: boolean; reasons: string[] } {
   if (!run.scopeBinding?.compositeScopeDigest && !scopeContext?.compositeScopeDigest) {
     return { ok: true, reasons: [] };
@@ -1348,7 +1298,8 @@ export function evaluateReviewRunMetadataRetention(
     ? evaluatePersistedReviewToTestIndexTransition(projectRoot, `${storyPrefix}index.json`, run, story)
     : null;
   const effectiveMetadataPaths = metadataPaths.filter(
-    (path) => path !== 'index.json' || !indexTransition?.ok,
+    (path) => (path !== 'index.json' || !indexTransition?.ok)
+      && !(isRefreshRetainableArtifactPath(path) && isCurrentVerifiedEvidenceRefreshArtifact({gitCwd:projectRoot,metadataRoot,storyId:story.storyId,artifactPath:path,isProtectedArtifact:closeoutArtifactPolicyFor,reviewedHeadHash:run.headHash,snapshotHead:evaluationHead,cache:refreshCache})),
   );
   const changedArtifacts = effectiveMetadataPaths.map((artifactPath) => {
     const classification = classifyCurrentCloseoutArtifactForReviewRetention(
@@ -1500,6 +1451,7 @@ function validateEvidenceRunBinding(
   promptEnvelopes: readonly PromptEnvelope[],
   advisories?: ReviewRunIssue[],
   verifyPromptEnvelope: typeof verifyReviewRunPromptEnvelope = verifyReviewRunPromptEnvelope,
+  refreshCache?:ReviewRefreshReadCache,
 ): ReviewRunIssue | null {
   if (!story.currentReviewRound) return null;
   if (evidence.reviewRound !== story.currentReviewRound) {
@@ -1652,6 +1604,15 @@ function validateEvidenceRunBinding(
   const signedProjectRoot = workspaceValidation.projectRoot;
   const managedBinding = evidence.pass?.managedEvidenceBinding ?? evidence.finding?.managedEvidenceBinding;
   const nativeBinding = evidence.pass?.nativeEvidenceBinding ?? evidence.finding?.nativeEvidenceBinding;
+  // Inventory purpose is transport-neutral; neither native nor managed evidence
+  // may retain authority for a different live inventory subject.
+  let inventorySubjectCause: string | undefined;
+  const inventorySubject = managedInventorySubjectState(store, run, reason => { inventorySubjectCause = reason; });
+  if (inventorySubject === 'invalid') {
+    return { code: managedBinding ? 'managed_receipt_invalid' : 'review_execution_authority_missing',
+      kind: evidence.kind, evidenceId: evidence.id, agent: evidence.agent, reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has an invalid current inventory subject${inventorySubjectCause ? `: ${inventorySubjectCause}` : ''}` };
+  }
   // B-9dcb CHK-003: the freshness recompute's metadataRoot (4th arg) must be the
   // run's authoritative signed metadataRoot, NOT the signedProjectRoot (gitRoot).
   // On a wrapper-root layout with a CUSTOM storyDir, using the gitRoot as
@@ -1734,7 +1695,7 @@ function validateEvidenceRunBinding(
       };
     }
   }
-  const retention = evaluateReviewRunMetadataRetention(store, story, run, signedProjectRoot, effectiveScopeContext);
+  const retention = evaluateReviewRunMetadataRetention(store, story, run, signedProjectRoot, effectiveScopeContext, refreshCache);
   if (!retention.ok) {
     return {
       code: 'stale_run_hash',
@@ -1771,6 +1732,7 @@ function validateEvidenceRunBinding(
     hasManagedEvidenceBinding: managedBinding !== undefined,
   });
   if (authority.reviewGatePath === 'managed-receipt' && managedBinding) {
+    // Consumption authenticates the sealed launch; it never rebuilds an OPEN-only prompt.
     const managed = verifyManagedReviewEvidence({
       root: projectRoot,
       storyId: story.storyId,
@@ -1785,7 +1747,6 @@ function validateEvidenceRunBinding(
         storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
         promptHash: run.promptHash,
         envelopeId: run.envelopeId ?? null,
-        managedPromptDigest: managedReviewerPromptDigest(run.workspaceBinding?.metadataRoot ?? projectRoot, run),
       },
       ...(evidence.kind === 'pass' && evidence.pass
         ? { evidence: { kind: 'pass' as const, pass: evidence.pass } }
@@ -1843,6 +1804,14 @@ function validateEvidenceRunBinding(
       };
     }
   }
+  // Authenticate either transport before classifying historical evidence. The
+  // collector can omit an old PASS only with a newer valid same-lane record
+  // (PASS or FINDING); omission never promotes that old PASS into valid evidence.
+  if (inventorySubject === 'superseded') return {
+    code: 'superseded_inventory_wave', kind: evidence.kind, evidenceId: evidence.id,
+    agent: evidence.agent, reviewRunId: evidence.reviewRunId,
+    message: `${evidence.kind} ${evidence.id} belongs to a signed earlier inventory wave`,
+  };
   return null;
 }
 
@@ -1852,6 +1821,7 @@ export function collectReviewerEvidenceState(
   projectRoot: string,
   options: ReviewerEvidenceCollectionOptions = {},
 ): ReviewerEvidenceState {
+  const refreshCache=createReviewRefreshReadCache();
   const story = store.readStory(storyId);
   const currentRound = story.currentReviewRound;
   const runs = store.readReviewRuns(storyId).runs;
@@ -1943,6 +1913,7 @@ export function collectReviewerEvidenceState(
         promptEnvelopes,
         advisories,
         verifyPromptEnvelope,
+        refreshCache,
       );
     if (issue) {
       rawInvalid.push(issue);

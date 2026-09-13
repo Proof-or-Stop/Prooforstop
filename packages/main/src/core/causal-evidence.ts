@@ -28,6 +28,7 @@ export const CAUSAL_SELECTOR_POLICY_SCHEMA = 'proof-or-stop.causal-selector-poli
 export const CAUSAL_LEDGER_SCHEMA = 'proof-or-stop.causal-evidence-ledger.v1' as const;
 export const CAUSAL_PREFLIGHT_SCHEMA = 'proof-or-stop.causal-evidence-preflight.v1' as const;
 export const CAUSAL_DEPENDENCY_SCHEMA = 'proof-or-stop.causal-dependency-decision.v1' as const;
+export const CAUSAL_EVIDENCE_INDEX_SCHEMA = 'proof-or-stop.causal-evidence-index.v1' as const;
 export const CAUSAL_RECEIPT_DIRECTORY = 'causal-evidence/receipts';
 export const CAUSAL_OUTPUT_DIRECTORY = 'causal-evidence/outputs';
 export const CAUSAL_RECEIPT_INDEX_FILE = 'causal-evidence/index.json';
