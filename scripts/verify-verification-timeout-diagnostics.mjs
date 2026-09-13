@@ -13,6 +13,7 @@ try {
 assert(failure, 'TIMEOUT_DIAGNOSTICS_RED real child must time out');
 assert.equal(failure.code, 'ETIMEDOUT', 'TIMEOUT_DIAGNOSTICS_RED preserve timeout code');
 assert.equal(failure.signal, 'SIGTERM', 'TIMEOUT_DIAGNOSTICS_RED preserve actual signal');
+assert.equal(Object.getOwnPropertyDescriptor(failure, 'stdout').writable, true, 'AUDIT5_DIAGNOSTICS_RED diagnostic buffers remain writable');
 assert.equal(failure.stdout, 'TIMEOUT_CHILD_STDOUT', 'TIMEOUT_DIAGNOSTICS_RED preserve stdout');
 assert.equal(failure.stderr, 'TIMEOUT_CHILD_STDERR', 'TIMEOUT_DIAGNOSTICS_RED preserve stderr');
 assert.match(failure.message, /^VERIFICATION_SUBPROCESS_TIMEOUT:/);
