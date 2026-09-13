@@ -1,21 +1,21 @@
 # Fourth intake repair round: candidate, batch and persisted-index work
 
-The user requested all three bottom-layer repairs, RED/GREEN and Claude CLI review in the same Lab. Local main was synchronized before the repair. Baseline is 446351148f; final measured runtime candidate is 8429c09eb3. No integration into main or push is performed.
+The user requested all three bottom-layer repairs, RED/GREEN and Claude CLI review in the same Lab. Local main was synchronized before the repair. Baseline is 446351148f; final measured candidate is cb71c28d031960f0860d0d546889aff75844936a. No integration into main or push is performed.
 
 ## Final before/after results
 
 | Scenario | Before | After | Reduction (negative means slower) |
 |---|---:|---:|---:|
-| 5000 records, one cold query | 96.310ms | 94.003ms | 2.40% |
-| 5000 records, ten cold batch queries | 444.640ms | 107.835ms | 75.75% |
-| 5000 records, ten warm batch queries | 49.798ms | 27.271ms | 45.24% |
-| 20000 records, persisted-index warm query | 103.849ms | 54.383ms | 47.63% |
-| 20000 records, persisted-index cold query | 159.718ms | 149.270ms | 6.54% |
-| 5000 records, ordinary warm control | 31.061ms | 33.484ms | -7.80% |
+| 5000 records, one cold query | 100.804ms | 92.078ms | 8.66% |
+| 5000 records, ten cold batch queries | 382.597ms | 92.569ms | 75.81% |
+| 5000 records, ten warm batch queries | 43.433ms | 21.461ms | 50.59% |
+| 20000 records, persisted-index warm query | 89.213ms | 45.116ms | 49.43% |
+| 20000 records, persisted-index cold query | 138.684ms | 124.135ms | 10.49% |
+| 5000 records, ordinary warm control | 25.971ms | 20.353ms | 21.63% |
 
 Counts are the performance acceptance oracle: one cold query selects candidates 2 → 1 times and performs one complete overflow scan rather than two identical scans. A ten-query cold batch uses Git 24 → 2 times, reads the same source file 21 → 1 times, and selects candidates 20 → 10 times. Five warm persisted-index calls perform full canonical index validation 5 → 0 times. File bytes are still read and SHA-256 checked on every call, and JSON is parsed to return an independent object. JSON parsing is not eliminated.
 
-Ordinary warm hits retain two Git probes per query and have no targeted speedup in this round. Their final timings vary from roughly 26 to 41ms by arm; the measured mean is slightly slower and must not be presented as an improvement. The small single-cold timing gain in the final sample is reported as observed, despite the deterministic elimination of duplicate selection. Batch and persisted warm gains are larger. These are shared-host microbenchmarks, not whole-CLI or production p95 promises.
+Ordinary warm hits retain two Git probes per query and have no targeted speedup in this round. Earlier ABBA samples showed small slowdowns; the refreshed sample shows improvement dominated by Git time (24.69 → 19.39ms per query). It is a control, not a claimed optimization. Host variance also affects the single-cold total. Deterministic counts prove removal of duplicate work, while the table reports the last complete dataset without claiming production p95 or all-path speedups.
 
 ## Measurement provenance
 
@@ -37,6 +37,10 @@ The managed RED command is `node scripts/lab/verify-intake-round-four.mjs`, with
 
 GREEN replays that exact executable/argv on the final committed candidate, with strengthened boundary checks and the previous three-round verification wrapper. Final tool-owned GREEN is exported outside Git after the committed run. The requested Claude CLI audit uses the repository's managed `lab:worktree audit memory-intake-measurement --developer codex` route after GREEN, with a verdict bound to the exact candidate and full Lab diff. Its actual outcome is likewise exported outside Git to avoid a self-referential approval commit. No prior audit is relabelled as approval of these new repairs.
 
-The existing EX-MEMORY-QUERY-TIMING scanner binding is refreshed for the reviewed source changes and the clock test's synchronous scope stub. All timing assertions remain unchanged. No scanner exception or admitted invocation was added. The strict scanner still compares complete reports and preserves the prior 368 → 234 exact-input parse count result.
+The existing EX-MEMORY-QUERY-TIMING scanner binding is refreshed for the reviewed source changes and the clock test's synchronous scope stub. All timing assertions remain unchanged. No scanner exception or admitted invocation was added. The strict scanner still compares complete reports and requires one parse per exact input, retaining the original scanner optimization.
 
 These are local Lab maintenance records, not formal Story DONE or a release.
+
+## Latest-main reconciliation before Claude review
+
+The first audit dispatch did not start Claude because main advanced to b07b6e9fbf (0.3.353) during GREEN. Main was merged locally into this Lab. Memory repair source files had no conflicts. The scanner manifest had 38 hash-only conflicts plus one additive-entry conflict; both sides’ existing records were retained, including all pre-existing IDs/multiplicities. Forty retained bindings were refreshed only for the version-only package.json/package-lock.json changes (main-sync-bindings.json). A new build and the full ABBA measurement above use the synchronized candidate. Previous measurements and pre-sync GREEN remain historical artifacts outside the worktree. Fresh GREEN and Claude review must bind the final synchronized commit.
