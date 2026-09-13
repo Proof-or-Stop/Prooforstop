@@ -141,7 +141,10 @@ function gitProbe(searchOrigin: string, args: string[]): string {
 // Successful discovery is reusable only within one synchronous read operation.
 // Every new operation starts fresh; failed probes remain retryable in the scope.
 let learningRootScope: Map<string, string> | undefined;
-export function withLearningRootScope<T>(read: () => T): T {
+// Inheritance is explicit for a caller-owned batch observation; ordinary nested
+// operations still create fresh scopes by default.
+export function withLearningRootScope<T>(read: () => T, inherit = false): T {
+  if (inherit && learningRootScope) return read();
   const previous = learningRootScope;
   learningRootScope = new Map();
   try { return read(); } finally { learningRootScope = previous; }

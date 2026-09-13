@@ -23,6 +23,7 @@ import {
   RUNTIME_MEMORY_INDEX_SCHEMA_VERSION,
   selectRuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndex,
+  type RuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndexSourceDigests,
 } from './playbook-runtime-memory-index.js';
 import type {
@@ -340,18 +341,29 @@ function signatureMatchesQuery(tag: SignatureTagEntry, query: string): boolean {
   return terms.some((term) => containsTerm(query, term));
 }
 
-function candidateProjectionDigest(context: RuntimeMemoryPackCacheContext): string | null {
+// Contexts are created per pack operation; never reuse this memo across requests.
+const candidateObservations = new WeakMap<RuntimeMemoryPackCacheContext, {
+  index: RuntimeMemoryIndex; key: string; candidates: RuntimeMemoryIndexCandidates;
+}>();
+export function selectRuntimeMemoryPackCandidates(context: RuntimeMemoryPackCacheContext): RuntimeMemoryIndexCandidates | null {
   if (!context.runtimeIndex) return null;
-  const candidates = selectRuntimeMemoryIndexCandidates(context.runtimeIndex, {
-    query: context.query,
-    consumer: context.consumer,
-    storyPhase: context.storyPhase,
-    touchedPaths: context.touchedPaths,
-    host: context.host,
-    maxEntries: context.maxEntries,
-    maxPlaybooks: context.maxPlaybooks,
+  const options = {
+    query: context.query, consumer: context.consumer, storyPhase: context.storyPhase,
+    touchedPaths: context.touchedPaths, host: context.host,
+    maxEntries: context.maxEntries, maxPlaybooks: context.maxPlaybooks,
     ...(context.candidateLimit !== undefined ? { candidateLimit: context.candidateLimit } : {}),
-  });
+  };
+  const key = digestCanonicalJson(options);
+  const previous = candidateObservations.get(context);
+  if (previous?.index === context.runtimeIndex && previous.key === key) return previous.candidates;
+  const candidates = selectRuntimeMemoryIndexCandidates(context.runtimeIndex, options);
+  candidateObservations.set(context, { index: context.runtimeIndex, key, candidates });
+  return candidates;
+}
+
+function candidateProjectionDigest(context: RuntimeMemoryPackCacheContext): string | null {
+  const candidates = selectRuntimeMemoryPackCandidates(context);
+  if (!candidates) return null;
   const refs = [
     ...candidates.devMemoryEntries.map((entry) => `dev-memory:${entry.id}:${digestCanonicalJson(entry)}`),
     ...candidates.playbooks.map((playbook) => `playbook:${playbook.id}:${computePlaybookDigest(playbook)}`),
@@ -422,6 +434,7 @@ function currentLookupDigest(context: RuntimeMemoryPackCacheContext): string {
 }
 
 export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheContext, beforeIndex = false): RuntimeMemoryPackCacheHit {
+  candidateObservations.delete(context);
   const lookupDigest = currentLookupDigest(context);
   const entry = CACHE.get(lookupDigest) ?? readDurableCacheEntry(context.projectRoot, lookupDigest);
   if (!entry) {
@@ -494,6 +507,7 @@ export function rememberRuntimeMemoryPackCache(
     sourceDigests: sourceDigestsFor(context),
     candidateProjectionDigest: candidateProjectionDigest(context),
   };
+  candidateObservations.delete(context);
   CACHE.set(cacheKey.lookupDigest, entry);
   STATS.lastCacheKeyDigest = cacheKey.cacheKeyDigest;
   STATS.lastLookupDigest = cacheKey.lookupDigest;
