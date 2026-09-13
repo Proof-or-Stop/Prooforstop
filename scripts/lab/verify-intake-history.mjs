@@ -4,7 +4,7 @@ const commands = [
   'scripts/verify-intake-discovery.mjs',
   'packages/main/tests/validation-git-tree-safety.mjs',
   'scripts/verify-local-main-baseline.mjs',
-  'packages/main/dist/tasks/single-owner-extraction-smoke.js',
+  'scripts/lab/verify-intake-workspace-health.mjs',
   'scripts/verify-story-hash-memo.mjs',
   'packages/main/tests/validation-git-tree-batch.mjs',
   'packages/main/tests/validation-git-tree-head-drift.mjs',
