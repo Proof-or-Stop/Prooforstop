@@ -1,3 +1,4 @@
+import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
 import { withMachineValidationResources } from './validation-execution-lock.js';
@@ -326,22 +327,16 @@ function trimOutput(output: string, retainFailureTail: boolean): string {
  * bounding does, and what it leaves open, is described where it is performed - on
  * boundPersistedValidationEvidence, measurePersistedEvidenceBytes and snapshotPersistedRecord.
  */
-export const VALIDATION_EVIDENCE_READ_CEILING_BYTES = METADATA_BLOB_READ_MAX_BUFFER_BYTES;
-/**
- * Advisory at a quarter of the ceiling (8 MiB against a 32 MiB ceiling). Chosen against the
- * measured growth curve, not by taste: 8 MiB is roughly 6x the 1,369,692-byte artifact that caused
- * the incident, which is far enough ahead that an operator meets the advisory with room to act, and
- * far enough behind the bound that the advisory is not a synonym for it.
- */
-export const VALIDATION_EVIDENCE_ADVISORY_FRACTION = 0.25;
-/** Hard bound at three quarters of the ceiling, leaving 25 percent headroom for the read itself. */
-export const VALIDATION_EVIDENCE_BOUND_FRACTION = 0.75;
-export const VALIDATION_EVIDENCE_ADVISORY_BYTES = Math.floor(
-  VALIDATION_EVIDENCE_READ_CEILING_BYTES * VALIDATION_EVIDENCE_ADVISORY_FRACTION,
-);
-export const VALIDATION_EVIDENCE_BOUND_BYTES = Math.floor(
-  VALIDATION_EVIDENCE_READ_CEILING_BYTES * VALIDATION_EVIDENCE_BOUND_FRACTION,
-);
+export {
+  VALIDATION_EVIDENCE_READ_CEILING_BYTES, VALIDATION_EVIDENCE_ADVISORY_FRACTION,
+  VALIDATION_EVIDENCE_BOUND_FRACTION, VALIDATION_EVIDENCE_ADVISORY_BYTES,
+  VALIDATION_EVIDENCE_BOUND_BYTES,
+} from './validation-evidence-size-policy.js';
+import {
+  VALIDATION_EVIDENCE_READ_CEILING_BYTES, VALIDATION_EVIDENCE_ADVISORY_FRACTION,
+  VALIDATION_EVIDENCE_BOUND_FRACTION, VALIDATION_EVIDENCE_ADVISORY_BYTES,
+  VALIDATION_EVIDENCE_BOUND_BYTES,
+} from './validation-evidence-size-policy.js';
 
 /** Three tiers, mirroring the buildLedgerSizing shape in core/proofstory.ts. */
 export type ValidationEvidenceSizingState = 'within_budget' | 'advisory' | 'bounded';
@@ -575,7 +570,7 @@ export function boundValidationEvidenceOutput(
     const measured = measure(output);
     return measured === null ? Number.MAX_SAFE_INTEGER : measured;
   };
-  const fits = (output: string): boolean => sizeOf(output) < budget;
+  const fits = (output: string): boolean => isWithinValidationEvidenceWriteBound(sizeOf(output), budget);
   const serialized = safeJsonStringify(result);
   const measuredBytes = Buffer.byteLength(serialized ?? 'null', 'utf8');
   const base = {
@@ -591,7 +586,7 @@ export function boundValidationEvidenceOutput(
       ...base,
       serializedBytes: Buffer.byteLength(unreduced, 'utf8'),
       reduced: false,
-      outputWithinBound: Buffer.byteLength(unreduced, 'utf8') < VALIDATION_EVIDENCE_BOUND_BYTES,
+      outputWithinBound: isWithinValidationEvidenceWriteBound(Buffer.byteLength(unreduced, 'utf8')),
       elidedCommandOutputs: 0,
       elidedCommandEntries: 0,
       elidedDetailLines: 0,
@@ -687,7 +682,7 @@ export function boundValidationEvidenceOutput(
     ...base,
     serializedBytes,
     reduced: true,
-    outputWithinBound: serializedBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
+    outputWithinBound: isWithinValidationEvidenceWriteBound(serializedBytes),
     elidedCommandOutputs,
     elidedCommandEntries,
     elidedDetailLines,
@@ -833,9 +828,10 @@ export interface PersistedValidationEvidenceBound<T = unknown> {
  * smoke does not import StoryStore; it re-types the same formula and compares two hand-written
  * copies, so a format change in store.ts moves both copies together, this measurement reads low,
  * and the assertions keep passing. Measured on a two-space to four-space change: the smoke compares
- * 158 to 158 while the writer emits 168. core/store.ts is outside this story's scope; the
- * divergence, its transcripts and the named repair are recorded in
- * docs/requirements/decisions/validation-evidence-artifact-growth.md.
+ * 158 to 158 while the writer emits 168. This check-time helper still duplicates the format.
+ * The writer-owned final ceiling and immutable publication are now documented in
+ * docs/requirements/decisions/acceptance-closure-writer-boundary.md; the old divergence
+ * transcript remains in validation-evidence-artifact-growth.md as historical evidence.
  */
 export function measurePersistedEvidenceBytes(record: unknown): number | null {
   const serialized = safeJsonStringify(record, 2);
@@ -859,7 +855,8 @@ export function measurePersistedEvidenceBytes(record: unknown): number | null {
  * Measured through the real StoryStore, on a record the builder produced as a fresh plain object
  * literal: 67 bytes reported and within bound, 31,457,342 bytes on disk against a 25,165,824-byte
  * bound. Closing that route means one serialisation owned by the writer, in core/store.ts, which is
- * out of this story's scope.
+ * outside the historical Story scope. The acceptance-closure Lab adds that writer-owned
+ * byte ceiling; this reducer still makes no equality promise about its earlier measurement.
  *
  * Returns null if either step fails, which the caller treats as "no record" rather than a small one.
  */
@@ -906,8 +903,10 @@ function snapshotPersistedRecord<T>(record: T): { record: T; bytes: number } | n
  * What this does NOT establish is that `fileBytes` equals the bytes StoryStore writes. Routes by
  * which they diverge are open and measured: a serialisation format duplicated from core/store.ts
  * rather than shared with it (measurePersistedEvidenceBytes), an inherited toJSON on the shared
- * prototype (snapshotPersistedRecord), and a caller that mutates the returned record between the
- * gate and the write (B-3434:F-037).
+ * prototype (snapshotPersistedRecord). Caller mutation between this measurement and publication
+ * (B-3434:F-037) is now bounded by StoryStore.prepareTestEvidence/writePreparedTestEvidence: the
+ * published bytes are the writer's prepared snapshot. A larger inherited-toJSON result may differ
+ * from fileBytes, but the final writer refuses it above the cap instead of publishing oversize data.
  *
  * Every disposition, the refusal included, runs its record through snapshotPersistedRecord. The
  * plain-data shape of the RETURNED record comes from the terminal call alone: the reduction loop
@@ -941,7 +940,7 @@ export function boundPersistedValidationEvidence<T>(args: {
     : {
       record,
       fileBytes,
-      withinBound: fileBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
+      withinBound: isWithinValidationEvidenceWriteBound(fileBytes),
       disposition,
       state: classifyValidationEvidenceSize(fileBytes),
       sizing,
@@ -975,7 +974,7 @@ export function boundPersistedValidationEvidence<T>(args: {
     return finish(
       plain.record,
       plain.bytes,
-      plain.bytes < VALIDATION_EVIDENCE_BOUND_BYTES ? 'unmodified' : 'refused',
+      isWithinValidationEvidenceWriteBound(plain.bytes) ? 'unmodified' : 'refused',
       null,
     );
   }
@@ -995,7 +994,7 @@ export function boundPersistedValidationEvidence<T>(args: {
     });
     sizing = bounded;
     const reduced = measureWith(bounded.output);
-    if (reduced.bytes !== null && reduced.bytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
+    if (reduced.bytes !== null && isWithinValidationEvidenceWriteBound(reduced.bytes)) {
       return finish(reduced.record, reduced.bytes, bounded.reduced ? 'reduced' : 'unmodified', sizing);
     }
   } catch {
@@ -1005,7 +1004,7 @@ export function boundPersistedValidationEvidence<T>(args: {
 
   const fallback = measureWith(verdictOnlyRecord(args.result, measuredBytes));
   if (fallback.bytes === null) return finish(fallback.record, Number.MAX_SAFE_INTEGER, 'refused', sizing);
-  if (fallback.bytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
+  if (isWithinValidationEvidenceWriteBound(fallback.bytes)) {
     return finish(fallback.record, fallback.bytes, 'verdict_only', sizing);
   }
   return finish(fallback.record, fallback.bytes, 'refused', sizing);

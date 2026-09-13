@@ -17,6 +17,20 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
 const quiet = process.argv.slice(2).includes('--quiet');
+// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
+for (const [file, marker, timeout] of [
+  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
+]) {
+  try {
+    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
+    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
+    if (!quiet) process.stdout.write(output);
+  } catch (error) {
+    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
+  }
+}
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
@@ -4766,11 +4780,11 @@ function validationPersistenceTransactionIssues(verifierText) {
   const localContracts = [
     {
       functionName: 'reusedStoryValidationResult',
-      evidenceWriter: 'args.ctx.store.writeTestEvidence',
+      evidenceWriter: 'args.ctx.store.writePreparedTestEvidence',
     },
     {
       functionName: 'persistStoryValidationEvidence',
-      evidenceWriter: 'ctx.store.writeTestEvidence',
+      evidenceWriter: 'ctx.store.writePreparedTestEvidence',
     },
   ];
   for (const contract of localContracts) {
@@ -10260,7 +10274,7 @@ const inventory = [
           'runReviewCliGates',
           'proof-or-stop validate --json',
           'assertTestAdmissibleRoutineValidationWindow',
-          { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
+          { label: 'test-evidence writer call', absentRegex: /\.(?:writeTestEvidence|writePreparedTestEvidence)\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
           'PRE_CERT_ROUTINE_PASS_REQUIRED',
         ],
@@ -10272,7 +10286,7 @@ const inventory = [
         relPath: 'packages/main/src/handlers/verifier.ts',
         patterns: [
           'persistStoryValidationEvidence',
-          'ctx.store.writeTestEvidence',
+          'ctx.store.writePreparedTestEvidence',
           "disposition: 'reused'",
           'canonical-pass-persistence-failed',
           'commitValidationReuseMetadataTransaction',
@@ -10624,7 +10638,7 @@ const inventory = [
           'proof-or-stop validate --json',
           'buildDoneChecklist',
           'assertTestAdmissibleRoutineValidationWindow',
-          { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
+          { label: 'test-evidence writer call', absentRegex: /\.(?:writeTestEvidence|writePreparedTestEvidence)\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
           'PRE_CERT_ROUTINE_PASS_REQUIRED',
         ],
@@ -10633,7 +10647,7 @@ const inventory = [
         relPath: 'packages/main/src/handlers/verifier.ts',
         patterns: [
           'persistStoryValidationEvidence',
-          'ctx.store.writeTestEvidence',
+          'ctx.store.writePreparedTestEvidence',
           "disposition: 'reused'",
           'canonical-pass-persistence-failed',
           'commitValidationReuseMetadataTransaction',

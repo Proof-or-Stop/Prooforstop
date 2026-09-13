@@ -11,7 +11,7 @@ import type {
   VerificationPriority,
 } from './types.js';
 import { formatVerificationEvidenceVerdict } from './types.js';
-import type { VerificationIntentPolicyResolution } from './workflow-policy.js';
+import { countVerificationIntentEntries, type VerificationIntentPolicyResolution } from './workflow-policy.js';
 import { type EvidenceQualityProfile, getEvidenceQualityIssues, type EvidenceQualityIssue } from './evidence-quality.js';
 import { evaluateAttestationEvidence, type AttestationIssue } from './attestation.js';
 import { evaluateActorTrustEvidence, type ActorTrustIssue, type ActorTrustOptions } from './actor-trust.js';
@@ -194,8 +194,8 @@ export const VERIFICATION_INTENT_REPAIR_COMMAND = 'verification_intent_repair';
  * lane whose verificationIntent is empty, report any verificationEvidence whose
  * intentRef is positionally scoped to that lane (`${item.id}:${lane}:<n>`). This
  * is the ONLY signal that a missing-intent blocker is repairable via
- * verification_intent_repair rather than authored fresh. A missing-intent lane
- * produces no coverage entry, so callers MUST scan items directly (not coverage).
+ * verification_intent_repair rather than authored fresh. A wholly missing-intent item produces a diagnostic coverage entry; a missing
+ * lane on an intent-bearing item does not. Scan items directly for legacy schema repair.
  */
 export function detectLegacyEvidenceWithoutIntent(
   item: ChecklistItem,
@@ -245,11 +245,24 @@ export function buildVerificationCoverage(
   const attestationIssues: AttestationIssue[] = [];
   const actorTrustIssues: ActorTrustIssue[] = [];
   const factProvenanceIssues: FactProvenanceIssue[] = [];
+  // Once a checklist opts into explicit verification, every delivered item needs
+  // an intent. Preserve the all-empty legacy/express policy owned by the caller.
+  const hasExplicitIntents = countVerificationIntentEntries(cl) > 0;
   for (const item of cl.items) {
     // B-1909 CHK-002: a withdrawn item is recorded-undeliverable; its verification
     // intents are no longer part of the story's required coverage, so they never
     // appear as required/blocking entries. (Terminal but not delivered.)
     if (isWithdrawnChecklistStatus(item.status)) continue;
+    if (hasExplicitIntents && collectVerificationIntents(item).length === 0) {
+      // A diagnostic obligation, never a stored intent or caller-authored receipt.
+      entries.push({
+        intentRef: `${item.id}:missing-verification-intent`, itemId: item.id,
+        lane: 'happy', desc: detectLegacyEvidenceWithoutIntent(item).length > 0
+          ? 'Checklist item has legacy verificationEvidence without verificationIntent. Run proof-or-stop verification_intent_repair for a schema backfill, not a coverage pass; then refresh verification evidence as required.'
+          : 'Checklist item has no verificationIntent; explicit verification coverage is incomplete. In INIT/PLAN, author intent through checklist_update. After PLAN, use acceptance_amendment_propose, acceptance_amendment_review and acceptance_amendment_approve in DEV, then verification_evidence_add. In REVIEW/TEST, first complete the required review_inventory_finalize --remediation receipt (REVIEW) and guarded story_advance DEV recovery; a receipt or waiver cannot replace the missing requirement.',
+        type: 'docs', priority: 'must', status: 'missing',
+      });
+    }
     for (const collected of collectVerificationIntents(item)) {
       const priority = collected.intent.priority || 'must';
       let evidence = pickEvidence(item, collected.ref);

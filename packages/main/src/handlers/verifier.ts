@@ -1045,13 +1045,17 @@ function reusedStoryValidationResult(args: {
       commands: [],
     });
   }
-  const expectedHashes = publicationOutputHashes(transaction, storyRel, reusedBound.record);
+  // Capture the final bytes before deriving commit hashes. Later caller mutations
+  // cannot produce a size rejection or a different artifact at the writer.
+  let expectedHashes = new Map<string, string>();
   try {
+    const prepared = args.ctx.store.prepareTestEvidence(args.storyId, reusedBound.record);
+    expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(args.ctx.root, args.storyId);
-    args.ctx.store.writeTestEvidence(args.storyId, reusedBound.record);
+    args.ctx.store.writePreparedTestEvidence(args.storyId, prepared);
     const terminal = recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
-    const terminalHashes = publicationOutputHashes(transaction, storyRel, reusedBound.record, terminal);
+    const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
   } catch (error) {
     const rolledBack = rollbackValidationPublication({ gitCwd: args.gitCwd, transaction, expectedHashes }, String(error));
@@ -1171,7 +1175,7 @@ function tryReuseRoutinePass(args: {
 function publicationOutputHashes(
   transaction: ReturnType<typeof captureDonePrepareGeneratedMetadataTransaction>,
   storyRel: string,
-  record: TestEvidenceData,
+  evidenceDigest: string,
   terminal?: ReturnType<HandlerContext['store']['appendProcessEvent']>,
 ): Map<string, string> {
   const hash = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex');
@@ -1180,7 +1184,7 @@ function publicationOutputHashes(
   const before = baseline.get(eventsPath) ?? Buffer.alloc(0);
   if (terminal && terminal.start !== before.length) throw new Error('canonical terminal append did not match captured baseline');
   return new Map([
-    [`${storyRel}/test-evidence.json`, hash(JSON.stringify(record, null, 2) + '\n')],
+    [`${storyRel}/test-evidence.json`, evidenceDigest],
     [eventsPath, hash(terminal ? Buffer.concat([before, terminal.eventBytes]) : before)],
     [`${storyRel}/closeout-write-receipts.jsonl`, hash(baseline.get(`${storyRel}/closeout-write-receipts.jsonl`) ?? Buffer.alloc(0))],
   ]);
@@ -1386,11 +1390,8 @@ function persistStoryValidationEvidence(
     return persistenceFailure(reason);
   }
 
-  // Computed once, with the hashes, AFTER they are known: this exact record is measured, gated and
-  // written, and nothing on this path computes it a second time. That is a statement about the count
-  // and not about what reaches the writer: the gate below and the write that follows read the same
-  // mutable record, so a line inserted between them that mutates it in place diverges the written
-  // bytes from the measured ones without adding a second computation (B-3434:F-037).
+  // Reduce the hash-bearing candidate once. The store then captures immutable
+  // serialized bytes: publication and commit digests never re-read this object.
   const persistedBound = boundEvidence(hashes);
   const sizingAdvisory = formatValidationEvidenceAdvisory(persistedBound);
   if (sizingAdvisory) ctx.log?.(sizingAdvisory);
@@ -1402,13 +1403,17 @@ function persistStoryValidationEvidence(
     );
   }
 
-  const expectedHashes = publicationOutputHashes(transaction, storyRel, persistedBound.record);
+  // Capture the final bytes before deriving commit hashes. Later caller mutations
+  // cannot produce a size rejection or a different artifact at the writer.
+  let expectedHashes = new Map<string, string>();
   try {
+    const prepared = ctx.store.prepareTestEvidence(storyId, persistedBound.record);
+    expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(ctx.root, storyId);
-    ctx.store.writeTestEvidence(storyId, persistedBound.record);
+    ctx.store.writePreparedTestEvidence(storyId, prepared);
     const terminal = recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
-    const terminalHashes = publicationOutputHashes(transaction, storyRel, persistedBound.record, terminal);
+    const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
   } catch (error: any) {
     const reason = String(error?.stderr || error?.stdout || error?.message || error).trim();
