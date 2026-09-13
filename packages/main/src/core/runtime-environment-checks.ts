@@ -1251,12 +1251,44 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 
 
 
+// Memoize only the pure parse/print/hash projection of exact source bytes.
+// Callers still reread files and compare the current expected binding on every
+// observation. Neither filesystem metadata nor a prior PASS authorizes reuse.
+const identityCanonicalDigests = new Map<string, { text: string; digest: string }>();
+const IDENTITY_CANONICAL_MAX_ENTRIES = 32;
+const IDENTITY_CANONICAL_MAX_CHARACTERS = 4 * 1024 * 1024;
+let identityCanonicalCharacters = 0;
+function canonicalIdentityExecutableDigest(sourcePath: string, text: string): string {
+  const prior = identityCanonicalDigests.get(sourcePath);
+  if (prior?.text === text) {
+    identityCanonicalDigests.delete(sourcePath);
+    identityCanonicalDigests.set(sourcePath, prior);
+    return prior.digest;
+  }
+  const source = ts.createSourceFile(sourcePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const canonical = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(source);
+  const digest = createHash('sha256').update(canonical).digest('hex');
+  if (prior) {
+    identityCanonicalDigests.delete(sourcePath);
+    identityCanonicalCharacters -= prior.text.length;
+  }
+  if (text.length <= IDENTITY_CANONICAL_MAX_CHARACTERS) {
+    while (identityCanonicalDigests.size >= IDENTITY_CANONICAL_MAX_ENTRIES
+      || identityCanonicalCharacters + text.length > IDENTITY_CANONICAL_MAX_CHARACTERS) {
+      const key = identityCanonicalDigests.keys().next().value!;
+      identityCanonicalCharacters -= identityCanonicalDigests.get(key)!.text.length;
+      identityCanonicalDigests.delete(key);
+    }
+    identityCanonicalDigests.set(sourcePath, { text, digest });
+    identityCanonicalCharacters += text.length;
+  }
+  return digest;
+}
+
 function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {
   const expected = ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS[sourcePath];
   if (!expected) return;
-  const source = ts.createSourceFile(sourcePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  const canonical = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(source);
-  const actual = createHash('sha256').update(canonical).digest('hex');
+  const actual = canonicalIdentityExecutableDigest(sourcePath, text);
   if (actual !== expected) throw new Error(`${label}/${sourcePath} consumer rejected active identity bytes; executable declaration/producer/consumer binding changed`);
 }
 

@@ -52,6 +52,8 @@ const section = process.argv.find(arg => arg.startsWith('--section='))?.split('=
 if (section === 'routes' && await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const smokeStarted = performance.now();
 const compileCache = section === 'delivery' ? mkdtempSync(join(tmpdir(), 'identity-delivery-compile-cache-')) : undefined;
+const previousCompileCache = process.env.NODE_COMPILE_CACHE;
+if (compileCache) process.env.NODE_COMPILE_CACHE = compileCache;
 assert.ok(['candidates', 'routes', 'history', 'scorecard', 'worktrees', 'delivery'].includes(section), 'only implemented smoke sections are supported');
 const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-identity-')));
 const oldCwd = process.cwd(); const oldActor = process.env.PROOF_OR_STOP_AGENT;
@@ -1691,6 +1693,8 @@ try {
   resetSessionIdForTest();
   rmSync(scratch, { recursive: true, force: true });
   if (compileCache) {
+    if (previousCompileCache === undefined) delete process.env.NODE_COMPILE_CACHE;
+    else process.env.NODE_COMPILE_CACHE = previousCompileCache;
     console.log('FIXTURE_COMPILE_CACHE ' + JSON.stringify(inspectFixtureCompileCache(compileCache)));
     rmSync(compileCache, { recursive: true, force: true });
   }

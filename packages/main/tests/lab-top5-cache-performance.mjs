@@ -38,4 +38,7 @@ if(suite===2) {
 const line=native.stdout.split('\n').find(line=>line.startsWith('FIXTURE_COMPILE_CACHE '));assert.ok(line,'cache observation must exist');
 const cache=JSON.parse(line.slice('FIXTURE_COMPILE_CACHE '.length));
 assert.ok(cache.files>0&&cache.bytes>0,`TOP5_${suite}_RED: repeated native children have no disposable compilation cache`);
+// Suite 3's native baseline is preserved in top5-3-red.log (699947.729583 ms).
+// Require at least 1% lower complete wall time as well as all native checks.
+if(suite===3) assert.ok(wallMs < 699947.729583 * 0.99, 'TOP5_3_PERFORMANCE: complete command must improve at least one percent');
 console.log(`TOP5_${suite}_GREEN`);
