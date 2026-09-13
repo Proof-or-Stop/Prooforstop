@@ -1,5 +1,111 @@
 # Changelog
 
+## Lab story-tier-selector-authority - v0.3.353 - 2026-09-13
+
+Connect the canonical Story-relevance fast, intermediate, and repository-full
+selector to configured validation execution and TEST admission. Unconfigured
+projects remain off; this repository remains in observe rollout mode, so TEST
+retains its existing canonical/shared-reuse behavior until a separate current
+rollout record explicitly enables enforce-low-risk. Explicit full and
+DONE-phase validation remain canonical; the DONE gate may consume a current,
+signed, complete dynamic ledger produced earlier.
+
+The repair makes selector input ownership fail closed, re-runs the pure selector
+before child launch, unifies portable command identity, preserves signed legacy
+pin safety by widening full, and binds the raw catalog, graph-augmented impact
+index, changed paths, tier decision, and positive exclusion proofs into the
+signed manifest. TEST and DONE reconstruct those bindings against current
+repository inputs before accepting an omitted command.
+Dynamic Finding remains a scope constraint and cannot expand Story scope.
+
+The Lab-owned verification receipt is the pinned RED-to-GREEN command: the
+canonical packages/main build followed by validation-tier-planner-smoke. Other
+developer-run supporting checks are recorded with their actual repair heads in
+the Lab log rather than relabelled as Lab-owned receipts. The post-bump candidate
+must also pass the independent Claude CLI audit before local-main integration.
+The bounded supporting fixture demonstrates 2 configured commands become 1
+executed plus 1 positively proven exclusion, and an unchanged repeat executes 0
+commands; no repository-wide percentage claim is made until production receipts
+measure actual selected versus repository-full counts.
+
+Seventh-audit remediation at repair head `233c7fe522`: policy-floor tests now
+prove their assertions without blanket full escalation; stored admission checks
+the signed base/head graph digest instead of reconstructing a scope-free Story
+manifest; the end-to-end TEST/DONE fixture carries a real scope contract; hostile
+tier shapes return false; and DONE's added generic admission is limited to
+dynamic claims or existing Story-owned dynamic artifacts. TypeScript AST graph
+discovery excludes runtime artifacts and resolves source/dist equivalents. A
+read-only measurement of the real 168-command inventory produced
+`graphUnknown=false`, zero resolution failures, and risk counts 51 local / 50
+shared / 2 gate / 65 validation-infra. Risk authority now considers the signed
+execute/reuse rows, so participating non-local work still falls back while an
+unrelated excluded non-local row no longer disables every low-risk Story.
+
+Developer-run supporting checks on `233c7fe522` passed: planner CHK-004 32 and
+CHK-005 21; story-aware core smoke; mutation smoke with 30 replay classes and
+FI-1..FI-5; real dynamic TEST-gate and mutation wrappers, including 2-to-1
+selection, zero-child reuse, scope-bound TEST/DONE admission and negative
+signature/receipt/ledger controls; process-fact contract; and the bounded
+derived-verdict refusal contract. These checks are supporting evidence, not a
+replacement for the immutable Lab-owned GREEN replay or the independent Claude
+audit required by finish.
+
+Eighth-audit remediation at exact repair head `1b094faa99` addresses all eight
+findings from failed Claude run `d0299937-8e0e-4a68-94fc-5ad89f8f3e2c`.
+Dependency impact now builds one reverse graph per revision and caches affected
+commands; an executable counter proves two changed files cause exactly two
+graph queries rather than catalog-size multiplication. TSX/JSX parsing follows
+the tracked file extension, and graph-failure identity uses a stable error class
+instead of host paths. Complete input coverage now requires an actual array of
+non-empty strings, including on schema-bypassing internal inputs.
+
+Admission independently reconstructs both the live command-set digest and the
+Story snapshot digest bound to story id, base/head, and changed-path digest;
+re-signed forged variants are rejected. Process-fact participation is exercised
+through the real prerequisite derivation in both directions: an excluded gate
+row remains eligible, while a participating gate row forces repository-full.
+The twenty audit aliases now select twenty distinct executable assertion blocks
+instead of merely changing a success label. DONE consumes a narrow explicit
+`{ root, store, gitCwd }` context, preserving the already-resolved worktree.
+
+Developer-run supporting checks at `1b094faa99` passed: packages/main build;
+the planner suite (26/13/18/32/21/13 case groups); static-edge verification with
+326 reviewed exceptions, zero pending review, and zero nested expansion;
+derived-refusal capacity contract; real dynamic TEST/DONE authority mutations,
+including 2 inventory commands becoming 1 executed plus 1 proven exclusion;
+and the process-fact contract. The Lab-owned GREEN replay at this same committed
+head passed the pinned build-plus-planner command before finish was requested.
+
+Finish preflight then detected that the reviewed static-exception manifest was
+semantically valid but not in its required ASCII-canonical JSON serialization.
+Commit `a799b012cd` mechanically normalized 30 lines without changing the 326
+exception records; static-edge verification remained 326 exceptions, zero
+pending review, and zero nested expansion. The pinned GREEN replay passed again
+at this final pre-audit head.
+
+Ninth-audit remediation addresses every row returned by failed Claude run
+`0bd484d4-297f-4113-8bdf-95547d8a5d43`. Observe-only ledger presence no longer
+widens ordinary canonical DONE evidence into the strict dynamic evaluator; a
+real observe validate proves `OBSERVE_CANONICAL_DONE_CONTRACT_UNCHANGED`, while
+enforce-low-risk evidence and stripped/tampered markers remain fail-closed.
+The normative runner paragraph now says v9. Dual-revision AST graphs are cached
+in-process for immutable commit pairs plus catalog identity, with an eight-entry
+bound and an identity-reuse fixture. Public admission options and Git cwd are
+runtime-validated for untyped callers. The standalone exclusion verifier now
+recomputes the canonical selector decision and rejects a self-consistent forged
+decision.
+
+Repair commit `8eca4e513f` passed the planner case groups, canonical build,
+Story-aware core smoke, 30 replay mutation classes, real observe/enforce
+TEST/DONE admission, static edges (326 exceptions, zero pending/nested), and the
+complete process-fact contract. Official reopen then reverted only the failed
+0.3.353 candidate in `0cd1b72bf5`; the pinned GREEN replay passed again on that
+committed pre-release head. A new post-bump Claude audit remains mandatory.
+
+Maintenance provenance: codex/lab-story-tier-selector-authority, repair 0cd1b72bf58da0e94e214bb3a256f43216f41c4b.
+Verification command (replayed before integration and on main): `["sh","-c","npm --prefix packages/main run build && node packages/main/dist/tasks/validation-tier-planner-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab route-reader-regression - v0.3.352 - 2026-09-13
 
 The four-gaps regression now checks the real registry-to-adapter reader composition while retaining projection consumption and the direct-import boundary. Seven live mutation cases cover both registry compositions, adapter-body substitution, route consumption, projection consumption, and alternate static/dynamic imports. The fixed historical callback illustrates former loose behavior; committed RED records remain the historical evidence, and no runtime Git-provenance claim is made.
