@@ -1,29 +1,5 @@
 # Changelog
 
-## Lab managed-inventory-critic-transport - v0.3.359 - 2026-09-13
-
-# Managed inventory critic transport repair
-
-B-0980 BUG-002 exposed an unsupported disposition field in a real failed managed critic run. This repair adds a strictly validated optional inventoryCritic block for the topology critic lane, carries it through sealed provider proposals, and imports classifications only from authenticated successful managed receipts. Failed provider output remains preserved.
-
-Provider-owned indexes resolve to exact signed imported findings. The importer shares the native critic validator, preserves native actor checks, binds the current signed purpose and inventory wave, refuses material drift, and supports retry after terminal persistence without rewriting existing critic receipt bytes. Terminal bookkeeping is retained even when classification fails.
-
-The current repair includes the prior audit corrections: a flat Claude schema, explicit final-envelope-only callback refusal, exact epoch/wave prompt values, direct writer negatives, native receipt replay controls, duplicate-reference controls, and a bounded per-case deadline. Static exceptions bind exact invocations and current dependencies.
-
-The fixed command runs fifteen disposable integration cases plus parser/schema/budget and actual final-guard controls. The seventh repair corrects evidence accuracy: pending metadata is observed after successful import with one actual critic receipt and unchanged HEAD; the tampered-proposal check is documented only as digest refusal rather than isolated consumer-shape proof. The focused pass case, full fifteen-case suite and static scan passed. Formal GREEN on 55dff3c4c8caaf34cde9068c128a77b93096dbcb passed in 156401ms. The seventh actual Claude CLI audit passed with zero findings in 665094ms (run b3dc41e3-53ae-46de-a902-3023c07b0aec). All six prior failed audits and their reported usage remain preserved. This repair-commit audit does not substitute for the official finish-time prepared-candidate audit.
-
-Version bump, release build, exact prepared-candidate audit and local integration must use the official finish workflow after coordination with the existing main integration queue. These notes do not claim those steps are complete.
-
-This is a local compatibility repair, not benchmark runner delivery or Story DONE. Per-case and GREEN wall time are not full-development time; full-development token usage remains incomplete. No remote push is authorized by these notes.
-
-The repair was synchronized with main 8b64e4e6c0 (0.3.358) in merge c0759fb32f. Its fixed GREEN passed in 206870ms. Integration also refreshes exact identity witnesses: 24 source rows and 9 existing fixture rows preserve their original context and token counts; four exact compatibility-schema rows, 26 JSON excerpt nodes and one disposable fixture read receive bounded registration. The scanner retains exact counts and mutation refusals. Identity boundary validation, including the actual identity-sites group, and static edge verification passed before final consumer-regression closure. Fresh final evidence and the prepared-candidate audit remain required.
-
-Final identity consumer regression on 08eb645f73 passed: all source and fixture consumers, actual schema self-test (including new rows), static edges, and bounded route dependency closure. The two historical report rows remain a fixed slice; 26 new copied-source nodes and the additional fixture row are included in the same missing/duplicate/mutation controls. This verification does not claim the full native route suite or the default runtime identity campaign.
-
-Maintenance provenance: codex/lab-managed-inventory-critic-transport, repair 08eb645f73792a181ece969b9ad5f47642411c4e.
-Verification command (replayed before integration and on main): `["node","scripts/verify-managed-inventory-critic-transport.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab identity-current-witness-coverage - v0.3.358 - 2026-09-13
 
 # Exact current identity witness coverage
