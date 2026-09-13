@@ -1,5 +1,28 @@
 # Changelog
 
+## Lab story-tier-selector-authority - v0.3.351 - 2026-09-13
+
+Connect the canonical Story-relevance fast, intermediate, and repository-full
+selector to configured validation execution and TEST admission. Unconfigured
+projects remain off; this repository explicitly enables enforce-low-risk for
+DEV, REVIEW, and TEST, while explicit full and DONE remain canonical full-plan
+consumers.
+
+The repair makes selector input ownership fail closed, re-runs the pure selector
+before child launch, unifies portable command identity, preserves legacy pin
+safety by widening full, and binds tier decisions into the signed manifest.
+Dynamic Finding remains a scope constraint and cannot expand Story scope.
+
+Verification includes the pinned RED-to-GREEN planner command, planner/core and
+mutation smokes, a real signed stored-evidence TEST consumer matrix, validation
+reuse regression coverage, process-fact contract verification, and independent
+Claude CLI audit. No performance reduction is claimed until production receipts
+measure actual selected versus repository-full command counts.
+
+Maintenance provenance: codex/lab-story-tier-selector-authority, repair 2f090d56cfe6ed93cf00c2c639618422f9961184.
+Verification command (replayed before integration and on main): `["sh","-c","npm --prefix packages/main run build && node packages/main/dist/tasks/validation-tier-planner-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab native-lock-prerequisites - v0.3.350 - 2026-09-12
 
 Repair native validation-lock fixture prerequisites using actual CLI inventory, dispatch, broker-bound review, critic, validation and certification admission. Initial disposable subjects contain no fabricated PASS or admitted window. Focused probes exercise reviewer and delivery write exclusion while preserving routine evidence; native dual-order queues prove real routine and DONE-required publication.
