@@ -1,8 +1,8 @@
 // Disposable, independent Git + dependency trees keep native protected-root
 // observers enabled without observing unrelated work in the shared repository.
 import assert from 'node:assert/strict';
-import {spawn,spawnSync} from 'node:child_process';
-import {cpSync,existsSync,mkdtempSync,writeFileSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
+import {cpSync,existsSync,lstatSync,mkdtempSync,readdirSync,readlinkSync,symlinkSync,unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {verifyBuildBinding,verifyUtilsBuildBinding} from '../../../scripts/full-suite-build-binding.mjs';
@@ -15,15 +15,30 @@ export async function prepareBenchmarkCheckout(sourceRoot) {
   console.log('TOP5_CHECKOUT_PREPARING '+JSON.stringify({root,head}));
   git(sourceRoot,['clone','--no-local','--single-branch','--branch',branch,sourceRoot,root]);
   assert.equal(git(root,['rev-parse','HEAD']),head,'benchmark checkout must match the committed Lab candidate');
-  const prefixes=['.','packages/main','packages/utils','packages/graph'];
-  const results=await Promise.allSettled(prefixes.map(prefix=>new Promise((resolve,reject)=>{
-    const child=spawn('npm',['--prefix',path.join(root,prefix),'ci','--ignore-scripts','--no-audit','--no-fund'],{cwd:root,stdio:['ignore','pipe','pipe']});
-    let output='';child.stdout.on('data',b=>output+=b);child.stderr.on('data',b=>output+=b);
-    const timer=setTimeout(()=>child.kill('SIGKILL'),180000);child.once('error',reject);
-    child.once('close',(code,signal)=>{clearTimeout(timer);writeFileSync(path.join(parent,prefix.replaceAll('/','-')+'-install.log'),output);if(code===0&&!signal)resolve();else reject(new Error('benchmark dependency install failed: '+prefix+' '+code+' '+signal));});
-  })));
-  for(const result of results)if(result.status==='rejected')throw result.reason;
-  for(const packageName of ['main','utils','graph']) {
+  const inside=(base,file)=>{const relative=path.relative(base,file);return relative===''||(!relative.startsWith('..'+path.sep)&&relative!=='..'&&!path.isAbsolute(relative));};
+  const copyIndependentTree=(from,to)=>{
+    cpSync(from,to,{recursive:true,verbatimSymlinks:true});
+    const visit=(directory,originalDirectory)=>{
+      for(const entry of readdirSync(directory,{withFileTypes:true})) {
+        const target=path.join(directory,entry.name),original=path.join(originalDirectory,entry.name);
+        if(entry.isDirectory())visit(target,original);
+        else if(entry.isSymbolicLink()) {
+          const link=readlinkSync(original),resolved=path.resolve(path.dirname(original),link);
+          assert.ok(inside(sourceRoot,resolved),'dependency links must belong to the source checkout: '+original);
+          const copiedTarget=path.join(root,path.relative(sourceRoot,resolved));
+          // Rebase absolute local links too; no dependency points back at the Lab.
+          unlinkSync(target);symlinkSync(path.relative(path.dirname(target),copiedTarget),target);
+          if(existsSync(resolved))assert.ok(existsSync(copiedTarget)||inside(root,copiedTarget));
+        } else if(entry.isFile()) assert.notEqual(lstatSync(target).ino,lstatSync(original).ino,'dependency bytes must be independent copies');
+      }
+    };
+    visit(to,from);
+  };
+  for(const prefix of ['.','packages/main','packages/utils','packages/graph','packages/lab']) {
+    const from=path.join(sourceRoot,prefix,'node_modules');
+    if(existsSync(from))copyIndependentTree(from,path.join(root,prefix,'node_modules'));
+  }
+  for(const packageName of ['main','utils','graph','lab']) {
     const from=path.join(sourceRoot,'packages',packageName,'dist');
     if(existsSync(from))cpSync(from,path.join(root,'packages',packageName,'dist'),{recursive:true});
   }
