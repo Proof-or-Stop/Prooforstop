@@ -3144,7 +3144,7 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"3a9d67cdc00fc68ca9f7a69565e8b7c532cc953c10d4b4a592d588fe02747c0f"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"e617c5209eaf981b79222da24ac7e173bc0a880939da440319b1cd4f0bfb4927"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "173b375e436424fae6b073aaf407e0e0b132250f0d0fc44c5387def8b3009027"
@@ -3223,7 +3223,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "e5ee2e2fb38624d4974f6b1828860e44e1da54614601dd5ea76c6ba64cbf9630"
+    "sha256": "e4abcb4f5c082cef757c220241e7d289494d53fc1d4d9a8d86cb3a54385f1c94"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3603,7 +3603,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"e5ee2e2fb38624d4974f6b1828860e44e1da54614601dd5ea76c6ba64cbf9630"],
+  [4,"e4abcb4f5c082cef757c220241e7d289494d53fc1d4d9a8d86cb3a54385f1c94"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -3639,7 +3639,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"3a9d67cdc00fc68ca9f7a69565e8b7c532cc953c10d4b4a592d588fe02747c0f"],
+  [52,"e617c5209eaf981b79222da24ac7e173bc0a880939da440319b1cd4f0bfb4927"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "cd475b21d75a6b06905ea5bbe6f1a3060cce148a795247149f2eaa18ff0e235c"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "bd6d1e9866901dc740f14f6b6710310d16387de4898d24b6d9b23c08630402db"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "1b403f077920d5ef986d2ecfe3e925af6b27d9f92d96bc5d331620f0c2c2c3e8"
+    "sha256": "04338bceb24f4c8e93a9f1888b37eb0d070d183542b2b0cd8613849fb3944921"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "fda7046354e28fd21a73ef17e2cf5227c44d7c12c474e3cab71dafb84b77f601"
+    "sha256": "6be055312960da02f6c15276238b0faded8fea26e67bd6f1697123ec90144d8c"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7647,7 +7647,14 @@ function verifyCurrentWitnessCoverage(root, files, expect) {
   const record = expect; let failed = false;
   expect = (condition, message) => { if (!condition) failed = true; record(condition, message); };
   const read = path => readFileSync(resolve(root, path), 'utf8');
-  const jsonRows = JSON.parse(read('scripts/identity-reviewed-json-data.json')).entries.slice(729);
+  const jsonEntries = JSON.parse(read('scripts/identity-reviewed-json-data.json')).entries;
+  const jsonRows = jsonEntries.slice(729, 774);
+  const incomingJsonRows = jsonEntries.slice(774);
+  expect(incomingJsonRows.length === 2 && incomingJsonRows.every((row, index) =>
+    row.path === 'docs/lab/memory-intake-measurement/u18-static-report.json' && row.jsonPointer === '/rows/187/reason' &&
+    row.token === [`${LEGACY_WORD}.js`, `${LEGACY_WORD}-codex`][index]),
+    'incoming witness coverage requires the two exact historical report contexts');
+  const allJsonRows = [...jsonRows, ...incomingJsonRows];
   const fixtureRows = JSON.parse(read('scripts/identity-reviewed-fixture-data.json')).entries.slice(268);
   const provenanceRows = CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.id.startsWith('current-witness-coverage-'));
   expect(jsonRows.length === 45 && fixtureRows.length === 4 && provenanceRows.length === 3,
@@ -7655,7 +7662,7 @@ function verifyCurrentWitnessCoverage(root, files, expect) {
   const scratch = mkdtempSync(join(tmpdir(), 'identity-current-witness-'));
   let controls = 0;
   try {
-    for (const row of jsonRows) {
+    for (const row of allJsonRows) {
       const text = read(row.path), parsed = JSON.parse(text);
       const keys = row.jsonPointer.slice(1).split('/').map(key => key.replaceAll('~1', '/').replaceAll('~0', '~'));
       const parent = keys.slice(0, -1).reduce((value, key) => value[key], parsed);
@@ -7709,7 +7716,7 @@ function verifyCurrentWitnessCoverage(root, files, expect) {
       mkdirSync(dirname(resolve(scratch, entrypoint)), {recursive:true});
       writeFileSync(resolve(scratch, entrypoint), read(entrypoint));
     }
-    const targets = [...new Set([...jsonRows, ...fixtureRows, ...provenanceRows].map(row => row.path))];
+    const targets = [...new Set([...allJsonRows, ...fixtureRows, ...provenanceRows].map(row => row.path))];
     for (const file of targets) {
       const destination = resolve(scratch, file);
       mkdirSync(dirname(destination), {recursive:true}); writeFileSync(destination, read(file));
@@ -7722,5 +7729,5 @@ function verifyCurrentWitnessCoverage(root, files, expect) {
       expect(scanActiveResidue(scratch, [neighbor]).length > 0, 'unlisted neighboring witness escaped actual scanner'); controls++;
     }
   } finally { rmSync(scratch, {recursive:true, force:true}); }
-  if (!failed) console.log(`PASS current witness consumers: ${jsonRows.length} JSON, ${fixtureRows.length} fixture, ${provenanceRows.length} provenance rows; ${controls} actual checks`);
+  if (!failed) console.log(`PASS current witness consumers: ${allJsonRows.length} JSON, ${fixtureRows.length} fixture, ${provenanceRows.length} provenance rows; ${controls} actual checks`);
 }

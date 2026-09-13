@@ -2734,9 +2734,9 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/playbook-runtime-baseline.ts","proof-or-stop.memory-playbook-baseline.gold.v1",1,"0a1c020a16091416b828ecdb8a8ab5af26aa00f15442602d3ff978744dbbcbb0"],
   ["packages/main/src/core/playbook-runtime-baseline.ts","proof-or-stop.memory-playbook-baseline.v1",1,"f89f69813c32cfb09b1e040a7cb9db191df371e42319aa94151d9302dc532d8f"],
   ["packages/main/src/core/playbook-runtime-baseline.ts","proof-or-stop.memory-playbook-optimized-parity.v1",1,"2fa656065a5488110f8e971d8c339849a9930d38816959ad1dea9cd1daf08f58"],
-  ["packages/main/src/core/playbook-runtime-memory-cache.ts","proof-or-stop.runtime-memory-pack-cache.v1",2,"ff0ecc73d1c840a0d10aebe48179c36563c3bebb92174530de7e30d910a6b488"],
+  ["packages/main/src/core/playbook-runtime-memory-cache.ts","proof-or-stop.runtime-memory-pack-cache.v2",2,"5748cbed7e78b0381574fba3df6fb322a2dbbf10fb01a564a08739e74b74b1c8"],
   ["packages/main/src/core/playbook-runtime-memory-index.ts","proof-or-stop.runtime-memory-index.v3",4,"b76d39882c63ff78d942b606c28030c8cc1d7ecf06216787b790bb00318c6e86"],
-  ["packages/main/src/core/playbook-runtime-memory.ts","proof-or-stop.memory-pack.v1",4,"6d13678d4c4bbc208e2c68230ef0c26f2d0d465139e18c2d2a5a04575e576507"],
+  ["packages/main/src/core/playbook-runtime-memory.ts","proof-or-stop.memory-pack.v1",5,"d103aec33749b5a7779ea34ed1918c469b3277927e57f321f2e4b47c5f98af08"],
   ["packages/main/src/core/playbook-seed.ts","proof-or-stop.evidence-activated-advisory-playbook.v1",1,"9f8c22db1e652c8d05fc5c974f6bc220335f9c6b87c68ac9466ea4fe8fa1a807"],
   ["packages/main/src/core/playbook-seed.ts","proof-or-stop.playbook-auto-activation.v1",1,"31cf22ff33884fcd903ba3a039bdbb00bbbb5d1c3530dea2b1b11c14d6280d70"],
   ["packages/main/src/core/playbook-seed.ts","proof-or-stop.playbook-auto-promotion-apply.v1",2,"783943db80856a71a799643b55c813a131f51819d50b31e5af383f29e28f138a"],
@@ -3017,23 +3017,23 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/playbook-runtime-baseline.ts",
-    "occurrences": 419,
-    "contextSha256": "a488f68315641e65b4270e5c7adb95b9116629e60a43ecb25ba4b031dc364c5d"
+    "occurrences": 420,
+    "contextSha256": "68b897e1e59afd15679929b4b0b24a10f59ef8485f21a2bc40bca2ca342512f7"
   },
   {
     "sourcePath": "packages/main/src/core/playbook-runtime-memory-cache.ts",
-    "occurrences": 59,
-    "contextSha256": "5e94ef91c82fd5073256f45e605348d0dc21d7beceec8b67b4433caeff08c03a"
+    "occurrences": 67,
+    "contextSha256": "b73da086525fb2d32ec95d2ee0ca184013b72e320e443ec2003a70c66d52d4e4"
   },
   {
     "sourcePath": "packages/main/src/core/playbook-runtime-memory-index.ts",
-    "occurrences": 71,
-    "contextSha256": "d6597e739588940729eb711e2854ad34a97ccb199879332dfe3695c5c69cd667"
+    "occurrences": 82,
+    "contextSha256": "6b811926042e86dd8312554d23f977b7aada9b85c05cc3fe4c9cdc5b350f7b0b"
   },
   {
     "sourcePath": "packages/main/src/core/playbook-runtime-memory.ts",
-    "occurrences": 89,
-    "contextSha256": "c5cb43c536b7a061dfb8baf8fc3496881ad66e27572f61c2c8331d653b1b39f6"
+    "occurrences": 124,
+    "contextSha256": "2bf680df4c10f9661cefd9b9d65d07c163ddbe18b080a4051b7605e1ca564340"
   },
   {
     "sourcePath": "packages/main/src/core/playbook-seed.ts",
@@ -3124,8 +3124,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 556,
-    "contextSha256": "51130b66b92538a1ee1513f45b2e7cd7033b039342a4b28792caa6da44fd3baa"
+    "occurrences": 562,
+    "contextSha256": "9ef53d92bdbb696bbb20e92cf48bb9a445ea14b9fcbf647d9875d6cb0b527b1c"
   }
 ];
 
@@ -3294,6 +3294,33 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 causal index central 
   assert.equal(movedContext.occurrences, causalPin.occurrences, 'comparison mutation preserves consumer count');
   assert.notEqual(movedContext.contextSha256, causalPin.contextSha256, 'comparison mutation changes exact consumer context');
   assert.throws(() => assertCausalConsumer(movedUse), /causal index imported consumer/, 'same-count changed consumer must remain refused');
+});
+
+await check(['identity-cutover', 'identity-sites'], 'F-060 memory v2 ownership retains exact consumer and mutation coverage', () => {
+  const sources = identityCutoverSourceMap();
+  assertOwnedIdentitySiteTotality(sources);
+  assertOwnedImportUseIntegrity(sources);
+  for (const [path, canonical, binding, property] of [
+    ['packages/main/src/core/playbook-runtime-memory-cache.ts', 'proof-or-stop.runtime-memory-pack-cache.v2', 'RUNTIME_MEMORY_PACK_CACHE_POLICY_VERSION', 'consumerPolicyVersion'],
+    ['packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.memory-pack.v1', 'SCHEMA_VERSION', 'schemaVersion'],
+  ]) {
+    const owner = ACTIVE_IDENTITY_OPERATION_BOUNDARIES.flatMap(row => row.identitySites).filter(row => row.sourcePath === path && row.canonical === canonical);
+    assert.equal(owner.length, 1, 'current memory identity must have one actual registry owner');
+    assert.equal(ACTIVE_IDENTITY_OPERATION_BOUNDARIES.flatMap(row => row.retiredIdentityCases).filter(row => row.siteId === owner[0].siteId).length, 1, 'current memory identity must retain its public-operation mutation case');
+    const pin = OWNED_IDENTITY_SITE_CONTEXTS.find(row => row.sourcePath === path && row.canonical === canonical);
+    const added = new Map(sources);
+    added.set(path, `${sources.get(path)}\nvoid ${binding};\n`);
+    assert.throws(() => assertOwnedIdentitySiteTotality(added), /owned identity use count changed/, 'additional memory identity use remains refused');
+    const original = `${property}: ${binding}`;
+    assert.ok(sources.get(path).includes(original), 'actual consumer property must exist');
+    const moved = new Map(sources);
+    moved.set(path, sources.get(path).replace(original, `${property}Changed: ${binding}`));
+    const observed = deriveOwnedIdentityLiterals(moved).find(row => row.sourcePath === path && row.canonical === canonical);
+    assert.equal(observed.occurrences, pin.occurrences, 'moved memory consumer retains original count');
+    assert.throws(() => assertOwnedIdentitySiteTotality(moved), /owned identity use context changed/, 'same-count memory consumer movement remains refused');
+    const omittedCase = ACTIVE_IDENTITY_OPERATION_BOUNDARIES.map(row => ({ ...row, retiredIdentityCases: row.retiredIdentityCases.filter(entry => entry.siteId !== owner[0].siteId) }));
+    assert.throws(() => assertOwnedIdentitySiteTotality(sources, omittedCase), /owned identity case missing/, 'current memory mutation case cannot be removed');
+  }
 });
 
 await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered-site omissions and new typed producers fail independently of registry agreement', async () => {
