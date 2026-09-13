@@ -27,3 +27,21 @@ coverage. The canonical process-fact verifier executes it, so it cannot disappea
 solely because a new test was omitted from the full-suite inventory.
 
 Lab evidence is local maintenance evidence, not Story DONE or release approval.
+
+## Follow-up: avoid a late publication-only recovery loop
+
+The follow-up Lab starts from local main 0.3.352. A successful size check over a
+mutable record could still be followed by an oversized write or a different
+commit digest. The final writer now exposes a side-effect-free preparation that
+serializes and bounds the exact bytes once. Its opaque, immutable token is bound
+to the originating StoryStore and Story ID. Executed and reused validation derive
+transaction hashes from that token and publish its stored string without
+re-reading the caller's object. No certification policy or phase transition is
+relaxed. Generic filesystem/commit failures and actual material drift retain
+existing refusal rules; this is not an automatic retry of the full suite.
+
+The isolated lifecycle witness runs the real validate CLI, earns an initial PASS,
+then exercises post-preparation mutation, explicit preparation refusal and an
+unchanged retry. It checks real publication, non-PASS refusal, preserved prior
+bytes, one project-command execution, and unchanged phase/review-round state.
+Synthetic admitted windows are test fixtures, not historical Story credentials.

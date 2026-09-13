@@ -22,6 +22,8 @@ execFileSync(process.execPath, ['experiments/acceptance-closure/regression.mjs']
   cwd: root, stdio: 'pipe', timeout: 60000,
 });
 
+execFileSync(process.execPath, ['experiments/acceptance-closure/publication-snapshot.mjs'], { cwd: root, stdio: 'pipe', timeout: 60000 });
+execFileSync(process.execPath, ['experiments/acceptance-closure/publication-lifecycle.mjs'], { cwd: root, stdio: 'pipe', encoding: 'utf8', timeout: 480000 });
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
@@ -4771,11 +4773,11 @@ function validationPersistenceTransactionIssues(verifierText) {
   const localContracts = [
     {
       functionName: 'reusedStoryValidationResult',
-      evidenceWriter: 'args.ctx.store.writeTestEvidence',
+      evidenceWriter: 'args.ctx.store.writePreparedTestEvidence',
     },
     {
       functionName: 'persistStoryValidationEvidence',
-      evidenceWriter: 'ctx.store.writeTestEvidence',
+      evidenceWriter: 'ctx.store.writePreparedTestEvidence',
     },
   ];
   for (const contract of localContracts) {
@@ -10265,7 +10267,7 @@ const inventory = [
           'runReviewCliGates',
           'proof-or-stop validate --json',
           'assertTestAdmissibleRoutineValidationWindow',
-          { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
+          { label: 'test-evidence writer call', absentRegex: /\.(?:writeTestEvidence|writePreparedTestEvidence)\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
           'PRE_CERT_ROUTINE_PASS_REQUIRED',
         ],
@@ -10629,7 +10631,7 @@ const inventory = [
           'proof-or-stop validate --json',
           'buildDoneChecklist',
           'assertTestAdmissibleRoutineValidationWindow',
-          { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
+          { label: 'test-evidence writer call', absentRegex: /\.(?:writeTestEvidence|writePreparedTestEvidence)\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
           'PRE_CERT_ROUTINE_PASS_REQUIRED',
         ],

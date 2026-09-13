@@ -537,7 +537,7 @@ function validationResult(
   const persistFrom = verifierSource.slice(verifierSource.indexOf('\nfunction persistStoryValidationEvidence('));
   const persistBody = persistFrom.slice(0, persistFrom.indexOf('\nfunction ', 1));
   assert.ok(persistBody.length > 0, 'persistStoryValidationEvidence was located in the shipped source');
-  const written = [...persistBody.matchAll(/writeTestEvidence\([^,]+,\s*([A-Za-z_$][\w$]*)\.record\s*\)/g)].map((match) => match[1]);
+  const written = [...persistBody.matchAll(/(?:writeTestEvidence|prepareTestEvidence)\([^,]+,\s*([A-Za-z_$][\w$]*)\.record\s*\)/g)].map((match) => match[1]);
   assert.ok(written.length > 0, 'the function writes evidence through a bound record');
   for (const name of written) {
     assert.ok(
