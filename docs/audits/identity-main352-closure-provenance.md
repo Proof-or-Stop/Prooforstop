@@ -35,7 +35,7 @@ The comparison can be reproduced from Git: read the source at d788 and b07, then
 
 ## Verification and audit boundaries
 
-The pinned command remains `node scripts/verify-reviewed-source-bindings.mjs`. At repair commit 2465c007, official GREEN passed in 35.381925708 seconds, measured from 2026-09-13 11:15:24.792956 UTC to 11:16:00.144028 UTC. That command covers the real source and fixture readers, scanner self-test using current schema inventory, static edges, and the actual route driver's bounded dependency closure. It does not claim full active-residue scanner success or execution of the native route suite.
+The pinned command remains `node scripts/verify-reviewed-source-bindings.mjs`. At repair commit 2465c007, official GREEN passed with a subprocess-monotonic elapsed duration of 35.381925708 seconds. The ledger separately recorded UTC timestamps of 2026-09-13 11:15:24.792956 and 11:16:00.144028. These are different clock measurements; subtracting the UTC timestamps does not reproduce the monotonic duration. That command covers the real source and fixture readers, scanner self-test using current schema inventory, static edges, and the actual route driver's bounded dependency closure. It does not claim full active-residue scanner success or execution of the native route suite.
 
 The earlier audit PASS in 449.065 seconds belongs only to candidate 22224fb2 and audit c26e3c07. Main changed before integration, so that PASS became historical. The later audit 0859d75d took 439.263 seconds and rejected documentation on candidate 8ec50844. Audit duration is nested within its finish command duration; the two must not be added as separate elapsed work. Neither audit establishes approval of this documentation repair or a future synchronized candidate.
 
