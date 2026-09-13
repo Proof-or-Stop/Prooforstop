@@ -1,36 +1,5 @@
 # Changelog
 
-## Lab story-tier-selector-authority - v0.3.353 - 2026-09-13
-
-Connect the canonical Story-relevance fast, intermediate, and repository-full
-selector to configured validation execution and TEST admission. Unconfigured
-projects remain off; this repository remains in observe rollout mode, so TEST
-retains its existing canonical/shared-reuse behavior until a separate current
-rollout record explicitly enables enforce-low-risk. Explicit full and
-DONE-phase validation remain canonical; the DONE gate may consume a current,
-signed, complete dynamic ledger produced earlier.
-
-The repair makes selector input ownership fail closed, re-runs the pure selector
-before child launch, unifies portable command identity, preserves signed legacy
-pin safety by widening full, and binds the raw catalog, graph-augmented impact
-index, changed paths, tier decision, and positive exclusion proofs into the
-signed manifest. TEST and DONE reconstruct those bindings against current
-repository inputs before accepting an omitted command.
-Dynamic Finding remains a scope constraint and cannot expand Story scope.
-
-Verification includes the pinned RED-to-GREEN planner command, planner/core and
-mutation smokes, a real signed stored-evidence TEST/DONE consumer matrix using
-focus, optional, and default-label command declarations, validation
-reuse regression coverage, process-fact contract verification, and independent
-Claude CLI audit. The bounded fixture demonstrates 2 configured commands become
-1 executed plus 1 positively proven exclusion, and an unchanged repeat executes
-0 commands; no repository-wide percentage claim is made until production
-receipts measure actual selected versus repository-full counts.
-
-Maintenance provenance: codex/lab-story-tier-selector-authority, repair 8c72ae3c7b8bd46fc935dcc9f21b9e8b21951dc9.
-Verification command (replayed before integration and on main): `["sh","-c","npm --prefix packages/main run build && node packages/main/dist/tasks/validation-tier-planner-smoke.js"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab route-reader-regression - v0.3.352 - 2026-09-13
 
 The four-gaps regression now checks the real registry-to-adapter reader composition while retaining projection consumption and the direct-import boundary. Seven live mutation cases cover both registry compositions, adapter-body substitution, route consumption, projection consumption, and alternate static/dynamic imports. The fixed historical callback illustrates former loose behavior; committed RED records remain the historical evidence, and no runtime Git-provenance claim is made.
