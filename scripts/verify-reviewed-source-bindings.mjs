@@ -41,7 +41,8 @@ for (const [index, row] of refreshedRows.entries()) {
       `reviewed context mutation must refuse: ${index}:${field}`);
   }
 }
-console.log('PASS reviewed context digest: six inherited rows retain token/count/classification/reason/line-hash sensitivity');
+console.log('PASS reviewed context digest: all six rows reject token/count/classification/reason/line-hash mutations');
+console.log('NOTE inherited six-row digest selector reports digest sensitivity; actual consumer refusals are tested separately below');
 // The source occurrence is the fourth argument (retired refusal needle) of
 // identitySite for the central causal index, paired with identityOrigin and the
 // following identityMutationCase; it is not the emitted schema value. Runtime
@@ -185,6 +186,7 @@ try {
     else { assert.equal(result.status, 1); assert.match(result.stderr, /inventory bytes changed/i); }
   }
 } finally { rmSync(scratch, { recursive: true, force: true }); }
+console.log('PASS source inventory byte integrity: original accepted, deleted and duplicate rows refused');
 console.log('PASS source inventory consumer: original accepted; deleted/duplicate rows and five causal-row protected-field mutations rejected by actual reader import');
 
 // Run the actual fixture consumer against every current pinned target. Import
