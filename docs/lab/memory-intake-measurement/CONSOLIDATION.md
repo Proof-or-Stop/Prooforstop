@@ -26,6 +26,10 @@ The same Lab now includes bounded workspace discovery, baseline probe and tree-f
 
 The second-cycle pinned command was `node scripts/lab/verify-intake-round-two.mjs`. It requires absolute workspace-health success, early Memory-hit construction controls, and the prior consolidated/history controls. The former 38/40 baseline is now 40/40. See [second-round results](round-two/REPORT.md) for current scope, RED provenance, measurements and cache boundaries. All earlier records remain bound to their historical candidates.
 
-## Current third repair cycle
+## Third repair cycle
 
-The current pinned command is `node scripts/lab/verify-intake-round-three.mjs`. It adds operation-scoped learning-root reuse and boundary checks, then reruns the full second-cycle wrapper. See [third-round results](round-three/REPORT.md) for cold/warm before-after data, preserved overflow fallback behavior, selected live sampling and the unchanged remaining hash-call breakdown. All changes remain in this same Lab.
+The third-cycle pinned command was `node scripts/lab/verify-intake-round-three.mjs`. It adds operation-scoped learning-root reuse and boundary checks, then reruns the full second-cycle wrapper. See [third-round results](round-three/REPORT.md) for cold/warm before-after data, preserved overflow fallback behavior, selected live sampling and the unchanged remaining hash-call breakdown. All changes remain in this same Lab.
+
+## Current fourth repair cycle
+
+The current pinned command is `node scripts/lab/verify-intake-round-four.mjs`. It covers candidate observation reuse, consistent batch snapshots and byte-bound persisted-index validation, then the complete prior wrapper. See [fourth-round results](round-four/REPORT.md) for final ABBA data, controls and RED/GREEN/Claude audit provenance. All repairs remain in the same Lab.

@@ -1,0 +1,851 @@
+{
+  "baseline": "446351148f22d87aec0cbcbbd56480c9731c9428",
+  "candidate": "8429c09eb3d2d84a06a04b3e3c3e27b31fd0d05b",
+  "binding": {
+    "schema": "proof-or-stop.main-build-binding.v1",
+    "sourceDigest": "39ea05c3e1a54e79f5b409cd3806d7b7fcdd432d5851cdba5b9ebab27db60bb1",
+    "distDigest": "9c3ae57b243766558257c093f7929e40cabb7a7151448734aac8a1deca622033"
+  },
+  "scenarios": {
+    "single": [
+      {
+        "arm": "before",
+        "scenario": "single",
+        "records": 5000,
+        "modules": [
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory.ts",
+            "sha256": "28c730f01d8591070d32010a55f91777522e89e204db1b12889f5d0e86afdbb1"
+          },
+          {
+            "path": "packages/main/src/core/learning-store.ts",
+            "sha256": "b924654bcac8137f11866d7cfca6099e85e4eb18fdfc83a4a131c39f36cc05c5"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+            "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+            "sha256": "58d8bfdd00b38af7fef918bf6c765cf49ed319c07a33533c4431d9e8135a2607"
+          }
+        ],
+        "cold": {
+          "times": [
+            102.26845800000001
+          ],
+          "counts": {
+            "buildRuntimeMemoryIndex": 1,
+            "selectRuntimeMemoryIndexCandidates": 2
+          },
+          "git": 2,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 6,
+            "exactFastPathHits": 2,
+            "exactOverflowFallbacks": 2,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 2,
+            "tokenMapScannedEntries": 10000,
+            "devMemoryCandidateIds": 400,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f"
+          ]
+        },
+        "warm": {
+          "times": [
+            28.436583999999925,
+            29.25249999999994,
+            28.520834000000036,
+            31.455542000000037,
+            27.778458999999998
+          ],
+          "counts": {},
+          "git": 10,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f"
+          ]
+        }
+      },
+      {
+        "arm": "after",
+        "scenario": "single",
+        "records": 5000,
+        "modules": [],
+        "cold": {
+          "times": [
+            99.11879199999998
+          ],
+          "counts": {
+            "buildRuntimeMemoryIndex": 1,
+            "selectRuntimeMemoryIndexCandidates": 1
+          },
+          "git": 2,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 3,
+            "exactFastPathHits": 1,
+            "exactOverflowFallbacks": 1,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 1,
+            "tokenMapScannedEntries": 5000,
+            "devMemoryCandidateIds": 200,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f"
+          ]
+        },
+        "warm": {
+          "times": [
+            33.44679100000002,
+            27.34058299999998,
+            53.60304099999996,
+            46.0730420000001,
+            44.06620799999996
+          ],
+          "counts": {},
+          "git": 10,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f"
+          ]
+        }
+      },
+      {
+        "arm": "after",
+        "scenario": "single",
+        "records": 5000,
+        "modules": [],
+        "cold": {
+          "times": [
+            88.88649999999996
+          ],
+          "counts": {
+            "buildRuntimeMemoryIndex": 1,
+            "selectRuntimeMemoryIndexCandidates": 1
+          },
+          "git": 2,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 3,
+            "exactFastPathHits": 1,
+            "exactOverflowFallbacks": 1,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 1,
+            "tokenMapScannedEntries": 5000,
+            "devMemoryCandidateIds": 200,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f"
+          ]
+        },
+        "warm": {
+          "times": [
+            26.395582999999988,
+            26.62579199999999,
+            25.071249999999964,
+            26.64179200000001,
+            25.57733399999995
+          ],
+          "counts": {},
+          "git": 10,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f"
+          ]
+        }
+      },
+      {
+        "arm": "before",
+        "scenario": "single",
+        "records": 5000,
+        "modules": [
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory.ts",
+            "sha256": "28c730f01d8591070d32010a55f91777522e89e204db1b12889f5d0e86afdbb1"
+          },
+          {
+            "path": "packages/main/src/core/learning-store.ts",
+            "sha256": "b924654bcac8137f11866d7cfca6099e85e4eb18fdfc83a4a131c39f36cc05c5"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+            "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+            "sha256": "58d8bfdd00b38af7fef918bf6c765cf49ed319c07a33533c4431d9e8135a2607"
+          }
+        ],
+        "cold": {
+          "times": [
+            90.35229199999998
+          ],
+          "counts": {
+            "buildRuntimeMemoryIndex": 1,
+            "selectRuntimeMemoryIndexCandidates": 2
+          },
+          "git": 2,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 6,
+            "exactFastPathHits": 2,
+            "exactOverflowFallbacks": 2,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 2,
+            "tokenMapScannedEntries": 10000,
+            "devMemoryCandidateIds": 400,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f"
+          ]
+        },
+        "warm": {
+          "times": [
+            28.404750000000035,
+            32.925749999999994,
+            30.576625000000035,
+            31.759208000000058,
+            41.50400000000002
+          ],
+          "counts": {},
+          "git": 10,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f",
+            "fe7ffb052c37850e96f1fc37950b0e649c1ea98be685d50d240aaec9180af85f"
+          ]
+        }
+      }
+    ],
+    "batch": [
+      {
+        "arm": "before",
+        "scenario": "batch",
+        "records": 5000,
+        "modules": [
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory.ts",
+            "sha256": "28c730f01d8591070d32010a55f91777522e89e204db1b12889f5d0e86afdbb1"
+          },
+          {
+            "path": "packages/main/src/core/learning-store.ts",
+            "sha256": "b924654bcac8137f11866d7cfca6099e85e4eb18fdfc83a4a131c39f36cc05c5"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+            "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+            "sha256": "58d8bfdd00b38af7fef918bf6c765cf49ed319c07a33533c4431d9e8135a2607"
+          }
+        ],
+        "cold": {
+          "times": [
+            441.96450000000004
+          ],
+          "counts": {
+            "selectRuntimeMemoryIndexCandidates": 20
+          },
+          "git": 24,
+          "reads": 21,
+          "candidates": {
+            "queryTokenCount": 60,
+            "exactFastPathHits": 20,
+            "exactOverflowFallbacks": 20,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 20,
+            "tokenMapScannedEntries": 100000,
+            "devMemoryCandidateIds": 4000,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225"
+          ]
+        },
+        "warm": {
+          "times": [
+            52.778749999999945,
+            47.963875000000144,
+            53.63012499999991,
+            58.30362500000001,
+            54.20112500000005
+          ],
+          "counts": {},
+          "git": 20,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225"
+          ]
+        }
+      },
+      {
+        "arm": "after",
+        "scenario": "batch",
+        "records": 5000,
+        "modules": [],
+        "cold": {
+          "times": [
+            106.28554199999996
+          ],
+          "counts": {
+            "selectRuntimeMemoryIndexCandidates": 10
+          },
+          "git": 2,
+          "reads": 1,
+          "candidates": {
+            "queryTokenCount": 30,
+            "exactFastPathHits": 10,
+            "exactOverflowFallbacks": 10,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 10,
+            "tokenMapScannedEntries": 50000,
+            "devMemoryCandidateIds": 2000,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225"
+          ]
+        },
+        "warm": {
+          "times": [
+            25.209041999999954,
+            29.776042000000075,
+            27.129249999999956,
+            27.22441600000002,
+            29.416416000000027
+          ],
+          "counts": {},
+          "git": 10,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225"
+          ]
+        }
+      },
+      {
+        "arm": "after",
+        "scenario": "batch",
+        "records": 5000,
+        "modules": [],
+        "cold": {
+          "times": [
+            109.38491600000003
+          ],
+          "counts": {
+            "selectRuntimeMemoryIndexCandidates": 10
+          },
+          "git": 2,
+          "reads": 1,
+          "candidates": {
+            "queryTokenCount": 30,
+            "exactFastPathHits": 10,
+            "exactOverflowFallbacks": 10,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 10,
+            "tokenMapScannedEntries": 50000,
+            "devMemoryCandidateIds": 2000,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225"
+          ]
+        },
+        "warm": {
+          "times": [
+            26.93912499999999,
+            27.11616700000002,
+            26.18175000000008,
+            25.73745800000006,
+            27.978624999999965
+          ],
+          "counts": {},
+          "git": 10,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225"
+          ]
+        }
+      },
+      {
+        "arm": "before",
+        "scenario": "batch",
+        "records": 5000,
+        "modules": [
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory.ts",
+            "sha256": "28c730f01d8591070d32010a55f91777522e89e204db1b12889f5d0e86afdbb1"
+          },
+          {
+            "path": "packages/main/src/core/learning-store.ts",
+            "sha256": "b924654bcac8137f11866d7cfca6099e85e4eb18fdfc83a4a131c39f36cc05c5"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+            "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+            "sha256": "58d8bfdd00b38af7fef918bf6c765cf49ed319c07a33533c4431d9e8135a2607"
+          }
+        ],
+        "cold": {
+          "times": [
+            447.3163750000001
+          ],
+          "counts": {
+            "selectRuntimeMemoryIndexCandidates": 20
+          },
+          "git": 24,
+          "reads": 21,
+          "candidates": {
+            "queryTokenCount": 60,
+            "exactFastPathHits": 20,
+            "exactOverflowFallbacks": 20,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 20,
+            "tokenMapScannedEntries": 100000,
+            "devMemoryCandidateIds": 4000,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225"
+          ]
+        },
+        "warm": {
+          "times": [
+            43.73320899999999,
+            45.74324999999999,
+            49.23595799999998,
+            47.932583999999906,
+            44.45983299999989
+          ],
+          "counts": {},
+          "git": 20,
+          "reads": 5,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225",
+            "d8362ff6cd345b769764965184de182e54c464e1704ee6d1abbad6dad8c01225"
+          ]
+        }
+      }
+    ],
+    "persisted": [
+      {
+        "arm": "before",
+        "scenario": "persisted",
+        "records": 20000,
+        "modules": [
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory.ts",
+            "sha256": "28c730f01d8591070d32010a55f91777522e89e204db1b12889f5d0e86afdbb1"
+          },
+          {
+            "path": "packages/main/src/core/learning-store.ts",
+            "sha256": "b924654bcac8137f11866d7cfca6099e85e4eb18fdfc83a4a131c39f36cc05c5"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+            "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+            "sha256": "58d8bfdd00b38af7fef918bf6c765cf49ed319c07a33533c4431d9e8135a2607"
+          }
+        ],
+        "cold": {
+          "times": [
+            160.35804100000007
+          ],
+          "counts": {
+            "validateRuntimeMemoryIndex": 1,
+            "selectRuntimeMemoryIndexCandidates": 2
+          },
+          "git": 2,
+          "reads": 4,
+          "candidates": {
+            "queryTokenCount": 6,
+            "exactFastPathHits": 2,
+            "exactOverflowFallbacks": 2,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 2,
+            "tokenMapScannedEntries": 40000,
+            "devMemoryCandidateIds": 400,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb"
+          ]
+        },
+        "warm": {
+          "times": [
+            108.02908400000001,
+            100.60145899999998,
+            110.25125000000003,
+            107.33795899999996,
+            106.12783300000001
+          ],
+          "counts": {
+            "validateRuntimeMemoryIndex": 5
+          },
+          "git": 10,
+          "reads": 10,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb"
+          ]
+        }
+      },
+      {
+        "arm": "after",
+        "scenario": "persisted",
+        "records": 20000,
+        "modules": [],
+        "cold": {
+          "times": [
+            159.40887499999997
+          ],
+          "counts": {
+            "validateRuntimeMemoryIndex": 1,
+            "selectRuntimeMemoryIndexCandidates": 1
+          },
+          "git": 2,
+          "reads": 4,
+          "candidates": {
+            "queryTokenCount": 3,
+            "exactFastPathHits": 1,
+            "exactOverflowFallbacks": 1,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 1,
+            "tokenMapScannedEntries": 20000,
+            "devMemoryCandidateIds": 200,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb"
+          ]
+        },
+        "warm": {
+          "times": [
+            57.74041700000009,
+            57.53233399999999,
+            57.00045900000009,
+            57.908833000000186,
+            56.653749999999945
+          ],
+          "counts": {},
+          "git": 10,
+          "reads": 10,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb"
+          ]
+        }
+      },
+      {
+        "arm": "after",
+        "scenario": "persisted",
+        "records": 20000,
+        "modules": [],
+        "cold": {
+          "times": [
+            139.13195800000005
+          ],
+          "counts": {
+            "validateRuntimeMemoryIndex": 1,
+            "selectRuntimeMemoryIndexCandidates": 1
+          },
+          "git": 2,
+          "reads": 4,
+          "candidates": {
+            "queryTokenCount": 3,
+            "exactFastPathHits": 1,
+            "exactOverflowFallbacks": 1,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 1,
+            "tokenMapScannedEntries": 20000,
+            "devMemoryCandidateIds": 200,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb"
+          ]
+        },
+        "warm": {
+          "times": [
+            52.89404200000001,
+            52.377374999999915,
+            52.87520800000016,
+            48.65508399999999,
+            50.190041000000065
+          ],
+          "counts": {},
+          "git": 10,
+          "reads": 10,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb"
+          ]
+        }
+      },
+      {
+        "arm": "before",
+        "scenario": "persisted",
+        "records": 20000,
+        "modules": [
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory.ts",
+            "sha256": "28c730f01d8591070d32010a55f91777522e89e204db1b12889f5d0e86afdbb1"
+          },
+          {
+            "path": "packages/main/src/core/learning-store.ts",
+            "sha256": "b924654bcac8137f11866d7cfca6099e85e4eb18fdfc83a4a131c39f36cc05c5"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-index.ts",
+            "sha256": "4231e3b43a2c13e081454fce485d3a57bd835615e15597760180b9f47cb405b3"
+          },
+          {
+            "path": "packages/main/src/core/playbook-runtime-memory-cache.ts",
+            "sha256": "58d8bfdd00b38af7fef918bf6c765cf49ed319c07a33533c4431d9e8135a2607"
+          }
+        ],
+        "cold": {
+          "times": [
+            159.0785830000001
+          ],
+          "counts": {
+            "validateRuntimeMemoryIndex": 1,
+            "selectRuntimeMemoryIndexCandidates": 2
+          },
+          "git": 2,
+          "reads": 4,
+          "candidates": {
+            "queryTokenCount": 6,
+            "exactFastPathHits": 2,
+            "exactOverflowFallbacks": 2,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 2,
+            "tokenMapScannedEntries": 40000,
+            "devMemoryCandidateIds": 400,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb"
+          ]
+        },
+        "warm": {
+          "times": [
+            98.65124999999989,
+            101.16983300000015,
+            97.23987499999998,
+            104.08020799999986,
+            104.99758399999996
+          ],
+          "counts": {
+            "validateRuntimeMemoryIndex": 5
+          },
+          "git": 10,
+          "reads": 10,
+          "candidates": {
+            "queryTokenCount": 0,
+            "exactFastPathHits": 0,
+            "exactOverflowFallbacks": 0,
+            "fuzzyIndexHits": 0,
+            "fuzzyFallbacks": 0,
+            "tokenScanFallbacks": 0,
+            "tokenMapScannedEntries": 0,
+            "devMemoryCandidateIds": 0,
+            "playbookCandidateIds": 0
+          },
+          "digests": [
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb",
+            "e7fd02591391262f78f08a6bdeab43b33fced2f59be2424890fa7c8ee86290cb"
+          ]
+        }
+      }
+    ]
+  }
+}
