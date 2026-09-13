@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const storyReview = await import('../packages/main/dist/handlers/story-review.js');
+const { REVIEWER_LANE_NAMES } = await import('../packages/main/dist/core/reviewer-lane-names.js');
 const { StoryStore } = await import('../packages/main/dist/core/store.js');
 const { acquireOwnerLease, resetSessionIdForTest } = await import('../packages/main/dist/core/story-owner-lease.js');
 const { acceptanceIntentHash } = await import('../packages/main/dist/core/verification-intent-amendment.js');
@@ -37,12 +38,19 @@ for (const lifecycleVerdict of [
   'The quality reviewer records a pass verdict.',
   'Independent review has no open findings.',
   'The independent review is approved.',
-  'Peer review signs off with no defects.',
+  'Peer-review signs off with no defects.',
   'Code review completes with zero defects.',
 ]) {
   assert.ok(
     classify({ desc: lifecycleVerdict, type: 'manual', priority: 'must' }),
     `REVIEW_GATE_INTENT_CYCLE: common REVIEW verdict wording must be rejected: ${lifecycleVerdict}`,
+  );
+}
+
+for (const lane of REVIEWER_LANE_NAMES) {
+  assert.ok(
+    classify({ desc: `The ${lane} review is approved with no open findings.`, type: 'manual', priority: 'must' }),
+    `REVIEW_GATE_INTENT_CYCLE: registered reviewer lane wording must be rejected: ${lane}`,
   );
 }
 
@@ -89,6 +97,7 @@ const handlerSource = readFileSync(new URL('../packages/main/src/handlers/story-
 const classifierSource = readFileSync(new URL('../packages/main/src/core/review-gate-verification-intent.ts', import.meta.url), 'utf8');
 const registrySource = readFileSync(new URL('../packages/main/src/core/process-fact-registry.ts', import.meta.url), 'utf8');
 const machineSource = readFileSync(new URL('../packages/main/src/core/machine.ts', import.meta.url), 'utf8');
+const reviewerOptInSource = readFileSync(new URL('../packages/main/src/core/reviewer-opt-in.ts', import.meta.url), 'utf8');
 assert.match(
   handlerSource,
   /reviewGateVerificationIntentIssue\(intent\)/,
@@ -98,6 +107,11 @@ assert.ok(
   classifierSource.includes('review_\\w+|finding_\\w+|story_advance|story_get|lifecycle_check|reviewer_list')
     && registrySource.includes('review_* or finding_* commands plus story_advance, story_get, lifecycle_check, and reviewer_list'),
   'REVIEW_GATE_INTENT_CYCLE: the declared caller-pin boundary must stay aligned with the lifecycle command classifier',
+);
+assert.ok(
+  classifierSource.includes("import { REVIEWER_LANE_NAMES } from './reviewer-lane-names.js'")
+    && reviewerOptInSource.includes("import { REVIEWER_LANE_NAMES } from './reviewer-lane-names.js'"),
+  'REVIEW_GATE_INTENT_CYCLE: lifecycle wording and reviewer routing must consume one registered lane vocabulary',
 );
 assert.ok(
   machineSource.includes('(lastRound.blockerCount ?? lastRound.issueCount) !== 0'),

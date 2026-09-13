@@ -1,10 +1,22 @@
 import type { VerificationIntent, VerificationIntentItem, VerificationLane } from './types.js';
+import { REVIEWER_LANE_NAMES } from './reviewer-lane-names.js';
 
 export type ReviewGateVerificationIntentIssue = {
   type: 'review_gate_as_verification_intent';
   severity: 'blocker';
   message: string;
 };
+
+const reviewSubjectNames = [
+  ...REVIEWER_LANE_NAMES,
+  'independent',
+  'external',
+  'peer',
+  'code',
+  'security',
+].map((name) => name.replaceAll('-', '[-\\s]+')).join('|');
+const namedReviewSubject = new RegExp(`\\b(?:${reviewSubjectNames})[-\\s]+review(?:s|ers?)?\\b`);
+const namedReviewPass = new RegExp(`\\b(?:${reviewSubjectNames})[-\\s]+reviews?\\s+pass(?:es|ed)?\\b`);
 
 /**
  * REVIEW outcomes are lifecycle evidence, not acceptance evidence. Requiring a
@@ -25,9 +37,9 @@ export function reviewGateVerificationIntentIssue(intent: VerificationIntentItem
   const productCommandSubject = executableType
     && /^(?:the\s+)?(?:review_pass_set|finding_add)(?:\s+command)?\b/.test(text);
   if ((executablePin && !reviewLifecycleCommandPin) || productCommandSubject) return null;
-  const lifecycleReviewSubject = /\b(?:independent|external|peer|code|quality|security|test(?:[- ]coverage)?)\s+review(?:s|ers?)?\b|\breviewers?\s+(?:run|lane|pass|verdict|finding|record|report)|\breview\s+(?:runs?|lanes?|pass|verdict)\b|\breview_(?:run_start|pass_set)\b|\bfinding_add\b/.test(text);
+  const lifecycleReviewSubject = namedReviewSubject.test(text) || /\breviewers?\s+(?:run|lane|pass|verdict|finding|record|report)|\breview\s+(?:runs?|lanes?|pass|verdict)\b|\breview_(?:run_start|pass_set)\b|\bfinding_add\b/.test(text);
   const noOpenReviewProblems = /\b(?:no|zero|without)\s+(?:(?:unresolved|open|outstanding|remaining)\s+)?(?:(?:critical|high)(?:\s+or\s+(?:critical|high))?\s+)?(?:blocking\s+)?(?:findings?|blockers?|issues?|defects?)\b/.test(text);
-  const formalReviewVerdict = /\b(?:pass|approve(?:d|s)?|approval)\s+verdict\b|\b(?:records?|reports?|produces?|returns?|has|gets?|receives?)\s+(?:a\s+)?(?:pass|approved|approval|verdict)\b|\b(?:is|are|was|were)\s+(?:approved|passed|green|clean)\b|\bsign(?:s|ed)?[- ]off\b|\breview\s+(?:runs?|lanes?)\s+pass(?:es|ed)?\b|\b(?:independent|external|peer|code|quality|security|test(?:[- ]coverage)?)\s+reviews?\s+pass(?:es|ed)?\b/.test(text);
+  const formalReviewVerdict = namedReviewPass.test(text) || /\b(?:pass|approve(?:d|s)?|approval)\s+verdict\b|\b(?:records?|reports?|produces?|returns?|has|gets?|receives?)\s+(?:a\s+)?(?:pass|approved|approval|verdict)\b|\b(?:is|are|was|were)\s+(?:approved|passed|green|clean)\b|\bsign(?:s|ed)?[- ]off\b|\breview\s+(?:runs?|lanes?)\s+pass(?:es|ed)?\b/.test(text);
   if (!lifecycleReviewSubject || (!noOpenReviewProblems && !formalReviewVerdict)) return null;
   return {
     type: 'review_gate_as_verification_intent',
