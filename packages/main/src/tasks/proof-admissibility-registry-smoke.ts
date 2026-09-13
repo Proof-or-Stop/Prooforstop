@@ -209,7 +209,7 @@ function main(): void {
       { name: 'storyFiles', replacements: [['runBinding.reviewBinding.storyFilesHash === args.expected.storyFilesHash', 'true']] },
       { name: 'prompt', replacements: [['runBinding.reviewBinding.promptHash === args.expected.promptHash', 'true']] },
       { name: 'envelope', replacements: [['runBinding.reviewBinding.envelopeId === args.expected.envelopeId', 'true']] },
-      { name: 'managedPrompt', replacements: [['args.binding.managedPromptDigest === expectedManagedPromptDigest', 'true']] },
+      { name: 'managedPrompt', replacements: [['isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest, args.binding.managedPromptDigest, runBinding.promptDigest)', 'true']] },
     ];
     for (const mutant of bindingMutants) {
       executeMutation({
