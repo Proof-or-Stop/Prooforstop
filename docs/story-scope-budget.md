@@ -60,6 +60,35 @@ For a pending DEV amendment, pass its `--amendmentId` to both check and approval
 Obtain scope approval before independent amendment review; the decision does not
 replace that review. Read projections never create authority.
 
+An exact-match miss may retain the original signed acknowledgement for the current
+applied scope when `approvalContinuity` proves a narrow bookkeeping-only change.
+The original signature and expiry remain unchanged. This path reconstructs both
+original digests from an authenticated `APPROVED` amendment and its published
+configuration in bounded first-parent Git history. Requirements, scope restrictions,
+topology, policy, counts and responsibility identities must remain equal.
+Only authentic first-pin insertion and additive validation registration qualify.
+Original commands remain an exact ordered subsequence; explicit fields and stable
+identities remain exact, and every scope-group reference must still resolve uniquely
+to the same command. Generated positional labels may shift. New duplicate execution
+tuples are refused. A retained first pin must have been executed for the approved
+requirement meaning, and its selected first-parent publication chain may contain
+no pin disappearance or replacement. This does not inspect every side branch.
+
+Compatibility is read-only and applies neither to a proposed `next`/`base` subject
+nor to decomposition. Missing history, invalid signatures, expired authority,
+changed live inputs or exhausted registered proof limits return no compatibility.
+It preserves no validation selection, command-set digest, cached execution evidence
+or freshness. Current verification, independent review and all other gates remain
+required; never request another terminal acknowledgement merely to repair a proven
+bookkeeping-only mismatch that this reader can authenticate.
+
+Each top-level continuity attempt considers at most 256 first-parent publications per input file, with
+776 reader-owned Git commands, 32 MiB aggregate Git output, 4 MiB per command,
+and a 15-second aggregate proof budget. These are independent limits, not a
+promise that every maximum-size history can be proven within the time/byte cap.
+`approvalContinuityRefusal` distinguishes a reached limit, unavailable proof,
+or unproven equivalence. It is diagnostic only and never authorizes scope.
+
 Declared decomposition uses existing `milestone_ledger_set`, `slice_plan_set` and
 `parent_ledger_rollup_set` artifacts. Create the child Stories through the normal
 CLI, assign every parent milestone to exactly one child in all three artifacts,
@@ -92,3 +121,38 @@ guards, all seven dimensions, unknown inputs, unchanged read projections, actual
 additive derivation, and a managed review whose approval is rejected before any
 over-budget acceptance write. The existing parallel decomposition integration
 smoke checks compatibility of valid projects without the new policy.
+
+`npm run test:scope-approval-continuity` executes the actual continuity reader,
+signed disposable approval fixtures, genuine V5 first-pin executions and negative
+historical-authority controls. It is registered in the canonical serial-reference
+chain and full-suite resource policy; Lab verification alone is not its ongoing
+regression coverage.
+
+Continuity is attempted only for the top-level report, never recursively for decomposition children. Approval issuance computes its exact current report under the existing mutation lock with continuity disabled. Each separate read revalidates its bounded proof; there is no persistent grant cache. `live_input_changed` identifies a successful reconstruction invalidated by the final live-input check, and a per-command output overflow reports `byte_limit`.
+
+Observe-mode reports skip continuity because they cannot block a transition.
+In enforce mode each top-level read, including each state-machine guard read,
+can spend up to 15 seconds on reconstruction. No cross-read cache is used:
+final live approval, amendment, subject and expiry checks remain independent.
+The 776-command counter is a defensive ceiling above the current structural
+maximum of 773 commands (three identity reads, two histories, and at most three
+256-blob inventories). It is not an independently tighter search limit.
+Regression fixtures lower the in-memory counter solely to exercise its refusal
+branch; production policy is unchanged. Aggregate byte exhaustion is tested
+across multiple individually admissible outputs.
+
+
+Refusal diagnostics describe the terminal reconstruction outcome. ENOBUFS means
+byte_limit; an ETIMEDOUT that exhausts the total deadline means time_limit.
+Other Git errors remain proof_unavailable even if time also elapsed. Empty
+history is remembered during the search and reported only if no candidate
+succeeds; a successful reconstruction carries no refusal field.
+
+The canonical continuity member is test:scope-approval-continuity. Two separate
+focused scripts cover the underlying subsystem: scripts/verify-story-scope-budget.mjs
+checks policy and scope evaluation, while scripts/verify-scope-budget-approval.mjs
+checks issuance, interactive-channel refusal, exact binding, tamper and expiry.
+Their positive budget assertions consume readStoryScopeBudget and
+storyScopeBudgetBlocker, because satisfying the budget alone does not satisfy
+unrelated DEV ownership, memory, ProofStory and evidence gates. Negative DEV
+integration checks and the process-fact guard wiring contract remain in place.
