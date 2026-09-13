@@ -23,7 +23,8 @@ not implementation work and not execution evidence.
   choose a supported type such as `cli`, `browser`, `logic`, `manual`, or
   `docs`.
 - Do not encode REVIEW lifecycle results from `review_pass_set` or `finding_add`
-  as `verificationIntent`; those facts are produced only after entering REVIEW.
+  as `verificationIntent`. Reviewers produce those facts only after DEV enters
+  REVIEW, so requiring them as pre-REVIEW evidence creates a phase cycle.
 - Write only the `verificationIntent` field through `checklist_update`:
 
   ```bash
