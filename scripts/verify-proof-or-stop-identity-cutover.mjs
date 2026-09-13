@@ -3144,7 +3144,7 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"b31893636f9bc8b1861e3490d7235ab6e562d5f40a509bf848809cd6c4f2da37"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"3a9d67cdc00fc68ca9f7a69565e8b7c532cc953c10d4b4a592d588fe02747c0f"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "173b375e436424fae6b073aaf407e0e0b132250f0d0fc44c5387def8b3009027"
@@ -3223,7 +3223,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "11141f05f9d7259b1de944e16293fd5d4916f1657aa8853c6f0ff802f9e0e70f"
+    "sha256": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "ab59edf1bbb7031e4ae31b0539a3b399d4ddf807ab33b3ff249ef3b568476923"
+    "sha256": "c4486554d092dbeece2a0b461eccf2e8c6e44f625a60d524076082d8fe7cd9ba"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "956c39de49d52fbaacab6b62e7e54dc8080c31c7709fa4096e8dff70e018fd7a"
+    "sha256": "7bee4a0fe6b4551a694f81af5ae115b33d1293e8bd5f12558a58a924a8910b47"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3603,7 +3603,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"11141f05f9d7259b1de944e16293fd5d4916f1657aa8853c6f0ff802f9e0e70f"],
+  [4,"14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -3639,7 +3639,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"b31893636f9bc8b1861e3490d7235ab6e562d5f40a509bf848809cd6c4f2da37"],
+  [52,"3a9d67cdc00fc68ca9f7a69565e8b7c532cc953c10d4b4a592d588fe02747c0f"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -5519,7 +5519,7 @@ const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "token": "lattice.dispatch_policy.v1",
     "count": 1,
     "contextSha256": "e5acecb0da24537d83bbf8212164e6ff87af6b3c8e7b7d2af93dccc1bfd75e94"
-  }
+  },{path:"scripts/verify-review-epoch-certification-continuity.mjs",token:retiredToken("lat","tice.managed_review_final_proposal.v1"),count:1,contextSha256:"85bbf1a3e793dbe83d6c7bd9c06c1ab7d4246445140a1e76295bff681c502165"}
 ];
 // Exact imported rejection fixtures, independently reviewed with canonical controls.
 // These pins exempt only schema occurrences, never their files or other identities.
@@ -7402,7 +7402,7 @@ function verifySchemaInventory(root, schemas) {
   for (const pin of MAINTENANCE_SCHEMA_WITNESSES) if (sha256(readFileSync(resolve(root, pin.path))) !== pin.sha256) errors.push(`archived candidate source witness changed: ${pin.path}`);
   const originalRows = schemas.filter(row => !negativeKeys.has(key(row)) && !mutationKeys.has(key(row)) && !maintainedKeys.has(key(row)));
   const expected = new Map(CURRENT_COMPATIBLE_SCHEMA_ROWS.map(row => [key(row), row]));
-  if (expected.size !== CURRENT_COMPATIBLE_SCHEMA_ROWS.length || expected.size !== 89) errors.push('current compatibility schema inventory duplicated or incomplete');
+  if (expected.size !== CURRENT_COMPATIBLE_SCHEMA_ROWS.length || expected.size !== 90) errors.push('current compatibility schema inventory duplicated or incomplete');
   const actual = new Map();
   for (const row of originalRows) {
     const id = key(row), pin = expected.get(id);
@@ -7415,14 +7415,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "1e8ea043af3deb91da1e13a32316639fca1d8f8805dcd4ce62eb018e1ac3ae24"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "552b459f926ff4b12cc52540c1f5726ab6f33d1f767c32e3a94ab5abd9693087"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "bb90e39f0024e9880f8f369eb4e9d62e9c9ffeb48a05ce768f63ba5a58374d77"
+    "sha256": "afae82e5f51f3253966239eb9c1177f1430f858f0550dc2ee04ee9404aa56595"
   }
 ];
 function verifyReviewedContextReaders(root) {
