@@ -52,6 +52,14 @@ function groupGone(pgid: number): boolean {
   if (!Number.isSafeInteger(pgid) || pgid <= 1) return false;
   try { process.kill(-pgid, 0); return false; } catch (error) { return (error as NodeJS.ErrnoException).code === 'ESRCH'; }
 }
+/** Resolve an unobserved target only when neither its PID nor group exists. */
+function registrationTargetGone(pid: number): boolean {
+  if (!Number.isSafeInteger(pid) || pid <= 1) return false;
+  try { process.kill(pid, 0); return false; } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ESRCH') return false;
+  }
+  return groupGone(pid);
+}
 function descriptor(pid: number, fd: number): { dev: bigint; ino: bigint } {
   if (process.platform !== policy.platform) throw failure('kernel descriptor observation unsupported');
   const raw = execFileSync('/usr/sbin/lsof', ['-n', '-P', '-a', '-p', String(pid), '-d', String(fd), '-F', 'paftDi'], { encoding: 'utf8', timeout: policy.kernelObservationMs, maxBuffer: LIMIT });
@@ -223,10 +231,24 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     const pending=pendingToken && pendingChildren.get(pendingToken);if(!pending||pending.pid!==parent||pending.start!==observedProcessStartTimeMs(parent))throw failure('registration has no owned pre-spawn fence');
     const inheritedParents=[...new Set([...pending.parents,...parents])];
     if(inheritedParents.some(id=>![...active.values()].some(grant=>grant.grantId===id&&!grant.revoked&&Date.now()<grant.deadlineAt)))throw failure('pending parent invocation released');
-    if(groupGone(pid)){pendingChildren.delete(pendingToken!);publish();return;}
+    if(registrationTargetGone(pid)){pendingChildren.delete(pendingToken!);publish();return;}
     if(registered.has(pid))throw failure('child enrollment is immutable');
-    const target = identity(pid);if(target.pgid!==target.pid)throw failure('registered child must own its detached group');
-    if (!ancestors(pid).includes(parent)) throw failure('registration requires observed pre-orphan ancestry');
+    let target: ProcessIdentity;
+    try { target = identity(pid); } catch (error) {
+      // Pending ownership, parent invocation and immutable enrollment were
+      // checked above. Only fresh absence resolves this one owned fence.
+      if (!registrationTargetGone(pid)) throw error;
+      pendingChildren.delete(pendingToken!); publish(); return;
+    }
+    // A live non-leader may have no group at its PID; never treat that as its
+    // work being absent, including when ancestry observations fail afterward.
+    if(target.pgid!==target.pid)throw failure('registered child must own its detached group');
+    try {
+      if (!ancestors(pid).includes(parent)) throw failure('registration requires observed pre-orphan ancestry');
+    } catch (error) {
+      if (!registrationTargetGone(pid)) throw error;
+      pendingChildren.delete(pendingToken!); publish(); return;
+    }
     registered.set(pid, { ...target, parents:inheritedParents });pendingChildren.delete(pendingToken!); publish();
   };
   const revokeGrant = (grantId: string) => {

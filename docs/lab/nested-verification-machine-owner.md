@@ -111,3 +111,14 @@ does not relax retirement, add waiting, or identify the retrospective cause of
 an earlier generic refusal. `verify-nested-reservation-cleanup-diagnostics.mjs`
 uses actual private-home queue admission and deliberately unresolved no-spawn
 fences to check error/result preservation and normal unchanged returns.
+
+A short-lived registered target can disappear between separate group, identity
+and ancestry observations. After validating pending ownership, parent invocation
+lineage and immutable enrollment, a target-observation failure resolves only
+that pending token only when independent target PID and whole-group observations
+both report ESRCH. The initial absent-target shortcut uses the same predicate.
+A live non-leader is refused even when no group exists at its PID. Live or
+unknown groups retain the refusal and fence. The registration-race regression
+uses an actual detached child and a separate launcher that reaps it at controlled
+identity/ancestry observation boundaries; unavailable-observation negatives
+remain distinct from actual child disappearance.
