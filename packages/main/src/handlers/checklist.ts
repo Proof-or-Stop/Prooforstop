@@ -1353,9 +1353,13 @@ async function enforceAndStampEvidence(
   });
   const sharedExecution = deps.sharedExecutionReceipt;
   const sharedCausalReceipt = deps.sharedCausalReceipt;
-  const sharedIdentity = sharedExecution ? prepareVerificationExecutionIdentity({
-    command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs: sharedExecution.effectiveTimeoutMs, manifestPath,
-  }) : undefined;
+  const sharedIdentity = sharedExecution
+    ? sharedExecution.effectiveTimeoutMs === effectiveTimeoutMs
+      ? beforeIdentity
+      : prepareVerificationExecutionIdentity({
+          command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs: sharedExecution.effectiveTimeoutMs, manifestPath,
+        })
+    : undefined;
   if (sharedExecution && (
     sharedExecution.command !== pinCommand
     || sharedExecution.cwd !== deps.cwd
@@ -1372,7 +1376,9 @@ async function enforceAndStampEvidence(
   const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
   const launchFreshness = captureVerificationFreshness(deps.cwd, deps.metadataRoot);
   const preflightInput = { command: pinCommand, cwd: deps.cwd, timeoutMs: effectiveTimeoutMs };
-  const implementationDigest = executionImplementationIdentity().digest;
+  // Reuse the implementation projection from the same synchronous preflight.
+  // The independent launch, completion and publication checks still reread.
+  const implementationDigest = beforeIdentity.implementationDigest;
   const initialPreflightFacts = deps.preflightFacts(preflightInput);
   const preflightFactsUnchanged = () =>
     causalCanonical(deps.preflightFacts(preflightInput)) === causalCanonical(initialPreflightFacts);
@@ -3912,12 +3918,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               });
               assertVerificationInputUnchanged(reuse.identity, beforeReuseIssue);
             } else {
-              const implementationDigest = executionImplementationIdentity().digest;
               const beforeIdentity = prepareVerificationExecutionIdentity({
                 command, cwd: computed.refreshGitCwd,
                 effectiveTimeoutMs: representative.effectiveTimeoutMs,
                 manifestPath: representative.manifestPath,
               });
+              const implementationDigest = beforeIdentity.implementationDigest;
               const preflightInput = {
                 command,
                 cwd: computed.refreshGitCwd,
