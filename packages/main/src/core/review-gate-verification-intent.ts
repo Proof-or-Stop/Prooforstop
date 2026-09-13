@@ -21,7 +21,7 @@ export function reviewGateVerificationIntentIssue(intent: VerificationIntentItem
     && typeof intent.verification.selector === 'string'
     && intent.verification.selector.trim().length > 0;
   const reviewLifecycleCommandPin = executablePin
-    && /\b(?:review_pass_set|review_pass_list|review_run_start|finding_add|finding_list|story_advance|review_inventory_\w+)\b/.test(intent.verification!.command);
+    && /\b(?:review_\w+|finding_\w+|story_advance|story_get|lifecycle_check|reviewer_list)\b/.test(intent.verification!.command);
   const productCommandSubject = executableType
     && /^(?:the\s+)?(?:review_pass_set|finding_add)(?:\s+command)?\b/.test(text);
   if ((executablePin && !reviewLifecycleCommandPin) || productCommandSubject) return null;

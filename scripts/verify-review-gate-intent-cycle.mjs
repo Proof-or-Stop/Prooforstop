@@ -46,18 +46,21 @@ for (const lifecycleVerdict of [
   );
 }
 
-assert.ok(
-  classify({
-    desc: 'Independent review has no open findings.',
-    type: 'cli',
-    priority: 'must',
-    verification: {
-      command: 'proof-or-stop finding_list --storyId=B-x',
-      selector: 'open: 0',
-    },
-  }),
-  'REVIEW_GATE_INTENT_CYCLE: a REVIEW lifecycle command pin must not bypass the pre-REVIEW cycle guard',
-);
+for (const command of [
+  'proof-or-stop finding_list --storyId=B-x',
+  'proof-or-stop finding_resolve --storyId=B-x --findingId=F-1',
+  'proof-or-stop story_get --storyId=B-x',
+]) {
+  assert.ok(
+    classify({
+      desc: 'Independent review has no open findings.',
+      type: 'cli',
+      priority: 'must',
+      verification: { command, selector: 'open: 0' },
+    }),
+    `REVIEW_GATE_INTENT_CYCLE: a REVIEW lifecycle command pin must not bypass the pre-REVIEW cycle guard: ${command}`,
+  );
+}
 
 for (const legitimate of [
   { desc: 'The parser rejects unresolved symbolic references.', type: 'logic', priority: 'must' },
@@ -83,10 +86,22 @@ for (const legitimate of [
 }
 
 const handlerSource = readFileSync(new URL('../packages/main/src/handlers/story-review.ts', import.meta.url), 'utf8');
+const classifierSource = readFileSync(new URL('../packages/main/src/core/review-gate-verification-intent.ts', import.meta.url), 'utf8');
+const registrySource = readFileSync(new URL('../packages/main/src/core/process-fact-registry.ts', import.meta.url), 'utf8');
+const machineSource = readFileSync(new URL('../packages/main/src/core/machine.ts', import.meta.url), 'utf8');
 assert.match(
   handlerSource,
   /reviewGateVerificationIntentIssue\(intent\)/,
   'REVIEW_GATE_INTENT_CYCLE: story_review must consume the classifier for every authored intent',
+);
+assert.ok(
+  classifierSource.includes('review_\\w+|finding_\\w+|story_advance|story_get|lifecycle_check|reviewer_list')
+    && registrySource.includes('review_* or finding_* commands plus story_advance, story_get, lifecycle_check, and reviewer_list'),
+  'REVIEW_GATE_INTENT_CYCLE: the declared caller-pin boundary must stay aligned with the lifecycle command classifier',
+);
+assert.ok(
+  machineSource.includes('(lastRound.blockerCount ?? lastRound.issueCount) !== 0'),
+  'REVIEW_GATE_INTENT_CYCLE: canStartDev must consume the signed generic blocker count',
 );
 
 const handoffSource = readFileSync(new URL('../packages/main/src/handlers/testintent-handoff.ts', import.meta.url), 'utf8');
@@ -263,6 +278,7 @@ try {
   assert.ok(issue, 'REVIEW_GATE_INTENT_CYCLE: real story_review must report the lifecycle dependency');
   assert.equal(issue.intentRef, 'CHK-001:adversarial:0');
   assert.equal(issue.severity, 'blocker');
+  assert.ok(review.summary.blockerCount > 0, 'REVIEW_GATE_INTENT_CYCLE: the retained lifecycle dependency must enter the signed blocker count consumed by canStartDev');
 } finally {
   process.chdir(previousCwd);
   if (previousSessionId === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
