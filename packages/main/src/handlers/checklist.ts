@@ -1,3 +1,4 @@
+import { withVerificationPlanningObservation } from '../core/verification-execution-evidence.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
 import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
@@ -3466,11 +3467,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         ...(entry.commandTimeoutReason !== undefined ? { commandTimeoutReason: entry.commandTimeoutReason } : {}),
       }));
       const initialCl = store.readChecklist(args.storyId);
-      const initialPlans = args.evidences.map((entry, i) => {
+      const initialPlans = withVerificationPlanningObservation(() => args.evidences.map((entry, i) => {
         const item = initialCl.items.find(it => it.id === entry.itemId);
         if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
         return verificationProducerPlan(root, item, evidenceInputs[i], gitCwd);
-      });
+      }));
       const commandOrdinals = new Map([...new Set(initialPlans.flatMap(plan => plan ? [plan.executionKey] : []))]
         .map((key, index) => [key, index + 1]));
       let executingKey: string | undefined;

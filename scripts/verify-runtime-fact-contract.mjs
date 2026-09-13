@@ -28,6 +28,7 @@ const requiredEvidenceFacts = [
   'verification-receipt-layering',
   'verification-receipt-authenticity',
   'verification-input-scoped-reuse',
+  'verification-planning-observation',
   'verification-reuse-capsule-authority',
   'verification-execution-producer-lock',
   'verification-lifecycle-admissibility',
@@ -806,6 +807,8 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
   for (const test of ['verify-doctor-runtime-scan.mjs', 'verify-doctor-runtime-cache.mjs']) {
     execFileSync(process.execPath, [join(root, 'scripts', test)], {cwd: root, stdio: 'inherit', timeout: 120000});
   }
+
+  execFileSync(process.execPath, [join(root, 'packages/main/tests/planning-observation.test.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 
   execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 

@@ -573,6 +573,21 @@ function executableFileIdentity(
   return null;
 }
 
+// Only the initial, synchronous batch-planning map uses this observation.
+// Current plans, launches, completion and publication retain independent reads.
+let planningObservation: { digest?: string } | undefined;
+export function withVerificationPlanningObservation<T>(plan: () => T): T {
+  const previous = planningObservation;
+  planningObservation = {};
+  try { return plan(); }
+  finally { planningObservation = previous; }
+}
+
+function planningImplementationIdentityDigest(): string {
+  if (!planningObservation) return executionImplementationIdentity().digest;
+  return planningObservation.digest ??= executionImplementationIdentity().digest;
+}
+
 export function prepareVerificationExecutionIdentity(input: {
   command: string;
   cwd: string;
@@ -614,7 +629,7 @@ function prepareVerificationExecutionIdentityObserved(
   if (!executableIdentity || !nodeIdentity || (usesShell && !shellIdentity)) {
     throw new Error('verification executable resolution is unprovable [incomplete_toolchain_identity]');
   }
-  const implementationDigest = executionImplementationIdentity().digest;
+  const implementationDigest = planningImplementationIdentityDigest();
   const toolchainDigest = computeCanonicalDigest({
     implementationDigest,
     executable: parsed.executable,
