@@ -1,6 +1,7 @@
 import './verify-verification-timeout-diagnostics.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';
@@ -33,15 +34,22 @@ const scripts = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).
 assert.equal(scripts['test:route-reattestation-dependency-direction'], 'node scripts/verify-route-reader-regression.mjs',
   'ROUTE_READER_CONSOLIDATED_RED existing registered entry must execute durable driver');
 assert(scripts['test:serial-reference'].split(' && ').includes('npm run test:route-reattestation-dependency-direction'));
+const closure = JSON.parse(readFileSync(resolve(root, 'scripts/lab/u18-static-edges/exceptions.json'), 'utf8')).entries
+  .filter(entry => entry.dependencyDigests?.['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs']);
+assert.equal(closure.length, 4, 'reviewed four-gaps dependency closure must remain complete');
+for (const file of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs']) {
+  const digest = createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex');
+  assert(closure.every(entry => entry.dependencyDigests[file] === digest), 'route verifier helper dependency must match current source: ' + file);
+}
 console.log('ROUTE_READER_REGISTRATION PASS independent import/call removal controls');
 
 // Keep the existing suite's native/history/contract children and budgets intact.
 // The registered suite is run once; this driver adds no duplicate native modes.
 const spawnSync = prepareVerification(root, { shareBuild: true, bodyBudgetMs: 600000 });
 for (const [path, timeout, selector] of [
-  ['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs', 180000, 'DYNAMIC_FINDING_FOUR_GAPS PASS'],
-  [suitePath, 600000, 'ROUTE_DIRECTION_NATIVE_GREEN'],
-  ['scripts/verify-validation-static-edges.mjs', 180000, 'U18_STATIC_PASS'],
+  ['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs', 180000, ['DYNAMIC_FINDING_FOUR_GAPS PASS']],
+  [suitePath, 600000, ['ROUTE_DIRECTION_NATIVE_GREEN', 'ROUTE_READER_WIRING_MUTATIONS PASS']],
+  ['scripts/verify-validation-static-edges.mjs', 180000, ['U18_STATIC_PASS']],
 ]) {
   let result;
   try {
@@ -55,6 +63,6 @@ for (const [path, timeout, selector] of [
   assert.equal(result.error, undefined, 'child execution must complete');
   assert.equal(result.signal, null, 'child execution must not be signaled');
   assert.equal(result.status, 0, path + ' must preserve existing controls');
-  assert(output.includes(selector), path + ' must report its passing selector');
+  for (const required of selector) assert(output.includes(required), path + ' must report ' + required);
 }
 console.log('ROUTE_READER_REGRESSION_GREEN registered full suite, current builds and static evidence passed');

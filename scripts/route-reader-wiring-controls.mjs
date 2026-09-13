@@ -37,13 +37,22 @@ export function verifyRouteReaderWiring() {
   assert(initializer && ts.isArrowFunction(initializer), 'adapter initializer must be an arrow function');
   const replacedAdapter = adapter.slice(0, initializer.getStart(adapterTree)) + '() => undefined'
     + adapter.slice(initializer.end) + '\nconst unrelatedReader = ' + initializer.getText(adapterTree) + ';\n';
+  const removed = (path, token) => {
+    const original = source(path); assert(original.includes(token), 'mutation target must exist: ' + token);
+    return original.replaceAll(token, 'REMOVED_WIRING_CALL');
+  };
   const cases = [
+    ['route composition removed', 'registry.ts', removed('registry.ts', 'createFindingRouteHandlers(ctx, readRouteSourceRestoration)')],
+    ['history composition removed', 'registry.ts', removed('registry.ts', 'createFindingHistoryHandlers(ctx, observeDeferralInvalidation, readRouteSourceRestoration)')],
+    ['route reader consumption removed', routePath, removed(routePath, 'readRestoration?.(ctx, source)')],
+    ['projection reader removed', 'core/finding-applicability-projection.ts', removed('core/finding-applicability-projection.ts', 'readMaterialDriftReattestation(')],
     ['adapter body replaced while unrelated tokens survive', adapterPath,
       replacedAdapter],
     ['alternate static import', routePath, source(routePath) + "\nimport { x } from '../handlers/finding-material-reattestation.js';\n"],
     ['dynamic import', routePath, source(routePath) + "\nawait import('../handlers/finding-material-reattestation.js');\n"],
   ];
-  // Exact committed callback from cec884ccde (the official target RED revision).
+  // Illustrative reconstruction of the former loose checks; the committed RED
+  // remains the historical evidence. This fixed fixture is not a Git proof.
   const historicalLooseCallback = "() => {\n  assert.match(source('core/finding-applicability-projection.ts'), /readMaterialDriftReattestation\\(/);\n  assert.match(source('registry.ts'), /createFindingRouteHandlers\\(ctx, readRouteSourceRestoration\\)/);\n  assert.match(source('registry.ts'), /createFindingHistoryHandlers\\(ctx, observeDeferralInvalidation, readRouteSourceRestoration\\)/);\n  assert.match(source('handlers/finding-material-reattestation.ts'), /readRouteSourceRestoration[\\s\\S]*readMaterialDriftReattestation\\(ctx, source\\.storyId, source\\.recordId\\)/);\n  assert.match(source('handlers/finding-route.ts'), /readRestoration\\?\\.\\(ctx, source\\)/);\n  assert.doesNotMatch(source('handlers/finding-route.ts'), /from ['\"]\\.\\/finding-material-reattestation\\.js['\"]/);\n}";
   // Historical characterization uses fixed text only, never live production.
   const historicalSources = new Map(Object.entries({"core/finding-applicability-projection.ts": "readMaterialDriftReattestation();", "registry.ts": "createFindingRouteHandlers(ctx, readRouteSourceRestoration); createFindingHistoryHandlers(ctx, observeDeferralInvalidation, readRouteSourceRestoration);", "handlers/finding-material-reattestation.ts": "export const readRouteSourceRestoration: RouteSourceRestorationReader = (ctx, source) => { const restored = readMaterialDriftReattestation(ctx, source.storyId, source.recordId); return restored; };", "handlers/finding-route.ts": "readRestoration?.(ctx, source);"}));

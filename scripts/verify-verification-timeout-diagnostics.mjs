@@ -4,6 +4,17 @@ import { inspect } from 'node:util';
 import { runInNewContext } from 'node:vm';
 import { verificationSpawner, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
+function requireStartedCapture(error) {
+  if (error?.code === 'ETIMEDOUT' && (error.stdout !== 'TIMEOUT_CHILD_STDOUT' || error.stderr !== 'TIMEOUT_CHILD_STDERR')) {
+    throw Object.assign(new Error('VERIFICATION_SUBPROCESS_TIMEOUT: diagnostic child readiness was not observed before the existing timeout; proof unavailable'), { code: 'ETIMEDOUT' });
+  }
+}
+let notReady;
+try {
+  verificationSpawner(5000)(process.execPath, ['-e', 'setInterval(()=>{},1000)'], { encoding: 'utf8', timeout: 1000 });
+} catch (error) { notReady = error; }
+assert.throws(() => requireStartedCapture(notReady), error => verificationFailureMessage('startup control', error).startsWith('PROOF_UNAVAILABLE:'),
+  'a real timed-out child without readiness must be unavailable, not a product assertion');
 let failure;
 try {
   verificationSpawner(5000)(process.execPath, ['-e',
@@ -11,13 +22,19 @@ try {
   { encoding: 'utf8', timeout: 1000 });
 } catch (error) { failure = error; }
 assert(failure, 'TIMEOUT_DIAGNOSTICS_RED real child must time out');
+requireStartedCapture(failure);
 assert.equal(failure.code, 'ETIMEDOUT', 'TIMEOUT_DIAGNOSTICS_RED preserve timeout code');
-assert.equal(failure.signal, 'SIGTERM', 'TIMEOUT_DIAGNOSTICS_RED preserve actual signal');
+if (process.platform !== 'win32') assert.equal(failure.signal, 'SIGTERM', 'started POSIX child preserves actual default termination signal');
 assert.equal(Object.getOwnPropertyDescriptor(failure, 'stdout').writable, true, 'AUDIT5_DIAGNOSTICS_RED diagnostic buffers remain writable');
 assert.equal(failure.stdout, 'TIMEOUT_CHILD_STDOUT', 'TIMEOUT_DIAGNOSTICS_RED preserve stdout');
 assert.equal(failure.stderr, 'TIMEOUT_CHILD_STDERR', 'TIMEOUT_DIAGNOSTICS_RED preserve stderr');
 assert.match(failure.message, /^VERIFICATION_SUBPROCESS_TIMEOUT:/);
 assert.equal(failure.status, null);
+for (const field of ['stdout', 'stderr']) {
+  const descriptor = Object.getOwnPropertyDescriptor(failure, field);
+  assert.equal(descriptor.writable, true); assert.equal(descriptor.configurable, true);
+  const value = failure[field]; failure[field] = value; Object.defineProperty(failure, field, { value });
+}
 assert(!inspect(failure).includes(failure.stdout) && !inspect(failure).includes(failure.stderr), 'uncaught error inspection must not duplicate rendered buffers');
 const rendered = verificationFailureMessage('route child', failure);
 assert.match(rendered, /^PROOF_UNAVAILABLE:/);

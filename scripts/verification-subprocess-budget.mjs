@@ -60,7 +60,8 @@ export function verificationSpawner(totalMs = 240000) {
       // Retain bounded spawn buffers without duplicating them in an uncaught
       // Error inspection after the caller explicitly renders the diagnostics.
       Object.defineProperties(error, {
-        stdout: { value: result.stdout }, stderr: { value: result.stderr },
+        stdout: { value: result.stdout, writable: true, configurable: true },
+        stderr: { value: result.stderr, writable: true, configurable: true },
       });
       throw error;
     }
