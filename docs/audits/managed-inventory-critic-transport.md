@@ -160,3 +160,31 @@ full-development timing or a product benchmark result. The desktop runtime
 coverage check initially lacked package-local smol-toml and ws in this Lab;
 copying its already installed identical dependencies to the packager's required
 paths restored CLI_AUDIT_RUNTIME_COVERAGE_GREEN without a tracked dependency change.
+
+## Fifth candidate: native replay coverage and verifier paths
+
+The fourth Claude audit rejected three remaining issues. Runtime policy checks now
+resolve the repository root first and report named failures through the existing
+collector. The import fixture resolves the CLI directly from its own script path.
+A fourteenth scenario exercises native critic terminal evidence through the actual
+fixture broker, then the public critic command under its native role. It checks
+trimmed short reasons and blank supplied identifiers write no receipt, identical
+replay returns the same ID and exact stored bytes, and changed dispositions refuse
+without altering the original receipt.
+
+The shared writer deliberately makes identical native as well as managed replay
+idempotent by preserving the existing signed receipt timestamp. It does not permit
+a changed disposition to overwrite a receipt. Fourteen cases still occupy five
+three-way batches, preserving the 755-second worst-case body bound within 900 seconds.
+The independent audit did not have an evidence-freshness.ts snapshot; existing actual
+pass, dirty, committed-dirty and unavailable-status controls remain the behavioral
+witnesses for material-exclusion handling. No provider audit PASS is claimed.
+
+The fourteen-case run and full root-invoked runtime contract passed after this
+repair. The native case took 28509 ms; the slowest case was not-verified at 32846 ms.
+A whole-verifier subdirectory probe passed the repaired entry checks, then hit
+an unchanged top-level bare read later in the file. The same command on main
+0.3.357 failed at the equivalent original line 833 (candidate line 835), with the
+same ENOENT path. This pre-existing limitation is preserved, not claimed repaired;
+the configured root invocation remains passing. The bound maintenance follow-up
+is recorded in the external checkpoint rather than expanding this transport fix.

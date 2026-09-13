@@ -15,7 +15,7 @@ import {createManagedReviewEvidenceHandlers} from '../packages/main/dist/handler
 import {getManagedHostRunStatus,managedHostRunReceipt} from '../packages/main/dist/core/managed-host-run.js';
 const storyId = 'B-inventory-handler';
 const reviewRound = '2020-01-01T00:00:00.000Z';
-const cliPath = fileURLToPath(new URL('../../../../bin/proof-or-stop.js', new URL("../packages/main/dist/tasks/review-inventory-handler-smoke.js", import.meta.url)));
+const cliPath = fileURLToPath(new URL('../bin/proof-or-stop.js', import.meta.url));
 const isolatedFixtureRoots = new Set();
 function releaseCompletedFixtureOwner(root, expectedSessionId) {
     assert.ok(isolatedFixtureRoots.has(root), 'lease handoffs are isolated test fixtures only');
@@ -104,7 +104,7 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
 const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const scenario=process.argv.find(a=>a.startsWith('--case='))?.slice(7) ?? 'findings';
-assert(['findings','pass','crash','wrong-wave','drift','committed-drift','missing-disposition','duplicate','not-verified','own-id','existing-id','index-ambiguity','cancel-before-import'].includes(scenario));
+assert(['findings','pass','crash','wrong-wave','drift','committed-drift','missing-disposition','duplicate','not-verified','own-id','existing-id','index-ambiguity','cancel-before-import','native'].includes(scenario));
 const fixture=setup();
 const primary=fixture.root;
 const worktree=join(primary,'.worktrees',storyId);
@@ -139,6 +139,25 @@ const env={PROOF_OR_STOP_AGENT:lane,PROOF_OR_STOP_SESSION_ID:'fixture-critic'};
 cli(worktree,'dispatch',{storyId,agentType:lane,...purpose},env);
 const out=cli(worktree,'review_run_start',{storyId,agent:lane,...purpose},env);
 const reviewRunId=out.match(/Review run (\S+) started/)[1];
+if(scenario==='native') {
+ await runBrokeredNativeReviewCli({root:worktree,store:fixture.store,storyId,agent:lane,reviewRunId,command:'finding_add',payload:{storyId,agent:lane,reviewRunId,desc:'Native critic observes a bounded fixture issue for signed disposition replay tests.',severity:'medium',category:'missing',files:['packages/main/src/subject.ts'],evidenceState:'verified',readManifest,readEvents}});
+ const findingId=fixture.store.readFindings(storyId).findings.at(-1).id;
+ const valid={findingId,disposition:'verified_family',familyKey:'native-fixture',reason:'Native critic classifies the bounded fixture finding.'};
+ const submit=row=>cli(worktree,'review_inventory_critic_set',{storyId,epochId:epoch.epochId,reviewRunId,agent:lane,findingDispositions:[row]},env);
+ for(const invalid of [{...valid,reason:'   123456789   '},{...valid,familyKey:'   '},{...valid,canonicalFindingId:'   '}]) {
+  assert.throws(()=>submit(invalid),/REVIEW_INVENTORY_DISPOSITION_FIELD_INVALID/);
+  assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0,'Native invalid fields cannot write a receipt');
+ }
+ const first=submit(valid);assert.match(first,/Completeness critic: complete/);
+ const receiptFile=fixture.store.storyFilePath(storyId,'review-inventory-epochs.json');
+ const before=readFileSync(receiptFile,'utf8');
+ const receiptId=fixture.store.readReviewInventoryEpochs(storyId).criticReceipts[0].criticReceiptId;
+ assert(submit(valid).includes(receiptId),'Identical native replay returns same receipt ID');
+ assert.equal(readFileSync(receiptFile,'utf8'),before,'Identical native replay preserves exact stored bytes');
+ assert.throws(()=>submit({...valid,reason:'A changed native disposition must conflict with the existing signed receipt.'}),/conflicting receipt/);
+ assert.equal(readFileSync(receiptFile,'utf8'),before,'Conflicting native replay preserves original bytes');
+ console.log('NATIVE_CRITIC_FIELDS_AND_REPLAY_GREEN');
+} else {
 process.chdir(worktree);
 const ctx={root:worktree,store:fixture.store,scanRoot:join(worktree,'packages/main')};
 const baselineFindings=fixture.store.readFindings(storyId).findings;
@@ -269,5 +288,6 @@ if(scenario==='findings') {
  assert.deepEqual(managedHostRunReceipt(worktree,launched.run.runId),receipt);
 }
 console.log('MANAGED_INVENTORY_CRITIC_AUTHENTICATED_IMPORT_GREEN '+scenario);
+}
 }
 } finally {process.chdir(oldCwd);rmSync(primary,{recursive:true,force:true});}

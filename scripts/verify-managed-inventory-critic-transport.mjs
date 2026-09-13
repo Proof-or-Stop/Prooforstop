@@ -79,7 +79,7 @@ console.log('MANAGED_INVENTORY_CONTRACT_NEGATIVE_CONTROLS_GREEN');
 // the outer grace is 15 seconds. Five batches (675s) plus subprocess controls (80s) leave 145s of the pinned 900s budget.
 const {fileURLToPath} = await import('node:url');
 const scenarios = ['findings', 'pass', 'crash', 'wrong-wave', 'drift', 'committed-drift',
-  'missing-disposition', 'duplicate', 'not-verified', 'own-id', 'existing-id', 'index-ambiguity', 'cancel-before-import'];
+  'missing-disposition', 'duplicate', 'not-verified', 'own-id', 'existing-id', 'index-ambiguity', 'cancel-before-import', 'native'];
 const run = scenario => new Promise((resolve, reject) => {
   const startedAt = performance.now();
   process.stderr.write(`Starting managed critic scenario: ${scenario}\n`);
