@@ -122,3 +122,27 @@ unknown groups retain the refusal and fence. The registration-race regression
 uses an actual detached child and a separate launcher that reaps it at controlled
 identity/ancestry observation boundaries; unavailable-observation negatives
 remain distinct from actual child disappearance.
+
+### Worker exit without an outcome
+
+The unchanged 60-second target replay stopped during the lifetime group after
+four earlier groups passed. Its isolated wrapper subsequently remained alive
+while polling a missing outcome under the existing 120-second fixture deadline;
+the worker group had already exited. The wrapper eventually exited without a
+manual signal or queue-fence removal. This does not establish the cause of the
+aggregate target's elapsed time.
+
+The wrapper now checks its previously validated worker group's absence while
+waiting. Only the existing ESRCH-only whole-group observer establishes absence.
+It rechecks the outcome after that observation, so published outcomes take
+precedence. A still-missing outcome fails promptly with captured output through
+the unchanged cleanup path; live or unknown groups retain the original wait and
+deadline. This does not cover every owner-loss case with surviving descendants.
+
+`node scripts/verify-nested-isolated-worker-exit.mjs` uses an actual worker that
+calls `process.exit(7)` before publishing an outcome. The committed pre-repair
+control failed because the wrapper was still waiting at the separate six-second
+diagnostic limit (6.066747 seconds); after repair it passed in 4.108328 seconds.
+The `--normal` control passed in 4.381860 seconds. Both controls independently
+observed the worker group absent. These are supplemental controls, not an
+aggregate target GREEN or a changed workload budget.

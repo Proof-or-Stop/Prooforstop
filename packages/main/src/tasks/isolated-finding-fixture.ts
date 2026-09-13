@@ -106,9 +106,19 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
       : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? reviewEpochFixtureBudgetMs(process.env,budgetStartedAt) : 120_000;
     const deadline = budgetStartedAt + budgetMs;
     if(file.endsWith('/verify-review-epoch-certification-continuity.mjs')) process.stdout.write(`REVIEW_EPOCH_FIXTURE_BUDGET ${JSON.stringify({budgetMs,deadline,outerEnvelope:process.env[epochBudget.environmentKey]??null})}\n`);
-    while (!existsSync(outcome) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));
+    let workerExitedWithoutOutcome = false;
+    while (!existsSync(outcome) && Date.now() < deadline) {
+      if (workerIdentity && validationReservationGroupIsAbsent(workerIdentity.pgid)) {
+        // The worker publishes its outcome before exit. Recheck after observing
+        // whole-group absence so a concurrent publication remains authoritative.
+        if (!existsSync(outcome)) workerExitedWithoutOutcome = true;
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
     process.stdout.write(readFileSync(output, 'utf8')); outputWritten = true;
-    if (!existsSync(outcome)) throw new Error('isolated Finding fixture timed out');
+    if (!existsSync(outcome)) throw new Error(workerExitedWithoutOutcome
+      ? 'isolated Finding fixture worker exited without outcome' : 'isolated Finding fixture timed out');
     const result = JSON.parse(readFileSync(outcome, 'utf8')) as { code: number };
     if (result.code !== 0) throw new Error(`isolated Finding fixture failed with exit ${result.code}`);
     return true;
