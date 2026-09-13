@@ -7238,6 +7238,10 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   const managedOffset = subjectReader.indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding)");
   assert(subjectOffset >= 0 && managedOffset >= 0 && subjectOffset < managedOffset,
     'inventory subject classification must precede both execution authority paths');
+  const nativeOffset=subjectReader.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)");
+  const supersededOffset=subjectReader.indexOf("if (inventorySubject === 'superseded') return {");
+  assert(nativeOffset>=0 && supersededOffset>managedOffset && supersededOffset>nativeOffset,
+    'forgivable inventory supersession must follow both authentication paths');
   assert(read('scripts/verify-review-epoch-certification-continuity.mjs').includes('NATIVE_TWO_WAVE_COLLECTION_GREEN'),
     'native inventory supersession requires behavioral coverage');
 
@@ -7318,6 +7322,11 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     && convergenceSchema.includes('revokedCompletedEpochIds: string[];') && convergenceSchema.includes('humanDecisions?:'), 'convergence history arrays are mandatory except humanDecisions; reader assumptions bind persisted schema');
   assert(maintenanceText.split('isMissingReviewSnapshotError(error)').length === 4, 'all three maintenance reader catches share the missing-snapshot classifier');
 
+  assert(maintenanceText.includes('const reviewedRemaining=[...reviewedEvidence]')
+    && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,reviewedItem,prior)'),
+    'parent matches cannot grandfather evidence absent from the reviewed authority anchor');
+  assert(maintenanceText.split('reviewRefreshStoryPrefix(gitCwd,store.storyDirPath(storyId))').length===3
+    && !read('packages/main/src/core/review-evidence-refresh.ts').includes("prefix.startsWith('../')"), 'refresh readers share one Story containment guard');
   assert(maintenanceText.includes('priorEvidence.length !== nextEvidence.length') && maintenanceText.includes('semanticRows(priorEvidence)') && maintenanceText.includes('remaining.splice(index,1)')
     && maintenanceText.includes('hasMechanicalExecutionAuthority(store,storyId,old!,prior)'), 'review retention cannot add coverage or change the reviewed mechanical result');
   assert(!read('packages/main/src/core/closeout-trust.ts').includes("from './review-evidence-refresh.js'")
@@ -10205,9 +10214,9 @@ const inventory = [
     name: 'Explicit Lab maintenance integration boundary',
     files: [
       { relPath: 'scripts/verify-lab-lock-scope.mjs', patterns: ['main changed while the audit ran', 'LAB_FIXTURE_AUDIT_HOLD'] },
-      { relPath: 'scripts/lab-audit.mjs', patterns: ['selectAuditor', 'runHostRun', 'parseAuditResult', 'processCleanup', 'inputDigest', 'readRefs'] },
+      { relPath: 'scripts/lab-audit.mjs', patterns: ['selectAuditor', 'runHostRun', 'parseAuditResult', 'processCleanup', 'inputDigest', 'readRefs', 'candidateVerificationContext', 'checkoutVerified===true', 'row.verifiedHead===head', '!row.error', 'files, verification'] },
       { relPath: 'packages/main/src/core/process-fact-registry.ts', patterns: ['runtime:lab_local_maintenance_integration', 'never Story REVIEW/TEST/DONE'] },
-      { relPath: 'scripts/lab-worktree.mjs', patterns: ['ensureAudit', 'auditIsFresh', 'repairContentDigest', 'changed repair content', 'resumeMainHead', 'no pinned developer', 'acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', 'candidate-story-baseline', 'main-story-baseline', 'candidate-story-integration', 'main-story-integration', '--ff-only', "phase = 'verified'", "'branch', '-d'", "action === 'carry'", "action === 'baseline'", 'story-baseline-supplement', 'baselineWitnesses', 'finishBaselineWitnesses', 'integrationWitnesses', 'createVerificationEvidenceGateEvaluator', 'currentMaterialHash', 'currentStoryFilesHash', 'failureIdentity', "['node', 'scripts/ensure-dist.mjs']", "!path.startsWith('.proof-or-stop/')", 'preservedMainDirty', 'Dirty main changed during Story carry-forward integration'] },
+      { relPath: 'scripts/lab-worktree.mjs', patterns: ['candidateVerificationContext(s.history,head,s.red?.command)', 'record.checkoutVerified=true', 'record.verifiedHead=before', 'selection: selected, verification', 'ensureAudit', 'auditIsFresh', 'repairContentDigest', 'changed repair content', 'resumeMainHead', 'no pinned developer', 'acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', 'candidate-story-baseline', 'main-story-baseline', 'candidate-story-integration', 'main-story-integration', '--ff-only', "phase = 'verified'", "'branch', '-d'", "action === 'carry'", "action === 'baseline'", 'story-baseline-supplement', 'baselineWitnesses', 'finishBaselineWitnesses', 'integrationWitnesses', 'createVerificationEvidenceGateEvaluator', 'currentMaterialHash', 'currentStoryFilesHash', 'failureIdentity', "['node', 'scripts/ensure-dist.mjs']", "!path.startsWith('.proof-or-stop/')", 'preservedMainDirty', 'Dirty main changed during Story carry-forward integration'] },
       { relPath: 'scripts/verify-lab-story-carry-forward.mjs', patterns: ['tamper Story hash binding', 'tamper Story receipt authenticity', 'add open Finding', 'exceed bounded baseline failures', 'product change after evidence', 'overlaps dirty main paths', 'trace_incomplete', 'candidate-story-integration', 'main-story-integration'] },
       { relPath: 'docs/lab-maintenance.md', patterns: ['not formal Story', 'RED', 'GREEN', '--confirm', 'Carry a blocked Story patch', 'not Story DONE', 'strict authoritative', 'normalized diagnostic identity', 'bounded dynamic revalidation'] },
     ],

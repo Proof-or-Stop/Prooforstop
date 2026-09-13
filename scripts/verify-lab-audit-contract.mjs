@@ -28,7 +28,7 @@ assert.equal(parseAuditResult(JSON.stringify(proposal),'lab-json',binding).decis
 console.log('LAB_AUDIT_VENDOR PASS third-vendor adapter, same-vendor rejection and unavailable providers');
 const {mkdtempSync,writeFileSync,rmSync}=await import('node:fs');
 const {tmpdir}=await import('node:os');const {join}=await import('node:path');const {execFileSync}=await import('node:child_process');
-const {auditInput}=await import('./lab-audit.mjs');
+const {auditInput,candidateVerificationContext}=await import('./lab-audit.mjs');
 const repo=mkdtempSync(join(tmpdir(),'lab-audit-input-'));
 const git=(...args)=>execFileSync('git',args,{cwd:repo,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
 try {
@@ -41,6 +41,22 @@ try {
   const spaceInput=auditInput(repo,base,spaceHead);
   assert.equal(spaceInput.files.find(f=>f.path===' leading-space.txt').content,'exact path content');
   assert.equal(auditInput(repo,base,spaceHead),spaceInput,'Immutable inputs should be reused within the process');
+  const measured={kind:'candidate-green',head:spaceHead,checkoutVerified:true,verifiedHead:spaceHead,command:['node','fixture.mjs'],status:0,signal:null,elapsedMs:12,timeoutMs:1000,output:'SYNTHETIC_CANDIDATE_TEST_PASS',at:'2026-09-13T00:00:00.000Z'};
+  const context=candidateVerificationContext([measured],spaceHead,measured.command);
+  assert(context);assert.equal(context.elapsedMs,12);
+  assert.equal(candidateVerificationContext([measured],spaceHead,undefined),null);
+  assert.equal(candidateVerificationContext([],spaceHead,measured.command),null);
+  for(const delta of [{checkoutVerified:undefined},{checkoutVerified:false},{verifiedHead:base},{error:'spawn failure'},{head:base},{command:['node','other.mjs']},{status:1},{signal:'SIGTERM'},{elapsedMs:-1},{output:null}])
+    assert.equal(candidateVerificationContext([{...measured,...delta}],spaceHead,measured.command),null);
+  assert.deepEqual(candidateVerificationContext([measured,{...measured,elapsedMs:30}],spaceHead,measured.command),context);
+  const measuredInput=auditInput(repo,base,spaceHead,context);
+  assert.deepEqual(JSON.parse(measuredInput.input).verification,context);
+  assert.notEqual(measuredInput.inputDigest,spaceInput.inputDigest);
+  assert.equal(auditInput(repo,base,spaceHead,context),measuredInput);
+  assert.notEqual(auditInput(repo,base,spaceHead,{...context,outputTail:'changed'}).inputDigest,measuredInput.inputDigest);
+  assert.throws(()=>auditInput(repo,base,spaceHead,{...context,head:base}),/exact successful candidate/);
+  assert.throws(()=>auditInput(repo,base,spaceHead,{...context,status:1}),/exact successful candidate/);
+  console.log('LAB_AUDIT_CANDIDATE_VERIFICATION_BINDING_PASS synthetic transport controls, not provider audit');
   writeFileSync(join(repo,'sample.txt'),'\ufeffBOM preserved');git('add','.');git('commit','-m','utf8 bom control');
   assert.equal(auditInput(repo,base,git('rev-parse','HEAD')).files.find(f=>f.path==='sample.txt').content,'\ufeffBOM preserved');
   const large='x'.repeat(2*1024*1024+128);

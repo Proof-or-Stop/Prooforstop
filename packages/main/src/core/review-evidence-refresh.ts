@@ -12,6 +12,12 @@ import { hasMechanicalExecutionAuthority } from './verification-receipt-authorit
 import { digestCanonicalJson } from './digest.js';
 import type { ChecklistData } from './types.js';
 
+/** Canonical non-root, contained Story prefix shared by both refresh readers. */
+export function reviewRefreshStoryPrefix(gitCwd:string, storyDir:string):string|null {
+  const path=relative(realpathSync(gitCwd),realpathSync(storyDir)).replaceAll('\\','/');
+  return !path || path==='.' || path==='..' || path.startsWith('../') || path.startsWith('/') ? null : path+'/';
+}
+
 /** Path eligibility only; receipt authentication remains mandatory at consumers. */
 export function isRefreshRetainableArtifactPath(path: string): boolean {
   return path === 'checklist.json' || path === CAUSAL_RECEIPT_INDEX_FILE
@@ -67,8 +73,8 @@ function computeVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
   const git = (argv: string[]) => {if(state) state.gitCommands++; return execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore','pipe','pipe'] }).trim();};
   try {
     const store = new StoryStore(metadataRoot);
-    const prefix = relative(realpathSync(gitCwd), realpathSync(store.storyDirPath(storyId))).replaceAll('\\','/') + '/';
-    if (prefix.startsWith('../') || prefix.startsWith('/') || prefix === './') return false;
+    const prefix=reviewRefreshStoryPrefix(gitCwd,store.storyDirPath(storyId));
+    if(prefix===null) return false;
     const parents = git(['show','-s','--format=%P',commit]).split(/\s+/);
     if (parents.length !== 1 || !parents[0]) return false;
     const subject = git(['show','-s','--format=%s',commit]);
@@ -176,6 +182,24 @@ function computeVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
           changed = true;
         }
         if (remaining.length) return false;
+        // A parent may itself be unproved. Independently anchor every candidate
+        // row to the original reviewed snapshot; exact parent matches are not
+        // sufficient authority for evidence introduced by an intervening commit.
+        const reviewedItem=reviewed.items.find(row=>row.id===item.id)!;
+        const reviewedRemaining=[...reviewedEvidence];
+        const reviewedReplacements=nextEvidence.filter(evidence=>{
+          const index=reviewedRemaining.findIndex(prior=>digestCanonicalJson(prior)===digestCanonicalJson(evidence));
+          if(index<0) return true;
+          reviewedRemaining.splice(index,1); return false;
+        });
+        for(const evidence of reviewedReplacements) {
+          const index=reviewedRemaining.findIndex(prior=>prior.intentRef===evidence.intentRef
+            && prior.kind===evidence.kind && prior.result===evidence.result
+            && hasMechanicalExecutionAuthority(store,storyId,reviewedItem,prior));
+          if(index<0 || !hasMechanicalExecutionAuthority(store,storyId,item,evidence)) return false;
+          reviewedRemaining.splice(index,1);
+        }
+        if(reviewedRemaining.length) return false;
       }
       return changed;
     }
@@ -197,8 +221,8 @@ export function isCurrentVerifiedEvidenceRefreshArtifact(args: {
   if (!isRefreshRetainableArtifactPath(artifactPath)) return false;
   try {
     const store = new StoryStore(metadataRoot);
-    const prefix = relative(realpathSync(gitCwd),realpathSync(store.storyDirPath(storyId))).replaceAll('\\','/') + '/';
-    if (prefix.startsWith('../') || prefix.startsWith('/')) return false;
+    const prefix=reviewRefreshStoryPrefix(gitCwd,store.storyDirPath(storyId));
+    if(prefix===null) return false;
     const state=args.cache?refreshCaches.get(args.cache):undefined;
     const git = (argv:string[])=>{if(state) state.gitCommands++;return execFileSync('git',argv,{cwd:gitCwd,encoding:'utf8',stdio:['ignore','pipe','pipe']});};
     const snapshotHead=args.snapshotHead??git(['rev-parse','HEAD']).trim();

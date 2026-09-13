@@ -41,7 +41,7 @@ import {evaluatePersistedReviewToTestIndexTransition} from '../packages/main/dis
 import {closeoutArtifactPolicyFor, evaluateMetadataOnlyReviewRetention, isCanonicalCloseoutEvidenceWrite, assertCanonicalCloseoutWrite, computeCloseoutWriteReceiptIntegrity} from '../packages/main/dist/core/closeout-trust.js';
 assert.equal(isCanonicalCloseoutEvidenceWrite('checklist.json','verification_evidence_add'),false);
 assert.throws(()=>assertCanonicalCloseoutWrite('checklist.json','verification_evidence_add'),/non-canonical writer/);
-import {isOwnerLeaseHeartbeatOnly, createReviewRefreshReadCache, reviewRefreshReadCacheStats, isCurrentVerifiedEvidenceRefreshArtifact} from '../packages/main/dist/core/review-evidence-refresh.js';
+import {reviewRefreshStoryPrefix, isOwnerLeaseHeartbeatOnly, createReviewRefreshReadCache, reviewRefreshReadCacheStats, isCurrentVerifiedEvidenceRefreshArtifact} from '../packages/main/dist/core/review-evidence-refresh.js';
 const leaseControl={sessionId:'fixture-owner',pid:1,heartbeatAt:'2026-01-01T00:00:00.000Z'};
 assert(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,pid:2,heartbeatAt:'2026-01-01T00:00:01.000Z'}));
 assert.equal(isOwnerLeaseHeartbeatOnly(leaseControl,{...leaseControl,sessionId:'foreign-owner'}),false);
@@ -173,6 +173,11 @@ git(primaryRoot,['commit','-m','record initial native linked fixture']);
 git(primaryRoot,['worktree','add','-b','story/'+storyId,worktreePath]);
 fixture.root=worktreePath;fixture.store=new StoryStore(worktreePath);isolatedFixtureRoots.add(worktreePath);
 console.log('SATURATED_FIXTURE_ROOT '+fixture.root);
+assert.equal(reviewRefreshStoryPrefix(fixture.root,fixture.root),null,'Story root cannot equal Git root');
+assert.equal(reviewRefreshStoryPrefix(fixture.root,primaryRoot),null,'Story root cannot escape linked worktree');
+assert.equal(reviewRefreshStoryPrefix(fixture.root,fixture.store.storyDirPath(storyId)),`.proof-or-stop/story/actives/${storyId}/`);
+console.log('REFRESH_STORY_PREFIX_CONTAINMENT_GREEN');
+
 try {
 const env=(agent,session)=>({PROOF_OR_STOP_AGENT:agent,PROOF_OR_STOP_SESSION_ID:session});
 writeFileSync(join(fixture.root,'packages/main/src/subject.ts'),'export const subject = 2;\n');
@@ -191,6 +196,7 @@ cli(fixture.root,'verification_evidence_add',evidencePayload,env('main','saturat
 // fixture, so the next publication tests evidence-only change, not first pinning.
 cli(fixture.root,'verification_evidence_add',{...evidencePayload,intentRef:'CHK-001:happy:1'},env('main','saturation-owner'));
 const pinnedChecklist=fixture.store.readChecklist(storyId);
+const initialPairedEvidence=structuredClone(pinnedChecklist.items[0].verificationEvidence);
 const pinnedOwnerPath=fixture.store.storyFilePath(storyId,'owner-lease.json');
 const pinnedOwnerBytes=execFileSync('git',['show',`HEAD:.proof-or-stop/story/actives/${storyId}/owner-lease.json`],{cwd:fixture.root,encoding:'utf8'});
 for(const item of pinnedChecklist.items) item.verificationEvidence=item.verificationEvidence.filter(row=>row.intentRef!=='CHK-001:happy:1');
@@ -750,10 +756,36 @@ if(mode==='clean') {
   console.log('PAIRED_EXECUTION_AUTHORITY_REFUSED '+side);
  }
  git(fixture.root,['reset','--hard',authorityHead]);
-
-
-
-
+ // Reuse actual independently issued executions; no invented receipt is valid.
+ // The reviewed baseline has two distinct intents. A forged first commit alters
+ // happy:1; the next genuine refresh changes happy:0 and preserves the bad row.
+ for(const forged of [false,true]) {
+  git(fixture.root,['reset','--hard',authorityHead]);
+  const baseline=checklistAt(authorityParent);
+  baseline.items[0].verificationEvidence=structuredClone(initialPairedEvidence);
+  assert.equal(baseline.items[0].verificationEvidence.length,2);
+  for(const evidence of baseline.items[0].verificationEvidence) assert(hasMechanicalExecutionAuthority(fixture.store,storyId,baseline.items[0],evidence));
+  fixture.store.writeChecklist(storyId,baseline);
+  git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m','test: reviewed two-intent authenticated baseline']);
+  const reviewedChainHead=git(fixture.root,['rev-parse','HEAD']);
+  const first=structuredClone(baseline);
+  first.items[0].verificationEvidence[0]=structuredClone(checklistAt(authorityParent).items[0].verificationEvidence[0]);
+  if(forged) first.items[0].verificationEvidence[1].receipt.selectorMatched=false;
+  fixture.store.writeChecklist(storyId,first);
+  git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
+  const chainArgs={...publicationBinding,reviewedHeadHash:reviewedChainHead};
+  assert.equal(isVerifiedReviewMaintenanceCommit({...chainArgs,commit:git(fixture.root,['rev-parse','HEAD'])}),!forged,'first chain commit authority');
+  const next=structuredClone(first);
+  next.items[0].verificationEvidence[0]=structuredClone(checklistAt(authorityHead).items[0].verificationEvidence[0]);
+  assert(hasMechanicalExecutionAuthority(fixture.store,storyId,next.items[0],next.items[0].verificationEvidence[0]));
+  fixture.store.writeChecklist(storyId,next);
+  git(fixture.root,['add','--',storyPrefix+'checklist.json']);git(fixture.root,['commit','-m',`proof-or-stop: record ${storyId} verification_evidence_add metadata`]);
+  const nextHead=git(fixture.root,['rev-parse','HEAD']);
+  assert.equal(isVerifiedReviewMaintenanceCommit({...chainArgs,commit:nextHead}),!forged,'later refresh cannot grandfather a rejected row');
+  assert.equal(isCurrentVerifiedEvidenceRefreshArtifact({...chainArgs,snapshotHead:nextHead,artifactPath:'checklist.json',isProtectedArtifact:closeoutArtifactPolicyFor}),!forged,'latest-artifact lookup preserves reviewed authority');
+  console.log(forged?'GRANDFATHERED_UNAUTHENTICATED_ROW_REFUSED':'AUTHENTICATED_REFRESH_CHAIN_GREEN');
+ }
+ git(fixture.root,['reset','--hard',authorityHead]);
 } else {
  assert.equal(verifyManagedReviewLiveBinding({gitCwd:fixture.root,metadataRoot:fixture.root,storyId,expected}).valid,false,'forged metadata and cancelled epochs never preserve managed authority');
 }
