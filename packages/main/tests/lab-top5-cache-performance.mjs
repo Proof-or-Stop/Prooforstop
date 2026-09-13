@@ -41,4 +41,6 @@ assert.ok(cache.files>0&&cache.bytes>0,`TOP5_${suite}_RED: repeated native child
 // Suite 3's native baseline is preserved in top5-3-red.log (699947.729583 ms).
 // Require at least 1% lower complete wall time as well as all native checks.
 if(suite===3) assert.ok(wallMs < 699947.729583 * 0.99, 'TOP5_3_PERFORMANCE: complete command must improve at least one percent');
+// Suite 5's complete native baseline is recorded in top5-5-red.log.
+if(suite===5) assert.ok(wallMs < 135068.903292 * 0.99, 'TOP5_5_PERFORMANCE: complete command must improve at least one percent');
 console.log(`TOP5_${suite}_GREEN`);

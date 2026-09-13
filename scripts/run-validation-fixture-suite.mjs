@@ -35,6 +35,10 @@ assert.deepEqual(rest, (entry.endsWith('/red-w2d-command-readonly.mjs') || entry
 const fixture = createFixtureMachineEnvironment();
 const env = { ...fixture.env, PROOF_OR_STOP_HEALTH_PATH: join(fixture.root, 'health.jsonl') };
 delete env.LATTICE_HEALTH_PATH;
+// Each heartbeat run starts cold and removes this compilation cache with its fixture.
+if (entry.endsWith('/validate-progress-heartbeat-smoke.js')) {
+  env.NODE_COMPILE_CACHE = join(fixture.root, 'node-compile-cache');
+}
 // This fixture exercises both native host families with real broker signatures.
 // The ambient Codex/Claude owner must not become its simulated host ancestry.
 const result = entry.endsWith('/quorum-submit-smoke.js')
