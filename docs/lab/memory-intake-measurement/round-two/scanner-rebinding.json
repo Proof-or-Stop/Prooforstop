@@ -873,5 +873,17 @@
         "75331ad20b20746203aa39643ef593461f011fadcf0d977e314e33badcef8dc1"
       ]
     ]
+  },
+  {
+    "id": "EX-MEMORY-QUERY-TIMING",
+    "changes": [
+      [
+        "dependency",
+        "packages/main/src/core/playbook-runtime-memory.ts",
+        "92dd4be00da134a54c9b6bdd5a2b6a117fffef7d9c685d44afd18abfdac05611",
+        "872cc83d933470a229e293ab306d876a95bcf11533e064766e0ba07a16d0953c"
+      ]
+    ],
+    "reason": "The source-only eligibility callback records an actual source build; the timed batch helper and registered verifier call remain unchanged."
   }
 ]
