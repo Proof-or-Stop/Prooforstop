@@ -602,6 +602,23 @@ assert.equal(verifyValidationTierExclusions({
   ...tieredManifest,
   selectorBinding: proofRemovedBinding,
 }), false, 'the isolated excluded-row rule rejects a missing positive proof');
+const forgedStandaloneDecision = {
+  ...tieredManifest.selectorBinding!.decision,
+  selectionDigest: 'caller-authored-selection-digest',
+};
+const forgedStandaloneBinding = {
+  ...tieredManifest.selectorBinding!,
+  decision: forgedStandaloneDecision,
+  bindingDigest: digestCanonicalJson({
+    catalogDigest: tieredManifest.selectorBinding!.catalogDigest,
+    input: tieredManifest.selectorBinding!.input,
+    decision: forgedStandaloneDecision,
+  }),
+};
+assert.equal(verifyValidationTierExclusions({
+  ...tieredManifest,
+  selectorBinding: forgedStandaloneBinding,
+}), false, 'the standalone exclusion verifier recomputes and rejects a self-consistent caller-authored decision');
 const unrelatedCatalogBinding = {
   ...tieredManifest.selectorBinding!,
   catalogDigest: digestCanonicalJson({ unrelated: true }),

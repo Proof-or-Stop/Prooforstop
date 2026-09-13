@@ -95,6 +95,9 @@ export function requiresDynamicValidationAdmission(
   ctx: { root: string; store: StoryStore; gitCwd: string },
   storyId: string,
 ): boolean {
+  if (typeof ctx?.gitCwd !== 'string' || ctx.gitCwd.trim() === '') {
+    throw new Error('requiresDynamicValidationAdmission: gitCwd must be a non-empty string');
+  }
   const evidence = ctx.store.readTestEvidence(storyId);
   if (!evidence || evidence.result !== 'PASS') return false;
   try {
@@ -110,6 +113,9 @@ export function assessStoredValidationPassAdmissibility(
   storyId: string,
   options: { allowDynamicCoverage: boolean },
 ): ValidationEvidenceAdmissibility {
+  if (!options || typeof options.allowDynamicCoverage !== 'boolean') {
+    throw new Error('assessStoredValidationPassAdmissibility: options.allowDynamicCoverage must be an explicit boolean');
+  }
   const evidence = ctx.store.readTestEvidence(storyId);
   // Preserve the legacy gate's cheap path: absent or failed evidence means
   // "run validate", not "load every PASS-only freshness dependency first".

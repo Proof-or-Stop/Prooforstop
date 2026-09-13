@@ -18,8 +18,18 @@ const { persistCanonicalFullBaseline, runStoryAwareDynamicValidation } = await l
 const {readStoryAwareValidationArtifacts,persistStoryAwareValidationArtifacts} = await load('handlers/story-aware-validation.js');
 const {appendReceiptRevocation,createValidationCommandReceipt} = await load('core/story-aware-validation.js');
 const { runValidateGate, runDoneOracleGate } = await load('handlers/phase-gates.js');
-const { assessStoredValidationPassAdmissibility } = await load('handlers/validation-pass-admissibility.js');
-async function runCase(phase, full) {
+const { assessStoredValidationPassAdmissibility, requiresDynamicValidationAdmission } = await load('handlers/validation-pass-admissibility.js');
+assert.throws(
+  () => assessStoredValidationPassAdmissibility({}, 'B-invalid-options'),
+  /options\.allowDynamicCoverage must be an explicit boolean/,
+  'an untyped caller must receive the named options refusal before a late dereference',
+);
+assert.throws(
+  () => requiresDynamicValidationAdmission({ root: repo, store: {}, gitCwd: '' }, 'B-invalid-git-cwd'),
+  /gitCwd must be a non-empty string/,
+  'an untyped caller must receive the named gitCwd refusal',
+);
+async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
     const root = mkdtempSync(join(tmpdir(), 'u09-full-authority-'));
     const oldCwd = process.cwd();
     let store;
@@ -35,7 +45,7 @@ async function runCase(phase, full) {
           { command: process.execPath, args: ['-e', 'process.stdout.write("build-marker")'], label: 'build', focus: ['fast'], optional: false, inputRoots: ['packages/main/src/local-input.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'] },
           { command: process.execPath, args: ['-e', 'process.stdout.write("unaffected-marker")'], focus: ['intermediate'], optional: true, inputRoots: ['packages/main/src/unaffected-input.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'] },
         ];
-        writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', validate: { dynamic: { mode: 'enforce-low-risk' }, commands } }));
+        writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', validate: { dynamic: { mode: dynamicMode }, commands } }));
         git('init', '-q', '-b', 'main');
         git('config', 'user.name', 'Audit');
         git('config', 'user.email', 'audit@example.invalid');
@@ -65,7 +75,7 @@ async function runCase(phase, full) {
         git('add', 'packages/main/src/local-input.ts');
         git('commit', '-qm', 'change build input');
         const head = git('rev-parse', 'HEAD');
-        await runStoryAwareDynamicValidation({ projectRoot: root, gitCwd: root, storyId, baseHead, head, mode: 'enforce-low-risk', commands: configured });
+        await runStoryAwareDynamicValidation({ projectRoot: root, gitCwd: root, storyId, baseHead, head, mode: dynamicMode, commands: configured });
         acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
         persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: deriveCertificationDomainInputHashes(root, 'HEAD', root) });
         const facts = { cli: { available: true, path: process.execPath }, worktree: { expected: root, actual: root }, gitIndex: { readable: true, path: join(root, '.git/index'), contentDigest: 'stable' }, gitMaterial: { available: true, headHash: head, materialHash: 'stable', storyFilesHash: 'stable' }, writerLease: { available: true, valid: true }, providerCapability: { required: ['validation-plan', 'bounded-output'], available: ['validation-plan', 'bounded-output'] }, resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } }, evidenceTarget: { writable: true, path: join(root, '.proof-or-stop/causal-evidence') }, sideChannel: { available: true, maxOutputChars: 12000, maxProgressEvents: 1 } };
@@ -75,6 +85,22 @@ async function runCase(phase, full) {
         const ctx = {root,scanRoot:join(root,'packages/main'),store,log:console.log};
         const admission = assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:!full});
         assert.equal(admission.ok,true,JSON.stringify(admission.reasonCodes));
+        if (dynamicMode === 'observe' && !full) {
+          assert.deepEqual(parsed.commands.map(c => c.label), ['build', 'configured validate.commands[1]']);
+          const observedArtifacts = readStoryAwareValidationArtifacts(root, storyId);
+          assert.ok(observedArtifacts.revocationLedger.digest, 'observe validate writes its audit revocation ledger');
+          const observedSelection = JSON.parse(readFileSync(join(root, '.proof-or-stop/runtime/dynamic-validation', storyId, 'selection.json'), 'utf8'));
+          assert.equal(observedSelection.mode, 'observe');
+          assert.equal(requiresDynamicValidationAdmission({ root, store, gitCwd: root }, storyId), false,
+            'observe artifacts beside a canonical PASS must not widen DONE admission');
+          let observeDoneError = '';
+          try { runDoneOracleGate(storyId, store, root, { stop() {} }, root); }
+          catch (error) { observeDoneError = error instanceof Error ? error.message : String(error); }
+          assert.doesNotMatch(observeDoneError, /Stored routine validation admission/,
+            'observe artifacts plus canonical PASS retain the pre-existing DONE contract');
+          console.log('OBSERVE_CANONICAL_DONE_CONTRACT_UNCHANGED');
+          return;
+        }
         if (full) {
           assert.deepEqual(parsed.commands.map(c => c.label), ['build', 'configured validate.commands[1]']);
           assert.equal(store.readTestEvidence(storyId).commandExecution.commandCount, 2);
@@ -298,5 +324,6 @@ async function runValidateFileBindinglessCase() {
     }
 }
 await runCase('REVIEW',true);
+await runCase('REVIEW',false,'observe');
 await runCase('REVIEW',false);
 await runValidateFileBindinglessCase();

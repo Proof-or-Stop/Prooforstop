@@ -607,10 +607,23 @@ function artifactDir(projectRoot: string, storyId: string): string {
   return join(projectRoot, PROOF_OR_STOP_STATE_DIR, 'runtime', 'dynamic-validation', safe);
 }
 
-/** Read-only provenance hint: presence can require stricter checks, never grant authority. */
+/**
+ * Read-only provenance hint for an authoritative dynamic run. Observe mode
+ * writes audit artifacts too, so bare ledger presence must not widen DONE.
+ */
 export function hasStoryAwareValidationArtifacts(projectRoot: string, storyId: string): boolean {
   const dir = artifactDir(projectRoot, storyId);
-  return existsSync(join(dir, 'receipts.json')) || existsSync(join(dir, 'revocation-ledger.json'));
+  const selectionPath = join(dir, 'selection.json');
+  const receiptsPath = join(dir, 'receipts.json');
+  if (!existsSync(selectionPath)) return existsSync(receiptsPath);
+  try {
+    const selection = JSON.parse(readFileSync(selectionPath, 'utf8')) as { mode?: unknown };
+    return selection.mode === 'enforce-low-risk' && existsSync(receiptsPath);
+  } catch {
+    // Malformed selection beside receipts may be stripped dynamic provenance,
+    // so keep that combination on the strict refusal path.
+    return existsSync(receiptsPath);
+  }
 }
 
 /** Whole-PASS reuse must not turn an invalid existing ledger into an empty ledger. */

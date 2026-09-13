@@ -529,6 +529,8 @@ interface GraphData {
   resolutionFailures: string[];
 }
 const graphTreeCache = new Map<string, Map<string, string>>();
+const dualRevisionGraphCache = new Map<string, DualRevisionImpactGraph>();
+const DUAL_REVISION_GRAPH_CACHE_MAX = 8;
 function parseImports(source: string, path: string): string[] {
   const output: string[] = [];
   const scriptKind = /\.(?:jsx|tsx)$/.test(path) ? ts.ScriptKind.TSX
@@ -646,6 +648,12 @@ export interface DualRevisionImpactGraph {
   authorityReasons(change: StoryChangedFile): string[];
 }
 export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: string; head: string; catalog?: ValidationCatalogEntry[] }): DualRevisionImpactGraph {
+  const immutableRefs = /^[0-9a-f]{40}$/i.test(args.baseHead) && /^[0-9a-f]{40}$/i.test(args.head);
+  const cacheKey = immutableRefs
+    ? stableDigest({ gitCwd: resolve(args.gitCwd), baseHead: args.baseHead, head: args.head, catalog: args.catalog || [] })
+    : '';
+  const cached = cacheKey ? dualRevisionGraphCache.get(cacheKey) : undefined;
+  if (cached) return cached;
   const base = buildGraphAtRef(args.gitCwd, args.baseHead); const head = buildGraphAtRef(args.gitCwd, args.head);
   const digest = (graph: GraphData) => stableDigest({ authorityPolicy: 'registered-authority-closure.v1', authorityRoots: validationAuthoritySources(), authorityMembers: uniqueSorted(graph.authority.members), authorityUnknown: graph.authority.unknown, resolutionFailures: graph.resolutionFailures, paths: uniqueSorted(graph.paths), imports: [...graph.imports.entries()].map(row => [row[0], uniqueSorted(row[1])]) });
   const roots = new Map((args.catalog || []).map(entry => [entry.id, uniqueSorted([...(entry.inputRoots || []), ...(entry.triggerExtensions.files || [])])]));
@@ -674,7 +682,7 @@ export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: s
     affectedCache.set(cacheKey, result);
     return result;
   };
-  return {
+  const result: DualRevisionImpactGraph = {
     baseHead: args.baseHead, head: args.head, baseGraphDigest: digest(base), headGraphDigest: digest(head),
     graphUnknown: base.paths.size === 0 || head.paths.size === 0
       || base.resolutionFailures.length > 0 || head.resolutionFailures.length > 0,
@@ -688,6 +696,15 @@ export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: s
       ...affected(head, headReverse, 'head', change),
     ]),
   };
+  if (cacheKey) {
+    dualRevisionGraphCache.set(cacheKey, result);
+    while (dualRevisionGraphCache.size > DUAL_REVISION_GRAPH_CACHE_MAX) {
+      const oldest = dualRevisionGraphCache.keys().next().value as string | undefined;
+      if (!oldest) break;
+      dualRevisionGraphCache.delete(oldest);
+    }
+  }
+  return result;
 }
 
 /** Add graph-proven Story paths that can reach each command to its selector inputs. */
@@ -1258,7 +1275,11 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
     return false;
   }
 }
-/** Independently verify every positive-proof omission in a tiered manifest. */
+/**
+ * Independently verify every positive-proof omission in a tiered manifest.
+ * This boundary recomputes the selector decision before trusting its proof
+ * rows; a self-consistent caller-authored decision is not an admission fact.
+ */
 export function verifyValidationTierExclusions(manifest: ValidationSelectionManifest): boolean {
   try {
   const binding = manifest.selectorBinding;
@@ -1268,6 +1289,12 @@ export function verifyValidationTierExclusions(manifest: ValidationSelectionMani
   if (!(VALIDATION_TIERS as readonly string[]).includes(manifest.effectiveTier)
     || !Array.isArray(manifest.tierSelections[manifest.effectiveTier])
     || !Array.isArray(binding.decision?.exclusionProofs)) return false;
+  const expectedDecision = selectAutomaticValidationTier(binding.input);
+  if (binding.bindingDigest !== digestCanonicalJson({
+    catalogDigest: binding.catalogDigest,
+    input: binding.input,
+    decision: binding.decision,
+  }) || digestCanonicalJson(binding.decision) !== digestCanonicalJson(expectedDecision)) return false;
   const effective = new Set(manifest.tierSelections[manifest.effectiveTier]);
   return manifest.rows.every((row) => {
     if (row.disposition !== 'excluded') return true;

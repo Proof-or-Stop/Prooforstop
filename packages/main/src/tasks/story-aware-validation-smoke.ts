@@ -128,6 +128,13 @@ try {
     catalog: [{ ...catalog[0]!, id: 'tsx-consumer', inputRoots: ['packages/main/src/component.tsx'], triggerExtensions: { files: ['packages/main/src/component.tsx'] } }],
     changeManifest,
   });
+  const repeatedJsxGraph = buildProductionDualRevisionImpactGraph({
+    gitCwd: graphFixtureRoot, storyId: 'B-production-graph', baseHead, head,
+    catalog: [{ ...catalog[0]!, id: 'tsx-consumer', inputRoots: ['packages/main/src/component.tsx'], triggerExtensions: { files: ['packages/main/src/component.tsx'] } }],
+    changeManifest,
+  });
+  assert.strictEqual(repeatedJsxGraph, jsxGraph,
+    'an immutable commit-pair and catalog must reuse one process-cached dual-revision AST graph');
   assert.ok(jsxGraph.commandsAffectedBy({ path: 'packages/main/src/jsx-dependency.ts', status: 'modified' }).includes('tsx-consumer'),
     'an import following JSX must remain a positive reverse-dependency edge');
 } finally {

@@ -417,7 +417,7 @@ runtime artifacts, accepts `.mts`/`.cts`, and maps tracked `dist` imports back t
 their source counterparts. JSON contents, asset imports, package aliases and
 example strings are not treated as missing relative module edges.
 
-Runner v8 is a new execution identity. Existing dynamic receipts and canonical
+Runner v9 is a new execution identity. Existing dynamic receipts and canonical
 baselines produced by an older runner are intentionally stale; an in-flight
 Story in TEST must obtain a fresh complete run before dynamic reuse can resume.
 
@@ -437,10 +437,12 @@ The selector's command-set identity is independently rebuilt from the current
 execution inventory. Its snapshot identity is independently rebuilt from the
 current Story id, immutable base/head and signed change-manifest digest. A
 caller cannot make either value authoritative merely by re-signing a
-self-consistent selector object. Graph traversal constructs each revision's
-reverse dependency map once and resolves affected commands once per changed
-file, not once per catalog row. This is protected by an exact call-count test;
-it is a complexity boundary, not a repository wall-time claim.
+self-consistent selector object. Graph construction and traversal use a bounded
+process cache for immutable commit pairs plus the catalog: each revision's
+TypeScript/JavaScript AST graph and reverse dependency map are built once,
+while affected commands are resolved once per changed file rather than once
+per catalog row. Exact identity and call-count tests protect those bounds;
+this is a complexity boundary, not a repository wall-time claim.
 
 The twenty compatibility package entrypoints now dispatch twenty distinct
 mode-specific executable assertions over the corresponding manifest,

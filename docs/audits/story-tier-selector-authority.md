@@ -314,6 +314,28 @@ and live command-set binding semantics changed. A fresh committed GREEN and a
 new post-bump independent audit are still required; this section is remediation
 evidence, not a release claim.
 
+## Ninth Claude audit and remediation
+
+The Lab-finish audit of candidate `cfb998f2e2` returned `fail` under run
+`0bd484d4-297f-4113-8bdf-95547d8a5d43` after 597,046 ms. Finish again stopped
+before main integration. Every finding in the returned array is retained below,
+including both low-severity hardening items even though the audit summary called
+the total “four unresolved findings” while returning five rows.
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A9-F1 observe artifacts widened DONE | Every Story-scoped observe run writes a revocation ledger, and bare ledger presence routed an ordinary canonical PASS through the new strict dynamic DONE evaluator | Artifact provenance now requires an `enforce-low-risk` selection plus receipts; malformed selection beside receipts remains fail-closed. A real observe-mode validate writes its ledger and canonical PASS, then proves `requiresDynamicValidationAdmission=false` and that DONE emits no `stored-validation-admission` row. The enforce-low-risk positive and marker-stripping negative controls still cross the same real DONE consumer |
+| A9-F2 runner-version prose | The normative invalidation paragraph said v8 while source and adjacent text said v9 | The paragraph now consistently names runner v9 |
+| A9-F3 repeated whole-repository AST construction | Stored-admission calls could rebuild and parse both revisions repeatedly in one process | Complete dual-revision graphs use a bounded eight-entry process cache only for immutable 40-hex commit pairs, keyed by resolved Git cwd, both commits, and the complete catalog. A repeated production-wrapper call over the same real Git fixture must return the identical cached graph object; moving symbolic refs are deliberately not cached |
+| A9-F4 untyped option/context calls | Missing `allowDynamicCoverage` failed late, and an empty `gitCwd` was accepted | Both public boundaries now reject malformed runtime inputs immediately with stable named errors; the compiled `.mjs` fixture calls each invalid shape and asserts those exact refusals |
+| A9-F5 standalone exclusion verification | The exported row verifier trusted a self-consistent caller-authored selector decision unless its parent verifier had already recomputed it | The standalone boundary now recomputes `selectAutomaticValidationTier(binding.input)` and verifies the binding digest before any exclusion proof; a forged re-signed decision that previously satisfied the row-only checks is rejected |
+
+Supporting checks on the repair tree pass: canonical build, Story-aware core
+smoke, 30 replay mutation classes, the real observe/enforce TEST/DONE suite,
+static-edge verification with 326 exceptions and zero pending/nested rows, and
+the complete process-fact contract. The final repair still requires commit,
+fresh Lab GREEN, and another exact post-bump Claude audit.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,
