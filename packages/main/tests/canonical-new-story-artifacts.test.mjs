@@ -3133,8 +3133,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 564,
-    "contextSha256": "8e1dec1f0ecd30e46884a6ae9b50c8abc21f589f86b6b13485e9beddc1162fb4"
+    "occurrences": 568,
+    "contextSha256": "853b60f057eca75cc6794322fa49210de58ac3346719036c5832dfdbffabc7ed"
   }
 ];
 

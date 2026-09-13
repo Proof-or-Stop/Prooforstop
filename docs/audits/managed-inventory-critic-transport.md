@@ -260,3 +260,25 @@ changed-context, changed-path and changed-token controls. The four rows enter
 that same loop; no directory exemption, broader pattern or optional check is
 introduced. Fresh scanner and consumer verification is required before final
 candidate audit; this paragraph does not claim those future results.
+
+### Final self-test import-use closure
+
+The last self-test extension at `08eb645f73` added four scanner import-use
+contexts but initially left the canonical test's exact scanner pin at 564.
+The real `identity-sites` command reproduced RED before repair. A source census
+using the canonical test's own AST derivation proves 264 literal rows unchanged,
+45 other import rows unchanged, and exactly one scanner row increasing from
+564 to 568 relative to `c172a4cbeb`. Its context digest is
+`853b60f057eca75cc6794322fa49210de58ac3346719036c5832dfdbffabc7ed`.
+The canonical count and digest were updated together without removing any
+integrity assertion; the actual `identity-sites` command then passed. The
+changed test file's fixture row and both owning whole-file witnesses are also
+refreshed, with its reviewed line and token count unchanged.
+
+The first prepared release `0216f965` was not audited or integrated. After the
+omission was reported, its candidate-GREEN child was deliberately terminated
+so Finish recorded failure and released its locks. Official reopen reverted
+the generated version commit. That interruption is an operator prevention of
+publishing a known incomplete candidate, not a performance-test failure or a
+new code regression. All command history is retained. Final GREEN and an
+independent prepared-candidate audit remain required after this closure.
