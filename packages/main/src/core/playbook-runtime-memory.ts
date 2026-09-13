@@ -635,7 +635,7 @@ function sameRuntimeMemoryIndexSourceDigests(
     && a.signatureRegistryDigest === b.signatureRegistryDigest;
 }
 
-function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackInternalOptions): RuntimeMemoryIndex | null {
+function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackInternalOptions, onBuild?: () => void): RuntimeMemoryIndex | null {
   if (options.useIndex === false) return null;
   if (options.runtimeIndex) {
     if (options.currentSourceDigests) {
@@ -647,6 +647,7 @@ function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackInternalOpt
   const stored = readRuntimeMemoryIndex(options.projectRoot);
   if (stored && isRuntimeMemoryIndexFresh(stored, options.projectRoot)) return stored;
   try {
+    onBuild?.();
     return buildRuntimeMemoryIndex(options.projectRoot);
   } catch {
     return null;
@@ -674,7 +675,8 @@ function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInter
     const early = getRuntimeMemoryPackCacheHit(earlyContext, true);
     if (early.hit) return { ...early.pack, generatedAt: options.generatedAt ?? early.pack.generatedAt };
   }
-  const runtimeIndex = resolveRuntimeIndexForPack(options);
+  let indexBuiltFromSource = false;
+  const runtimeIndex = resolveRuntimeIndexForPack(options, () => { indexBuiltFromSource = true; });
   const cacheContext = options.useIndex === false || options.useCache === false
     ? null
     : buildRuntimeMemoryPackCacheContext(options, {
@@ -686,7 +688,7 @@ function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInter
       maxLines,
       candidateLimit,
       runtimeIndex,
-      allowSourceOnlyReuse,
+      allowSourceOnlyReuse: allowSourceOnlyReuse && indexBuiltFromSource,
       ...(options.currentSourceDigests ? { currentSourceDigests: options.currentSourceDigests } : {}),
     });
   if (cacheContext) {
