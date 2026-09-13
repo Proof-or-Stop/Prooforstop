@@ -270,7 +270,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     }catch{return true;}
   };
   const retireReleasedGrants = () => {
-    for (const [socket, grant] of active) {
+    for (const [socket, grant] of [...active].reverse()) {
       if (!grant.disconnected) continue;
       const pendingWork=[...pendingChildren.values()].some(row=>row.parents.includes(grant.grantId));
       const descendantGrants=[...active.values()].some(row=>row!==grant&&row.parents.includes(grant.grantId));
