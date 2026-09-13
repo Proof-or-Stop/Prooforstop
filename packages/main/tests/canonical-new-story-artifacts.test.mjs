@@ -918,11 +918,20 @@ await check(['runtime', 'runtime-topology'], 'CHK-003 every registry-derived sto
 
 await check(['runtime'], 'CHK-003:happy:1 process/runtime verifiers pin the registry-derived pre-hook choke point', () => {
   for (const script of ['scripts/verify-process-fact-contract.mjs', 'scripts/verify-runtime-fact-contract.mjs']) {
+    const startedAt = process.hrtime.bigint();
     const result = spawnSync(process.execPath, [join(repoRoot, script), ...(script.includes('process') ? ['--quiet'] : [])], {
       cwd: repoRoot,
       encoding: 'utf8',
     });
     assert.equal(result.status, 0, `${script}\n${result.stdout}${result.stderr}`);
+    console.log('CANONICAL_VERIFIER_EXECUTION ' + JSON.stringify({
+      command: process.execPath,
+      args: [join(repoRoot, script), ...(script.includes('process') ? ['--quiet'] : [])],
+      status: result.status,
+      elapsedMs: Number(process.hrtime.bigint() - startedAt) / 1e6,
+      successSelectors: (result.stdout || '').split('\n').filter(line =>
+        line === 'Process fact contract verified' || line === 'execution_assertion_reuse_contract=PASS'),
+    }));
   }
 });
 
@@ -3124,8 +3133,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 563,
-    "contextSha256": "7a01a16c7545dd46b09f026ca21bc9174d44f8eb3b114a6546e8ab68d6fd3e0a"
+    "occurrences": 564,
+    "contextSha256": "8e1dec1f0ecd30e46884a6ae9b50c8abc21f589f86b6b13485e9beddc1162fb4"
   }
 ];
 
