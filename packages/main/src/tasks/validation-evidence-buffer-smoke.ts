@@ -39,6 +39,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isWithinValidationEvidenceWriteBound } from '../core/validation-evidence-size-policy.js';
 import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from '../core/done-prepare-generated-metadata.js';
 import {
   VALIDATION_EVIDENCE_ADVISORY_BYTES,
@@ -130,7 +131,7 @@ function assertFlagAgreesWithMeasurement(bound: ReturnType<typeof persist>): voi
   assert.equal(bound.fileBytes, actual, 'fileBytes is the check-time measurement of the returned candidate record');
   assert.equal(
     bound.withinBound,
-    actual! < VALIDATION_EVIDENCE_BOUND_BYTES,
+    isWithinValidationEvidenceWriteBound(actual!),
     `withinBound must be derived from the candidate measurement (flag=${bound.withinBound}, actual=${actual}, bound=${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
 }
@@ -537,7 +538,7 @@ function validationResult(
   const persistFrom = verifierSource.slice(verifierSource.indexOf('\nfunction persistStoryValidationEvidence('));
   const persistBody = persistFrom.slice(0, persistFrom.indexOf('\nfunction ', 1));
   assert.ok(persistBody.length > 0, 'persistStoryValidationEvidence was located in the shipped source');
-  const written = [...persistBody.matchAll(/writeTestEvidence\([^,]+,\s*([A-Za-z_$][\w$]*)\.record\s*\)/g)].map((match) => match[1]);
+  const written = [...persistBody.matchAll(/(?:writeTestEvidence|prepareTestEvidence)\([^,]+,\s*([A-Za-z_$][\w$]*)\.record\s*\)/g)].map((match) => match[1]);
   assert.ok(written.length > 0, 'the function writes evidence through a bound record');
   for (const name of written) {
     assert.ok(
@@ -742,8 +743,21 @@ function validationResult(
   // Read out of the document rather than restated beside it: a hardcoded list here would be one more
   // sentence owned somewhere else, which is the defect class this whole story kept reopening.
   const namedFindings = [...new Set(rationaleText.match(/B-3434:F-\d+/g) ?? [])].sort();
-  console.log('✓ CHK-004 disposition observed: outcome B shipped, its limitations remain recorded, and no writer-owned-boundary follow-up is currently active');
+  console.log('✓ Historical CHK-004 outcome B and reviewed Finding IDs preserved; current writer protection is tested by the acceptance-closure contract');
   console.log(`    rationale=${rationalePath} bytes=${Buffer.byteLength(rationaleText, 'utf8')} findingIdsNamed=${namedFindings.join(',')}`);
 }
 
+
+
+// The shared final artifact cap is inclusive, including the JSON newline.
+{
+  const make = (extra: number) => {
+    const empty = { output: '' };
+    const overhead = measurePersistedEvidenceBytes(empty)!;
+    return boundPersistedValidationEvidence({ result: {}, buildRecord: () => ({ output: 'x'.repeat(VALIDATION_EVIDENCE_BOUND_BYTES - overhead + extra) }) });
+  };
+  const exact = make(0); assertFlagAgreesWithMeasurement(exact);
+  assert.equal(exact.fileBytes, VALIDATION_EVIDENCE_BOUND_BYTES); assert.equal(exact.withinBound, true);
+  const over = make(1); assertFlagAgreesWithMeasurement(over); assert.equal(over.withinBound, false);
+}
 console.log('validation-evidence-buffer-smoke: PASS');
