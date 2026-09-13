@@ -129,3 +129,14 @@ chain and full-suite resource policy; Lab verification alone is not its ongoing
 regression coverage.
 
 Continuity is attempted only for the top-level report, never recursively for decomposition children. Approval issuance computes its exact current report under the existing mutation lock with continuity disabled. Each separate read revalidates its bounded proof; there is no persistent grant cache. `live_input_changed` identifies a successful reconstruction invalidated by the final live-input check, and a per-command output overflow reports `byte_limit`.
+
+Observe-mode reports skip continuity because they cannot block a transition.
+In enforce mode each top-level read, including each state-machine guard read,
+can spend up to 15 seconds on reconstruction. No cross-read cache is used:
+final live approval, amendment, subject and expiry checks remain independent.
+The 776-command counter is a defensive ceiling above the current structural
+maximum of 773 commands (three identity reads, two histories, and at most three
+256-blob inventories). It is not an independently tighter search limit.
+Regression fixtures lower the in-memory counter solely to exercise its refusal
+branch; production policy is unchanged. Aggregate byte exhaustion is tested
+across multiple individually admissible outputs.

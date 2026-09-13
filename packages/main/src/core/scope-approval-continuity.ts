@@ -79,6 +79,7 @@ export function resolveScopeApprovalContinuity(store: StoryStore,root: string,su
       try { output=execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],
         timeout:Math.max(1,Math.min(policy.continuityGitTimeoutMs,deadline-Date.now())),maxBuffer:policy.continuityGitOutputBytes});
       } catch (error) {
+        checkBudget();
         if ((error as NodeJS.ErrnoException).code === 'ENOBUFS') throw new ContinuityProofLimit('byte_limit');
         throw error;
       }

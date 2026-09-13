@@ -310,10 +310,11 @@ function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: st
     try {
       if (currentScopeBudgetApproval(store, root, storyId, report.bindingDigest)) {
         report.status = 'approved_large_story'; report.blocking = false;
-      } else if (!next && !base && !report.decomposition && allowApprovalContinuity) {
+      } else if (!next && !base && !report.decomposition && allowApprovalContinuity && report.blocking) {
         const continuity = resolveScopeApprovalContinuity(store, root, subject, report, evaluateStoryScopeBudget,
           reason => { report.approvalContinuityRefusal = reason; });
         if (continuity) {
+          delete report.approvalContinuityRefusal;
           report.approvalContinuity = continuity.provenance;
           report.status = 'approved_large_story'; report.blocking = false;
         } else {

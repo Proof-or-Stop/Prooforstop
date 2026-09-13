@@ -1,7 +1,7 @@
 /** Disposable signed fixtures are synthetic authorization, never operator acknowledgements. */
 import assert from 'node:assert/strict';
-import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync} from 'node:fs';
-import {execFileSync} from 'node:child_process';
+import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, realpathSync, rmSync} from 'node:fs';
+import {execFileSync,execFile} from 'node:child_process';
 import child from 'node:child_process';
 import {syncBuiltinESMExports} from 'node:module';
 import {tmpdir} from 'node:os';
@@ -18,7 +18,7 @@ import {acquireOwnerLease} from '../packages/main/dist/core/story-owner-lease.js
 import {hasMechanicalExecutionAuthority} from '../packages/main/dist/core/verification-receipt-authority.js';
 import {validateVerificationReceipt, VERIFICATION_RECEIPT_BUNDLE_V4} from '../packages/main/dist/core/verification-execution-evidence.js';
 import {SCOPE_BUDGET_DECISION_RUNTIME_POLICY as runtimePolicy} from '../packages/main/dist/core/runtime-fact-registry.js';
-import {parseAllowlistedCommand, runValidationCommand} from '../packages/main/dist/core/validation-executor.js';
+import {parseAllowlistedCommand} from '../packages/main/dist/core/validation-executor.js';
 import {scopeBudgetDecisionReport} from '../packages/main/dist/core/story-scope-budget-decisions.js';
 import {buildMilestoneLedger,buildSlicePlan,buildParentLedgerRollup} from '../packages/main/dist/core/proofstory.js';
 import {base,delta} from './verify-acceptance-amendment-delta.mjs';
@@ -27,15 +27,23 @@ const root=mkdtempSync(join(tmpdir(),'scope-approval-continuity-')), priorCwd=pr
 const git=(...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:'pipe'}).trim();
 const signed=claims=>({...claims,signature:signValidationArtifact(claims,root)});
 const storyId=base.storyId;
-// The existing fixture runner seam executes the real leaf with its actual read-only
-// temporary-path claim. No shell, result stub, queue bypass, or production policy change.
+// The test-only handler seam executes the fixed leaf in a real Node child.
+// Canonical admission belongs to the outer suite entry; this fixture does not
+// recursively admit a child behind an exclusive waiter holding up that outer entry.
+// The handler still owns pinning and the signed execution receipt.
 const verificationCommandRunner=async(command,cwd,timeoutMs)=>{
   const {executable,args}=parseAllowlistedCommand(command);
-  assert.equal(command,'node verify.cjs');
-  const result=await runValidationCommand({label:'continuity-fixture-leaf',command:executable,args,cwd,timeoutMs,
-    resources:[{class:'fixed-path',key:root,access:'shared'}]},root,30000);
-  return {executable,args,code:result.code,output:result.output,timedOut:Boolean(result.timedOut),durationMs:result.durationMs,timeoutMs:result.timeoutMs};
+  assert.equal(command,'node verify.cjs');assert.equal(realpathSync(cwd),realpathSync(root));
+  const started=performance.now();
+  return await new Promise((resolve,reject)=>{
+    execFile(executable,args,{cwd,timeout:timeoutMs,maxBuffer:1024*1024,encoding:'utf8'},(error,stdout,stderr)=>{
+      if(error&&typeof error.code!=='number'&&!error.killed){reject(error);return;}
+      resolve({executable,args,code:error?(typeof error.code==='number'?error.code:1):0,
+        output:stdout+stderr,timedOut:Boolean(error?.killed),durationMs:performance.now()-started,timeoutMs});
+    });
+  });
 };
+
 try {
   process.chdir(root);
   git('init','-q','-b','main');git('config','user.name','Synthetic approval fixture');git('config','user.email','fixture@example.invalid');
@@ -96,6 +104,11 @@ try {
   const originalGit=child.execFileSync;
   child.execFileSync=function(file,args,options){if(file==='git'&&args[0]==='log')historicalCalls++;return Reflect.apply(originalGit,this,[file,args,options]);};syncBuiltinESMExports();
   try { const issuer=scopeBudgetDecisionReport(store,root,storyId,undefined,false);assert.equal(issuer.status,'decision_required');assert.equal(issuer.bindingDigest,exactCurrent.bindingDigest);assert.equal(historicalCalls,0,'issuer report must never scan history'); } finally { child.execFileSync=originalGit;syncBuiltinESMExports(); }
+  const observeConfig=structuredClone(additive);observeConfig.storyScopeBudget.mode='observe';setConfig(observeConfig);
+  historicalCalls=0;
+  child.execFileSync=function(file,args,options){if(file==='git'&&args[0]==='log')historicalCalls++;return Reflect.apply(originalGit,this,[file,args,options]);};syncBuiltinESMExports();
+  try { const observed=readStoryScopeBudget(store,root,storyId);assert.equal(observed.status,'decision_required');assert.equal(observed.blocking,false);assert.equal(historicalCalls,0,'observe mode must skip historical continuity'); }
+  finally {child.execFileSync=originalGit;syncBuiltinESMExports();setConfig(additive);}
   const parentId='B-continuity-parent';
   store.writeStory(parentId,{storyId:parentId,name:parentId,title:'Synthetic decomposition parent',phase:'PLAN',priority:'medium',createdAt:now,events:[]});
   store.writeChecklist(parentId,approved.checklist);store.writeScopeContract(parentId,{...approved.scope,storyId:parentId,allowedModify:[],allowedCreate:[],allowedTest:[]});store.writeProofStoryContract(parentId,{...approved.proofStory,storyId:parentId});
@@ -111,7 +124,7 @@ try {
     assert.equal(report().status,'approved_large_story','the same child still qualifies as a top-level continuity read');
     assert(historicalCalls>0,'positive control must actually scan history');
   } finally {child.execFileSync=originalGit;syncBuiltinESMExports();}
-  const negativeLabels=['exact issuer report skips historical continuity','decomposition child skips historical continuity'];
+  const negativeLabels=['observe mode skips historical continuity','exact issuer report skips historical continuity','decomposition child skips historical continuity'];
   const refused=(label)=>{const r=report();assert.notEqual(r.status,'approved_large_story',label);negativeLabels.push(label);return r;};
   const withChecklist=(label,mutate)=>{const changed=structuredClone(pinned);mutate(changed);store.writeChecklist(storyId,changed);try{refused(label);}finally{store.writeChecklist(storyId,pinned);}};
   withChecklist('changed early intent reference',c=>{c.items[0].verificationIntent.edge.push(c.items[0].verificationIntent.happy.pop());});
@@ -164,11 +177,54 @@ try {
     },'time_limit');
     assert(timeBoundTriggered);
   }finally{Date.now=originalNow;}
+  virtualNow=originalNow();
+  try {
+    Date.now=()=>virtualNow;
+    withGitObserver('aggregate deadline expires inside subprocess',(file,args)=>{
+      if(file==='git'&&args[0]==='log') {
+        virtualNow+=runtimePolicy.continuityTotalMs+1;
+        throw Object.assign(new Error('synthetic subprocess deadline'),{code:'ETIMEDOUT'});
+      }
+    },'time_limit');
+  }finally{Date.now=originalNow;}
   withGitObserver('per-command output overflow',(file,args)=>{if(file==='git'&&args[0]==='log')throw Object.assign(new Error('synthetic maxBuffer overflow'),{code:'ENOBUFS'});},'byte_limit');
   withGitObserver('missing historical approval publication',(file,args)=>file==='git'&&args[0]==='log'&&args.at(-1).endsWith('scope-budget-decisions.json')?'':undefined,'proof_unavailable');
   withGitObserver('oversized historical publication inventory',(file,args)=>file==='git'&&args[0]==='log'?
     Array.from({length:runtimePolicy.continuityHistoryCommits+1},(_,i)=>i.toString(16).padStart(40,'0')).join('\n'):undefined,'history_limit');
   assert(runtimePolicy.continuityTotalGitCommands>=3*runtimePolicy.continuityHistoryCommits+5,'command bound accommodates all three bounded file inventories and Git identity checks');
+  // Lower only the imported fixture policy to exercise defensive counter branches;
+  // production caps remain unchanged and the same positive witness is restored.
+  const commandCap=runtimePolicy.continuityTotalGitCommands;
+  try {
+    runtimePolicy.continuityTotalGitCommands=2;
+    assert.equal(refused('defensive command counter at injected fixture cap').approvalContinuityRefusal,'command_limit');
+  }finally{runtimePolicy.continuityTotalGitCommands=commandCap;}
+  const byteCap=runtimePolicy.continuityTotalGitBytes;
+  let observedBytes=0,observedOutputs=0;
+  try {
+    runtimePolicy.continuityTotalGitBytes=180;
+    withGitObserver('aggregate bytes across individually admissible outputs',(file,args,options,original)=>{
+      if(options?.maxBuffer!==runtimePolicy.continuityGitOutputBytes)return undefined;
+      const output=original(file,args,options);
+      const padded=output.trimEnd()+' '.repeat(60)+'\n';
+      assert(Buffer.byteLength(padded)<=runtimePolicy.continuityTotalGitBytes,'each continuity output fits even the injected aggregate cap');
+      observedBytes+=Buffer.byteLength(padded);observedOutputs++;return padded;
+    },'byte_limit');
+    assert(observedOutputs>=2&&observedBytes>180,'aggregate control crosses cap across multiple outputs');
+  }finally{runtimePolicy.continuityTotalGitBytes=byteCap;}
+  for(const kind of ['journal-signature','historical-policy']) {
+    let replaced=0;
+    withGitObserver(`historical ${kind} corruption with valid live inputs`,(file,args,options,original)=>{
+      if(file==='git'&&args[0]==='show'&&args[1].endsWith(kind==='journal-signature'?'scope-budget-decisions.json':'proof-or-stop.config.json')) {
+        const blob=JSON.parse(original(file,args,options));
+        if(kind==='journal-signature')blob.signature='ed25519:invalid-historical-fixture-signature';
+        else blob.storyScopeBudget.limits.acceptanceTopology+=1;
+        replaced++;return JSON.stringify(blob);
+      }
+    });
+    assert(replaced>0,'historical control must reach the intended immutable blob read');
+    assert.equal(report().status,'approved_large_story','restoring actual historical blob restores the positive witness');
+  }
   let configDrifted=false;
   try {
     withGitObserver('configuration changes during proof',(file,args)=>{
