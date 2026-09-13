@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { MACHINE_HEAVY_RESOURCE_POLICY } from '../core/runtime-fact-registry.js';
+import { MACHINE_HEAVY_RESOURCE_POLICY, REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY } from '../core/runtime-fact-registry.js';
 import { withMachineValidationResources } from '../core/validation-execution-lock.js';
 
 import { spawn, execFileSync } from 'node:child_process';
@@ -129,7 +129,7 @@ const isolatedHeavy = (name: string, options: Omit<FullSuiteEntry, 'name' | 'res
 // Resource policy is intentionally separate from membership authority. Membership
 // comes only from test:serial-reference; a later reference member without a policy
 // fails closed before execution.
-const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
+export const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:full-suite-runner-smoke', {}, [
     { class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-fixed-sentinel'), access: 'exclusive' },
     { class: 'fixed-port', key: '43127', access: 'exclusive' },
@@ -149,12 +149,12 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:receipt-authority-v5', { timeoutMs: 180_000 }),
   // Reads exact identity bindings; all mutation controls use private temp roots.
   repoRead('test:reviewed-source-bindings'),
-  // The native review-epoch continuity matrix reads the repository bootstrap
-  // and exercises all positive and refusal cases in runner-owned temporary Git
-  // repositories. It holds no shared port or runtime lock, so a shared repo-read
-  // claim is sufficient. Omitting this row leaves a canonical serial-reference
-  // member without resource policy and fails the suite closed as unknownPolicy.
-  repoRead('test:review-epoch-certification-continuity'),
+  // The continuity matrix reads this checkout and runs bounded sequential CLI
+  // commands in private Git fixtures. Preserve its baseline shared repo-read
+  // scheduling; provider admission independently enforces the normal machine cap.
+  // The outer entry cap exceeds the 420-second isolated worker budget. Adding an
+  // exclusive full-suite-heavy claim here would introduce unmeasured serialization.
+  repoRead('test:review-epoch-certification-continuity', { timeoutMs: 450_000 }),
   // The route verifier runs its child suites sequentially against private Git
   // fixtures (history includes a bounded two-child race), with shared checkout
   // reads and no shared writable resource. Allow overlap; its measured 350-second
@@ -660,7 +660,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       externalCancellation: () => state.cancellationReason ?? state.interruptSignal },
       () => {
         enteredExecutor = true;
-        return executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state);
+        return executeFullSuiteEntry({ ...entry, timeoutMs: Math.max(1, deadlineAt - Date.now()) }, cwd, npmCommand, onSpawn, state, deadlineAt);
       });
   } catch (error) {
     if (enteredExecutor) throw error;
@@ -670,7 +670,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
   }
 }
 
-async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmCommand: string, onSpawn: (() => void) | undefined, state: FullSuiteRunState): Promise<FullSuiteResult> {
+async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmCommand: string, onSpawn: (() => void) | undefined, state: FullSuiteRunState, outerDeadlineAt: number): Promise<FullSuiteResult> {
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);
@@ -687,7 +687,7 @@ async function executeFullSuiteEntry(entry: FullSuiteEntry, cwd: string, npmComm
     const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];
     const child = spawn(command, commandArgs, {
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
+      env: { ...process.env, [REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.environmentKey]: JSON.stringify({entry:entry.name,timeoutMs:entry.timeoutMs ?? DEFAULT_TIMEOUT_MS,deadlineAt:outerDeadlineAt}), PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
     // B-137a: capture the child's kernel start identity BEFORE any cleanup can
     // run, so a later group signal can be authorized against it.

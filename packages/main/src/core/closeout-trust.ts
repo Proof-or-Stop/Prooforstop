@@ -48,8 +48,9 @@ export const CLOSEOUT_ARTIFACT_POLICIES = [
   { path: 'topology-critic-receipt.json', artifactClass: 'closeout-evidence', canonicalWriters: ['topology_critic_receipt_set'] },
   // A stale-evidence refresh only re-executes already-pinned verification and
   // replaces its evidence rows; it cannot create or change verification intent.
-  // Other checklist writers are deliberately absent because they may alter
-  // checklist status or acceptance semantics and therefore require re-review.
+  // Direct evidence publication is retained only by the strict V5 refresh
+  // classifier below: identical covered refs/results and unchanged requirements.
+  // Other checklist writers require re-review.
   { path: 'checklist.json', artifactClass: 'closeout-evidence', canonicalWriters: ['verification_evidence_refresh_stale'] },
   { path: 'parent-ledger-rollup.json', artifactClass: 'closeout-evidence', canonicalWriters: ['parent_ledger_rollup_set'] },
   { path: 'evidence/delivery-context-pack.json', artifactClass: 'closeout-evidence', canonicalWriters: ['delivery_context_pack'] },
@@ -655,7 +656,9 @@ export function classifyCurrentCloseoutArtifactForReviewRetention(
       artifactPath,
       { projectRoot, metadataRoot },
     );
-    if (!receipt) {
+    // Defence in depth: current canonical policies already exclude direct writes;
+    // retain this refusal if a future policy edit accidentally widens them.
+    if (!receipt || receipt.writerCommand === 'verification_evidence_add') {
       return {
         retainsReview: false,
         writer: '',

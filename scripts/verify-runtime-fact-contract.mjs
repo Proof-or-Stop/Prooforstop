@@ -3,7 +3,7 @@ import { prepareVerification, verificationFailureMessage } from './verification-
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -129,6 +129,48 @@ async function main() {
   check(registrySource.includes('MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY') && admission.includes('machineProviderProcessSlotsDir()') && admission.includes('admission.machineSlot'), 'provider admission must acquire, transfer and release canonical machine sidecar slots');
   const portLock = read(root, 'packages/main/src/core/validation-execution-lock.ts');
   check(registrySource.includes("unknownResources: 'exclusive-machine-queue'") && portLock.includes("class: 'machine-validation'"), 'unknown validation resources require a shared machine admission barrier with exclusive fallback');
+  check(registrySource.includes('REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY')
+    && read(root,'packages/main/src/tasks/full-suite-runner.ts').includes('[REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.environmentKey]: JSON.stringify(')
+    && read(root,'packages/main/src/tasks/full-suite-runner.ts').includes('cwd, npmCommand, onSpawn, state, deadlineAt)')
+    && read(root,'packages/main/src/tasks/full-suite-runner.ts').includes('deadlineAt:outerDeadlineAt')
+    && read(root,'packages/main/src/tasks/isolated-finding-fixture.ts').includes('Number(value.deadlineAt) - now'), 'review epoch fixture watchdog must consume the scheduler remaining outer deadline through registered test-only policy');
+  const {REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY: epochPolicy, MACHINE_FIXED_PORT_RUNTIME_POLICY: machinePolicy} = await importDist(root,'packages/main/dist/core/runtime-fact-registry.js');
+  const {RESOURCE_POLICY, CONCURRENCY_HEADROOM_FACTOR, runEntry, createFullSuiteRunState} = await importDist(root,'packages/main/dist/tasks/full-suite-runner.js');
+  assert.equal(epochPolicy.standaloneMs,epochPolicy.outerStandaloneMs-epochPolicy.cleanupMarginMs,
+    'standalone watchdog uses only the existing entry budget less cleanup');
+  assert.equal(epochPolicy.outerStandaloneMs, RESOURCE_POLICY[epochPolicy.entry].timeoutMs,
+    'review epoch outerStandaloneMs must equal the registered full-suite entry timeoutMs');
+  assert.equal(epochPolicy.maxOuterMs, Math.round(epochPolicy.outerStandaloneMs * CONCURRENCY_HEADROOM_FACTOR),
+    'review epoch maxOuterMs must equal outerStandaloneMs times full-suite concurrency headroom');
+  // Execute the actual writer and deadline transport without launching the heavy
+  // suite member. This tiny child only prints its received framework envelope.
+  let probeTimeoutMs=machinePolicy.queueDeadlineMs+30000;
+  const inheritedBudget=process.env[epochPolicy.environmentKey];
+  if(inheritedBudget!==undefined) {
+    const outer=JSON.parse(inheritedBudget);
+    assert(outer && Number.isFinite(outer.timeoutMs) && outer.timeoutMs>0 && Number.isFinite(outer.deadlineAt),
+      'runtime contract requires a valid inherited scheduler budget');
+    probeTimeoutMs=Math.floor(Math.min(outer.timeoutMs,outer.deadlineAt-Date.now())-1000);
+    assert(probeTimeoutMs>0,'runtime contract deadline exhausted before the nested transport probe');
+  }
+  const budgetScratch=mkdtempSync(join(tmpdir(),'review-epoch-budget-transport-'));
+  try {
+    const child=join(budgetScratch,'print-budget.mjs');
+    writeFileSync(child, '#!'+process.execPath+'\nconsole.log(process.env.'+epochPolicy.environmentKey+')\n');chmodSync(child,0o700);
+    const realNow=Date.now;let entryStarted;let pending;
+    try {
+      Date.now=()=>{const value=realNow();entryStarted??=value;return value;};
+      pending=runEntry({name:epochPolicy.entry,resources:[],tempOwnership:'runner-owned-unique',timeoutMs:probeTimeoutMs},root,child,undefined,createFullSuiteRunState());
+    } finally {Date.now=realNow;}
+    const result=await pending;
+    assert.equal(result.status,'PASS',JSON.stringify({probeTimeoutMs,status:result.status,failureOutcome:result.failureOutcome,output:result.output}));
+    const envelope=JSON.parse(result.output.trim());
+    assert.equal(envelope.entry,epochPolicy.entry);
+    assert(envelope.timeoutMs>0 && envelope.timeoutMs<=probeTimeoutMs,'writer must send the remaining entry budget');
+    assert(Number.isFinite(entryStarted),'record the actual runEntry clock read without fabricating time');
+    assert.equal(envelope.deadlineAt,entryStarted+probeTimeoutMs,'writer must transport the exact original absolute entry deadline');
+    console.log('REVIEW_EPOCH_BUDGET_TRANSPORT_PASS');
+  } finally {rmSync(budgetScratch,{recursive:true,force:true});}
   check(registrySource.includes('MACHINE_HEAVY_RESOURCE_POLICY') && read(root,'packages/main/src/core/keyed-scheduler.ts').includes('MACHINE_HEAVY_RESOURCE_POLICY.cpuKey'), 'machine CPU/process claims must share the runtime policy');
   check(registrySource.includes('MACHINE_FIXED_PORT_RUNTIME_POLICY') && portLock.includes('MACHINE_FIXED_PORT_ARTIFACT.directoryName')
     && portLock.includes('userInfo().homedir') && portLock.includes('probeMachineFixedPort') && portLock.includes('machinePortAncestorPids'),
@@ -479,6 +521,37 @@ async function main() {
   }
   const journalBoundary = checksModule.ACTIVE_IDENTITY_OPERATION_BOUNDARIES.find(row => row.id === 'canonical-journal-authority');
   check(Boolean(journalBoundary), 'current signed journal authority requires a registered runtime boundary');
+  { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/store.ts' && row.canonical === 'proof-or-stop.causal-evidence-index.v1');
+    check(Boolean(site && site.identityOrigin?.sourcePath === 'packages/main/src/core/causal-evidence.ts' && site.identityOrigin.exportName === 'CAUSAL_EVIDENCE_INDEX_SCHEMA' && site.sourceNeedle === 'schemaVersion: CAUSAL_EVIDENCE_INDEX_SCHEMA' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), 'causal index constant must bind the real store writer and its negative mutation'); }
+  // Exercise the exact runtime writer and imported schema authority in a
+  // disposable byte-for-byte copy; production source and keys stay untouched.
+  {
+    const site=journalBoundary?.identitySites.find(row=>row.identityOrigin?.exportName==='CAUSAL_EVIDENCE_INDEX_SCHEMA');
+    assert(site && journalBoundary);
+    const scratch=mkdtempSync(join(tmpdir(),'causal-index-identity-'));
+    const originPath='dist/core/causal-evidence.js';
+    const paths=new Set(journalBoundary.paths.map(row=>row.path));
+    for(const row of journalBoundary.identitySites) if(row.identityOrigin) {
+      assert(row.identityOrigin.sourcePath.startsWith('packages/main/src/'));
+      paths.add(row.identityOrigin.sourcePath.replace('packages/main/src/','dist/').replace(/\.ts$/u,'.js'));
+    }
+    try {
+      for(const path of paths) {mkdirSync(dirname(join(scratch,path)),{recursive:true});copyFileSync(join(root,'packages/main',path),join(scratch,path));}
+      const verify=()=>checksModule.assertCanonicalActiveIdentityBoundary({boundaryId:'canonical-journal-authority',runtimePackageRoot:scratch,projectRoot:root});
+      verify();
+      for(const [path,needle,replacement,origin] of [
+        ['dist/core/store.js',site.sourceNeedle,site.retiredNeedle,false],
+        [originPath,`export const CAUSAL_EVIDENCE_INDEX_SCHEMA = '${site.canonical}';`,`export const CAUSAL_EVIDENCE_INDEX_SCHEMA = '${site.retired}';`,true],
+      ]) {
+        const absolute=join(scratch,path),bytes=readFileSync(absolute,'utf8');
+        assert.equal(bytes.split(needle).length,2,'mutation must target exactly one real authority use');
+        try {writeFileSync(absolute,bytes.replace(needle,replacement));assert.throws(verify,error=>String(error.message).includes(site.siteId)&&(!origin||String(error.message).includes('imported identity origin')));}
+        finally {writeFileSync(absolute,bytes);}
+        verify();
+      }
+      console.log('CAUSAL_INDEX_SCHEMA_WRITER_AND_ORIGIN_REFUSAL_GREEN');
+    } finally {rmSync(scratch,{recursive:true,force:true});}
+  }
   { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/acceptance-amendment-journal.ts' && row.canonical === 'proof-or-stop.acceptance_amendment.v1');
     check(Boolean(site && site.identityOrigin?.sourcePath === 'packages/main/src/core/artifact-schema.ts' && site.identityOrigin.exportName === 'ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA' && site.sourceNeedle === 'schemaVersion: ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA' && journalBoundary.retiredIdentityCases.some(row => row.siteId === site.siteId)), 'canonical journal constant must bind actual consumer and negative mutation: ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA'); }
   { const site = journalBoundary?.identitySites.find(row => row.sourcePath === 'packages/main/src/core/acceptance-amendment-journal.ts' && row.canonical === 'proof-or-stop.acceptance_amendments.v1');

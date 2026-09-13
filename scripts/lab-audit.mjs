@@ -33,10 +33,26 @@ const inputCache = new Map();
 export function repairContentDigest(cwd, base, repairHead) {
   return hash(readGitText(cwd, ['diff', '--no-ext-diff', '--no-textconv', '--raw', '--no-abbrev', '-z', base, repairHead]));
 }
-export function auditInput(cwd, base, head) {
+/** Read-only projection of a successful exact-candidate command from the
+ * caller's authenticated Lab history. It is measurement, never audit approval.
+ * Keep the first qualifying receipt stable across successful retry replays. */
+export function candidateVerificationContext(history, head, command) {
+  if(!Array.isArray(history) || !/^[a-f0-9]{40,64}$/.test(head) || !Array.isArray(command) || !command.length || command.some(value=>typeof value!=='string')) return null;
+  const row=history.find(row=>row.kind==='candidate-green' && row.head===head && row.checkoutVerified===true && row.verifiedHead===head
+    && JSON.stringify(row.command)===JSON.stringify(command) && row.status===0 && row.signal===null && !row.error
+    && Number.isFinite(row.elapsedMs) && row.elapsedMs>=0 && Number.isFinite(row.timeoutMs) && row.timeoutMs>0
+    && typeof row.output==='string' && typeof row.at==='string' && Number.isFinite(Date.parse(row.at)));
+  if(!row) return null;
+  return {kind:'tool-owned-candidate-verification',head,command:[...row.command],status:0,signal:null,
+    elapsedMs:row.elapsedMs,timeoutMs:row.timeoutMs,recordedAt:row.at,
+    outputSha256:hash(row.output),outputTail:row.output.slice(-12000),
+    authority:'Local authenticated Lab history; diagnostic measurement, not independent audit or Story evidence'};
+}
+export function auditInput(cwd, base, head, verification = null) {
   // Only immutable object IDs are cacheable; symbolic refs must be resolved afresh.
-  const key = /^[a-f0-9]{40,64}$/.test(base) && /^[a-f0-9]{40,64}$/.test(head) ? JSON.stringify([cwd, base, head]) : undefined;
+  const key = /^[a-f0-9]{40,64}$/.test(base) && /^[a-f0-9]{40,64}$/.test(head) ? JSON.stringify([cwd, base, head, verification]) : undefined;
   if (key && inputCache.has(key)) return inputCache.get(key);
+  if(verification && (verification.head!==head || verification.kind!=='tool-owned-candidate-verification' || verification.status!==0 || verification.signal!==null)) throw new Error('Lab audit verification must bind the exact successful candidate');
   const paths = readGitText(cwd, ['diff', '--name-only', '-z', base, head]).split('\0').filter(Boolean);
   const pathSet = new Set(paths);
   for (const path of paths) {
@@ -54,7 +70,7 @@ export function auditInput(cwd, base, head) {
     const content = readGitText(cwd, ['show', `${head}:${path}`], path);
     return { path, content };
   });
-  const input = JSON.stringify({ base, head, diff: readGitText(cwd, ['diff', '--no-ext-diff', '--no-textconv', base, head]), files });
+  const input = JSON.stringify({ base, head, diff: readGitText(cwd, ['diff', '--no-ext-diff', '--no-textconv', base, head]), files, verification });
   const binary = files.find(file => file.content.includes('\0'));
   if (binary) throw new Error(`Lab audit input violates the bounded text contract: binary content (${binary.path}); provide a text-only repair.`);
   if (Buffer.byteLength(input) > INPUT_LIMIT) throw new Error('Lab audit input exceeds the bounded text contract; split the repair.');
@@ -124,10 +140,10 @@ async function loadHostRunner() {
   try { hostRunner = await import('../packages/main/src/core/host-run.ts'); } finally { hook.deregister(); }
   return hostRunner;
 }
-export async function executeLabAudit({ cwd, base, head, developer, labName, evidenceRoot, config = {}, selection = selectAuditor(developer, config) }) {
+export async function executeLabAudit({ cwd, base, head, developer, labName, evidenceRoot, config = {}, selection = selectAuditor(developer, config), verification = null }) {
   const auditorHost = selection.auditor.id;
   const configDigest = hash(JSON.stringify(config));
-  const { input, inputDigest, paths, files } = auditInput(cwd, base, head);
+  const { input, inputDigest, paths, files } = auditInput(cwd, base, head, verification);
   const binding = { schemaVersion: LAB_AUDIT_SCHEMA, labName, developerHost: developer, auditorHost, developerVendor: selection.developer.vendor, auditorVendor: selection.auditor.vendor, configDigest, head, base, inputDigest, runId: randomUUID() };
   const dir = join(evidenceRoot, binding.runId); mkdirSync(dir, { recursive: true, mode: 0o700 });
   for (const file of files) { const path = join(dir, 'snapshot', file.path); mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, file.content); }

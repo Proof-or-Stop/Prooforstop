@@ -347,3 +347,17 @@ never uses the restoration port. Progress revalidation reads the proof again.
 `node scripts/verify-route-reattestation-dependency-direction.mjs` checks the real
 component DAG and native signed restoration with missing, substituted and wrong
 workspace controls. These disposable tests are not Story completion evidence.
+
+### Exact-candidate verification in audit inputs
+
+Audit input includes a bounded measurement projected from the authenticated local
+Lab history. A candidate-green command becomes eligible only after exit success,
+absence of process error, clean checkout and unchanged HEAD have all been checked.
+Rejected runs remain in history without the checkout-verified marker. The first
+accepted record matching the candidate SHA and pinned executable/argv remains
+stable across successful retry replays. The projection includes command, deadline
+allowance, elapsed time, timestamp, output digest and a bounded output tail; it is
+covered by the audit input digest and does not grant independent approval. Early
+audits without an accepted candidate measurement receive null rather than an
+invented pass. This external-to-Git measurement avoids requiring a candidate commit
+to contain its own SHA or its future execution result.
