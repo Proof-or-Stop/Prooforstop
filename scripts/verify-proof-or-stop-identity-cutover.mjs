@@ -3223,7 +3223,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "e4abcb4f5c082cef757c220241e7d289494d53fc1d4d9a8d86cb3a54385f1c94"
+    "sha256": "3640422843986751e5b5fec2cf0d973960946cadc0811917b1ca0815a9ba031a"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3603,7 +3603,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"e4abcb4f5c082cef757c220241e7d289494d53fc1d4d9a8d86cb3a54385f1c94"],
+  [4,"3640422843986751e5b5fec2cf0d973960946cadc0811917b1ca0815a9ba031a"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -4338,13 +4338,13 @@ const SCANNER_RETIRED_LINE_CONTEXTS = [
   ["4a1e42cea269e577e5273724dbdad851cca273683e95ce4f92b5096de6e71a28",1,[7071]],
   ["580d08037f5467d9d2f8beeeafbc3a727eb2f14d2520a2abf102a5b0eb5cb56b",1,[7072]],
   ["082583da93f52a1ab8bba465cc7f03bcac21ce53e1da7db0d577c65b302e488b",1,[7388]],
-  ["8cf86b9695e64d03dc57e77d2e72137cdca62019f0ada5bebe1a3ec93be2c6c8",1,[7629]],
-  ["89ccfd14489425fcb56c3d73259421da9f7f7c9e94a8766d4e8e524b1bf1dade",1,[7630]],
-  ["d84137314d16fda9982ea9e1ed9ddd96075b96d8a0748369ccb6855f8d585cdf",1,[7631]],
-  ["96dc3ab16a41abba4060bbe2a8e64c5fad90cf81af6feeb833143b37ffa6941d",1,[7632]],
-  ["963c7080e32d784acd2c648e61448bdd0bcc5233f66b63c42b467b0ca53272fa",1,[7633]],
-  ["0325c3dca2d5c5eb392316644efec1fbf2760f5b104e6341dcea12853d261a94",1,[7634]],
-  ["42105b00f31d8747b978364998d48ac7ad0dbdc5da51623639a8ce649ccb51b9",1,[7635]],
+  ["8cf86b9695e64d03dc57e77d2e72137cdca62019f0ada5bebe1a3ec93be2c6c8",1,[7630]],
+  ["89ccfd14489425fcb56c3d73259421da9f7f7c9e94a8766d4e8e524b1bf1dade",1,[7631]],
+  ["d84137314d16fda9982ea9e1ed9ddd96075b96d8a0748369ccb6855f8d585cdf",1,[7632]],
+  ["96dc3ab16a41abba4060bbe2a8e64c5fad90cf81af6feeb833143b37ffa6941d",1,[7633]],
+  ["963c7080e32d784acd2c648e61448bdd0bcc5233f66b63c42b467b0ca53272fa",1,[7634]],
+  ["0325c3dca2d5c5eb392316644efec1fbf2760f5b104e6341dcea12853d261a94",1,[7635]],
+  ["42105b00f31d8747b978364998d48ac7ad0dbdc5da51623639a8ce649ccb51b9",1,[7636]],
 ];
 
 EXACT_ALLOWLIST.push(...MAINTENANCE_SCHEMA_PROVENANCE_ROWS);
@@ -7422,7 +7422,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "6be055312960da02f6c15276238b0faded8fea26e67bd6f1697123ec90144d8c"
+    "sha256": "89536b347c27a20d5f30ae90449487040af02e3b1b2eb6b99e5ad0b53ca37da9"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7514,6 +7514,7 @@ function main() {
   // scanner invocation or an integrity-hash substitute for behavioral proof.
   const identitySitesCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=identity-sites'], { cwd: root, encoding: 'utf8', timeout: 60000 });
   if (!identitySitesCheck.includes('GREEN B-49df: identity-sites group pass.')) throw new Error('independent owned identity totality verification did not produce its required selector');
+  process.stdout.write(identitySitesCheck);
 
   // Disposable immutable-boundary controls require the same structural scan
   // and independent source/emitted identity totality, but do not certify the
