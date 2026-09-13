@@ -1,14 +1,15 @@
-// Bounded source-identity acceptance; the broader fixture/JSON suite remains separate.
+// Bounded reviewed-identity closure; full active-residue scanning and native route execution remain separate.
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, copyFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { runInNewContext } from 'node:vm';
 import { validateReviewedSourceSources, reviewedSourceResidueAllowed } from './identity-reviewed-source-contexts.mjs';
+import { validateReviewedFixtureSources } from './identity-reviewed-fixture-contexts.mjs';
 
 const read = path => readFileSync(path, 'utf8');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -21,8 +22,12 @@ assert.equal(scripts['test:serial-reference'].split(' && ')
 console.log('PASS routine registration: exact npm script and one serial-reference membership');
 // Main metadata refresh may move reviewed lines, never their context or policy.
 const refreshedPaths = ["packages/main/src/core/process-fact-levels.ts", "packages/main/src/core/runtime-fact-registry.ts", "packages/main/src/core/runtime-environment-checks.ts"];
-const refreshedRows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries
-  .filter(row => refreshedPaths.includes(row.path))
+const allReviewedRows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries;
+const causalToken = ['proof', 'bound.causal-evidence-index.v1'].join('');
+const causalRows = allReviewedRows.filter(row => row.path === 'packages/main/src/core/runtime-environment-checks.ts' && row.token === causalToken);
+assert.equal(causalRows.length, 1, 'exact causal-origin negative-source row required');
+const refreshedRows = allReviewedRows
+  .filter(row => refreshedPaths.includes(row.path) && row !== causalRows[0])
   .map(({ sourceSha256, lineNumber, ...context }) => context);
 assert.equal(refreshedRows.length, 6, 'exact six reviewed main contexts required');
 assert.equal(sha(JSON.stringify(refreshedRows)), '9e4bfc94c6066c7cfe7e66e5317a54eb44923d7980fc74fbc1996c950067435f',
@@ -37,6 +42,31 @@ for (const [index, row] of refreshedRows.entries()) {
   }
 }
 console.log('PASS reviewed context digest: all six rows reject token/count/classification/reason/line-hash mutations');
+console.log('NOTE inherited six-row digest selector reports digest sensitivity; actual consumer refusals are tested separately below');
+// The source occurrence is the fourth argument (retired refusal needle) of
+// identitySite for the central causal index, paired with identityOrigin and the
+// following identityMutationCase; it is not the emitted schema value. Runtime
+// admission and the canonical identity-sites group are outside this verifier.
+const causalContext = { ...causalRows[0] };
+delete causalContext.sourceSha256; delete causalContext.lineNumber;
+assert.equal(sha(JSON.stringify(causalContext)), 'f91c882eada425b2e61290d6aab85f1805b5eb5ea37905fe1fb37db1ddc167c7', 'exact causal-origin refusal context must remain closed');
+const causalRow = causalRows[0], causalText = read(causalRow.path);
+const causalLine = causalText.split(/\r?\n/)[causalRow.lineNumber - 1];
+const causalInput = { path: causalRow.path, token: causalRow.token, lineNumber: causalRow.lineNumber, line: causalLine, text: causalText };
+assert.equal(reviewedSourceResidueAllowed(causalInput), true);
+for (const [label, changed] of [
+  ['token replacement', causalText.replace(causalRow.token, causalRow.token + '-changed')],
+  ['additional occurrence', causalText + '\n// ' + causalRow.token + '\n'],
+  ['same-count context change', causalText.replace(causalLine, causalLine + ' // changed context')],
+]) {
+  assert.notEqual(changed, causalText);
+  if (label === 'same-count context change') assert.equal(changed.split(causalRow.token).length - 1, causalRow.tokenOccurrences);
+  assert.equal(reviewedSourceResidueAllowed({ ...causalInput, text: changed, line: changed.split(/\r?\n/)[causalRow.lineNumber - 1] }), false, label);
+  assert(validateReviewedSourceSources(path => path === causalRow.path ? changed : read(path))
+    .includes(`reviewed source changed: ${causalRow.path}:${causalRow.lineNumber}`), label);
+}
+console.log('PASS causal-origin consumers: exact positive and token/additional-occurrence/same-count-context refusals in both source reader APIs');
+
 const errors = validateReviewedSourceSources(read);
 console.log(JSON.stringify({ reviewedSourceBindingFailures: errors.length, errors }));
 assert.deepEqual(errors, [], 'REVIEWED_SOURCE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
@@ -142,6 +172,11 @@ try {
     ['original', original.entries],
     ['missing', original.entries.slice(1)],
     ['duplicate', [...original.entries, original.entries[0]]],
+    ...['token', 'tokenOccurrences', 'classification', 'reason', 'lineSha256'].map(field => [
+      'causal-row-' + field,
+      original.entries.map(row => row.path === causalRow.path && row.token === causalRow.token
+        ? { ...row, [field]: typeof row[field] === 'number' ? row[field] + 1 : row[field] + ' changed' } : row),
+    ]),
   ]) {
     writeFileSync(join(scratch, dataName), name === 'original' ? bytes : JSON.stringify({ ...original, entries }));
     const result = spawnSync(process.execPath, ['--input-type=module', '-e', `await import(${JSON.stringify(pathToFileURL(join(scratch, moduleName)).href)})`], { encoding: 'utf8', timeout: 10000 });
@@ -152,3 +187,67 @@ try {
   }
 } finally { rmSync(scratch, { recursive: true, force: true }); }
 console.log('PASS source inventory byte integrity: original accepted, deleted and duplicate rows refused');
+console.log('PASS source inventory consumer: original accepted; deleted/duplicate rows and five causal-row protected-field mutations rejected by actual reader import');
+
+// Run the actual fixture consumer against every current pinned target. Import
+// itself also enforces the exact inventory digest and row count.
+assert.deepEqual(validateReviewedFixtureSources(read), [], 'REVIEWED_FIXTURE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
+console.log('PASS current fixture reader: all pinned fixture sources accepted');
+
+// Execute the unchanged route driver's own closure block without its native
+// suite. AST selection fails closed if its declaration/loop shape changes.
+const routePath = 'scripts/verify-route-reader-regression.mjs';
+const routeText = read(routePath), routeTree = ts.createSourceFile(routePath, routeText, ts.ScriptTarget.Latest, true);
+const routeClosureDeclaration = routeTree.statements.filter(node => ts.isVariableStatement(node)
+  && node.declarationList.declarations.some(decl => ts.isIdentifier(decl.name) && decl.name.text === 'closure'));
+const routeClosureCount = routeTree.statements.filter(node => ts.isExpressionStatement(node)
+  && node.getText(routeTree).includes("assert.equal(closure.length, 4,"));
+const routeClosureLoop = routeTree.statements.filter(node => ts.isForOfStatement(node)
+  && node.statement.getText(routeTree).includes('closure.every(entry => entry.dependencyDigests[file] === digest)'));
+assert.equal(routeClosureDeclaration.length, 1); assert.equal(routeClosureCount.length, 1); assert.equal(routeClosureLoop.length, 1);
+const routeClosureProgram = [...routeClosureDeclaration, ...routeClosureCount, ...routeClosureLoop].map(node => node.getText(routeTree)).join('\n');
+const executeRouteClosure = readFile => runInNewContext(routeClosureProgram,
+  { assert, readFileSync: readFile, resolve, root: process.cwd(), createHash }, { timeout: 1000 });
+executeRouteClosure(readFileSync);
+const staticPath = resolve('scripts/lab/u18-static-edges/exceptions.json');
+for (const mutation of ['remove-entry', 'stale-digest']) {
+  const manifest = JSON.parse(read(staticPath));
+  const index = manifest.entries.findIndex(entry => entry.dependencyDigests?.['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs']);
+  assert(index >= 0);
+  if (mutation === 'remove-entry') manifest.entries.splice(index, 1);
+  else manifest.entries[index].dependencyDigests['scripts/identity-reviewed-source-contexts.mjs'] = '0'.repeat(64);
+  assert.throws(() => executeRouteClosure((path, ...args) => resolve(String(path)) === staticPath
+    ? JSON.stringify(manifest) : readFileSync(path, ...args)), /closure must remain complete|helper dependency must match current source/);
+}
+console.log('PASS actual route dependency closure: four entries/current driver paths; missing-entry and stale-digest refusals; native route suite not run');
+
+// Self-test derives schemaRows from the real tracked files, calls the same
+// verifySchemaInventory as default mode, and mutates every compatibility row.
+// It does not execute this source verifier. Full active-residue mode remains a
+// separately reported inherited baseline failure, never relabelled by this test.
+for (const [args, selector] of [
+  [['scripts/verify-proof-or-stop-identity-cutover.mjs', '--self-test'], 'PASS identity-cutover self-test:'],
+  [['scripts/verify-validation-static-edges.mjs'], 'U18_STATIC_PASS'],
+]) {
+  const result = spawnSync(process.execPath, args, { encoding: 'utf8', timeout: 120000, maxBuffer: 16 * 1024 * 1024 });
+  assert.equal(result.error, undefined, String(result.error)); assert.equal(result.signal, null);
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert(result.stdout.includes(selector), result.stdout + result.stderr);
+  console.log(`PASS current candidate consumer: node ${args.join(' ')}; ${selector}`);
+}
+console.log('PASS reviewed identity final-head closure: source, fixture, actual schema self-test, static edges and bounded route dependencies; full scanner/native route not claimed');
+
+// Expose the exact unchanged dependency context in the candidate measurement;
+// these runtime quotations add no retired literals to the verifier's source.
+assert(causalLine.includes("identityOrigin: { sourcePath: 'packages/main/src/core/causal-evidence.ts', exportName: 'CAUSAL_EVIDENCE_INDEX_SCHEMA' }"));
+const causalMutation = causalText.split(/\r?\n/).filter(line => line.includes("identityMutationCase('packages/main/src/core/store.ts', 'proof-or-stop.causal-evidence-index.v1')"));
+assert.equal(causalMutation.length, 1);
+const compatiblePath = 'scripts/verify-review-epoch-certification-continuity.mjs';
+const compatibleText = read(compatiblePath), compatibleToken = ['lat', 'tice.managed_review_final_proposal.v1'].join('');
+const compatibleLines = compatibleText.split(/\r?\n/).filter(line => line.includes(compatibleToken));
+assert.equal(compatibleLines.length, 1);
+assert(compatibleLines[0].includes(`finalAssistantResult:JSON.stringify({schemaVersion:'${compatibleToken}'`));
+for (const evidence of [
+  { path: causalRow.path, sha256: sha(causalText), meaning: 'refusal needle paired with canonical origin and mutation case', lines: [causalLine, ...causalMutation] },
+  { path: compatiblePath, sha256: sha(compatibleText), meaning: 'accepted synthetic managed-review response; compatibility admission, not rejection fixture', lines: compatibleLines },
+]) console.log('AUDIT_SOURCE_CONTEXT ' + JSON.stringify(evidence));
