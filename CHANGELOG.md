@@ -1,5 +1,42 @@
 # Changelog
 
+## Lab validation-top5-performance - v0.3.360 - 2026-09-13
+
+Reduce repeated validation identity and planning work while preserving fresh execution checks.
+
+This Lab release combines per-observation executable hashing, synchronous batch planning reuse, bounded exact-source canonical digest memoization, isolated admissibility mutation workers, and disposable Node compilation caches for selected native validation fixtures. The imported planning repair retains independent post-lock, launch, completion, and publication checks. No validation PASS result is cached.
+
+Historical RED/GREEN measurements (single paired observations, not a guaranteed release-wide speedup):
+
+| Check | Before | After | Observed reduction |
+|---|---:|---:|---:|
+| Admissibility registry | 306.907 s | 295.596 s | 3.69% |
+| Verification run/guard | 354.728 s | 311.240 s | 12.26% |
+| Identity delivery | 699.948 s | 692.099 s | 1.12% |
+| Heartbeat validation | 135.069 s | 127.935 s | 5.28% |
+| Initial planning, 71 evidence rows | 6.458 s | 0.106 s | 98.35% |
+| Initial planning scans | 71 | 1 | 98.59% |
+| Initial planning logical reads | 3858.73 MB | 54.35 MB | 98.59% |
+| Original planning fanout shard | 421.541 s | 346.339 s | 17.84% |
+
+The combined candidate also passed a native fanout run with 71 assertions, 2 executions, one planning scan, and 93.141 ms planning. Original RED/GREEN logs, rejected candidates, a blocked quorum run, and SHA-256 manifests are committed under docs/lab/validation-top5-performance/. These are staged historical baselines; their savings cannot be added to estimate full-suite performance. Logical reads are not physical disk I/O. The small identity-delivery gain does not prove a stable improvement or resolution of its dominant hotspot.
+
+Quorum-submit optimization remains excluded: its 73 cases passed, but protected-directory monitoring failed. No successful optimization or GREEN baseline is claimed for that command. No guard was disabled.
+
+Validation includes source-mutation refusal, ordinary fresh observations, exceptions, no cache crossing await, nested planning scopes, full runtime-fact checks, native planning fanout, and the heartbeat suite. The pinned combined regression runs on the release candidate and after local main integration. Independent vendor audit and final Finish verification are recorded separately by the Lab tool. This is local maintenance evidence, not formal Story DONE.
+
+Lab: validation-top5-performance. Imported source Lab: validation-planning-scan, original repair a754176b77, integrated as 852938e89d. Release version is assigned by Lab Finish from the synchronized main baseline.
+
+Integration checks on the synchronized 0.3.357 base passed review-intent-cycle, the complete process-fact contract, and static source-evidence boundaries. Static scanning covers 330 exception uses with no unresolved or nested validation; 270 manifest entries have current covering source evidence. The later combined GREEN attempt on commit 23af3e0278 passed every native heartbeat group but took 151.881 seconds and failed the original 133.718-second performance threshold. That rejected attempt is retained in docs/lab/validation-top5-performance/logs/release-combined-green-rejected.log and is not passing release evidence. Final candidate and post-merge outcomes must be read from the subsequent successful Finish record, if one is obtained.
+
+The synchronized 0.3.358 candidate 6ab34f538c passed the unchanged combined GREEN command: native heartbeat 132.247 seconds, complete runtime-fact contract PASS, native fanout 291.696 seconds with 71 assertion receipts and 2 execution receipts, one planning scan in 107.885 ms. GitHub main 6c163f9693 is an ancestor of this candidate. This pre-Finish result supplements, but does not replace, the versioned candidate, independent vendor audit and post-merge checks.
+
+The 0.3.358 pre-Finish measurement is retained in docs/lab/validation-top5-performance/logs/release-358-combined-green.log and covered by manifest.json. The earlier 0.3.359 candidate c9b66d93e9 was withdrawn after an unsuccessful audit and was never integrated into local main by this Lab. Its complete Finish output and the unaccepted vendor response are retained as logs/release-finish-attempt1.log and logs/audit-attempt-1-response.json. The audit response reported four release-material issues and also omitted required read references, so it is not an accepted audit credential. The corrected record distinguishes the imported remote host version from the integration release, fixes the rejected-log path, retains the missing measured-run log, and restores the unrelated trailing blank line. Fresh candidate validation, audit and main verification are required.
+
+Maintenance provenance: codex/lab-validation-top5-performance, repair e09c60d6b5de4f2861c62d0743bc1f107490f91b.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/lab-top5-cache-performance.mjs","5"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-inventory-critic-transport - v0.3.359 - 2026-09-13
 
 # Managed inventory critic transport repair
