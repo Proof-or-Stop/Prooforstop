@@ -1,0 +1,190 @@
+// Disposable synthetic provider; actual CLI, signed worker receipt and importer.
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {existsSync,mkdtempSync,mkdirSync,rmSync,writeFileSync,readFileSync,realpathSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {StoryStore} from '../packages/main/dist/core/store.js';
+import {resetConfigCache} from '../packages/main/dist/core/config.js';
+import {readOwnerLease,releaseOwnerLease} from '../packages/main/dist/core/story-owner-lease.js';
+import {adapterSessionEnv,adapterSessionId} from '../packages/main/dist/tasks/adapter-session-env.js';
+import {nativeReviewFixtureBrokers,runBrokeredNativeReviewCli} from '../packages/main/dist/tasks/native-review-fixture.js';
+import {createHostRunHandlers} from '../packages/main/dist/handlers/host-run.js';
+import {createManagedReviewEvidenceHandlers} from '../packages/main/dist/handlers/managed-review-evidence.js';
+import {getManagedHostRunStatus,managedHostRunReceipt} from '../packages/main/dist/core/managed-host-run.js';
+const storyId = 'B-inventory-handler';
+const reviewRound = '2020-01-01T00:00:00.000Z';
+const cliPath = fileURLToPath(new URL('../../../../bin/proof-or-stop.js', new URL("../packages/main/dist/tasks/review-inventory-handler-smoke.js", import.meta.url)));
+const isolatedFixtureRoots = new Set();
+function releaseCompletedFixtureOwner(root, expectedSessionId) {
+    assert.ok(isolatedFixtureRoots.has(root), 'lease handoffs are isolated test fixtures only');
+    const storyDir = new StoryStore(root).storyDirPath(storyId);
+    const lease = readOwnerLease(storyDir);
+    if (lease?.sessionId === expectedSessionId) {
+        assert.equal(releaseOwnerLease(storyDir), true, 'completed matching fixture owner releases its lease');
+        assert.equal(readOwnerLease(storyDir), null);
+    }
+}
+function git(root, args) {
+    return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+}
+function cli(root, command, payload, env = {}) {
+    const actor = env.PROOF_OR_STOP_AGENT ?? 'main';
+    const task = env.PROOF_OR_STOP_SESSION_ID ?? 'review-inventory-owner';
+    // Fixture child calls release their lease for role handoffs. Restore only
+    // this same logical session's genuine committed lease before its next call,
+    // so continuity tests exercise heartbeat updates rather than new owners.
+    assert(isolatedFixtureRoots.has(root));
+    const ownerPath=new StoryStore(root).storyFilePath(storyId,'owner-lease.json');
+    const ownerGitPath=`.proof-or-stop/story/actives/${storyId}/owner-lease.json`;
+    if(!existsSync(ownerPath) && git(root,['ls-tree','--name-only','HEAD','--',ownerGitPath])) {
+      const bytes=execFileSync('git',['show','HEAD:'+ownerGitPath],{cwd:root,encoding:'utf8'});
+      const previous=JSON.parse(bytes);
+      if(previous.sessionId===adapterSessionId(root.split('/.worktrees/')[0],task,actor)) writeFileSync(ownerPath,bytes);
+    }
+
+    try {
+        return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
+            cwd: root,
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'pipe'],
+            env: {
+                ...process.env,
+                ...env,
+                PROOF_OR_STOP_AGENT: actor,
+                ...adapterSessionEnv(task, actor),
+            },
+        }).trim();
+    }
+    finally {
+        // The child has completed. Release only its own verified fixture lease.
+        releaseCompletedFixtureOwner(root, adapterSessionId(root.split('/.worktrees/')[0], task, actor));
+    }
+}
+function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-stop-implementer@noreply.local' }) {
+    const root = realpathSync(mkdtempSync(join(tmpdir(), 'review-inventory-handler-')));
+    isolatedFixtureRoots.add(root);
+    mkdirSync(join(root, 'packages/main/src'), { recursive: true });
+    mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
+    mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+        nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
+ validate:{commands:[{label:"native-fast",command:process.execPath,args:["--version"],focus:["fast"],timeoutMs:15000}]},
+        scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+    }));
+    writeFileSync(join(root, 'packages/main/src/subject.ts'), '// Fixture contract: subject must equal zero.\nexport const subject = 1;\n');
+    writeFileSync(join(root, 'packages/main/src/consumer-a.ts'), "export { subject } from './subject.js';\n");
+    writeFileSync(join(root, 'packages/main/src/consumer-b.ts'), "export { subject } from './consumer-a.js';\n");
+    writeFileSync(join(root, 'packages/main/tests/isolated.test.ts'), 'export const isolatedTest = 1;\n');
+    writeFileSync(join(root, 'docs/requirements/decisions/inventory.md'), '# Review inventory\n');
+    writeFileSync(join(root, 'docs/requirements/decisions/inventory-secondary.md'), '# Review inventory supplementary\n');
+    for (const name of ['almanac', 'beacon', 'compass', 'dossier', 'ledger', 'notebook']) {
+        writeFileSync(join(root, `docs/requirements/decisions/${name}.md`), `# ${name}\nUnrelated fixture material.\n`);
+    }
+    git(root, ['init']);
+    git(root, ['checkout', '-b', 'main']);
+    git(root, ['config', 'user.name', author.name]);
+    git(root, ['config', 'user.email', author.email]);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'initial']);
+    resetConfigCache();
+    const store = new StoryStore(root);
+    const story = {
+        storyId, name: 'inventory-handler-smoke', title: 'Inventory handler smoke',
+        description: 'Exercise real review inventory handler persistence and fail-closed paths.',
+        type: 'chore', phase: 'REVIEW', priority: 'high', createdAt: reviewRound,
+        startedAt: reviewRound, endedAt: null, currentReviewRound: reviewRound,
+        events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
+    };
+    store.writeStory(storyId, story);
+    return { root, store };
+}
+
+const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
+if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
+const scenario=process.argv.find(a=>a.startsWith('--case='))?.slice(7) ?? 'findings';
+assert(['findings','pass','crash','wrong-wave','drift','committed-drift'].includes(scenario));
+const fixture=setup();
+const primary=fixture.root;
+const worktree=join(primary,'.worktrees',storyId);
+fixture.store.writeStory(storyId,{...fixture.store.readStory(storyId),worktree:{path:worktree,branch:'story/'+storyId,createdAt:reviewRound}});
+fixture.store.writeChecklist(storyId,{items:[]});
+git(primary,['add','.']);git(primary,['commit','-m','record disposable story']);
+git(primary,['worktree','add','-b','story/'+storyId,worktree]);
+fixture.root=worktree;fixture.store=new StoryStore(worktree);isolatedFixtureRoots.add(worktree);
+const oldCwd=process.cwd();
+try {
+cli(worktree,'candidate_spec_route',{storyId,hosts:false});
+cli(worktree,'review_inventory_begin',{storyId});
+const epoch=fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1);
+const artifact=fixture.store.readCandidateSpecSet(storyId);
+const files=[...new Set(['packages/main/src/subject.ts',...artifact.candidateSpecSet])];
+const readManifest={filesReadFully:files,filesTriagedByName:[],scanEscalationReason:artifact.scanEscalationReason,candidateSpecSetDigest:artifact.artifactDigest,corpusDigest:artifact.corpusDigest};
+const readEvents=files.map(path=>({path,mode:'full',action:'Read',tokenCount:null}));
+for(const lane of epoch.requiredLanes){
+ const env={PROOF_OR_STOP_AGENT:lane,PROOF_OR_STOP_SESSION_ID:'fixture-'+lane};
+ cli(worktree,'dispatch',{storyId,agentType:lane},env);
+ const out=cli(worktree,'review_run_start',{storyId,agent:lane},env);
+ const reviewRunId=out.match(/Review run (\S+) started/)[1];
+ await runBrokeredNativeReviewCli({root:worktree,store:fixture.store,storyId,agent:lane,reviewRunId,command:'review_pass_set',payload:{storyId,agent:lane,reviewRunId,note:'Disposable native lane fully read the bounded candidate set.',readManifest,readEvents}});
+}
+const lane='proof-or-stop-review-topology-critic';
+const purpose={reviewPurpose:'inventory-completeness',inventoryEpochId:epoch.epochId};
+const env={PROOF_OR_STOP_AGENT:lane,PROOF_OR_STOP_SESSION_ID:'fixture-critic'};
+cli(worktree,'dispatch',{storyId,agentType:lane,...purpose},env);
+const out=cli(worktree,'review_run_start',{storyId,agent:lane,...purpose},env);
+const reviewRunId=out.match(/Review run (\S+) started/)[1];
+process.chdir(worktree);
+const ctx={root:worktree,store:fixture.store,scanRoot:join(worktree,'packages/main')};
+const host=createHostRunHandlers(ctx,{runner:async()=>{
+ for(const path of files) readFileSync(join(worktree,path));
+ return {stdout:'',stderr:'',exitCode:0,timedOut:false,terminalReason:'completed',finalAssistantResultCount:1,finalAssistantResultTruncated:false,
+ finalAssistantResult:JSON.stringify({schemaVersion:'lattice.managed_review_final_proposal.v1',storyId,providerAgent:lane,lane,reviewRunId,conclusion:scenario==='pass'?'pass':'findings',
+ ...(scenario==='pass'?{note:'The independent fixture critic confirms complete bounded coverage.'}:{findings:[{desc:'A disposable verified observation tests own-index mapping without guessing its allocated ID.',severity:'medium',category:'missing',files:['packages/main/src/subject.ts'],evidenceState:'verified'}]}),
+ inventoryCritic:{epochId:epoch.epochId,wave:scenario==='wrong-wave'?2:1,findingDispositions:scenario==='pass'?[]:[{finding:{proposalFindingIndex:0},disposition:'verified_family',familyKey:'fixture-family',reason:'Independent synthetic provider classifies its own observation.'}]},
+ readManifest,readLog:{filesReadFully:files,filesTriagedByName:[],summary:{readCount:files.length,tokenCount:null},digest:'a'.repeat(64)}})};
+}});
+const launched=await host.host_run({host:'codex',storyId,agentType:lane,reviewRunId,lane,managedReview:true,detach:true,deadlineMs:60000,json:true});
+let status;const deadline=Date.now()+60000;
+do {status=await getManagedHostRunStatus({root:worktree,runId:launched.run.runId});if(['completed','failed','timed_out','cancelled'].includes(status.run.state))break;await new Promise(r=>setTimeout(r,100));}while(Date.now()<deadline);
+assert.equal(status.run.state,'completed',JSON.stringify(status));
+const receipt=managedHostRunReceipt(worktree,launched.run.runId);
+const importer=createManagedReviewEvidenceHandlers(ctx);
+assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:'sha256:'+'0'.repeat(64)}));
+assert.equal(fixture.store.readFindings(storyId).findings.length,0,'Bad receipt cannot import evidence');
+if(scenario==='drift'||scenario==='committed-drift') writeFileSync(join(worktree,'packages/main/src/subject.ts'),'export const subject = 99;\n');
+if(scenario==='committed-drift') {git(worktree,['add','packages/main/src/subject.ts']);git(worktree,['commit','-m','fixture: change reviewed material']);}
+if(scenario==='wrong-wave'||scenario==='drift'||scenario==='committed-drift') {
+ assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),scenario==='wrong-wave'?/purpose or wave/:/moved|changed|drift|stale|live/);
+ assert.equal(fixture.store.readFindings(storyId).findings.length,0);
+ assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0);
+ console.log('MANAGED_INVENTORY_CRITIC_REFUSAL_GREEN '+scenario);
+} else {
+if(scenario==='crash') {
+ const crashing=createManagedReviewEvidenceHandlers(ctx,{afterManagedHostRunEvidenceBindingWrite:()=>{throw new Error('FIXTURE_CRASH_AFTER_TERMINAL');}});
+ assert.throws(()=>crashing.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/FIXTURE_CRASH_AFTER_TERMINAL/);
+ assert.equal(fixture.store.readFindings(storyId).findings.length,1);
+ assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0);
+ const subjectPath=join(worktree,'packages/main/src/subject.ts');
+ const originalSubject=readFileSync(subjectPath);
+ writeFileSync(subjectPath,'export const subject = 101;\n');
+ assert.throws(()=>importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/material drift/);
+ assert.equal(fixture.store.readFindings(storyId).findings.length,1,'Drift retry preserves existing terminal evidence');
+ assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0,'Drift retry cannot publish critic receipt');
+ writeFileSync(subjectPath,originalSubject);
+}
+const result=importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId});
+assert.match(result,/Completeness critic: complete/);
+const records=fixture.store.readReviewInventoryEpochs(storyId);
+assert.equal(records.criticReceipts.length,1);
+const finding=fixture.store.readFindings(storyId).findings.find(row=>row.reviewRunId===reviewRunId);
+if(scenario==='pass') assert.equal(records.criticReceipts[0].findingDispositions.length,0);
+else {assert(finding);assert.equal(records.criticReceipts[0].findingDispositions[0].findingId,finding.id);}
+const bytes=JSON.stringify(records.criticReceipts[0]);
+assert.match(importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/already imported/);
+assert.equal(JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts[0]),bytes,'Retry preserves exact authenticated critic receipt');
+assert.equal(fixture.store.readFindings(storyId).findings.length,scenario==='pass'?0:1);
+console.log('MANAGED_INVENTORY_CRITIC_AUTHENTICATED_IMPORT_GREEN '+scenario);
+}
+} finally {process.chdir(oldCwd);rmSync(primary,{recursive:true,force:true});}

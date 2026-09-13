@@ -1,3 +1,4 @@
+import { isManagedInventoryCritic } from './managed-inventory-critic.js';
 import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
 import { reportHealthIssue } from './health.js';
 import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
@@ -505,7 +506,12 @@ export function buildManagedReviewerPrompt(
     renderManagedReviewerProviderPrompt(resolveManagedReviewerBasePrompt(root, run), root),
     ...(canonicalReportStatuses ? ['', ...renderManagedReviewerCanonicalReportSnapshot(canonicalReportStatuses)] : []),
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
-    ...(run.reviewPurpose === 'inventory-completeness' ? ['', ...renderManagedInventoryCriticEvidencePack(root, run)] : []),
+    ...(run.reviewPurpose === 'inventory-completeness' ? [
+      '', 'Managed inventory protocol: do not call review_inventory_critic_set. The authenticated importer writes the critic receipt from your sealed inventoryCritic block after terminal evidence import.',
+      'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. Classify every aggregate finding and each new verified finding you report. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Use finding={findingId:existingId} for existing findings; use finding={proposalFindingIndex:zeroBasedIndex} for your own final findings. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey; not_verified permits neither.',
+      'Do not put findingDispositions at the top level. The block does not certify omitted reads or resolve findings. Preserve incomplete-read findings rather than claiming complete coverage.',
+      ...renderManagedInventoryCriticEvidencePack(root, run),
+    ] : []),
   ].join('\n');
 }
 
@@ -649,6 +655,7 @@ export function verifyManagedReviewEvidence(args: {
       || (Array.isArray(proposal.findings)
         && proposal.findings.length > 0
         && proposal.findings.every(isStrictManagedReviewFindingProposal)))
+    && (proposal?.inventoryCritic === undefined || isManagedInventoryCritic(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0))
     && Number.isFinite(Date.parse(args.binding.importedAt))
     && args.binding.providerHost === args.expected.providerHost;
   const exactEvidenceMatches = (() => {

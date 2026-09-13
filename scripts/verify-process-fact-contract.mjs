@@ -11600,3 +11600,12 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
+
+// Managed inventory transport must preserve native actor enforcement and never accept owner dispositions.
+{
+ const source = read('packages/main/src/handlers/review-inventory.ts');
+ assert(source.includes('export function importManagedInventoryCritic') && source.includes('createManagedReviewEvidenceBinding')
+   && source.includes('verifyManagedReviewLiveBinding') && source.includes('proposalFindingIndex')
+   && source.includes('only proof-or-stop-review-topology-critic may write critic authority'),
+   'Managed critic transport must authenticate its receipt and preserve native actor checks');
+}

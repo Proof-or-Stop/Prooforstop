@@ -1,3 +1,7 @@
+import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
+import { isManagedInventoryCritic } from '../core/managed-inventory-critic.js';
+import { currentOpenReviewInventory, inventoryPurposeMatchesEpoch } from '../core/review-inventory-epoch.js';
+import { importManagedInventoryCritic } from './review-inventory.js';
 import { execFileSync } from 'node:child_process';
 import { relative } from 'node:path';
 import type { HandlerContext } from './context.js';
@@ -178,7 +182,12 @@ export function createManagedReviewEvidenceHandlers(
       // enough for a concurrent commit to change the reviewed tree. Recheck
       // while both canonical persistence locks are held immediately before
       // admitting an existing receipt or writing any new evidence/binding.
+      let inventoryCriticImport = false;
       const assertLiveReviewBinding = (): void => {
+        if (inventoryCriticImport) {
+          const dirty = readMaterialDirtyFiles(gitCwd, ctx.root);
+          if (dirty.error || dirty.files.length) throw new Error(`managed inventory critic: material drift or unavailable status: ${dirty.files.join(', ')}`);
+        }
         const live = verifyManagedReviewLiveBinding({
           gitCwd,
           metadataRoot: ctx.root,
@@ -212,6 +221,18 @@ export function createManagedReviewEvidenceHandlers(
       });
       const proposal = intake.verification.proposal ?? sealedProposal;
       if (!proposal) throw new Error('managed_review_evidence_import: shared Proof Admissibility accepted no provider proposal');
+      if (proposal.inventoryCritic !== undefined) {
+        inventoryCriticImport = true;
+        assertLiveReviewBinding();
+        const epoch = currentOpenReviewInventory(ctx.store, proposal.storyId);
+        if (!isManagedInventoryCritic(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0)
+          || !epoch || proposal.inventoryCritic.epochId !== epoch.epochId
+          || proposal.inventoryCritic.wave !== epoch.waves.length + 1
+          || reviewRun.reviewPurpose !== 'inventory-completeness'
+          || !inventoryPurposeMatchesEpoch(reviewRun.inventoryBinding, epoch)) {
+          throw new Error('managed_review_evidence_import: invalid inventory critic purpose or wave');
+        }
+      }
       const lockDir = ctx.store.runtimeLockDirPath(proposal.storyId, 'managed-review-evidence', receiptId.replace(/[^A-Za-z0-9._-]/g, '_'));
       // The receipt lock makes replay of one receipt idempotent. A second,
       // story-level lock is still required because distinct receipts allocate
@@ -441,6 +462,11 @@ export function createManagedReviewEvidenceHandlers(
       }, { label: `managed review ${proposal.conclusion} metadata` }));
 
       const { importedIds, created } = importResult;
+      // Metadata locks are released before taking the inventory lock. A crash
+      // here is recoverable: the existing-terminal branch still executes this
+      // authenticated receipt-only ingress on replay.
+      const criticHint = proposal.inventoryCritic !== undefined
+        ? importManagedInventoryCritic(ctx, {runId, receiptId}) : '';
       // A crash may have persisted the reviewer evidence before recording its
       // process event or committing the Story metadata. On recovery, repair
       // those bookkeeping effects once for this exact sealed receipt. Normal
@@ -471,12 +497,13 @@ export function createManagedReviewEvidenceHandlers(
         exactStoryArtifactNames: [
           proposal.conclusion === 'pass' ? 'review-passes.json' : 'findings.json',
           ...(alreadyAudited ? [] : ['process-events.jsonl']),
+          ...(proposal.inventoryCritic !== undefined ? ['review-inventory-epochs.json'] : []),
         ],
       } });
       const summary = created
         ? `Managed review evidence imported from ${runId}: ${importedIds.join(', ')}`
         : `Managed review evidence already imported from ${runId}: ${importedIds.join(', ')}`;
-      return `${summary}${commitHint}`;
+      return `${summary}${criticHint ? `\n${criticHint}` : ''}${commitHint}`;
     },
   };
 }

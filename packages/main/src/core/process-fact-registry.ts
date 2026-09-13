@@ -657,7 +657,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
 
   review_pass_set: ['review-pass', 'prompt-envelope', 'no-blocker-evidence', 'gate-evidence'],
   managed_review_proposal_set: ['artifact', 'prompt-envelope', 'reviewer-lane', 'schema-contract'],
-  managed_review_evidence_import: ['prompt-envelope', 'reviewer-lane', 'freshness-policy', 'blocker-state', 'execution-evidence', 'gate-evidence'],
+  managed_review_evidence_import: ['prompt-envelope', 'reviewer-lane', 'freshness-policy', 'blocker-state', 'execution-evidence', 'gate-evidence', 'signed-artifact', 'schema-contract'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_close: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -1136,7 +1136,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'managed-review-evidence-binding',
     path: 'managed-review-evidence-binding',
     signed: true,
-    signature: 'signReviewPass/verifyReviewPass or signFinding/verifyFinding versioned managedEvidenceBinding domain; exact ManagedHostRun terminal receipt with sealed live-output/result/event/proposal digests and replacementSafe/reaped/no-residual cleanup, provider proposal digest, and immutable evidence-binding seal revalidated through shared Proof Admissibility at import, REVIEW gate, doctor, and retention GC',
+    signature: 'signReviewPass/verifyReviewPass or signFinding/verifyFinding versioned managedEvidenceBinding domain; exact ManagedHostRun terminal receipt with sealed live-output/result/event/proposal digests and replacementSafe/reaped/no-residual cleanup, provider proposal digest, and immutable evidence-binding seal revalidated through shared Proof Admissibility at import, REVIEW gate, doctor, and retention GC; optional sealed inventoryCritic block binds exact inventory purpose/epoch/wave, provider-owned finding-index dispositions, and the shared critic receipt validator; retries retain authenticated receipt bytes',
     producerCommand: 'managed_review_evidence_import',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
