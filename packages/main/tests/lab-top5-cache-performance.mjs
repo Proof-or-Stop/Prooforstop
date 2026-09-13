@@ -4,7 +4,9 @@ import path from 'node:path';
 import {mkdtempSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {verifyBuildBinding,verifyUtilsBuildBinding} from '../../../scripts/full-suite-build-binding.mjs';
-const root=process.cwd(),suite=Number(process.argv[2]);
+import {prepareBenchmarkCheckout} from './lab-benchmark-checkout.mjs';
+const sourceRoot=process.cwd(),suite=Number(process.argv[2]);
+const root=suite===2?await prepareBenchmarkCheckout(sourceRoot):sourceRoot;
 const commands={
   2:['scripts/run-validation-fixture-suite.mjs','packages/main/dist/tasks/quorum-submit-smoke.js','--jobs=2'],
   3:['packages/main/dist/tasks/finding-identity-lineage-smoke.js','--section=delivery'],
