@@ -159,6 +159,7 @@ import {
   assertValidationTier,
   assertValidationTierSelectionSubsetInvariant,
   buildValidationImpactIndexFromCatalog,
+  buildAutomaticValidationTierSelectionBinding,
   isValidationStopReasonCode,
   resolveValidationTierPlan,
   classifySensitiveStoryPaths,
@@ -2557,6 +2558,19 @@ testCase('policy defaults and heuristic roots never manufacture complete input o
   assert.ok(decision.escalationReasonCodes.includes('command_exclusion_unproven'));
 });
 
+testCase('A21 defaulted policy cannot grant complete selector ownership', () => {
+  const root = projectRootWithConfig({
+    id: 'defaulted', label: 'defaulted', command: 'node', args: ['task.js'],
+    inputRoots: ['src/**'], inputsComplete: true,
+  });
+  const catalog = compileValidationCatalog(discoverValidationInventory(root));
+  assert.equal(catalog.length, 1);
+  assert.equal(catalog[0].policySource, 'default');
+  assert.equal(catalog[0].selectionInputCoverage, 'complete');
+  const index = buildValidationImpactIndexFromCatalog({ commandSetDigest: 'A21-defaults', catalog });
+  assert.equal(index.entries[0].coverage, 'partial', 'A21 defaulted policy must remain partial despite complete declared roots');
+});
+
 testCase('the wired resolver widens every validation and gate machinery surface even when the index marks it fast', () => {
   for (const sensitivePath of [
     'packages/main/src/core/shared-validation-execution.ts',
@@ -3826,6 +3840,32 @@ testCase('a failed explain-side catalog projection falls back with the bounded p
     reason.code === 'impact_index_unusable'
       && reason.detail === 'catalog projection failed: fixture malformed validation resources'),
   'projection failure remains visible even when the underlying result did not already carry its reason code');
+});
+
+testCase('A21 configured impact index cannot diverge from runtime catalog ownership', () => {
+  const commands: ValidationCommand[] = [
+    { id: 'local', label: 'local', command: 'node', args: ['task.js'], inputRoots: ['src/**'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local' },
+  ];
+  const configuredImpactIndex: ValidationImpactIndex = {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA, version: 'legacy-independent-index',
+    commandSetDigest: buildValidationCommandInventory({ commands }).commandSetDigest,
+    entries: [{ commandId: 'local', selection: 'always', inputPatterns: ['unrelated/**'], coverage: 'complete' }],
+  };
+  const { root, ctx } = planCliRoot({ commands, impactIndex: configuredImpactIndex });
+  const routine = { sourceKind: 'configured' as const, commands: configuredValidationCommands(root) };
+  const input = planInput({ projectRoot: root, gitCwd: root, routine });
+  const binding = buildAutomaticValidationTierSelectionBinding({
+    input, catalog: compileValidationCatalog(discoverValidationInventory(root)),
+  });
+  const projection = projectValidationImpactIndexForPlan({
+    projectRoot: root, routine, commandSetDigest: input.executionInventory.commandSetDigest, configuredImpactIndex,
+  });
+  assert.equal(binding.input.impactIndex?.entries.length, 1);
+  assert.notDeepEqual(configuredImpactIndex, binding.input.impactIndex, 'the legacy map must disagree before testing parity');
+  assert.deepEqual(projection.impactIndex, binding.input.impactIndex, 'A21 explain and runtime must use the same catalog ownership');
+  const report = JSON.parse(planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', json: true }));
+  assert.ok(report.inventoryWarnings.some((warning: string) => /impactIndex.*deprecated.*ignored/.test(warning)),
+    'the ignored legacy index must be disclosed in operator output');
 });
 
 testCase('without --explain the unit list is previewed, and --explain lists every unit', () => {
