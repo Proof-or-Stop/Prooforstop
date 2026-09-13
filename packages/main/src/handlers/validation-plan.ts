@@ -48,7 +48,9 @@ import {
 } from '../core/validation-relevance-input.js';
 import {
   VALIDATION_TIERS,
+  buildValidationImpactIndexFromCatalog,
   resolveValidationTierPlan,
+  validationWideningReason,
   validationWideningReasonGloss,
   type ValidationTier,
   type ValidationTierPlanResult,
@@ -65,6 +67,10 @@ import type { RoutineValidationSourceKind, ValidationCommand } from '../core/val
 import type { SignedValidationDurationArtifact } from '../core/validation-relevance-input.js';
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
 import { resolveStoryWorkspace } from '../core/story-workspace.js';
+import {
+  compileValidationCatalog,
+  discoverValidationInventory,
+} from '../core/story-aware-validation.js';
 
 export const VALIDATION_PLAN_CLI_SCHEMA = 'proofOrStop.validation-plan-cli.v1' as const;
 
@@ -195,6 +201,53 @@ export function resolveRoutineValidationSourceForPlan(projectRoot: string): Rout
   const fallback = discoverFallbackValidationCommands(projectRoot);
   if (fallback.length > 0) return { sourceKind: 'fallback', commands: fallback };
   return { sourceKind: 'no-validator', commands: [] };
+}
+
+export function projectValidationImpactIndexForPlan(
+  args: {
+    projectRoot: string;
+    routine: RoutineValidationSourceForPlan;
+    commandSetDigest: string;
+    configuredImpactIndex?: ValidationImpactIndex;
+  },
+  dependencies: {
+    discover?: typeof discoverValidationInventory;
+    compile?: typeof compileValidationCatalog;
+    project?: typeof buildValidationImpactIndexFromCatalog;
+  } = {},
+): { impactIndex?: ValidationImpactIndex; failure?: string } {
+  // Legacy configured indexes are advisory only; execution owns the catalog.
+  if (args.routine.sourceKind !== 'configured') return {};
+  try {
+    const discover = dependencies.discover ?? discoverValidationInventory;
+    const compile = dependencies.compile ?? compileValidationCatalog;
+    const project = dependencies.project ?? buildValidationImpactIndexFromCatalog;
+    return {
+      impactIndex: project({
+        commandSetDigest: args.commandSetDigest,
+        catalog: compile(discover(args.projectRoot)),
+      }),
+    };
+  } catch (error) {
+    return { failure: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+export function attachImpactProjectionFailure(
+  result: ValidationTierPlanResult,
+  failure: string | undefined,
+): ValidationTierPlanResult {
+  if (!failure) return result;
+  const detail = `catalog projection failed: ${failure}`;
+  const hasImpactReason = result.escalationReasons.some((reason) => reason.code === 'impact_index_unusable');
+  return {
+    ...result,
+    escalationReasons: hasImpactReason
+      ? result.escalationReasons.map((reason) => reason.code === 'impact_index_unusable'
+        ? { ...reason, detail: `${reason.detail}; ${detail}` }
+        : reason)
+      : [...result.escalationReasons, validationWideningReason('impact_index_unusable', detail)],
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -824,12 +877,21 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
 
       const projectConfig = workspace.config;
       const validationConfig = projectConfig.validate ?? projectConfig.validation;
-      const impactIndex = validationConfig?.dynamic?.impactIndex as ValidationImpactIndex | undefined;
-      const result = resolveValidationTierPlan({
+      const configuredImpactIndex = validationConfig?.dynamic?.impactIndex as ValidationImpactIndex | undefined;
+      const projection = projectValidationImpactIndexForPlan({
+        projectRoot,
+        routine,
+        commandSetDigest: input.executionInventory.commandSetDigest,
+        configuredImpactIndex,
+      });
+      const impactIndex = projection.impactIndex;
+      const impactProjectionFailure = projection.failure ?? '';
+      const unresolvedResult = resolveValidationTierPlan({
         input,
         requestedTier: request.requestedTier,
         ...(impactIndex ? { impactIndex } : {}),
       });
+      const result = attachImpactProjectionFailure(unresolvedResult, impactProjectionFailure);
 
       // Display labels, resolved through the SAME canonical inventory builder the
       // ids came from, so a label can never be attached to the wrong unit. A label
@@ -848,6 +910,9 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         result,
         unitLabels,
       });
+      if (configuredImpactIndex !== undefined) {
+        report.inventoryWarnings.push('validate.dynamic.impactIndex is deprecated and ignored; command input ownership comes from the production validation catalog.');
+      }
 
       return renderValidationPlanReport(report, { json: request.json, explain: request.explain });
     },

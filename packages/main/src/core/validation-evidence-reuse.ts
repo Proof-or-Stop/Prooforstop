@@ -13,27 +13,15 @@ import type {
 } from './validation-types.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
+import { validationIdentityDigest } from './validation-command-portable-id.js';
+
+export { validationIdentityDigest } from './validation-command-portable-id.js';
 
 export type TrustedValidationLineage = 'exact-head' | 'trusted-story-metadata-descendant' | 'rejected';
 
 export interface TrustedValidationLineageResult {
   lineage: TrustedValidationLineage;
   reasons: string[];
-}
-
-function canonical(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
-  if (value && typeof value === 'object') {
-    return `{${Object.entries(value as Record<string, unknown>)
-      .filter(([, entry]) => entry !== undefined)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([key, entry]) => `${JSON.stringify(key)}:${canonical(entry)}`).join(',')}}`;
-  }
-  return JSON.stringify(value);
-}
-
-export function validationIdentityDigest(value: unknown): string {
-  return createHash('sha256').update(canonical(value)).digest('hex');
 }
 
 function fileDigest(path: string): string | null {

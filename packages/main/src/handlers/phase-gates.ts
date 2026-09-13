@@ -61,7 +61,7 @@ import {
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import type { ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
-import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
+import { assessStoredValidationPassAdmissibility, requiresDynamicValidationAdmission } from './validation-pass-admissibility.js';
 export { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 import { assertTestAdmissibleRoutineValidationWindow } from './verifier.js';
 import { PRE_CERT_ROUTINE_PASS_REQUIRED } from '../core/certification-window.js';
@@ -635,7 +635,7 @@ export async function runValidateGate(
   // Guard before consulting reusable evidence: a terminal/missing PRE_CERT
   // window cannot be bypassed by an otherwise current PASS.
   assertTestAdmissibleRoutineValidationWindow(ctx, storyId);
-  const admissibility = assessStoredValidationPassAdmissibility(ctx, storyId);
+  const admissibility = assessStoredValidationPassAdmissibility(ctx, storyId, { allowDynamicCoverage: true });
   if (admissibility.ok) {
     ctx.log?.(`REVIEW→TEST gate: existing validation PASS is fresh; TEST reuses it without rerunning proof-or-stop validate (admissible lineage=${admissibility.lineage}).`);
     return;
@@ -682,8 +682,45 @@ export function runDoneOracleGate(
   // behavior is byte-identical.
   gitCwd: string = root,
 ): string {
+  let storedValidationAdmissionFailure: DoneCheckRow | undefined;
+  try {
+    const storedEvidence = store.readTestEvidence(storyId);
+    if (storedEvidence?.result === 'PASS'
+      && requiresDynamicValidationAdmission({ root, store }, storyId)) {
+      // The stored marker or enforce-mode runtime lineage selects this strict
+      // path; the evaluator below authenticates the complete PASS before use.
+      const admissibility = assessStoredValidationPassAdmissibility(
+        { root, store, resolvedStoryGitCwd: gitCwd },
+        storyId,
+        { allowDynamicCoverage: true },
+      );
+      if (!admissibility.ok) {
+        storedValidationAdmissionFailure = {
+          id: 'stored-validation-admission',
+          label: 'Stored routine validation admission',
+          status: 'fail',
+          blocking: true,
+          source: 'assessStoredValidationPassAdmissibility',
+          detail: admissibility.reasons.join('; '),
+          hint: `Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
+        };
+      }
+    }
+  } catch (error) {
+    rethrowIntentAmendmentIntegrityError(error);
+    storedValidationAdmissionFailure = {
+      id: 'stored-validation-admission',
+      label: 'Stored routine validation admission',
+      status: 'fail',
+      blocking: true,
+      source: 'assessStoredValidationPassAdmissibility',
+      detail: error instanceof Error ? error.message : String(error),
+      hint: `Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
+    };
+  }
   const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
   const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root, { gitCwd, evidenceHashSnapshot });
+  if (storedValidationAdmissionFailure) checkRows.push(storedValidationAdmissionFailure);
   const rendered = renderDoneChecklist(storyId, checkRows);
   const failed = checkRows.filter(r => r.status === 'fail');
 

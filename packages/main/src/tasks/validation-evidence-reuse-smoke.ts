@@ -1032,7 +1032,7 @@ function assertHandlerExecutedThenReused(
     // stale copy passing here.
     const gateContext = { store, root, scanRoot: root } as HandlerContext;
     assert.equal(
-      assessStoredValidationPassAdmissibility(gateContext, storyId).reasonCodes.includes('command_mismatch'),
+      assessStoredValidationPassAdmissibility(gateContext, storyId, { allowDynamicCoverage: false }).reasonCodes.includes('command_mismatch'),
       false,
       `canonical reused evidence command ${JSON.stringify(reusedEvidence.command)} must be the command the phase gate accepts`,
     );
@@ -1044,10 +1044,10 @@ function assertHandlerExecutedThenReused(
       JSON.stringify({ ...reusedEvidence, command: `${reusedEvidence.command} --stale` }, null, 2),
       'utf8',
     );
-    assert.ok(assessStoredValidationPassAdmissibility(gateContext, storyId).reasonCodes.includes('validation_evidence_signature_invalid'), 'Unsigned command tamper must fail signature verification first');
+    assert.ok(assessStoredValidationPassAdmissibility(gateContext, storyId, { allowDynamicCoverage: false }).reasonCodes.includes('validation_evidence_signature_invalid'), 'Unsigned command tamper must fail signature verification first');
     writeFileSync(evidencePath, JSON.stringify(signTestValidationEvidence(storyId, { ...reusedEvidence, command: `${reusedEvidence.command} --stale` }, root), null, 2), 'utf8');
     assert.ok(
-      assessStoredValidationPassAdmissibility(gateContext, storyId).reasonCodes.includes('command_mismatch'),
+      assessStoredValidationPassAdmissibility(gateContext, storyId, { allowDynamicCoverage: false }).reasonCodes.includes('command_mismatch'),
       'mutation bite: a wrong persisted command must be reported as command_mismatch by the same gate call',
     );
     writeFileSync(evidencePath, canonicalEvidenceBytes, 'utf8');

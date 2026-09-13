@@ -29,7 +29,9 @@ import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { buildDualRevisionImpactGraph } from '../core/dual-revision-impact-graph.js';
 import { buildStoryChangeManifest } from '../core/story-change-resolver.js';
 import {
+  buildDualRevisionImpactGraph as buildCanonicalDualRevisionImpactGraph,
   buildDynamicValidationPlan,
+  augmentValidationCatalogWithGraphInputs,
   buildRevocationLedger,
   buildValidationSchedule,
   assertValidValidationCatalog,
@@ -62,15 +64,28 @@ import {
   type ValidationShardResult,
   type ValidationRuntimeTrace,
   type ValidationSelectionManifest,
+  type DualRevisionImpactGraph,
+  type StoryChangeManifest,
   type VerificationIntent,
   verifyCanonicalFullBaseline,
   verifyValidationCommandReceipt,
   verifyValidationSelectionManifest,
   verifyValidationClosureCertificate,
+  validationInventoryCommandSetDigest,
   isReceiptRevoked,
   verifyValidationShardReceipt,
+  ValidationSelectorContextError,
+  validationCatalogEntryRequiresParticipation,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
+import {
+  automaticValidationTierSnapshotDigest,
+  buildValidationImpactIndexFromCatalog,
+  selectAutomaticValidationTier,
+  type AutomaticValidationTierSelectionBinding,
+} from '../core/validation-tier-planner.js';
+import { digestCanonicalJson } from '../core/digest.js';
+import { narrowPortableValidationCommandTuple, provisionalValidationCommandId } from '../core/validation-command-portable-id.js';
 
 export interface PrepareStoryAwareValidationArgs {
   findingConstraints?: import('../core/finding-validation.js').FindingValidationConstraints;
@@ -94,6 +109,12 @@ export interface PrepareStoryAwareValidationArgs {
   revocationLedger?: ReceiptRevocationLedger;
   /** Configured commands retain env/optional/focus fields omitted by inventory discovery. */
   commands?: ValidationCommand[];
+  tierSelection?: AutomaticValidationTierSelectionBinding;
+  tierSelectionResolver?: (args: {
+    catalog: ValidationCatalogEntry[];
+    graph?: DualRevisionImpactGraph;
+    changes: StoryChangeManifest;
+  }) => AutomaticValidationTierSelectionBinding;
 }
 
 export interface PreparedStoryAwareValidation {
@@ -104,6 +125,60 @@ export interface PreparedStoryAwareValidation {
   manifest: ValidationSelectionManifest;
   report: string;
   revocationLedger: ReceiptRevocationLedger;
+}
+
+/** Re-run the pure selector at the last adapter boundary before child launch. */
+export function assertAutomaticTierSelectionBindingCurrent(
+  binding: AutomaticValidationTierSelectionBinding,
+  current?: {
+    catalog: ValidationCatalogEntry[];
+    graph?: DualRevisionImpactGraph;
+    changedFiles: StoryChangedFile[];
+    changeDigest: string;
+    universeCommandIds: string[];
+    commandSetDigest: string;
+    storyId: string;
+    baseHead: string;
+    head: string;
+  },
+): void {
+  if (!Array.isArray(binding?.input?.changedPaths) || binding.input.changedPaths.some((path) => typeof path !== 'string')) {
+    throw new ValidationSelectorContextError('automatic selector changed paths are malformed');
+  }
+  const expectedDecision = selectAutomaticValidationTier(binding.input);
+  const expectedBindingDigest = digestCanonicalJson({ catalogDigest: binding.catalogDigest, input: binding.input, decision: expectedDecision });
+  if (binding.bindingDigest !== expectedBindingDigest
+    || digestCanonicalJson(binding.decision) !== digestCanonicalJson(expectedDecision)) {
+    throw new ValidationSelectorContextError('automatic selector decision changed before validation execution');
+  }
+  if (current) {
+    const selectorCatalog = augmentValidationCatalogWithGraphInputs({
+      catalog: current.catalog,
+      graph: current.graph,
+      changedFiles: current.changedFiles,
+    });
+    const expectedImpactIndex = buildValidationImpactIndexFromCatalog({
+      commandSetDigest: current.commandSetDigest,
+      catalog: selectorCatalog,
+    });
+    const selectorPaths = new Set(binding.input.changedPaths.map((path) => path.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').trim()));
+    const currentPaths = [...new Set(current.changedFiles.flatMap((change) => [change.path, ...(change.oldPath ? [change.oldPath] : [])])
+      .map((path) => path.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').trim()).filter(Boolean))].sort();
+    const currentSnapshotDigest = automaticValidationTierSnapshotDigest({
+      storyId: current.storyId,
+      baseHead: current.baseHead,
+      head: current.head,
+      changeDigest: current.changeDigest,
+    });
+    if (binding.catalogDigest !== digestCanonicalJson(current.catalog)
+      || binding.input.commandSetDigest !== current.commandSetDigest
+      || binding.input.snapshotDigest !== currentSnapshotDigest
+      || digestCanonicalJson(binding.input.impactIndex) !== digestCanonicalJson(expectedImpactIndex)
+      || digestCanonicalJson(binding.input.universeCommandIds) !== digestCanonicalJson(current.universeCommandIds)
+      || currentPaths.some((path) => !selectorPaths.has(path))) {
+      throw new ValidationSelectorContextError('automatic selector input does not match the execution catalog, inventory, or changed paths');
+    }
+  }
 }
 
 function currentHead(gitCwd: string): string {
@@ -117,7 +192,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 6, executor: 'validation-executor' });
+export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 9, executor: 'validation-executor', selector: 'validation-tier-planner' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -241,11 +316,15 @@ export function persistCanonicalFullBaseline(args: {
   if (!args.result.allPass) return undefined;
   // A headless execution has no Git epoch and cannot produce reusable authority.
   if (!String(args.sourceHead ?? '').trim()) return undefined;
-  const injected = args.commands?.map((row, index) => ({ ...row, id: `validation-${stableDigest({ command: row.command, args: row.args }).slice(0, 16)}`, originalIndex: index }));
+  const injected = args.commands?.map((row, index) => ({
+    ...row,
+    id: row.id ?? provisionalValidationCommandId(narrowPortableValidationCommandTuple({ command: row })),
+    originalIndex: index,
+  }));
   const inventory = discoverValidationInventory(args.projectRoot, injected);
   const catalog = compileValidationCatalog(inventory);
   assertValidValidationCatalog(inventory, catalog);
-  const catalogDigest = stableDigest(catalog);
+  const catalogDigest = digestCanonicalJson(catalog);
   const traces: Record<string, ValidationRuntimeTrace> = {};
   const closureCertificates: Record<string, ValidationClosureCertificate> = {};
   for (const entry of catalog) {
@@ -296,14 +375,14 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   const head = args.head || currentHead(gitCwd);
   const injectedInventory = args.commands?.map((row, index) => ({
     ...row,
-    id: `validation-${stableDigest({ command: row.command, args: row.args }).slice(0, 16)}`,
+    id: row.id ?? provisionalValidationCommandId(narrowPortableValidationCommandTuple({ command: row })),
     originalIndex: index,
   }));
   const inventory = discoverValidationInventory(args.projectRoot, injectedInventory);
   const catalog = compileValidationCatalog(inventory);
   assertValidValidationCatalog(inventory, catalog);
   for (const entry of catalog) validateResourceClaims(entry.resources, entry.id);
-  const catalogDigest = stableDigest(catalog);
+  const catalogDigest = digestCanonicalJson(catalog);
   const changes = buildStoryChangeManifest({
     storyId: args.storyId,
     gitCwd,
@@ -362,6 +441,18 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
       producedBy: 'story-closure-preview',
     }));
   }
+  const tierSelection = args.tierSelection ?? args.tierSelectionResolver?.({ catalog, graph, changes });
+  if (tierSelection) assertAutomaticTierSelectionBindingCurrent(tierSelection, {
+    catalog,
+    graph,
+    changedFiles: changes.changedFiles,
+    changeDigest: changes.changeDigest,
+    universeCommandIds: inventory.commands.map((row) => row.id),
+    commandSetDigest: validationInventoryCommandSetDigest(inventory),
+    storyId: args.storyId,
+    baseHead: args.baseHead,
+    head,
+  });
   const context: DynamicValidationContext = {
     projectRoot: args.projectRoot,
     storyId: args.storyId,
@@ -383,6 +474,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     scopeContract: args.scopeContract,
     buildCommandId: waveZeroCommand(catalog),
     findingConstraints: args.findingConstraints,
+    tierSelection,
   };
   const manifest = buildDynamicValidationPlan(context);
   return {
@@ -409,9 +501,18 @@ export interface DynamicValidationArtifacts {
 }
 
 /** Consumer-side integrity checks; never executes commands or repairs runtime evidence. */
-export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyId: string, head: string, value: unknown): string[] {
+export function storedDynamicReceiptIntegrityReasons(
+  projectRoot: string,
+  storyId: string,
+  head: string,
+  value: unknown,
+  gitCwd: string = projectRoot,
+): string[] {
   try {
     const manifest = value as ValidationSelectionManifest;
+    const hasExcludedRows = Array.isArray(manifest?.rows)
+      && manifest.rows.some((row) => row?.disposition === 'excluded');
+    if (hasExcludedRows && !manifest.selectorBinding) return ['dynamic_selector_binding_missing'];
     if (!verifyValidationSelectionManifest(manifest, { storyId, head })
       || manifest.mode !== 'enforce-low-risk' || manifest.fullEscalated) return ['dynamic_manifest_invalid'];
     if (manifest.toolchainDigest !== stableDigest({ node: process.version, platform: process.platform, arch: process.arch }))
@@ -429,10 +530,47 @@ export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyI
       || baseline.inventoryDigest !== manifest.inventoryDigest || baseline.catalogDigest !== manifest.catalogDigest
       || baseline.runnerDigest !== DYNAMIC_RUNNER_DIGEST || baseline.toolchainDigest !== manifest.toolchainDigest)
       return ['dynamic_baseline_invalid'];
+    const inventory = discoverValidationInventory(projectRoot);
+    const catalog = compileValidationCatalog(inventory);
+    const excludedFloorReasons = validationManifestExcludedRowFloorReasons(catalog, manifest);
+    if (excludedFloorReasons.length > 0) return excludedFloorReasons;
+    if (manifest.selectorBinding) try {
+      let graph: DualRevisionImpactGraph | undefined;
+      if (manifest.dependencyGraphDigest) {
+        execFileSync('git', ['cat-file', '-e', `${manifest.baseHead}^{commit}`], { cwd: gitCwd, stdio: 'ignore' });
+        execFileSync('git', ['cat-file', '-e', `${manifest.head}^{commit}`], { cwd: gitCwd, stdio: 'ignore' });
+        graph = buildCanonicalDualRevisionImpactGraph({
+          gitCwd,
+          baseHead: manifest.baseHead,
+          head: manifest.head,
+          catalog,
+        });
+        const currentGraphDigest = stableDigest({ base: graph.baseGraphDigest, head: graph.headGraphDigest });
+        if (currentGraphDigest !== manifest.dependencyGraphDigest) {
+          return ['dynamic_selector_context_changed'];
+        }
+      }
+      assertAutomaticTierSelectionBindingCurrent(manifest.selectorBinding, {
+        catalog,
+        graph,
+        changedFiles: manifest.changedFiles,
+        changeDigest: manifest.changeDigest,
+        universeCommandIds: inventory.commands.map((row) => row.id),
+        commandSetDigest: validationInventoryCommandSetDigest(inventory),
+        storyId,
+        baseHead: manifest.baseHead,
+        head: manifest.head,
+      });
+    } catch {
+      return ['dynamic_selector_context_changed'];
+    }
+    if (manifest.selectorBinding && manifest.selectorBinding.catalogDigest !== digestCanonicalJson(catalog))
+      return ['dynamic_selector_context_changed'];
     for (const row of manifest.rows) {
       const closure = baseline.closureCertificates[row.commandId];
       if (!closure || !verifyValidationClosureCertificate(closure)
         || closure.signature !== row.closureCertificateDigest) return ['dynamic_closure_invalid'];
+      if (row.disposition === 'excluded') continue;
       const candidates = receipts.filter(receipt => receipt.commandId === row.commandId
         && (row.disposition === 'reuse' ? receipt.id === row.receiptId : receipt.sourceHead === manifest.head));
       const accepted = candidates.some(receipt => verifyValidationCommandReceipt(receipt).ok
@@ -446,6 +584,22 @@ export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyI
     }
     return [];
   } catch { return ['dynamic_evidence_unavailable_or_malformed']; }
+}
+
+export function validationManifestExcludedRowFloorReasons(
+  catalog: ValidationCatalogEntry[],
+  manifest: ValidationSelectionManifest,
+): string[] {
+  const byId = new Map(catalog.map((entry) => [entry.id, entry]));
+  for (const row of manifest.rows) {
+    if (row.disposition !== 'excluded') continue;
+    const entry = byId.get(row.commandId);
+    if (!entry) return ['dynamic_selector_context_changed'];
+    if (validationCatalogEntryRequiresParticipation(entry)) {
+      return ['dynamic_excluded_row_not_omittable'];
+    }
+  }
+  return [];
 }
 
 export interface DynamicShardArtifact {
@@ -474,6 +628,28 @@ export interface DynamicShardArtifact {
 function artifactDir(projectRoot: string, storyId: string): string {
   const safe = storyId.replace(/[^A-Za-z0-9._-]/g, '_');
   return join(projectRoot, PROOF_OR_STOP_STATE_DIR, 'runtime', 'dynamic-validation', safe);
+}
+
+/**
+ * Read-only provenance hint for an authoritative dynamic run. Observe mode
+ * writes audit artifacts too, so bare ledger presence must not widen DONE.
+ */
+export function hasStoryAwareValidationArtifacts(projectRoot: string, storyId: string): boolean {
+  return withValidationSigningRoot(projectSigningRoot(projectRoot), () => {
+  const dir = artifactDir(projectRoot, storyId);
+  const selectionPath = join(dir, 'selection.json');
+  const receiptsPath = join(dir, 'receipts.json');
+  if (!existsSync(selectionPath)) return existsSync(receiptsPath);
+  try {
+    const selection = JSON.parse(readFileSync(selectionPath, 'utf8')) as ValidationSelectionManifest;
+    if (!verifyValidationSelectionManifest(selection, { storyId })) return existsSync(receiptsPath);
+    return selection.mode === 'enforce-low-risk' && existsSync(receiptsPath);
+  } catch {
+    // Malformed selection beside receipts may be stripped dynamic provenance,
+    // so keep that combination on the strict refusal path.
+    return existsSync(receiptsPath);
+  }
+  });
 }
 
 /** Whole-PASS reuse must not turn an invalid existing ledger into an empty ledger. */
@@ -980,12 +1156,17 @@ export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
   runtimeReport: string;
 }
 
+/** Authority eligibility uses the complete live catalog as a non-omittable risk floor. */
+export function catalogValidationRiskFloor(catalog: ValidationCatalogEntry[]): 'local' | 'shared' {
+  return catalog.every((entry) => entry.riskTier === 'local') ? 'local' : 'shared';
+}
+
 /**
- * Gate-owned DYN-3 evidence provider.  These values are derived from the
+ * Gate-owned DYN-3 evidence provider. These values are derived from the
  * current signed manifest, baseline, command receipts and actual Wave-0 run;
  * callers cannot turn enforcement on by supplying booleans in the request.
  */
-function deriveGateOwnedPrerequisites(args: {
+export function deriveGateOwnedPrerequisites(args: {
   projectRoot: string;
   prepared: PreparedStoryAwareValidation;
   baseline?: CanonicalFullBaseline;
@@ -1034,14 +1215,10 @@ function deriveGateOwnedPrerequisites(args: {
     changedTestPropagationVerified,
     sourceFirstBuildProofActive: Boolean(args.buildProofDigest) && args.buildResult?.allPass === true,
     buildAlwaysExecuted: args.buildResult?.commands.length === 1 && args.buildResult?.allPass === true,
-    // Gate/validation-infra rows remain in the inventory and are selected by
-    // impact/full-escalation rules, but their mere presence must not make every
-    // unrelated local Story ineligible.  Eligibility is about the rows this
-    // manifest actually executes or reuses; a selected gate row still forces
-    // full fallback through `manifest.fullEscalated`/risk below.
-    storyRiskEligible: args.prepared.catalog
-      .filter((entry) => manifest.rows.some((row) => row.commandId === entry.id && row.disposition !== 'unverified'))
-      .every((entry) => entry.riskTier === 'local')
+    // Risk is derived from the complete live catalog. Gate and validation
+    // infrastructure rows are participation floors and can never disappear
+    // from authority eligibility through an excluded-row mutation.
+    storyRiskEligible: catalogValidationRiskFloor(args.prepared.catalog) === 'local'
       && !manifest.fullEscalated && shardEvidenceClean,
     periodicFullPolicyActive: baselineCurrent,
     revocationLedgerCurrent: verifyRevocationLedger(args.prepared.revocationLedger) && receiptsCurrent,
@@ -1068,6 +1245,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   args = { ...args, beforeLaunch: () => { checkFindingConstraints(); originalBeforeLaunch?.(); } };
   const prior = readStoryAwareValidationArtifacts(args.projectRoot, args.storyId);
   const first = prepare({ ...args, receipts: args.receipts || prior.receipts, revocationLedger: args.revocationLedger || prior.revocationLedger });
+  const resolvedTierSelection = args.tierSelection ?? first.manifest.selectorBinding;
   const head = args.head || currentHead(args.gitCwd || args.projectRoot);
   const waveId = first.catalog.find((entry) => first.manifest.rows.some((row) => row.commandId === entry.id && row.reasons.includes('wave-0-build')))?.id
     || waveZeroCommand(first.catalog);
@@ -1082,7 +1260,13 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     jobs: 1,
   });
   const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
-  const final = prepare({ ...args, receipts: prior.receipts, revocationLedger: prior.revocationLedger, buildProofDigest });
+  const final = prepare({
+    ...args,
+    receipts: prior.receipts,
+    revocationLedger: prior.revocationLedger,
+    buildProofDigest,
+    ...(resolvedTierSelection ? { tierSelection: resolvedTierSelection, tierSelectionResolver: undefined } : {}),
+  });
   const selectedEntries = final.manifest.rows
     .filter((row) => row.disposition === 'execute' && row.commandId !== waveId)
     .map((row) => final.catalog.find((entry) => entry.id === row.commandId)!)
@@ -1162,9 +1346,9 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const pinnedExecuted = final.manifest.rows.filter((row) => row.reasons.includes('verification-intent-pin')).every((row) => row.disposition === 'execute');
   const authority = evaluateDynamicAuthority({
     mode: args.mode || 'observe',
-    riskTier: final.catalog
-      .filter((entry) => final.manifest.rows.some((row) => row.commandId === entry.id && row.disposition !== 'unverified'))
-      .every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
+    // A non-local row cannot disappear from the Story risk decision merely
+    // because the selector produced an exclusion proof for its paths.
+    riskTier: catalogValidationRiskFloor(final.catalog),
     manifest: final.manifest,
     prerequisites: {
       // The gate-owned evidence provider below computes every prerequisite from
