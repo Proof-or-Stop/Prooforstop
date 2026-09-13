@@ -21,8 +21,12 @@ assert.equal(scripts['test:serial-reference'].split(' && ')
 console.log('PASS routine registration: exact npm script and one serial-reference membership');
 // Main metadata refresh may move reviewed lines, never their context or policy.
 const refreshedPaths = ["packages/main/src/core/process-fact-levels.ts", "packages/main/src/core/runtime-fact-registry.ts", "packages/main/src/core/runtime-environment-checks.ts"];
-const refreshedRows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries
-  .filter(row => refreshedPaths.includes(row.path))
+const allReviewedRows = JSON.parse(read('scripts/identity-reviewed-source-data.json')).entries;
+const causalToken = ['proof', 'bound.causal-evidence-index.v1'].join('');
+const causalRows = allReviewedRows.filter(row => row.path === 'packages/main/src/core/runtime-environment-checks.ts' && row.token === causalToken);
+assert.equal(causalRows.length, 1, 'exact causal-origin negative-source row required');
+const refreshedRows = allReviewedRows
+  .filter(row => refreshedPaths.includes(row.path) && row !== causalRows[0])
   .map(({ sourceSha256, lineNumber, ...context }) => context);
 assert.equal(refreshedRows.length, 6, 'exact six reviewed main contexts required');
 assert.equal(sha(JSON.stringify(refreshedRows)), '9e4bfc94c6066c7cfe7e66e5317a54eb44923d7980fc74fbc1996c950067435f',
@@ -37,6 +41,16 @@ for (const [index, row] of refreshedRows.entries()) {
   }
 }
 console.log('PASS reviewed context digest: all six rows reject token/count/classification/reason/line-hash mutations');
+// Keep the six inherited context pins unchanged; the new central-origin refusal
+// gets a separate exact context pin and the same protected-field mutations.
+const { sourceSha256: causalSourceHash, lineNumber: causalSourceLine, ...causalContext } = causalRows[0];
+assert.equal(sha(JSON.stringify(causalContext)), 'f91c882eada425b2e61290d6aab85f1805b5eb5ea37905fe1fb37db1ddc167c7', 'exact causal-origin refusal context must remain closed');
+for (const field of ['token', 'tokenOccurrences', 'classification', 'reason', 'lineSha256']) {
+  const mutated = { ...causalContext, [field]: typeof causalContext[field] === 'number' ? causalContext[field] + 1 : causalContext[field] + ' changed' };
+  assert.notEqual(sha(JSON.stringify(mutated)), 'f91c882eada425b2e61290d6aab85f1805b5eb5ea37905fe1fb37db1ddc167c7', `causal-origin context mutation must refuse: ${field}`);
+}
+console.log('PASS causal-origin context: exact added row and five protected-field mutation refusals');
+
 const errors = validateReviewedSourceSources(read);
 console.log(JSON.stringify({ reviewedSourceBindingFailures: errors.length, errors }));
 assert.deepEqual(errors, [], 'REVIEWED_SOURCE_BINDINGS_MUST_MATCH_CURRENT_SOURCE');
