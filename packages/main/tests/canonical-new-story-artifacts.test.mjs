@@ -918,11 +918,20 @@ await check(['runtime', 'runtime-topology'], 'CHK-003 every registry-derived sto
 
 await check(['runtime'], 'CHK-003:happy:1 process/runtime verifiers pin the registry-derived pre-hook choke point', () => {
   for (const script of ['scripts/verify-process-fact-contract.mjs', 'scripts/verify-runtime-fact-contract.mjs']) {
+    const startedAt = process.hrtime.bigint();
     const result = spawnSync(process.execPath, [join(repoRoot, script), ...(script.includes('process') ? ['--quiet'] : [])], {
       cwd: repoRoot,
       encoding: 'utf8',
     });
     assert.equal(result.status, 0, `${script}\n${result.stdout}${result.stderr}`);
+    console.log('CANONICAL_VERIFIER_EXECUTION ' + JSON.stringify({
+      command: process.execPath,
+      args: [join(repoRoot, script), ...(script.includes('process') ? ['--quiet'] : [])],
+      status: result.status,
+      elapsedMs: Number(process.hrtime.bigint() - startedAt) / 1e6,
+      successSelectors: (result.stdout || '').split('\n').filter(line =>
+        line === 'Process fact contract verified' || line === 'execution_assertion_reuse_contract=PASS'),
+    }));
   }
 });
 
@@ -2734,9 +2743,9 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/playbook-runtime-baseline.ts","proof-or-stop.memory-playbook-baseline.gold.v1",1,"0a1c020a16091416b828ecdb8a8ab5af26aa00f15442602d3ff978744dbbcbb0"],
   ["packages/main/src/core/playbook-runtime-baseline.ts","proof-or-stop.memory-playbook-baseline.v1",1,"f89f69813c32cfb09b1e040a7cb9db191df371e42319aa94151d9302dc532d8f"],
   ["packages/main/src/core/playbook-runtime-baseline.ts","proof-or-stop.memory-playbook-optimized-parity.v1",1,"2fa656065a5488110f8e971d8c339849a9930d38816959ad1dea9cd1daf08f58"],
-  ["packages/main/src/core/playbook-runtime-memory-cache.ts","proof-or-stop.runtime-memory-pack-cache.v1",2,"ff0ecc73d1c840a0d10aebe48179c36563c3bebb92174530de7e30d910a6b488"],
+  ["packages/main/src/core/playbook-runtime-memory-cache.ts","proof-or-stop.runtime-memory-pack-cache.v2",2,"5748cbed7e78b0381574fba3df6fb322a2dbbf10fb01a564a08739e74b74b1c8"],
   ["packages/main/src/core/playbook-runtime-memory-index.ts","proof-or-stop.runtime-memory-index.v3",4,"b76d39882c63ff78d942b606c28030c8cc1d7ecf06216787b790bb00318c6e86"],
-  ["packages/main/src/core/playbook-runtime-memory.ts","proof-or-stop.memory-pack.v1",4,"6d13678d4c4bbc208e2c68230ef0c26f2d0d465139e18c2d2a5a04575e576507"],
+  ["packages/main/src/core/playbook-runtime-memory.ts","proof-or-stop.memory-pack.v1",5,"d103aec33749b5a7779ea34ed1918c469b3277927e57f321f2e4b47c5f98af08"],
   ["packages/main/src/core/playbook-seed.ts","proof-or-stop.evidence-activated-advisory-playbook.v1",1,"9f8c22db1e652c8d05fc5c974f6bc220335f9c6b87c68ac9466ea4fe8fa1a807"],
   ["packages/main/src/core/playbook-seed.ts","proof-or-stop.playbook-auto-activation.v1",1,"31cf22ff33884fcd903ba3a039bdbb00bbbb5d1c3530dea2b1b11c14d6280d70"],
   ["packages/main/src/core/playbook-seed.ts","proof-or-stop.playbook-auto-promotion-apply.v1",2,"783943db80856a71a799643b55c813a131f51819d50b31e5af383f29e28f138a"],
@@ -2958,7 +2967,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/core/acceptance-amendment-journal.ts", "occurrences": 142, "contextSha256": "d28ea6092aab3965a3cd60fe223b52a5a872555987eddbc3dd8759a2556c66e1"},
   {"sourcePath": "packages/main/src/core/convergence-effective-progress.ts", "occurrences": 10, "contextSha256": "bc2270202ea1d97d87984dcb1d4b9b100d761160d5cef8791985d335eff515ed"},
   {"sourcePath": "packages/main/src/core/convergence-progress-journal.ts", "occurrences": 78, "contextSha256": "f10c90cfef4cc8702ef4747345bce332cc539ded292a04fae34ce7dbb304b1fd"},
-  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 402, "contextSha256": "5bdc72dd75d2f7ace96fdaa4ef9edc6443002e311e631e77c4adb856250728d3"},
+  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 411, "contextSha256": "07464549c7d89dc09529a7ccc5c38222f3ab1ee3ee43bfaaca8ff2cc28a6474f"},
 
   {"sourcePath":"packages/main/src/core/delivery-review-authority.ts","occurrences":68,"contextSha256":"d140fc7cff221fdaddf92834a0e97b7fa777608ae309f08b574a6f169c72e893"},
   {"sourcePath": "packages/main/src/core/acceptance-amendment-review.ts", "occurrences": 0, "contextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
@@ -3017,23 +3026,23 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   },
   {
     "sourcePath": "packages/main/src/core/playbook-runtime-baseline.ts",
-    "occurrences": 419,
-    "contextSha256": "a488f68315641e65b4270e5c7adb95b9116629e60a43ecb25ba4b031dc364c5d"
+    "occurrences": 420,
+    "contextSha256": "68b897e1e59afd15679929b4b0b24a10f59ef8485f21a2bc40bca2ca342512f7"
   },
   {
     "sourcePath": "packages/main/src/core/playbook-runtime-memory-cache.ts",
-    "occurrences": 59,
-    "contextSha256": "5e94ef91c82fd5073256f45e605348d0dc21d7beceec8b67b4433caeff08c03a"
+    "occurrences": 67,
+    "contextSha256": "b73da086525fb2d32ec95d2ee0ca184013b72e320e443ec2003a70c66d52d4e4"
   },
   {
     "sourcePath": "packages/main/src/core/playbook-runtime-memory-index.ts",
-    "occurrences": 71,
-    "contextSha256": "d6597e739588940729eb711e2854ad34a97ccb199879332dfe3695c5c69cd667"
+    "occurrences": 82,
+    "contextSha256": "6b811926042e86dd8312554d23f977b7aada9b85c05cc3fe4c9cdc5b350f7b0b"
   },
   {
     "sourcePath": "packages/main/src/core/playbook-runtime-memory.ts",
-    "occurrences": 89,
-    "contextSha256": "c5cb43c536b7a061dfb8baf8fc3496881ad66e27572f61c2c8331d653b1b39f6"
+    "occurrences": 124,
+    "contextSha256": "2bf680df4c10f9661cefd9b9d65d07c163ddbe18b080a4051b7605e1ca564340"
   },
   {
     "sourcePath": "packages/main/src/core/playbook-seed.ts",
@@ -3124,8 +3133,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 457,
-    "contextSha256": "7331fe8ec5711c3b5b979af8b21342c20c7a8060c2b20a2df7f3c58d56fadd37"
+    "occurrences": 564,
+    "contextSha256": "8e1dec1f0ecd30e46884a6ae9b50c8abc21f589f86b6b13485e9beddc1162fb4"
   }
 ];
 
@@ -3182,6 +3191,22 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers 
   const sources = identityCutoverSourceMap();
   assertOwnedIdentitySiteTotality(sources);
   assertOwnedImportUseIntegrity(sources);
+  for (const [path, original, changed, importedName] of [
+    ['packages/main/src/core/store.ts', 'isWithinValidationEvidenceWriteBound(bytes)', 'isWithinValidationEvidenceWriteBound(bytes + 1)', 'isWithinValidationEvidenceWriteBound'],
+    ['scripts/verify-proof-or-stop-identity-cutover.mjs', "mkdtempSync(join(tmpdir(), 'identity-current-witness-'))", "mkdtempSync(join(tmpdir(), 'identity-current-witness-changed-'))", 'readFileSync'],
+  ]) {
+    assert.equal(sources.get(path).split(original).length - 1, 1, 'reviewed imported call must be unique');
+    const changedSources = new Map(sources);
+    changedSources.set(path, sources.get(path).replace(original, changed));
+    const expected = OWNED_IMPORT_USE_CONTEXTS.find(row => row.sourcePath === path);
+    const observed = deriveOwnedImportUseContexts(changedSources).find(row => row.sourcePath === path);
+    assert.equal(observed.occurrences, expected.occurrences, 'changed call preserves imported-use count');
+    assert.notEqual(observed.contextSha256, expected.contextSha256, 'changed call changes exact context');
+    assert.throws(() => assertOwnedImportUseIntegrity(changedSources), /owned import use changed/, 'same-count changed call must be refused');
+    const additional = new Map(sources);
+    additional.set(path, `${sources.get(path)}\nvoid ${importedName};\n`);
+    assert.throws(() => assertOwnedImportUseIntegrity(additional), /owned import use changed/, 'new imported use must be refused');
+  }
   const registryPath = 'packages/main/src/core/process-fact-registry.ts';
   const registryDefault = 'entries: readonly unknown[] = PROCESS_FACT_REGISTRY';
   assert.equal(sources.get(registryPath).split(registryDefault).length - 1, 1, 'reviewed registry default must be unique');
@@ -3278,6 +3303,33 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 causal index central 
   assert.equal(movedContext.occurrences, causalPin.occurrences, 'comparison mutation preserves consumer count');
   assert.notEqual(movedContext.contextSha256, causalPin.contextSha256, 'comparison mutation changes exact consumer context');
   assert.throws(() => assertCausalConsumer(movedUse), /causal index imported consumer/, 'same-count changed consumer must remain refused');
+});
+
+await check(['identity-cutover', 'identity-sites'], 'F-060 memory v2 ownership retains exact consumer and mutation coverage', () => {
+  const sources = identityCutoverSourceMap();
+  assertOwnedIdentitySiteTotality(sources);
+  assertOwnedImportUseIntegrity(sources);
+  for (const [path, canonical, binding, property] of [
+    ['packages/main/src/core/playbook-runtime-memory-cache.ts', 'proof-or-stop.runtime-memory-pack-cache.v2', 'RUNTIME_MEMORY_PACK_CACHE_POLICY_VERSION', 'consumerPolicyVersion'],
+    ['packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.memory-pack.v1', 'SCHEMA_VERSION', 'schemaVersion'],
+  ]) {
+    const owner = ACTIVE_IDENTITY_OPERATION_BOUNDARIES.flatMap(row => row.identitySites).filter(row => row.sourcePath === path && row.canonical === canonical);
+    assert.equal(owner.length, 1, 'current memory identity must have one actual registry owner');
+    assert.equal(ACTIVE_IDENTITY_OPERATION_BOUNDARIES.flatMap(row => row.retiredIdentityCases).filter(row => row.siteId === owner[0].siteId).length, 1, 'current memory identity must retain its public-operation mutation case');
+    const pin = OWNED_IDENTITY_SITE_CONTEXTS.find(row => row.sourcePath === path && row.canonical === canonical);
+    const added = new Map(sources);
+    added.set(path, `${sources.get(path)}\nvoid ${binding};\n`);
+    assert.throws(() => assertOwnedIdentitySiteTotality(added), /owned identity use count changed/, 'additional memory identity use remains refused');
+    const original = `${property}: ${binding}`;
+    assert.ok(sources.get(path).includes(original), 'actual consumer property must exist');
+    const moved = new Map(sources);
+    moved.set(path, sources.get(path).replace(original, `${property}Changed: ${binding}`));
+    const observed = deriveOwnedIdentityLiterals(moved).find(row => row.sourcePath === path && row.canonical === canonical);
+    assert.equal(observed.occurrences, pin.occurrences, 'moved memory consumer retains original count');
+    assert.throws(() => assertOwnedIdentitySiteTotality(moved), /owned identity use context changed/, 'same-count memory consumer movement remains refused');
+    const omittedCase = ACTIVE_IDENTITY_OPERATION_BOUNDARIES.map(row => ({ ...row, retiredIdentityCases: row.retiredIdentityCases.filter(entry => entry.siteId !== owner[0].siteId) }));
+    assert.throws(() => assertOwnedIdentitySiteTotality(sources, omittedCase), /owned identity case missing/, 'current memory mutation case cannot be removed');
+  }
 });
 
 await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered-site omissions and new typed producers fail independently of registry agreement', async () => {

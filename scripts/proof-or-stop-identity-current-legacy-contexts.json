@@ -2401,5 +2401,41 @@
     "disposition": "frozen",
     "verificationCommand": "internal:verify-current-legacy-context",
     "expectedVerification": "PASS exact negative fixture occurrence and complete source witness"
+  },
+  {
+    "id": "current-witness-coverage-1",
+    "class": "provenance_bytes",
+    "path": "docs/lab/story-performance-v19/evidence/seven-lab-integration/claude-post-main-context-plan.md",
+    "token": "lattice-evidence-timeout-",
+    "expectedOccurrences": 1,
+    "contextSha256": "53c8274572027da1ba657ac0e18a8783e1ad648b2433bd0c25d99f3f7a58ca00",
+    "reason": "Exact retained historical audit quotation or recorded failed diagnostic; describes prior evidence without activating the named legacy input.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded historical context"
+  },
+  {
+    "id": "current-witness-coverage-2",
+    "class": "provenance_bytes",
+    "path": "docs/audits/dynamic-finding-evidence-closure.md",
+    "token": "lattice.config.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "4420218190c07965a0de9f2732a09e4d70c5d7880aa12c7cd8bf5c07325a7045",
+    "reason": "Exact retained historical audit quotation or recorded failed diagnostic; describes prior evidence without activating the named legacy input.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded historical context"
+  },
+  {
+    "id": "current-witness-coverage-3",
+    "class": "provenance_bytes",
+    "path": "docs/lab/story-performance-v19/evidence/seven-lab-integration/merged-seven-baseline.log",
+    "token": "lattice-evidence-timeout-",
+    "expectedOccurrences": 2,
+    "contextSha256": "5d919fc9dc5c12d57a5d4fee870aef5d6e1203960e4eabf25e3618ebf2751152",
+    "reason": "Exact retained historical audit quotation or recorded failed diagnostic; describes prior evidence without activating the named legacy input.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-current-legacy-context",
+    "expectedVerification": "PASS exact occurrence and bounded historical context"
   }
 ]

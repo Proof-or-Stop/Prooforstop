@@ -17,20 +17,6 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
 const quiet = process.argv.slice(2).includes('--quiet');
-// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
-for (const [file, marker, timeout] of [
-  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
-]) {
-  try {
-    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
-    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
-    if (!quiet) process.stdout.write(output);
-  } catch (error) {
-    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
-  }
-}
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
@@ -5508,6 +5494,35 @@ function parseProcessFactLevelDefinitions() {
 }
 
 let cachedCommandPolicyEntries = null;
+
+// Refuse the complete actual ownership contract before launching positive proofs.
+assertStoryWriterRuntimeAdmissionContract();
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
+
+// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
+for (const [file, marker, timeout] of [
+  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
+]) {
+  try {
+    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
+    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
+    if (!quiet) process.stdout.write(output);
+  } catch (error) {
+    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
+  }
+}
+
+// Durable ordering witness: its invalid child exits at the admission gate above.
+const admissionOrderOutput = execFileSync(process.execPath, [join(root, 'scripts/verify-process-runtime-admission-order.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
+nodeAssert(admissionOrderOutput.includes('PASS process runtime admission order:'), 'Runtime admission ordering witness must emit its PASS marker');
+if (!quiet) process.stdout.write(admissionOrderOutput);
 
 function readStringProperty(block, propertyName) {
   const match = new RegExp(`\\b${propertyName}\\s*:\\s*(['"\`])`).exec(block);
@@ -11114,7 +11129,6 @@ for (const frozenCommand of expectedStory2Validation) {
 assert(currentStory2Validation.some(row => row.command === 'node' && row.args?.includes('--section=delivery') && row.timeoutMs === 600000), 'Story2 full delivery selector has bounded measured-duration timeout');
 assertCurrentPromptIdentityBoundary();
 assertCapabilityMaterialContract();
-assertStoryWriterRuntimeAdmissionContract();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);
