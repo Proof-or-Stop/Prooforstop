@@ -41,14 +41,15 @@ import {
   type ValidationCatalogEntry,
   type ValidationCommandReceipt,
   type ValidationSelectionManifest,
+  type DualRevisionImpactGraph,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import type { ValidationCommand } from '../core/validation-types.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
 import {
   DYNAMIC_RUNNER_DIGEST,
+  catalogValidationRiskFloor,
   deriveGateOwnedPrerequisites,
-  participatingValidationRiskTier,
   storedDynamicReceiptIntegrityReasons,
   validationManifestExcludedRowFloorReasons,
 } from '../handlers/story-aware-validation.js';
@@ -108,6 +109,17 @@ function context(changePath: string, status: 'added' | 'modified' | 'deleted' | 
     closures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe' as const,
   };
 }
+
+const completeAuditGraph = (commandsAffectedBy: DualRevisionImpactGraph['commandsAffectedBy'] = () => []): DualRevisionImpactGraph => ({
+  baseHead: 'base',
+  head: 'head',
+  baseGraphDigest: 'audit-base-graph',
+  headGraphDigest: 'audit-head-graph',
+  commandsAffectedBy,
+  graphUnknown: false,
+  resolutionFailures: [],
+  authorityReasons: () => [],
+});
 
 // Replay classes vary file status, extension, source area, and generated-output
 // escalation. Each class executes both the complete inventory oracle and the
@@ -571,13 +583,13 @@ const excludedGateCatalog = riskCatalog(excludedCommandId);
 assert.deepEqual(validationManifestExcludedRowFloorReasons(excludedGateCatalog, tieredManifest),
   ['dynamic_excluded_row_not_omittable'],
   'the stored-consumer floor independently rejects an excluded gate row against the live catalog');
-assert.equal(participatingValidationRiskTier(excludedGateCatalog, tieredManifest), 'shared',
+assert.equal(catalogValidationRiskFloor(excludedGateCatalog), 'shared',
   'an excluded gate command remains in the complete-catalog authority risk floor');
 assert.equal(deriveGateOwnedPrerequisites({
   projectRoot: storedRoot, prepared: riskPrepared(excludedGateCatalog), receipts: [], shardArtifacts: [],
 }).storyRiskEligible, false);
 const excludedRiskAuthority = evaluateDynamicAuthority({
-  mode: 'enforce-low-risk', riskTier: participatingValidationRiskTier(excludedGateCatalog, tieredManifest),
+  mode: 'enforce-low-risk', riskTier: catalogValidationRiskFloor(excludedGateCatalog),
   manifest: tieredManifest, prerequisites: {
     baselineCurrent: true, expiryPolicyActive: true, environmentPolicyComplete: true,
     wholeRepoScannersClassified: true, processFactBindingsComplete: true, changedTestPropagationVerified: true,
@@ -588,13 +600,13 @@ const excludedRiskAuthority = evaluateDynamicAuthority({
 assert.equal(excludedRiskAuthority.authoritative, false);
 assert.equal(excludedRiskAuthority.fallbackToFull, true);
 const participatingGateCatalog = riskCatalog(participatingCommandId);
-assert.equal(participatingValidationRiskTier(participatingGateCatalog, tieredManifest), 'shared',
+assert.equal(catalogValidationRiskFloor(participatingGateCatalog), 'shared',
   'a participating gate command must raise the authority risk floor');
 assert.equal(deriveGateOwnedPrerequisites({
   projectRoot: storedRoot, prepared: riskPrepared(participatingGateCatalog), receipts: [], shardArtifacts: [],
 }).storyRiskEligible, false);
 const participatingRiskAuthority = evaluateDynamicAuthority({
-  mode: 'enforce-low-risk', riskTier: participatingValidationRiskTier(participatingGateCatalog, tieredManifest),
+  mode: 'enforce-low-risk', riskTier: catalogValidationRiskFloor(participatingGateCatalog),
   manifest: tieredManifest, prerequisites: {
     baselineCurrent: true, expiryPolicyActive: true, environmentPolicyComplete: true,
     wholeRepoScannersClassified: true, processFactBindingsComplete: true, changedTestPropagationVerified: true,
@@ -839,22 +851,38 @@ if (requestedAuditMode) {
       return 'change manifest PASS';
     },
     'dual-graph': () => {
-      for (const status of ['deleted', 'renamed'] as const) {
-        const plan = buildDynamicValidationPlan(context('packages/main/src/audit-edge.ts', status));
-        assert.equal(plan.totals.unverified, 0);
-      }
+      const graph = completeAuditGraph((change) => {
+        if (change.status === 'deleted' && change.path === 'packages/shared/audit-deleted.ts') return ['integration'];
+        if (change.status === 'renamed' && change.oldPath === 'packages/main/src/old-replay.ts') return ['unit'];
+        return [];
+      });
+      const deleted = buildDynamicValidationPlan({ ...context('packages/shared/audit-deleted.ts', 'deleted'), graph });
+      assert.equal(deleted.fullEscalated, false);
+      assert.equal(deleted.rows.find((row) => row.commandId === 'integration')?.disposition, 'execute');
+      assert.ok(deleted.rows.find((row) => row.commandId === 'integration')?.reasons.includes('reverse-dependency:packages/shared/audit-deleted.ts'));
+      const renamed = buildDynamicValidationPlan({ ...context('packages/shared/audit-renamed.ts', 'renamed'), graph });
+      assert.equal(renamed.fullEscalated, false);
+      assert.equal(renamed.rows.find((row) => row.commandId === 'unit')?.disposition, 'execute');
+      assert.ok(renamed.rows.find((row) => row.commandId === 'unit')?.reasons.includes('reverse-dependency:packages/shared/audit-renamed.ts'));
       return 'delete and rename coverage PASS';
     },
     'scope-escalation': () => {
-      const plan = buildDynamicValidationPlan(context('packages/main/dist/audit-generated.js'));
+      const graph = completeAuditGraph();
+      const control = buildDynamicValidationPlan({ ...context('packages/main/src/audit-control.ts'), graph });
+      assert.equal(control.fullEscalated, false);
+      const plan = buildDynamicValidationPlan({ ...context('packages/main/dist/audit-generated.js'), graph });
       assert.equal(plan.fullEscalated, true);
+      assert.ok(plan.escalationReasons.includes('generated-output-changed:packages/main/dist/audit-generated.js'));
       assert.equal(plan.totals.executed, plan.totals.inventory);
       return 'generated-output full escalation PASS';
     },
     selection: () => {
-      const subject = buildDynamicValidationPlan(context('packages/main/src/audit-selection.ts'));
+      const subject = tieredManifest;
       assert.equal(verifyValidationSelectionManifest(subject), true);
-      assert.equal(subject.rows.length, subject.totals.inventory);
+      assert.equal(subject.fullEscalated, false);
+      assert.equal(subject.rows.find((row) => row.commandId === 'stored-unit')?.disposition, 'reuse');
+      assert.equal(subject.rows.find((row) => row.commandId === 'excluded-unit')?.disposition, 'excluded');
+      assert.deepEqual(subject.totals, { inventory: 2, executed: 0, reused: 1, excluded: 1, unverified: 0, uncovered: 0, unmappedChanges: 0 });
       return 'complete ledger PASS';
     },
     'selection-mutations': () => {

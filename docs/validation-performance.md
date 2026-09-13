@@ -424,9 +424,9 @@ Story in TEST must obtain a fresh complete run before dynamic reuse can resume.
 The repository measurement on the 168-command inventory produced
 `graphUnknown=false` and zero resolution failures; its catalog contained 51
 local, 50 shared, 2 gate and 65 validation-infrastructure rows. Risk eligibility
-is evaluated over the signed manifest rows that execute or reuse, not every
-unrelated excluded catalog row. A participating non-local row still forces the
-canonical fallback. This is a reachability measurement, not a wall-time or
+is evaluated over the complete live catalog. Any non-local catalog row forces
+the canonical fallback and cannot disappear through a selector exclusion. This
+is a reachability measurement, not a wall-time or
 false-negative claim. External projects without these registered tool-source
 identities do not have to recreate them. Existing final full-validation
 requirements remain unchanged. The six paired fault witnesses

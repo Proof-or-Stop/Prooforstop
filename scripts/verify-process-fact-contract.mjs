@@ -9276,6 +9276,7 @@ function assertStoryAwareDynamicValidationRuntime() {
       assert(level?.rationale.includes('DEV, REVIEW and TEST may consume an authoritative complete execute-or-reuse inventory ledger'), 'dynamic authority must bind eligible Story phases to complete logical coverage');
       assert(level?.rationale.includes('The DONE consumer may admit that signed dynamic ledger, while explicit full and DONE-phase validation invocations remain on the complete canonical policy'), 'dynamic authority must distinguish DONE evidence consumption from DONE-phase execution');
       assert(level?.rationale.includes('DONE-required evidence stays independent'), 'dynamic authority must not replace DONE-required proof');
+      assert(level?.rationale.includes('Authority risk is derived from the complete live catalog; any non-local catalog row disables low-risk dynamic authority'), 'dynamic authority risk must retain the complete live catalog floor');
     }
     assert(level?.gateConsumer && /dynamic|validate|TEST|authority/i.test(level.gateConsumer), `process-fact-levels: dynamic fact must name a gate consumer: ${fact}`);
   }

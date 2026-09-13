@@ -140,7 +140,7 @@ integration. Its eleven findings were retained and repaired as follows:
 | A2-F1 graph completeness | Any non-empty dual graph promoted every command to complete ownership | Only a command's own `inputsComplete + inputRoots` declaration can prove completeness; graph augmentation stays partial and build failures/unresolved imports set graph uncertainty |
 | A2-F2 premature activation | Config switched to enforce in the implementation commit without real-inventory shadow evidence | Config is restored to `observe`; activation is a separate rollout change after recorded observation |
 | A2-F3 additive selector | Narrow tiers still ran default commands; full tiers destroyed receipt reuse | Manifest now partitions every command and uses signed `excluded` rows for safe omission; full widening preserves admissible receipts |
-| A2-F4 TEST/DONE consumers | Dynamic admission defaulted false silently and DONE intent was not explicit | The option is required at every caller; REVIEW, TEST, verdict, certification and DONE consumers opt in explicitly while canonical callers opt out |
+| A2-F4 TEST/DONE consumers | Dynamic admission defaulted false silently and DONE intent was not explicit | The option is required at every caller. All current production consumers opt in explicitly; any future canonical-only consumer must opt out explicitly rather than inherit a default |
 | A2-F5 fabricated authority test | Test rewrote escalation fields and re-signed the result | Authority now uses the honest non-escalated production manifest unchanged |
 | A2-F6 legacy pin test | No receipts meant default execution could masquerade as compatibility widening | Control plan first proves reuse, then the legacy pin forces execution and records `legacy-validation-pin-unresolved:<pin>` |
 | A2-F7 marker-only gate test | Package task only searched a marker in the mutation smoke | The stable package-task wrapper now imports the real signed TEST/DONE fixture; only a successful positive and negative consumer run emits the selector |
@@ -301,7 +301,7 @@ addressed as follows:
 | Finding | Before | Repair / executable evidence |
 | --- | --- | --- |
 | A8-F1 graph amplification | Reverse dependency maps were rebuilt per catalog row and change | Base/head reverse maps are built once, affected commands are cached per revision/path, and catalog augmentation calls the graph exactly once per changed file; a call-count fixture proves two changed files cause two calls even with a doubled catalog |
-| A8-F2 participating-risk proof | Production used participating rows, but no two-way gate test proved the boundary | The mutation suite calls the exported production risk helper and gate prerequisite derivation: an excluded gate row remains local/eligible, while a participating gate row becomes shared, disables eligibility, and forces full fallback |
+| A8-F2 participating-risk proof | Production used participating rows, but no two-way gate test proved the boundary | Superseded by A13-F1: the current production helper derives the floor from the complete live catalog, so both excluded and participating gate rows disable low-risk authority and force full fallback |
 | A8-F3 selector identity | `commandSetDigest` and `snapshotDigest` could be self-consistent caller claims | Pre-launch and stored consumers independently rebuild the live command inventory digest and the Story base/head/change digest; re-signed forged command-set and snapshot bindings are refused |
 | A8-F4 hostile ownership shape | `inputsComplete=true` accepted any defined `inputRoots` value | Complete exclusion authority now requires an array containing only non-empty strings; a schema-bypassing string fixture remains partial |
 | A8-F5 host-dependent graph digest | A thrown graph error embedded its host-specific message into signed identity | Failure identity stores the stable error class only; paths and arbitrary host wording cannot change the signed graph digest |
@@ -419,6 +419,23 @@ The canonical build, core smoke, 30-class mutation audit and real TEST/DONE
 fixture pass on the repair tree. Static digests were refreshed for the changed
 core, handler and planner-smoke dependency closure; committed-head GREEN and a
 fresh Claude PASS remain mandatory.
+
+## Fourteenth Claude audit and remediation
+
+The exact repair-head audit of `bfd6af6afd` returned `fail` under run
+`80d9ee67-c82e-461a-ad1d-9319ab39eafb` after 784,335 ms. Claude found no
+remaining selector/executor/consumer safety bypass. It retained four contract,
+naming, test-strength and historical-documentation inconsistencies:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A14-F1 L4 risk rationale drift | Runtime used the complete live catalog, while the L4 rationale still described execute/reuse participation | The rationale now states the complete-catalog floor and `verify-process-fact-contract.mjs` mechanically pins that sentence |
+| A14-F2 misleading risk helper | `participatingValidationRiskTier(catalog, _manifest)` ignored its manifest parameter and inherited an unrelated gate-provider comment | It is renamed `catalogValidationRiskFloor(catalog)`; its comment describes the catalog floor and the DYN-3 comment now sits on the actual prerequisite provider |
+| A14-F3 vacuous audit modes | Missing graphs made scope and dual-graph checks full-escalate, while selection checked a row-count identity | Complete graphs now prove a source control does not escalate, generated output escalates for its exact reason, deletion and rename select distinct reverse dependencies including `oldPath`, and selection pins the honest two-row `reuse`/`excluded` partition with exact totals |
+| A14-F4 historical prose conflicts | Current docs and two old audit rows still stated superseded risk and caller behavior | Current operations prose uses the complete catalog; A8-F2 explicitly points to A13-F1, and A2-F4 records that every current production consumer explicitly opts in |
+
+The focused audit modes and process-fact contract pass on the repair tree. A
+committed-head GREEN and fresh Claude PASS remain mandatory before Lab finish.
 
 ## Rollback
 

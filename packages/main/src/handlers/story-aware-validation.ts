@@ -1149,18 +1149,16 @@ export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
   runtimeReport: string;
 }
 
-/**
- * Gate-owned DYN-3 evidence provider.  These values are derived from the
- * current signed manifest, baseline, command receipts and actual Wave-0 run;
- * callers cannot turn enforcement on by supplying booleans in the request.
- */
-export function participatingValidationRiskTier(
-  catalog: ValidationCatalogEntry[],
-  _manifest: ValidationSelectionManifest,
-): 'local' | 'shared' {
+/** Authority eligibility uses the complete live catalog as a non-omittable risk floor. */
+export function catalogValidationRiskFloor(catalog: ValidationCatalogEntry[]): 'local' | 'shared' {
   return catalog.every((entry) => entry.riskTier === 'local') ? 'local' : 'shared';
 }
 
+/**
+ * Gate-owned DYN-3 evidence provider. These values are derived from the
+ * current signed manifest, baseline, command receipts and actual Wave-0 run;
+ * callers cannot turn enforcement on by supplying booleans in the request.
+ */
 export function deriveGateOwnedPrerequisites(args: {
   projectRoot: string;
   prepared: PreparedStoryAwareValidation;
@@ -1213,7 +1211,7 @@ export function deriveGateOwnedPrerequisites(args: {
     // Risk is derived from the complete live catalog. Gate and validation
     // infrastructure rows are participation floors and can never disappear
     // from authority eligibility through an excluded-row mutation.
-    storyRiskEligible: participatingValidationRiskTier(args.prepared.catalog, manifest) === 'local'
+    storyRiskEligible: catalogValidationRiskFloor(args.prepared.catalog) === 'local'
       && !manifest.fullEscalated && shardEvidenceClean,
     periodicFullPolicyActive: baselineCurrent,
     revocationLedgerCurrent: verifyRevocationLedger(args.prepared.revocationLedger) && receiptsCurrent,
@@ -1343,7 +1341,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     mode: args.mode || 'observe',
     // A non-local row cannot disappear from the Story risk decision merely
     // because the selector produced an exclusion proof for its paths.
-    riskTier: participatingValidationRiskTier(final.catalog, final.manifest),
+    riskTier: catalogValidationRiskFloor(final.catalog),
     manifest: final.manifest,
     prerequisites: {
       // The gate-owned evidence provider below computes every prerequisite from
