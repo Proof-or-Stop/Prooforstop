@@ -110,7 +110,7 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
     try {
       // merge-base itself rejects missing refs and non-commit objects. Keep
       // the live ref resolution here; do not cache a moving baseline.
-      const mergeBase = probe(gitCwd, ['merge-base', ref, head]);
+      const mergeBase = probe(gitCwd, ['merge-base', '--end-of-options', ref, head]);
       if (mergeBase) return { ref, mergeBase };
     } catch { /* try the next conventional baseline */ }
   }

@@ -9,7 +9,7 @@ Different rows represent different rounds and workloads. Do not add their durati
 | Repair / workload | Before | After | Evidence / qualification |
 |---|---:|---:|---|
 | Per-query timer includes actual pack construction | [0, 0] ms | [11, 17] ms | Deterministic clock; 28 ms total, or 33 ms with shared setup. Measurement correctness, not acceleration. |
-| Static AST parsing, identical full strict report | 368 parses | 234 parses | Historical five-pair median 1881 to 1692 ms; report bytes equal. |
+| Static AST parsing, identical full strict report | 368 parses at scanner Lab head 0884d377; 370 at reviewed candidate c40c48d82d | 234 at scanner Lab head; 236 at reviewed candidate | Counts depend on the scanned closure. Both observations eliminate 134 duplicate parses. Historical five-pair median 1881 to 1692 ms; report bytes equal. |
 | Workspace discovery, 20 calls | 605.425 ms; 60 Git | 404.889 ms; 40 Git | Inventory calls 40 to 20, same-call successful reuse. |
 | Story hash, first repair, 20 calls | 1500.004 ms; 149 Git | 1127.564 ms; 109 Git | Combined probes; moving-reference freshness retained. |
 | Baseline discovery, first repair, 20 calls | 1181.438 ms; 120 Git | 820.228 ms; 80 Git | Same matched ABBA workload. |
@@ -63,3 +63,7 @@ Synchronization with main 0.3.356 retains the new validation catalog imports whi
 ## Synchronized verifier compatibility repair
 
 The 0.3.356 GREEN attempt preserved a real failure: verify-material-tree-memo imported a newly expanded source closure containing a TypeScript parameter property. Node 26 native strip-only loading raised ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX before its assertions. The pinned wrapper now runs this witness first, and managed RED reproduces that exact failure. The verifier alone uses the already installed TypeScript compiler through a temporary synchronous load hook; the shared Lab bootstrap and product source are unchanged. Its original hash, repeated-tree, new-HEAD, replacement-ref, packed-ref, environment and missing-ref assertions remain intact. The targeted source verifier passes after repair. This is verification compatibility, not another product speedup.
+
+## First complete Finish audit and repair disposition
+
+The real Claude audit of c40c48d82d completed in 829790 ms with a fail verdict and three low findings. Its full review covered 19958 diff lines and the supplied changed-region snapshots. All findings are repaired in this Lab: the scanner table now explicitly binds counts to their historical and reviewed candidate heads; the uncached merge-base call retains --end-of-options without an extra subprocess; and all six intake harness levels share one cumulative deadline, reserve nested cleanup time and distinguish timeouts/interruption from ordinary RED. The original 900-second managed outer budget remains unchanged. The rejected candidate is retained as historical audit evidence and is not represented as approved.
