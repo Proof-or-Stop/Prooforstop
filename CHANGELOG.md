@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab review-intent-stage-cycle - v0.3.351 - 2026-09-13
+
+The Lab migrates the review-intent-stage-cycle repair from the remote host onto the current local main baseline.
+
+The repair prevents PLAN verification intent from requiring a REVIEW lifecycle verdict that can only be produced after entering REVIEW. Direct Story creation, draft materialization, checklist addition or replacement, and DEV intent amendment reject the bounded invalid shapes before persistence; Story review also reports a blocking, actionable issue for retained legacy data. Legitimate product tests for review pages, review-related CLI behavior, and complete executable pins remain admissible. Verification-intent prompts for Codex, Claude, templates, and the handoff handler teach the same boundary, and the process-fact registry records the writer and consumer contract.
+
+The migrated regression was expanded with common lifecycle wording, every persistence path, legacy-data coverage, malformed-input handling, and false-positive controls. It is registered in test:serial-reference and has an isolated full-suite resource policy. The focused end-to-end test, test-intent handoff verification, TypeScript build, docs-drift smoke, runtime fact contract, identity mutation control, resource sentinel, and complete process-fact contract pass. A different-vendor Anthropic audit passed the final committed HEAD. The current main baseline independently fails the prompt rollout digest check and the full-suite runner CPU-timing anti-spoof assertion; the candidate shows the same failures and does not introduce them.
+
+Maintenance provenance: codex/lab-review-intent-stage-cycle, repair 82365ddd9d57bebd96617e58bfa054434de9e293.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-gate-intent-cycle.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab native-lock-prerequisites - v0.3.350 - 2026-09-12
 
 Repair native validation-lock fixture prerequisites using actual CLI inventory, dispatch, broker-bound review, critic, validation and certification admission. Initial disposable subjects contain no fabricated PASS or admitted window. Focused probes exercise reviewer and delivery write exclusion while preserving routine evidence; native dual-order queues prove real routine and DONE-required publication.
