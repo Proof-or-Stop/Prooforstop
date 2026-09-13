@@ -32,9 +32,15 @@ function table(): Map<number, ProcessIdentity & { ppid: number }> {
   return result;
 }
 function identity(pid: number): ProcessIdentity {
-  const row = table().get(pid), start = observedProcessStartTimeMs(pid);
-  if (!row || start === undefined) throw failure('process identity unavailable');
-  return { pid, start, pgid: row.pgid };
+  if(!Number.isSafeInteger(pid)||pid<=1)throw failure('process identity unavailable');
+  let raw: string;
+  try { raw=execFileSync('ps',['-p',String(pid),'-o','pid=,pgid=,lstart='],{encoding:'utf8',timeout:policy.kernelObservationMs,maxBuffer:8*1024*1024}); }
+  catch { throw failure('process identity unavailable'); }
+  const rows=raw.trim().split('\n');
+  const match=rows.length===1 && rows[0].trim().match(/^(\d+)\s+(\d+)\s+(.+)$/);
+  const observedPid=match?Number(match[1]):NaN, pgid=match?Number(match[2]):NaN, start=match?Date.parse(match[3]):NaN;
+  if(observedPid!==pid||!Number.isSafeInteger(pgid)||pgid<=1||!Number.isFinite(start))throw failure('process identity unavailable');
+  return {pid,start,pgid};
 }
 function ancestors(pid: number): number[] {
   const rows = table(), seen = new Set<number>(); let next = rows.get(pid)?.ppid;
