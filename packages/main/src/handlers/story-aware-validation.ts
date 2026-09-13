@@ -30,6 +30,7 @@ import { buildDualRevisionImpactGraph } from '../core/dual-revision-impact-graph
 import { buildStoryChangeManifest } from '../core/story-change-resolver.js';
 import {
   buildDynamicValidationPlan,
+  augmentValidationCatalogWithGraphInputs,
   buildRevocationLedger,
   buildValidationSchedule,
   assertValidValidationCatalog,
@@ -126,6 +127,7 @@ export function assertAutomaticTierSelectionBindingCurrent(
   binding: AutomaticValidationTierSelectionBinding,
   current?: {
     catalog: ValidationCatalogEntry[];
+    graph?: DualRevisionImpactGraph;
     changedFiles: StoryChangedFile[];
     universeCommandIds: string[];
   },
@@ -137,9 +139,14 @@ export function assertAutomaticTierSelectionBindingCurrent(
     throw new Error('automatic selector decision changed before validation execution');
   }
   if (current) {
+    const selectorCatalog = augmentValidationCatalogWithGraphInputs({
+      catalog: current.catalog,
+      graph: current.graph,
+      changedFiles: current.changedFiles,
+    });
     const expectedImpactIndex = buildValidationImpactIndexFromCatalog({
       commandSetDigest: binding.input.commandSetDigest,
-      catalog: current.catalog,
+      catalog: selectorCatalog,
     });
     const selectorPaths = new Set(binding.input.changedPaths.map((path) => path.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').trim()));
     const currentPaths = [...new Set(current.changedFiles.flatMap((change) => [change.path, ...(change.oldPath ? [change.oldPath] : [])])
@@ -416,6 +423,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   const tierSelection = args.tierSelection ?? args.tierSelectionResolver?.({ catalog, graph, changes });
   if (tierSelection) assertAutomaticTierSelectionBindingCurrent(tierSelection, {
     catalog,
+    graph,
     changedFiles: changes.changedFiles,
     universeCommandIds: inventory.commands.map((row) => row.id),
   });
@@ -491,8 +499,33 @@ export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyI
     const inventory = discoverValidationInventory(projectRoot);
     const catalog = compileValidationCatalog(inventory);
     try {
+      const currentChangeManifest = buildStoryChangeManifest({
+        storyId,
+        gitCwd: projectRoot,
+        baseHead: manifest.baseHead,
+        head: manifest.head,
+        changedFiles: manifest.changedFiles,
+      });
+      let graph: DualRevisionImpactGraph | undefined;
+      try {
+        execFileSync('git', ['cat-file', '-e', `${manifest.baseHead}^{commit}`], { cwd: projectRoot, stdio: 'ignore' });
+        execFileSync('git', ['cat-file', '-e', `${manifest.head}^{commit}`], { cwd: projectRoot, stdio: 'ignore' });
+        graph = buildDualRevisionImpactGraph({
+          gitCwd: projectRoot,
+          storyId,
+          baseHead: manifest.baseHead,
+          head: manifest.head,
+          catalog,
+          changeManifest: currentChangeManifest,
+          changedFiles: manifest.changedFiles,
+        });
+      } catch {
+        // Invalid legacy/fabricated refs cannot add positive graph inputs. The
+        // binding check below still has to match the unaugmented fail-closed catalog.
+      }
       assertAutomaticTierSelectionBindingCurrent(manifest.selectorBinding, {
         catalog,
+        graph,
         changedFiles: manifest.changedFiles,
         universeCommandIds: inventory.commands.map((row) => row.id),
       });
@@ -1142,6 +1175,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   args = { ...args, beforeLaunch: () => { checkFindingConstraints(); originalBeforeLaunch?.(); } };
   const prior = readStoryAwareValidationArtifacts(args.projectRoot, args.storyId);
   const first = prepare({ ...args, receipts: args.receipts || prior.receipts, revocationLedger: args.revocationLedger || prior.revocationLedger });
+  const resolvedTierSelection = args.tierSelection ?? first.manifest.selectorBinding;
   const head = args.head || currentHead(args.gitCwd || args.projectRoot);
   const waveId = first.catalog.find((entry) => first.manifest.rows.some((row) => row.commandId === entry.id && row.reasons.includes('wave-0-build')))?.id
     || waveZeroCommand(first.catalog);
@@ -1156,7 +1190,13 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     jobs: 1,
   });
   const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
-  const final = prepare({ ...args, receipts: prior.receipts, revocationLedger: prior.revocationLedger, buildProofDigest });
+  const final = prepare({
+    ...args,
+    receipts: prior.receipts,
+    revocationLedger: prior.revocationLedger,
+    buildProofDigest,
+    ...(resolvedTierSelection ? { tierSelection: resolvedTierSelection, tierSelectionResolver: undefined } : {}),
+  });
   const selectedEntries = final.manifest.rows
     .filter((row) => row.disposition === 'execute' && row.commandId !== waveId)
     .map((row) => final.catalog.find((entry) => entry.id === row.commandId)!)

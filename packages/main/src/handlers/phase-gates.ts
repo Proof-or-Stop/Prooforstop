@@ -687,19 +687,31 @@ export function runDoneOracleGate(
   if (storedEvidence?.result === 'PASS') {
     // Authenticate first. Execution-mode markers live inside the signed output
     // and therefore cannot decide whether DONE performs this check.
-    const admissibility = assessStoredValidationPassAdmissibility(
-      { root, store } as HandlerContext,
-      storyId,
-      { allowDynamicCoverage: true },
-    );
-    if (!admissibility.ok) {
+    try {
+      const admissibility = assessStoredValidationPassAdmissibility(
+        { root, store } as HandlerContext,
+        storyId,
+        { allowDynamicCoverage: true },
+      );
+      if (!admissibility.ok) {
+        storedValidationAdmissionFailure = {
+          id: 'stored-validation-admission',
+          label: 'Stored routine validation admission',
+          status: 'fail',
+          blocking: true,
+          source: 'assessStoredValidationPassAdmissibility',
+          detail: admissibility.reasons.join('; '),
+          hint: `Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
+        };
+      }
+    } catch (error) {
       storedValidationAdmissionFailure = {
         id: 'stored-validation-admission',
         label: 'Stored routine validation admission',
         status: 'fail',
         blocking: true,
         source: 'assessStoredValidationPassAdmissibility',
-        detail: admissibility.reasons.join('; '),
+        detail: error instanceof Error ? error.message : String(error),
         hint: `Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
       };
     }

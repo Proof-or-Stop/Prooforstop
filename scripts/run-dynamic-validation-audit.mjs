@@ -39,15 +39,6 @@ const selectors = {
 const selector = selectors[mode];
 if (!selector) throw new Error(`unknown dynamic validation audit mode: ${mode || '<missing>'}`);
 
-// These two selectors must cross the real TEST and DONE consumers. Importing
-// the fixture executes those gates in this process, so the stable registered
-// adapter remains the validation entry without creating a nested validator.
-if (mode === 'test-gate' || mode === 'test-gate-mutations') {
-  await import('./verify-dynamic-test-admission.mjs');
-  process.stdout.write(`${selector}\n`);
-  process.exit(0);
-}
-
 function runSourceTask(task) {
   const sourcePath = join(root, task);
   let result = spawnSync(process.env.BUN_BINARY || 'bun', [sourcePath], {
@@ -91,5 +82,14 @@ const mutationOutput = runSourceTask('packages/main/src/tasks/story-aware-valida
 if (!mutationOutput.includes('dynamic-validation mutation audit PASS')) throw new Error('mutation audit selector missing');
 if (!mutationOutput.includes('replay classes: 30')) throw new Error('replay threshold selector missing');
 if (!mutationOutput.includes(selector)) throw new Error(`requested selector missing: ${selector}`);
+
+// Gate modes require both layers: the source smokes above prove the selector
+// and authority mutation that owns the public marker; this in-process fixture
+// then proves the resulting signed evidence crosses the real TEST/DONE gates.
+// Keeping the import here prevents the fixture's own summary markers from
+// satisfying the source-smoke assertions.
+if (mode === 'test-gate' || mode === 'test-gate-mutations') {
+  await import('./verify-dynamic-test-admission.mjs');
+}
 
 process.stdout.write(`${selector}\n`);

@@ -30,7 +30,10 @@ async function runCase(phase, full) {
         writeFileSync(join(root, 'packages/main/src/local-input.ts'), 'export const localInput = 1;\n');
         writeFileSync(join(root, 'packages/main/src/unaffected-input.ts'), 'export const unaffectedInput = 1;\n');
         writeFileSync(join(root, '.gitignore'), '.proof-or-stop/runtime/\n.proof-or-stop/locks/\n.proof-or-stop/activity.jsonl\n**/owner-lease.json\n**/certification-window.json\n');
-        const commands = ['build', 'unaffected'].map(label => ({ command: process.execPath, args: ['-e', `process.stdout.write(${JSON.stringify(label + '-marker')})`], label, inputRoots: [label === 'build' ? 'packages/main/src/local-input.ts' : 'packages/main/src/unaffected-input.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'] }));
+        const commands = [
+          { command: process.execPath, args: ['-e', 'process.stdout.write("build-marker")'], label: 'build', focus: ['fast'], optional: false, inputRoots: ['packages/main/src/local-input.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'] },
+          { command: process.execPath, args: ['-e', 'process.stdout.write("unaffected-marker")'], focus: ['intermediate'], optional: true, inputRoots: ['packages/main/src/unaffected-input.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'] },
+        ];
         writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', validate: { dynamic: { mode: 'enforce-low-risk' }, commands } }));
         git('init', '-q', '-b', 'main');
         git('config', 'user.name', 'Audit');
@@ -47,7 +50,7 @@ async function runCase(phase, full) {
         const configured = configuredValidationCommands(root);
         const baseline = await executeValidationPlan({ provider: 'full-baseline', commands: configured, warnings: [] }, root, baseHead, storyId);
         assert.equal(baseline.allPass, true);
-        assert.deepEqual(baseline.commands.map(c => c.label), ['build', 'unaffected']);
+        assert.deepEqual(baseline.commands.map(c => c.label), ['build', 'configured validate.commands[1]']);
         const canonicalBaseline = persistCanonicalFullBaseline({ projectRoot: root, sourceHead: baseHead, result: baseline, commands: configured });
         assert.ok(canonicalBaseline, 'canonical baseline must be persisted');
         git('checkout', '-qb', 'story');
@@ -66,7 +69,7 @@ async function runCase(phase, full) {
         const admission = assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:!full});
         assert.equal(admission.ok,true,JSON.stringify(admission.reasonCodes));
         if (full) {
-          assert.deepEqual(parsed.commands.map(c => c.label), ['build', 'unaffected']);
+          assert.deepEqual(parsed.commands.map(c => c.label), ['build', 'configured validate.commands[1]']);
           assert.equal(store.readTestEvidence(storyId).commandExecution.commandCount, 2);
           await runValidateGate(ctx, storyId, { stop() {} });
           const repeatedFull = JSON.parse(await createVerifierHandlers({ root, scanRoot: join(root, 'packages/main'), store,
@@ -111,6 +114,19 @@ async function runCase(phase, full) {
         assert.doesNotMatch(downstreamDoneError, /Stored routine validation admission|dynamic_.*(?:invalid|changed|missing)/,
           'a valid dynamic TEST PASS must cross the DONE dynamic-consumer boundary');
         console.log('DYNAMIC_DONE_CONSUMER_ACCEPTED');
+        const originalReadChecklist = store.readChecklist.bind(store);
+        let injectAdmissionThrow = true;
+        store.readChecklist = (...callArgs) => {
+          if (injectAdmissionThrow) {
+            injectAdmissionThrow = false;
+            throw new Error('INJECTED_STORED_ADMISSION_FAILURE');
+          }
+          return originalReadChecklist(...callArgs);
+        };
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+          /DONE Gate Checklist \(B-u09-authority\)[\s\S]*Stored routine validation admission[\s\S]*INJECTED_STORED_ADMISSION_FAILURE/,
+          'a thrown stored-PASS assessment must remain a rendered DONE checklist row');
+        store.readChecklist = originalReadChecklist;
         const artifacts=readStoryAwareValidationArtifacts(root,storyId);
         const requiredCommandId = parsed.dynamicValidation.manifest.rows.find(row=>row.disposition==='execute').commandId;
         const reuseId = artifacts.receipts.find(row=>row.commandId===requiredCommandId)?.id;

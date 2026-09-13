@@ -501,8 +501,8 @@ The repository configuration still uses observe mode. This repair makes the
 selector/executor contract real without silently activating it: a narrow signed
 manifest partitions the complete inventory into `execute`, admissible `reuse`,
 positive-proof `excluded`, and fail-closed `unverified` rows. A repository-full
-widening expands eligibility but preserves admissible current receipts instead
-of force-running them again. Activation requires a separately recorded real
+widening selects every catalog row for execution and does not reuse receipts;
+that is the conservative oracle when narrowing proof is unavailable. Activation requires a separately recorded real
 inventory observe cycle and remains reversible with `--dynamicMode=off`.
 
 ## Worktree discovery in validation
@@ -556,15 +556,16 @@ This does not enable the root repository's observe configuration. The original
 DYN-3 plan additionally requires the complete dependency, scope, ancestry,
 environment and rollout evidence chain before expanding dynamic authority. In
 particular, root full-only policies and unknown graph dependencies remain intact.
-Direct validation invoked in TEST may resolve to the repository's configured
-dynamic mode, but only after the complete inventory partition and the existing
+Direct validation invoked in TEST resolves to dynamic authority only when the
+repository explicitly configures `enforce-low-risk`; `observe` and `shadow`
+retain the prior canonical/shared-reuse path. Enforcement still requires the complete inventory partition and the existing
 baseline, closure, freshness, expiry, revocation, selector-input and exclusion-
 proof prerequisites pass. Explicit `--full`, DONE-phase invocation, and
 DONE-required evidence remain on their independent canonical policies.
 
-The focused regression is `node scripts/verify-dynamic-test-admission.mjs`, and
-the stable package-level TEST-gate wrapper imports it in-process rather than
-trusting a marker from a planner-only smoke. It covers real full and dynamic execution,
+The focused regression is `node scripts/verify-dynamic-test-admission.mjs`. The
+stable package-level TEST-gate wrapper first runs both source smokes and verifies
+their owning selectors, then imports the real consumer fixture in-process. It covers real full and dynamic execution,
 one-of-two command reduction, zero-child repeats, TEST and DONE consumption, signature
 stripping, output mutation, cross-Story replay, missing/expired/tampered receipts,
 missing/malformed ledgers, and receipt/epoch revocation. The older

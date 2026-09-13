@@ -35,6 +35,7 @@ import {
   verifyValidationCommandReceipt,
   verifyValidationSchedule,
   verifyValidationSelectionManifest,
+  verifyValidationTierExclusions,
   resolveStoryChangedFiles,
   type ValidationCatalogEntry,
   type ValidationCommandReceipt,
@@ -385,6 +386,10 @@ assert.equal(verifyValidationSelectionManifest(resign({
   selectorBinding: excludedInsideEffectiveBinding,
   tierSelections: excludedInsideEffectiveBinding.decision.tierSelections,
 })), false, 'an excluded row inside the effective tier must be refused');
+assert.equal(verifyValidationTierExclusions({
+  ...tieredManifest,
+  tierSelections: excludedInsideEffectiveBinding.decision.tierSelections,
+}), false, 'the isolated excluded-row rule rejects membership in the effective tier');
 assert.equal(verifyValidationSelectionManifest(resign({
   ...tieredManifest,
   fullEscalated: true,
@@ -407,6 +412,23 @@ assert.equal(verifyValidationSelectionManifest(resign({
   ...tieredManifest,
   selectorBinding: proofRemovedBinding,
 })), false, 'an excluded row without its signed selector proof must be refused');
+assert.equal(verifyValidationTierExclusions({
+  ...tieredManifest,
+  selectorBinding: proofRemovedBinding,
+}), false, 'the isolated excluded-row rule rejects a missing positive proof');
+const unrelatedCatalogBinding = {
+  ...tieredManifest.selectorBinding!,
+  catalogDigest: digestCanonicalJson({ unrelated: true }),
+};
+unrelatedCatalogBinding.bindingDigest = digestCanonicalJson({
+  catalogDigest: unrelatedCatalogBinding.catalogDigest,
+  input: unrelatedCatalogBinding.input,
+  decision: unrelatedCatalogBinding.decision,
+});
+assert.equal(verifyValidationSelectionManifest(resign({
+  ...tieredManifest,
+  selectorBinding: unrelatedCatalogBinding,
+})), false, 'the selector catalog digest must equal the executed manifest catalog digest');
 
 const staleReceipt = receipt({
   createdAt: '2020-01-01T00:00:00.000Z', expiresAt: '2020-01-02T00:00:00.000Z',

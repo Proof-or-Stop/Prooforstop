@@ -2458,8 +2458,32 @@ testCase('the production catalog derives the canonical impact index and automati
     'changing a positive exclusion proof must change the signed selector decision digest');
 });
 
+testCase('automatic selection reaches intermediate when fast is empty but a shared boundary matches', () => {
+  const commandSetDigest = 'intermediate-only-command-set';
+  const impactIndex = {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'intermediate-only-index',
+    commandSetDigest,
+    entries: [{
+      commandId: 'shared-contract', selection: 'story-intermediate' as const,
+      inputPatterns: ['packages/shared/**'], coverage: 'complete' as const,
+    }],
+  };
+  const decision = selectAutomaticValidationTier({
+    storyId: 'B-intermediate-only', universeCommandIds: ['shared-contract'],
+    changedPaths: ['packages/shared/api.ts'], pinnedCommandIds: [], forceFullReasons: [],
+    commandSetDigest, snapshotDigest: 'intermediate-only-snapshot', impactIndex,
+  });
+  assert.equal(decision.requestedTier, 'story-intermediate');
+  assert.equal(decision.effectiveTier, 'story-intermediate');
+  assert.deepEqual(decision.selectedUnitIds, ['shared-contract']);
+  assert.deepEqual(decision.escalationReasonCodes, []);
+});
+
 testCase('dynamic authority requires explicit configuration and only DEV REVIEW TEST can consume its coverage', () => {
   assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'observe' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'shadow' }), 'off');
   assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
   assert.equal(resolveValidationDynamicMode({ storyPhase: 'REVIEW', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
   assert.equal(resolveValidationDynamicMode({ storyPhase: 'INIT', configuredMode: 'enforce-low-risk' }), 'off');
@@ -2975,10 +2999,10 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ts.forEachChild(node, visitPlanner);
   };
   visitPlanner(plannerAst);
-  assert.equal(productionCallSites.length, 3, 'only the plan resolver and automatic-tier wrapper may call the canonical selector');
+  assert.equal(productionCallSites.length, 4, 'only the plan resolver and automatic-tier wrapper may call the canonical selector');
   assert.deepEqual(
     productionCallSites.map((call) => call.arguments.length).sort(),
-    [1, 2, 2],
+    [1, 2, 2, 2],
     'the plan resolver keeps the live registry seam implicit while the automatic wrapper forwards its internal dependency seam',
   );
   assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'validation-plan.ts may not call the selector seam directly');

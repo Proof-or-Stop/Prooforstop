@@ -184,6 +184,34 @@ contract before a new GREEN was recorded. A new exact-head Claude audit is still
 required after this repair commit; Lab finish will also audit the tool-generated
 post-version-bump candidate.
 
+## Fourth Claude CLI audit and remediation
+
+The exact-head audit of `fb4106bc48` returned `fail` under run
+`505ad0dd-17cd-4b8f-870f-7dfec7d67608` after 595,795 ms. It confirmed that the
+selector is now bound to the executor catalog/inventory/change set, the decision
+is reconstructed, graph-affected commands execute, and portable identity and
+per-command completeness remain sound. Its twelve follow-up findings were
+retained and repaired:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A4-F1 admission catalog parity | Stored admission used a second partial config parser, losing focus/optional/reuse fields and choosing another default label | Inventory discovery now delegates to the same `normalizeConfiguredValidationCommands` used by execution. The real fixture includes focus, optional, and an omitted label and still crosses TEST/DONE |
+| A4-F2 marker-only package tasks | Gate modes returned before the core and mutation smokes, while the consumer fixture printed both public markers | The wrapper now proves the requested marker in the source mutation smoke first, then runs the real TEST/DONE fixture, and emits the registered selector only after both layers pass |
+| A4-F3 observe-mode TEST cost | `observe` in TEST disabled shared reuse and built the dual-revision graph despite no authority activation | TEST preserves `off` semantics for `observe`/`shadow`; only explicit `enforce-low-risk` enables dynamic TEST authority. Non-authoritative modes retain shared execution |
+| A4-F4 catalog digest mirror | Generic manifest verification reconstructed the selector but did not compare its catalog digest to the execution manifest | `selectorBinding.catalogDigest` must equal signed `manifest.catalogDigest`; a re-signed unrelated-catalog mutation is rejected |
+| A4-F5 DONE contract wording | The DONE consumer accepted signed dynamic evidence while L4 prose could be read as requiring a new full run | The contract now distinguishes evidence consumption from execution: DONE may admit the signed complete dynamic ledger, while explicit full, DONE-phase execution, and DONE-required evidence remain canonical |
+| A4-F6 DONE thrown assessment | An exception before checklist construction could hide all other DONE rows | Assessment exceptions become the same blocking row; a one-shot injected exception proves the full rendered DONE checklist still contains the failure |
+| A4-F7 escalation documentation | One paragraph said full widening preserved receipts | It now states the implemented conservative rule: repository-full escalation executes every catalog row and reuses none |
+| A4-F8 graph augmentation reachability | Graph augmentation existed only in a smoke | Production selector input, executor pre-launch recheck, and stored-evidence recheck all use the same augmentation. Graph edges add positive impact but never upgrade completeness |
+| A4-F9 empty-fast intermediate | The automatic selector returned full before testing a directly matching intermediate-only row | When the sole fast refusal is empty selection, the selector tries intermediate; a no-always/no-pin fixture proves `story-intermediate` rather than full |
+| A4-F10 legacy pin provenance | Any correctly shaped legacy id appeared caller-shaped | The plan now authenticates the complete current Story change manifest before reading pins; only pins from that signed artifact can take the conservative full-compatibility path |
+| A4-F11 mutation precision | Two full-manifest mutations failed first at generic decision recomputation | The positive-proof row invariant is now an independently callable verifier; isolated tests exercise inside-effective-tier and missing-proof refusals, while full manifest mutations retain end-to-end coverage |
+| A4-F12 repeated relevance collection and version | One run could resolve the same tier binding up to three times; the repair head was not yet version-bumped | The prepared signed binding is passed through both execution preparations and reused after Wave-0. The atomic patch version remains owned by Lab finish so both manifests, lockfiles, CLI brand, build, and post-bump audit move together |
+
+The repaired head must receive a new GREEN. Lab finish will create the patch
+candidate and run the mandatory different-vendor audit over the exact bumped
+commit; a pre-bump audit is not substituted for that release-candidate check.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,

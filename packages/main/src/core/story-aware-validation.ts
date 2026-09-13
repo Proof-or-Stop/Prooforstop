@@ -25,11 +25,13 @@ import { isMaterialExcludedPath } from './material-path-policy.js';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 import { resolveRepositoryBaseline } from './git-baseline.js';
 import { digestCanonicalJson } from './digest.js';
+import { normalizeConfiguredValidationCommands } from './validation-command-config.js';
 import {
   narrowPortableValidationCommandTuple,
   provisionalValidationCommandId,
 } from './validation-command-portable-id.js';
 import {
+  buildValidationImpactIndexFromCatalog,
   selectAutomaticValidationTier,
   type AutomaticValidationTierSelectionBinding,
   type ValidationTier,
@@ -270,7 +272,7 @@ export const resolveStoryChangeManifest = buildStoryChangeManifest;
 
 export interface ValidationInventoryCommand {
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; runnerSourceDigest?: string; declaredEnvironmentKeys?: string[]; inputRoots?: string[]; inputsComplete?: boolean;
+  env?: Record<string, string>; timeoutMs?: number; optional?: boolean; focus?: string[]; executionReuse?: 'exact-inputs'; executionInputs?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; runnerSourceDigest?: string; declaredEnvironmentKeys?: string[]; inputRoots?: string[]; inputsComplete?: boolean;
   assurance?: Assurance; riskTier?: RiskTier; closurePolicy?: ClosurePolicy; fullBaselineReusePolicy?: FullBaselineReusePolicy; cpuWeight?: number; expectedP50Ms?: number; originalIndex: number;
 }
 export interface ValidationCatalogEntry {
@@ -306,47 +308,16 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
   // name a different file than `raw` was actually read from.
   const picked = injected ? null : pickProjectConfigPath(projectRoot);
   if (!injected) {
-    // Reuse the canonical resolver instead of duplicating its lookup here.
+    // Reuse the exact execution-side normalizer. A second partial parser used
+    // to lose focus/optional/execution-reuse fields and choose a different
+    // default label, making a freshly persisted dynamic PASS impossible to
+    // admit at TEST/DONE even though the config had not changed.
     const raw = picked ? JSON.parse(readFileSync(picked.path, 'utf8')) as Record<string, unknown> : {};
-    const validation = ((raw.validate || raw.validation) as Record<string, unknown> | undefined) || {};
-    const dynamic = validation.dynamic && typeof validation.dynamic === 'object' ? validation.dynamic as Record<string, unknown> : {};
-    const policyDefaults = dynamic.policyDefaults && typeof dynamic.policyDefaults === 'object'
-      ? dynamic.policyDefaults as Record<string, unknown>
-      : {};
-    const rows: unknown[] = Array.isArray(validation.commands) ? validation.commands : typeof validation.command === 'string' ? [validation.command] : [];
-    commands = rows.flatMap((rawRow: unknown, index: number): ValidationInventoryCommand[] => {
-      if (typeof rawRow === 'string') {
-        const parts = rawRow.trim().split(/\s+/);
-        return parts[0] ? [{
-          id: commandId({ command: parts[0], args: parts.slice(1), label: parts[0] }, index),
-          label: parts[0], command: parts[0], args: parts.slice(1),
-          ...(typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}),
-          ...(typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}),
-          ...(typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}),
-          ...(typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}),
-          ...(typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}),
-          originalIndex: index,
-        }] : [];
-      }
-      if (!rawRow || typeof rawRow !== 'object') return [];
-      const value = rawRow as Record<string, unknown>;
-      if (typeof value.command !== 'string') return [];
-      const args = Array.isArray(value.args) ? value.args.filter((v): v is string => typeof v === 'string') : [];
-      const label = typeof value.label === 'string' ? value.label : value.command + '-' + (index + 1);
-      const resources = Array.isArray(value.resources) ? value.resources as ResourceClaim[] : [];
-      const env = value.env && typeof value.env === 'object' && !Array.isArray(value.env)
-        ? Object.fromEntries(Object.entries(value.env as Record<string, unknown>).filter(([, item]) => typeof item === 'string')) as Record<string, string>
-        : undefined;
-      const declaredEnvironmentKeys = Array.isArray(value.declaredEnvironmentKeys)
-        ? value.declaredEnvironmentKeys.filter((item): item is string => typeof item === 'string')
-        : undefined;
-      const inputRoots = Array.isArray(value.inputRoots)
-        ? value.inputRoots.filter((item): item is string => typeof item === 'string')
-        : undefined;
-      const shell = typeof value.shell === 'boolean' ? value.shell : undefined;
-      const cwd = typeof value.cwd === 'string' ? value.cwd : undefined;
-      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label, cwd, shell }, index), label, command: value.command, args, ...(shell !== undefined ? { shell } : {}), ...(cwd !== undefined ? { cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(typeof value.runnerSourcePath === 'string' ? { runnerSourcePath: value.runnerSourcePath } : {}), ...(declaredEnvironmentKeys ? { declaredEnvironmentKeys } : {}), ...(inputRoots ? { inputRoots } : {}), ...(typeof value.inputsComplete === 'boolean' ? { inputsComplete: value.inputsComplete } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : typeof policyDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: policyDefaults.expectedP50Ms } : {}), resources, originalIndex: index }];
-    });
+    commands = normalizeConfiguredValidationCommands(raw).map((row, index) => ({
+      ...row,
+      id: row.id || commandId(row, index),
+      originalIndex: index,
+    }));
   }
   const normalized = commands.map((row, index) => ({
     ...row,
@@ -899,6 +870,12 @@ export function classifyFullValidationReasons(changes: StoryChangeManifest, cata
   return uniqueSorted(reasons);
 }
 function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): ValidationSelectionManifest {
+  if (!verifyStoryChangeManifest(ctx.changes)
+    || ctx.changes.storyId !== ctx.storyId
+    || ctx.changes.baseHead !== ctx.baseHead
+    || ctx.changes.head !== ctx.head) {
+    throw new Error('dynamic selection requires a current signed Story change manifest');
+  }
   const inventory = Array.isArray(ctx.inventory) ? ctx.inventory : ctx.inventory.commands;
   const catalogById = new Map(ctx.catalog.map(entry => [entry.id, entry]));
   const closures = closureMap(ctx.closures); const selected = new Map<string, string[]>(); const unmapped: string[] = [];
@@ -924,9 +901,19 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     }
     const boundDecision = ctx.tierSelection.decision;
     const inventoryIds = inventory.map((row) => row.id);
+    const selectorCatalog = augmentValidationCatalogWithGraphInputs({
+      catalog: ctx.catalog,
+      graph: ctx.graph,
+      changedFiles: ctx.changes.changedFiles,
+    });
+    const expectedImpactIndex = buildValidationImpactIndexFromCatalog({
+      commandSetDigest: ctx.tierSelection.input.commandSetDigest,
+      catalog: selectorCatalog,
+    });
     const executorChangedPaths = uniqueSorted(ctx.changes.changedFiles.flatMap((change) => [change.path, ...(change.oldPath ? [change.oldPath] : [])]).map(normalPath));
     const selectorChangedPaths = new Set(ctx.tierSelection.input.changedPaths.map(normalPath));
     if (ctx.tierSelection.catalogDigest !== digestCanonicalJson(ctx.catalog)
+      || digestCanonicalJson(ctx.tierSelection.input.impactIndex) !== digestCanonicalJson(expectedImpactIndex)
       || stableDigest(ctx.tierSelection.input.universeCommandIds) !== stableDigest(inventoryIds)
       || executorChangedPaths.some((path) => !selectorChangedPaths.has(path))) {
       throw new Error('selector input does not match executor catalog, inventory, or changed paths');
@@ -946,6 +933,8 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   if (ctx.buildCommandId) select(ctx.buildCommandId, 'wave-0-build', 'wave-0-build');
   for (const pin of ctx.changes.pinnedValidationCommands) {
     const row = inventory.find(command => command.id === pin || command.label === pin || command.command === pin);
+    // The compatibility shape is accepted only after the complete pin list has
+    // been authenticated above as part of the current Story change manifest.
     if (!row && /^validation-[0-9a-f]{16}$/i.test(pin)) {
       for (const candidate of inventory) select(candidate.id, 'legacy-validation-pin-full-compatibility', `legacy-pin:${pin}`);
       compatibilityWideningReasons.push(`legacy-validation-pin-unresolved:${pin}`);
@@ -1148,6 +1137,7 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
   const tierBindingValid = manifest.selectorDecisionDigest === undefined
     ? selectorBinding === undefined && manifest.requestedTier === undefined && manifest.effectiveTier === undefined && manifest.tierSelections === undefined
     : Boolean(selectorBinding && manifest.requestedTier && manifest.effectiveTier && manifest.tierSelections
+      && selectorBinding.catalogDigest === manifest.catalogDigest
       && selectorBinding.bindingDigest === digestCanonicalJson({ catalogDigest: selectorBinding.catalogDigest, input: selectorBinding.input, decision: selectorBinding.decision })
       && digestCanonicalJson(selectorBinding.decision) === digestCanonicalJson(expectedSelectorDecision)
       && selectorBinding.decision.selectionDigest === manifest.selectorDecisionDigest
@@ -1162,14 +1152,7 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
     const intermediate = new Set(manifest.tierSelections['story-intermediate']);
     const full = new Set(manifest.tierSelections['repository-full']);
     if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) return false;
-    const effective = new Set(manifest.tierSelections[manifest.effectiveTier!]);
-    if (manifest.rows.some((row) => {
-      if (row.disposition !== 'excluded') return false;
-      const proof = selectorBinding?.decision.exclusionProofs.find((candidate) => candidate.commandId === row.commandId);
-      return manifest.fullEscalated || effective.has(row.commandId) || !proof
-        || proof.snapshotDigest !== selectorBinding?.input.snapshotDigest
-        || proof.indexDigest !== selectorBinding?.decision.impactIndexDigest;
-    })) return false;
+    if (!verifyValidationTierExclusions(manifest)) return false;
   }
   return manifest.totals.unverified === unverified
     && manifest.totals.executed === executed
@@ -1185,6 +1168,21 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
     && [...contributedIds].every(id => accountedIds.has(id))
     && tierBindingValid
     && manifest.rows.every(row => row.disposition !== 'unverified');
+}
+/** Independently verify every positive-proof omission in a tiered manifest. */
+export function verifyValidationTierExclusions(manifest: ValidationSelectionManifest): boolean {
+  const binding = manifest.selectorBinding;
+  if (!binding || !manifest.tierSelections || !manifest.effectiveTier) {
+    return manifest.rows.every((row) => row.disposition !== 'excluded');
+  }
+  const effective = new Set(manifest.tierSelections[manifest.effectiveTier]);
+  return manifest.rows.every((row) => {
+    if (row.disposition !== 'excluded') return true;
+    const proof = binding.decision.exclusionProofs.find((candidate) => candidate.commandId === row.commandId);
+    return !manifest.fullEscalated && !effective.has(row.commandId) && Boolean(proof)
+      && proof!.snapshotDigest === binding.input.snapshotDigest
+      && proof!.indexDigest === binding.decision.impactIndexDigest;
+  });
 }
 export const buildSelectionManifest = buildDynamicValidationPlan;
 export const verifySelectionManifest = verifyValidationSelectionManifest;

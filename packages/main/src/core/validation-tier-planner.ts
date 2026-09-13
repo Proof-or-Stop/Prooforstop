@@ -651,11 +651,19 @@ export function selectAutomaticValidationTier(
   dependencies: SelectValidationTiersDependencies = {},
 ): ValidationTierSelectionDecision {
   const initial = selectValidationTiers({ ...input, requestedTier: 'story-fast' }, dependencies);
-  if (initial.effectiveTier === REPOSITORY_FULL_TIER) return initial;
-
   const needsIntermediate = Boolean(input.impactIndex?.entries.some((entry) =>
     entry.selection === 'story-intermediate'
     && input.changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern)))));
+  if (initial.effectiveTier === REPOSITORY_FULL_TIER) {
+    // An empty fast set is not a PASS, but it must not prevent a directly
+    // affected shared/boundary command from being tried at intermediate.
+    // Every other fast-tier escalation remains repository-full.
+    if (needsIntermediate && initial.escalationReasonCodes.length === 1
+      && initial.escalationReasonCodes[0] === 'empty_selection_unclassified') {
+      return selectValidationTiers({ ...input, requestedTier: 'story-intermediate' }, dependencies);
+    }
+    return initial;
+  }
   if (!needsIntermediate) return initial;
 
   return selectValidationTiers({ ...input, requestedTier: 'story-intermediate' }, dependencies);
@@ -665,6 +673,8 @@ export function selectAutomaticValidationTier(
 export function buildAutomaticValidationTierSelectionBinding(args: {
   input: StoryRelevanceInput;
   catalog: readonly ValidationImpactCatalogEntry[];
+  /** Raw executor catalog digest when selector inputs include graph augmentation. */
+  executionCatalogDigest?: string;
   additionalForceFullReasons?: ValidationWideningReasonCode[];
 }): AutomaticValidationTierSelectionBinding {
   const materialSeedPaths = [...new Set([
@@ -707,7 +717,7 @@ export function buildAutomaticValidationTierSelectionBinding(args: {
     impactIndex,
   };
   const decision = selectAutomaticValidationTier(input);
-  const catalogDigest = digestCanonicalJson(args.catalog);
+  const catalogDigest = args.executionCatalogDigest ?? digestCanonicalJson(args.catalog);
   return { catalogDigest, input, decision, bindingDigest: digestCanonicalJson({ catalogDigest, input, decision }) };
 }
 

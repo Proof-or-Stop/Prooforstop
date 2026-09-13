@@ -112,10 +112,11 @@ import {
   verifyCausalPreflight,
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
-import { appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry, type DualRevisionImpactGraph, type StoryChangeManifest } from '../core/story-aware-validation.js';
+import { appendReceiptRevocation, augmentValidationCatalogWithGraphInputs, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry, type DualRevisionImpactGraph, type StoryChangeManifest } from '../core/story-aware-validation.js';
 import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, readRoutineReuseRevocationBasis, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 import { collectStoryRelevanceInput } from '../core/validation-relevance-input.js';
 import { buildAutomaticValidationTierSelectionBinding, type AutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
+import { digestCanonicalJson } from '../core/digest.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 // B-a745 CHK-002: the shell-metacharacter rule and the word splitter now live in
@@ -152,11 +153,15 @@ export function resolveValidationDynamicMode(args: {
   const configured = resolveDynamicMode(args.explicitMode || args.environmentMode || args.configuredMode || 'off');
   if (args.full !== undefined) return 'off';
   if (args.storyPhase && !['DEV', 'REVIEW', 'TEST'].includes(args.storyPhase)) return 'off';
+  // TEST is an execution gate, not a rollout-observation surface. Preserve the
+  // prior canonical/shared-reuse path unless the repository explicitly opted
+  // into the only currently authoritative mode.
+  if (args.storyPhase === 'TEST' && configured !== 'enforce-low-risk') return 'off';
   return configured;
 }
 
 export function dynamicRoutineCoverageAllowed(mode: DynamicValidationMode, storyPhase: string | undefined): boolean {
-  return mode !== 'off' && Boolean(storyPhase && ['DEV', 'REVIEW', 'TEST'].includes(storyPhase));
+  return mode === 'enforce-low-risk' && Boolean(storyPhase && ['DEV', 'REVIEW', 'TEST'].includes(storyPhase));
 }
 
 
@@ -250,9 +255,15 @@ function storyAutomaticTierSelection(
     checklist: { items: checklist.items ?? [] },
     routine: { sourceKind: 'configured', commands },
   });
+  const selectorCatalog = augmentValidationCatalogWithGraphInputs({
+    catalog,
+    graph,
+    changedFiles: changes.changedFiles,
+  });
   return buildAutomaticValidationTierSelectionBinding({
     input,
-    catalog,
+    catalog: selectorCatalog,
+    executionCatalogDigest: digestCanonicalJson(catalog),
     ...(graph?.graphUnknown ? { additionalForceFullReasons: ['runtime_edge_unresolved'] } : {}),
   });
 }
@@ -1853,7 +1864,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         command: 'validate',
         ...(!args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot)
           ? declaredValidationCapacity(configuredValidationCommands(projectRoot), handlerGitCwd) : {}),
-        sharedExecution: args.story && (dynamicMode === 'off' || projectConfig?.validate?.sharedExecution === true) ? {
+        sharedExecution: args.story && (dynamicMode !== 'enforce-low-risk' || projectConfig?.validate?.sharedExecution === true) ? {
           storyId: args.story, receiptStore: ctx.store, reuseEconomics: 'measured',
           probe: input => probeValidationCausalPreflightFacts(ctx, args.story!, input),
         } : undefined,
@@ -2165,7 +2176,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   };
                   ctx.log?.(dynamic.report);
                 } else {
-                  const dynamic = await runStoryAwareDynamicValidation({
+                  const executedDynamic = await runStoryAwareDynamicValidation({
                 beforeLaunch: launchGate.beforeLaunch,
                     projectRoot,
                     storyId: args.story,
@@ -2178,32 +2189,33 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                     deadlineError: args.deadlineError,
                     progress: validationProgressReporter(ctx),
                     ...dynamicInputs,
+                    ...(dynamic.manifest.selectorBinding ? { tierSelection: dynamic.manifest.selectorBinding } : {}),
                   });
                   dynamicPreview = {
                     mode: dynamicMode,
-                    manifest: dynamic.manifest,
-                    report: dynamic.runtimeReport,
-                    authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
-                    selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
-                    reusedCommands: dynamic.manifest.totals.reused,
-                    receipts: dynamic.receipts.length,
-                    selectedAllPass: dynamic.dynamicAllPass,
+                    manifest: executedDynamic.manifest,
+                    report: executedDynamic.runtimeReport,
+                    authority: executedDynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
+                    selectedCommands: executedDynamic.selectedResult.commands.length + executedDynamic.buildResult.commands.length,
+                    reusedCommands: executedDynamic.manifest.totals.reused,
+                    receipts: executedDynamic.receipts.length,
+                    selectedAllPass: executedDynamic.dynamicAllPass,
                     authoritativeResult: {
                       provider: 'proof-or-stop-verifier-dynamic-authoritative',
-                      status: dynamic.dynamicAllPass ? 'pass' : 'fail',
-                      allPass: dynamic.dynamicAllPass,
-                      summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
-                      details: [dynamic.runtimeReport],
-                      warnings: dynamic.authority.authoritative ? [] : ['Dynamic authority was not accepted; complete-plan fallback is required.'],
+                      status: executedDynamic.dynamicAllPass ? 'pass' : 'fail',
+                      allPass: executedDynamic.dynamicAllPass,
+                      summary: executedDynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
+                      details: [executedDynamic.runtimeReport],
+                      warnings: executedDynamic.authority.authoritative ? [] : ['Dynamic authority was not accepted; complete-plan fallback is required.'],
                       timestamp: new Date().toISOString(),
                       headSha: currentHead(handlerGitCwd) || '',
-                      commands: [...dynamic.buildResult.commands, ...dynamic.selectedResult.commands],
-                      commandExecutions: dynamic.buildResult.commands.length + dynamic.selectedResult.commands.length,
+                      commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
+                      commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
                       disposition: 'executed',
                     },
-                    catalog: dynamic.catalog,
+                    catalog: executedDynamic.catalog,
                   };
-                  ctx.log?.(dynamic.runtimeReport);
+                  ctx.log?.(executedDynamic.runtimeReport);
                 }
               } else {
                 // The explicit mode CLI is also useful as a project-level
@@ -2602,7 +2614,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 catalog: dynamic.catalog,
               };
             } else {
-              const dynamic = await runStoryAwareDynamicValidation({
+              const executedDynamic = await runStoryAwareDynamicValidation({
                 beforeLaunch: launchGate.beforeLaunch,
                 projectRoot,
                 storyId: args.story,
@@ -2615,30 +2627,31 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 deadlineError: args.deadlineError,
                 progress: validationProgressReporter(ctx),
                 ...dynamicInputs,
+                ...(dynamic.manifest.selectorBinding ? { tierSelection: dynamic.manifest.selectorBinding } : {}),
               });
               dynamicValidation = {
                 mode: dynamicMode,
-                manifest: dynamic.manifest,
-                report: dynamic.runtimeReport,
-                authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
-                selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
-                reusedCommands: dynamic.manifest.totals.reused,
-                receipts: dynamic.receipts.length,
-                selectedAllPass: dynamic.dynamicAllPass,
-                authoritativeResult: dynamic.authority.authoritative ? {
+                manifest: executedDynamic.manifest,
+                report: executedDynamic.runtimeReport,
+                authority: executedDynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
+                selectedCommands: executedDynamic.selectedResult.commands.length + executedDynamic.buildResult.commands.length,
+                reusedCommands: executedDynamic.manifest.totals.reused,
+                receipts: executedDynamic.receipts.length,
+                selectedAllPass: executedDynamic.dynamicAllPass,
+                authoritativeResult: executedDynamic.authority.authoritative ? {
                   provider: 'proof-or-stop-verifier-dynamic-authoritative',
-                  status: dynamic.dynamicAllPass ? 'pass' : 'fail',
-                  allPass: dynamic.dynamicAllPass,
-                  summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
-                  details: [dynamic.runtimeReport],
+                  status: executedDynamic.dynamicAllPass ? 'pass' : 'fail',
+                  allPass: executedDynamic.dynamicAllPass,
+                  summary: executedDynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
+                  details: [executedDynamic.runtimeReport],
                   warnings: [],
                   timestamp: new Date().toISOString(),
                   headSha: currentHead(handlerGitCwd) || '',
-                  commands: [...dynamic.buildResult.commands, ...dynamic.selectedResult.commands],
-                  commandExecutions: dynamic.buildResult.commands.length + dynamic.selectedResult.commands.length,
+                  commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
+                  commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
                   disposition: 'executed' as const,
                 } : undefined,
-                catalog: dynamic.catalog,
+                catalog: executedDynamic.catalog,
               };
             }
             ctx.log?.(dynamicValidation.report || 'dynamic validation prepared for validate-file entrypoint');
