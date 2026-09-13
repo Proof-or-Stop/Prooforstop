@@ -2958,7 +2958,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/core/acceptance-amendment-journal.ts", "occurrences": 142, "contextSha256": "d28ea6092aab3965a3cd60fe223b52a5a872555987eddbc3dd8759a2556c66e1"},
   {"sourcePath": "packages/main/src/core/convergence-effective-progress.ts", "occurrences": 10, "contextSha256": "bc2270202ea1d97d87984dcb1d4b9b100d761160d5cef8791985d335eff515ed"},
   {"sourcePath": "packages/main/src/core/convergence-progress-journal.ts", "occurrences": 78, "contextSha256": "f10c90cfef4cc8702ef4747345bce332cc539ded292a04fae34ce7dbb304b1fd"},
-  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 402, "contextSha256": "5bdc72dd75d2f7ace96fdaa4ef9edc6443002e311e631e77c4adb856250728d3"},
+  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 411, "contextSha256": "07464549c7d89dc09529a7ccc5c38222f3ab1ee3ee43bfaaca8ff2cc28a6474f"},
 
   {"sourcePath":"packages/main/src/core/delivery-review-authority.ts","occurrences":68,"contextSha256":"d140fc7cff221fdaddf92834a0e97b7fa777608ae309f08b574a6f169c72e893"},
   {"sourcePath": "packages/main/src/core/acceptance-amendment-review.ts", "occurrences": 0, "contextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
@@ -3124,8 +3124,8 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
   {
     "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 457,
-    "contextSha256": "7331fe8ec5711c3b5b979af8b21342c20c7a8060c2b20a2df7f3c58d56fadd37"
+    "occurrences": 556,
+    "contextSha256": "51130b66b92538a1ee1513f45b2e7cd7033b039342a4b28792caa6da44fd3baa"
   }
 ];
 
@@ -3182,6 +3182,22 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers 
   const sources = identityCutoverSourceMap();
   assertOwnedIdentitySiteTotality(sources);
   assertOwnedImportUseIntegrity(sources);
+  for (const [path, original, changed, importedName] of [
+    ['packages/main/src/core/store.ts', 'isWithinValidationEvidenceWriteBound(bytes)', 'isWithinValidationEvidenceWriteBound(bytes + 1)', 'isWithinValidationEvidenceWriteBound'],
+    ['scripts/verify-proof-or-stop-identity-cutover.mjs', "mkdtempSync(join(tmpdir(), 'identity-current-witness-'))", "mkdtempSync(join(tmpdir(), 'identity-current-witness-changed-'))", 'readFileSync'],
+  ]) {
+    assert.equal(sources.get(path).split(original).length - 1, 1, 'reviewed imported call must be unique');
+    const changedSources = new Map(sources);
+    changedSources.set(path, sources.get(path).replace(original, changed));
+    const expected = OWNED_IMPORT_USE_CONTEXTS.find(row => row.sourcePath === path);
+    const observed = deriveOwnedImportUseContexts(changedSources).find(row => row.sourcePath === path);
+    assert.equal(observed.occurrences, expected.occurrences, 'changed call preserves imported-use count');
+    assert.notEqual(observed.contextSha256, expected.contextSha256, 'changed call changes exact context');
+    assert.throws(() => assertOwnedImportUseIntegrity(changedSources), /owned import use changed/, 'same-count changed call must be refused');
+    const additional = new Map(sources);
+    additional.set(path, `${sources.get(path)}\nvoid ${importedName};\n`);
+    assert.throws(() => assertOwnedImportUseIntegrity(additional), /owned import use changed/, 'new imported use must be refused');
+  }
   const registryPath = 'packages/main/src/core/process-fact-registry.ts';
   const registryDefault = 'entries: readonly unknown[] = PROCESS_FACT_REGISTRY';
   assert.equal(sources.get(registryPath).split(registryDefault).length - 1, 1, 'reviewed registry default must be unique');

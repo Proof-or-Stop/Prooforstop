@@ -49,3 +49,14 @@ release. Each is subprocess elapsed time, not model-compute time.
 Fresh synchronization, committed-head GREEN, independent vendor audit and local
 integration remain separate requirements. This Lab supplies no Story DONE,
 reviewer credential or remote-release authority.
+
+## Main 0.3.356 and downstream import integrity
+
+Official sync incorporated 2433b8037750d4f0ff313b40640c92fc66101efc. The first complete candidate diagnostic passed residue classification, then failed the unchanged canonical identity-sites child on two exact import-context pins. That failure remains recorded. Full derivation enumerated all 46 import rows and all 264 owned literal contexts; only the two import rows below differed, and all literal contexts were unchanged.
+
+- packages/main/src/core/store.ts: 402 / 5bdc72dd75d2f7ace96fdaa4ef9edc6443002e311e631e77c4adb856250728d3 becomes 411 / 07464549c7d89dc09529a7ccc5c38222f3ab1ee3ee43bfaaca8ff2cc28a6474f.
+- scripts/verify-proof-or-stop-identity-cutover.mjs: 457 / 7331fe8ec5711c3b5b979af8b21342c20c7a8060c2b20a2df7f3c58d56fadd37 becomes 556 / 51130b66b92538a1ee1513f45b2e7cd7033b039342a4b28792caa6da44fd3baa.
+
+Both old pins reproduce at d788f9adaf. The store already derives the new value on main a6bd46c653 and 2433b80377: nine added import contexts belong to hashing, the shared evidence-size policy and immutable prepared publication. No prior import context is removed. The scanner retains its old value on both main checkpoints; its 99 additional import contexts belong exclusively to this Lab own scratch and actual-reader mutation controls. Existing cases are retained, and new controls prove additional uses and same-count changed call arguments remain rejected by the actual canonical import oracle. Neither count change is an open-ended tolerance.
+
+Sync also refreshes exact pre-existing source bindings for the command catalog and process-fact levels, process-contract fixture and negative-source witnesses, and the native lock fixture. Their reviewed lines and token counts remain unchanged; unrelated incoming validation-admissibility assertions are retained. The canonical test source binding moves only after its exact unchanged context lines are recovered. Static entry identities, claims and dependency keys remain; only proven source/dependency hashes and exact shifted excerpt locations change. These are derived closure repairs, not new context admissions.
