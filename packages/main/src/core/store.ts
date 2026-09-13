@@ -79,6 +79,7 @@ import {
   CAUSAL_RECEIPT_DIRECTORY,
   CAUSAL_OUTPUT_DIRECTORY,
   CAUSAL_RECEIPT_INDEX_FILE,
+  CAUSAL_EVIDENCE_INDEX_SCHEMA,
   causalDigest,
   computeCausalReceiptHash,
   verifyCausalEvidenceReceipt,
@@ -877,7 +878,7 @@ export class StoryStore {
     if (existsSync(indexPath)) {
       try {
         const index = JSON.parse(readFileSync(indexPath, 'utf8'));
-        if (index.schemaVersion === 'proof-or-stop.causal-evidence-index.v1'
+        if (index.schemaVersion === CAUSAL_EVIDENCE_INDEX_SCHEMA
           && index.receipts && typeof index.receipts === 'object' && !Array.isArray(index.receipts)
           && Object.entries(index.receipts).every(([key, hash]) => verified.get(key) === hash)) outputs.push(indexPath);
       } catch { /* Invalid index remains workspace pollution. */ }
@@ -1053,8 +1054,8 @@ export class StoryStore {
       const indexLockPath = this.runtimeLockDirPath(storyId, 'causal-evidence-index', 'receipts');
       withMkdirLock(indexLockPath, () => {
         const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
-        let index: { schemaVersion: 'proof-or-stop.causal-evidence-index.v1'; receipts: Record<string, string> } = {
-          schemaVersion: 'proof-or-stop.causal-evidence-index.v1',
+        let index: { schemaVersion: typeof CAUSAL_EVIDENCE_INDEX_SCHEMA; receipts: Record<string, string> } = {
+          schemaVersion: CAUSAL_EVIDENCE_INDEX_SCHEMA,
           receipts: {},
         };
         if (existsSync(indexPath)) index = JSON.parse(readFileSync(indexPath, 'utf8')) as typeof index;

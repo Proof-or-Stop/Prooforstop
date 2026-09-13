@@ -1,3 +1,6 @@
+import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
+import { reportHealthIssue } from './health.js';
+import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
 import { StoryStore } from './store.js';
 /** Shared intake + REVIEW-gate verifier for managed reviewer evidence. */
 
@@ -26,7 +29,7 @@ import { digestCanonicalJson } from './digest.js';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { loadConfig } from './config.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
-import { verifyReviewInventoryEpoch } from './review-inventory-epoch.js';
+import { inventoryPurposeMatchesEpoch, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
 import { verifyReviewRun } from './review-run.js';
 
 export interface ManagedReviewEvidenceVerification {
@@ -61,8 +64,8 @@ export interface ManagedReviewLiveBindingVerification {
 }
 
 /**
- * Metadata from a managed receipt importer is the sole permitted HEAD advance
- * between the signed review run and receipt admission. The check is deliberately
+ * Managed importer commits and authenticated epoch/evidence publications are the
+ * bounded permitted HEAD advances between a signed run and consumption. The check is deliberately
  * mechanical: ancestry, exact command-owned subject, and exact story-local
  * changed paths must all hold for every intervening commit.
  */
@@ -71,6 +74,8 @@ function hasOnlyManagedReviewImporterCommits(args: {
   metadataRoot: string;
   storyId: string;
   reviewedHeadHash: string;
+  reviewedMaterialHash: string;
+  reviewedStoryFilesHash: string;
   liveHeadHash: string;
 }): boolean {
   if (args.reviewedHeadHash === args.liveHeadHash) return true;
@@ -114,7 +119,9 @@ function hasOnlyManagedReviewImporterCommits(args: {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
       }).trim();
-      if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) return false;
+      if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) {
+        return isVerifiedReviewMaintenanceCommit({ ...args, commit });
+      }
       const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], {
         cwd: args.gitCwd,
         encoding: 'utf8',
@@ -134,7 +141,7 @@ function hasOnlyManagedReviewImporterCommits(args: {
  * Canonical live binding rule for both receipt import and REVIEW consumption.
  * Material/story-file freshness remains the Proof Admissibility predicate, but
  * a same-material HEAD move is rejected unless every intervening commit is an
- * exact managed-review importer metadata commit.
+ * exact importer or authenticated review maintenance commit.
  */
 export function verifyManagedReviewLiveBinding(args: {
   gitCwd: string;
@@ -156,6 +163,8 @@ export function verifyManagedReviewLiveBinding(args: {
     metadataRoot: args.metadataRoot,
     storyId: args.storyId,
     reviewedHeadHash: args.expected.headHash,
+    reviewedMaterialHash: args.expected.materialHash,
+    reviewedStoryFilesHash: args.expected.storyFilesHash,
     liveHeadHash,
   })) {
     return {
@@ -379,6 +388,40 @@ export function buildManagedInventoryCriticEvidencePack(args: {
   };
 }
 
+/** A legacy missing seal never falls back to the binding under verification. */
+export function isSealedManagedPromptDigestCurrent(sealed: unknown, bindingDigest: string, executionDigest: string): boolean {
+  return typeof sealed === 'string' && /^sha256:[a-f0-9]{64}$/.test(sealed)
+    && bindingDigest === sealed && executionDigest === sealed;
+}
+
+/** Historical critics remain authentic; only the latest wave can be current. */
+export function managedInventorySubjectState(store: StoryStore, run: ReviewRun, onInvalidReason?: (reason: string) => void): 'current' | 'superseded' | 'invalid' {
+  try {
+    if (run.reviewPurpose !== 'inventory-completeness') return 'current';
+    const binding = run.inventoryBinding;
+    if (!binding || !Number.isSafeInteger(binding.wave) || binding.wave < 1) return 'invalid';
+    const data = store.readReviewInventoryEpochs(run.storyId);
+    const epoch = data.epochs.find(e => e.epochId === binding.epochId);
+    if (!epoch || epoch.storyId !== run.storyId || !verifyReviewInventoryEpoch(epoch) || !['OPEN','FINALIZED'].includes(epoch.state)) return 'invalid';
+    if (epoch.state === 'FINALIZED') {
+      const receipt = data.receipts.find(r => r.receiptId === epoch.receiptId);
+      if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt
+        || receipt.epochId !== epoch.epochId || receipt.storyId !== run.storyId
+        || receipt.reviewRound !== epoch.reviewRound || receipt.scopeDigest !== epoch.scopeDigest
+        || digestCanonicalJson(receipt.cutoff) !== digestCanonicalJson(epoch.cutoff)
+        || digestCanonicalJson(receipt.requiredLanes) !== digestCanonicalJson(epoch.requiredLanes)) return 'invalid';
+    }
+    const currentWave = epoch.state === 'FINALIZED' ? epoch.waves.length : epoch.waves.length + 1;
+    if (binding.wave > currentWave || (binding.wave <= epoch.waves.length && epoch.waves[binding.wave - 1]?.wave !== binding.wave)) return 'invalid';
+    if (!inventoryPurposeMatchesEpoch(binding, {...epoch,waves:epoch.waves.slice(0,binding.wave-1)})) return 'invalid';
+    return binding.wave === currentWave ? 'current' : 'superseded';
+  } catch (error) {
+    if (!isMissingReviewSnapshotError(error)) reportHealthIssue('review-maintenance-lineage', error instanceof Error ? error : { message: String(error) }, { storyId: run.storyId });
+    onInvalidReason?.(error instanceof Error ? error.message : String(error));
+    return 'invalid';
+  }
+}
+
 function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun): string[] {
   if (run.reviewPurpose !== 'inventory-completeness') return [];
   const store = new StoryStore(root);
@@ -503,7 +546,9 @@ export function verifyManagedReviewEvidence(args: {
   reviewRunId: string;
   lane: string;
   binding: ManagedReviewEvidenceBinding;
-  expected: ManagedReviewExpectedBinding;
+  // Legacy callers may supply the import-time digest, but consumption derives
+  // authority exclusively from the signed binding and sealed managed launch.
+  expected: Omit<ManagedReviewExpectedBinding, 'managedPromptDigest'> & { managedPromptDigest?: string };
   evidence?: { kind: 'pass'; pass: ReviewPass } | { kind: 'finding'; finding: Finding };
 }): ManagedReviewEvidenceVerification {
   let receipt: ManagedHostRunReceipt;
@@ -736,9 +781,7 @@ export function verifyManagedReviewEvidence(args: {
     && runBinding.lane === args.lane
     && runBinding.reviewRunId === args.reviewRunId;
   const sealedManagedPromptDigest = runBinding.reviewBinding?.managedPromptDigest;
-  const expectedManagedPromptDigest = sealedManagedPromptDigest ?? args.expected.managedPromptDigest;
-  const sealedManagedPromptDigestValid = sealedManagedPromptDigest === undefined
-    || /^sha256:[a-f0-9]{64}$/.test(sealedManagedPromptDigest);
+
   const reviewTupleMatches = runBinding.reviewBinding !== null
     && runBinding.reviewBinding.headHash === args.expected.headHash
     && runBinding.reviewBinding.materialHash === args.expected.materialHash
@@ -750,9 +793,7 @@ export function verifyManagedReviewEvidence(args: {
     && args.binding.storyFilesHash === args.expected.storyFilesHash
     && args.binding.promptHash === args.expected.promptHash
     && args.binding.envelopeId === args.expected.envelopeId
-    && sealedManagedPromptDigestValid
-    && args.binding.managedPromptDigest === expectedManagedPromptDigest
-    && runBinding.promptDigest === expectedManagedPromptDigest;
+    && isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest,args.binding.managedPromptDigest,runBinding.promptDigest);
   const storyMatches = proposal?.storyId === args.storyId
     && runBinding.storyId === args.storyId;
   const diagnostic = buildProofAdmissibilityDiagnostic({

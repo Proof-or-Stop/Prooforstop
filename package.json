@@ -1,6 +1,6 @@
 {
   "name": "proof-or-stop",
-  "version": "0.3.350",
+  "version": "0.3.352",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -9,7 +9,7 @@
   "scripts": {
     "preflight:entry": "node scripts/entry-preflight.mjs",
     "lab:worktree": "node scripts/lab-worktree.mjs",
-    "test:route-reattestation-dependency-direction": "node scripts/verify-route-reattestation-dependency-direction.mjs",
+    "test:route-reattestation-dependency-direction": "node scripts/verify-route-reader-regression.mjs",
     "test:lab-lock-scope": "node scripts/verify-lab-lock-scope.mjs",
     "test:lab-audit-contract": "node scripts/verify-lab-audit-contract.mjs",
     "test:lab-fixture-sources": "node scripts/verify-lab-fixture-sources.mjs",

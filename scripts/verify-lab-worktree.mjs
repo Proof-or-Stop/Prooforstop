@@ -170,6 +170,26 @@ try {
   cmd(late, [...finish('late'),'--bump','patch'], 1, /Prepared release did not upgrade/);
   assert.equal(JSON.parse(readFileSync(join(late, 'package.json'))).version,'1.0.0');
 
+  // A zero-exit command is not accepted evidence until checkout invariants pass.
+  const {candidateVerificationContext}=await import('./lab-audit.mjs');
+  for(const mode of ['dirty-verification','moving-verification']) {
+    const repo=fixture(mode);cmd(repo,['create',mode]);const work=join(repo,'.worktrees/Lab-'+mode);
+    cmd(repo,['red',mode,'--expect','TARGET regression','--',process.execPath,'check.cjs']);
+    write(work,'bug.txt','fixed');
+    const action=mode==='dirty-verification'
+      ? "require('node:fs').writeFileSync('unexpected-dirty.txt','changed')"
+      : "require('node:child_process').execFileSync('git',['commit','--allow-empty','-m','unexpected verification HEAD change'])";
+    write(work,'check.cjs',readFileSync(join(work,'check.cjs'),'utf8')+
+      `if(require('node:fs').readFileSync('CHANGELOG.md','utf8').includes('Lab ${mode}')){${action}}\n`);
+    commit(work,'test: reject zero-exit checkout changes');cmd(repo,['green',mode]);
+    cmd(repo,finish(mode),1,mode==='dirty-verification'?/Uncommitted or untracked/:/candidate-green failed or modified/);
+    const state=JSON.parse(readFileSync(join(repo,'.git/lab-maintenance',mode+'.json'))).payload;
+    const row=state.history.find(row=>row.kind==='candidate-green');assert.equal(row.status,0);
+    assert.notEqual(row.checkoutVerified,true);
+    assert.equal(candidateVerificationContext(state.history,state.candidate,state.red.command),null);
+  }
+  console.log('LAB_CANDIDATE_CHECKOUT_ACCEPTANCE_REFUSAL_PASS dirty and moved HEAD with exit zero');
+
   // Explicit patch requests must work even when only a non-build input changes.
   const explicit = fixture('explicit'); cmd(explicit, ['create', 'explicit']);
   const explicitLab = join(explicit, '.worktrees/Lab-explicit');
@@ -190,6 +210,15 @@ try {
     assert.equal(JSON.parse(readFileSync(join(explicit, rel))).version, '1.0.1');
   }
   assert.equal(readFileSync(join(explicit, 'built-version'), 'utf8'), '1.0.1');
+  const acceptedState=JSON.parse(readFileSync(join(explicit,'.git/lab-maintenance/explicit.json'))).payload;
+  const acceptedContext=candidateVerificationContext(acceptedState.history,acceptedState.candidate,acceptedState.red.command);
+  assert(acceptedContext,'actual accepted candidate check must reach audit input');
+  const actualAuditPrompt=readFileSync(join(acceptedState.audit.evidenceDir,'prompt.txt'),'utf8');
+  const actualAuditInput=JSON.parse(actualAuditPrompt.split('Untrusted audit input:\n')[1]);
+  assert.deepEqual(actualAuditInput.verification,acceptedContext);
+  assert.equal(actualAuditInput.verification.head,acceptedState.candidate);
+  console.log('LAB_CANDIDATE_VERIFICATION_ACTUAL_INPUT_PASS includes stable exact accepted record');
+
 
   const scripts = fixture('scripts'); cmd(scripts, ['create', 'scripts']);
   const scriptsLab = join(scripts, '.worktrees/Lab-scripts');
