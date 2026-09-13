@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,7 +27,39 @@ const distRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const source = (relative: string): string => readFileSync(join(srcRoot, relative), 'utf8');
 const document = (relative: string): string => readFileSync(join(repoRoot, relative), 'utf8');
 
-function main(): void {
+// Wait for pipe closure before restoring or deleting a mutation snapshot.
+function runMutationChild(dist: string, env: NodeJS.ProcessEnv): Promise<{
+  status: number | null; signal: NodeJS.Signals | null; stdout: string; stderr: string;
+}> {
+  return new Promise((resolveChild, rejectChild) => {
+    const child = spawn(process.execPath, [join(dist, 'tasks', 'managed-review-evidence-smoke.js')], {
+      cwd: repoRoot, env, stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '', stderr = '';
+    let failure: Error | undefined;
+    // Preserve the synchronous runner's default per-stream buffer ceiling.
+    let stdoutBytes = 0, stderrBytes = 0;
+    const timer = setTimeout(() => child.kill('SIGKILL'), 60_000);
+    child.stdout.on('data', (chunk: Buffer) => {
+      stdoutBytes += chunk.length;
+      if (stdoutBytes > 1024 * 1024) { failure = new Error('mutation stdout exceeded buffer ceiling'); child.kill('SIGKILL'); }
+      else stdout += chunk.toString();
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderrBytes += chunk.length;
+      if (stderrBytes > 1024 * 1024) { failure = new Error('mutation stderr exceeded buffer ceiling'); child.kill('SIGKILL'); }
+      else stderr += chunk.toString();
+    });
+    child.once('error', error => { failure = error; });
+    child.once('close', (status, signal) => {
+      clearTimeout(timer);
+      if (failure) rejectChild(failure);
+      else resolveChild({ status, signal, stdout, stderr });
+    });
+  });
+}
+
+async function main(): Promise<void> {
   const importerAdmissionMutantOnly = process.argv[2] === '--importer-admission-mutant';
   const definition = getProofSurfaceDefinition('managed-review-evidence');
   assert.ok(definition, 'managed review evidence must be registered in shared Proof Admissibility');
@@ -108,15 +140,15 @@ function main(): void {
     cpSync(join(distRoot, '..', 'package.json'), join(dirname(isolatedDist), 'package.json'));
     symlinkSync(join(distRoot, '..', 'node_modules'), join(dirname(isolatedDist), 'node_modules'), 'junction');
     cpSync(join(distRoot, '..', 'templates'), join(sourceMutationRoot, 'templates'), { recursive: true });
-    const executeMutation = (args: {
+    const executeMutation = async (args: {
       name: string;
       relativePath: string;
       replacements: Array<[string, string]>;
       boundary: 'intake' | 'gate' | 'canonical';
       target?: string;
       expected: RegExp;
-    }): void => {
-      const targetPath = join(isolatedDist, args.relativePath);
+    }, executionDist = isolatedDist): Promise<void> => {
+      const targetPath = join(executionDist, args.relativePath);
       const original = readFileSync(targetPath, 'utf8');
       let mutated = original;
       for (const [from, to] of args.replacements) {
@@ -125,17 +157,16 @@ function main(): void {
         mutated = next;
       }
       writeFileSync(targetPath, mutated);
-      const result = spawnSync(process.execPath, [join(isolatedDist, 'tasks', 'managed-review-evidence-smoke.js')], {
-        cwd: repoRoot,
-        encoding: 'utf8',
-        timeout: 60_000,
-        env: {
+      let result: Awaited<ReturnType<typeof runMutationChild>>;
+      try {
+        result = await runMutationChild(executionDist, {
           ...process.env,
           LATTICE_VALID_TRUE_MUTATION_BOUNDARY: args.boundary,
           ...(args.target ? { LATTICE_BINDING_MUTATION_NAME: args.target } : {}),
-        },
-      });
-      writeFileSync(targetPath, original);
+        });
+      } finally {
+        writeFileSync(targetPath, original);
+      }
       assert.equal(result.signal, null,
         `${args.name} source mutant must complete within the former 60-second child ceiling, not be accepted after timeout`);
       assert.notEqual(result.status, null,
@@ -157,7 +188,7 @@ function main(): void {
       });
       assert.equal(descriptorTransport.status, 0,
         `copied-dist descriptor transport must preserve the fake Codex shell exec identity: ${descriptorTransport.stderr}${descriptorTransport.stdout}`);
-      executeMutation({
+      await executeMutation({
         name: 'importer admission bypass',
         relativePath: join('core', 'managed-review-evidence.js'),
         replacements: [['if (!verification.valid) {', 'if (false) {']],
@@ -169,7 +200,7 @@ function main(): void {
       return;
     }
 
-    executeMutation({
+    await executeMutation({
       name: 'importer admission bypass',
       relativePath: join('core', 'managed-review-evidence.js'),
       replacements: [['if (!verification.valid) {', 'if (false) {']],
@@ -177,7 +208,7 @@ function main(): void {
       target: 'agent',
       expected: /fresh intake rejects agent mutation/,
     });
-    executeMutation({
+    await executeMutation({
       name: 'REVIEW consumer admission bypass',
       relativePath: join('core', 'review-run.js'),
       replacements: [[
@@ -188,7 +219,7 @@ function main(): void {
       target: 'agent',
       expected: /REVIEW gate rejects persisted agent mutation/,
     });
-    executeMutation({
+    await executeMutation({
       name: 'canonical reason divergence',
       relativePath: join('core', 'review-run.js'),
       replacements: [['${managed.reason}', 'canonical_reason_diverged']],
@@ -213,16 +244,32 @@ function main(): void {
       { name: 'envelope', replacements: [['runBinding.reviewBinding.envelopeId === args.expected.envelopeId', 'true']] },
       { name: 'managedPrompt', replacements: [['isSealedManagedPromptDigestCurrent(sealedManagedPromptDigest, args.binding.managedPromptDigest, runBinding.promptDigest)', 'true']] },
     ];
-    for (const mutant of bindingMutants) {
-      executeMutation({
-        name: `${mutant.name} binding bypass`,
-        relativePath: join('core', 'managed-review-evidence.js'),
-        replacements: mutant.replacements,
-        boundary: 'intake',
-        target: mutant.name,
-        expected: new RegExp(`fresh intake rejects ${mutant.name} mutation`),
-      });
-    }
+    // Each worker owns a writable snapshot; no two mutations touch the same file.
+    const bindingWorkers = [0, 1].map(worker => {
+      const workerRoot = join(sourceMutationRoot, `binding-worker-${worker}`);
+      const workerDist = join(workerRoot, 'dist');
+      cpSync(distRoot, workerDist, { recursive: true });
+      cpSync(join(distRoot, '..', 'package.json'), join(workerRoot, 'package.json'));
+      cpSync(join(distRoot, '..', 'templates'), join(workerRoot, 'templates'), { recursive: true });
+      symlinkSync(join(distRoot, '..', 'node_modules'), join(workerRoot, 'node_modules'), 'junction');
+      return { worker, workerDist };
+    });
+    const outcomes = await Promise.allSettled(bindingWorkers.map(async ({ worker, workerDist }) => {
+      for (const [index, mutant] of bindingMutants.entries()) {
+        if (index % bindingWorkers.length !== worker) continue;
+        await executeMutation({
+          name: `${mutant.name} binding bypass`,
+          relativePath: join('core', 'managed-review-evidence.js'),
+          replacements: mutant.replacements,
+          boundary: 'intake',
+          target: mutant.name,
+          expected: new RegExp(`fresh intake rejects ${mutant.name} mutation`),
+        }, workerDist);
+      }
+    }));
+    // Await both workers even on failure before the outer finally removes snapshots.
+    const failures = outcomes.filter((outcome): outcome is PromiseRejectedResult => outcome.status === 'rejected');
+    if (failures.length) throw new AggregateError(failures.map(outcome => outcome.reason), 'binding mutation worker failed');
 
     const parallelRoot = join(sourceMutationRoot, 'parallel-registry');
     const parallelDist = join(parallelRoot, 'dist');
@@ -449,4 +496,4 @@ function main(): void {
   console.log('proof-admissibility-registry-smoke PASS');
 }
 
-main();
+main().catch(error => { console.error(error); process.exitCode = 1; });
