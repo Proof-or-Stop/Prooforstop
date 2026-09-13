@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import {execFileSync} from 'node:child_process';
+import {execFileSync,spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
@@ -38,7 +38,12 @@ assert.equal(observationQueries,1,'IDENTITY_SINGLE_COHERENT_QUERY_REQUIRED');
 for(const raw of ['', '999 321 '+observationDate,'321 0 '+observationDate,'321 321 invalid','321 321 '+observationDate+'\n321 321 '+observationDate])assert.throws(()=>identityUnit(()=>raw)(321),/process identity unavailable/);
 assert.throws(()=>identityUnit(()=>{throw Error('controlled observation unavailable');})(321),/process identity unavailable/);
 for(const pid of [0,1,-1,NaN,Infinity,1.5]){let calls=0;assert.throws(()=>identityUnit(()=>{calls++;throw Error('INVALID_PID_SPAWNED');})(pid),/process identity unavailable/);assert.equal(calls,0,'invalid PID must not spawn ps');}
-const absentPid=2147483647;
+const exitedIdentityChild=spawnSync(process.execPath,['-e',''],{encoding:'utf8',timeout:1000,maxBuffer:1024});
+assert.equal(exitedIdentityChild.error,undefined,'identity child setup unavailable');
+assert.equal(exitedIdentityChild.status,0,'identity child did not exit successfully');
+assert.equal(exitedIdentityChild.signal,null,'identity child must be reaped normally');
+const absentPid=exitedIdentityChild.pid;
+assert.ok(Number.isSafeInteger(absentPid)&&absentPid>1);
 let pidAbsent=false;try{process.kill(absentPid,0);}catch(error){pidAbsent=error.code==='ESRCH';}
 assert.equal(pidAbsent,true,'identity absent-PID control unavailable');
 assert.throws(()=>identityUnit(execFileSync)(absentPid),/process identity unavailable/);
