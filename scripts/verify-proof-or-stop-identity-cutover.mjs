@@ -7658,15 +7658,20 @@ function verifyCurrentWitnessCoverage(root, files, expect) {
   const read = path => readFileSync(resolve(root, path), 'utf8');
   const jsonEntries = JSON.parse(read('scripts/identity-reviewed-json-data.json')).entries;
   const jsonRows = jsonEntries.slice(729, 774);
-  const incomingJsonRows = jsonEntries.slice(774);
+  const incomingJsonRows = jsonEntries.slice(774, 776);
+  const criticJsonRows = jsonEntries.slice(776);
+  expect(criticJsonRows.length === 26 && criticJsonRows.every(row =>
+    row.path === 'scripts/lab/u18-static-edges/exceptions.json' && row.nodeKind === 'value' &&
+    /^\/entries\/(269|270)\/requiredEvidence\/\d+\/excerpt$/.test(row.jsonPointer)),
+    'managed critic witness coverage requires all 26 exact copied-source nodes');
   expect(incomingJsonRows.length === 2 && incomingJsonRows.every((row, index) =>
     row.path === 'docs/lab/memory-intake-measurement/u18-static-report.json' && row.jsonPointer === '/rows/187/reason' &&
     row.token === [`${LEGACY_WORD}.js`, `${LEGACY_WORD}-codex`][index]),
     'incoming witness coverage requires the two exact historical report contexts');
-  const allJsonRows = [...jsonRows, ...incomingJsonRows];
+  const allJsonRows = [...jsonRows, ...incomingJsonRows, ...criticJsonRows];
   const fixtureRows = JSON.parse(read('scripts/identity-reviewed-fixture-data.json')).entries.slice(268);
   const provenanceRows = CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.id.startsWith('current-witness-coverage-'));
-  expect(jsonRows.length === 45 && fixtureRows.length === 4 && provenanceRows.length === 3,
+  expect(jsonRows.length === 45 && fixtureRows.length === 5 && provenanceRows.length === 3,
     'current witness coverage requires every reviewed addition');
   const scratch = mkdtempSync(join(tmpdir(), 'identity-current-witness-'));
   let controls = 0;
