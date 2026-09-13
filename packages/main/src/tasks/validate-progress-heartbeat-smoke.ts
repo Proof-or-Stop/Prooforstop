@@ -1835,6 +1835,12 @@ async function assertBatchWatchdogReapsWithoutPartialWrites(): Promise<void> {
   }
 }
 
+async function measureHeartbeatGroup<T>(name: string, run: () => Promise<T>): Promise<T> {
+  const started = performance.now();
+  try { return await run(); }
+  finally { console.log('HEARTBEAT_GROUP_TIMING ' + JSON.stringify({ name, wallMs: performance.now() - started })); }
+}
+
 void (async () => {
   const { root, started, finished } = setupFixture();
   try {
@@ -1875,9 +1881,9 @@ void (async () => {
       console.log('validate-progress-heartbeat main direct-handler PASS');
       return;
     }
-    await assertDelayedFixtureReadiness();
-    await assertReadinessFailureControls();
-    const result = await runValidate(root);
+    await measureHeartbeatGroup('assertDelayedFixtureReadiness', assertDelayedFixtureReadiness);
+    await measureHeartbeatGroup('assertReadinessFailureControls', assertReadinessFailureControls);
+    const result = await measureHeartbeatGroup('runValidate', () => runValidate(root));
     if (result.status !== 0) {
       assertRedBaseline(result, started, finished);
     }
@@ -1886,15 +1892,15 @@ void (async () => {
     const finishText = readFileSync(finished, 'utf8').trim();
     assert.match(startText, /^started \d+$/);
     assert.match(finishText, /^finished \d+$/);
-    await assertMainDirectHandlerClosesTerminal();
-    await assertStoryAdvanceReceivesHeartbeat();
-    await assertMidValidationForeignAppendFailsClosed();
-    await assertFailedStoryAdvancePreservesValidationEvidence();
-    await assertTrueHangFailsClosedWithNamedDiagnostics();
-    await assertDirectDoneRequiredTimeoutMatrix();
-    await assertDonePrepareRoutineTimeoutMatrix();
-    await assertOuterWatchdogsKillDescendants();
-    await assertNonDivisibleMaxUsesNamedDeadline();
+    await measureHeartbeatGroup('assertMainDirectHandlerClosesTerminal', assertMainDirectHandlerClosesTerminal);
+    await measureHeartbeatGroup('assertStoryAdvanceReceivesHeartbeat', assertStoryAdvanceReceivesHeartbeat);
+    await measureHeartbeatGroup('assertMidValidationForeignAppendFailsClosed', assertMidValidationForeignAppendFailsClosed);
+    await measureHeartbeatGroup('assertFailedStoryAdvancePreservesValidationEvidence', assertFailedStoryAdvancePreservesValidationEvidence);
+    await measureHeartbeatGroup('assertTrueHangFailsClosedWithNamedDiagnostics', assertTrueHangFailsClosedWithNamedDiagnostics);
+    await measureHeartbeatGroup('assertDirectDoneRequiredTimeoutMatrix', assertDirectDoneRequiredTimeoutMatrix);
+    await measureHeartbeatGroup('assertDonePrepareRoutineTimeoutMatrix', assertDonePrepareRoutineTimeoutMatrix);
+    await measureHeartbeatGroup('assertOuterWatchdogsKillDescendants', assertOuterWatchdogsKillDescendants);
+    await measureHeartbeatGroup('assertNonDivisibleMaxUsesNamedDeadline', assertNonDivisibleMaxUsesNamedDeadline);
     console.log('validate-progress-heartbeat smoke passed');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

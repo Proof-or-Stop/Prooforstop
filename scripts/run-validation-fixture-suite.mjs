@@ -40,7 +40,7 @@ delete env.LATTICE_HEALTH_PATH;
 const result = entry.endsWith('/quorum-submit-smoke.js')
   ? await runProviderNeutralFixture(entry, rest, env)
   : spawnSync(process.execPath, [entry, ...rest], { env, stdio: 'inherit' });
-if (entry.endsWith('/quorum-submit-smoke.js')) {
+if (entry.endsWith('/quorum-submit-smoke.js') || entry.endsWith('/validate-progress-heartbeat-smoke.js')) {
   console.log('FIXTURE_COMPILE_CACHE ' + JSON.stringify(inspectFixtureCompileCache(join(fixture.root, 'node-compile-cache'))));
 }
 if (result.status === 0) {
