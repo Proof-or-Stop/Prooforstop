@@ -1,4 +1,8 @@
+import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { commitReviewEpochMetadata } from '../core/review-metadata-batch.js';
+import { readManagedHostRunBinding, readManagedReviewEvidenceProposal } from '../core/managed-host-run.js';
+import { createManagedReviewEvidenceBinding, managedReviewerPromptDigest, verifyManagedReviewLiveBinding } from '../core/managed-review-evidence.js';
+import { isManagedInventoryCritic, validInventoryCriticReason, type ManagedInventoryFindingRef } from '../core/managed-inventory-critic.js';
 import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-journal.js';
 import { collectOrphanPromptBodies } from '../core/prompt-body-gc.js';
 import type { HandlerContext } from './context.js';
@@ -422,6 +426,150 @@ export function assertOpenInventoryFresh(ctx: HandlerContext, storyId: string): 
   });
 }
 
+/** Receipt-only internal ingress. No caller-supplied verdict, actor or dispositions. */
+export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId: string; receiptId: string }): string {
+  const managed = readManagedHostRunBinding(ctx.root, args.runId);
+  if (!managed.storyId || !managed.reviewRunId || managed.profile !== 'managed_reviewer'
+    || managed.lane !== 'proof-or-stop-review-topology-critic' || managed.agentType !== managed.lane) {
+    throw new Error('managed inventory critic: wrong managed subject');
+  }
+  const storyId = managed.storyId;
+  return inventoryLock(ctx, storyId, () => {
+    const story = ctx.store.readStory(storyId);
+    const run = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, managed.lane!, managed.reviewRunId!);
+    const expected = {
+      providerHost: managed.host, headHash: run.headHash, materialHash: run.materialHash,
+      storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
+      promptHash: run.promptHash, envelopeId: run.envelopeId ?? null,
+      managedPromptDigest: managed.reviewBinding?.managedPromptDigest
+        ?? managedReviewerPromptDigest(run.workspaceBinding?.metadataRoot ?? ctx.root, run),
+    };
+    const live = verifyManagedReviewLiveBinding({gitCwd: run.workspaceBinding?.signedWorkspaceRoot ?? ctx.root,
+      metadataRoot: ctx.root, storyId, expected});
+    if (!live.valid) throw new Error(`managed inventory critic: ${live.reason}`);
+    const sealed = readManagedReviewEvidenceProposal(ctx.root, args.runId);
+    const verified = createManagedReviewEvidenceBinding({root: ctx.root, storyId,
+      providerAgent: managed.agentType, lane: managed.lane!, reviewRunId: run.reviewRunId,
+      runId: args.runId, receiptId: args.receiptId, expected, importedAt: sealed?.authoredAt});
+    const proposal = verified.verification.proposal;
+    const block = proposal?.inventoryCritic;
+    if (!proposal || !isManagedInventoryCritic(block, managed.lane!, managed.agentType, proposal.findings?.length ?? 0)) {
+      throw new Error('managed inventory critic: authenticated disposition block missing or invalid');
+    }
+    const epoch = currentOpenReviewInventory(ctx.store, storyId);
+    if (!epoch || block.epochId !== epoch.epochId || block.wave !== epoch.waves.length + 1
+      || run.reviewPurpose !== 'inventory-completeness' || !inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)) {
+      throw new Error('managed inventory critic: purpose or current wave mismatch');
+    }
+    const ownFindings = ctx.store.readFindings(storyId).findings.filter(f => f.reviewRunId === run.reviewRunId
+      && f.managedEvidenceBinding?.runId === args.runId && f.managedEvidenceBinding?.receiptId === args.receiptId
+      && verifyFinding(storyId, f));
+    const resolve = (ref: ManagedInventoryFindingRef): string => {
+      if ('findingId' in ref) {
+        if (ownFindings.some(f => f.id === ref.findingId)) throw new Error('managed inventory critic: own findings require proposalFindingIndex');
+        return ref.findingId;
+      }
+      const matches = ownFindings.filter(f => f.managedEvidenceBinding?.proposalFindingIndex === ref.proposalFindingIndex);
+      if (matches.length !== 1) throw new Error('managed inventory critic: own finding index not uniquely imported');
+      return matches[0].id;
+    };
+    const dirty = readMaterialDirtyFiles(run.workspaceBinding?.signedWorkspaceRoot ?? ctx.root, ctx.root);
+    if (dirty.error) throw new Error(`managed inventory critic: material status-unavailable: ${dirty.error}`);
+    if (dirty.files.length) throw new Error(`managed inventory critic: material drift: ${dirty.files.join(', ')}`);
+    const findingDispositions = block.findingDispositions.map(row => ({findingId: resolve(row.finding),
+      disposition: row.disposition, reason: row.reason, ...(row.familyKey ? {familyKey: row.familyKey} : {}),
+      ...(row.canonicalFinding ? {canonicalFindingId: resolve(row.canonicalFinding)} : {})}));
+    if (new Set(findingDispositions.map(row => row.findingId)).size !== findingDispositions.length) {
+      throw new Error('managed inventory critic: duplicate resolved finding identity');
+    }
+    return persistCriticReceipt(ctx, {storyId, epochId: block.epochId, reviewRunId: run.reviewRunId, findingDispositions});
+  });
+}
+
+interface CriticReceiptInput {
+  storyId: string;
+  epochId: string;
+  reviewRunId: string;
+  findingDispositions: ReviewInventoryFindingDisposition[];
+}
+// Private shared writer: callers establish native or authenticated managed authority,
+// and hold the inventory lock. This helper is not a public command or bypass.
+function persistCriticReceipt(ctx: HandlerContext, args: CriticReceiptInput): string {
+  let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
+  if (!epoch || epoch.epochId !== args.epochId) throw new Error(`review_inventory_critic_set: OPEN epoch ${args.epochId} not found`);
+  epoch = persistInvalidationIfDrifted(ctx, epoch);
+  if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
+  const rawEvaluation = evaluateCurrentWave(ctx, epoch, []);
+  if (rawEvaluation.baselineMismatchIds.length > 0) throw new Error(`REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED: ${rawEvaluation.baselineMismatchIds.join(', ')}`);
+  if (rawEvaluation.missingLanes.length > 0) throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${rawEvaluation.missingLanes.join(', ')}`);
+  if (rawEvaluation.duplicateIdentities.length > 0) throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${rawEvaluation.duplicateIdentities.join(', ')}`);
+  const findingDispositions = [...args.findingDispositions]
+    .map(row => ({ ...row, findingId: row.findingId.trim(), familyKey: row.familyKey?.trim(), canonicalFindingId: row.canonicalFindingId?.trim(), reason: row.reason.trim() }))
+    .sort((a, b) => a.findingId.localeCompare(b.findingId));
+  if (findingDispositions.some(row => !validInventoryCriticReason(row.reason)
+    || !row.findingId || (row.familyKey !== undefined && !row.familyKey)
+    || (row.canonicalFindingId !== undefined && !row.canonicalFindingId))) {
+    throw new Error('REVIEW_INVENTORY_DISPOSITION_FIELD_INVALID: reason requires at least 10 trimmed characters and supplied identifiers must be nonblank');
+  }
+  const evaluation = evaluateCurrentWave(ctx, epoch, findingDispositions);
+  if (evaluation.unresolvedFindingIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE: ${evaluation.unresolvedFindingIds.join(', ')}`);
+  if (evaluation.invalidDispositionIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: ${evaluation.invalidDispositionIds.join(', ')}`);
+  const story = ctx.store.readStory(args.storyId);
+  const run = assertCurrentReviewRunForEvidence(
+    ctx.store, story, ctx.root, 'proof-or-stop-review-topology-critic', args.reviewRunId,
+  );
+  if (run.reviewPurpose !== 'inventory-completeness' || !inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)) {
+    throw new Error('REVIEW_INVENTORY_CRITIC_PURPOSE_REQUIRED: dispatch and run explicit inventory-completeness review');
+  }
+  const passes = ctx.store.readReviewPasses(args.storyId).passes
+    .filter(row => row.reviewRunId === run.reviewRunId && verifyReviewPass(args.storyId, row));
+  const findings = ctx.store.readFindings(args.storyId).findings
+    .filter(row => row.reviewRunId === run.reviewRunId && verifyFinding(args.storyId, row));
+  const terminal = [...passes, ...findings];
+  if (terminal.length === 0) throw new Error('REVIEW_INVENTORY_CRITIC_TERMINAL_MISSING: submit critic review_pass_set/finding_add first');
+  if (terminal.some(row => !row.readManifest)) throw new Error('REVIEW_INVENTORY_CRITIC_READ_EVIDENCE_MISSING');
+  const existing = criticReceiptForCurrentWave(ctx, epoch);
+  const now = existing?.createdAt ?? new Date().toISOString();
+  const terminalEvidenceIds = terminal.map(row => row.id).sort();
+  const readEvidence = terminal.map(row => ({ id: row.id, readManifest: row.readManifest ?? null, readLog: row.readLog?.digest ?? null }));
+  const unsigned: Omit<ReviewInventoryCriticReceipt, '_hash'> = {
+    schemaVersion: 'proof-or-stop.review_inventory_critic_receipt.v1',
+    criticReceiptId: `${epoch.epochId}:CRIT-${String(epoch.waves.length + 1).padStart(2, '0')}`,
+    epochId: epoch.epochId,
+    storyId: epoch.storyId,
+    reviewRound: epoch.reviewRound,
+    wave: epoch.waves.length + 1,
+    cutoff: epoch.cutoff,
+    aggregateFindingSetDigest: reviewInventoryDigest(reviewInventoryAggregateFamilies(epoch, evaluation)),
+    requiredLaneCoverageDigest: reviewInventoryLaneCoverageDigest(evaluation),
+    criticLane: 'proof-or-stop-review-topology-critic',
+    reviewRunId: run.reviewRunId,
+    reviewPurpose: 'inventory-completeness',
+    inventoryBinding: run.inventoryBinding,
+    terminalEvidenceIds,
+    readEvidenceDigest: reviewInventoryDigest(readEvidence),
+    findingDispositions,
+    createdAt: now,
+  };
+  const receipt: ReviewInventoryCriticReceipt = { ...unsigned, _hash: signReviewInventoryCriticReceipt(unsigned) };
+  const validated = validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
+    receipt, epoch, evaluation,
+    runs: ctx.store.readReviewRuns(args.storyId).runs,
+    passes: ctx.store.readReviewPasses(args.storyId).passes,
+    findings: ctx.store.readFindings(args.storyId).findings,
+  });
+  if (!validated.ok) throw new Error(`REVIEW_INVENTORY_CRITIC_INVALID: ${validated.reason}`);
+  const data = ctx.store.readReviewInventoryEpochs(args.storyId);
+  const prior = data.criticReceipts.find(row => row.criticReceiptId === receipt.criticReceiptId);
+  if (prior) {
+    if (prior._hash !== receipt._hash) throw new Error(`review_inventory_critic_set: conflicting receipt ${receipt.criticReceiptId}`);
+    return `Completeness critic: complete\nCritic receipt: ${receipt.criticReceiptId}`;
+  }
+  data.criticReceipts.push(receipt);
+  ctx.store.writeReviewInventoryEpochs(args.storyId, data);
+  return `Completeness critic: complete\nCritic receipt: ${receipt.criticReceiptId}`;
+}
+
 export function createReviewInventoryHandlers(ctx: HandlerContext) {
   return {
     review_prompt_gc(args: { storyId: string }): string {
@@ -546,73 +694,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         throw new Error('review_inventory_critic_set: only proof-or-stop-review-topology-critic may write critic authority');
       }
       return inventoryLock(ctx, args.storyId, () => {
-        let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
-        if (!epoch || epoch.epochId !== args.epochId) throw new Error(`review_inventory_critic_set: OPEN epoch ${args.epochId} not found`);
-        epoch = persistInvalidationIfDrifted(ctx, epoch);
-        if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
-        const rawEvaluation = evaluateCurrentWave(ctx, epoch, []);
-        if (rawEvaluation.baselineMismatchIds.length > 0) throw new Error(`REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED: ${rawEvaluation.baselineMismatchIds.join(', ')}`);
-        if (rawEvaluation.missingLanes.length > 0) throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${rawEvaluation.missingLanes.join(', ')}`);
-        if (rawEvaluation.duplicateIdentities.length > 0) throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${rawEvaluation.duplicateIdentities.join(', ')}`);
-        const findingDispositions = [...args.findingDispositions]
-          .map(row => ({ ...row, findingId: row.findingId.trim(), familyKey: row.familyKey?.trim(), canonicalFindingId: row.canonicalFindingId?.trim(), reason: row.reason.trim() }))
-          .sort((a, b) => a.findingId.localeCompare(b.findingId));
-        const evaluation = evaluateCurrentWave(ctx, epoch, findingDispositions);
-        if (evaluation.unresolvedFindingIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE: ${evaluation.unresolvedFindingIds.join(', ')}`);
-        if (evaluation.invalidDispositionIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: ${evaluation.invalidDispositionIds.join(', ')}`);
-        const story = ctx.store.readStory(args.storyId);
-        const run = assertCurrentReviewRunForEvidence(
-          ctx.store, story, ctx.root, 'proof-or-stop-review-topology-critic', args.reviewRunId,
-        );
-        if (run.reviewPurpose !== 'inventory-completeness' || !inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)) {
-          throw new Error('REVIEW_INVENTORY_CRITIC_PURPOSE_REQUIRED: dispatch and run explicit inventory-completeness review');
-        }
-        const passes = ctx.store.readReviewPasses(args.storyId).passes
-          .filter(row => row.reviewRunId === run.reviewRunId && verifyReviewPass(args.storyId, row));
-        const findings = ctx.store.readFindings(args.storyId).findings
-          .filter(row => row.reviewRunId === run.reviewRunId && verifyFinding(args.storyId, row));
-        const terminal = [...passes, ...findings];
-        if (terminal.length === 0) throw new Error('REVIEW_INVENTORY_CRITIC_TERMINAL_MISSING: submit critic review_pass_set/finding_add first');
-        if (terminal.some(row => !row.readManifest)) throw new Error('REVIEW_INVENTORY_CRITIC_READ_EVIDENCE_MISSING');
-        const now = new Date().toISOString();
-        const terminalEvidenceIds = terminal.map(row => row.id).sort();
-        const readEvidence = terminal.map(row => ({ id: row.id, readManifest: row.readManifest ?? null, readLog: row.readLog?.digest ?? null }));
-        const unsigned: Omit<ReviewInventoryCriticReceipt, '_hash'> = {
-          schemaVersion: 'proof-or-stop.review_inventory_critic_receipt.v1',
-          criticReceiptId: `${epoch.epochId}:CRIT-${String(epoch.waves.length + 1).padStart(2, '0')}`,
-          epochId: epoch.epochId,
-          storyId: epoch.storyId,
-          reviewRound: epoch.reviewRound,
-          wave: epoch.waves.length + 1,
-          cutoff: epoch.cutoff,
-          aggregateFindingSetDigest: reviewInventoryDigest(reviewInventoryAggregateFamilies(epoch, evaluation)),
-          requiredLaneCoverageDigest: reviewInventoryLaneCoverageDigest(evaluation),
-          criticLane: 'proof-or-stop-review-topology-critic',
-          reviewRunId: run.reviewRunId,
-          reviewPurpose: 'inventory-completeness',
-          inventoryBinding: run.inventoryBinding,
-          terminalEvidenceIds,
-          readEvidenceDigest: reviewInventoryDigest(readEvidence),
-          findingDispositions,
-          createdAt: now,
-        };
-        const receipt: ReviewInventoryCriticReceipt = { ...unsigned, _hash: signReviewInventoryCriticReceipt(unsigned) };
-        const validated = validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
-          receipt, epoch, evaluation,
-          runs: ctx.store.readReviewRuns(args.storyId).runs,
-          passes: ctx.store.readReviewPasses(args.storyId).passes,
-          findings: ctx.store.readFindings(args.storyId).findings,
-        });
-        if (!validated.ok) throw new Error(`REVIEW_INVENTORY_CRITIC_INVALID: ${validated.reason}`);
-        const data = ctx.store.readReviewInventoryEpochs(args.storyId);
-        const prior = data.criticReceipts.find(row => row.criticReceiptId === receipt.criticReceiptId);
-        if (prior) {
-          if (prior._hash !== receipt._hash) throw new Error(`review_inventory_critic_set: conflicting receipt ${receipt.criticReceiptId}`);
-          return `Completeness critic: complete\nCritic receipt: ${receipt.criticReceiptId}`;
-        }
-        data.criticReceipts.push(receipt);
-        ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return `Completeness critic: complete\nCritic receipt: ${receipt.criticReceiptId}`;
+        return persistCriticReceipt(ctx, args);
       });
     },
 

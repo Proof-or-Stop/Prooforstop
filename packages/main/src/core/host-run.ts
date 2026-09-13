@@ -1,3 +1,4 @@
+import { isManagedInventoryCritic, managedInventoryCriticJsonSchema, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, acceptanceReviewJsonSchema } from './acceptance-amendment-review.js';
 /**
@@ -863,6 +864,7 @@ export interface ManagedReviewFinalEnvelopeRecord extends Record<string, unknown
   conclusion: 'pass' | 'findings';
   note?: string;
   findings?: ManagedReviewFinalEnvelopeFinding[];
+  inventoryCritic?: ManagedInventoryCritic;
   readManifest: ManagedReviewFinalEnvelopeReadManifest;
   readLog: Record<string, unknown>;
 }
@@ -872,7 +874,7 @@ export interface ManagedReviewFinalEnvelopeRecord extends Record<string, unknown
  * bounded and non-secret: it contains only the already-auditable managed review
  * tuple plus public vocabulary, never prompt bytes, capabilities, or verdicts.
  */
-function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
+export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
   if (!args.storyId || !args.reviewRunId || !args.lane || args.agentType !== args.lane) {
     throw new Error('host_run: managed Claude JSON Schema requires exact storyId/reviewRunId/lane/agentType binding');
   }
@@ -956,6 +958,7 @@ function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
       // any proposal can reach persistence.
       note: nonBlankString,
       findings: { type: 'array', items: finding },
+      ...(args.lane === 'proof-or-stop-review-topology-critic' ? { inventoryCritic: managedInventoryCriticJsonSchema } : {}),
       readManifest,
       readLog,
       readDiagnostics: {
@@ -1076,7 +1079,7 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
   const conclusion = parsed.conclusion;
   const allowed = new Set([
     'schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion',
-    'readManifest', 'readLog', 'readDiagnostics', 'note', 'findings',
+    'readManifest', 'readLog', 'readDiagnostics', 'note', 'findings', 'inventoryCritic',
   ]);
   const readManifest = parsed.readManifest;
   const validReadManifest = isPlainRecord(readManifest)
@@ -1102,6 +1105,7 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
     || !validReadManifest
     || !hasRequiredManagedReviewReadEvidence(readManifest, parsed.readLog)
     || !validConclusionPayload
+    || (parsed.inventoryCritic !== undefined && !isManagedInventoryCritic(parsed.inventoryCritic, String(parsed.lane), String(parsed.providerAgent), Array.isArray(parsed.findings) ? parsed.findings.length : 0))
     || (parsed.readDiagnostics !== undefined && !Array.isArray(parsed.readDiagnostics))) {
     return { kind: 'malformed' };
   }
