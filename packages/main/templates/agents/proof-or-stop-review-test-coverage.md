@@ -19,6 +19,19 @@ proof-or-stop validate '{"story":"<ID>","json":true}'
 
 ## Review Rules
 
+Audit checklist membership before counting passing intents: once explicit verification is
+used, every non-withdrawn checklist item must have at least one verificationIntent.
+A missing item is a required coverage gap even when every existing intent passes.
+After repairing a verifier, rerun the exact pinned commands and inspect fresh tool-owned
+receipts; changing a test never refreshes its receipts automatically. Challenge the
+actual assertion with deletion, exact failing input, and relevant combination mutations.
+For validation evidence sizing, exercise StoryStore.writeTestEvidence itself: the writer
+must serialize once, measure those exact UTF-8 bytes, and reject oversized replacements
+without changing the prior artifact. Exercise the final immutable preparation through
+the real validation handler: post-check mutation must not change the committed bytes,
+publication refusal must not print PASS, and unchanged reuse retry must not change
+phase or review round. A caller-side measurement alone is insufficient.
+
 1. For every checklist item, check whether the happy / edge / adversarial intent columns match the current channel:
    - normal / high-risk / strict: all three columns should exist.
    - fast / express: at least the happy path should be explainable; missing edge/adversarial may be advisory.
