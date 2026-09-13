@@ -22,6 +22,10 @@ The current CLI has no consolidate or archive action. Signed historical Lab reco
 
 The same Lab now includes bounded workspace discovery, baseline probe and tree-failure-witness repairs. That follow-up used `node scripts/lab/verify-intake-history.mjs`; it includes the original consolidation command and its Memory/scanner controls. See [the follow-up report](history-repair/REPORT.md) for RED provenance, before/after measurements, preserved failure boundaries and the explicit no-new-regressions workspace health result. Earlier GREEN/audit records remain scoped to their original heads.
 
-## Current second repair cycle
+## Second repair cycle
 
-The current pinned command is `node scripts/lab/verify-intake-round-two.mjs`. It requires absolute workspace-health success, early Memory-hit construction controls, and the prior consolidated/history controls. The former 38/40 baseline is now 40/40. See [second-round results](round-two/REPORT.md) for current scope, RED provenance, measurements and cache boundaries. All earlier records remain bound to their historical candidates.
+The second-cycle pinned command was `node scripts/lab/verify-intake-round-two.mjs`. It requires absolute workspace-health success, early Memory-hit construction controls, and the prior consolidated/history controls. The former 38/40 baseline is now 40/40. See [second-round results](round-two/REPORT.md) for current scope, RED provenance, measurements and cache boundaries. All earlier records remain bound to their historical candidates.
+
+## Current third repair cycle
+
+The current pinned command is `node scripts/lab/verify-intake-round-three.mjs`. It adds operation-scoped learning-root reuse and boundary checks, then reruns the full second-cycle wrapper. See [third-round results](round-three/REPORT.md) for cold/warm before-after data, preserved overflow fallback behavior, selected live sampling and the unchanged remaining hash-call breakdown. All changes remain in this same Lab.
