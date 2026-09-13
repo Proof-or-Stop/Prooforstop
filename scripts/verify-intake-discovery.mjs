@@ -31,7 +31,7 @@ try {
   const scans = w.commands.filter(args => args[0] === 'worktree').length;
   console.log('INTAKE_DISCOVERY_MEASURE ' + JSON.stringify({ workspace: { ms: w.ms, scans, gitCalls: w.commands.length }, baseline: { ms: b.ms, gitCalls: b.commands.length }, outputsEqual: true }));
   if (scans !== 20) failures.push(`workspace inventory budget expected 20, got ${scans}`);
-  if (b.commands.length > 80) failures.push(`baseline Git budget expected <=80, got ${b.commands.length}`);
+  if (b.commands.length > 60) failures.push(`baseline Git budget expected <=60, got ${b.commands.length}`);
   const linked = join(root, 'linked'); git('worktree', 'add', '-qb', 'story/B-discovery', linked);
   assert.equal(workspace().worktreePath, linked);
   let inventoryAttempts = 0;
