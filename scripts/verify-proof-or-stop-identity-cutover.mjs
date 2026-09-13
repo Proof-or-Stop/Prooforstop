@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "776343265e642ba54e9bb81e54f5c1c4c4caaffd391850cbcd84630b791baa8b"
+    "sha256": "c4486554d092dbeece2a0b461eccf2e8c6e44f625a60d524076082d8fe7cd9ba"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "cd748737298613e40212c5a4822685bf51e00ccdac049c9f5e16e40ed2334cfd"
+    "sha256": "7bee4a0fe6b4551a694f81af5ae115b33d1293e8bd5f12558a58a924a8910b47"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
