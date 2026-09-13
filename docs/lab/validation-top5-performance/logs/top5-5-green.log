@@ -1,0 +1,24 @@
+
+> proof-or-stop@0.3.356 lab:worktree
+> node scripts/lab-worktree.mjs green validation-top5-performance
+
+TOP5_NATIVE_OUTPUT {"outputRoot":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/top5-native-output-DO6tbT"}
+TOP5_PROFILE {"suite":5,"command":["node","scripts/run-validation-fixture-suite.mjs","packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"],"wallMs":127934.56658299999,"nativeExitCode":0,"nativeSignal":null,"formalStoryEvidence":false}
+B29BC_DELAYED_FIXTURE_READINESS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertDelayedFixtureReadiness","wallMs":6061.338583}
+B29BC_READINESS_TERMINAL_AND_CLOSE_CONTROLS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertReadinessFailureControls","wallMs":414.17575000000033}
+HEARTBEAT_GROUP_TIMING {"name":"runValidate","wallMs":12399.957375000002}
+HEARTBEAT_GROUP_TIMING {"name":"assertMainDirectHandlerClosesTerminal","wallMs":8884.716375}
+HEARTBEAT_GROUP_TIMING {"name":"assertStoryAdvanceReceivesHeartbeat","wallMs":20022.111375000004}
+HEARTBEAT_GROUP_TIMING {"name":"assertMidValidationForeignAppendFailsClosed","wallMs":15389.031125000001}
+HEARTBEAT_GROUP_TIMING {"name":"assertFailedStoryAdvancePreservesValidationEvidence","wallMs":6650.468333999997}
+HEARTBEAT_GROUP_TIMING {"name":"assertTrueHangFailsClosedWithNamedDiagnostics","wallMs":1638.5754580000066}
+HEARTBEAT_GROUP_TIMING {"name":"assertDirectDoneRequiredTimeoutMatrix","wallMs":20140.984958}
+HEARTBEAT_GROUP_TIMING {"name":"assertDonePrepareRoutineTimeoutMatrix","wallMs":13409.233582999994}
+HEARTBEAT_GROUP_TIMING {"name":"assertOuterWatchdogsKillDescendants","wallMs":14213.903458}
+HEARTBEAT_GROUP_TIMING {"name":"assertNonDivisibleMaxUsesNamedDeadline","wallMs":8128.374832999994}
+validate-progress-heartbeat smoke passed
+FIXTURE_COMPILE_CACHE {"files":678,"bytes":6938816}
+TOP5_5_GREEN
+GREEN recorded for current committed HEAD.

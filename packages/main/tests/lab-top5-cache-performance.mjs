@@ -43,4 +43,12 @@ assert.ok(cache.files>0&&cache.bytes>0,`TOP5_${suite}_RED: repeated native child
 if(suite===3) assert.ok(wallMs < 699947.729583 * 0.99, 'TOP5_3_PERFORMANCE: complete command must improve at least one percent');
 // Suite 5's complete native baseline is recorded in top5-5-red.log.
 if(suite===5) assert.ok(wallMs < 135068.903292 * 0.99, 'TOP5_5_PERFORMANCE: complete command must improve at least one percent');
+if(suite===5) {
+  // Finish must also verify the runtime and imported planning repair on the
+  // candidate and on main, rather than relying solely on historical logs.
+  for(const script of ['scripts/verify-runtime-fact-contract.mjs','packages/main/tests/planning-performance.mjs']) {
+    const result=spawnSync(process.execPath,[script],{cwd:root,stdio:'inherit',timeout:900000});
+    assert.equal(result.status,0,'Combined release regression failed: '+script);
+  }
+}
 console.log(`TOP5_${suite}_GREEN`);
