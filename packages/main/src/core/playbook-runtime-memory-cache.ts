@@ -20,6 +20,7 @@ import {
 } from './learning-store.js';
 import {
   readRuntimeMemorySourceDigests,
+  RUNTIME_MEMORY_INDEX_SCHEMA_VERSION,
   selectRuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndex,
   type RuntimeMemoryIndexSourceDigests,
@@ -30,7 +31,7 @@ import type {
   RuntimeConsumer,
 } from './playbook-runtime-memory.js';
 
-export const RUNTIME_MEMORY_PACK_CACHE_POLICY_VERSION = 'proof-or-stop.runtime-memory-pack-cache.v1' as const;
+export const RUNTIME_MEMORY_PACK_CACHE_POLICY_VERSION = 'proof-or-stop.runtime-memory-pack-cache.v2' as const;
 
 type SourceKind = 'dev-memory' | 'playbook' | 'signature-registry';
 
@@ -48,6 +49,7 @@ export interface RuntimeMemoryPackCacheContext {
   candidateLimit?: number;
   runtimeIndex?: RuntimeMemoryIndex | null;
   currentSourceDigests?: RuntimeMemoryIndexSourceDigests;
+  allowSourceOnlyReuse?: boolean;
 }
 
 export interface RuntimeMemoryPackContributionDigest {
@@ -100,6 +102,7 @@ type RuntimeMemoryPackCacheHit =
   | { hit: false; reason: string };
 
 interface RuntimeMemoryPackCacheEntry {
+  sourceOnlyIndexSchema?: string;
   lookupDigest: string;
   cacheKey: RuntimeMemoryPackCacheKey;
   pack: MemoryFreshnessPack;
@@ -389,6 +392,7 @@ function keyDomain(
 function lookupDomain(domain: Omit<RuntimeMemoryPackCacheKey, 'cacheKeyDigest' | 'lookupDigest'>): object {
   return {
     schemaVersion: domain.schemaVersion,
+    indexSchemaVersion: RUNTIME_MEMORY_INDEX_SCHEMA_VERSION,
     projectRoot: domain.projectRoot,
     consumer: domain.consumer,
     normalizedQuery: domain.normalizedQuery,
@@ -417,21 +421,24 @@ function currentLookupDigest(context: RuntimeMemoryPackCacheContext): string {
   return buildRuntimeMemoryPackCacheKey(context, []).lookupDigest;
 }
 
-export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheContext): RuntimeMemoryPackCacheHit {
+export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheContext, beforeIndex = false): RuntimeMemoryPackCacheHit {
   const lookupDigest = currentLookupDigest(context);
   const entry = CACHE.get(lookupDigest) ?? readDurableCacheEntry(context.projectRoot, lookupDigest);
   if (!entry) {
-    rememberStatsMiss('empty', lookupDigest);
+    if (!beforeIndex) rememberStatsMiss('empty', lookupDigest);
     return { hit: false, reason: 'empty' };
   }
   if (containsRetiredMemoryIdentity(entry.pack)) {
-    rememberStatsMiss('noncanonical-identity', lookupDigest);
+    if (!beforeIndex) rememberStatsMiss('noncanonical-identity', lookupDigest);
     return { hit: false, reason: 'noncanonical-identity' };
   }
 
   const currentIndexVersion = context.runtimeIndex?.manifest.indexVersion ?? null;
   const currentSourceDigests = sourceDigestsFor(context);
-  const indexVersionMatches = entry.cacheKey.indexVersion === currentIndexVersion;
+  const indexVersionMatches = beforeIndex
+    ? context.allowSourceOnlyReuse === true && entry.sourceOnlyIndexSchema === RUNTIME_MEMORY_INDEX_SCHEMA_VERSION
+      && Boolean(entry.cacheKey.indexVersion)
+    : entry.cacheKey.indexVersion === currentIndexVersion;
   if (indexVersionMatches && sameSourceDigests(entry.sourceDigests, currentSourceDigests)) {
     rememberStatsHit(entry, 'fresh');
     return {
@@ -441,6 +448,8 @@ export function getRuntimeMemoryPackCacheHit(context: RuntimeMemoryPackCacheCont
       hitClass: 'fresh',
     };
   }
+
+  if (beforeIndex) return { hit: false, reason: 'requires_index_observation' };
 
   const currentTuple = contributionTupleFromRefs(entry.pack.results.contributingSourceRefs, context);
   if (!sameContributionTuple(entry.cacheKey.contributingSourceDigestTuple, currentTuple)) {
@@ -478,6 +487,7 @@ export function rememberRuntimeMemoryPackCache(
   const cacheKey = buildRuntimeMemoryPackCacheKey(context, contributionTuple);
   if (containsRetiredMemoryIdentity(pack)) return cacheKey;
   const entry: RuntimeMemoryPackCacheEntry = {
+    ...(context.allowSourceOnlyReuse && context.runtimeIndex ? { sourceOnlyIndexSchema: RUNTIME_MEMORY_INDEX_SCHEMA_VERSION } : {}),
     lookupDigest: cacheKey.lookupDigest,
     cacheKey,
     pack: clonePack(pack),
@@ -534,6 +544,7 @@ export function buildRuntimeMemoryPackCacheContext(
     candidateLimit?: number;
     runtimeIndex?: RuntimeMemoryIndex | null;
     currentSourceDigests?: RuntimeMemoryIndexSourceDigests;
+    allowSourceOnlyReuse?: boolean;
   },
 ): RuntimeMemoryPackCacheContext {
   return {
@@ -549,6 +560,7 @@ export function buildRuntimeMemoryPackCacheContext(
     maxLines: normalized.maxLines,
     ...(normalized.candidateLimit !== undefined ? { candidateLimit: normalized.candidateLimit } : {}),
     runtimeIndex: normalized.runtimeIndex ?? null,
+    allowSourceOnlyReuse: normalized.allowSourceOnlyReuse,
     ...(normalized.currentSourceDigests ? { currentSourceDigests: normalized.currentSourceDigests } : {}),
   };
 }

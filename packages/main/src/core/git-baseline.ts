@@ -58,15 +58,19 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
   let remoteHead: string | undefined;
   try { remoteHead = probe(gitCwd, ['symbolic-ref', '-q', 'refs/remotes/origin/HEAD']); } catch { /* no remote HEAD */ }
   let primaryBranch: string | undefined;
-  try {
-    const primary = probe(gitCwd, ['worktree', 'list', '--porcelain']).split(/\n\n+/)[0] ?? '';
-    primaryBranch = primary.split('\n').find(line => line.startsWith('branch '))?.slice('branch '.length);
-  } catch { /* no trustworthy worktree inventory */ }
+  const readPrimaryBranch = (): string | undefined => {
+    try {
+      const primary = probe(gitCwd, ['worktree', 'list', '--porcelain']).split(/\n\n+/)[0] ?? '';
+      return primary.split('\n').find(line => line.startsWith('branch '))?.slice('branch '.length);
+    } catch { return undefined; }
+  };
   let linkedWorktree = observedLinked ?? false;
   if (observedLinked === undefined) try {
     const { gitDir, common } = directories();
     linkedWorktree = gitDir !== common;
   } catch { /* conventional fallbacks remain available */ }
+  // Ordinary direct calls need inventory only if all conventional candidates fail.
+  if (linkedWorktree || options.candidateCache) primaryBranch = readPrimaryBranch();
   // Local integration can advance without publishing. Only the same primary
   // branch containing the remote tip may supersede origin/HEAD in a linked
   // worktree; remote-ahead, diverged and ordinary-checkout policy is unchanged.
@@ -82,7 +86,7 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
   add(remoteHead);
   if (linkedWorktree) add(primaryBranch);
   for (const fallback of ['refs/heads/main', 'refs/remotes/origin/main', 'refs/heads/master', 'refs/remotes/origin/master']) add(fallback);
-  if (!linkedWorktree) add(primaryBranch);
+  if (!linkedWorktree && options.candidateCache) add(primaryBranch);
   if (options.candidateCache && cacheKey !== undefined) {
     const refs: { ref: string; commit: string }[] = [];
     for (const ref of candidates) {
@@ -94,7 +98,15 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
     options.candidateCache.set(cacheKey, refs);
     return selectCached(refs);
   }
-  for (const ref of candidates) {
+  // Append a lazy final fallback without memoizing any moving branch.
+  const directCandidates = function* () {
+    yield* candidates;
+    if (!linkedWorktree) {
+      const primary = readPrimaryBranch();
+      if (primary && !isStoryRef(primary) && !candidates.includes(primary)) yield primary;
+    }
+  };
+  for (const ref of directCandidates()) {
     try {
       // merge-base itself rejects missing refs and non-commit objects. Keep
       // the live ref resolution here; do not cache a moving baseline.

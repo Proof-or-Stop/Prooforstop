@@ -7,6 +7,8 @@ function replaceOnce(source,needle,replacement){const count=source.split(needle)
 registerHooks({load(url,ctx,next){const r=next(url,ctx);if(!url.endsWith('/core/playbook-runtime-memory.js')&&!url.endsWith('/core/playbook-runtime-memory-index.js'))return r;let s=typeof r.source==='string'?r.source:new TextDecoder().decode(r.source);stats.loaded.push(url);
  if(url.endsWith('/playbook-runtime-memory.js')){
  s=replaceOnce(s,'function buildMemoryFreshnessPackInternal(options) {','function buildMemoryFreshnessPackInternal(options) { globalThis.__memoryIntake.packs++;');
+ s=replaceOnce(s,'const early = getRuntimeMemoryPackCacheHit(earlyContext, true);','globalThis.__memoryIntake.cacheLookups++; const early = getRuntimeMemoryPackCacheHit(earlyContext, true);');
+ s=replaceOnce(s,'if (early.hit)\n            return', 'if (early.hit) globalThis.__memoryIntake.cacheHits++;\n        if (early.hit)\n            return');
  s=replaceOnce(s,'const cached = getRuntimeMemoryPackCacheHit(cacheContext);','globalThis.__memoryIntake.cacheLookups++; const cached = getRuntimeMemoryPackCacheHit(cacheContext);');
  s=replaceOnce(s,'if (cached.hit) {','if (cached.hit) { globalThis.__memoryIntake.cacheHits++;');
  s=replaceOnce(s,'return buildRuntimeMemoryIndex(options.projectRoot);','globalThis.__memoryIntake.indexRebuilds++; const intakeStart=performance.now(); try {return buildRuntimeMemoryIndex(options.projectRoot);} finally {globalThis.__memoryIntake.indexRebuildMs+=performance.now()-intakeStart;}');

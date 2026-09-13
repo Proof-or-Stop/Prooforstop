@@ -27,6 +27,7 @@ import {
   buildRuntimeMemoryIndex,
   isRuntimeMemoryIndexFresh,
   readRuntimeMemoryIndex,
+  resolveRuntimeMemoryIndexPath,
   readRuntimeMemorySourceDigests,
   selectRuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndex,
@@ -661,6 +662,18 @@ function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInter
     : Math.max(0, Math.floor(options.candidateLimit));
   const maxLines: 60 = RENDER_MAX_LINES;
   const consumer = options.consumer ?? 'session_brief';
+  // This early path only reuses packs built from source-derived ephemeral indexes.
+  // Stored and explicit indexes retain their existing version/integrity checks.
+  const allowSourceOnlyReuse = options.useIndex !== false && options.useCache !== false
+    && !options.runtimeIndex && !existsSync(resolveRuntimeMemoryIndexPath(options.projectRoot));
+  if (allowSourceOnlyReuse) {
+    const earlyContext = buildRuntimeMemoryPackCacheContext(options, {
+      schemaVersion: SCHEMA_VERSION, query, consumer, maxEntries, maxPlaybooks, maxLines,
+      candidateLimit, allowSourceOnlyReuse: true,
+    });
+    const early = getRuntimeMemoryPackCacheHit(earlyContext, true);
+    if (early.hit) return { ...early.pack, generatedAt: options.generatedAt ?? early.pack.generatedAt };
+  }
   const runtimeIndex = resolveRuntimeIndexForPack(options);
   const cacheContext = options.useIndex === false || options.useCache === false
     ? null
@@ -673,6 +686,7 @@ function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInter
       maxLines,
       candidateLimit,
       runtimeIndex,
+      allowSourceOnlyReuse,
       ...(options.currentSourceDigests ? { currentSourceDigests: options.currentSourceDigests } : {}),
     });
   if (cacheContext) {
