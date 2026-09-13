@@ -147,7 +147,7 @@ import {
   validationCommandUsesShell,
   validationIdentityDigest,
 } from '../core/validation-evidence-reuse.js';
-import { configuredValidationCommands, dynamicRoutineCoverageAllowed, resolveValidationDynamicMode, sharedValidationExecutionEnabled, sourceInputSnapshot } from '../handlers/verifier.js';
+import { configuredValidationCommands, dynamicRoutineCoverageAllowed, dynamicValidationDegradation, resolveValidationDynamicMode, sharedValidationExecutionEnabled, sourceInputSnapshot } from '../handlers/verifier.js';
 import {
   REPOSITORY_FULL_TIER,
   VALIDATION_IMPACT_INDEX_SCHEMA,
@@ -209,8 +209,11 @@ import {
 } from '../core/red-green-commit-guard.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { compileValidationCatalog, discoverValidationInventory } from '../core/story-aware-validation.js';
+import { buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, discoverValidationInventory, verifyValidationSelectionManifest } from '../core/story-aware-validation.js';
 import { dynamicValidationCoverageAdmission } from '../handlers/validation-pass-admissibility.js';
+import { assertAutomaticTierSelectionBindingCurrent, hasStoryAwareValidationArtifacts } from '../handlers/story-aware-validation.js';
+import { withValidationSigningRoot } from '../core/validation-signing-context.js';
+import { digestCanonicalJson } from '../core/digest.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
@@ -2508,6 +2511,65 @@ testCase('automatic selection reaches intermediate when fast is empty but a shar
   assert.equal(decision.effectiveTier, 'story-intermediate');
   assert.deepEqual(decision.selectedUnitIds, ['shared-contract']);
   assert.deepEqual(decision.escalationReasonCodes, []);
+});
+
+testCase('A22 malformed promotion inputs retain a stable selector refusal', () => {
+  const input = {
+    storyId: 'B-promotion-shape', universeCommandIds: ['shared'],
+    changedPaths: ['docs/guide.md'], pinnedCommandIds: [], forceFullReasons: [],
+    commandSetDigest: 'promotion-commands', snapshotDigest: 'promotion-snapshot',
+    impactIndex: {
+      schema: VALIDATION_IMPACT_INDEX_SCHEMA, version: 'promotion-index', commandSetDigest: 'promotion-commands',
+      entries: [{ commandId: 'shared', selection: 'story-intermediate' as const, inputPatterns: ['docs/**'], coverage: 'complete' as const }],
+    },
+  };
+  const decision = selectAutomaticValidationTier(input);
+  assert.equal(decision.effectiveTier, 'story-intermediate');
+  const control = { catalogDigest: 'promotion-catalog', input, decision, bindingDigest: '' };
+  control.bindingDigest = digestCanonicalJson({ catalogDigest: control.catalogDigest, input, decision });
+  assert.doesNotThrow(() => assertAutomaticTierSelectionBindingCurrent(control));
+  for (const mutantInput of [
+    { ...input, impactIndex: { ...input.impactIndex, entries: [{ ...input.impactIndex.entries[0], inputPatterns: [42] as never }] } },
+    { ...input, changedPaths: [42] as never },
+  ]) {
+    let fallback: ReturnType<typeof selectAutomaticValidationTier> | undefined;
+    assert.doesNotThrow(() => { fallback = selectAutomaticValidationTier(mutantInput); },
+      'A22 malformed promotion input must not escape as TypeError');
+    assert.equal(fallback?.effectiveTier, 'repository-full');
+    assert.ok(fallback?.escalationReasonCodes.includes('impact_index_unusable'));
+    const binding = { ...control, input: mutantInput };
+    binding.bindingDigest = digestCanonicalJson({ catalogDigest: binding.catalogDigest, input: binding.input, decision });
+    let error: unknown;
+    try { assertAutomaticTierSelectionBindingCurrent(binding); } catch (caught) { error = caught; }
+    assert.ok(error, 'malformed input must invalidate the previously valid decision');
+    assert.deepEqual(dynamicValidationDegradation(error).escalationReasons, ['selector_context_mismatch']);
+  }
+});
+
+testCase('A22 foreign signed observe manifests cannot erase current Story dynamic lineage', () => {
+  const root = projectRootWithConfig({ id: 'unit', label: 'unit', command: 'node', args: ['-e', '0'] });
+  const storyId = 'B-target-lineage';
+  withValidationSigningRoot(root, () => {
+    const inventory = discoverValidationInventory(root);
+    const catalog = compileValidationCatalog(inventory);
+    const makeObserve = (id: string) => buildDynamicValidationPlan({
+      storyId: id, baseHead: 'base', head: 'head', inventory, catalog, closures: new Map(), mode: 'observe',
+      changes: buildStoryChangeManifest({ storyId: id, gitCwd: root, baseHead: 'base', head: 'head', changedFiles: [] }),
+    });
+    const dir = join(root, '.proof-or-stop/runtime/dynamic-validation', storyId);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'receipts.json'), '[]');
+    const own = makeObserve(storyId);
+    assert.equal(verifyValidationSelectionManifest(own, { storyId }), true);
+    writeFileSync(join(dir, 'selection.json'), JSON.stringify(own));
+    assert.equal(hasStoryAwareValidationArtifacts(root, storyId), false, 'authenticated same-Story observe remains non-authoritative');
+    const foreign = makeObserve('B-foreign-lineage');
+    assert.equal(verifyValidationSelectionManifest(foreign), true, 'the foreign control must have a valid repository signature');
+    assert.equal(verifyValidationSelectionManifest(foreign, { storyId }), false);
+    writeFileSync(join(dir, 'selection.json'), JSON.stringify(foreign));
+    assert.equal(hasStoryAwareValidationArtifacts(root, storyId), true,
+      'A22 foreign signed observe manifest must preserve strict receipt-backed routing');
+  });
 });
 
 testCase('dynamic authority requires explicit configuration and only DEV REVIEW TEST can consume its coverage', () => {
