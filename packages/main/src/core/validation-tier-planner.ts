@@ -29,9 +29,11 @@
  *      operator is unusable to anyone who has not read the spec; the gloss is
  *      what makes the refusal actionable.
  *
- * This module reads no state, writes nothing, executes nothing, and is consumed
- * by no lifecycle gate in this Story. It is planning INPUT for an explain-only
- * CLI (CHK-005), and every result says so through `finalAuthority: false`.
+ * This module reads no state, writes nothing, and executes nothing. The read-only
+ * validation_plan CLI explains its output, while the same automatic selector is
+ * consumed by the dynamic validate adapter and bound into its signed manifest.
+ * A selector decision alone still grants no lifecycle authority, so every result
+ * says `finalAuthority: false`; the runtime authority gate decides admission.
  */
 
 import {
@@ -148,6 +150,66 @@ export interface ValidationImpactIndex {
   entries: ValidationImpactIndexEntry[];
 }
 
+export interface ValidationImpactCatalogEntry {
+  id: string;
+  assurance: 'always' | 'story-selectable' | 'full-only';
+  riskTier: 'local' | 'shared' | 'gate' | 'validation-infra';
+  closurePolicy?: 'static-and-traced' | 'whole-repository' | 'never-reuse';
+  policySource: 'explicit' | 'default';
+  inputRoots: readonly string[];
+  selectionInputRoots?: readonly string[];
+  selectionInputCoverage?: 'complete' | 'partial';
+  selectionInputCoverageSource?: 'declared' | 'dual-revision-graph' | 'heuristic';
+  triggerExtensions?: { files?: readonly string[] };
+}
+
+/** Commands the executor may never omit must occupy every selector tier. */
+export function validationCatalogEntryRequiresParticipation(entry: ValidationImpactCatalogEntry): boolean {
+  return entry.assurance === 'always'
+    || entry.assurance === 'full-only'
+    || entry.closurePolicy === 'whole-repository'
+    || entry.closurePolicy === 'never-reuse'
+    || entry.riskTier === 'gate'
+    || entry.riskTier === 'validation-infra';
+}
+
+/**
+ * Project the production validation catalog into the canonical tier selector's
+ * versioned ownership map.  This is the bridge that keeps explanation and
+ * execution on one membership authority instead of maintaining a second list.
+ * Completeness requires explicit policy plus declared complete input ownership.
+ * Defaulted policy stays partial here; deriveGateOwnedPrerequisites also checks
+ * explicit catalog ownership independently before granting execution authority.
+ */
+export function buildValidationImpactIndexFromCatalog(args: {
+  commandSetDigest: string;
+  catalog: readonly ValidationImpactCatalogEntry[];
+}): ValidationImpactIndex {
+  const entries: ValidationImpactIndexEntry[] = args.catalog.map((entry) => {
+    const inputPatterns = [...new Set([
+      ...(entry.selectionInputRoots ?? entry.inputRoots ?? []),
+      ...(entry.triggerExtensions?.files ?? []),
+    ].map(normalizedPath).filter(Boolean))].sort();
+    const selection: ValidationImpactSelection = validationCatalogEntryRequiresParticipation(entry)
+      ? 'always'
+      : entry.riskTier === 'shared'
+        ? 'story-intermediate'
+        : 'story-fast';
+    return {
+      commandId: entry.id,
+      selection,
+      inputPatterns,
+      coverage: entry.policySource === 'explicit' && entry.selectionInputCoverage === 'complete' ? 'complete' : 'partial',
+    };
+  });
+  return {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'production-catalog-v1',
+    commandSetDigest: args.commandSetDigest,
+    entries,
+  };
+}
+
 export interface SelectValidationTiersInput {
   storyId: string;
   requestedTier: ValidationTier;
@@ -164,6 +226,29 @@ export interface SelectValidationTiersInput {
 export interface SelectValidationTiersDependencies {
   /** Internal verification seam; CLI/schema inputs never populate dependencies. */
   registryFloorProjection?: unknown;
+}
+
+export interface AutomaticValidationTierSelectionBinding {
+  /** Exact catalog projection consumed to construct `input.impactIndex`. */
+  catalogDigest: string;
+  input: Omit<SelectValidationTiersInput, 'requestedTier'>;
+  decision: ValidationTierSelectionDecision;
+  bindingDigest: string;
+}
+
+/** Portable Story snapshot identity independently reproducible by executor consumers. */
+export function automaticValidationTierSnapshotDigest(args: {
+  storyId: string;
+  baseHead: string;
+  head: string;
+  changeDigest: string;
+}): string {
+  return digestCanonicalJson({
+    storyId: args.storyId,
+    baseHead: args.baseHead,
+    head: args.head,
+    changeDigest: args.changeDigest,
+  });
 }
 
 export interface ValidationFloorProjectionInjection {
@@ -577,6 +662,93 @@ export function selectValidationTiers(
     selectionDigest: digestCanonicalJson(decisionBody),
     finalAuthority: false,
   };
+}
+
+/**
+ * Choose the smallest safe tier from Story relevance.  The explicit selector
+ * remains useful for operator previews; production starts at story-fast and is
+ * promoted when a directly affected row declares an intermediate boundary.
+ * Full-only matches and every fail-closed reason are already handled by
+ * selectValidationTiers and therefore retain repository-full semantics.
+ */
+export function selectAutomaticValidationTier(
+  input: Omit<SelectValidationTiersInput, 'requestedTier'>,
+  dependencies: SelectValidationTiersDependencies = {},
+): ValidationTierSelectionDecision {
+  const validChangedPaths = Array.isArray(input?.changedPaths) && input.changedPaths.every((path) => typeof path === 'string');
+  const changedPaths = validChangedPaths ? input.changedPaths : [];
+  const normalizedInput: Omit<SelectValidationTiersInput, 'requestedTier'> = {
+    ...input, changedPaths,
+    ...(!validChangedPaths ? { forceFullReasons: [...(Array.isArray(input?.forceFullReasons) ? input.forceFullReasons : []), 'impact_index_unusable'] } : {}),
+  };
+  const initial = selectValidationTiers({ ...normalizedInput, requestedTier: 'story-fast' }, dependencies);
+  const impactEntries = Array.isArray(input?.impactIndex?.entries) ? input.impactIndex.entries : [];
+  const needsIntermediate = impactEntries.some((entry) =>
+    entry !== null && typeof entry === 'object'
+    && entry.selection === 'story-intermediate'
+    && Array.isArray(entry.inputPatterns)
+    && entry.inputPatterns.every((pattern) => typeof pattern === 'string')
+    && changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern))));
+  if (initial.effectiveTier === REPOSITORY_FULL_TIER) {
+    // An empty fast set is not a PASS, but it must not prevent a directly
+    // affected shared/boundary command from being tried at intermediate.
+    // Every other fast-tier escalation remains repository-full.
+    if (needsIntermediate && initial.escalationReasonCodes.length === 1
+      && initial.escalationReasonCodes[0] === 'empty_selection_unclassified') {
+      return selectValidationTiers({ ...normalizedInput, requestedTier: 'story-intermediate' }, dependencies);
+    }
+    return initial;
+  }
+  if (!needsIntermediate) return initial;
+
+  return selectValidationTiers({ ...normalizedInput, requestedTier: 'story-intermediate' }, dependencies);
+}
+
+/** Build the exact selector input shared by validation_plan and validate. */
+export function buildAutomaticValidationTierSelectionBinding(args: {
+  input: StoryRelevanceInput;
+  catalog: readonly ValidationImpactCatalogEntry[];
+  /** Raw executor catalog digest when selector inputs include graph augmentation. */
+  executionCatalogDigest?: string;
+  additionalForceFullReasons?: ValidationWideningReasonCode[];
+  storySnapshot?: { baseHead: string; head: string; changeDigest: string };
+}): AutomaticValidationTierSelectionBinding {
+  const materialSeedPaths = [...new Set([
+    ...args.input.seeds.filter((seed) => seed.kind === 'path').map((seed) => normalizedPath(seed.value)).filter(Boolean),
+    ...(args.input.hashes.status === 'available'
+      ? (evidenceMaterialDirtyFiles(args.input.hashes.head) ?? []).map(normalizedPath).filter(Boolean)
+      : []),
+  ])].sort();
+  const forceFullReasons = [
+    ...args.input.escalations.map((entry) => entry.code as ValidationWideningReasonCode),
+    ...(args.additionalForceFullReasons || []),
+  ];
+  if (args.input.changedFiles.status === 'changed_files_unavailable') forceFullReasons.push('changed_files_unavailable');
+  if (args.input.hashes.status === 'hash_snapshot_unavailable') forceFullReasons.push('hash_snapshot_unavailable');
+  if (args.input.unclassifiedInputs.length > 0) forceFullReasons.push('unclassified_material_input');
+  if (args.input.riskSignals.length > 0) forceFullReasons.push('story_risk_signal_present');
+  const impactIndex = buildValidationImpactIndexFromCatalog({
+    commandSetDigest: args.input.executionInventory.commandSetDigest,
+    catalog: args.catalog,
+  });
+  const input: Omit<SelectValidationTiersInput, 'requestedTier'> = {
+    storyId: args.input.storyId,
+    universeCommandIds: [...args.input.executionInventory.commandIds],
+    changedPaths: materialSeedPaths,
+    pinnedCommandIds: args.input.pinnedCommands.map((pin) => pin.commandId),
+    forceFullReasons,
+    commandSetDigest: args.input.executionInventory.commandSetDigest,
+    snapshotDigest: automaticValidationTierSnapshotDigest({
+      storyId: args.input.storyId,
+      baseHead: args.storySnapshot?.baseHead ?? args.input.changedFiles.baseRef,
+      head: args.storySnapshot?.head ?? args.input.changedFiles.headRef,
+      changeDigest: args.storySnapshot?.changeDigest ?? args.input.selectionDigest,
+    }),
+    impactIndex,
+  };
+  const decision = selectAutomaticValidationTier(input);
+  const catalogDigest = args.executionCatalogDigest ?? digestCanonicalJson(args.catalog);
+  return { catalogDigest, input, decision, bindingDigest: digestCanonicalJson({ catalogDigest, input, decision }) };
 }
 
 // ---------------------------------------------------------------------------

@@ -55,6 +55,7 @@ function readJournal(store: StoryStore, storyId: string, root: string): Acceptan
   }
   return journal;
 }
+export { readJournal as readAuthenticatedAcceptanceAmendmentJournal };
 function snapshot(store: StoryStore, storyId: string): AcceptanceAmendmentSnapshot {
   const scope = store.readScopeContract(storyId), proofStory = store.readProofStoryContract(storyId);
   if (!scope || !proofStory) throw new Error('acceptance amendment requires current scope and ProofStory contracts');

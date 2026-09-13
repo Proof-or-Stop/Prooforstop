@@ -13,6 +13,7 @@ import { collectVerificationIntents } from './verification.js';
 import { canonicalFilesystemPath } from './keyed-scheduler.js';
 import { readScopeDecomposition, type ScopeDecompositionReport } from './story-scope-decomposition.js';
 import { currentScopeBudgetApproval } from './story-scope-budget-decisions.js';
+import { resolveScopeApprovalContinuity, type ScopeApprovalContinuity, type ScopeApprovalContinuityRefusal } from './scope-approval-continuity.js';
 import { isMalformedScopeGlob, pathMatchesScopePattern } from './scope-path-classifier.js';
 import type { StoryStore } from './store.js';
 import type { ChecklistData, ProofStoryContractData, ScopeContractData } from './types.js';
@@ -50,6 +51,9 @@ export interface StoryScopeBudgetReport {
   bindingDigest: string;
   paths: string[];
   decomposition?: ScopeDecompositionReport;
+  approvalContinuity?: ScopeApprovalContinuity['provenance'];
+  /** Diagnostic only: a refusal code grants no scope authority. */
+  approvalContinuityRefusal?: ScopeApprovalContinuityRefusal;
 }
 const emptyFacts = (): Record<ScopeBudgetDimension, string[]> => Object.fromEntries(
   SCOPE_BUDGET_DIMENSIONS.map(key => [key, [] as string[]]),
@@ -237,11 +241,11 @@ export function evaluateStoryScopeBudget(subject: ScopeBudgetSubject, config: Pr
   return report;
 }
 
-export function readStoryScopeBudget(store: StoryStore, root: string, storyId: string, next?: ScopeBudgetSubject, base?: ScopeBudgetSubject): StoryScopeBudgetReport {
-  return readScopeBudgetWithLineage(store, root, storyId, next, base, new Set());
+export function readStoryScopeBudget(store: StoryStore, root: string, storyId: string, next?: ScopeBudgetSubject, base?: ScopeBudgetSubject, options: { allowApprovalContinuity?: boolean } = {}): StoryScopeBudgetReport {
+  return readScopeBudgetWithLineage(store, root, storyId, next, base, new Set(), options.allowApprovalContinuity !== false);
 }
 
-function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: string, next: ScopeBudgetSubject | undefined, base: ScopeBudgetSubject | undefined, lineage: Set<string>): StoryScopeBudgetReport {
+function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: string, next: ScopeBudgetSubject | undefined, base: ScopeBudgetSubject | undefined, lineage: Set<string>, allowApprovalContinuity: boolean): StoryScopeBudgetReport {
   if (lineage.has(storyId)) throw new Error(`cyclic scope decomposition: ${storyId}`);
   lineage = new Set([...lineage, storyId]);
   // loadConfig preserves a legacy syntax-error fallback. A malformed policy file
@@ -269,7 +273,7 @@ function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: st
   }
   if (report.mode !== 'disabled') {
     report.decomposition = readScopeDecomposition(store, subject, report.paths,
-      childId => readScopeBudgetWithLineage(store, root, childId, undefined, undefined, lineage));
+      childId => readScopeBudgetWithLineage(store, root, childId, undefined, undefined, lineage, false));
     if (report.decomposition) {
       report.bindingDigest = canonicalDigest({ budget: report.bindingDigest, decomposition: report.decomposition.bindingDigest });
       if (report.decomposition.status !== 'ready') {
@@ -306,6 +310,16 @@ function readScopeBudgetWithLineage(store: StoryStore, root: string, storyId: st
     try {
       if (currentScopeBudgetApproval(store, root, storyId, report.bindingDigest)) {
         report.status = 'approved_large_story'; report.blocking = false;
+      } else if (!next && !base && !report.decomposition && allowApprovalContinuity && report.blocking) {
+        const continuity = resolveScopeApprovalContinuity(store, root, subject, report, evaluateStoryScopeBudget,
+          reason => { report.approvalContinuityRefusal = reason; });
+        if (continuity) {
+          delete report.approvalContinuityRefusal;
+          report.approvalContinuity = continuity.provenance;
+          report.status = 'approved_large_story'; report.blocking = false;
+        } else {
+          report.approvalContinuityRefusal ??= 'equivalence_not_proven';
+        }
       }
     } catch (error) {
       report.status = 'unknown'; report.blocking = true;

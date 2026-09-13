@@ -426,7 +426,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       { ...identitySite('packages/main/src/core/acceptance-amendment-journal.ts', 'proof-or-stop.acceptance_amendments.v1', 'schemaVersion: ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA', "schemaVersion: 'proofbound.acceptance_amendments.v1'"), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA' } },
       { ...identitySite('packages/main/src/core/convergence-effective-progress.ts', 'proof-or-stop.effective_progress.v1', 'schemaVersion: EFFECTIVE_PROGRESS_SCHEMA', "schemaVersion: 'proofbound.effective_progress.v1'"), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'EFFECTIVE_PROGRESS_SCHEMA' } },
       { ...identitySite('packages/main/src/core/convergence-progress-journal.ts', 'proof-or-stop.convergence_progress_journal.v1', 'schemaVersion: CONVERGENCE_PROGRESS_JOURNAL_SCHEMA', "schemaVersion: 'proofbound.convergence_progress_journal.v1'"), identityOrigin: { sourcePath: 'packages/main/src/core/artifact-schema.ts', exportName: 'CONVERGENCE_PROGRESS_JOURNAL_SCHEMA' } },
-      identitySite('packages/main/src/core/store.ts', 'proof-or-stop.causal-evidence-index.v1'),
+      { ...identitySite('packages/main/src/core/store.ts', 'proof-or-stop.causal-evidence-index.v1', 'schemaVersion: CAUSAL_EVIDENCE_INDEX_SCHEMA', "schemaVersion: 'proofbound.causal-evidence-index.v1'"), identityOrigin: { sourcePath: 'packages/main/src/core/causal-evidence.ts', exportName: 'CAUSAL_EVIDENCE_INDEX_SCHEMA' } },
       identitySite('packages/main/src/core/store.ts', 'proof-or-stop.decision_doc_proposals.v1'),
     ]),
     mutationCases: Object.freeze([

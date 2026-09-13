@@ -8,6 +8,13 @@ export const REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY = { maxWaitMs: 10000, ready
 export const MANAGED_REVIEW_READONLY_RUNTIME_POLICY = { adapter: 'prooforstop-main-v1', providerStateAdapter: 'isolated-file-cache-v1', providerFileMaxBytes: 1024*1024, platform: 'darwin', buildTimeoutMs: 180000, builderGraceMs: 5000, capabilityTimeoutMs: 3000, directoryMode: 0o700, environmentKeys: ['TMPDIR','TMP','TEMP','XDG_CACHE_HOME','PROOF_OR_STOP_REVIEW_BUILD_SOURCE','PROOF_OR_STOP_REVIEW_BUILD_OUTPUT'], credentials: 'original-read-only-private-copy-refresh-writable', writable: 'declared-lane-output-temp-cache-only' } as const;
 export const SUPERVISED_PROVIDER_RUNTIME_POLICY = { termGraceMs: 250, closeWaitMs: 300, parentGraceMs: 3000, maxOutputBytes: 8 * 1024 * 1024 } as const;
 export const MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY = { maxConcurrent: 4, directoryMode: 0o700, scope: 'same-os-user-across-projects' } as const;
+// Test-only watchdog transport; never changes provider admission or production budgets.
+export const REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY = {
+  environmentKey: 'PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET',
+  entry: 'test:review-epoch-certification-continuity',
+  standaloneMs: 420000, maxConcurrentMs: 540000, outerStandaloneMs: 450000,
+  maxOuterMs: 675000, cleanupMarginMs: 30000,
+} as const;
 export const MACHINE_HEAVY_RESOURCE_POLICY = { cpuKey: 'heavy', processKey: 'fanout', access: 'exclusive', admission: 'one-heavy-member-per-os-user' } as const;
 export const MACHINE_FIXED_PORT_RUNTIME_POLICY = { directoryMode: 0o700, probeTimeoutMs: 1000, queueDeadlineMs: 300000, scope: 'same-os-user-across-repositories', admissionBoundary: 'actual-command-child', unknownResources: 'exclusive-machine-queue', classifiedEmptyResources: 'shared-machine-barrier', barrierKey: 'admission' } as const;
 export const MANAGED_REVIEW_TEMP_RUNTIME_POLICY = { environmentKeys: ['TMPDIR', 'TMP', 'TEMP'], directoryMode: 0o700, isolation: 'per-managed-review-scratch' } as const;
@@ -476,8 +483,15 @@ export const KEYED_SCHEDULER_RUNTIME_POLICY = {
   blockedCancellationPollMs: 50,
 } as const;
 
+const SCOPE_APPROVAL_CONTINUITY_HISTORY_COMMITS = 256;
 export const SCOPE_BUDGET_DECISION_RUNTIME_POLICY = {
   approvalLifetimeMs: 7 * 24 * 60 * 60 * 1000,
+  continuityHistoryCommits: SCOPE_APPROVAL_CONTINUITY_HISTORY_COMMITS,
+  continuityGitTimeoutMs: 5000,
+  continuityGitOutputBytes: 4 * 1024 * 1024,
+  continuityTotalGitCommands: 3 * SCOPE_APPROVAL_CONTINUITY_HISTORY_COMMITS + 8,
+  continuityTotalGitBytes: 32 * 1024 * 1024,
+  continuityTotalMs: 15000,
   agentEnvironmentMarkers: ['PROOF_OR_STOP_AGENT', 'LATTICE_AGENT', 'CODEX_THREAD_ID', 'CODEX_SESSION_ID',
     'CLAUDE_CODE_SESSION_ID', 'CLAUDE_SESSION_ID', 'AGY_SESSION_ID', 'ANTIGRAVITY_SESSION_ID',
     'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT', 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK'],

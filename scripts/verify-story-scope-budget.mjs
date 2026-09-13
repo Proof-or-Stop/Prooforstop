@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import {StoryStore} from '../packages/main/dist/core/store.js';
 import {resetConfigCache} from '../packages/main/dist/core/config.js';
 import {canStartDevGuard,canSkipPlanGuard,canReenterDevGuard,getGuardFailureReason} from '../packages/main/dist/core/machine.js';
-import {evaluateStoryScopeBudget} from '../packages/main/dist/core/story-scope-budget.js';
+import {evaluateStoryScopeBudget,readStoryScopeBudget,storyScopeBudgetBlocker} from '../packages/main/dist/core/story-scope-budget.js';
 import {deriveAcceptanceAmendment} from '../packages/main/dist/core/acceptance-amendment.js';
 import {createStoryScopeBudgetHandlers} from '../packages/main/dist/handlers/story-scope-budget.js';
 
@@ -30,15 +30,17 @@ try {
   store.writeProofStoryContract(storyId,{schemaVersion:'proofstory.contract.v1',storyId,diagnosticOnly:true,hardeningLevel:'high_assurance',triggerReasons:[],acceptanceBindings:[],diagnosticGaps:[],createdAt:at,updatedAt:at});
   store.writeDevMemoryPreflightAck(storyId,{schemaVersion:'lattice.dev_memory_preflight_ack.v1',storyId,packDigest:'isolated-budget-positive-control',topHitIds:[],acknowledgedAt:at,acknowledgedBy:'scope-budget-fixture'});
   const context={storyId,store,projectRoot:root};
-  assert.equal(canStartDevGuard(context),true,'baseline without the new policy can enter DEV');
+  const budgetAllows=()=>{const r=readStoryScopeBudget(store,root,storyId);assert.equal(storyScopeBudgetBlocker(store,root,storyId)===null,!r.blocking);return !r.blocking;};
+  assert.equal(budgetAllows(),true,'baseline without policy has no scope-budget blocker');
   config.storyScopeBudget=structuredClone(policy);saveConfig();
   assert.equal(canStartDevGuard(context),false,'U06 DEV must reject two responsibility domains against budget one');
   assert.match(getGuardFailureReason(storyId,store,'DEV',root),/scope budget.*responsibilityDomains/i);
   for(const [phase,guard] of [['INIT_CHECK',canSkipPlanGuard],['TEST',canReenterDevGuard]]) {
     store.writeStory(storyId,{...store.readStory(storyId),phase});
     assert.equal(guard(context),false,`${phase} cannot bypass semantic budget`);
+    assert.equal(budgetAllows(),false,`${phase} has a scope-budget blocker`);
     config.storyScopeBudget.limits.responsibilityDomains=2;saveConfig();
-    assert.equal(guard(context),true,`${phase} within-budget positive control`);
+    assert.equal(budgetAllows(),true,`${phase} within-budget positive control`);
     config.storyScopeBudget.limits.responsibilityDomains=1;saveConfig();
   }
   store.writeStory(storyId,{...store.readStory(storyId),phase:'PLAN'});
@@ -46,7 +48,7 @@ try {
   const scope=store.readScopeContract(storyId);
   scope.allowedModify=Array.from({length:500},(_,n)=>`src/alpha/file-${n}.ts`);
   store.writeScopeContract(storyId,scope);
-  assert.equal(canStartDevGuard(context),true,'semantic budget is not a file-count limit');
+  assert.equal(budgetAllows(),true,'semantic budget is not a file-count limit');
   scope.allowedModify.push('src/unmapped/new.ts');store.writeScopeContract(storyId,scope);
   assert.equal(canStartDevGuard(context),false,'unknown responsibility must not be counted as zero');
   assert.match(getGuardFailureReason(storyId,store,'DEV',root),/unmapped/);
@@ -113,6 +115,7 @@ try {
   assert.match(getGuardFailureReason(storyId,store,'DEV',root),/scope alias/);
   writeFileSync(join(root,'proof-or-stop.config.json'),'{broken');resetConfigCache();
   assert.equal(canReenterDevGuard(context),false,'invalid configuration cannot downgrade an enforced budget into absent policy');
+  assert.notEqual(storyScopeBudgetBlocker(store,root,storyId),null,'malformed config produces a budget-specific blocker');
   const amendmentOutput=execFileSync(process.execPath,['scripts/verify-acceptance-amendment-journal.mjs','--scope-budget'],
     {encoding:'utf8',timeout:60_000,maxBuffer:4*1024*1024});
   assert.ok(amendmentOutput.includes('PASS U06 reviewed amendment cannot apply over semantic budget'));

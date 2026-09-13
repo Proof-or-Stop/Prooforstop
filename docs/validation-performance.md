@@ -404,22 +404,84 @@ the seven-member trace is bounded coverage, not a whole-registry trace.
 
 ## Authority changes in dynamic validation
 
-Dynamic runner v6 upgrades changes to registered gate/schema/verification
+For configured commands, `validation_plan` and the runtime selector both project
+ownership from the production command catalog. The legacy
+`validate.dynamic.impactIndex` option is ignored with an operator warning; it
+cannot replace that ownership map. Selector completeness requires explicit
+command policy and complete declared inputs. Defaulted policy stays partial,
+and execution independently checks catalog ownership before granting authority.
+Runtime graph, receipt and risk checks can still widen execution beyond a
+requested preview tier. The atomic validate-file entrypoint carries no selector
+binding and retains complete-command fallback when enforcing dynamic validation.
+
+DONE origin routing authenticates the selection manifest for the current Story
+before using its mode. A valid signature for another Story cannot suppress the
+strict stored-PASS check while receipts remain. Automatic tier promotion also
+rejects non-string paths and patterns without allowing an incidental TypeError
+to replace the selector's classified refusal.
+
+Dynamic runner v9 binds the canonical fast/intermediate/full selector decision
+and digest into the signed execution manifest, and upgrades changes to registered gate/schema/verification
 authority sources to full validation, including the full task scope inventory
 validator. It also follows their source dependencies in both Git revisions, so
 removing a dependency in HEAD does not erase the baseline authority relationship.
 The graph identity binds authority roots, members, uncertainty and policy version.
 Missing graphs, unavailable source, parse failures and opaque or unresolved
-authority imports force full rather than establish an unaffected result.
+authority imports force full rather than establish an unaffected result. Graph
+discovery parses real TypeScript/JavaScript module syntax, excludes registered
+runtime artifacts, accepts `.mts`/`.cts`, and maps tracked `dist` imports back to
+their source counterparts. JSON contents, asset imports, package aliases and
+example strings are not treated as missing relative module edges.
 
-This conservative resolver currently treats non-builtin package/alias imports
-in an authority closure as unresolved. Projects with such imports can lose
-incremental eligibility until those resolutions are proven; this change does not
-claim improved speed for those projects. External projects without these
-registered tool-source identities do not have to recreate them. Existing final
-full-validation requirements remain unchanged. The six paired fault witnesses
+Runner v9 is a new execution identity. Existing dynamic receipts and canonical
+baselines produced by an older runner are intentionally stale; an in-flight
+Story in TEST must obtain a fresh complete run before dynamic reuse can resume.
+
+The repository measurement on the 168-command inventory produced
+`graphUnknown=false` and zero resolution failures; its catalog contained 51
+local, 50 shared, 2 gate and 65 validation-infrastructure rows. Risk eligibility
+is evaluated over the complete live catalog. Any non-local catalog row forces
+the canonical fallback and cannot disappear through a selector exclusion. This
+is a reachability measurement, not a wall-time or
+false-negative claim. External projects without these registered tool-source
+identities do not have to recreate them. Existing final full-validation
+requirements remain unchanged. The six paired fault witnesses
 under `scripts/lab/u09-paired-fault` measure bounded functional detection and
 command selection, not population noninferiority or external LLM review quality.
+
+The selector's command-set identity is independently rebuilt from the current
+execution inventory. Before launch, its snapshot identity is independently rebuilt
+from Git using the current Story id, immutable base/head and change-manifest digest.
+Stored TEST/DONE admission re-derives that snapshot from the signed manifest and
+independently recomputes the dependency-graph digest from the immutable base/head;
+it does not claim a second Git rebuild of the change manifest. A caller cannot make
+the command inventory or dependency graph authoritative merely by re-signing a
+self-consistent selector object. Graph construction and traversal use bounded
+process caches for immutable revisions and commit pairs plus the catalog: the
+dual-revision cache retains at most eight entries and the full source-tree cache
+at most sixteen. Symbolic refs are never cached. Each revision's
+TypeScript/JavaScript AST graph and reverse dependency map are built once while
+affected commands are resolved once per changed file rather than once per
+catalog row. Exact identity, eviction, moving-ref and call-count tests protect
+those bounds; this is a complexity boundary, not a repository wall-time claim.
+
+Configured `inputRoots` are the declaration that can establish complete
+selector exclusion ownership. The impact index matching surface is the union of
+those roots with the registered `runnerSourcePath` and `caseRegistryPath`, so a
+runner or case-registry change selects its command directly instead of becoming
+an unclassified repository-wide change. Those registered direct triggers do not
+independently upgrade a partial declaration to complete coverage. Runtime
+closure uses the same union; an empty non-authoritative declaration falls back
+to heuristic runtime roots but never becomes complete selector ownership.
+
+The twenty compatibility package entrypoints now dispatch twenty distinct
+mode-specific executable assertions over the corresponding manifest,
+graph/scope, receipt, oracle, authority, or scheduler object. They no
+longer prove a mode by relabeling one unconditional tail marker. The `test-gate`
+and `test-gate-mutations` modes also rebuild runtime output and cross the real
+TEST and DONE consumers. These
+package scripts are not twenty configured `validate.commands` rows, so Story
+selection does not execute them as twenty validation units.
 
 ## Whole-array nested execution guard
 
@@ -492,9 +554,13 @@ actual dynamic execution must still satisfy every existing runtime prerequisite.
 Observe remains selection-only followed by the full oracle; shadow retains both
 runs for comparison. Explicit full and final-phase requirements remain unchanged.
 
-The repository configuration still uses observe mode. This repair removes
-redundant execution in enforce-low-risk fallback; it does not by itself activate
-incremental validation for this repository or make its full-only policies reusable.
+The repository configuration still uses observe mode. This repair makes the
+selector/executor contract real without silently activating it: a narrow signed
+manifest partitions the complete inventory into `execute`, admissible `reuse`,
+positive-proof `excluded`, and fail-closed `unverified` rows. A repository-full
+widening selects every catalog row for execution and does not reuse receipts;
+that is the conservative oracle when narrowing proof is unavailable. Activation requires a separately recorded real
+inventory observe cycle and remains reversible with `--dynamicMode=off`.
 
 ## Worktree discovery in validation
 
@@ -518,7 +584,13 @@ and subdirectory cases.
 ## Dynamic PASS consumption
 
 The REVIEW-to-TEST consumer first authenticates the complete stored PASS record
-with its Story-bound signature, before reading its execution mode. Git-backed
+with its Story-bound signature, before reading its execution mode. DONE routes
+a stored dynamic claim to the added strict evaluator. It also authenticates the
+Story-owned selection manifest before using its mode for routing; an invalid or
+malformed selection beside retained receipts stays on the strict refusal path.
+Consequently, stripping the output marker or re-moding the selection while its
+receipts remain cannot downgrade admission. Unrelated legacy full PASS records
+retain their prior DONE contract. Git-backed
 FAIL records are also authenticated, preserving existing command-PASS reuse after
 a verification-coverage-only failure is repaired; non-Git failure reporting stays
 available. Both canonical
@@ -530,7 +602,8 @@ dynamic marker, changing the output, or stripping the signature cannot downgrade
 verification. Older unsigned PASS records require a fresh `validate` run.
 
 The consumer then rechecks dynamic receipt integrity at consumption:
-the signed manifest, its execution HEAD, current baseline/closure bindings,
+the signed manifest, its execution HEAD, current baseline/closure bindings and
+its signed base/head dependency-graph digest,
 current toolchain, each required receipt signature and expiry, and the live signed
 revocation ledger. Missing or malformed runtime records are refused rather than
 recovered as an empty ledger. The normal evidence freshness check first proves
@@ -538,18 +611,30 @@ that automatic metadata commits preserve material and Story-input identity; the
 manifest still binds the actual execution HEAD. No validation child is started
 by this check.
 
-A real dynamic REVIEW execution that runs build and reuses one certified PASS
-can pass the TEST-entry consumer. Revoking that receipt afterward now rejects
-entry, as do missing/tampered/expired receipts and missing/malformed ledgers.
+A real two-command dynamic REVIEW fixture now executes one Story-relevant
+command and signs a positive exclusion for the other. Its PASS crosses the
+actual REVIEW-to-TEST gate and the DONE dynamic-consumer boundary. Removing,
+tampering with, expiring, or revoking the executed command's receipt rejects
+both consumers; missing or malformed ledgers are also refused.
 This does not enable the root repository's observe configuration. The original
 DYN-3 plan additionally requires the complete dependency, scope, ancestry,
 environment and rollout evidence chain before expanding dynamic authority. In
 particular, root full-only policies and unknown graph dependencies remain intact.
-Direct validation invoked in TEST currently retains its canonical-full policy;
-this is distinct from consuming a valid REVIEW dynamic PASS on entry to TEST.
+Direct validation invoked in TEST resolves to dynamic authority only when the
+repository explicitly configures `enforce-low-risk`; `observe` and `shadow`
+resolve to `off` and retain the prior canonical execution path. Enforcement still requires the complete inventory partition and the existing
+baseline, closure, freshness, expiry, revocation, selector-input and exclusion-
+proof prerequisites pass. Explicit `--full`, DONE-phase invocation, and
+DONE-required evidence remain on their independent canonical policies.
+In DEV and REVIEW, non-authoritative `observe`/`shadow` keep the canonical oracle
+but do not newly enable cross-invocation shared execution. Any dynamic mode may
+use that path only when the repository explicitly sets
+`validate.sharedExecution=true`; ordinary `off` retains its prior eligibility.
 
-The focused regression is `node scripts/verify-dynamic-test-admission.mjs`. It
-covers real full and dynamic execution, zero-child repeats, TEST entry, signature
+The focused regression is `node scripts/verify-dynamic-test-admission.mjs`. The
+stable package-level TEST-gate wrapper first runs both source smokes and verifies
+their owning selectors, then imports the real consumer fixture in-process. It covers real full and dynamic execution,
+one-of-two command reduction, zero-child repeats, TEST and DONE consumption, signature
 stripping, output mutation, cross-Story replay, missing/expired/tampered receipts,
 missing/malformed ledgers, and receipt/epoch revocation. The older
 `validation-evidence-reuse-smoke` still stops before these paths because its

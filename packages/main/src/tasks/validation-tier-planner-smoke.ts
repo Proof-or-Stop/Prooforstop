@@ -147,7 +147,7 @@ import {
   validationCommandUsesShell,
   validationIdentityDigest,
 } from '../core/validation-evidence-reuse.js';
-import { configuredValidationCommands, sourceInputSnapshot } from '../handlers/verifier.js';
+import { configuredValidationCommands, dynamicRoutineCoverageAllowed, dynamicValidationDegradation, resolveValidationDynamicMode, sharedValidationExecutionEnabled, sourceInputSnapshot } from '../handlers/verifier.js';
 import {
   REPOSITORY_FULL_TIER,
   VALIDATION_IMPACT_INDEX_SCHEMA,
@@ -158,10 +158,13 @@ import {
   VALIDATION_WIDENING_REASON_CODES,
   assertValidationTier,
   assertValidationTierSelectionSubsetInvariant,
+  buildValidationImpactIndexFromCatalog,
+  buildAutomaticValidationTierSelectionBinding,
   isValidationStopReasonCode,
   resolveValidationTierPlan,
   classifySensitiveStoryPaths,
   pathIsLegacyValidationSensitive,
+  selectAutomaticValidationTier,
   selectValidationTiers,
   validationTierIsSubsetOf,
   validationTierRank,
@@ -178,11 +181,13 @@ import {
   VALIDATION_PLAN_OUTCOME_BEARING_LINE_PREFIXES,
   VALIDATION_PLAN_STATUS_LINES,
   VALIDATION_PLAN_TIER_ALIASES,
+  attachImpactProjectionFailure,
   assertValidationPlanStatusInvariant,
   buildValidationPlanReport,
   createValidationPlanHandlers,
   renderValidationPlanReport,
   renderValidationPlanText,
+  projectValidationImpactIndexForPlan,
   resolveValidationPlanRequest,
 } from '../handlers/validation-plan.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -204,6 +209,11 @@ import {
 } from '../core/red-green-commit-guard.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
+import { buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, discoverValidationInventory, verifyValidationSelectionManifest } from '../core/story-aware-validation.js';
+import { dynamicValidationCoverageAdmission } from '../handlers/validation-pass-admissibility.js';
+import { assertAutomaticTierSelectionBindingCurrent, hasStoryAwareValidationArtifacts } from '../handlers/story-aware-validation.js';
+import { withValidationSigningRoot } from '../core/validation-signing-context.js';
+import { digestCanonicalJson } from '../core/digest.js';
 
 const MARKER = 'validation-tier-planner-smoke';
 const ROOT = '/repo';
@@ -348,8 +358,34 @@ testCase('undeclared id becomes a deterministic prov- id over the narrow portabl
   const tuple = narrowPortableValidationCommandTuple({ command: entry });
   assert.deepEqual(tuple, { command: 'npm', args: ['run', 'lint'], cwdRelative: '.', shell: false });
   assert.equal(id, provisionalValidationCommandId(tuple));
+  assert.equal(
+    provisionalValidationCommandId({ command: 'npm', args: ['test'], cwdRelative: '.', shell: false }),
+    'prov-130bad3c5e1e0805ebdd86d3fa133efcc03f4dd859ace2d5aa594ee5ed735c51',
+    'the portable ID canonicalization must retain this cross-module compatibility vector',
+  );
   // Deterministic across independent computations.
   assert.equal(id, inventory([entry]).entries[0].id);
+});
+
+testCase('configured cwd and shell use one portable identity in planner and runtime inventories', () => {
+  const root = projectRootWithConfig({
+    label: 'cwd-shell', command: 'node', args: ['task.js'], cwd: 'packages/main', shell: true,
+  });
+  const configured = configuredValidationCommands(root);
+  const planner = buildValidationCommandInventory({ commands: configured });
+  const runtime = discoverValidationInventory(root);
+  assert.equal(configured.length, 1, 'cwd + shell configuration must retain exactly one command');
+  assert.equal(planner.entries.length, 1, 'planner inventory must retain the configured cwd + shell command');
+  assert.equal(runtime.commands.length, 1, 'runtime inventory must retain the configured cwd + shell command');
+  assert.deepEqual(narrowPortableValidationCommandTuple({ command: configured[0] }), {
+    command: 'node', args: ['task.js'], cwdRelative: 'packages/main', shell: true,
+  }, 'portable identity must bind the declared cwd and shell tuple');
+  assert.equal(runtime.commands[0].id, planner.entries[0].id);
+  const catalog = compileValidationCatalog(runtime);
+  const index = buildValidationImpactIndexFromCatalog({ commandSetDigest: planner.commandSetDigest, catalog });
+  assert.equal(index.entries.length, 1, 'impact index must retain the configured cwd + shell command');
+  assert.equal(index.entries[0].commandId, planner.entries[0].id);
+  assert.notEqual(index.entries[0].coverage, 'complete', 'heuristic roots remain partial even when policy fields exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -2375,6 +2411,229 @@ testCase('a complete current impact index produces nested Story-relevant tiers w
   assert.ok(decision.exclusionProofs.every((proof) => proof.snapshotDigest === 'snapshot-v1'));
 });
 
+testCase('the production catalog derives the canonical impact index and automatically promotes a docs Story to intermediate', () => {
+  const commandSetDigest = 'command-set-v2';
+  const catalog = [
+    {
+      id: 'build', assurance: 'always', riskTier: 'local', policySource: 'explicit',
+      inputRoots: ['packages/main/src/**'], selectionInputRoots: ['packages/main/src/**'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['packages/main/src/**'] },
+    },
+    {
+      id: 'docs-links', assurance: 'story-selectable', riskTier: 'local', policySource: 'explicit',
+      inputRoots: ['docs/**'], selectionInputRoots: ['docs/**'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['docs/**'] },
+    },
+    {
+      id: 'docs-contract', assurance: 'story-selectable', riskTier: 'shared', policySource: 'explicit',
+      inputRoots: ['docs/**'], selectionInputRoots: ['docs/**'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['docs/**'] },
+    },
+    {
+      id: 'repo-sentinel', assurance: 'full-only', riskTier: 'gate', policySource: 'explicit',
+      inputRoots: ['proof-or-stop.config.json'], selectionInputRoots: ['proof-or-stop.config.json'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['proof-or-stop.config.json'] },
+    },
+    {
+      id: 'never-reuse', assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'never-reuse', policySource: 'explicit',
+      inputRoots: ['scripts/never-reuse.ts'], selectionInputRoots: ['scripts/never-reuse.ts'], selectionInputCoverage: 'complete', selectionInputCoverageSource: 'declared', triggerExtensions: { files: ['scripts/never-reuse.ts'] },
+    },
+  ] as const;
+  const impactIndex = buildValidationImpactIndexFromCatalog({ commandSetDigest, catalog });
+  assert.equal(impactIndex.commandSetDigest, commandSetDigest);
+  assert.deepEqual(impactIndex.entries.map((entry) => [entry.commandId, entry.selection]), [
+    ['build', 'always'],
+    ['docs-links', 'story-fast'],
+    ['docs-contract', 'story-intermediate'],
+    ['repo-sentinel', 'always'],
+    ['never-reuse', 'always'],
+  ]);
+
+  const decision = selectAutomaticValidationTier({
+    storyId: 'B-docs-auto',
+    universeCommandIds: catalog.map((entry) => entry.id),
+    changedPaths: ['docs/guide.md'],
+    pinnedCommandIds: [],
+    forceFullReasons: [],
+    commandSetDigest,
+    snapshotDigest: 'snapshot-v2',
+    impactIndex,
+  });
+  assert.equal(decision.requestedTier, 'story-intermediate');
+  assert.equal(decision.effectiveTier, 'story-intermediate');
+  assert.deepEqual(decision.selectedUnitIds, ['build', 'docs-links', 'docs-contract', 'repo-sentinel', 'never-reuse']);
+  assert.deepEqual(decision.tierSelections['story-fast'], ['build', 'docs-links', 'repo-sentinel', 'never-reuse']);
+  assert.deepEqual(decision.tierSelections['story-intermediate'], ['build', 'docs-links', 'docs-contract', 'repo-sentinel', 'never-reuse']);
+  assert.deepEqual(decision.tierSelections['repository-full'], catalog.map((entry) => entry.id));
+  assert.equal(decision.exclusionProofs.some((proof) => proof.commandId === 'never-reuse'), false,
+    'a never-reuse row is a shared participation floor and cannot receive an omission proof');
+  assert.ok(decision.inclusionReasonsByCommand['never-reuse']?.includes('declared-always'),
+    'validation_plan must report a never-reuse row as included');
+  const fastDecision = selectValidationTiers({
+    storyId: 'B-docs-proof', requestedTier: 'story-fast', universeCommandIds: catalog.map((entry) => entry.id),
+    changedPaths: ['docs/guide.md'], pinnedCommandIds: [], forceFullReasons: [], commandSetDigest,
+    snapshotDigest: 'snapshot-v2', impactIndex,
+  });
+  const originalProof = fastDecision.exclusionProofs.find((proof) => proof.commandId === 'docs-contract');
+  assert.ok(originalProof, 'story-fast must carry a positive exclusion proof for the wider docs-contract row');
+  const proofChanged = selectValidationTiers({
+    storyId: 'B-docs-proof', requestedTier: 'story-fast', universeCommandIds: catalog.map((entry) => entry.id),
+    changedPaths: ['docs/other.md'], pinnedCommandIds: [], forceFullReasons: [], commandSetDigest,
+    snapshotDigest: 'snapshot-v2', impactIndex,
+  });
+  const changedProof = proofChanged.exclusionProofs.find((proof) => proof.commandId === 'docs-contract');
+  assert.ok(changedProof, 'the second story-fast decision must retain the proof-bearing omitted row');
+  assert.equal(proofChanged.impactIndexDigest, fastDecision.impactIndexDigest,
+    'the exclusion-proof witness must hold the canonical impact index byte-identical');
+  assert.deepEqual(proofChanged.tierSelections, fastDecision.tierSelections,
+    'the exclusion-proof witness must not change any tier membership');
+  assert.deepEqual(changedProof.commandInputPatterns, originalProof.commandInputPatterns,
+    'the exclusion-proof witness must hold the command input declaration constant');
+  assert.notDeepEqual(changedProof.changedPaths, originalProof.changedPaths,
+    'only the proof-bound Story path must change between the two decisions');
+  assert.notEqual(proofChanged.selectionDigest, fastDecision.selectionDigest,
+    'changing only a positive exclusion proof path must change the signed selector decision digest');
+});
+
+testCase('automatic selection reaches intermediate when fast is empty but a shared boundary matches', () => {
+  const commandSetDigest = 'intermediate-only-command-set';
+  const impactIndex = {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA,
+    version: 'intermediate-only-index',
+    commandSetDigest,
+    entries: [{
+      commandId: 'shared-contract', selection: 'story-intermediate' as const,
+      inputPatterns: ['packages/shared/**'], coverage: 'complete' as const,
+    }],
+  };
+  const decision = selectAutomaticValidationTier({
+    storyId: 'B-intermediate-only', universeCommandIds: ['shared-contract'],
+    changedPaths: ['packages/shared/api.ts'], pinnedCommandIds: [], forceFullReasons: [],
+    commandSetDigest, snapshotDigest: 'intermediate-only-snapshot', impactIndex,
+  });
+  assert.equal(decision.requestedTier, 'story-intermediate');
+  assert.equal(decision.effectiveTier, 'story-intermediate');
+  assert.deepEqual(decision.selectedUnitIds, ['shared-contract']);
+  assert.deepEqual(decision.escalationReasonCodes, []);
+});
+
+testCase('A22 malformed promotion inputs retain a stable selector refusal', () => {
+  const input = {
+    storyId: 'B-promotion-shape', universeCommandIds: ['shared'],
+    changedPaths: ['docs/guide.md'], pinnedCommandIds: [], forceFullReasons: [],
+    commandSetDigest: 'promotion-commands', snapshotDigest: 'promotion-snapshot',
+    impactIndex: {
+      schema: VALIDATION_IMPACT_INDEX_SCHEMA, version: 'promotion-index', commandSetDigest: 'promotion-commands',
+      entries: [{ commandId: 'shared', selection: 'story-intermediate' as const, inputPatterns: ['docs/**'], coverage: 'complete' as const }],
+    },
+  };
+  const decision = selectAutomaticValidationTier(input);
+  assert.equal(decision.effectiveTier, 'story-intermediate');
+  const control = { catalogDigest: 'promotion-catalog', input, decision, bindingDigest: '' };
+  control.bindingDigest = digestCanonicalJson({ catalogDigest: control.catalogDigest, input, decision });
+  assert.doesNotThrow(() => assertAutomaticTierSelectionBindingCurrent(control));
+  for (const mutantInput of [
+    { ...input, impactIndex: { ...input.impactIndex, entries: [{ ...input.impactIndex.entries[0], inputPatterns: [42] as never }] } },
+    { ...input, changedPaths: [42] as never },
+  ]) {
+    let fallback: ReturnType<typeof selectAutomaticValidationTier> | undefined;
+    assert.doesNotThrow(() => { fallback = selectAutomaticValidationTier(mutantInput); },
+      'A22 malformed promotion input must not escape as TypeError');
+    assert.equal(fallback?.effectiveTier, 'repository-full');
+    assert.ok(fallback?.escalationReasonCodes.includes('impact_index_unusable'));
+    const binding = { ...control, input: mutantInput };
+    binding.bindingDigest = digestCanonicalJson({ catalogDigest: binding.catalogDigest, input: binding.input, decision });
+    let error: unknown;
+    try { assertAutomaticTierSelectionBindingCurrent(binding); } catch (caught) { error = caught; }
+    assert.ok(error, 'malformed input must invalidate the previously valid decision');
+    assert.deepEqual(dynamicValidationDegradation(error).escalationReasons, ['selector_context_mismatch']);
+  }
+});
+
+testCase('A22 foreign signed observe manifests cannot erase current Story dynamic lineage', () => {
+  const root = projectRootWithConfig({ id: 'unit', label: 'unit', command: 'node', args: ['-e', '0'] });
+  execFileSync('git', ['init', '-q'], { cwd: root, stdio: 'pipe' });
+  const storyId = 'B-target-lineage';
+  withValidationSigningRoot(root, () => {
+    const inventory = discoverValidationInventory(root);
+    const catalog = compileValidationCatalog(inventory);
+    const makeObserve = (id: string) => buildDynamicValidationPlan({
+      storyId: id, baseHead: 'base', head: 'head', inventory, catalog, closures: new Map(), mode: 'observe',
+      changes: buildStoryChangeManifest({ storyId: id, gitCwd: root, baseHead: 'base', head: 'head', changedFiles: [] }),
+    });
+    const dir = join(root, '.proof-or-stop/runtime/dynamic-validation', storyId);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'receipts.json'), '[]');
+    const own = makeObserve(storyId);
+    assert.equal(verifyValidationSelectionManifest(own, { storyId }), true);
+    writeFileSync(join(dir, 'selection.json'), JSON.stringify(own));
+    assert.equal(hasStoryAwareValidationArtifacts(root, storyId), false, 'authenticated same-Story observe remains non-authoritative');
+    const foreign = makeObserve('B-foreign-lineage');
+    assert.equal(verifyValidationSelectionManifest(foreign), true, 'the foreign control must have a valid repository signature');
+    assert.equal(verifyValidationSelectionManifest(foreign, { storyId }), false);
+    writeFileSync(join(dir, 'selection.json'), JSON.stringify(foreign));
+    assert.equal(hasStoryAwareValidationArtifacts(root, storyId), true,
+      'A22 foreign signed observe manifest must preserve strict receipt-backed routing');
+  });
+});
+
+testCase('dynamic authority requires explicit configuration and only DEV REVIEW TEST can consume its coverage', () => {
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'observe' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'shadow' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'REVIEW', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'INIT', configuredMode: 'enforce-low-risk' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', explicitMode: 'off' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'enforce-low-risk', full: true }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'DONE', configuredMode: 'enforce-low-risk' }), 'off');
+  assert.equal(resolveValidationDynamicMode({}), 'off');
+  assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'TEST'), true);
+  assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'REVIEW'), true);
+  assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'INIT'), false);
+  assert.equal(dynamicRoutineCoverageAllowed('off', 'TEST'), false);
+  assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'DONE'), false);
+  assert.equal(sharedValidationExecutionEnabled('off'), true);
+  assert.equal(sharedValidationExecutionEnabled('observe'), false);
+  assert.equal(sharedValidationExecutionEnabled('shadow'), false);
+  assert.equal(sharedValidationExecutionEnabled('enforce-low-risk'), false);
+  assert.equal(sharedValidationExecutionEnabled('observe', true), true);
+  assert.equal(sharedValidationExecutionEnabled('shadow', true), true);
+  assert.equal(sharedValidationExecutionEnabled('enforce-low-risk', true), true);
+  const dynamicOutput = { provider: 'proof-or-stop-verifier-dynamic-authoritative', dynamicValidation: { authority: 'enforce-authority' } };
+  assert.deepEqual(dynamicValidationCoverageAdmission(dynamicOutput, true), { dynamicOrigin: true, allowed: true });
+  assert.deepEqual(dynamicValidationCoverageAdmission(dynamicOutput, false), {
+    dynamicOrigin: true, allowed: false, reasonCode: 'dynamic_requires_canonical_full_plan',
+  });
+});
+
+testCase('policy defaults and heuristic roots never manufacture complete input ownership', () => {
+  const index = buildValidationImpactIndexFromCatalog({
+    commandSetDigest: 'defaults-only',
+    catalog: [{
+      id: 'defaulted', assurance: 'story-selectable', riskTier: 'local', policySource: 'explicit',
+      inputRoots: ['packages/main/src'], selectionInputRoots: ['packages/main/src'],
+      selectionInputCoverage: 'partial', selectionInputCoverageSource: 'heuristic', triggerExtensions: {},
+    }],
+  });
+  assert.equal(index.entries[0]?.coverage, 'partial');
+  const decision = selectAutomaticValidationTier({
+    storyId: 'B-defaulted', universeCommandIds: ['defaulted'], changedPaths: ['packages/main/src/a.ts'],
+    pinnedCommandIds: [], forceFullReasons: [], commandSetDigest: 'defaults-only', snapshotDigest: 'snapshot', impactIndex: index,
+  });
+  assert.equal(decision.effectiveTier, 'repository-full');
+  assert.ok(decision.escalationReasonCodes.includes('command_exclusion_unproven'));
+});
+
+testCase('A21 defaulted policy cannot grant complete selector ownership', () => {
+  const root = projectRootWithConfig({
+    id: 'defaulted', label: 'defaulted', command: 'node', args: ['task.js'],
+    inputRoots: ['src/**'], inputsComplete: true,
+  });
+  const catalog = compileValidationCatalog(discoverValidationInventory(root));
+  assert.equal(catalog.length, 1);
+  assert.equal(catalog[0].policySource, 'default');
+  assert.equal(catalog[0].selectionInputCoverage, 'complete');
+  const index = buildValidationImpactIndexFromCatalog({ commandSetDigest: 'A21-defaults', catalog });
+  assert.equal(index.entries[0].coverage, 'partial', 'A21 defaulted policy must remain partial despite complete declared roots');
+});
+
 testCase('the wired resolver widens every validation and gate machinery surface even when the index marks it fast', () => {
   for (const sensitivePath of [
     'packages/main/src/core/shared-validation-execution.ts',
@@ -2853,8 +3112,13 @@ testCase('explicit repository-full process-fact paths force full without overmat
     ts.forEachChild(node, visitPlanner);
   };
   visitPlanner(plannerAst);
-  assert.equal(productionCallSites.length, 1, 'validation-tier-planner.ts must have exactly one internal selectValidationTiers call site');
-  assert.equal(productionCallSites[0].arguments.length, 1, 'validation-tier-planner.ts internal call may not populate the dependency seam');
+  assert.equal(productionCallSites.length, 4, 'only the plan resolver and automatic-tier wrapper may call the canonical selector');
+  const resolverCalls = productionCallSites.filter((call) => call.arguments.length === 1);
+  const automaticCalls = productionCallSites.filter((call) => call.arguments.length === 2);
+  assert.equal(resolverCalls.length, 1, 'the public plan resolver must keep the live registry seam implicit');
+  assert.equal(automaticCalls.length, 3, 'the automatic wrapper owns exactly three explicit-tier calls');
+  assert.ok(automaticCalls.every((call) => ts.isIdentifier(call.arguments[1]!) && call.arguments[1]!.text === 'dependencies'),
+    'automatic-tier calls may forward only the named internal dependencies seam, never a fabricated literal');
   assert.doesNotMatch(handlerSource, /selectValidationTiers\(/u, 'validation-plan.ts may not call the selector seam directly');
   assert.match(
     validationWideningReasonGloss('validation_floor_registry_unavailable'),
@@ -3572,14 +3836,15 @@ testCase('validation_plan --tier=fast prints every labelled field including fina
   assert.match(text, /^inclusion reasons by unit \(2\):$/m);
   assert.match(text, /^ {2}unit-suite \[unit\]$/m);
   assert.match(text, /^ {2}lint-suite \[lint\]$/m);
-  assert.match(text, /included: .*command_exclusion_unproven/);
+  assert.match(text, /\[command_exclusion_unproven\] outcome=repository-full/);
+  assert.match(text, /included: repository-full:fail-closed/);
 
   // Unclassified inputs are LISTED under their own label.
   assert.match(text, /^unclassified inputs \(\d+\):$/m);
 
   // Every escalation code is followed by its plain-language gloss.
   assert.match(text, /^escalation reasons \(\d+\):$/m);
-  for (const code of ['impact_index_unusable', 'command_exclusion_unproven']) {
+  for (const code of ['changed_files_unavailable', 'hash_snapshot_unavailable', 'command_exclusion_unproven']) {
     const gloss = validationWideningReasonGloss(code as ValidationWideningReasonCode);
     assert.ok(text.includes(`[${code}]`), `escalation code ${code} is not printed`);
     assert.ok(text.includes(gloss.slice(0, 60)), `escalation code ${code} is printed without its gloss`);
@@ -3611,6 +3876,59 @@ testCase('the provisional-id migration warning reaches the operator instead of b
   );
   const text = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', explain: true });
   for (const warning of report.inventoryWarnings) assert.ok(text.includes(warning), 'every warning is printed');
+});
+
+testCase('a failed explain-side catalog projection falls back with the bounded parse error', () => {
+  const projection = projectValidationImpactIndexForPlan({
+    projectRoot: '/tmp/explain-projection-failure',
+    routine: { sourceKind: 'configured', commands: [] },
+    commandSetDigest: 'fixture-command-set',
+  }, {
+    discover: () => { throw new Error('fixture malformed validation resources'); },
+  });
+  assert.equal(projection.impactIndex, undefined);
+  assert.equal(projection.failure, 'fixture malformed validation resources');
+  const compatibility = resolveValidationTierPlan({ input: planInput(), requestedTier: 'story-fast' });
+  assert.ok(compatibility.escalationReasons.some((reason) => reason.code === 'impact_index_unusable'));
+  const diagnosed = attachImpactProjectionFailure(compatibility, projection.failure);
+  assert.ok(diagnosed.escalationReasons.some((reason) =>
+    reason.code === 'impact_index_unusable'
+      && reason.detail.includes('catalog projection failed: fixture malformed validation resources')));
+  const withoutImpactReason = {
+    ...compatibility,
+    escalationReasons: compatibility.escalationReasons.filter((reason) => reason.code !== 'impact_index_unusable'),
+  };
+  const appended = attachImpactProjectionFailure(withoutImpactReason, projection.failure);
+  assert.ok(appended.escalationReasons.some((reason) =>
+    reason.code === 'impact_index_unusable'
+      && reason.detail === 'catalog projection failed: fixture malformed validation resources'),
+  'projection failure remains visible even when the underlying result did not already carry its reason code');
+});
+
+testCase('A21 configured impact index cannot diverge from runtime catalog ownership', () => {
+  const commands: ValidationCommand[] = [
+    { id: 'local', label: 'local', command: 'node', args: ['task.js'], inputRoots: ['src/**'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local' },
+  ];
+  const configuredImpactIndex: ValidationImpactIndex = {
+    schema: VALIDATION_IMPACT_INDEX_SCHEMA, version: 'legacy-independent-index',
+    commandSetDigest: buildValidationCommandInventory({ commands }).commandSetDigest,
+    entries: [{ commandId: 'local', selection: 'always', inputPatterns: ['unrelated/**'], coverage: 'complete' }],
+  };
+  const { root, ctx } = planCliRoot({ commands, impactIndex: configuredImpactIndex });
+  const routine = { sourceKind: 'configured' as const, commands: configuredValidationCommands(root) };
+  const input = planInput({ projectRoot: root, gitCwd: root, routine });
+  const binding = buildAutomaticValidationTierSelectionBinding({
+    input, catalog: compileValidationCatalog(discoverValidationInventory(root)),
+  });
+  const projection = projectValidationImpactIndexForPlan({
+    projectRoot: root, routine, commandSetDigest: input.executionInventory.commandSetDigest, configuredImpactIndex,
+  });
+  assert.equal(binding.input.impactIndex?.entries.length, 1);
+  assert.notDeepEqual(configuredImpactIndex, binding.input.impactIndex, 'the legacy map must disagree before testing parity');
+  assert.deepEqual(projection.impactIndex, binding.input.impactIndex, 'A21 explain and runtime must use the same catalog ownership');
+  const report = JSON.parse(planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'fast', json: true }));
+  assert.ok(report.inventoryWarnings.some((warning: string) => /impactIndex.*deprecated.*ignored/.test(warning)),
+    'the ignored legacy index must be disclosed in operator output');
 });
 
 testCase('without --explain the unit list is previewed, and --explain lists every unit', () => {
@@ -3648,8 +3966,8 @@ testCase('the printed counts are derived at runtime, not written into the render
 
 testCase('the real config-to-CLI path renders a narrowed plan with bound exclusion proofs', () => {
   const commands: ValidationCommand[] = [
-    { label: 'build', command: 'npm', args: ['run', 'build'], id: 'build' },
-    { label: 'docs contract', command: 'npm', args: ['run', 'docs'], id: 'docs-contract' },
+    { label: 'build', command: 'npm', args: ['run', 'build'], id: 'build', assurance: 'always', riskTier: 'local', inputRoots: ['src/**'], inputsComplete: true },
+    { label: 'docs contract', command: 'npm', args: ['run', 'docs'], id: 'docs-contract', assurance: 'story-selectable', riskTier: 'shared', inputRoots: ['docs/**'], inputsComplete: true },
   ];
   const commandSetDigest = buildValidationCommandInventory({ commands }).commandSetDigest;
   const impactIndex: ValidationImpactIndex = {

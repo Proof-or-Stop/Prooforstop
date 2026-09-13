@@ -1,15 +1,392 @@
 # Changelog
 
+## Lab story-tier-selector-authority - v0.3.356 - 2026-09-13
+
+### Story-aware validation selector and execution authority
+
+This local Lab implements the canonical selector-to-executor and TEST/DONE
+admission connection designed by B-0aa0. It does not complete that documentation
+Story and does not activate a repository-wide rollout.
+
+- Configured validation uses the canonical Story-relevance selector. It starts
+  at fast, promotes affected shared/boundary work to intermediate, and widens
+  unsafe or unproven selection to repository-full.
+- Explain and runtime project command ownership from the same production
+  catalog and share portable command identity. The legacy
+  validate.dynamic.impactIndex override is ignored with an explicit warning.
+- Complete omission proof requires explicit command policy and complete
+  declared input ownership. Defaulted policy, unknown paths, graph failures,
+  sensitive changes and unresolved legacy pins cannot authorize omissions.
+- Signed manifests bind the Story snapshot, base/head graph, catalog, impact
+  index, all three tier memberships, selector decision and positive exclusion
+  proofs. The executor rebuilds the selector before launch; stored TEST/DONE
+  consumers independently reconstruct and validate the applicable bindings.
+- Inventory accounting distinguishes execute, verified reuse and positively
+  proven exclusion. Missing or altered signatures, receipts, closure,
+  baseline, expiry or revocation inputs refuse dynamic authority.
+- DONE origin routing binds a selection signature to the current Story. A valid
+  foreign-Story observe manifest cannot suppress strict admission while enforce
+  receipts remain. Malformed paths and patterns cannot escape tier promotion as
+  incidental TypeError; stale bindings keep the named selector-context refusal.
+- Explicit full, selector-side repository-full and DONE-phase validation keep
+  canonical execution. DONE-required commands remain independent. The DONE
+  gate may consume complete, current, signed dynamic evidence produced earlier;
+  unrelated canonical legacy evidence keeps its existing handling.
+- Atomic validate-file does not construct or forward a tier selector binding.
+  Its enforcing path retains the complete-command fallback.
+- Immutable dual-revision graph caches are bounded. Two changed paths trigger
+  two impact queries rather than multiplying work by catalog size.
+- Dynamic Finding remains an input constraint, not a validation tier or an
+  authorization to enlarge Story scope.
+
+### Evidence and measured limits
+
+The pinned Lab-owned RED/GREEN command is the canonical packages/main build
+followed by validation-tier-planner-smoke. Targeted RED commit 9cb9af779d
+reproduces preview/runtime ownership divergence and defaulted-policy completeness.
+The later RED at b71706521b reproduces malformed promotion and foreign-Story
+lineage suppression. The corrections are covered by these regressions plus the existing
+Story-aware runtime, mutation, real TEST/DONE, process-fact and static-boundary
+checks. Full audit history and before/after evidence are retained in
+docs/audits/story-tier-selector-authority.md; developer-run supporting checks
+are not represented as Lab-owned or product-release receipts.
+
+Supporting checks on the final repair tree (commit e6b08636a0) passed:
+canonical build; Story-aware runtime smoke; mutation audit with 30 replay
+classes and FI-1 through FI-5; the real TEST/DONE and bindingless validate-file
+admission fixtures; and the complete process-fact contract. Static review
+reported 326 accepted execution edges, zero pending review and zero nested
+registered expansion; the static-boundary refusal suite also passed. Source
+hashes and shifted evidence locations were refreshed only for reviewed inputs,
+preserving the exception registry's ASCII serialization.
+
+Local main subsequently advanced to 0.3.353 via the acceptance-closure Lab.
+Merge 5b9b5d341a retains both repairs. Only static source-digest and line-location
+metadata conflicted; those bindings were reconstructed from the merged sources.
+The merged static scan passed with 327 reviewed edges, zero pending review and
+zero nested expansion. The Lab-owned GREEN replay at the merged revision passed
+(planner groups CHK-004: 33 cases and CHK-005: 22 cases). Developer-run real
+TEST/DONE and bindingless validate-file admission, plus the complete process-fact
+contract including the newly merged acceptance-closure fixtures, also passed.
+Finish independently verifies and audits the next versioned candidate.
+
+The subsequent scope-approval-continuity release advanced main to 0.3.354.
+Merge 229ca46098 incorporates that audited release without changing this Lab's
+selector or executor implementation. The only merge conflicts were static
+source/dependency digests and source locations; all retained dependency entries
+were preserved and the merged sources supplied their new bindings. The static
+scan again passed (327 reviewed edges, zero pending review or nested expansion),
+and the official build-plus-planner GREEN was recorded on the merged commit.
+The complete process-fact contract also passed at this merged revision, including
+the new scope-approval continuity assertions. Earlier real TEST/DONE receipts
+remain attributed above to the revision on which those supporting checks ran.
+
+Candidate ba9cd7f9fd was not integrated: independent Claude audit
+5da129d0-f901-462c-afa7-39f93474136e returned two low Findings after 649,437 ms.
+It reported no observed selector/executor/consumer authority bypass or prior
+canonical-path regression. Repair c35eec6cd0 addresses both Findings. Its
+developer-run build/planner checks passed (CHK-004: 35 cases, CHK-005: 22 cases),
+as did 30 mutation replay classes, the real TEST/DONE negative matrix, the new
+foreign-Story observe suppression control, bindingless validate-file admission,
+static review (327 edges, zero pending/nested) and static-boundary refusals.
+Fixture bootstrap errors were corrected before recording the final targeted
+RED; they are not reported as product regressions. A fresh candidate audit is
+required after this repair and any subsequent main synchronization.
+The official Lab GREEN and complete process-fact contract both passed at
+c35eec6cd0 after the repair was committed. The Story-bound routing requirement
+is recorded in the L4 registry and pinned by the contract verifier.
+
+After the identity provenance Lab released main a6bd46c653 at 0.3.355,
+official sync produced merge 25e82ceb8f without conflicts. That incoming release
+did not change this Lab's selector, executor or process-fact contract source.
+The merged revision passed the official GREEN replay and static scan
+(327 reviewed edges, zero pending review or nested expansion). Supporting
+mutation and real-gate results remain attributed to c35eec6cd0 above; they are
+not relabelled as new executions after this metadata/version synchronization.
+
+The bounded real gate fixture demonstrates two inventory commands becoming
+one executed command plus one proven exclusion; an unchanged repeat executes
+zero children through verified reuse. This is fixture evidence, not a measured
+repository-wide speedup. The actual 168-command inventory has 51 local,
+50 shared, 2 gate and 65 validation-infrastructure classifications. Enforcing
+authority retains the complete-live-catalog non-local risk floor.
+
+This repository remains in observe mode; unconfigured projects remain off.
+Low-risk execution authority still requires an explicit enforce-low-risk
+rollout and current gate prerequisites. Intermediate membership exists but
+does not introduce an enforce-tiered mode. Automatic default activation and
+production selected/full timing measurements remain separate rollout work.
+
+Lab Finish must audit the exact post-bump candidate with independent Claude
+CLI before local-main integration. Remote push and GitHub publication are not
+performed by Lab Finish and remain subject to human release approval.
+
+Maintenance provenance: codex/lab-story-tier-selector-authority, repair 25e82ceb8f78394311c9df316ec277ef12fd6d10.
+Verification command (replayed before integration and on main): `["sh","-c","npm --prefix packages/main run build && node packages/main/dist/tasks/validation-tier-planner-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab identity-main352-closure - v0.3.355 - 2026-09-13
+
+Restore reviewed identity bindings that became stale on local main d788f9a. Seven existing source positions/hashes and derived reader/fixture/static dependencies were refreshed against exact source provenance. The original six-context digest and original 89 compatibility rows remain intact. Two admissions are additive: one reviewed source row for the causal-index retired refusal needle, and one compatibility-schema row, increasing that table from 89 to 90. No production gate or validation budget changes.
+
+The causal source row covers packages/main/src/core/runtime-environment-checks.ts:429: the retired string is the fourth identitySite argument (a refusal needle), paired on that same line with identityOrigin naming packages/main/src/core/causal-evidence.ts / CAUSAL_EVIDENCE_INDEX_SCHEMA and with the following identityMutationCase for the canonical causal index. It is not an emitted schema value. The pinned verifier now calls both actual reviewed-source APIs on the positive and on token, additional-occurrence, and same-count changed-context inputs; it also imports the actual inventory consumer after each of five protected-row field changes and requires refusal. The original six-row digest sensitivity assertions remain, but are not presented as independent consumer execution.
+
+The new compatibility row covers the single managed_review_final_proposal.v1 retired-prefix occurrence at scripts/verify-review-epoch-certification-continuity.mjs:342. This is an accepted synthetic managed-review response in a disposable fixture, not a rejection test. The surrounding source says the transport is synthetic while the actual managed worker, sealed receipt importer and REVIEW consumer remain in use. Compatibility classification preserves that existing accepted fixture protocol; moving it into the rejection-only table would misdescribe it. The actual scanner self-test derives schema inventory from the current repository and runs the same inventory consumer as default scanning, then checks removal, duplication, count, context, path and token mutations for all compatibility rows, including this added row. These are scanner admission controls, not a claim that the native managed-review scenario ran in this Lab.
+
+The pinned RED command remains node scripts/verify-reviewed-source-bindings.mjs. It now includes the actual fixture reader, current scanner --self-test, direct static-edge verifier, and the actual route driver's AST-selected four-entry dependency closure with missing-entry and stale-digest negatives. The latter does not run or claim the native route suite. Finish will replay this same command on the prepared final head; the tool-owned candidate measurement is the source of that future result. No manually attached receipt is substituted.
+
+Historical evidence only: official RED reproduced seven stale source bindings; original GREEN wrapper took 1.821793 seconds. Scanner self-test (21.359952 seconds) and static verification (1.548393 seconds) were measured on 776200ab7977dd5069ecc3b8c2cb42825a2b4ad6, not its later prepared release head. The rejected audit's missing final-head consumer coverage is addressed by extending the pinned command, not by relabelling those measurements.
+
+Full identity scanning was non-green in the inherited d788 baseline. The historical comparison reported 74 baseline tuples versus 52 candidate tuples, with zero additions. This is not a newly measured count for any later main or this synchronized candidate. It does not establish that the later main still has exactly 52 residues, full repository success, Story B-e6d9 DONE, or a remote release.
+
+Historical main 0.3.353 recovery: external acceptance-closure-repairs integrated as commit b07b6e9fbf at version 0.3.353 while the prior identity candidate waited to integrate. The independent identity audit PASS took 449.065 seconds and applies only to historical candidate 22224fb2, audit c26e3c07. It does not approve a later synchronized tree. Official reopen and sync preserved both repairs.
+
+The source diff from d788f9adaf to b07b6e9fbf inserts 14 lines before all nine reviewed process-contract contexts. That figure describes only that upstream insertion. Relative to the older stale inventory positions carried by main b07b6e9fbf, the complete repair moves six rows by 32 lines, one row by 44 lines, and two rows by 114 lines. Each exact line hash, token count, classification, and reason remains unchanged. All 268 fixture rows and all 267 incoming static rows remain, including their IDs, calls, claims, and dependency keys. The in-repository document docs/audits/identity-main352-closure-provenance.md records the two comparison bases, every position, exact hashes, and audit boundaries.
+
+Audit 0859d75d rejected the prepared version 0.3.354 documentation for missing spaces and ambiguous movement provenance. This repair restores readable identifiers and adds the reproducible comparison record without changing verifier code, commands, assertions, admissions, or budgets. A fresh prepared-head replay and independent audit remain required; no historical PASS is substituted for current approval.
+
+Subsequent synchronization incorporates main 939d7215236a97fd8bf514d11c0619fcf95bd282 at version 0.3.354. Its 18 added process-contract lines follow all nine reviewed contexts, so those nine process-contract positions and exact lines remain unchanged. Complete preflight additionally found source row 14 moving from line 488 to 495 in runtime-fact-registry.ts and fixture row 258 moving from line 46 to 48 in verify-scope-budget-approval.mjs. Both retain exact line hashes, counts, classifications and meanings. This recovery updates these existing source fingerprints and positions plus their reader, checker and static dependency hashes, preserving all 268 fixture rows, 267 static entries and unchanged verifier bytes. The historical movement table remains tied to its earlier commits. A prospective release version is selected by the official finish command; a peer rejected candidate is not integrated main. Fresh verification and independent audit remain required.
+
+The scanner self-test also identified two stale existing negative-source fingerprints for the process and runtime contract scripts. Their complete retired-identity line multisets are unchanged across the incoming main diff, so only those source fingerprints and dependent checker hashes are refreshed. No negative-context admission, count, classification, assertion or command changes. Both failed official GREEN attempts and the failed fixture preflight remain recorded; later success must come from the unchanged official command.
+
+Maintenance provenance: codex/lab-identity-main352-closure, repair ed8c3ed789f16e401bce8463421087a05b571cc6.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab scope-approval-continuity - v0.3.354 - 2026-09-13
+
+### Preserve authenticated scope approval through workflow bookkeeping
+
+B-0980 has a genuine unexpired operator acknowledgement, but a tool-owned first verification pin and additive validation registration changed its digest without changing approved scope. The bounded repair retains that exact signed decision only after independently reconstructing its applied amendment and historical configuration. It issues no new human acknowledgement and changes no interactive issuer policy.
+
+Current-applied-scope reads only: pending next/base subjects and decomposition cannot inherit compatibility. Requirements, scope restrictions, topology, policy, counts and scope-group command resolution remain exact. First pins need genuine V5 historical execution; changed, removed, forged or restored-after-removal retained pins are refused along the selected first-parent publication chain; every authentic first pin must bind the approved requirement meaning. Original raw validation entries remain an ordered subsequence. Stable command identities stay exact; only mechanically generated positional labels may move. Duplicate execution tuples and ambiguous group references are refused. Validation cache/selection and execution freshness remain invalidated independently.
+
+Proof uses immutable first-parent ancestry with invocation-local read reuse and registered aggregate time/command/byte bounds. Live HEAD, config, subject, amendment authority and original expiry are checked before returning. Missing or invalid proof creates no authority. The original journal is never rewritten.
+
+Validation recorded so far: build 7 PASS; new regression 5 PASS with 3 positive scenarios and 31 negative controls, including expiry during proof, bounded history/time, changed live inputs, forged history and pin disappearance. The original command-identity regression and runtime-fact contract PASS. The actual amendment application regression PASS. Process-fact contract 2 PASS, including the final historical-semantics assertion. Existing verify-scope-budget-approval.mjs fails at its pre-existing DEV guard assertion line 56 on both main 0.3.351 and the Lab; this is not reported as PASS.
+
+A development-only read of actual B-0980 reconstructed the original signature and returned approved_large_story in 597.18 ms after the final historical-semantics guard, leaving the approval unchanged. This is a diagnostic, not deployed gate evidence or a benchmark performance comparison. Committed GREEN, exact-candidate independent vendor audit, local integration and post-merge verification remain required. This Lab does not mark B-0980 or any benchmark feature DONE. No remote push is authorized.
+
+Committed GREEN: 1337eaaed0f257f0e8aa9e04db536b66509cab56 PASS 14068 ms for the exact pinned RED command. The repair commit is 1337eaaed0; exact-candidate audit and integration remain pending.
+
+The first independent Claude audit returned FAIL with four bounded requests: register the behavioral regression in the canonical scheduler pipeline, exercise legacy and forged historical receipt shapes, make aggregate limits coherent and diagnostically visible, and correct release-note formatting. The candidate was officially reopened before applying these repairs. Second-candidate verification and audit are pending.
+
+Second repair validation: full build 9 PASS; behavioral regression 10 PASS with 3 positive scenarios and 34 negative controls. Runtime contract 2 and process contract 3 PASS. Full-suite-runner smoke PASS with 196 assertions. The actual canonical scheduler member PASS; this is bounded member execution, not a claim that the whole repository suite passed. The fixture uses the existing command-runner seam with the real validation executor and an explicit read-only temporary-path resource claim; it does not stub execution results or change production scheduling. Historical receipt controls restore genuine immutable execution output before testing forged signatures, readable legacy receipts, and cryptographically readable V4 receipts.
+
+The second repair was subsequently synchronized with main 0.3.352 (d788f9adafcf20ee8c66d0fd7e2ae1db72681e9f). All audit decisions remain bound to the exact candidate; the earlier FAIL is retained, not reused as approval.
+
+Version preparation correctly refused stale U18 source/dependency evidence after the package registration and contract edits. The bounded refresh retains all 266 exception identities, kinds, rationales, invocation restrictions, call-expression digests and dependency membership. It relocates only unchanged uniquely matching excerpts/calls and refreshes current source hashes. The proposed manifest passes all source bindings and the actual static scanner (0 needs-review, 0 nested, 0 unexpanded commands, 326 existing exception uses). No new exemption or broader authority is introduced.
+
+Third repair after the second Claude FAIL: top-level-only continuity and explicit no-continuity issuer report computation preserve exact digest checks inside the original lock. No cache or new approval authority is introduced. Missing proof, ENOBUFS output exhaustion and final live drift now have distinct refusal diagnostics; mismatched intent refs stop comparison immediately. Real mixed-pin execution covers preserving an originally approved pin while authenticating a new pin. Issuer and decomposition controls count actual Git history calls, verify the exact child diagnostic and compare a positive top-level read to prevent vacuous success. Full build 13, process contract 4, runtime contract 3, existing decomposition regression and static scanner passed. Regression 15 passed 5 positive scenarios and 38 refusal controls. Earlier queue timeouts and the corrected disposable configuration branch-switch failure remain in logs; neither was counted as PASS. Fresh candidate audit and local integration are still required.
+
+Final pre-audit verification: committed GREEN5 binds 69ed787691c028d0c357c304402f4cbc174c95ba and passed in 27431 ms. After the unrelated machine queue cleared and remained idle for ten seconds, actual canonical-member6 passed in 22315.044625 ms, including 5 positive scenarios and 38 refusal controls. Canonical attempts 4 and 5 timed out during shared queue contention and remain failures in the measurement log; their time is not treated as implementation performance. No runtime cap or admission lock was bypassed. The current branch contains main 0.3.352 and has no uncommitted source changes.
+
+
+### Fourth repair after audit 462cb299
+
+The third actual Claude audit rejected candidate 5058bd7e after 674243 ms,
+with two medium and four low findings. It found no scope-approval bypass.
+This fourth repair checks the aggregate deadline after a Git subprocess throws,
+skips historical continuity for nonblocking observe reports, and clears a stale
+refusal field upon a successful grant. Enforce-mode reads remain independent:
+no grant cache or weakened final signature, live-input or expiry check was added.
+Documentation now states the per-top-level-read 15-second worst-case allowance.
+
+The 776 command counter remains a defensive ceiling above the structural 773
+maximum. Tests temporarily lower only the imported in-memory fixture cap and
+restore it, rather than reducing production capacity. A separate aggregate-byte
+control identifies only continuity-owned subprocess calls, keeps EACH output
+within the injected 768-byte cap with two fixed 512-byte outputs, and proves the combined outputs cross it.
+Historical journal-signature and non-command-policy controls replace every
+eligible historical read blob while keeping live inputs valid; restoring the
+actual blobs immediately restores positive eligibility.
+
+The test-only verificationCommandRunner seam now executes its exact fixed Node
+leaf through execFile with canonical cwd, numeric exit, timeout and actual output.
+The existing handler still creates the immutable pin and signed execution receipt.
+This removes recursive machine admission from this fixture; production scheduler
+policy is unchanged. Raising a deadline would not repair the observed outer
+shared / exclusive waiter / inner shared ordering. The canonical member retains
+an explicit 120-second allowance; prior contention failures remain failures.
+This is not a generic scheduler repair or a claim that every queue wait is fixed.
+
+Regression18 PASS: five positive scenarios and 44 refusal controls. Regression16
+failed on macOS /var versus /private/var spelling and was fixed by canonical path
+comparison. Regression17 and canonical7 passed, but the subsequent independent
+review strengthened their aggregate-byte witness; regression18 is the current
+behavioral result. Build16 and process-fact contract5 PASS. The canonical scheduler
+smoke2 PASS contains 196 assertions. U18 refresh preserves all 266 exception IDs,
+reasons, call digests, invocation declarations and dependency membership; 18 rows
+rebind current dependencies and 12 relocate unchanged source excerpts. Its
+proposed-manifest scanner PASS reported zero needs-review/nested/unexpanded rows.
+Final canonical8 and pinned GREEN measurements will be recorded before finish.
+
+Canonical8 FAIL (9305.63 ms) exposed longer canonical temporary paths in the injected byte-cap fixture. Fixed-size 512-byte identity outputs with a 768-byte cumulative cap remove path-length dependence. GREEN6 passed before that correction and is superseded; a fresh committed GREEN is required.
+
+Final canonical9 PASS at committed d67b218e92: 21303.07975 ms, lockWaitMs=0, five positive and 44 refusal controls. This is the actual canonical entry with the fixed-length byte witness, not the full repository suite.
+
+GREEN7 PASS on committed d67b218e92 using the unchanged pinned command node scripts/verify-scope-approval-continuity.mjs. Independent bounded recheck confirmed the cumulative-byte control now crosses the cap only after two individually admissible outputs.
+
+
+### Fifth repair after audit 14536109
+
+The fourth actual audit failed after 501241 ms, with two medium and three low
+findings about test integrity, old regression coverage and diagnostic attribution;
+it found no approval bypass. The continuity regression now asserts the exact
+status and refusal reason for each equivalence control. Unknown configuration
+and invalid live authority are distinct earlier refusals, not claimed coverage of
+the equivalence helper. Removing/changing an unreferenced original command adds
+non-degenerate ordered-subsequence witnesses. Changed policy already has a
+strict decision_required/equivalence_not_proven witness. All five positive labels
+are appended only after their assertions and counted from the resulting array.
+The originally pinned branch captures its own approval bytes and uses the same
+immutability-checking report helper for positive and negative reads.
+
+Terminal Git diagnostics now preserve ENOBUFS as byte_limit and only map an
+ETIMEDOUT to total time_limit when the aggregate deadline is exhausted. Other
+failures remain proof_unavailable, including an ENOENT after the deadline. Empty
+history sets a local search flag and is emitted only after unsuccessful search.
+There is no new grant cache, authority path or refusal-priority state machine.
+
+The previously red scripts/verify-scope-budget-approval.mjs had asserted that
+budget approval alone makes canStartDevGuard true, despite unrelated lifecycle
+prerequisites absent from its fixture. Test-only corrections use the actual
+budget report and storyScopeBudgetBlocker for approvals, tamper, drift and expiry,
+while retaining a negative DEV integration check. The distinct existing
+scripts/verify-story-scope-budget.mjs had the same stale positive premise and was
+corrected likewise, with explicit budget-specific negatives for quick/reentry and
+malformed configuration. No machine guard or prerequisite was weakened.
+Both scripts now run to completion: approval-regression2 PASS and final
+budget-regression2 PASS, including the downstream amendment subprocess checks.
+This supersedes their earlier baseline-red observation; it does not erase it.
+Neither script is the canonical continuity npm member: that remains
+registered test:scope-approval-continuity.
+
+Build18 PASS, regression22 PASS with five measured positives and 48 refusal
+controls. Static proposal PASS with zero needs-review, nested or unexpanded rows;
+11 existing exception rows refresh unchanged uniquely matched excerpts and
+current dependency hashes, without new exception identities or permissions.
+Final process contract, canonical replay and pinned GREEN remain to be recorded
+before the next actual candidate audit.
+
+Final process-contract6 PASS. Canonical10 PASS on committed 6bd0c63752: 29864.335417 ms, lockWaitMs=0, five positive and 48 refusal controls. No whole-repository suite success is claimed.
+
+GREEN8 PASS: 34919 ms on 6bd0c6375253fc777825cacfa6f203a824d50b34. The latest main advanced independently to b07b6e9fbf (0.3.353); finish must synchronize and revalidate the resulting candidate.
+
+After synchronizing main 0.3.353, merge 23a98c5ef9 retains both sides of the U18 registry, independently reviewed (267 records). Build19, canonical11 (21675.6505 ms), process-contract7, approval-regression3 and budget-regression3 all PASS on the merged source. This revalidates the receipt and approval interfaces changed by upstream main without counting that upstream work as this repair.
+
+GREEN9 PASS: 24586 ms on merged 23a98c5ef9e189db97b63ca7eb6f1e42fdd0578b.
+
+Maintenance provenance: codex/lab-scope-approval-continuity, repair 23a98c5ef9e189db97b63ca7eb6f1e42fdd0578b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-scope-approval-continuity.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab acceptance-closure-repairs - v0.3.353 - 2026-09-13
+
+Fix incomplete acceptance coverage and mutable evidence publication.
+
+Checklist items without verification intents can no longer disappear from an otherwise explicit coverage report. Withdrawn items and historical all-empty compatibility retain their existing policy.
+
+Evidence publication now prepares one immutable serialized snapshot. Size validation, commit hashes and atomic persistence consume the same bytes. The writer admits exactly 24 MiB and rejects one additional UTF-8 byte before replacing existing evidence. Store-bound preparation tokens reject forged, copied or cross-story use. Oversized preparation returns a structured failure while preserving prior evidence; reuse-publication retry succeeds without changing review phase or round in the isolated lifecycle regression. A genuinely oversized artifact after fresh heavy execution preserves old bytes but consumes its certification window: unchanged heavy replay is refused. Fresh-execution recovery still requires a new eligible window; the regression uses isolated test admission and does not claim real PRE_CERT approval.
+
+Validation: recorded Lab RED/GREEN for the original acceptance regression (3 failing groups to 0 of 5) and publication snapshot regression (2 failing groups to 0 of 4). The post-check mutation case now publishes the original 117 bytes with a matching digest instead of failing late after growth to 62,914,662 bytes. A 400-command output fixture reduces to 21,294,075 bytes before publication. Focused process-fact contract, evidence-buffer smoke, evidence-reuse smoke and real-CLI isolated publication lifecycle checks passed. These are correctness measurements, not a throughput benchmark.
+
+The change also updates the process-fact registry, reviewer guidance and regression entry points. Historical Story records are not restored or advanced by this Lab. Lab evidence is maintenance verification, not formal Story DONE or signed product-release evidence.
+
+Finish audit follow-up: rebind static invocation/dependency evidence, require child GREEN markers with timeout diagnostics, spend preparation tokens after successful publication, and test executed-path refusal separately from reuse refusal. The static-edge verifier reports zero unresolved edges and zero stale exceptions. The public amendment regression preserves 35 executed receipts, exposes the missing 36th requirement, and clears it only after signed additive amendment handlers plus the executed 36th receipt. Missing-intent diagnostics now name that recovery path. Existing express policy remains unchanged: any authored intent selects explicit coverage.
+
+Further audit controls align legacy evidence backfill guidance with verification_intent_repair, retain explicit-policy membership after withdrawal, share the inclusive cap in reducer convergence and test oracles, preserve the measured threshold rationale, and remove legacy runtime adapters from current publication tests. Six focused acceptance groups now pass. The real-CLI fixture also passed against a controlled hostile global Git configuration after both Git and CLI child environments were isolated; repository hooks remain enabled. Historical RED records retain their original script revisions; the current tests include additional audit controls.
+
+Maintenance provenance: codex/lab-acceptance-closure-repairs, repair 50d0fd4e0a9d0faa46fcb1adafb494fa0de3ab57.
+Verification command (replayed before integration and on main): `["node","experiments/acceptance-closure/publication-snapshot.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab route-reader-regression - v0.3.352 - 2026-09-13
+
+The four-gaps regression now checks the real registry-to-adapter reader composition while retaining projection consumption and the direct-import boundary. Seven live mutation cases cover both registry compositions, adapter-body substitution, route consumption, projection consumption, and alternate static/dynamic imports. The fixed historical callback illustrates former loose behavior; committed RED records remain the historical evidence, and no runtime Git-provenance claim is made.
+
+The native negative-input fixture now separates a minimal one-null-leaf refusal from unknown-property refusal on a validated null-free public projection. Original main native cases passed; the Story candidate exposed the nullable internal shape that made the old negative fixture brittle. Signed positive proof and all existing absence, substitution, wrong-root, current-reviewer, history and progress controls remain intact.
+
+The existing route dependency npm entry invokes the durable driver. It independently checks helper registration, requires the wiring and native selectors, and verifies current digests for 23 explicit local source/context paths, including six modified verification members in the four existing four-gaps dependency closures. It prepares current builds, runs the complete original suite once, and requires static verification. Setup has a maximum of 180 seconds; four-gaps, the canonical identity-sites group, the suite and static verification share a 600-second body under the pinned 900-second Lab ceiling. Each child receives the lesser of its configured maximum and remaining body time. The suite retains its internal 120/120/420/120-second maxima. These are failure ceilings, not additive guaranteed allowances; four-gaps and canonical-group time reduces the effective suite cap and static receives the remainder. No budget or completion guarantee was added, and no performance improvement is claimed.
+
+Timeout errors retain bounded stdout/stderr and code/status/signal; the caller renders the streams once. Buffers remain non-enumerable, writable and configurable. A real child without readiness output before the one-second negative diagnostic timeout is unavailable proof. Real started-child, ordinary success, nonzero-exit, signal and missing-executable controls remain checked.
+
+Digest propagation is scoped by operation: initial consolidation changed 38 root-package hash strings plus four smoke hash strings. During the main 0.3.350 sync, manual reconciliation started from the exact incoming main manifest and changed only 38 root package.json, four smoke and four four-gaps hash strings. This subset excludes the package-lock and other version dependency pins already supplied by incoming main. Timeout repair refreshed eight helper dependency hashes and eight full-source evidence objects. Fifth-audit closure adds current driver/helper dependencies to four existing entries. IDs, duplicate rows, order and unrelated evidence are preserved; official version preparation separately refreshes version dependencies. The pinned static verifier previously passed with 326 exceptions and zero needs-review, nested or unexpanded work.
+
+Five rejected independent audits and all failed runs remain in the Lab record. Official GREEN and finish replays passed in 593.594, 547.759 and 536.637 seconds before the fifth audit; those results do not stand in for verification of this recovery. Earlier incomplete dependency setup was repaired by standard root npm ci without changing the lockfile. Timeouts remain unavailable proof, and no CPU cause was established. This local Lab neither completes the Story nor authorizes a remote push.
+
+Fresh official GREEN for fifth-audit recovery at 14dddb183b passed in 456.513 seconds: diagnostics, seven wiring mutations, four-gaps, both native modes, 82 history/route/candidate cases, process-fact verification and static checks all passed. This is a measured verification result, not a claimed performance improvement.
+
+Sixth-audit recovery binds the six modified verification members and their explicitly controlled source/context inputs (23 local paths) with refusal controls for each; broader source/emitted census and build binding remain separate from this bounded list. The caller catch is located structurally and rejects a substituted spawn target despite an earlier unrelated catch. The positive diagnostic fault-injection timer is ten seconds under a fifteen-second local ceiling; the no-readiness control remains one second under five seconds. All original verification and Story budgets remain unchanged. Controlling source excerpts were rechecked byte-for-byte on main 362b421aff (0.3.351).
+
+The inherited main 0.3.351 static baseline failed with 115 needs-review and 14 nested report rows. Reviewed exact Git preimages support updates to 80 existing entries, preserving 266 rows and all IDs, ordering, classifications and invocation membership. The single changed watchdog spawn retains its original command, argv, ownership and absolute deadline; 26 explicit runtime-policy dependency keys bind already-dependent entries. The final canonical fixture restores the exact causal origin and known registry default-parameter import context, with central-literal, added-use and same-count controls. Its actual identity-sites group passes in 20.185 seconds and combined static verification passes in 1.288 seconds with 326 exceptions. The same pinned driver now requires this canonical group under the unchanged shared budget; 23 explicit controlled source/context paths are bound, without claiming a whole-repository recursive closure. Six historical audit rejections remain preserved.
+
+The final expanded candidate dec07e5c8e passed official full GREEN in 467.523 seconds, including the required canonical identity-sites group, all original native/history/process controls, the 23-path refusal checks and static verification. This measured result is not a performance guarantee.
+
+Maintenance provenance: codex/lab-route-reader-regression, repair dec07e5c8e2f30098b983ae3803004a19d43e333.
+Verification command (replayed before integration and on main): `["node","scripts/verify-route-reader-regression.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-intent-stage-cycle - v0.3.351 - 2026-09-13
 
 The Lab migrates the review-intent-stage-cycle repair from the remote host onto the current local main baseline.
 
 The repair prevents PLAN verification intent from requiring a REVIEW lifecycle verdict that can only be produced after entering REVIEW. Direct Story creation, draft materialization, checklist addition or replacement, and DEV intent amendment reject the bounded invalid shapes before persistence; Story review also reports a blocking, actionable issue for retained legacy data. Legitimate product tests for review pages, review-related CLI behavior, and complete executable pins remain admissible. Verification-intent prompts for Codex, Claude, templates, and the handoff handler teach the same boundary, and the process-fact registry records the writer and consumer contract.
 
-The migrated regression was expanded with common lifecycle wording, every persistence path, legacy-data coverage, malformed-input handling, and false-positive controls. It is registered in test:serial-reference and has an isolated full-suite resource policy. The focused end-to-end test, test-intent handoff verification, TypeScript build, docs-drift smoke, runtime fact contract, identity mutation control, resource sentinel, and complete process-fact contract pass. A different-vendor Anthropic audit passed the final committed HEAD. The current main baseline independently fails the prompt rollout digest check and the full-suite runner CPU-timing anti-spoof assertion; the candidate shows the same failures and does not introduce them.
+The migrated regression covers common lifecycle wording, canonical reviewer lane names, every persistence path, legacy-data coverage, malformed-input handling, lifecycle-command pin bypasses, and false-positive controls. It is registered in test:serial-reference and has an isolated full-suite resource policy. A different-vendor Anthropic audit passed the final committed candidate.
 
 Maintenance provenance: codex/lab-review-intent-stage-cycle, repair 82365ddd9d57bebd96617e58bfa054434de9e293.
-Verification command (replayed before integration and on main): `["node","scripts/verify-review-gate-intent-cycle.mjs"]`.
+Verification command: `["node","scripts/verify-review-gate-intent-cycle.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab review-finalization-lineage - v0.3.351 - 2026-09-13
+
+Restore authenticated review continuity after signed inventory finalization and bounded evidence refresh. B-0980 exposed the original rejection; this Lab does not implement the benchmark runner or complete a Story.
+
+The shared maintenance readers preserve reviewed requirements, the full intent/kind/result multiset and signed historical observations. Prior and replacement V5 executions authenticate independently. Exact causal outputs and append-only indexes remain bound to receipts. Finalized inventory publication allows only the authenticated target pair, retains prior arrays and rejects unrelated siblings. Certification and REVIEW-to-TEST retain existing authority gates. Native and managed historical critics are superseded only after their own execution authority authenticates and a newer valid same-lane record exists. No old PASS is promoted and no finding is released.
+
+The thirteenth correction exposes unexpected inventory-store read errors in both the health record and existing invalid-authority issue; ordinary invalid/cancelled/superseded states stay silent. The causal index writer, store reader and refresh reader share CAUSAL_EVIDENCE_INDEX_SCHEMA. Runtime identity verification remains anchored to the real store writer and binds its imported schema origin. Direct copied-byte controls reject a retired writer and a retired exported constant, then restore passing controls. Three import-use context pins for Lab-changed sources are reconciled; the unrelated process-fact-registry baseline mismatch is retained.
+
+Completed full regression measurements for the watchdog coordination are recorded below. These actually ran; the earlier future-tense notes preceded those executions. The source is the tool-owned Lab record at .git/lab-maintenance/review-finalization-lineage.json (read-only excerpts additionally exported as audit12-watchdog-existing-run-evidence.json).
+
+| Stage | Exact head | Result | Elapsed ms |
+|---|---|---|---:|
+| Formal GREEN20 | ce48023bc99781030d152fb42960db014330eb3c | PASS | 397949 |
+| Synced GREEN | ce48023bc99781030d152fb42960db014330eb3c | PASS | 327151 |
+| Versioned candidate GREEN | 2464faae5f850a0eaef5b1b3c90b3f2076bb5de3 | PASS | 344244 |
+
+All three executed the complete pinned command node scripts/verify-review-epoch-certification-continuity.mjs with the200-receipt corpus and final cancelled-state control. The inner watchdog line reported420000 ms. The real canonical runtime-fact-contract member also passed after the budget change (26114.042792 ms) and after the schema/diagnostic correction (24655.54925 ms, including CAUSAL_INDEX_SCHEMA_WRITER_AND_ORIGIN_REFUSAL_GREEN). These are measured executions, not whole-suite PASS or speedup claims.
+
+GREEN17, GREEN18 and GREEN19 exhausted the earlier360000 ms inner watchdog and remain failures. The fixture now reuses exact immutable publication blobs and replaces two duplicate missing-epochs cases with one explicit allowed-sibling-only case retaining actual certification refusal. The inner watchdog uses420000 ms from the already registered450000 ms outer entry, reserving30000 ms cleanup. Concurrent inner540000, outer675000 and original absolute-deadline clamping remain unchanged. This is budget coordination, not an optimization result. Timing variance remains material.
+
+Repository-health limitations remain explicit: the earlier default npm test runs failed the same first full-suite-runner-smoke ancestor-admission prerequisite on main and Lab; the real concurrent continuity-member observation failed in pre-existing detached-worker machine admission, before the corpus or changed lineage checks. The bounded same-API main/Lab diagnosis and unchanged source hashes are preserved. No whole-suite or concurrent-heavy-workload PASS is claimed. The current identity-sites group has the same two main/Lab totality assertion failures caused solely by the pre-existing process-fact-registry context pin (owner indicated by the suite: B-49df); the three Lab-added pin differences were repaired.
+
+Build63 and process contract27 passed. Actual canonical runtime contract6 passed in 24655.54925 ms. Identity16 retains only the same pre-existing process-fact-registry mismatch as main; it is not PASS. The actual npm run test:review-epoch-certification-continuity execution52 passed in 259089 ms on the complete thirteenth working-tree repair (base HEAD 8fb9fce3f5ae7133566457fa69621a46614ba277), including all 200 receipts and the final cancelled-state refusal. Earlier regression50 exposed a generic error hiding the concrete read cause; the invalid-subject check now precedes that generic check without bypassing any successful authority validation. Regression51 exposed two genuine reader health events rather than one; the collector now asserts exactly two, while the direct reader asserts exactly one and ordinary cancelled/superseded controls assert zero. Both failed runs remain preserved. Final committed GREEN is a separate required execution, not inferred from this working-tree PASS.
+
+Twelve actual Claude CLI audits were rejected and remain in history. Audit12 bc896e2c-81b1-4100-adee-e92b0d5c4506 rejected2464faae5f with two medium and one low findings; this correction addresses diagnostics, schema ownership and the incomplete verification narrative. Prior candidate rejection is not overridden. A fresh exact-candidate audit is required before local integration. No remote push is authorized.
+
+
+Latest-main synchronization and repository-health comparison: repair0242aad200 was synchronized with main de2b236e1ae09e21edfe77bc3eaee4cc9725849c at merge ca908f505d532e1f47bc8226c638b74fe9dc8453; build64 passed. Actual default npm test on the earlier Lab snapshot exited1 after197584 ms at workspace validation capacity admission; main exited1 after148463 ms at reviewed-source-bindings. These are different failure observations and do not establish full-suite parity or PASS. A direct same-command comparison after sync exposed one additional Lab-owned whole-file/line pin for the unchanged historical comment in managed-review-evidence.ts. Only that row's source hash and relocated line104, the inventory reader digest and scanner reader digest were refreshed; token/count/classification/reason/line content remain exact. A bounded actual-reader control passed, rejected five source/line/location/token/count mutations, and verified all three scanner reader hashes. The remaining seven reviewed-source failures exactly equal current main's set. Unrelated baseline records and static-edge exception manifests were not regenerated. Full command logs and npm timings are retained externally.
+
+
+COMPLETED FINAL COMMITTED VERIFICATION: formal GREEN21 executed the exact pinned command `node scripts/verify-review-epoch-certification-continuity.mjs` at HEAD `db3cda052beea24ca4d18925bcf67a52b6da1708` after synchronization with main 0.3.350. It PASSED (exit 0, no signal) in 377445 ms. The log reports inner budget420000 ms, receiptCorpusSize200, proofEvaluations1, gitCommands30 and ends with REVIEW_EPOCH_CONTINUITY_REFUSED cancelled. This is the committed thirteenth repair including the bounded comment-pin refresh, not an inference from the earlier working-tree run. Its full tool-owned record remains in .git/lab-maintenance/review-finalization-lineage.json; a read-only copy is retained in the external measurements directory. Claude audit13 has not run at the time these notes are prepared; no audit PASS or integration is claimed.
+
+
+## Fourteenth correction: both evidence anchors and actual audit measurements
+
+Audit13 f8402e4b-0e0e-468e-96cd-7a9056d6ea93 rejected candidate d99a6b97693132660cb7e7864db5f7e697dd0518 with one medium and three low findings. The exact candidate had in fact passed candidate-green in345634 ms; the audit input omitted this tool-owned record. A candidate cannot contain its own SHA and later execution result in its committed CHANGELOG. The transport correction supplies this evidence outside the Git snapshot instead of representing another prose assertion as authority.
+
+Evidence refresh now retains the complete parent pairing and authentication checks and independently repeats one-to-one matching against the originally reviewed evidence. The changed flag still derives from parent-to-candidate replacement. Two actual independently issued intent receipts establish a controlled reviewed baseline. Two legitimate successive refreshes pass; a forged first commit followed by a genuine refresh of the other intent remains refused both by commit proof and by latest-artifact retention. Existing bad-parent and bad-replacement refusals remain unchanged. Shared contained-prefix checks reject a Story root equal to or outside the Git root. The process contract pins the forgivable superseded return after both transport authority blocks.
+
+The Lab audit now receives a bounded measurement projected from authenticated Lab history and included in inputDigest. A successful process row alone is insufficient: the writer adds checkoutVerified and verifiedHead only after official success/no-error, cleanliness and unchanged-HEAD checks. Missing, failed, error-bearing, dirty or moved-HEAD records cannot qualify. The first accepted record matching candidate SHA and exact pinned command remains stable across retries. Early audits without candidate evidence retain null. The input projection contains the recorded command, elapsed time, timeout, timestamp, output hash and bounded tail. There is no caller approval flag, no provider bypass, and no change to Story approval requirements.
+
+Completed verification: build65 PASS; verify-lab-audit-contract.mjs PASS with synthetic stale/error/missing-marker/cache/digest controls; full verify-lab-worktree.mjs PASS with actual zero-exit dirty-checkout and moved-HEAD refusals plus an actual accepted candidate's measurement in the audit input; process contract29 PASS. Complete npm run test:review-epoch-certification-continuity regression53 PASS320655 ms, including AUTHENTICATED_REFRESH_CHAIN_GREEN, GRANDFATHERED_UNAUTHENTICATED_ROW_REFUSED, both prior/replacement refusal controls,200 receipts and final cancelled-state refusal. These ran on the fourteenth implementation before the final registry/documentation explanation; later committed GREEN remains separate. Contract28's overbroad source assertion failure is preserved and was corrected to inspect only the changed refresh file. Thirteen actual vendor audits remain rejected; no new audit or integration is claimed here.
+
+
+COMPLETED FOURTEENTH COMMITTED GREEN22: `8699a597bfb9dfffa182f226876b65278f8c4cb4` passed the exact pinned command in 278329 ms, exit0/no signal, including the two-anchor chain controls and full200-receipt regression. Build66 and final process contract30 also passed. Candidate validation after version preparation will be supplied directly in the new input.verification field by the verified Lab tool, only after the checkout acceptance checks pass. It is not pre-claimed in this note.
+
+Maintenance provenance: codex/lab-review-finalization-lineage, repair 8699a597bfb9dfffa182f226876b65278f8c4cb4.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-epoch-certification-continuity.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## Lab native-lock-prerequisites - v0.3.350 - 2026-09-12

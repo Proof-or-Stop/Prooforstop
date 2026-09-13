@@ -42,6 +42,15 @@ export interface ValidationCommand {
   runnerSourcePath?: string;
   /** Content digest of the registered runner source, bound into catalog identity. */
   runnerSourceDigest?: string;
+  /**
+   * Complete declared selector ownership roots. They control exclusion only;
+   * runtime closure and direct triggers also retain runnerSourcePath and
+   * caseRegistryPath. An empty declaration falls back to heuristic runtime
+   * roots but never becomes complete selector ownership.
+   */
+  inputRoots?: string[];
+  /** Must be true before declared inputRoots can authorize command exclusion. */
+  inputsComplete?: boolean;
   /** Environment keys the command is permitted to read during closure tracing. */
   declaredEnvironmentKeys?: string[];
   /** Explicit catalog policy; omitted fields remain non-authoritative defaults. */

@@ -26,10 +26,16 @@ check('RECALL-L4-expiry-has-typed-trigger', () => {
     route: { storyId: 'B-target', recordId: 'route', recordHash: 'a'.repeat(64) },
     trigger: 'deferral_invalidated', deferral: { storyId: 'B-test', recordId: 'deferral', recordHash: 'b'.repeat(64) } }).success, true);
 });
-// Wiring guards accompany, but do not replace, the executable integration suites.
+// These direct-specifier wiring guards accompany the canonical dependency checker
+// and native integration suite; they do not prove arbitrary transitive or computed imports.
 check('REATTEST-gate-consumes-verified-closure', () => {
   assert.match(source('core/finding-applicability-projection.ts'), /readMaterialDriftReattestation\(/);
-  assert.match(source('handlers/finding-route.ts'), /readMaterialDriftReattestation\(/);
+  assert.match(source('registry.ts'), /createFindingRouteHandlers\(ctx, readRouteSourceRestoration\)/);
+  assert.match(source('registry.ts'), /createFindingHistoryHandlers\(ctx, observeDeferralInvalidation, readRouteSourceRestoration\)/);
+  assert.match(source('handlers/finding-material-reattestation.ts'), /export const readRouteSourceRestoration: RouteSourceRestorationReader = \(ctx, source\) => \{\s*const restored = readMaterialDriftReattestation\(ctx, source\.storyId, source\.recordId\);/);
+  assert.match(source('handlers/finding-route.ts'), /readRestoration\?\.\(ctx, source\)/);
+  assert.doesNotMatch(source('handlers/finding-route.ts'), /from ['"][^'"]*finding-material-reattestation\.js['"]/);
+  assert.doesNotMatch(source('handlers/finding-route.ts'), /import\s*\(\s*['"][^'"]*finding-material-reattestation\.js['"]\s*\)/);
 });
 check('COLLECTORS-not-permanently-disabled', () => {
   assert.doesNotMatch(source('handlers/finding-qualification.ts'), /refusalReasons\.push\('qualification_source_collectors_incomplete/);
