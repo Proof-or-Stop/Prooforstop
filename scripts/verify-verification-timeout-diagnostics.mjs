@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
 import { inspect } from 'node:util';
 import { runInNewContext } from 'node:vm';
 import { verificationSpawner, verificationFailureMessage } from './verification-subprocess-budget.mjs';
@@ -17,9 +20,9 @@ assert.throws(() => requireStartedCapture(notReady), error => verificationFailur
   'a real timed-out child without readiness must be unavailable, not a product assertion');
 let failure;
 try {
-  verificationSpawner(5000)(process.execPath, ['-e',
+  verificationSpawner(15000)(process.execPath, ['-e',
     "require('node:fs').writeSync(1,'TIMEOUT_CHILD_STDOUT');require('node:fs').writeSync(2,'TIMEOUT_CHILD_STDERR');setInterval(()=>{},1000)"],
-  { encoding: 'utf8', timeout: 1000 });
+  { encoding: 'utf8', timeout: 10000 });
 } catch (error) { failure = error; }
 assert(failure, 'TIMEOUT_DIAGNOSTICS_RED real child must time out');
 requireStartedCapture(failure);
@@ -42,10 +45,27 @@ assert(rendered.includes(failure.stdout) && rendered.includes(failure.stderr));
 
 // Exercise the exact caller catch body, without rerunning the native proof suite.
 const driver = 'try {} catch (error) {\n    throw error;\n  }\n' + readFileSync(new URL('./verify-route-reader-regression.mjs', import.meta.url), 'utf8');
-const handler = driver.match(/catch \(error\) \{([\s\S]*?)\n  \}/);
-assert(handler, 'TIMEOUT_DIAGNOSTICS_RED official caller must report retained output');
+const ts = createRequire(import.meta.url)('typescript');
+function actualSpawnHandler(text) {
+  const tree = ts.createSourceFile('driver.mjs', text, ts.ScriptTarget.Latest, true);
+  const handlers = [];
+  function visit(node) {
+    if (ts.isTryStatement(node) && node.tryBlock.statements.some(statement =>
+      ts.isExpressionStatement(statement) && ts.isBinaryExpression(statement.expression)
+      && ts.isCallExpression(statement.expression.right)
+      && statement.expression.right.expression.getText(tree) === 'spawnSync')) handlers.push(node.catchClause);
+    ts.forEachChild(node, visit);
+  }
+  visit(tree);
+  assert.equal(handlers.length, 1, 'ACTUAL_SPAWN_HANDLER_REQUIRED exactly one child-spawn try');
+  assert(handlers[0], 'ACTUAL_SPAWN_HANDLER_REQUIRED child-spawn catch required');
+  return handlers[0].block.getText(tree).slice(1, -1);
+}
+const handler = actualSpawnHandler(driver);
+assert.throws(() => actualSpawnHandler(driver.replace('result = spawnSync(', 'result = unrelatedSpawn(')),
+  /ACTUAL_SPAWN_HANDLER_REQUIRED/, 'an unrelated earlier catch must not replace the actual child handler');
 let stderr = '';
-assert.throws(() => runInNewContext(handler[1], { error: failure,
+assert.throws(() => runInNewContext(handler, { error: failure,
   process: { stderr: { write(text) { stderr += text; } } }, verificationFailureMessage }),
   error => error === failure, 'caller must retain the original failure');
 assert(stderr.includes('PROOF_UNAVAILABLE:') && stderr.includes(failure.stdout) && stderr.includes(failure.stderr),
@@ -60,4 +80,21 @@ const signaled = verificationSpawner(5000)(process.execPath, ['-e', "process.kil
 assert.equal(signaled.status, null); assert.equal(signaled.signal, 'SIGTERM'); assert.equal(signaled.error, undefined);
 const missing = verificationSpawner(5000)('/definitely-absent-route-diagnostic-executable', [], { timeout: 3000 });
 assert.equal(missing.error.code, 'ENOENT');
+// Exercise the actual driver's binding program, including refusal for every
+// modified member of its execution graph, before any expensive proof child.
+const driverTree = ts.createSourceFile('driver.mjs', driver, ts.ScriptTarget.Latest, true);
+const closureIndex = driverTree.statements.findIndex(node => ts.isVariableStatement(node)
+  && node.declarationList.declarations.some(declaration => declaration.name.getText(driverTree) === 'closure'));
+assert(closureIndex >= 0 && ts.isForOfStatement(driverTree.statements[closureIndex + 2]), 'driver closure program must exist');
+const closureProgram = driverTree.statements.slice(closureIndex, closureIndex + 3).map(node => node.getText(driverTree)).join('\n');
+const runClosure = new Function('assert', 'readFileSync', 'resolve', 'root', 'createHash', closureProgram);
+const root = resolve(import.meta.dirname, '..');
+runClosure(assert, readFileSync, resolve, root, createHash);
+for (const member of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs',
+  'scripts/verify-verification-timeout-diagnostics.mjs', 'scripts/verify-route-reattestation-dependency-direction.mjs',
+  'scripts/verification-subprocess-budget.mjs']) {
+  const changedRead = (file, ...args) => file === resolve(root, member) ? Buffer.from('/* removed proof member */') : readFileSync(file, ...args);
+  assert.throws(() => runClosure(assert, changedRead, resolve, root, createHash), { code: 'ERR_ASSERTION' },
+    'AUDIT6_CLOSURE_REQUIRED each modified graph member must be bound: ' + member);
+}
 console.log('VERIFICATION_TIMEOUT_DIAGNOSTICS_PASS real timeout streams, caller reporting and success preserved');

@@ -37,7 +37,9 @@ assert(scripts['test:serial-reference'].split(' && ').includes('npm run test:rou
 const closure = JSON.parse(readFileSync(resolve(root, 'scripts/lab/u18-static-edges/exceptions.json'), 'utf8')).entries
   .filter(entry => entry.dependencyDigests?.['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs']);
 assert.equal(closure.length, 4, 'reviewed four-gaps dependency closure must remain complete');
-for (const file of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs']) {
+for (const file of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs',
+  'scripts/verify-verification-timeout-diagnostics.mjs', 'scripts/verify-route-reattestation-dependency-direction.mjs',
+  'scripts/verification-subprocess-budget.mjs']) {
   const digest = createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex');
   assert(closure.every(entry => entry.dependencyDigests[file] === digest), 'route verifier helper dependency must match current source: ' + file);
 }
