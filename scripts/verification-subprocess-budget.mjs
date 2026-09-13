@@ -55,7 +55,15 @@ export function verificationSpawner(totalMs = 240000) {
     const timeout = Math.min(remaining, options.timeout > 0 ? options.timeout : remaining);
     const result = spawn(command, args, { ...options, timeout });
     if (result.error?.code === 'ETIMEDOUT') {
-      throw new Error(`VERIFICATION_SUBPROCESS_TIMEOUT: ${command} exceeded ${timeout} ms within the shared ${totalMs} ms budget`);
+      const error = new Error(`VERIFICATION_SUBPROCESS_TIMEOUT: ${command} exceeded ${timeout} ms within the shared ${totalMs} ms budget`);
+      Object.assign(error, { code: result.error.code, signal: result.signal, status: result.status });
+      // Retain bounded spawn buffers without duplicating them in an uncaught
+      // Error inspection after the caller explicitly renders the diagnostics.
+      Object.defineProperties(error, {
+        stdout: { value: result.stdout, writable: true, configurable: true },
+        stderr: { value: result.stderr, writable: true, configurable: true },
+      });
+      throw error;
     }
     return result;
   };

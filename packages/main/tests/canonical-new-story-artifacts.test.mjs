@@ -2367,6 +2367,7 @@ await check(['identity-cutover'], 'CHK-007:adversarial:0 proofbound injection at
 // consumer. Bind their exact origin declaration and import/use syntax, without
 // recursively promoting every dependency module into the owned-source universe.
 const OWNED_IMPORTED_IDENTITY_ORIGINS = [
+  ['packages/main/src/core/store.ts', 'packages/main/src/core/causal-evidence.ts', 'CAUSAL_EVIDENCE_INDEX_SCHEMA'],
   ['packages/main/src/core/acceptance-amendment-journal.ts', 'packages/main/src/core/artifact-schema.ts', 'ACCEPTANCE_AMENDMENT_ENTRY_SCHEMA'],
   ['packages/main/src/core/acceptance-amendment-journal.ts', 'packages/main/src/core/artifact-schema.ts', 'ACCEPTANCE_AMENDMENT_JOURNAL_SCHEMA'],
   ['packages/main/src/core/convergence-effective-progress.ts', 'packages/main/src/core/artifact-schema.ts', 'EFFECTIVE_PROGRESS_SCHEMA'],
@@ -2627,7 +2628,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/acceptance-amendment-journal.ts", "proof-or-stop.acceptance_amendments.v1", 2, "d2c1713750a7a4735af15847ee69566291f17759a0297d21367ffcf7d9044913"],
   ["packages/main/src/core/convergence-effective-progress.ts", "proof-or-stop.effective_progress.v1", 1, "25f66117c33b2122f2e32ab982482b67d73e7cddf1111cc086f2a494c0a9be3d"],
   ["packages/main/src/core/convergence-progress-journal.ts", "proof-or-stop.convergence_progress_journal.v1", 2, "a2f9a312a8a9dae53c46d10167788efb79a95aa854497664e2569818e784d8d3"],
-  ["packages/main/src/core/store.ts", "proof-or-stop.causal-evidence-index.v1", 2, "8d8b84ac55d4bdca548ed4505ba284d127c063ab18a5ae9af6d7eaf683be1284"],
+  ["packages/main/src/core/store.ts", "proof-or-stop.causal-evidence-index.v1", 2, "9beefb3d51fb92b6ce8f6e728186deac6cb04dc0da081e37f321a8a35c786d2c"],
   ["packages/main/src/core/store.ts", "proof-or-stop.decision_doc_proposals.v1", 1, "c6d404029421548dea27e30d14c13c18313e400404206a45d44375b96f8f2a0f"],
 
   ["packages/main/src/handlers/review-run.ts","proof-or-stop-review-topology-critic",1,"111ae2939a16bbebadfd9f53c9b6db912c913d07b4660fe5403fe7d27a2f7031"],
@@ -3039,7 +3040,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 377,
     "contextSha256": "3f79c6ccaf1d5bbca3bbbe8a19b48db43926794b35a6b852e5748c94e04945cf"
   },
-  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 23, "contextSha256": "483e3d1d942af7a36fb81b4ff1ed25c37bd70d55d18b8699dfa0d11c7d1c1960"},
+  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 24, "contextSha256": "75a4cf47700a818b8afffdaf9c9015d9c1f84c77c2e00db0026aa5f1347b4ad2"},
   {
     "sourcePath": "packages/main/src/core/prompt-budget.ts",
     "occurrences": 4,
@@ -3181,6 +3182,19 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers 
   const sources = identityCutoverSourceMap();
   assertOwnedIdentitySiteTotality(sources);
   assertOwnedImportUseIntegrity(sources);
+  const registryPath = 'packages/main/src/core/process-fact-registry.ts';
+  const registryDefault = 'entries: readonly unknown[] = PROCESS_FACT_REGISTRY';
+  assert.equal(sources.get(registryPath).split(registryDefault).length - 1, 1, 'reviewed registry default must be unique');
+  const registryMoved = new Map(sources);
+  registryMoved.set(registryPath, sources.get(registryPath).replace(registryDefault, `${registryDefault}.slice(0, 0)`));
+  const registryPin = OWNED_IMPORT_USE_CONTEXTS.find(row => row.sourcePath === registryPath);
+  const registryContext = deriveOwnedImportUseContexts(registryMoved).find(row => row.sourcePath === registryPath);
+  assert.equal(registryContext.occurrences, registryPin.occurrences, 'registry default mutation preserves imported-use count');
+  assert.notEqual(registryContext.contextSha256, registryPin.contextSha256, 'registry default mutation changes exact context');
+  assert.throws(() => assertOwnedImportUseIntegrity(registryMoved), /owned import use changed/, 'same-count registry default remains closed');
+  const registryAdded = new Map(sources);
+  registryAdded.set(registryPath, `${sources.get(registryPath)}\nvoid PROCESS_FACT_REGISTRY;\n`);
+  assert.throws(() => assertOwnedImportUseIntegrity(registryAdded), /owned import use changed/, 'added registry imported use remains closed');
   const signerPath = 'packages/main/src/core/verification-execution-evidence.ts';
   const readerCall = 'join(location.commonDir, VERIFICATION_SIGNER_KEY_FILE)';
   assert.equal(sources.get(signerPath).split(readerCall).length - 1, 1, 'the reviewed located signer reader must be unique');
@@ -3235,6 +3249,35 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers 
     added.set(path, `${sources.get(path)}\nvoid ${binding};\n`);
     assert.throws(() => assertOwnedImportUseIntegrity(added), /owned import use changed/, path);
   }
+});
+
+await check(['identity-cutover', 'identity-sites'], 'F-060 causal index central identity retains exact consumer coverage', () => {
+  const sources = identityCutoverSourceMap();
+  const causalConsumer = 'packages/main/src/core/store.ts';
+  const causalOrigin = 'packages/main/src/core/causal-evidence.ts';
+  const causalIdentity = 'proof-or-stop.causal-evidence-index.v1';
+  const causalPin = OWNED_IDENTITY_SITE_CONTEXTS.find(row => row.sourcePath === causalConsumer && row.canonical === causalIdentity);
+  const assertCausalConsumer = sourceMap => assert.deepEqual(
+    deriveOwnedIdentityLiterals(sourceMap).find(row => row.sourcePath === causalConsumer && row.canonical === causalIdentity),
+    causalPin, 'causal index imported consumer must retain its exact count and context');
+  assert.ok(causalPin, 'causal index consumer must retain its independently reviewed pin');
+  assertCausalConsumer(sources);
+  const originDeclaration = "export const CAUSAL_EVIDENCE_INDEX_SCHEMA = 'proof-or-stop.causal-evidence-index.v1' as const;";
+  assert.equal(sources.get(causalOrigin).split(originDeclaration).length - 1, 1, 'central causal identity declaration must be unique');
+  const changedOrigin = new Map(sources);
+  changedOrigin.set(causalOrigin, sources.get(causalOrigin).replace(originDeclaration, originDeclaration.replace(causalIdentity, 'proof-or-stop.unreviewed-causal-index.v1')));
+  assert.throws(() => assertCausalConsumer(changedOrigin), /causal index imported consumer/, 'central literal substitution must remain refused');
+  const addedUse = new Map(sources);
+  addedUse.set(causalConsumer, `${sources.get(causalConsumer)}\nvoid CAUSAL_EVIDENCE_INDEX_SCHEMA;\n`);
+  assert.throws(() => assertCausalConsumer(addedUse), /causal index imported consumer/, 'new imported consumer must remain refused');
+  const consumerComparison = 'index.schemaVersion === CAUSAL_EVIDENCE_INDEX_SCHEMA';
+  assert.equal(sources.get(causalConsumer).split(consumerComparison).length - 1, 1, 'causal index comparison must be unique');
+  const movedUse = new Map(sources);
+  movedUse.set(causalConsumer, sources.get(causalConsumer).replace(consumerComparison, 'index.schemaVersion !== CAUSAL_EVIDENCE_INDEX_SCHEMA'));
+  const movedContext = deriveOwnedIdentityLiterals(movedUse).find(row => row.sourcePath === causalConsumer && row.canonical === causalIdentity);
+  assert.equal(movedContext.occurrences, causalPin.occurrences, 'comparison mutation preserves consumer count');
+  assert.notEqual(movedContext.contextSha256, causalPin.contextSha256, 'comparison mutation changes exact consumer context');
+  assert.throws(() => assertCausalConsumer(movedUse), /causal index imported consumer/, 'same-count changed consumer must remain refused');
 });
 
 await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered-site omissions and new typed producers fail independently of registry agreement', async () => {
