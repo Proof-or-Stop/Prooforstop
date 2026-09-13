@@ -9278,6 +9278,7 @@ function assertStoryAwareDynamicValidationRuntime() {
       assert(level?.rationale.includes('DONE-required evidence stays independent'), 'dynamic authority must not replace DONE-required proof');
       assert(level?.rationale.includes('Authority risk is derived from the complete live catalog; any non-local catalog row disables low-risk dynamic authority'), 'dynamic authority risk must retain the complete live catalog floor');
       assert(level?.rationale.includes('this origin routing is not authentication, which occurs inside that evaluator'), 'dynamic DONE routing must not claim that unsigned origin classification authenticates evidence');
+      assert(level?.rationale.includes('DONE routing verifies the signed selection manifest before trusting its mode'), 'dynamic DONE routing must authenticate selection mode before using it');
     }
     assert(level?.gateConsumer && /dynamic|validate|TEST|authority/i.test(level.gateConsumer), `process-fact-levels: dynamic fact must name a gate consumer: ${fact}`);
   }

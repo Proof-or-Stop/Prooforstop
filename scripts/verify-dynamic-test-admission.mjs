@@ -295,7 +295,13 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         const receiptsPath = join(root, '.proof-or-stop/runtime/dynamic-validation', storyId, 'receipts.json');
         const originalSelection = readFileSync(selectionPath);
         const originalReceipts = readFileSync(receiptsPath);
-        writeFileSync(selectionPath, JSON.stringify({ mode: 'observe' }));
+        const remodedSelection = { ...JSON.parse(originalSelection), mode: 'observe' };
+        writeFileSync(selectionPath, JSON.stringify(remodedSelection));
+        assert.equal(requiresDynamicValidationAdmission({ root, store }, storyId), true,
+          'a signed enforce manifest re-moded without re-signing must retain strict DONE routing while receipts exist');
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, storyGitCwd),
+          /Stored routine validation admission|validation evidence signature is missing or invalid/,
+          'tampered runtime mode plus stripped output marker must fail inside strict admission');
         rmSync(receiptsPath);
         assert.equal(requiresDynamicValidationAdmission({ root, store }, storyId), false,
           'after every dynamic discriminator is removed, the unsigned record retains only the legacy DONE shape');

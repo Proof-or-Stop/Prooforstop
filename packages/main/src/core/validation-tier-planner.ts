@@ -678,7 +678,8 @@ export function selectAutomaticValidationTier(
   const initial = selectValidationTiers({ ...normalizedInput, requestedTier: 'story-fast' }, dependencies);
   const impactEntries = Array.isArray(input.impactIndex?.entries) ? input.impactIndex.entries : [];
   const needsIntermediate = impactEntries.some((entry) =>
-    entry.selection === 'story-intermediate'
+    entry !== null && typeof entry === 'object'
+    && entry.selection === 'story-intermediate'
     && Array.isArray(entry.inputPatterns)
     && changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern))));
   if (initial.effectiveTier === REPOSITORY_FULL_TIER) {

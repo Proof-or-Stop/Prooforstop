@@ -631,18 +631,21 @@ function artifactDir(projectRoot: string, storyId: string): string {
  * writes audit artifacts too, so bare ledger presence must not widen DONE.
  */
 export function hasStoryAwareValidationArtifacts(projectRoot: string, storyId: string): boolean {
+  return withValidationSigningRoot(projectSigningRoot(projectRoot), () => {
   const dir = artifactDir(projectRoot, storyId);
   const selectionPath = join(dir, 'selection.json');
   const receiptsPath = join(dir, 'receipts.json');
   if (!existsSync(selectionPath)) return existsSync(receiptsPath);
   try {
-    const selection = JSON.parse(readFileSync(selectionPath, 'utf8')) as { mode?: unknown };
+    const selection = JSON.parse(readFileSync(selectionPath, 'utf8')) as ValidationSelectionManifest;
+    if (!verifyValidationSelectionManifest(selection)) return existsSync(receiptsPath);
     return selection.mode === 'enforce-low-risk' && existsSync(receiptsPath);
   } catch {
     // Malformed selection beside receipts may be stripped dynamic provenance,
     // so keep that combination on the strict refusal path.
     return existsSync(receiptsPath);
   }
+  });
 }
 
 /** Whole-PASS reuse must not turn an invalid existing ledger into an empty ledger. */

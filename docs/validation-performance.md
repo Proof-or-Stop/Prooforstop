@@ -458,8 +458,9 @@ to heuristic runtime roots but never becomes complete selector ownership.
 The twenty compatibility package entrypoints now dispatch twenty distinct
 mode-specific executable assertions over the corresponding manifest,
 graph/scope, receipt, oracle, authority, or scheduler object. They no
-longer prove a mode by relabeling one unconditional tail marker. TEST-gate modes
-also rebuild runtime output and cross the real TEST and DONE consumers. These
+longer prove a mode by relabeling one unconditional tail marker. The `test-gate`
+and `test-gate-mutations` modes also rebuild runtime output and cross the real
+TEST and DONE consumers. These
 package scripts are not twenty configured `validate.commands` rows, so Story
 selection does not execute them as twenty validation units.
 
@@ -564,11 +565,13 @@ and subdirectory cases.
 ## Dynamic PASS consumption
 
 The REVIEW-to-TEST consumer first authenticates the complete stored PASS record
-with its Story-bound signature, before reading its execution mode. DONE applies
-this added strict evaluator to dynamic-origin evidence only: a signed dynamic
-claim or existing Story-owned dynamic artifacts trigger it, including when an
-attacker strips the unsigned presentation marker; unrelated legacy full PASS
-records retain their prior DONE contract. Git-backed
+with its Story-bound signature, before reading its execution mode. DONE routes
+a stored dynamic claim to the added strict evaluator. It also authenticates the
+Story-owned selection manifest before using its mode for routing; an invalid or
+malformed selection beside retained receipts stays on the strict refusal path.
+Consequently, stripping the output marker or re-moding the selection while its
+receipts remain cannot downgrade admission. Unrelated legacy full PASS records
+retain their prior DONE contract. Git-backed
 FAIL records are also authenticated, preserving existing command-PASS reuse after
 a verification-coverage-only failure is repaired; non-Git failure reporting stays
 available. Both canonical

@@ -82,8 +82,8 @@ record, and `runDoneOracleGate` rechecks it. A changed ledger, missing receipt,
 mismatched HEAD, signature mutation, expiry and revocation are independently
 refused. Compatibility package entrypoints remain, but the mutation task now
 dispatches twenty distinct mode-specific executable assertion blocks instead of
-relabeling one unconditional tail marker. TEST-gate modes additionally run the
-real TEST/DONE fixture. These package entrypoints are not twenty configured
+relabeling one unconditional tail marker. The `test-gate` and
+`test-gate-mutations` modes additionally run the real TEST/DONE fixture. These package entrypoints are not twenty configured
 `validate.commands` rows and therefore do not inflate Story runtime selection.
 
 ## Claude CLI audit and remediation
@@ -181,8 +181,8 @@ directory; none of its findings was discarded.
 | A3-F4 full escalation accounting | Escalation could retain reuse while hard-zeroing coverage gaps on the stale claim that every command was selected | Full escalation again selects every catalog row for execution; the regression asserts the full disposition and escalation reason |
 | A3-F5 TEST documentation | One paragraph still called direct TEST validation canonical-full | It now states that configured dynamic authority may apply in TEST only with the complete prerequisite set; explicit full and DONE stay canonical |
 | A3-F6 activation claims | Shared help and L4 rationale incorrectly claimed this repository was already in enforce mode | Help is repository-neutral; the L4 fact says unconfigured is off and each repository must opt in only after current rollout evidence. This repository remains observe |
-| A3-F7 missing mutations | Excluded/effective-tier, wave-0 widening, and DONE marker stripping were not all exercised | Re-signed mutations cover excluded-inside-tier, excluded-under-full, missing proof and tier invariants; the real DONE consumer now rejects stripped markers and tampered signatures |
-| A3-F8 unauthenticated DONE branch | DONE used an unsigned output marker to decide whether to authenticate dynamic evidence | Every stored PASS is authenticated first; a refusal is appended as a blocking DONE checklist row so the rest of the checklist remains visible |
+| A3-F7 missing mutations | Excluded/effective-tier, wave-0 widening, and DONE marker stripping were not all exercised | Re-signed mutations cover excluded-inside-tier, excluded-under-full, missing proof and tier invariants; superseded by A16-F1/A18-F2, the real DONE consumer routes a stripped marker through retained authenticated selection/receipt lineage and rejects tampered signatures |
+| A3-F8 unauthenticated DONE branch | DONE used an unsigned output marker to decide whether to authenticate dynamic evidence | Superseded by A16-F1/A18-F2: stored origin is only routing; the strict evaluator authenticates the PASS, and selection mode is trusted only after manifest verification. A refusal is appended as a blocking DONE checklist row so the rest remains visible |
 | A3-F9 explain-plan cost | `validation_plan` built a dual-revision whole-repository graph per query | It now uses the same pure selector function over an explain-side catalog projection without runtime graph augmentation; the runtime executor separately retains its safety graph for positive impact and fail-closed escalation |
 | A3-F10 digest domain drift | Intermediate promotion redundantly rebuilt an equivalent decision with a third digest body shape | The automatic selector returns the canonical promoted decision directly |
 | A3-F11 accounting shape | Runtime JSON emitted `excluded`, but its TypeScript accounting declaration omitted it | `excluded` is now a declared field and covered by the real `2 -> 1 execute + 1 excluded` fixture |
@@ -240,7 +240,7 @@ repaired on the Lab branch:
 | A5-F7 catalog digest domain | Manifest and selector binding used separate canonical-digest entry points | Production baseline, preparation, receipt admission, input digest and manifest binding all use `digestCanonicalJson(catalog)` |
 | A5-F8 malformed selector input | Hostile non-array impact entries could make a boolean verifier throw | Tier arrays, tier names, universe IDs, pins and changed paths are type-checked and the complete verifier catches malformed signed shapes, returning `false`; authority evaluation additionally converts refusal to `selection-manifest-invalid` |
 | A5-F9 dependency seam | Sorted call arities lost the identity of the authorized seam argument | AST regression separately pins one public one-argument call and three internal calls whose second argument is exactly the `dependencies` identifier |
-| A5-F10 wrapper markers | Public modes trusted unconditional marker strings printed at the mutation-smoke tail | Tail markers were removed. Every public mode requires the complete core and 30-class mutation smokes; TEST modes additionally run the real signed TEST/DONE fixture, and the adapter emits the requested marker only after those proofs pass |
+| A5-F10 wrapper markers | Public modes trusted unconditional marker strings printed at the mutation-smoke tail | Tail markers were removed. Every public mode requires the complete core and 30-class mutation smokes; `test-gate` and `test-gate-mutations` additionally run the real signed TEST/DONE fixture, and the adapter emits the requested marker only after those proofs pass |
 
 The repaired source build, planner smoke, Story-aware smoke, 30-class mutation
 audit, real TEST/DONE fixture and dynamic admission mutations pass. A fresh Lab
@@ -283,10 +283,10 @@ addressed as follows:
 | A7-F3 evidence counts | The table retained obsolete 30/20 counts | Counts now match the pinned output: CHK-004 32 and CHK-005 21 |
 | A7-F4 narrow Lab GREEN | The immutable original RED/GREEN command covers build plus planner smoke only | The Lab-owned GREEN remains its exact mandatory RED replay; the repair head additionally runs the runtime, mutation, real TEST/DONE and process-fact checks listed in the evidence table, with literal outputs retained in Lab history/release notes rather than mislabeled as the original GREEN |
 | A7-F5 selector reachability | Regex discovery treated JSON, examples, generated imports and aliases as missing edges; whole-catalog risk disabled narrowing | Module discovery now uses the TypeScript AST, excludes runtime artifacts, supports `.mts`/`.cts` and source/dist mapping, and limits missing-edge failure to real authority modules. A real 168-command measurement reports `graphUnknown=false`, zero resolution failures and risk counts 51 local / 50 shared / 2 gate / 65 validation-infra. Authority risk uses participating execute/reuse rows, so any selected non-local row still refuses while unrelated exclusions do not |
-| A7-F6 unintended DONE widening | Every stored PASS inherited the complete generic admissibility evaluator and intent-integrity errors were flattened | DONE invokes the added evaluator only for a dynamic claim or existing Story-owned dynamic artifacts; marker stripping cannot downgrade it, legacy full evidence is not widened, and intent-amendment integrity errors are rethrown |
+| A7-F6 unintended DONE widening | Every stored PASS inherited the complete generic admissibility evaluator and intent-integrity errors were flattened | DONE invokes the added evaluator only for a dynamic claim or authenticated enforce selection lineage; invalid selection beside retained receipts also fails strict. Marker stripping or re-moding alone cannot downgrade it, legacy full evidence is not widened, and intent-amendment integrity errors are rethrown |
 | A7-F7 throwing manifest verifier | Unknown tier keys and hostile arrays could escape as `TypeError` | The verifier validates all tier arrays and selector string arrays inside a fail-closed boolean boundary; an unknown-effective-tier mutation proves no throw and `false` |
 | A7-F8 stale verdict guidance | Error text said only canonical evidence was allowed | Guidance now names canonical full or a signed complete dynamic ledger |
-| A7-F9 stale dist / missing Bun | Bun mode could import old `dist`; an explicitly missing Bun binary had no useful fallback | TEST-gate modes build canonically before importing the consumer fixture, and any Bun `ENOENT` uses the same built Node task fallback |
+| A7-F9 stale dist / missing Bun | Bun mode could import old `dist`; an explicitly missing Bun binary had no useful fallback | The `test-gate` and `test-gate-mutations` modes build canonically before importing the consumer fixture, and any Bun `ENOENT` uses the same built Node task fallback |
 
 The next candidate still requires a fresh committed-head GREEN and independent
 Claude decision. No failed candidate is described as released.
@@ -306,7 +306,7 @@ addressed as follows:
 | A8-F4 hostile ownership shape | `inputsComplete=true` accepted any defined `inputRoots` value | Complete exclusion authority now requires an array containing only non-empty strings; a schema-bypassing string fixture remains partial |
 | A8-F5 host-dependent graph digest | A thrown graph error embedded its host-specific message into signed identity | Failure identity stores the stable error class only; paths and arbitrary host wording cannot change the signed graph digest |
 | A8-F6 TSX import loss | All files were parsed as TypeScript, so JSX before an import could hide the edge | Script kind follows the real extension; a real Git fixture proves an import after JSX creates the reverse dependency |
-| A8-F7 label-only audit modes | Twenty package scripts changed only a tail marker after the same suite | Compatibility names remain, but each mode now invokes a distinct executable assertion against its corresponding manifest, graph/scope, receipt, oracle, authority, or scheduler object; TEST-gate modes additionally cross the real TEST/DONE fixture |
+| A8-F7 label-only audit modes | Twenty package scripts changed only a tail marker after the same suite | Compatibility names remain, but each mode now invokes a distinct executable assertion against its corresponding manifest, graph/scope, receipt, oracle, authority, or scheduler object; `test-gate` and `test-gate-mutations` additionally cross the real TEST/DONE fixture |
 | A8-F8 DONE context boundary | DONE constructed a partial `HandlerContext` cast and re-resolved Git cwd | Origin routing accepts only root/store; the strict admissibility evaluator accepts root/store plus the already resolved Story Git cwd, which DONE passes without a type escape |
 
 Dynamic runner v9 invalidates older runner identities because selector snapshot
@@ -492,6 +492,25 @@ Fresh build, planner and Story-aware smokes, real TEST/DONE, 30-class mutation,
 process-fact, and static-edge/boundary checks pass on the repair tree. Formal
 committed-head Lab GREEN and independent audit evidence remain required before
 integration.
+
+## Eighteenth Claude audit and remediation
+
+The exact repair-head audit of `c203fa63f5` returned `fail` under run
+`b22f3917-bf1e-4c4e-941c-5e9afe682a0b` after 842,187 ms. Claude retained two
+medium implementation/evidence defects and two low hostile-input/documentation
+defects. No failed candidate was integrated:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A18-F1 confounded TEST escalation mode | The mode had no graph and independently hardcoded shared risk plus an ineligible Story, so three unrelated causes could satisfy one fallback assertion | The mode now supplies a complete graph, changes one generated-output path, requires the exact generated-output escalation, derives risk from the real catalog, uses the complete eligible prerequisite set, and requires `full-escalation-required` from authority evaluation |
+| A18-F2 unsigned selection mode routed DONE | Rewriting a well-formed enforce selection's unsigned `mode` to observe could hide retained receipts from strict routing when the output marker was also stripped | Routing now verifies the complete signed selection manifest under the target repository signing root before trusting mode. Invalid or malformed selection with retained receipts routes to strict refusal; the real DONE fixture re-modes the manifest without re-signing, strips the output marker, and requires the blocking evaluator |
+| A18-F3 TEST-mode prose overclaimed | Documentation said all three TEST-named modes crossed real TEST/DONE although the adapter runs that fixture for two | Performance and historical audit text now name exactly `test-gate` and `test-gate-mutations`; `test-gate-escalation` remains an isolated, production-derived authority assertion |
+| A18-F4 null impact row threw | Automatic intermediate promotion dereferenced each impact-index entry after the core selector had already classified an invalid row as unusable | The promotion predicate now shape-checks each row. A re-signed manifest carrying a null index row is asserted not to throw and to return boolean `false` |
+
+Build, planner and Story-aware smokes, the isolated escalation mode, real
+TEST/DONE admission, 30-class mutation, process-fact and static-edge/boundary
+checks pass on the repair tree. A new committed GREEN and independent audit are
+still required before integration.
 
 ## Rollback
 

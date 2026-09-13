@@ -542,6 +542,29 @@ assert.doesNotThrow(() => {
   }));
 }, 'malformed changedPaths must be a boolean refusal, not a verifier exception');
 assert.equal(malformedChangedPathsResult, false);
+const malformedImpactEntriesBinding = {
+  ...tieredManifest.selectorBinding!,
+  input: {
+    ...tieredManifest.selectorBinding!.input,
+    impactIndex: {
+      ...tieredManifest.selectorBinding!.input.impactIndex!,
+      entries: [null] as never,
+    },
+  },
+};
+malformedImpactEntriesBinding.bindingDigest = digestCanonicalJson({
+  catalogDigest: malformedImpactEntriesBinding.catalogDigest,
+  input: malformedImpactEntriesBinding.input,
+  decision: malformedImpactEntriesBinding.decision,
+});
+let malformedImpactEntriesResult: boolean | undefined;
+assert.doesNotThrow(() => {
+  malformedImpactEntriesResult = verifyValidationSelectionManifest(resign({
+    ...tieredManifest,
+    selectorBinding: malformedImpactEntriesBinding,
+  }));
+}, 'a null impact-index row must be a boolean refusal, not a verifier exception');
+assert.equal(malformedImpactEntriesResult, false);
 let unknownEffectiveTierResult: boolean | undefined;
 assert.doesNotThrow(() => {
   unknownEffectiveTierResult = verifyValidationSelectionManifest(resign({
@@ -985,10 +1008,20 @@ if (requestedAuditMode) {
       return 'low-risk dynamic TEST PASS';
     },
     'test-gate-escalation': () => {
-      const manifest = buildDynamicValidationPlan(context('packages/main/src/audit-test-gate-escalation.ts'));
-      const subject = evaluateDynamicAuthority({ mode: 'enforce-low-risk', riskTier: 'shared', manifest,
-        prerequisites: { ...allAuthorityPrerequisites, storyRiskEligible: false }, pinnedCommandsExecuted: true });
+      const manifest = buildDynamicValidationPlan({
+        ...context('packages/main/dist/audit-test-gate-escalation.js'),
+        graph: completeAuditGraph(),
+      });
+      assert.equal(manifest.fullEscalated, true);
+      assert.ok(manifest.escalationReasons.includes(
+        'generated-output-changed:packages/main/dist/audit-test-gate-escalation.js',
+      ));
+      const subject = evaluateDynamicAuthority({
+        mode: 'enforce-low-risk', riskTier: catalogValidationRiskFloor(catalog), manifest,
+        prerequisites: allAuthorityPrerequisites, pinnedCommandsExecuted: true,
+      });
       assert.equal(subject.fallbackToFull, true);
+      assert.ok(subject.reasons.includes('full-escalation-required'));
       return 'mandatory full escalation PASS';
     },
     'test-gate-mutations': () => {
