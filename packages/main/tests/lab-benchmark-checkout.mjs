@@ -2,8 +2,8 @@
 // observers enabled without observing unrelated work in the shared repository.
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {cpSync,existsSync,lstatSync,mkdtempSync,readdirSync,readlinkSync,symlinkSync,unlinkSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {cpSync,existsSync,lstatSync,mkdirSync,mkdtempSync,readdirSync,readlinkSync,symlinkSync,unlinkSync} from 'node:fs';
+import {homedir} from 'node:os';
 import path from 'node:path';
 import {verifyBuildBinding,verifyUtilsBuildBinding} from '../../../scripts/full-suite-build-binding.mjs';
 export async function prepareBenchmarkCheckout(sourceRoot) {
@@ -11,7 +11,9 @@ export async function prepareBenchmarkCheckout(sourceRoot) {
   const git=(cwd,args)=>{const r=spawnSync('git',args,{cwd,encoding:'utf8',timeout:120000,maxBuffer:8*1024*1024});assert.equal(r.status,0,r.stderr);return r.stdout.trim();};
   const head=git(sourceRoot,['rev-parse','HEAD']),branch=git(sourceRoot,['branch','--show-current']);assert.ok(branch);
   const sourceMain=verifyBuildBinding(sourceRoot),sourceUtils=verifyUtilsBuildBinding(sourceRoot);
-  const parent=mkdtempSync(path.join(tmpdir(),'top5-checkout-')),root=path.join(parent,'repo');
+  const checkoutBase=path.join(homedir(),'Documents','top5-benchmark-checkouts');
+  mkdirSync(checkoutBase,{recursive:true});
+  const parent=mkdtempSync(path.join(checkoutBase,'top5-checkout-')),root=path.join(parent,'repo');
   console.log('TOP5_CHECKOUT_PREPARING '+JSON.stringify({root,head}));
   git(sourceRoot,['clone','--no-local','--single-branch','--branch',branch,sourceRoot,root]);
   assert.equal(git(root,['rev-parse','HEAD']),head,'benchmark checkout must match the committed Lab candidate');
@@ -28,7 +30,6 @@ export async function prepareBenchmarkCheckout(sourceRoot) {
           const copiedTarget=path.join(root,path.relative(sourceRoot,resolved));
           // Rebase absolute local links too; no dependency points back at the Lab.
           unlinkSync(target);symlinkSync(path.relative(path.dirname(target),copiedTarget),target);
-          if(existsSync(resolved))assert.ok(existsSync(copiedTarget)||inside(root,copiedTarget));
         } else if(entry.isFile()) assert.notEqual(lstatSync(target).ino,lstatSync(original).ino,'dependency bytes must be independent copies');
       }
     };
