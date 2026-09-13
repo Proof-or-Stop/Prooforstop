@@ -1,23 +1,5 @@
 # Changelog
 
-## Lab acceptance-closure-repairs - v0.3.353 - 2026-09-13
-
-Fix incomplete acceptance coverage and mutable evidence publication.
-
-Checklist items without verification intents can no longer disappear from an otherwise explicit coverage report. Withdrawn items and historical all-empty compatibility retain their existing policy.
-
-Evidence publication now prepares one immutable serialized snapshot. Size validation, commit hashes and atomic persistence consume the same bytes. The writer admits exactly 24 MiB and rejects one additional UTF-8 byte before replacing existing evidence. Store-bound preparation tokens reject forged, copied or cross-story use. Oversized preparation returns a structured failure while preserving prior evidence; reuse-publication retry succeeds without changing review phase or round in the isolated lifecycle regression. A genuinely oversized artifact after fresh heavy execution preserves old bytes but consumes its certification window: unchanged heavy replay is refused. Fresh-execution recovery still requires a new eligible window; the regression uses isolated test admission and does not claim real PRE_CERT approval.
-
-Validation: recorded Lab RED/GREEN for the original acceptance regression (3 failing groups to 0 of 5) and publication snapshot regression (2 failing groups to 0 of 4). The post-check mutation case now publishes the original 117 bytes with a matching digest instead of failing late after growth to 62,914,662 bytes. A 400-command output fixture reduces to 21,294,075 bytes before publication. Focused process-fact contract, evidence-buffer smoke, evidence-reuse smoke and real-CLI isolated publication lifecycle checks passed. These are correctness measurements, not a throughput benchmark.
-
-The change also updates the process-fact registry, reviewer guidance and regression entry points. Historical Story records are not restored or advanced by this Lab. Lab evidence is maintenance verification, not formal Story DONE or signed product-release evidence.
-
-Finish audit follow-up: rebind static invocation/dependency evidence, require child GREEN markers with timeout diagnostics, spend preparation tokens after successful publication, and test executed-path refusal separately from reuse refusal. The static-edge verifier reports zero unresolved edges and zero stale exceptions. The public amendment regression preserves 35 executed receipts, exposes the missing 36th requirement, and clears it only after signed additive amendment handlers plus the executed 36th receipt. Missing-intent diagnostics now name that recovery path. Existing express policy remains unchanged: any authored intent selects explicit coverage.
-
-Maintenance provenance: codex/lab-acceptance-closure-repairs, repair d0deb1e61e5e0316097a7cf6bfbb2251067c41a3.
-Verification command (replayed before integration and on main): `["node","experiments/acceptance-closure/publication-snapshot.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab route-reader-regression - v0.3.352 - 2026-09-13
 
 The four-gaps regression now checks the real registry-to-adapter reader composition while retaining projection consumption and the direct-import boundary. Seven live mutation cases cover both registry compositions, adapter-body substitution, route consumption, projection consumption, and alternate static/dynamic imports. The fixed historical callback illustrates former loose behavior; committed RED records remain the historical evidence, and no runtime Git-provenance claim is made.
