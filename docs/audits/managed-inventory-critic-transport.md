@@ -218,3 +218,45 @@ requires one actual critic receipt, and checks HEAD is unchanged so a forced com
 cannot masquerade as deferred metadata. The existing unavailable-status refusal
 control is retained. The tamper-control description is limited to digest refusal;
 it no longer claims that one combined refusal isolates consumer shape enforcement.
+
+## Integration with the 0.3.358 identity witnesses
+
+The integration candidate starts from main `8b64e4e6c0` and repair
+`55dff3c4c8`; merge `c0759fb32f` passed the pinned GREEN in 206870 ms.
+The only textual merge conflict was the static evidence manifest. Its 272
+entries retain separate callsites even where legacy IDs repeat. The merged
+scanner reports zero unresolved calls and 332 exception matches. These are
+integration checks, not benchmark delivery or Story DONE.
+
+The current identity boundary requires fresh whole-file witnesses for the
+changed repair files. Twenty-four source rows and nine fixture rows retain
+exactly the same line text, token counts, classification and reason; each old
+file digest was matched to a real parent commit and each line was located
+uniquely in the candidate. Only line numbers and whole-file digests change.
+The source and fixture reader digests then cascade into the owning scanner
+reader table. The 55 source rows and 272 pre-existing fixture rows are preserved. One new
+fixture row binds the exact managed-launch-plan run-ID read in the disposable
+import test, bringing the fixture inventory to 273. Twenty-six new JSON rows
+bind only the specific excerpt nodes in the two managed-critic static entries,
+bringing that inventory from 776 to 802. Their pointer, node kind, token count
+and complete decoded-node digest remain exact.
+No JSON context row or existing compatibility row is removed or relaxed.
+
+Four exact compatibility rows are added to the existing 90-row inventory:
+
+| Surface | Role and source of the protocol text | Exact occurrences |
+| --- | --- | ---: |
+| `scripts/verify-managed-inventory-critic-transport.mjs` | Disposable parser input exercising the existing `MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION` from `core/host-run.ts`; the actual final-proposal parser consumes it. | 1 |
+| `scripts/verify-managed-inventory-critic-import.mjs` | Disposable provider result passed through the actual receipt, terminal import and critic import path. The fixture does not authorize a real Story. | 1 |
+| `scripts/lab/u18-static-edges/exceptions.json` | Four copied final-proposal protocol occurrences in the two new bounded static-evidence entries; these are exact source excerpts, not a product writer. | 4 |
+| `scripts/lab/u18-static-edges/exceptions.json` | Four copied native invocation protocol occurrences in those same source-evidence entries. The protocol remains owned by `core/native-review-attestation.ts`; copying the descriptor grants no broker authority. | 4 |
+
+These occurrences originate in the committed managed-critic tests and their
+reviewed static source evidence, already present at `55dff3c4c8`. Each new row
+binds path, token, exact occurrence count and the digest of every containing
+line. The existing scanner self-test iterates every compatibility row and calls
+the actual inventory verifier for missing, duplicate, changed-count,
+changed-context, changed-path and changed-token controls. The four rows enter
+that same loop; no directory exemption, broader pattern or optional check is
+introduced. Fresh scanner and consumer verification is required before final
+candidate audit; this paragraph does not claim those future results.
