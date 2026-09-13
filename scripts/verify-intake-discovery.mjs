@@ -37,7 +37,7 @@ try {
   story.worktree = { path: linked, branch: 'story/B-discovery' }; assert.equal(workspace().gitCwd, linked);
   story.phase = 'DONE'; const terminal = observe(() => workspace()); assert.equal(terminal.commands.length, 0); assert.equal(terminal.outputs[0].worktreePath, null);
   story.phase = 'INIT'; delete story.worktree; git('worktree', 'remove', linked); assert.equal(workspace().worktreePath, null);
-  const wrapper = join(root, 'wrapper'); fs.mkdirSync(wrapper); ctx.root = wrapper; assert.equal(workspace({ gitRoot: root }).gitCwd, root); ctx.root = root;
+  const wrapper = join(root, 'wrapper'); fs.mkdirSync(wrapper); const nested = join(wrapper, 'repo'); fs.mkdirSync(nested); original('git', ['init', '-q', '-b', 'main'], { cwd: nested }); ctx.root = wrapper; assert.equal(workspace({ gitRoot: nested }).gitCwd, nested); ctx.root = root;
   git('commit', '--allow-empty', '-qm', 'advance'); assert.notEqual(resolveRepositoryBaseline(root).mergeBase, head);
   assert.equal(resolveRepositoryBaseline(root, 'missing-ref'), undefined);
   assert.equal(resolveRepositoryBaseline(root, 'HEAD', { deadlineMs: performance.now() - 1 }), undefined);
