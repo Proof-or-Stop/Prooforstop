@@ -46,6 +46,19 @@ for (const lifecycleVerdict of [
   );
 }
 
+assert.ok(
+  classify({
+    desc: 'Independent review has no open findings.',
+    type: 'cli',
+    priority: 'must',
+    verification: {
+      command: 'proof-or-stop finding_list --storyId=B-x',
+      selector: 'open: 0',
+    },
+  }),
+  'REVIEW_GATE_INTENT_CYCLE: a REVIEW lifecycle command pin must not bypass the pre-REVIEW cycle guard',
+);
+
 for (const legitimate of [
   { desc: 'The parser rejects unresolved symbolic references.', type: 'logic', priority: 'must' },
   { desc: 'A review screen renders unresolved findings for the user.', type: 'browser', priority: 'must' },
