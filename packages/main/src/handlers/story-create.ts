@@ -586,6 +586,13 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const draftIndex = JSON.parse(readFileSync(join(draftsDir, 'index.json'), 'utf-8'));
         const draftBg = readFileSync(join(draftsDir, 'background.md'), 'utf-8');
         const draftChecklist = JSON.parse(readFileSync(join(draftsDir, 'checklist.json'), 'utf-8'));
+        for (const [index, item] of (draftChecklist.items ?? []).entries()) {
+          assertNoReviewGateVerificationIntent(
+            'story_create',
+            item.verificationIntent,
+            typeof item.id === 'string' ? item.id : `CHK-${String(index + 1).padStart(3, '0')}`,
+          );
+        }
 
         // Shift-left English-only policy: refuse CJK author text from the draft
         // before any artifact is materialized, reusing the same detectCjk

@@ -29,6 +29,11 @@ registerHooks({
 });
 
 const storyReview = await import('../packages/main/src/handlers/story-review.ts');
+const { StoryStore } = await import('../packages/main/dist/core/store.js');
+const { acquireOwnerLease, resetSessionIdForTest } = await import('../packages/main/dist/core/story-owner-lease.js');
+const { acceptanceIntentHash } = await import('../packages/main/dist/core/verification-intent-amendment.js');
+const { resetConfigCache } = await import('../packages/main/dist/core/config.js');
+const { createChecklistHandlers } = await import('../packages/main/dist/handlers/checklist.js');
 
 assert.equal(
   typeof storyReview.reviewGateVerificationIntentIssue,
@@ -70,6 +75,7 @@ for (const legitimate of [
   { desc: 'The code review page passes accessibility checks.', type: 'browser', priority: 'must' },
   { desc: 'review_pass_set rejects an invalid signature.', type: 'cli', priority: 'must' },
   { desc: 'Independent review has no unresolved high or critical finding.', type: 'manual', priority: 'should' },
+  { desc: undefined, type: 'manual', priority: 'must' },
 ]) {
   assert.equal(
     classify(legitimate),
@@ -94,6 +100,9 @@ assert.match(
 
 const fixtureRoot = mkdtempSync(join(tmpdir(), 'proof-review-gate-cycle-'));
 const cli = new URL('../packages/main/dist/cli.js', import.meta.url).pathname;
+const previousCwd = process.cwd();
+const previousSessionId = process.env.PROOF_OR_STOP_SESSION_ID;
+const previousAgent = process.env.PROOF_OR_STOP_AGENT;
 const run = (command, payload) => execFileSync(process.execPath, [cli, '--root', fixtureRoot, command, JSON.stringify(payload)], {
   encoding: 'utf8',
   stdio: ['pipe', 'pipe', 'pipe'],
@@ -115,6 +124,11 @@ try {
     storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
   }));
   writeFileSync(join(fixtureRoot, 'docs', 'requirements', 'truth.md'), '# Review lifecycle truth\n');
+  execFileSync('git', ['init', '-q', '-b', 'main'], { cwd: fixtureRoot });
+  execFileSync('git', ['config', 'user.name', 'Review Intent Fixture'], { cwd: fixtureRoot });
+  execFileSync('git', ['config', 'user.email', 'review-intent@example.invalid'], { cwd: fixtureRoot });
+  execFileSync('git', ['add', '.'], { cwd: fixtureRoot });
+  execFileSync('git', ['commit', '-qm', 'fixture baseline'], { cwd: fixtureRoot });
   const background = `## Trigger Event\nOn 2026-09-12, run LAB-review-intent-stage-cycle reproduced a DEV to REVIEW dependency cycle caused by a review verdict encoded as acceptance evidence.\n\n## Key Insights\nIndependent review evidence is created only after entering REVIEW, while verification intents are otherwise required before that transition. The two evidence classes must remain separate.\n\n## Solution Tradeoffs\nReject the narrow lifecycle-verdict shape during PLAN instead of weakening the DEV evidence gate. This preserves product-behavior acceptance while preventing the known impossible dependency.\n\n## Conversational Texture\nThe benchmark completed implementation and focused tests but delivered an empty patch because one impossible intent kept the Story in DEV. The repair must fail early with a useful instruction.`;
   const baseStory = {
     name: 'review-gate-cycle',
@@ -141,6 +155,27 @@ try {
   });
   assert.match(createFailure, /story_create refused.*review_gate_as_verification_intent/s);
 
+  const draftName = 'review-intent-draft';
+  run('story_draft', {
+    name: draftName,
+    title: 'Reject review lifecycle draft intent',
+    description: 'Keep draft materialization free of review lifecycle evidence.',
+    type: 'bug',
+    priority: 'low',
+    background,
+    checklist: [{
+      title: 'Verify the focused behavior',
+      context: 'Exercise product behavior and keep lifecycle review separate.',
+    }],
+  });
+  run('draft_check_set', { draftName, issues: [], agentId: 'proof-or-stop-review-story-init' });
+  const draftChecklistPath = join(fixtureRoot, 'docs', 'story', 'drafts', draftName, 'checklist.json');
+  const draftChecklist = JSON.parse(readFileSync(draftChecklistPath, 'utf8'));
+  draftChecklist.items[0].verificationIntent = invalidIntent;
+  writeFileSync(draftChecklistPath, JSON.stringify(draftChecklist, null, 2) + '\n');
+  const draftFailure = runFailure('story_create', { fromDraft: draftName });
+  assert.match(draftFailure, /story_create refused.*review_gate_as_verification_intent/s);
+
   const legitimateIntent = {
     happy: [{ desc: 'The code review page passes accessibility checks.', type: 'browser', priority: 'must' }],
     edge: [{ desc: 'A review screen renders an empty findings list.', type: 'browser', priority: 'must' }],
@@ -163,6 +198,37 @@ try {
     verificationIntent: invalidIntent,
   });
   assert.match(updateFailure, /checklist_update refused.*review_gate_as_verification_intent/s);
+  const addFailure = runFailure('checklist_add', {
+    storyId,
+    title: 'Add an invalid review lifecycle intent',
+    context: 'The writer must reject this item before persistence.',
+    verificationIntent: invalidIntent,
+  });
+  assert.match(addFailure, /checklist_add refused.*review_gate_as_verification_intent/s);
+
+  const store = new StoryStore(fixtureRoot);
+  const story = store.readStory(storyId);
+  store.writeStory(storyId, { ...story, phase: 'DEV' });
+  process.chdir(fixtureRoot);
+  process.env.PROOF_OR_STOP_SESSION_ID = 'review-intent-cycle-owner';
+  delete process.env.PROOF_OR_STOP_AGENT;
+  resetSessionIdForTest();
+  resetConfigCache();
+  acquireOwnerLease(store.storyDirPath(storyId), { cwd: fixtureRoot, command: 'verification_intent_append' });
+  const item = store.readChecklist(storyId).items[0];
+  const handlers = createChecklistHandlers({ root: fixtureRoot, scanRoot: join(fixtureRoot, 'packages', 'main'), store });
+  assert.throws(
+    () => handlers.verification_intent_append({
+      storyId,
+      itemId: item.id,
+      expectedIntentHash: acceptanceIntentHash(item.verificationIntent),
+      reason: 'Reject lifecycle review evidence before a signed acceptance amendment is persisted.',
+      addition: { adversarial: [{ ...invalidIntent.adversarial[0], id: 'REVIEW-DEADLOCK', type: 'cli' }] },
+    }),
+    /verification_intent_append refused.*review_gate_as_verification_intent/s,
+  );
+  process.chdir(previousCwd);
+  store.writeStory(storyId, story);
   run('understanding_set', {
     storyId,
     task: 'reject lifecycle review outcomes in verification intent',
@@ -200,6 +266,13 @@ try {
   assert.equal(issue.intentRef, 'CHK-001:adversarial:0');
   assert.equal(issue.severity, 'blocker');
 } finally {
+  process.chdir(previousCwd);
+  if (previousSessionId === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+  else process.env.PROOF_OR_STOP_SESSION_ID = previousSessionId;
+  if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+  else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  resetSessionIdForTest();
+  resetConfigCache();
   rmSync(fixtureRoot, { recursive: true, force: true });
 }
 

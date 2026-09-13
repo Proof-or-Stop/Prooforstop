@@ -2651,6 +2651,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           'checklist_add refused: plannedPathDeclarations require checklist_update in PLAN by the dispatched verification-intent role or the active owner applying a bound proposal [planned_path_writer_not_authorized]',
         );
       }
+      assertNoReviewGateVerificationIntent('checklist_add', args.verificationIntent, 'checklist item');
       const story = assertChecklistAddAllowed(store, args);
 
       return withChecklistLock(ctx, args.storyId, () => {
