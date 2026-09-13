@@ -1,4 +1,4 @@
-import { withVerificationPlanningObservation } from '../core/verification-execution-evidence.js';
+import { withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
 import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
@@ -1992,7 +1992,7 @@ function collectStaleRefreshContext(ctx: HandlerContext, storyId: string): Stale
   const materialHash = currentMaterialHash(refreshGitCwd, 'HEAD', root);
   const storyFilesHash = currentStoryFilesHash(refreshGitCwd, 'HEAD', root);
   const cl = store.readChecklist(storyId);
-  const coverage = buildVerificationCoverage(
+  const coverage = withVerificationRefreshObservation(() => buildVerificationCoverage(
     cl,
     headHash,
     (oldHeadHash, evidence) => {
@@ -2007,7 +2007,7 @@ function collectStaleRefreshContext(ctx: HandlerContext, storyId: string): Stale
       ).fresh;
     },
     { deferredGateEvidence: 'missing', receiptAdmissibility: createVerificationEvidenceGateEvaluator(root, storyId) },
-  );
+  ));
   // F089: maintenance scheduling is not lifecycle admission. Gate-owned
   // classification correctly rejects receipt-less legacy logic attestations,
   // but that must not hide their metadata drift from the demotion-only writer.
@@ -2173,6 +2173,7 @@ function writeStaleRefresh(
     ];
     let refreshed = 0;
     const causalStamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'>> = [];
+    withVerificationRefreshObservation(() => {
     for (const entry of stale) {
       const item = cl.items.find(i => i.id === entry.itemId);
       const existing = item?.verificationEvidence || [];
@@ -2280,6 +2281,8 @@ function writeStaleRefresh(
       item.verificationEvidence = existing;
       refreshed++;
     }
+
+    });
 
     if (!opts.dryRun) {
       const commit = () => store.writeChecklist(storyId, cl);
@@ -3839,6 +3842,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         return `No stale verification evidence for ${args.storyId}`;
       }
       const buildGroups = (computed: StaleRefreshContext): Map<string, StaleReexecCandidate[]> => {
+        return withVerificationRefreshObservation(() => {
         const groups = new Map<string, StaleReexecCandidate[]>();
         for (const entry of computed.stale) {
           const item = computed.cl.items.find(i => i.id === entry.itemId);
@@ -3857,6 +3861,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           }
         }
         return groups;
+        });
       };
 
       if (dryRun) return writeStaleRefresh(ctx, args.storyId, initial, { dryRun: true });

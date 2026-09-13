@@ -29,6 +29,7 @@ const requiredEvidenceFacts = [
   'verification-receipt-authenticity',
   'verification-input-scoped-reuse',
   'verification-planning-observation',
+  'verification-refresh-observation',
   'verification-reuse-capsule-authority',
   'verification-execution-producer-lock',
   'verification-lifecycle-admissibility',

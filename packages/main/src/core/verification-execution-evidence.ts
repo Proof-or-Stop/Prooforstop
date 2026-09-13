@@ -573,7 +573,7 @@ function executableFileIdentity(
   return null;
 }
 
-// Only the initial, synchronous batch-planning map uses this observation.
+// Explicit synchronous planning and refresh scopes own this observation.
 // Current plans, launches, completion and publication retain independent reads.
 let planningObservation: { digest?: string } | undefined;
 export function withVerificationPlanningObservation<T>(plan: () => T): T {
@@ -581,6 +581,11 @@ export function withVerificationPlanningObservation<T>(plan: () => T): T {
   planningObservation = {};
   try { return plan(); }
   finally { planningObservation = previous; }
+}
+
+/** A separate synchronous refresh scope; execution and publication remain outside. */
+export function withVerificationRefreshObservation<T>(read: () => T): T {
+  return withVerificationPlanningObservation(read);
 }
 
 function planningImplementationIdentityDigest(): string {
