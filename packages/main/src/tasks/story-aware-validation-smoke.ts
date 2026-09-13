@@ -316,12 +316,10 @@ for (const { label, roots: hostileRoots } of hostileRootCases) {
   const hostileCatalog = compileValidationCatalog(hostileInventory);
   assert.equal(hostileCatalog[0]?.selectionInputCoverage, 'partial',
     `${label} schema-bypassing ownership must remain partial`);
-  if (hostileCatalog[0]!.inputRoots.length === 0) {
-    assert.ok(validateValidationCatalog(hostileInventory, [{
-      ...hostileCatalog[0]!, selectionInputCoverage: 'complete',
-    }]).errors.includes(`complete selector inputs require at least one declared input root: hostile-${label}`),
-    `${label} complete coverage with zero roots must have a named catalog error`);
-  }
+  assert.ok(validateValidationCatalog(hostileInventory, [{
+    ...hostileCatalog[0]!, selectionInputCoverage: 'complete', inputRoots: [], triggerExtensions: { files: [] },
+  }]).errors.includes(`complete selector inputs require at least one declared input root: hostile-${label}`),
+  `${label} schema-bypassing complete coverage with zero roots must have a named catalog error`);
   const hostileCommandSetDigest = buildValidationCommandInventory({ commands: hostileInventory.commands }).commandSetDigest;
   const hostileBinding = buildAutomaticValidationTierSelectionBinding({
     input: {

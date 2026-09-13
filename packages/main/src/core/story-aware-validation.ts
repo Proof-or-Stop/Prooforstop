@@ -389,6 +389,8 @@ export function validateValidationCatalog(inventory: ValidationInventory | Valid
     const triggerFiles = Array.isArray(trigger?.files) ? trigger.files : [];
     if (roots.length === 0 || roots.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
       errors.push('invalid or dist-only inputRoots: ' + entry.id);
+    // Schema-bypass backstop: compileValidationCatalog cannot produce this
+    // contradiction, but a forged catalog must receive a stable named refusal.
     if (entry.selectionInputCoverage === 'complete' && roots.length === 0)
       errors.push('complete selector inputs require at least one declared input root: ' + entry.id);
     if (entry.runnerSourcePath && (!validRelativePath(entry.runnerSourcePath) || !entry.runnerSourceDigest))

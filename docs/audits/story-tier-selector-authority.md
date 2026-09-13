@@ -476,6 +476,23 @@ The build, planner, Story-aware core, process-fact, real TEST/DONE admission,
 Formal committed-head Lab GREEN and a fresh exact-candidate Claude audit remain
 required before integration.
 
+## Seventeenth Claude audit and remediation
+
+The exact repair-head audit of `9f924794b9` returned `fail` under run
+`758ad355-20f3-4fe7-aa75-b998c9ade213` after 828,009 ms. Claude found no
+selector/executor/consumer safety bypass and retained only two low-severity
+vacuity defects. No failed candidate was integrated:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A17-F1 cwd/shell identity test could pass empty | The planner/runtime identity equality used optional index access, so both inventories disappearing could satisfy `undefined === undefined` | The fixture now requires exactly one configured, planner, runtime and impact-index row; it directly pins `{ command: 'node', args: ['task.js'], cwdRelative: 'packages/main', shell: true }`, and all identity comparisons use mandatory rows |
+| A17-F2 zero-root backstop test was unreachable | The smoke guarded its named catalog-error assertion behind a compiled heuristic-root array being empty, which never occurred | The production rule is documented as a schema-bypass backstop. Each hostile case now submits a deliberately forged complete catalog row with empty runtime/direct-trigger roots and directly requires the stable `complete selector inputs require at least one declared input root` error |
+
+Fresh build, planner and Story-aware smokes, real TEST/DONE, 30-class mutation,
+process-fact, and static-edge/boundary checks pass on the repair tree. Formal
+committed-head Lab GREEN and independent audit evidence remain required before
+integration.
+
 ## Rollback
 
 Set `validate.dynamic.mode` to `off`, or pass `--dynamicMode=off`. The selector,

@@ -370,11 +370,18 @@ testCase('configured cwd and shell use one portable identity in planner and runt
   const configured = configuredValidationCommands(root);
   const planner = buildValidationCommandInventory({ commands: configured });
   const runtime = discoverValidationInventory(root);
-  assert.equal(runtime.commands[0]?.id, planner.entries[0]?.id);
+  assert.equal(configured.length, 1, 'cwd + shell configuration must retain exactly one command');
+  assert.equal(planner.entries.length, 1, 'planner inventory must retain the configured cwd + shell command');
+  assert.equal(runtime.commands.length, 1, 'runtime inventory must retain the configured cwd + shell command');
+  assert.deepEqual(narrowPortableValidationCommandTuple({ command: configured[0] }), {
+    command: 'node', args: ['task.js'], cwdRelative: 'packages/main', shell: true,
+  }, 'portable identity must bind the declared cwd and shell tuple');
+  assert.equal(runtime.commands[0].id, planner.entries[0].id);
   const catalog = compileValidationCatalog(runtime);
   const index = buildValidationImpactIndexFromCatalog({ commandSetDigest: planner.commandSetDigest, catalog });
-  assert.equal(index.entries[0]?.commandId, planner.entries[0]?.id);
-  assert.notEqual(index.entries[0]?.coverage, 'complete', 'heuristic roots remain partial even when policy fields exist');
+  assert.equal(index.entries.length, 1, 'impact index must retain the configured cwd + shell command');
+  assert.equal(index.entries[0].commandId, planner.entries[0].id);
+  assert.notEqual(index.entries[0].coverage, 'complete', 'heuristic roots remain partial even when policy fields exist');
 });
 
 // ---------------------------------------------------------------------------
