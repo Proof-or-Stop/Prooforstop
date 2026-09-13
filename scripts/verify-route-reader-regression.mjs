@@ -39,7 +39,19 @@ const closure = JSON.parse(readFileSync(resolve(root, 'scripts/lab/u18-static-ed
 assert.equal(closure.length, 4, 'reviewed four-gaps dependency closure must remain complete');
 for (const file of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs',
   'scripts/verify-verification-timeout-diagnostics.mjs', 'scripts/verify-route-reattestation-dependency-direction.mjs',
-  'scripts/verification-subprocess-budget.mjs']) {
+  'scripts/verification-subprocess-budget.mjs', 'packages/main/tests/canonical-new-story-artifacts.test.mjs',
+  'scripts/verify-proof-or-stop-identity-cutover.mjs',
+  'scripts/verify-proof-or-stop-pack-boundary.mjs',
+  'packages/main/tests/support/active-identity-operation-ownership.mjs',
+  'packages/main/tests/support/private-mutation-observer.mjs',
+  'scripts/verify-acceptance-amendment-delta.mjs',
+  'scripts/identity-maintenance-boundaries.mjs',
+  'scripts/identity-child-closure.mjs',
+  'scripts/identity-child-contract.json',
+  'packages/main/src/core/store.ts',
+  'packages/main/src/core/causal-evidence.ts',
+  'packages/main/src/core/runtime-environment-checks.ts',
+  ...['source', 'json', 'fixture'].flatMap(kind => [`scripts/identity-reviewed-${kind}-contexts.mjs`, `scripts/identity-reviewed-${kind}-data.json`])]) {
   const digest = createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex');
   assert(closure.every(entry => entry.dependencyDigests[file] === digest), 'route verifier helper dependency must match current source: ' + file);
 }
@@ -48,14 +60,15 @@ console.log('ROUTE_READER_REGISTRATION PASS independent import/call removal cont
 // Keep the existing suite's native/history/contract children and budgets intact.
 // The registered suite is run once; this driver adds no duplicate native modes.
 const spawnSync = prepareVerification(root, { shareBuild: true, bodyBudgetMs: 600000 });
-for (const [path, timeout, selector] of [
+for (const [path, timeout, selector, args = []] of [
   ['packages/main/tests/red/red-dynamic-finding-four-gaps.mjs', 180000, ['DYNAMIC_FINDING_FOUR_GAPS PASS']],
+  ['packages/main/tests/canonical-new-story-artifacts.test.mjs', 180000, ['GREEN B-49df: identity-sites group pass.'], ['--group=identity-sites']],
   [suitePath, 600000, ['ROUTE_DIRECTION_NATIVE_GREEN', 'ROUTE_READER_WIRING_MUTATIONS PASS']],
   ['scripts/verify-validation-static-edges.mjs', 180000, ['U18_STATIC_PASS']],
 ]) {
   let result;
   try {
-    result = spawnSync(process.execPath, [path], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 32 * 1024 * 1024 });
+    result = spawnSync(process.execPath, [path, ...args], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 32 * 1024 * 1024 });
   } catch (error) {
     process.stderr.write(verificationFailureMessage('route verification child', error) + '\n');
     throw error;

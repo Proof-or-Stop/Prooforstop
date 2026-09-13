@@ -92,7 +92,19 @@ const root = resolve(import.meta.dirname, '..');
 runClosure(assert, readFileSync, resolve, root, createHash);
 for (const member of ['scripts/route-reader-wiring-controls.mjs', 'scripts/verify-route-reader-regression.mjs',
   'scripts/verify-verification-timeout-diagnostics.mjs', 'scripts/verify-route-reattestation-dependency-direction.mjs',
-  'scripts/verification-subprocess-budget.mjs']) {
+  'scripts/verification-subprocess-budget.mjs', 'packages/main/tests/canonical-new-story-artifacts.test.mjs',
+  'scripts/verify-proof-or-stop-identity-cutover.mjs',
+  'scripts/verify-proof-or-stop-pack-boundary.mjs',
+  'packages/main/tests/support/active-identity-operation-ownership.mjs',
+  'packages/main/tests/support/private-mutation-observer.mjs',
+  'scripts/verify-acceptance-amendment-delta.mjs',
+  'scripts/identity-maintenance-boundaries.mjs',
+  'scripts/identity-child-closure.mjs',
+  'scripts/identity-child-contract.json',
+  'packages/main/src/core/store.ts',
+  'packages/main/src/core/causal-evidence.ts',
+  'packages/main/src/core/runtime-environment-checks.ts',
+  ...['source', 'json', 'fixture'].flatMap(kind => [`scripts/identity-reviewed-${kind}-contexts.mjs`, `scripts/identity-reviewed-${kind}-data.json`])]) {
   const changedRead = (file, ...args) => file === resolve(root, member) ? Buffer.from('/* removed proof member */') : readFileSync(file, ...args);
   assert.throws(() => runClosure(assert, changedRead, resolve, root, createHash), { code: 'ERR_ASSERTION' },
     'AUDIT6_CLOSURE_REQUIRED each modified graph member must be bound: ' + member);
