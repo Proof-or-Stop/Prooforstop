@@ -2548,7 +2548,7 @@ testCase('A22 malformed promotion inputs retain a stable selector refusal', () =
 
 testCase('A22 foreign signed observe manifests cannot erase current Story dynamic lineage', () => {
   const root = projectRootWithConfig({ id: 'unit', label: 'unit', command: 'node', args: ['-e', '0'] });
-  fixtureGit(root, ['init', '-q']);
+  execFileSync('git', ['init', '-q'], { cwd: root, stdio: 'pipe' });
   const storyId = 'B-target-lineage';
   withValidationSigningRoot(root, () => {
     const inventory = discoverValidationInventory(root);
