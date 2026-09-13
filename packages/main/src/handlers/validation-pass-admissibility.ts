@@ -1,7 +1,6 @@
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { hasStoryAwareValidationArtifacts, storedDynamicReceiptIntegrityReasons } from './story-aware-validation.js';
-import type { HandlerContext } from './context.js';
 import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { checkEvidenceFreshnessForGit, currentGitHead } from '../core/evidence-freshness.js';
@@ -9,6 +8,7 @@ import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { classifyGitStatusRows, classifierOptionsForCheck, isBlockingDirty, readGitStatusLines } from '../core/dirty-worktree-gate.js';
+import type { StoryStore } from '../core/store.js';
 
 function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
   if (!Array.isArray(coverage?.entries)) return null;
@@ -38,10 +38,11 @@ function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
   });
 }
 
-function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string): string {
+type ValidationAdmissionContext = { root: string; store: StoryStore; gitCwd?: string };
+
+function currentChecklistCoverageSnapshot(ctx: ValidationAdmissionContext, storyId: string, gitCwd: string): string {
   const story = ctx.store.readStory(storyId);
   const checklist = ctx.store.readChecklist(storyId);
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   const head = currentGitHead(gitCwd);
   const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
   const coverage = buildVerificationCoverage(
@@ -59,7 +60,7 @@ function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string):
   return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
 }
 
-function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCwd: string): string {
+function blockingDirtyWorktreeReason(ctx: ValidationAdmissionContext, storyId: string, gitCwd: string): string {
   const status = readGitStatusLines(gitCwd);
   if (!status.ok) return `unable to read git status for validation evidence skip (${status.error})`;
   const config = loadConfig(ctx.root);
@@ -90,7 +91,10 @@ export function dynamicValidationCoverageAdmission(
  * can only cause refusal, never bypass verification. Legacy full evidence that
  * makes no dynamic claim keeps its existing DONE contract.
  */
-export function requiresDynamicValidationAdmission(ctx: HandlerContext, storyId: string): boolean {
+export function requiresDynamicValidationAdmission(
+  ctx: { root: string; store: StoryStore; gitCwd: string },
+  storyId: string,
+): boolean {
   const evidence = ctx.store.readTestEvidence(storyId);
   if (!evidence || evidence.result !== 'PASS') return false;
   try {
@@ -102,7 +106,7 @@ export function requiresDynamicValidationAdmission(ctx: HandlerContext, storyId:
 }
 
 export function assessStoredValidationPassAdmissibility(
-  ctx: HandlerContext,
+  ctx: ValidationAdmissionContext,
   storyId: string,
   options: { allowDynamicCoverage: boolean },
 ): ValidationEvidenceAdmissibility {
@@ -128,7 +132,8 @@ export function assessStoredValidationPassAdmissibility(
       evidence,
     };
   }
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const gitCwd = ctx.gitCwd
+    ?? resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   if (!verifyTestValidationEvidence(storyId, evidence, gitCwd)) {
     return { ok: false, reasons: ['validation evidence signature is missing or invalid; run validate again'],
       reasonCodes: ['validation_evidence_signature_invalid'], lineage: 'rejected', evidence };
@@ -136,7 +141,7 @@ export function assessStoredValidationPassAdmissibility(
   const result = evaluateValidationEvidenceAdmissibility({
     evidence,
     expectedCommand: `proof-or-stop validate --story=${storyId} --json`,
-    currentCoverageSnapshot: currentChecklistCoverageSnapshot(ctx, storyId),
+    currentCoverageSnapshot: currentChecklistCoverageSnapshot(ctx, storyId, gitCwd),
     recordedCoverageSnapshot: canonicalCoverageSnapshotFromReport(evidence?.verificationCoverage),
     blockingDirtyReason: blockingDirtyWorktreeReason(ctx, storyId, gitCwd),
     gitCwd,

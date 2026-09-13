@@ -44,11 +44,17 @@ import {
 import { executeValidationPlan } from '../core/validation-executor.js';
 import type { ValidationCommand } from '../core/validation-types.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
-import { DYNAMIC_RUNNER_DIGEST, storedDynamicReceiptIntegrityReasons } from '../handlers/story-aware-validation.js';
+import {
+  DYNAMIC_RUNNER_DIGEST,
+  deriveGateOwnedPrerequisites,
+  participatingValidationRiskTier,
+  storedDynamicReceiptIntegrityReasons,
+} from '../handlers/story-aware-validation.js';
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
-import { buildAutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
+import { buildAutomaticValidationTierSelectionBinding, selectAutomaticValidationTier } from '../core/validation-tier-planner.js';
 import type { StoryRelevanceInput } from '../core/validation-relevance-input.js';
 import { digestCanonicalJson } from '../core/digest.js';
+import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
 
 const replayRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-replay-`);
 const replayCommand = (name: string) => ({
@@ -232,6 +238,9 @@ assertSelectionIsSingletonUnionMonotonic(expandedContext, monotonicPlans.expande
 // admission proof behind the public selector markers at the end of this file.
 const storedRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-stored-`);
 let authoritativeTieredManifest: ValidationSelectionManifest | undefined;
+let authoritativeTieredCatalog: ValidationCatalogEntry[] | undefined;
+let authoritativeTieredInventoryDigest: string | undefined;
+let authoritativeTieredClosures: Map<string, ReturnType<typeof createValidationClosureCertificate>> | undefined;
 try {
   execFileSync('git', ['init', '-q'], { cwd: storedRoot });
   withValidationSigningRoot(storedRoot, () => {
@@ -249,7 +258,8 @@ try {
     staticPaths: entry.inputRoots,
   })]));
   const storedChanges = buildStoryChangeManifest({
-    storyId: 'B-stored', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [],
+    storyId: 'B-stored', gitCwd: '.', baseHead: 'base', head: 'head',
+    changedFiles: [],
   });
   const storedRelevanceInput = {
     schema: 'proofOrStop.story-relevance-input.v1', storyId: 'B-stored', phase: 'TEST',
@@ -261,11 +271,19 @@ try {
     changedFiles: { status: 'available', baseRef: 'base', headRef: 'head', statuses: { 'packages/main/src/stored.ts': 'M' }, paths: ['packages/main/src/stored.ts'] },
     seeds: [{ kind: 'path', value: 'packages/main/src/stored.ts', provenance: ['changed-file'], itemIds: [], changeStatus: 'M' }],
     excludedPaths: [], pinnedCommands: [], commandSeedEdges: [], unclassifiedInputs: [], riskSignals: [],
-    executionInventory: { sourceKind: 'configured', commandSetDigest: 'stored-command-set', commandIds: storedInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
+    executionInventory: { sourceKind: 'configured', commandSetDigest: buildValidationCommandInventory({ commands: storedInventory.commands }).commandSetDigest, commandIds: storedInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
     durationHistory: { status: 'collected', sampleCount: 0, estimates: [], unmatchedSamples: [] },
     verificationIntentContext: [], escalations: [], selectionDigest: 'stored-selection',
   } as StoryRelevanceInput;
-  const storedTierBinding = buildAutomaticValidationTierSelectionBinding({ input: storedRelevanceInput, catalog: storedCatalog });
+  const storedTierBinding = buildAutomaticValidationTierSelectionBinding({
+    input: storedRelevanceInput,
+    catalog: storedCatalog,
+    storySnapshot: {
+      baseHead: storedChanges.baseHead,
+      head: storedChanges.head,
+      changeDigest: storedChanges.changeDigest,
+    },
+  });
   const waveZeroWidenedPlan = buildDynamicValidationPlan({
     storyId: 'B-stored', baseHead: 'base', head: 'head', inventory: storedInventory, catalog: storedCatalog, changes: storedChanges,
     closures: storedClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'enforce-low-risk',
@@ -300,6 +318,9 @@ try {
   assert.equal(storedManifest.rows.filter((row) => row.disposition === 'excluded').length, 1);
   assert.equal(storedManifest.fullEscalated, false);
   authoritativeTieredManifest = storedManifest;
+  authoritativeTieredCatalog = storedCatalog;
+  authoritativeTieredInventoryDigest = storedInventory.digest;
+  authoritativeTieredClosures = storedClosures;
   const storedBaseline = createCanonicalFullBaseline({
     epochId: 'epoch', sourceHead: 'base', inventoryDigest: storedInventory.digest, catalogDigest: storedCatalogDigest,
     toolchainDigest, runnerDigest: DYNAMIC_RUNNER_DIGEST, buildProofDigest: 'build', allPass: true,
@@ -312,6 +333,37 @@ try {
   writeFileSync(`${storyRuntimeDir}/revocation-ledger.json`, JSON.stringify(ledger));
   writeFileSync(`${storyRuntimeDir}/receipts.json`, JSON.stringify(storedReceipts));
   assert.deepEqual(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', storedManifest), []);
+  const rebindStoredManifest = (input: typeof storedTierBinding.input) => {
+    const decision = selectAutomaticValidationTier(input);
+    const binding = {
+      ...storedTierBinding,
+      input,
+      decision,
+      bindingDigest: digestCanonicalJson({ catalogDigest: storedTierBinding.catalogDigest, input, decision }),
+    };
+    const body = {
+      ...storedManifest,
+      selectorBinding: binding,
+      selectorDecisionDigest: decision.selectionDigest,
+      requestedTier: decision.requestedTier,
+      effectiveTier: decision.effectiveTier,
+      tierSelections: decision.tierSelections,
+    };
+    return { ...body, signature: signPayload({ ...body, signature: undefined }) };
+  };
+  const forgedCommandSet = 'forged-command-set';
+  const commandSetInput = {
+    ...storedTierBinding.input,
+    commandSetDigest: forgedCommandSet,
+    impactIndex: { ...storedTierBinding.input.impactIndex!, commandSetDigest: forgedCommandSet },
+  };
+  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', rebindStoredManifest(commandSetInput))
+    .includes('dynamic_selector_context_changed'),
+  'a self-consistent re-signed command-set binding must be rejected against the live inventory');
+  const snapshotInput = { ...storedTierBinding.input, snapshotDigest: 'forged-snapshot' };
+  assert.ok(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', rebindStoredManifest(snapshotInput))
+    .includes('dynamic_selector_context_changed'),
+  'a self-consistent re-signed snapshot binding must be rejected against current Story refs and changed paths');
   const noBindingRows = storedManifest.rows.map((row) => row.disposition === 'excluded'
     ? { ...row, disposition: 'execute' as const, reasons: ['fixture-execute-without-selector'] }
     : row);
@@ -400,6 +452,12 @@ assert.equal(verifyValidationSelectionManifest(contributionMutation), false);
 assert.throws(() => assertSelectionIsSingletonUnionMonotonic(expandedContext, contributionMutation), /singleton|monotonicity|manifest/i);
 
 assert.ok(authoritativeTieredManifest);
+assert.ok(authoritativeTieredCatalog);
+assert.ok(authoritativeTieredInventoryDigest);
+assert.ok(authoritativeTieredClosures);
+const tieredCatalog = authoritativeTieredCatalog;
+const tieredInventoryDigest = authoritativeTieredInventoryDigest;
+const tieredClosures = authoritativeTieredClosures;
 const { signature: _storedRootSignature, ...tieredManifestUnsigned } = authoritativeTieredManifest;
 const tieredManifest = { ...tieredManifestUnsigned, signature: signPayload(tieredManifestUnsigned) };
 const manifestCommandIds = tieredManifest.rows.map((row) => row.commandId);
@@ -456,6 +514,44 @@ const prooflessExcludedBody = {
 assert.equal(verifyValidationSelectionManifest(resign(prooflessExcludedBody)), false,
   'an excluded row without any selector binding must be refused unconditionally');
 const excludedCommandId = tieredManifest.rows.find((row) => row.disposition === 'excluded')!.commandId;
+const participatingCommandId = tieredManifest.rows.find((row) => row.disposition === 'execute' || row.disposition === 'reuse')!.commandId;
+const riskCatalog = (gateCommandId: string) => tieredCatalog.map((entry) => ({
+  ...entry,
+  riskTier: entry.id === gateCommandId ? 'gate' as const : 'local' as const,
+}));
+const riskPrepared = (riskBoundCatalog: ValidationCatalogEntry[]) => ({
+  inventoryDigest: tieredInventoryDigest,
+  catalogDigest: digestCanonicalJson(riskBoundCatalog),
+  catalog: riskBoundCatalog,
+  closures: tieredClosures,
+  manifest: tieredManifest,
+  report: 'risk fixture',
+  revocationLedger: buildRevocationLedger([]),
+});
+const excludedGateCatalog = riskCatalog(excludedCommandId);
+assert.equal(participatingValidationRiskTier(excludedGateCatalog, tieredManifest), 'local',
+  'a positively excluded non-local command must not disable a local Story');
+assert.equal(deriveGateOwnedPrerequisites({
+  projectRoot: storedRoot, prepared: riskPrepared(excludedGateCatalog), receipts: [], shardArtifacts: [],
+}).storyRiskEligible, true);
+const participatingGateCatalog = riskCatalog(participatingCommandId);
+assert.equal(participatingValidationRiskTier(participatingGateCatalog, tieredManifest), 'shared',
+  'a participating gate command must raise the authority risk floor');
+assert.equal(deriveGateOwnedPrerequisites({
+  projectRoot: storedRoot, prepared: riskPrepared(participatingGateCatalog), receipts: [], shardArtifacts: [],
+}).storyRiskEligible, false);
+const participatingRiskAuthority = evaluateDynamicAuthority({
+  mode: 'enforce-low-risk', riskTier: participatingValidationRiskTier(participatingGateCatalog, tieredManifest),
+  manifest: tieredManifest, prerequisites: {
+    baselineCurrent: true, expiryPolicyActive: true, environmentPolicyComplete: true,
+    wholeRepoScannersClassified: true, processFactBindingsComplete: true, changedTestPropagationVerified: true,
+    sourceFirstBuildProofActive: true, buildAlwaysExecuted: true, storyRiskEligible: false,
+    periodicFullPolicyActive: true, revocationLedgerCurrent: true, catalogOwnershipGatePassed: true,
+  }, pinnedCommandsExecuted: true,
+});
+assert.equal(participatingRiskAuthority.authoritative, false);
+assert.equal(participatingRiskAuthority.fallbackToFull, true);
+assert.ok(participatingRiskAuthority.reasons.includes('risk-tier-not-dynamic-authority'));
 const excludedInsideEffectiveBinding = {
   ...tieredManifest.selectorBinding!,
   decision: {
@@ -653,29 +749,98 @@ console.log(`fault injections: ${faultInjections.map(([name]) => name).join(', '
 console.log('mutation guards: catalog/receipt/closure/selection/scheduler/shards');
 const requestedAuditMode = process.argv.find((arg) => arg.startsWith('--audit-mode='))?.slice('--audit-mode='.length);
 if (requestedAuditMode) {
-  const auditSelectors: Record<string, string> = {
-    'change-manifest': 'change manifest PASS',
-    'dual-graph': 'delete and rename coverage PASS',
-    'scope-escalation': 'scope escalation PASS',
-    selection: 'complete ledger PASS',
-    'selection-mutations': 'monotonicity PASS',
-    'selection-fail-closed': 'fail-closed escalation PASS',
-    'observe-equivalence': 'observe/full equivalence PASS',
-    'trace-isolation': 'isolated observe telemetry PASS',
-    'observe-mutations': 'observer mutation rejected',
-    receipts: 'admissible per-command reuse PASS',
-    'receipt-mutations': 'receipt rejection matrix PASS',
-    'receipt-forgery': 'forged receipt rejected',
-    'shadow-equivalence': 'shadow/full oracle equivalent',
-    'shadow-rejections': 'shadow discrepancy reported',
-    'shadow-false-negative': 'false negative detected',
-    'test-gate': 'low-risk dynamic TEST PASS',
-    'test-gate-escalation': 'mandatory full escalation PASS',
-    'test-gate-mutations': 'authority mutations rejected',
-    operations: 'safe recovery and rollback PASS',
-    'operations-mutations': 'operations mutation rejected',
+  const auditAssertions: Record<string, () => string> = {
+    'change-manifest': () => {
+      assert.equal(verifyStoryChangeManifest(context('packages/main/src/audit-change.ts').changes), true);
+      return 'change manifest PASS';
+    },
+    'dual-graph': () => {
+      for (const status of ['deleted', 'renamed'] as const) {
+        const plan = buildDynamicValidationPlan(context('packages/main/src/audit-edge.ts', status));
+        assert.equal(plan.totals.unverified, 0);
+      }
+      return 'delete and rename coverage PASS';
+    },
+    'scope-escalation': () => {
+      const plan = buildDynamicValidationPlan(context('packages/main/dist/audit-generated.js'));
+      assert.equal(plan.fullEscalated, true);
+      assert.equal(plan.totals.executed, plan.totals.inventory);
+      return 'scope escalation PASS';
+    },
+    selection: () => {
+      assert.equal(verifyValidationSelectionManifest(tieredManifest), true);
+      assert.equal(tieredManifest.rows.length, tieredManifest.totals.inventory);
+      return 'complete ledger PASS';
+    },
+    'selection-mutations': () => {
+      assert.equal(verifyValidationSelectionManifest(contributionMutation), false);
+      return 'monotonicity PASS';
+    },
+    'selection-fail-closed': () => {
+      assert.equal(verifyValidationSelectionManifest(ignoredEscalationMutant), false);
+      return 'fail-closed escalation PASS';
+    },
+    'observe-equivalence': () => {
+      assert.equal(observeEquivalent.equivalent, true);
+      return 'observe/full equivalence PASS';
+    },
+    'trace-isolation': () => {
+      assert.equal(cleanRun.rows.find((row) => row.commandId === 'unit')?.disposition, 'reuse');
+      return 'isolated observe telemetry PASS';
+    },
+    'observe-mutations': () => {
+      assert.equal(falseNegative.equivalent, false);
+      return 'observer mutation rejected';
+    },
+    receipts: () => {
+      assert.equal(verifyValidationCommandReceipt(validReceipt).ok, true);
+      return 'admissible per-command reuse PASS';
+    },
+    'receipt-mutations': () => {
+      assert.equal(verifyValidationCommandReceipt(staleReceipt).ok, false);
+      assert.equal(isReceiptRevoked(validReceipt, revokedLedger), true);
+      return 'receipt rejection matrix PASS';
+    },
+    'receipt-forgery': () => {
+      assert.equal(verifyValidationCommandReceipt(forgedByArtifactWriter).ok, false);
+      return 'forged receipt rejected';
+    },
+    'shadow-equivalence': () => {
+      assert.equal(observeEquivalent.equivalent, true);
+      return 'shadow/full oracle equivalent';
+    },
+    'shadow-rejections': () => {
+      assert.equal(falseNegative.equivalent, false);
+      return 'shadow discrepancy reported';
+    },
+    'shadow-false-negative': () => {
+      assert.deepEqual(falseNegative.falseNegativeCommandIds, ['outside-dynamic-row']);
+      return 'false negative detected';
+    },
+    'test-gate': () => {
+      assert.equal(authority.authoritative, true);
+      return 'low-risk dynamic TEST PASS';
+    },
+    'test-gate-escalation': () => {
+      assert.equal(participatingRiskAuthority.fallbackToFull, true);
+      return 'mandatory full escalation PASS';
+    },
+    'test-gate-mutations': () => {
+      assert.equal(authorityMutation.authoritative, false);
+      return 'authority mutations rejected';
+    },
+    operations: () => {
+      assert.equal(verifyValidationSchedule(scheduled, scheduled).ok, true);
+      assert.equal(isReceiptRevoked(validReceipt, revokedLedger), true);
+      return 'safe recovery and rollback PASS';
+    },
+    'operations-mutations': () => {
+      assert.equal(verifyValidationSchedule(overCapacitySchedule, overCapacitySchedule, { workerCapacity: 2, cpuCapacity: 2 }).ok, false);
+      return 'operations mutation rejected';
+    },
   };
-  const assertionSelector = auditSelectors[requestedAuditMode];
-  assert.ok(assertionSelector, `unknown dynamic validation audit mode: ${requestedAuditMode}`);
-  console.log(`DYNAMIC_VALIDATION_ASSERTION:${requestedAuditMode}:${assertionSelector}`);
+  const assertion = auditAssertions[requestedAuditMode];
+  assert.ok(assertion, `unknown dynamic validation audit mode: ${requestedAuditMode}`);
+  const selector = assertion();
+  console.log(`DYNAMIC_VALIDATION_ASSERTION:${requestedAuditMode}:${selector}`);
 }

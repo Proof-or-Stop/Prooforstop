@@ -251,6 +251,8 @@ function storyAutomaticTierSelection(
     projectRoot: ctx.root,
     gitCwd,
     metadataRoot: ctx.root,
+    baseRef: changes.baseHead,
+    headRef: changes.head,
     story: {
       storyId,
       phase: story.phase,
@@ -268,6 +270,7 @@ function storyAutomaticTierSelection(
     input,
     catalog: selectorCatalog,
     executionCatalogDigest: digestCanonicalJson(catalog),
+    storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
     ...(graph?.graphUnknown ? { additionalForceFullReasons: ['runtime_edge_unresolved'] } : {}),
   });
 }

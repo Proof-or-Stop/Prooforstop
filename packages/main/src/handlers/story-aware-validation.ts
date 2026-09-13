@@ -71,11 +71,13 @@ import {
   verifyValidationCommandReceipt,
   verifyValidationSelectionManifest,
   verifyValidationClosureCertificate,
+  validationInventoryCommandSetDigest,
   isReceiptRevoked,
   verifyValidationShardReceipt,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import {
+  automaticValidationTierSnapshotDigest,
   buildValidationImpactIndexFromCatalog,
   selectAutomaticValidationTier,
   type AutomaticValidationTierSelectionBinding,
@@ -130,7 +132,12 @@ export function assertAutomaticTierSelectionBindingCurrent(
     catalog: ValidationCatalogEntry[];
     graph?: DualRevisionImpactGraph;
     changedFiles: StoryChangedFile[];
+    changeDigest: string;
     universeCommandIds: string[];
+    commandSetDigest: string;
+    storyId: string;
+    baseHead: string;
+    head: string;
   },
 ): void {
   const expectedDecision = selectAutomaticValidationTier(binding.input);
@@ -146,13 +153,21 @@ export function assertAutomaticTierSelectionBindingCurrent(
       changedFiles: current.changedFiles,
     });
     const expectedImpactIndex = buildValidationImpactIndexFromCatalog({
-      commandSetDigest: binding.input.commandSetDigest,
+      commandSetDigest: current.commandSetDigest,
       catalog: selectorCatalog,
     });
     const selectorPaths = new Set(binding.input.changedPaths.map((path) => path.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').trim()));
     const currentPaths = [...new Set(current.changedFiles.flatMap((change) => [change.path, ...(change.oldPath ? [change.oldPath] : [])])
       .map((path) => path.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').trim()).filter(Boolean))].sort();
+    const currentSnapshotDigest = automaticValidationTierSnapshotDigest({
+      storyId: current.storyId,
+      baseHead: current.baseHead,
+      head: current.head,
+      changeDigest: current.changeDigest,
+    });
     if (binding.catalogDigest !== digestCanonicalJson(current.catalog)
+      || binding.input.commandSetDigest !== current.commandSetDigest
+      || binding.input.snapshotDigest !== currentSnapshotDigest
       || digestCanonicalJson(binding.input.impactIndex) !== digestCanonicalJson(expectedImpactIndex)
       || digestCanonicalJson(binding.input.universeCommandIds) !== digestCanonicalJson(current.universeCommandIds)
       || currentPaths.some((path) => !selectorPaths.has(path))) {
@@ -172,7 +187,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 8, executor: 'validation-executor', selector: 'validation-tier-planner' });
+export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 9, executor: 'validation-executor', selector: 'validation-tier-planner' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -426,7 +441,12 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     catalog,
     graph,
     changedFiles: changes.changedFiles,
+    changeDigest: changes.changeDigest,
     universeCommandIds: inventory.commands.map((row) => row.id),
+    commandSetDigest: validationInventoryCommandSetDigest(inventory),
+    storyId: args.storyId,
+    baseHead: args.baseHead,
+    head,
   });
   const context: DynamicValidationContext = {
     projectRoot: args.projectRoot,
@@ -527,7 +547,12 @@ export function storedDynamicReceiptIntegrityReasons(
         catalog,
         graph,
         changedFiles: manifest.changedFiles,
+        changeDigest: manifest.changeDigest,
         universeCommandIds: inventory.commands.map((row) => row.id),
+        commandSetDigest: validationInventoryCommandSetDigest(inventory),
+        storyId,
+        baseHead: manifest.baseHead,
+        head: manifest.head,
       });
     } catch {
       return ['dynamic_selector_context_changed'];
@@ -1097,7 +1122,17 @@ export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
  * current signed manifest, baseline, command receipts and actual Wave-0 run;
  * callers cannot turn enforcement on by supplying booleans in the request.
  */
-function deriveGateOwnedPrerequisites(args: {
+export function participatingValidationRiskTier(
+  catalog: ValidationCatalogEntry[],
+  manifest: ValidationSelectionManifest,
+): 'local' | 'shared' {
+  return catalog
+    .filter((entry) => manifest.rows.some((row) => row.commandId === entry.id
+      && (row.disposition === 'execute' || row.disposition === 'reuse')))
+    .every((entry) => entry.riskTier === 'local') ? 'local' : 'shared';
+}
+
+export function deriveGateOwnedPrerequisites(args: {
   projectRoot: string;
   prepared: PreparedStoryAwareValidation;
   baseline?: CanonicalFullBaseline;
@@ -1151,10 +1186,7 @@ function deriveGateOwnedPrerequisites(args: {
     // unrelated local Story ineligible.  Eligibility is about the rows this
     // manifest actually executes or reuses; a selected gate row still forces
     // full fallback through `manifest.fullEscalated`/risk below.
-    storyRiskEligible: args.prepared.catalog
-      .filter((entry) => manifest.rows.some((row) => row.commandId === entry.id
-        && (row.disposition === 'execute' || row.disposition === 'reuse')))
-      .every((entry) => entry.riskTier === 'local')
+    storyRiskEligible: participatingValidationRiskTier(args.prepared.catalog, manifest) === 'local'
       && !manifest.fullEscalated && shardEvidenceClean,
     periodicFullPolicyActive: baselineCurrent,
     revocationLedgerCurrent: verifyRevocationLedger(args.prepared.revocationLedger) && receiptsCurrent,
@@ -1284,10 +1316,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     mode: args.mode || 'observe',
     // A non-local row cannot disappear from the Story risk decision merely
     // because the selector produced an exclusion proof for its paths.
-    riskTier: final.catalog
-      .filter((entry) => final.manifest.rows.some((row) => row.commandId === entry.id
-        && (row.disposition === 'execute' || row.disposition === 'reuse')))
-      .every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
+    riskTier: participatingValidationRiskTier(final.catalog, final.manifest),
     manifest: final.manifest,
     prerequisites: {
       // The gate-owned evidence provider below computes every prerequisite from

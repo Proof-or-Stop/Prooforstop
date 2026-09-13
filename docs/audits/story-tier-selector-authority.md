@@ -65,11 +65,13 @@ they are not relabelled as Lab-owned evidence or as post-bump receipts.
 | `npm run test:validation-tier-planner` | PASS; CHK-004 32 cases, CHK-005 21 cases | Dynamic tier sets, automatic docs promotion, fallback, CLI reporting, and subset invariants |
 | `npm --prefix packages/main run test:story-aware-validation` | PASS | Runtime manifest consumes and binds the canonical selector decision |
 | `npm --prefix packages/main run test:story-aware-validation-mutation` | PASS; 30 replay classes and FI-1..FI-5 | Digest, catalog, receipt, closure, selection, scheduler, and shard mutations fail safely |
-| `npm --prefix packages/main run test:dynamic-validation-selection` | `complete ledger PASS` | Every inventory member is accounted for |
-| `npm --prefix packages/main run test:dynamic-validation-selection-mutations` | `monotonicity PASS` | Expanding Story impact cannot shrink the selected set |
+| `npm --prefix packages/main run test:dynamic-validation-selection` | `complete ledger PASS` | Its mode-specific assertion reconstructs and verifies complete inventory accounting |
+| `npm --prefix packages/main run test:dynamic-validation-selection-mutations` | `monotonicity PASS` | Its mode-specific assertion rechecks that the contribution mutation is rejected |
 | `npm --prefix packages/main run test:dynamic-validation-test-gate` | PASS; real `2 → 1 execute + 1 excluded` fixture | The actual signed PASS enters TEST, reaches the DONE dynamic consumer, and both consumers reject missing/tampered/expired/revoked evidence |
-| `npm --prefix packages/main run test:dynamic-validation-test-gate-mutations` | `authority mutations rejected` | A mutated authority prerequisite cannot produce TEST PASS |
+| `npm --prefix packages/main run test:dynamic-validation-test-gate-mutations` | `authority mutations rejected` | Its mode-specific assertion rejects mutated authority, then the real TEST/DONE fixture runs its negative matrix |
 | `node scripts/verify-process-fact-contract.mjs` | PASS | The prompt/handler/gate two-layer contract, selector manifest facts, TEST consumer, and independent DONE boundary agree |
+| `node scripts/verify-validation-static-edges.mjs` | `U18_STATIC_PASS`; 326 exceptions, 0 needs-review, 0 nested | Every retained nested-execution exception still has current source and dependency evidence |
+| `node scripts/verify-validation-static-edge-boundaries.mjs` | `U18_STATIC_EDGE_BOUNDARIES_PASS` | Stale, missing, moved, altered, escaping, and incomplete static evidence is refused |
 
 The TEST-gate task's stable registered wrapper imports and executes a two-command
 repository fixture in the same process. The canonical
@@ -78,8 +80,11 @@ and records one signed exclusion. `assessStoredValidationPassAdmissibility` is
 called with both admission policies, `runValidateGate` consumes the accepted
 record, and `runDoneOracleGate` rechecks it. A changed ledger, missing receipt,
 mismatched HEAD, signature mutation, expiry and revocation are independently
-refused. The package scripts retain their existing registered command identity;
-the wrapper only emits either selector after the real gate fixture completes.
+refused. Compatibility package entrypoints remain, but the mutation task now
+dispatches twenty distinct mode-specific executable assertion blocks instead of
+relabeling one unconditional tail marker. TEST-gate modes additionally run the
+real TEST/DONE fixture. These package entrypoints are not twenty configured
+`validate.commands` rows and therefore do not inflate Story runtime selection.
 
 ## Claude CLI audit and remediation
 
@@ -285,6 +290,29 @@ addressed as follows:
 
 The next candidate still requires a fresh committed-head GREEN and independent
 Claude decision. No failed candidate is described as released.
+
+## Eighth Claude audit and remediation
+
+The Lab-finish audit of candidate `cd28ba9990` returned `fail` under run
+`d0299937-8e0e-4a68-94fc-5ad89f8f3e2c` after 562,596 ms. Finish stopped before
+main integration and the candidate was reopened. Its eight findings are
+addressed as follows:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A8-F1 graph amplification | Reverse dependency maps were rebuilt per catalog row and change | Base/head reverse maps are built once, affected commands are cached per revision/path, and catalog augmentation calls the graph exactly once per changed file; a call-count fixture proves two changed files cause two calls even with a doubled catalog |
+| A8-F2 participating-risk proof | Production used participating rows, but no two-way gate test proved the boundary | The mutation suite calls the exported production risk helper and gate prerequisite derivation: an excluded gate row remains local/eligible, while a participating gate row becomes shared, disables eligibility, and forces full fallback |
+| A8-F3 selector identity | `commandSetDigest` and `snapshotDigest` could be self-consistent caller claims | Pre-launch and stored consumers independently rebuild the live command inventory digest and the Story base/head/change digest; re-signed forged command-set and snapshot bindings are refused |
+| A8-F4 hostile ownership shape | `inputsComplete=true` accepted any defined `inputRoots` value | Complete exclusion authority now requires an array containing only non-empty strings; a schema-bypassing string fixture remains partial |
+| A8-F5 host-dependent graph digest | A thrown graph error embedded its host-specific message into signed identity | Failure identity stores the stable error class only; paths and arbitrary host wording cannot change the signed graph digest |
+| A8-F6 TSX import loss | All files were parsed as TypeScript, so JSX before an import could hide the edge | Script kind follows the real extension; a real Git fixture proves an import after JSX creates the reverse dependency |
+| A8-F7 label-only audit modes | Twenty package scripts changed only a tail marker after the same suite | Compatibility names remain, but each mode now invokes a distinct executable assertion against its corresponding manifest, graph/scope, receipt, oracle, authority, scheduler, or recovery object; TEST-gate modes additionally cross the real TEST/DONE fixture |
+| A8-F8 DONE context boundary | DONE constructed a partial `HandlerContext` cast and re-resolved Git cwd | Admissibility helpers accept only their narrow root/store/gitCwd contract, and DONE passes the already resolved Git cwd without a type escape |
+
+Dynamic runner v9 invalidates older runner identities because selector snapshot
+and live command-set binding semantics changed. A fresh committed GREEN and a
+new post-bump independent audit are still required; this section is remediation
+evidence, not a release claim.
 
 ## Rollback
 

@@ -27,12 +27,14 @@ import { signValidationArtifact, verifyValidationArtifact } from './validation-a
 import { resolveRepositoryBaseline } from './git-baseline.js';
 import { digestCanonicalJson } from './digest.js';
 import { normalizeConfiguredValidationCommands } from './validation-command-config.js';
+import { buildValidationCommandInventory } from './validation-command-identity.js';
 import {
   narrowPortableValidationCommandTuple,
   provisionalValidationCommandId,
 } from './validation-command-portable-id.js';
 import {
   buildValidationImpactIndexFromCatalog,
+  automaticValidationTierSnapshotDigest,
   selectAutomaticValidationTier,
   VALIDATION_TIERS,
   type AutomaticValidationTierSelectionBinding,
@@ -336,6 +338,16 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
     : PROOF_OR_STOP_CONFIG_FILENAME;
   return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source };
 }
+
+/** Rebuild the portable command-set digest without misreading tool-derived ids as declarations. */
+export function validationInventoryCommandSetDigest(inventory: ValidationInventory | ValidationInventoryCommand[]): string {
+  const rows = Array.isArray(inventory) ? inventory : inventory.commands;
+  const commands = rows.map((row, index) => {
+    const derivedId = commandId(row, index);
+    return row.id === derivedId ? { ...row, id: undefined } : row;
+  });
+  return buildValidationCommandInventory({ commands }).commandSetDigest;
+}
 function validRelativePath(path: string): boolean {
   const value = normalPath(path);
   return Boolean(value) && !value.startsWith('/') && value !== '..' && !value.startsWith('../') && !value.includes('\0');
@@ -400,7 +412,8 @@ export function compileValidationCatalog(inventory: ValidationInventory, options
     // A caller-wide root override is useful for runtime closure fixtures, but
     // it is not per-command ownership proof. Only the command's own explicit
     // inputsComplete + inputRoots declaration may authorize selector omission.
-    const declaredComplete = row.inputsComplete === true && row.inputRoots !== undefined;
+    const declaredComplete = row.inputsComplete === true && Array.isArray(row.inputRoots)
+      && row.inputRoots.every((path) => typeof path === 'string' && path.trim().length > 0);
     return ({
     ...row, schema: VALIDATION_CATALOG_SCHEMA,
     inputRoots,
@@ -516,9 +529,12 @@ interface GraphData {
   resolutionFailures: string[];
 }
 const graphTreeCache = new Map<string, Map<string, string>>();
-function parseImports(source: string): string[] {
+function parseImports(source: string, path: string): string[] {
   const output: string[] = [];
-  const file = ts.createSourceFile('dependency-graph.ts', source, ts.ScriptTarget.Latest, true);
+  const scriptKind = /\.(?:jsx|tsx)$/.test(path) ? ts.ScriptKind.TSX
+    : /\.(?:mjs|mts)$/.test(path) ? ts.ScriptKind.TS
+      : /\.(?:js|cjs)$/.test(path) ? ts.ScriptKind.JS : ts.ScriptKind.TS;
+  const file = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, scriptKind);
   const add = (node: ts.Expression | undefined) => {
     if (node && ts.isStringLiteralLike(node)) output.push(node.text);
   };
@@ -581,7 +597,7 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
         imports.set(path, deps);
         continue;
       }
-      for (const specifier of parseImports(tree.get(path) || '')) {
+      for (const specifier of parseImports(tree.get(path) || '', path)) {
         if (specifier.startsWith('.')) {
           const base = normalPath(posix.normalize(posix.join(posix.dirname(path), specifier)));
           // TypeScript/ESM source commonly imports the emitted `.js` name
@@ -615,7 +631,7 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
       imports.set(path, deps);
     }
   } catch (error) {
-    resolutionFailures.push(`graph-build-failed:${error instanceof Error ? error.message : String(error)}`);
+    resolutionFailures.push(`graph-build-failed:${error instanceof Error ? error.name : 'unknown'}`);
   }
   return { paths, imports, authority, resolutionFailures: uniqueSorted(resolutionFailures) };
 }
@@ -633,18 +649,30 @@ export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: s
   const base = buildGraphAtRef(args.gitCwd, args.baseHead); const head = buildGraphAtRef(args.gitCwd, args.head);
   const digest = (graph: GraphData) => stableDigest({ authorityPolicy: 'registered-authority-closure.v1', authorityRoots: validationAuthoritySources(), authorityMembers: uniqueSorted(graph.authority.members), authorityUnknown: graph.authority.unknown, resolutionFailures: graph.resolutionFailures, paths: uniqueSorted(graph.paths), imports: [...graph.imports.entries()].map(row => [row[0], uniqueSorted(row[1])]) });
   const roots = new Map((args.catalog || []).map(entry => [entry.id, uniqueSorted([...(entry.inputRoots || []), ...(entry.triggerExtensions.files || [])])]));
-  const affected = (graph: GraphData, change: StoryChangedFile): string[] => {
-    const targets = new Set([normalPath(change.path), ...(change.oldPath ? [normalPath(change.oldPath)] : [])]);
+  const reverseFor = (graph: GraphData) => {
     const reverse = new Map<string, Set<string>>();
     for (const [from, deps] of graph.imports) for (const dep of deps) {
       const set = reverse.get(dep) || new Set<string>(); set.add(from); reverse.set(dep, set);
     }
+    return reverse;
+  };
+  const baseReverse = reverseFor(base); const headReverse = reverseFor(head);
+  const affectedCache = new Map<string, string[]>();
+  const affected = (graph: GraphData, reverse: Map<string, Set<string>>, revision: 'base' | 'head', change: StoryChangedFile): string[] => {
+    const cacheKey = `${revision}\0${normalPath(change.path)}\0${normalPath(change.oldPath || '')}`;
+    const cached = affectedCache.get(cacheKey);
+    if (cached) return cached;
+    const targets = new Set([normalPath(change.path), ...(change.oldPath ? [normalPath(change.oldPath)] : [])]);
     const impacted = new Set(targets); const queue = [...targets];
     while (queue.length) {
       const current = queue.shift()!;
       for (const dependent of reverse.get(current) || []) if (!impacted.has(dependent)) { impacted.add(dependent); queue.push(dependent); }
     }
-    return [...roots.entries()].filter(([, values]) => values.some(root => impacted.has(root) || [...impacted].some(path => path.startsWith(root + '/')))).map(row => row[0]);
+    const impactedPaths = [...impacted];
+    const result = [...roots.entries()].filter(([, values]) => values.some(root => impacted.has(root)
+      || impactedPaths.some(path => path.startsWith(root + '/')))).map(row => row[0]);
+    affectedCache.set(cacheKey, result);
+    return result;
   };
   return {
     baseHead: args.baseHead, head: args.head, baseGraphDigest: digest(base), headGraphDigest: digest(head),
@@ -655,7 +683,10 @@ export function buildDualRevisionImpactGraph(args: { gitCwd: string; baseHead: s
       ...[change.path, change.oldPath].filter((path): path is string => Boolean(path))
         .filter(path => base.authority.members.has(normalPath(path)) || head.authority.members.has(normalPath(path)))
         .map(path => 'authority-source-changed:' + path)]),
-    commandsAffectedBy: change => uniqueSorted([...affected(base, change), ...affected(head, change)]),
+    commandsAffectedBy: change => uniqueSorted([
+      ...affected(base, baseReverse, 'base', change),
+      ...affected(head, headReverse, 'head', change),
+    ]),
   };
 }
 
@@ -666,8 +697,12 @@ export function augmentValidationCatalogWithGraphInputs(args: {
   changedFiles: StoryChangedFile[];
 }): ValidationCatalogEntry[] {
   if (!args.graph || args.graph.graphUnknown) return args.catalog;
+  const affectedByChange = args.changedFiles.map((change) => ({
+    change,
+    commandIds: new Set(args.graph!.commandsAffectedBy(change)),
+  }));
   return args.catalog.map((entry) => {
-    const graphInputs = args.changedFiles.flatMap((change) => args.graph!.commandsAffectedBy(change).includes(entry.id)
+    const graphInputs = affectedByChange.flatMap(({ change, commandIds }) => commandIds.has(entry.id)
         ? [change.path, ...(change.oldPath ? [change.oldPath] : [])]
         : []);
     const priorInputs = entry.selectionInputRoots || [];
@@ -935,12 +970,21 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
       changedFiles: ctx.changes.changedFiles,
     });
     const expectedImpactIndex = buildValidationImpactIndexFromCatalog({
-      commandSetDigest: ctx.tierSelection.input.commandSetDigest,
+      commandSetDigest: validationInventoryCommandSetDigest(ctx.inventory),
       catalog: selectorCatalog,
     });
     const executorChangedPaths = uniqueSorted(ctx.changes.changedFiles.flatMap((change) => [change.path, ...(change.oldPath ? [change.oldPath] : [])]).map(normalPath));
     const selectorChangedPaths = new Set(ctx.tierSelection.input.changedPaths.map(normalPath));
+    const currentCommandSetDigest = validationInventoryCommandSetDigest(ctx.inventory);
+    const currentSnapshotDigest = automaticValidationTierSnapshotDigest({
+      storyId: ctx.storyId,
+      baseHead: ctx.baseHead,
+      head: ctx.head,
+      changeDigest: ctx.changes.changeDigest,
+    });
     if (ctx.tierSelection.catalogDigest !== digestCanonicalJson(ctx.catalog)
+      || ctx.tierSelection.input.commandSetDigest !== currentCommandSetDigest
+      || ctx.tierSelection.input.snapshotDigest !== currentSnapshotDigest
       || digestCanonicalJson(ctx.tierSelection.input.impactIndex) !== digestCanonicalJson(expectedImpactIndex)
       || stableDigest(ctx.tierSelection.input.universeCommandIds) !== stableDigest(inventoryIds)
       || executorChangedPaths.some((path) => !selectorChangedPaths.has(path))) {

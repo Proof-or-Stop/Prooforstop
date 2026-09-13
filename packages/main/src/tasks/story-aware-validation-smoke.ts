@@ -41,6 +41,7 @@ import {
 import type { StoryRelevanceInput } from '../core/validation-relevance-input.js';
 import { assertAutomaticTierSelectionBindingCurrent } from '../handlers/story-aware-validation.js';
 import { buildDualRevisionImpactGraph as buildProductionDualRevisionImpactGraph } from '../core/dual-revision-impact-graph.js';
+import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
 
 const inventory = discoverValidationInventory('/tmp', [
   { id: 'always', label: 'always', command: 'node', args: ['always.js'], inputRoots: ['packages/main/src/always.ts'], inputsComplete: true, assurance: 'always', riskTier: 'local', originalIndex: 0 },
@@ -48,6 +49,7 @@ const inventory = discoverValidationInventory('/tmp', [
   { id: 'unrelated', label: 'unrelated', command: 'node', args: ['unrelated.js'], inputRoots: ['docs/unrelated.md'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', originalIndex: 2 },
 ]);
 const catalog = compileValidationCatalog(inventory);
+const inventoryCommandSetDigest = buildValidationCommandInventory({ commands: inventory.commands }).commandSetDigest;
 const graphAugmentedCatalog = augmentValidationCatalogWithGraphInputs({
   catalog,
   changedFiles: [{ path: 'packages/main/src/shared.ts', status: 'modified', blobId: 'shared' }],
@@ -59,6 +61,20 @@ const graphAugmentedCatalog = augmentValidationCatalogWithGraphInputs({
 });
 assert.equal(graphAugmentedCatalog.find((entry) => entry.id === 'local')?.selectionInputRoots.includes('packages/main/src/shared.ts'), true);
 assert.equal(graphAugmentedCatalog.find((entry) => entry.id === 'always')?.selectionInputRoots.includes('packages/main/src/shared.ts'), false);
+let graphImpactCalls = 0;
+augmentValidationCatalogWithGraphInputs({
+  catalog: [...catalog, ...catalog.map((entry, index) => ({ ...entry, id: `${entry.id}-copy-${index}` }))],
+  changedFiles: [
+    { path: 'packages/main/src/one.ts', status: 'modified', blobId: 'one' },
+    { path: 'packages/main/src/two.ts', status: 'modified', blobId: 'two' },
+  ],
+  graph: {
+    baseHead: 'base', head: 'head', baseGraphDigest: 'base-count', headGraphDigest: 'head-count', graphUnknown: false,
+    authorityReasons: () => [], commandsAffectedBy: () => { graphImpactCalls += 1; return ['local']; },
+  },
+});
+assert.equal(graphImpactCalls, 2,
+  'graph impact traversal must run once per changed file, never once per catalog row');
 const graphUnknownCatalog = augmentValidationCatalogWithGraphInputs({
   catalog,
   changedFiles: [{ path: 'packages/main/src/unknown.ts', status: 'modified', blobId: 'unknown' }],
@@ -80,11 +96,15 @@ try {
   git('config', 'user.email', 'graph-fixture@example.invalid');
   const authorityFixture = join(graphFixtureRoot, 'packages/main/src/core/process-fact-registry.ts');
   writeFileSync(authorityFixture, 'export const value = 1;\n');
+  writeFileSync(join(graphFixtureRoot, 'packages/main/src/jsx-dependency.ts'), 'export const dependency = 1;\n');
+  writeFileSync(join(graphFixtureRoot, 'packages/main/src/component.tsx'),
+    "const view = <div />;\nimport './jsx-dependency.js';\nexport default view;\n");
   git('add', '.');
   git('commit', '-qm', 'base');
   const baseHead = git('rev-parse', 'HEAD');
   writeFileSync(authorityFixture,
     "import './missing.js';\nexport const value = 2;\n");
+  writeFileSync(join(graphFixtureRoot, 'packages/main/src/jsx-dependency.ts'), 'export const dependency = 2;\n');
   git('add', '.');
   git('commit', '-qm', 'unresolved import');
   const head = git('rev-parse', 'HEAD');
@@ -103,6 +123,13 @@ try {
     'the production graph entrypoint must fail closed on an unresolved import');
   assert.ok((productionGraph.resolutionFailures ?? []).some((reason) => reason.includes('unresolved-relative-import')),
     'the production graph entrypoint must retain the unresolved-import witness');
+  const jsxGraph = buildProductionDualRevisionImpactGraph({
+    gitCwd: graphFixtureRoot, storyId: 'B-production-graph', baseHead, head,
+    catalog: [{ ...catalog[0]!, id: 'tsx-consumer', inputRoots: ['packages/main/src/component.tsx'], triggerExtensions: { files: ['packages/main/src/component.tsx'] } }],
+    changeManifest,
+  });
+  assert.ok(jsxGraph.commandsAffectedBy({ path: 'packages/main/src/jsx-dependency.ts', status: 'modified' }).includes('tsx-consumer'),
+    'an import following JSX must remain a positive reverse-dependency edge');
 } finally {
   rmSync(graphFixtureRoot, { recursive: true, force: true });
 }
@@ -179,7 +206,7 @@ const productionRelevanceInput = {
   changedFiles: { status: 'available', baseRef: 'base', headRef: 'head', statuses: { 'packages/main/src/local.ts': 'M' }, paths: ['packages/main/src/local.ts'] },
   seeds: [{ kind: 'path', value: 'packages/main/src/local.ts', provenance: ['changed-file'], itemIds: [], changeStatus: 'M' }],
   excludedPaths: [], pinnedCommands: [], commandSeedEdges: [], unclassifiedInputs: [], riskSignals: [],
-  executionInventory: { sourceKind: 'configured', commandSetDigest: 'smoke-command-set', commandIds: inventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
+  executionInventory: { sourceKind: 'configured', commandSetDigest: inventoryCommandSetDigest, commandIds: inventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
   durationHistory: { status: 'collected', sampleCount: 0, estimates: [], unmatchedSamples: [] },
   verificationIntentContext: [], escalations: [], selectionDigest: 'story-input-selection',
 } as StoryRelevanceInput;
@@ -189,6 +216,12 @@ const subprocessInventory = discoverValidationInventory('/tmp', [{
   inputRoots: ['packages/main/src/visible-runner.ts'], originalIndex: 0,
 }]);
 const subprocessCatalog = compileValidationCatalog(subprocessInventory);
+const malformedCompleteInventory = discoverValidationInventory('/tmp', [{
+  id: 'malformed-complete', label: 'malformed-complete', command: 'node', args: ['malformed.js'],
+  inputRoots: 'packages/main/src' as unknown as string[], inputsComplete: true, originalIndex: 0,
+}]);
+assert.equal(compileValidationCatalog(malformedCompleteInventory)[0]?.selectionInputCoverage, 'partial',
+  'schema-bypassing non-array inputRoots must never obtain complete exclusion authority');
 const subprocessGraphCatalog = augmentValidationCatalogWithGraphInputs({
   catalog: subprocessCatalog,
   changedFiles: [{ path: 'packages/main/src/hidden-runner.ts', status: 'modified', blobId: 'hidden' }],
@@ -209,17 +242,36 @@ const subprocessBinding = buildAutomaticValidationTierSelectionBinding({
     },
   },
   catalog: subprocessGraphCatalog,
+  storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
   additionalForceFullReasons: ['runtime_edge_unresolved'],
 });
 assert.equal(subprocessBinding.decision.effectiveTier, 'repository-full');
 assert.deepEqual(subprocessBinding.decision.selectedUnitIds, ['subprocess-only']);
 assert.ok(subprocessBinding.decision.escalationReasonCodes.includes('runtime_edge_unresolved'));
-const tierBinding = buildAutomaticValidationTierSelectionBinding({ input: productionRelevanceInput, catalog });
-assertAutomaticTierSelectionBindingCurrent(tierBinding, {
+const tierBinding = buildAutomaticValidationTierSelectionBinding({
+  input: productionRelevanceInput,
+  catalog,
+  storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
+});
+const currentTierContext = {
   catalog,
   changedFiles: changes.changedFiles,
   universeCommandIds: inventory.commands.map((row) => row.id),
-});
+  commandSetDigest: inventoryCommandSetDigest,
+  changeDigest: changes.changeDigest,
+  storyId: 'B-smoke', baseHead: 'base', head: 'head',
+};
+assertAutomaticTierSelectionBindingCurrent(tierBinding, currentTierContext);
+assert.throws(
+  () => assertAutomaticTierSelectionBindingCurrent(tierBinding, { ...currentTierContext, commandSetDigest: 'changed-command-set' }),
+  /selector input does not match/,
+  'the selector command-set digest must be compared with a current independent inventory digest',
+);
+assert.throws(
+  () => assertAutomaticTierSelectionBindingCurrent(tierBinding, { ...currentTierContext, head: 'changed-head' }),
+  /selector input does not match/,
+  'the selector snapshot digest must be compared with the current Story base/head/change identity',
+);
 const completeTierGraph = {
   baseHead: 'base', head: 'head', baseGraphDigest: 'base-graph', headGraphDigest: 'head-graph', graphUnknown: false,
   resolutionFailures: [], authorityReasons: () => [], commandsAffectedBy: () => ['local'],
@@ -250,18 +302,20 @@ const wholeRepositoryInventory = discoverValidationInventory('/tmp', [
   { id: 'whole-scan', label: 'whole-scan', command: 'node', args: ['scan.js'], inputRoots: ['docs/narrow.md'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'whole-repository', originalIndex: 1 },
 ]);
 const wholeRepositoryCatalog = compileValidationCatalog(wholeRepositoryInventory);
+const wholeCommandSetDigest = buildValidationCommandInventory({ commands: wholeRepositoryInventory.commands }).commandSetDigest;
 assert.equal(validateValidationCatalog(wholeRepositoryInventory, wholeRepositoryCatalog).ok, false,
   'whole-repository closure may not claim narrow complete selector inputs');
 const wholeImpact = buildValidationImpactIndexFromCatalog({
-  commandSetDigest: 'whole-command-set', catalog: wholeRepositoryCatalog,
+  commandSetDigest: wholeCommandSetDigest, catalog: wholeRepositoryCatalog,
 });
 assert.equal(wholeImpact.entries.find((entry) => entry.commandId === 'whole-scan')?.selection, 'repository-full');
 const wholeBinding = buildAutomaticValidationTierSelectionBinding({
   input: {
     ...productionRelevanceInput,
-    executionInventory: { sourceKind: 'configured', commandSetDigest: 'whole-command-set', commandIds: wholeRepositoryInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
+    executionInventory: { sourceKind: 'configured', commandSetDigest: wholeCommandSetDigest, commandIds: wholeRepositoryInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
   },
   catalog: wholeRepositoryCatalog,
+  storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
 });
 const wholeClosures = new Map(wholeRepositoryCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
   commandId: entry.id, baseHead: 'base', inventoryDigest: wholeRepositoryInventory.digest,
@@ -282,12 +336,14 @@ const fullOnlyInventory = discoverValidationInventory('/tmp', [
   { id: 'full-sentinel', label: 'full-sentinel', command: 'node', args: ['sentinel.js'], inputRoots: ['docs/narrow.md'], inputsComplete: true, assurance: 'full-only', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'exact-current-epoch-only', originalIndex: 1 },
 ]);
 const fullOnlyCatalog = compileValidationCatalog(fullOnlyInventory);
+const fullOnlyCommandSetDigest = buildValidationCommandInventory({ commands: fullOnlyInventory.commands }).commandSetDigest;
 const fullOnlyBinding = buildAutomaticValidationTierSelectionBinding({
   input: {
     ...productionRelevanceInput,
-    executionInventory: { sourceKind: 'configured', commandSetDigest: 'full-command-set', commandIds: fullOnlyInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
+    executionInventory: { sourceKind: 'configured', commandSetDigest: fullOnlyCommandSetDigest, commandIds: fullOnlyInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
   },
   catalog: fullOnlyCatalog,
+  storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
 });
 const fullOnlyClosures = new Map(fullOnlyCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
   commandId: entry.id, baseHead: 'base', inventoryDigest: fullOnlyInventory.digest,

@@ -404,7 +404,7 @@ the seven-member trace is bounded coverage, not a whole-registry trace.
 
 ## Authority changes in dynamic validation
 
-Dynamic runner v8 binds the canonical fast/intermediate/full selector decision
+Dynamic runner v9 binds the canonical fast/intermediate/full selector decision
 and digest into the signed execution manifest, and upgrades changes to registered gate/schema/verification
 authority sources to full validation, including the full task scope inventory
 validator. It also follows their source dependencies in both Git revisions, so
@@ -432,6 +432,23 @@ identities do not have to recreate them. Existing final full-validation
 requirements remain unchanged. The six paired fault witnesses
 under `scripts/lab/u09-paired-fault` measure bounded functional detection and
 command selection, not population noninferiority or external LLM review quality.
+
+The selector's command-set identity is independently rebuilt from the current
+execution inventory. Its snapshot identity is independently rebuilt from the
+current Story id, immutable base/head and signed change-manifest digest. A
+caller cannot make either value authoritative merely by re-signing a
+self-consistent selector object. Graph traversal constructs each revision's
+reverse dependency map once and resolves affected commands once per changed
+file, not once per catalog row. This is protected by an exact call-count test;
+it is a complexity boundary, not a repository wall-time claim.
+
+The twenty compatibility package entrypoints now dispatch twenty distinct
+mode-specific executable assertions over the corresponding manifest,
+graph/scope, receipt, oracle, authority, scheduler, or recovery object. They no
+longer prove a mode by relabeling one unconditional tail marker. TEST-gate modes
+also rebuild runtime output and cross the real TEST and DONE consumers. These
+package scripts are not twenty configured `validate.commands` rows, so Story
+selection does not execute them as twenty validation units.
 
 ## Whole-array nested execution guard
 

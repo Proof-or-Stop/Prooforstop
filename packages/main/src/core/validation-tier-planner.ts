@@ -228,6 +228,21 @@ export interface AutomaticValidationTierSelectionBinding {
   bindingDigest: string;
 }
 
+/** Portable Story snapshot identity independently reproducible by executor consumers. */
+export function automaticValidationTierSnapshotDigest(args: {
+  storyId: string;
+  baseHead: string;
+  head: string;
+  changeDigest: string;
+}): string {
+  return digestCanonicalJson({
+    storyId: args.storyId,
+    baseHead: args.baseHead,
+    head: args.head,
+    changeDigest: args.changeDigest,
+  });
+}
+
 export interface ValidationFloorProjectionInjection {
   /** A deliberately supplied projection; the wrapper distinguishes it from omission. */
   readonly projection: unknown;
@@ -682,6 +697,7 @@ export function buildAutomaticValidationTierSelectionBinding(args: {
   /** Raw executor catalog digest when selector inputs include graph augmentation. */
   executionCatalogDigest?: string;
   additionalForceFullReasons?: ValidationWideningReasonCode[];
+  storySnapshot?: { baseHead: string; head: string; changeDigest: string };
 }): AutomaticValidationTierSelectionBinding {
   const materialSeedPaths = [...new Set([
     ...args.input.seeds.filter((seed) => seed.kind === 'path').map((seed) => normalizedPath(seed.value)).filter(Boolean),
@@ -708,17 +724,11 @@ export function buildAutomaticValidationTierSelectionBinding(args: {
     pinnedCommandIds: args.input.pinnedCommands.map((pin) => pin.commandId),
     forceFullReasons,
     commandSetDigest: args.input.executionInventory.commandSetDigest,
-    snapshotDigest: digestCanonicalJson({
-      selectionDigest: args.input.selectionDigest,
-      hashes: args.input.hashes.status === 'available'
-        ? {
-            headHash: args.input.hashes.head.headHash,
-            materialHash: args.input.hashes.head.materialHash,
-            storyFilesHash: args.input.hashes.head.storyFilesHash,
-            materialDirtyFiles: [...(evidenceMaterialDirtyFiles(args.input.hashes.head) ?? [])]
-              .map(normalizedPath).filter(Boolean).sort(),
-          }
-        : { status: args.input.hashes.status, missingDigests: args.input.hashes.missingDigests },
+    snapshotDigest: automaticValidationTierSnapshotDigest({
+      storyId: args.input.storyId,
+      baseHead: args.storySnapshot?.baseHead ?? args.input.changedFiles.baseRef,
+      head: args.storySnapshot?.head ?? args.input.changedFiles.headRef,
+      changeDigest: args.storySnapshot?.changeDigest ?? args.input.selectionDigest,
     }),
     impactIndex,
   };

@@ -91,7 +91,7 @@ async function runCase(phase, full) {
           console.log('CANONICAL_FULL_SIGNED_TEST_ADMISSION_PASS');
           return;
         }
-        assert.deepEqual(parsed.commands.map(c => c.label), ['build']);
+        assert.deepEqual(parsed.commands.map(c => c.label), ['build'], JSON.stringify(parsed.dynamicValidation));
         const canonicalConsumer = assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:false});
         assert.equal(canonicalConsumer.ok,false);
         assert.ok(canonicalConsumer.reasonCodes.includes('dynamic_requires_canonical_full_plan'),JSON.stringify(canonicalConsumer.reasonCodes));
