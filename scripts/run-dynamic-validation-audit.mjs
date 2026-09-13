@@ -39,6 +39,15 @@ const selectors = {
 const selector = selectors[mode];
 if (!selector) throw new Error(`unknown dynamic validation audit mode: ${mode || '<missing>'}`);
 
+// These two selectors must cross the real TEST and DONE consumers. Importing
+// the fixture executes those gates in this process, so the stable registered
+// adapter remains the validation entry without creating a nested validator.
+if (mode === 'test-gate' || mode === 'test-gate-mutations') {
+  await import('./verify-dynamic-test-admission.mjs');
+  process.stdout.write(`${selector}\n`);
+  process.exit(0);
+}
+
 function runSourceTask(task) {
   const sourcePath = join(root, task);
   let result = spawnSync(process.env.BUN_BINARY || 'bun', [sourcePath], {

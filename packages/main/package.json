@@ -148,9 +148,9 @@
     "test:dynamic-validation-shadow-equivalence": "node ../../scripts/run-dynamic-validation-audit.mjs shadow-equivalence",
     "test:dynamic-validation-shadow-rejections": "node ../../scripts/run-dynamic-validation-audit.mjs shadow-rejections",
     "test:dynamic-validation-shadow-false-negative": "node ../../scripts/run-dynamic-validation-audit.mjs shadow-false-negative",
-    "test:dynamic-validation-test-gate": "node ../../scripts/verify-dynamic-test-admission.mjs",
+    "test:dynamic-validation-test-gate": "node ../../scripts/run-dynamic-validation-audit.mjs test-gate",
     "test:dynamic-validation-test-gate-escalation": "node ../../scripts/run-dynamic-validation-audit.mjs test-gate-escalation",
-    "test:dynamic-validation-test-gate-mutations": "node ../../scripts/verify-dynamic-test-admission.mjs",
+    "test:dynamic-validation-test-gate-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs test-gate-mutations",
     "test:dynamic-validation-operations": "node ../../scripts/run-dynamic-validation-audit.mjs operations",
     "test:dynamic-validation-operations-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations",
     "test:story-create-direct-lifecycle": "node tests/red/red-story-create-direct-done-bypass.mjs"

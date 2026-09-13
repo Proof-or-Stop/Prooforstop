@@ -67,13 +67,15 @@ and automatic tier choice did not exist.
 | `npm --prefix packages/main run test:dynamic-validation-test-gate-mutations` | `authority mutations rejected` | A mutated authority prerequisite cannot produce TEST PASS |
 | `node scripts/verify-process-fact-contract.mjs` | PASS | The prompt/handler/gate two-layer contract, selector manifest facts, TEST consumer, and independent DONE boundary agree |
 
-The TEST-gate task directly runs a two-command repository fixture. The canonical
+The TEST-gate task's stable registered wrapper imports and executes a two-command
+repository fixture in the same process. The canonical
 baseline executes both commands; the authoritative Story-fast path executes one
 and records one signed exclusion. `assessStoredValidationPassAdmissibility` is
 called with both admission policies, `runValidateGate` consumes the accepted
 record, and `runDoneOracleGate` rechecks it. A changed ledger, missing receipt,
 mismatched HEAD, signature mutation, expiry and revocation are independently
-refused. The package scripts now execute this task directly.
+refused. The package scripts retain their existing registered command identity;
+the wrapper only emits either selector after the real gate fixture completes.
 
 ## Claude CLI audit and remediation
 
@@ -131,7 +133,7 @@ integration. Its eleven findings were retained and repaired as follows:
 | A2-F4 TEST/DONE consumers | Dynamic admission defaulted false silently and DONE intent was not explicit | The option is required at every caller; REVIEW, TEST, verdict, certification and DONE consumers opt in explicitly while canonical callers opt out |
 | A2-F5 fabricated authority test | Test rewrote escalation fields and re-signed the result | Authority now uses the honest non-escalated production manifest unchanged |
 | A2-F6 legacy pin test | No receipts meant default execution could masquerade as compatibility widening | Control plan first proves reuse, then the legacy pin forces execution and records `legacy-validation-pin-unresolved:<pin>` |
-| A2-F7 marker-only gate test | Package task only searched a marker in the mutation smoke | Package task now runs the real signed TEST/DONE fixture and both positive and negative consumers |
+| A2-F7 marker-only gate test | Package task only searched a marker in the mutation smoke | The stable package-task wrapper now imports the real signed TEST/DONE fixture; only a successful positive and negative consumer run emits the selector |
 | A2-F8 blanket fixture roots | A caller-wide root override implied complete ownership | Overrides affect runtime closure only; selector completeness stays per command |
 | A2-F9 orphan comments | Portable identity comments described unrelated symbols | Comments moved beside the portable tuple and cwd implementation |
 | A2-F10 unused Story id | Mode resolver accepted a Story id it never read | Removed from the resolver and every call site |
@@ -142,6 +144,14 @@ canonical baseline publication. It is now replaced by the same portable
 `prov-*` implementation used by planning and execution; without this correction
 the baseline inventory/catalog digests could never match and dynamic authority
 always fell back to full.
+
+After synchronizing main, a release preflight caught that changing the package
+aliases themselves would invalidate version-source dependency evidence and make
+the static scanner expand a registered validator through other registered
+validators. The aliases were restored byte-for-byte. The existing wrapper now
+performs the real fixture import in-process, preserving command identity while
+removing the marker-only behavior. Both public npm entries and the complete
+process-fact contract pass with that topology.
 
 ## Rollback
 
