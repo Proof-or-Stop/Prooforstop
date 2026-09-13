@@ -474,23 +474,24 @@ export function validateRuntimeMemoryIndex(raw: unknown): RuntimeMemoryIndexVali
   return { ok: true };
 }
 
-// Bound retained validated data by serialized bytes and entry count. Each read
-// still observes the complete file bytes; timestamps never authorize reuse.
-const validatedIndexMemo = new Map<string, { digest: string; index: RuntimeMemoryIndex; bytes: number }>();
+// Keep bounded validation receipts, never parsed caller-owned objects. Each
+// read observes all file bytes; timestamps never authorize reuse.
+const validatedIndexMemo = new Map<string, { digest: string; bytes: number }>();
 const VALIDATED_INDEX_MEMO_BYTES = 32 * 1024 * 1024;
 function forgetValidatedIndex(path: string): void { validatedIndexMemo.delete(path); }
 export function readRuntimeMemoryIndex(projectRoot: string): RuntimeMemoryIndex | null {
   const indexPath = resolveRuntimeMemoryIndexPath(projectRoot);
   if (!existsSync(indexPath)) { forgetValidatedIndex(indexPath); return null; }
   try {
-    const raw = readFileSync(indexPath, 'utf-8');
-    const digest = digestText(raw);
+    const bytesRead = readFileSync(indexPath);
+    const digest = createHash('sha256').update(bytesRead).digest('hex');
+    const raw = bytesRead.toString('utf-8');
     const previous = validatedIndexMemo.get(indexPath);
-    if (previous?.digest === digest) return structuredClone(previous.index);
+    if (previous?.digest === digest) return JSON.parse(raw) as RuntimeMemoryIndex;
     forgetValidatedIndex(indexPath);
     const parsed = JSON.parse(raw) as RuntimeMemoryIndex;
     if (!validateRuntimeMemoryIndex(parsed).ok) return null;
-    const bytes = Buffer.byteLength(raw);
+    const bytes = bytesRead.byteLength;
     if (bytes <= VALIDATED_INDEX_MEMO_BYTES) {
       let retained = [...validatedIndexMemo.values()].reduce((sum, entry) => sum + entry.bytes, 0);
       while (validatedIndexMemo.size && (validatedIndexMemo.size >= 4 || retained + bytes > VALIDATED_INDEX_MEMO_BYTES)) {
@@ -498,8 +499,7 @@ export function readRuntimeMemoryIndex(projectRoot: string): RuntimeMemoryIndex 
         retained -= validatedIndexMemo.get(oldest)!.bytes;
         forgetValidatedIndex(oldest);
       }
-      validatedIndexMemo.set(indexPath, { digest, index: parsed, bytes });
-      return structuredClone(parsed);
+      validatedIndexMemo.set(indexPath, { digest, bytes });
     }
     return parsed;
   } catch {
