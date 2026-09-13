@@ -1,23 +1,5 @@
 # Changelog
 
-## Lab identity-main352-closure - v0.3.353 - 2026-09-13
-
-Restore reviewed identity bindings that became stale on local main d788f9a. Seven existing source positions/hashes and derived reader/fixture/static dependencies were refreshed against exact source provenance. The original six-context digest and original 89 compatibility rows remain intact. Two admissions are additive: one reviewed source row for the causal-index retired refusal needle, and one compatibility-schema row, increasing that table from 89 to 90. No production gate or validation budget changes.
-
-The causal source row covers packages/main/src/core/runtime-environment-checks.ts:429: the retired string is the fourth identitySite argument (a refusal needle), paired on that same line with identityOrigin naming packages/main/src/core/causal-evidence.ts / CAUSAL_EVIDENCE_INDEX_SCHEMA and with the following identityMutationCase for the canonical causal index. It is not an emitted schema value. The pinned verifier now calls both actual reviewed-source APIs on the positive and on token, additional-occurrence, and same-count changed-context inputs; it also imports the actual inventory consumer after each of five protected-row field changes and requires refusal. The original six-row digest sensitivity assertions remain, but are not presented as independent consumer execution.
-
-The new compatibility row covers the single managed_review_final_proposal.v1 retired-prefix occurrence at scripts/verify-review-epoch-certification-continuity.mjs:342. This is an accepted synthetic managed-review response in a disposable fixture, not a rejection test. The surrounding source says the transport is synthetic while the actual managed worker, sealed receipt importer and REVIEW consumer remain in use. Compatibility classification preserves that existing accepted fixture protocol; moving it into the rejection-only table would misdescribe it. The actual scanner self-test derives schema inventory from the current repository and runs the same inventory consumer as default scanning, then checks removal, duplication, count, context, path and token mutations for all compatibility rows, including this added row. These are scanner admission controls, not a claim that the native managed-review scenario ran in this Lab.
-
-The pinned RED command remains node scripts/verify-reviewed-source-bindings.mjs. It now includes the actual fixture reader, current scanner --self-test, direct static-edge verifier, and the actual route driver's AST-selected four-entry dependency closure with missing-entry and stale-digest negatives. The latter does not run or claim the native route suite. Finish will replay this same command on the prepared final head; the tool-owned candidate measurement is the source of that future result. No manually attached receipt is substituted.
-
-Historical evidence only: official RED reproduced seven stale source bindings; original GREEN wrapper took 1.821793 seconds. Scanner self-test (21.359952 seconds) and static verification (1.548393 seconds) were measured on 776200ab7977dd5069ecc3b8c2cb42825a2b4ad6, not its later prepared release head. The rejected audit's missing final-head consumer coverage is addressed by extending the pinned command, not by relabelling those measurements.
-
-Full identity scanning remains non-green on inherited main residues. The prior bounded comparison reported 74 baseline versus 52 candidate tuples with zero additions; those 52 remain. This is not full repository success, Story B-e6d9 DONE, or a remote release. Supplemental logs and provenance remain under /tmp/B-e6d9-identity-main352-closure and the external command timing ledger.
-
-Maintenance provenance: codex/lab-identity-main352-closure, repair 242c6250da815ce497945e04fe9cac14d9d9b6a0.
-Verification command (replayed before integration and on main): `["node","scripts/verify-reviewed-source-bindings.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab route-reader-regression - v0.3.352 - 2026-09-13
 
 The four-gaps regression now checks the real registry-to-adapter reader composition while retaining projection consumption and the direct-import boundary. Seven live mutation cases cover both registry compositions, adapter-body substitution, route consumption, projection consumption, and alternate static/dynamic imports. The fixed historical callback illustrates former loose behavior; committed RED records remain the historical evidence, and no runtime Git-provenance claim is made.
