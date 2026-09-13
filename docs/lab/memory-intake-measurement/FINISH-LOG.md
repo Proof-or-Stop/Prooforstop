@@ -59,3 +59,7 @@ A fresh synthetic transport witness reproduced the context-amplification defect:
 Main synchronization at 0.3.355 preserves both added npm test scripts and all static exception entries. Dependency hashes were refreshed only for merged changed inputs; runtime-verifier source excerpts and line positions reflect its four added lines checking continuity policy. These are local reviewed static records, not vendor audit approval.
 
 Synchronization with main 0.3.356 retains the new validation catalog imports while preserving reuse of workspace.config. The selector authority implementation and its dependency edges are retained from main. Full pinned verification is required again after this merge.
+
+## Synchronized verifier compatibility repair
+
+The 0.3.356 GREEN attempt preserved a real failure: verify-material-tree-memo imported a newly expanded source closure containing a TypeScript parameter property. Node 26 native strip-only loading raised ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX before its assertions. The pinned wrapper now runs this witness first, and managed RED reproduces that exact failure. The verifier alone uses the already installed TypeScript compiler through a temporary synchronous load hook; the shared Lab bootstrap and product source are unchanged. Its original hash, repeated-tree, new-HEAD, replacement-ref, packed-ref, environment and missing-ref assertions remain intact. The targeted source verifier passes after repair. This is verification compatibility, not another product speedup.
