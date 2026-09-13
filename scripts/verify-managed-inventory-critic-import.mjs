@@ -149,7 +149,13 @@ if(scenario==='duplicate') dispositions.push({finding:{proposalFindingIndex:1},d
 if(scenario==='not-verified') {dispositions[0]={finding:{proposalFindingIndex:0},disposition:'not_verified',reason:'The critic does not classify this observation as a verified family; original Finding evidence remains unchanged.'};}
 if(scenario==='own-id') dispositions[0].finding={findingId:storyId+':F-001'};
 if(scenario==='existing-id') {assert.equal(baselineFindings.length,1);dispositions.push({finding:{findingId:baselineFindings[0].id},disposition:'verified_family',familyKey:'existing-family',reason:'This signed finding predates the managed receipt.'});}
-const host=createHostRunHandlers(ctx,{runner:async()=>{
+const host=createHostRunHandlers(ctx,{runner:async(plan)=>{
+ if(scenario==='pass') {
+  const {writeManagedReviewEvidenceProposal,managedHostRunDirectory}=await import('../packages/main/dist/core/managed-host-run.js');
+  const callbackRun=plan.env.LATTICE_MANAGED_HOST_RUN_ID;
+  assert.throws(()=>writeManagedReviewEvidenceProposal({root:worktree,runId:callbackRun,environment:plan.env,proposal:{storyId,providerAgent:lane,lane,reviewRunId,conclusion:'pass',note:'This invalid block must not be persisted.',readManifest,readLog:{filesReadFully:files,filesTriagedByName:[],summary:{readCount:files.length,tokenCount:null},digest:'a'.repeat(64)},inventoryCritic:{epochId:epoch.epochId,wave:0,findingDispositions:[]}}}),/invalid inventory critic transport/);
+  assert(!existsSync(join(managedHostRunDirectory(worktree,callbackRun),'evidence-proposal.json')));
+ }
  for(const path of files) readFileSync(join(worktree,path));
  return {stdout:'',stderr:'',exitCode:0,timedOut:false,terminalReason:'completed',finalAssistantResultCount:1,finalAssistantResultTruncated:false,
  finalAssistantResult:JSON.stringify({schemaVersion:'lattice.managed_review_final_proposal.v1',storyId,providerAgent:lane,lane,reviewRunId,conclusion:scenario==='pass'?'pass':'findings',
@@ -230,6 +236,19 @@ assert.equal(records.criticReceipts.length,1);
 const finding=fixture.store.readFindings(storyId).findings.find(row=>row.reviewRunId===reviewRunId);
 if(scenario==='pass') assert.equal(records.criticReceipts[0].findingDispositions.length,0);
 else {assert(finding);assert(records.criticReceipts[0].findingDispositions.some(row=>row.findingId===finding.id));}
+if(scenario==='existing-id') {
+ const {verifyManagedReviewEvidence}=await import('../packages/main/dist/core/managed-review-evidence.js');
+ const {managedHostRunDirectory}=await import('../packages/main/dist/core/managed-host-run.js');
+ const binding=finding.managedEvidenceBinding;
+ const verify=()=>verifyManagedReviewEvidence({root:worktree,storyId,agent:lane,lane,reviewRunId,binding,expected:binding});
+ assert.equal(verify().valid,true);
+ const proposalPath=join(managedHostRunDirectory(worktree,launched.run.runId),'evidence-proposal.json');
+ const original=readFileSync(proposalPath);
+ const altered=JSON.parse(original.toString());altered.inventoryCritic.wave=0;
+ try {writeFileSync(proposalPath,JSON.stringify(altered));assert.equal(verify().valid,false);}
+ finally {writeFileSync(proposalPath,original);}
+ assert.equal(verify().valid,true,'Byte-exact restore recovers original admissibility; no resealing forged evidence');
+}
 const bytes=JSON.stringify(records.criticReceipts[0]);
 assert.match(importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/already imported/);
 assert.equal(JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts[0]),bytes,'Retry preserves exact authenticated critic receipt');

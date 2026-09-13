@@ -80,7 +80,11 @@ export function createManagedReviewEvidenceHandlers(
       readManifest?: unknown;
       readLog?: unknown;
       readDiagnostics?: unknown;
+      inventoryCritic?: unknown;
     }) {
+      if (args.inventoryCritic !== undefined) {
+        throw new Error('MANAGED_INVENTORY_FINAL_ENVELOPE_REQUIRED: inventoryCritic is supported only in the final assistant JSON envelope; this legacy proposal callback cannot finish an inventory critic review');
+      }
       assertOnlyKeys('managed_review_proposal_set', args as Record<string, unknown>, [
         'runId', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion',
         'note', 'findings', 'readManifest', 'readLog', 'readDiagnostics',

@@ -18,10 +18,9 @@ export interface ManagedInventoryCritic {
   findingDispositions: ManagedInventoryDisposition[];
 }
 const critic = 'proof-or-stop-review-topology-critic';
-const referenceSchema = { anyOf: [
-  {type: 'object', additionalProperties: false, required: ['findingId'], properties: {findingId: {type: 'string'}}},
-  {type: 'object', additionalProperties: false, required: ['proposalFindingIndex'], properties: {proposalFindingIndex: {type: 'integer'}}},
-] };
+// Provider schema stays flat; the authoritative local parser enforces exact-one-reference.
+const referenceSchema = {type: 'object', additionalProperties: false,
+  properties: {findingId: {type: 'string'}, proposalFindingIndex: {type: 'integer'}}};
 export const managedInventoryCriticJsonSchema = {
   type: 'object', additionalProperties: false, required: ['epochId', 'wave', 'findingDispositions'],
   properties: {
@@ -29,7 +28,7 @@ export const managedInventoryCriticJsonSchema = {
     findingDispositions: {type: 'array', items: {
       type: 'object', additionalProperties: false, required: ['finding', 'disposition', 'reason'],
       properties: {finding: referenceSchema, disposition: {type: 'string', enum: ['verified_family', 'duplicate', 'not_verified']},
-        familyKey: {type: 'string'}, canonicalFinding: referenceSchema, reason: {type: 'string', minLength: INVENTORY_CRITIC_REASON_MIN_LENGTH}},
+        familyKey: {type: 'string'}, canonicalFinding: referenceSchema, reason: {type: 'string'}},
     }},
   },
 };

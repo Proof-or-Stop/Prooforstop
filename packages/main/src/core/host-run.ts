@@ -874,7 +874,7 @@ export interface ManagedReviewFinalEnvelopeRecord extends Record<string, unknown
  * bounded and non-secret: it contains only the already-auditable managed review
  * tuple plus public vocabulary, never prompt bytes, capabilities, or verdicts.
  */
-function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
+export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
   if (!args.storyId || !args.reviewRunId || !args.lane || args.agentType !== args.lane) {
     throw new Error('host_run: managed Claude JSON Schema requires exact storyId/reviewRunId/lane/agentType binding');
   }

@@ -69,6 +69,9 @@ async function importDist(root, relPath) {
 }
 
 async function main() {
+  assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY'));
+  assert(readFileSync('packages/main/src/tasks/isolated-finding-fixture.ts','utf8').includes('managedCriticFixtureBudgetMs(process.env,budgetStartedAt)'));
+
   const root = findRepoRoot(process.cwd());
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }

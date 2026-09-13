@@ -11595,6 +11595,8 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
   && managedCriticArtifact.kind === 'signed-artifact', 'Managed importer must explicitly register its second signed critic artifact');
 
 // Managed inventory transport checks must precede the final failure gate.
+assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
+assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
 {
  const source = read('packages/main/src/handlers/review-inventory.ts');
  const required = ['export function importManagedInventoryCritic', 'createManagedReviewEvidenceBinding',

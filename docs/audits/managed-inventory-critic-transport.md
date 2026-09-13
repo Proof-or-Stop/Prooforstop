@@ -73,11 +73,11 @@ pending metadata and Git-status failure. A synthetic read proxy supplies an
 ambiguous index only inside the disposable fixture; it grants no real authority.
 
 The verifier guard runs before its final failure gate. Subprocess controls execute
-that actual guard and gate against a positive input and five removed-authority-token
+that actual guard and gate against a positive input and seven removed-authority-token
 inputs, checking nonzero refusal before success banners. Three fixture children run
 per batch, with a 120-second inner cleanup watchdog and a 135-second outer timeout.
-Five batches allow up to 675 seconds, plus 60 seconds for six subprocess controls,
-leaving 165 seconds of margin within the pinned 900-second budget. Scenario names
+Five batches allow up to 675 seconds, plus 80 seconds for eight subprocess controls,
+leaving 145 seconds of margin within the pinned 900-second budget. Scenario names
 are emitted before launch. A failed batch waits for all children before returning.
 No fresh audit or integration is asserted by this follow-up description.
 
@@ -100,3 +100,63 @@ the pre-existing refusal; it does not introduce a historical mutation exemption.
 Original host-run results/receipts remain inspectable, and prior terminal records
 remain durable. Official wave/cancel fixtures verify refusal without changing
 stored findings, events, inventory records, or the original provider receipt.
+
+## Fourth candidate: provider schema and direct refusal coverage
+
+The Claude provider schema is deliberately flat: optional findingId/index fields
+carry no anyOf and reason carries no minLength. The local parser and shared writer
+remain authoritative for exactly-one-reference and the trimmed ten-character floor.
+The verifier generates the critic-specific Claude schema, parses it, rejects
+unsupported combinators/length keywords and checks its existing 16 KiB cap.
+
+managed_review_proposal_set is a compatibility-only callback for older adapters,
+not this feature's inventory transport. An inventoryCritic argument now receives
+MANAGED_INVENTORY_FINAL_ENVELOPE_REQUIRED, instructing the provider to emit the
+block in its final assistant JSON. The CLI catalog exposes the same restriction;
+no owner-supplied classification or callback authority is added.
+
+The disposable pass case directly invokes the proposal writer while its real
+fixture provider capability is active and proves an invalid block is refused
+without a proposal file. The existing-ID case modifies only the disposable sealed
+proposal, verifies refusal, restores identical bytes, then verifies acceptance.
+That negative exercises both digest/shape defenses; it does not claim a forged
+proposal was authentic. Separate source-guard deletion subprocesses pin the writer
+and consumer shape guards in addition to the five importer authority controls.
+
+MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY owns the test-only 120/135-second limits and
+15-second cleanup margin. Each driver child receives its own absolute deadline;
+the fixture clamps its watchdog to the lesser of 120 seconds and actual remaining
+time minus cleanup margin. Malformed, foreign and exhausted envelopes refuse.
+Per-scenario start and elapsed milliseconds are emitted; measurements are retained
+with the run evidence. This policy does not alter production admission limits.
+
+Version handling remains at the official Lab integration stage. The required
+`finish --confirm --bump patch` prepares the release candidate, updates shared
+version assets, builds, audits that exact prepared candidate, and performs local
+integration checks. A pre-finish repair audit is not release approval; its PASS
+cannot be reused after version/base changes unless the tool validates freshness.
+No bump, main integration or release completion is claimed by this repair document.
+
+### Static source evidence refresh
+
+The fourth candidate initially failed the runtime contract at static AST evidence
+freshness, while the same check passed on main 0.3.357. This was treated as an
+applicable candidate regression. Existing command indexes were remapped by exact
+executable/argv identity, unchanged call digests and exact current source excerpts;
+all pre-existing dependency bindings were retained. Two changed excerpts were
+reviewed against the explicit fixture allowlist and unchanged runtime child calls.
+The new driver's child_process imports are static, and its stdin guard evaluator
+uses an explicit node -e shim, so both real subprocess calls are visible to the
+scanner. Two separate exceptions bind only the exact driver invocation: the eight
+final-guard controls and the thirteen-case companion fixture. Their current-source
+and dependency evidence includes the isolated/native fixture chain. They do not
+grant production authority or exempt arbitrary callers. The candidate static scan
+reported needsReview=0; runtime contract and the changed driver are rerun separately.
+
+The fourth candidate's post-driver-change thirteen-case run passed. Its slowest
+observed case was existing-id at 37167 ms, below the 120000 ms inner cap.
+These are per-case wall measurements under three-way local concurrency, not
+full-development timing or a product benchmark result. The desktop runtime
+coverage check initially lacked package-local smol-toml and ws in this Lab;
+copying its already installed identical dependencies to the packager's required
+paths restored CLI_AUDIT_RUNTIME_COVERAGE_GREEN without a tracked dependency change.
