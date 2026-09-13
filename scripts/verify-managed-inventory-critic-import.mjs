@@ -104,7 +104,7 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
 const {runIsolatedFindingFixture}=await import('../packages/main/dist/tasks/isolated-finding-fixture.js');
 if(await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const scenario=process.argv.find(a=>a.startsWith('--case='))?.slice(7) ?? 'findings';
-assert(['findings','pass','crash','wrong-wave','drift','committed-drift','missing-disposition','duplicate','not-verified','own-id','existing-id','index-ambiguity','cancel-before-import','native'].includes(scenario));
+assert(['findings','pass','crash','wrong-wave','drift','committed-drift','missing-disposition','duplicate','not-verified','own-id','existing-id','index-ambiguity','cancel-before-import','native','resolved-collision'].includes(scenario));
 const fixture=setup();
 const primary=fixture.root;
 const worktree=join(primary,'.worktrees',storyId);
@@ -139,6 +139,10 @@ const env={PROOF_OR_STOP_AGENT:lane,PROOF_OR_STOP_SESSION_ID:'fixture-critic'};
 cli(worktree,'dispatch',{storyId,agentType:lane,...purpose},env);
 const out=cli(worktree,'review_run_start',{storyId,agent:lane,...purpose},env);
 const reviewRunId=out.match(/Review run (\S+) started/)[1];
+const {buildManagedReviewerPrompt}=await import('../packages/main/dist/core/managed-review-evidence.js');
+const signedRun=fixture.store.readReviewRuns(storyId).runs.find(r=>r.reviewRunId===reviewRunId);
+const renderedPrompt=buildManagedReviewerPrompt(worktree,signedRun);
+assert(renderedPrompt.includes('copy these exact values: '+JSON.stringify({epochId:epoch.epochId,wave:epoch.waves.length+1})), 'Rendered managed critic prompt must state exact current epoch and wave');
 if(scenario==='native') {
  await runBrokeredNativeReviewCli({root:worktree,store:fixture.store,storyId,agent:lane,reviewRunId,command:'finding_add',payload:{storyId,agent:lane,reviewRunId,desc:'Native critic observes a bounded fixture issue for signed disposition replay tests.',severity:'medium',category:'missing',files:['packages/main/src/subject.ts'],evidenceState:'verified',readManifest,readEvents}});
  const findingId=fixture.store.readFindings(storyId).findings.at(-1).id;
@@ -162,9 +166,9 @@ process.chdir(worktree);
 const ctx={root:worktree,store:fixture.store,scanRoot:join(worktree,'packages/main')};
 const baselineFindings=fixture.store.readFindings(storyId).findings;
 const baseFinding={desc:'A disposable verified observation tests own-index mapping without guessing its allocated ID.',severity:'medium',category:'missing',files:['packages/main/src/subject.ts'],evidenceState:'verified'};
-const proposalFindings=scenario==='duplicate'?[baseFinding,{...baseFinding,desc:'A second disposable observation duplicates the first bounded family.'}]:[baseFinding];
+const proposalFindings=['duplicate','resolved-collision'].includes(scenario)?[baseFinding,{...baseFinding,desc:'A second disposable observation duplicates the first bounded family.'}]:[baseFinding];
 const dispositions=[{finding:{proposalFindingIndex:0},disposition:'verified_family',familyKey:'fixture-family',reason:'Independent synthetic provider classifies its own observation.'}];
-if(scenario==='duplicate') dispositions.push({finding:{proposalFindingIndex:1},disposition:'duplicate',familyKey:'fixture-family',canonicalFinding:{proposalFindingIndex:0},reason:'Both observations identify the same bounded family.'});
+if(['duplicate','resolved-collision'].includes(scenario)) dispositions.push({finding:{proposalFindingIndex:1},disposition:'duplicate',familyKey:'fixture-family',canonicalFinding:{proposalFindingIndex:0},reason:'Both observations identify the same bounded family.'});
 if(scenario==='not-verified') {dispositions[0]={finding:{proposalFindingIndex:0},disposition:'not_verified',reason:'The critic does not classify this observation as a verified family; original Finding evidence remains unchanged.'};}
 if(scenario==='own-id') dispositions[0].finding={findingId:storyId+':F-001'};
 if(scenario==='existing-id') {assert.equal(baselineFindings.length,1);dispositions.push({finding:{findingId:baselineFindings[0].id},disposition:'verified_family',familyKey:'existing-family',reason:'This signed finding predates the managed receipt.'});}
@@ -199,6 +203,25 @@ if(scenario==='cancel-before-import') {
  assert.equal(JSON.stringify({findings:fixture.store.readFindings(storyId),events:fixture.store.readProcessEvents(storyId),inventory:fixture.store.readReviewInventoryEpochs(storyId)}),before);
  assert.deepEqual(managedHostRunReceipt(worktree,launched.run.runId),receipt,'Cancelled late import retains original provider receipt');
  console.log('MANAGED_INVENTORY_CANCELLED_LATE_IMPORT_PRESERVED_GREEN');
+} else if(scenario==='resolved-collision') {
+ const crashing=createManagedReviewEvidenceHandlers(ctx,{afterManagedHostRunEvidenceBindingWrite:()=>{throw new Error('FIXTURE_TERMINAL_READY');}});
+ assert.throws(()=>crashing.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/FIXTURE_TERMINAL_READY/);
+ const {importManagedInventoryCritic}=await import('../packages/main/dist/handlers/review-inventory.js');
+ const {signFinding}=await import('../packages/main/dist/core/finding-verify.js');
+ const originalRead=fixture.store.readFindings.bind(fixture.store);
+ const before=JSON.stringify(originalRead(storyId));
+ // In-memory corrupted-ledger fixture only: preserve two signed index bindings but collide IDs.
+ // No test record is written, and these private fixture keys grant no real Story authority.
+ fixture.store.readFindings=(id)=>{const current=originalRead(id);const first=current.findings[0];return {...current,findings:current.findings.map((f,i)=>{
+  if(i!==1)return f;
+  const v={...f,id:first.id};v._hash=signFinding(id,v.id,v.desc,v.severity,v.createdAt,v.reviewRound,v.reviewRunId,v.readManifest,v.readLog,v.readDiagnostics,v.gapLogBinding,v.managedEvidenceBinding);return v;
+ })};};
+ try {assert.throws(()=>importManagedInventoryCritic(ctx,{runId:launched.run.runId,receiptId:receipt.receiptId}),/duplicate resolved finding identity/);}
+ finally {fixture.store.readFindings=originalRead;}
+ assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0,'Collision cannot write a critic receipt');
+ assert.equal(JSON.stringify(originalRead(storyId)),before,'Collision probe leaves persisted findings unchanged');
+ assert.match(importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/Completeness critic: complete/);
+ console.log('MANAGED_INVENTORY_RESOLVED_COLLISION_GREEN');
 } else if(scenario==='index-ambiguity') {
  const crashing=createManagedReviewEvidenceHandlers(ctx,{afterManagedHostRunEvidenceBindingWrite:()=>{throw new Error('FIXTURE_TERMINAL_READY');}});
  assert.throws(()=>crashing.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId}),/FIXTURE_TERMINAL_READY/);

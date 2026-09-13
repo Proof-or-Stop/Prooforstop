@@ -64,11 +64,11 @@ share a canonical finding; the original signed Finding evidence is not rewritten
 by a critic disposition. The managed critic receipt has an explicit additional
 artifact-producer registration alongside the existing managed evidence binding.
 
-The fixed verification command includes thirteen disposable integration scenarios:
+The fixed verification command includes fifteen disposable integration scenarios:
 normal findings, pass, crash recovery, wrong wave, uncommitted and committed
 material drift, missing disposition with terminal bookkeeping, duplicate canonical
 mapping, not_verified classification, guessed own-ID refusal, existing-ID
-mapping, index ambiguity, and cancellation before first import. The pass scenario additionally tests legitimate
+mapping, index ambiguity, cancellation before first import, native receipt refusal/replay, and resolved identity collision. The pass scenario additionally tests legitimate
 pending metadata and Git-status failure. A synthetic read proxy supplies an
 ambiguous index only inside the disposable fixture; it grants no real authority.
 
@@ -188,3 +188,24 @@ an unchanged top-level bare read later in the file. The same command on main
 same ENOENT path. This pre-existing limitation is preserved, not claimed repaired;
 the configured root invocation remains passing. The bound maintenance follow-up
 is recorded in the external checkpoint rather than expanding this transport fix.
+
+## Sixth candidate: explicit prompt subject and duplicate-reference controls
+
+The inventory evidence-pack renderer now prints literal epochId and wave values,
+derived from epoch.epochId and epoch.waves.length + 1, and names those source fields.
+Each actual disposable inventory run renders buildManagedReviewerPrompt and checks
+the exact current subject instruction rather than relying solely on fixture values.
+The parser now rejects repeated identical finding references. A fifteenth fixture
+case injects an in-memory ledger collision with two distinct index bindings mapping
+to the same finding ID, using only disposable fixture integrity records. The real
+importer must reject duplicate resolved identity without a critic receipt or changed
+persisted findings; removing the read proxy must restore successful import. This
+test does not produce real Story evidence or extend provider authority. Fifteen
+cases still occupy five batches under the existing 900-second pinned limit.
+
+The full fifteen-case run passed, with slowest observed case pass at 40920 ms.
+The complete runtime contract passed. A later process-contract child exposed a
+Lab-only dependency-layout issue: package-local copies made its temporary module
+root omit TypeScript. Replacing those copies with links to the same Lab's root
+installed packages restored the focused certification-mutator control. No tracked
+dependency or production code was changed for that environment repair.

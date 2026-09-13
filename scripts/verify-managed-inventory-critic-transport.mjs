@@ -39,7 +39,7 @@ const inventory = {...proposal, inventoryCritic: {
 assert.equal(classify(inventory), 'valid', 'MANAGED_INVENTORY_DISPOSITION_TRANSPORT_MISSING');
 assert.equal(classify({...inventory, lane: 'proof-or-stop-review-quality',
   providerAgent: 'proof-or-stop-review-quality'}), 'malformed', 'Ordinary reviewers cannot transport critic authority');
-for (const invalid of [null, {}, {...inventory.inventoryCritic, wave: 0},
+for (const invalid of [null, {}, {...inventory.inventoryCritic, findingDispositions: [inventory.inventoryCritic.findingDispositions[0], inventory.inventoryCritic.findingDispositions[0]]}, {...inventory.inventoryCritic, wave: 0},
   {...inventory.inventoryCritic, extraAuthority: true},
   {...inventory.inventoryCritic, findingDispositions: [{finding: {findingId: 'B-fixture:F-001'}, disposition: 'resolved'}]}]) {
   assert.equal(classify({...proposal, inventoryCritic: invalid}), 'malformed', 'Malformed critic payload must fail closed');
@@ -79,7 +79,7 @@ console.log('MANAGED_INVENTORY_CONTRACT_NEGATIVE_CONTROLS_GREEN');
 // the outer grace is 15 seconds. Five batches (675s) plus subprocess controls (80s) leave 145s of the pinned 900s budget.
 const {fileURLToPath} = await import('node:url');
 const scenarios = ['findings', 'pass', 'crash', 'wrong-wave', 'drift', 'committed-drift',
-  'missing-disposition', 'duplicate', 'not-verified', 'own-id', 'existing-id', 'index-ambiguity', 'cancel-before-import', 'native'];
+  'missing-disposition', 'duplicate', 'not-verified', 'own-id', 'existing-id', 'index-ambiguity', 'cancel-before-import', 'native', 'resolved-collision'];
 const run = scenario => new Promise((resolve, reject) => {
   const startedAt = performance.now();
   process.stderr.write(`Starting managed critic scenario: ${scenario}\n`);
