@@ -1,3 +1,4 @@
+import { isManagedInventoryCritic, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { MANAGED_RUN_DASHBOARD_POLICY } from './runtime-fact-registry.js';
 import { normalizeExecutionBatchEnvironment, revokeExecutionBatchBinding } from './reviewer-batch-producer.js';
 import { consumeManagedLaunchAdmission, verifyManagedLaunchAdmission, type ManagedLaunchAdmission } from './managed-launch-admission.js';
@@ -274,6 +275,7 @@ export interface ManagedReviewEvidenceProposal {
   conclusion: 'pass' | 'findings';
   note?: string;
   findings?: ManagedReviewEvidenceFindingProposal[];
+  inventoryCritic?: ManagedInventoryCritic;
   readManifest: ReviewerReadManifest;
   readLog?: ReviewerReadLogEvidence;
   readDiagnostics?: ReviewerReadDiagnostic[];
@@ -3884,6 +3886,7 @@ function readValidManagedReviewEvidenceProposal(
     } else {
       return null;
     }
+    if (proposal.inventoryCritic !== undefined && !isManagedInventoryCritic(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0)) return null;
     if (!hasRequiredManagedReviewReadEvidence(proposal.readManifest, proposal.readLog)) return null;
     normalizeReviewerReadManifest(proposal.readManifest);
     normalizeReviewerReadLogEvidence(proposal.readLog);
@@ -3917,6 +3920,7 @@ function parseManagedReviewFinalProposal(result: HostRunResult): ManagedReviewFi
     ...(conclusion === 'pass' ? { note: envelope.note as string | undefined } : {
       findings: envelope.findings as ManagedReviewEvidenceFindingProposal[] | undefined,
     }),
+    ...(envelope.inventoryCritic !== undefined ? { inventoryCritic: envelope.inventoryCritic } : {}),
     readManifest: envelope.readManifest as ReviewerReadManifest,
     readLog: envelope.readLog as unknown as ReviewerReadLogEvidence,
     ...(envelope.readDiagnostics !== undefined ? { readDiagnostics: envelope.readDiagnostics as ReviewerReadDiagnostic[] } : {}),
@@ -3987,6 +3991,9 @@ export function writeManagedReviewEvidenceProposal(args: {
   ) {
     throw new Error('managed_review_proposal_set: proposal provenance does not match the sealed managed run spec');
   }
+  if (args.proposal.inventoryCritic !== undefined && !isManagedInventoryCritic(args.proposal.inventoryCritic, spec.lane, spec.agentType, args.proposal.findings?.length ?? 0)) {
+    throw new Error('managed_review_proposal_set: invalid inventory critic transport');
+  }
   const expectedFullScanReason = spec.reviewBinding.fullScanEscalationReason;
   if (expectedFullScanReason !== undefined) {
     const rawManifest = args.proposal.readManifest;
@@ -4041,6 +4048,7 @@ export function writeManagedReviewEvidenceProposal(args: {
     authoredAt: new Date().toISOString(),
     conclusion,
     ...(conclusion === 'pass' ? { note } : { findings: normalizedFindings }),
+    ...(args.proposal.inventoryCritic !== undefined ? { inventoryCritic: structuredClone(args.proposal.inventoryCritic) } : {}),
     readManifest: normalizeReviewerReadManifest(args.proposal.readManifest),
     readLog: normalizeReviewerReadLogEvidence(args.proposal.readLog),
     ...(args.proposal.readDiagnostics ? { readDiagnostics: normalizeReviewerReadDiagnostics(args.proposal.readDiagnostics) } : {}),

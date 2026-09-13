@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab managed-inventory-critic-transport - v0.3.359 - 2026-09-13
+
+# Managed inventory critic transport repair
+
+B-0980 BUG-002 exposed an unsupported disposition field in a real failed managed critic run. The repair adds a strictly validated optional inventoryCritic block for the topology critic lane, carries it through sealed provider proposals, and imports classifications only from authenticated successful managed receipts. Failed provider output remains preserved. Provider indexes resolve to exact signed imported findings; native actor checks, current signed purpose and inventory wave, live material freshness, terminal persistence and byte-stable receipt replay remain enforced.
+
+Verification covers fifteen disposable integration cases, parser and provider-schema constraints, actual final-guard negative controls, native retries, duplicate references and resolved IDs, cancellation, drift, missing dispositions and bounded per-case deadlines. These fixture identities do not authorize real Stories. Static exceptions bind exact invocations, source excerpts and dependencies. No production admission budget is widened.
+
+Integration with main 8b64e4e6c0 (0.3.358) also closes the current identity witnesses. Existing source and fixture context text, classifications and token counts are preserved while exact file digests and line positions refresh. Four protocol-schema rows, 26 copied-source JSON nodes and one disposable fixture read are explicitly bound. The final self-test requires all additions and retains missing, duplicate, changed-count, changed-context, changed-path and changed-token refusals. Its scanner import-use pin is exactly 568 with the derived digest; all 264 literal rows and the other 45 import-use rows remain unchanged. The actual identity-sites command reproduced RED for the initially stale pin and passed after correction. Full reviewed-source consumer verification then passed, including the actual schema self-test, static edge scan and bounded route dependency checks. This does not claim the full native route suite or the default runtime identity campaign.
+
+Repair head 0a37f4246a includes that closure. Earlier repair heads passed the pinned GREEN in 156401ms, 206870ms, 279983ms and 197751ms under a shared machine workload; these are execution observations, not a controlled performance comparison. The early actual Claude audit of 55dff3c4c8 passed with zero findings in 665094ms, but cannot approve this later release candidate. The first prepared candidate 0216f965 was deliberately stopped before audit or integration when the stale import pin was identified, then reverted with official reopen. Its interrupted run and all earlier failed audits remain recorded. A subsequent version-mismatch retry was an unreconstructed local dist after reopen; the checkout has now been rebuilt.
+
+The official Finish must prepare the version, rebuild, verify and independently audit its exact candidate before local integration, then verify main and clean the worktree. This is a bounded local compatibility repair, not benchmark runner delivery, Story DONE or signed product-release evidence. Full-development token usage is incomplete. No remote push is authorized by these notes.
+
+Maintenance provenance: codex/lab-managed-inventory-critic-transport, repair 0a37f4246a28dabb3fdd7aae4cc4b4dd10eebae7.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-inventory-critic-transport.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab identity-current-witness-coverage - v0.3.358 - 2026-09-13
 
 # Exact current identity witness coverage

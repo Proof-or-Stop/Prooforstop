@@ -1,3 +1,4 @@
+import { MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY as criticBudget } from '../core/runtime-fact-registry.js';
 import { REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY as epochBudget } from '../core/runtime-fact-registry.js';
 /** Test-only OS isolation for native-broker fixtures. Never used by production
  * handlers: no host policy, process observer or broker verification is replaced.
@@ -8,6 +9,19 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
+
+/** This fixture consumes its own absolute case deadline, never a foreign suite budget. */
+export function managedCriticFixtureBudgetMs(environment: NodeJS.ProcessEnv = process.env, now = Date.now()): number {
+  const raw = environment[criticBudget.environmentKey];
+  if (raw === undefined) return criticBudget.standaloneMs;
+  const value = JSON.parse(raw) as {entry?:unknown;deadlineAt?:unknown};
+  if (!value || typeof value !== 'object' || value.entry !== criticBudget.entry
+    || !Number.isFinite(value.deadlineAt)) throw new Error('Invalid managed critic fixture budget envelope');
+  const remaining = Number(value.deadlineAt) - now - criticBudget.cleanupMarginMs;
+  const budget = Math.floor(Math.min(criticBudget.standaloneMs, remaining));
+  if (budget <= 0) throw new Error('Managed critic fixture deadline exhausted');
+  return budget;
+}
 
 /** Bound the inner watchdog by the scheduler's actual remaining outer deadline. */
 export function reviewEpochFixtureBudgetMs(environment: NodeJS.ProcessEnv = process.env, now = Date.now()): number {
@@ -33,7 +47,7 @@ export async function runIsolatedFindingFixture(entry: string): Promise<boolean>
   if (process.argv.includes(MARKER)) return false;
   const file = fileURLToPath(entry);
   if (!['dynamic-finding-runtime-integration-smoke.js', 'finding-material-reattestation-smoke.js', 'evidence-state-gate-smoke.js',
-    'finding-qualification-independence-smoke.js', 'finding-pre-existing-e2e-smoke.js', 'finding-identity-lineage-smoke.js', 'reviewer-batch-smoke.js', 'verify-convergence-certification-consumption.mjs', 'verify-native-critic-dispatch-purpose.mjs', 'verify-review-epoch-certification-continuity.mjs'].some(name => file.endsWith('/' + name))) {
+    'finding-qualification-independence-smoke.js', 'finding-pre-existing-e2e-smoke.js', 'finding-identity-lineage-smoke.js', 'reviewer-batch-smoke.js', 'verify-convergence-certification-consumption.mjs', 'verify-native-critic-dispatch-purpose.mjs', 'verify-review-epoch-certification-continuity.mjs', 'verify-managed-inventory-critic-import.mjs'].some(name => file.endsWith('/' + name))) {
     throw new Error('isolated Finding fixture entry is not allowlisted');
   }
   const scratch = mkdtempSync(join(tmpdir(), 'dfec-native-worker-'));
@@ -72,7 +86,8 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
     // execution remains capped at 540 s and the original remaining deadline.
     const budgetStartedAt=Date.now();
     const budgetMs = file.endsWith('/finding-identity-lineage-smoke.js') ? 300_000
-      : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? reviewEpochFixtureBudgetMs(process.env,budgetStartedAt) : 120_000;
+      : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? reviewEpochFixtureBudgetMs(process.env,budgetStartedAt)
+      : file.endsWith('/verify-managed-inventory-critic-import.mjs') ? managedCriticFixtureBudgetMs(process.env,budgetStartedAt) : 120_000;
     const deadline = budgetStartedAt + budgetMs;
     if(file.endsWith('/verify-review-epoch-certification-continuity.mjs')) process.stdout.write(`REVIEW_EPOCH_FIXTURE_BUDGET ${JSON.stringify({budgetMs,deadline,outerEnvelope:process.env[epochBudget.environmentKey]??null})}\n`);
     while (!existsSync(outcome) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 50));

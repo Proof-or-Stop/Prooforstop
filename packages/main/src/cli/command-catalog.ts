@@ -3443,6 +3443,7 @@ Behavior:
       evidenceState: z.enum(['suspected', 'verified']).optional(),
       uncertaintyReason: z.string().optional(),
     }).strict()).optional().describe('Findings; required only for findings conclusion'),
+    inventoryCritic: z.unknown().optional().describe('Not supported by this legacy callback; emit inventoryCritic in the final assistant JSON envelope.'),
     readManifest: z.unknown().describe('Truthful reviewer read manifest'),
     readLog: z.unknown().describe('Required mechanical reviewer read-log evidence. Runtime validates its canonical shape and coherence with readManifest.'),
     readDiagnostics: z.unknown().optional().describe('Mechanical read-manifest diagnostics'),

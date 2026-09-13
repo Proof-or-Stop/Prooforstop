@@ -1,3 +1,4 @@
+import { isManagedInventoryCritic } from './managed-inventory-critic.js';
 import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
 import { reportHealthIssue } from './health.js';
 import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
@@ -453,6 +454,7 @@ function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun):
     'This exact JSON was captured from the canonical Story metadata after the required lanes terminated and is sealed by the managedPromptDigest.',
     'For inventory-completeness duties, this pack is the current epoch/run/terminal source. The detached scratch intentionally reflects committed HEAD and may predate the batched current inventory metadata; do not report that expected lag as missing canonical evidence.',
     'Independently inspect every required-lane terminal, signatureValid flag, readManifest/readLog, and exact Finding family. Do not infer topology, TEST, DONE, or implementation authority from this pack.',
+    `For your final inventoryCritic block, copy these exact values: ${JSON.stringify({epochId: epoch.epochId, wave: epoch.waves.length + 1})}. They come from this pack's epoch.epochId and epoch.waves.length + 1; do not infer them from Finding IDs or earlier runs.`,
     JSON.stringify(projected),
     '--- END CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK ---',
   ];
@@ -505,7 +507,12 @@ export function buildManagedReviewerPrompt(
     renderManagedReviewerProviderPrompt(resolveManagedReviewerBasePrompt(root, run), root),
     ...(canonicalReportStatuses ? ['', ...renderManagedReviewerCanonicalReportSnapshot(canonicalReportStatuses)] : []),
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
-    ...(run.reviewPurpose === 'inventory-completeness' ? ['', ...renderManagedInventoryCriticEvidencePack(root, run)] : []),
+    ...(run.reviewPurpose === 'inventory-completeness' ? [
+      '', 'Managed inventory protocol: do not call review_inventory_critic_set. The authenticated importer writes the critic receipt from your sealed inventoryCritic block after terminal evidence import.',
+      'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. Classify every aggregate finding and each new verified finding you report. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. Use finding={findingId:existingId} for existing findings; use finding={proposalFindingIndex:zeroBasedIndex} for your own final findings. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey; not_verified permits neither.',
+      'Do not put findingDispositions at the top level. The block does not certify omitted reads or resolve findings. Preserve incomplete-read findings rather than claiming complete coverage.',
+      ...renderManagedInventoryCriticEvidencePack(root, run),
+    ] : []),
   ].join('\n');
 }
 
@@ -649,6 +656,7 @@ export function verifyManagedReviewEvidence(args: {
       || (Array.isArray(proposal.findings)
         && proposal.findings.length > 0
         && proposal.findings.every(isStrictManagedReviewFindingProposal)))
+    && (proposal?.inventoryCritic === undefined || isManagedInventoryCritic(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0))
     && Number.isFinite(Date.parse(args.binding.importedAt))
     && args.binding.providerHost === args.expected.providerHost;
   const exactEvidenceMatches = (() => {

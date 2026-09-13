@@ -8,6 +8,11 @@ export const REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY = { maxWaitMs: 10000, ready
 export const MANAGED_REVIEW_READONLY_RUNTIME_POLICY = { adapter: 'prooforstop-main-v1', providerStateAdapter: 'isolated-file-cache-v1', providerFileMaxBytes: 1024*1024, platform: 'darwin', buildTimeoutMs: 180000, builderGraceMs: 5000, capabilityTimeoutMs: 3000, directoryMode: 0o700, environmentKeys: ['TMPDIR','TMP','TEMP','XDG_CACHE_HOME','PROOF_OR_STOP_REVIEW_BUILD_SOURCE','PROOF_OR_STOP_REVIEW_BUILD_OUTPUT'], credentials: 'original-read-only-private-copy-refresh-writable', writable: 'declared-lane-output-temp-cache-only' } as const;
 export const SUPERVISED_PROVIDER_RUNTIME_POLICY = { termGraceMs: 250, closeWaitMs: 300, parentGraceMs: 3000, maxOutputBytes: 8 * 1024 * 1024 } as const;
 export const MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY = { maxConcurrent: 4, directoryMode: 0o700, scope: 'same-os-user-across-projects' } as const;
+export const MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY = {
+  environmentKey: 'PROOF_OR_STOP_MANAGED_CRITIC_FIXTURE_BUDGET',
+  entry: 'managed-inventory-critic-import', standaloneMs: 120000,
+  outerMs: 135000, cleanupMarginMs: 15000, parallelism: 3,
+} as const;
 // Test-only watchdog transport; never changes provider admission or production budgets.
 export const REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY = {
   environmentKey: 'PROOF_OR_STOP_FULL_SUITE_ENTRY_BUDGET',
