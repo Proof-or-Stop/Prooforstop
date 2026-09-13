@@ -14,6 +14,7 @@ import {
   type DevMemoryEntry,
 } from './dev-memory.js';
 import {
+  withLearningRootScope,
   computePlaybookDigest,
   readPlaybooks,
   readSignatureRegistry,
@@ -655,6 +656,10 @@ function resolveRuntimeIndexForPack(options: BuildMemoryFreshnessPackInternalOpt
 }
 
 function buildMemoryFreshnessPackInternal(options: BuildMemoryFreshnessPackInternalOptions): MemoryFreshnessPack {
+  return withLearningRootScope(() => buildMemoryFreshnessPackObserved(options));
+}
+
+function buildMemoryFreshnessPackObserved(options: BuildMemoryFreshnessPackInternalOptions): MemoryFreshnessPack {
   const query = options.query?.trim() ?? '';
   const maxEntries = Math.max(0, Math.floor(options.maxEntries ?? DEFAULT_MAX_ENTRIES));
   const maxPlaybooks = Math.max(0, Math.floor(options.maxPlaybooks ?? DEFAULT_MAX_PLAYBOOKS));
