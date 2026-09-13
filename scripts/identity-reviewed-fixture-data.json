@@ -2944,6 +2944,50 @@
       "classification": "historical-corpus-path-fixture",
       "reason": "Historical replay grouping and evidence-anchor path input, bound by corpus digest and projection controls; this path is never imported or executed.",
       "evidence": "{ id: 'B-cdf6:F-065', symbol: 'buildRequiredCommandEnv', contract: 'canonical denylist suppresses required-command session injection', path: 'packages/main/src/core/lattice-dispatch.ts' },"
+    },
+    {
+      "path": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+      "token": "LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
+      "lineNumber": 291,
+      "lineSha256": "062420d088c8d222f4c37f7e209004fc05b415b766526d49ff319458c4b4a304",
+      "sourceSha256": "28beb4e42ff90f838305ed4c5b50306064370da2865d964b6e3368aeaa97cd15",
+      "tokenOccurrences": 2,
+      "classification": "private-channel-or-adversarial-env-fixture",
+      "reason": "Exact test-only broker callback reads its issued descriptor and forwards the paired private FD through stdio after sanitization; the scalar alone grants no authority and no public identity writer is exempted.",
+      "evidence": "    const environment:NodeJS.ProcessEnv={...sanitizedFixtureChildEnvironment(process.env),...actor,PROOF_OR_STOP_PROJECT_ROOT:root,LATTICE_NATIVE_REVIEW_ATTESTATION_FD:'3'};"
+    },
+    {
+      "path": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+      "token": "process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
+      "lineNumber": 285,
+      "lineSha256": "d42f9f1d27d0f7aedea7a0a0201a6b04018c16e65824a84d45912467a88b3a5e",
+      "sourceSha256": "28beb4e42ff90f838305ed4c5b50306064370da2865d964b6e3368aeaa97cd15",
+      "tokenOccurrences": 1,
+      "classification": "private-channel-or-adversarial-env-fixture",
+      "reason": "Exact test-only broker callback reads its issued descriptor and forwards the paired private FD through stdio after sanitization; the scalar alone grants no authority and no public identity writer is exempted.",
+      "evidence": "    const fd=Number(process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD);"
+    },
+    {
+      "path": "scripts/verify-scope-approval-continuity.mjs",
+      "token": "n.lattice",
+      "lineNumber": 50,
+      "lineSha256": "c03669a0e39b077b1eabaade64fb0dbc66e3be2e888e34fcc4b63e6bb5647caf",
+      "sourceSha256": "48dc7d7dab2dad380e777f9999f5ceba58190816dcb92637a9cb6d88b6d05518",
+      "tokenOccurrences": 1,
+      "classification": "fixture-identifier-or-negative-context",
+      "reason": "Exact disposable Git ignore-file entry excludes legacy local metadata from the synthetic fixture commit; it creates no legacy directory, public artifact identity or authority.",
+      "evidence": "  writeFileSync(join(root,'.gitignore'),'.proof-or-stop/keys/\\n**/*.lock/\\n**/owner-lease.json\\n.lattice/\\n');"
+    },
+    {
+      "path": "scripts/verify-verification-key-location.mjs",
+      "token": "n.lattice",
+      "lineNumber": 24,
+      "lineSha256": "f2e24501e2a937d9ef5218dae9bedf57047cebf91538f06af7ad12272b6b2a60",
+      "sourceSha256": "6d257b611d12244a8ff0982893b63d31454ce382b2b8b5d7bbd4d11c3b87ba42",
+      "tokenOccurrences": 1,
+      "classification": "fixture-identifier-or-negative-context",
+      "reason": "Exact disposable Git ignore-file entry excludes legacy local metadata from the synthetic fixture commit; it creates no legacy directory, public artifact identity or authority.",
+      "evidence": "  writeFileSync(join(root, '.gitignore'), '.proof-or-stop/keys/\\n**/*.lock/\\n**/owner-lease.json\\n.lattice/\\n');"
     }
   ]
 }

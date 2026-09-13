@@ -19,8 +19,8 @@ const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept
 const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'b97d6d33dc481c3e16a928606c44827bae2986bc69156bfc7ed108ab32a3b963';
 const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 51;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'de47d523b721c1be067de039dc57d397ac5447bd7234f69b7aac333de35055ab';
-const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 199;
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'c18c553699aa57f86a04fdfd63876d7052698005c7a20238530a006094dc0206';
+const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 202;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const STORY_INIT_COMMIT = '1bde8a8280d68fe652dadfcdf42aad5190350ba7';
 // Rewritten from 1dab23ae287f by the authorized repository-wide Git identity
@@ -4348,7 +4348,7 @@ const SCANNER_RETIRED_LINE_CONTEXTS = [
 ];
 
 EXACT_ALLOWLIST.push(...MAINTENANCE_SCHEMA_PROVENANCE_ROWS);
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 691;
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 694;
 
 // Historical artifact bytes can contain retired salts, but active source may not.
 const FROZEN_SALTS = [];
@@ -6702,7 +6702,7 @@ function createOrderingSelfTestFixture(productionBeforePolicy = false, productio
 function runSelfTest(root, files) {
   if (verifyBothFamilyContexts(root).length > 0) throw new Error('both-family exact contexts or witnesses are not current');
   const failures = [...verifyImportedFinishDecisionBoundary(root, files), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-e256.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-29bc.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-42f6.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-5a52.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-adc3.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-88c7.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-0208.json')];
-  const expect = (condition, message) => { if (!condition) failures.push(message); };
+  const expect = (condition, message) => { if (!condition) failures.push(message); }; verifyCurrentWitnessCoverage(root, files, expect);
   expect(verifyReviewedNegativeSourceIntegrity(root).length === 0, 'reviewed negative source integrity failed');
   const customWitnessControls = new Map([
     ['packages/main/src/core/runtime-environment-checks.ts', 'if (exactOccurrenceDrift || countNeedle(site.sourceNeedle) === 0 || (!counts && countNeedle(site.retiredNeedle) > 0)) {'],
@@ -7418,11 +7418,11 @@ const REVIEWED_CONTEXT_READERS = [
 {"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "552b459f926ff4b12cc52540c1f5726ab6f33d1f767c32e3a94ab5abd9693087"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
+    "sha256": "1b403f077920d5ef986d2ecfe3e925af6b27d9f92d96bc5d331620f0c2c2c3e8"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "afae82e5f51f3253966239eb9c1177f1430f858f0550dc2ee04ee9404aa56595"
+    "sha256": "25f98509d1fed0ca987a9931b1f5ca4121b87b4e223fd9933f0ee82aba494179"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7640,4 +7640,87 @@ function mainIntegrationNegativeContextRows() {
     disposition: 'frozen', verificationCommand: 'internal:verify-exact-frozen-occurrence',
     expectedVerification: 'PASS exact reviewed negative occurrence and bounded context',
   }));
+}
+
+// Exercise the actual existing readers on each newly reviewed witness.
+function verifyCurrentWitnessCoverage(root, files, expect) {
+  const record = expect; let failed = false;
+  expect = (condition, message) => { if (!condition) failed = true; record(condition, message); };
+  const read = path => readFileSync(resolve(root, path), 'utf8');
+  const jsonRows = JSON.parse(read('scripts/identity-reviewed-json-data.json')).entries.slice(729);
+  const fixtureRows = JSON.parse(read('scripts/identity-reviewed-fixture-data.json')).entries.slice(268);
+  const provenanceRows = CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.id.startsWith('current-witness-coverage-'));
+  expect(jsonRows.length === 45 && fixtureRows.length === 4 && provenanceRows.length === 3,
+    'current witness coverage requires every reviewed addition');
+  const scratch = mkdtempSync(join(tmpdir(), 'identity-current-witness-'));
+  let controls = 0;
+  try {
+    for (const row of jsonRows) {
+      const text = read(row.path), parsed = JSON.parse(text);
+      const keys = row.jsonPointer.slice(1).split('/').map(key => key.replaceAll('~1', '/').replaceAll('~0', '~'));
+      const parent = keys.slice(0, -1).reduce((value, key) => value[key], parsed);
+      const key = keys.at(-1), value = parent[key];
+      expect(typeof value === 'string', 'reviewed JSON pointer must name its actual string');
+      const check = (document, file = row.path) => {
+        const input = JSON.stringify(document);
+        if (file !== row.path) return reviewedDataResidueAllowed({path: file, token: row.token, lineNumber: 1, line: input, text: input});
+        return validateReviewedDataSources(path => path === row.path ? input : read(path)).length === 0;
+      };
+      expect(check(parsed), 'exact current JSON witness rejected'); controls++;
+      for (const replacement of [value + row.token, value + ' changed-context']) {
+        parent[key] = replacement;
+        expect(!check(parsed), 'changed JSON count or same-count context admitted'); controls++;
+        expect(validateReviewedDataSources(path => path === row.path ? JSON.stringify(parsed) : read(path)).length > 0,
+          'actual JSON source integrity accepted changed witness'); controls++;
+      }
+      delete parent[key];
+      expect(!check(parsed), 'removed JSON pointer admitted'); controls++;
+      parent[key + '-unlisted'] = value;
+      expect(!check(parsed), 'relocated JSON pointer admitted'); controls++;
+      delete parent[key + '-unlisted']; parent[key] = value;
+      expect(!check(parsed, row.path + '.unlisted.json'), 'unlisted JSON path admitted'); controls++;
+    }
+    for (const row of fixtureRows) {
+      const text = read(row.path), lines = text.split(/\r?\n/), line = lines[row.lineNumber - 1];
+      const check = (input, file = row.path) => reviewedFixtureResidueAllowed({path: file, token: row.token,
+        lineNumber: row.lineNumber, line: input.split(/\r?\n/)[row.lineNumber - 1], text: input});
+      expect(check(text), 'exact private or metadata fixture witness rejected'); controls++;
+      for (const input of [text + '\n' + row.token, text.replace(line, line + ' // changed-context'), text.replace(line, '')]) {
+        expect(!check(input), 'changed fixture count/context/removal admitted'); controls++;
+        expect(validateReviewedFixtureSources(path => path === row.path ? input : read(path)).length > 0,
+          'actual fixture source integrity accepted mutation'); controls++;
+      }
+      expect(!check(text, row.path + '.unlisted.ts'), 'unlisted fixture path admitted'); controls++;
+    }
+    const tracked = new Set(files);
+    for (const row of provenanceRows) {
+      const text = read(row.path);
+      expect(validateExactRows(EXACT_ALLOWLIST, tracked, root).length === 0, 'current provenance positive refused'); controls++;
+      for (const input of [text + '\n' + row.token, text.replace(row.token, row.token + ' changed-context'), text.replaceAll(row.token, '')]) {
+        expect(validateExactRows(EXACT_ALLOWLIST, tracked, root, path => path === row.path ? input : read(path)).length > 0,
+          'provenance count/context/removal mutation admitted'); controls++;
+      }
+      expect(validateExactRows(EXACT_ALLOWLIST.filter(candidate => candidate !== row), tracked, root).length > 0,
+        'removed provenance inventory row admitted'); controls++;
+      expect(validateExactRows(EXACT_ALLOWLIST.map(candidate => candidate === row ? {...row, path: 'docs/unlisted-witness.md'} : candidate), tracked, root).length > 0,
+        'changed provenance path admitted'); controls++;
+    }
+    for (const entrypoint of TRUTH_SOURCE_ENTRYPOINTS) {
+      mkdirSync(dirname(resolve(scratch, entrypoint)), {recursive:true});
+      writeFileSync(resolve(scratch, entrypoint), read(entrypoint));
+    }
+    const targets = [...new Set([...jsonRows, ...fixtureRows, ...provenanceRows].map(row => row.path))];
+    for (const file of targets) {
+      const destination = resolve(scratch, file);
+      mkdirSync(dirname(destination), {recursive:true}); writeFileSync(destination, read(file));
+    }
+    expect(scanActiveResidue(scratch, targets).length === 0, 'exact current witnesses still produce residue'); controls++;
+    // Same-directory neighbors remain active, even when they copy approved bytes.
+    for (const file of targets) {
+      const dot = file.lastIndexOf('.'), neighbor = file.slice(0, dot) + '-unlisted' + file.slice(dot);
+      writeFileSync(resolve(scratch, neighbor), read(file));
+      expect(scanActiveResidue(scratch, [neighbor]).length > 0, 'unlisted neighboring witness escaped actual scanner'); controls++;
+    }
+  } finally { rmSync(scratch, {recursive:true, force:true}); }
+  if (!failed) console.log(`PASS current witness consumers: ${jsonRows.length} JSON, ${fixtureRows.length} fixture, ${provenanceRows.length} provenance rows; ${controls} actual checks`);
 }
