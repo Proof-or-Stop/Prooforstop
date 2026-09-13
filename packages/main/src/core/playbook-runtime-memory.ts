@@ -733,7 +733,7 @@ function buildMemoryFreshnessPackObserved(options: BuildMemoryFreshnessPackInter
     generatedAt: options.generatedAt ?? new Date().toISOString(),
     projectRoot: options.projectRoot,
     query,
-    sourceDigests: options.currentSourceDigests ?? readSourceDigests(options.projectRoot),
+    sourceDigests: options.currentSourceDigests ? { ...options.currentSourceDigests } : readSourceDigests(options.projectRoot),
     results: {
       devMemoryEntryIds: selected.map((entry) => entry.id),
       playbookIds: playbookMatches.map((match) => match.playbook.id),
