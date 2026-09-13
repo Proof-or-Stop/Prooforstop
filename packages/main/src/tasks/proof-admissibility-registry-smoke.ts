@@ -496,4 +496,19 @@ async function main(): Promise<void> {
   console.log('proof-admissibility-registry-smoke PASS');
 }
 
-main().catch(error => { console.error(error); process.exitCode = 1; });
+async function runWithFixtureCompileCache(): Promise<void> {
+  const parent = join(repoRoot, PROOF_OR_STOP_DIR, 'runtime');
+  mkdirSync(parent, { recursive: true });
+  const cache = mkdtempSync(join(parent, 'proof-mutant-compile-cache-'));
+  const previous = process.env.NODE_COMPILE_CACHE;
+  // A fresh, disposable Node bytecode cache amortizes parsing in repeated children.
+  // Native code still executes every assertion and Node validates source bytes.
+  process.env.NODE_COMPILE_CACHE = cache;
+  try { await main(); }
+  finally {
+    if (previous === undefined) delete process.env.NODE_COMPILE_CACHE;
+    else process.env.NODE_COMPILE_CACHE = previous;
+    rmSync(cache, { recursive: true, force: true });
+  }
+}
+runWithFixtureCompileCache().catch(error => { console.error(error); process.exitCode = 1; });
