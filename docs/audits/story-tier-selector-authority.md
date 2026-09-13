@@ -324,7 +324,7 @@ the total “four unresolved findings” while returning five rows.
 
 | Finding | Before | Repair / executable evidence |
 | --- | --- | --- |
-| A9-F1 observe artifacts widened DONE | Every Story-scoped observe run writes a revocation ledger, and bare ledger presence routed an ordinary canonical PASS through the new strict dynamic DONE evaluator | Artifact provenance now requires an `enforce-low-risk` selection plus receipts; malformed selection beside receipts remains fail-closed. A real observe-mode validate writes its ledger and canonical PASS, then proves `requiresDynamicValidationAdmission=false` and that DONE emits no `stored-validation-admission` row. The enforce-low-risk positive and marker-stripping negative controls still cross the same real DONE consumer |
+| A9-F1 observe artifacts widened DONE | A direct observe-mode dynamic fixture leaves a revocation ledger, and bare ledger presence routed an ordinary canonical PASS through the new strict dynamic DONE evaluator | Artifact provenance now requires an `enforce-low-risk` selection plus receipts; malformed selection beside receipts remains fail-closed. The fixture deliberately places observe artifacts through `runStoryAwareDynamicValidation`, then proves `requiresDynamicValidationAdmission=false` and that DONE emits no `stored-validation-admission` row. Production observe-mode `validate` is preflight-only and persists no dynamic artifacts; this remains a defensive stale-artifact control. The enforce-low-risk positive and marker-stripping negative controls still cross the same real DONE consumer |
 | A9-F2 runner-version prose | The normative invalidation paragraph said v8 while source and adjacent text said v9 | The paragraph now consistently names runner v9 |
 | A9-F3 repeated whole-repository AST construction | Stored-admission calls could rebuild and parse both revisions repeatedly in one process | Complete dual-revision graphs use a bounded eight-entry process cache only for immutable 40-hex commit pairs, keyed by resolved Git cwd, both commits, and the complete catalog. A repeated production-wrapper call over the same real Git fixture must return the identical cached graph object; moving symbolic refs are deliberately not cached |
 | A9-F4 untyped option/context calls | Missing `allowDynamicCoverage` failed late, and an empty `gitCwd` was accepted | Superseded in part by A16-F1: the strict evaluator still rejects a missing explicit option and validates any supplied resolved Story workspace, while the origin-routing predicate no longer accepts or pretends to consume a Git cwd |
@@ -527,6 +527,21 @@ evidence/documentation defects. No failed candidate was integrated:
 
 Fresh planner, static-edge and formal Lab GREEN evidence is required on the
 committed repair before another independent audit.
+
+## Twentieth Claude audit and remediation
+
+The exact repair-head audit of `bd19451aaf` returned `fail` under run
+`fbb6f964-b5f9-4177-b82a-11604150ee8f` after 645,368 ms. One medium stored-
+admission defect and one low fixture/prose defect remained; no failed candidate
+was integrated:
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A20-F1 injected inventory was rejected | The excluded-row participation check looked up every manifest row in the config-only catalog before checking whether the row was excluded, so an executed validate-file/fallback command could be mislabeled as selector context drift | Catalog membership is now consulted only for excluded rows, which is the helper's documented responsibility. The signed stored-admission fixture removes one fully receipted, non-excluded manifest command from the config-only catalog and directly requires `storedDynamicReceiptIntegrityReasons` to return no refusal reasons |
+| A20-F2 observe fixture overclaimed production persistence | A default empty ledger could satisfy the assertion, while artifacts had actually been written by a direct fixture call rather than production observe-mode `validate` | The fixture now requires the ledger file to exist, explicitly attributes it to the direct dynamic call, and records that production observe-mode validation is preflight-only; the defensive stale-artifact routing assertions remain unchanged |
+
+Fresh real TEST/DONE, static-edge, formal GREEN and independent audit evidence
+are required before integration.
 
 ## Rollback
 

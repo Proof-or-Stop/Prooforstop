@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const repo = fileURLToPath(new URL('..', import.meta.url));
@@ -89,9 +89,10 @@ async function runCase(phase, full, dynamicMode = 'enforce-low-risk') {
         assert.equal(admission.ok,true,JSON.stringify(admission.reasonCodes));
         if (dynamicMode === 'observe' && !full) {
           assert.deepEqual(parsed.commands.map(c => c.label), ['build', 'configured validate.commands[1]']);
-          const observedArtifacts = readStoryAwareValidationArtifacts(root, storyId);
-          assert.ok(observedArtifacts.revocationLedger.digest, 'observe validate writes its audit revocation ledger');
-          const observedSelection = JSON.parse(readFileSync(join(root, '.proof-or-stop/runtime/dynamic-validation', storyId, 'selection.json'), 'utf8'));
+          const observedDir = join(root, '.proof-or-stop/runtime/dynamic-validation', storyId);
+          assert.equal(existsSync(join(observedDir, 'revocation-ledger.json')), true,
+            'the direct observe-mode dynamic fixture must persist a real revocation ledger');
+          const observedSelection = JSON.parse(readFileSync(join(observedDir, 'selection.json'), 'utf8'));
           assert.equal(observedSelection.mode, 'observe');
           assert.equal(requiresDynamicValidationAdmission({ root, store }, storyId), false,
             'observe artifacts beside a canonical PASS must not widen DONE admission');

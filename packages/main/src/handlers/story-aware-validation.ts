@@ -589,9 +589,10 @@ export function validationManifestExcludedRowFloorReasons(
 ): string[] {
   const byId = new Map(catalog.map((entry) => [entry.id, entry]));
   for (const row of manifest.rows) {
+    if (row.disposition !== 'excluded') continue;
     const entry = byId.get(row.commandId);
     if (!entry) return ['dynamic_selector_context_changed'];
-    if (row.disposition === 'excluded' && validationCatalogEntryRequiresParticipation(entry)) {
+    if (validationCatalogEntryRequiresParticipation(entry)) {
       return ['dynamic_excluded_row_not_omittable'];
     }
   }

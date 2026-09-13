@@ -407,6 +407,15 @@ try {
     'a manifest that excludes nothing does not need selector omission proof');
   assert.deepEqual(noBindingReasons, [],
     'a fully receipted manifest that excludes nothing remains admissible without selector metadata');
+  const configuredCatalog = JSON.parse(readFileSync(`${storedRoot}/proof-or-stop.config.json`, 'utf8'));
+  configuredCatalog.validate.commands = configuredCatalog.validate.commands.filter((row: { id: string }) => row.id !== 'excluded-unit');
+  writeFileSync(`${storedRoot}/proof-or-stop.config.json`, JSON.stringify(configuredCatalog));
+  assert.deepEqual(storedDynamicReceiptIntegrityReasons(storedRoot, 'B-stored', 'head', noBindingManifest), [],
+    'a fully receipted injected-inventory row absent from the config-only catalog must remain admissible when nothing is excluded');
+  writeFileSync(`${storedRoot}/proof-or-stop.config.json`, JSON.stringify({ validate: { commands: [
+    { id: 'stored-unit', label: 'stored-unit', ...replayCommand('stored-unit'), inputRoots: ['packages/main/src/stored.ts'], inputsComplete: true, resources: [] },
+    { id: 'excluded-unit', label: 'excluded-unit', ...replayCommand('excluded-unit'), inputRoots: ['packages/main/src/excluded.ts'], inputsComplete: true, resources: [] },
+  ] } }));
   const bindinglessExcludedBody = {
     ...noBindingRest,
     rows: storedManifest.rows,
