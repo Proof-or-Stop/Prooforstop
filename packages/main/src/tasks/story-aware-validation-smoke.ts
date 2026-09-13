@@ -36,10 +36,11 @@ import type { StoryRelevanceInput } from '../core/validation-relevance-input.js'
 import { assertAutomaticTierSelectionBindingCurrent } from '../handlers/story-aware-validation.js';
 
 const inventory = discoverValidationInventory('/tmp', [
-  { id: 'always', label: 'always', command: 'node', args: ['always.js'], originalIndex: 0 },
-  { id: 'local', label: 'local', command: 'node', args: ['local.js'], originalIndex: 1 },
+  { id: 'always', label: 'always', command: 'node', args: ['always.js'], inputRoots: ['packages/main/src/always.ts'], inputsComplete: true, assurance: 'always', riskTier: 'local', originalIndex: 0 },
+  { id: 'local', label: 'local', command: 'node', args: ['local.js'], inputRoots: ['packages/main/src/local.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', originalIndex: 1 },
+  { id: 'unrelated', label: 'unrelated', command: 'node', args: ['unrelated.js'], inputRoots: ['docs/unrelated.md'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', originalIndex: 2 },
 ]);
-const catalog = compileValidationCatalog(inventory, { inputRoots: ['packages/main/src/local.ts'] });
+const catalog = compileValidationCatalog(inventory);
 const graphAugmentedCatalog = augmentValidationCatalogWithGraphInputs({
   catalog,
   changedFiles: [{ path: 'packages/main/src/shared.ts', status: 'modified', blobId: 'shared' }],
@@ -73,7 +74,7 @@ const closures = new Map(catalog.map(entry => [entry.id, createValidationClosure
   baseHead: 'base',
   inventoryDigest: inventory.digest,
   catalogDigest: 'catalog',
-  staticPaths: ['packages/main/src/local.ts'],
+  staticPaths: entry.inputRoots,
 })]));
 assert.equal([...closures.values()].every(verifyValidationClosureCertificate), true);
 const undeclared = createValidationClosureCertificate({
@@ -100,7 +101,7 @@ const selection = buildDynamicValidationPlan({
 });
 assert.equal(selection.totals.unverified, 0);
 assert.equal(selection.totals.uncovered, 0);
-assert.equal(selection.totals.inventory, selection.totals.executed + selection.totals.reused);
+assert.equal(selection.totals.inventory, selection.totals.executed + selection.totals.reused + selection.totals.excluded);
 
 const tierInput = {
   storyId: 'B-smoke',
@@ -117,6 +118,7 @@ const tierInput = {
     entries: [
       { commandId: 'always', selection: 'always' as const, inputPatterns: [], coverage: 'complete' as const },
       { commandId: 'local', selection: 'story-intermediate' as const, inputPatterns: ['packages/main/src/**'], coverage: 'complete' as const },
+      { commandId: 'unrelated', selection: 'story-fast' as const, inputPatterns: ['docs/**'], coverage: 'complete' as const },
     ],
   },
 };
@@ -136,15 +138,57 @@ const productionRelevanceInput = {
   durationHistory: { status: 'collected', sampleCount: 0, estimates: [], unmatchedSamples: [] },
   verificationIntentContext: [], escalations: [], selectionDigest: 'story-input-selection',
 } as StoryRelevanceInput;
+const subprocessInventory = discoverValidationInventory('/tmp', [{
+  id: 'subprocess-only', label: 'subprocess-only', command: 'node',
+  args: ['-e', "require('node:child_process').spawnSync('node',['hidden-runner.js'])"],
+  inputRoots: ['packages/main/src/visible-runner.ts'], originalIndex: 0,
+}]);
+const subprocessCatalog = compileValidationCatalog(subprocessInventory);
+const subprocessGraphCatalog = augmentValidationCatalogWithGraphInputs({
+  catalog: subprocessCatalog,
+  changedFiles: [{ path: 'packages/main/src/hidden-runner.ts', status: 'modified', blobId: 'hidden' }],
+  graph: {
+    baseHead: 'base', head: 'head', baseGraphDigest: 'base-subprocess', headGraphDigest: 'head-subprocess',
+    graphUnknown: false, resolutionFailures: ['runtime-subprocess-edge:subprocess-only'],
+    authorityReasons: () => [], commandsAffectedBy: () => ['subprocess-only'],
+  },
+});
+assert.equal(subprocessGraphCatalog[0]?.selectionInputCoverage, 'partial',
+  'a positive static graph edge must not certify complete subprocess ownership');
+const subprocessBinding = buildAutomaticValidationTierSelectionBinding({
+  input: {
+    ...productionRelevanceInput,
+    executionInventory: {
+      sourceKind: 'configured', commandSetDigest: 'subprocess-command-set',
+      commandIds: ['subprocess-only'], provisionalCommandIds: [], warnings: [],
+    },
+  },
+  catalog: subprocessGraphCatalog,
+  additionalForceFullReasons: ['runtime_edge_unresolved'],
+});
+assert.equal(subprocessBinding.decision.effectiveTier, 'repository-full');
+assert.deepEqual(subprocessBinding.decision.selectedUnitIds, ['subprocess-only']);
+assert.ok(subprocessBinding.decision.escalationReasonCodes.includes('runtime_edge_unresolved'));
 const productionCatalog = catalog.map((entry) => entry.id === 'local' ? { ...entry, riskTier: 'shared' as const } : entry);
 const tierBinding = buildAutomaticValidationTierSelectionBinding({ input: productionRelevanceInput, catalog: productionCatalog });
 assertAutomaticTierSelectionBindingCurrent(tierBinding);
+const completeTierGraph = {
+  baseHead: 'base', head: 'head', baseGraphDigest: 'base-graph', headGraphDigest: 'head-graph', graphUnknown: false,
+  resolutionFailures: [], authorityReasons: () => [], commandsAffectedBy: () => ['local'],
+};
 const tierBoundSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes, closures,
   baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+  graph: completeTierGraph,
   tierSelection: tierBinding,
 });
 assert.equal(tierBoundSelection.effectiveTier, 'story-intermediate');
+assert.equal(tierBoundSelection.rows.find((row) => row.commandId === 'unrelated')?.disposition, 'excluded', JSON.stringify({
+  fullEscalated: tierBoundSelection.fullEscalated,
+  escalationReasons: tierBoundSelection.escalationReasons,
+  rows: tierBoundSelection.rows,
+}));
+assert.equal(tierBoundSelection.totals.excluded, 1);
 assert.equal(tierBoundSelection.selectorDecisionDigest, tierBinding.decision.selectionDigest);
 assert.deepEqual(tierBoundSelection.tierSelections, tierBinding.decision.tierSelections);
 assert.throws(
@@ -166,11 +210,34 @@ const legacyPinChanges = buildStoryChangeManifest({
   storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [],
   verificationIntents: [{ pinnedValidationCommands: ['validation-0123456789abcdef'] }],
 });
-const legacyPinSelection = buildDynamicValidationPlan({
-  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: legacyPinChanges, closures,
+const noPinChanges = buildStoryChangeManifest({
+  storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [],
+});
+const noPinSeed = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: noPinChanges, closures,
   baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
 });
-assert.equal(legacyPinSelection.fullEscalated, false);
+const legacyReceipts = noPinSeed.rows.map((row) => createValidationCommandReceipt({
+  id: `legacy-${row.commandId}`, commandId: row.commandId, commandIdentityDigest: row.commandId,
+  inputDigest: row.inputDigest, closureCertificateDigest: closures.get(row.commandId)!.signature,
+  catalogDigest: stableDigest(catalog), inventoryDigest: inventory.digest, runnerDigest: 'runner',
+  toolchainDigest: 'toolchain', buildProofDigest: 'build', sourceHead: 'head', sourceBaseHead: 'base',
+  canonicalBaselineEpochId: 'epoch', producedBy: 'story-execution', cleanTreeDigest: 'clean',
+  executionEnvironmentDigest: 'environment', result: 'PASS', exitCode: 0, outputDigest: 'output',
+  durationMs: 1, createdAt: new Date().toISOString(), revocationLedgerDigest: stableDigest({}),
+}));
+const noPinReuse = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: noPinChanges, closures,
+  receipts: legacyReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+});
+assert.equal(noPinReuse.rows.filter((row) => row.commandId !== 'always').every((row) => row.disposition === 'reuse'), true,
+  'the compatibility fixture must first prove the otherwise-unaffected commands would reuse');
+const legacyPinSelection = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: legacyPinChanges, closures,
+  receipts: legacyReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+});
+assert.equal(legacyPinSelection.fullEscalated, true);
+assert.ok(legacyPinSelection.escalationReasons.includes('legacy-validation-pin-unresolved:validation-0123456789abcdef'));
 assert.equal(legacyPinSelection.rows.every((row) => row.disposition === 'execute'), true,
   'a stored legacy validation-* pin widens to the full current inventory instead of disappearing or throwing');
 

@@ -4,6 +4,10 @@ import type { ValidationCommand } from './validation-types.js';
 
 export const PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX = 'prov-';
 
+/**
+ * The host-portable subset of a command's execution identity. Every field is
+ * declared in project config; no ambient host or checkout location is read.
+ */
 export interface NarrowPortableValidationCommandTuple {
   command: string;
   args: string[];
@@ -27,6 +31,11 @@ export function validationIdentityDigest(value: unknown): string {
   return createHash('sha256').update(canonical(value)).digest('hex');
 }
 
+/**
+ * Return the declared cwd literal, POSIX-normalized. An absent declaration is
+ * `.`. Absolute literals remain absolute and are reported by the inventory as
+ * non-portable rather than silently rewritten relative to this checkout.
+ */
 export function declaredValidationCommandCwd(command: Pick<ValidationCommand, 'cwd'>): string {
   const raw = typeof command.cwd === 'string' ? command.cwd.trim() : '';
   if (raw === '') return '.';

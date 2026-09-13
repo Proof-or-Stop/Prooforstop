@@ -136,7 +136,7 @@ async function submitWithDerivedBindings(ctx: HandlerContext, args: SubmitArgs) 
     command: 'autopilot_review_submit --deriveBindings',
     onWaitProgress: (message) => ctx.log?.(message),
   }, () => {
-    const admissibility = assessStoredValidationPassAdmissibility(ctx, identity.storyId);
+    const admissibility = assessStoredValidationPassAdmissibility(ctx, identity.storyId, { allowDynamicCoverage: true });
     if (!admissibility.ok || !admissibility.evidence || !admissibility.headHash || !admissibility.materialHash || !admissibility.storyFilesHash) {
       throw new Error(`autopilot_review_submit --deriveBindings requires canonical current PASS validation evidence: ${admissibility.reasons.join('; ')}`);
     }

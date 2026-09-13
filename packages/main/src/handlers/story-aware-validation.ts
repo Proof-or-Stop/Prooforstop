@@ -267,7 +267,11 @@ export function persistCanonicalFullBaseline(args: {
   if (!args.result.allPass) return undefined;
   // A headless execution has no Git epoch and cannot produce reusable authority.
   if (!String(args.sourceHead ?? '').trim()) return undefined;
-  const injected = args.commands?.map((row, index) => ({ ...row, id: `validation-${stableDigest({ command: row.command, args: row.args }).slice(0, 16)}`, originalIndex: index }));
+  const injected = args.commands?.map((row, index) => ({
+    ...row,
+    id: row.id ?? provisionalValidationCommandId(narrowPortableValidationCommandTuple({ command: row })),
+    originalIndex: index,
+  }));
   const inventory = discoverValidationInventory(args.projectRoot, injected);
   const catalog = compileValidationCatalog(inventory);
   assertValidValidationCatalog(inventory, catalog);
@@ -462,6 +466,7 @@ export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyI
       const closure = baseline.closureCertificates[row.commandId];
       if (!closure || !verifyValidationClosureCertificate(closure)
         || closure.signature !== row.closureCertificateDigest) return ['dynamic_closure_invalid'];
+      if (row.disposition === 'excluded') continue;
       const candidates = receipts.filter(receipt => receipt.commandId === row.commandId
         && (row.disposition === 'reuse' ? receipt.id === row.receiptId : receipt.sourceHead === manifest.head));
       const accepted = candidates.some(receipt => verifyValidationCommandReceipt(receipt).ok
@@ -1069,7 +1074,8 @@ function deriveGateOwnedPrerequisites(args: {
     // manifest actually executes or reuses; a selected gate row still forces
     // full fallback through `manifest.fullEscalated`/risk below.
     storyRiskEligible: args.prepared.catalog
-      .filter((entry) => manifest.rows.some((row) => row.commandId === entry.id && row.disposition !== 'unverified'))
+      .filter((entry) => manifest.rows.some((row) => row.commandId === entry.id
+        && (row.disposition === 'execute' || row.disposition === 'reuse')))
       .every((entry) => entry.riskTier === 'local')
       && !manifest.fullEscalated && shardEvidenceClean,
     periodicFullPolicyActive: baselineCurrent,
@@ -1192,7 +1198,8 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const authority = evaluateDynamicAuthority({
     mode: args.mode || 'observe',
     riskTier: final.catalog
-      .filter((entry) => final.manifest.rows.some((row) => row.commandId === entry.id && row.disposition !== 'unverified'))
+      .filter((entry) => final.manifest.rows.some((row) => row.commandId === entry.id
+        && (row.disposition === 'execute' || row.disposition === 'reuse')))
       .every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
     manifest: final.manifest,
     prerequisites: {

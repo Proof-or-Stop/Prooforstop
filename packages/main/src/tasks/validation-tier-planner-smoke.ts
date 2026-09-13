@@ -2459,13 +2459,13 @@ testCase('the production catalog derives the canonical impact index and automati
 });
 
 testCase('dynamic authority requires explicit configuration and only DEV REVIEW TEST can consume its coverage', () => {
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST' }), 'off');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-review', storyPhase: 'REVIEW', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-init', storyPhase: 'INIT', configuredMode: 'enforce-low-risk' }), 'off');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', explicitMode: 'off' }), 'off');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-test', storyPhase: 'TEST', configuredMode: 'enforce-low-risk', full: true }), 'off');
-  assert.equal(resolveValidationDynamicMode({ storyId: 'B-done', storyPhase: 'DONE', configuredMode: 'enforce-low-risk' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'REVIEW', configuredMode: 'enforce-low-risk' }), 'enforce-low-risk');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'INIT', configuredMode: 'enforce-low-risk' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', explicitMode: 'off' }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'TEST', configuredMode: 'enforce-low-risk', full: true }), 'off');
+  assert.equal(resolveValidationDynamicMode({ storyPhase: 'DONE', configuredMode: 'enforce-low-risk' }), 'off');
   assert.equal(resolveValidationDynamicMode({}), 'off');
   assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'TEST'), true);
   assert.equal(dynamicRoutineCoverageAllowed('enforce-low-risk', 'REVIEW'), true);

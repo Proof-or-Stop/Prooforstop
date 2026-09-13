@@ -378,8 +378,9 @@ const allAuthorityPrerequisites = {
   sourceFirstBuildProofActive: true, buildAlwaysExecuted: true, storyRiskEligible: true,
   periodicFullPolicyActive: true, revocationLedgerCurrent: true, catalogOwnershipGatePassed: true,
 };
-const authorityManifestBody = { ...baseline, fullEscalated: false, escalationReasons: [], signature: undefined };
-const authorityManifest = { ...authorityManifestBody, signature: signPayload(authorityManifestBody) };
+const authorityManifest = cleanPlan;
+assert.equal(authorityManifest.fullEscalated, false, 'authority fixture must use an honest non-escalated production manifest');
+assert.equal(verifyValidationSelectionManifest(authorityManifest), true);
 const authority = evaluateDynamicAuthority({
   mode: 'enforce-low-risk', riskTier: 'local', manifest: authorityManifest,
   prerequisites: allAuthorityPrerequisites, pinnedCommandsExecuted: true,

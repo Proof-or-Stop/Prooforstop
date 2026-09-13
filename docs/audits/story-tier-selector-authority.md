@@ -32,7 +32,7 @@ the old fixed 168-command rule with a new unsafe “all docs are cheap” rule.
 | Stable command identity | Explain planner used declared/provisional IDs; runtime generated a separate `validation-*` ID | Both use the declared ID or the same portable `prov-*` identity |
 | Decision binding | Runtime manifest had no canonical tier arrays or selector digest | Signed manifest binds requested tier, effective tier, all three exact ID arrays, and `selectorDecisionDigest` |
 | Pre-launch mutation defense | No cross-path selector digest to compare | Runtime re-runs the pure selector, recomputes the binding digest, and verifies exact full-universe plus tier-subset membership invariants before child execution |
-| Default Story mode | Repository configuration was `observe`; absent configuration resolved to `off` | Unconfigured projects still resolve to `off`; this repository explicitly configures `enforce-low-risk` for DEV/REVIEW/TEST only |
+| Default Story mode | Repository configuration was `observe`; absent configuration resolved to `off` | Remains `observe` until a separate real-inventory rollout record authorizes the config flip; unconfigured projects remain `off` |
 | TEST | Verifier forced every TEST invocation to dynamic `off` | TEST may accept dynamic authority only with a complete inventory partition and all existing baseline/closure/freshness/expiry/revocation prerequisites |
 | Explicit full and DONE | Complete canonical policy | Unchanged: explicit `--full` and DONE resolve dynamic mode to `off`; DONE-required commands remain independent |
 | Missing authority prerequisites | Complete plan fallback | Unchanged: known preflight rejection falls back once before dynamic children run |
@@ -63,16 +63,17 @@ and automatic tier choice did not exist.
 | `npm --prefix packages/main run test:story-aware-validation-mutation` | PASS; 30 replay classes and FI-1..FI-5 | Digest, catalog, receipt, closure, selection, scheduler, and shard mutations fail safely |
 | `npm --prefix packages/main run test:dynamic-validation-selection` | `complete ledger PASS` | Every inventory member is accounted for |
 | `npm --prefix packages/main run test:dynamic-validation-selection-mutations` | `monotonicity PASS` | Expanding Story impact cannot shrink the selected set |
-| `npm --prefix packages/main run test:dynamic-validation-test-gate` | `low-risk dynamic TEST PASS` | TEST authority is possible only through the existing complete logical-coverage contract |
+| `npm --prefix packages/main run test:dynamic-validation-test-gate` | PASS; real `2 → 1 execute + 1 excluded` fixture | The actual signed PASS enters TEST, reaches the DONE dynamic consumer, and both consumers reject missing/tampered/expired/revoked evidence |
 | `npm --prefix packages/main run test:dynamic-validation-test-gate-mutations` | `authority mutations rejected` | A mutated authority prerequisite cannot produce TEST PASS |
 | `node scripts/verify-process-fact-contract.mjs` | PASS | The prompt/handler/gate two-layer contract, selector manifest facts, TEST consumer, and independent DONE boundary agree |
 
-The TEST-gate mutation task now drives `storedDynamicReceiptIntegrityReasons`
-against a real one-command signed baseline, closure, receipt, manifest and
-revocation ledger. The valid complete ledger is accepted; a changed ledger, a
-missing receipt and a mismatched HEAD are independently refused. Its public
-markers are therefore backed by the stored-evidence consumer rather than by
-marker-only assertions.
+The TEST-gate task directly runs a two-command repository fixture. The canonical
+baseline executes both commands; the authoritative Story-fast path executes one
+and records one signed exclusion. `assessStoredValidationPassAdmissibility` is
+called with both admission policies, `runValidateGate` consumes the accepted
+record, and `runDoneOracleGate` rechecks it. A changed ledger, missing receipt,
+mismatched HEAD, signature mutation, expiry and revocation are independently
+refused. The package scripts now execute this task directly.
 
 ## Claude CLI audit and remediation
 
@@ -83,10 +84,10 @@ findings were retained and repaired in the Lab:
 | Finding | Before | Repair / evidence |
 | --- | --- | --- |
 | F1 binding digest | Producer and consumer used different canonicalizers | Both consume `digestCanonicalJson`; the smoke builds the binding through the production builder and tests a mutated decision |
-| F2 ownership completeness | Policy defaults accidentally promoted heuristic roots to `complete` | Selector coverage now has explicit provenance; only declared roots or a complete dual-revision graph can authorize exclusion; a defaults-only regression widens full |
-| F3 activation default | An unconfigured Story silently entered enforce mode | Unconfigured projects remain `off`; this repository opts in through config |
+| F2 ownership completeness | Policy defaults accidentally promoted heuristic roots to `complete` | Selector coverage now has explicit provenance; only per-command declared complete roots authorize exclusion; graph edges add positive impact but never upgrade completeness |
+| F3 activation default | An unconfigured Story silently entered enforce mode | Unconfigured projects remain `off`; this repository remains in `observe` pending rollout evidence |
 | F4 pre-launch defense | Core only re-hashed caller-supplied data | The runtime adapter re-runs the pure selector and compares the complete decision before child launch |
-| F5 TEST consumer | Mode-string assertions did not prove stored evidence admission | A real signed stored baseline/manifest/receipt/ledger matrix now proves valid admission and three independent refusals; dynamic coverage is explicit at REVIEW-to-TEST and forbidden for canonical consumers |
+| F5 TEST consumer | Mode-string assertions did not prove stored evidence admission | The real two-command fixture proves signed TEST and DONE admission plus receipt/ledger/signature refusals; canonical consumers explicitly decline dynamic coverage |
 | F6 decision digest | Automatic promotion omitted exclusion/inclusion evidence and mixed requested tiers | Intermediate promotion now reports intermediate consistently and its digest includes exclusion proofs and inclusion reasons; proof changes alter the digest |
 | F7 command digest / legacy pin | Portable hashing was duplicated and legacy `validation-*` pins could disappear | One exported digest implementation serves both identity paths, a literal vector pins its bytes, and legacy runtime pins widen to the full current inventory |
 | F8 cwd/shell identity | Config discovery omitted cwd/shell when deriving an ID | Both discovery paths hash the full narrow tuple; a cwd+shell regression proves identical IDs |
@@ -115,6 +116,32 @@ The exact Git-ref assertions use the current host's
 `Git references did not resolve to two immutable objects` result. This replaces
 the earlier broad alternation; it does not treat another early refusal as proof
 of the intended case.
+
+## Second Claude CLI audit and remediation
+
+The Lab-finish audit of release candidate `4f4220fb3b` returned `fail` under run
+`7a42d128-493a-4de6-b50c-8e36722996ed`. The release tool stopped before main
+integration. Its eleven findings were retained and repaired as follows:
+
+| Finding | Unsafe or unproven behavior | Repair / executable evidence |
+| --- | --- | --- |
+| A2-F1 graph completeness | Any non-empty dual graph promoted every command to complete ownership | Only a command's own `inputsComplete + inputRoots` declaration can prove completeness; graph augmentation stays partial and build failures/unresolved imports set graph uncertainty |
+| A2-F2 premature activation | Config switched to enforce in the implementation commit without real-inventory shadow evidence | Config is restored to `observe`; activation is a separate rollout change after recorded observation |
+| A2-F3 additive selector | Narrow tiers still ran default commands; full tiers destroyed receipt reuse | Manifest now partitions every command and uses signed `excluded` rows for safe omission; full widening preserves admissible receipts |
+| A2-F4 TEST/DONE consumers | Dynamic admission defaulted false silently and DONE intent was not explicit | The option is required at every caller; REVIEW, TEST, verdict, certification and DONE consumers opt in explicitly while canonical callers opt out |
+| A2-F5 fabricated authority test | Test rewrote escalation fields and re-signed the result | Authority now uses the honest non-escalated production manifest unchanged |
+| A2-F6 legacy pin test | No receipts meant default execution could masquerade as compatibility widening | Control plan first proves reuse, then the legacy pin forces execution and records `legacy-validation-pin-unresolved:<pin>` |
+| A2-F7 marker-only gate test | Package task only searched a marker in the mutation smoke | Package task now runs the real signed TEST/DONE fixture and both positive and negative consumers |
+| A2-F8 blanket fixture roots | A caller-wide root override implied complete ownership | Overrides affect runtime closure only; selector completeness stays per command |
+| A2-F9 orphan comments | Portable identity comments described unrelated symbols | Comments moved beside the portable tuple and cwd implementation |
+| A2-F10 unused Story id | Mode resolver accepted a Story id it never read | Removed from the resolver and every call site |
+| A2-F11 open-prefix contract | Process-fact assertion accepted any third argument | Exact regex pins `{ allowDynamicCoverage: true }` at the shared gate consumer |
+
+During this repair the real TEST fixture also exposed a remaining legacy ID in
+canonical baseline publication. It is now replaced by the same portable
+`prov-*` implementation used by planning and execution; without this correction
+the baseline inventory/catalog digests could never match and dynamic authority
+always fell back to full.
 
 ## Rollback
 

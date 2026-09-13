@@ -86,7 +86,7 @@ export function dynamicValidationCoverageAdmission(
 export function assessStoredValidationPassAdmissibility(
   ctx: HandlerContext,
   storyId: string,
-  options: { allowDynamicCoverage?: boolean } = {},
+  options: { allowDynamicCoverage: boolean },
 ): ValidationEvidenceAdmissibility {
   const evidence = ctx.store.readTestEvidence(storyId);
   // Preserve the legacy gate's cheap path: absent or failed evidence means
@@ -126,7 +126,7 @@ export function assessStoredValidationPassAdmissibility(
   });
   if (!result.ok) return result;
   const output = JSON.parse(evidence.output);
-  const dynamicAdmission = dynamicValidationCoverageAdmission(output, options.allowDynamicCoverage === true);
+  const dynamicAdmission = dynamicValidationCoverageAdmission(output, options.allowDynamicCoverage);
   if (!dynamicAdmission.allowed) return {
     ...result,
     ok: false,

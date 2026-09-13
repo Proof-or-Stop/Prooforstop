@@ -497,9 +497,13 @@ actual dynamic execution must still satisfy every existing runtime prerequisite.
 Observe remains selection-only followed by the full oracle; shadow retains both
 runs for comparison. Explicit full and final-phase requirements remain unchanged.
 
-The repository configuration still uses observe mode. This repair removes
-redundant execution in enforce-low-risk fallback; it does not by itself activate
-incremental validation for this repository or make its full-only policies reusable.
+The repository configuration still uses observe mode. This repair makes the
+selector/executor contract real without silently activating it: a narrow signed
+manifest partitions the complete inventory into `execute`, admissible `reuse`,
+positive-proof `excluded`, and fail-closed `unverified` rows. A repository-full
+widening expands eligibility but preserves admissible current receipts instead
+of force-running them again. Activation requires a separately recorded real
+inventory observe cycle and remains reversible with `--dynamicMode=off`.
 
 ## Worktree discovery in validation
 
@@ -543,9 +547,11 @@ that automatic metadata commits preserve material and Story-input identity; the
 manifest still binds the actual execution HEAD. No validation child is started
 by this check.
 
-A real dynamic REVIEW execution that runs build and reuses one certified PASS
-can pass the TEST-entry consumer. Revoking that receipt afterward now rejects
-entry, as do missing/tampered/expired receipts and missing/malformed ledgers.
+A real two-command dynamic REVIEW fixture now executes one Story-relevant
+command and signs a positive exclusion for the other. Its PASS crosses the
+actual REVIEW-to-TEST gate and the DONE dynamic-consumer boundary. Removing,
+tampering with, expiring, or revoking the executed command's receipt rejects
+both consumers; missing or malformed ledgers are also refused.
 This does not enable the root repository's observe configuration. The original
 DYN-3 plan additionally requires the complete dependency, scope, ancestry,
 environment and rollout evidence chain before expanding dynamic authority. In
@@ -553,8 +559,10 @@ particular, root full-only policies and unknown graph dependencies remain intact
 Direct validation invoked in TEST currently retains its canonical-full policy;
 this is distinct from consuming a valid REVIEW dynamic PASS on entry to TEST.
 
-The focused regression is `node scripts/verify-dynamic-test-admission.mjs`. It
-covers real full and dynamic execution, zero-child repeats, TEST entry, signature
+The focused regression is `node scripts/verify-dynamic-test-admission.mjs`, and
+the package-level TEST-gate scripts invoke it directly rather than trusting a
+marker from a planner-only smoke. It covers real full and dynamic execution,
+one-of-two command reduction, zero-child repeats, TEST and DONE consumption, signature
 stripping, output mutation, cross-Story replay, missing/expired/tampered receipts,
 missing/malformed ledgers, and receipt/epoch revocation. The older
 `validation-evidence-reuse-smoke` still stops before these paths because its

@@ -80,11 +80,7 @@ export {
   type NarrowPortableValidationCommandTuple,
 };
 
-/**
- * The host-portable subset of a command's execution identity. Everything in it
- * is either declared in project config or derived from the project root, so two
- * checkouts of the same commit produce the same tuple on any host.
- */
+/** One inventory row bound to the shared portable command tuple. */
 export interface ValidationCommandIdentityEntry {
   /** Original position in the configured array. Provenance only — never an identity input. */
   index: number;
@@ -107,14 +103,6 @@ export interface ValidationCommandInventory {
   warnings: string[];
 }
 
-/**
- * The DECLARED cwd, posix-normalized: backslashes become `/`, `.` segments and
- * repeated or trailing separators collapse, and an absent or empty declaration
- * is `.`. Takes no project root on purpose (B-a745 F-023): resolving here is
- * what made an absolute declaration's "portable" identity depend on the
- * checkout location. An absolute literal stays absolute and is reported by
- * {@link buildValidationCommandInventory} as non-portable by construction.
- */
 /**
  * Runtime re-validation of a declared id, per the Handler encoding convention:
  * a schema constraint is the first line of defence only, so every consumer

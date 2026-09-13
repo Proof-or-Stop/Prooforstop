@@ -146,7 +146,6 @@ export function resolveValidationDynamicMode(args: {
   explicitMode?: DynamicValidationMode;
   environmentMode?: string;
   configuredMode?: string;
-  storyId?: string;
   storyPhase?: string;
   full?: string | boolean;
 }): DynamicValidationMode {
@@ -252,7 +251,11 @@ function storyAutomaticTierSelection(
     routine: { sourceKind: 'configured', commands },
   });
   const augmentedCatalog = augmentValidationCatalogWithGraphInputs({ catalog, graph, changedFiles: changes.changedFiles });
-  return buildAutomaticValidationTierSelectionBinding({ input, catalog: augmentedCatalog });
+  return buildAutomaticValidationTierSelectionBinding({
+    input,
+    catalog: augmentedCatalog,
+    ...(graph?.graphUnknown ? { additionalForceFullReasons: ['runtime_edge_unresolved'] } : {}),
+  });
 }
 
 function hasAny(projectRoot: string, paths: string[]): boolean {
@@ -1822,7 +1825,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         explicitMode: args.dynamicMode,
         environmentMode: process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE,
         configuredMode: projectConfig.validation?.dynamic?.mode || projectConfig.validate?.dynamic?.mode,
-        storyId: args.story,
         storyPhase: validationPhase,
         full: args.full,
       });

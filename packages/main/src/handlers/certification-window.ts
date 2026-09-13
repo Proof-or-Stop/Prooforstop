@@ -723,7 +723,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
         if (windowAuthorizesHeavyCertification(inspected.window, inspected.receipt)) {
           try {
             if (ctx.store.readStory(storyId).phase === 'REVIEW'
-              && assessStoredValidationPassAdmissibility(ctx, storyId).ok) {
+              && assessStoredValidationPassAdmissibility(ctx, storyId, { allowDynamicCoverage: true }).ok) {
               projection.nextCommand = `proof-or-stop story_advance --storyId=${storyId} --phase=TEST`;
             }
           } catch (error) { rethrowIntentAmendmentIntegrityError(error); }

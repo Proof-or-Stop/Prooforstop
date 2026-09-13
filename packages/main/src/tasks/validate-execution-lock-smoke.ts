@@ -1506,7 +1506,7 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
     // derive path calls. The command identity comes from the fixture's actual
     // routine validate execution, not caller-authored PASS data.
     const gateContext = { store, root, scanRoot: join(root, 'packages/main') } as HandlerContext;
-    const seededAdmissibility = assessStoredValidationPassAdmissibility(gateContext, storyId);
+    const seededAdmissibility = assessStoredValidationPassAdmissibility(gateContext, storyId, { allowDynamicCoverage: false });
     assert.equal(
       seededAdmissibility.ok,
       true,

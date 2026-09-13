@@ -685,6 +685,7 @@ export function selectAutomaticValidationTier(
 export function buildAutomaticValidationTierSelectionBinding(args: {
   input: StoryRelevanceInput;
   catalog: readonly ValidationImpactCatalogEntry[];
+  additionalForceFullReasons?: ValidationWideningReasonCode[];
 }): AutomaticValidationTierSelectionBinding {
   const materialSeedPaths = [...new Set([
     ...args.input.seeds.filter((seed) => seed.kind === 'path').map((seed) => normalizedPath(seed.value)).filter(Boolean),
@@ -692,7 +693,10 @@ export function buildAutomaticValidationTierSelectionBinding(args: {
       ? (evidenceMaterialDirtyFiles(args.input.hashes.head) ?? []).map(normalizedPath).filter(Boolean)
       : []),
   ])].sort();
-  const forceFullReasons = args.input.escalations.map((entry) => entry.code as ValidationWideningReasonCode);
+  const forceFullReasons = [
+    ...args.input.escalations.map((entry) => entry.code as ValidationWideningReasonCode),
+    ...(args.additionalForceFullReasons || []),
+  ];
   if (args.input.changedFiles.status === 'changed_files_unavailable') forceFullReasons.push('changed_files_unavailable');
   if (args.input.hashes.status === 'hash_snapshot_unavailable') forceFullReasons.push('hash_snapshot_unavailable');
   if (args.input.unclassifiedInputs.length > 0) forceFullReasons.push('unclassified_material_input');

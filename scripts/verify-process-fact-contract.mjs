@@ -10688,7 +10688,8 @@ assertSyntheticAdversarialChecks();
     const source = read(consumerPath);
     const direct = source.includes('createVerificationEvidenceGateEvaluator');
     const shared = consumerPath === 'packages/main/src/handlers/phase-gates.ts'
-      && source.includes("from './validation-pass-admissibility.js'") && source.includes('assessStoredValidationPassAdmissibility(ctx, storyId')
+      && source.includes("from './validation-pass-admissibility.js'")
+      && /assessStoredValidationPassAdmissibility\(ctx, storyId, \{ allowDynamicCoverage: true \}\)/.test(source)
       && read('packages/main/src/handlers/validation-pass-admissibility.ts').includes('receiptAdmissibility: createVerificationEvidenceGateEvaluator(ctx.root, storyId)');
     assert(direct || shared, `${consumerPath}: actual gate/reader must use authoritative verification receipt evaluator`);
   }
