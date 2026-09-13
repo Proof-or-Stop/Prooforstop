@@ -1,0 +1,21 @@
+INTAKE_DISCOVERY_MEASURE {"workspace":{"ms":441.19795799999997,"scans":20,"gitCalls":40},"baseline":{"ms":914.865042,"gitCalls":80},"outputsEqual":true}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: INTAKE_TRANSIENT_INVENTORY_RED: failed inventory is not observed absence
++ actual - expected
+
++ null
+- '/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-discovery-TlxHeb/linked'
+
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-memory-intake-measurement/scripts/verify-intake-discovery.mjs:40:16 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: '/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/intake-discovery-TlxHeb/linked',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1

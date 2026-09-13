@@ -34,6 +34,14 @@ try {
   if (b.commands.length > 80) failures.push(`baseline Git budget expected <=80, got ${b.commands.length}`);
   const linked = join(root, 'linked'); git('worktree', 'add', '-qb', 'story/B-discovery', linked);
   assert.equal(workspace().worktreePath, linked);
+  let inventoryAttempts = 0;
+  cp.execFileSync = function(cmd, args, opts) { if (cmd === 'git' && args[0] === 'worktree' && inventoryAttempts++ === 0) throw new Error('transient inventory failure'); return original.call(this, cmd, args, opts); };
+  syncBuiltinESMExports();
+  try { assert.equal(workspace().worktreePath, linked, 'INTAKE_TRANSIENT_INVENTORY_RED: failed inventory is not observed absence'); assert.equal(inventoryAttempts, 2); }
+  finally { cp.execFileSync = original; syncBuiltinESMExports(); }
+  const relocated = join(root, 'temporarily-relocated'); fs.renameSync(linked, relocated);
+  try { const stale = workspace(); assert.equal(stale.gitCwd, root); assert.equal(stale.worktreePath, linked); }
+  finally { fs.renameSync(relocated, linked); }
   story.worktree = { path: linked, branch: 'story/B-discovery' }; assert.equal(workspace().gitCwd, linked);
   story.phase = 'DONE'; const terminal = observe(() => workspace()); assert.equal(terminal.commands.length, 0); assert.equal(terminal.outputs[0].worktreePath, null);
   story.phase = 'INIT'; delete story.worktree; git('worktree', 'remove', linked); assert.equal(workspace().worktreePath, null);

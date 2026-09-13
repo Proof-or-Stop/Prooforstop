@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import ts from 'typescript';
 const repo = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const baseline = '082ea1d962';
-const paths = ['git-baseline','story-workspace','story-signed-workspace-resolution'];
+const paths = ['git-baseline','story-workspace','story-signed-workspace-resolution','worktree-runtime'];
 const git = (cwd,args) => cp.execFileSync('git',args,{cwd,encoding:'utf8',stdio:'pipe'}).trim();
 if (process.argv[2] === '--child') {
   const [mode,root] = process.argv.slice(3); const modules=[];
