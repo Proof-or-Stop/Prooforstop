@@ -119,8 +119,9 @@ The disposable pass case directly invokes the proposal writer while its real
 fixture provider capability is active and proves an invalid block is refused
 without a proposal file. The existing-ID case modifies only the disposable sealed
 proposal, verifies refusal, restores identical bytes, then verifies acceptance.
-That negative exercises both digest/shape defenses; it does not claim a forged
-proposal was authentic. Separate source-guard deletion subprocesses pin the writer
+That negative exercises the proposal-digest defense; it does not isolate the
+consumer shape conjunct. Parser controls cover shape behavior separately, while
+the source-guard deletion controls verify only the required guard identifier. Separate source-guard deletion subprocesses pin the writer
 and consumer shape guards in addition to the five importer authority controls.
 
 MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY owns the test-only 120/135-second limits and
@@ -209,3 +210,11 @@ Lab-only dependency-layout issue: package-local copies made its temporary module
 root omit TypeScript. Replacing those copies with links to the same Lab's root
 installed packages restored the focused certification-mutator control. No tracked
 dependency or production code was changed for that environment repair.
+
+## Seventh candidate: post-import evidence accuracy
+
+The pass scenario observes pending metadata only after successful critic import,
+requires one actual critic receipt, and checks HEAD is unchanged so a forced commit
+cannot masquerade as deferred metadata. The existing unavailable-status refusal
+control is retained. The tamper-control description is limited to digest refusal;
+it no longer claims that one combined refusal isolates consumer shape enforcement.

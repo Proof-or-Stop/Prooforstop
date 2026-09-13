@@ -261,7 +261,6 @@ if(scenario==='crash') {
  writeFileSync(subjectPath,originalSubject);
 }
 if(scenario==='pass') {
- assert.match(git(worktree,['status','--porcelain','--untracked-files=all']),/review-inventory-epochs.json/,'Positive import retains legitimate pending inventory metadata');
  const childProcess=(await import('node:child_process')).default;
  const {syncBuiltinESMExports}=await import('node:module');
  const originalExec=childProcess.execFileSync;
@@ -271,10 +270,15 @@ if(scenario==='pass') {
  finally {childProcess.execFileSync=originalExec;syncBuiltinESMExports();}
  assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0);
 }
+const headBeforeImport=scenario==='pass'?git(worktree,['rev-parse','HEAD']):null;
 const result=importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId});
 assert.match(result,/Completeness critic: complete/);
 const records=fixture.store.readReviewInventoryEpochs(storyId);
 assert.equal(records.criticReceipts.length,1);
+if(scenario==='pass') {
+ assert.equal(git(worktree,['rev-parse','HEAD']),headBeforeImport,'Critic metadata must remain deferred under the open inventory policy');
+ assert.match(git(worktree,['status','--porcelain','--untracked-files=all']),/review-inventory-epochs.json/,'Successful critic import leaves the written receipt pending');
+}
 const finding=fixture.store.readFindings(storyId).findings.find(row=>row.reviewRunId===reviewRunId);
 if(scenario==='pass') assert.equal(records.criticReceipts[0].findingDispositions.length,0);
 else {assert(finding);assert(records.criticReceipts[0].findingDispositions.some(row=>row.findingId===finding.id));}
