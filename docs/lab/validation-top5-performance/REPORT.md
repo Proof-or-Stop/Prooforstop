@@ -28,3 +28,9 @@ Measurements include full native command wall time, fixture setup and cleanup, a
 Quorum-submit optimization is NOT claimed. All 73 cases passed in its latest experiment, but the native protected-directory guard recorded 4022 events and returned FAIL after 1017.206 s. Worktree and independent-clone attempts failed the same aggregate protection. No effective RED/GREEN performance pair exists for it; its [failed-run log](logs/top5-2-red-cache-root356.log) remains evidence of a blocker. Protection was not disabled.
 
 Historical Lab measurements are local maintenance evidence, not formal Story DONE or independent release audit. Finish-time audit and candidate/post-merge results are recorded separately by the Lab CLI and release notes.
+
+## Integration source-evidence verification
+
+Integration preserves GitHub main commit 6c163f9693 and local main 00b1ec05ae. The new review-intent-cycle regression and full process-fact contract passed after the merge. Current static source bindings were reviewed against the changed wrapper, fixture compilation-cache helpers, mutation worker transport, and identity regressions. The review keeps each original callsite, including historical duplicate exception IDs, and adds the exact planning-observation child with source dependencies. No scanner rule or refusal was relaxed.
+
+The main static baseline passed. After integration and reviewed rebinding, all 270 manifest entries have current covering evidence; 330 invocation-specific exception uses pass with zero unresolved, nested, or unexpanded commands. Tampered evidence and omitted dependencies remain rejected, and the version-bump source-evidence regression passed. See the release-static-final, release-static-boundaries, release-review-intent-final, and release-process-contract-final logs under logs/. These checks precede the final versioned Finish candidate and are not a claim that Finish or publication has already completed.
