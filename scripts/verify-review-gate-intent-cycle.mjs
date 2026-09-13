@@ -2,33 +2,11 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { registerHooks } from 'node:module';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import ts from 'typescript';
 
-registerHooks({
-  resolve(specifier, context, nextResolve) {
-    if (context.parentURL?.endsWith('.ts') && specifier.startsWith('.') && specifier.endsWith('.js')) {
-      const sourceUrl = new URL(specifier.slice(0, -3) + '.ts', context.parentURL);
-      if (existsSync(sourceUrl)) return nextResolve(sourceUrl.href, context);
-    }
-    return nextResolve(specifier, context);
-  },
-  load(url, context, nextLoad) {
-    if (!url.endsWith('.ts')) return nextLoad(url, context);
-    return {
-      format: 'module',
-      shortCircuit: true,
-      source: ts.transpileModule(readFileSync(new URL(url), 'utf8'), {
-        compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
-      }).outputText,
-    };
-  },
-});
-
-const storyReview = await import('../packages/main/src/handlers/story-review.ts');
+const storyReview = await import('../packages/main/dist/handlers/story-review.js');
 const { StoryStore } = await import('../packages/main/dist/core/store.js');
 const { acquireOwnerLease, resetSessionIdForTest } = await import('../packages/main/dist/core/story-owner-lease.js');
 const { acceptanceIntentHash } = await import('../packages/main/dist/core/verification-intent-amendment.js');
@@ -74,6 +52,13 @@ for (const legitimate of [
   { desc: 'A reviewer can open the generated report.', type: 'cli', priority: 'must' },
   { desc: 'The code review page passes accessibility checks.', type: 'browser', priority: 'must' },
   { desc: 'review_pass_set rejects an invalid signature.', type: 'cli', priority: 'must' },
+  { desc: 'review_pass_set records a pass for the fixture story.', type: 'cli', priority: 'must' },
+  {
+    desc: 'Independent review has no open findings.',
+    type: 'cli',
+    priority: 'must',
+    verification: { command: 'node fixture-review-status.mjs', selector: 'NO_OPEN_FINDINGS' },
+  },
   { desc: 'Independent review has no unresolved high or critical finding.', type: 'manual', priority: 'should' },
   { desc: undefined, type: 'manual', priority: 'must' },
 ]) {
