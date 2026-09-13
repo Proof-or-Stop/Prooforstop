@@ -29,9 +29,10 @@ import {
   narrowPortableValidationCommandTuple,
   provisionalValidationCommandId,
 } from './validation-command-portable-id.js';
-import type {
-  AutomaticValidationTierSelectionBinding,
-  ValidationTier,
+import {
+  selectAutomaticValidationTier,
+  type AutomaticValidationTierSelectionBinding,
+  type ValidationTier,
 } from './validation-tier-planner.js';
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
@@ -767,6 +768,7 @@ export interface ValidationSingletonContribution {
 }
 export interface ValidationSelectionManifest {
   findingConstraintDigest?: string;
+  selectorBinding?: AutomaticValidationTierSelectionBinding;
   selectorDecisionDigest?: string;
   requestedTier?: ValidationTier;
   effectiveTier?: ValidationTier;
@@ -917,11 +919,18 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   let canonicalTierDecision: AutomaticValidationTierSelectionBinding['decision'] | undefined;
   const compatibilityWideningReasons: string[] = [];
   if (ctx.tierSelection) {
-    if (digestCanonicalJson({ input: ctx.tierSelection.input, decision: ctx.tierSelection.decision }) !== ctx.tierSelection.bindingDigest) {
+    if (digestCanonicalJson({ catalogDigest: ctx.tierSelection.catalogDigest, input: ctx.tierSelection.input, decision: ctx.tierSelection.decision }) !== ctx.tierSelection.bindingDigest) {
       throw new Error('selector decision digest mismatch before validation execution');
     }
     const boundDecision = ctx.tierSelection.decision;
     const inventoryIds = inventory.map((row) => row.id);
+    const executorChangedPaths = uniqueSorted(ctx.changes.changedFiles.flatMap((change) => [change.path, ...(change.oldPath ? [change.oldPath] : [])]).map(normalPath));
+    const selectorChangedPaths = new Set(ctx.tierSelection.input.changedPaths.map(normalPath));
+    if (ctx.tierSelection.catalogDigest !== digestCanonicalJson(ctx.catalog)
+      || stableDigest(ctx.tierSelection.input.universeCommandIds) !== stableDigest(inventoryIds)
+      || executorChangedPaths.some((path) => !selectorChangedPaths.has(path))) {
+      throw new Error('selector input does not match executor catalog, inventory, or changed paths');
+    }
     if (stableDigest(boundDecision.tierSelections['repository-full']) !== stableDigest(inventoryIds)) {
       throw new Error('selector repository-full membership does not match executor inventory');
     }
@@ -1023,10 +1032,10 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   }
   if (ctx.graph && ctx.graph.graphUnknown) escalationReasons.push('dependency-graph-unavailable');
   const fullEscalated = escalationReasons.length > 0;
-  // A full escalation widens the eligible universe, but it does not invalidate
-  // an otherwise admissible current receipt. Rows without reusable proof still
-  // execute below. This avoids making a conservative widening slower than the
-  // canonical receipt-aware full path.
+  // Escalation is the canonical full oracle, not a receipt-aware narrow plan.
+  // Selecting every row keeps the gap accounting and diagnostic truthful even
+  // though the caller normally routes directly to its complete-plan fallback.
+  if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation', 'full-escalation');
   const rows: SelectionRow[] = inventory.map(row => {
     const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id);
     const closure = closures.get(row.id);
@@ -1102,6 +1111,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     changedFiles: ctx.changes.changedFiles, rows, singletonContributions, totals, escalationReasons: uniqueSorted(escalationReasons),
     fullEscalated, mode: ctx.mode || 'observe',
     ...(canonicalTierDecision ? {
+      selectorBinding: ctx.tierSelection,
       selectorDecisionDigest: canonicalTierDecision.selectionDigest,
       requestedTier: canonicalTierDecision.requestedTier,
       effectiveTier: canonicalTierDecision.effectiveTier,
@@ -1133,9 +1143,17 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
   const unverified = manifest.rows.filter(row => row.disposition === 'unverified').length;
   const accountedIds = new Set(manifest.rows.map(row => row.commandId));
   const contributedIds = singletonUnion(normalizedContributions);
+  const selectorBinding = manifest.selectorBinding;
+  const expectedSelectorDecision = selectorBinding ? selectAutomaticValidationTier(selectorBinding.input) : undefined;
   const tierBindingValid = manifest.selectorDecisionDigest === undefined
-    ? manifest.requestedTier === undefined && manifest.effectiveTier === undefined && manifest.tierSelections === undefined
-    : Boolean(manifest.requestedTier && manifest.effectiveTier && manifest.tierSelections
+    ? selectorBinding === undefined && manifest.requestedTier === undefined && manifest.effectiveTier === undefined && manifest.tierSelections === undefined
+    : Boolean(selectorBinding && manifest.requestedTier && manifest.effectiveTier && manifest.tierSelections
+      && selectorBinding.bindingDigest === digestCanonicalJson({ catalogDigest: selectorBinding.catalogDigest, input: selectorBinding.input, decision: selectorBinding.decision })
+      && digestCanonicalJson(selectorBinding.decision) === digestCanonicalJson(expectedSelectorDecision)
+      && selectorBinding.decision.selectionDigest === manifest.selectorDecisionDigest
+      && selectorBinding.decision.requestedTier === manifest.requestedTier
+      && selectorBinding.decision.effectiveTier === manifest.effectiveTier
+      && digestCanonicalJson(selectorBinding.decision.tierSelections) === digestCanonicalJson(manifest.tierSelections)
       && manifest.selectorDecisionDigest.length > 0
       && manifest.tierSelections['repository-full']
       && stableDigest(manifest.tierSelections['repository-full']) === stableDigest(commandIds));
@@ -1145,9 +1163,13 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
     const full = new Set(manifest.tierSelections['repository-full']);
     if ([...fast].some((id) => !intermediate.has(id)) || [...intermediate].some((id) => !full.has(id))) return false;
     const effective = new Set(manifest.tierSelections[manifest.effectiveTier!]);
-    if (manifest.rows.some((row) => row.disposition === 'excluded'
-      ? manifest.fullEscalated || effective.has(row.commandId)
-      : !manifest.fullEscalated && !effective.has(row.commandId))) return false;
+    if (manifest.rows.some((row) => {
+      if (row.disposition !== 'excluded') return false;
+      const proof = selectorBinding?.decision.exclusionProofs.find((candidate) => candidate.commandId === row.commandId);
+      return manifest.fullEscalated || effective.has(row.commandId) || !proof
+        || proof.snapshotDigest !== selectorBinding?.input.snapshotDigest
+        || proof.indexDigest !== selectorBinding?.decision.impactIndexDigest;
+    })) return false;
   }
   return manifest.totals.unverified === unverified
     && manifest.totals.executed === executed

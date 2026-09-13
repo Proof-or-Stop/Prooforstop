@@ -105,12 +105,13 @@ after the tool-owned patch version commit exists. A passing standalone audit of
 the pre-release repair head would be misleading for F11 and is not substituted
 for that post-bump audit.
 
-The first isolated process-fact run exposed a dependency cycle caused by loading
-the high-level planner from the low-level Story-aware core. The implementation
-was corrected by extracting portable command identity to a side-effect-free
-module and keeping the planner dependency out of the low-level runtime core.
-`CERTIFICATION_MUTATOR_PIN_GREEN` and the complete process-fact contract then
-passed. A separate missing-`typescript` result was a fresh-worktree dependency
+The first isolated process-fact run exposed a dependency cycle around portable
+command identity. The implementation was corrected by extracting that identity
+to a side-effect-free module. The signed-manifest verifier later gained a narrow
+dependency on the planner's pure selector so it can reconstruct, rather than
+trust, persisted exclusion decisions; it does not import execution handlers.
+`CERTIFICATION_MUTATOR_PIN_GREEN` and the complete process-fact contract pass.
+A separate missing-`typescript` result was a fresh-worktree dependency
 setup issue; installing the already locked root dependencies resolved it without
 changing package manifests or lockfiles.
 
@@ -152,6 +153,36 @@ validators. The aliases were restored byte-for-byte. The existing wrapper now
 performs the real fixture import in-process, preserving command identity while
 removing the marker-only behavior. Both public npm entries and the complete
 process-fact contract pass with that topology.
+
+## Third Claude CLI audit and remediation
+
+The exact-head Claude CLI audit of `b636492a64` returned `fail` under run
+`03039e40-10c1-4e2c-836b-82f2f3beb211` after 594,085 ms. It confirmed the
+portable command identity, per-command completeness, graph uncertainty,
+explicit dynamic-consumer opt-in, and real TEST/DONE fixture repairs, then
+identified two remaining high-risk binding gaps and nine consistency/test/performance
+issues. The audit record is retained under the Git-common-metadata Lab audit
+directory; none of its findings was discarded.
+
+| Finding | Before | Repair / executable evidence |
+| --- | --- | --- |
+| A3-F1 selector context binding | A self-consistent caller binding could describe a different catalog or omit a changed path | The binding now includes the executor catalog digest; prepare and stored-evidence admission rebuild the current catalog/index, compare the exact command universe, and require actual changed and old paths to be covered |
+| A3-F2 durable exclusion proof | Signed manifests kept tier arrays but discarded the proofs behind excluded commands | The complete selector binding, including snapshot/index-bound exclusion proofs, is now signed; manifest verification reconstructs the pure selector and stored TEST/DONE admission rechecks it against the current catalog/change set |
+| A3-F3 executor-only widening | A wave-0, never-reuse, finding-required, or otherwise forced row outside the tier invalidated the whole manifest | Only omissions are constrained: every excluded row must be outside the effective tier with a current proof; extra executed rows safely widen the plan. A wave-0 command outside fast is an explicit positive control |
+| A3-F4 full escalation accounting | Escalation could retain reuse while hard-zeroing coverage gaps on the stale claim that every command was selected | Full escalation again selects every catalog row for execution; the regression asserts the full disposition and escalation reason |
+| A3-F5 TEST documentation | One paragraph still called direct TEST validation canonical-full | It now states that configured dynamic authority may apply in TEST only with the complete prerequisite set; explicit full and DONE stay canonical |
+| A3-F6 activation claims | Shared help and L4 rationale incorrectly claimed this repository was already in enforce mode | Help is repository-neutral; the L4 fact says unconfigured is off and each repository must opt in only after current rollout evidence. This repository remains observe |
+| A3-F7 missing mutations | Excluded/effective-tier, wave-0 widening, and DONE marker stripping were not all exercised | Re-signed mutations cover excluded-inside-tier, excluded-under-full, missing proof and tier invariants; the real DONE consumer now rejects stripped markers and tampered signatures |
+| A3-F8 unauthenticated DONE branch | DONE used an unsigned output marker to decide whether to authenticate dynamic evidence | Every stored PASS is authenticated first; a refusal is appended as a blocking DONE checklist row so the rest of the checklist remains visible |
+| A3-F9 explain-plan cost | `validation_plan` built a dual-revision whole-repository graph per query | It now projects the catalog directly into the same selector used by execution, without reading both repository revisions; the runtime executor retains its safety graph for positive impact and fail-closed escalation |
+| A3-F10 digest domain drift | Intermediate promotion redundantly rebuilt an equivalent decision with a third digest body shape | The automatic selector returns the canonical promoted decision directly |
+| A3-F11 accounting shape | Runtime JSON emitted `excluded`, but its TypeScript accounting declaration omitted it | `excluded` is now a declared field and covered by the real `2 -> 1 execute + 1 excluded` fixture |
+
+The repairs passed the TypeScript build, Story-aware smoke, all 30 replay mutation
+classes, the real TEST/DONE admission suite, and the complete L4 process-fact
+contract before a new GREEN was recorded. A new exact-head Claude audit is still
+required after this repair commit; Lab finish will also audit the tool-generated
+post-version-bump candidate.
 
 ## Rollback
 

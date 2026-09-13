@@ -74,6 +74,7 @@ import {
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import {
+  buildValidationImpactIndexFromCatalog,
   selectAutomaticValidationTier,
   type AutomaticValidationTierSelectionBinding,
 } from '../core/validation-tier-planner.js';
@@ -123,12 +124,32 @@ export interface PreparedStoryAwareValidation {
 /** Re-run the pure selector at the last adapter boundary before child launch. */
 export function assertAutomaticTierSelectionBindingCurrent(
   binding: AutomaticValidationTierSelectionBinding,
+  current?: {
+    catalog: ValidationCatalogEntry[];
+    changedFiles: StoryChangedFile[];
+    universeCommandIds: string[];
+  },
 ): void {
   const expectedDecision = selectAutomaticValidationTier(binding.input);
-  const expectedBindingDigest = digestCanonicalJson({ input: binding.input, decision: expectedDecision });
+  const expectedBindingDigest = digestCanonicalJson({ catalogDigest: binding.catalogDigest, input: binding.input, decision: expectedDecision });
   if (binding.bindingDigest !== expectedBindingDigest
     || digestCanonicalJson(binding.decision) !== digestCanonicalJson(expectedDecision)) {
     throw new Error('automatic selector decision changed before validation execution');
+  }
+  if (current) {
+    const expectedImpactIndex = buildValidationImpactIndexFromCatalog({
+      commandSetDigest: binding.input.commandSetDigest,
+      catalog: current.catalog,
+    });
+    const selectorPaths = new Set(binding.input.changedPaths.map((path) => path.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').trim()));
+    const currentPaths = [...new Set(current.changedFiles.flatMap((change) => [change.path, ...(change.oldPath ? [change.oldPath] : [])])
+      .map((path) => path.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '').trim()).filter(Boolean))].sort();
+    if (binding.catalogDigest !== digestCanonicalJson(current.catalog)
+      || digestCanonicalJson(binding.input.impactIndex) !== digestCanonicalJson(expectedImpactIndex)
+      || digestCanonicalJson(binding.input.universeCommandIds) !== digestCanonicalJson(current.universeCommandIds)
+      || currentPaths.some((path) => !selectorPaths.has(path))) {
+      throw new Error('automatic selector input does not match the execution catalog, inventory, or changed paths');
+    }
   }
 }
 
@@ -143,7 +164,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 7, executor: 'validation-executor', selector: 'validation-tier-planner' });
+export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 8, executor: 'validation-executor', selector: 'validation-tier-planner' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -393,7 +414,11 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     }));
   }
   const tierSelection = args.tierSelection ?? args.tierSelectionResolver?.({ catalog, graph, changes });
-  if (tierSelection) assertAutomaticTierSelectionBindingCurrent(tierSelection);
+  if (tierSelection) assertAutomaticTierSelectionBindingCurrent(tierSelection, {
+    catalog,
+    changedFiles: changes.changedFiles,
+    universeCommandIds: inventory.commands.map((row) => row.id),
+  });
   const context: DynamicValidationContext = {
     projectRoot: args.projectRoot,
     storyId: args.storyId,
@@ -462,6 +487,20 @@ export function storedDynamicReceiptIntegrityReasons(projectRoot: string, storyI
       || baseline.inventoryDigest !== manifest.inventoryDigest || baseline.catalogDigest !== manifest.catalogDigest
       || baseline.runnerDigest !== DYNAMIC_RUNNER_DIGEST || baseline.toolchainDigest !== manifest.toolchainDigest)
       return ['dynamic_baseline_invalid'];
+    if (!manifest.selectorBinding) return ['dynamic_selector_binding_missing'];
+    const inventory = discoverValidationInventory(projectRoot);
+    const catalog = compileValidationCatalog(inventory);
+    try {
+      assertAutomaticTierSelectionBindingCurrent(manifest.selectorBinding, {
+        catalog,
+        changedFiles: manifest.changedFiles,
+        universeCommandIds: inventory.commands.map((row) => row.id),
+      });
+    } catch {
+      return ['dynamic_selector_context_changed'];
+    }
+    if (manifest.selectorBinding.catalogDigest !== digestCanonicalJson(catalog))
+      return ['dynamic_selector_context_changed'];
     for (const row of manifest.rows) {
       const closure = baseline.closureCertificates[row.commandId];
       if (!closure || !verifyValidationClosureCertificate(closure)

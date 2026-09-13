@@ -49,33 +49,19 @@ async function runCase(phase, full) {
         assert.equal(baseline.allPass, true);
         assert.deepEqual(baseline.commands.map(c => c.label), ['build', 'unaffected']);
         const canonicalBaseline = persistCanonicalFullBaseline({ projectRoot: root, sourceHead: baseHead, result: baseline, commands: configured });
-        console.log('BASELINE_ISSUED', Boolean(canonicalBaseline));
+        assert.ok(canonicalBaseline, 'canonical baseline must be persisted');
         git('checkout', '-qb', 'story');
         writeFileSync(join(root, 'packages/main/src/local-input.ts'), 'export const localInput = 2;\n');
         git('add', 'packages/main/src/local-input.ts');
         git('commit', '-qm', 'change build input');
         const head = git('rev-parse', 'HEAD');
-        console.log('WARM', (await runStoryAwareDynamicValidation({ projectRoot: root, gitCwd: root, storyId, baseHead, head, mode: 'enforce-low-risk', commands: configured })).manifest.totals);
+        await runStoryAwareDynamicValidation({ projectRoot: root, gitCwd: root, storyId, baseHead, head, mode: 'enforce-low-risk', commands: configured });
         acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
         persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: deriveCertificationDomainInputHashes(root, 'HEAD', root) });
         const facts = { cli: { available: true, path: process.execPath }, worktree: { expected: root, actual: root }, gitIndex: { readable: true, path: join(root, '.git/index'), contentDigest: 'stable' }, gitMaterial: { available: true, headHash: head, materialHash: 'stable', storyFilesHash: 'stable' }, writerLease: { available: true, valid: true }, providerCapability: { required: ['validation-plan', 'bounded-output'], available: ['validation-plan', 'bounded-output'] }, resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } }, evidenceTarget: { writable: true, path: join(root, '.proof-or-stop/causal-evidence') }, sideChannel: { available: true, maxOutputChars: 12000, maxProgressEvents: 1 } };
-        const result = JSON.parse(await createVerifierHandlers({ root, scanRoot: join(root, 'packages/main'), store, causalPreflightFacts: () => structuredClone(facts), log: message => console.log('HANDLER', message) }).validate({ story: storyId, ...(full ? { full: true } : {}), json: true, noSync: true }));
+        const result = JSON.parse(await createVerifierHandlers({ root, scanRoot: join(root, 'packages/main'), store, causalPreflightFacts: () => structuredClone(facts), log: () => {} }).validate({ story: storyId, ...(full ? { full: true } : {}), json: true, noSync: true }));
         let parsed = typeof result === 'string' ? JSON.parse(result) : result;
         assert.equal(parsed.status, 'pass', JSON.stringify(parsed));
-        console.log('ACTUAL_COMMANDS', parsed.commands.map(c=>c.label));
-        if (!full) console.log('DYNAMIC_DECISION', {
-          authority: parsed.dynamicValidation?.authority,
-          effectiveTier: parsed.dynamicValidation?.manifest?.effectiveTier,
-          fullEscalated: parsed.dynamicValidation?.manifest?.fullEscalated,
-          escalationReasons: parsed.dynamicValidation?.manifest?.escalationReasons,
-          report: parsed.dynamicValidation?.report,
-          baselineBinding: {
-            sourceHead: canonicalBaseline?.sourceHead,
-            inventoryEqual: canonicalBaseline?.inventoryDigest === parsed.dynamicValidation?.manifest?.inventoryDigest,
-            catalogEqual: canonicalBaseline?.catalogDigest === parsed.dynamicValidation?.manifest?.catalogDigest,
-            epochEqual: canonicalBaseline?.epochId === parsed.dynamicValidation?.manifest?.canonicalBaselineEpochId,
-          },
-        });
         const ctx = {root,scanRoot:join(root,'packages/main'),store,log:console.log};
         const admission = assessStoredValidationPassAdmissibility(ctx,storyId,{allowDynamicCoverage:!full});
         assert.equal(admission.ok,true,JSON.stringify(admission.reasonCodes));
@@ -122,7 +108,7 @@ async function runCase(phase, full) {
         try { runDoneOracleGate(storyId, store, root, { stop() {} }, root); }
         catch (error) { downstreamDoneError = error instanceof Error ? error.message : String(error); }
         assert.ok(downstreamDoneError, 'the bounded fixture should reach ordinary downstream DONE prerequisites');
-        assert.doesNotMatch(downstreamDoneError, /stored dynamic routine PASS is not admissible/,
+        assert.doesNotMatch(downstreamDoneError, /Stored routine validation admission|dynamic_.*(?:invalid|changed|missing)/,
           'a valid dynamic TEST PASS must cross the DONE dynamic-consumer boundary');
         console.log('DYNAMIC_DONE_CONSUMER_ACCEPTED');
         const artifacts=readStoryAwareValidationArtifacts(root,storyId);
@@ -142,6 +128,9 @@ async function runCase(phase, full) {
           store.writeTestEvidence(storyId, mutated);
           assertSignatureRefusal();
           await assert.rejects(() => runValidateGate(ctx, storyId, { stop() {} }), /validation evidence signature is missing or invalid/);
+          assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+            /Stored routine validation admission|validation evidence signature is missing or invalid/,
+            'DONE must authenticate the complete stored PASS before reading its execution mode');
           store.writeTestEvidence(storyId, signedEvidence);
           await runValidateGate(ctx, storyId, { stop() {} });
         }
@@ -166,7 +155,7 @@ async function runCase(phase, full) {
           await refuse(label);
           if (label === 'missing reused receipt') {
             assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
-              /stored dynamic routine PASS is not admissible/,
+              /Stored routine validation admission|dynamic_receipt_missing_invalid_expired_or_revoked/,
               'DONE must re-check the same required dynamic receipt');
           }
           persist(artifacts.receipts);
@@ -199,6 +188,9 @@ async function runCase(phase, full) {
         });
         await assert.rejects(() => runValidateGate(ctx, storyId, { stop() {} }), /validation evidence signature is missing or invalid/,
           'STRIPPED_DYNAMIC_AUTHORITY_MUST_NOT_BYPASS_REVOKED_RECEIPTS');
+        assert.throws(() => runDoneOracleGate(storyId, store, root, { stop() {} }, root),
+          /Stored routine validation admission|validation evidence signature is missing or invalid/,
+          'DONE must not let a stripped dynamic marker skip stored-PASS authentication');
         assertSignatureRefusal();
         store.writeTestEvidence(storyId, originalEvidence);
         persist(artifacts.receipts);

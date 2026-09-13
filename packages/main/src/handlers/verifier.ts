@@ -112,7 +112,7 @@ import {
   verifyCausalPreflight,
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
-import { appendReceiptRevocation, augmentValidationCatalogWithGraphInputs, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry, type DualRevisionImpactGraph, type StoryChangeManifest } from '../core/story-aware-validation.js';
+import { appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry, type DualRevisionImpactGraph, type StoryChangeManifest } from '../core/story-aware-validation.js';
 import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, readRoutineReuseRevocationBasis, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 import { collectStoryRelevanceInput } from '../core/validation-relevance-input.js';
 import { buildAutomaticValidationTierSelectionBinding, type AutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
@@ -250,10 +250,9 @@ function storyAutomaticTierSelection(
     checklist: { items: checklist.items ?? [] },
     routine: { sourceKind: 'configured', commands },
   });
-  const augmentedCatalog = augmentValidationCatalogWithGraphInputs({ catalog, graph, changedFiles: changes.changedFiles });
   return buildAutomaticValidationTierSelectionBinding({
     input,
-    catalog: augmentedCatalog,
+    catalog,
     ...(graph?.graphUnknown ? { additionalForceFullReasons: ['runtime_edge_unresolved'] } : {}),
   });
 }
@@ -2121,6 +2120,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               inventory: number;
               executed: number;
               reused: number;
+              excluded: number;
               unverified: number;
               uncovered: number;
               unmappedChanges: number;

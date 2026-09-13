@@ -45,6 +45,9 @@ import type { ValidationCommand } from '../core/validation-types.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
 import { DYNAMIC_RUNNER_DIGEST, storedDynamicReceiptIntegrityReasons } from '../handlers/story-aware-validation.js';
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
+import { buildAutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
+import type { StoryRelevanceInput } from '../core/validation-relevance-input.js';
+import { digestCanonicalJson } from '../core/digest.js';
 
 const replayRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-replay-`);
 const replayCommand = (name: string) => ({
@@ -227,15 +230,18 @@ assertSelectionIsSingletonUnionMonotonic(expandedContext, monotonicPlans.expande
 // ledger, then mutate each gate-owned runtime prerequisite. This is the TEST
 // admission proof behind the public selector markers at the end of this file.
 const storedRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-stored-`);
+let authoritativeTieredManifest: ValidationSelectionManifest | undefined;
 try {
   execFileSync('git', ['init', '-q'], { cwd: storedRoot });
   withValidationSigningRoot(storedRoot, () => {
   const ledger = buildRevocationLedger([]);
   const toolchainDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
-  const storedInventory = discoverValidationInventory(storedRoot, [
-    { id: 'stored-unit', label: 'stored-unit', ...replayCommand('stored-unit'), originalIndex: 0, resources: [] },
-  ]);
-  const storedCatalog = compileValidationCatalog(storedInventory, { inputRoots: ['packages/main/src'] });
+  writeFileSync(`${storedRoot}/proof-or-stop.config.json`, JSON.stringify({ validate: { commands: [
+    { id: 'stored-unit', label: 'stored-unit', ...replayCommand('stored-unit'), inputRoots: ['packages/main/src/stored.ts'], inputsComplete: true, resources: [] },
+    { id: 'excluded-unit', label: 'excluded-unit', ...replayCommand('excluded-unit'), inputRoots: ['packages/main/src/excluded.ts'], inputsComplete: true, resources: [] },
+  ] } }));
+  const storedInventory = discoverValidationInventory(storedRoot);
+  const storedCatalog = compileValidationCatalog(storedInventory);
   const storedCatalogDigest = stableDigest(storedCatalog);
   const storedClosures = new Map(storedCatalog.map((entry) => [entry.id, createValidationClosureCertificate({
     commandId: entry.id, baseHead: 'base', inventoryDigest: storedInventory.digest, catalogDigest: storedCatalogDigest,
@@ -244,10 +250,35 @@ try {
   const storedChanges = buildStoryChangeManifest({
     storyId: 'B-stored', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [],
   });
-  const seedManifest = buildDynamicValidationPlan({
+  const storedRelevanceInput = {
+    schema: 'proofOrStop.story-relevance-input.v1', storyId: 'B-stored', phase: 'TEST',
+    hashes: { status: 'available', head: {
+      schemaVersion: 'proof-or-stop.evidence_hash_snapshot.v1', headHash: 'head', materialHash: 'material',
+      storyFilesHash: 'story-files', gitCwd: '.', metadataRoot: '.', ref: 'HEAD',
+      capturedAt: '2026-01-01T00:00:00.000Z', materialDirtyFiles: [],
+    } },
+    changedFiles: { status: 'available', baseRef: 'base', headRef: 'head', statuses: { 'packages/main/src/stored.ts': 'M' }, paths: ['packages/main/src/stored.ts'] },
+    seeds: [{ kind: 'path', value: 'packages/main/src/stored.ts', provenance: ['changed-file'], itemIds: [], changeStatus: 'M' }],
+    excludedPaths: [], pinnedCommands: [], commandSeedEdges: [], unclassifiedInputs: [], riskSignals: [],
+    executionInventory: { sourceKind: 'configured', commandSetDigest: 'stored-command-set', commandIds: storedInventory.commands.map((row) => row.id), provisionalCommandIds: [], warnings: [] },
+    durationHistory: { status: 'collected', sampleCount: 0, estimates: [], unmatchedSamples: [] },
+    verificationIntentContext: [], escalations: [], selectionDigest: 'stored-selection',
+  } as StoryRelevanceInput;
+  const storedTierBinding = buildAutomaticValidationTierSelectionBinding({ input: storedRelevanceInput, catalog: storedCatalog });
+  const waveZeroWidenedPlan = buildDynamicValidationPlan({
     storyId: 'B-stored', baseHead: 'base', head: 'head', inventory: storedInventory, catalog: storedCatalog, changes: storedChanges,
     closures: storedClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'enforce-low-risk',
     runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest, revocationLedger: ledger,
+    tierSelection: storedTierBinding, buildCommandId: 'excluded-unit',
+  });
+  assert.equal(verifyValidationSelectionManifest(waveZeroWidenedPlan), true,
+    'an executor-owned Wave-0 inclusion may safely widen beyond the effective tier');
+  assert.equal(waveZeroWidenedPlan.rows.find((row) => row.commandId === 'excluded-unit')?.disposition, 'execute');
+  assert.equal(storedTierBinding.decision.selectedUnitIds.includes('excluded-unit'), false);
+  const seedManifest = buildDynamicValidationPlan({
+    storyId: 'B-stored', baseHead: 'base', head: 'head', inventory: storedInventory, catalog: storedCatalog, changes: storedChanges,
+    closures: storedClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'enforce-low-risk',
+    runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest, revocationLedger: ledger, tierSelection: storedTierBinding,
   });
   const storedReceipts = seedManifest.rows.map((row) => createValidationCommandReceipt({
     id: `stored-${row.commandId}`, commandId: row.commandId,
@@ -262,10 +293,12 @@ try {
   const storedManifest = buildDynamicValidationPlan({
     storyId: 'B-stored', baseHead: 'base', head: 'head', inventory: storedInventory, catalog: storedCatalog, changes: storedChanges,
     closures: storedClosures, receipts: storedReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'enforce-low-risk',
-    runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest, revocationLedger: ledger,
+    runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest, revocationLedger: ledger, tierSelection: storedTierBinding,
   });
-  assert.equal(storedManifest.rows.every((row) => row.disposition === 'reuse'), true);
+  assert.equal(storedManifest.rows.filter((row) => row.disposition === 'reuse').length, 1);
+  assert.equal(storedManifest.rows.filter((row) => row.disposition === 'excluded').length, 1);
   assert.equal(storedManifest.fullEscalated, false);
+  authoritativeTieredManifest = storedManifest;
   const storedBaseline = createCanonicalFullBaseline({
     epochId: 'epoch', sourceHead: 'base', inventoryDigest: storedInventory.digest, catalogDigest: storedCatalogDigest,
     toolchainDigest, runnerDigest: DYNAMIC_RUNNER_DIGEST, buildProofDigest: 'build', allPass: true,
@@ -314,19 +347,10 @@ const contributionMutation = { ...contributionMutationBody, signature: signPaylo
 assert.equal(verifyValidationSelectionManifest(contributionMutation), false);
 assert.throws(() => assertSelectionIsSingletonUnionMonotonic(expandedContext, contributionMutation), /singleton|monotonicity|manifest/i);
 
-const manifestCommandIds = baseline.rows.map((row) => row.commandId);
-const tieredManifestBody = {
-  ...baseline,
-  selectorDecisionDigest: 'selector-decision-digest',
-  requestedTier: 'story-fast' as const,
-  effectiveTier: 'story-intermediate' as const,
-  tierSelections: {
-    'story-fast': manifestCommandIds.slice(0, 1),
-    'story-intermediate': manifestCommandIds.slice(0, 2),
-    'repository-full': manifestCommandIds,
-  },
-};
-const tieredManifest = { ...tieredManifestBody, signature: signPayload({ ...tieredManifestBody, signature: undefined }) };
+assert.ok(authoritativeTieredManifest);
+const { signature: _storedRootSignature, ...tieredManifestUnsigned } = authoritativeTieredManifest;
+const tieredManifest = { ...tieredManifestUnsigned, signature: signPayload(tieredManifestUnsigned) };
+const manifestCommandIds = tieredManifest.rows.map((row) => row.commandId);
 assert.equal(verifyValidationSelectionManifest(tieredManifest), true);
 const resign = (body: Record<string, unknown>) => ({ ...body, signature: signPayload({ ...body, signature: undefined }) }) as ValidationSelectionManifest;
 assert.equal(verifyValidationSelectionManifest(resign({
@@ -340,6 +364,49 @@ assert.equal(verifyValidationSelectionManifest(resign({
 const missingTierFields = { ...baseline, selectorDecisionDigest: 'present-without-tier-fields' } as Record<string, unknown>;
 assert.equal(verifyValidationSelectionManifest(resign(missingTierFields)), false,
   'a selector digest without requested/effective tier arrays must be refused');
+const excludedCommandId = tieredManifest.rows.find((row) => row.disposition === 'excluded')!.commandId;
+const excludedInsideEffectiveBinding = {
+  ...tieredManifest.selectorBinding!,
+  decision: {
+    ...tieredManifest.selectorBinding!.decision,
+    tierSelections: {
+      ...tieredManifest.selectorBinding!.decision.tierSelections,
+      [tieredManifest.effectiveTier!]: manifestCommandIds,
+    },
+  },
+};
+excludedInsideEffectiveBinding.bindingDigest = digestCanonicalJson({
+  catalogDigest: excludedInsideEffectiveBinding.catalogDigest,
+  input: excludedInsideEffectiveBinding.input,
+  decision: excludedInsideEffectiveBinding.decision,
+});
+assert.equal(verifyValidationSelectionManifest(resign({
+  ...tieredManifest,
+  selectorBinding: excludedInsideEffectiveBinding,
+  tierSelections: excludedInsideEffectiveBinding.decision.tierSelections,
+})), false, 'an excluded row inside the effective tier must be refused');
+assert.equal(verifyValidationSelectionManifest(resign({
+  ...tieredManifest,
+  fullEscalated: true,
+  escalationReasons: ['fixture-full-escalation'],
+})), false, 'an excluded row may not survive a full escalation');
+const proofRemovedDecision = {
+  ...tieredManifest.selectorBinding!.decision,
+  exclusionProofs: tieredManifest.selectorBinding!.decision.exclusionProofs.filter((proof) => proof.commandId !== excludedCommandId),
+};
+const proofRemovedBinding = {
+  ...tieredManifest.selectorBinding!,
+  decision: proofRemovedDecision,
+  bindingDigest: digestCanonicalJson({
+    catalogDigest: tieredManifest.selectorBinding!.catalogDigest,
+    input: tieredManifest.selectorBinding!.input,
+    decision: proofRemovedDecision,
+  }),
+};
+assert.equal(verifyValidationSelectionManifest(resign({
+  ...tieredManifest,
+  selectorBinding: proofRemovedBinding,
+})), false, 'an excluded row without its signed selector proof must be refused');
 
 const staleReceipt = receipt({
   createdAt: '2020-01-01T00:00:00.000Z', expiresAt: '2020-01-02T00:00:00.000Z',

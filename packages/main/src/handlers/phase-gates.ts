@@ -61,7 +61,7 @@ import {
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import type { ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
-import { assessStoredValidationPassAdmissibility, dynamicValidationCoverageAdmission } from './validation-pass-admissibility.js';
+import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 export { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 import { assertTestAdmissibleRoutineValidationWindow } from './verifier.js';
 import { PRE_CERT_ROUTINE_PASS_REQUIRED } from '../core/certification-window.js';
@@ -683,33 +683,30 @@ export function runDoneOracleGate(
   gitCwd: string = root,
 ): string {
   const storedEvidence = store.readTestEvidence(storyId);
+  let storedValidationAdmissionFailure: DoneCheckRow | undefined;
   if (storedEvidence?.result === 'PASS') {
-    try {
-      const output = JSON.parse(storedEvidence.output);
-      if (dynamicValidationCoverageAdmission(output, true).dynamicOrigin) {
-        const admissibility = assessStoredValidationPassAdmissibility(
-          { root, store } as HandlerContext,
-          storyId,
-          { allowDynamicCoverage: true },
-        );
-        if (!admissibility.ok) {
-          throw new Error(
-            'Cannot enter DONE: stored dynamic routine PASS is not admissible: '
-            + admissibility.reasons.join('; ')
-            + `. Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
-          );
-        }
-      }
-    } catch (error) {
-      if (error instanceof SyntaxError) {
-        // Legacy non-JSON PASS evidence remains governed by buildDoneChecklist.
-      } else {
-        throw error;
-      }
+    // Authenticate first. Execution-mode markers live inside the signed output
+    // and therefore cannot decide whether DONE performs this check.
+    const admissibility = assessStoredValidationPassAdmissibility(
+      { root, store } as HandlerContext,
+      storyId,
+      { allowDynamicCoverage: true },
+    );
+    if (!admissibility.ok) {
+      storedValidationAdmissionFailure = {
+        id: 'stored-validation-admission',
+        label: 'Stored routine validation admission',
+        status: 'fail',
+        blocking: true,
+        source: 'assessStoredValidationPassAdmissibility',
+        detail: admissibility.reasons.join('; '),
+        hint: `Re-run proof-or-stop validate --story=${storyId} --full --json for canonical recovery.`,
+      };
     }
   }
   const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
   const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root, { gitCwd, evidenceHashSnapshot });
+  if (storedValidationAdmissionFailure) checkRows.push(storedValidationAdmissionFailure);
   const rendered = renderDoneChecklist(storyId, checkRows);
   const failed = checkRows.filter(r => r.status === 'fail');
 

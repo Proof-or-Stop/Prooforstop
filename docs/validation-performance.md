@@ -404,7 +404,7 @@ the seven-member trace is bounded coverage, not a whole-registry trace.
 
 ## Authority changes in dynamic validation
 
-Dynamic runner v7 binds the canonical fast/intermediate/full selector decision
+Dynamic runner v8 binds the canonical fast/intermediate/full selector decision
 and digest into the signed execution manifest, and upgrades changes to registered gate/schema/verification
 authority sources to full validation, including the full task scope inventory
 validator. It also follows their source dependencies in both Git revisions, so
@@ -413,7 +413,7 @@ The graph identity binds authority roots, members, uncertainty and policy versio
 Missing graphs, unavailable source, parse failures and opaque or unresolved
 authority imports force full rather than establish an unaffected result.
 
-Runner v7 is a new execution identity. Existing dynamic receipts and canonical
+Runner v8 is a new execution identity. Existing dynamic receipts and canonical
 baselines produced by an older runner are intentionally stale; an in-flight
 Story in TEST must obtain a fresh complete run before dynamic reuse can resume.
 
@@ -556,12 +556,15 @@ This does not enable the root repository's observe configuration. The original
 DYN-3 plan additionally requires the complete dependency, scope, ancestry,
 environment and rollout evidence chain before expanding dynamic authority. In
 particular, root full-only policies and unknown graph dependencies remain intact.
-Direct validation invoked in TEST currently retains its canonical-full policy;
-this is distinct from consuming a valid REVIEW dynamic PASS on entry to TEST.
+Direct validation invoked in TEST may resolve to the repository's configured
+dynamic mode, but only after the complete inventory partition and the existing
+baseline, closure, freshness, expiry, revocation, selector-input and exclusion-
+proof prerequisites pass. Explicit `--full`, DONE-phase invocation, and
+DONE-required evidence remain on their independent canonical policies.
 
 The focused regression is `node scripts/verify-dynamic-test-admission.mjs`, and
-the package-level TEST-gate scripts invoke it directly rather than trusting a
-marker from a planner-only smoke. It covers real full and dynamic execution,
+the stable package-level TEST-gate wrapper imports it in-process rather than
+trusting a marker from a planner-only smoke. It covers real full and dynamic execution,
 one-of-two command reduction, zero-child repeats, TEST and DONE consumption, signature
 stripping, output mutation, cross-Story replay, missing/expired/tampered receipts,
 missing/malformed ledgers, and receipt/epoch revocation. The older

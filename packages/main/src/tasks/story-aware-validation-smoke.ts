@@ -169,9 +169,12 @@ const subprocessBinding = buildAutomaticValidationTierSelectionBinding({
 assert.equal(subprocessBinding.decision.effectiveTier, 'repository-full');
 assert.deepEqual(subprocessBinding.decision.selectedUnitIds, ['subprocess-only']);
 assert.ok(subprocessBinding.decision.escalationReasonCodes.includes('runtime_edge_unresolved'));
-const productionCatalog = catalog.map((entry) => entry.id === 'local' ? { ...entry, riskTier: 'shared' as const } : entry);
-const tierBinding = buildAutomaticValidationTierSelectionBinding({ input: productionRelevanceInput, catalog: productionCatalog });
-assertAutomaticTierSelectionBindingCurrent(tierBinding);
+const tierBinding = buildAutomaticValidationTierSelectionBinding({ input: productionRelevanceInput, catalog });
+assertAutomaticTierSelectionBindingCurrent(tierBinding, {
+  catalog,
+  changedFiles: changes.changedFiles,
+  universeCommandIds: inventory.commands.map((row) => row.id),
+});
 const completeTierGraph = {
   baseHead: 'base', head: 'head', baseGraphDigest: 'base-graph', headGraphDigest: 'head-graph', graphUnknown: false,
   resolutionFailures: [], authorityReasons: () => [], commandsAffectedBy: () => ['local'],
@@ -182,7 +185,7 @@ const tierBoundSelection = buildDynamicValidationPlan({
   graph: completeTierGraph,
   tierSelection: tierBinding,
 });
-assert.equal(tierBoundSelection.effectiveTier, 'story-intermediate');
+assert.equal(tierBoundSelection.effectiveTier, 'story-fast');
 assert.equal(tierBoundSelection.rows.find((row) => row.commandId === 'unrelated')?.disposition, 'excluded', JSON.stringify({
   fullEscalated: tierBoundSelection.fullEscalated,
   escalationReasons: tierBoundSelection.escalationReasons,
@@ -191,6 +194,30 @@ assert.equal(tierBoundSelection.rows.find((row) => row.commandId === 'unrelated'
 assert.equal(tierBoundSelection.totals.excluded, 1);
 assert.equal(tierBoundSelection.selectorDecisionDigest, tierBinding.decision.selectionDigest);
 assert.deepEqual(tierBoundSelection.tierSelections, tierBinding.decision.tierSelections);
+assert.equal(tierBoundSelection.selectorBinding?.catalogDigest, tierBinding.catalogDigest);
+assert.throws(
+  () => buildDynamicValidationPlan({
+    storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory,
+    catalog: catalog.map((entry) => entry.id === 'local' ? { ...entry, riskTier: 'shared' } : entry),
+    changes, closures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+    graph: completeTierGraph, tierSelection: tierBinding,
+  }),
+  /selector input does not match executor catalog, inventory, or changed paths/,
+  'a selector built from a different catalog cannot exclude an executor row',
+);
+assert.throws(
+  () => buildDynamicValidationPlan({
+    storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
+    changes: buildStoryChangeManifest({
+      storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head',
+      changedFiles: [{ path: 'packages/main/src/not-in-selector.ts', status: 'modified', blobId: 'extra' }],
+    }),
+    closures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+    graph: completeTierGraph, tierSelection: tierBinding,
+  }),
+  /selector input does not match executor catalog, inventory, or changed paths/,
+  'a selector that omits an executor changed path cannot exclude a command',
+);
 assert.throws(
   () => buildDynamicValidationPlan({
     storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes, closures,
@@ -286,7 +313,8 @@ const unverifiedSelection = buildDynamicValidationPlan({
   closures: new Map([[localRow.commandId, undeclared]]), baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
 });
 const unverifiedRow = unverifiedSelection.rows.find((row) => row.commandId === localRow.commandId)!;
-assert.equal(unverifiedRow.reasons.some((reason) => reason.includes('closure-certificate-unavailable-or-incomplete')), true);
+assert.equal(unverifiedRow.reasons.includes('full-escalation'), true);
+assert.equal(unverifiedSelection.escalationReasons.some((reason) => reason.includes('closure-certificate-unavailable-or-incomplete')), true);
 assert.equal(unverifiedSelection.fullEscalated, true);
 assert.equal(unverifiedSelection.totals.executed, unverifiedSelection.totals.inventory);
 const escalatedSelection = buildDynamicValidationPlan({

@@ -219,6 +219,8 @@ export interface SelectValidationTiersDependencies {
 }
 
 export interface AutomaticValidationTierSelectionBinding {
+  /** Exact catalog projection consumed to construct `input.impactIndex`. */
+  catalogDigest: string;
   input: Omit<SelectValidationTiersInput, 'requestedTier'>;
   decision: ValidationTierSelectionDecision;
   bindingDigest: string;
@@ -656,29 +658,7 @@ export function selectAutomaticValidationTier(
     && input.changedPaths.some((path) => entry.inputPatterns.some((pattern) => pathMatchesImpactPattern(path, pattern)))));
   if (!needsIntermediate) return initial;
 
-  const promoted = selectValidationTiers({ ...input, requestedTier: 'story-intermediate' }, dependencies);
-  if (promoted.effectiveTier === REPOSITORY_FULL_TIER) return promoted;
-  const requestedTier: ValidationTier = 'story-intermediate';
-  const effectiveTier: ValidationTier = 'story-intermediate';
-  const decisionBody = {
-    storyId: input.storyId,
-    requestedTier,
-    effectiveTier,
-    tierSelections: promoted.tierSelections,
-    escalationReasonCodes: promoted.escalationReasonCodes,
-    exclusionProofs: promoted.exclusionProofs,
-    inclusionReasonsByCommand: promoted.inclusionReasonsByCommand,
-    commandSetDigest: input.commandSetDigest,
-    snapshotDigest: input.snapshotDigest,
-    impactIndexDigest: promoted.impactIndexDigest,
-  };
-  return {
-    ...promoted,
-    requestedTier,
-    effectiveTier,
-    selectedUnitIds: [...promoted.tierSelections[effectiveTier]],
-    selectionDigest: digestCanonicalJson(decisionBody),
-  };
+  return selectValidationTiers({ ...input, requestedTier: 'story-intermediate' }, dependencies);
 }
 
 /** Build the exact selector input shared by validation_plan and validate. */
@@ -727,7 +707,8 @@ export function buildAutomaticValidationTierSelectionBinding(args: {
     impactIndex,
   };
   const decision = selectAutomaticValidationTier(input);
-  return { input, decision, bindingDigest: digestCanonicalJson({ input, decision }) };
+  const catalogDigest = digestCanonicalJson(args.catalog);
+  return { catalogDigest, input, decision, bindingDigest: digestCanonicalJson({ catalogDigest, input, decision }) };
 }
 
 // ---------------------------------------------------------------------------
