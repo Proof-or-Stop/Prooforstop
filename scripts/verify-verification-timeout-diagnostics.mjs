@@ -41,7 +41,7 @@ assert.match(rendered, /^PROOF_UNAVAILABLE:/);
 assert(rendered.includes(failure.stdout) && rendered.includes(failure.stderr));
 
 // Exercise the exact caller catch body, without rerunning the native proof suite.
-const driver = readFileSync(new URL('./verify-route-reader-regression.mjs', import.meta.url), 'utf8');
+const driver = 'try {} catch (error) {\n    throw error;\n  }\n' + readFileSync(new URL('./verify-route-reader-regression.mjs', import.meta.url), 'utf8');
 const handler = driver.match(/catch \(error\) \{([\s\S]*?)\n  \}/);
 assert(handler, 'TIMEOUT_DIAGNOSTICS_RED official caller must report retained output');
 let stderr = '';
@@ -49,7 +49,7 @@ assert.throws(() => runInNewContext(handler[1], { error: failure,
   process: { stderr: { write(text) { stderr += text; } } }, verificationFailureMessage }),
   error => error === failure, 'caller must retain the original failure');
 assert(stderr.includes('PROOF_UNAVAILABLE:') && stderr.includes(failure.stdout) && stderr.includes(failure.stderr),
-  'TIMEOUT_DIAGNOSTICS_RED caller must surface both child streams');
+  'AUDIT6_CALLER_BINDING_RED caller must surface both child streams despite an earlier unrelated catch');
 const success = verificationSpawner(5000)(process.execPath, ['-e',
   "process.stdout.write('SUCCESS_STDOUT');process.stderr.write('SUCCESS_STDERR')"], { encoding: 'utf8', timeout: 3000 });
 assert.equal(success.status, 0); assert.equal(success.signal, null); assert.equal(success.error, undefined);
