@@ -112,8 +112,11 @@ import {
   verifyCausalPreflight,
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
-import { appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
+import { appendReceiptRevocation, augmentValidationCatalogWithGraphInputs, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, ValidationSelectorContextError, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry, type DualRevisionImpactGraph, type StoryChangeManifest } from '../core/story-aware-validation.js';
 import { dynamicValidationPreflightFallbackReasons, persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, readRoutineReuseRevocationBasis, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
+import { collectStoryRelevanceInput } from '../core/validation-relevance-input.js';
+import { buildAutomaticValidationTierSelectionBinding, type AutomaticValidationTierSelectionBinding } from '../core/validation-tier-planner.js';
+import { digestCanonicalJson } from '../core/digest.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 // B-a745 CHK-002: the shell-metacharacter rule and the word splitter now live in
@@ -138,6 +141,41 @@ export interface ValidationSetupScan {
   }>;
   configuredShellReceiptsIntentional: boolean;
   warnings: string[];
+}
+
+export function resolveValidationDynamicMode(args: {
+  explicitMode?: DynamicValidationMode;
+  environmentMode?: string;
+  configuredMode?: string;
+  storyPhase?: string;
+  full?: string | boolean;
+}): DynamicValidationMode {
+  const configured = resolveDynamicMode(args.explicitMode || args.environmentMode || args.configuredMode || 'off');
+  if (args.full !== undefined) return 'off';
+  if (args.storyPhase && !['DEV', 'REVIEW', 'TEST'].includes(args.storyPhase)) return 'off';
+  // TEST is an execution gate, not a rollout-observation surface. Preserve the
+  // prior canonical/shared-reuse path unless the repository explicitly opted
+  // into the only currently authoritative mode.
+  if (args.storyPhase === 'TEST' && configured !== 'enforce-low-risk') return 'off';
+  return configured;
+}
+
+export function dynamicRoutineCoverageAllowed(mode: DynamicValidationMode, storyPhase: string | undefined): boolean {
+  return mode === 'enforce-low-risk' && Boolean(storyPhase && ['DEV', 'REVIEW', 'TEST'].includes(storyPhase));
+}
+
+export function sharedValidationExecutionEnabled(mode: DynamicValidationMode, explicitOptIn = false): boolean {
+  return mode === 'off' || explicitOptIn;
+}
+
+export function dynamicValidationDegradation(error: unknown): { escalationReasons: string[]; report: string } {
+  const reason = error instanceof ValidationSelectorContextError
+    ? error.code
+    : 'dynamic_preparation_unavailable';
+  return {
+    escalationReasons: [reason],
+    report: `dynamic validation unavailable; canonical oracle retained (${reason})`,
+  };
 }
 
 
@@ -206,6 +244,45 @@ function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
     affectedProcessFacts: [...new Set(affectedProcessFacts)],
     affectedCapabilities: [...new Set(affectedCapabilities)],
   };
+}
+
+function storyAutomaticTierSelection(
+  ctx: HandlerContext,
+  storyId: string,
+  gitCwd: string,
+  commands: ValidationCommand[],
+  catalog: ValidationCatalogEntry[],
+  graph: DualRevisionImpactGraph | undefined,
+  changes: StoryChangeManifest,
+): AutomaticValidationTierSelectionBinding {
+  const story = ctx.store.readStory(storyId);
+  const checklist = ctx.store.readChecklist(storyId);
+  const input = collectStoryRelevanceInput({
+    projectRoot: ctx.root,
+    gitCwd,
+    metadataRoot: ctx.root,
+    baseRef: changes.baseHead,
+    headRef: changes.head,
+    story: {
+      storyId,
+      phase: story.phase,
+      ...(story.riskSignals ? { riskSignals: story.riskSignals } : {}),
+    },
+    checklist: { items: checklist.items ?? [] },
+    routine: { sourceKind: 'configured', commands },
+  });
+  const selectorCatalog = augmentValidationCatalogWithGraphInputs({
+    catalog,
+    graph,
+    changedFiles: changes.changedFiles,
+  });
+  return buildAutomaticValidationTierSelectionBinding({
+    input,
+    catalog: selectorCatalog,
+    executionCatalogDigest: digestCanonicalJson(catalog),
+    storySnapshot: { baseHead: changes.baseHead, head: changes.head, changeDigest: changes.changeDigest },
+    ...(graph?.graphUnknown ? { additionalForceFullReasons: ['runtime_edge_unresolved'] } : {}),
+  });
 }
 
 function hasAny(projectRoot: string, paths: string[]): boolean {
@@ -812,7 +889,7 @@ export function evaluateStoryRoutineReuse(args: {
         || String(output?.provider || '').includes('dynamic-authoritative')) {
         priorDynamicAuthority = true;
         dynamicCoverageAdmitted = args.allowDynamicCoverage === true
-          && assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok;
+          && assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true }).ok;
       }
     } catch { /* Malformed/invalid evidence cannot substitute dynamic coverage. */ }
   }
@@ -877,7 +954,7 @@ export function evaluateStoryRoutineReuse(args: {
         evaluation.refusalReasons.push('validation_evidence_output_invalid');
       } else if (priorOutput.dynamicValidation?.authority === 'enforce-authority'
         || String(priorOutput.provider || '').includes('dynamic-authoritative')) {
-        const admitted = assessStoredValidationPassAdmissibility(args.ctx, args.storyId);
+        const admitted = assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true });
         if (!admitted.ok) {
           evaluation.reusable = false;
           evaluation.refusalReasons.push(...admitted.reasonCodes);
@@ -916,7 +993,7 @@ function reusedStoryValidationResult(args: {
   const dynamicOrigin = priorOutput?.dynamicValidation?.authority === 'enforce-authority'
     || String(priorOutput?.provider || '').includes('dynamic-authoritative');
   if (!priorEvidence || !verifyTestValidationEvidence(args.storyId, priorEvidence, args.gitCwd)
-    || (dynamicOrigin && !assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok)) {
+    || (dynamicOrigin && !assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true }).ok)) {
     return externalResult({
       provider: 'proof-or-stop-verifier-reuse-persistence', status: 'fail', failureKind: 'infra_failure',
       summary: 'Validation reuse refused because authenticated evidence changed before persistence',
@@ -1109,7 +1186,7 @@ function tryReuseRoutinePass(args: {
     let output: any;
     try { output = prior?.output ? JSON.parse(prior.output) : undefined; } catch { return null; }
     if (output?.dynamicValidation?.authority !== 'enforce-authority'
-      || !assessStoredValidationPassAdmissibility(args.ctx, args.storyId).ok) return null;
+      || !assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true }).ok) return null;
     args.ctx.log?.('routine dynamic validation reused; commandExecutions=0');
     return reusedStoryValidationResult({
       ...args, snapshot: args.built.snapshot, identity: args.built.identity, resolvedDynamicMode: 'enforce-low-risk',
@@ -1772,19 +1849,18 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // configured gitRoot is authoritative, however: if it cannot resolve,
       // stop before capacity acquisition rather than mint a wrapper-local lock.
       const projectConfig = loadConfig(projectRoot);
-      const configuredDynamicMode = resolveDynamicMode(
-        args.dynamicMode
-        || process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
-            || projectConfig.validation?.dynamic?.mode
-            || projectConfig.validate?.dynamic?.mode,
-      );
-      // Selective command groups are an iteration optimization, not final
-      // certification. Explicit full and non-DEV/REVIEW Story invocations use
-      // the complete configured plan, even with reusable dynamic receipts.
+      // Explicit full remains literal full execution. TEST may consume an
+      // authoritative complete action ledger (every inventory row execute or
+      // admissible reuse); DONE itself stays non-executing/full-policy only.
       const validationPhase = args.story ? ctx.store.readStory(args.story).phase : undefined;
-      const requiresCanonicalFullPlan = args.full !== undefined
-        || (validationPhase !== undefined && validationPhase !== 'DEV' && validationPhase !== 'REVIEW');
-      const dynamicMode = requiresCanonicalFullPlan ? 'off' : configuredDynamicMode;
+      const dynamicMode = resolveValidationDynamicMode({
+        explicitMode: args.dynamicMode,
+        environmentMode: process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE,
+        configuredMode: projectConfig.validation?.dynamic?.mode || projectConfig.validate?.dynamic?.mode,
+        storyPhase: validationPhase,
+        full: args.full,
+      });
+      const allowDynamicCoverage = dynamicRoutineCoverageAllowed(dynamicMode, validationPhase);
       const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
       const resolvedProjectGitRoot = args.story
         ? null
@@ -1810,7 +1886,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         command: 'validate',
         ...(!args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot)
           ? declaredValidationCapacity(configuredValidationCommands(projectRoot), handlerGitCwd) : {}),
-        sharedExecution: args.story && (dynamicMode === 'off' || projectConfig?.validate?.sharedExecution === true) ? {
+        sharedExecution: args.story && sharedValidationExecutionEnabled(dynamicMode, projectConfig?.validate?.sharedExecution === true) ? {
           storyId: args.story, receiptStore: ctx.store, reuseEconomics: 'measured',
           probe: input => probeValidationCausalPreflightFacts(ctx, args.story!, input),
         } : undefined,
@@ -2025,9 +2101,18 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             focus,
           }) : null;
           const reuse = built && args.story
-            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
+            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage })
             : null;
-          const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
+          const dynamicInputs = args.story ? {
+            ...storyDynamicInputs(ctx, args.story),
+            ...(usingConfigured ? {
+              tierSelectionResolver: ({ catalog, graph, changes }: {
+                catalog: ValidationCatalogEntry[];
+                graph?: DualRevisionImpactGraph;
+                changes: StoryChangeManifest;
+              }) => storyAutomaticTierSelection(ctx, args.story!, handlerGitCwd, commands, catalog, graph, changes),
+            } : {}),
+          } : {};
           if (reuse?.reusable && built) {
             const reused = tryReuseRoutinePass({
               ctx, storyId: args.story!, gitCwd: handlerGitCwd, commands, dynamicMode, focus,
@@ -2068,12 +2153,14 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               inventory: number;
               executed: number;
               reused: number;
+              excluded: number;
               unverified: number;
               uncovered: number;
               unmappedChanges: number;
             };
             observeOracle?: ReturnType<typeof runObserveOracle>;
             catalog?: ValidationCatalogEntry[];
+            escalationReasons?: string[];
           } | undefined;
           // Focused validation is explicitly non-authoritative and may pass a
           // filtered command list; keep dynamic inventory/execution aligned
@@ -2112,7 +2199,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   };
                   ctx.log?.(dynamic.report);
                 } else {
-                  const dynamic = await runStoryAwareDynamicValidation({
+                  const executedDynamic = await runStoryAwareDynamicValidation({
                 beforeLaunch: launchGate.beforeLaunch,
                     projectRoot,
                     storyId: args.story,
@@ -2125,32 +2212,33 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                     deadlineError: args.deadlineError,
                     progress: validationProgressReporter(ctx),
                     ...dynamicInputs,
+                    ...(dynamic.manifest.selectorBinding ? { tierSelection: dynamic.manifest.selectorBinding } : {}),
                   });
                   dynamicPreview = {
                     mode: dynamicMode,
-                    manifest: dynamic.manifest,
-                    report: dynamic.runtimeReport,
-                    authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
-                    selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
-                    reusedCommands: dynamic.manifest.totals.reused,
-                    receipts: dynamic.receipts.length,
-                    selectedAllPass: dynamic.dynamicAllPass,
+                    manifest: executedDynamic.manifest,
+                    report: executedDynamic.runtimeReport,
+                    authority: executedDynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
+                    selectedCommands: executedDynamic.selectedResult.commands.length + executedDynamic.buildResult.commands.length,
+                    reusedCommands: executedDynamic.manifest.totals.reused,
+                    receipts: executedDynamic.receipts.length,
+                    selectedAllPass: executedDynamic.dynamicAllPass,
                     authoritativeResult: {
                       provider: 'proof-or-stop-verifier-dynamic-authoritative',
-                      status: dynamic.dynamicAllPass ? 'pass' : 'fail',
-                      allPass: dynamic.dynamicAllPass,
-                      summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
-                      details: [dynamic.runtimeReport],
-                      warnings: dynamic.authority.authoritative ? [] : ['Dynamic authority was not accepted; complete-plan fallback is required.'],
+                      status: executedDynamic.dynamicAllPass ? 'pass' : 'fail',
+                      allPass: executedDynamic.dynamicAllPass,
+                      summary: executedDynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
+                      details: [executedDynamic.runtimeReport],
+                      warnings: executedDynamic.authority.authoritative ? [] : ['Dynamic authority was not accepted; complete-plan fallback is required.'],
                       timestamp: new Date().toISOString(),
                       headSha: currentHead(handlerGitCwd) || '',
-                      commands: [...dynamic.buildResult.commands, ...dynamic.selectedResult.commands],
-                      commandExecutions: dynamic.buildResult.commands.length + dynamic.selectedResult.commands.length,
+                      commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
+                      commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
                       disposition: 'executed',
                     },
-                    catalog: dynamic.catalog,
+                    catalog: executedDynamic.catalog,
                   };
-                  ctx.log?.(dynamic.runtimeReport);
+                  ctx.log?.(executedDynamic.runtimeReport);
                 }
               } else {
                 // The explicit mode CLI is also useful as a project-level
@@ -2193,7 +2281,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             } catch (error) {
               launchGate.rethrowRefusal();
               ctx.log?.('dynamic validation execution unavailable; retaining complete-plan oracle: ' + (error instanceof Error ? error.message : String(error)));
-              dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle' };
+              dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle', ...dynamicValidationDegradation(error) };
             }
           }
           // A project-level dynamic invocation is intentionally a bounded
@@ -2501,7 +2589,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           entrypointPath: join(projectRoot, validateFile),
         }) : null;
         const reuse = built && args.story
-          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage: !requiresCanonicalFullPlan })
+          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage })
           : null;
         const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
         if (reuse?.reusable && built) {
@@ -2549,7 +2637,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 catalog: dynamic.catalog,
               };
             } else {
-              const dynamic = await runStoryAwareDynamicValidation({
+              const executedDynamic = await runStoryAwareDynamicValidation({
                 beforeLaunch: launchGate.beforeLaunch,
                 projectRoot,
                 storyId: args.story,
@@ -2562,37 +2650,38 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 deadlineError: args.deadlineError,
                 progress: validationProgressReporter(ctx),
                 ...dynamicInputs,
+                // Atomic validate-file has no tier resolver or selector binding.
               });
               dynamicValidation = {
                 mode: dynamicMode,
-                manifest: dynamic.manifest,
-                report: dynamic.runtimeReport,
-                authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
-                selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
-                reusedCommands: dynamic.manifest.totals.reused,
-                receipts: dynamic.receipts.length,
-                selectedAllPass: dynamic.dynamicAllPass,
-                authoritativeResult: dynamic.authority.authoritative ? {
+                manifest: executedDynamic.manifest,
+                report: executedDynamic.runtimeReport,
+                authority: executedDynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
+                selectedCommands: executedDynamic.selectedResult.commands.length + executedDynamic.buildResult.commands.length,
+                reusedCommands: executedDynamic.manifest.totals.reused,
+                receipts: executedDynamic.receipts.length,
+                selectedAllPass: executedDynamic.dynamicAllPass,
+                authoritativeResult: executedDynamic.authority.authoritative ? {
                   provider: 'proof-or-stop-verifier-dynamic-authoritative',
-                  status: dynamic.dynamicAllPass ? 'pass' : 'fail',
-                  allPass: dynamic.dynamicAllPass,
-                  summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
-                  details: [dynamic.runtimeReport],
+                  status: executedDynamic.dynamicAllPass ? 'pass' : 'fail',
+                  allPass: executedDynamic.dynamicAllPass,
+                  summary: executedDynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
+                  details: [executedDynamic.runtimeReport],
                   warnings: [],
                   timestamp: new Date().toISOString(),
                   headSha: currentHead(handlerGitCwd) || '',
-                  commands: [...dynamic.buildResult.commands, ...dynamic.selectedResult.commands],
-                  commandExecutions: dynamic.buildResult.commands.length + dynamic.selectedResult.commands.length,
+                  commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
+                  commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
                   disposition: 'executed' as const,
                 } : undefined,
-                catalog: dynamic.catalog,
+                catalog: executedDynamic.catalog,
               };
             }
             ctx.log?.(dynamicValidation.report || 'dynamic validation prepared for validate-file entrypoint');
           } catch (error) {
             launchGate.rethrowRefusal();
             ctx.log?.('dynamic validation execution unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
-            dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', report: 'dynamic validation unavailable; validate-file oracle retained' };
+            dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', ...dynamicValidationDegradation(error) };
           }
         }
         if (args.story && dynamicMode === 'enforce-low-risk' && dynamicValidation?.authority === 'enforce-authority' && dynamicValidation.authoritativeResult) {

@@ -2126,7 +2126,7 @@ Behavior:
   { name: 'validate', description: 'Run project verification under shared workspace validation capacity; bare npm test is outside this lease', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name).'),
     focus: z.string().optional().describe('Run an explicit focused validate profile, for example --focus=fast. Configured commands must opt in with focus tags; no-focus validate remains full.'),
-    dynamicMode: z.enum(['off', 'observe', 'shadow', 'enforce-low-risk']).optional().describe('Story-aware validation mode. Defaults to off; observe/shadow retain the complete-plan oracle.'),
+    dynamicMode: z.enum(['off', 'observe', 'shadow', 'enforce-low-risk']).optional().describe('Story-aware validation mode. Unconfigured projects default to off; off is the immediate complete-plan rollback.'),
     reuseFreshRoutinePass: z.boolean().optional().describe('Override validate.reuseFreshRoutinePass: allow strict whole-PASS reuse in observe mode without claiming a new oracle run. Default false; explicit false forces execution in observe mode.'),
     story: z.string().optional().describe('Run only transitions affected by the story changes (used by TEST gate).'),
     storyId: z.string().optional().describe('B-a30e: alias for --story; error when both are provided with different values.'),

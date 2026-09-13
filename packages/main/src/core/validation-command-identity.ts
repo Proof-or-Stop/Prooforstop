@@ -53,42 +53,34 @@
  */
 
 import { createHash } from 'node:crypto';
-import { posix } from 'node:path';
 
 import {
   normalizeRoutineValidationCommand,
-  validationIdentityDigest,
 } from './validation-evidence-reuse.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 import type { ValidationCommand } from './validation-types.js';
 
-/** Reserved namespace for derived ids. A declared id may never enter it. */
-export const PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX = 'prov-';
+import {
+  PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX,
+  declaredValidationCommandCwd,
+  isAbsoluteDeclaredValidationCommandCwd,
+  narrowPortableValidationCommandTuple,
+  provisionalValidationCommandId,
+  validationIdentityDigest,
+  type NarrowPortableValidationCommandTuple,
+} from './validation-command-portable-id.js';
 
-/**
- * The host-portable subset of a command's execution identity. Everything in it
- * is either declared in project config or derived from the project root, so two
- * checkouts of the same commit produce the same tuple on any host.
- */
-export interface NarrowPortableValidationCommandTuple {
-  command: string;
-  args: string[];
-  /**
-   * The DECLARED cwd literal, posix-normalized; `.` means the project root
-   * (absent or `.`). NEVER resolved against, or relativized to, a project root:
-   * a relative declaration is portable by construction, and an absolute one is
-   * hashed exactly as written and flagged by an inventory warning (B-a745
-   * F-023). The digest key keeps the name `cwdRelative` so the identity
-   * serialization is byte-stable for every existing relative declaration.
-   */
-  cwdRelative: string;
-  /**
-   * DECLARED shell intent only (`command.shell === true`). NOT the
-   * platform-effective value: that belongs to {@link CompleteValidationCommandTuple}.
-   */
-  shell: boolean;
-}
+export {
+  PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX,
+  declaredValidationCommandCwd,
+  isAbsoluteDeclaredValidationCommandCwd,
+  narrowPortableValidationCommandTuple,
+  provisionalValidationCommandId,
+  validationIdentityDigest,
+  type NarrowPortableValidationCommandTuple,
+};
 
+/** One inventory row bound to the shared portable command tuple. */
 export interface ValidationCommandIdentityEntry {
   /** Original position in the configured array. Provenance only — never an identity input. */
   index: number;
@@ -109,55 +101,6 @@ export interface ValidationCommandInventory {
   declaredCount: number;
   /** Migration warnings. Non-empty while any command still relies on a provisional id. */
   warnings: string[];
-}
-
-/**
- * The DECLARED cwd, posix-normalized: backslashes become `/`, `.` segments and
- * repeated or trailing separators collapse, and an absent or empty declaration
- * is `.`. Takes no project root on purpose (B-a745 F-023): resolving here is
- * what made an absolute declaration's "portable" identity depend on the
- * checkout location. An absolute literal stays absolute and is reported by
- * {@link buildValidationCommandInventory} as non-portable by construction.
- */
-export function declaredValidationCommandCwd(command: Pick<ValidationCommand, 'cwd'>): string {
-  const raw = typeof command.cwd === 'string' ? command.cwd.trim() : '';
-  if (raw === '') return '.';
-  let normalized = posix.normalize(raw.replace(/\\/g, '/'));
-  if (normalized.length > 1) normalized = normalized.replace(/\/+$/, '');
-  return normalized === '' ? '.' : normalized;
-}
-
-/** A declared cwd that names a location rather than a place inside the checkout (posix or drive-letter absolute). */
-export function isAbsoluteDeclaredValidationCommandCwd(declaredCwd: string): boolean {
-  return posix.isAbsolute(declaredCwd) || /^[A-Za-z]:\//.test(declaredCwd);
-}
-
-/**
- * Deliberately takes NO platform, NO environment and NO project root: a
- * portable tuple that could read the host or the checkout location is not
- * portable. Compare `completeTupleFromCommand`, which takes all of them because
- * it describes what actually executes.
- */
-export function narrowPortableValidationCommandTuple(args: {
-  command: ValidationCommand;
-}): NarrowPortableValidationCommandTuple {
-  return {
-    command: args.command.command,
-    args: [...args.command.args],
-    cwdRelative: declaredValidationCommandCwd(args.command),
-    shell: args.command.shell === true,
-  };
-}
-
-export function provisionalValidationCommandId(tuple: NarrowPortableValidationCommandTuple): string {
-  return `${PROVISIONAL_VALIDATION_COMMAND_ID_PREFIX}${validationIdentityDigest({
-    schema: 'proofOrStop.validation-command-narrow-tuple',
-    version: 1,
-    command: tuple.command,
-    args: tuple.args,
-    cwdRelative: tuple.cwdRelative,
-    shell: tuple.shell,
-  })}`;
 }
 
 /**

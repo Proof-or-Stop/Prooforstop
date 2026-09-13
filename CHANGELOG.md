@@ -1,5 +1,130 @@
 # Changelog
 
+## Lab story-tier-selector-authority - v0.3.356 - 2026-09-13
+
+### Story-aware validation selector and execution authority
+
+This local Lab implements the canonical selector-to-executor and TEST/DONE
+admission connection designed by B-0aa0. It does not complete that documentation
+Story and does not activate a repository-wide rollout.
+
+- Configured validation uses the canonical Story-relevance selector. It starts
+  at fast, promotes affected shared/boundary work to intermediate, and widens
+  unsafe or unproven selection to repository-full.
+- Explain and runtime project command ownership from the same production
+  catalog and share portable command identity. The legacy
+  validate.dynamic.impactIndex override is ignored with an explicit warning.
+- Complete omission proof requires explicit command policy and complete
+  declared input ownership. Defaulted policy, unknown paths, graph failures,
+  sensitive changes and unresolved legacy pins cannot authorize omissions.
+- Signed manifests bind the Story snapshot, base/head graph, catalog, impact
+  index, all three tier memberships, selector decision and positive exclusion
+  proofs. The executor rebuilds the selector before launch; stored TEST/DONE
+  consumers independently reconstruct and validate the applicable bindings.
+- Inventory accounting distinguishes execute, verified reuse and positively
+  proven exclusion. Missing or altered signatures, receipts, closure,
+  baseline, expiry or revocation inputs refuse dynamic authority.
+- DONE origin routing binds a selection signature to the current Story. A valid
+  foreign-Story observe manifest cannot suppress strict admission while enforce
+  receipts remain. Malformed paths and patterns cannot escape tier promotion as
+  incidental TypeError; stale bindings keep the named selector-context refusal.
+- Explicit full, selector-side repository-full and DONE-phase validation keep
+  canonical execution. DONE-required commands remain independent. The DONE
+  gate may consume complete, current, signed dynamic evidence produced earlier;
+  unrelated canonical legacy evidence keeps its existing handling.
+- Atomic validate-file does not construct or forward a tier selector binding.
+  Its enforcing path retains the complete-command fallback.
+- Immutable dual-revision graph caches are bounded. Two changed paths trigger
+  two impact queries rather than multiplying work by catalog size.
+- Dynamic Finding remains an input constraint, not a validation tier or an
+  authorization to enlarge Story scope.
+
+### Evidence and measured limits
+
+The pinned Lab-owned RED/GREEN command is the canonical packages/main build
+followed by validation-tier-planner-smoke. Targeted RED commit 9cb9af779d
+reproduces preview/runtime ownership divergence and defaulted-policy completeness.
+The later RED at b71706521b reproduces malformed promotion and foreign-Story
+lineage suppression. The corrections are covered by these regressions plus the existing
+Story-aware runtime, mutation, real TEST/DONE, process-fact and static-boundary
+checks. Full audit history and before/after evidence are retained in
+docs/audits/story-tier-selector-authority.md; developer-run supporting checks
+are not represented as Lab-owned or product-release receipts.
+
+Supporting checks on the final repair tree (commit e6b08636a0) passed:
+canonical build; Story-aware runtime smoke; mutation audit with 30 replay
+classes and FI-1 through FI-5; the real TEST/DONE and bindingless validate-file
+admission fixtures; and the complete process-fact contract. Static review
+reported 326 accepted execution edges, zero pending review and zero nested
+registered expansion; the static-boundary refusal suite also passed. Source
+hashes and shifted evidence locations were refreshed only for reviewed inputs,
+preserving the exception registry's ASCII serialization.
+
+Local main subsequently advanced to 0.3.353 via the acceptance-closure Lab.
+Merge 5b9b5d341a retains both repairs. Only static source-digest and line-location
+metadata conflicted; those bindings were reconstructed from the merged sources.
+The merged static scan passed with 327 reviewed edges, zero pending review and
+zero nested expansion. The Lab-owned GREEN replay at the merged revision passed
+(planner groups CHK-004: 33 cases and CHK-005: 22 cases). Developer-run real
+TEST/DONE and bindingless validate-file admission, plus the complete process-fact
+contract including the newly merged acceptance-closure fixtures, also passed.
+Finish independently verifies and audits the next versioned candidate.
+
+The subsequent scope-approval-continuity release advanced main to 0.3.354.
+Merge 229ca46098 incorporates that audited release without changing this Lab's
+selector or executor implementation. The only merge conflicts were static
+source/dependency digests and source locations; all retained dependency entries
+were preserved and the merged sources supplied their new bindings. The static
+scan again passed (327 reviewed edges, zero pending review or nested expansion),
+and the official build-plus-planner GREEN was recorded on the merged commit.
+The complete process-fact contract also passed at this merged revision, including
+the new scope-approval continuity assertions. Earlier real TEST/DONE receipts
+remain attributed above to the revision on which those supporting checks ran.
+
+Candidate ba9cd7f9fd was not integrated: independent Claude audit
+5da129d0-f901-462c-afa7-39f93474136e returned two low Findings after 649,437 ms.
+It reported no observed selector/executor/consumer authority bypass or prior
+canonical-path regression. Repair c35eec6cd0 addresses both Findings. Its
+developer-run build/planner checks passed (CHK-004: 35 cases, CHK-005: 22 cases),
+as did 30 mutation replay classes, the real TEST/DONE negative matrix, the new
+foreign-Story observe suppression control, bindingless validate-file admission,
+static review (327 edges, zero pending/nested) and static-boundary refusals.
+Fixture bootstrap errors were corrected before recording the final targeted
+RED; they are not reported as product regressions. A fresh candidate audit is
+required after this repair and any subsequent main synchronization.
+The official Lab GREEN and complete process-fact contract both passed at
+c35eec6cd0 after the repair was committed. The Story-bound routing requirement
+is recorded in the L4 registry and pinned by the contract verifier.
+
+After the identity provenance Lab released main a6bd46c653 at 0.3.355,
+official sync produced merge 25e82ceb8f without conflicts. That incoming release
+did not change this Lab's selector, executor or process-fact contract source.
+The merged revision passed the official GREEN replay and static scan
+(327 reviewed edges, zero pending review or nested expansion). Supporting
+mutation and real-gate results remain attributed to c35eec6cd0 above; they are
+not relabelled as new executions after this metadata/version synchronization.
+
+The bounded real gate fixture demonstrates two inventory commands becoming
+one executed command plus one proven exclusion; an unchanged repeat executes
+zero children through verified reuse. This is fixture evidence, not a measured
+repository-wide speedup. The actual 168-command inventory has 51 local,
+50 shared, 2 gate and 65 validation-infrastructure classifications. Enforcing
+authority retains the complete-live-catalog non-local risk floor.
+
+This repository remains in observe mode; unconfigured projects remain off.
+Low-risk execution authority still requires an explicit enforce-low-risk
+rollout and current gate prerequisites. Intermediate membership exists but
+does not introduce an enforce-tiered mode. Automatic default activation and
+production selected/full timing measurements remain separate rollout work.
+
+Lab Finish must audit the exact post-bump candidate with independent Claude
+CLI before local-main integration. Remote push and GitHub publication are not
+performed by Lab Finish and remain subject to human release approval.
+
+Maintenance provenance: codex/lab-story-tier-selector-authority, repair 25e82ceb8f78394311c9df316ec277ef12fd6d10.
+Verification command (replayed before integration and on main): `["sh","-c","npm --prefix packages/main run build && node packages/main/dist/tasks/validation-tier-planner-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab identity-main352-closure - v0.3.355 - 2026-09-13
 
 Restore reviewed identity bindings that became stale on local main d788f9a. Seven existing source positions/hashes and derived reader/fixture/static dependencies were refreshed against exact source provenance. The original six-context digest and original 89 compatibility rows remain intact. Two admissions are additive: one reviewed source row for the causal-index retired refusal needle, and one compatibility-schema row, increasing that table from 89 to 90. No production gate or validation budget changes.
