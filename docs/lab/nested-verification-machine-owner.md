@@ -103,7 +103,8 @@ pinned command; source hashes alone do not claim these behaviors passed.
 
 Cleanup refusal retains a bounded `validation-reservation-cleanup.v1` diagnostic
 with the original callback error as its cause, or a bounded snapshot of known
-child result fields. It records enrolled PID/start/group identities separately
+child result fields, including the executor's exact `{completeOutput, result}`
+wrapper. The wrapper is read one level deep without general object traversal. It records enrolled PID/start/group identities separately
 from current group presence observations; unresolved pending work has no invented
 group identity. Accessor properties are not evaluated. This failure-only record
 does not relax retirement, add waiting, or identify the retrospective cause of

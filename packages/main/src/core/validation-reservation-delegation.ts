@@ -171,11 +171,18 @@ export function machineReservationResidualsPresent(ticket: string): boolean {
 /** Failure-only diagnostics; these observations never release or authorize work. */
 function machineCleanupFailure(owner: MachineReservationOwner, registered: Iterable<ProcessIdentity>, pending: Iterable<{pid:number;start:number}>, callbackStarted:boolean, callbackThrew:boolean, callbackError:unknown, callbackResult:unknown): Error {
   let truncated=false, remaining=Math.floor(LIMIT/8);
-  const text=(value:string):string=>{const max=Math.min(value.length,remaining),part=value.slice(0,max);remaining-=max;if(part.length!==value.length)truncated=true;return part;};
+  const text=(value:string):string=>{const max=Math.min(value.length,remaining,Math.floor(LIMIT/32)),part=value.slice(0,max);remaining-=max;if(part.length!==value.length)truncated=true;return part;};
   const own=(value:unknown,key:string):unknown=>{try {if(value===null||typeof value!=='object')return undefined;const descriptor=Object.getOwnPropertyDescriptor(value,key);return descriptor&&'value' in descriptor?descriptor.value:undefined;}catch{return undefined;}};
   const callback: {state:string;error?:string;result?:Record<string,unknown>}={state:!callbackStarted?'not_entered':callbackThrew?'threw':'returned'};
   if(callbackThrew){const message=own(callbackError,'message');callback.error=text(typeof message==='string'?message:typeof callbackError==='string'?callbackError:'callback threw a non-message value');}
-  else if(callbackStarted) {callback.result={};for(const key of ['code','exitCode','signal','timedOut','durationMs','timeoutMs','output','stdout','stderr']){const value=own(callbackResult,key);if(typeof value==='string')callback.result[key]=text(value);else if(value===null||typeof value==='boolean'||typeof value==='number'&&Number.isFinite(value))callback.result[key]=value;}}
+  else if(callbackStarted) {
+    const snapshot=(value:unknown):Record<string,unknown>=>{const result:Record<string,unknown>={};for(const key of ['code','exitCode','signal','timedOut','durationMs','timeoutMs','output','stdout','stderr']){const field=own(value,key);if(typeof field==='string')result[key]=text(field);else if(field===null||typeof field==='boolean'||typeof field==='number'&&Number.isFinite(field))result[key]=field;}return result;};
+    callback.result=snapshot(callbackResult);
+    // The production executor returns this one wrapper, not the flat public
+    // runSingle result. Read only its own data fields; never recurse generally.
+    const completeOutput=own(callbackResult,'completeOutput'), result=own(callbackResult,'result');
+    if(typeof completeOutput==='string' && result!==null && typeof result==='object'){callback.result.completeOutput=text(completeOutput);callback.result.result=snapshot(result);}
+  }
   const residuals: Array<Record<string,unknown>>=[];let residualCount=0;
   for(const row of registered){residualCount++;if(residuals.length>=16){truncated=true;continue;}let reason='group present',code:string|undefined;try{process.kill(-row.pgid,0);}catch(error){const observed=own(error,'code');code=typeof observed==='string'?observed:undefined;reason=code==='ESRCH'?'group absent':'group observation unavailable';}residuals.push({kind:'registered',pid:row.pid,start:row.start,pgid:row.pgid,reason,...(code?{code}:{}),identityBasis:'recorded enrollment; no new start-time observation'});}
   for(const row of pending){residualCount++;if(residuals.length>=16){truncated=true;continue;}residuals.push({kind:'pending',pid:row.pid,start:row.start,reason:'unresolved pre-spawn fence'});}
