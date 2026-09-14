@@ -304,6 +304,60 @@ live controller releases its ticket; against the pre-repair fixture the
 controller refused its release with `owned group cleanup unproven` and the
 ticket stayed fenced.
 
+The teardown escalation and the isolated fixture's worker cleanup apply one
+exported signal-target rule (`validationReservationOwnedGroupSignalTarget`,
+the rule the controller teardown itself uses): a previously observed owned
+group leader is a signal target while it is still observed with its recorded
+identity, and also once its PID is absent while its recorded group persists.
+The second case is the common shape after a normal exit, because a direct child
+or worker that exited 0 while a same-group descendant lingers leaves exactly a
+persisting group without its leader; the kernel allocates no PID that any live
+or zombie process still carries as its process-group or session id, so a
+persisting group whose leader PID is absent is the recorded group, and a live
+process observed at that PID with a different start is a recycled PID that is
+never signalled. Before the thirteenth round both escalations required the
+leader to still match, so nothing was ever signalled in that shape, the
+two-second cleanup budget elapsed, the residual record kept the group, the
+completed command was converted into an infrastructure failure and the machine
+ticket stayed fenced behind a leaked descendant. Mode
+`completed-group-residual` of `verify-nested-validation-result-contract.mjs`
+runs, under the owner's own controller, a command that exits 0 after spawning a
+same-group sleeper, and asserts that the result keeps the command's exit 0 with
+no cleanup refusal, that the sleeper is gone once the result is returned and
+that the ticket is released; against the pre-repair delegation module the
+result was a code-1 infrastructure failure naming the unproven cleanup, with the
+sleeper alive. The fixture signals its recorded worker group as soon as the
+group persists after the outcome is published, or without one, and SIGKILL
+follows at the half-budget point; `verify-nested-isolated-cleanup.mjs` and its
+`--primary-failure` variant now assert that the same-group orphan its worker
+leaves is cleared before the fixture returns, with the outcome (a pass, or the
+worker's own failure without a cleanup suffix) preserved, while the new
+`--unclearable` variant records the fixture's own group signals instead of
+delivering them, standing in for a residual the kernel does not clear within
+the budget, and asserts that the refusal still fires and the orphan is still
+observable afterwards; against the pre-repair fixture the default variant left
+the orphan alive behind a refusal and the unclearable variant recorded no
+signal at all. The non-isolated variant asserts the observation refusal it
+exercises (`isolated worker group identity unavailable`), because its earlier
+check that no signal was attempted cannot fail without an observed identity.
+
+The controller's own admission observation at controller start
+(`inspectMachineReservationOwner`) is a ticket and kernel observation like every
+other one in the module: it is retried with the registered observation policy,
+and when it stays unavailable the command runs without a controller, exactly as
+on an unsupported platform, because no delegation is offered in that case and
+nothing is weakened; an owner observed with a different identity or declaration
+is still refused. `verify-nested-reservation-faults.mjs` mode
+`controller-inspection-transient` refuses the first inspection and asserts
+that the controller still forms and a registered descendant sees the locator,
+and mode `controller-inspection-unavailable` refuses every inspection and
+asserts that the command still completes while the descendant sees no locator;
+against the pre-repair module both failed the command at once with
+`controller owner/declaration mismatch`. A queued controller request is
+dequeued only where it still sits (a request already removed must never remove
+a neighbour, which a splice at index -1 would silently do); the closure is
+defined above the retirement slice the lifecycle unit controls evaluate.
+
 Kernel process-table (`ps`) and descriptor (`lsof`) observation failures are
 typed delegation refusals like every other kernel observation: the descriptor
 observation inside the bootstrap reader retries with the registered policy and
@@ -446,7 +500,16 @@ diagnostic once; against the pre-repair executor the projection carried the
 registration refusal twice. Mode `armed-timeout` asserts that without a
 caller deadline the armed timer equals the configured budget; the capture
 receives the caller's own deadline, and the bounded deadline the outer stage
-derives governs only the capacity wait and the pre-launch handshakes.
+derives governs only the capacity wait and the pre-launch handshakes. Under
+delegation the live grant's deadline is the ceiling at which the grant's
+revocation kills the command, so the armed timer, and with it the reported
+effective timeout, is bounded by that deadline as well
+(`currentValidationReservationDeadline`); mode `nested-grant-deadline` runs a
+registered child's nested command whose configured budget exceeds its owner's
+remaining deadline and asserts that the result is a timeout whose reported
+effective timeout is at most the owner's budget and matches the observed kill
+time; against the pre-repair executor the same run reported the configured
+8000 ms as its effective timeout after being killed at 1648 ms.
 
 The caller's own abort, or a caller-supplied deadline error, is decided before
 any pending fence is prepared and again ahead of a delegation refusal, so it
@@ -486,8 +549,9 @@ the candidate. The npm-wrapped `test:dynamic-finding-evidence-closure` target re
 the same 180-second timeout with the same single failing case on main and on the
 candidate, so npm-wrapped fixture targets remain non-delegated and unchanged;
 `review-pass-discard-smoke` fails identically on main and on the candidate with a
-fixture repository error unrelated to delegation. These are bounded targeted
-observations, not a full validation run.
+fixture repository error unrelated to delegation. These were bounded targeted
+observations; the full configured-command comparison below covers every
+configured command on both trees.
 
 ### Candidate-versus-main comparison of the descriptor-channel and native-fixture commands
 
@@ -500,8 +564,9 @@ candidate, sequentially because both use the same machine pool (no configured
 command sets `shell: true`, and no caller passes `exactEnvironment`). Command
 indexes are identical in both configurations because this Lab only appends
 entries. The comparison was made against main 0.3.363, before the candidate
-was resynchronized with main 0.3.366; the resynchronization changed neither
-the executor nor the fixtures under comparison, and the finish-time bounded
+was resynchronized with main 0.3.366 and then with main 0.3.367; the full
+configured-command comparison below was made on the candidate resynchronized
+with main 0.3.367, and the finish-time bounded
 dynamic revalidation replays the impacted commands on the merged candidate and
 on post-merge main.
 
@@ -534,10 +599,11 @@ fails in that context (run directly, the contract exits 0 on the candidate),
 index 16 is the runtime fact contract, which fails identically when run
 directly on main 0.3.366 and on the candidate with exactly one failure entry,
 its static AST reuse control, because the static-edge scanner it runs reports
-the same sixty residual rows on both; the contract now evaluates the two
-delegation assertions (the registered runtime fact and the consumed policy)
-before that first fallible subprocess step, so both are demonstrably reached
-and absent from the failure list on the candidate; index 156 fails on
+the same sixty residual rows on both; the contract now evaluates its
+delegation assertions (the registered runtime fact, the imported policy and
+each of its ten bound consumption sites) before the build-share step and
+before any subprocess step, so all are demonstrably reached and absent from
+the failure list on the candidate; index 156 fails on
 both with `Cannot access 'DIRTY_WORKTREE_CATEGORIES' before initialization`
 at module load, and index 168 is the static-edge scanner (71 rows on main, 60
 on the candidate). The one difference was a genuine candidate regression that
@@ -559,7 +625,7 @@ scale; the candidate's index 16 and 168 rows run a few seconds longer because
 they compare more rows.
 
 The static-edge scanner's remaining rows are, up to moved line numbers inside
-Lab-changed files, exactly the rows already present on local main 0.3.366: 60
+Lab-changed files, exactly the rows already present on local main 0.3.367: 60
 NEEDS_REVIEW rows on both, where every differing group is the same
 `incomplete exception` row at a moved line (`native-review-fixture.ts` 189 to
 190 and `isolated-finding-fixture.ts` 73 to 144, both inherited stale
@@ -576,7 +642,7 @@ of the verifier digest equals the committed file, and the verifier output is
 byte-identical before and after the regeneration).
 
 The identity-cutover verifier reports on the candidate exactly the issue list it
-reports on local main 0.3.366 (238 lines there, 233 on the candidate) minus
+reports on local main 0.3.367 (238 lines there, 233 on the candidate) minus
 five inherited rows that the candidate rebinds because it modified their files
 (the reviewed-source rows of `runtime-fact-registry.ts`,
 `runtime-artifact-registry.ts` and `run-validation-fixture-suite.mjs`, and the
@@ -625,23 +691,24 @@ refreshed.
 
 ## Verification boundaries
 
-Fifty-two direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Fifty-seven direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
 closed selector wrapper normalizes the repository working directory; selectors
 that need Darwin kernel descriptor or process identity observation print an
 explicit skip on other platforms before loading native controls, while eight of
-the eleven executor result-contract selectors (`result-prepare-refusal`,
+the thirteen executor result-contract selectors (`result-prepare-refusal`,
 `result-cleanup-primary`, `result-cleanup-result`, `result-ordinary-error`,
 `result-armed-timeout`, `result-caller-deadline`,
 `result-refused-registration-cleanup` and `result-refused-registration-short`)
 run through the platform-independent
 queue in a private OS-home namespace and are not gated (they were exercised
 only on Darwin in this Lab); `result-post-capture-cleanup` patches the
-Darwin-only controller cleanup, and `result-descriptor-unavailable` and
-`result-attempt-refusal` need a live controller and the Darwin descriptor
-observation, so the three are gated like the native controls. The entries declare the existing exclusive machine heavy and
+Darwin-only controller cleanup, and `result-descriptor-unavailable`,
+`result-attempt-refusal`, `result-completed-group-residual` and
+`result-nested-grant-deadline` need a live controller and the Darwin descriptor
+observation, so the five are gated like the native controls. The entries declare the existing exclusive machine heavy and
 process-fanout resources so validation serializes them against other heavy
 commands; under the real executor each selector process inherits that declared
 reservation and its unclassified leaf commands resolve to the declaration (see
@@ -679,7 +746,10 @@ eleventh-round sweep of all fifty-one on the candidate resynchronized with main
 under 3.7 seconds, every 60-second selector under 10.6 seconds), and the
 twelfth-round sweep of all fifty-two in 201.1 seconds (`core` 35.9 seconds,
 every 30-second selector under 3.8 seconds, every 60-second selector under
-10.9 seconds). Before the `core` selector
+10.9 seconds), and the thirteenth-round sweep of all fifty-seven on the
+candidate resynchronized with main 0.3.367 in 224.3 seconds (`core` 38.8
+seconds, every 30-second selector under 4.2 seconds, every 60-second selector
+under 11.5 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
