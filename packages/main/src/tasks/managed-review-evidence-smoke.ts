@@ -1403,6 +1403,8 @@ async function main(): Promise<void> {
       const managedBinding = readManagedHostRunBinding(root, submitted.runId);
       const expectedBinding: ManagedReviewExpectedBinding = {
         providerHost: managedBinding.host,
+        model: managedBinding.model ?? null,
+        reasoningEffort: managedBinding.reasoningEffort ?? null,
         headHash: run.headHash,
         materialHash: run.materialHash,
         storyFilesHash: run.storyFilesHash ?? '',
@@ -1439,6 +1441,8 @@ async function main(): Promise<void> {
         { name: 'lane', mutateIntake: value => ({ ...value, lane: 'proof-or-stop-review-concept' }), mutateBinding: value => ({ ...value!, lane: 'proof-or-stop-review-concept' }) },
         { name: 'reviewRun', mutateIntake: value => ({ ...value, reviewRunId: `${STORY_ID}:RR-999` }), mutateBinding: value => ({ ...value!, reviewRunId: `${STORY_ID}:RR-999` }) },
         { name: 'provider', mutateIntake: value => ({ ...value, expected: { ...value.expected, providerHost: 'claude' } }), mutateBinding: value => ({ ...value!, providerHost: 'claude' }) },
+        { name: 'model', mutateIntake: value => ({ ...value, expected: { ...value.expected, model: 'different-model' } }), mutateBinding: value => ({ ...value!, model: 'different-model' }) },
+        { name: 'reasoningEffort', mutateIntake: value => ({ ...value, expected: { ...value.expected, reasoningEffort: 'low' } }), mutateBinding: value => ({ ...value!, reasoningEffort: 'low' }) },
         { name: 'head', mutateIntake: value => ({ ...value, expected: { ...value.expected, headHash: 'other-head' } }), mutateBinding: value => ({ ...value!, headHash: 'other-head' }) },
         { name: 'material', mutateIntake: value => ({ ...value, expected: { ...value.expected, materialHash: 'other-material' } }), mutateBinding: value => ({ ...value!, materialHash: 'other-material' }) },
         { name: 'storyFiles', mutateIntake: value => ({ ...value, expected: { ...value.expected, storyFilesHash: 'other-story-files' } }), mutateBinding: value => ({ ...value!, storyFilesHash: 'other-story-files' }) },
