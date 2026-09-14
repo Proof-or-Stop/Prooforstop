@@ -30,6 +30,18 @@ if (!readonlyManagedSource.includes('verifyManagedReviewLane(spec.crossHostReado
 if (!readonlyManagedSource.includes('verifyManagedReviewLane(scratch.readonlyLane, scratch)')
   || !readonlyManagedSource.includes('readonlyLane: await createManagedReviewLane')) failures.push('Managed readonly source/build binding must be sealed and consumed');
 if (!readFileSync(join(root,'packages/main/src/core/process-fact-registry.ts'),'utf8').includes('runtime:managed_review_readonly_build')) failures.push('Managed readonly build process semantics must be registered');
+const managedReviewEvidenceSource=readFileSync(join(root,'packages/main/src/core/managed-review-evidence.ts'),'utf8');
+const managedReadonlyRegistrySource=readFileSync(join(root,'packages/main/src/core/process-fact-registry.ts'),'utf8');
+if (!readonlyManagedSource.includes('const executionCwd = join(parent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree)')
+  || !readonlyManagedSource.includes('currentMaterialHash(scratch.executionCwd)')
+  || !readonlyManagedSource.includes('cwd: managedReviewScratch?.executionCwd ?? managedReviewScratch?.cwd ?? args.cwd')
+  || !readonlyManagedSource.includes('scratch.sourceDirectoryIdentity = managedReviewScratchPathIdentity')
+  || !readonlyManagedSource.includes('MANAGED_REVIEW_LANE_ARTIFACT.scratchAdminMarker')
+  || (readonlyManagedSource.match(/assertManagedReviewScratchGenerationIdentity\(scratch, registered\)/g) ?? []).length < 2
+  || !managedReviewEvidenceSource.includes('$PROOF_OR_STOP_REVIEW_EXECUTION_CWD')
+  || !managedReadonlyRegistrySource.includes('distinct same-HEAD disposable execution worktree')) {
+  failures.push('Managed review generated-file execution must use a registered same-HEAD disposable worktree with tracked-material enforcement');
+}
 
 const warnings = [];
 const hanCharacterPattern = /[\u3400-\u9fff]/;
