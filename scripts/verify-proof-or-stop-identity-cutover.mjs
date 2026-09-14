@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "357855ddfb2da3efb72c589c5ff350d2534e5c3379fc2e7f9a5b140cfc5d7b76"
+    "sha256": "59827f5f4bf81c6da9a575ac6975240892275679f1a98063f2fdb7bdc8dbec63"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "6d157f9c30b215904e3ef0de856775348a144d2714c0ad150af70de96c970d06"
+    "sha256": "32d450cd2371d7e821e11e9646f918f491f2daa865b5ae2afd54ec7158a231db"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -7420,7 +7420,7 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "4029a714709c4ab9fedac73d00872fba804651a34425d36fd45afd9a8bc085bc"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "75016c2f65916623ad73cd02d020e03d4cf59d010ac6e84aee70a4c269634594"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "78d04784a533f5fce0edc443518238a94587eec23c27f804da6270392e3afbab"

@@ -148,7 +148,17 @@ function droppedTransport(reason: string): undefined {
   }
   return undefined;
 }
+// One spawn verifies its inherited bootstrap twice (environment and stdio helpers) within the same
+// synchronous turn; the second read reuses the first verification and the memo dies with the turn,
+// so no verification is ever older than the code that asked for it.
+let turnBootstrap: { fd: number; cleanupOnly: boolean; value: Bootstrap | undefined } | undefined;
 function readBootstrap(fd: number = FD, cleanupOnly = false): Bootstrap | undefined {
+  if (turnBootstrap && turnBootstrap.fd === fd && turnBootstrap.cleanupOnly === cleanupOnly) return turnBootstrap.value;
+  const value = readBootstrapFresh(fd, cleanupOnly);
+  turnBootstrap = { fd, cleanupOnly, value }; queueMicrotask(() => { turnBootstrap = undefined; });
+  return value;
+}
+function readBootstrapFresh(fd: number, cleanupOnly: boolean): Bootstrap | undefined {
   const inherited = !frames.getStore();
   if (inherited && process.env[ENV] === undefined) return undefined;
   if (inherited && process.env[ENV] !== String(FD)) throw failure('invalid descriptor locator');
@@ -233,7 +243,7 @@ async function request(bootstrap: Bootstrap, input: Omit<Request, 'pid' | 'start
           if (response.error) throw failure(response.error);
           const grant = response.grant as Grant;
           if (!verifyCanonical(grant, response.signature, bootstrap.publicKey) || grant.reservation !== bootstrap.lockId || grant.subject.pid !== self.pid || grant.subject.start !== self.start || grant.nonce !== nonce || grant.operation !== input.operation || !grantClaimsBound(grant, input, bootstrap) || grant.deadlineAt > (input.operation === 'cancel' ? input.deadlineAt : Math.min(bootstrap.deadlineAt, input.deadlineAt)) || Date.now() >= grant.deadlineAt) throw failure('grant subject/binding/signature');
-          const fresh = readBootstrap(frames.getStore()?.fd ?? FD, input.operation === 'cancel'); if (!fresh || fresh.publicKey !== bootstrap.publicKey || !sameProcess(self)) throw failure('grant owner changed');
+          const fresh = readBootstrapFresh(frames.getStore()?.fd ?? FD, input.operation === 'cancel'); if (!fresh || fresh.publicKey !== bootstrap.publicKey || !sameProcess(self)) throw failure('grant owner changed');
           accepted = grant; settled = true; clearTimeout(timer); signal?.removeEventListener('abort',cancel); resolve({ socket, grant, revocation: revocation.signal });
         } catch (error) { fail(error instanceof Error ? error : failure('invalid response')); }
       }

@@ -16,9 +16,9 @@ for(const mode of process.argv[2]?[process.argv[2]]:modes){
  const register='export async function registerValidationReservationChild(pid: number, pendingToken?: string, options: ValidationReservationHandshakeOptions = {}): Promise<void> {';
  const lsof="execFileSync('/usr/sbin/lsof',";
  const attempt='export async function attemptValidationReservationSpawn(token: string | undefined, options: ValidationReservationHandshakeOptions = {}): Promise<void> {';
- // The registration refusal waits until the completed command has flushed its whole payload, so the refused-registration withdrawal always follows a complete artifact.
+ // The registration refusal waits until the completed command has flushed its whole payload and exited on its own, so the refused-registration withdrawal always follows a complete artifact and an observed child exit status.
  const flushed=join(base,'payload-flushed');
- const refusedRegistration="await new Promise(resolve=>{const until=Date.now()+5000;const poll=()=>existsSync("+JSON.stringify(flushed)+")||Date.now()>until?resolve():setTimeout(poll,10);poll();});throw failure('CONTROLLED_REGISTRATION_REFUSAL');";
+ const refusedRegistration="await new Promise(resolve=>{const until=Date.now()+5000;const poll=()=>{let gone=false;try{process.kill(pid,0);}catch(error){gone=(error&&error.code)==='ESRCH';}if((existsSync("+JSON.stringify(flushed)+")&&gone)||Date.now()>until)resolve();else setTimeout(poll,10);};poll();});throw failure('CONTROLLED_REGISTRATION_REFUSAL');";
  const prepare='export async function prepareValidationReservationChild(options: ValidationReservationHandshakeOptions = {}): Promise<string | undefined> {';
  const cancel='export async function cancelValidationReservationChild(token:string | undefined, options: ValidationReservationHandshakeOptions = {}): Promise<void> {';
  const capture='  try { pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal}); }';
@@ -44,7 +44,7 @@ for(const mode of process.argv[2]?[process.argv[2]]:modes){
   const wrapped=await complete({...command,args:['-e',"process.stdout.write("+JSON.stringify(payload+'\\n12345\\n')+",()=>require('node:fs').writeFileSync("+JSON.stringify(${JSON.stringify(flushed)})+",'1'))"]},${JSON.stringify(base)},3000,{});
   assert.notEqual(wrapped.result.code,0,'a refused registration must not report success');assert.equal(wrapped.result.failureKind,'infra_failure');
   assert.ok(wrapped.completeOutput.includes(payload),'COMPLETE_OUTPUT_MUST_NOT_BE_TRUNCATED '+wrapped.completeOutput.length);
-  assert.match(wrapped.completeOutput,/CONTROLLED_REGISTRATION_REFUSAL/);assert.match(wrapped.completeOutput,/CONTROLLED_CLEANUP_REFUSAL/);assert.match(wrapped.result.output,/CONTROLLED_CLEANUP_REFUSAL/);
+  assert.doesNotMatch(wrapped.completeOutput,/CONTROLLED_REGISTRATION_REFUSAL/,'the refusal must not enter the authenticated artifact');assert.equal(wrapped.result.delegationDiagnostic,'VALIDATION_DELEGATION_REFUSED: CONTROLLED_REGISTRATION_REFUSAL');assert.equal(wrapped.result.observedExitCode,0,'the child exited 0 on its own before the refusal');assert.match(wrapped.result.output,/CONTROLLED_REGISTRATION_REFUSAL/);assert.match(wrapped.completeOutput,/CONTROLLED_CLEANUP_REFUSAL/);assert.match(wrapped.result.output,/CONTROLLED_CLEANUP_REFUSAL/);
   assert.ok(wrapped.result.output.length<wrapped.completeOutput.length,'bounded projection stays bounded '+wrapped.result.output.length);assert.equal(wrapped.result.output.slice(0,2000),wrapped.completeOutput.slice(0,2000),'the projection prefix is the artifact prefix');assert.ok(!wrapped.result.output.includes(payload),'the projection must not carry the whole payload');
   console.log('REFUSED_REGISTRATION_CLEANUP_COMPLETE_OUTPUT '+JSON.stringify({code:wrapped.result.code,failureKind:wrapped.result.failureKind,complete:wrapped.completeOutput.length,bounded:wrapped.result.output.length}));
  }else if(${JSON.stringify(mode)}==='descriptor-unavailable'){

@@ -39,7 +39,17 @@ this boundary as `explicit-node-spawn-boundary-only`. Holding the descriptor
 grants nothing: every operation still needs the cooperating client, the
 kernel-matched owner identity and the signed protocol, and a process that
 merely inherited the descriptor without the client runs exactly as before
-delegation existed.
+delegation existed. One spawn verifies its inherited bootstrap once: the
+environment and stdio helpers share a memo that dies with the synchronous turn
+in which both are called, halving the descriptor observations per spawn, while
+the post-response freshness check of every protocol round trip always observes
+anew. The reserved slot forces a five-entry stdio array, so a caller that
+declares three entries gets descriptor 3 padded as an ignored slot; an ignored
+slot at descriptor 3 or above is left closed by the spawn (libuv opens
+`/dev/null` only for the three standard descriptors), so a delegated child's
+descriptor 3 is whatever its own runtime opens first, exactly as before
+delegation existed, and never `/dev/null`. The wrapper-transport probes assert
+that for every shape (dropped, silent, linked and cooperating).
 
 Non-macOS execution retains the existing non-delegated queue path. It does not
 claim detached delegation support. On macOS every Node-spawned child receives
@@ -248,7 +258,12 @@ already exist; doctor counts it as a pending fence without an observed target.
 Recovery for that case
 is the different-boot witness path after a reboot, or removal of the ticket
 directory only after an operator has independently confirmed that no detached
-child remains; the tool never releases it automatically.
+child remains; the tool never releases it automatically. A ticket whose holder
+is provably absent is reclaimed by the ordinary stale path as soon as every
+residual row is resolved, that is once every registered group and every noted
+spawned PID and group are proven absent, so a leaked descendant fences the
+same-user pool only while it is actually alive; the reclaim predicate and the
+doctor classification are the same exported classifier.
 `verify-nested-reservation-faults.mjs` modes `unattempted-owner-loss` and
 `attempted-owner-loss` prove both outcomes with a real descendant that dies
 between prepare and spawn; against the pre-repair source the unmarked fence
@@ -395,6 +410,29 @@ launched and that the owner's ticket is released; against the pre-repair
 executor the mark sat outside the withdrawing block, the fence stayed and the
 controller refused its release with `owned group cleanup unproven`.
 
+A refused registration of a command that already ran never writes into that
+command's complete authenticated output artifact. The refusal is carried as a
+separate `delegationDiagnostic` field on the wrapper result and on the flat
+single-command result, appended only to the wrapper's bounded projection, and
+the child's own exit status is kept in `observedExitCode` next to the
+fail-closed `code` of 1 with `failureKind` `infra_failure`, so a run that
+executed without an applied registration can never earn a passing receipt
+while its artifact stays exactly the bytes the command printed. Mode
+`refused-registration-cleanup` asserts that the artifact carries the payload
+and not the refusal, that the diagnostic and the observed exit status are
+recorded, and that the projection still names both refusals. The post-capture
+cleanup diagnostic remains appended after the complete artifact, separated by a
+newline, as the seventh round required.
+
+The default per-command deadline is derived at the spawn call rather than at
+entry, so the pre-launch handshakes and setup no longer shorten the armed
+timer; a caller-supplied deadline stays absolute. Measured from the comparison
+runs below, the setup-to-arming delta was 0 to 14 ms per command on main
+0.3.363 and 136 to 366 ms (median 151 ms) on the tenth-round candidate, which
+is the cost of the prepare, attempt and note handshakes and their kernel
+observations; with this change the armed timer equals the configured timeout
+for every command without a caller deadline.
+
 The caller's own abort, or a caller-supplied deadline error, is decided before
 any pending fence is prepared and again ahead of a delegation refusal, so it
 keeps its exception behaviour instead of folding into a delegation result; a
@@ -446,7 +484,11 @@ machine reservation held, first on local main 0.3.363 and then on the
 candidate, sequentially because both use the same machine pool (no configured
 command sets `shell: true`, and no caller passes `exactEnvironment`). Command
 indexes are identical in both configurations because this Lab only appends
-entries.
+entries. The comparison was made against main 0.3.363, before the candidate
+was resynchronized with main 0.3.366; the resynchronization changed neither
+the executor nor the fixtures under comparison, and the finish-time bounded
+dynamic revalidation replays the impacted commands on the merged candidate and
+on post-merge main.
 
 | index | command | main 0.3.363 | candidate | main s | candidate s |
 | --- | --- | --- | --- | --- | --- |
@@ -474,7 +516,13 @@ finding-identity lineage smoke, index 12 fails with the fixture repository
 error already recorded above, index 15 fails on both only under the executor
 because the acceptance-closure publication-lifecycle experiment it spawns
 fails in that context (run directly, the contract exits 0 on the candidate),
-index 16 is the runtime fact contract that is red on main, index 156 fails on
+index 16 is the runtime fact contract, which fails identically when run
+directly on main 0.3.366 and on the candidate with exactly one failure entry,
+its static AST reuse control, because the static-edge scanner it runs reports
+the same sixty residual rows on both; the contract now evaluates the two
+delegation assertions (the registered runtime fact and the consumed policy)
+before that first fallible subprocess step, so both are demonstrably reached
+and absent from the failure list on the candidate; index 156 fails on
 both with `Cannot access 'DIRTY_WORKTREE_CATEGORIES' before initialization`
 at module load, and index 168 is the static-edge scanner (71 rows on main, 60
 on the candidate). The one difference was a genuine candidate regression that
@@ -496,14 +544,12 @@ scale; the candidate's index 16 and 168 rows run a few seconds longer because
 they compare more rows.
 
 The static-edge scanner's remaining rows are, up to moved line numbers inside
-Lab-changed files, a subset of the rows already present on local main: 60
-NEEDS_REVIEW rows on the candidate against 71 on main, where every differing
-group is the same `incomplete exception` row at a moved line
-(`native-review-fixture.ts` 189 to 190 and `isolated-finding-fixture.ts` 73 to
-140, both inherited stale dependency pins on main) or main entries for
-`verify-process-fact-contract.mjs` whose stale source digest the candidate's
-refresh made current (13 rows on main, 2 on the candidate), and every stale
-exception id on the candidate is stale on main (32 of main's 45). The manifest
+Lab-changed files, exactly the rows already present on local main 0.3.366: 60
+NEEDS_REVIEW rows on both, where every differing group is the same
+`incomplete exception` row at a moved line (`native-review-fixture.ts` 189 to
+190 and `isolated-finding-fixture.ts` 73 to 144, both inherited stale
+dependency pins on main), and every stale exception id on the candidate is
+stale on main (32 of main's 32). The manifest
 and the identity verifier pin each other, so the refresh order is fixed: every
 source, script and verifier edit is finished first, then the reviewed identity
 inventories and the verifier's own pins are refreshed, then the manifest is
@@ -515,23 +561,28 @@ of the verifier digest equals the committed file, and the verifier output is
 byte-identical before and after the regeneration).
 
 The identity-cutover verifier reports on the candidate exactly the issue list it
-reports on local main 0.3.363 minus three inherited rows that the candidate
-rebinds because it modified their files (`runtime-fact-registry.ts` reviewed
-source row, and the negative source integrity pins of
-`verify-process-fact-contract.mjs` and `verify-runtime-fact-contract.mjs`); its
-self-test fails identically on both. The rule for every identity re-pin in this
-Lab is checkable: a re-pinned row is bound to a file this Lab modified, and no
-row bound to an unmodified file is refreshed. Enumerated from
+reports on local main 0.3.366 (238 lines there, 233 on the candidate) minus
+five inherited rows that the candidate rebinds because it modified their files
+(the reviewed-source rows of `runtime-fact-registry.ts`,
+`runtime-artifact-registry.ts` and `run-validation-fixture-suite.mjs`, and the
+negative source integrity pins of `verify-process-fact-contract.mjs` and
+`verify-runtime-fact-contract.mjs`); its self-test fails identically on both.
+The rule for every identity re-pin in this Lab is checkable: a re-pinned row is
+bound to a file this Lab modified, and no row bound to an unmodified file is
+refreshed. Enumerated from
 `git diff main -- scripts/identity-reviewed-source-data.json scripts/identity-reviewed-fixture-data.json scripts/identity-reviewed-json-data.json scripts/verify-proof-or-stop-identity-cutover.mjs scripts/identity-reviewed-*-contexts.mjs`
-against `git diff --name-only main`, the 34 re-pinned rows are, by the
+against `git diff --name-only main`, the 35 re-pinned rows are, by the
 Lab-changed file that caused each one:
 
 - `packages/main/src/core/runtime-artifact-registry.ts` (one added export): the
-  reviewed-source row for `.lattice/runtime/host-runs/`, line 367 to 368 with
+  reviewed-source row for `.lattice/runtime/host-runs/`, line 367 to 485 with
   its source digest, same line hash and occurrence count.
 - `packages/main/src/core/runtime-fact-registry.ts` (delegation policy and
-  fact): the reviewed-source row for `LATTICE_AGENT`, line 502 to 507 with its
+  fact): the reviewed-source row for `LATTICE_AGENT`, line 502 to 511 with its
   source digest, same line hash and occurrence count.
+- `scripts/run-validation-fixture-suite.mjs` (named stale-build failure and
+  namespace import): the reviewed-source row for `env.LATTICE_HEALTH_PATH`,
+  line 37 to 45 with its source digest, same line hash and occurrence count.
 - `packages/main/src/tasks/native-review-fixture.ts` (delegation environment
   forwarding): six reviewed-fixture rows (`lattice` line 44 to 45,
   `LATTICE_NATIVE_REVIEW_ATTESTATION_FD` lines 194, 234 and 342 shifted by one,
@@ -544,10 +595,9 @@ Lab-changed file that caused each one:
   negative source integrity pin.
 - `scripts/lab/u18-static-edges/exceptions.json` (repinned manifest): eight
   reviewed-JSON context digests for the copied excerpts of
-  `native-review-fixture.ts` and `isolated-finding-fixture.ts` under
-  `/entries/39`, `/entries/269` and `/entries/270`, plus the
-  CURRENT_COMPATIBLE_SCHEMA_ROWS context digest for the native review invocation
-  attestation schema token (count unchanged at 4).
+  `native-review-fixture.ts` under `/entries/39`, `/entries/269` and
+  `/entries/270`, plus the CURRENT_COMPATIBLE_SCHEMA_ROWS context digest for
+  the native review invocation attestation schema token (count unchanged at 4).
 - the three reviewed-context readers (`identity-reviewed-source-contexts.mjs`,
   `-fixture-contexts.mjs`, `-json-contexts.mjs`): their EXPECTED_SHA256 and
   entry-count pins and the verifier's digest pin of each reader, because the
@@ -605,7 +655,10 @@ seconds against its 60-second budget; the eighth-round sequential sweep of all
 forty-eight selectors passed in 181.5 seconds in total, the ninth-round sweep of
 all fifty in 184.6 seconds (`core` 36.4 seconds) and the tenth-round sweep of
 all fifty-one in 205.4 seconds (`core` 38.5 seconds, measured while the
-candidate-versus-main evidence runs below held the real machine pool). Before the `core` selector
+candidate-versus-main evidence runs below held the real machine pool), and the
+eleventh-round sweep of all fifty-one on the candidate resynchronized with main
+0.3.366 in 205.4 seconds (`core` 37.4 seconds, every 30-second selector
+under 3.7 seconds, every 60-second selector under 10.6 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay

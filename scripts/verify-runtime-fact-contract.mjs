@@ -80,6 +80,10 @@ async function main() {
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  // Controlled machine delegation is checked before the first fallible subprocess step below, so
+  // these assertions are evaluated even when a later control aborts the run.
+  check(registrySource.includes("id: 'validation-machine-reservation-delegation'"), 'Controlled machine delegation runtime fact must be registered');
+  check(read(root, 'packages/main/src/core/validation-reservation-delegation.ts').includes('VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY'), 'Controlled machine delegation must consume its registered runtime policy');
   check(registrySource.includes('memory-query-latency-boundary'), 'Memory query timing runtime fact is registered');
   execFileSync(process.execPath, [join(root, 'scripts/verify-memory-query-timing.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 60_000 });
@@ -105,7 +109,6 @@ async function main() {
   check(registrySource.includes('verification-executable-observation'), 'Fresh executable observation must have a runtime contract');
   execFileSync(process.execPath, ['packages/main/tests/lab-top5-identity.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
   execFileSync(process.execPath, ['packages/main/tests/identity-canonical-digest-memo.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-  check(read(root, 'packages/main/src/core/validation-reservation-delegation.ts').includes('VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY'), 'Controlled machine delegation must consume its registered runtime policy');
   check(registrySource.includes('validation-invocation-baseline-serialization'), 'Invocation-local baseline serialization must be registered');
   execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30000 });

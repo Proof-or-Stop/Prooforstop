@@ -1419,7 +1419,7 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
       // A command that completed before its cleanup was refused keeps its complete
       // authenticated artifact verbatim with the diagnostic appended; only the bounded
       // projection is trimmed, exactly as on the post-capture cleanup path.
-      const output = `${completed.result.output.slice(0, 2000)}\n${diagnostic}`;
+      const output = `${completed.result.output.slice(0, 2000)}${completed.result.delegationDiagnostic === undefined ? '' : `\n${completed.result.delegationDiagnostic}`}\n${diagnostic}`;
       return { completeOutput: `${completed.completeOutput}\n${diagnostic}`, result: {
         ...completed.result, code: completed.result.code === 0 ? 1 : completed.result.code,
         failureKind: 'infra_failure', output,
@@ -1475,6 +1475,9 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
+  // A caller-supplied deadline is absolute. The default budget is bounded here for the pre-launch
+  // handshakes and re-derived at the spawn call below, so setup time never shortens the armed timer.
+  const callerDeadlineAt = options.deadlineAt;
   options = { ...options, deadlineAt: Math.min(options.deadlineAt ?? Infinity, started + configuredTimeoutMs) };
   // A policy-owned reuse capsule supplies its already-closed environment. Do not
   // merge ambient variables back into that boundary while retaining the normal
@@ -1560,7 +1563,11 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     const finish = async (rawCode: number | null) => {
       if (settled) return;
       settled = true;
-      try { await childRegistration; } catch (error) { runnerFailure = true; rawCode = 1; output += '\n' + String(error); }
+      // A refused registration fails the command closed without touching the command's own output
+      // artifact: the refusal is carried as a separate diagnostic and appended only to the bounded
+      // projection, and the child's own exit status is kept alongside the fail-closed code.
+      let delegationDiagnostic: string | undefined; let observedExitCode: number | null | undefined;
+      try { await childRegistration; } catch (error) { runnerFailure = true; delegationDiagnostic = boundedValidationErrorMessage(error); observedExitCode = rawCode; rawCode = 1; }
       if (timer) clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
@@ -1593,7 +1600,8 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
         ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
         code,
-        output: trimOutput(completeOutput, code !== 0),
+        output: delegationDiagnostic === undefined ? trimOutput(completeOutput, code !== 0) : `${trimOutput(completeOutput, true)}\n${delegationDiagnostic}`,
+        ...(delegationDiagnostic === undefined ? {} : { delegationDiagnostic, observedExitCode }),
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
         timeoutMs: reportedTimeoutMs,
@@ -1646,6 +1654,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
       throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
     }
+    if (callerDeadlineAt === undefined) options = { ...options, deadlineAt: Date.now() + configuredTimeoutMs };
     const child = spawn(command.command, command.args, {
       cwd,
       env: options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv),
@@ -1953,6 +1962,9 @@ export interface SingleCommandExecutionResult {
   args: string[];
   code: number;
   output: string;
+  /** A refused delegation registration, kept apart from the complete output. */
+  delegationDiagnostic?: string;
+  observedExitCode?: number | null;
   timedOut: boolean;
   durationMs: number;
   /**
@@ -2050,6 +2062,8 @@ export async function runSingleAllowlistedCommand(
     args,
     code: result.code,
     output: completeOutput,
+    // A refused registration travels as its own field; the complete output stays the command's bytes.
+    ...(result.delegationDiagnostic === undefined ? {} : { delegationDiagnostic: result.delegationDiagnostic, observedExitCode: result.observedExitCode ?? null }),
     timedOut: Boolean(result.timedOut),
     durationMs: result.durationMs,
     // runValidationCommand always stamps the effective (clamped, deadline-capped) ceiling,
