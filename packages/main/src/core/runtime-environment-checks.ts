@@ -361,8 +361,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
   'packages/main/src/core/evidence-freshness.ts': '6eca17a48ac39083a7a601c52b49eb24300fad0ac5a7628efb12f8096d644df7',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
-  'packages/main/src/core/verification-execution-evidence.ts': '2f9f9fa37e64b41c1a164fb064da3df080b999a4a1e5689b83e927c8a39447bc',
-  'packages/main/src/handlers/checklist.ts': '270df69b09473178629c84322db23473e82765b81b5dbe0d06beb7b9de7df4b9',
+  'packages/main/src/core/verification-execution-evidence.ts': 'aa21ac01ed31b93750d0935db3664af8c10aaeb1b545d247180e5d7d69671403',
+  'packages/main/src/handlers/checklist.ts': 'd6f831b5a91cf70b47137d33c2a0eef7eb0bcad7c18b4c9ad6beb14dfef705e4',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
