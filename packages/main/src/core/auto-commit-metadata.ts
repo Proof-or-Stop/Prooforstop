@@ -29,6 +29,7 @@
  */
 
 import { execFileSync } from 'child_process';
+import { forgetGitObservation } from './git-tree-observation.js';
 import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { reportHealthIssue } from './health.js';
@@ -666,6 +667,8 @@ export function autoCommitStoryMetadata(
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+    // The index just changed: nothing an enclosing observation memoized is current any more.
+    forgetGitObservation();
 
     // 7. double-check what got staged — defends against `.gitignore` quirks.
     const staged = execFileSync('git', ['diff', '--cached', '--name-only'], {
@@ -686,6 +689,8 @@ export function autoCommitStoryMetadata(
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+    // The commit just changed: nothing an enclosing observation memoized is current any more.
+    forgetGitObservation();
 
     // 9. capture short sha for audit
     let sha7 = '';

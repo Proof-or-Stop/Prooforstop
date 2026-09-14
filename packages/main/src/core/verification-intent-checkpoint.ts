@@ -1,4 +1,5 @@
 import {execFileSync} from 'node:child_process';
+import {forgetGitObservation,observedGit} from './git-tree-observation.js';
 import {existsSync,mkdirSync,readFileSync,readdirSync,linkSync,writeFileSync,unlinkSync,renameSync,rmSync,lstatSync} from 'node:fs';
 import {basename,dirname,join,resolve} from 'node:path';
 import {randomUUID} from 'node:crypto';
@@ -30,7 +31,12 @@ function checkpointPath(storyId:string,gitCwd:string):string|undefined {
 }
 const anchorRef=(storyId:string)=>'refs/proof-or-stop/intent-checkpoints/'+digestCanonicalJson(storyId);
 function checkpointGit(gitCwd:string,args:string[],input?:string):string {
-  return execFileSync('git',args,{cwd:gitCwd,input,encoding:'utf8',maxBuffer:64*1024*1024,stdio:['pipe','pipe','pipe']}).trim();
+  const run=()=>execFileSync('git',args,{cwd:gitCwd,input,encoding:'utf8',maxBuffer:64*1024*1024,stdio:['pipe','pipe','pipe']}).trim();
+  // Only the read-only ref and history probes share a synchronous observation. Every
+  // other command writes objects or refs and invalidates whatever the current
+  // observation already knows.
+  if(input===undefined&&(args[0]==='for-each-ref'||args[0]==='log'))return observedGit(gitCwd,args,run);
+  try{return run();}finally{forgetGitObservation();}
 }
 function validateCheckpoints(records:IntentCheckpoint[],storyId:string,gitCwd:string):void {
   for(const record of records){

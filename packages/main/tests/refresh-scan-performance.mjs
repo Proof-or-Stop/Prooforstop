@@ -1,0 +1,11 @@
+import {mkdtempSync,readFileSync,writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';import {join} from 'node:path';import {spawnSync} from 'node:child_process';
+const directory=mkdtempSync(join(tmpdir(),'refresh-scan-pair-'));
+console.log('REFRESH_SCAN_OUTPUT '+JSON.stringify({directory}));
+const started=performance.now();const result=spawnSync(process.execPath,['packages/main/tests/scan-attribution-run.mjs',directory,'--refresh-single-scan'],{cwd:process.cwd(),encoding:'utf8',timeout:1250000,maxBuffer:96*1024*1024});
+const elapsedMs=performance.now()-started;
+writeFileSync(join(directory,'harness.stdout.log'),result.stdout??'');writeFileSync(join(directory,'harness.stderr.log'),result.stderr??'');
+process.stdout.write(result.stdout??'');process.stderr.write(result.stderr??'');
+console.log('REFRESH_SCAN_RESULT '+JSON.stringify({directory,elapsedMs,status:result.status,signal:result.signal}));
+if(result.error||result.signal||result.status===null)throw result.error??Error('Profile child did not exit normally');
+process.exitCode=result.status;

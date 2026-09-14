@@ -1,4 +1,5 @@
 import { withExecutableDigestObservation, readObservedExecutableDigest } from './executable-digest-observation.js';
+import { gitObservationKey, readObservedGitState, withGitTreeObservation } from './git-tree-observation.js';
 import { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 export { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 import { executionImplementationIdentity } from './execution-implementation.js';
@@ -325,13 +326,18 @@ export interface CreateVerificationAssertionInput {
 
 /** Strict publication coordinates are captured by the producer, never supplied by a caller. */
 export function captureVerificationFreshness(cwd: string, projectRoot: string): VerificationFreshnessBinding {
-  const headHash = currentGitHead(cwd);
-  const materialHash = currentMaterialHash(cwd, 'HEAD', projectRoot);
-  const storyFilesHash = currentStoryFilesHash(cwd, 'HEAD', projectRoot);
-  if (!isCanonicalGitHeadHash(headHash) || !isCanonicalSha256Hash(materialHash) || !isCanonicalSha256Hash(storyFilesHash)) {
-    throw new Error('receiptIssued=false reason=incomplete_freshness_hash_binding');
-  }
-  return { headHash, materialHash, storyFilesHash };
+  // One freshness triple is one observation: its three hashes describe the same
+  // resolved HEAD, and one tree read serves both projections. Nothing outlives
+  // this call, so a launch or publication capture still reads current state.
+  return withGitTreeObservation(() => {
+    const headHash = currentGitHead(cwd);
+    const materialHash = currentMaterialHash(cwd, 'HEAD', projectRoot);
+    const storyFilesHash = currentStoryFilesHash(cwd, 'HEAD', projectRoot);
+    if (!isCanonicalGitHeadHash(headHash) || !isCanonicalSha256Hash(materialHash) || !isCanonicalSha256Hash(storyFilesHash)) {
+      throw new Error('receiptIssued=false reason=incomplete_freshness_hash_binding');
+    }
+    return { headHash, materialHash, storyFilesHash };
+  });
 }
 
 export function assertVerificationFreshnessUnchanged(
@@ -404,8 +410,12 @@ function sha256Text(value: string): string {
 }
 
 function gitCommonDir(gitCwd: string): string {
-  const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, encoding: 'utf8' }).trim();
-  return realpathSync(isAbsolute(raw) ? raw : resolve(gitCwd, raw));
+  // Receipt validation inside one synchronous refresh scope locates the signer
+  // key directory once; outside an observation every call asks Git.
+  return readObservedGitState(gitObservationKey(['common-dir', resolve(gitCwd)]), () => {
+    const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, encoding: 'utf8' }).trim();
+    return realpathSync(isAbsolute(raw) ? raw : resolve(gitCwd, raw));
+  });
 }
 
 function verificationSignerKeyPath(gitCwd: string): string {
@@ -573,7 +583,7 @@ function executableFileIdentity(
   return null;
 }
 
-// Only the initial, synchronous batch-planning map uses this observation.
+// Explicit synchronous planning and refresh scopes own this observation.
 // Current plans, launches, completion and publication retain independent reads.
 let planningObservation: { digest?: string } | undefined;
 export function withVerificationPlanningObservation<T>(plan: () => T): T {
@@ -581,6 +591,36 @@ export function withVerificationPlanningObservation<T>(plan: () => T): T {
   planningObservation = {};
   try { return plan(); }
   finally { planningObservation = previous; }
+}
+
+/** A separate synchronous refresh scope; execution and publication remain outside.
+ * Its rows share one implementation digest and one current Git state observation. */
+export function withVerificationRefreshObservation<T>(read: () => T): T {
+  return withGitTreeObservation(() => withVerificationPlanningObservation(read));
+}
+
+/** A synchronous canonical commit segment: its bounded and fresh snapshots share
+ * one implementation and Git state observation; the write itself stays inside. */
+export function withVerificationCommitObservation<T>(commit: () => T): T {
+  return withGitTreeObservation(() => withVerificationPlanningObservation(commit));
+}
+
+/** A synchronous launch prefix: planning, recovery lookup and enforcement preflight
+ * share one implementation and repository observation. The launch itself runs
+ * outside it through withoutGitObservation. */
+export function withVerificationLaunchObservation<T>(prepare: () => T): T {
+  return withGitTreeObservation(() => withVerificationPlanningObservation(prepare));
+}
+
+/** A synchronous completion segment: the post-execution identity and every receipt's
+ * own freshness capture and signer lookup share one observation. */
+export function withVerificationCompletionObservation<T>(complete: () => T): T {
+  return withGitTreeObservation(() => withVerificationPlanningObservation(complete));
+}
+
+/** The implementation digest as observed by the enclosing synchronous scope; a fresh read outside one. */
+export function observedImplementationDigest(): string {
+  return planningImplementationIdentityDigest();
 }
 
 function planningImplementationIdentityDigest(): string {
@@ -1027,6 +1067,9 @@ export function planVerificationExecutionReuse(input: {
     || !isCanonicalSha256Hash(hashBinding.currentMaterialHash)
     || !isCanonicalSha256Hash(hashBinding.currentStoryFilesHash)
   ) return denied('incomplete_freshness_hash_binding');
+  // Recompute the hashes the caller claims are current. Inside the caller's
+  // synchronous observation this confirms the binding belongs to the same
+  // coherent repository snapshot; outside one it rereads the repository.
   const computedCurrentHead = currentGitHead(input.cwd);
   const computedCurrentMaterial = currentMaterialHash(input.cwd, 'HEAD', input.projectRoot);
   const computedCurrentStoryFiles = currentStoryFilesHash(input.cwd, 'HEAD', input.projectRoot);

@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 
 function git(cwd: string, args: string[], deadlineMs?: number): string {
   const remaining = deadlineMs === undefined ? undefined : Math.floor(deadlineMs - performance.now());
@@ -18,7 +19,8 @@ export type RepositoryBaselineCache = Map<string, readonly { ref: string; commit
 export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options: { deadlineMs?: number; candidateCache?: RepositoryBaselineCache } = {}): { ref: string; mergeBase: string; commit?: string } | undefined {
   // Optional monotonic deadline applies to the entire resolution, including
   // unsuccessful fallbacks; an expired budget never starts another subprocess.
-  const probe = (cwd: string, args: string[]): string => git(cwd, args, options.deadlineMs);
+  // Every probe here is a read-only ref resolution; one synchronous observation shares it.
+  const probe = (cwd: string, args: string[]): string => observedGit(cwd, args, () => git(cwd, args, options.deadlineMs));
   // Read both paths in one subprocess. Ambiguous newline-containing output
   // retains the independent probes instead of changing linked-checkout policy.
   const directories = (): { common: string; gitDir: string } => {
