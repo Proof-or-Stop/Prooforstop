@@ -7,7 +7,7 @@ import { gitProbe } from '../core/git-probe.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { StoryStore } from '../core/store.js';
 import { attestControllerConfigProjection } from '../core/controller-config-projection.js';
-import { attestControllerRuntimeProjection, CONTROLLER_RUNTIME_ASSET_PATHS } from '../core/controller-runtime-projection.js';
+import { attestControllerRuntimeProjection, existingControllerRuntimeAssetPaths } from '../core/controller-runtime-projection.js';
 
 export function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
@@ -159,12 +159,14 @@ function installConfigNoClobber(worktreeRoot: string, targetConfig: string, conf
 
 function projectGlobalThinRuntimeAssets(controllerRoot: string, worktreeRoot: string, storyId: string, storyRoot: string): void {
   if (!isManagedGlobalThinRoot(controllerRoot)) return;
-  for (const relativePath of CONTROLLER_RUNTIME_ASSET_PATHS) {
+  const assetPaths = existingControllerRuntimeAssetPaths(controllerRoot);
+  for (const relativePath of assetPaths) {
     const source = join(controllerRoot, relativePath);
-    if (!existsSync(source)) throw new Error(`controller runtime projection requires ${relativePath}`);
     installConfigNoClobber(worktreeRoot, join(worktreeRoot, relativePath), readRegularNoFollow(source));
   }
-  attestControllerRuntimeProjection({ gitCwd: worktreeRoot, storyId, controllerRoot, worktreeRoot, storyRoot });
+  if (assetPaths.length > 0) {
+    attestControllerRuntimeProjection({ gitCwd: worktreeRoot, storyId, controllerRoot, worktreeRoot, storyRoot });
+  }
 }
 
 /**

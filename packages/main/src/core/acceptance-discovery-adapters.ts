@@ -2039,7 +2039,12 @@ function buildResult(
 /** Run the immutable PLAN profile from canonical repository and registry inputs. */
 export function runAcceptanceDiscoveryAdapters(input: AcceptanceDiscoveryInput): CoverageAdapterResultV1[] {
   const methods = acceptanceDiscoveryProfile(input.verificationProfile ?? (input.supported ? 'typescript-topology' : 'unsupported')).methods;
-  const graph = input.supported ? buildBoundedSourceGraph(input) : undefined;
+  const graphMethods = new Set<CoverageDiscoveryMethodV1>([
+    'scope_contract', 'process_fact_registry', 'handler_dispatch_inventory', 'static_call_graph', 'runtime_trace',
+  ]);
+  const graph = input.supported && methods.some(method => graphMethods.has(method))
+    ? buildBoundedSourceGraph(input)
+    : undefined;
   return methods.map(method => buildResult(input, method, graph));
 }
 

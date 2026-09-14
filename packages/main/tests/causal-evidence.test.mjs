@@ -152,7 +152,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   const key = createCausalExecutionKey(identity);
   assert.equal(key.reusable, true);
   assert.equal(key.identity.cwd, repoRoot);
-  assert.match(key.key, /^ce:v1:[0-9a-f]{64}$/);
+  assert.match(key.key, /^ce:v2:[0-9a-f]{64}$/);
   assert.match(key.identity.effectiveEnvironment.API_TOKEN, /^<redacted>:sha256:[0-9a-f]{64}$/);
 
   for (const change of [
@@ -739,8 +739,8 @@ test('B-5a15 F-267/F-273/F-274: non-transport SESSION-like environment mutations
 
   assert.notEqual(appSessionChanged.key, createCausalExecutionKey(base).key);
   assert.notEqual(sessionModeChanged.key, createCausalExecutionKey(base).key);
-  assert.equal(appSessionChanged.identity.effectiveEnvironment.APP_SESSION, 'beta');
-  assert.equal(sessionModeChanged.identity.effectiveEnvironment.SESSION_MODE, 'unsafe');
+  assert.match(appSessionChanged.identity.effectiveEnvironment.APP_SESSION, /^<redacted>:sha256:[0-9a-f]{64}$/);
+  assert.match(sessionModeChanged.identity.effectiveEnvironment.SESSION_MODE, /^<redacted>:sha256:[0-9a-f]{64}$/);
   emitIntentMarker(
     'CHK-001:adversarial:session-like-environment',
     'only explicit transport keys are removed; behavior-affecting APP_SESSION and SESSION_MODE values remain bound to causal execution identity',
@@ -965,7 +965,7 @@ test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail
       receipt: null, expectedStoryId: storyId, expectedExecutionKey: key.key, revalidate: () => true, commit: () => {},
     }), /causal_receipt_invalid/);
     assert.throws(() => importCausalEvidenceReceipt({
-      receipt, expectedStoryId: storyId, expectedExecutionKey: 'ce:v1:wrong', revalidate: () => true, commit: () => {},
+      receipt, expectedStoryId: storyId, expectedExecutionKey: 'ce:v2:wrong', revalidate: () => true, commit: () => {},
     }), /causal_receipt_invalid/);
     const receiptPath = storyStore.causalEvidenceReceiptPath(storyId, receipt.receiptHash);
     const original = readFileSync(receiptPath, 'utf8');

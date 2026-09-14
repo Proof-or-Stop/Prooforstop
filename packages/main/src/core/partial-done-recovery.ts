@@ -148,14 +148,29 @@ export function detectPartialDoneStories(root: string, store: StoryStore): Parti
     const doneStory = branchStory;
     const integrationTarget = resolveStoryIntegrationTarget(mainRepoRoot, doneStory);
     const integrationBranch = integrationTarget?.parentBranch;
-    if (!integrationBranch) continue;
-    const branchMergedToMain = gitSucceeds(mainRepoRoot, ['merge-base', '--is-ancestor', branch, integrationBranch]);
-    if (branchMergedToMain) continue;
     const worktreePath = findStoryWorktreePath(mainRepoRoot, storyId, branch);
     const registered = listRegisteredWorktrees(mainRepoRoot).some(entry =>
       entry.branch === branch || (worktreePath ? normalizePath(entry.path) === normalizePath(worktreePath) : false),
     );
     const worktreeExists = worktreePath ? existsSync(worktreePath) : false;
+    if (!integrationBranch) {
+      partial.push({
+        storyId,
+        title: doneStory.title,
+        branch,
+        worktreePath,
+        branchExists,
+        branchMergedToMain: false,
+        worktreeRegistered: registered,
+        worktreeExists,
+        mergeTreeClean: false,
+        recoverCommand: `proof-or-stop done_recover --storyId=${storyId}`,
+        reason: 'story is phase=DONE but its integration target cannot be resolved; automatic recovery is refused',
+      });
+      continue;
+    }
+    const branchMergedToMain = gitSucceeds(mainRepoRoot, ['merge-base', '--is-ancestor', branch, integrationBranch]);
+    if (branchMergedToMain) continue;
     const mergeTreeClean = gitSucceeds(mainRepoRoot, ['merge-tree', '--write-tree', integrationBranch, branch]);
     partial.push({
       storyId,
@@ -235,6 +250,7 @@ export function renderPartialDoneSummary(partial: PartialDoneStory[]): string[] 
     const clean = entry.mergeTreeClean ? 'merge-tree clean' : 'merge-tree conflict';
     const wt = entry.worktreePath ? ` worktree=${entry.worktreePath}` : ' worktree=(none)';
     lines.push(`  - ${entry.storyId} ${entry.branch} [${clean}]${wt}`);
+    lines.push(`    reason: ${entry.reason}`);
     lines.push(`    → ${entry.recoverCommand}`);
   }
   return lines;

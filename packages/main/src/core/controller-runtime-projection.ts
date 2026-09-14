@@ -22,6 +22,18 @@ interface Claims {
   assets: Array<{ path: string; digest: string }>;
 }
 
+export function existingControllerRuntimeAssetPaths(controllerRoot: string): string[] {
+  return CONTROLLER_RUNTIME_ASSET_PATHS.filter(path => {
+    try {
+      lstatSync(join(controllerRoot, path));
+      return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
+      throw error;
+    }
+  });
+}
+
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 }
@@ -54,7 +66,7 @@ function buildClaims(args: { storyId: string; controllerRoot: string; worktreeRo
     storyId: args.storyId,
     controllerRoot,
     worktreeRoot,
-    assets: CONTROLLER_RUNTIME_ASSET_PATHS.map(path => ({
+    assets: existingControllerRuntimeAssetPaths(controllerRoot).map(path => ({
       path,
       digest: `sha256:${createHash('sha256').update(safeRegularFile(controllerRoot, join(controllerRoot, path))).digest('hex')}`,
     })),
@@ -83,6 +95,7 @@ function writeExclusive(path: string, record: unknown): void {
 
 export function attestControllerRuntimeProjection(args: { gitCwd: string; storyId: string; controllerRoot: string; worktreeRoot: string; storyRoot: string }): void {
   const expected = buildClaims(args);
+  if (expected.assets.length === 0) return;
   const common = commonRoot(args.gitCwd);
   const commonReceipt = join(common, COMMON_RECEIPT_DIR, `${args.storyId}.json`);
   const storyReceipt = join(realpathSync(args.storyRoot), STORY_RECEIPT);
@@ -98,10 +111,11 @@ export function attestControllerRuntimeProjection(args: { gitCwd: string; storyI
 export function hasValidControllerRuntimeProjection(args: { gitCwd: string; storyId: string; controllerRoot: string; worktreeRoot: string; storyRoot: string }): boolean {
   try {
     const expected = buildClaims(args);
+    if (expected.assets.length === 0) return false;
     const common = commonRoot(args.gitCwd);
     if (!matches(join(common, COMMON_RECEIPT_DIR, `${args.storyId}.json`), expected, common, args.gitCwd)) return false;
     if (!matches(join(realpathSync(args.storyRoot), STORY_RECEIPT), expected, args.storyRoot, args.gitCwd)) return false;
-    return CONTROLLER_RUNTIME_ASSET_PATHS.every(path =>
+    return expected.assets.every(({ path }) =>
       safeRegularFile(args.controllerRoot, join(args.controllerRoot, path)).equals(safeRegularFile(args.worktreeRoot, join(args.worktreeRoot, path))),
     );
   } catch { return false; }

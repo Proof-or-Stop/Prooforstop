@@ -2,12 +2,12 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { redactCausalOutput, redactEnvironment } from '../core/causal-evidence.js';
-import { acceptanceDiscoveryProfile } from '../core/acceptance-discovery-adapters.js';
+import { redactCausalOutput, redactCausalSelectorOutput, redactEnvironment } from '../core/causal-evidence.js';
+import { acceptanceDiscoveryProfile, runAcceptanceDiscoveryAdapters } from '../core/acceptance-discovery-adapters.js';
 import { isManagedGlobalThinRoot } from '../core/config.js';
 import { renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { StoryStore } from '../core/store.js';
@@ -17,8 +17,9 @@ import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtim
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { projectControllerAssetsIntoStoryWorktree } from '../cli/runtime-root.js';
-import { captureStoryIntegrationTarget } from '../core/story-integration-target.js';
+import { captureStoryIntegrationTarget, resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 import { createReleaseHandlers } from '../handlers/release.js';
+import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/partial-done-recovery.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '../../..');
@@ -56,6 +57,18 @@ check('proxy credentials are absent from causal identity and output-redaction in
   assert.equal(redactCausalOutput(`connected through ${sentinel}`, { HTTPS_PROXY: sentinel }).includes('PROXY_SENTINEL'), false);
 });
 
+check('selector redaction preserves ordinary environment words', () => {
+  const output = 'status: pass; mode: test; command: validate; owner: benchmark-user';
+  const redacted = redactCausalSelectorOutput(output, {
+    USER: 'benchmark-user',
+    NODE_ENV: 'test',
+    npm_lifecycle_event: 'validate',
+    API_TOKEN: 'pass-secret',
+  });
+  assert.equal(redacted, output);
+  assert.equal(redactCausalSelectorOutput('token=pass-secret', { API_TOKEN: 'pass-secret' }).includes('pass-secret'), false);
+});
+
 check('INIT reviewer uses a host-neutral instruction source', () => {
   const prompt = readFileSync(join(repositoryRoot, 'packages/main/templates/agents/proof-or-stop-review-story-init.md'), 'utf8');
   assert.equal(prompt.includes('`CLAUDE.md` (root directory)'), false);
@@ -69,12 +82,34 @@ check('master-only repository is a valid integration worktree', () => {
     assert.deepEqual(captureStoryIntegrationTarget(root), {
       parentBranch: 'master', parentCommitAtCreation: git(root, ['rev-parse', 'HEAD']), source: 'creation_branch', deliveryMode: 'merge_to_parent',
     });
-    assert.equal(assertMainWorktreeReadyForMerge('B-master', root), realpathSync(root));
+    assert.equal(assertMainWorktreeReadyForMerge('B-master', root, 'master'), realpathSync(root));
     const store = new StoryStore(root);
     const approval = createReleaseHandlers({ root, scanRoot: root, store }).release_approve_push({ confirm: true, json: true });
     if (typeof approval === 'string') throw new Error('JSON release approval unexpectedly returned text');
     assert.equal(approval.approval.branch, 'refs/heads/master');
     assert.match(approval.nextAction, /git push origin master/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+check('legacy Story integration target ignores the current task checkout', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-legacy-target-'));
+  try {
+    initRepo(root, 'main');
+    git(root, ['switch', '-qc', 'codex/unrelated']);
+    write(root, 'unrelated.txt', 'unrelated\n');
+    git(root, ['add', 'unrelated.txt']);
+    git(root, ['commit', '-qm', 'unrelated']);
+    const target = resolveStoryIntegrationTarget(root, {
+      integrationTarget: {
+        parentBranch: 'codex/unrelated',
+        parentCommitAtCreation: git(root, ['rev-parse', 'HEAD']),
+        source: 'creation_branch',
+        deliveryMode: 'merge_to_parent',
+      },
+    });
+    assert.equal(target?.parentBranch, 'main');
+    assert.equal(target?.source, 'repository_baseline');
+    assert.throws(() => assertMainWorktreeReadyForMerge('B-legacy', root, target?.parentBranch), /invalid branch|integration worktree/i);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
@@ -101,9 +136,76 @@ check('linked worktree inherits global-thin identity from the common repository'
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+check('Claude-only global-thin worktree does not require Codex runtime assets', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-global-thin-no-codex-'));
+  const worktree = join(root, '.worktrees', 'B-claude-only');
+  try {
+    initRepo(root, 'main');
+    write(root, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ assetMode: 'global-thin' }));
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    write(root, '.proof-or-stop/story/actives/B-claude-only/index.json', JSON.stringify({ storyId: 'B-claude-only', phase: 'INIT_CHECK' }));
+    git(root, ['branch', 'story/B-claude-only']);
+    mkdirSync(dirname(worktree), { recursive: true });
+    git(root, ['worktree', 'add', '-q', worktree, 'story/B-claude-only']);
+    const projected = projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId: 'B-claude-only' });
+    assert.equal(existsSync(join(projected.storyRoot, 'index.json')), true);
+    assert.equal(existsSync(join(projected.storyRoot, 'evidence/controller-runtime-projection.json')), false);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+check('global-thin projection refuses a controller runtime symlink', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-global-thin-symlink-'));
+  const worktree = join(root, '.worktrees', 'B-runtime-symlink');
+  try {
+    initRepo(root, 'main');
+    write(root, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ assetMode: 'global-thin' }));
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    write(root, '.proof-or-stop/story/actives/B-runtime-symlink/index.json', JSON.stringify({ storyId: 'B-runtime-symlink', phase: 'INIT_CHECK' }));
+    write(root, 'runtime-target.json', '{"hooks":[]}\n');
+    mkdirSync(join(root, '.codex'), { recursive: true });
+    symlinkSync('../runtime-target.json', join(root, '.codex/hooks.json'));
+    git(root, ['branch', 'story/B-runtime-symlink']);
+    mkdirSync(dirname(worktree), { recursive: true });
+    git(root, ['worktree', 'add', '-q', worktree, 'story/B-runtime-symlink']);
+    assert.throws(
+      () => projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId: 'B-runtime-symlink' }),
+      /refused unsafe symlink|refused symlink/,
+    );
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+check('partial-DONE detection reports an unresolved legacy integration target', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-partial-done-unresolved-'));
+  try {
+    initRepo(root, 'story/B-orphan');
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    const store = new StoryStore(root);
+    store.writeStory('B-orphan', {
+      storyId: 'B-orphan', name: 'orphan', title: 'Orphan', description: 'Legacy partial DONE without an integration target',
+      type: 'bug', phase: 'DONE', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: new Date().toISOString(),
+      worktree: { branch: 'story/B-orphan', path: root, createdAt: new Date().toISOString() },
+    });
+    git(root, ['add', '.']);
+    git(root, ['commit', '-qm', 'partial done']);
+    const partial = detectPartialDoneStories(root, store);
+    assert.equal(partial.length, 1);
+    assert.match(partial[0]?.reason ?? '', /integration target cannot be resolved/);
+    assert.match(renderPartialDoneSummary(partial).join('\n'), /integration target cannot be resolved/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 check('Go profile describes command evidence instead of unsupported topology adapters', () => {
   const profile = acceptanceDiscoveryProfile('go-command') as { methods: readonly string[] };
   assert.deepEqual(profile.methods, ['registered_command_receipts']);
+  const results = runAcceptanceDiscoveryAdapters({
+    supported: true,
+    verificationProfile: 'go-command',
+    workspaceRoot: join(tmpdir(), 'missing-go-discovery-root'),
+    storyId: 'B-go-command',
+    plannedPathRecords: [],
+    scopeRefs: [],
+  });
+  assert.deepEqual(results.map(result => result.method), ['registered_command_receipts']);
 });
 
 check('stale evidence hint names every stale intent', () => {
@@ -152,6 +254,10 @@ check('final response check exposes nonterminal lifecycle state to adapters', ()
     assert.equal(result.storyPhase, 'DEV');
     assert.equal(result.lifecycleComplete, false);
     assert.equal(result.completionStatus, 'continuation_required');
+    const missing = createPlaybookRuntimeMemoryHandlers(ctx).final_response_check({ storyId: 'B-missing', json: true });
+    assert.equal(missing.lifecycleComplete, false);
+    assert.equal(missing.completionStatus, 'unknown');
+    assert.match(missing.nextAction ?? '', /not found/i);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

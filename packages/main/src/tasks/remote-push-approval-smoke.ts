@@ -95,6 +95,35 @@ function refUpdate(localSha: string, remoteRef = 'refs/heads/main'): string {
 }
 
 // Test 3: exact approved main SHA is allowed and consumes the approval.
+// An approval cannot nominate an arbitrary non-task branch.
+{
+  const root = setupRepo();
+  try {
+    writeReleasePushApproval({ root, sha: shaA, branch: 'release/candidate', remote: 'origin', ttlSeconds: 60, reason: 'wrong target' });
+    const result = runHook(root, refUpdate(shaA, 'refs/heads/release/candidate'));
+    assert.notEqual(result.status, 0, 'approval for a non-integration branch must be denied');
+    assert.match(result.output, /only valid for refs\/heads\/main/, 'rejection should name the resolved integration branch');
+    assert.equal(existsSync(releasePushApprovalPath(root)), true, 'rejected approval must not be consumed');
+    console.log('✓ Test 2b: deny approval-selected non-integration branch');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Every unapproved non-task branch is denied as well.
+{
+  const root = setupRepo();
+  try {
+    const result = runHook(root, refUpdate(shaA, 'refs/heads/release/candidate'));
+    assert.notEqual(result.status, 0, 'unapproved non-task branch push must be denied');
+    assert.match(result.output, /missing one-shot approval file/, 'default-deny message should remain visible');
+    console.log('✓ Test 2c: default-deny unapproved non-task branch');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Test 3: exact approved main SHA is allowed and consumes the approval.
 {
   const root = setupRepo();
   try {

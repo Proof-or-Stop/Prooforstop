@@ -4,7 +4,7 @@
  * Scope is intentionally NARROW and forward-looking (the repository is full of
  * legacy Chinese; the policy does NOT translate retroactively):
  *
- *   1) Commit subjects + bodies on this branch only: `git log main..HEAD`.
+ *   1) Commit subjects + bodies on this branch only: `git log <integration>..HEAD`.
  *   2) The CURRENT story's AUTHOR-CONTROLLED metadata files only, resolved from
  *      .proof-or-stop/story/actives/<storyId>/ (or whatever storyDir the store uses):
  *        background.md, index.json, checklist.json, decision.json,
@@ -78,7 +78,7 @@ export interface EnglishArtifactGateResult {
   notes: string[];
 }
 
-/** Injectable git log reader. Returns the raw `git log main..HEAD` text. */
+/** Injectable git log reader. Returns raw branch-only `git log <integration>..HEAD` text. */
 export type GitLogReader = (cwd: string) => string;
 
 /** Injectable file reader (returns null when the file is absent/unreadable). */
@@ -165,7 +165,7 @@ const RECORD_SEP = '\x1e';
 
 /** Default git log reader: subjects + bodies for commits on this branch only. */
 const defaultGitLogReader: GitLogReader = (cwd) => {
-  // %H full hash, %B raw subject+body. `git log main..HEAD` is branch-scoped.
+  // %H full hash, %B raw subject+body. The resolved integration range is branch-scoped.
   return execFileSync(
     'git',
     ['log', `${requireRepositoryBaselineRef(cwd)}..HEAD`, '--pretty=format:%H%x1f%B%x1e'],
@@ -243,7 +243,7 @@ export function runEnglishArtifactGate(
   } catch (e) {
     // Never block on a git failure (detached HEAD, no `main`, git absent, ...).
     notes.push(
-      `git log main..HEAD unavailable (commit scan skipped): ${
+      `git log <integration>..HEAD unavailable (commit scan skipped): ${
         e instanceof Error ? e.message : String(e)
       }`,
     );

@@ -638,7 +638,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
             status: 'pass',
             label: 'Branch synced with main',
             detail: branch,
-            source: 'git merge-base --is-ancestor main',
+            source: `git merge-base --is-ancestor ${integrationBranch}`,
           }));
         } catch {
           const divergence = checkMainDivergence(gitCwd, integrationBranch);
@@ -653,7 +653,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
               storyId,
               'done_prepare merges main before final evidence refresh so DONE does not invalidate its own evidence binding.',
             ),
-            source: 'git merge-base --is-ancestor main',
+            source: `git merge-base --is-ancestor ${integrationBranch}`,
           }));
         }
       }

@@ -24,7 +24,23 @@ function localBranchName(ref: string): string | undefined {
 }
 
 function validIntegrationBranch(branch: string | undefined): branch is string {
-  return Boolean(branch && branch !== 'HEAD' && !branch.startsWith('story/'));
+  return Boolean(branch && branch !== 'HEAD' && !/^(?:story|codex|lab)\//.test(branch));
+}
+
+function repositoryBaselineIntegrationTarget(gitCwd: string): StoryIntegrationTarget | undefined {
+  const baseline = resolveRepositoryBaseline(gitCwd);
+  const branch = baseline ? localBranchName(baseline.ref) : undefined;
+  if (!validIntegrationBranch(branch)) return undefined;
+  try {
+    return {
+      parentBranch: branch,
+      parentCommitAtCreation: git(gitCwd, ['rev-parse', '--verify', `${baseline!.ref}^{commit}`]),
+      source: 'repository_baseline',
+      deliveryMode: 'merge_to_parent',
+    };
+  } catch {
+    return undefined;
+  }
 }
 
 /** Capture the branch that owns Story delivery before a Story worktree exists. */
@@ -41,19 +57,7 @@ export function captureStoryIntegrationTarget(gitCwd: string): StoryIntegrationT
     }
   } catch { /* detached or non-git creation falls through to repository policy */ }
 
-  const baseline = resolveRepositoryBaseline(gitCwd);
-  const branch = baseline ? localBranchName(baseline.ref) : undefined;
-  if (!validIntegrationBranch(branch)) return undefined;
-  try {
-    return {
-      parentBranch: branch,
-      parentCommitAtCreation: git(gitCwd, ['rev-parse', '--verify', `${baseline!.ref}^{commit}`]),
-      source: 'repository_baseline',
-      deliveryMode: 'merge_to_parent',
-    };
-  } catch {
-    return undefined;
-  }
+  return repositoryBaselineIntegrationTarget(gitCwd);
 }
 
 /** Resolve a frozen target, with repository-policy fallback for pre-field Stories. */
@@ -63,5 +67,5 @@ export function resolveStoryIntegrationTarget(
 ): StoryIntegrationTarget | undefined {
   const stored = story?.integrationTarget;
   if (stored && validIntegrationBranch(stored.parentBranch)) return stored;
-  return captureStoryIntegrationTarget(gitCwd);
+  return repositoryBaselineIntegrationTarget(gitCwd);
 }

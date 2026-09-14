@@ -23,7 +23,8 @@ import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
  * here so a second caller cannot accidentally create a weaker identity.
  */
 export const CAUSAL_EVIDENCE_SCHEMA = 'proof-or-stop.causal-evidence-receipt.v1' as const;
-export const CAUSAL_EXECUTION_KEY_SCHEMA = 'proof-or-stop.causal-execution-key.v1' as const;
+export const CAUSAL_EXECUTION_KEY_SCHEMA = 'proof-or-stop.causal-execution-key.v2' as const;
+export const CAUSAL_EXECUTION_KEY_PREFIX = 'ce:v2:' as const;
 export const CAUSAL_SELECTOR_POLICY_SCHEMA = 'proof-or-stop.causal-selector-policy.v1' as const;
 export const CAUSAL_LEDGER_SCHEMA = 'proof-or-stop.causal-evidence-ledger.v1' as const;
 export const CAUSAL_PREFLIGHT_SCHEMA = 'proof-or-stop.causal-evidence-preflight.v1' as const;
@@ -489,7 +490,7 @@ export function createCausalExecutionKey(input: CausalExecutionIdentityInput): C
   };
   const identityDigest = causalDigest(identity);
   return {
-    key: `ce:v1:${identityDigest}`,
+    key: `${CAUSAL_EXECUTION_KEY_PREFIX}${identityDigest}`,
     identity,
     identityDigest,
     reusable: identity.complete,
@@ -581,7 +582,7 @@ export function verifyCausalEvidenceReceipt(
       || !Number.isSafeInteger(receipt.selectorOutput.length) || receipt.selectorOutput.length < 0)) return false;
   if (receipt.identity.schemaVersion !== CAUSAL_EXECUTION_KEY_SCHEMA) return false;
   if (receipt.identityDigest !== causalDigest(receipt.identity)) return false;
-  if (receipt.executionKey !== `ce:v1:${receipt.identityDigest}`) return false;
+  if (receipt.executionKey !== `${CAUSAL_EXECUTION_KEY_PREFIX}${receipt.identityDigest}`) return false;
   if (receipt.storyId !== receipt.identity.storyId) return false;
   const statusAllowsReuse = receipt.status === 'pass' && receipt.exitCode === 0;
   if (receipt.reusable !== (receipt.identity.complete && statusAllowsReuse && !receipt.selectorWitness)) return false;
@@ -616,9 +617,31 @@ export function redactCausalOutput(output: string, effectiveEnvironment: Record<
     if (rawValue === undefined || rawValue === null) continue;
     const value = String(rawValue);
     if (!value || value === REDACTED) continue;
-    if ((!SAFE_PLAINTEXT_ENV_KEY.test(rawKey) || SECRET_ENV_KEY.test(rawKey)) && value.length >= 4) {
+    if (!isValidationTransportEnvKey(rawKey) && SECRET_ENV_KEY.test(rawKey) && value.length >= 4) {
       redacted = redacted.split(value).join(replacement);
     }
+  }
+  return redacted
+    .replace(/(authorization\s*[:=]\s*|bearer\s+)[^\s,;]+/gi, `$1${replacement}`)
+    .replace(/((?:token|secret|password|passwd|api[_-]?key|credential)\s*[:=]\s*)[^\s,;]+/gi, `$1${replacement}`);
+}
+
+/**
+ * Redact only credential-bearing values before selector matching. Ordinary
+ * environment values such as USER, PWD, NODE_ENV, or npm metadata are not
+ * secrets and must not erase legitimate command-output substrings.
+ */
+export function redactCausalSelectorOutput(
+  output: string,
+  effectiveEnvironment: Record<string, unknown> | undefined,
+  replacement = '\0',
+): string {
+  let redacted = String(output ?? '');
+  for (const [rawKey, rawValue] of Object.entries(effectiveEnvironment ?? {})) {
+    if (rawValue === undefined || rawValue === null || isValidationTransportEnvKey(rawKey)) continue;
+    const value = String(rawValue);
+    if (!value || value === REDACTED || value.length < 4 || !SECRET_ENV_KEY.test(rawKey)) continue;
+    redacted = redacted.split(value).join(replacement);
   }
   return redacted
     .replace(/(authorization\s*[:=]\s*|bearer\s+)[^\s,;]+/gi, `$1${replacement}`)
@@ -787,8 +810,11 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
       }
       const run = await args.run();
       const runStatus = statusForRun(run);
-      const matchingOutput = redactCausalOutput(run.output, { ...process.env, ...args.identity.effectiveEnvironment }, '\0');
-      const redactedOutput = matchingOutput.replace(/\0/g, REDACTED);
+      const matchingOutput = redactCausalSelectorOutput(run.output, args.identity.effectiveEnvironment);
+      const redactedOutput = redactCausalOutput(
+        run.output,
+        { ...process.env, ...args.identity.effectiveEnvironment },
+      );
       const longOutput = matchingOutput.length > CAUSAL_MAX_OUTPUT_CHARS;
       const durableOutput = longOutput && args.receiptStore?.readCausalSelectorOutput && args.receiptStore?.writeCausalSelectorOutput
         && matchingOutput.length <= CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES
@@ -1102,7 +1128,7 @@ export function verifyCausalPreflight(report: CausalPreflightReport, expectedIde
   const authorityRoot = authorityRootForPreflightFacts(report.facts as CausalPreflightFacts);
   const boundIdentity = report.executionIdentity as CausalExecutionIdentity;
   const identityBindingValid = report.executionIdentityDigest === causalDigest(boundIdentity)
-    && report.executionKey === `ce:v1:${report.executionIdentityDigest}`
+    && report.executionKey === `${CAUSAL_EXECUTION_KEY_PREFIX}${report.executionIdentityDigest}`
     && boundIdentity.schemaVersion === CAUSAL_EXECUTION_KEY_SCHEMA
     && typeof boundIdentity.storyId === 'string'
     && typeof boundIdentity.cwd === 'string'
