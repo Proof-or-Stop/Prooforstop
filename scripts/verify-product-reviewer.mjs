@@ -4,8 +4,12 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
+import { strict as nodeAssert } from 'node:assert';
 import { ADAPTER_DIR_NAMES } from '../packages/main/dist/core/brand-paths.js';
 import { legacyAgentRoleIds } from '../packages/main/dist/core/agent-role-identity.js';
+import { blockingInitCheckIssues, initCheckSignatureIsValid } from '../packages/main/dist/core/init-check-gate.js';
+import { StoryStore } from '../packages/main/dist/core/store.js';
+import { createInitCheckHandlers } from '../packages/main/dist/handlers/init-check.js';
 
 
 const root = process.cwd();
@@ -53,6 +57,11 @@ function createTempProject() {
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
+  execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: 'pipe' });
+  execFileSync('git', ['config', 'user.name', 'product-reviewer-smoke'], { cwd: dir, stdio: 'pipe' });
+  execFileSync('git', ['config', 'user.email', 'product-reviewer-smoke@example.com'], { cwd: dir, stdio: 'pipe' });
+  execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: dir, stdio: 'pipe' });
+  execFileSync('git', ['commit', '-m', 'fixture: initialize product reviewer project'], { cwd: dir, stdio: 'pipe' });
   return dir;
 }
 
@@ -76,11 +85,43 @@ const agentPaths = [
 for (const path of agentPaths) {
   assert(existsSync(path), `missing product-reviewer agent: ${path}`);
   const text = readFileSync(path, 'utf8');
-  assert(text.includes('user-facing transcript') || text.includes('what the user actually sees'), `${path} missing user-value scope`);
+  assert(text.includes('user-visible result') || text.includes('concrete, observable user result'), `${path} missing user-value scope`);
   assert(text.includes('Not modifying code') || text.includes('not modifying code') || text.includes('不修改代码'), `${path} missing non-edit boundary`);
   assert(text.includes('init_check_set') && text.includes('pass') && text.includes('fail'), `${path} missing INIT review recording requirement`);
   assert(text.includes('agentId":"proof-or-stop-product-reviewer') || text.includes('agentId` must be exactly `proof-or-stop-product-reviewer`'), `${path} missing exact product-reviewer agentId requirement`);
+  assert(text.includes('implementation has not started') && text.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: product reviewer must explicitly allow planned evidence before implementation');
+  assert(!text.includes('story_advance DONE') && !text.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: INIT reviewer must not request post-implementation artifacts');
 }
+
+const deferredEvidenceIssue = {
+  storyId: 'B-phase',
+  checkedAt: '2026-09-14T00:00:00.000Z',
+  reviewRound: '',
+  agentId: PRODUCT_REVIEWER_ROLE,
+  issues: [{
+    kind: 'post_implementation_evidence_missing',
+    severity: 'high',
+    desc: 'The implementation transcript does not exist before development begins.',
+  }],
+  _hash: 'fixture',
+};
+assert(blockingInitCheckIssues(deferredEvidenceIssue).length === 0, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: post-implementation evidence cannot block INIT');
+
+const trueInitIssue = {
+  ...deferredEvidenceIssue,
+  issues: [{
+    kind: 'user_outcome_unspecified',
+    severity: 'high',
+    desc: 'The Story does not say what observable result the user receives.',
+  }],
+};
+assert(blockingInitCheckIssues(trueInitIssue).length === 1, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: genuine INIT product gaps must still block');
+
+const legacyInitIssue = {
+  ...deferredEvidenceIssue,
+  issues: [{ severity: 'high', desc: 'Legacy signed INIT issue without a kind remains blocking.' }],
+};
+assert(blockingInitCheckIssues(legacyInitIssue).length === 1, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: legacy high issues must remain fail-closed');
 
 const temp = createTempProject();
 try {
@@ -96,6 +137,35 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert(storyId, 'failed to parse temp story id');
 
+  const directHandlers = createInitCheckHandlers({ store: new StoryStore(temp), root: temp, scanRoot: join(temp, 'packages/main') });
+  const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    nodeAssert.throws(() => directHandlers.init_check_set({
+      storyId,
+      issues: [{ kind: 'bogus', severity: 'high', desc: 'Unknown kinds must be rejected after bypassing Zod.' }],
+    }), /init_check_set: unsupported issue\.kind/, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_set runtime must reject unknown kinds');
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  nodeAssert.throws(() => directHandlers.init_check_repair({
+    storyId,
+    acknowledge: true,
+    fallbackReason: 'The test directly exercises the runtime fallback validation boundary.',
+    issues: [{ kind: 'bogus', severity: 'high', desc: 'Unknown fallback kinds must be rejected after bypassing Zod.' }],
+  }), /init_check_repair: unsupported issue\.kind/, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_repair runtime must reject unknown kinds');
+  assert(blockingInitCheckIssues({ issues: [{ kind: 'bogus', severity: 'high', desc: 'Unknown persisted kinds remain blocking.' }] }).length === 1, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: unknown persisted kinds must remain fail-closed');
+
+  const readOnlyPrompt = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'agent_prompt', JSON.stringify({
+    role: PRODUCT_REVIEWER_ROLE,
+    storyId,
+    readOnly: true,
+    format: 'text',
+  })]);
+  assert(readOnlyPrompt.includes('implementation has not started') && readOnlyPrompt.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: read-only prompt must explain the INIT evidence boundary');
+  assert(!readOnlyPrompt.includes('story_advance DONE') && !readOnlyPrompt.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: read-only prompt must not request post-implementation artifacts');
+
   const dispatchRaw = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'dispatch', JSON.stringify({
     storyId,
     agentType: PRODUCT_REVIEWER_ROLE,
@@ -103,6 +173,25 @@ try {
   assert(dispatchRaw.includes('proof-or-stop-product-reviewer'), 'product-reviewer dispatch should identify the canonical reviewer role');
   assert(dispatchRaw.includes('"agentId":"proof-or-stop-product-reviewer"') || dispatchRaw.includes('\\"agentId\\":\\"proof-or-stop-product-reviewer\\"'), 'product-reviewer dispatch should include exact canonical agentId command');
   assert(dispatchRaw.includes('Do not pass "proof-or-stop-review-story-init"') || dispatchRaw.includes('Do not pass \\"proof-or-stop-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
+  assert(dispatchRaw.includes('implementation has not started') && dispatchRaw.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: dispatch must explain implementation evidence is unavailable during INIT');
+  assert(!dispatchRaw.includes('story_advance DONE') && !dispatchRaw.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: dispatch must not request post-implementation artifacts');
+
+  run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'init_check_set', JSON.stringify({
+    storyId,
+    agentId: PRODUCT_REVIEWER_ROLE,
+    issues: [{
+      kind: 'post_implementation_evidence_missing',
+      severity: 'high',
+      desc: 'The implementation transcript does not exist before development begins.',
+    }],
+  })]);
+  const storedInitCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  assert(storedInitCheck.agentResults?.[0]?.issues?.[0]?.kind === 'post_implementation_evidence_missing', 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_set must persist structured stage applicability');
+  assert(blockingInitCheckIssues(storedInitCheck).length === 0, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: stored post-implementation evidence cannot block INIT');
+  assert(initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, storedInitCheck), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: stored issue kind must have a valid signature');
+  const tamperedKind = structuredClone(storedInitCheck);
+  tamperedKind.agentResults[0].issues[0].kind = 'user_outcome_unspecified';
+  assert(!initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, tamperedKind), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: changing issue kind must invalidate the signature');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,
@@ -118,11 +207,11 @@ try {
     storyId,
     itemId: 'CHK-001',
     verificationIntent: {
-      happy: [{ desc: 'Normal scenario -> product acceptance reminder', type: 'cli_blackbox' }],
-      edge: [{ desc: 'Abstract outcome -> emit advisory', type: 'cli_blackbox' }],
-      adversarial: [{ desc: 'Engineering complete but user still asks what comes next -> expose gap', type: 'cli_blackbox' }],
+      happy: [{ desc: 'Normal scenario -> product acceptance reminder', type: 'cli_blackbox', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+      edge: [{ desc: 'Abstract outcome -> emit advisory', type: 'cli_blackbox', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+      adversarial: [{ desc: 'Engineering complete but user still asks what comes next -> expose gap', type: 'cli_blackbox', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
     },
-    agent: 'test-intent',
+    agent: 'proof-or-stop-verification-intent',
   })]);
 
   const reviewRaw = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'story_review', JSON.stringify({ storyId })]);
@@ -130,7 +219,7 @@ try {
   assert(review.summary && typeof review.summary.issueCount === 'number', 'story_review should return structured summary');
 
   const dispatchSource = readFileSync(join(root, 'packages/main/src/handlers/story-dispatch.ts'), 'utf8');
-  assert(dispatchSource.includes('user value perspective') && dispatchSource.includes('what comes next'), 'product reviewer user-value guidance missing');
+  assert(dispatchSource.includes('user value perspective') && dispatchSource.includes('verificationIntent'), 'product reviewer planned user-value guidance missing');
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

@@ -61,9 +61,11 @@ import {
   hasRequiredManagedReviewReadEvidence,
   isStrictManagedReviewFindingProposal,
   managedClaudePromptDirectoryForRun,
+  normalizeHostRunModelSelection,
   runHostRun,
   isSafeIsolatedProviderProcessGroup,
   type HostRunHost,
+  type HostRunReasoningEffort,
   type HostRunResult,
   type HostRunRunner,
   type HostRunProcessIdentity,
@@ -183,6 +185,10 @@ export interface ManagedHostRunSubmitArgs {
   root: string;
   cwd: string;
   host: HostRunHost;
+  /** Exact provider selector; null/absent preserves the provider default. */
+  model?: string | null;
+  /** Exact provider reasoning selector; null/absent preserves the provider default. */
+  reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
   phase: string;
   agentType: string;
@@ -308,6 +314,10 @@ export function signManagedReviewProposalInvocation(
 export interface ManagedHostRunReceipt {
   schemaVersion: 'lattice.managed_host_run_receipt.v1';
   runId: string;
+  /** Exact model selector sealed by spec/result/receipt, or null for provider default. */
+  model?: string | null;
+  /** Exact reasoning selector sealed by spec/result/receipt, or null for provider default. */
+  reasoningEffort?: HostRunReasoningEffort | null;
   receiptId: string;
   terminalDigest: string;
   state: ManagedHostRunTerminalState;
@@ -334,6 +344,8 @@ export interface ManagedHostRunProjection {
   schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION;
   runId: string;
   host: HostRunHost;
+  model?: string | null;
+  reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
   phase: string;
   agentType: string;
@@ -521,6 +533,10 @@ interface ManagedHostRunSpec {
   schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION;
   runId: string;
   host: HostRunHost;
+  /** Optional for historical specs written before exact selector binding. */
+  model?: string | null;
+  /** Optional for historical specs written before exact selector binding. */
+  reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
   phase: string;
   agentType: string;
@@ -544,6 +560,8 @@ interface ManagedHostRunSpec {
 export interface ManagedHostRunBindingProjection {
   runId: string;
   host: HostRunHost;
+  model?: string | null;
+  reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
   phase: string;
   agentType: string;
@@ -1706,6 +1724,9 @@ function liveBindingProjection(paths: ManagedHostRunPaths): ManagedHostRunBindin
   return {
     runId: spec.runId,
     host: spec.host,
+    ...(Object.prototype.hasOwnProperty.call(spec, 'model') ? { model: spec.model ?? null } : {}),
+    ...(Object.prototype.hasOwnProperty.call(spec, 'reasoningEffort')
+      ? { reasoningEffort: spec.reasoningEffort ?? null } : {}),
     storyId: spec.storyId,
     phase: spec.phase,
     agentType: spec.agentType,
@@ -1728,13 +1749,17 @@ function bindingProjectionDigestOf(binding: ManagedHostRunBindingProjection): st
 
 function receiptPayloadFor(paths: ManagedHostRunPaths, terminal: ManagedHostRunTerminal): ManagedHostRunReceipt {
   assertArtifactRunId(paths, 'terminal', terminal.runId);
+  const binding = liveBindingProjection(paths);
   const payload = {
     schemaVersion: 'lattice.managed_host_run_receipt.v1' as const,
     runId: terminal.runId,
+    ...(Object.prototype.hasOwnProperty.call(binding, 'model') ? { model: binding.model ?? null } : {}),
+    ...(Object.prototype.hasOwnProperty.call(binding, 'reasoningEffort')
+      ? { reasoningEffort: binding.reasoningEffort ?? null } : {}),
     terminalDigest: sha256(readManagedRuntimeText(paths.terminal)),
     state: terminal.state,
     specDigest: terminal.specDigest,
-    bindingProjectionDigest: bindingProjectionDigestOf(liveBindingProjection(paths)),
+    bindingProjectionDigest: bindingProjectionDigestOf(binding),
     resultDigest: terminal.resultDigest,
     eventJournalDigest: terminal.eventJournalDigest,
     liveOutputDigest: terminal.liveOutputDigest,
@@ -1907,6 +1932,8 @@ function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
     runId: spec.runId,
     host: spec.host,
+    model: spec.model ?? null,
+    reasoningEffort: spec.reasoningEffort ?? null,
     storyId: spec.storyId,
     phase: spec.phase,
     agentType: spec.agentType,
@@ -2324,6 +2351,7 @@ export async function submitManagedHostRun(
   if (!args.root || !args.cwd) throw new Error('managed host run: root and cwd are required');
   if (!args.promptText) throw new Error('managed host run: prompt is empty; refuse pre-spawn');
   if (!args.phase || !args.agentType) throw new Error('managed host run: phase and agentType are required');
+  const selection = normalizeHostRunModelSelection(args);
   const platform = deps.platform ?? process.platform;
   if (args.reviewRunId && args.storyId && !args.reviewRunId.startsWith(`${args.storyId}:`)) {
     throw new Error(`managed host run: reviewRunId "${args.reviewRunId}" does not belong to story "${args.storyId}"`);
@@ -2376,9 +2404,18 @@ export async function submitManagedHostRun(
     : args.idempotencyKey !== undefined
       ? ['request', args.idempotencyKey]
       : null;
+  const submissionArgs = { ...args };
+  delete submissionArgs.model;
+  delete submissionArgs.reasoningEffort;
   const submissionDigest = logicalIdentity ? sha256(canonicalJson({
-    ...args, burnTokenLimit, root: realpathSync(args.root), cwd: realpathSync(args.cwd),
-    deadlineMs, timeoutMs,
+    ...submissionArgs,
+    ...(selection.model !== null ? { model: selection.model } : {}),
+    ...(selection.reasoningEffort !== null ? { reasoningEffort: selection.reasoningEffort } : {}),
+    burnTokenLimit,
+    root: realpathSync(args.root),
+    cwd: realpathSync(args.cwd),
+    deadlineMs,
+    timeoutMs,
   })) : undefined;
   const runId = logicalIdentity
     ? `request-${createHash('sha256').update(canonicalJson(logicalIdentity)).digest('hex')}`
@@ -2458,6 +2495,8 @@ export async function submitManagedHostRun(
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
     runId,
     host: args.host,
+    model: selection.model,
+    reasoningEffort: selection.reasoningEffort,
     storyId: args.storyId,
     phase: args.phase,
     agentType: args.agentType,
@@ -2878,6 +2917,8 @@ export async function runManagedHostRunWorker(
     result = await runHostRun(
       {
         host: spec.host,
+        model: spec.model ?? null,
+        reasoningEffort: spec.reasoningEffort ?? null,
         storyId: spec.storyId,
         agentType: spec.agentType,
         phase: spec.phase,

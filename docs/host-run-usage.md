@@ -164,6 +164,18 @@ forbids both and derives the exact prompt from the signed ReviewRun. A host
 non-zero exit (or a cap refusal) propagates as a non-zero process exit; in
 `--json` mode `exitCode` is a field.
 
+`host_run` also accepts optional `--model` and `--reasoningEffort` selectors.
+For a formal managed review these values are normalized before submission,
+included in the idempotency input, sealed into the immutable spec and binding
+projection, copied into the result and terminal receipt, and checked again when
+the proposal is imported as REVIEW evidence. Codex receives `--model` plus
+`--config model_reasoning_effort=...`; Claude receives `--model` plus
+`--effort`. Claude accepts `low`, `medium`, `high`, `xhigh`, or `max`.
+Omitting either selector preserves the provider default and records `null`.
+These fields prove the exact selector placed on the protected provider argv;
+they do not claim that a provider-side alias resolved to a particular hidden
+model revision.
+
 ### Reviewer launch
 
 Native direct `review_pass_set` / reviewer `finding_add` is formal evidence only
@@ -246,7 +258,7 @@ managed run before receipt import.
 proof-or-stop review_run_start '{"storyId":"B-xxxx","agent":"proof-or-stop-review-quality"}'
 
 # 2. Submit the exact provider reviewer; raw `bash + codex exec` is unmanaged.
-proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-quality","reviewRunId":"B-xxxx:RR-001","lane":"proof-or-stop-review-quality","managedReview":true,"detach":true,"json":true}'
+proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-terra","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-review-quality","reviewRunId":"B-xxxx:RR-001","lane":"proof-or-stop-review-quality","managedReview":true,"detach":true,"json":true}'
 
 # 3. Repeat this bounded status call. Silence does not cause replacement.
 proof-or-stop host_run_status '{"runId":"<runId>","afterGeneration":<generation>,"waitMs":30000,"json":true}'

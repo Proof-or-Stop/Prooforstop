@@ -5,7 +5,7 @@ import { candidateAddSchema, candidateGetSchema, candidateMergeSchema, candidate
 import { routeRequestSchema, routeRevokeSchema, routeVerifySchema, candidateRouteRequestSchema, routeSourceSchema } from '../core/finding-route.js';
 import { progressCaptureSchema, progressPredecessorRequestSchema } from '../core/finding-progress.js';
 import { publicToolCatalog, type ToolDef } from './main-tools.js';
-import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
+import { INIT_CHECK_ISSUE_KINDS, STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
 import {
   ContextPackDependencyEdgeContractSchema,
   ContextPackSnippetContractSchema,
@@ -264,9 +264,26 @@ const deliveryPromiseSchema = z.object({
   }
 });
 
+const MINIMAL_CLASSIFIED_VERIFICATION_INTENT = {
+  happy: [{
+    id: 'CHK-001:happy:0',
+    desc: 'Focused acceptance behavior passes',
+    type: 'logic' as const,
+    priority: 'must' as const,
+    scope: 'focused' as const,
+    expectation: 'absolute_pass' as const,
+    requirementSource: 'story' as const,
+  }],
+  edge: [],
+  adversarial: [],
+};
+
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
-  { name: 'story_create', description: 'Create a Story entry', longHelp: STORY_CREATE_LONG, schema: {
+  { name: 'story_create', description: 'Create a Story entry', longHelp: STORY_CREATE_LONG, examples: [{
+    title: 'Minimal classified verificationIntent JSON',
+    body: { title: 'Example Story', description: 'Example Story description', checklist: [{ title: 'Focused acceptance', verificationIntent: MINIMAL_CLASSIFIED_VERIFICATION_INTENT }] },
+  }], schema: {
     name: z.string().optional().describe('Short name.'),
     title: z.string().optional().describe('Title.'),
     description: z.string().optional().describe('Description.'),
@@ -450,18 +467,49 @@ Behavior:
   }},
 
   // Checklist
-  { name: 'checklist_get', description: 'Read the checklist', schema: {
+  { name: 'checklist_get', description: 'Read the checklist', examples: [{
+    title: 'Compute one proposal digest',
+    body: { storyId: 'B-1234', proposalFor: 'CHK-001', proposalIntent: MINIMAL_CLASSIFIED_VERIFICATION_INTENT },
+  }], schema: {
     storyId: z.string().describe('Story ID'),
     proposalFor: z.string().optional().describe('Read-only current baseIntentHash for this checklist item; combine with proposalIntent to compute an exact approval digest.'),
     proposalIntent: verificationIntentSchema.optional().describe('Proposed intent JSON; with proposalFor returns digest only, never applies or approves the proposal.'),
     slim: z.boolean().optional().describe('Opt-in compact checklist view. Default output is unchanged when omitted.'),
     fields: z.array(z.string()).optional().describe('Opt-in top-level field filter. With slim=true, filter storyId/counts/items.'),
   }},
+  { name: 'plan_acceptance_prepare', description: 'Prepare one digest-bound PLAN acceptance batch without writing checklist state.', schema: {
+    storyId: z.string().describe('Story ID'),
+    items: z.array(z.object({
+      itemId: z.string().describe('Checklist item ID.'),
+      files: z.object({ modify: z.array(z.string()), create: z.array(z.string()), test: z.array(z.string()) }).strict(),
+      verificationIntent: verificationIntentSchema,
+    }).strict()).min(1).describe('Complete set of checklist acceptance updates to bind as one transaction.'),
+  }},
+  { name: 'plan_acceptance_apply', description: 'Atomically apply an unchanged owner-approved PLAN acceptance batch.', schema: {
+    storyId: z.string().describe('Story ID'),
+    prepared: z.object({
+      schemaVersion: z.literal('proof-or-stop.plan-acceptance-batch.v1'),
+      storyId: z.string(),
+      items: z.array(z.object({
+        itemId: z.string(),
+        files: z.object({ modify: z.array(z.string()), create: z.array(z.string()), test: z.array(z.string()) }).strict(),
+        verificationIntent: verificationIntentSchema,
+        baseIntentHash: z.string().regex(/^[a-f0-9]{64}$/),
+        baseItemHash: z.string().regex(/^[a-f0-9]{64}$/),
+        proposalDigest: z.string().regex(/^[a-f0-9]{64}$/),
+      }).strict()).min(1),
+      digest: z.string().regex(/^[a-f0-9]{64}$/),
+    }).strict().describe('Exact output returned by plan_acceptance_prepare.'),
+    reason: z.string().min(30).describe('Owner justification for approving the whole batch.'),
+  }},
   { name: 'frozen_claim_drift_check', description: 'B-2296 Phase 1: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory — reports checklist userSees whose normalized claim OR story-owned material (storyFilesHash) drifted since attestation; classifies no-snapshot userSees as legacy-unbound.', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output the structured advisory array + summary object as JSON.'),
   }},
-  { name: 'checklist_add', description: 'Append a checklist item to an existing story', schema: {
+  { name: 'checklist_add', description: 'Append a checklist item to an existing story', examples: [{
+    title: 'Add one classified acceptance item',
+    body: { storyId: 'B-1234', title: 'Focused acceptance', verificationIntent: MINIMAL_CLASSIFIED_VERIFICATION_INTENT },
+  }], schema: {
     storyId: z.string().describe('Story ID'), title: z.string().describe('What to do, in one sentence.'),
     context: z.string().optional().describe('Root cause or reference approach.'),
     relatedDocs: z.array(z.string()).optional().describe('Related documentation paths used for the three reminders.'),
@@ -484,7 +532,10 @@ Behavior:
     agent: z.string().optional().describe('Actor identity; INIT reviewers cannot remove requirements.'),
     actor: z.string().optional().describe('Actor alias; cannot hide a dispatched INIT reviewer.'),
   }},
-  { name: 'checklist_update', description: 'Update a checklist item (status/relatedDocs; title/context/userSees frozen)', longHelp: CHECKLIST_UPDATE_LONG, schema: {
+  { name: 'checklist_update', description: 'Update a checklist item (status/relatedDocs; title/context/userSees frozen)', longHelp: CHECKLIST_UPDATE_LONG, examples: [{
+    title: 'Set one classified verificationIntent in PLAN',
+    body: { storyId: 'B-1234', itemId: 'CHK-001', verificationIntent: MINIMAL_CLASSIFIED_VERIFICATION_INTENT },
+  }], schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('Item ID.'),
     status: z.enum(['pending','in_progress','done','withdrawn']).optional().describe("New status. 'withdrawn' is REFUSED here — it may only be set by scope_shrinkage_decision_set (the sole authorized applier)."),
     title: z.string().optional().describe('New title; frozen starting in PLAN.'),
@@ -2623,9 +2674,10 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     issues: z.array(z.object({
       id: z.string().optional().describe('Reviewer self-assigned ID, for example I-1; optional.'),
+      kind: z.enum(INIT_CHECK_ISSUE_KINDS).optional().describe('INIT-stage applicability. post_implementation_evidence_missing is deferred and cannot block implementation start.'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Issue details (reviewer subjective judgment must be specific).'),
-    })).describe('List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.'),
+    })).describe('List of issues raised by Reviewer; critical/high INIT-applicable issues block INIT_CHECK, while post-implementation evidence gaps are deferred; empty array allowed.'),
     agent: z.string().optional().describe('Reviewer self-reported agent name; proof-or-stop-product-reviewer must pass proof-or-stop-product-reviewer.'),
     agentId: z.string().optional().describe('Reviewer self-reported agent ID; proof-or-stop-product-reviewer must pass proof-or-stop-product-reviewer and must not pass proof-or-stop-review-story-init.'),
   }},
@@ -2642,9 +2694,10 @@ Behavior:
     evidenceRefs: z.array(z.string()).optional().describe('Optional: evidence references for the manual check (file/URL/transcript summary).'),
     issues: z.array(z.object({
       id: z.string().optional().describe('Self-assigned ID, optional.'),
+      kind: z.enum(INIT_CHECK_ISSUE_KINDS).optional().describe('INIT-stage applicability. post_implementation_evidence_missing is deferred and cannot block implementation start.'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character.').describe('Issue details.'),
-    })).optional().describe('Optional issues raised by manual attestation; high/critical still block INIT_CHECK.'),
+    })).optional().describe('Optional issues raised by manual attestation; high/critical INIT-applicable issues block INIT_CHECK, while post-implementation evidence gaps are deferred.'),
     actor: z.string().optional().describe('Optional actor identifier; defaults to git user.name.'),
   }},
 
@@ -3392,6 +3445,8 @@ Behavior:
   { name: 'host_run', description: 'Submit a durable managed Codex or Claude CLI run. Foreground mode attaches to the same durable run; --detach returns after the worker claim. Silence never implies failure. Alias: proof-or-stop host run', schema: {
     idempotencyKey: z.string().min(1).max(512).optional().describe('Stable logical request key for retry-safe submission; changed inputs are refused. Formal reviews automatically bind host/story/reviewRunId/lane.'),
     host: z.string().describe('Canonical managed host: codex or claude (alias: claude-code->claude)'),
+    model: z.string().min(1).max(256).optional().describe('Exact provider model id placed on the managed invocation argv and sealed into its run binding and receipt'),
+    reasoningEffort: z.enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra']).optional().describe('Exact provider reasoning effort placed on invocation argv and sealed into the run binding and receipt; Claude supports low through max'),
     agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / proof-or-stop-review-quality / autopilot-repair'),
     storyId: z.string().optional().describe('Canonical Story id; when set the story index resolves the phase (omit for an adhoc run)'),
     phase: z.string().optional().describe('Explicit attribution phase; when omitted and storyId is set, resolves from the story index'),

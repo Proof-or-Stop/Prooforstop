@@ -529,6 +529,8 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
   'finding_rollout_scorecard',
   'milestone_status',
   'milestone_closeout',
+  'plan_acceptance_prepare',
+  'plan_acceptance_apply',
 ]);
 
 // B-7c05 CHK-004: commands whose CLI stdout defaults to brief via an explicit
@@ -590,7 +592,11 @@ function parseCommandArgs(rawArgs: string[], tool: ToolDef): Record<string, unkn
   return parseFlags(rawArgs, tool.schema);
 }
 
-function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, argv: string[]): void {
+function requestsJsonErrorOutput(parsed: Record<string, unknown>): boolean {
+  return parsed.json === true || parsed.format === 'json';
+}
+
+function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, argv: string[], invocation?: string): void {
   if (!cmd || !STRICT_COMMAND_ARG_COMMANDS.has(cmd)) return;
   if (argv[1] === '--help' || argv[1] === '-h') return;
   const tool = TOOLS.find(t => t.name === cmd);
@@ -600,12 +606,15 @@ function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, arg
     parsed = parseCommandArgs(argv.slice(1), tool);
   } catch (e) {
     console.error((e as Error).message);
-    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
+    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock, invocation });
     process.exit(1);
   }
   const v = validationSchemaForCommand(cmd, tool).safeParse(parsed);
   if (!v.success) {
-    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock);
+    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock, {
+      json: requestsJsonErrorOutput(parsed),
+      invocation,
+    });
     process.exit(1);
   }
 }
@@ -880,7 +889,11 @@ export async function runCli(opts?: {
     return;
   }
 
-  preflightStrictCommandArgsBeforeStoryReads(cmd, argv);
+  preflightStrictCommandArgsBeforeStoryReads(
+    cmd,
+    argv,
+    normalizedAlias.matched ? normalizedAlias.displayAlias : undefined,
+  );
 
   // Detect active story from git branch only after runtime authority passes.
   let activeStory = detectActiveStory(root0);
@@ -997,7 +1010,10 @@ export async function runCli(opts?: {
   const schema = validationSchemaForCommand(cmd, tool);
   const v = schema.safeParse(parsed);
   if (!v.success) {
-    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock);
+    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock, {
+      json: requestsJsonErrorOutput(parsed),
+      invocation: helpInvocation,
+    });
     process.exit(1);
   }
   parsed = v.data as Record<string, unknown>;

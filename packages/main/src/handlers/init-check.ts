@@ -18,7 +18,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import { execSync } from 'child_process';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
-import type { InitCheckData, InitCheckIssue } from '../core/types.js';
+import { INIT_CHECK_ISSUE_KINDS, type InitCheckData, type InitCheckIssue } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -43,6 +43,17 @@ import {
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+
+const INIT_CHECK_ISSUE_KIND_SET = new Set<string>(INIT_CHECK_ISSUE_KINDS);
+
+function assertValidInitCheckIssue(issue: InitCheckIssue | null | undefined, command: 'init_check_set' | 'init_check_repair'): void {
+  if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
+    throw new Error(`${command}: each issue.desc must be >= 1 character after trim`);
+  }
+  if (issue.kind !== undefined && !INIT_CHECK_ISSUE_KIND_SET.has(issue.kind)) {
+    throw new Error(`${command}: unsupported issue.kind ${JSON.stringify(issue.kind)}`);
+  }
+}
 
 // Backward-compatible re-exports: existing importers (core/machine.ts now reads
 // from core directly; story-create.ts / draft-check.ts still import from here).
@@ -121,11 +132,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       // 2) runtime validation of issues (guards against Zod-bypass paths, aligned with the gate-side trim standard)
       const issues = Array.isArray(args.issues) ? args.issues : [];
       for (const issue of issues) {
-        if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
-          throw new Error(
-            `init_check_set: each issue.desc must be >= 1 character after trim (reviewer subjective judgments need to be concrete)`,
-          );
-        }
+        assertValidInitCheckIssue(issue, 'init_check_set');
       }
 
       // 3) compute the three hashes required for the signature
@@ -234,8 +241,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       );
       store.writeInitCheck(args.storyId, data);
 
-      // 6) return value contains issue counts bucketed by severity (advisory mode: critical does not block here either,
-      //    the reviewer template self-disciplines and refuses the call; the CHK-005 gate-side advance success message will then echo a critical warning)
+      // 6) Return issue counts bucketed by severity. This writer records the
+      // reviewer verdict; blocking and phase applicability are decided by the gate.
       let critical = 0, high = 0, medium = 0, low = 0;
       for (const issue of issues) {
         switch (issue.severity) {
@@ -268,7 +275,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
      *    suffix + `fallback` block keep the manual attestation mechanically
      *    distinguishable from an independent reviewer run (initCheckAttestationMode).
      *  - Operator-supplied issues still flow through blockingInitCheckIssues: attesting
-     *    a high/critical issue self-blocks (you cannot fallback past a real blocker).
+     *    a high/critical INIT-applicable issue self-blocks (you cannot fallback past a
+     *    real blocker). A post_implementation_evidence_missing issue is deferred.
      *
      * NOT default-on: rejects (no file written, no phase change) unless BOTH an
      * explicit `acknowledge: true` AND a `fallbackReason` (>= 30 chars) are supplied.
@@ -310,9 +318,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       // issues runtime validation mirrors init_check_set (defend the bypass path).
       const issues = Array.isArray(args.issues) ? args.issues : [];
       for (const issue of issues) {
-        if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
-          throw new Error('init_check_repair: each issue.desc must be ≥ 1 character after trim');
-        }
+        assertValidInitCheckIssue(issue, 'init_check_repair');
       }
 
       return withInitCheckLock(store, args.storyId, () => {

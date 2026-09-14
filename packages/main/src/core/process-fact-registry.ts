@@ -601,6 +601,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   test_story: ['test-evidence', 'validation-result'],
   verification_evidence_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
   verification_evidence_batch_add: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
+  plan_acceptance_apply: ['schema-contract', 'verification-policy', 'atomic-persistence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'atomic-persistence', 'gate-evidence'],
   verification_run: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
   verification_pin_narrow: ['schema-contract', 'execution-evidence', 'verification-evidence', 'freshness-policy', 'gate-evidence'],
@@ -910,6 +911,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'checklist_update',
     consumerGate: 'storyMachine.checklistAllDone DEV to REVIEW gate',
+  },
+  plan_acceptance_apply: {
+    name: 'checklist.json',
+    path: 'checklist.json',
+    signed: false,
+    signature: 'owner lease plus whole-batch digest and per-item stale-state bindings',
+    producerCommand: 'plan_acceptance_apply',
+    consumerGate: 'PLAN acceptance freeze and downstream verification coverage gates',
   },
   verification_intent_recover: {name:'checklist.json',path:'checklist.json',signed:false,signature:'exact repository-signed Git-metadata checkpoint is verified before projection recovery',producerCommand:'verification_intent_recover',consumerGate:'StoryStore canonical readers reject missing, stripped or mismatched checkpoint projections'},
   verification_intent_append: {name:'checklist.json',path:'checklist.json',signed:false,signature:'repository-local Ed25519 amendment chain binding owner, scope, before and after intent semantics',producerCommand:'verification_intent_append',consumerGate:'StoryStore.readChecklist and writeChecklist validate signatures before coverage and review consumers'},
@@ -1439,7 +1448,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     reviewerLane: 'proof-or-stop-product-reviewer',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
-    rationale: 'Product init reviewer is a required init-check producer for user-value readiness.',
+    rationale: 'Product INIT reviewer signs planned user-outcome and verification-plan readiness; post-implementation evidence is deferred to later lifecycle gates.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-review-scope-plan',
@@ -1720,6 +1729,7 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
 
 // Selected canonical owners carry repository-keyed dispositions consumed independently of cached review counts.
 COMMAND_PROCESS_FACTS.push({name:'runtime:plan_selected_owner_coverage',kind:'runtime-behavior',level:'L4',semantics:['runtime-behavior','signed-artifact','gate-evidence'],paths:['packages/main/src/core/plan-touchpoint-coverage.ts','packages/main/src/handlers/scope-check.ts','packages/main/src/handlers/story-review.ts','packages/main/src/core/machine.ts'],producer:'scope_check_save registered scope reviewer',consumerGate:'story_review and canStartDevGuard',rationale:'Independent canonical process-fact owner enumeration prevents simultaneous declaration omission; keyed local-role coverage binds topology, registry and relevant source bytes, allows substantive unchanged dispositions, and fails closed on invalid or stale records.'});
+COMMAND_PROCESS_FACTS.push({name:'runtime:review_gate_intent_cycle_rejection',kind:'runtime-behavior',level:'L4',semantics:['runtime-behavior','verification-policy','gate-evidence'],paths:['packages/main/src/core/reviewer-lane-names.ts','packages/main/src/core/review-gate-verification-intent.ts','packages/main/src/handlers/story-create.ts','packages/main/src/handlers/checklist.ts','packages/main/src/handlers/story-review.ts','packages/main/src/handlers/testintent-handoff.ts','packages/main/templates/agents/proof-or-stop-verification-intent.md'],producer:'Story and checklist verification-intent writers plus story_review PLAN discipline',consumerGate:'storyMachine.canStartDev PLAN to DEV gate',rationale:'Writers reject a bounded, explicitly enumerated set of must-level REVIEW lifecycle verdict phrasings before persistence, including reviewer pass or verdict and no-open-findings shapes; this is a narrow text heuristic rather than exhaustive detection of every possible REVIEW claim. Registered reviewer lane names come from the same shared vocabulary used by reviewer opt-in routing. PLAN story_review applies the same check to retained legacy data. Executable product assertions whose subject is a review command remain admissible for DEV proof. A complete caller-authored command and selector pin is also admissible only when it does not invoke a registered Proof-or-Stop REVIEW lifecycle command: review_* or finding_* commands plus story_advance, story_get, lifecycle_check, and reviewer_list. Prompt guidance and mechanical writer/consumer checks enforce the same boundary.'});
 
 // Owner approval binds the exact proposal without delegating the lease.
 COMMAND_PROCESS_FACTS.push({name:'runtime:independent_intent_owner_lease',kind:'runtime-behavior',level:'L4',semantics:['runtime-behavior','gate-evidence','verification-policy'],paths:['packages/main/src/cli-prompts.ts','packages/main/src/core/types.ts','packages/main/src/core/agent-dispatch-registry.ts','packages/main/src/handlers/checklist.ts','packages/main/src/handlers/story-dispatch.ts','packages/main/src/cli/command-catalog.ts','packages/main/src/cli/ownership-gate.ts','packages/main/src/core/command-policy.ts','packages/main/src/core/config.ts'],producer:'checklist_update owner-approved intent proposal',consumerGate:'active owner lease, PLAN and exact proposal binding',rationale:'Independent role proposals carry no gate authority. The actual owner approves the exact Story/item/prior-intent/replacement digest; role environment never bypasses the lease. The existing declared-path and acceptance-history validators still apply, including owner-only signed revisions. Handler-owned item attribution and process events distinguish owner proposals, dispatched-role declarations and owner direct writes; independentlyAttested is always false and grants no gate authority. No runtime reader enforces digest matching: consumers must check the semantic digest before interpreting this diagnostic marker. Append and repair clear it, while exact signed checkpoint recovery restores intent and attribution together. Checklist removal admission matches its existing INIT-only handler for pre-freeze consolidation; PLAN and DEV remain forbidden.'});
@@ -2608,6 +2618,17 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = ([
     consumerSourceRefs: ['packages/main/src/core/managed-host-run.ts', 'packages/main/src/core/host-run.ts', 'packages/main/src/core/managed-review-readonly.ts', 'packages/main/src/handlers/cross-host-review.ts'],
     consumerGate: 'Opted-in managed reviewer and fresh cross-host reviewer startup and successful terminal consumption',
     rationale: 'Fresh cross-host runs seal the same lane on their registered detached snapshot, retaining the cross-host profile and controller cleanup ownership. Legacy resumed specs retain their original execution facts. Trusted preflight checks the selected credential input before environment redaction and before snapshot creation. Provider state capture holds bounded no-follow file bytes in a controller-local opaque capability; each lane materializes those captured bytes into its own private directory without rereading mutable source credentials. An explicit registered project adapter seals readonly source and independent build-source/output/temp/cache paths in the existing owner-bound spec. Unsupported requested projects/platforms refuse before provider startup; unconfigured projects retain existing behavior. Real platform probes and the actual provider wrapper deny writes outside declared lane outputs. Initial source and compiled output digests are verified before execution and before successful proposal intake. Build output writes are permitted locally but drift never passes as the sealed initial build. Trusted provider attestation and proposal signing remain outside the sandbox; no provider result or PASS is manufactured by the build.',
+  },
+
+  {
+    name: 'runtime:managed_review_model_selection_binding', kind: 'runtime-behavior', level: 'L4',
+    semantics: ['runtime-behavior', 'schema-contract', 'execution-evidence', 'gate-evidence'],
+    gateEvidence: true,
+    producer: 'handlers/host-run + core/managed-host-run + core/host-run',
+    producerSourceRefs: ['packages/main/src/cli/command-catalog.ts', 'packages/main/src/handlers/host-run.ts', 'packages/main/src/core/managed-host-run.ts', 'packages/main/src/core/host-run.ts'],
+    consumerSourceRefs: ['packages/main/src/handlers/managed-review-evidence.ts', 'packages/main/src/core/managed-review-evidence.ts', 'packages/main/src/core/review-run.ts'],
+    consumerGate: 'managed_review_evidence_import and REVIEW managed-receipt admissibility',
+    rationale: 'Optional exact model and reasoning selectors are normalized before submission, sealed into the immutable run spec and digest-bound projection, materialized on provider argv, copied into the result and receipt, and matched again during evidence import. Historical absent selectors normalize to null. The receipt proves the protected launch selector, not provider-side alias resolution. Native broker issuance and private-key custody remain unchanged.',
   },
 
   {

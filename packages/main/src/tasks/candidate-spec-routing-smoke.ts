@@ -91,7 +91,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     const outside = join(tmpdir(), `candidate-routing-outside-${process.pid}.md`);
     writeFileSync(outside, '# Outside\n');
     symlinkSync(outside, join(root, 'docs/requirements/decisions/escape.md'));
-    assert.throws(() => buildCorpusIndex(root), /symlink escapes project root/);
+    assert.throws(() => buildCorpusIndex(root), /symbolic link/);
     rmSync(join(root, 'docs/requirements/decisions/escape.md'), { force: true });
     rmSync(outside, { force: true });
 

@@ -2197,6 +2197,15 @@ function assertProofStoryProgressiveBoundary() {
   assert(coreText.includes('active_disposable_spike_code') && coreText.includes('disposableCodePaths'), 'core/proofstory.ts: active disposable spike code must be a ProofStory diagnostic');
   assert(handlerText.includes('slice_plan_set') && handlerText.includes('parent_ledger_rollup_set'), 'handlers/proofstory.ts: slice plan and parent roll-up writers must be implemented');
   assert(read('packages/main/src/handlers/story-review.ts').includes('ProofStory advisory diagnostics') || read('packages/main/src/handlers/story-review.ts').includes('ProofStory Diagnostics'), 'story-review.ts: story_review must surface ProofStory advisory diagnostics');
+  const storyReviewSource = read('packages/main/src/handlers/story-review.ts');
+  const reviewGateIntentSource = read('packages/main/src/core/review-gate-verification-intent.ts');
+  assert(storyReviewSource.includes('reviewGateVerificationIntentIssue(intent)') && reviewGateIntentSource.includes('review_gate_as_verification_intent'), 'story-review.ts: PLAN review must consume the shared REVIEW lifecycle-verdict classifier');
+  const storyCreateIntentGuards = read('packages/main/src/handlers/story-create.ts').match(/assertNoReviewGateVerificationIntent\(\s*'story_create'/gu) ?? [];
+  assert(storyCreateIntentGuards.length >= 2, 'story-create.ts: direct and from-draft Story intake must reject REVIEW lifecycle verdicts before persistence');
+  const checklistIntentWriters = read('packages/main/src/handlers/checklist.ts');
+  assert(checklistIntentWriters.includes("assertNoReviewGateVerificationIntent('checklist_add'") && checklistIntentWriters.includes("assertNoReviewGateVerificationIntent('checklist_update'") && checklistIntentWriters.includes("assertNoReviewGateVerificationIntent('verification_intent_append'"), 'checklist.ts: PLAN add/replacement and DEV append writers must reject REVIEW lifecycle verdicts before persistence');
+  assert(read('packages/main/src/handlers/testintent-handoff.ts').includes('Do not encode REVIEW lifecycle results from review_pass_set or finding_add as verificationIntent'), 'testintent handoff: prompt guidance must prohibit the same REVIEW lifecycle dependency that story_review rejects');
+  assert(read('packages/main/src/core/process-fact-registry.ts').includes('runtime:review_gate_intent_cycle_rejection'), 'process-fact registry: REVIEW lifecycle intent-cycle rejection must remain registered');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('candidate routing escalation is unresolved'), 'candidate routing: gate binding must fail closed on unresolved requiresEscalation');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('DEFAULT_MAX_QUERY_DOCUMENT_FREQUENCY_RATIO'), 'candidate routing: generic query terms must use the recorded document-frequency filter');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('MIN_RANKING_AFFECTING_CUTOFF_SCORE'), 'candidate routing: low-confidence body-only cutoff ties must not force broad review');
@@ -2364,13 +2373,13 @@ function assertCloseoutTrustBoundary() {
     assert(!contractText.includes('transcript-diff.md presence'), `${contractPath}: active delivery context contract must not name legacy transcript-diff.md presence`);
   }
   for (const promptPath of [
-    rolePromptPath('packages/main/templates/agents', 'proof-or-stop-product-reviewer'),
-    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-product-reviewer'),
-    rolePromptPath('.claude/agents', 'proof-or-stop-product-reviewer'),
+    rolePromptPath('packages/main/templates/agents', 'proof-or-stop-review-delivery'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-review-delivery'),
+    rolePromptPath('.claude/agents', 'proof-or-stop-review-delivery'),
   ]) {
     const promptText = read(promptPath);
-    assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: product-reviewer must consume the canonical live-smoke transcript`);
-    assert(!promptText.includes('evidence/transcript-diff.md'), `${promptPath}: product-reviewer must not consume the legacy transcript-diff path`);
+    assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: delivery reviewer must consume the canonical live-smoke transcript`);
+    assert(!promptText.includes('evidence/transcript-diff.md'), `${promptPath}: delivery reviewer must not consume the legacy transcript-diff path`);
   }
   const lifecycleTranscriptText = read(lifecycleRegistryPath);
   assert(lifecycleTranscriptText.includes("'evidence/transcript-diff.md'") && lifecycleTranscriptText.includes("'evidence/live-smoke-transcript.json'"), `${lifecycleRegistryPath}: retain legacy scope compatibility beside the canonical transcript artifact`);
@@ -7383,6 +7392,9 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['proposalArtifacts.length === 1', 'exactEvidenceMatches', 'processCleanup?.reaped === true']) {
     assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required managed authority token missing: ${token}`);
   }
+  for (const token of ['modelSelectionMatches', '(args.binding.model ?? null)', '(receipt.model ?? null)', '(result.model ?? null)']) {
+    assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required managed model-selection binding missing: ${token}`);
+  }
   for (const token of ['buildManagedInventoryCriticEvidencePack', "run.reviewPurpose !== 'inventory-completeness'", 'BEGIN CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK', 'sealed by the managedPromptDigest', 'do not report that expected lag as missing canonical evidence', 'Do not infer topology, TEST, DONE, or implementation authority from this pack.']) {
     assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required inventory critic live metadata projection token missing: ${token}`);
   }
@@ -7392,6 +7404,16 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   }
   for (const token of ['finalAssistantResult', 'finalAssistantResultCount', 'finalAssistantResultTruncated', 'parseManagedReviewFinalProposal', 'managed_review_final_result_missing', 'assertSealedManagedHostRunArtifacts', 'isRecoverableManagedReviewImportBinding', 'withTerminalAuthorityLock', 'liveOutputDigest', "mismatches.push('live-output')", 'providerLaunchState', 'evidenceBindingSeal', 'cleanupManagedCrossHostReviewWorktree', 'cleanupManagedClaudePromptForTerminal', 'managedClaudePromptDirectoryForRun', 'reapManagedHostRunProviderProcess', 'AMBIGUOUS_PROCESS_CLEANUP', "launchProfile: 'managed_reviewer'", 'delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD', "descriptor.once('finish'", 'worker capability descriptor closed before write completion', 'classifyManagedHostRunCancellation', "reason === 'absolute_deadline_exceeded'", "state: 'timed_out'"]) {
     assert(managedHostRunText.includes(token), `packages/main/src/core/managed-host-run.ts: required final-result/seal authority token missing: ${token}`);
+  }
+  for (const token of [
+    'delete submissionArgs.model',
+    'delete submissionArgs.reasoningEffort',
+    'selection.model !== null ? { model: selection.model }',
+    'selection.reasoningEffort !== null ? { reasoningEffort: selection.reasoningEffort }',
+    'model: selection.model',
+    'reasoningEffort: selection.reasoningEffort',
+  ]) {
+    assert(managedHostRunText.includes(token), `packages/main/src/core/managed-host-run.ts: required immutable model-selection seal missing: ${token}`);
   }
   const ownershipGateText = read('packages/main/src/cli/ownership-gate.ts');
   assert(ownershipGateText.includes('managedHostRunStoryIdForOwnership'), 'host_run status/cancel/import ownership must resolve immutable spec.storyId from runId');
@@ -7407,9 +7429,40 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['classifyManagedReviewFinalEnvelope', "classification.kind === 'ordinary'", 'MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION', 'MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES', 'managedClaudePromptDirectoryForRun', 'managedRunId', "join(args.cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts')", "'--permission-mode', 'bypassPermissions'", "'--json-schema', args.finalResultSchema === ACCEPTANCE_REVIEW_FINAL_SCHEMA ? JSON.stringify(acceptanceReviewJsonSchema()) : managedReviewClaudeJsonSchema(args)", "hasOwnProperty.call(event, 'structured_output')", "event.subtype !== 'success'", 'JSON.stringify(event.structured_output)']) {
     assert(hostRunText.includes(token), `packages/main/src/core/host-run.ts: required Codex proposal candidate classifier token missing: ${token}`);
   }
+  for (const token of [
+    'normalizeHostRunModelSelection',
+    "'--model', selection.model",
+    'model_reasoning_effort=',
+    "'--effort', selection.reasoningEffort",
+    '--model must be a non-empty model id of at most 256 characters without whitespace or controls',
+    '--reasoningEffort must be one of',
+    'Claude --reasoningEffort must be one of low, medium, high, xhigh, max',
+    'canonical Claude launcher ends in its protected prompt-file token',
+    'canonical Codex launcher ends in its protected stdin marker',
+  ]) {
+    assert(hostRunText.includes(token), `packages/main/src/core/host-run.ts: required managed model-selection launch token missing: ${token}`);
+  }
   const smokeText = read('packages/main/src/tasks/managed-review-evidence-smoke.ts');
-  for (const token of ['absence of a managed binding is not proof', 'isolated broker-signature fixture succeeds without consulting ambient provider ancestry', 'withoutManagedAmbientAuthority', "'--brokered-native-binding-fixture'", 'raw provider cannot self-mint authority', 'mixed tree is rejected', 'real raw cross-provider CLI review_pass_set must fail', 'real raw cross-provider CLI finding_add must fail', 'idempotent importer replay revalidates the exact persisted provider finding', 'multiple proposal artifacts also fail the persisted REVIEW gate', 'DISPATCH_START reviewer accepted the managed assignment', 'Reviewed the first evidence group; continuing with adversarial paths.', 'the exact provider final-result proposal is importable without a provider tool-shell callback', 'public managed Claude prompt is inside the exact provider cwd', 'public managed Claude launch cannot block on interactive tool approval', 'public managed Claude launch supplies its bounded structured-output schema', 'worker descriptor capability metadata is not inherited as ordinary provider authority', 'public managed Claude final proposal is exactly importable', "name: 'missing'", "name: 'malformed'", "name: 'multiple'", "name: 'oversize'", 'final result fails closed', 'controller must not be able to add or override proposal verdict fields', 'injected crash before story evidence persistence']) {
+  for (const token of ['absence of a managed binding is not proof', 'isolated broker-signature fixture succeeds without consulting ambient provider ancestry', 'withoutManagedAmbientAuthority', "'--brokered-native-binding-fixture'", 'raw provider cannot self-mint authority', 'mixed tree is rejected', 'real raw cross-provider CLI review_pass_set must fail', 'real raw cross-provider CLI finding_add must fail', 'idempotent importer replay revalidates the exact persisted provider finding', 'multiple proposal artifacts also fail the persisted REVIEW gate', 'DISPATCH_START reviewer accepted the managed assignment', 'Reviewed the first evidence group; continuing with adversarial paths.', 'the exact provider final-result proposal is importable without a provider tool-shell callback', 'public managed Claude prompt is inside the exact provider cwd', 'public managed Claude launch cannot block on interactive tool approval', 'public managed Claude launch supplies its bounded structured-output schema', 'worker descriptor capability metadata is not inherited as ordinary provider authority', 'public managed Claude final proposal is exactly importable', "name: 'model'", "name: 'reasoningEffort'", "name: 'missing'", "name: 'malformed'", "name: 'multiple'", "name: 'oversize'", 'final result fails closed', 'controller must not be able to add or override proposal verdict fields', 'injected crash before story evidence persistence']) {
     assert(smokeText.includes(token), `packages/main/src/tasks/managed-review-evidence-smoke.ts: required executable boundary assertion missing: ${token}`);
+  }
+  assert(smokeText.includes('managed Claude model selection preserves the complete canonical argv'),
+    'managed Claude selector coverage must pin the complete provider argv');
+  const managedHostRunSmokeText = read('packages/main/src/tasks/managed-host-run-smoke.ts');
+  for (const token of [
+    'omitting model selectors leaves the pre-selection managed Codex argv byte-for-byte unchanged',
+    'fresh omitted selectors are explicitly sealed as null in binding, receipt, and result',
+    'the same managed review identity cannot be resubmitted with a different model',
+    'REVIEW verifier rejects a persisted model that disagrees with the sealed spec, receipt, and result',
+    'REVIEW verifier rejects persisted reasoning that disagrees with the sealed spec, receipt, and result',
+    'historical selector-less specs still import through the shared REVIEW verifier',
+    'ordinary Codex model selection preserves the complete canonical argv',
+    'ordinary Claude model selection preserves the complete canonical argv',
+    'managed Claude model selection preserves the complete canonical argv',
+    'a selector-less resubmit against a historical spec does not dispatch a duplicate worker',
+    "process.argv[2] === '--model-selection'",
+  ]) {
+    assert(managedHostRunSmokeText.includes(token), `packages/main/src/tasks/managed-host-run-smoke.ts: required model-selection regression missing: ${token}`);
   }
   const catalogText = read('packages/main/src/cli/command-catalog.ts');
   const helpText = read('packages/main/src/cli/help-renderer.ts');
@@ -8078,7 +8131,7 @@ function assertPromptEvidenceBoundaries(promptMap) {
         `${relPath}: fresh-worker guidance must name dispatch/process-event/commit evidence as the observable boundary`,
       );
     }
-    if (text.includes('delivery-check.json') || canonicalRoleId(name) === 'proof-or-stop-product-reviewer') {
+    if (text.includes('delivery-check.json')) {
       assert(
         text.includes('transcript/delivery evidence is required; prompt-only user-value claims are not enough'),
         `${relPath}: delivery/product guidance must reject prompt-only user-value claims`,
@@ -8086,6 +8139,16 @@ function assertPromptEvidenceBoundaries(promptMap) {
       assert(
         text.includes('non-mechanical user approval'),
         `${relPath}: delivery/product guidance must distinguish subjective approval from mechanical evidence`,
+      );
+    }
+    if (canonicalRoleId(name) === 'proof-or-stop-product-reviewer') {
+      assert(
+        text.includes('implementation has not started') && text.includes('must not require'),
+        `${relPath}: INIT product guidance must permit planned evidence before implementation`,
+      );
+      assert(
+        !text.includes('story_advance DONE') && !text.includes('live-smoke-transcript.json'),
+        `${relPath}: INIT product guidance must not request post-implementation artifacts`,
       );
     }
   }

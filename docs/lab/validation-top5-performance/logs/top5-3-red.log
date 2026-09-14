@@ -1,0 +1,223 @@
+
+> proof-or-stop@0.3.356 lab:worktree
+> node scripts/lab-worktree.mjs red validation-top5-performance --expect TOP5_3_RED: repeated native children have no disposable compilation cache --timeout-ms 1250000 -- node packages/main/tests/lab-top5-cache-performance.mjs 3
+
+TOP5_NATIVE_OUTPUT {"outputRoot":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/top5-native-output-9omud1"}
+TOP5_PROFILE {"suite":3,"command":["node","packages/main/dist/tasks/finding-identity-lineage-smoke.js","--section=delivery"],"wallMs":699947.729583,"nativeExitCode":0,"nativeSignal":null,"formalStoryEvidence":false}
+PUBLIC_FOREIGN_ACTIVE_CANONICAL PASS signed canonical row, history projection, scorecard row and stable catalog input digest
+PUBLIC_MULTIWORKTREE_DELIVERY PASS source/target sessions distinct; source removed; original signed ledger and common trust unchanged
+CANDIDATE actual public CLI across linked worktrees retains signed history after source removal PASS
+IDENTITY_CASE_TIMING {"name":"actual public CLI across linked worktrees retains signed history after source removal","wallMs":14380.448708}
+CANDIDATE missing trust read refuses without creating keys PASS
+IDENTITY_CASE_TIMING {"name":"missing trust read refuses without creating keys","wallMs":14.050541000000521}
+CANDIDATE missing owner lease refuses without creating signing key PASS
+IDENTITY_CASE_TIMING {"name":"missing owner lease refuses without creating signing key","wallMs":1.086583000000246}
+CANDIDATE pending immutable signal and candidate are non-gate PASS
+IDENTITY_CASE_TIMING {"name":"pending immutable signal and candidate are non-gate","wallMs":21.282540999998673}
+CANDIDATE identical retry restores original signed transaction PASS
+IDENTITY_CASE_TIMING {"name":"identical retry restores original signed transaction","wallMs":65.84391700000015}
+CANDIDATE changed retry refuses without append PASS
+IDENTITY_CASE_TIMING {"name":"changed retry refuses without append","wallMs":57.78299999999945}
+CANDIDATE strict ingress rejects authority/null/unknown injection PASS
+IDENTITY_CASE_TIMING {"name":"strict ingress rejects authority/null/unknown injection","wallMs":0.5313749999986612}
+CANDIDATE reproduction contract rejects zero candidate marker tokens PASS
+IDENTITY_CASE_TIMING {"name":"reproduction contract rejects zero candidate marker tokens","wallMs":0.2057089999998425}
+CANDIDATE reproduction contract rejects multiple candidate marker tokens PASS
+IDENTITY_CASE_TIMING {"name":"reproduction contract rejects multiple candidate marker tokens","wallMs":0.15358299999934388}
+CANDIDATE reproduction contract rejects a selector containing the candidate marker token PASS
+IDENTITY_CASE_TIMING {"name":"reproduction contract rejects a selector containing the candidate marker token","wallMs":0.1041670000013255}
+CANDIDATE JSON shape rejects sparse/decorated/accessor arrays PASS
+IDENTITY_CASE_TIMING {"name":"JSON shape rejects sparse/decorated/accessor arrays","wallMs":0.07016599999951723}
+CANDIDATE signed rows reject whitespace/null/unknown mutations PASS
+IDENTITY_CASE_TIMING {"name":"signed rows reject whitespace/null/unknown mutations","wallMs":14.37683300000026}
+CANDIDATE actual ledger/carrier tamper is rejected PASS
+IDENTITY_CASE_TIMING {"name":"actual ledger/carrier tamper is rejected","wallMs":29.78704199999993}
+CANDIDATE suggestion grouping retains independent source identities PASS
+IDENTITY_CASE_TIMING {"name":"suggestion grouping retains independent source identities","wallMs":0.08037499999954889}
+CANDIDATE original retry survives a later unrelated append PASS
+IDENTITY_CASE_TIMING {"name":"original retry survives a later unrelated append","wallMs":64.93404200000077}
+CANDIDATE wrong hash and actor refuse before mutation PASS
+IDENTITY_CASE_TIMING {"name":"wrong hash and actor refuse before mutation","wallMs":63.33970799999952}
+CANDIDATE merge is atomic and preserves both immutable source trails PASS
+IDENTITY_CASE_TIMING {"name":"merge is atomic and preserves both immutable source trails","wallMs":765.9746250000007}
+CANDIDATE disproof retains predecessor and retry; terminal transition refuses PASS
+IDENTITY_CASE_TIMING {"name":"disproof retains predecessor and retry; terminal transition refuses","wallMs":874.7044169999972}
+CANDIDATE stale source bytes refuse before append PASS
+IDENTITY_CASE_TIMING {"name":"stale source bytes refuse before append","wallMs":116.0906670000004}
+CANDIDATE promotion refuses non-reviewer and raw caller PASS PASS
+IDENTITY_CASE_TIMING {"name":"promotion refuses non-reviewer and raw caller PASS","wallMs":0.7885839999980817}
+CANDIDATE registry and real lifecycle projection preserve advisory isolation PASS
+IDENTITY_CASE_TIMING {"name":"registry and real lifecycle projection preserve advisory isolation","wallMs":0.6321250000000873}
+CANDIDATE public CLI validates schema and reads signed candidates PASS
+IDENTITY_CASE_TIMING {"name":"public CLI validates schema and reads signed candidates","wallMs":1851.789084}
+CANDIDATE valid review prerequisites isolate missing and wrong-subject receipt rejection PASS
+IDENTITY_CASE_TIMING {"name":"valid review prerequisites isolate missing and wrong-subject receipt rejection","wallMs":2601.3060829999995}
+CANDIDATE wrong command is rejected even when output contains exact selector and candidate marker PASS
+IDENTITY_CASE_TIMING {"name":"wrong command is rejected even when output contains exact selector and candidate marker","wallMs":564.846207999999}
+CANDIDATE correct command with mismatched execution selector cannot promote PASS
+IDENTITY_CASE_TIMING {"name":"correct command with mismatched execution selector cannot promote","wallMs":559.5432499999988}
+CANDIDATE preregistered marker-only no-op contract is not semantic reproduction evidence PASS
+IDENTITY_CASE_TIMING {"name":"preregistered marker-only no-op contract is not semantic reproduction evidence","wallMs":0.8697089999986929}
+CANDIDATE current source drift refuses otherwise valid promotion PASS
+IDENTITY_CASE_TIMING {"name":"current source drift refuses otherwise valid promotion","wallMs":517.2746670000015}
+CANDIDATE eligible actual reviewer promotes with executed receipt and immutable FindingRef PASS
+IDENTITY_CASE_TIMING {"name":"eligible actual reviewer promotes with executed receipt and immutable FindingRef","wallMs":3310.511166999997}
+CANDIDATE signed semantic reproduction attestation rejects binding mutations PASS
+IDENTITY_CASE_TIMING {"name":"signed semantic reproduction attestation rejects binding mutations","wallMs":153.11508299999696}
+CANDIDATE same human Finding ID in another Story retains distinct durable identity PASS
+IDENTITY_CASE_TIMING {"name":"same human Finding ID in another Story retains distinct durable identity","wallMs":298.624834000002}
+CANDIDATE scorecard complete signed carrier inventory is deterministic and descriptive only PASS
+IDENTITY_CASE_TIMING {"name":"scorecard complete signed carrier inventory is deterministic and descriptive only","wallMs":1716.5414999999994}
+CANDIDATE scorecard refuses missing rows, changed signatures, null laundering and stale current snapshots PASS
+IDENTITY_CASE_TIMING {"name":"scorecard refuses missing rows, changed signatures, null laundering and stale current snapshots","wallMs":2056.525333000005}
+CANDIDATE zero denominator means insufficient evidence; missing provenance refuses PASS
+IDENTITY_CASE_TIMING {"name":"zero denominator means insufficient evidence; missing provenance refuses","wallMs":0.2556669999976293}
+CANDIDATE observe/warn and disabled query preserve existing lifecycle projection and immutable ledger PASS
+IDENTITY_CASE_TIMING {"name":"observe/warn and disabled query preserve existing lifecycle projection and immutable ledger","wallMs":2673.336541000004}
+CANDIDATE signed legacy tuple binding is additive idempotent and collision/hash fail closed PASS
+IDENTITY_CASE_TIMING {"name":"signed legacy tuple binding is additive idempotent and collision/hash fail closed","wallMs":370.64912500000355}
+CANDIDATE public scorecard command accepts exact query and rejects authority injection PASS
+IDENTITY_CASE_TIMING {"name":"public scorecard command accepts exact query and rejects authority injection","wallMs":2131.1797499999957}
+CANDIDATE delivery source invokes every promised public CLI boundary PASS
+IDENTITY_CASE_TIMING {"name":"delivery source invokes every promised public CLI boundary","wallMs":1.3788749999948777}
+CANDIDATE documented scorecard kind count matches the exported inventory PASS
+IDENTITY_CASE_TIMING {"name":"documented scorecard kind count matches the exported inventory","wallMs":0.5758749999949941}
+DELIVERY_BENCHMARK {"schemaVersion":1,"corpusDigest":"9a0f604195d80272811d31e126841426ac0d4f4d59c38265ab6938a044cabb2d","measurement":"preregistered synthetic/historical-shape replay, not current detector or workload accuracy","perDetectorFamily":[{"detector":"reviewer-source-reproduction","version":"frozen-replay-v1","family":"literal-comparison-parser","identityPrecision":{"numerator":40,"denominator":40,"observed":1,"status":"observed_sample_only"},"identityRecall":{"numerator":40,"denominator":40,"observed":1,"status":"observed_sample_only"},"retrieval":{"precision":{"numerator":8,"denominator":8,"observed":1,"status":"observed_sample_only"},"recall":{"numerator":8,"denominator":8,"observed":1,"status":"observed_sample_only"}}},{"detector":"concept-symbol-residue","version":"frozen-replay-v1","family":"synthetic_noise_shape","precision":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"},"recall":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"},"noiseAuthorityRejections":{"numerator":3,"denominator":3,"observed":1,"status":"observed_sample_only"}}],"metricTarget":"exact Finding-ID retrieval, not generic Story-recall accuracy","coarseBaseline":{"resultGranularity":"Story IDs","precision":{"numerator":0,"denominator":4,"observed":0,"status":"observed_sample_only"},"recall":{"numerator":0,"denominator":8,"observed":0,"status":"observed_sample_only"}},"exactIndex":{"resultGranularity":"Finding IDs","precision":{"numerator":8,"denominator":8,"observed":1,"status":"observed_sample_only"},"recall":{"numerator":8,"denominator":8,"observed":1,"status":"observed_sample_only"}},"manualOperations":{"baselineEvents":[{"id":"source_evidence_review:B-cdf6:F-060","kind":"source_evidence_review","subject":"B-cdf6:F-060"},{"id":"trigger_contract_review:B-cdf6:F-060","kind":"trigger_contract_review","subject":"B-cdf6:F-060"},{"id":"triage_decision:B-cdf6:F-060","kind":"triage_decision","subject":"B-cdf6:F-060"},{"id":"repair_plan:B-cdf6:F-060","kind":"repair_plan","subject":"B-cdf6:F-060"},{"id":"source_evidence_review:SYN:repeat-F-060-1","kind":"source_evidence_review","subject":"SYN:repeat-F-060-1"},{"id":"trigger_contract_review:SYN:repeat-F-060-1","kind":"trigger_contract_review","subject":"SYN:repeat-F-060-1"},{"id":"triage_decision:SYN:repeat-F-060-1","kind":"triage_decision","subject":"SYN:repeat-F-060-1"},{"id":"repair_plan:SYN:repeat-F-060-1","kind":"repair_plan","subject":"SYN:repeat-F-060-1"},{"id":"source_evidence_review:SYN:repeat-F-060-2","kind":"source_evidence_review","subject":"SYN:repeat-F-060-2"},{"id":"trigger_contract_review:SYN:repeat-F-060-2","kind":"trigger_contract_review","subject":"SYN:repeat-F-060-2"},{"id":"triage_decision:SYN:repeat-F-060-2","kind":"triage_decision","subject":"SYN:repeat-F-060-2"},{"id":"repair_plan:SYN:repeat-F-060-2","kind":"repair_plan","subject":"SYN:repeat-F-060-2"},{"id":"source_evidence_review:SYN:repeat-F-060-3","kind":"source_evidence_review","subject":"SYN:repeat-F-060-3"},{"id":"trigger_contract_review:SYN:repeat-F-060-3","kind":"trigger_contract_review","subject":"SYN:repeat-F-060-3"},{"id":"triage_decision:SYN:repeat-F-060-3","kind":"triage_decision","subject":"SYN:repeat-F-060-3"},{"id":"repair_plan:SYN:repeat-F-060-3","kind":"repair_plan","subject":"SYN:repeat-F-060-3"},{"id":"source_evidence_review:B-cdf6:F-062","kind":"source_evidence_review","subject":"B-cdf6:F-062"},{"id":"trigger_contract_review:B-cdf6:F-062","kind":"trigger_contract_review","subject":"B-cdf6:F-062"},{"id":"triage_decision:B-cdf6:F-062","kind":"triage_decision","subject":"B-cdf6:F-062"},{"id":"repair_plan:B-cdf6:F-062","kind":"repair_plan","subject":"B-cdf6:F-062"},{"id":"source_evidence_review:SYN:repeat-F-062-1","kind":"source_evidence_review","subject":"SYN:repeat-F-062-1"},{"id":"trigger_contract_review:SYN:repeat-F-062-1","kind":"trigger_contract_review","subject":"SYN:repeat-F-062-1"},{"id":"triage_decision:SYN:repeat-F-062-1","kind":"triage_decision","subject":"SYN:repeat-F-062-1"},{"id":"repair_plan:SYN:repeat-F-062-1","kind":"repair_plan","subject":"SYN:repeat-F-062-1"},{"id":"source_evidence_review:SYN:repeat-F-062-2","kind":"source_evidence_review","subject":"SYN:repeat-F-062-2"},{"id":"trigger_contract_review:SYN:repeat-F-062-2","kind":"trigger_contract_review","subject":"SYN:repeat-F-062-2"},{"id":"triage_decision:SYN:repeat-F-062-2","kind":"triage_decision","subject":"SYN:repeat-F-062-2"},{"id":"repair_plan:SYN:repeat-F-062-2","kind":"repair_plan","subject":"SYN:repeat-F-062-2"},{"id":"source_evidence_review:SYN:repeat-F-062-3","kind":"source_evidence_review","subject":"SYN:repeat-F-062-3"},{"id":"trigger_contract_review:SYN:repeat-F-062-3","kind":"trigger_contract_review","subject":"SYN:repeat-F-062-3"},{"id":"triage_decision:SYN:repeat-F-062-3","kind":"triage_decision","subject":"SYN:repeat-F-062-3"},{"id":"repair_plan:SYN:repeat-F-062-3","kind":"repair_plan","subject":"SYN:repeat-F-062-3"},{"id":"source_evidence_review:B-cdf6:F-061","kind":"source_evidence_review","subject":"B-cdf6:F-061"},{"id":"trigger_contract_review:B-cdf6:F-061","kind":"trigger_contract_review","subject":"B-cdf6:F-061"},{"id":"triage_decision:B-cdf6:F-061","kind":"triage_decision","subject":"B-cdf6:F-061"},{"id":"repair_plan:B-cdf6:F-061","kind":"repair_plan","subject":"B-cdf6:F-061"},{"id":"source_evidence_review:SYN:repeat-F-061-1","kind":"source_evidence_review","subject":"SYN:repeat-F-061-1"},{"id":"trigger_contract_review:SYN:repeat-F-061-1","kind":"trigger_contract_review","subject":"SYN:repeat-F-061-1"},{"id":"triage_decision:SYN:repeat-F-061-1","kind":"triage_decision","subject":"SYN:repeat-F-061-1"},{"id":"repair_plan:SYN:repeat-F-061-1","kind":"repair_plan","subject":"SYN:repeat-F-061-1"},{"id":"source_evidence_review:SYN:repeat-F-061-2","kind":"source_evidence_review","subject":"SYN:repeat-F-061-2"},{"id":"trigger_contract_review:SYN:repeat-F-061-2","kind":"trigger_contract_review","subject":"SYN:repeat-F-061-2"},{"id":"triage_decision:SYN:repeat-F-061-2","kind":"triage_decision","subject":"SYN:repeat-F-061-2"},{"id":"repair_plan:SYN:repeat-F-061-2","kind":"repair_plan","subject":"SYN:repeat-F-061-2"},{"id":"source_evidence_review:SYN:repeat-F-061-3","kind":"source_evidence_review","subject":"SYN:repeat-F-061-3"},{"id":"trigger_contract_review:SYN:repeat-F-061-3","kind":"trigger_contract_review","subject":"SYN:repeat-F-061-3"},{"id":"triage_decision:SYN:repeat-F-061-3","kind":"triage_decision","subject":"SYN:repeat-F-061-3"},{"id":"repair_plan:SYN:repeat-F-061-3","kind":"repair_plan","subject":"SYN:repeat-F-061-3"},{"id":"source_evidence_review:B-cdf6:F-065","kind":"source_evidence_review","subject":"B-cdf6:F-065"},{"id":"trigger_contract_review:B-cdf6:F-065","kind":"trigger_contract_review","subject":"B-cdf6:F-065"},{"id":"triage_decision:B-cdf6:F-065","kind":"triage_decision","subject":"B-cdf6:F-065"},{"id":"repair_plan:B-cdf6:F-065","kind":"repair_plan","subject":"B-cdf6:F-065"},{"id":"source_evidence_review:SYN:repeat-F-065-1","kind":"source_evidence_review","subject":"SYN:repeat-F-065-1"},{"id":"trigger_contract_review:SYN:repeat-F-065-1","kind":"trigger_contract_review","subject":"SYN:repeat-F-065-1"},{"id":"triage_decision:SYN:repeat-F-065-1","kind":"triage_decision","subject":"SYN:repeat-F-065-1"},{"id":"repair_plan:SYN:repeat-F-065-1","kind":"repair_plan","subject":"SYN:repeat-F-065-1"},{"id":"source_evidence_review:SYN:repeat-F-065-2","kind":"source_evidence_review","subject":"SYN:repeat-F-065-2"},{"id":"trigger_contract_review:SYN:repeat-F-065-2","kind":"trigger_contract_review","subject":"SYN:repeat-F-065-2"},{"id":"triage_decision:SYN:repeat-F-065-2","kind":"triage_decision","subject":"SYN:repeat-F-065-2"},{"id":"repair_plan:SYN:repeat-F-065-2","kind":"repair_plan","subject":"SYN:repeat-F-065-2"},{"id":"source_evidence_review:SYN:repeat-F-065-3","kind":"source_evidence_review","subject":"SYN:repeat-F-065-3"},{"id":"trigger_contract_review:SYN:repeat-F-065-3","kind":"trigger_contract_review","subject":"SYN:repeat-F-065-3"},{"id":"triage_decision:SYN:repeat-F-065-3","kind":"triage_decision","subject":"SYN:repeat-F-065-3"},{"id":"repair_plan:SYN:repeat-F-065-3","kind":"repair_plan","subject":"SYN:repeat-F-065-3"}],"groupedEvents":[{"id":"source_evidence_review:B-cdf6:F-060","kind":"source_evidence_review","subject":"B-cdf6:F-060"},{"id":"trigger_contract_review:B-cdf6:F-060","kind":"trigger_contract_review","subject":"B-cdf6:F-060"},{"id":"source_evidence_review:SYN:repeat-F-060-1","kind":"source_evidence_review","subject":"SYN:repeat-F-060-1"},{"id":"trigger_contract_review:SYN:repeat-F-060-1","kind":"trigger_contract_review","subject":"SYN:repeat-F-060-1"},{"id":"source_evidence_review:SYN:repeat-F-060-2","kind":"source_evidence_review","subject":"SYN:repeat-F-060-2"},{"id":"trigger_contract_review:SYN:repeat-F-060-2","kind":"trigger_contract_review","subject":"SYN:repeat-F-060-2"},{"id":"source_evidence_review:SYN:repeat-F-060-3","kind":"source_evidence_review","subject":"SYN:repeat-F-060-3"},{"id":"trigger_contract_review:SYN:repeat-F-060-3","kind":"trigger_contract_review","subject":"SYN:repeat-F-060-3"},{"id":"source_evidence_review:B-cdf6:F-062","kind":"source_evidence_review","subject":"B-cdf6:F-062"},{"id":"trigger_contract_review:B-cdf6:F-062","kind":"trigger_contract_review","subject":"B-cdf6:F-062"},{"id":"source_evidence_review:SYN:repeat-F-062-1","kind":"source_evidence_review","subject":"SYN:repeat-F-062-1"},{"id":"trigger_contract_review:SYN:repeat-F-062-1","kind":"trigger_contract_review","subject":"SYN:repeat-F-062-1"},{"id":"source_evidence_review:SYN:repeat-F-062-2","kind":"source_evidence_review","subject":"SYN:repeat-F-062-2"},{"id":"trigger_contract_review:SYN:repeat-F-062-2","kind":"trigger_contract_review","subject":"SYN:repeat-F-062-2"},{"id":"source_evidence_review:SYN:repeat-F-062-3","kind":"source_evidence_review","subject":"SYN:repeat-F-062-3"},{"id":"trigger_contract_review:SYN:repeat-F-062-3","kind":"trigger_contract_review","subject":"SYN:repeat-F-062-3"},{"id":"source_evidence_review:B-cdf6:F-061","kind":"source_evidence_review","subject":"B-cdf6:F-061"},{"id":"trigger_contract_review:B-cdf6:F-061","kind":"trigger_contract_review","subject":"B-cdf6:F-061"},{"id":"source_evidence_review:SYN:repeat-F-061-1","kind":"source_evidence_review","subject":"SYN:repeat-F-061-1"},{"id":"trigger_contract_review:SYN:repeat-F-061-1","kind":"trigger_contract_review","subject":"SYN:repeat-F-061-1"},{"id":"source_evidence_review:SYN:repeat-F-061-2","kind":"source_evidence_review","subject":"SYN:repeat-F-061-2"},{"id":"trigger_contract_review:SYN:repeat-F-061-2","kind":"trigger_contract_review","subject":"SYN:repeat-F-061-2"},{"id":"source_evidence_review:SYN:repeat-F-061-3","kind":"source_evidence_review","subject":"SYN:repeat-F-061-3"},{"id":"trigger_contract_review:SYN:repeat-F-061-3","kind":"trigger_contract_review","subject":"SYN:repeat-F-061-3"},{"id":"source_evidence_review:B-cdf6:F-065","kind":"source_evidence_review","subject":"B-cdf6:F-065"},{"id":"trigger_contract_review:B-cdf6:F-065","kind":"trigger_contract_review","subject":"B-cdf6:F-065"},{"id":"source_evidence_review:SYN:repeat-F-065-1","kind":"source_evidence_review","subject":"SYN:repeat-F-065-1"},{"id":"trigger_contract_review:SYN:repeat-F-065-1","kind":"trigger_contract_review","subject":"SYN:repeat-F-065-1"},{"id":"source_evidence_review:SYN:repeat-F-065-2","kind":"source_evidence_review","subject":"SYN:repeat-F-065-2"},{"id":"trigger_contract_review:SYN:repeat-F-065-2","kind":"trigger_contract_review","subject":"SYN:repeat-F-065-2"},{"id":"source_evidence_review:SYN:repeat-F-065-3","kind":"source_evidence_review","subject":"SYN:repeat-F-065-3"},{"id":"trigger_contract_review:SYN:repeat-F-065-3","kind":"trigger_contract_review","subject":"SYN:repeat-F-065-3"},{"id":"triage_decision:B-cdf6:F-065+SYN:repeat-F-065-1+SYN:repeat-F-065-2+SYN:repeat-F-065-3","kind":"triage_decision","subject":"B-cdf6:F-065+SYN:repeat-F-065-1+SYN:repeat-F-065-2+SYN:repeat-F-065-3"},{"id":"repair_plan:B-cdf6:F-065+SYN:repeat-F-065-1+SYN:repeat-F-065-2+SYN:repeat-F-065-3","kind":"repair_plan","subject":"B-cdf6:F-065+SYN:repeat-F-065-1+SYN:repeat-F-065-2+SYN:repeat-F-065-3"},{"id":"identity_confirmation:SYN:repeat-F-065-1","kind":"identity_confirmation","subject":"SYN:repeat-F-065-1"},{"id":"identity_confirmation:SYN:repeat-F-065-2","kind":"identity_confirmation","subject":"SYN:repeat-F-065-2"},{"id":"identity_confirmation:SYN:repeat-F-065-3","kind":"identity_confirmation","subject":"SYN:repeat-F-065-3"},{"id":"triage_decision:B-cdf6:F-060+B-cdf6:F-062+SYN:repeat-F-060-1+SYN:repeat-F-060-2+SYN:repeat-F-060-3+SYN:repeat-F-062-1+SYN:repeat-F-062-2+SYN:repeat-F-062-3","kind":"triage_decision","subject":"B-cdf6:F-060+B-cdf6:F-062+SYN:repeat-F-060-1+SYN:repeat-F-060-2+SYN:repeat-F-060-3+SYN:repeat-F-062-1+SYN:repeat-F-062-2+SYN:repeat-F-062-3"},{"id":"repair_plan:B-cdf6:F-060+B-cdf6:F-062+SYN:repeat-F-060-1+SYN:repeat-F-060-2+SYN:repeat-F-060-3+SYN:repeat-F-062-1+SYN:repeat-F-062-2+SYN:repeat-F-062-3","kind":"repair_plan","subject":"B-cdf6:F-060+B-cdf6:F-062+SYN:repeat-F-060-1+SYN:repeat-F-060-2+SYN:repeat-F-060-3+SYN:repeat-F-062-1+SYN:repeat-F-062-2+SYN:repeat-F-062-3"},{"id":"identity_confirmation:B-cdf6:F-062","kind":"identity_confirmation","subject":"B-cdf6:F-062"},{"id":"identity_confirmation:SYN:repeat-F-060-1","kind":"identity_confirmation","subject":"SYN:repeat-F-060-1"},{"id":"identity_confirmation:SYN:repeat-F-060-2","kind":"identity_confirmation","subject":"SYN:repeat-F-060-2"},{"id":"identity_confirmation:SYN:repeat-F-060-3","kind":"identity_confirmation","subject":"SYN:repeat-F-060-3"},{"id":"identity_confirmation:SYN:repeat-F-062-1","kind":"identity_confirmation","subject":"SYN:repeat-F-062-1"},{"id":"identity_confirmation:SYN:repeat-F-062-2","kind":"identity_confirmation","subject":"SYN:repeat-F-062-2"},{"id":"identity_confirmation:SYN:repeat-F-062-3","kind":"identity_confirmation","subject":"SYN:repeat-F-062-3"},{"id":"triage_decision:B-cdf6:F-061+SYN:repeat-F-061-1+SYN:repeat-F-061-2+SYN:repeat-F-061-3","kind":"triage_decision","subject":"B-cdf6:F-061+SYN:repeat-F-061-1+SYN:repeat-F-061-2+SYN:repeat-F-061-3"},{"id":"repair_plan:B-cdf6:F-061+SYN:repeat-F-061-1+SYN:repeat-F-061-2+SYN:repeat-F-061-3","kind":"repair_plan","subject":"B-cdf6:F-061+SYN:repeat-F-061-1+SYN:repeat-F-061-2+SYN:repeat-F-061-3"},{"id":"identity_confirmation:SYN:repeat-F-061-1","kind":"identity_confirmation","subject":"SYN:repeat-F-061-1"},{"id":"identity_confirmation:SYN:repeat-F-061-2","kind":"identity_confirmation","subject":"SYN:repeat-F-061-2"},{"id":"identity_confirmation:SYN:repeat-F-061-3","kind":"identity_confirmation","subject":"SYN:repeat-F-061-3"}],"baselineOperations":64,"groupedOperations":51,"groupingReduction":0.203125,"jointBatchCriterion":"pending_story_1","jointBatchOperations":null,"jointThresholdFulfilled":false,"jointSafetyCertification":"pending_story_1","measurement":"fixed replay unit operations; no elapsed-time or historical workload claim"},"qualification":{"enforceEligible":false,"qualifyingWindow":null,"latencyMeasured":false,"historicalElapsedTimeSavings":null,"jointOwner":"B-e6d9"}}
+CANDIDATE frozen acceptance/corpus and measured operation trace reject favorable recount and safety mutations PASS
+IDENTITY_CASE_TIMING {"name":"frozen acceptance/corpus and measured operation trace reject favorable recount and safety mutations","wallMs":1642.6697080000013}
+FINDING_IDENTITY_SCORECARD PASS 39 passing 0 failed cases
+CANDIDATE strict history mirror read distinguishes malformed mirror with populated ledger PASS
+IDENTITY_CASE_TIMING {"name":"strict history mirror read distinguishes malformed mirror with populated ledger","wallMs":109.98470799999632}
+FINDING_HISTORY_MIRROR_PORT PASS
+CANDIDATE canonical confirmation distinguishes suggestions and forbids competing membership PASS
+IDENTITY_CASE_TIMING {"name":"canonical confirmation distinguishes suggestions and forbids competing membership","wallMs":3217.0904999999984}
+CANDIDATE standalone target receipt is signed non-gate and exact-idempotent PASS
+IDENTITY_CASE_TIMING {"name":"standalone target receipt is signed non-gate and exact-idempotent","wallMs":2089.839}
+CANDIDATE candidate routes without promotion or GREEN; exact CAS leaves receipt alone on failure PASS
+IDENTITY_CASE_TIMING {"name":"candidate routes without promotion or GREEN; exact CAS leaves receipt alone on failure","wallMs":2258.6635839999944}
+CANDIDATE expiry boundary and signed receipt mutations refuse PASS
+IDENTITY_CASE_TIMING {"name":"expiry boundary and signed receipt mutations refuse","wallMs":0.8321670000004815}
+CANDIDATE live target scope/state/policy and source drift invalidate exact consent PASS
+IDENTITY_CASE_TIMING {"name":"live target scope/state/policy and source drift invalidate exact consent","wallMs":1686.2159580000007}
+CANDIDATE revocation supersedes immutable consent and blocks later CAS PASS
+IDENTITY_CASE_TIMING {"name":"revocation supersedes immutable consent and blocks later CAS","wallMs":2423.291584000006}
+CANDIDATE canonical B-META public consent requires no Story owner lease PASS
+IDENTITY_CASE_TIMING {"name":"canonical B-META public consent requires no Story owner lease","wallMs":1912.3817499999932}
+CANDIDATE independent candidates may share a target; rejected consent never authorizes CAS PASS
+IDENTITY_CASE_TIMING {"name":"independent candidates may share a target; rejected consent never authorizes CAS","wallMs":3620.610915999998}
+CANDIDATE controlled real CLI CAS race loses to target revocation without route publication PASS
+IDENTITY_CASE_TIMING {"name":"controlled real CLI CAS race loses to target revocation without route publication","wallMs":0.8534159999981057}
+CANDIDATE commit-predicate interleavings reject supersession expiry target and source movement PASS
+IDENTITY_CASE_TIMING {"name":"commit-predicate interleavings reject supersession expiry target and source movement","wallMs":11209.328125}
+CANDIDATE finding-route proposal exact union signature receipt and ledger carrier tamper refuse with zero target delta PASS
+IDENTITY_CASE_TIMING {"name":"finding-route proposal exact union signature receipt and ledger carrier tamper refuse with zero target delta","wallMs":678.1974999999948}
+CANDIDATE corrupt optional evidence refuses; unrelated genuine test evidence is not selected as this baseline PASS
+IDENTITY_CASE_TIMING {"name":"corrupt optional evidence refuses; unrelated genuine test evidence is not selected as this baseline","wallMs":4363.246332999988}
+CANDIDATE six initial row-preparation fault points publish no partial receipt/baseline set PASS
+IDENTITY_CASE_TIMING {"name":"six initial row-preparation fault points publish no partial receipt/baseline set","wallMs":21529.639167}
+CANDIDATE actual atomic publication failure and lost committed result preserve exact retry PASS
+IDENTITY_CASE_TIMING {"name":"actual atomic publication failure and lost committed result preserve exact retry","wallMs":8042.540708}
+CANDIDATE initial finding acceptance atomically publishes receipt plus four signed baselines and set PASS
+IDENTITY_CASE_TIMING {"name":"initial finding acceptance atomically publishes receipt plus four signed baselines and set","wallMs":3464.489042000001}
+CANDIDATE baseline subject entry and set hash/signature mutations refuse even when the nested subject is validly re-signed PASS
+IDENTITY_CASE_TIMING {"name":"baseline subject entry and set hash/signature mutations refuse even when the nested subject is validly re-signed","wallMs":5.0260830000042915}
+CANDIDATE finding renewal binds fresh target progress without inventing another initial baseline PASS
+IDENTITY_CASE_TIMING {"name":"finding renewal binds fresh target progress without inventing another initial baseline","wallMs":20351.337375000017}
+RECALL_PROVIDER native unavailable/injection/hash/explicit-automatic-dedup PASS
+CANDIDATE Dynamic Finding renewal consumes exact prior disposition and actual typed target movement PASS
+IDENTITY_CASE_TIMING {"name":"Dynamic Finding renewal consumes exact prior disposition and actual typed target movement","wallMs":219935.31650000002}
+CANDIDATE historical source review remains verifiable in TEST and DONE without material drift PASS
+IDENTITY_CASE_TIMING {"name":"historical source review remains verifiable in TEST and DONE without material drift","wallMs":3459.595499999996}
+CANDIDATE neutral source checkpoint is not a deferral and absent status still rejects no-op PASS
+IDENTITY_CASE_TIMING {"name":"neutral source checkpoint is not a deferral and absent status still rejects no-op","wallMs":2135.3968339999556}
+CANDIDATE validly re-signed absent-baseline mutations cannot substitute unrelated subjects PASS
+IDENTITY_CASE_TIMING {"name":"validly re-signed absent-baseline mutations cannot substitute unrelated subjects","wallMs":6.224791000015102}
+CANDIDATE target status progress is signed and meaningful with unchanged source PASS
+IDENTITY_CASE_TIMING {"name":"target status progress is signed and meaningful with unchanged source","wallMs":6325.65850000002}
+CANDIDATE failed target test outcome is valid evidence but not semantic progress PASS
+IDENTITY_CASE_TIMING {"name":"failed target test outcome is valid evidence but not semantic progress","wallMs":2137.6657499999856}
+CANDIDATE status regression from a signed present predecessor is refused PASS
+IDENTITY_CASE_TIMING {"name":"status regression from a signed present predecessor is refused","wallMs":1.9556660000234842}
+CANDIDATE predecessor digest substitutions refuse without ledger mutation PASS
+IDENTITY_CASE_TIMING {"name":"predecessor digest substitutions refuse without ledger mutation","wallMs":3.874667000025511}
+CANDIDATE old execution cannot be laundered by a newly signed target capture PASS
+IDENTITY_CASE_TIMING {"name":"old execution cannot be laundered by a newly signed target capture","wallMs":2129.901124999975}
+CANDIDATE absent test becomes actual executed signed progress with unchanged source PASS
+IDENTITY_CASE_TIMING {"name":"absent test becomes actual executed signed progress with unchanged source","wallMs":6347.598624999984}
+CANDIDATE absent delivery becomes target-authorized progress; closed obligation cannot accept new consent PASS
+IDENTITY_CASE_TIMING {"name":"absent delivery becomes target-authorized progress; closed obligation cannot accept new consent","wallMs":5647.160750000039}
+CANDIDATE target lease loss and replacement invalidate previously current renewed consent PASS
+IDENTITY_CASE_TIMING {"name":"target lease loss and replacement invalidate previously current renewed consent","wallMs":4451.141708000039}
+CANDIDATE superseded Finding cannot remain a current proposal source while its compatibility record stays open PASS
+IDENTITY_CASE_TIMING {"name":"superseded Finding cannot remain a current proposal source while its compatibility record stays open","wallMs":670.4077919999836}
+CANDIDATE F030/F031-shaped DONE predecessor correction uses current reviewer and preserves exact bytes PASS
+IDENTITY_CASE_TIMING {"name":"F030/F031-shaped DONE predecessor correction uses current reviewer and preserves exact bytes","wallMs":3942.992541000014}
+CANDIDATE staged cause correction interruption leaves old current; exact retry activates only signed successor PASS
+IDENTITY_CASE_TIMING {"name":"staged cause correction interruption leaves old current; exact retry activates only signed successor","wallMs":25778.367792000005}
+CANDIDATE known cause can be explicitly corrected back to unknown without inheriting old text PASS
+IDENTITY_CASE_TIMING {"name":"known cause can be explicitly corrected back to unknown without inheriting old text","wallMs":8577.118332999991}
+CANDIDATE global membership rejects a second home identity for already-confirmed immutable observations PASS
+IDENTITY_CASE_TIMING {"name":"global membership rejects a second home identity for already-confirmed immutable observations","wallMs":2562.864583000017}
+CANDIDATE deterministic exact index and filtered projection have distinct verifiable bindings PASS
+IDENTITY_CASE_TIMING {"name":"deterministic exact index and filtered projection have distinct verifiable bindings","wallMs":19174.07358300005}
+CANDIDATE signed graph refuses cycles forks missing nodes hash aliases and semantic tamper PASS
+IDENTITY_CASE_TIMING {"name":"signed graph refuses cycles forks missing nodes hash aliases and semantic tamper","wallMs":1496.1424170000246}
+CANDIDATE unbound legacy observations remain readable byte-identical and never acquire identities on read PASS
+IDENTITY_CASE_TIMING {"name":"unbound legacy observations remain readable byte-identical and never acquire identities on read","wallMs":1697.0011250000098}
+CANDIDATE recall target-created means first observation of the actual bound creation fact, once only PASS
+IDENTITY_CASE_TIMING {"name":"recall target-created means first observation of the actual bound creation fact, once only","wallMs":4944.2426250000135}
+CANDIDATE recall scope supports contract-only match and rejects neither-path-nor-contract PASS
+IDENTITY_CASE_TIMING {"name":"recall scope supports contract-only match and rejects neither-path-nor-contract","wallMs":5636.284000000043}
+CANDIDATE recall refuses caller trigger facts, unknown fields, absent movement and tampered receipt PASS
+IDENTITY_CASE_TIMING {"name":"recall refuses caller trigger facts, unknown fields, absent movement and tampered receipt","wallMs":6118.615584000014}
+CANDIDATE recall actual target start is once-only despite already-stale consent PASS
+IDENTITY_CASE_TIMING {"name":"recall actual target start is once-only despite already-stale consent","wallMs":6417.246708000021}
+CANDIDATE recall source-origin and independently affected target bytes are distinct actual drift events PASS
+IDENTITY_CASE_TIMING {"name":"recall source-origin and independently affected target bytes are distinct actual drift events","wallMs":10254.849166999978}
+CANDIDATE recall severity comes from actual reviewer promotion, never the suspected candidate label PASS
+IDENTITY_CASE_TIMING {"name":"recall severity comes from actual reviewer promotion, never the suspected candidate label","wallMs":10366.569916000008}
+CANDIDATE recall runtime observes exact verified persistence reference drift without claiming runtime PASS PASS
+IDENTITY_CASE_TIMING {"name":"recall runtime observes exact verified persistence reference drift without claiming runtime PASS","wallMs":12215.587415999966}
+CANDIDATE recall owner loss and closed-unfixed target preserve historical invalidity PASS
+IDENTITY_CASE_TIMING {"name":"recall owner loss and closed-unfixed target preserve historical invalidity","wallMs":22577.40037499997}
+CANDIDATE recall expiry is based on the actual signed deadline, not caller time or a new request key PASS
+IDENTITY_CASE_TIMING {"name":"recall expiry is based on the actual signed deadline, not caller time or a new request key","wallMs":9081.36508300004}
+CANDIDATE public history CLI returns independently verifiable projection and rejects injected authority PASS
+IDENTITY_CASE_TIMING {"name":"public history CLI returns independently verifiable projection and rejects injected authority","wallMs":3076.101249999949}
+CANDIDATE two real concurrent public recalls with distinct keys produce one non-gate candidate PASS
+IDENTITY_CASE_TIMING {"name":"two real concurrent public recalls with distinct keys produce one non-gate candidate","wallMs":84.15958300000057}
+CANDIDATE rejected and revoked history may recall but can never be laundered into consent PASS
+IDENTITY_CASE_TIMING {"name":"rejected and revoked history may recall but can never be laundered into consent","wallMs":9603.901249999995}
+CANDIDATE signed historical signature-tag and playbook rows have zero blocker and REVIEW-to-TEST transition delta PASS
+IDENTITY_CASE_TIMING {"name":"signed historical signature-tag and playbook rows have zero blocker and REVIEW-to-TEST transition delta","wallMs":121.92933399998583}
+CANDIDATE B-META authority policy recall does not invent a Story lease PASS
+IDENTITY_CASE_TIMING {"name":"B-META authority policy recall does not invent a Story lease","wallMs":5209.533208000008}
+CANDIDATE unrelated unresolved Story does not poison canonical discovery; contributing missing home still refuses PASS
+IDENTITY_CASE_TIMING {"name":"unrelated unresolved Story does not poison canonical discovery; contributing missing home still refuses","wallMs":6902.801832999918}
+PUBLIC_SCORECARD_DELIVERY {"digest":"258d72cab685047be574a6573258c46f600e7f9ee416bb5cd6a3d72882c13b4d","inputDigest":"cd65d998fdee886aa87b953babddb8a5c2925c815f1e97d563f858cf59a255ca","rowCounts":[{"kind":"detector_signal","count":32},{"kind":"candidate","count":37},{"kind":"candidate_reproduction_attestation","count":2},{"kind":"canonical_defect","count":1},{"kind":"canonical_revision","count":2},{"kind":"route_receipt","count":22},{"kind":"candidate_route","count":1},{"kind":"progress_baseline","count":12},{"kind":"progress_baseline_set","count":3},{"kind":"progress_evidence","count":5},{"kind":"progress_predecessor","count":3},{"kind":"finding_supersession","count":1},{"kind":"canonical_defect_supersession","count":2},{"kind":"history_recall","count":16}],"detectorMeasurements":[{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_target_created","signalCount":2,"candidateCount":2,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_expired","signalCount":2,"candidateCount":2,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_scope_contract_match","signalCount":2,"candidateCount":2,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"synthetic-reproducer","detectorVersion":"1","family":"value mismatch","signalCount":16,"candidateCount":16,"adjudicatedPromotionFraction":{"numerator":2,"denominator":4,"observed":0.5,"status":"observed_sample_only"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_source_hash_drift","signalCount":2,"candidateCount":2,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_severity_escalation","signalCount":1,"candidateCount":1,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_runtime_drift","signalCount":1,"candidateCount":1,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_owner_invalid","signalCount":3,"candidateCount":3,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_target_closed_unfixed","signalCount":1,"candidateCount":1,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_target_started","signalCount":1,"candidateCount":1,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}},{"detectorId":"historical-route-recall","detectorVersion":"1","family":"historical_deferral_invalidated","signalCount":1,"candidateCount":1,"adjudicatedPromotionFraction":{"numerator":0,"denominator":0,"observed":null,"status":"insufficient_evidence"}}]}
+CANDIDATE populated public scorecard verifies every declared semantic record kind and carrier PASS
+IDENTITY_CASE_TIMING {"name":"populated public scorecard verifies every declared semantic record kind and carrier","wallMs":98989.93283300009}
+FINDING_IDENTITY_HISTORY PASS 93 passing 0 failed cases
+FINDING_IDENTITY_ROUTES PASS 93 passing 0 failed cases
+FINDING_IDENTITY_CANDIDATES PASS 93 passing 0 failed cases
+FINDING_IDENTITY_DELIVERY PASS 93 passing 0 failed cases elapsedMs=699469
+FIXTURE_COMPILE_CACHE {"files":0,"bytes":0}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: TOP5_3_RED: repeated native children have no disposable compilation cache
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/tests/lab-top5-cache-performance.mjs:40:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+Target RED recorded locally.

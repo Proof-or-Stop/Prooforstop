@@ -1,5 +1,5 @@
 /** Test-only machine-registry namespace. Never imported by production executors. */
-import { mkdtempSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -29,4 +29,17 @@ syncBuiltinESMExports();
       rmSync(root, { recursive: true, force: true });
     },
   };
+}
+
+/** Observe only the disposable fixture cache after its native children close. */
+export function inspectFixtureCompileCache(directory: string): { files: number; bytes: number } {
+  let files = 0, bytes = 0;
+  if (existsSync(directory)) {
+    for (const entry of readdirSync(directory, { recursive: true, withFileTypes: true })) {
+      if (!entry.isFile()) continue;
+      files++;
+      bytes += statSync(join(entry.parentPath, entry.name)).size;
+    }
+  }
+  return { files, bytes };
 }

@@ -112,7 +112,7 @@ function validateAgentPromptArgs(args: unknown): asserts args is AgentPromptArgs
 export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     agent_prompt(args: AgentPromptArgs = {}): string {
-      assertActiveIdentityConsumerContract('prompt-runtime', PROMPT_REGISTRY_VERSION);
+      assertActiveIdentityConsumerContract('prompt-runtime', PROMPT_REGISTRY_VERSION, ctx?.root);
       assertActiveIdentityConsumerContract('acceptance-amendment-review', ACCEPTANCE_REVIEW_FINAL_SCHEMA);
       validateAgentPromptArgs(args);
       // Runtime re-validation (Handler 编码约定): reject blank/missing role even

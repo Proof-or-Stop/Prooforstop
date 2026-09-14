@@ -8,6 +8,8 @@ export interface ToolDef {
   description: string;
   /** Full prompt shown in proofOrStop <cmd> --help. Optional; defaults to showing description only. */
   longHelp?: string;
+  /** Copyable JSON bodies shown after schema details. They must satisfy this tool's Zod schema. */
+  examples?: Array<{ title: string; body: Record<string, unknown> }>;
   schema: Record<string, ZodType>;
 }
 

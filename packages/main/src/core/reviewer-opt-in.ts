@@ -16,6 +16,7 @@
 import type { StoryInfo } from './types.js';
 import { AGENT_DISPATCH_REGISTRY, resolveAgentDispatchType } from './agent-dispatch-registry.js';
 import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
+import { REVIEWER_LANE_NAMES } from './reviewer-lane-names.js';
 
 export type Channel = 'quick' | 'normal';
 
@@ -33,18 +34,9 @@ export interface OptInReviewer {
  * table is only an input compatibility surface; reviewer authority comes from
  * the explicit registry reviewerLane field, never from a prefix lookalike.
  */
-const REVIEWER_SHORT_NAMES: Readonly<Record<string, string>> = Object.freeze({
-  behavior: 'proof-or-stop-review-behavior',
-  channel: 'proof-or-stop-review-channel',
-  concept: 'proof-or-stop-review-concept',
-  delivery: 'proof-or-stop-review-delivery',
-  docs: 'proof-or-stop-review-docs',
-  quality: 'proof-or-stop-review-quality',
-  'scope-plan': 'proof-or-stop-review-scope-plan',
-  'story-init': 'proof-or-stop-review-story-init',
-  'test-coverage': 'proof-or-stop-review-test-coverage',
-  'topology-critic': 'proof-or-stop-review-topology-critic',
-});
+const REVIEWER_SHORT_NAMES: Readonly<Record<string, string>> = Object.freeze(Object.fromEntries(
+  REVIEWER_LANE_NAMES.map((name) => [name, `proof-or-stop-review-${name}`]),
+));
 
 function reviewerEntryFor(value: string) {
   const raw = value.trim();

@@ -1,5 +1,92 @@
 # Changelog
 
+## Lab init-product-review-phase-contract - v0.3.363 - 2026-09-14
+
+Fix the INIT lifecycle deadlock where the required product reviewer asked for implementation and delivery transcripts before the Story worktree could be created.
+
+The product INIT contract now reviews concrete user outcomes, executable verification intent, requirements, scope, compatibility, and safety boundaries. It explicitly permits planned evidence before implementation. A signed structured issue kind distinguishes post-implementation evidence gaps from genuine INIT blockers; post-implementation-only gaps remain visible but cannot block INIT_CHECK, while legacy high issues and real INIT deficiencies remain fail-closed. Final transcript and delivery evidence checks remain assigned to the TEST-phase delivery reviewer.
+
+Verification passed: the product reviewer regression covers both agent_prompt --readOnly and dispatch, issue-kind persistence, deferred evidence handling, true blocker behavior, and legacy compatibility. The INIT required-agents lifecycle smoke proves story_advance reaches INIT_CHECK with a deferred high evidence gap and still blocks a genuine high product gap. The init fallback smoke, full TypeScript build, and process-fact contract also passed.
+
+Maintenance provenance: codex/lab-init-product-review-phase-contract, repair 55e1df33704dc167fff1dba17df577be2dadd348.
+Verification command (replayed before integration and on main): `["node","scripts/verify-product-reviewer.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab cli-contract-recovery - v0.3.362 - 2026-09-14
+
+Fix fresh-init prompt consumer consistency, CLI schema recovery, atomic PLAN acceptance, and missing requirements corpus handling.
+
+Fresh global-thin and thin projects now emit a canonical prompt envelope while legacy omitted configuration remains valid. Codex verification executes the same identity and role-resolution path as agent_prompt, so invalid prompt configurations fail both checks. Consumer configuration is no longer required to match this repository's exact reviewer-role occurrence inventory; semantic config parsing plus a dedicated retired-identity guard for both legacy `proofbound.` protocol names and `proofbound-` role names preserve the active identity boundary.
+
+Verification-intent help now renders nested defaults, enum values, classification metadata, and parseable examples, with complete normalized snapshots for all four public help commands. Argument-validation failures are capped at 4096 bytes while preserving an omitted-issue count and executable recovery command, and expose stable JSON recovery fields including consistent nested-space alias recovery. PLAN owners can prepare and atomically apply a multi-item files and verificationIntent batch with whole-batch digest, per-item stale checks, owner lease enforcement, initial planned-path binding, subsequent file-binding protection, signed amendment revision, and one atomic append containing every per-item process event. Event persistence failure occurs before the checklist update is published; checklist publication failure rolls back only the exact event suffix and refuses rollback if concurrent bytes changed.
+
+Missing requirements directories now produce a deterministic empty corpus with an explicit missing diagnostic and a fail-closed routing escalation. Top-level, dangling, nested, in-project and escaping requirements symlinks are rejected explicitly; non-directories and unreadable directories remain separate fail-closed errors.
+
+Verification: Lab RED/GREEN regression covering five framework contracts; TypeScript build; lifecycle registry; 414-command ownership contract; candidate-routing smoke; and the full process-fact contract.
+
+Maintenance provenance: codex/lab-cli-contract-recovery, repair c2b777a68c4b3e9014ea71f4ed6200e308ed9ed7.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/cli-contract-recovery.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-review-model-binding - v0.3.361 - 2026-09-14
+
+Problem
+
+Managed host review could not request and prove an exact provider model and reasoning effort. The public managed-review path therefore could not guarantee that a requested Codex or Claude reviewer configuration was the one sealed into formal review evidence.
+
+Fix
+
+Add optional model and reasoningEffort inputs to host_run, validate them per provider, place them on the protected provider argv, and seal them through the managed run specification, binding projection, result, terminal receipt, import verifier, and REVIEW consumer. Historical runs without these fields remain byte-compatible and normalize to an omitted selection.
+
+Verification
+
+The Lab RED proved the public options were absent. The focused model-selection smoke now covers exact argv propagation, omitted-selector compatibility, historical field absence, model and reasoning mismatch rejection, invalid selector rejection, and idempotency conflict. The main and utils builds, process-fact contract, Lab GREEN replay, and independent Anthropic audit passed.
+
+Measured Optimization
+
+Not applicable. This repair strengthens managed-review selection and evidence integrity without changing the provider execution count or performance contract.
+
+Maintenance provenance: codex/lab-managed-review-model-binding, repair 79b3d6821726b858036973f8889e646fef533f22.
+Verification command (replayed before integration and on main): `["node","-e","const{spawnSync}=require('child_process');const r=spawnSync(process.execPath,['bin/proof-or-stop.js','host_run','--help'],{encoding:'utf8'});const s=(r.stdout||'')+(r.stderr||'');if(r.status!==0||!s.includes('--model')||!s.includes('--reasoningEffort')){console.error('managed review model selection is unavailable');process.exit(1)}console.log('managed review model selection available')"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab validation-top5-performance - v0.3.360 - 2026-09-13
+
+Reduce repeated validation identity and planning work while preserving fresh execution checks.
+
+This Lab release combines per-observation executable hashing, synchronous batch planning reuse, bounded exact-source canonical digest memoization, isolated admissibility mutation workers, and disposable Node compilation caches for selected native validation fixtures. The imported planning repair retains independent post-lock, launch, completion, and publication checks. No validation PASS result is cached.
+
+Historical RED/GREEN measurements (single paired observations, not a guaranteed release-wide speedup):
+
+| Check | Before | After | Observed reduction |
+|---|---:|---:|---:|
+| Admissibility registry | 306.907 s | 295.596 s | 3.69% |
+| Verification run/guard | 354.728 s | 311.240 s | 12.26% |
+| Identity delivery | 699.948 s | 692.099 s | 1.12% |
+| Heartbeat validation | 135.069 s | 127.935 s | 5.28% |
+| Initial planning, 71 evidence rows | 6.458 s | 0.106 s | 98.35% |
+| Initial planning scans | 71 | 1 | 98.59% |
+| Initial planning logical reads | 3858.73 MB | 54.35 MB | 98.59% |
+| Original planning fanout shard | 421.541 s | 346.339 s | 17.84% |
+
+The combined candidate also passed a native fanout run with 71 assertions, 2 executions, one planning scan, and 93.141 ms planning. Original RED/GREEN logs, rejected candidates, a blocked quorum run, and SHA-256 manifests are committed under docs/lab/validation-top5-performance/. These are staged historical baselines; their savings cannot be added to estimate full-suite performance. Logical reads are not physical disk I/O. The small identity-delivery gain does not prove a stable improvement or resolution of its dominant hotspot.
+
+Quorum-submit optimization remains excluded: its 73 cases passed, but protected-directory monitoring failed. No successful optimization or GREEN baseline is claimed for that command. No guard was disabled.
+
+Validation includes source-mutation refusal, ordinary fresh observations, exceptions, no cache crossing await, nested planning scopes, full runtime-fact checks, native planning fanout, and the heartbeat suite. The pinned combined regression runs on the release candidate and after local main integration. Independent vendor audit and final Finish verification are recorded separately by the Lab tool. This is local maintenance evidence, not formal Story DONE.
+
+Lab: validation-top5-performance. Imported source Lab: validation-planning-scan, original repair a754176b77, integrated as 852938e89d. Release version is assigned by Lab Finish from the synchronized main baseline.
+
+Integration checks on the synchronized 0.3.357 base passed review-intent-cycle, the complete process-fact contract, and static source-evidence boundaries. Static scanning covers 330 exception uses with no unresolved or nested validation; 270 manifest entries have current covering source evidence. The later combined GREEN attempt on commit 23af3e0278 passed every native heartbeat group but took 151.881 seconds and failed the original 133.718-second performance threshold. That rejected attempt is retained in docs/lab/validation-top5-performance/logs/release-combined-green-rejected.log and is not passing release evidence. Final candidate and post-merge outcomes must be read from the subsequent successful Finish record, if one is obtained.
+
+The synchronized 0.3.358 candidate 6ab34f538c passed the unchanged combined GREEN command: native heartbeat 132.247 seconds, complete runtime-fact contract PASS, native fanout 291.696 seconds with 71 assertion receipts and 2 execution receipts, one planning scan in 107.885 ms. GitHub main 6c163f9693 is an ancestor of this candidate. This pre-Finish result supplements, but does not replace, the versioned candidate, independent vendor audit and post-merge checks.
+
+The 0.3.358 pre-Finish measurement is retained in docs/lab/validation-top5-performance/logs/release-358-combined-green.log and covered by manifest.json. The earlier 0.3.359 candidate c9b66d93e9 was withdrawn after an unsuccessful audit and was never integrated into local main by this Lab. Its complete Finish output and the unaccepted vendor response are retained as logs/release-finish-attempt1.log and logs/audit-attempt-1-response.json. The audit response reported four release-material issues and also omitted required read references, so it is not an accepted audit credential. The corrected record distinguishes the imported remote host version from the integration release, fixes the rejected-log path, retains the missing measured-run log, and restores the unrelated trailing blank line. Fresh candidate validation, audit and main verification are required.
+
+Maintenance provenance: codex/lab-validation-top5-performance, repair e09c60d6b5de4f2861c62d0743bc1f107490f91b.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/lab-top5-cache-performance.mjs","5"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-inventory-critic-transport - v0.3.359 - 2026-09-13
 
 # Managed inventory critic transport repair
@@ -491,6 +578,18 @@ The final expanded candidate dec07e5c8e passed official full GREEN in 467.523 se
 
 Maintenance provenance: codex/lab-route-reader-regression, repair dec07e5c8e2f30098b983ae3803004a19d43e333.
 Verification command (replayed before integration and on main): `["node","scripts/verify-route-reader-regression.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Imported remote provenance: review-intent-stage-cycle - source v0.3.351 - 2026-09-13
+
+This is the source-host maintenance record imported from origin/main 6c163f9693, which already contains repair 82365ddd9d57bebd96617e58bfa054434de9e293. Its 0.3.351 label describes that source host, not the availability of this refusal on the previously divergent local main. The validation-top5-performance maintenance release incorporates this existing remote repair into local main; its actual local integration version is recorded in the new release entry. The original source-host verification and provenance follow.
+
+The repair prevents PLAN verification intent from requiring a REVIEW lifecycle verdict that can only be produced after entering REVIEW. Direct Story creation, draft materialization, checklist addition or replacement, and DEV intent amendment reject the bounded invalid shapes before persistence; Story review also reports a blocking, actionable issue for retained legacy data. Legitimate product tests for review pages, review-related CLI behavior, and complete executable pins remain admissible. Verification-intent prompts for Codex, Claude, templates, and the handoff handler teach the same boundary, and the process-fact registry records the writer and consumer contract.
+
+The migrated regression covers common lifecycle wording, canonical reviewer lane names, every persistence path, legacy-data coverage, malformed-input handling, lifecycle-command pin bypasses, and false-positive controls. It is registered in test:serial-reference and has an isolated full-suite resource policy. A different-vendor Anthropic audit passed the final committed candidate.
+
+Maintenance provenance: codex/lab-review-intent-stage-cycle, repair 82365ddd9d57bebd96617e58bfa054434de9e293.
+Verification command: `["node","scripts/verify-review-gate-intent-cycle.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## Lab review-finalization-lineage - v0.3.351 - 2026-09-13

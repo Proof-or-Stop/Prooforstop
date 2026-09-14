@@ -22,12 +22,14 @@ const requiredFacts = [
 ];
 
 const requiredEvidenceFacts = [
+  'identity-canonical-digest-memo',
   'validation-machine-reservation-delegation',
   'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
   'verification-receipt-authenticity',
   'verification-input-scoped-reuse',
+  'verification-planning-observation',
   'verification-reuse-capsule-authority',
   'verification-execution-producer-lock',
   'verification-lifecycle-admissibility',
@@ -100,6 +102,9 @@ async function main() {
   try {
     execFileSync(process.execPath, ['scripts/verify-cli-audit-runtime-coverage.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });
   } catch (error) { fail(verificationFailureMessage('CLI runtime coverage', error)); }
+  check(registrySource.includes('verification-executable-observation'), 'Fresh executable observation must have a runtime contract');
+  execFileSync(process.execPath, ['packages/main/tests/lab-top5-identity.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+  execFileSync(process.execPath, ['packages/main/tests/identity-canonical-digest-memo.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
   check(read(root, 'packages/main/src/core/validation-reservation-delegation.ts').includes('VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY'), 'Controlled machine delegation must consume its registered runtime policy');
   check(registrySource.includes('validation-invocation-baseline-serialization'), 'Invocation-local baseline serialization must be registered');
   execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],
@@ -815,6 +820,8 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
   for (const test of ['verify-doctor-runtime-scan.mjs', 'verify-doctor-runtime-cache.mjs']) {
     execFileSync(process.execPath, [join(root, 'scripts', test)], {cwd: root, stdio: 'inherit', timeout: 120000});
   }
+
+  execFileSync(process.execPath, [join(root, 'packages/main/tests/planning-observation.test.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 
   execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 

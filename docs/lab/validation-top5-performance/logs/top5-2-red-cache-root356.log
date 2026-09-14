@@ -1,0 +1,108 @@
+
+> proof-or-stop@0.3.356 lab:worktree
+> node scripts/lab-worktree.mjs red validation-top5-performance --expect TOP5_2_RED: repeated native children have no disposable compilation cache --timeout-ms 1250000 -- node packages/main/tests/lab-top5-cache-performance.mjs 2
+
+TOP5_CHECKOUT_PREPARING {"root":"/Users/jek/Library/Caches/proof-or-stop-top5-benchmarks/top5-checkout-dtNVNc/repo","head":"572146179053cbbe088bb3b2a7e1199ac608d5f8"}
+TOP5_CHECKOUT_READY {"root":"/Users/jek/Library/Caches/proof-or-stop-top5-benchmarks/top5-checkout-dtNVNc/repo","head":"572146179053cbbe088bb3b2a7e1199ac608d5f8","setupMs":118768.592667,"independentDependencies":true,"independentDist":true}
+TOP5_NATIVE_OUTPUT {"outputRoot":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/top5-native-output-n6iINp"}
+TOP5_PROFILE {"suite":2,"command":["node","scripts/run-validation-fixture-suite.mjs","packages/main/dist/tasks/quorum-submit-smoke.js","--jobs=2"],"wallMs":1017205.893583,"nativeExitCode":1,"nativeSignal":null,"formalStoryEvidence":false}
+TOP5_QUORUM_REPORT {"ok":false,"results":[{"caseId":"qsm-001","status":"PASS","startedAtMs":1789303147324,"endedAtMs":1789303148234},{"caseId":"qsm-002","status":"PASS","startedAtMs":1789303147507,"endedAtMs":1789303147508},{"caseId":"qsm-003","status":"PASS","startedAtMs":1789303147509,"endedAtMs":1789303147509},{"caseId":"qsm-004","status":"PASS","startedAtMs":1789303148235,"endedAtMs":1789303164734},{"caseId":"qsm-005","status":"PASS","startedAtMs":1789303164734,"endedAtMs":1789303182545},{"caseId":"qsm-006","status":"PASS","startedAtMs":1789303182545,"endedAtMs":1789303201029},{"caseId":"qsm-007","status":"PASS","startedAtMs":1789303201029,"endedAtMs":1789303211546},{"caseId":"qsm-008","status":"PASS","startedAtMs":1789303211547,"endedAtMs":1789303253795},{"caseId":"qsm-009","status":"PASS","startedAtMs":1789303147509,"endedAtMs":1789303147510},{"caseId":"qsm-010","status":"PASS","startedAtMs":1789303147510,"endedAtMs":1789303147511},{"caseId":"qsm-011","status":"PASS","startedAtMs":1789303147511,"endedAtMs":1789303147511},{"caseId":"qsm-012","status":"PASS","startedAtMs":1789303147511,"endedAtMs":1789303147512},{"caseId":"qsm-013","status":"PASS","startedAtMs":1789303253796,"endedAtMs":1789303279829},{"caseId":"qsm-014","status":"PASS","startedAtMs":1789303279829,"endedAtMs":1789303303640},{"caseId":"qsm-015","status":"PASS","startedAtMs":1789303303641,"endedAtMs":1789303351098},{"caseId":"qsm-016","status":"PASS","startedAtMs":1789303351098,"endedAtMs":1789303355769},{"caseId":"qsm-017","status":"PASS","startedAtMs":1789303355770,"endedAtMs":1789303357374},{"caseId":"qsm-018","status":"PASS","startedAtMs":1789303357374,"endedAtMs":1789303359075},{"caseId":"qsm-019","status":"PASS","startedAtMs":1789303359076,"endedAtMs":1789303376620},{"caseId":"qsm-020","status":"PASS","startedAtMs":1789303376623,"endedAtMs":1789303410737},{"caseId":"qsm-021","status":"PASS","startedAtMs":1789303410740,"endedAtMs":1789303458978},{"caseId":"qsm-022","status":"PASS","startedAtMs":1789303458978,"endedAtMs":1789303678362},{"caseId":"qsm-023","status":"PASS","startedAtMs":1789303678363,"endedAtMs":1789303689430},{"caseId":"qsm-024","status":"PASS","startedAtMs":1789303689431,"endedAtMs":1789303701692},{"caseId":"qsm-025","status":"PASS","startedAtMs":1789303701692,"endedAtMs":1789303713345},{"caseId":"qsm-026","status":"PASS","startedAtMs":1789303713346,"endedAtMs":1789303725668},{"caseId":"qsm-027","status":"PASS","startedAtMs":1789303725668,"endedAtMs":1789303742312},{"caseId":"qsm-028","status":"PASS","startedAtMs":1789303149211,"endedAtMs":1789303168432},{"caseId":"qsm-029","status":"PASS","startedAtMs":1789303168433,"endedAtMs":1789303208189},{"caseId":"qsm-030","status":"PASS","startedAtMs":1789303208189,"endedAtMs":1789303226124},{"caseId":"qsm-031","status":"PASS","startedAtMs":1789303226124,"endedAtMs":1789303278762},{"caseId":"qsm-032","status":"PASS","startedAtMs":1789303278763,"endedAtMs":1789303317235},{"caseId":"qsm-033","status":"PASS","startedAtMs":1789303317238,"endedAtMs":1789303352014},{"caseId":"qsm-034","status":"PASS","startedAtMs":1789303352015,"endedAtMs":1789303431301},{"caseId":"qsm-035","status":"PASS","startedAtMs":1789303431303,"endedAtMs":1789303470422},{"caseId":"qsm-036","status":"PASS","startedAtMs":1789303470422,"endedAtMs":1789303486018},{"caseId":"qsm-037","status":"PASS","startedAtMs":1789303486021,"endedAtMs":1789303503927},{"caseId":"qsm-038","status":"PASS","startedAtMs":1789303503930,"endedAtMs":1789303520925},{"caseId":"qsm-039","status":"PASS","startedAtMs":1789303520926,"endedAtMs":1789303535819},{"caseId":"qsm-040","status":"PASS","startedAtMs":1789303535819,"endedAtMs":1789303549245},{"caseId":"qsm-041","status":"PASS","startedAtMs":1789303549245,"endedAtMs":1789303562314},{"caseId":"qsm-042","status":"PASS","startedAtMs":1789303562315,"endedAtMs":1789303575239},{"caseId":"qsm-043","status":"PASS","startedAtMs":1789303575239,"endedAtMs":1789303589098},{"caseId":"qsm-044","status":"PASS","startedAtMs":1789303589098,"endedAtMs":1789303602650},{"caseId":"qsm-045","status":"PASS","startedAtMs":1789303602651,"endedAtMs":1789303622680},{"caseId":"qsm-046","status":"PASS","startedAtMs":1789303622681,"endedAtMs":1789303640302},{"caseId":"qsm-047","status":"PASS","startedAtMs":1789303640302,"endedAtMs":1789303653330},{"caseId":"qsm-048","status":"PASS","startedAtMs":1789303653331,"endedAtMs":1789303666714},{"caseId":"qsm-049","status":"PASS","startedAtMs":1789303666715,"endedAtMs":1789303678982},{"caseId":"qsm-050","status":"PASS","startedAtMs":1789303678982,"endedAtMs":1789303688302},{"caseId":"qsm-051","status":"PASS","startedAtMs":1789303844520,"endedAtMs":1789303856251},{"caseId":"qsm-052","status":"PASS","startedAtMs":1789303856251,"endedAtMs":1789303871524},{"caseId":"qsm-053","status":"PASS","startedAtMs":1789303871524,"endedAtMs":1789303885439},{"caseId":"qsm-054","status":"PASS","startedAtMs":1789303885440,"endedAtMs":1789303896115},{"caseId":"qsm-055","status":"PASS","startedAtMs":1789303896115,"endedAtMs":1789303908089},{"caseId":"qsm-056","status":"PASS","startedAtMs":1789303908089,"endedAtMs":1789303920759},{"caseId":"qsm-057","status":"PASS","startedAtMs":1789303920759,"endedAtMs":1789303934195},{"caseId":"qsm-058","status":"PASS","startedAtMs":1789303934196,"endedAtMs":1789303945650},{"caseId":"qsm-059","status":"PASS","startedAtMs":1789303945650,"endedAtMs":1789303957955},{"caseId":"qsm-060","status":"PASS","startedAtMs":1789303957955,"endedAtMs":1789303967960},{"caseId":"qsm-061","status":"PASS","startedAtMs":1789303967960,"endedAtMs":1789303979138},{"caseId":"qsm-062","status":"PASS","startedAtMs":1789303979138,"endedAtMs":1789303992042},{"caseId":"qsm-063","status":"PASS","startedAtMs":1789303992043,"endedAtMs":1789304009503},{"caseId":"qsm-064","status":"PASS","startedAtMs":1789304009504,"endedAtMs":1789304025442},{"caseId":"qsm-065","status":"PASS","startedAtMs":1789304025442,"endedAtMs":1789304036887},{"caseId":"qsm-066","status":"PASS","startedAtMs":1789304036887,"endedAtMs":1789304047780},{"caseId":"qsm-067","status":"PASS","startedAtMs":1789304047781,"endedAtMs":1789304049206},{"caseId":"qsm-068","status":"PASS","startedAtMs":1789304049206,"endedAtMs":1789304061399},{"caseId":"qsm-069","status":"PASS","startedAtMs":1789304061400,"endedAtMs":1789304072405},{"caseId":"qsm-070","status":"PASS","startedAtMs":1789304072405,"endedAtMs":1789304083863},{"caseId":"qsm-071","status":"PASS","startedAtMs":1789304083863,"endedAtMs":1789304097490},{"caseId":"qsm-072","status":"PASS","startedAtMs":1789303688304,"endedAtMs":1789303703663},{"caseId":"qsm-073","status":"PASS","startedAtMs":1789303703663,"endedAtMs":1789303718565}],"shards":[{"shardId":"integration-a","workerPid":52973,"ownedTempRoot":"/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-quorum-workers-07b9D2/worker-integration-a-NiKP7t","ownedTempRootDev":16777231,"ownedTempRootIno":366498947,"status":"PASS","attempts":1,"retryCount":0,"caseIds":["qsm-001","qsm-004","qsm-005","qsm-006","qsm-007","qsm-008","qsm-013","qsm-014","qsm-015","qsm-016","qsm-017","qsm-018","qsm-019","qsm-020","qsm-021","qsm-022","qsm-023","qsm-024","qsm-025","qsm-026","qsm-027"],"sentinelCaseIds":["qsm-013"],"startedAtMs":1789303147324,"endedAtMs":1789303742312,"processTreeReaped":true,"orphanedDescendants":false,"residue":{"temp":0,"process":0,"ticket":0,"quarantine":0}},{"shardId":"pure","workerPid":53094,"ownedTempRoot":"/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-quorum-workers-07b9D2/worker-pure-LuBYoT","ownedTempRootDev":16777231,"ownedTempRootIno":366499182,"status":"PASS","attempts":1,"retryCount":0,"caseIds":["qsm-002","qsm-003","qsm-009","qsm-010","qsm-011","qsm-012"],"sentinelCaseIds":["qsm-009"],"startedAtMs":1789303147507,"endedAtMs":1789303147512,"processTreeReaped":true,"orphanedDescendants":false,"residue":{"temp":0,"process":0,"ticket":0,"quarantine":0}},{"shardId":"integration-b","workerPid":53999,"ownedTempRoot":"/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-quorum-workers-07b9D2/worker-integration-b-ZqUny7","ownedTempRootDev":16777231,"ownedTempRootIno":366501084,"status":"PASS","attempts":1,"retryCount":0,"caseIds":["qsm-028","qsm-029","qsm-030","qsm-031","qsm-032","qsm-033","qsm-034","qsm-035","qsm-036","qsm-037","qsm-038","qsm-039","qsm-040","qsm-041","qsm-042","qsm-043","qsm-044","qsm-045","qsm-046","qsm-047","qsm-048","qsm-049","qsm-050","qsm-072","qsm-073"],"sentinelCaseIds":["qsm-046"],"startedAtMs":1789303149211,"endedAtMs":1789303718565,"processTreeReaped":true,"orphanedDescendants":false,"residue":{"temp":0,"process":0,"ticket":0,"quarantine":0}},{"shardId":"prune","workerPid":57136,"ownedTempRoot":"/private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-quorum-workers-07b9D2/worker-prune-y1uC7C","ownedTempRootDev":16777231,"ownedTempRootIno":366792420,"status":"PASS","attempts":1,"retryCount":0,"caseIds":["qsm-051","qsm-052","qsm-053","qsm-054","qsm-055","qsm-056","qsm-057","qsm-058","qsm-059","qsm-060","qsm-061","qsm-062","qsm-063","qsm-064","qsm-065","qsm-066","qsm-067","qsm-068","qsm-069","qsm-070","qsm-071"],"sentinelCaseIds":["qsm-063"],"startedAtMs":1789303844520,"endedAtMs":1789304097490,"processTreeReaped":true,"orphanedDescendants":false,"residue":{"temp":0,"process":0,"ticket":0,"quarantine":0}}],"processTreeReaped":true,"residue":{"temp":0,"process":0,"ticket":0,"quarantine":0},"protectedMutationGuard":{"clean":false,"eventCount":4022}}
+CASE_PASS qsm-002
+CASE_PASS qsm-003
+CASE_PASS qsm-009
+REAL_SENTINEL qsm-009
+CASE_PASS qsm-010
+CASE_PASS qsm-011
+CASE_PASS qsm-012
+CASE_PASS qsm-028
+CASE_PASS qsm-029
+CASE_PASS qsm-030
+CASE_PASS qsm-031
+CASE_PASS qsm-032
+CASE_PASS qsm-033
+CASE_PASS qsm-034
+CASE_PASS qsm-035
+CASE_PASS qsm-036
+CASE_PASS qsm-037
+CASE_PASS qsm-038
+CASE_PASS qsm-039
+CASE_PASS qsm-040
+CASE_PASS qsm-041
+CASE_PASS qsm-042
+CASE_PASS qsm-043
+CASE_PASS qsm-044
+CASE_PASS qsm-045
+CASE_PASS qsm-046
+REAL_SENTINEL qsm-046
+CASE_PASS qsm-047
+CASE_PASS qsm-048
+CASE_PASS qsm-049
+CASE_PASS qsm-050
+CASE_PASS qsm-072
+CASE_PASS qsm-073
+CASE_PASS qsm-001
+CASE_PASS qsm-004
+CASE_PASS qsm-005
+CASE_PASS qsm-006
+CASE_PASS qsm-007
+CASE_PASS qsm-008
+CASE_PASS qsm-013
+REAL_SENTINEL qsm-013
+CASE_PASS qsm-014
+CASE_PASS qsm-015
+CASE_PASS qsm-016
+CASE_PASS qsm-017
+CASE_PASS qsm-018
+CASE_PASS qsm-019
+CASE_PASS qsm-020
+CASE_PASS qsm-021
+CASE_PASS qsm-022
+CASE_PASS qsm-023
+CASE_PASS qsm-024
+CASE_PASS qsm-025
+CASE_PASS qsm-026
+CASE_PASS qsm-027
+CASE_PASS qsm-051
+CASE_PASS qsm-052
+CASE_PASS qsm-053
+CASE_PASS qsm-054
+CASE_PASS qsm-055
+CASE_PASS qsm-056
+CASE_PASS qsm-057
+CASE_PASS qsm-058
+CASE_PASS qsm-059
+CASE_PASS qsm-060
+CASE_PASS qsm-061
+CASE_PASS qsm-062
+CASE_PASS qsm-063
+REAL_SENTINEL qsm-063
+CASE_PASS qsm-064
+CASE_PASS qsm-065
+CASE_PASS qsm-066
+CASE_PASS qsm-067
+CASE_PASS qsm-068
+CASE_PASS qsm-069
+CASE_PASS qsm-070
+CASE_PASS qsm-071
+FIXTURE_COMPILE_CACHE {"files":0,"bytes":0}
+provider-neutral fixture retained: /private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-neutral-fixture-dPzzuR
+fixture machine retained for diagnosis: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-fixture-machine-I9MHKB
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Full native suite must pass before asserting performance
+
+1 !== 0
+
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/tests/lab-top5-cache-performance.mjs:31:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+Lab stopped: Expected target RED was not observed; no RED recorded.

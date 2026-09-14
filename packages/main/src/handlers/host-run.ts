@@ -41,9 +41,11 @@ import {
   type HostRunChunk,
   type HostRunHost,
   type HostRunPassthrough,
+  type HostRunReasoningEffort,
   type HostRunResult,
   type HostRunRunner,
   type HostRunStoryResolver,
+  normalizeHostRunModelSelection,
 } from '../core/host-run.js';
 import {
   cancelManagedHostRun,
@@ -86,6 +88,8 @@ export interface HostRunCommandArgs extends FormatArgs {
   deadlineMs?: number;
   detach?: boolean;
   managedReview?: boolean;
+  model?: string;
+  reasoningEffort?: HostRunReasoningEffort;
 }
 
 export interface HostRunStatusCommandArgs extends FormatArgs {
@@ -168,6 +172,8 @@ export interface CreateHostRunHandlersOptions {
 export interface HostRunCommandResult {
   schemaVersion: 'proof-or-stop.host_run.v1';
   host: HostRunHost;
+  model: string | null;
+  reasoningEffort: HostRunReasoningEffort | null;
   storyId: string | null;
   phase: string;
   agentType: string;
@@ -266,6 +272,8 @@ function syntheticManagedResult(run: ManagedHostRunProjection): HostRunResult {
   const exitCode = run.state === 'completed' ? 0 : run.state === 'cancelled' ? 130 : run.state === 'timed_out' ? 124 : 1;
   return {
     host: run.host,
+    model: run.model ?? null,
+    reasoningEffort: run.reasoningEffort ?? null,
     storyId: run.storyId,
     phase: run.phase,
     agentType: run.agentType,
@@ -378,6 +386,11 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
   return {
     async host_run(args: HostRunCommandArgs): Promise<HostRunCommandResult | HostRunDetachResult | string> {
       const host = normalizeHost(normalizeString(args.host));
+      const selection = normalizeHostRunModelSelection({
+        host,
+        model: args.model,
+        reasoningEffort: args.reasoningEffort,
+      });
       const agentType = normalizeString(args.agentType);
       if (!agentType) throw new Error('host_run: --agentType is required');
       const timeoutMs = optionalPositiveInteger('host_run', 'timeoutMs', args.timeoutMs);
@@ -488,6 +501,8 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         {
           idempotencyKey: args.idempotencyKey,
           host,
+          model: selection.model,
+          reasoningEffort: selection.reasoningEffort,
           storyId,
           agentType,
           phase,
@@ -775,6 +790,8 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           jsonPayload = {
             schemaVersion: 'proof-or-stop.host_run.v1',
             host: result.host,
+            model: result.model ?? null,
+            reasoningEffort: result.reasoningEffort ?? null,
             storyId: result.storyId,
             phase: result.phase,
             agentType: result.agentType,

@@ -601,9 +601,9 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 - `[missing_init_check]` — init-check.json 不存在（reviewer 没跑或没调 init_check_set）
 - `[init_check_tampered]` — `_hash` 与重算结果不符（签名域内任一组件改了：background / title / description / checklist / reviewRound / reviewer verdict）。注意 `recomputeInitCheckHash` 是对 story **当前**内容重算的，而 story 内容在 PLAN/DEV 会正常演进——所以 INIT 之后 `_hash` 失配是**预期常态**，不是损坏；gate 只在 phase === `INIT` 时读它，其他 phase 直接 early-return
 - `[missing_init_check_agent]` — 必需 reviewer 没有记录结果
-- `[init_check_blocking_issues]` — init-check.json 中存在 critical/high issue
+- `[init_check_blocking_issues]` — init-check.json 中存在适用于 INIT 的 critical/high issue；`kind: post_implementation_evidence_missing` 会延后到实现后的验证阶段
 
-**issues gate**：`init-check.json` 中 critical/high issues 会阻塞 INIT_CHECK；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
+**issues gate**：`init-check.json` 中适用于 INIT 的 critical/high issues 会阻塞 INIT_CHECK；`kind: post_implementation_evidence_missing` 表示只有实现后才能取得的证据，在 INIT 中延后且不阻塞；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
 
 **存量语料迁移立场**：不迁移，接受失效——理由和重新测得的计数见 `docs/requirements/decisions/story-lifecycle.md` 的「init-check signature domain widened to the reviewer verdict — migration position」节。
 
@@ -631,7 +631,7 @@ proof-or-stop init_check_repair '{
   "fallbackReason":"为何 INIT reviewer 无法运行 + 你人工核查了什么（≥30 字符，作为 durable 审计 attestation）",
   "mode":"repair",            // 可选，默认 repair；fallback/repair 语义等价仅审计分类
   "evidenceRefs":["..."],     // 可选，人工核查依据
-  "issues":[]                 // 可选，人工 attestation 提的 issue；high/critical 仍阻塞 INIT_CHECK
+  "issues":[]                 // 可选；适用于 INIT 的 high/critical 仍阻塞，post_implementation_evidence_missing 延后
 }'
 ```
 
@@ -639,7 +639,7 @@ proof-or-stop init_check_repair '{
 
 - **默认禁用**：缺 `acknowledge:true` 或 `fallbackReason` < 30 字符 → 拒绝、不产出文件、不改 phase。
 - **不绕过签名**：复用同一 `signInitCheck`，跟普通 `init_check_set` 用**同一个**签名域，fallback 不因此签得更弱。B-8df9 CHK-002 后该域已包含 reviewer verdict（`agentResults` + `issues`），事后改任一签名内容仍触发 `[init_check_tampered]`；域的当前列表以 `describeInitCheckSignatureDomain()` 为准。
-- **No gate relaxation**: `initCheckAgentMatches` accepts only byte-exact `<required>` or `<required>@fallback`, rejects `<required>@operator` and `<required>@fallback-extra`; recording fallback agentResults as `<required>@fallback` satisfies required reviewer coverage while remaining mechanically distinguishable from independent reviewers. Human-attested high/critical issues still block through `blockingInitCheckIssues`.
+- **No reviewer-coverage relaxation**: `initCheckAgentMatches` accepts only byte-exact `<required>` or `<required>@fallback`, rejects `<required>@operator` and `<required>@fallback-extra`; recording fallback agentResults as `<required>@fallback` satisfies required reviewer coverage while remaining mechanically distinguishable from independent reviewers. Human-attested high/critical issues that apply to INIT still block through `blockingInitCheckIssues`; `kind: post_implementation_evidence_missing` follows the same explicit phase deferral as the independent-review path.
 - **严格校验 agentId，但不把它误当调用方身份证明**：writer 只接受已注册的 byte-exact canonical INIT reviewer identity；EXP-001 仍说明 shell 调用方身份本身不能仅靠 `agentId` 机械证明。
 - **可审计**：写 `init-check.json.fallback` 块（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event。`proof-or-stop story_get` 返回 `initCheckAttestation: "fallback" | "independent"` 与 `initCheckFallback` 块，dashboard/report 据此把人工 fallback 与独立 reviewer 区分开。
 

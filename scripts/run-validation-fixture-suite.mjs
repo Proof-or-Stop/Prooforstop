@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { runProviderNeutralFixture } from './helpers/provider-neutral-fixture.mjs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { createFixtureMachineEnvironment } from '../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
+import { createFixtureMachineEnvironment, inspectFixtureCompileCache } from '../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
 
 export const FIXTURE_ENTRIES = new Set([
   'packages/main/dist/tasks/withdrawn-disposition-smoke.js',
@@ -35,11 +35,18 @@ assert.deepEqual(rest, (entry.endsWith('/red-w2d-command-readonly.mjs') || entry
 const fixture = createFixtureMachineEnvironment();
 const env = { ...fixture.env, PROOF_OR_STOP_HEALTH_PATH: join(fixture.root, 'health.jsonl') };
 delete env.LATTICE_HEALTH_PATH;
+// Each heartbeat run starts cold and removes this compilation cache with its fixture.
+if (entry.endsWith('/validate-progress-heartbeat-smoke.js')) {
+  env.NODE_COMPILE_CACHE = join(fixture.root, 'node-compile-cache');
+}
 // This fixture exercises both native host families with real broker signatures.
 // The ambient Codex/Claude owner must not become its simulated host ancestry.
 const result = entry.endsWith('/quorum-submit-smoke.js')
   ? await runProviderNeutralFixture(entry, rest, env)
   : spawnSync(process.execPath, [entry, ...rest], { env, stdio: 'inherit' });
+if (entry.endsWith('/quorum-submit-smoke.js') || entry.endsWith('/validate-progress-heartbeat-smoke.js')) {
+  console.log('FIXTURE_COMPILE_CACHE ' + JSON.stringify(inspectFixtureCompileCache(join(fixture.root, 'node-compile-cache'))));
+}
 if (result.status === 0) {
   fixture.cleanup();
 } else {

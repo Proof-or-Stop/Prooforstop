@@ -365,7 +365,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
-    responsibility: 'Independently review INIT product outcome completeness.',
+    responsibility: 'Independently review whether INIT defines a concrete user outcome and executable verification plan without requiring post-implementation evidence.',
     allowedCommandIds: ['init_check_set'],
     requiredOutputIds: ['init-check'],
   },

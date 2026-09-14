@@ -1,0 +1,41 @@
+
+> proof-or-stop@0.3.357 lab:worktree
+> node scripts/lab-worktree.mjs green validation-top5-performance
+
+TOP5_NATIVE_OUTPUT {"outputRoot":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/top5-native-output-JnQJW2"}
+TOP5_PROFILE {"suite":5,"command":["node","scripts/run-validation-fixture-suite.mjs","packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"],"wallMs":151880.769042,"nativeExitCode":0,"nativeSignal":null,"formalStoryEvidence":false}
+B29BC_DELAYED_FIXTURE_READINESS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertDelayedFixtureReadiness","wallMs":6099.613542}
+B29BC_READINESS_TERMINAL_AND_CLOSE_CONTROLS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertReadinessFailureControls","wallMs":454.881625}
+HEARTBEAT_GROUP_TIMING {"name":"runValidate","wallMs":13233.600041999998}
+HEARTBEAT_GROUP_TIMING {"name":"assertMainDirectHandlerClosesTerminal","wallMs":13642.156833000001}
+HEARTBEAT_GROUP_TIMING {"name":"assertStoryAdvanceReceivesHeartbeat","wallMs":25591.338958}
+HEARTBEAT_GROUP_TIMING {"name":"assertMidValidationForeignAppendFailsClosed","wallMs":17597.083125000005}
+HEARTBEAT_GROUP_TIMING {"name":"assertFailedStoryAdvancePreservesValidationEvidence","wallMs":8761.693459000002}
+HEARTBEAT_GROUP_TIMING {"name":"assertTrueHangFailsClosedWithNamedDiagnostics","wallMs":2126.6247920000023}
+HEARTBEAT_GROUP_TIMING {"name":"assertDirectDoneRequiredTimeoutMatrix","wallMs":27836.345208}
+HEARTBEAT_GROUP_TIMING {"name":"assertDonePrepareRoutineTimeoutMatrix","wallMs":14291.428457999995}
+HEARTBEAT_GROUP_TIMING {"name":"assertOuterWatchdogsKillDescendants","wallMs":14487.333458999987}
+HEARTBEAT_GROUP_TIMING {"name":"assertNonDivisibleMaxUsesNamedDeadline","wallMs":6603.047500000015}
+validate-progress-heartbeat smoke passed
+FIXTURE_COMPILE_CACHE {"files":680,"bytes":6946872}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: TOP5_5_PERFORMANCE: complete command must improve at least one percent
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/tests/lab-top5-cache-performance.mjs:45:22
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+Lab stopped: GREEN failed or command changed HEAD.

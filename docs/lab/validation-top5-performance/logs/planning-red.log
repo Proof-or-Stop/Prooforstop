@@ -1,0 +1,27 @@
+
+> proof-or-stop@0.3.356 lab:worktree
+> node scripts/lab-worktree.mjs red validation-planning-scan --expect PLANNING_SCAN_RED: synchronous batch planning repeats implementation scans --timeout-ms 1250000 -- node packages/main/tests/planning-performance.mjs
+
+PLANNING_PROFILE {"directory":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/planning-profile-XOd95e","command":["node","packages/main/dist/tasks/verification-run-and-guard-smoke.js","--baa5f-verification-fanout-shard"],"wallMs":421541.430292,"nativeExit":0,"scanCalls":1286,"scanMs":145509.7385889992,"readBytes":69891891938,"plans":[{"pid":69633,"kind":"planning","calls":71,"scanMs":6397.337838000109,"bytes":3858728093,"wallMs":6458.265291000003}]}
+baa5f-execution-failure-fans-out timeout=true subprocessExecutionCount=1 assertionsFailed=2 passReceiptCount=0 persistedReason="verification_evidence_refresh_stale: shared execution was attempted and timed out; executionKey=a6e4a27df43472b6b34986027bcfca95c23a8b37bf82fd0e4c81fb1e48a13ddb; timeoutMs=500; no pass receipt was issued [verification_refresh_execution_timeout]"
+B-aa5f fanout actualExecutionCount=2 expectedExecutionCount=2 executionReceiptCount=2 assertionReceiptCount=71 outputArtifactCount=2
+BAA5F_VERIFICATION_FANOUT_SHARD_RECEIPT={"codexNote":"NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.","fanout":{"subprocessExecutionCount":2,"executionReceiptCount":2,"assertionReceiptCount":71,"outputArtifactCount":2}}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: PLANNING_SCAN_RED: synchronous batch planning repeats implementation scans
+    at file:///Users/jek/Documents/validation-planning-repair-20260913/repo/.worktrees/Lab-validation-planning-scan/packages/main/tests/planning-performance.mjs:18:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+Target RED recorded locally.

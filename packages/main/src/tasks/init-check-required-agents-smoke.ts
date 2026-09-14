@@ -125,14 +125,18 @@ try {
   assert.match(missingProduct, /Host-native task liveness policy/, 'partial product recovery should include canonical liveness guidance');
   assert.match(missingProduct, /unknown or temporarily unavailable/, 'partial product recovery should preserve ambiguous task identity');
 
-  run(root, 'init_check_set', { storyId, issues: [{ severity: 'high', desc: 'Product value is not yet clear.' }], agentId: 'proof-or-stop-product-reviewer' });
+  run(root, 'init_check_set', { storyId, issues: [{ kind: 'user_outcome_unspecified', severity: 'high', desc: 'Product value is not yet clear.' }], agentId: 'proof-or-stop-product-reviewer' });
   const blockingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(blockingProduct, /init_check_blocking_issues/);
   assert.match(blockingProduct, /Product value is not yet clear/);
 
-  run(root, 'init_check_set', { storyId, issues: [{ severity: 'medium', desc: 'Product wording could be clearer but is not blocking.' }], agent: 'proof-or-stop-product-reviewer' });
+  run(root, 'init_check_set', { storyId, issues: [
+    { kind: 'post_implementation_evidence_missing', severity: 'high', desc: 'The implementation transcript is unavailable before development starts.' },
+    { kind: 'user_outcome_unspecified', severity: 'medium', desc: 'Product wording could be clearer but is not blocking.' },
+  ], agent: 'proof-or-stop-product-reviewer' });
   const advanced = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
   assert.match(advanced, /advanced to INIT_CHECK/);
+  assert.match(advanced, /deferred issue/, 'post-implementation evidence gap should remain visible after INIT advances');
 
   const tamperCreated = run(root, 'story_create', {
     name: 'init-check-tamper',

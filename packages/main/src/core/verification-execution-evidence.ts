@@ -1,3 +1,4 @@
+import { withExecutableDigestObservation, readObservedExecutableDigest } from './executable-digest-observation.js';
 import { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 export { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 import { executionImplementationIdentity } from './execution-implementation.js';
@@ -377,6 +378,8 @@ export interface VerificationReceiptValidation {
 }
 
 export interface PreparedVerificationExecutionIdentity {
+  /** Locally observed with this identity; never caller-authored receipt authority. */
+  implementationDigest: string;
   reusable: boolean;
   reason: string | null;
   dependency: VerifierDependencyAssessment;
@@ -560,7 +563,7 @@ function executableFileIdentity(
       continue;
     }
     try {
-      return { path, digest: createHash('sha256').update(readFileSync(path)).digest('hex') };
+      return { path, digest: readObservedExecutableDigest(path) };
     } catch {
       // The first executable wins. Unreadable bytes cannot justify using a later
       // PATH candidate that the runner would not execute.
@@ -570,12 +573,33 @@ function executableFileIdentity(
   return null;
 }
 
+// Only the initial, synchronous batch-planning map uses this observation.
+// Current plans, launches, completion and publication retain independent reads.
+let planningObservation: { digest?: string } | undefined;
+export function withVerificationPlanningObservation<T>(plan: () => T): T {
+  const previous = planningObservation;
+  planningObservation = {};
+  try { return plan(); }
+  finally { planningObservation = previous; }
+}
+
+function planningImplementationIdentityDigest(): string {
+  if (!planningObservation) return executionImplementationIdentity().digest;
+  return planningObservation.digest ??= executionImplementationIdentity().digest;
+}
+
 export function prepareVerificationExecutionIdentity(input: {
   command: string;
   cwd: string;
   effectiveTimeoutMs: number;
   manifestPath?: string;
 }): PreparedVerificationExecutionIdentity {
+  return withExecutableDigestObservation(() => prepareVerificationExecutionIdentityObserved(input));
+}
+
+function prepareVerificationExecutionIdentityObserved(
+  input: Parameters<typeof prepareVerificationExecutionIdentity>[0],
+): PreparedVerificationExecutionIdentity {
   const parsed = parseAllowlistedCommand(input.command);
   const dependency = assessVerifierDependencyManifest({
     gitCwd: input.cwd,
@@ -605,8 +629,9 @@ export function prepareVerificationExecutionIdentity(input: {
   if (!executableIdentity || !nodeIdentity || (usesShell && !shellIdentity)) {
     throw new Error('verification executable resolution is unprovable [incomplete_toolchain_identity]');
   }
+  const implementationDigest = planningImplementationIdentityDigest();
   const toolchainDigest = computeCanonicalDigest({
-    implementationDigest: executionImplementationIdentity().digest,
+    implementationDigest,
     executable: parsed.executable,
     executableIdentity,
     nodeExecutable: process.execPath,
@@ -633,6 +658,7 @@ export function prepareVerificationExecutionIdentity(input: {
     evidenceInputDigest: dependency.evidenceInputDigest,
   });
   return {
+    implementationDigest,
     reusable: dependency.reusable,
     reason,
     dependency,

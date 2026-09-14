@@ -36,7 +36,14 @@ import {
   createManagedReviewEvidenceBinding,
   verifyManagedReviewEvidence,
 } from '../core/managed-review-evidence.js';
-import { classifyManagedReviewFinalEnvelope, isStrictManagedReviewFindingProposal, type HostRunRunner, type HostRunSpawnResult } from '../core/host-run.js';
+import {
+  classifyManagedReviewFinalEnvelope,
+  isStrictManagedReviewFindingProposal,
+  normalizeHostRunModelSelection,
+  runHostRun,
+  type HostRunRunner,
+  type HostRunSpawnResult,
+} from '../core/host-run.js';
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { acquireMkdirLock } from '../core/mkdir-lock.js';
 import { StoryStore } from '../core/store.js';
@@ -115,11 +122,100 @@ function submitArgs(caseRoot: string, promptText: string, deadlineMs = 2_000) {
       storyFilesHash: 'story-managed',
       promptHash: 'prompt-managed',
       envelopeId: null,
+      managedPromptDigest: `sha256:${createHash('sha256').update(promptText, 'utf8').digest('hex')}`,
     },
   };
 }
 
 async function main(): Promise<void> {
+  assert.deepEqual(normalizeHostRunModelSelection({ host: 'codex' }), { model: null, reasoningEffort: null });
+  for (const model of ['model with whitespace', 'model\ncontrol', 'x'.repeat(257)]) {
+    assert.throws(
+      () => normalizeHostRunModelSelection({ host: 'codex', model }),
+      /--model must be a non-empty model id of at most 256 characters without whitespace or controls/,
+    );
+  }
+  assert.throws(
+    () => normalizeHostRunModelSelection({ host: 'codex', reasoningEffort: 'extreme' }),
+    /--reasoningEffort must be one of/,
+  );
+  for (const reasoningEffort of ['none', 'minimal', 'ultra'] as const) {
+    assert.throws(
+      () => normalizeHostRunModelSelection({ host: 'claude', reasoningEffort }),
+      /Claude --reasoningEffort must be one of low, medium, high, xhigh, max/,
+    );
+  }
+  const ordinaryPrompt = 'ordinary model selection smoke';
+  const captureOrdinaryArgv = async (host: 'codex' | 'claude'): Promise<{
+    argv: string[];
+    promptFile: string | null;
+  }> => {
+    let argv: string[] = [];
+    let promptFile: string | null = null;
+    await runHostRun({
+      host,
+      model: host === 'codex' ? 'gpt-5.6-terra' : 'claude-fable-5',
+      reasoningEffort: host === 'codex' ? 'high' : 'xhigh',
+      storyId: null,
+      agentType: 'model-selection-smoke',
+      phase: 'adhoc',
+      promptText: ordinaryPrompt,
+      env: { PROOF_OR_STOP_USAGE_LEDGER: '0' },
+      cwd: root,
+      root,
+      recordedAt: new Date().toISOString(),
+      projectRootHash: 'sha256:model-selection-smoke',
+    }, { runner: async plan => {
+      argv = [...plan.argv];
+      promptFile = plan.promptFile ?? null;
+      return { stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' };
+    } });
+    return { argv, promptFile };
+  };
+  const ordinaryCodex = await captureOrdinaryArgv('codex');
+  assert.deepEqual(ordinaryCodex.argv, [
+    'exec', '--json', '--skip-git-repo-check', '--ephemeral', '--ignore-rules',
+    '--model', 'gpt-5.6-terra', '--config', 'model_reasoning_effort="high"', '-',
+  ], 'ordinary Codex model selection preserves the complete canonical argv');
+  const ordinaryClaude = await captureOrdinaryArgv('claude');
+  assert.ok(ordinaryClaude.promptFile, 'ordinary Claude model selection retains its protected prompt-file transport');
+  assert.deepEqual(ordinaryClaude.argv, [
+    '--print', '--verbose', '--output-format=stream-json',
+    '--model', 'claude-fable-5', '--effort', 'xhigh', ordinaryClaude.promptFile,
+  ], 'ordinary Claude model selection preserves the complete canonical argv');
+  let managedClaudeArgv: string[] = [];
+  let managedClaudePromptFile: string | null = null;
+  await runHostRun({
+    host: 'claude',
+    model: 'claude-fable-5',
+    reasoningEffort: 'xhigh',
+    storyId: 'B-managed',
+    agentType: 'lattice-review-quality',
+    phase: 'REVIEW',
+    promptText: ordinaryPrompt,
+    reviewRunId: 'B-managed:RR-001',
+    lane: 'lattice-review-quality',
+    launchProfile: 'managed_reviewer',
+    managedRunId: `model-selection-${randomUUID()}`,
+    env: { PROOF_OR_STOP_USAGE_LEDGER: '0' },
+    cwd: root,
+    root,
+    recordedAt: new Date().toISOString(),
+    projectRootHash: 'sha256:model-selection-smoke',
+  }, { runner: async plan => {
+    managedClaudeArgv = [...plan.argv];
+    managedClaudePromptFile = plan.promptFile ?? null;
+    return { stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' };
+  } });
+  const managedClaudeSchemaIndex = managedClaudeArgv.indexOf('--json-schema');
+  assert.ok(managedClaudePromptFile && managedClaudeSchemaIndex >= 0,
+    'managed Claude selector smoke captures its schema and protected prompt file');
+  assert.deepEqual(managedClaudeArgv, [
+    '--print', '--verbose', '--output-format=stream-json',
+    '--model', 'claude-fable-5', '--effort', 'xhigh',
+    '--permission-mode', 'bypassPermissions',
+    '--json-schema', managedClaudeArgv[managedClaudeSchemaIndex + 1]!, managedClaudePromptFile,
+  ], 'managed Claude model selection preserves the complete canonical argv');
   const missingReadBinding = JSON.stringify({
     schemaVersion: 'lattice.managed_review_final_proposal.v1',
     storyId: 'B-managed',
@@ -496,9 +592,11 @@ async function main(): Promise<void> {
   const completionCase = join(root, 'completion');
   let releaseCompletion!: () => void;
   let completionRunnerCalls = 0;
+  let completionArgv: string[] = [];
   const completionGate = new Promise<void>(resolve => { releaseCompletion = resolve; });
   const completionRunner: HostRunRunner = async plan => {
     completionRunnerCalls += 1;
+    completionArgv = [...plan.argv];
     plan.onChunk?.({ stream: 'stdout', text: '{"type":"turn.started"}\n' });
     await completionGate;
     plan.onChunk?.({ stream: 'stdout', text: 'x'.repeat(MANAGED_HOST_RUN_OUTPUT_RETENTION_MAX_BYTES + 1) });
@@ -517,6 +615,14 @@ async function main(): Promise<void> {
   const submitted = await submitManagedHostRun(
     submitArgs(completionCase, 'review this change'),
     { launchWorker: completionLauncher, claimTimeoutMs: 500, claimPollMs: 5 },
+  );
+  await assert.rejects(
+    submitManagedHostRun(
+      { ...submitArgs(completionCase, 'review this change'), model: 'gpt-5.6-sol' },
+      { launchWorker: completionLauncher, claimTimeoutMs: 500, claimPollMs: 5 },
+    ),
+    /idempotency input conflict; keep the original run/,
+    'the same managed review identity cannot be resubmitted with a different model',
   );
   assert.equal(submitted.state, 'running');
   assert.equal(submitted.terminal, null);
@@ -606,6 +712,19 @@ async function main(): Promise<void> {
   assert.equal(receipt.state, 'completed');
   assert.equal(receipt.replacementSafe, true, 'the immutable receipt explicitly binds terminal replacement safety');
   assert.ok(receipt.evidenceProposalDigest);
+  assert.deepEqual(
+    completionArgv,
+    ['exec', '--json', '-s', 'danger-full-access', '-C', completionCase, '-'],
+    'omitting model selectors leaves the pre-selection managed Codex argv byte-for-byte unchanged',
+  );
+  const defaultBinding = readManagedHostRunBinding(completionCase, submitted.runId);
+  const defaultResult = readManagedHostRunResult(completionCase, submitted.runId);
+  assert.deepEqual(
+    [defaultBinding.model, defaultBinding.reasoningEffort, receipt.model, receipt.reasoningEffort,
+      defaultResult?.model, defaultResult?.reasoningEffort],
+    [null, null, null, null, null, null],
+    'fresh omitted selectors are explicitly sealed as null in binding, receipt, and result',
+  );
   const expected = {
     providerHost: 'codex' as const,
     headHash: 'head-managed',
@@ -666,7 +785,103 @@ async function main(): Promise<void> {
   assert.equal(verifyBound({ expected: { ...expected, materialHash: 'other-material' } }).valid, false, 'stale material receipt must fail');
   assert.equal(verifyBound({ expected: { ...expected, storyFilesHash: 'other-story-files' } }).valid, false, 'stale story-files receipt must fail');
   assert.equal(verifyBound({ expected: { ...expected, promptHash: 'other-prompt' } }).valid, false, 'prompt-binding replay must fail');
-  assert.equal(verifyBound({ expected: { ...expected, managedPromptDigest: 'sha256:other-managed-prompt' } }).valid, false, 'managed prompt digest replay must fail');
+  assert.equal(verifyBound({
+    binding: { ...imported.binding, managedPromptDigest: 'sha256:other-managed-prompt' },
+  }).valid, false, 'managed prompt digest replay must fail');
+  assert.equal(verifyBound({ binding: { ...imported.binding, model: 'different-model' } }).valid, false,
+    'REVIEW verifier rejects a persisted model that disagrees with the sealed spec, receipt, and result');
+  assert.equal(verifyBound({ binding: { ...imported.binding, reasoningEffort: 'low' } }).valid, false,
+    'REVIEW verifier rejects persisted reasoning that disagrees with the sealed spec, receipt, and result');
+
+  const historicalCase = join(root, 'historical-model-selection');
+  let historicalArgv: string[] = [];
+  let historicalLaunches = 0;
+  const historicalLauncher: ManagedHostRunWorkerLauncher = async request => {
+    historicalLaunches += 1;
+    const runDir = managedHostRunDirectory(historicalCase, request.runId);
+    const specPath = join(runDir, 'spec.json');
+    const ownerPath = join(runDir, 'owner.json');
+    const spec = JSON.parse(readFileSync(specPath, 'utf8')) as Record<string, unknown>;
+    delete spec.model;
+    delete spec.reasoningEffort;
+    const historicalSpecText = `${JSON.stringify(spec)}\n`;
+    writeFileSync(specPath, historicalSpecText);
+    const owner = JSON.parse(readFileSync(ownerPath, 'utf8')) as Record<string, unknown>;
+    owner.specDigest = `sha256:${createHash('sha256').update(historicalSpecText, 'utf8').digest('hex')}`;
+    writeFileSync(ownerPath, `${JSON.stringify(owner)}\n`);
+    void runManagedHostRunWorker(request, {
+      runner: async plan => {
+        historicalArgv = [...plan.argv];
+        return successfulResult();
+      },
+      env: { PROOF_OR_STOP_USAGE_LEDGER: '0' },
+      cancelPollMs: 5,
+    });
+    return { pid: process.pid };
+  };
+  const historical = await submitManagedHostRun(
+    submitArgs(historicalCase, 'historical managed review without selector fields'),
+    { launchWorker: historicalLauncher, claimTimeoutMs: 500, claimPollMs: 5 },
+  );
+  await eventually(async () => (await getManagedHostRunStatus({ root: historicalCase, runId: historical.runId })).run.state === 'completed',
+    'historical selector-less managed review did not complete');
+  const historicalRetry = await submitManagedHostRun(
+    submitArgs(historicalCase, 'historical managed review without selector fields'),
+    { launchWorker: historicalLauncher, claimTimeoutMs: 500, claimPollMs: 5 },
+  );
+  assert.equal(historicalRetry.runId, historical.runId,
+    'a selector-less resubmit reuses the pre-upgrade logical run identity');
+  assert.equal(historicalLaunches, 1,
+    'a selector-less resubmit against a historical spec does not dispatch a duplicate worker');
+  const historicalRunDir = managedHostRunDirectory(historicalCase, historical.runId);
+  const historicalResultPath = join(historicalRunDir, 'result.json');
+  const historicalResultRecord = JSON.parse(readFileSync(historicalResultPath, 'utf8')) as Record<string, unknown>;
+  delete historicalResultRecord.model;
+  delete historicalResultRecord.reasoningEffort;
+  const historicalResultText = `${JSON.stringify(historicalResultRecord)}\n`;
+  writeFileSync(historicalResultPath, historicalResultText);
+  const historicalTerminalPath = join(historicalRunDir, 'terminal.json');
+  const historicalTerminal = JSON.parse(readFileSync(historicalTerminalPath, 'utf8')) as Record<string, unknown>;
+  historicalTerminal.resultDigest = `sha256:${createHash('sha256').update(historicalResultText, 'utf8').digest('hex')}`;
+  writeFileSync(historicalTerminalPath, `${JSON.stringify(historicalTerminal)}\n`);
+  const historicalReceipt = managedHostRunReceipt(historicalCase, historical.runId);
+  const historicalBinding = readManagedHostRunBinding(historicalCase, historical.runId);
+  const historicalResult = readManagedHostRunResult(historicalCase, historical.runId);
+  assert.deepEqual(
+    historicalArgv,
+    ['exec', '--json', '-s', 'danger-full-access', '-C', historicalCase, '-'],
+    'a historical spec without selector keys preserves the original provider argv',
+  );
+  for (const [label, value] of [
+    ['binding', historicalBinding],
+    ['receipt', historicalReceipt],
+    ['result', historicalResult!],
+  ] as const) {
+    assert.equal(Object.prototype.hasOwnProperty.call(value, 'model'), false,
+      `historical ${label} keeps the model key absent for byte-stable compatibility`);
+    assert.equal(Object.prototype.hasOwnProperty.call(value, 'reasoningEffort'), false,
+      `historical ${label} keeps the reasoningEffort key absent for byte-stable compatibility`);
+  }
+  const historicalExpected = {
+    ...expected,
+    managedPromptDigest: `sha256:${createHash('sha256').update('historical managed review without selector fields', 'utf8').digest('hex')}`,
+  };
+  const historicalImported = createManagedReviewEvidenceBinding({
+    root: historicalCase,
+    storyId: 'B-managed',
+    providerAgent: 'lattice-review-quality',
+    lane: 'lattice-review-quality',
+    reviewRunId: 'B-managed:RR-001',
+    runId: historical.runId,
+    receiptId: historicalReceipt.receiptId,
+    expected: historicalExpected,
+  });
+  assert.equal(historicalImported.verification.valid, true,
+    'historical selector-less specs still import through the shared REVIEW verifier');
+  if (process.argv[2] === '--model-selection') {
+    console.log('managed-host-run model-selection PASS');
+    return;
+  }
   const output = readManagedHostRunOutput({ root: completionCase, runId: submitted.runId, afterSequence: 0 });
   assert.deepEqual(output.frames.map(frame => frame.sequence), [1, 3]);
   assert.match(output.frames[0]?.text ?? '', /turn\.started/);
