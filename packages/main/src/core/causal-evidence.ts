@@ -425,7 +425,21 @@ function parseCommandString(command: string): { executable: string; args: string
 
 const REDACTED = '<redacted>';
 const SECRET_ENV_KEY = /(token|secret|password|passwd|api[_-]?key|private[_-]?key|credential|authorization|auth|proxy|cookie|session|database[_-]?url|dsn|ssh|aws|gcp|google|azure)/i;
+const SELECTOR_CREDENTIAL_ENV_KEY = /(?:^|[_-])(?:token|secret|password|passwd|credential|credentials|authorization|cookie|api[_-]?key|private[_-]?key|access[_-]?key)(?:$|[_-])/i;
 const SAFE_PLAINTEXT_ENV_KEY = /^(?:LANG|LC_[A-Z_]+|TZ|TERM|COLORTERM|CI)$/;
+
+function selectorEnvironmentValueIsSecret(rawKey: string, rawValue: unknown): boolean {
+  if (SELECTOR_CREDENTIAL_ENV_KEY.test(rawKey) || /^(?:AUTH|BEARER)$/i.test(rawKey)) return true;
+  if (/^(?:HTTPS?|ALL)_PROXY$/i.test(rawKey)) {
+    try {
+      const parsed = new URL(String(rawValue));
+      return Boolean(parsed.username || parsed.password);
+    } catch {
+      return /\/\/[^/@:]+:[^/@]+@/.test(String(rawValue));
+    }
+  }
+  return /(?:^|[_-])(?:database[_-]?url|dsn)(?:$|[_-])/i.test(rawKey);
+}
 
 function redactedEnvironmentIdentity(value: unknown): string {
   return `${REDACTED}:sha256:${createHash('sha256').update(String(value), 'utf8').digest('hex')}`;
@@ -640,7 +654,7 @@ export function redactCausalSelectorOutput(
   for (const [rawKey, rawValue] of Object.entries(effectiveEnvironment ?? {})) {
     if (rawValue === undefined || rawValue === null || isValidationTransportEnvKey(rawKey)) continue;
     const value = String(rawValue);
-    if (!value || value === REDACTED || value.length < 4 || !SECRET_ENV_KEY.test(rawKey)) continue;
+    if (!value || value === REDACTED || value.length < 4 || !selectorEnvironmentValueIsSecret(rawKey, rawValue)) continue;
     redacted = redacted.split(value).join(replacement);
   }
   return redacted

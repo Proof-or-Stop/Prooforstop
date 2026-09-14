@@ -112,6 +112,7 @@ check('proxy credentials are absent from causal identity and output-redaction in
   assert.match(environment.HTTPS_PROXY ?? '', /^<redacted>:sha256:[a-f0-9]{64}$/);
   assert.equal(environment.LANG, 'en_US.UTF-8');
   assert.equal(redactCausalOutput(`connected through ${sentinel}`, { HTTPS_PROXY: sentinel }).includes('PROXY_SENTINEL'), false);
+  assert.equal(redactCausalSelectorOutput(`connected through ${sentinel}`, { HTTPS_PROXY: sentinel }).includes('PROXY_SENTINEL'), false);
 });
 
 check('selector redaction preserves ordinary environment words', () => {
