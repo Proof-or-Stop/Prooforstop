@@ -362,7 +362,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/evidence-freshness.ts': '6eca17a48ac39083a7a601c52b49eb24300fad0ac5a7628efb12f8096d644df7',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
   'packages/main/src/core/verification-execution-evidence.ts': '2f9f9fa37e64b41c1a164fb064da3df080b999a4a1e5689b83e927c8a39447bc',
-  'packages/main/src/handlers/checklist.ts': 'f80ea80a9d0bd920f2c21f0ba2bb1d37cc4ac6a3be77c64fed08938228416582',
+  'packages/main/src/handlers/checklist.ts': '7d58e0815849eb451a790a0f82ada1f8823bc60c6d0628fc0cc0ec20ce1de7d7',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
@@ -1162,6 +1162,16 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
 
 const RETIRED_ACTIVE_PROTOCOL_PREFIX = ['proof', 'bound.'].join('');
 
+function assertNoRetiredPromptConfigIdentity(projectRoot: string, label: string): void {
+  const configPath = resolve(projectRoot, 'proof-or-stop.config.json');
+  if (!existsSync(configPath) || !statSync(configPath).isFile()) return;
+  if (!readFileSync(configPath, 'utf8').includes(RETIRED_ACTIVE_PROTOCOL_PREFIX)) return;
+  throw new Error(
+    `retired active protocol identity at proof-or-stop.config.json is not admitted by ${label}; ` +
+    `restore the canonical proof-or-stop.* runtime before retrying`,
+  );
+}
+
 // This exact source fragment is mutation-input data, not an active schema
 // reader. Its byte/count witness grants no exemption to surrounding code.
 const IDENTITY_MUTATION_DATA_FRAGMENTS = [
@@ -1193,6 +1203,9 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 }): void {
   const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
   const projectRoot = resolve(input.projectRoot);
+  if (['agent_prompt', 'dispatch', 'prompt_measurement_report'].includes(input.command)) {
+    assertNoRetiredPromptConfigIdentity(projectRoot, input.command);
+  }
   for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
     if (!boundary.commands.includes(input.command)) continue;
     for (const registeredPath of boundary.paths) {
@@ -1318,6 +1331,7 @@ export function assertCanonicalActiveIdentityBoundary(input: {
   if (!boundary) throw new Error(`unregistered active identity operation boundary: ${input.boundaryId}`);
   const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
   const projectRoot = resolve(input.projectRoot ?? process.cwd());
+  if (boundaryId === 'prompt-runtime') assertNoRetiredPromptConfigIdentity(projectRoot, boundaryId);
   const sourceSnapshots = new Map<string, string>();
   const executableSources = new Map<string, string>();
   for (const site of boundary.identitySites) {

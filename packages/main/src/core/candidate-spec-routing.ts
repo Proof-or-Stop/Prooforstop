@@ -254,24 +254,26 @@ function safeRelativePath(value: string, label: string): string {
 function walkMarkdown(root: string, dir: string): string[] {
   const absolute = resolve(root, dir);
   const rootReal = realpathSync(root);
-  let rootStat;
   try {
-    rootStat = lstatSync(absolute);
+    lstatSync(absolute);
   } catch (error: any) {
     if (error?.code === 'ENOENT') return [];
     throw error;
   }
-  if (rootStat.isSymbolicLink()) throw new Error(`requirementsDir symbolic link is not allowed: ${dir}`);
-  if (!rootStat.isDirectory()) throw new Error(`requirementsDir is not a directory: ${dir}`);
   const dirReal = realpathSync(absolute);
   if (relative(rootReal, dirReal).startsWith('..')) throw new Error('requirementsDir escapes project root');
+  if (!statSync(absolute).isDirectory()) throw new Error(`requirementsDir is not a directory: ${dir}`);
   const result: string[] = [];
   const visit = (current: string): void => {
     for (const name of readdirSync(current).sort((a, b) => a.localeCompare(b, 'en'))) {
       const file = join(current, name);
       const stat = lstatSync(file);
       if (stat.isSymbolicLink()) {
-        throw new Error(`requirements symlink escapes project root or is not allowed: ${relative(rootReal, file)}`);
+        const target = realpathSync(file);
+        if (relative(rootReal, target).startsWith('..')) {
+          throw new Error(`requirements symlink escapes project root: ${relative(rootReal, file)}`);
+        }
+        continue;
       }
       if (stat.isDirectory()) visit(file);
       else if (stat.isFile() && name.toLowerCase().endsWith('.md')) result.push(relative(rootReal, file).replace(/\\/g, '/'));

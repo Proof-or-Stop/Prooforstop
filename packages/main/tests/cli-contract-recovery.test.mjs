@@ -151,6 +151,7 @@ await check('verification intent help exposes the real nested schema', () => {
     assert.match(output, new RegExp(`${prefix}\\.happy\\[\\]\\.scope\\?: focused\\|repository`));
     assert.match(output, new RegExp(`${prefix}\\.happy\\[\\]\\.expectation\\?: absolute_pass\\|no_new_regressions`));
     assert.match(output, new RegExp(`${prefix}\\.happy\\[\\]\\.requirementSource\\?: story\\|external_verifier\\|repository_health`));
+    assert.match(output, new RegExp(`${prefix}\\.happy\\?: array.*default: \\[\\]`));
     assert.doesNotMatch(output, new RegExp(`${prefix}\\.(happy|edge|adversarial): any`));
     const tool = MAIN_TOOLS.find(candidate => candidate.name === command);
     assert.ok(tool?.examples?.length, `${command} exposes a copyable example`);
@@ -205,6 +206,23 @@ const intentFor = (itemId) => ({
   adversarial: [],
 });
 
+const plannedDeclarationFor = (itemId) => ({
+  schemaVersion: 'proofstory.verification_planned_path_declaration.v1',
+  id: `VPP-${itemId}`,
+  relation: 'producer_to_consumer',
+  producer: {
+    id: `EP-${itemId}-P`, role: 'producer', expectedArtifactKind: 'handler',
+    expectedFileRef: `src/${itemId}-producer.ts`, expectedSymbolOrFact: 'produceFact',
+    fileDeclarationRef: `${itemId}:files:modify:0`,
+  },
+  consumers: [{
+    id: `EP-${itemId}-C`, role: 'consumer', expectedArtifactKind: 'handler',
+    expectedFileRef: `src/${itemId}-consumer.ts`, expectedSymbolOrFact: 'consumeFact',
+    fileDeclarationRef: `${itemId}:files:modify:1`,
+  }],
+  outputFactRef: `intent:${itemId}:happy:0`,
+});
+
 await check('plan acceptance prepare and apply are atomic', () => {
   const prepareTool = MAIN_TOOLS.find(tool => tool.name === 'plan_acceptance_prepare');
   const applyTool = MAIN_TOOLS.find(tool => tool.name === 'plan_acceptance_apply');
@@ -247,13 +265,23 @@ await check('plan acceptance prepare and apply are atomic', () => {
       events: [],
     });
     store.writeChecklist(storyId, {
-      items: ['CHK-001', 'CHK-002', 'CHK-003'].map(id => ({
+      items: ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-CLI'].map(id => ({
         id,
         title: `Acceptance ${id}`,
         context: 'Fixture item',
         status: 'pending',
         files: { modify: [], create: [], test: [] },
-      })),
+      })).concat([{
+        id: 'CHK-FROZEN',
+        title: 'Frozen planned-path acceptance',
+        context: 'Fixture item with an existing planned-path binding',
+        status: 'pending',
+        files: { modify: ['src/CHK-FROZEN-producer.ts', 'src/CHK-FROZEN-consumer.ts'], create: [], test: [] },
+        verificationIntent: {
+          ...intentFor('CHK-FROZEN'),
+          happy: [{ ...intentFor('CHK-FROZEN').happy[0], plannedPathDeclarations: [plannedDeclarationFor('CHK-FROZEN')] }],
+        },
+      }]),
     });
     process.chdir(root);
     process.env.PROOF_OR_STOP_SESSION_ID = 'plan-acceptance-owner';
@@ -286,6 +314,19 @@ await check('plan acceptance prepare and apply are atomic', () => {
         verificationIntent: row.verificationIntent,
       }));
     }
+
+    const frozenPrepared = handlers.plan_acceptance_prepare({ storyId, items: [{
+      itemId: 'CHK-FROZEN',
+      files: { modify: ['src/rebound.ts'], create: [], test: [] },
+      verificationIntent: intentFor('CHK-FROZEN'),
+    }] });
+    const beforeFrozen = JSON.stringify(store.readChecklist(storyId));
+    assert.throws(() => handlers.plan_acceptance_apply({
+      storyId,
+      prepared: frozenPrepared,
+      reason: 'Reject rebinding files after a planned path declaration has frozen their indices.',
+    }), /planned_path_file_binding_frozen/);
+    assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeFrozen, 'file-binding refusal is atomic');
 
     assert.throws(() => handlers.checklist_update({
       storyId,
@@ -338,9 +379,48 @@ await check('plan acceptance prepare and apply are atomic', () => {
       reason: 'Apply all three reviewed acceptance items in one owner-authorized transaction.',
     });
     const applied = store.readChecklist(storyId);
-    assert.deepEqual(applied.items.map(item => item.files), items.map(item => item.files));
-    assert.deepEqual(applied.items.map(item => item.verificationIntent), items.map(item => item.verificationIntent));
+    assert.deepEqual(applied.items.slice(0, 3).map(item => item.files), items.map(item => item.files));
+    assert.deepEqual(applied.items.slice(0, 3).map(item => item.verificationIntent), items.map(item => item.verificationIntent));
     assert.equal(store.readProcessEvents(storyId).filter(event => event.action === 'verification_intent_applied').length, 3);
+
+    const cliEnvironment = {
+      PROOF_OR_STOP_SESSION_ID: 'plan-acceptance-owner',
+      PROOF_OR_STOP_AGENT: 'main-agent',
+    };
+    const cliItems = [{
+      itemId: 'CHK-CLI',
+      files: { modify: ['src/cli-round-trip.ts'], create: [], test: ['tests/cli-round-trip.test.ts'] },
+      verificationIntent: intentFor('CHK-CLI'),
+    }];
+    const cliPrepare = runCli(root, ['plan_acceptance_prepare', JSON.stringify({ storyId, items: cliItems })], cliEnvironment);
+    assert.equal(cliPrepare.status, 0, cliPrepare.stdout + cliPrepare.stderr);
+    const cliPrepared = JSON.parse(cliPrepare.stdout);
+    const cliApply = runCli(root, ['plan_acceptance_apply', JSON.stringify({
+      storyId,
+      prepared: cliPrepared,
+      reason: 'Apply the unchanged prepared payload through the public strict CLI command path.',
+    })], cliEnvironment);
+    assert.equal(cliApply.status, 0, cliApply.stdout + cliApply.stderr);
+    assert.deepEqual(store.readChecklist(storyId).items.find(item => item.id === 'CHK-CLI').verificationIntent, intentFor('CHK-CLI'));
+
+    const cliTampered = structuredClone(cliPrepared);
+    cliTampered.digest = '0'.repeat(64);
+    const cliDigestFailure = runCli(root, ['plan_acceptance_apply', JSON.stringify({
+      storyId,
+      prepared: cliTampered,
+      reason: 'Reject a tampered digest through the public strict CLI command path.',
+    })], cliEnvironment);
+    assert.equal(cliDigestFailure.status, 1);
+    assert.match(cliDigestFailure.stderr, /PLAN_ACCEPTANCE_DIGEST_INVALID/);
+
+    const cliExtraField = runCli(root, ['plan_acceptance_apply', JSON.stringify({
+      storyId,
+      prepared: cliPrepared,
+      reason: 'Reject an undeclared field through the public strict CLI command schema.',
+      extra: true,
+    })], cliEnvironment);
+    assert.equal(cliExtraField.status, 1);
+    assert.match(cliExtraField.stderr, /Unrecognized key|validation failed/i);
 
     const stalePrepared = handlers.plan_acceptance_prepare({ storyId, items: items.map((item, index) => ({
       ...item,
@@ -372,7 +452,7 @@ await check('plan acceptance prepare and apply are atomic', () => {
   }
 });
 
-await check('missing requirements corpus is deterministic and symlinks fail closed', () => {
+await check('missing requirements corpus is deterministic and symlinks preserve safe compatibility', () => {
   const missingRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-missing-corpus-'));
   const emptyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-empty-corpus-'));
   try {
@@ -386,8 +466,17 @@ await check('missing requirements corpus is deterministic and symlinks fail clos
 
     writeFileSync(join(missingRoot, 'requirements-file'), 'not a directory\n');
     assert.throws(() => buildCorpusIndex(missingRoot, 'requirements-file'), /not.*directory/i);
-    symlinkSync(join(emptyRoot, 'docs', 'requirements'), join(missingRoot, 'requirements-link'));
-    assert.throws(() => buildCorpusIndex(missingRoot, 'requirements-link'), /symbolic link|symlink/i);
+    mkdirSync(join(missingRoot, 'in-root-requirements'));
+    symlinkSync(join(missingRoot, 'in-root-requirements'), join(missingRoot, 'requirements-link'));
+    assert.equal(buildCorpusIndex(missingRoot, 'requirements-link').corpusDigest, empty.corpusDigest);
+    symlinkSync(join(emptyRoot, 'docs', 'requirements'), join(missingRoot, 'external-requirements-link'));
+    assert.throws(() => buildCorpusIndex(missingRoot, 'external-requirements-link'), /escapes project root/i);
+
+    writeFileSync(join(emptyRoot, 'shared.md'), '# Shared requirement\n');
+    symlinkSync(join(emptyRoot, 'shared.md'), join(emptyRoot, 'docs', 'requirements', 'shared-link.md'));
+    assert.deepEqual(buildCorpusIndex(emptyRoot, 'docs/requirements').entries, [], 'in-root nested links remain skipped');
+    symlinkSync(join(missingRoot, 'requirements-file'), join(emptyRoot, 'docs', 'requirements', 'escape-link.md'));
+    assert.throws(() => buildCorpusIndex(emptyRoot, 'docs/requirements'), /escapes project root/i);
   } finally {
     rmSync(missingRoot, { recursive: true, force: true });
     rmSync(emptyRoot, { recursive: true, force: true });

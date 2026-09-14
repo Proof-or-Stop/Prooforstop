@@ -50,10 +50,11 @@ export type GlobalHelpOptions = {
   full?: boolean;
 };
 
-function unwrapForHelp(t: ZodType): { inner: ZodType; optional: boolean; hasDefault: boolean } {
+function unwrapForHelp(t: ZodType): { inner: ZodType; optional: boolean; hasDefault: boolean; defaultValue?: unknown } {
   let inner = t;
   let optional = false;
   let hasDefault = false;
+  let defaultValue: unknown;
   const seen = new Set<ZodType>();
   while (!seen.has(inner)) {
     seen.add(inner);
@@ -65,6 +66,7 @@ function unwrapForHelp(t: ZodType): { inner: ZodType; optional: boolean; hasDefa
     if (inner instanceof ZodDefault) {
       optional = true;
       hasDefault = true;
+      defaultValue = (inner as any)._def.defaultValue;
       inner = (inner as any)._def.innerType;
       continue;
     }
@@ -74,7 +76,13 @@ function unwrapForHelp(t: ZodType): { inner: ZodType; optional: boolean; hasDefa
     }
     break;
   }
-  return { inner, optional, hasDefault };
+  return { inner, optional, hasDefault, defaultValue };
+}
+
+function defaultHelpSuffix(info: ReturnType<typeof unwrapForHelp>): string {
+  if (!info.hasDefault) return '';
+  const rendered = JSON.stringify(info.defaultValue);
+  return ` (default: ${rendered === undefined ? String(info.defaultValue) : rendered})`;
 }
 
 function describeType(t: ZodType): string {
@@ -128,7 +136,7 @@ function nestedSchemaLines(t: ZodType, prefix: string, indent = '      '): strin
     const optional = childInfo.optional;
     const childInner = childInfo.inner;
     const path = prefix ? `${prefix}.${key}` : key;
-    lines.push(`${indent}${path}${optional ? '?' : ''}: ${describeType(child)} ${getDesc(child)}`.trimEnd());
+    lines.push(`${indent}${path}${optional ? '?' : ''}: ${describeType(child)} ${getDesc(child)}${defaultHelpSuffix(childInfo)}`.trimEnd());
     if (childInner instanceof ZodObject || childInner instanceof ZodArray) {
       lines.push(...nestedSchemaLines(childInner, path, indent + '  '));
     }
@@ -225,7 +233,7 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
     const inner = info.inner;
     const isComplex = inner instanceof ZodArray || inner instanceof ZodObject;
     const flagHint = isComplex ? '(JSON)' : '';
-    out(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${req} ${flagHint}`);
+    out(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${defaultHelpSuffix(info)}${req} ${flagHint}`);
     if (isComplex) {
       for (const line of nestedSchemaLines(type, name)) out(line);
     }

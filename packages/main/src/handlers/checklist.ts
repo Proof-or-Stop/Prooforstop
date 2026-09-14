@@ -239,7 +239,12 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
   return story;
 }
 
-function assertVerificationIntentClassification(itemId: string, verificationIntent: VerificationIntent, ownerProposal = false): void {
+function assertVerificationIntentClassification(
+  itemId: string,
+  verificationIntent: VerificationIntent,
+  ownerProposal = false,
+  command: 'checklist_update' | 'plan_acceptance_prepare' | 'plan_acceptance_apply' = 'checklist_update',
+): void {
   for (const lane of VERIFICATION_LANES) {
     for (const [index, intent] of (verificationIntent[lane] ?? []).entries()) {
       if (!intent.scope || !intent.expectation || !intent.requirementSource) {
@@ -250,10 +255,12 @@ function assertVerificationIntentClassification(itemId: string, verificationInte
           requirementSource: intent.requirementSource ?? 'story',
         };
         throw new Error(
-          `checklist_update refused: ${ownerProposal ? 'owner proposals' : 'verification-intent roles'} must classify ${itemId}:${lane}:${index} before PLAN acceptance is frozen [verification_intent_metadata_required]\n` +
+          `${command} refused: ${ownerProposal ? 'owner proposals' : 'verification-intent roles'} must classify ${itemId}:${lane}:${index} before PLAN acceptance is frozen [verification_intent_metadata_required]\n` +
           `Allowed values: scope=focused|repository; expectation=absolute_pass|no_new_regressions; requirementSource=story|external_verifier|repository_health\n` +
           `Copyable classified row: ${JSON.stringify(classified)}\n` +
-          `Next: rerun plan_acceptance_prepare with the complete classified verificationIntent, then plan_acceptance_apply its unchanged result.`,
+          (ownerProposal
+            ? `Next: rerun plan_acceptance_prepare with the complete classified verificationIntent, then plan_acceptance_apply its unchanged result.`
+            : `Next: rerun checklist_update with the complete classified verificationIntent.`),
         );
       }
     }
@@ -2683,7 +2690,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           checklistEnglishAuthoringFields({ verificationIntent: input.verificationIntent }, input.itemId),
         );
         assertNoReviewGateVerificationIntent('plan_acceptance_prepare', input.verificationIntent, input.itemId);
-        assertVerificationIntentClassification(input.itemId, input.verificationIntent, true);
+        assertVerificationIntentClassification(input.itemId, input.verificationIntent, true, 'plan_acceptance_prepare');
         const proposed = structuredClone(current);
         proposed.files = structuredClone(input.files);
         proposed.verificationIntent = structuredClone(input.verificationIntent);
@@ -2748,13 +2755,20 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           });
           if (expectedProposalDigest !== prepared.proposalDigest) throw new Error(`PLAN_ACCEPTANCE_ITEM_DIGEST_INVALID: ${prepared.itemId}`);
           assertNoReviewGateVerificationIntent('plan_acceptance_apply', prepared.verificationIntent, prepared.itemId);
-          assertVerificationIntentClassification(prepared.itemId, prepared.verificationIntent, true);
+          assertVerificationIntentClassification(prepared.itemId, prepared.verificationIntent, true, 'plan_acceptance_apply');
           assertEnglishAuthoringText(
             'plan_acceptance_apply',
             checklistEnglishAuthoringFields({ verificationIntent: prepared.verificationIntent, reason: args.reason }, prepared.itemId),
           );
           const before = structuredClone(item);
           const proposed = structuredClone(item);
+          if ((verificationIntentHasPlannedPathDeclarations(item.verificationIntent)
+            || verificationIntentHasPlannedPathDeclarations(prepared.verificationIntent))
+            && JSON.stringify(prepared.files) !== JSON.stringify(item.files)) {
+            throw new Error(
+              'plan_acceptance_apply refused: ChecklistItem.files entries referenced by plannedPathDeclarations are frozen [planned_path_file_binding_frozen]',
+            );
+          }
           proposed.files = structuredClone(prepared.files);
           proposed.verificationIntent = structuredClone(prepared.verificationIntent);
           if (verificationIntentHasPlannedPathDeclarations(prepared.verificationIntent)) {
