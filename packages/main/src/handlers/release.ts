@@ -6,6 +6,7 @@ import {
   RELEASE_PUSH_APPROVAL_REL_PATH,
   writeReleasePushApproval,
 } from '../core/release-push-approval.js';
+import { resolveRepositoryBaseline } from '../core/git-baseline.js';
 
 interface ReleaseApprovePushArgs {
   confirm?: boolean;
@@ -40,17 +41,23 @@ export function createReleaseHandlers(ctx: HandlerContext) {
     release_approve_push(args: ReleaseApprovePushArgs = {}) {
       if (args.confirm !== true) {
         throw new Error(
-          'release_approve_push requires --confirm. This creates a short-lived local approval for one remote main push; it never pushes by itself.',
+          'release_approve_push requires --confirm. This creates a short-lived local approval for one integration-branch push; it never pushes by itself.',
         );
       }
       const branch = git(ctx.root, ['rev-parse', '--abbrev-ref', 'HEAD']);
-      if (branch !== 'main') {
-        throw new Error(`release_approve_push must run from local main, but current branch is ${branch}`);
+      const baseline = resolveRepositoryBaseline(ctx.root);
+      const integrationBranch = baseline?.ref.startsWith('refs/heads/')
+        ? baseline.ref.slice('refs/heads/'.length)
+        : baseline?.ref.startsWith('refs/remotes/')
+          ? baseline.ref.split('/').slice(3).join('/')
+          : baseline?.ref;
+      if (!integrationBranch || branch !== integrationBranch) {
+        throw new Error(`release_approve_push must run from local integration branch ${integrationBranch || '(unresolved)'}, but current branch is ${branch}`);
       }
       const dirty = git(ctx.root, ['status', '--porcelain']);
       if (dirty) {
         throw new Error(
-          `release_approve_push requires a clean local main before remote publish approval:\n${dirty}`,
+          `release_approve_push requires a clean local ${integrationBranch} before remote publish approval:\n${dirty}`,
         );
       }
 
@@ -58,6 +65,7 @@ export function createReleaseHandlers(ctx: HandlerContext) {
       const approval = writeReleasePushApproval({
         root: ctx.root,
         sha: expectedSha,
+        branch: integrationBranch,
         remote: args.remote || 'origin',
         ttlSeconds: args.ttlSeconds || DEFAULT_RELEASE_PUSH_TTL_SECONDS,
         approvedBy: args.approvedBy,
@@ -69,7 +77,7 @@ export function createReleaseHandlers(ctx: HandlerContext) {
           status: 'approved-local-only',
           approvalFile: RELEASE_PUSH_APPROVAL_REL_PATH,
           approval,
-          nextAction: `git push ${approval.remote} main`,
+          nextAction: `git push ${approval.remote} ${integrationBranch}`,
           note: 'No remote write was performed. The pre-push hook will consume this one-shot approval.',
         };
       }
@@ -84,7 +92,7 @@ export function createReleaseHandlers(ctx: HandlerContext) {
         `  ttlSeconds: ${approval.ttlSeconds} (max ${MAX_RELEASE_PUSH_TTL_SECONDS})`,
         '',
         'No remote write was performed.',
-        `Next action, only if the human still wants to publish: git push ${approval.remote} main`,
+        `Next action, only if the human still wants to publish: git push ${approval.remote} ${integrationBranch}`,
       ].join('\n');
     },
   };

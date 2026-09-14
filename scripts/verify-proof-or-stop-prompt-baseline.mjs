@@ -109,7 +109,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-story-init',
-    templateHash: '8727ff1840c9572ccdebcc0af2f258045cc921bfd20cff4bafeef39406b2403e',
+    templateHash: '8612861b959b1d04ddb9a504b11d253cfd6b1e9f102e97cfae7e49fc37a4e03c',
   },
   {
     role: 'proof-or-stop-review-test-coverage',
@@ -486,9 +486,9 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'INIT',
     purpose: 'Reviews new story readability, facts, risk wording, and initial checklist sanity.',
     commands: 'background_get; story_get; checklist_get; init_check_set.',
-    directFileAccess: 'Reads story metadata only through Proof-or-Stop CLI; reads CLAUDE.md, package docs, templates, and source for bounded factual verification.',
+    directFileAccess: 'Reads story metadata only through Proof-or-Stop CLI; reads the active host guide (AGENTS.md for Codex, CLAUDE.md for Claude), package docs, templates, and source for bounded factual verification.',
     inputs: 'Story background, index fields, checklist title/context.',
-    outputs: 'init_check_set issues/pass plus a textual CLAUDE.md self-check.',
+    outputs: 'init_check_set issues/pass plus a textual active-host-guide self-check.',
     capabilities: 'Fresh-context intake review; story clarity; risk sanity check.',
     overlapCategory: 'overlaps scope-plan on checklist sanity',
     notes: 'No direct StoryStore read or write is permitted.',

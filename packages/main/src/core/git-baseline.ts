@@ -116,3 +116,9 @@ export function resolveRepositoryBaseline(gitCwd: string, head = 'HEAD', options
   }
   return undefined;
 }
+
+export function requireRepositoryBaselineRef(gitCwd: string, head = 'HEAD'): string {
+  const baseline = resolveRepositoryBaseline(gitCwd, head);
+  if (!baseline) throw new Error(`Unable to resolve the repository integration baseline for ${head}`);
+  return baseline.ref;
+}

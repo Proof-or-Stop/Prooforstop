@@ -1624,6 +1624,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/cli/runtime-root.ts',
       'packages/main/src/cli/ownership-gate.ts',
       'packages/main/src/core/controller-config-projection.ts',
+      'packages/main/src/core/controller-runtime-projection.ts',
       'packages/main/src/core/runtime-artifact-registry.ts',
     ],
     consumerSourceRefs: [
@@ -1637,6 +1638,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
   'runtime:repository_default_baseline_gate': {
     producerSourceRefs: [
       'packages/main/src/core/git-baseline.ts',
+      'packages/main/src/core/story-integration-target.ts',
     ],
     consumerSourceRefs: [
       'packages/main/src/core/story-aware-validation.ts',
@@ -1646,11 +1648,15 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/material-code-policy.ts',
       'packages/main/src/core/review-assurance-floor.ts',
       'packages/main/src/handlers/scope-contract.ts',
+      'packages/main/src/handlers/done-effects.ts',
+      'packages/main/src/handlers/done-recover.ts',
+      'packages/main/src/handlers/release.ts',
     ],
   },
   'runtime:go_command_acceptance_gate': {
     producerSourceRefs: [
       'packages/main/src/core/acceptance-discovery-adapters.ts',
+      'packages/main/src/core/acceptance-coverage-basis.ts',
       'packages/main/src/core/pre-review-check.ts',
       'packages/main/src/core/verification-execution-evidence.ts',
       'packages/main/src/core/validation-executor.ts',

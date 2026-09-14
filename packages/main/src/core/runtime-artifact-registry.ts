@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { hasValidControllerConfigProjection } from './controller-config-projection.js';
+import { CONTROLLER_RUNTIME_ASSET_PATHS, hasValidControllerRuntimeProjection } from './controller-runtime-projection.js';
 import { loadConfig } from './config.js';
 
 function hasGitMetadata(dir: string): boolean {
@@ -69,6 +70,31 @@ export function isByteIdenticalControllerConfig(args: {
   } catch {
     return false;
   }
+}
+
+export function isByteIdenticalControllerRuntimeAsset(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  path: string;
+}): boolean {
+  if (!(CONTROLLER_RUNTIME_ASSET_PATHS as readonly string[]).includes(args.path) || !/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/.test(args.storyId)) return false;
+  try {
+    const worktreeRoot = realpathSync(args.gitCwd);
+    if (realpathSync(args.projectRoot) !== worktreeRoot) return false;
+    const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (controllerRoot === worktreeRoot) return false;
+    for (const cwd of [worktreeRoot, controllerRoot]) {
+      if (execFileSync('git', ['ls-files', '--', args.path], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) return false;
+    }
+    return hasValidControllerRuntimeProjection({
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      controllerRoot,
+      worktreeRoot,
+      storyRoot: join(worktreeRoot, loadConfig(worktreeRoot).storyDir, args.storyId),
+    });
+  } catch { return false; }
 }
 
 export type RuntimeArtifactPathMatcher =

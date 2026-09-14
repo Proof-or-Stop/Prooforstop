@@ -247,6 +247,13 @@ export interface StoryInfo {
     branch: string;
     createdAt: string;
   };
+  /** Integration branch frozen when the Story is created. Legacy Stories resolve it from repository policy. */
+  integrationTarget?: {
+    parentBranch: string;
+    parentCommitAtCreation: string;
+    source: 'creation_branch' | 'repository_baseline';
+    deliveryMode: 'merge_to_parent';
+  };
   /** Current REVIEW round ID (ISO 8601 timestamp), generated each time REVIEW is entered */
   currentReviewRound?: string;
   /** High-risk signals (auto-detection): triggered keyword categories */
@@ -468,7 +475,8 @@ export type CoverageDiscoveryMethodV1 =
   | 'process_fact_registry'
   | 'handler_dispatch_inventory'
   | 'static_call_graph'
-  | 'runtime_trace';
+  | 'runtime_trace'
+  | 'registered_command_receipts';
 
 export interface CoverageAdapterResultV1 {
   schemaVersion: 'proofstory.coverage_adapter_result.v1';
@@ -600,6 +608,7 @@ export interface AcceptanceBasisArtifactV1 {
 export type PreReviewCheckCodeV1 =
   | 'ok'
   | 'PR_ARTIFACT_MISSING'
+  | 'PR_COVERAGE_BASIS_MISSING'
   | 'PR_COVERAGE_BASIS_CHANGED'
   | 'PR_COVERAGE_INCONCLUSIVE'
   | 'PR_PLANNED_PATH_UNRESOLVED'

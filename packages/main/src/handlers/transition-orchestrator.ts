@@ -110,6 +110,7 @@ import { acquireStoryTransitionLock } from '../core/story-transition-lock.js';
 import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { resolveSharedLockRoot, sanitizeLockSegment } from '../core/validation-execution-lock.js';
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
+import { resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import {
@@ -473,9 +474,9 @@ function renderStoryAdvanceMemoryRuntimeAdvisory(projectRoot: string, story: Sto
  * returns undefined and must NOT abort the common DONE path — only two
  * successful reads that DIFFER constitute a confirmed external advance.
  */
-function readMainSha(gitCwd: string): string | undefined {
+function readMainSha(gitCwd: string, integrationBranch = 'main'): string | undefined {
   try {
-    return execFileSync('git', ['rev-parse', '--verify', 'main^{commit}'], {
+    return execFileSync('git', ['rev-parse', '--verify', `${integrationBranch}^{commit}`], {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -1118,6 +1119,7 @@ async function runStoryTransitionInner(
     // the SAME value resolved ONCE in the DONE pre-check block (preMortem #4)
     // can be threaded into runDonePreMergeGate below — no second resolveGitCwd.
     let doneGitCwd: string = ctx.root;
+    let doneIntegrationBranch = 'main';
 
     // B-c622 CL-006: auto-sync main BEFORE actor.can() to avoid TOCTOU —
     // guard evaluates post-merge state, not pre-merge state.
@@ -1135,6 +1137,7 @@ async function runStoryTransitionInner(
         metadataRoot: ctx.root,
         projectRoot: ctx.root,
       });
+      doneIntegrationBranch = resolveStoryIntegrationTarget(doneGitCwd, story)?.parentBranch ?? 'main';
       // B-4c38 CHK-001: serialize every main-affecting DONE operation before
       // any DONE preflight can mutate the story branch or main. The lock spans
       // checkMainDivergence/autoSyncMain, DONE gates, phase persistence, and
@@ -1154,10 +1157,10 @@ async function runStoryTransitionInner(
       if (doneWorktree) {
         assertDoneStoryBranchMatches(args.storyId, doneWorktree.branch);
       }
-      const divergence = checkMainDivergence(doneGitCwd);
+      const divergence = checkMainDivergence(doneGitCwd, doneIntegrationBranch);
       if (divergence.needsSync) {
-        ctx.log?.(`DONE pre-check: current branch is ${divergence.behind} commits behind main, auto-syncing...`);
-        const syncResult = autoSyncMain(doneGitCwd);
+        ctx.log?.(`DONE pre-check: current branch is ${divergence.behind} commits behind ${doneIntegrationBranch}, auto-syncing...`);
+        const syncResult = autoSyncMain(doneGitCwd, doneIntegrationBranch);
         if (syncResult.ok) {
           ctx.log?.(`✓ ${syncResult.message}`);
         } else {
@@ -1167,7 +1170,7 @@ async function runStoryTransitionInner(
       // B-0e53: capture main's sha AFTER autoSyncMain so Proof-or-Stop's own sync is
       // already in the baseline. The re-check before writeStory compares against
       // this; only an EXTERNAL advance after this point trips the abort.
-      syncedMainSha = readMainSha(doneGitCwd);
+      syncedMainSha = readMainSha(doneGitCwd, doneIntegrationBranch);
     }
 
     // ── actor lifecycle: created + started here, owned by this orchestrator,
@@ -1296,10 +1299,10 @@ async function runStoryTransitionInner(
     // either read returns undefined (transient git error), do NOT abort — only a
     // confirmed change (both reads succeeded and differ) trips the abort.
     if (args.phase === 'DONE' && syncedMainSha !== undefined) {
-      const currentMainSha = readMainSha(doneGitCwd);
+      const currentMainSha = readMainSha(doneGitCwd, doneIntegrationBranch);
       if (currentMainSha !== undefined && currentMainSha !== syncedMainSha) {
         throw new Error(
-          `DONE aborted: main advanced (${syncedMainSha.slice(0, 7)} -> ${currentMainSha.slice(0, 7)}) after the pre-check sync; ` +
+          `DONE aborted: ${doneIntegrationBranch} advanced (${syncedMainSha.slice(0, 7)} -> ${currentMainSha.slice(0, 7)}) after the pre-check sync; ` +
           `nothing was merged and the story stays at TEST. Re-run story_advance DONE to resync.`,
         );
       }

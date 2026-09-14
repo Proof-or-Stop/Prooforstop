@@ -1,6 +1,7 @@
 
 import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { execFileSync } from 'node:child_process';
+import { dirname, isAbsolute, join, resolve } from 'path';
 import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
@@ -838,14 +839,25 @@ function isJsonRecord(value: unknown): value is Record<string, unknown> {
 
 /** True for runtime-managed global-thin roots that may receive activity logs. */
 export function isManagedGlobalThinRoot(dir: string): boolean {
-  for (const relPath of GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS) {
-    const candidate = join(dir, relPath);
-    if (!existsSync(candidate)) continue;
-    try {
-      const parsed = JSON.parse(readFileSync(candidate, 'utf-8'));
-      if (isJsonRecord(parsed) && parsed.assetMode === 'global-thin') return true;
-    } catch {
-      return false;
+  const roots = [resolve(dir)];
+  try {
+    const raw = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], {
+      cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    const common = resolve(dir, raw);
+    const primary = dirname(common);
+    if (common && isAbsolute(common) && !roots.includes(primary)) roots.push(primary);
+  } catch { /* non-Git roots retain the local manifest probe */ }
+  for (const root of roots) {
+    for (const relPath of GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS) {
+      const candidate = join(root, relPath);
+      if (!existsSync(candidate)) continue;
+      try {
+        const parsed = JSON.parse(readFileSync(candidate, 'utf-8'));
+        if (isJsonRecord(parsed) && parsed.assetMode === 'global-thin') return true;
+      } catch {
+        return false;
+      }
     }
   }
   return false;

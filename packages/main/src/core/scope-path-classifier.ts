@@ -6,7 +6,7 @@
  */
 
 import { classifyLifecycleArtifact, classifySharedLifecycleMetadata } from './lifecycle-registry.js';
-import { findRuntimeArtifactEntry, isByteIdenticalControllerConfig } from './runtime-artifact-registry.js';
+import { findRuntimeArtifactEntry, isByteIdenticalControllerConfig, isByteIdenticalControllerRuntimeAsset } from './runtime-artifact-registry.js';
 import { existsSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { STATE_DIR_NAMES } from './brand-paths.js';
@@ -413,6 +413,24 @@ export function classifyScopePath(
       detail: 'Byte-identical untracked controller configuration projected into the exact registered Story worktree.',
       registryId: 'external-controller-config',
       hint: 'Changing either copy removes this control-asset classification and restores ordinary scope enforcement.',
+    });
+  }
+
+  if (options.projectRoot && isByteIdenticalControllerRuntimeAsset({
+    projectRoot: options.projectRoot,
+    gitCwd: options.gitCwd ?? options.projectRoot,
+    storyId: contract.storyId,
+    path: normalizedPath,
+  })) {
+    return classification({
+      path,
+      category: 'runtime_artifact',
+      source: 'runtime-artifact-registry',
+      rule: 'runtime_artifact',
+      allowed: true,
+      detail: 'Signed byte-identical native hook asset projected from the primary global-thin controller.',
+      registryId: 'external-controller-runtime',
+      hint: 'Changing either copy invalidates the projection receipt and restores ordinary scope enforcement.',
     });
   }
 

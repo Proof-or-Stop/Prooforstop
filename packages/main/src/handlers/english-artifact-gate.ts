@@ -25,6 +25,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { detectCjk } from '../core/cjk-detect.js';
+import { requireRepositoryBaselineRef } from '../core/git-baseline.js';
 
 /** Author-controlled metadata files scanned inside the current story dir. */
 export const AUTHOR_METADATA_BASENAMES: readonly string[] = [
@@ -167,7 +168,7 @@ const defaultGitLogReader: GitLogReader = (cwd) => {
   // %H full hash, %B raw subject+body. `git log main..HEAD` is branch-scoped.
   return execFileSync(
     'git',
-    ['log', 'main..HEAD', '--pretty=format:%H%x1f%B%x1e'],
+    ['log', `${requireRepositoryBaselineRef(cwd)}..HEAD`, '--pretty=format:%H%x1f%B%x1e'],
     { cwd, encoding: 'utf-8' },
   );
 };

@@ -348,6 +348,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     dryRun: z.boolean().optional().describe('Preview INIT_CHECK bootstrap only; do not advance phase or create worktree.'),
     confirm: z.boolean().optional().describe('Confirm a side-effecting advance (compatible script argument).'),
     reason: z.string().optional().describe('B-8b69: required when reopening PLAN->INIT (phase=INIT from PLAN); explains why the frozen checklist title/context must change. Ignored for other transitions.'),
+    json: z.boolean().optional().describe('Return a structured transition result for host adapters; callers must verify the resulting phase instead of relying only on a shell exit code.'),
   }},
   { name: 'story_update', description: 'Edit Story metadata', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('New title.'),

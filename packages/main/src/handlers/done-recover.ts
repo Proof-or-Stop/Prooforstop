@@ -18,6 +18,7 @@ import {
   runDoneMainPackageBuildAfterMerge,
   shouldBuildDoneMainPackageForChangedPaths,
 } from './done-effects.js';
+import { resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 
 function git(gitCwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -45,17 +46,20 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       if (!storyId) throw new Error('done_recover: storyId is required');
 
       const mainRepoRoot = resolveMainRepoRoot(root);
-      const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot);
+      const initialStory = ctx.store.readStory(storyId);
+      const integrationBranch = resolveStoryIntegrationTarget(mainRepoRoot, initialStory)?.parentBranch;
+      if (!integrationBranch) throw new Error(`done_recover refused: no integration branch can be resolved for ${storyId}`);
+      const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot, integrationBranch);
       const store = mainMergeRoot === root ? ctx.store : new StoryStore(mainMergeRoot);
       const lock = acquireDoneMainMergeLock(storyId, mainRepoRoot, mainMergeRoot);
       try {
 
       const currentBranch = git(mainMergeRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
-      if (currentBranch !== 'main') {
+      if (currentBranch !== integrationBranch) {
         throw new Error(
-          `done_recover refused: resolved main merge worktree at "${mainMergeRoot}" is on branch "${currentBranch}", not "main".\n` +
+          `done_recover refused: resolved integration worktree at "${mainMergeRoot}" is on branch "${currentBranch}", not "${integrationBranch}".\n` +
           `Repository root: "${mainRepoRoot}".\n` +
-          `→ cd "${mainMergeRoot}" && git checkout main`,
+          `→ cd "${mainMergeRoot}" && git checkout ${integrationBranch}`,
         );
       }
       assertMainWorktreeClean(mainMergeRoot);
@@ -73,14 +77,14 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       }
       if (!partial.mergeTreeClean) {
         throw new Error(
-          `done_recover refused: ${partial.branch} cannot merge cleanly into main.\n` +
+          `done_recover refused: ${partial.branch} cannot merge cleanly into ${integrationBranch}.\n` +
           `→ Resolve conflicts manually, then rerun done_recover.`,
         );
       }
       assertStoryWorktreeClean(partial.worktreePath);
 
       const lines: string[] = [];
-      git(mainMergeRoot, ['merge-tree', '--write-tree', 'main', partial.branch]);
+      git(mainMergeRoot, ['merge-tree', '--write-tree', integrationBranch, partial.branch]);
       const mainShaBeforeRecoveryMerge = git(mainMergeRoot, ['rev-parse', 'HEAD']);
       let preRecoveryMergeVersion: string | undefined;
       try {
@@ -99,7 +103,7 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
         ['-c', 'commit.gpgsign=false', 'merge', partial.branch, '--no-ff', '-m', `merge: ${storyId} ${partial.title}`],
       );
       mainShaAfterRecoveryMerge = git(mainMergeRoot, ['rev-parse', 'HEAD']);
-      lines.push(`✓ ${partial.branch} merged into main`);
+      lines.push(`✓ ${partial.branch} merged into ${integrationBranch}`);
       for (const line of removeStoryWorktree(mainRepoRoot, storyId, partial.worktreePath)) {
         lines.push(line);
       }

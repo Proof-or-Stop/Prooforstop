@@ -295,6 +295,14 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
       const result = {
         schemaVersion: 'proof-or-stop.final-response-check.v1',
         storyId: args.storyId,
+        storyPhase: story?.phase ?? null,
+        lifecycleComplete: story ? story.phase === 'DONE' || story.phase === 'DISCARDED' : true,
+        completionStatus: story && story.phase !== 'DONE' && story.phase !== 'DISCARDED'
+          ? 'continuation_required' as const
+          : 'complete' as const,
+        nextAction: story && story.phase !== 'DONE' && story.phase !== 'DISCARDED'
+          ? `An active repository Story remains non-terminal. Run proof-or-stop next and continue or return a structured BLOCKED result.`
+          : null,
         completionClaimSource: 'ParentRollupResult/current-structured-facts' as const,
         memoryFreshnessPack: redactMemoryPackForControlArm(pack),
         memoryCompletionProof: false as const,

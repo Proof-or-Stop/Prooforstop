@@ -79,8 +79,8 @@ try {
 if (!approval || approval.schema !== "proof-or-stop.remote-push-approval.v1") {
   reject("approval schema is missing or invalid");
 }
-if (approval.branch !== "refs/heads/main" || remoteRef !== "refs/heads/main") {
-  reject(`approval is only valid for refs/heads/main (got approval=${approval.branch || ""}, push=${remoteRef})`);
+if (!approval.branch || approval.branch !== remoteRef || !remoteRef.startsWith("refs/heads/")) {
+  reject(`approval branch mismatch (got approval=${approval.branch || ""}, push=${remoteRef})`);
 }
 if (approval.remote && approval.remote !== remoteName) {
   reject(`approval remote mismatch: expected ${approval.remote}, got ${remoteName}`);
@@ -107,7 +107,13 @@ console.error(`[pre-push] one-shot remote publish approval consumed for ${remote
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ -z "${remote_ref:-}" ] && continue
   case "$remote_ref" in
-    refs/heads/main)
+    refs/heads/story/*|refs/heads/codex/*|refs/heads/lab/*)
+      branch="${remote_ref#refs/heads/}"
+      echo "[pre-push] REJECTED: refusing to push remote branch '$branch'." >&2
+      echo "[pre-push] Proof-or-Stop parallel work is local-only: merge task branches into the repository integration branch first." >&2
+      exit 1
+      ;;
+    refs/heads/*)
       if ! command -v node >/dev/null 2>&1; then
         echo "[pre-push] FAIL: 'node' not found in PATH — cannot validate Proof-or-Stop remote publish approval." >&2
         echo "[pre-push] Refusing push (fail-closed)." >&2
@@ -116,13 +122,6 @@ while read -r local_ref local_sha remote_ref remote_sha; do
       if ! check_release_push_approval "$local_sha" "$remote_ref"; then
         exit 1
       fi
-      ;;
-    refs/heads/*)
-      branch="${remote_ref#refs/heads/}"
-      echo "[pre-push] REJECTED: refusing to push remote branch '$branch'." >&2
-      echo "[pre-push] Proof-or-Stop parallel work is local-only: use local worktrees/branches, merge to local main, clean the worktree, and do not push task branches." >&2
-      echo "[pre-push] Remote publish is main-only and requires a one-shot local approval." >&2
-      exit 1
       ;;
   esac
 done <"$REF_UPDATES"

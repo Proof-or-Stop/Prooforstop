@@ -34,6 +34,7 @@ import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
+import { captureStoryIntegrationTarget } from '../core/story-integration-target.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -531,6 +532,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // resolveMainRepoRoot (a worktree subdir falls back to the main root).
       const createLockMainRepoRoot = resolveMainRepoRoot(ctx.root);
       return withReentrantMainWriteLock(createLockMainRepoRoot, () => {
+      const integrationTarget = captureStoryIntegrationTarget(createLockMainRepoRoot);
       // B-02a6 CHK-002: after a story's INIT metadata has been persisted to
       // disk, commit ONLY that story's metadata dir onto the current branch HEAD
       // so the leaf is a tracked (clean-proof) git object from birth. This runs
@@ -701,6 +703,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           startedAt: now,
           endedAt: null,
           events: [collectContext('INIT', 'create')],
+          ...(integrationTarget ? { integrationTarget } : {}),
         };
         store.writeStory(storyId, story);
         if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
@@ -1094,6 +1097,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           startedAt: args.phase !== 'IDEA' ? now : null,
           endedAt: null,
           events: [collectContext(args.phase, 'create')],
+          ...(integrationTarget ? { integrationTarget } : {}),
         };
         store.writeStory(storyId, story);
         if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
@@ -1150,6 +1154,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         startedAt: hasChecklist ? now : null,
         endedAt: null,
         events: [collectContext(phase, 'create')],
+        ...(integrationTarget ? { integrationTarget } : {}),
       };
       store.writeStory(storyId, story);
       if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);

@@ -258,8 +258,31 @@ export function currentPreReviewInputForContext(ctx: HandlerContext, storyId: st
   };
 }
 
+function missingPlanBasisPreReviewReport(ctx: HandlerContext, storyId: string): PreReviewCheckReport {
+  const mode = resolveAcceptanceTopologyGateMode(loadConfig(ctx.root));
+  return {
+    storyId,
+    mode,
+    readOnly: true,
+    verificationProfile: 'unsupported',
+    status: 'fail',
+    ok: false,
+    blocking: mode === 'enforce',
+    codes: ['PR_COVERAGE_BASIS_MISSING'],
+    plannedActual: 'incomplete',
+    executableEvidence: 'missing',
+    mutations: 'missing',
+    transcript: 'missing',
+    authority: 'inadmissible',
+    criticReattestation: mode === 'enforce' ? 'missing' : 'not_required',
+    remediation: ['Run proof-or-stop acceptance_basis_generate --storyId=<id>, then rerun proof-or-stop pre_review_check --storyId=<id>.'],
+    artifact: null,
+  };
+}
+
 /** Shared production verifier for the CLI and DEV→REVIEW lifecycle consumer. */
 export function evaluatePreReviewCheckForContext(ctx: HandlerContext, storyId: string): PreReviewCheckReport {
+  if (!ctx.store.readAcceptanceBasis(storyId)) return missingPlanBasisPreReviewReport(ctx, storyId);
   const stored = ctx.store.readPreReviewCheck(storyId);
   if (!stored) {
     const input = currentPreReviewInputForContext(ctx, storyId);
@@ -682,6 +705,17 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
       if (!args.storyId) throw new Error('storyId is required');
       store.readStory(args.storyId);
+      if (!store.readAcceptanceBasis(args.storyId)) {
+        const report = missingPlanBasisPreReviewReport(ctx, args.storyId);
+        const rendered = args.json ? stringify(report) : [
+          `Pre-review check: FAIL code=${report.codes[0]}`,
+          `Story: ${args.storyId}`,
+          `Mode: ${report.mode}; blocking=${report.blocking}`,
+          `Codes: ${report.codes.join(',')}`,
+          ...report.remediation.map(item => `Remediation: ${item.replace('<id>', args.storyId)}`),
+        ].join('\n');
+        return enforceOrRender(report, rendered);
+      }
       const input = currentPreReviewInputForContext(ctx, args.storyId);
       const artifact = issuePreReviewCheckArtifact(input);
       store.writePreReviewCheck(args.storyId, artifact);

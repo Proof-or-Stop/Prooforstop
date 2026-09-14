@@ -2,11 +2,11 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { redactEnvironment } from '../core/causal-evidence.js';
+import { redactCausalOutput, redactEnvironment } from '../core/causal-evidence.js';
 import { acceptanceDiscoveryProfile } from '../core/acceptance-discovery-adapters.js';
 import { isManagedGlobalThinRoot } from '../core/config.js';
 import { renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
@@ -16,6 +16,9 @@ import { assertMainWorktreeReadyForMerge } from '../handlers/done-effects.js';
 import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { projectControllerAssetsIntoStoryWorktree } from '../cli/runtime-root.js';
+import { captureStoryIntegrationTarget } from '../core/story-integration-target.js';
+import { createReleaseHandlers } from '../handlers/release.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '../../..');
@@ -50,6 +53,7 @@ check('proxy credentials are absent from causal identity and output-redaction in
   assert.equal(JSON.stringify(environment).includes('PROXY_SENTINEL'), false);
   assert.match(environment.HTTPS_PROXY ?? '', /^<redacted>:sha256:[a-f0-9]{64}$/);
   assert.equal(environment.LANG, 'en_US.UTF-8');
+  assert.equal(redactCausalOutput(`connected through ${sentinel}`, { HTTPS_PROXY: sentinel }).includes('PROXY_SENTINEL'), false);
 });
 
 check('INIT reviewer uses a host-neutral instruction source', () => {
@@ -62,7 +66,14 @@ check('master-only repository is a valid integration worktree', () => {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-master-integration-'));
   try {
     initRepo(root, 'master');
-    assert.equal(assertMainWorktreeReadyForMerge('B-master', root), root);
+    assert.deepEqual(captureStoryIntegrationTarget(root), {
+      parentBranch: 'master', parentCommitAtCreation: git(root, ['rev-parse', 'HEAD']), source: 'creation_branch', deliveryMode: 'merge_to_parent',
+    });
+    assert.equal(assertMainWorktreeReadyForMerge('B-master', root), realpathSync(root));
+    const store = new StoryStore(root);
+    const approval = createReleaseHandlers({ root, scanRoot: root, store }).release_approve_push({ confirm: true, json: true });
+    assert.equal(approval.approval.branch, 'refs/heads/master');
+    assert.match(approval.nextAction, /git push origin master/);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
@@ -72,10 +83,20 @@ check('linked worktree inherits global-thin identity from the common repository'
   try {
     initRepo(root, 'main');
     write(root, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ assetMode: 'global-thin' }));
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    write(root, '.proof-or-stop/story/actives/B-global-thin/index.json', JSON.stringify({ storyId: 'B-global-thin', phase: 'INIT_CHECK' }));
+    write(root, '.codex/hooks.json', '{"hooks":[]}\n');
+    write(root, '.codex/hooks/proof-or-stop-evidence-pretool.cjs', 'module.exports = {};\n');
+    write(root, '.codex/hooks/proof-or-stop-scope-pretool.cjs', 'module.exports = {};\n');
     git(root, ['branch', 'story/B-global-thin']);
     mkdirSync(dirname(worktree), { recursive: true });
     git(root, ['worktree', 'add', '-q', worktree, 'story/B-global-thin']);
     assert.equal(isManagedGlobalThinRoot(worktree), true);
+    projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId: 'B-global-thin' });
+    for (const path of ['.codex/hooks.json', '.codex/hooks/proof-or-stop-evidence-pretool.cjs', '.codex/hooks/proof-or-stop-scope-pretool.cjs']) {
+      assert.equal(readFileSync(join(worktree, path), 'utf8'), readFileSync(join(root, path), 'utf8'));
+    }
+    assert.equal(existsSync(join(worktree, '.proof-or-stop/story/actives/B-global-thin/evidence/controller-runtime-projection.json')), true);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

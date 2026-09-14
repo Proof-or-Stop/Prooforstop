@@ -22,7 +22,7 @@ export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
 
 export const ACCEPTANCE_GO_COMMAND_PROFILE = {
   ref: 'profile:go-command:v1',
-  methods: ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods,
+  methods: ['registered_command_receipts'] as CoverageDiscoveryMethodV1[],
 } as const;
 
 export type AcceptanceVerificationProfile = 'typescript-topology' | 'go-command' | 'unsupported';
@@ -78,6 +78,7 @@ export function acceptanceDiscoveryFactActivationPhase(factName: string): 'plan'
 
 export interface AcceptanceDiscoveryInput {
   supported: boolean;
+  verificationProfile?: AcceptanceVerificationProfile;
   workspaceRoot: string;
   storyId: string;
   plannedPathRecords: PlannedCoveragePathV1[];
@@ -1936,6 +1937,23 @@ function buildResult(
   method: CoverageDiscoveryMethodV1,
   prebuiltGraph?: BoundedSourceGraph,
 ): CoverageAdapterResultV1 {
+  if (method === 'registered_command_receipts') {
+    const unsigned: Omit<CoverageAdapterResultV1, 'resultDigest'> = {
+      schemaVersion: 'proofstory.coverage_adapter_result.v1',
+      adapterId: adapterId(method),
+      method,
+      pathRefs: [],
+      coverageClaim: 'complete_for_scope',
+      blindSpots: [],
+      provenanceRefs: ['registered-command-receipts:verification-evidence:v1'],
+      asymmetryPolicy: {
+        kind: 'exhaustive',
+        policyRef: 'policy:registered-command-receipts:v1',
+        scopeRefs: stable(input.scopeRefs),
+      },
+    };
+    return { ...unsigned, resultDigest: digestCoverageAdapterResult(unsigned) };
+  }
   const unsupported = !input.supported;
   const boundedRuntime = method === 'runtime_trace';
   let pathRefs: string[] = [];
@@ -2020,15 +2038,28 @@ function buildResult(
 
 /** Run the immutable PLAN profile from canonical repository and registry inputs. */
 export function runAcceptanceDiscoveryAdapters(input: AcceptanceDiscoveryInput): CoverageAdapterResultV1[] {
+  const methods = acceptanceDiscoveryProfile(input.verificationProfile ?? (input.supported ? 'typescript-topology' : 'unsupported')).methods;
   const graph = input.supported ? buildBoundedSourceGraph(input) : undefined;
-  return ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods.map(method => buildResult(input, method, graph));
+  return methods.map(method => buildResult(input, method, graph));
 }
 
 /** One immutable source snapshot shared by closure discovery, adapter provenance, and receipt hashing. */
 export function runAcceptanceDiscoverySnapshot(input: AcceptanceDiscoveryInput): AcceptanceDiscoverySnapshot {
+  const profile = input.verificationProfile ?? (input.supported ? 'typescript-topology' : 'unsupported');
+  const methods = acceptanceDiscoveryProfile(profile).methods;
+  if (profile === 'go-command') {
+    return {
+      adapterResults: methods.map(method => buildResult(input, method)),
+      registeredClosure: { pathRefs: [], sourceInventoryRefs: [], sourceFileRefs: [], blindSpots: [], entries: [] },
+      sourceSnapshots: [],
+      sourceReadBlindSpots: [],
+      seal: additionalIssues => sealSourceAssembly(createSourceReadContext(input.workspaceRoot), [], additionalIssues),
+      immediatelyBeforeFinalSeal: input.testHooks?.immediatelyBeforeFinalSeal,
+    };
+  }
   if (!input.supported) {
     return {
-      adapterResults: ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods.map(method => buildResult(input, method)),
+      adapterResults: methods.map(method => buildResult(input, method)),
       registeredClosure: { pathRefs: [], sourceInventoryRefs: [], sourceFileRefs: [], blindSpots: [], entries: [] },
       sourceSnapshots: [],
       sourceReadBlindSpots: [],
@@ -2062,7 +2093,10 @@ function boundedProcessFactDifference(label: 'registryOnly' | 'dispatchOnly', pa
   return `${label}(count=${names.length})=[${shown}${names.length > limit ? ',…' : ''}]`;
 }
 
-export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAdapterResultV1[]): AcceptanceDiscoveryReconciliation {
+export function reconcileAcceptanceDiscoveryResults(
+  results: readonly CoverageAdapterResultV1[],
+  profile: AcceptanceVerificationProfile = 'typescript-topology',
+): AcceptanceDiscoveryReconciliation {
   const diagnostics: AcceptanceDiscoveryDiagnostic[] = [];
   const byMethod = new Map<CoverageDiscoveryMethodV1, CoverageAdapterResultV1[]>();
   for (const result of results) {
@@ -2078,7 +2112,7 @@ export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAd
     }
     if (digestCoverageAdapterResult(unsignedResult(result)) !== result.resultDigest) diagnostics.push({ code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH', adapterId: result.adapterId, message: `adapter result digest mismatch: ${result.adapterId}` });
   }
-  for (const method of ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods) {
+  for (const method of acceptanceDiscoveryProfile(profile).methods) {
     const rows = byMethod.get(method) ?? [];
     if (rows.length !== 1) diagnostics.push({ code: 'AT_REQUIRED_ADAPTER_RESULT_MISSING', message: `registered profile requires exactly one ${method} result; observed ${rows.length}`, adapterId: adapterId(method) });
   }

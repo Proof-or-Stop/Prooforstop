@@ -423,7 +423,12 @@ function parseCommandString(command: string): { executable: string; args: string
 }
 
 const REDACTED = '<redacted>';
-const SECRET_ENV_KEY = /(token|secret|password|passwd|api[_-]?key|private[_-]?key|credential|authorization|auth)/i;
+const SECRET_ENV_KEY = /(token|secret|password|passwd|api[_-]?key|private[_-]?key|credential|authorization|auth|proxy|cookie|session|database[_-]?url|dsn|ssh|aws|gcp|google|azure)/i;
+const SAFE_PLAINTEXT_ENV_KEY = /^(?:LANG|LC_[A-Z_]+|TZ|TERM|COLORTERM|CI)$/;
+
+function redactedEnvironmentIdentity(value: unknown): string {
+  return `${REDACTED}:sha256:${createHash('sha256').update(String(value), 'utf8').digest('hex')}`;
+}
 
 /** Redact values while retaining a non-secret identity distinction per credential. */
 export function redactEnvironment(environment: Record<string, unknown>): Record<string, string> {
@@ -435,9 +440,9 @@ export function redactEnvironment(environment: Record<string, unknown>): Record<
     // PATH and make a receipt reusable under a different child environment.
     const key = process.platform === 'win32' ? rawKey.toUpperCase() : rawKey;
     if (isValidationTransportEnvKey(key)) continue;
-    result[key] = SECRET_ENV_KEY.test(key)
-      ? `${REDACTED}:sha256:${createHash('sha256').update(String(rawValue), 'utf8').digest('hex')}`
-      : String(rawValue);
+    result[key] = SAFE_PLAINTEXT_ENV_KEY.test(key) && !SECRET_ENV_KEY.test(key)
+      ? String(rawValue)
+      : redactedEnvironmentIdentity(rawValue);
   }
   return Object.fromEntries(Object.entries(result).sort(([left], [right]) => compareCanonicalKeys(left, right)));
 }
@@ -605,13 +610,13 @@ function boundedOutputProbe(output: string): string {
   return `${output.slice(0, headLength)}${gap}${output.slice(-tailLength)}`;
 }
 
-function redactCausalOutput(output: string, effectiveEnvironment: Record<string, unknown> | undefined, replacement = REDACTED): string {
+export function redactCausalOutput(output: string, effectiveEnvironment: Record<string, unknown> | undefined, replacement = REDACTED): string {
   let redacted = String(output ?? '');
   for (const [rawKey, rawValue] of Object.entries(effectiveEnvironment ?? {})) {
     if (rawValue === undefined || rawValue === null) continue;
     const value = String(rawValue);
     if (!value || value === REDACTED) continue;
-    if (SECRET_ENV_KEY.test(rawKey)) {
+    if ((!SAFE_PLAINTEXT_ENV_KEY.test(rawKey) || SECRET_ENV_KEY.test(rawKey)) && value.length >= 4) {
       redacted = redacted.split(value).join(replacement);
     }
   }

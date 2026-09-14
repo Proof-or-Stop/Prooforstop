@@ -5,6 +5,8 @@ import type { StoryStore } from './store.js';
 import type { StoryInfo } from './types.js';
 import { loadConfig } from './config.js';
 import { isVolatileRuntimeArtifactPath } from './runtime-artifact-registry.js';
+import { resolveRepositoryBaseline } from './git-baseline.js';
+import { resolveStoryIntegrationTarget } from './story-integration-target.js';
 
 export interface PartialDoneStory {
   storyId: string;
@@ -96,8 +98,23 @@ export function findRegisteredWorktreeForBranch(root: string, branch: string): s
   return registered?.path ?? null;
 }
 
-export function resolveMainBranchWorktree(root: string): string {
-  return resolve(findRegisteredWorktreeForBranch(root, 'main') ?? root);
+export function resolveMainBranchWorktree(root: string, integrationBranch?: string): string {
+  const canonicalRoot = resolveMainRepoRoot(root);
+  if (integrationBranch) {
+    const registered = findRegisteredWorktreeForBranch(canonicalRoot, integrationBranch);
+    if (registered) return resolve(registered);
+  }
+  const baseline = resolveRepositoryBaseline(canonicalRoot);
+  const ref = baseline?.ref ?? '';
+  const localBranch = ref.startsWith('refs/heads/')
+    ? ref.slice('refs/heads/'.length)
+    : ref.startsWith('refs/remotes/')
+      ? ref.split('/').slice(3).join('/')
+      : ref;
+  const target = localBranch ? findRegisteredWorktreeForBranch(canonicalRoot, localBranch) : null;
+  if (target) return resolve(target);
+  const primary = listRegisteredWorktrees(canonicalRoot).find(entry => entry.branch && !entry.branch.startsWith('story/'));
+  return resolve(primary?.path ?? canonicalRoot);
 }
 
 export function storyWorktreePath(root: string, storyId: string): string {
@@ -129,14 +146,17 @@ export function detectPartialDoneStories(root: string, store: StoryStore): Parti
     const branchStory = readStoryFromBranch(mainRepoRoot, store.storyDirRel(), branch, storyId);
     if (branchStory?.phase !== 'DONE') continue;
     const doneStory = branchStory;
-    const branchMergedToMain = gitSucceeds(mainRepoRoot, ['merge-base', '--is-ancestor', branch, 'main']);
+    const integrationTarget = resolveStoryIntegrationTarget(mainRepoRoot, doneStory);
+    const integrationBranch = integrationTarget?.parentBranch;
+    if (!integrationBranch) continue;
+    const branchMergedToMain = gitSucceeds(mainRepoRoot, ['merge-base', '--is-ancestor', branch, integrationBranch]);
     if (branchMergedToMain) continue;
     const worktreePath = findStoryWorktreePath(mainRepoRoot, storyId, branch);
     const registered = listRegisteredWorktrees(mainRepoRoot).some(entry =>
       entry.branch === branch || (worktreePath ? normalizePath(entry.path) === normalizePath(worktreePath) : false),
     );
     const worktreeExists = worktreePath ? existsSync(worktreePath) : false;
-    const mergeTreeClean = gitSucceeds(mainRepoRoot, ['merge-tree', '--write-tree', 'main', branch]);
+    const mergeTreeClean = gitSucceeds(mainRepoRoot, ['merge-tree', '--write-tree', integrationBranch, branch]);
     partial.push({
       storyId,
       title: doneStory.title,
@@ -148,7 +168,7 @@ export function detectPartialDoneStories(root: string, store: StoryStore): Parti
       worktreeExists,
       mergeTreeClean,
       recoverCommand: `proof-or-stop done_recover --storyId=${storyId}`,
-      reason: 'story is phase=DONE but its story branch is not merged into main',
+      reason: `story is phase=DONE but its story branch is not merged into ${integrationBranch}`,
     });
   }
   return partial.sort((a, b) => a.storyId.localeCompare(b.storyId));

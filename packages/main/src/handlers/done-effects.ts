@@ -77,6 +77,7 @@ export { isDoneMainRuntimeBuildInput, shouldBuildDoneMainPackageForChangedPaths 
 import { deriveFindingSignalsFromStore } from '../core/finding-signals.js';
 import { appendPlaybookPromotionHealthEvent, resolveLearningOwnerRoot, withLearningStoreLock } from '../core/learning-store.js';
 import { buildPlaybookCandidateIngestReport } from '../core/playbook-seed.js';
+import { resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -85,7 +86,7 @@ import { buildPlaybookCandidateIngestReport } from '../core/playbook-seed.js';
 // DONE-only helper.
 
 /** Auto-sync main into the current branch. Returns success/failure + message. */
-export function autoSyncMain(gitCwd: string): { ok: boolean; message: string } {
+export function autoSyncMain(gitCwd: string, integrationBranch = 'main'): { ok: boolean; message: string } {
   // B-75f0: the parameter is named `gitCwd` because it ALREADY receives the
   // resolved gitCwd — the sole caller (transition-orchestrator.ts
   // runStoryTransition DONE branch) routes ctx.root through resolveGitCwd ONCE
@@ -95,15 +96,15 @@ export function autoSyncMain(gitCwd: string): { ok: boolean; message: string } {
   // by resolveGitCwd, so this stays byte-identical (pure rename, B-75f0 CHK-004).
   // Try to fetch origin main first (fails silently for local-only repos)
   try {
-    execSync('git fetch origin main:main', {
+    execFileSync('git', ['fetch', 'origin', `${integrationBranch}:${integrationBranch}`], {
       cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
   } catch { /* local-only repo or no remote — skip fetch */ }
   try {
-    execSync('git merge main --no-edit', {
+    execFileSync('git', ['merge', integrationBranch, '--no-edit'], {
       cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
-    return { ok: true, message: 'main 已自动同步到当前分支' };
+    return { ok: true, message: `${integrationBranch} 已自动同步到当前分支` };
   } catch {
     // conflict — abort merge to keep branch clean
     try {
@@ -111,7 +112,7 @@ export function autoSyncMain(gitCwd: string): { ok: boolean; message: string } {
         cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
       });
     } catch { /* abort failed — already clean */ }
-    return { ok: false, message: 'merge main 有冲突（已 abort 保持分支干净）。\n→ 执�� git merge main，解决冲突后 git add + git commit，然后重跑 story_advance DONE' };
+    return { ok: false, message: `merge ${integrationBranch} 有冲突（已 abort 保持分支干净）。\n→ 执行 git merge ${integrationBranch}，解决冲突后 git add + git commit，然后重跑 story_advance DONE` };
   }
 }
 
@@ -732,8 +733,9 @@ function assertSafeResidualWorktreeRm(ctx: DoneWorktreeContext, target: string, 
  * Explicitly names the main worktree path in error messages so recovery
  * instructions point at the right directory.
  */
-export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string): string {
-  const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot);
+export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string, integrationBranch?: string): string {
+  const targetBranch = integrationBranch ?? resolveStoryIntegrationTarget(mainRepoRoot)?.parentBranch ?? 'main';
+  const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot, targetBranch);
   let mainBranch: string;
   try {
     mainBranch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
@@ -749,12 +751,11 @@ export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: s
     );
   }
 
-  if (mainBranch !== 'main') {
+  if (mainBranch !== targetBranch) {
     throw new Error(
-      `Cannot enter DONE: resolved main merge worktree at "${mainMergeRoot}" is on branch "${mainBranch}", not "main".\n` +
+      `Cannot enter DONE: resolved integration worktree at "${mainMergeRoot}" is on invalid branch "${mainBranch}".\n` +
       `Repository root: "${mainRepoRoot}".\n` +
-      `The DONE merge runs from the main worktree — it must be checked out on branch main.\n` +
-      `→ cd "${mainMergeRoot}" && git checkout main\n` +
+      `The DONE merge requires checked-out integration branch "${targetBranch}".\n` +
       `Story ${storyId} phase was not changed.`,
     );
   }
@@ -803,7 +804,7 @@ export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: s
 
   const dirtyPaths = parsePorcelainDirtyPaths(status);
   if (dirtyPaths.length > 0) {
-    const affectedPaths = listDoneMergeAffectedPaths(mainMergeRoot, storyId);
+    const affectedPaths = listDoneMergeAffectedPaths(mainMergeRoot, storyId, targetBranch);
     // If the affected set could not be computed (e.g. the story branch ref is
     // missing), fall back to the conservative B-e74e behavior and treat every
     // dirty tracked path as blocking — never silently allow a merge whose
@@ -861,13 +862,13 @@ function parsePorcelainDirtyPaths(status: string): string[] {
  * cannot be computed (e.g. missing story branch ref) so the caller can fall
  * back to the conservative block-all behavior.
  */
-function listDoneMergeAffectedPaths(mainMergeRoot: string, storyId: string): Set<string> | null {
+function listDoneMergeAffectedPaths(mainMergeRoot: string, storyId: string, integrationBranch = 'main'): Set<string> | null {
   const storyBranch = `story/${storyId}`;
   let raw: string;
   try {
     raw = execFileSync(
       'git',
-      ['diff', `main...${storyBranch}`, '--name-status', '-M', '-z'],
+      ['diff', `${integrationBranch}...${storyBranch}`, '--name-status', '-M', '-z'],
       {
         cwd: mainMergeRoot,
         encoding: 'utf-8',
@@ -918,9 +919,9 @@ function unquoteGitPath(path: string): string {
   return path;
 }
 
-function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePath: string, mainRepoRoot: string): void {
+function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePath: string, mainRepoRoot: string, integrationBranch: string): void {
   try {
-    execFileSync('git', ['merge-tree', '--write-tree', 'main', 'HEAD'], {
+    execFileSync('git', ['merge-tree', '--write-tree', integrationBranch, 'HEAD'], {
       cwd: worktreePath,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -928,11 +929,11 @@ function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePat
   } catch (e: any) {
     const detail = e?.stderr?.toString?.() || e?.stdout?.toString?.() || e?.message || String(e);
     throw new Error(
-      `Cannot enter DONE: story/${storyId} 尚不能干净合并到 main；未修改 story phase。\n` +
+      `Cannot enter DONE: story/${storyId} 尚不能干净合并到 ${integrationBranch}；未修改 story phase。\n` +
       `${detail}\n\n` +
-      `→ 在 story worktree 内先同步 main，再重跑 story_advance --phase=DONE。\n` +
-      `→ 可执行: cd "${worktreePath}" && git merge main\n` +
-      `→ 主仓库 (main worktree): ${mainRepoRoot}`,
+      `→ 在 story worktree 内先同步 ${integrationBranch}，再重跑 story_advance --phase=DONE。\n` +
+      `→ 可执行: cd "${worktreePath}" && git merge ${integrationBranch}\n` +
+      `→ 集成仓库 (${integrationBranch} worktree): ${mainRepoRoot}`,
     );
   }
 }
@@ -969,6 +970,9 @@ export async function runDonePreMergeGate(
 ): Promise<string> {
   // B-c622 CL-006: autoSyncMain moved before actor.can() to fix TOCTOU.
 
+  const story = store.readStory(storyId);
+  const integrationBranch = resolveStoryIntegrationTarget(gitCwd, story)?.parentBranch;
+  if (!integrationBranch) throw new Error(`Cannot enter DONE: no integration branch can be resolved for Story ${storyId}.`);
   const rendered = runDoneOracleGate(storyId, store, root, actor, gitCwd);
   verifyIdentityCutoverBeforeDoneStateMutation(gitCwd);
 
@@ -991,7 +995,7 @@ export async function runDonePreMergeGate(
       // B-e74e CHK-001: verify main worktree is on branch "main" and clean
       // BEFORE writing phase=DONE. Fails fast with the actual main worktree
       // path so recovery instructions point at the right directory.
-      const mainMergeRoot = assertMainWorktreeReadyForMerge(storyId, doneWorktree.mainRepoRoot);
+      const mainMergeRoot = assertMainWorktreeReadyForMerge(storyId, doneWorktree.mainRepoRoot, integrationBranch);
       // 仅 dry-run：用 git ls-files 读出未追踪文件，按白名单分类。
       // 发现 offender → throw（此时 story.phase 仍为 TEST）。无 offender
       // → 返回，不做任何删除，后续 Step 2.5 才会真的 rm whitelist 文件。
@@ -1024,7 +1028,7 @@ export async function runDonePreMergeGate(
           );
         }
       }
-      assertDoneMergeCanApplyBeforeStateMutation(storyId, worktreeRoot, mainMergeRoot);
+      assertDoneMergeCanApplyBeforeStateMutation(storyId, worktreeRoot, mainMergeRoot, integrationBranch);
     }
   } catch (e: any) {
     // throw 的错误信息（含 stash / worktree remove 指引）直接冒给 caller，
@@ -1101,7 +1105,9 @@ export async function applyDoneMergeEffects(
     const mergeLines: string[] = [];
     const { branch, mainRepoRoot, worktreeRoot: wtPathAbs } = doneWorktree;
     assertDoneStoryBranchMatches(storyId, branch);
-    const mainMergeRoot = assertMainWorktreeReadyForMerge(storyId, mainRepoRoot);
+    const integrationBranch = resolveStoryIntegrationTarget(mainRepoRoot, story)?.parentBranch;
+    if (!integrationBranch) throw new Error(`Cannot finish DONE: no integration branch can be resolved for Story ${storyId}.`);
+    const mainMergeRoot = assertMainWorktreeReadyForMerge(storyId, mainRepoRoot, integrationBranch);
     resolvedMainMergeRoot = mainMergeRoot;
     {
       const runGitArgs = (gitArgs: string[], cwd: string): string =>

@@ -2,11 +2,12 @@ import { createHash, randomBytes } from 'crypto';
 import { execFileSync } from 'child_process';
 import { closeSync, constants, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'path';
-import { hasProjectConfigFile, loadConfig, pickProjectConfigPath } from '../core/config.js';
+import { hasProjectConfigFile, isManagedGlobalThinRoot, loadConfig, pickProjectConfigPath } from '../core/config.js';
 import { gitProbe } from '../core/git-probe.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { StoryStore } from '../core/store.js';
 import { attestControllerConfigProjection } from '../core/controller-config-projection.js';
+import { attestControllerRuntimeProjection, CONTROLLER_RUNTIME_ASSET_PATHS } from '../core/controller-runtime-projection.js';
 
 export function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
@@ -145,6 +146,7 @@ function installConfigNoClobber(worktreeRoot: string, targetConfig: string, conf
   }
   const tempConfig = `${targetConfig}.projection-${randomBytes(6).toString('hex')}`;
   try {
+    mkdirSync(dirname(targetConfig), { recursive: true });
     writeFileSync(tempConfig, configBytes, { flag: 'wx' });
     linkSync(tempConfig, targetConfig);
     unlinkSync(tempConfig);
@@ -153,6 +155,16 @@ function installConfigNoClobber(worktreeRoot: string, targetConfig: string, conf
     rmSync(tempConfig, { force: true });
     throw error;
   }
+}
+
+function projectGlobalThinRuntimeAssets(controllerRoot: string, worktreeRoot: string, storyId: string, storyRoot: string): void {
+  if (!isManagedGlobalThinRoot(controllerRoot)) return;
+  for (const relativePath of CONTROLLER_RUNTIME_ASSET_PATHS) {
+    const source = join(controllerRoot, relativePath);
+    if (!existsSync(source)) throw new Error(`controller runtime projection requires ${relativePath}`);
+    installConfigNoClobber(worktreeRoot, join(worktreeRoot, relativePath), readRegularNoFollow(source));
+  }
+  attestControllerRuntimeProjection({ gitCwd: worktreeRoot, storyId, controllerRoot, worktreeRoot, storyRoot });
 }
 
 /**
@@ -215,6 +227,7 @@ export function projectControllerAssetsIntoStoryWorktree(input: {
     if (!lstatSync(targetStoryRoot).isDirectory() || lstatSync(targetStoryRoot).isSymbolicLink()) throw new Error('controller projection refused unsafe existing Story destination');
     attestUntrackedConfig();
     const existingConfig = installConfigNoClobber(worktreeRoot, targetConfig, configBytes);
+    projectGlobalThinRuntimeAssets(controllerRoot, worktreeRoot, input.storyId, targetStoryRoot);
     return { storyRoot: targetStoryRoot, configDigest: createHash('sha256').update(existingConfig).digest('hex') };
   }
   if (pathExistsAtHead(worktreeRoot, storyRelative)) {
@@ -227,6 +240,7 @@ export function projectControllerAssetsIntoStoryWorktree(input: {
     renameSync(tempStoryRoot, targetStoryRoot);
     attestUntrackedConfig();
     installConfigNoClobber(worktreeRoot, targetConfig, configBytes);
+    projectGlobalThinRuntimeAssets(controllerRoot, worktreeRoot, input.storyId, targetStoryRoot);
   } catch (error) {
     rmSync(tempStoryRoot, { recursive: true, force: true });
     rmSync(targetStoryRoot, { recursive: true, force: true });

@@ -16,6 +16,8 @@ import { isAcceptanceBasisPathSourceRef } from './acceptance-topology.js';
 import { getProcessFactRegistryEntry } from './process-fact-registry.js';
 import {
   acceptanceDiscoveryProfile,
+  ACCEPTANCE_GO_COMMAND_PROFILE,
+  ACCEPTANCE_PLAN_DISCOVERY_PROFILE,
   acceptanceDiscoveryFactActivationPhase,
   type AcceptanceVerificationProfile,
   type AcceptanceSourceSnapshot,
@@ -342,7 +344,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     ?? (input.supported === undefined
       ? resolveAcceptanceVerificationProfile(input.workspaceRoot)
       : input.supported ? 'typescript-topology' : 'unsupported');
-  const supported = verificationProfile === 'typescript-topology';
+  const supported = verificationProfile !== 'unsupported';
   const discoveryProfile = acceptanceDiscoveryProfile(verificationProfile);
   const initialInventory = sourceInventory(planned.records, input.contract);
   const discoverySeedFiles = stable([
@@ -351,6 +353,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
   ]);
   const discovery = runAcceptanceDiscoverySnapshot({
     supported,
+    verificationProfile,
     workspaceRoot: input.workspaceRoot,
     storyId: input.storyId,
     plannedPathRecords: planned.records,
@@ -360,7 +363,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     testHooks: input.discoveryTestHooks,
   });
   const registeredClosure = discovery.registeredClosure;
-  const reconciled = reconcileAcceptanceDiscoveryResults(discovery.adapterResults);
+  const reconciled = reconcileAcceptanceDiscoveryResults(discovery.adapterResults, verificationProfile);
   diagnostics.push(...reconciled.diagnostics);
   const inventory = stable([...initialInventory, ...registeredClosure.sourceInventoryRefs]);
   const closureSnapshot = computeClosureFilesHashFromSnapshots(planned.records, inventory, discovery.sourceSnapshots);
@@ -496,7 +499,15 @@ export function verifyAcceptanceCoverageBasis(
   if (digestAcceptanceCoverageBasis(unsignedBasis(basis)) !== basis.basisDigest) {
     diagnostics.push({ code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH', message: 'basis digest mismatch' });
   }
-  const reconciled = reconcileAcceptanceDiscoveryResults(basis.adapterResults);
+  const verificationProfile: AcceptanceVerificationProfile = basis.discoveryProfileRef === ACCEPTANCE_GO_COMMAND_PROFILE.ref
+    ? 'go-command'
+    : basis.discoveryProfileRef === ACCEPTANCE_PLAN_DISCOVERY_PROFILE.ref
+      ? 'typescript-topology'
+      : 'unsupported';
+  if (basis.discoveryProfileDigest !== discoveryProfileDigest(verificationProfile)) {
+    diagnostics.push({ code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH', message: 'discovery profile digest mismatch' });
+  }
+  const reconciled = reconcileAcceptanceDiscoveryResults(basis.adapterResults, verificationProfile);
   diagnostics.push(...reconciled.diagnostics);
   const seal = basis.snapshotSeal;
   const sealIssueCodes = new Set(['directory_changed', 'source_file_changed', 'safe_no_follow_unsupported', 'inventory_unsealable', 'snapshot_missing', 'derivation_diagnostic']);

@@ -34,6 +34,7 @@ import {
   type DirtyWorktreeEntry,
 } from '../core/dirty-worktree.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { requireRepositoryBaselineRef } from '../core/git-baseline.js';
 import { renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import type { MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
@@ -1421,7 +1422,7 @@ function isCommentLikeLine(line: string): boolean {
 }
 
 function runtimeDiffHasOnlyComments(gitCwd: string, path: string): boolean {
-  const result = gitMaybe(gitCwd, ['diff', '--unified=0', 'main...HEAD', '--', path]);
+  const result = gitMaybe(gitCwd, ['diff', '--unified=0', `${requireRepositoryBaselineRef(gitCwd)}...HEAD`, '--', path]);
   if (!result.ok) return false;
   const changed = result.output
     .split('\n')
@@ -1460,7 +1461,7 @@ function readVersionSources(root: string): Record<string, string> {
 }
 
 function detectRuntimeChanges(root: string, gitCwd: string): RuntimeChangeReport {
-  const diff = gitMaybe(gitCwd, ['diff', '--name-only', 'main...HEAD']);
+  const diff = gitMaybe(gitCwd, ['diff', '--name-only', `${requireRepositoryBaselineRef(gitCwd)}...HEAD`]);
   const changedFiles = diff.ok && diff.output.trim()
     ? diff.output.split('\n').map((line) => line.trim()).filter(Boolean)
     : [];
