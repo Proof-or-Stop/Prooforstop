@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab cli-contract-recovery - v0.3.362 - 2026-09-14
+
+Fix fresh-init prompt consumer consistency, CLI schema recovery, atomic PLAN acceptance, and missing requirements corpus handling.
+
+Fresh global-thin and thin projects now emit a canonical prompt envelope while legacy omitted configuration remains valid. Codex verification executes the same identity and role-resolution path as agent_prompt, so invalid prompt configurations fail both checks. Consumer configuration is no longer required to match this repository's exact reviewer-role occurrence inventory; semantic config parsing plus a dedicated retired-identity guard for both legacy `proofbound.` protocol names and `proofbound-` role names preserve the active identity boundary.
+
+Verification-intent help now renders nested defaults, enum values, classification metadata, and parseable examples, with complete normalized snapshots for all four public help commands. Argument-validation failures are capped at 4096 bytes while preserving an omitted-issue count and executable recovery command, and expose stable JSON recovery fields including consistent nested-space alias recovery. PLAN owners can prepare and atomically apply a multi-item files and verificationIntent batch with whole-batch digest, per-item stale checks, owner lease enforcement, initial planned-path binding, subsequent file-binding protection, signed amendment revision, and one atomic append containing every per-item process event. Event persistence failure occurs before the checklist update is published; checklist publication failure rolls back only the exact event suffix and refuses rollback if concurrent bytes changed.
+
+Missing requirements directories now produce a deterministic empty corpus with an explicit missing diagnostic and a fail-closed routing escalation. Top-level, dangling, nested, in-project and escaping requirements symlinks are rejected explicitly; non-directories and unreadable directories remain separate fail-closed errors.
+
+Verification: Lab RED/GREEN regression covering five framework contracts; TypeScript build; lifecycle registry; 414-command ownership contract; candidate-routing smoke; and the full process-fact contract.
+
+Maintenance provenance: codex/lab-cli-contract-recovery, repair c2b777a68c4b3e9014ea71f4ed6200e308ed9ed7.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/cli-contract-recovery.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-review-model-binding - v0.3.361 - 2026-09-14
 
 Problem
