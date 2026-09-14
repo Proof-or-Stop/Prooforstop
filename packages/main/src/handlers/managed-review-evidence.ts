@@ -168,6 +168,8 @@ export function createManagedReviewEvidenceHandlers(
       assertManagedReviewImportStagingClean(ctx, managedRun.storyId, gitCwd);
       const expected = {
         providerHost: managedRun.host,
+        model: managedRun.model ?? null,
+        reasoningEffort: managedRun.reasoningEffort ?? null,
         headHash: reviewRun.headHash,
         materialHash: reviewRun.materialHash,
         storyFilesHash: reviewRun.storyFilesHash ?? reviewRun.workspaceBinding?.storyFilesHash ?? '',

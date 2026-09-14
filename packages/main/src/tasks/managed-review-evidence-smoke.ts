@@ -59,7 +59,11 @@ import {
 } from '../core/native-review-evidence.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import { StoryStore } from '../core/store.js';
-import { defaultHostRunRunner, type HostRunRunner } from '../core/host-run.js';
+import {
+  defaultHostRunRunner,
+  normalizeHostRunModelSelection,
+  type HostRunRunner,
+} from '../core/host-run.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo } from '../core/types.js';
 import { createFindingHandlers } from '../handlers/finding.js';
 import { currentStoryRoutingInput } from '../handlers/candidate-spec-routing.js';
@@ -84,6 +88,10 @@ const MANAGED_REVIEW_DESCRIPTOR_CLAIM_TIMEOUT_MS = 10_000;
 const MANAGED_REVIEW_DESCRIPTOR_DEADLINE_MS = 15_000;
 const MANAGED_REVIEW_NESTED_CLAIM_DELAY_MS = 2_500;
 const CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
+const REQUESTED_CODEX_MODEL = 'gpt-5.6-terra';
+const REQUESTED_CODEX_REASONING = 'high';
+const REQUESTED_CLAUDE_MODEL = 'claude-fable-5';
+const REQUESTED_CLAUDE_REASONING = 'xhigh';
 const MANAGED_AMBIENT_AUTHORITY_KEYS = [
   'LATTICE_MANAGED_HOST_RUN_ID',
   'LATTICE_MANAGED_REVIEW_INVOCATION_FD',
@@ -1178,6 +1186,30 @@ async function assertManagedImportEnforcesCandidateReadBinding(brokerPublicKey: 
 }
 
 async function main(): Promise<void> {
+  assert.deepEqual(
+    normalizeHostRunModelSelection({ host: 'codex' }),
+    { model: null, reasoningEffort: null },
+    'omitted model selection preserves the historical default contract',
+  );
+  for (const model of ['model with whitespace', 'model\ncontrol', 'x'.repeat(257)]) {
+    assert.throws(
+      () => normalizeHostRunModelSelection({ host: 'codex', model }),
+      /--model must be a non-empty model id of at most 256 characters without whitespace or controls/,
+      'model ids that are unsafe or outside the bounded contract fail before provider launch',
+    );
+  }
+  assert.throws(
+    () => normalizeHostRunModelSelection({ host: 'codex', reasoningEffort: 'extreme' }),
+    /--reasoningEffort must be one of/,
+    'unknown reasoning effort fails before provider launch',
+  );
+  for (const reasoningEffort of ['none', 'minimal', 'ultra'] as const) {
+    assert.throws(
+      () => normalizeHostRunModelSelection({ host: 'claude', reasoningEffort }),
+      /Claude --reasoningEffort must be one of low, medium, high, xhigh, max/,
+      'Claude rejects reasoning levels that its public CLI cannot honor',
+    );
+  }
   assertHostOwnedMutationEnvDropsReviewerDispatchAuthority();
   const root = mkdtempSync(join(tmpdir(), 'managed-review-evidence-smoke-'));
   const originalCwd = process.cwd();
@@ -1260,12 +1292,14 @@ async function main(): Promise<void> {
     }).ok, true, 'registered broker signature authorizes the exact native invocation without OS ancestry');
     let deliveredPrompt = '';
     let deliveredEnvironment: NodeJS.ProcessEnv = {};
+    let deliveredArgv: string[] = [];
     let proposalRaceReady = false;
     let releaseTerminal!: () => void;
     const terminalGate = new Promise<void>(resolve => { releaseTerminal = resolve; });
     const runner: HostRunRunner = async plan => {
       deliveredPrompt = plan.stdinText ?? '';
       deliveredEnvironment = { ...plan.env };
+      deliveredArgv = [...plan.argv];
       const runId = plan.env.LATTICE_MANAGED_HOST_RUN_ID!;
       const proposalBarrier = join(root, `${runId}-proposal.go`);
       const workers = [0, 1].map(index => {
@@ -1292,17 +1326,25 @@ async function main(): Promise<void> {
       return { stdout: '{}\n', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' };
     };
     const hostHandlers = createHostRunHandlers({ store, root, scanRoot: join(root, 'packages/main') }, { runner });
-    const detached = await hostHandlers.host_run({
+    const managedSelectionRequest = {
       host: 'codex',
       storyId: STORY_ID,
       agentType: LANE,
       reviewRunId: REVIEW_RUN_ID,
       lane: LANE,
+      model: REQUESTED_CODEX_MODEL,
+      reasoningEffort: REQUESTED_CODEX_REASONING,
       managedReview: true,
       detach: true,
       deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS,
       json: true,
-    }) as HostRunDetachResult;
+    } as const;
+    const detached = await hostHandlers.host_run(managedSelectionRequest) as HostRunDetachResult;
+    await assert.rejects(
+      hostHandlers.host_run({ ...managedSelectionRequest, model: 'gpt-5.6-sol' }),
+      /idempotency input conflict; keep the original run/,
+      'resubmitting one review identity with a different model cannot silently reuse or replace the original run',
+    );
     const submitted = detached.run;
     assert.match(deliveredPrompt, /BEGIN MANAGED REVIEW EVIDENCE PROTOCOL/);
     assert.match(deliveredPrompt, /overrides any generic reviewer-role instruction/i,
@@ -1312,6 +1354,18 @@ async function main(): Promise<void> {
       deliveredEnvironment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY ?? '',
       /^[A-Za-z0-9+/]{43}=$/,
       'the provider receives an unguessable proposal bearer capability distinct from runId',
+    );
+    const codexModelIndex = deliveredArgv.indexOf('--model');
+    const codexReasoningIndex = deliveredArgv.indexOf('--config');
+    assert.deepEqual(
+      deliveredArgv.slice(codexModelIndex, codexModelIndex + 2),
+      ['--model', REQUESTED_CODEX_MODEL],
+      'managed review model selection reaches the exact Codex invocation',
+    );
+    assert.deepEqual(
+      deliveredArgv.slice(codexReasoningIndex, codexReasoningIndex + 2),
+      ['--config', `model_reasoning_effort="${REQUESTED_CODEX_REASONING}"`],
+      'managed review reasoning selection reaches the exact Codex invocation',
     );
     await eventually(async () => proposalRaceReady, 'real proposal workers did not finish before the terminal/import race');
     const importBarrier = join(root, 'import-barrier.go');
@@ -1334,6 +1388,30 @@ async function main(): Promise<void> {
       return status.run.state === 'completed';
     }, 'managed reviewer did not complete');
     const receipt = managedHostRunReceipt(root, submitted.runId);
+    const selectedRunBinding = readManagedHostRunBinding(root, submitted.runId) as ReturnType<typeof readManagedHostRunBinding> & {
+      model?: string | null;
+      reasoningEffort?: string | null;
+    };
+    const selectedReceipt = receipt as typeof receipt & { model?: string | null; reasoningEffort?: string | null };
+    const selectedResult = readManagedHostRunResult(root, submitted.runId) as (ReturnType<typeof readManagedHostRunResult> & {
+      model?: string | null;
+      reasoningEffort?: string | null;
+    });
+    assert.deepEqual(
+      [selectedRunBinding.model, selectedRunBinding.reasoningEffort],
+      [REQUESTED_CODEX_MODEL, REQUESTED_CODEX_REASONING],
+      'managed review model selection is sealed in the immutable run binding',
+    );
+    assert.deepEqual(
+      [selectedReceipt.model, selectedReceipt.reasoningEffort],
+      [REQUESTED_CODEX_MODEL, REQUESTED_CODEX_REASONING],
+      'managed review model selection is sealed in the terminal receipt',
+    );
+    assert.deepEqual(
+      [selectedResult?.model, selectedResult?.reasoningEffort],
+      [REQUESTED_CODEX_MODEL, REQUESTED_CODEX_REASONING],
+      'managed review result records the exact launched model selection',
+    );
     assert.deepEqual(await Promise.all(importWorkers.map(worker => worker.exit)), [0, 0],
       'real importer processes waiting before terminal creation both converge cleanly after the exclusive receipt appears');
     const concurrentImportResults = importWorkers.map(worker => readFileSync(worker.resultPath, 'utf8'));
@@ -1358,6 +1436,8 @@ async function main(): Promise<void> {
       const managedBinding = readManagedHostRunBinding(root, submitted.runId);
       const expectedBinding: ManagedReviewExpectedBinding = {
         providerHost: managedBinding.host,
+        model: managedBinding.model ?? null,
+        reasoningEffort: managedBinding.reasoningEffort ?? null,
         headHash: run.headHash,
         materialHash: run.materialHash,
         storyFilesHash: run.storyFilesHash ?? '',
@@ -1394,6 +1474,8 @@ async function main(): Promise<void> {
         { name: 'lane', mutateIntake: value => ({ ...value, lane: 'proof-or-stop-review-concept' }), mutateBinding: value => ({ ...value!, lane: 'proof-or-stop-review-concept' }) },
         { name: 'reviewRun', mutateIntake: value => ({ ...value, reviewRunId: `${STORY_ID}:RR-999` }), mutateBinding: value => ({ ...value!, reviewRunId: `${STORY_ID}:RR-999` }) },
         { name: 'provider', mutateIntake: value => ({ ...value, expected: { ...value.expected, providerHost: 'claude' } }), mutateBinding: value => ({ ...value!, providerHost: 'claude' }) },
+        { name: 'model', mutateIntake: value => ({ ...value, expected: { ...value.expected, model: 'different-model' } }), mutateBinding: value => ({ ...value!, model: 'different-model' }) },
+        { name: 'reasoningEffort', mutateIntake: value => ({ ...value, expected: { ...value.expected, reasoningEffort: 'low' } }), mutateBinding: value => ({ ...value!, reasoningEffort: 'low' }) },
         { name: 'head', mutateIntake: value => ({ ...value, expected: { ...value.expected, headHash: 'other-head' } }), mutateBinding: value => ({ ...value!, headHash: 'other-head' }) },
         { name: 'material', mutateIntake: value => ({ ...value, expected: { ...value.expected, materialHash: 'other-material' } }), mutateBinding: value => ({ ...value!, materialHash: 'other-material' }) },
         { name: 'storyFiles', mutateIntake: value => ({ ...value, expected: { ...value.expected, storyFilesHash: 'other-story-files' } }), mutateBinding: value => ({ ...value!, storyFilesHash: 'other-story-files' }) },
@@ -1724,6 +1806,20 @@ async function main(): Promise<void> {
         const schemaIndex = plan.argv.indexOf('--json-schema');
         assert.ok(schemaIndex >= 0 && typeof plan.argv[schemaIndex + 1] === 'string',
           'public managed Claude launch supplies its bounded structured-output schema');
+        const modelIndex = plan.argv.indexOf('--model');
+        const effortIndex = plan.argv.indexOf('--effort');
+        assert.deepEqual(plan.argv.slice(modelIndex, modelIndex + 2), ['--model', REQUESTED_CLAUDE_MODEL],
+          'managed review model selection reaches the exact Claude invocation');
+        assert.deepEqual(plan.argv.slice(effortIndex, effortIndex + 2), ['--effort', REQUESTED_CLAUDE_REASONING],
+          'managed review reasoning selection reaches the exact Claude invocation');
+        assert.deepEqual(plan.argv, [
+          '--print', '--verbose', '--output-format=stream-json',
+          '--model', REQUESTED_CLAUDE_MODEL,
+          '--effort', REQUESTED_CLAUDE_REASONING,
+          '--permission-mode', 'bypassPermissions',
+          '--json-schema', plan.argv[schemaIndex + 1]!,
+          claudePromptFile,
+        ], 'managed Claude model selection preserves the complete canonical argv');
         const fencedProse = `Review complete.\n\`\`\`json\n${finalEnvelopeFor(REVIEW_RUN_ID)}\n\`\`\``;
         return defaultHostRunRunner({
           ...plan,
@@ -1738,7 +1834,11 @@ async function main(): Promise<void> {
       } },
     ).host_run({
       host: 'claude', storyId: STORY_ID, agentType: LANE, reviewRunId: REVIEW_RUN_ID, lane: LANE,
+      model: REQUESTED_CLAUDE_MODEL, reasoningEffort: REQUESTED_CLAUDE_REASONING,
       managedReview: true, detach: true, deadlineMs: 5_000, json: true,
+    } as Parameters<ReturnType<typeof createHostRunHandlers>['host_run']>[0] & {
+      model: string;
+      reasoningEffort: string;
     }) as HostRunDetachResult;
     await eventually(async () => (await getManagedHostRunStatus({ root, runId: claudeManagedRun.run.runId })).run.terminal !== null,
       'public managed Claude transport did not reach terminal');
@@ -1747,6 +1847,12 @@ async function main(): Promise<void> {
     const claudeManagedReceipt = managedHostRunReceipt(root, claudeManagedRun.run.runId);
     assert.equal(claudeManagedReceipt.state, 'completed', 'Claude final proposal retains strict managed terminal semantics');
     assert.match(claudeManagedReceipt.evidenceProposalDigest ?? '', /^sha256:/);
+    assert.deepEqual(
+      [(claudeManagedReceipt as typeof claudeManagedReceipt & { model?: string }).model,
+        (claudeManagedReceipt as typeof claudeManagedReceipt & { reasoningEffort?: string }).reasoningEffort],
+      [REQUESTED_CLAUDE_MODEL, REQUESTED_CLAUDE_REASONING],
+      'Claude managed receipt seals the exact launched model selection',
+    );
     assert.match(
       handlers.managed_review_evidence_import({ runId: claudeManagedRun.run.runId, receiptId: claudeManagedReceipt.receiptId }),
       /Managed review evidence imported/,
@@ -2531,6 +2637,8 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     const managedBinding = readManagedHostRunBinding(root, submitted.runId);
     const expectedBinding: ManagedReviewExpectedBinding = {
       providerHost: managedBinding.host,
+      model: managedBinding.model ?? null,
+      reasoningEffort: managedBinding.reasoningEffort ?? null,
       headHash: run.headHash,
       materialHash: run.materialHash,
       storyFilesHash: run.storyFilesHash ?? '',
@@ -2538,6 +2646,27 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       envelopeId: run.envelopeId ?? null,
       managedPromptDigest: managedBinding.promptDigest,
     };
+    const verifySelectedBinding = (
+      binding: NonNullable<typeof passes[0]>['managedEvidenceBinding'],
+    ) => verifyManagedReviewEvidence({
+      root,
+      storyId: STORY_ID,
+      agent: LANE,
+      lane: LANE,
+      reviewRunId: REVIEW_RUN_ID,
+      binding: binding!,
+      expected: expectedBinding,
+    });
+    assert.equal(
+      verifySelectedBinding({ ...passes[0]!.managedEvidenceBinding!, model: 'different-model' }).valid,
+      false,
+      'REVIEW verification rejects a persisted model that differs from the sealed spec, receipt, and result',
+    );
+    assert.equal(
+      verifySelectedBinding({ ...passes[0]!.managedEvidenceBinding!, reasoningEffort: 'low' }).valid,
+      false,
+      'REVIEW verification rejects persisted reasoning that differs from the sealed spec, receipt, and result',
+    );
     type IntakeArgs = Parameters<typeof createManagedReviewEvidenceBinding>[0];
     const exactIntake: IntakeArgs = {
       root,

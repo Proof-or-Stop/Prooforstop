@@ -21,6 +21,8 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'host install': 'host_install',
   'host dispatch': 'host_dispatch',
   'usage sweep': 'usage_sweep',
+  'plan acceptance prepare': 'plan_acceptance_prepare',
+  'plan acceptance apply': 'plan_acceptance_apply',
   'dispatch plan': 'dispatch_plan',
   'dispatch prepare': 'dispatch_prepare',
   'dispatch run': 'dispatch_run',

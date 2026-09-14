@@ -1,5 +1,55 @@
 # Changelog
 
+## Lab init-product-review-phase-contract - v0.3.363 - 2026-09-14
+
+Fix the INIT lifecycle deadlock where the required product reviewer asked for implementation and delivery transcripts before the Story worktree could be created.
+
+The product INIT contract now reviews concrete user outcomes, executable verification intent, requirements, scope, compatibility, and safety boundaries. It explicitly permits planned evidence before implementation. A signed structured issue kind distinguishes post-implementation evidence gaps from genuine INIT blockers; post-implementation-only gaps remain visible but cannot block INIT_CHECK, while legacy high issues and real INIT deficiencies remain fail-closed. Final transcript and delivery evidence checks remain assigned to the TEST-phase delivery reviewer.
+
+Verification passed: the product reviewer regression covers both agent_prompt --readOnly and dispatch, issue-kind persistence, deferred evidence handling, true blocker behavior, and legacy compatibility. The INIT required-agents lifecycle smoke proves story_advance reaches INIT_CHECK with a deferred high evidence gap and still blocks a genuine high product gap. The init fallback smoke, full TypeScript build, and process-fact contract also passed.
+
+Maintenance provenance: codex/lab-init-product-review-phase-contract, repair 55e1df33704dc167fff1dba17df577be2dadd348.
+Verification command (replayed before integration and on main): `["node","scripts/verify-product-reviewer.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab cli-contract-recovery - v0.3.362 - 2026-09-14
+
+Fix fresh-init prompt consumer consistency, CLI schema recovery, atomic PLAN acceptance, and missing requirements corpus handling.
+
+Fresh global-thin and thin projects now emit a canonical prompt envelope while legacy omitted configuration remains valid. Codex verification executes the same identity and role-resolution path as agent_prompt, so invalid prompt configurations fail both checks. Consumer configuration is no longer required to match this repository's exact reviewer-role occurrence inventory; semantic config parsing plus a dedicated retired-identity guard for both legacy `proofbound.` protocol names and `proofbound-` role names preserve the active identity boundary.
+
+Verification-intent help now renders nested defaults, enum values, classification metadata, and parseable examples, with complete normalized snapshots for all four public help commands. Argument-validation failures are capped at 4096 bytes while preserving an omitted-issue count and executable recovery command, and expose stable JSON recovery fields including consistent nested-space alias recovery. PLAN owners can prepare and atomically apply a multi-item files and verificationIntent batch with whole-batch digest, per-item stale checks, owner lease enforcement, initial planned-path binding, subsequent file-binding protection, signed amendment revision, and one atomic append containing every per-item process event. Event persistence failure occurs before the checklist update is published; checklist publication failure rolls back only the exact event suffix and refuses rollback if concurrent bytes changed.
+
+Missing requirements directories now produce a deterministic empty corpus with an explicit missing diagnostic and a fail-closed routing escalation. Top-level, dangling, nested, in-project and escaping requirements symlinks are rejected explicitly; non-directories and unreadable directories remain separate fail-closed errors.
+
+Verification: Lab RED/GREEN regression covering five framework contracts; TypeScript build; lifecycle registry; 414-command ownership contract; candidate-routing smoke; and the full process-fact contract.
+
+Maintenance provenance: codex/lab-cli-contract-recovery, repair c2b777a68c4b3e9014ea71f4ed6200e308ed9ed7.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/cli-contract-recovery.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-review-model-binding - v0.3.361 - 2026-09-14
+
+Problem
+
+Managed host review could not request and prove an exact provider model and reasoning effort. The public managed-review path therefore could not guarantee that a requested Codex or Claude reviewer configuration was the one sealed into formal review evidence.
+
+Fix
+
+Add optional model and reasoningEffort inputs to host_run, validate them per provider, place them on the protected provider argv, and seal them through the managed run specification, binding projection, result, terminal receipt, import verifier, and REVIEW consumer. Historical runs without these fields remain byte-compatible and normalize to an omitted selection.
+
+Verification
+
+The Lab RED proved the public options were absent. The focused model-selection smoke now covers exact argv propagation, omitted-selector compatibility, historical field absence, model and reasoning mismatch rejection, invalid selector rejection, and idempotency conflict. The main and utils builds, process-fact contract, Lab GREEN replay, and independent Anthropic audit passed.
+
+Measured Optimization
+
+Not applicable. This repair strengthens managed-review selection and evidence integrity without changing the provider execution count or performance contract.
+
+Maintenance provenance: codex/lab-managed-review-model-binding, repair 79b3d6821726b858036973f8889e646fef533f22.
+Verification command (replayed before integration and on main): `["node","-e","const{spawnSync}=require('child_process');const r=spawnSync(process.execPath,['bin/proof-or-stop.js','host_run','--help'],{encoding:'utf8'});const s=(r.stdout||'')+(r.stderr||'');if(r.status!==0||!s.includes('--model')||!s.includes('--reasoningEffort')){console.error('managed review model selection is unavailable');process.exit(1)}console.log('managed review model selection available')"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-top5-performance - v0.3.360 - 2026-09-13
 
 Reduce repeated validation identity and planning work while preserving fresh execution checks.

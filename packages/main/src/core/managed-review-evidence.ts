@@ -15,6 +15,7 @@ import {
   readManagedReviewImportSeal,
   managedHostRunReceipt,
   readManagedHostRunBinding,
+  readManagedHostRunResult,
   readManagedReviewEvidenceProposal,
   type ManagedHostRunReceipt,
   type ManagedReviewEvidenceProposal,
@@ -51,6 +52,8 @@ function rawSha256(text: string): string {
 
 export interface ManagedReviewExpectedBinding {
   providerHost: 'codex' | 'claude' | 'agy';
+  model?: string | null;
+  reasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max' | 'ultra' | null;
   headHash: string;
   materialHash: string;
   storyFilesHash: string;
@@ -659,6 +662,24 @@ export function verifyManagedReviewEvidence(args: {
     && (proposal?.inventoryCritic === undefined || isManagedInventoryCritic(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0))
     && Number.isFinite(Date.parse(args.binding.importedAt))
     && args.binding.providerHost === args.expected.providerHost;
+  let result: ReturnType<typeof readManagedHostRunResult> = null;
+  try {
+    result = runDirectoryReclaimed ? null : readManagedHostRunResult(args.root, args.binding.runId);
+  } catch (error) {
+    const diagnostic = failedDiagnostic();
+    const cause = error instanceof Error ? error.message : String(error);
+    return { valid: false, reason: `${diagnostic.reasons.join(',')} (result read failed: ${cause})`, diagnostic, receipt: null, proposal: null };
+  }
+  const expectedModel = args.expected.model ?? null;
+  const expectedReasoningEffort = args.expected.reasoningEffort ?? null;
+  const modelSelectionMatches = (args.binding.model ?? null) === expectedModel
+    && (args.binding.reasoningEffort ?? null) === expectedReasoningEffort
+    && (runBinding.model ?? null) === expectedModel
+    && (runBinding.reasoningEffort ?? null) === expectedReasoningEffort
+    && (receipt.model ?? null) === expectedModel
+    && (receipt.reasoningEffort ?? null) === expectedReasoningEffort
+    && (result === null || ((result.model ?? null) === expectedModel
+      && (result.reasoningEffort ?? null) === expectedReasoningEffort));
   const exactEvidenceMatches = (() => {
     if (!args.evidence) return true;
     if (!proposal) return false;
@@ -791,6 +812,7 @@ export function verifyManagedReviewEvidence(args: {
   const sealedManagedPromptDigest = runBinding.reviewBinding?.managedPromptDigest;
 
   const reviewTupleMatches = runBinding.reviewBinding !== null
+    && modelSelectionMatches
     && runBinding.reviewBinding.headHash === args.expected.headHash
     && runBinding.reviewBinding.materialHash === args.expected.materialHash
     && runBinding.reviewBinding.storyFilesHash === args.expected.storyFilesHash
@@ -860,6 +882,8 @@ export function createManagedReviewEvidenceBinding(args: {
     importedAt: args.importedAt ?? new Date().toISOString(),
     providerAgent: args.providerAgent,
     providerHost: args.expected.providerHost,
+    model: args.expected.model ?? null,
+    reasoningEffort: args.expected.reasoningEffort ?? null,
     lane: args.lane,
     reviewRunId: args.reviewRunId,
     headHash: args.expected.headHash,

@@ -22,6 +22,7 @@ Your input is **only**:
 - `storyId` (passed via prompt, e.g. `B-xxxx`)
 - `git diff main...HEAD` output (you run this yourself)
 - Files in the repository reachable via Read/Grep/Glob
+- If present, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`, the canonical executed user-facing transcript
 
 **You do NOT receive and MUST NOT rely on**:
 
@@ -84,6 +85,7 @@ Mark with a concrete `verifiedBy` method (e.g. "diff/grep") and `evidence` when 
 
 For each checklist item that represents a feature (not pure docs or config), check whether there is test evidence:
 
+- Inspect the canonical live-smoke transcript when present; absence remains legacy-compatible and does not by itself prove failure.
 - Search for test files in the diff (`*.test.ts`, `*.spec.ts`)
 - Check if test files contain actual assertions (not just empty describe blocks)
 - Check if the test covers the feature core behavior, not just a trivial case

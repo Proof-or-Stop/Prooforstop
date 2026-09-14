@@ -45,6 +45,8 @@ export interface CorpusIndexArtifact {
   requirementsDir: string;
   entries: CorpusIndexEntry[];
   corpusDigest: string;
+  corpusStatus: 'present' | 'missing';
+  diagnostic?: string;
 }
 
 export interface KeywordSeed {
@@ -146,6 +148,9 @@ export interface CandidateSpecSetArtifact {
   schemaVersion: typeof CANDIDATE_SET_SCHEMA;
   storyId: string;
   corpusDigest: string;
+  /** Added to newly routed artifacts; absence is legacy-compatible and means the historical present/empty distinction was unavailable. */
+  corpusStatus?: 'present' | 'missing';
+  corpusDiagnostic?: string;
   seedDigest: string;
   promptDigests: string[];
   mode: 'shadow' | 'warn' | 'enforce';
@@ -249,17 +254,24 @@ function safeRelativePath(value: string, label: string): string {
 function walkMarkdown(root: string, dir: string): string[] {
   const absolute = resolve(root, dir);
   const rootReal = realpathSync(root);
+  let rootStat;
+  try {
+    rootStat = lstatSync(absolute);
+  } catch (error: any) {
+    if (error?.code === 'ENOENT') return [];
+    throw error;
+  }
+  if (rootStat.isSymbolicLink()) throw new Error(`requirementsDir must not be a symbolic link: ${dir}`);
   const dirReal = realpathSync(absolute);
   if (relative(rootReal, dirReal).startsWith('..')) throw new Error('requirementsDir escapes project root');
+  if (!rootStat.isDirectory()) throw new Error(`requirementsDir is not a directory: ${dir}`);
   const result: string[] = [];
   const visit = (current: string): void => {
     for (const name of readdirSync(current).sort((a, b) => a.localeCompare(b, 'en'))) {
       const file = join(current, name);
       const stat = lstatSync(file);
       if (stat.isSymbolicLink()) {
-        const target = realpathSync(file);
-        if (relative(rootReal, target).startsWith('..')) throw new Error(`requirements symlink escapes project root: ${file}`);
-        continue;
+        throw new Error(`requirements corpus must not contain a symbolic link: ${relative(rootReal, file)}`);
       }
       if (stat.isDirectory()) visit(file);
       else if (stat.isFile() && name.toLowerCase().endsWith('.md')) result.push(relative(rootReal, file).replace(/\\/g, '/'));
@@ -284,6 +296,15 @@ function statusHints(path: string, headings: string[]): string[] {
 
 export function buildCorpusIndex(projectRoot: string, requirementsDir = 'docs/requirements'): CorpusIndexArtifact {
   const normalizedDir = safeRelativePath(requirementsDir, 'requirementsDir');
+  const absoluteDir = resolve(projectRoot, normalizedDir);
+  let missing = false;
+  try {
+    const topLevel = lstatSync(absoluteDir);
+    if (topLevel.isSymbolicLink()) throw new Error(`requirementsDir must not be a symbolic link: ${normalizedDir}`);
+  } catch (error: any) {
+    if (error?.code === 'ENOENT') missing = true;
+    else throw error;
+  }
   const entries = walkMarkdown(projectRoot, normalizedDir).map(path => {
     const bytes = readFileSync(join(projectRoot, path));
     const text = bytes.toString('utf8');
@@ -302,6 +323,8 @@ export function buildCorpusIndex(projectRoot: string, requirementsDir = 'docs/re
     requirementsDir: normalizedDir,
     entries,
     corpusDigest: digestCandidateRoutingValue(entries),
+    corpusStatus: missing ? 'missing' : 'present',
+    ...(missing ? { diagnostic: `requirements corpus is missing at ${normalizedDir}; create the directory and rerun candidate_spec_route` } : {}),
   };
 }
 
@@ -704,7 +727,7 @@ export function routeCandidateSpecs(args: {
 
   const ambiguitySignals: string[] = [];
   const genericOnlyFiltered = ranked.length === 0 && filteredTerms.some(term => term.reason === 'overbroad') && queryGroups.length === 0;
-  if (ranked.length === 0 && !genericOnlyFiltered) ambiguitySignals.push('zero_candidates');
+  if (ranked.length === 0 && !genericOnlyFiltered && args.corpus.corpusStatus !== 'missing') ambiguitySignals.push('zero_candidates');
   if (genericOnlyFiltered) ambiguitySignals.push('generic_only_filtered_bounded');
   const ordinaryReasonKinds = new Set(ordinaryRanked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
   if (ordinaryRanked.length > 0 && ordinaryReasonKinds.size < 2 && protectedRanked.length === 0) ambiguitySignals.push('weak_source_class_coverage');
@@ -721,6 +744,7 @@ export function routeCandidateSpecs(args: {
     .filter(term => !args.corpus.entries.some(entry => searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')).includes(term)));
   const highRiskRouting = (args.riskSignals ?? []).some(signal => /lifecycle|state.?machine|guard|gate|process.?fact|global.?rename|breaking.?rename|security|credential|\bauth\b|production|emergency/i.test(signal));
   const escalationReasons = [
+    ...(args.corpus.corpusStatus === 'missing' ? ['requirements_corpus_missing'] : []),
     ...(ambiguitySignals.includes('zero_candidates') ? ['zero_candidates'] : []),
     ...(rankingAffectingTruncation ? ['ranking_affecting_query_truncation'] : []),
     ...(cutoffTie ? ['candidate_cutoff_tie'] : []),
@@ -746,6 +770,8 @@ export function routeCandidateSpecs(args: {
     schemaVersion: CANDIDATE_SET_SCHEMA,
     storyId: args.storyId,
     corpusDigest: args.corpus.corpusDigest,
+    corpusStatus: args.corpus.corpusStatus,
+    ...(args.corpus.diagnostic ? { corpusDiagnostic: args.corpus.diagnostic } : {}),
     seedDigest: args.seeds.seedDigest,
     promptDigests: proposals.map(proposal => proposal.promptDigest).sort(),
     mode: args.mode ?? 'enforce',
@@ -833,6 +859,8 @@ export function verifyCandidateSpecSet(value: unknown): value is CandidateSpecSe
   if (!isRecord(artifact.rankingPolicy) || !Number.isFinite(artifact.rankingPolicy.minRankingAffectingCutoffScore)) return false;
   if (!isStringArray(artifact.promptDigests) || !isStringArray(artifact.ambiguitySignals) || !isStringArray(artifact.escalationReasons)) return false;
   if (typeof artifact.storyId !== 'string' || typeof artifact.corpusDigest !== 'string'
+    || (artifact.corpusStatus !== undefined && artifact.corpusStatus !== 'present' && artifact.corpusStatus !== 'missing')
+    || (artifact.corpusDiagnostic !== undefined && typeof artifact.corpusDiagnostic !== 'string')
     || typeof artifact.seedDigest !== 'string' || typeof artifact.storyInputDigest !== 'string'
     || typeof artifact.headHash !== 'string' || typeof artifact.materialHash !== 'string'
     || typeof artifact.artifactDigest !== 'string'

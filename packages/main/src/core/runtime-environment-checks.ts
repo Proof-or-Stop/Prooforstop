@@ -361,8 +361,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
   'packages/main/src/core/evidence-freshness.ts': '6eca17a48ac39083a7a601c52b49eb24300fad0ac5a7628efb12f8096d644df7',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
-  'packages/main/src/core/verification-execution-evidence.ts': 'aa21ac01ed31b93750d0935db3664af8c10aaeb1b545d247180e5d7d69671403',
-  'packages/main/src/handlers/checklist.ts': 'a56b5501cab44c9adf71f2196865a1bc842c86046b5a1b9641ec0635ccec8392',
+  'packages/main/src/core/verification-execution-evidence.ts': '2f9f9fa37e64b41c1a164fb064da3df080b999a4a1e5689b83e927c8a39447bc',
+  'packages/main/src/handlers/checklist.ts': '270df69b09473178629c84322db23473e82765b81b5dbe0d06beb7b9de7df4b9',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
@@ -851,7 +851,6 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       runtimeSource('packages/main/src/handlers/story-dispatch.ts'),
       runtimeSource('packages/main/src/cli-init.ts'),
       projectSource('docs/requirements/baselines/role-prompt-measurement-baseline.json'),
-      projectSource('proof-or-stop.config.json'),
       ...[
         'proof-or-stop-evaluator.md',
         'proof-or-stop-implementer.md',
@@ -981,19 +980,6 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.role-contract.v1", "proof-or-stop.role-contract.v1", "proofbound.role-contract.v1", "proofbound.role-contract.v1", undefined, { canonical: 18, retired: 0 }),
       identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.signed-process-facts.v1", "proof-or-stop.signed-process-facts.v1", "proofbound.signed-process-facts.v1", "proofbound.signed-process-facts.v1", undefined, { canonical: 1, retired: 0 }),
       identitySite("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.story-owner-boundaries.v1", "proof-or-stop.story-owner-boundaries.v1", "proofbound.story-owner-boundaries.v1", "proofbound.story-owner-boundaries.v1", undefined, { canonical: 1, retired: 0 }),
-      identitySite('proof-or-stop.config.json', 'proof-or-stop.prompt-envelope-rollout.v1'),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-evaluator", "proof-or-stop-evaluator", "proofbound-evaluator", "proofbound-evaluator", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-implementer", "proof-or-stop-implementer", "proofbound-implementer", "proofbound-implementer", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-behavior", "proof-or-stop-review-behavior", "proofbound-review-behavior", "proofbound-review-behavior", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-concept", "proof-or-stop-review-concept", "proofbound-review-concept", "proofbound-review-concept", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-delivery", "proof-or-stop-review-delivery", "proofbound-review-delivery", "proofbound-review-delivery", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-docs", "proof-or-stop-review-docs", "proofbound-review-docs", "proofbound-review-docs", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-quality", "proof-or-stop-review-quality", "proofbound-review-quality", "proofbound-review-quality", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-scope-plan", "proof-or-stop-review-scope-plan", "proofbound-review-scope-plan", "proofbound-review-scope-plan", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-story-init", "proof-or-stop-review-story-init", "proofbound-review-story-init", "proofbound-review-story-init", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-test-coverage", "proof-or-stop-review-test-coverage", "proofbound-review-test-coverage", "proofbound-review-test-coverage", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 1, retired: 0 }),
-      identitySite("proof-or-stop.config.json", "proof-or-stop.config.json", "proof-or-stop.config.json", "proofbound.config.json", "proofbound.config.json", undefined, { canonical: 13, retired: 0 }),
       identitySite('packages/main/templates/agents/proof-or-stop-evaluator.md', 'proof-or-stop-evaluator'),
       identitySite('packages/main/templates/agents/proof-or-stop-implementer.md', 'proof-or-stop-implementer'),
       identitySite('packages/main/templates/agents/proof-or-stop-review-behavior.md', 'proof-or-stop-review-behavior'),
@@ -1104,19 +1090,6 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.role-contract.v1"),
       identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.signed-process-facts.v1"),
       identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop.story-owner-boundaries.v1"),
-      identityMutationCase('proof-or-stop.config.json', 'proof-or-stop.prompt-envelope-rollout.v1'),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-evaluator"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-implementer"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-behavior"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-concept"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-delivery"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-docs"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-quality"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-scope-plan"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-story-init"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-test-coverage"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop-review-topology-critic"),
-      identityMutationCase("proof-or-stop.config.json", "proof-or-stop.config.json"),
       identityMutationCase('packages/main/templates/agents/proof-or-stop-evaluator.md', 'proof-or-stop-evaluator'),
       identityMutationCase('packages/main/templates/agents/proof-or-stop-implementer.md', 'proof-or-stop-implementer'),
       identityMutationCase('packages/main/templates/agents/proof-or-stop-review-behavior.md', 'proof-or-stop-review-behavior'),
@@ -1188,6 +1161,36 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
 ] satisfies readonly ActiveIdentityOperationBoundary[]);
 
 const RETIRED_ACTIVE_PROTOCOL_PREFIX = ['proof', 'bound.'].join('');
+const RETIRED_ACTIVE_ROLE_PREFIX = ['proof', 'bound-'].join('');
+
+function assertNoRetiredPromptConfigIdentity(projectRoot: string, label: string): void {
+  const configPath = resolve(projectRoot, 'proof-or-stop.config.json');
+  if (!existsSync(configPath) || !statSync(configPath).isFile()) return;
+  const configBytes = readFileSync(configPath, 'utf8');
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(configBytes);
+  } catch {
+    return; // loadConfig owns malformed JSON and duplicate-key diagnostics.
+  }
+  const envelope = parsed && typeof parsed === 'object'
+    ? (parsed as { promptEnvelope?: unknown }).promptEnvelope
+    : undefined;
+  if (!envelope || typeof envelope !== 'object') return;
+  const version = (envelope as { version?: unknown }).version;
+  const roles = (envelope as { roles?: unknown }).roles;
+  const identities = [
+    ...(typeof version === 'string' ? [version] : []),
+    ...(roles && typeof roles === 'object' ? Object.keys(roles) : []),
+  ];
+  const offendingIdentity = identities.find(identity =>
+    identity.startsWith(RETIRED_ACTIVE_PROTOCOL_PREFIX) || identity.startsWith(RETIRED_ACTIVE_ROLE_PREFIX));
+  if (!offendingIdentity) return;
+  throw new Error(
+    `retired active protocol identity ${JSON.stringify(offendingIdentity)} at proof-or-stop.config.json is not admitted by ${label}; ` +
+    `restore the canonical proof-or-stop.* runtime before retrying`,
+  );
+}
 
 // This exact source fragment is mutation-input data, not an active schema
 // reader. Its byte/count witness grants no exemption to surrounding code.
@@ -1220,6 +1223,9 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 }): void {
   const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
   const projectRoot = resolve(input.projectRoot);
+  if (['agent_prompt', 'dispatch', 'prompt_measurement_report'].includes(input.command)) {
+    assertNoRetiredPromptConfigIdentity(projectRoot, input.command);
+  }
   for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
     if (!boundary.commands.includes(input.command)) continue;
     for (const registeredPath of boundary.paths) {
@@ -1345,6 +1351,7 @@ export function assertCanonicalActiveIdentityBoundary(input: {
   if (!boundary) throw new Error(`unregistered active identity operation boundary: ${input.boundaryId}`);
   const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
   const projectRoot = resolve(input.projectRoot ?? process.cwd());
+  if (boundaryId === 'prompt-runtime') assertNoRetiredPromptConfigIdentity(projectRoot, boundaryId);
   const sourceSnapshots = new Map<string, string>();
   const executableSources = new Map<string, string>();
   for (const site of boundary.identitySites) {

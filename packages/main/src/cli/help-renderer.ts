@@ -1,10 +1,12 @@
 import {
   ZodArray,
   ZodBoolean,
+  ZodDefault,
   ZodEnum,
   ZodNumber,
   ZodObject,
   ZodOptional,
+  ZodPipe,
   ZodString,
   type ZodIssue,
   type ZodType,
@@ -48,8 +50,44 @@ export type GlobalHelpOptions = {
   full?: boolean;
 };
 
+function unwrapForHelp(t: ZodType): { inner: ZodType; optional: boolean; hasDefault: boolean; defaultValue?: unknown } {
+  let inner = t;
+  let optional = false;
+  let hasDefault = false;
+  let defaultValue: unknown;
+  const seen = new Set<ZodType>();
+  while (!seen.has(inner)) {
+    seen.add(inner);
+    if (inner instanceof ZodOptional) {
+      optional = true;
+      inner = (inner as any)._def.innerType;
+      continue;
+    }
+    if (inner instanceof ZodDefault) {
+      optional = true;
+      hasDefault = true;
+      defaultValue = (inner as any)._def.defaultValue;
+      inner = (inner as any)._def.innerType;
+      continue;
+    }
+    if (inner instanceof ZodPipe) {
+      inner = (inner as any)._def.out;
+      continue;
+    }
+    break;
+  }
+  return { inner, optional, hasDefault, defaultValue };
+}
+
+function defaultHelpSuffix(info: ReturnType<typeof unwrapForHelp>): string {
+  if (!info.hasDefault) return '';
+  const rendered = JSON.stringify(info.defaultValue);
+  return ` (default: ${rendered === undefined ? String(info.defaultValue) : rendered})`;
+}
+
 function describeType(t: ZodType): string {
-  if (t instanceof ZodOptional) return describeType((t as any)._def.innerType);
+  const { inner } = unwrapForHelp(t);
+  if (inner !== t) return describeType(inner);
   if (t instanceof ZodString) return 'string';
   if (t instanceof ZodNumber) return 'number';
   if (t instanceof ZodBoolean) return 'boolean';
@@ -68,10 +106,6 @@ function isHiddenHelpEntry(t: ZodType): boolean {
   return getDesc(t).includes('@help-hidden');
 }
 
-function unwrapOptional(t: ZodType): ZodType {
-  return t instanceof ZodOptional ? (t as any)._def.innerType : t;
-}
-
 function objectShape(t: ZodObject<any>): Record<string, ZodType> {
   const anyType = t as any;
   const shape = anyType.shape ?? anyType._def?.shape;
@@ -84,11 +118,11 @@ function arrayElement(t: ZodArray<any>): ZodType | null {
 }
 
 function nestedSchemaLines(t: ZodType, prefix: string, indent = '      '): string[] {
-  const inner = unwrapOptional(t);
+  const inner = unwrapForHelp(t).inner;
   if (inner instanceof ZodArray) {
     const element = arrayElement(inner);
     if (!element) return [];
-    const elementInner = unwrapOptional(element);
+    const elementInner = unwrapForHelp(element).inner;
     if (elementInner instanceof ZodObject) {
       return nestedSchemaLines(elementInner, `${prefix}[]`, indent);
     }
@@ -98,10 +132,11 @@ function nestedSchemaLines(t: ZodType, prefix: string, indent = '      '): strin
   const shape = objectShape(inner);
   const lines: string[] = [];
   for (const [key, child] of Object.entries(shape)) {
-    const optional = child instanceof ZodOptional;
-    const childInner = unwrapOptional(child);
+    const childInfo = unwrapForHelp(child);
+    const optional = childInfo.optional;
+    const childInner = childInfo.inner;
     const path = prefix ? `${prefix}.${key}` : key;
-    lines.push(`${indent}${path}${optional ? '?' : ''}: ${describeType(child)} ${getDesc(child)}`.trimEnd());
+    lines.push(`${indent}${path}${optional ? '?' : ''}: ${describeType(child)} ${getDesc(child)}${defaultHelpSuffix(childInfo)}`.trimEnd());
     if (childInner instanceof ZodObject || childInner instanceof ZodArray) {
       lines.push(...nestedSchemaLines(childInner, path, indent + '  '));
     }
@@ -192,24 +227,32 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
   out('  Arguments:');
   const maxN = Math.max(...entries.map(([k]) => k.length));
   for (const [name, type] of entries) {
-    const opt = type instanceof ZodOptional;
+    const info = unwrapForHelp(type);
+    const opt = info.optional;
     const req = opt ? '' : ' *';
-    const inner = type instanceof ZodOptional ? (type as any)._def.innerType : type;
+    const inner = info.inner;
     const isComplex = inner instanceof ZodArray || inner instanceof ZodObject;
     const flagHint = isComplex ? '(JSON)' : '';
-    out(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${req} ${flagHint}`);
+    out(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${defaultHelpSuffix(info)}${req} ${flagHint}`);
     if (isComplex) {
       for (const line of nestedSchemaLines(type, name)) out(line);
     }
   }
-  const required = entries.filter(([, t]) => !(t instanceof ZodOptional));
-  const optional = entries.filter(([, t]) => t instanceof ZodOptional);
+  const required = entries.filter(([, t]) => !unwrapForHelp(t).optional);
+  const optional = entries.filter(([, t]) => unwrapForHelp(t).optional);
   const reqParts = required.map(([k]) => `--${k}=value`);
   const optParts = optional.map(([k]) => {
     const inner = (entries.find(([n]) => n === k)?.[1] as any);
-    const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
+    const base = unwrapForHelp(inner).inner;
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=value]`;
   });
+  if (tool.examples?.length) {
+    out('\n  Examples:');
+    for (const example of tool.examples) {
+      out(`    ${example.title}:`);
+      out(`    ${JSON.stringify(example.body)}`);
+    }
+  }
   out(`\n  Usage: ${brand.usageBin} ${invocation} ${[...reqParts, ...optParts].join(' ')}`);
   out('  (* = required)');
   if (dryRunLine) out(dryRunLine);
@@ -223,13 +266,52 @@ function formatValidationIssue(issue: ZodIssue): string {
   return `  ${path}: ${issue.message}`;
 }
 
-export function printValidationFailure(tool: ToolDef, issues: ZodIssue[], ownerLeaseHelpBlock: OwnerLeaseHelpBlockCallback) {
+const VALIDATION_FAILURE_TEXT_MAX_BYTES = 4096;
+
+function boundedValidationFailureText(lines: string[], nextCommand: string): string {
+  const header = 'Argument validation failed:\n';
+  const footer = `Next: ${nextCommand}\n`;
+  const included: string[] = [];
+  for (const line of lines) {
+    const candidate = `${header}${included.map(value => `${value}\n`).join('')}${line}\n`;
+    const omitted = lines.length - included.length - 1;
+    const omission = omitted > 0 ? `  ... ${omitted} additional validation issues omitted.\n` : '';
+    if (Buffer.byteLength(candidate + omission + footer) > VALIDATION_FAILURE_TEXT_MAX_BYTES) break;
+    included.push(line);
+  }
+  const omitted = lines.length - included.length;
+  const omission = omitted > 0 ? `  ... ${omitted} additional validation issues omitted.\n` : '';
+  return `${header}${included.map(value => `${value}\n`).join('')}${omission}${footer}`;
+}
+
+export function printValidationFailure(
+  tool: ToolDef,
+  issues: ZodIssue[],
+  ownerLeaseHelpBlock: OwnerLeaseHelpBlockCallback,
+  options: { json?: boolean; invocation?: string } = {},
+) {
   const lines = issues.map(formatValidationIssue);
-  process.stderr.write('Argument validation failed:\n');
-  for (const line of lines) process.stderr.write(`${line}\n`);
-  printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
-  process.stderr.write('\nArgument validation failed (summary):\n');
-  for (const line of lines) process.stderr.write(`${line}\n`);
+  const brand = detectProofOrStopBrand();
+  const invocation = options.invocation ?? tool.name;
+  const nextCommand = `${brand.usageBin} ${invocation} --help`;
+  if (options.json) {
+    const normalizedIssues = issues.map(issue => ({
+      path: [...issue.path],
+      code: issue.code,
+      message: issue.message,
+      ...('values' in issue && Array.isArray(issue.values) ? { allowedValues: [...issue.values] } : {}),
+    }));
+    process.stdout.write(`${JSON.stringify({
+      ok: false,
+      reasonCode: 'argument_validation_failed',
+      recoverable: true,
+      command: invocation,
+      issues: normalizedIssues,
+      nextCommand,
+    })}\n`);
+    return;
+  }
+  process.stderr.write(boundedValidationFailureText(lines, nextCommand));
 }
 
 export function printHelp(options: GlobalHelpOptions) {

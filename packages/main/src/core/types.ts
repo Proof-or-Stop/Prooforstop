@@ -2193,6 +2193,10 @@ export interface ManagedReviewEvidenceBinding {
   importedAt: string;
   providerAgent: string;
   providerHost: 'codex' | 'claude' | 'agy';
+  /** Exact model selector used by the managed provider; absent on historical evidence. */
+  model?: string | null;
+  /** Exact reasoning selector used by the managed provider; absent on historical evidence. */
+  reasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max' | 'ultra' | null;
   lane: string;
   reviewRunId: string;
   headHash: string;
@@ -2874,8 +2878,19 @@ export interface ScopeCheckData {
 // agentId field is reviewer's self-reported id, **for audit traceability only** (EXP-001 disproved mechanical verifiability of agentId, see
 // docs/story/actives/B-e71f/experiments/exp-001.md), and is not a gate decision input on its own; when `agentResults`
 // is absent it is one of the inputs the gate's decision array is synthesized from, and is bound through that value.
-// issues DO gate: blockingInitCheckIssues treats critical / high as blockers of INIT_CHECK advancement
-// (a reviewer that records one self-blocks); medium / low are advisory and only echoed after the advance.
+// issues DO gate: blockingInitCheckIssues treats critical / high INIT-applicable
+// issues as blockers. Post-implementation evidence gaps are deferred; legacy
+// kind-less high issues remain fail-closed. Medium / low are advisory.
+
+export const INIT_CHECK_ISSUE_KINDS = [
+  'requirements_ambiguous',
+  'user_outcome_unspecified',
+  'verification_plan_unexecutable',
+  'scope_or_safety_boundary_missing',
+  'post_implementation_evidence_missing',
+] as const;
+
+export type InitCheckIssueKind = typeof INIT_CHECK_ISSUE_KINDS[number];
 
 export interface InitCheckIssue {
   /**
@@ -2884,6 +2899,11 @@ export interface InitCheckIssue {
    * reviewer may omit it; when omitted JSON.stringify drops the field (no empty string written), consumers need narrowing.
    */
   id?: string;
+  /**
+   * Stage applicability of the observation. Legacy records may omit this field
+   * and retain the original fail-closed severity behavior.
+   */
+  kind?: InitCheckIssueKind;
   severity: 'critical' | 'high' | 'medium' | 'low';
   /** Concrete description (runtime validation trim().length >= 1, blank strings forbidden) */
   desc: string;
@@ -2924,9 +2944,9 @@ export interface InitCheckData {
    */
   agentId: string;
   /**
-   * List of issues raised by the reviewer. critical / high BLOCK the INIT_CHECK advance
-   * (blockingInitCheckIssues); medium / low are advisory and only echoed in the advance
-   * success message. Empty array allowed (when the reviewer considers it fully qualified).
+   * List of issues raised by the reviewer. Critical / high INIT-applicable issues
+   * block INIT_CHECK; post-implementation evidence gaps are deferred. Medium / low
+   * are advisory and only echoed in the advance success message. Empty array allowed.
    * B-8df9 CHK-002: part of the signature domain — erasing a recorded blocker by hand
    * invalidates `_hash` instead of quietly clearing the gate.
    */

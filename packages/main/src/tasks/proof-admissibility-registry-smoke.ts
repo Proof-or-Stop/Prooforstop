@@ -237,6 +237,18 @@ async function main(): Promise<void> {
       { name: 'lane', replacements: [['proposal.lane === args.lane', 'true'], ['args.agent === args.lane', 'true'], ['runBinding.lane === args.lane', 'true']] },
       { name: 'reviewRun', replacements: [['proposal.reviewRunId === args.reviewRunId', 'true'], ['runBinding.reviewRunId === args.reviewRunId', 'true']] },
       { name: 'provider', replacements: [['runBinding.host === args.binding.providerHost', 'true']] },
+      { name: 'model', replacements: [
+        ['(args.binding.model ?? null) === expectedModel', 'true'],
+        ['(runBinding.model ?? null) === expectedModel', 'true'],
+        ['(receipt.model ?? null) === expectedModel', 'true'],
+        ['(result.model ?? null) === expectedModel', 'true'],
+      ] },
+      { name: 'reasoningEffort', replacements: [
+        ['(args.binding.reasoningEffort ?? null) === expectedReasoningEffort', 'true'],
+        ['(runBinding.reasoningEffort ?? null) === expectedReasoningEffort', 'true'],
+        ['(receipt.reasoningEffort ?? null) === expectedReasoningEffort', 'true'],
+        ['(result.reasoningEffort ?? null) === expectedReasoningEffort', 'true'],
+      ] },
       { name: 'head', replacements: [['runBinding.reviewBinding.headHash === args.expected.headHash', 'true']] },
       { name: 'material', replacements: [['runBinding.reviewBinding.materialHash === args.expected.materialHash', 'true']] },
       { name: 'storyFiles', replacements: [['runBinding.reviewBinding.storyFilesHash === args.expected.storyFilesHash', 'true']] },
