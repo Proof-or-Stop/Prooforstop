@@ -1,27 +1,5 @@
 # Changelog
 
-## Lab managed-review-model-binding - v0.3.361 - 2026-09-14
-
-Problem
-
-Managed host review could not request and prove an exact provider model and reasoning effort. The public managed-review path therefore could not guarantee that a requested Codex or Claude reviewer configuration was the one sealed into formal review evidence.
-
-Fix
-
-Add optional model and reasoningEffort inputs to host_run, validate them per provider, place them on the protected provider argv, and seal them through the managed run specification, binding projection, result, terminal receipt, import verifier, and REVIEW consumer. Historical runs without these fields remain byte-compatible and normalize to an omitted selection.
-
-Verification
-
-The Lab RED proved the public options were absent. The focused model-selection smoke now covers exact argv propagation, omitted-selector compatibility, historical field absence, model and reasoning mismatch rejection, invalid selector rejection, and idempotency conflict. The main and utils builds, process-fact contract, Lab GREEN replay, and independent Anthropic audit passed.
-
-Measured Optimization
-
-Not applicable. This repair strengthens managed-review selection and evidence integrity without changing the provider execution count or performance contract.
-
-Maintenance provenance: codex/lab-managed-review-model-binding, repair 1faae3627c97f4eb12d8bf3e6ba651ffca0d586b.
-Verification command (replayed before integration and on main): `["node","-e","const{spawnSync}=require('child_process');const r=spawnSync(process.execPath,['bin/proof-or-stop.js','host_run','--help'],{encoding:'utf8'});const s=(r.stdout||'')+(r.stderr||'');if(r.status!==0||!s.includes('--model')||!s.includes('--reasoningEffort')){console.error('managed review model selection is unavailable');process.exit(1)}console.log('managed review model selection available')"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab validation-top5-performance - v0.3.360 - 2026-09-13
 
 Reduce repeated validation identity and planning work while preserving fresh execution checks.
