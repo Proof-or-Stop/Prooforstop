@@ -3,12 +3,18 @@ import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawn,execFileSync} from 'node:child_process';
+import {pathToFileURL} from 'node:url';
 import {nestedSourceRuntime} from './support/nested-reservation-source-runtime.mjs';
 const mode=process.argv[2]??'registered';
-assert.ok(['registered','same-group','pending','coalesced','finite-owner','pending-lineage'].includes(mode));
+assert.ok(['registered','same-group','pending','coalesced','finite-owner','pending-lineage','declared-owner-unclassified','declared-owner-expansion','retirement-backoff'].includes(mode));
 const repo=process.cwd();
 const {base,loader,delegation,lock,env,writeLoader}=nestedSourceRuntime(repo);
 const owner=join(base,'owner.mjs'),holder=join(base,'holder.mjs'),leaf=join(base,'leaf.mjs'),sibling=join(base,'sibling.mjs');
+if(mode==='retirement-backoff') {
+ const anchor='function identity(pid: number): ProcessIdentity {';
+ const preimageSource=process.argv.find(arg=>arg.startsWith('--preimage='))?.slice('--preimage='.length);
+ writeLoader(`function patch(url,source){if(url!==${JSON.stringify(delegation)})return source;${preimageSource?'source='+JSON.stringify(readFileSync(preimageSource,'utf8'))+';':''}const anchor=${JSON.stringify(anchor)};if(source.split(anchor).length!==2)throw Error('identity observation anchor mismatch');return source.replace(anchor,anchor+'globalThis.__identityObservations=(globalThis.__identityObservations??0)+1;');}`);
+}
 if(mode==='coalesced') {
  const anchor="socket.write(JSON.stringify({ grant, signature: signCanonical(grant, keys.privateKey) }) + '\\n');";
  const replacement="const revocation={reservation:owner.lockId,grantId:grant.grantId};socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\\n'+JSON.stringify({revocation,signature:signCanonical(revocation,keys.privateKey)})+'\\n');";
@@ -41,12 +47,30 @@ if(mode==='coalesced') {
 if(mode==='finite-owner') {
  writeFileSync(owner,imports+`const {fstatSync,readSync}=await import('node:fs');await machine({...options(),resources:[{class:'machine-cpu',key:'heavy',access:'exclusive'}]},async()=>{const fd=api.validationReservationChildStdio(['ignore','inherit','inherit','ipc'])[4];const bytes=Buffer.alloc(Number(fstatSync(fd).size));readSync(fd,bytes,0,bytes.length,0);const owner=JSON.parse(bytes);let entered=false;await assert.rejects(()=>api.withMachineReservationController({...owner,resources:null},()=>true,()=>{entered=true;}),/declaration mismatch/);assert.equal(entered,false);console.log('FINITE_OWNER_WIDENED_CONTROLLER_REFUSED PASS');});`);
 }
+if(mode.startsWith('declared-owner-')) {
+ // A resource-declaring owner (exactly the claims the registered selectors declare) admits a
+ // cross-process descendant whose command carries no classification, and refuses one that
+ // claims a resource outside the declaration. Real executor, controller and detached child.
+ const declared="[{class:'machine-cpu',key:'heavy',access:'exclusive'},{class:'machine-process',key:'fanout',access:'exclusive'}]";
+ writeFileSync(holder,imports+(mode==='declared-owner-unclassified'
+  ?`await go();await api.confirmValidationReservationRegistration();const {runSingleAllowlistedCommand:run}=await import(${JSON.stringify(new URL('../packages/main/src/core/validation-executor.ts',pathToFileURL(repo+'/scripts/')).href)});const result=await run('node -e "console.log(4321)"',root,{timeoutMs:3000});assert.equal(result.code,0,'DECLARED_OWNER_UNCLASSIFIED_DESCENDANT_REFUSED '+result.output);assert.match(result.output,/4321/);console.log('DECLARED_OWNER_UNCLASSIFIED_DESCENDANT_ADMITTED PASS');process.disconnect();`
+  :`await go();await api.confirmValidationReservationRegistration();const {createServer}=await import('node:net');const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));let entered=false;await assert.rejects(()=>machine({...options(),resources:[{class:'machine-cpu',key:'heavy',access:'exclusive'},{class:'fixed-port',key:String(port),access:'exclusive'}]},()=>{entered=true;}),/resource expansion/);assert.equal(entered,false);await machine({...options(),resources:[{class:'machine-cpu',key:'heavy',access:'exclusive'}]},()=>{entered=true;});assert.equal(entered,true,'exact subset claim must still be admitted');console.log('DECLARED_OWNER_EXPANSION_REFUSED PASS');process.disconnect();`));
+ writeFileSync(owner,imports+`await machine({...options(),resources:${declared}},async()=>{const token=await api.prepareValidationReservationChild();const child=spawn(process.execPath,[${JSON.stringify(holder)}],{env:api.validationReservationChildEnvironment(process.env),stdio:api.validationReservationChildStdio(['ignore','inherit','inherit','ipc']),detached:true});const closed=new Promise(r=>child.once('close',r));await api.registerValidationReservationChild(child.pid,token);child.send({go:true});assert.equal(await closed,0);});`);
+}
+if(mode==='retirement-backoff') {
+ // A descendant that released its grant but stays alive is not yet retirable. Its
+ // retirement must not spawn a kernel observation every 20 ms for as long as it lives.
+ // The holder releases its grant but leaves a same-group grandchild alive, so the released
+ // grant cannot retire while that work remains; retirement polling must back off meanwhile.
+ writeFileSync(holder,imports+`await go();await api.confirmValidationReservationRegistration();const grandchild=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});await machine(options(),()=>{});process.send({released:true});await wait(1500);grandchild.kill('SIGKILL');await new Promise(r=>grandchild.once('exit',r));process.disconnect();`);
+ writeFileSync(owner,imports+`await machine(options(),async()=>{const token=await api.prepareValidationReservationChild();const child=spawn(process.execPath,[${JSON.stringify(holder)}],{env:api.validationReservationChildEnvironment(process.env),stdio:api.validationReservationChildStdio(['ignore','inherit','inherit','ipc']),detached:true});const closed=new Promise(r=>child.once('close',r));const released=new Promise(r=>child.on('message',m=>{if(m.released)r();}));await api.registerValidationReservationChild(child.pid,token);assert.ok((globalThis.__identityObservations??0)>0,'identity observation hook must be active');child.send({go:true});await released;await wait(100);const before=globalThis.__identityObservations??0;await wait(1000);const during=(globalThis.__identityObservations??0)-before;assert.equal(await closed,0);assert.ok(during>0,'a lingering released grant must still be observed');assert.ok(during<=12,'RETIREMENT_OBSERVATIONS_UNBOUNDED '+during);console.log('RETIREMENT_BACKOFF_BOUNDED PASS observations='+during);});`);
+}
 if(mode==='pending-lineage') {
  writeFileSync(leaf,`setInterval(()=>{},1000);`);
  writeFileSync(holder,imports+`await go();await api.confirmValidationReservationRegistration();let pending,child;await machine({...options(),resources:[{class:'machine-cpu',key:'heavy',access:'exclusive'}]},async()=>{pending=await api.prepareValidationReservationChild();child=spawn(process.execPath,[${JSON.stringify(leaf)}],{env:api.validationReservationChildEnvironment(process.env),stdio:api.validationReservationChildStdio(['ignore','inherit','inherit','ipc']),detached:true});});const closed=new Promise(r=>child.once('close',r));try{await assert.rejects(()=>api.registerValidationReservationChild(child.pid,pending),/pending parent invocation released/);console.log('PENDING_ANCESTRY_LAUNDERING_REFUSED PASS');}finally{child.kill('SIGTERM');await closed;}process.disconnect();`);
  writeFileSync(owner,imports+`await machine(options(),async()=>{const token=await api.prepareValidationReservationChild();const child=spawn(process.execPath,[${JSON.stringify(holder)}],{env:api.validationReservationChildEnvironment(process.env),stdio:api.validationReservationChildStdio(['ignore','inherit','inherit','ipc']),detached:true});const closed=new Promise(r=>child.once('close',r));await api.registerValidationReservationChild(child.pid,token);child.send({go:true});assert.equal(await closed,0);});`);
  const preimage=process.argv.find(arg=>arg.startsWith('--preimage='))?.slice('--preimage='.length);
- if(preimage) {const source=readFileSync(preimage,'utf8');writeLoader(`function patch(url,value){return url===${JSON.stringify(delegation)}?${JSON.stringify(source)}:value;}`);}
+ if(preimage&&mode!=='retirement-backoff') {const source=readFileSync(preimage,'utf8');writeLoader(`function patch(url,value){return url===${JSON.stringify(delegation)}?${JSON.stringify(source)}:value;}`);}
 }
 // Parent-side observations bind cleanup to only this diagnostic's children.
 let ownerSource=readFileSync(owner,'utf8');
@@ -61,7 +85,7 @@ let child,output='';
 try {
  child=spawn(process.execPath,[owner,...(mode==='coalesced'?['--coalesce-owner']:[])],{env,stdio:['ignore','pipe','pipe','ipc'],detached:true});observe(child.pid);child.on('message',message=>{if(message.ownedPid)observe(message.ownedPid);});child.stdout.on('data',x=>output+=x);child.stderr.on('data',x=>output+=x);
  const result=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('own diagnostic deadline; partial output:\n'+output)),15000);child.once('close',(code,signal)=>{clearTimeout(timer);resolve({code,signal});});});
- console.log(output);assert.equal(result.code,['pending','pending-lineage'].includes(mode)?1:0,output);assert.match(output,mode==='pending-lineage'?/PENDING_ANCESTRY_LAUNDERING_REFUSED PASS/:mode==='finite-owner'?/FINITE_OWNER_WIDENED_CONTROLLER_REFUSED PASS/:mode==='coalesced'?/COALESCED_SIGNED_REVOCATION_REFUSES_ENTRY PASS/:/UNEXPECTED_EOF_RETAINS_DESCENDANT_CLAIMS PASS/);if(['pending','pending-lineage'].includes(mode))assert.match(output,/owned group cleanup unproven/);console.log('NESTED_RESERVATION_FAULT '+mode+' PASS');
+ console.log(output);assert.equal(result.code,['pending','pending-lineage'].includes(mode)?1:0,output);assert.match(output,mode==='pending-lineage'?/PENDING_ANCESTRY_LAUNDERING_REFUSED PASS/:mode==='finite-owner'?/FINITE_OWNER_WIDENED_CONTROLLER_REFUSED PASS/:mode==='coalesced'?/COALESCED_SIGNED_REVOCATION_REFUSES_ENTRY PASS/:mode==='declared-owner-unclassified'?/DECLARED_OWNER_UNCLASSIFIED_DESCENDANT_ADMITTED PASS/:mode==='declared-owner-expansion'?/DECLARED_OWNER_EXPANSION_REFUSED PASS/:mode==='retirement-backoff'?/RETIREMENT_BACKOFF_BOUNDED PASS/:/UNEXPECTED_EOF_RETAINS_DESCENDANT_CLAIMS PASS/);if(['pending','pending-lineage'].includes(mode))assert.match(output,/owned group cleanup unproven/);console.log('NESTED_RESERVATION_FAULT '+mode+' PASS');
 }finally{
  for(const [pid,start] of observed)if(startOf(pid)===start){try{process.kill(pid,'SIGTERM');}catch{}}
  let deadline=Date.now()+2000;

@@ -778,8 +778,9 @@ function createValidationCapacityCandidate(path: string, holder: MkdirLockHolder
   // identity is complete. A process killed while preparing leaves only an
   // ignored, never-reused private path; the atomic rename is the publication.
   const preparingPath = `${path}.${process.pid}-${randomUUID()}.preparing`;
-  // The published ticket must satisfy the boot-recovery reader's private-mode requirement.
-  mkdirSync(preparingPath, { mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode });
+  // Only a canonical machine ticket is read by the boot-recovery reader, which requires the
+  // private mode; workspace capacity tickets keep the process default.
+  mkdirSync(preparingPath, dirname(path) === canonicalMachineCapacityRoot() ? { mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode } : undefined);
   try {
     writeFileSync(join(preparingPath, 'holder.json'), JSON.stringify(holder, null, 2) + '\n', 'utf8');
     if (declaration) writeFileSync(join(preparingPath, 'resources.json'), JSON.stringify(declaration) + '\n', 'utf8');

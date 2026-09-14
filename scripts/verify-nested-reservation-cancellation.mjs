@@ -13,7 +13,7 @@ for(const mode of selected){
  assert.ok(modes.includes(mode));
  const runtime=nestedSourceRuntime(process.cwd());
  const {base,delegation,lock,executor,env}=runtime;
- const anchor='const pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal});';
+ const anchor='  catch (error) { const stop = callerStop(); throw stop ?? error; }';
  // The refused modes fail every registration observation of the live controller, as an
  // exhausted bounded retry would; the executor then owns the fence withdrawal decision.
  const refused=mode.startsWith('refused-registration-'),observation='target = observeWithRetry(() => identity(pid));',ready=join(base,'workload-ready');

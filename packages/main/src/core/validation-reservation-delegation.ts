@@ -58,8 +58,8 @@ function identity(pid: number): ProcessIdentity {
   if(observedPid!==pid||!Number.isSafeInteger(pgid)||pgid<=1||!Number.isFinite(start))throw failure('process identity unavailable');
   return {pid,start,pgid};
 }
-function ancestors(pid: number): number[] {
-  const rows = table(), seen = new Set<number>(); let next = rows.get(pid)?.ppid;
+function ancestors(pid: number, rows: ReturnType<typeof table> = table()): number[] {
+  const seen = new Set<number>(); let next = rows.get(pid)?.ppid;
   while (next && next > 1 && !seen.has(next)) { seen.add(next); next = rows.get(next)?.ppid; }
   return [...seen];
 }
@@ -133,7 +133,10 @@ function readBootstrap(fd: number = FD, cleanupOnly = false): Bootstrap | undefi
     throw failure('missing inherited descriptor');
   }
   if (inherited && !stat.isFile()) return droppedTransport('reserved descriptor is not a regular file');
-  // A foreign regular file at the reserved slot is not silently treated as no delegation.
+  // A dropped transport leaves the reserved number free, so an ordinary linked file that a
+  // descendant later opened there is unrelated to delegation and degrades like the drop.
+  if (inherited && stat.nlink !== 0n) return droppedTransport('reserved descriptor is an unrelated linked file');
+  // A foreign unlinked regular file at the reserved slot is not silently treated as no delegation.
   if (!stat.isFile() || stat.nlink !== 0n || stat.size <= 0n || stat.size > BigInt(LIMIT)) throw failure('bootstrap is not a bounded unlinked regular descriptor');
   const buffer = Buffer.alloc(Number(stat.size)); if (readSync(fd, buffer, 0, buffer.length, 0) !== buffer.length) throw failure('bootstrap incomplete');
   const value = JSON.parse(buffer.toString('utf8')) as Bootstrap;
@@ -165,6 +168,12 @@ export function validationReservationChildEnvironment(base: NodeJS.ProcessEnv): 
   const stripped = { ...base }; delete stripped[ENV]; return stripped;
 }
 export function currentValidationReservationAbortSignal(): AbortSignal | undefined { return frames.getStore()?.abort.signal; }
+/** A grant binds exactly the requested claims; an unclassified grant request accepts only claims within the owner's declaration, which the server resolves from the tightest enclosing grant. Every other operation grants no claims. */
+function grantClaimsBound(grant: Grant, input: { operation: Request['operation']; resources?: ResourceClaim[] | null }, bootstrap: Bootstrap): boolean {
+  if (input.operation !== 'grant') return grant.resources === null;
+  if (input.resources !== undefined && input.resources !== null) return JSON.stringify(grant.resources) === JSON.stringify(input.resources);
+  return subset(grant.resources, bootstrap.resources);
+}
 function subset(requested: ResourceClaim[] | null, held: ResourceClaim[] | null): boolean {
   return held === null || requested !== null && requested.every(row => held.some(prior => prior.class === row.class && prior.key === row.key && (prior.access === 'exclusive' || prior.access === row.access)));
 }
@@ -197,7 +206,7 @@ async function request(bootstrap: Bootstrap, input: Omit<Request, 'pid' | 'start
           if (settled) return;
           if (response.error) throw failure(response.error);
           const grant = response.grant as Grant;
-          if (!verifyCanonical(grant, response.signature, bootstrap.publicKey) || grant.reservation !== bootstrap.lockId || grant.subject.pid !== self.pid || grant.subject.start !== self.start || grant.nonce !== nonce || grant.operation !== input.operation || JSON.stringify(grant.resources) !== JSON.stringify(input.resources ?? null) || grant.deadlineAt > (input.operation === 'cancel' ? input.deadlineAt : Math.min(bootstrap.deadlineAt, input.deadlineAt)) || Date.now() >= grant.deadlineAt) throw failure('grant subject/binding/signature');
+          if (!verifyCanonical(grant, response.signature, bootstrap.publicKey) || grant.reservation !== bootstrap.lockId || grant.subject.pid !== self.pid || grant.subject.start !== self.start || grant.nonce !== nonce || grant.operation !== input.operation || !grantClaimsBound(grant, input, bootstrap) || grant.deadlineAt > (input.operation === 'cancel' ? input.deadlineAt : Math.min(bootstrap.deadlineAt, input.deadlineAt)) || Date.now() >= grant.deadlineAt) throw failure('grant subject/binding/signature');
           const fresh = readBootstrap(frames.getStore()?.fd ?? FD, input.operation === 'cancel'); if (!fresh || fresh.publicKey !== bootstrap.publicKey || !sameProcess(self)) throw failure('grant owner changed');
           accepted = grant; settled = true; clearTimeout(timer); signal?.removeEventListener('abort',cancel); resolve({ socket, grant, revocation: revocation.signal });
         } catch (error) { fail(error instanceof Error ? error : failure('invalid response')); }
@@ -231,7 +240,7 @@ export async function withInheritedMachineReservation<T>(resources: ResourceClai
   response.revocation.addEventListener('abort', revoke, {once:true}); if(response.revocation.aborted)revoke();
   response.socket.once('close', revoke); const timer = setTimeout(revoke, Math.max(1, response.grant.deadlineAt - Date.now()));
   const forward = () => abort.abort(signal?.reason); signal?.addEventListener('abort', forward, { once: true });
-  const frame: Frame = { active: true, heldPorts: response.grant.heldPorts ?? [], grantId: response.grant.grantId, resources, fd: FD, bootstrap, abort };
+  const frame: Frame = { active: true, heldPorts: response.grant.heldPorts ?? [], grantId: response.grant.grantId, resources: response.grant.resources ?? resources, fd: FD, bootstrap, abort };
   try { if (signal?.aborted || abort.signal.aborted || response.socket.destroyed || Date.now() >= response.grant.deadlineAt) throw failure('grant revoked before entry'); return { inherited: true, value: await frames.run(frame, fn) }; }
   finally { frame.active = false; clearTimeout(timer); signal?.removeEventListener('abort', forward); response.socket.removeListener('close', revoke); response.revocation.removeEventListener('abort', revoke); response.socket.end(JSON.stringify({release:response.grant.grantId})+'\n'); }
 }
@@ -302,10 +311,16 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   let callbackStarted=false, callbackThrew=false, callbackError:unknown, callbackResult:unknown;
   const abort = new AbortController();
   const live = () => alive && isLive() && Date.now() < owner.deadlineAt;
+  // One retirement tick observes the process table and each identity at most once.
+  const tick = { rows: undefined as ReturnType<typeof table> | undefined, identities: new Map<number, ProcessIdentity | null>() };
+  const resetTick = (): void => { tick.rows = undefined; tick.identities.clear(); };
+  const rowsNow = (): ReturnType<typeof table> => tick.rows ??= table();
+  const identityNow = (pid: number): ProcessIdentity | null => { if (!tick.identities.has(pid)) { try { tick.identities.set(pid, identity(pid)); } catch { tick.identities.set(pid, null); } } return tick.identities.get(pid) ?? null; };
+  const sameNow = (value: ProcessIdentity): boolean => { const current = identityNow(value.pid); return current !== null && current.start === value.start && current.pgid === value.pgid; };
   const publish = () => { const path = join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); writeFileSync(path + '.pending', JSON.stringify([...registered.values(),...[...pendingChildren].map(([pending,subject])=>({pending,pid:subject.pid,start:subject.start,parents:subject.parents,...(subject.target?{target:subject.target}:{})}))]), { mode: 0o600 }); renameSync(path + '.pending', path); };
-  const enrollment = (subject: ProcessIdentity): string[] => {
-    if (!sameProcess(subject)) throw failure('request process changed');
-    for (const pid of [subject.pid,...ancestors(subject.pid)]) { const known=registered.get(pid); if (!known || !sameProcess(known)) continue;
+  const enrollment = (subject: ProcessIdentity, rows: ReturnType<typeof table> = table(), same: (value: ProcessIdentity) => boolean = sameProcess): string[] => {
+    if (!same(subject)) throw failure('request process changed');
+    for (const pid of [subject.pid,...ancestors(subject.pid, rows)]) { const known=registered.get(pid); if (!known || !same(known)) continue;
       if (known.parents.some(id=>![...active.values()].some(grant=>grant.grantId===id && !grant.revoked && Date.now()<grant.deadlineAt))) throw failure('parent invocation released');
       return [...known.parents];
     }
@@ -360,53 +375,65 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   const subjectGroupWorkPresent = (subject: ProcessIdentity, terminal: boolean): boolean => {
     // A live caller may complete sequential callbacks without exiting. Only its
     // observed ancestor chain is excluded; other same-group work retains claims.
-    if(!terminal || !sameProcess(subject))return !groupGone(subject.pgid);
+    if(!terminal || !sameNow(subject))return !groupGone(subject.pgid);
     try {
-      const rows=table(), ancestors=new Set<number>();let next=rows.get(subject.pid)?.ppid;
+      const rows=rowsNow(), ancestors=new Set<number>();let next=rows.get(subject.pid)?.ppid;
       if(!rows.has(subject.pid))return true;
       while(next&&next>1&&!ancestors.has(next)){ancestors.add(next);next=rows.get(next)?.ppid;}
       return [...rows.values()].some(row=>row.pgid===subject.pgid&&row.pid!==subject.pid&&!ancestors.has(row.pid));
     }catch{return true;}
   };
   const retireReleasedGrants = () => {
+    let retired = 0;
     for (const [socket, grant] of [...active].reverse()) {
       if (!grant.disconnected) continue;
       const pendingWork=[...pendingChildren.values()].some(row=>row.parents.includes(grant.grantId));
       const descendantGrants=[...active.values()].some(row=>row!==grant&&row.parents.includes(grant.grantId));
       const descendantsRemain = [...registered.values()].some(row=>row.parents.includes(grant.grantId) && !groupGone(row.pgid));
       if(pendingWork||descendantGrants||descendantsRemain||subjectGroupWorkPresent(grant.subject,grant.terminal===true))continue;
-      active.delete(socket); clearTimeout(grantTimers.get(socket)); grantTimers.delete(socket);
+      active.delete(socket); clearTimeout(grantTimers.get(socket)); grantTimers.delete(socket); retired++;
     }
+    return retired;
   };
+  // Returns whether this tick changed anything, so idle polling can back off.
   const drain = () => {
+    resetTick();
     let resolved=false;for(const [token,row]of pendingChildren)if(row.target && registrationTargetGone(row.target.pid)){pendingChildren.delete(token);resolved=true;}
     if(resolved)publish();
-    retireReleasedGrants();
+    let changed = resolved || retireReleasedGrants() > 0;
+    const waiting = pending.length;
     for (const item of [...pending]) {
       const { socket, input } = item; if (socket.destroyed) { pending.splice(pending.indexOf(item), 1); continue; }
       try {
         if (!live() || Date.now() >= input.deadlineAt) throw failure('reservation/request expired');
-        const subject = identity(input.pid); if (subject.start !== input.start) throw failure('request subject changed'); const parents=enrollment(subject);
-        const resources = input.resources ?? null;
-        if(resources!==null && (!Array.isArray(resources)||JSON.stringify(canonicalizeEntries([{name:'delegated-machine-claims',resources}],'/')[0].resources)!==JSON.stringify(resources)))throw failure('machine claims must be canonical');
+        const subject = identityNow(input.pid); if (!subject) throw failure('process identity unavailable'); if (subject.start !== input.start) throw failure('request subject changed'); const parents=enrollment(subject, rowsNow(), sameNow);
+        const parent = input.parentGrantId ? [...active.values()].find(row=>row.grantId===input.parentGrantId&&!row.revoked&&Date.now()<row.deadlineAt&&row.subject.pid===subject.pid&&row.subject.start===subject.start) : undefined;
+        if (input.parentGrantId && !parent) throw failure('parent grant/claim mismatch');
+        const requested = input.resources ?? null;
+        if(requested!==null && (!Array.isArray(requested)||JSON.stringify(canonicalizeEntries([{name:'delegated-machine-claims',resources:requested}],'/')[0].resources)!==JSON.stringify(requested)))throw failure('machine claims must be canonical');
+        // An unclassified request from an enrolled descendant resolves to the tightest
+        // enclosing declaration (its parent grant, else the owner); it never widens it.
+        const resources = requested ?? (parent ? parent.resources : owner.resources);
         if (!subset(resources, owner.resources)) throw failure('resource expansion');
-        if(input.parentGrantId){const parent=[...active.values()].find(row=>row.grantId===input.parentGrantId&&!row.revoked&&Date.now()<row.deadlineAt&&row.subject.pid===subject.pid&&row.subject.start===subject.start);if(!parent||!subset(resources,parent.resources))throw failure('parent grant/claim mismatch');parents.push(...parent.parents,parent.grantId);}
+        if (parent) { if (!subset(resources, parent.resources)) throw failure('parent grant/claim mismatch'); parents.push(...parent.parents, parent.grantId); }
         if ([...active.values()].some(prior => conflict(prior.resources, resources) && !(parents.includes(prior.grantId) && subset(resources, prior.resources)))) continue;
         pending.splice(pending.indexOf(item), 1);
         const grant: Grant = { reservation: owner.lockId, subject, nonce: input.nonce, operation: input.operation, resources, deadlineAt: Math.min(owner.deadlineAt, input.deadlineAt, ...[...active.values()].filter(prior=>parents.includes(prior.grantId)).map(prior=>prior.deadlineAt)), grantId: randomUUID() };
         grant.heldPorts=(resources??[]).filter(row=>row.class==='fixed-port'&&row.access==='exclusive'&&[owner.resources,...[...active.values()].filter(prior=>parents.includes(prior.grantId)).map(prior=>prior.resources)].some(rows=>rows?.some(prior=>prior.class==='fixed-port'&&prior.access==='exclusive'&&prior.key===row.key))).map(row=>row.key);
         active.set(socket, { subject, resources, parents, grantId: grant.grantId, deadlineAt: grant.deadlineAt });
-        grantTimers.set(socket,setTimeout(()=>{revokeGrant(grant.grantId);drain();},Math.max(1,grant.deadlineAt-Date.now())));
+        grantTimers.set(socket,setTimeout(()=>{revokeGrant(grant.grantId);drainNow();},Math.max(1,grant.deadlineAt-Date.now())));
         socket.write(JSON.stringify({ grant, signature: signCanonical(grant, keys.privateKey) }) + '\n');
+        changed = true;
       } catch (error) { pending.splice(pending.indexOf(item), 1); socket.end(JSON.stringify({ error: String(error) }) + '\n'); }
     }
+    return changed || pending.length !== waiting;
   };
   const server = createServer(socket => {
     sockets.add(socket); let bytes = '', received = false;
     socket.on('error', () => undefined); socket.once('close', () => {
       sockets.delete(socket); const released = active.get(socket);
       if (released) { released.disconnected=true; revokeGrant(released.grantId); }
-      drain();
+      drainNow();
     });
     socket.on('data', chunk => {
       bytes += chunk.toString(); if (Buffer.byteLength(bytes) > LIMIT) { socket.destroy(); return; } if (!bytes.includes('\n')) return;
@@ -447,12 +474,20 @@ export async function withMachineReservationController<T>(owner: MachineReservat
           const grant: Grant={reservation:owner.lockId,subject,nonce:input.nonce,operation:input.operation,resources:null,deadlineAt:Math.min(owner.deadlineAt,input.deadlineAt),grantId:randomUUID(),...(pendingToken?{pendingToken,cleanupCapability:pendingChildren.get(pendingToken)!.cleanupCapability}:{})};socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');
         } else if (input.operation === 'confirm') {
           const grant: Grant={reservation:owner.lockId,subject,nonce:input.nonce,operation:input.operation,resources:null,deadlineAt:Math.min(owner.deadlineAt,input.deadlineAt),grantId:randomUUID()};socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');
-        } else if (input.operation === 'grant') { pending.push({ socket, input }); drain(); } else throw failure('unknown operation');
+        } else if (input.operation === 'grant') { pending.push({ socket, input }); drainNow(); } else throw failure('unknown operation');
       } catch (error) { socket.end(JSON.stringify({ error: String(error) }) + '\n'); }
     });
   });
   await new Promise<void>((resolve, reject) => { server.once('error', reject); server.listen(socketPath, resolve); });
-  const retirementTimer=setInterval(drain,20);retirementTimer.unref();
+  // Idle retirement polling backs off exponentially; any event resets it to the minimum.
+  let retirementTimer: NodeJS.Timeout | undefined, retirementDelay: number = policy.retirementPollMs;
+  const scheduleRetirement = (delay: number): void => {
+    if (!alive) return; if (retirementTimer) clearTimeout(retirementTimer); retirementDelay = delay;
+    retirementTimer = setTimeout(() => { retirementTimer = undefined; let changed = false; try { changed = drain(); } finally { scheduleRetirement(changed ? policy.retirementPollMs : Math.min(retirementDelay * 2, policy.retirementPollMaxMs)); } }, delay);
+    retirementTimer.unref();
+  };
+  const drainNow = (): void => { drain(); scheduleRetirement(policy.retirementPollMs); };
+  scheduleRetirement(policy.retirementPollMs);
   try {
     // Reserve the descriptor number before writing the self-describing envelope;
     // only the separately reopened read-only descriptor is ever inherited.
@@ -462,7 +497,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     frame={active:true,resources:owner.resources,fd,bootstrap,abort,register:(pid,token)=>register(pid,process.pid,[],token),prepare:()=>prepare(),cancel:token=>cancel(token)};
     try {callbackStarted=true;const result=await frames.run(frame, fn);callbackResult=result;return result;}catch(error){callbackThrew=true;callbackError=error;throw error;}
   } finally {
-    alive = false; clearInterval(retirementTimer); for(const timer of grantTimers.values())clearTimeout(timer); if(frame)frame.active=false; abort.abort(failure('reservation ended')); for (const socket of sockets) socket.destroy();
+    alive = false; if (retirementTimer) clearTimeout(retirementTimer); for(const timer of grantTimers.values())clearTimeout(timer); if(frame)frame.active=false; abort.abort(failure('reservation ended')); for (const socket of sockets) socket.destroy();
     for (const group of registered.values()) {
       if (groupGone(group.pgid)) continue;
       // Only previously observed owned group leaders are signal targets.

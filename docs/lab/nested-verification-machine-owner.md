@@ -34,14 +34,19 @@ claim detached delegation support. On macOS every Node-spawned child receives
 only its explicitly listed stdio descriptors, so a plain wrapper such as `npm run`
 or a runner spawning with `stdio: 'inherit'` drops the reserved descriptor while
 the locator environment survives. That state is classified as a dropped
-transport: the descendant is diagnosed once on stderr
-(`VALIDATION_DELEGATION_UNAVAILABLE`), runs without a borrowed reservation
-exactly as before delegation existed, and forwards no locator. Nothing is repaired
-from the environment, and a regular file at the reserved slot is never downgraded:
-a copied bootstrap stays refused. The repository's own
-`scripts/run-validation-fixture-suite.mjs` is a cooperating wrapper and forwards
-the descriptor explicitly; npm-wrapped fixture targets remain non-delegated, which
-is their pre-existing behavior on main.
+transport: the descendant runs without a borrowed reservation exactly as before
+delegation existed, forwards no locator, and diagnoses the loss at most once on
+stderr (`VALIDATION_DELEGATION_UNAVAILABLE`) only when
+`PROOF_OR_STOP_DELEGATION_DIAGNOSTICS=1` is set; by default its output stays
+byte-identical. An unrelated linked regular file that later occupies the reserved
+number degrades the same way, naming that reason. Nothing is repaired from the
+environment, and an unlinked foreign descriptor at the reserved slot is never
+downgraded: a copied bootstrap stays refused. The repository's own
+`scripts/run-validation-fixture-suite.mjs` deliberately strips the locator and
+forwards no reserved descriptor, so fixture-suite targets run non-delegated in
+their own machine environment (see "Normal validation under the changed
+executor" for why); npm-wrapped fixture targets remain non-delegated, which is
+their pre-existing behavior on main.
 Resource delegation grants neither Story mutation nor reviewer/provider authority.
 The closed verification capsule retains its exact existing leaf environment.
 
@@ -65,7 +70,14 @@ from its original configured timeout and uses its remaining time after setup.
 `cancelValidationReservationChild(pendingToken, options)` is cleanup-only and
 its caller must have proved that no child was spawned. Separately, controller
 retirement can resolve an already-observed owned target after fresh PID and
-whole-group absence checks. Unknown targets remain fenced.
+whole-group absence checks. Unknown targets remain fenced. Retirement polling is
+event-driven and backs off: any grant, release or disconnect re-arms a 20 ms tick
+(`retirementPollMs`), and while a tick changes nothing the interval doubles up
+to 500 ms (`retirementPollMaxMs`); within one tick the process table and each
+process identity are observed at most once. `verify-nested-reservation-faults.mjs`
+mode `retirement-backoff` leaves a released grant with lingering same-group work
+and counts kernel identity observations over one second: 49 against the
+pre-repair fixed 20 ms interval, at most 12 (measured 4) afterwards.
 The executor gives cleanup its own bounded cleanup deadline after workload expiry
 or abort; an explicitly expired cleanup deadline still refuses. Cleanup cannot
 issue a work grant or extend workload time.
@@ -77,6 +89,19 @@ PID and public pending token alone cannot authorize mutation. Enrollment is
 immutable; registering the same child again cannot replace its invocation lineage.
 All ancestor grants and their deadlines participate in subset and revocation
 checks. Conflicting siblings serialize, including while revoked work is stopping.
+A grant request from an enrolled descendant whose command carries no
+classification resolves, on the controller, to the tightest enclosing
+declaration (its parent grant's claims, else the owner's declaration) and can
+never widen it; the client accepts such a grant only when its claims stay within
+the owner's declaration carried by the bootstrap. Inside one process a nested
+unclassified request under a declared frame is still refused as expansion,
+because one invocation cannot widen its own claim.
+`verify-nested-reservation-faults.mjs` modes `declared-owner-unclassified` and
+`declared-owner-expansion` prove both across a real process boundary under an
+owner that declares exactly the claims the registered selectors declare; the
+unclassified mode fails against the pre-repair controller with
+`resource expansion`, which is what every registered selector hit under the
+real executor before this repair.
 
 ## Retirement and cleanup
 
@@ -162,8 +187,10 @@ Legacy tickets without a boot witness cannot use this recovery path.
 
 The witness uses the existing private ticket-filesystem trust boundary; it is
 not cryptographic protection against an actor who can rewrite that private
-state. The ticket directory is published with the registered private directory
-mode, because the reader refuses any ticket readable by group or others; an
+state. A canonical machine ticket directory is published with the registered
+private directory mode, because the reader refuses any ticket readable by group
+or others, while workspace capacity tickets under a repository's shared lock root
+keep the process default mode since the reader never consults them; an
 earlier candidate created it with the process default mode, which left the
 recovery branch unreachable on the public path while a hand-made 0o700 fixture
 still passed. `scripts/verify-nested-reservation-boot-recovery.mjs` therefore
@@ -181,6 +208,16 @@ the original error through the cause chain, or retains an already-captured
 command result with a bounded cleanup diagnostic; it does not relabel completed
 execution as a prelaunch refusal. Reported effective timeout uses the same value
 as the armed execution timer, excluding time already consumed by setup.
+
+The caller's own abort, or a caller-supplied deadline error, is decided before
+any pending fence is prepared and again ahead of a delegation refusal, so it
+keeps its exception behaviour instead of folding into a delegation result; a
+default deadline that expires during preparation still folds into the bounded
+result, which is what `verify-nested-reservation-handshake-deadline.mjs` asserts.
+`verify-nested-validation-result-contract.mjs` mode
+`caller-deadline-before-prepare` expires the caller deadline ahead of that
+preparation and asserts the caller's own error object propagates; against the
+pre-repair executor the same run returned a folded result with no exception.
 
 ### Normal validation under the changed executor
 
@@ -249,8 +286,8 @@ Lab-changed file that caused each one:
   reviewed-JSON context digests for the copied excerpts of
   `native-review-fixture.ts` and `isolated-finding-fixture.ts` under
   `/entries/39`, `/entries/269` and `/entries/270`, plus the
-  CURRENT_COMPATIBLE_SCHEMA_ROWS context digest for
-  `lattice.native_review_invocation_attestation.v1` (count unchanged at 4).
+  CURRENT_COMPATIBLE_SCHEMA_ROWS context digest for the native review invocation
+  attestation schema token (count unchanged at 4).
 - the three reviewed-context readers (`identity-reviewed-source-contexts.mjs`,
   `-fixture-contexts.mjs`, `-json-contexts.mjs`): their EXPECTED_SHA256 and
   entry-count pins and the verifier's digest pin of each reader, because the
@@ -261,18 +298,32 @@ refreshed.
 
 ## Verification boundaries
 
-Thirty-five direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Thirty-nine direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
 closed selector wrapper normalizes the repository working directory; selectors
 that need Darwin kernel descriptor or process identity observation print an
-explicit skip on other platforms before loading native controls, while the six
-executor result-contract selectors run through the platform-independent queue in
-a private OS-home namespace and are not gated (they were exercised only on
-Darwin in this Lab). The entries declare the existing exclusive machine heavy
-and process-fanout resources; private fixture directories do not permit
-concurrent machine contention. The original pinned Lab driver remains unchanged.
+explicit skip on other platforms before loading native controls, while six of
+the seven executor result-contract selectors (`result-prepare-refusal`,
+`result-cleanup-primary`, `result-cleanup-result`, `result-ordinary-error`,
+`result-armed-timeout` and `result-caller-deadline`) run through the
+platform-independent queue in a private OS-home namespace and are not gated
+(they were exercised only on Darwin in this Lab); `result-post-capture-cleanup`
+patches the Darwin-only controller cleanup and is gated like the native
+controls. The entries declare the existing exclusive machine heavy and
+process-fanout resources so validation serializes them against other heavy
+commands; under the real executor each selector process inherits that declared
+reservation and its unclassified leaf commands resolve to the declaration (see
+the controlled child API). The `core` selector imports the unchanged pinned
+driver statically but first removes the locator and rebinds the machine pool root
+(`os.userInfo().homedir`) to a private scratch home, in place and through
+NODE_OPTIONS for every child, so the driver is the genuine owner of that
+namespace's pool instead of an inheriting descendant; registered index 169 was
+executed through the real compiled executor with the machine reservation held
+and passed in 34.6 seconds, where before this round it failed at its first leaf
+command. The Lab's own RED/GREEN replay still
+runs the driver against the real pool.
 Registered budgets strictly exceed each wrapped child's own timeout plus setup
 and are evidence-backed: measured sequentially on 2026-09-14 against the merged
 candidate, `core` completed in 30.8 to 41.1 seconds against a 120-second budget
@@ -284,16 +335,18 @@ boot-recovery selectors, including the two refused-registration cancellation
 selectors, in 1 to 4 seconds against 30 seconds (each wraps one child whose own
 timeout is at most 12 seconds), and every remaining selector,
 including the two isolated-observation selectors whose child allows 40 seconds,
-in under 11 seconds against its 60-second budget. `core` is the one selector
-that exercises the real machine pool: in the final sequential sweep it failed
-once with NESTED_FIXTURE_STARTED_REQUIRED while an identity verifier self-test
-in another checkout held that pool, and it passed again alone in 37 seconds,
-so it must not be scheduled concurrently with another real-pool holder.
-The pinned driver admits its leaf commands through the real same-user machine
-pool rather than a private namespace, which is why its command declares the
-exclusive machine heavy and process-fanout resources: run concurrently with
-another holder of that pool outside validation, its 1.5-second leaf deadline is
-reached before launch and it fails exactly like the original RED.
+in under 11 seconds against its 60-second budget. Before the `core` selector
+moved into a private namespace it exercised the real machine pool and failed
+once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
+identity verifier self-test in another checkout held that pool; the Lab replay
+of the pinned command is the one remaining real-pool user and must not be
+scheduled concurrently with another real-pool holder.
+The pinned driver, as replayed by the Lab tool, admits its leaf commands through
+the real same-user machine pool: run concurrently with another holder of that
+pool, its 1.5-second leaf deadline is reached before launch and it fails exactly
+like the original RED. The registered `core` selector isolates the same driver
+in a private OS-home pool, and the machine heavy and process-fanout claims its
+entry declares are what the executor's delegated reservation carries for it.
 
 Static evidence for this route must directly bind the resource configuration,
 registered runtime policy and actual loaded implementation helpers. Regression
@@ -313,11 +366,15 @@ dropped-descriptor degradation, transitive release/expiry and immutable
 enrollment. `verify-nested-reservation-wrapper-transport.mjs` registers a plain
 and a cooperating Node wrapper as detached children of a real controller and
 proves that the dropped transport degrades without a token, locator or reserved
-slot while the forwarded transport keeps the pending-fence capability.
+slot while the forwarded transport keeps the pending-fence capability; a third
+run of the plain wrapper passes an unrelated linked regular file at descriptor 4
+and proves that it degrades identically, naming the linked-file reason, where
+the pre-repair reader refused it as a foreign bootstrap.
 
 Supplemental source-bound native fault commands are recorded separately:
 `verify-nested-reservation-faults.mjs` modes `registered`, `same-group`, `pending`,
-`coalesced`, `finite-owner`, and `pending-lineage`, plus
+`coalesced`, `finite-owner`, `pending-lineage`, `declared-owner-unclassified`,
+`declared-owner-expansion` and `retirement-backoff`, plus
 `verify-nested-reservation-handshake-deadline.mjs`,
 `verify-nested-reservation-owner-loss.mjs`,
 `verify-nested-isolated-cleanup.mjs`, and

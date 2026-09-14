@@ -1499,7 +1499,19 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     spawnEnv.NODE_OPTIONS = `${spawnEnv.NODE_OPTIONS || ''} --require ${tracer}`.trim();
   }
 
-  const pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal});
+  // The caller's own abort, or a caller-supplied deadline error, is decided before any pending
+  // fence is prepared and again ahead of a delegation refusal, so it keeps its exception
+  // behaviour instead of folding into a delegation result. A default deadline that expires
+  // during preparation still folds into the bounded command result, as it always has.
+  const callerStop = (): Error | undefined => {
+    if (options.abortSignal?.aborted) return options.abortSignal.reason ?? new Error('shared validation aborted');
+    if (options.deadlineError && options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) return options.deadlineError();
+    return undefined;
+  };
+  { const stop = callerStop(); if (stop) throw stop; }
+  let pendingSpawn: string | undefined;
+  try { pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
+  catch (error) { const stop = callerStop(); throw stop ?? error; }
   let spawned = false;
   let spawnedPid: number | undefined;
   let registrationRefused = false;

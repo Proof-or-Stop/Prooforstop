@@ -4619,6 +4619,106 @@
             "access": "exclusive"
           }
         ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "fault-declared-owner-unclassified"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "fault-declared-owner-expansion"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "fault-retirement-backoff"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "result-caller-deadline"
+        ],
+        "timeoutMs": 30000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [

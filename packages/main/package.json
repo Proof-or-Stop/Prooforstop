@@ -188,7 +188,11 @@
     "test:nested-reservation-isolated-observation-retry": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-retry",
     "test:nested-reservation-isolated-observation-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-unavailable",
     "test:nested-reservation-cancel-refused-withdrawn": "node ../../scripts/verify-nested-reservation-registered.mjs cancel-refused-withdrawn",
-    "test:nested-reservation-cancel-refused-live": "node ../../scripts/verify-nested-reservation-registered.mjs cancel-refused-live"
+    "test:nested-reservation-cancel-refused-live": "node ../../scripts/verify-nested-reservation-registered.mjs cancel-refused-live",
+    "test:nested-reservation-fault-declared-owner-unclassified": "node ../../scripts/verify-nested-reservation-registered.mjs fault-declared-owner-unclassified",
+    "test:nested-reservation-fault-declared-owner-expansion": "node ../../scripts/verify-nested-reservation-registered.mjs fault-declared-owner-expansion",
+    "test:nested-reservation-fault-retirement-backoff": "node ../../scripts/verify-nested-reservation-registered.mjs fault-retirement-backoff",
+    "test:nested-reservation-result-caller-deadline": "node ../../scripts/verify-nested-reservation-registered.mjs result-caller-deadline"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

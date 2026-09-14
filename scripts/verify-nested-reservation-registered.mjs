@@ -1,20 +1,47 @@
 import { fileURLToPath } from 'node:url';
+import os from 'node:os';
+import { syncBuiltinESMExports } from 'node:module';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 const selector = process.argv[2];
-const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport","isolated-observation-retry","isolated-observation-unavailable","cancel-refused-withdrawn","cancel-refused-live"];
+const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport","isolated-observation-retry","isolated-observation-unavailable","cancel-refused-withdrawn","cancel-refused-live","fault-declared-owner-unclassified","fault-declared-owner-expansion","fault-retirement-backoff","result-caller-deadline"];
 if (process.argv.length !== 3 || !selectors.includes(selector)) throw new Error('Unknown nested reservation regression selector');
 // Only selectors that need Darwin kernel descriptor or process identity observation are
 // platform-gated; the executor result-contract selectors run through the platform
 // independent queue in a private OS-home namespace and execute everywhere.
-const DARWIN_ONLY = new Set(selectors.filter(name => !name.startsWith('result-')));
+// Result-contract selectors exercise executor folding on any platform, except the one that
+// patches the Darwin-only controller cleanup.
+const DARWIN_ONLY = new Set(selectors.filter(name => !name.startsWith('result-') || name === 'result-post-capture-cleanup'));
 if (process.platform !== 'darwin' && DARWIN_ONLY.has(selector)) {
   console.log('NESTED_RESERVATION_REGISTERED SKIP ' + selector + ': requires Darwin kernel descriptor and process identity observation; platform=' + process.platform);
 } else {
   process.chdir(fileURLToPath(new URL('../', import.meta.url)));
   switch (selector) {
-    case "core":
-      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-verification-machine-owner.mjs", import.meta.url)), ...[]];
-      await import("./verify-nested-verification-machine-owner.mjs");
+    case "core": {
+      // The pinned driver must own the machine pool it exercises. Under the real executor this
+      // wrapper inherits a delegated reservation, so the driver runs in a private OS-home
+      // namespace with the locator removed and becomes that namespace's genuine owner. The
+      // machine pool root is derived from os.userInfo().homedir, exactly as the Lab's
+      // source-runtime isolation overrides it; the override is loaded here and forwarded to
+      // every child through NODE_OPTIONS and applied in place here, and the driver itself
+      // stays a static import.
+      const scratch = mkdtempSync(join(os.tmpdir(), 'nested-core-home-'));
+      const home = join(scratch, 'home'); mkdirSync(home);
+      const isolation = join(scratch, 'isolate-home.mjs');
+      writeFileSync(isolation, `import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';const original=os.userInfo;os.userInfo=(...args)=>({...original(...args),homedir:${JSON.stringify(home)}});os.homedir=()=>${JSON.stringify(home)};syncBuiltinESMExports();`);
+      process.env.HOME = home;
+      process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS ?? ''} --import=${JSON.stringify(isolation)}`.trim();
+      delete process.env.PROOF_OR_STOP_VALIDATION_RESERVATION_FD;
+      const originalUserInfo = os.userInfo;
+      os.userInfo = (...args) => ({ ...originalUserInfo(...args), homedir: home });
+      os.homedir = () => home;
+      syncBuiltinESMExports();
+      try {
+        process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-verification-machine-owner.mjs", import.meta.url)), ...[]];
+        await import("./verify-nested-verification-machine-owner.mjs");
+      } finally { rmSync(scratch, { recursive: true, force: true }); }
       break;
+    }
     case "fault-registered":
       process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-faults.mjs", import.meta.url)), ...["registered"]];
       await import("./verify-nested-reservation-faults.mjs");
@@ -150,6 +177,22 @@ if (process.platform !== 'darwin' && DARWIN_ONLY.has(selector)) {
     case "cancel-refused-live":
       process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-cancellation.mjs", import.meta.url)), ...["refused-registration-live"]];
       await import("./verify-nested-reservation-cancellation.mjs");
+      break;
+    case "fault-declared-owner-unclassified":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-faults.mjs", import.meta.url)), ...["declared-owner-unclassified"]];
+      await import("./verify-nested-reservation-faults.mjs");
+      break;
+    case "fault-declared-owner-expansion":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-faults.mjs", import.meta.url)), ...["declared-owner-expansion"]];
+      await import("./verify-nested-reservation-faults.mjs");
+      break;
+    case "fault-retirement-backoff":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-faults.mjs", import.meta.url)), ...["retirement-backoff"]];
+      await import("./verify-nested-reservation-faults.mjs");
+      break;
+    case "result-caller-deadline":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-validation-result-contract.mjs", import.meta.url)), ...["caller-deadline-before-prepare"]];
+      await import("./verify-nested-validation-result-contract.mjs");
       break;
     default: throw new Error('Unreachable nested reservation selector');
   }
