@@ -199,7 +199,7 @@ await checkAsync('parent-process secrets never enter short or durable selector e
     });
     assert.equal(long.verdict.result, 'pass');
     assert.equal(persistedSelectorOutput.includes(secret), false);
-    assert.equal(long.receipt.outputTail, persistedSelectorOutput.slice(-CAUSAL_OUTPUT_TAIL_CHARS).replace(/\0/g, '<redacted>'));
+    assert.equal(long.receipt.outputTail, persistedSelectorOutput.replace(/\0/g, '<redacted>').slice(-CAUSAL_OUTPUT_TAIL_CHARS));
   } finally {
     if (previous === undefined) delete process.env.GITHUB_TOKEN;
     else process.env.GITHUB_TOKEN = previous;

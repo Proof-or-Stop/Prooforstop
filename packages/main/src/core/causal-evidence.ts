@@ -832,10 +832,10 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         run.output,
         { ...process.env, ...args.identity.effectiveEnvironment },
       );
-      const redactedOutput = redactCausalOutput(
-        run.output,
-        { ...process.env, ...args.identity.effectiveEnvironment },
-      );
+      // Every persisted output projection must describe the same redacted byte
+      // stream. Credential values use NUL while matching, then the printable
+      // marker below; benign selector-visible values remain visible everywhere.
+      const redactedOutput = matchingOutput.replace(/\0/g, REDACTED);
       const longOutput = matchingOutput.length > CAUSAL_MAX_OUTPUT_CHARS;
       const durableOutput = longOutput && args.receiptStore?.readCausalSelectorOutput && args.receiptStore?.writeCausalSelectorOutput
         && matchingOutput.length <= CAUSAL_SELECTOR_OUTPUT_BOUND_BYTES

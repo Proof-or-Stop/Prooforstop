@@ -1649,6 +1649,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/material-code-policy.ts',
       'packages/main/src/core/review-assurance-floor.ts',
       'packages/main/src/handlers/scope-contract.ts',
+      'packages/main/src/handlers/done-prepare.ts',
       'packages/main/src/handlers/done-effects.ts',
       'packages/main/src/handlers/done-recover.ts',
       'packages/main/src/handlers/release.ts',
