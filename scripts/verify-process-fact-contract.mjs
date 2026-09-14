@@ -8477,6 +8477,33 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
     `${processFactRegistryPath}: duplicate PROCESS_FACT_REGISTRY entries: ${duplicateRegistryNames.join(', ')}`,
   );
 
+  const managedDescriptorText = read('packages/main/src/core/managed-artifact-descriptors.ts');
+  const lifecycleRegistryText = read('packages/main/src/core/lifecycle-registry.ts');
+  const runtimeProjectionText = read('packages/main/src/core/controller-runtime-projection.ts');
+  const configProjectionText = read('packages/main/src/core/controller-config-projection.ts');
+  assert(
+    lifecycleRegistryText.includes('...CONTROLLER_PROJECTION_ARTIFACTS.map((artifact) => artifact.path)'),
+    'controller projection lifecycle paths must derive from the canonical managed artifact descriptors',
+  );
+  for (const descriptor of [
+    { id: 'controller-config-projection-receipt', path: 'evidence/controller-config-projection.json', producerText: configProjectionText },
+    { id: 'controller-runtime-projection-receipt', path: 'evidence/controller-runtime-projection.json', producerText: runtimeProjectionText },
+  ]) {
+    assert(
+      managedDescriptorText.includes(`id: '${descriptor.id}'`) && managedDescriptorText.includes(`path: '${descriptor.path}'`),
+      `managed artifact descriptor missing ${descriptor.id}`,
+    );
+    assert(
+      descriptor.producerText.includes('PROJECTION_ARTIFACT.path'),
+      `producer must derive ${descriptor.id} path from the managed artifact descriptor`,
+    );
+    const processEntry = registry.get(`artifact:${descriptor.path}`);
+    assert(
+      processEntry?.artifact?.name === descriptor.id && processEntry.artifact.path === descriptor.path,
+      `process fact registry must derive ${descriptor.id} from the managed artifact descriptor`,
+    );
+  }
+
   for (const entry of registryEntries) {
     assert(processFactRegistryKinds.has(entry.kind), `${processFactRegistryPath}: ${entry.name} has unknown kind "${entry.kind}"`);
     assert(Array.isArray(entry.semantics), `${processFactRegistryPath}: ${entry.name} must declare semantics[]`);

@@ -58,7 +58,17 @@ function readJournal(store: StoryStore, storyId: string, root: string): Acceptan
 export { readJournal as readAuthenticatedAcceptanceAmendmentJournal };
 function snapshot(store: StoryStore, storyId: string): AcceptanceAmendmentSnapshot {
   const scope = store.readScopeContract(storyId), proofStory = store.readProofStoryContract(storyId);
-  if (!scope || !proofStory) throw new Error('acceptance amendment requires current scope and ProofStory contracts');
+  if (!scope || !proofStory) {
+    const missing = [
+      ...(!scope ? [
+        `scope-contract.json (run: proof-or-stop scope_contract_init_from_plan --storyId=${storyId})`,
+      ] : []),
+      ...(!proofStory ? [
+        `proofstory-contract.json (run: proof-or-stop proofstory_contract_set --storyId=${storyId} with the planned acceptance bindings)`,
+      ] : []),
+    ];
+    throw new Error(`acceptance amendment prerequisites missing for ${storyId}: ${missing.join('; ')}`);
+  }
   return { storyId, checklist: store.readChecklist(storyId), scope, proofStory };
 }
 

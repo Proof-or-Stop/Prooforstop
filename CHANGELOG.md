@@ -1,5 +1,34 @@
 # Changelog
 
+## Lab lifecycle-portability-hardening - v0.3.365 - 2026-09-15
+
+Fixed the global-thin lifecycle deadlock where Proof-or-Stop generated a signed
+controller runtime projection receipt and then rejected that same receipt as an
+out-of-scope Story change. Controller projection artifacts now share one
+descriptor inventory across producers and lifecycle classification, and the
+runtime receipt receives a strict current-Story, worktree, common-receipt,
+signature, tracked-file, digest, and byte-identity check before scope admission.
+Tampered, missing, tracked, mismatched, and context-free projections remain
+fail-closed with framework-owned recovery diagnostics.
+
+Read-only `proof-or-stop check` calls from global-thin linked worktrees now
+inspect the primary controller. `check --apply` and `check --upgrade` refuse to
+write project-level managed assets into the Story worktree and return the exact
+controller command. Acceptance-amendment failures now identify each missing
+scope or ProofStory prerequisite and its creation command.
+
+Verification passed: benchmark framework hardening smoke with main/master
+projection scope gates and tamper/deletion/tracked controls; managed-assets
+wrapper-root smoke; scope-contract smoke; external-worktree Go pre-review
+smoke; TypeScript build; and the full process-fact contract. The runtime-fact
+contract retained the identical pre-existing U18 static baseline (71
+needs-review, 17 skipped, 262 exceptions).
+
+Maintenance provenance: codex/lab-lifecycle-portability-hardening. This entry
+records Codex-reviewed Lab maintenance under the user's explicit no-Claude
+instruction; it does not assert a different-vendor Lab audit or formal Story
+DONE.
+
 ## Lab lifecycle-portability-hardening - v0.3.364 - 2026-09-14
 
 Fixed benchmark lifecycle portability and fail-closed behavior across controller asset projection, INIT review planning, Go command evidence, integration-branch resolution, remote-push approval, causal receipt redaction, and scope classification. Public CLI, policy, process-fact, and operator guidance now describe the resolved integration branch consistently.

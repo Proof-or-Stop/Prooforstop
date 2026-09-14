@@ -3,10 +3,11 @@ import { execFileSync } from 'node:child_process';
 import { closeSync, constants, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
+import { CONTROLLER_CONFIG_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
 
 const SCHEMA = 'proof-or-stop.controller-config-projection.v1' as const;
 const RECEIPT_DIR = 'proof-or-stop-controller-config-projections';
-const STORY_RECEIPT_RELATIVE = 'evidence/controller-config-projection.json';
+const STORY_RECEIPT_RELATIVE = CONTROLLER_CONFIG_PROJECTION_ARTIFACT.path;
 
 interface ProjectionClaims {
   schemaVersion: typeof SCHEMA;

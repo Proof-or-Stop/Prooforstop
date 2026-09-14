@@ -6,7 +6,8 @@
  */
 
 import { classifyLifecycleArtifact, classifySharedLifecycleMetadata } from './lifecycle-registry.js';
-import { findRuntimeArtifactEntry, isByteIdenticalControllerConfig, isByteIdenticalControllerRuntimeAsset } from './runtime-artifact-registry.js';
+import { findRuntimeArtifactEntry, inspectControllerRuntimeProjectionReceipt, isByteIdenticalControllerConfig, isByteIdenticalControllerRuntimeAsset } from './runtime-artifact-registry.js';
+import { CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
 import { existsSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { STATE_DIR_NAMES } from './brand-paths.js';
@@ -301,6 +302,12 @@ function classification(args: {
   matchedPattern?: string;
   registryId?: string;
   hint?: string;
+  owner?: ScopePathClassification['owner'];
+  origin?: ScopePathClassification['origin'];
+  blockerCode?: string;
+  nextCommand?: string;
+  safeToAutoRun?: boolean;
+  nextAction?: string;
 }): ScopePathClassification {
   return {
     path: args.path,
@@ -313,6 +320,12 @@ function classification(args: {
     ...(args.matchedPattern ? { matchedPattern: args.matchedPattern } : {}),
     ...(args.registryId ? { registryId: args.registryId } : {}),
     ...(args.hint ? { hint: args.hint } : {}),
+    ...(args.owner ? { owner: args.owner } : {}),
+    ...(args.origin ? { origin: args.origin } : {}),
+    ...(args.blockerCode ? { blockerCode: args.blockerCode } : {}),
+    ...(args.nextCommand ? { nextCommand: args.nextCommand } : {}),
+    ...(args.safeToAutoRun !== undefined ? { safeToAutoRun: args.safeToAutoRun } : {}),
+    ...(args.nextAction ? { nextAction: args.nextAction } : {}),
   };
 }
 
@@ -384,7 +397,66 @@ export function classifyScopePath(
     });
   }
 
-  const lifecycle = classifyLifecycleArtifact(normalizedPath, { storyId: contract.storyId });
+  const lifecycleCandidate = classifyLifecycleArtifact(normalizedPath, { storyId: contract.storyId });
+  const isRuntimeReceipt = lifecycleCandidate
+    && normalizedPath.endsWith(`/${CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.path}`);
+  const runtimeReceipt = isRuntimeReceipt
+    ? (options.projectRoot ? inspectControllerRuntimeProjectionReceipt({
+      projectRoot: options.projectRoot,
+      gitCwd: options.gitCwd ?? options.projectRoot,
+      storyId: contract.storyId,
+      path: normalizedPath,
+    }) : { matched: true, valid: false, reason: 'verification-context-missing' })
+    : null;
+  if (runtimeReceipt?.matched) {
+    const controllerRoot = runtimeReceipt.controllerRoot ?? options.projectRoot ?? null;
+    const receiptAbsolute = options.projectRoot && runtimeReceipt.expectedPath
+      ? join(options.projectRoot, runtimeReceipt.expectedPath)
+      : null;
+    const storyReceiptRepairable = runtimeReceipt.reason === 'story-receipt-invalid' && receiptAbsolute !== null;
+    const nextCommand = storyReceiptRepairable
+      ? `rm -f -- ${JSON.stringify(receiptAbsolute!)} && cd ${JSON.stringify(options.projectRoot!)} && proof-or-stop session_brief`
+      : controllerRoot
+        ? `cd ${JSON.stringify(controllerRoot)} && proof-or-stop check`
+        : `proof-or-stop scope_contract_check --storyId=${contract.storyId}`;
+    if (runtimeReceipt.valid) {
+      return classification({
+        path,
+        category: 'lifecycle_artifact',
+        source: 'runtime-artifact-registry',
+        rule: 'lifecycle_artifact',
+        allowed: true,
+        detail: 'Signed controller runtime projection receipt matches the current Story, controller, worktree, common receipt and exact hook bytes.',
+        registryId: CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.id,
+        owner: 'proof-or-stop',
+        origin: 'proof-or-stop-generated',
+        safeToAutoRun: true,
+        hint: 'This exact receipt is admitted only while the complete signed projection proof remains valid.',
+      });
+    }
+    return classification({
+      path,
+      category: 'unknown',
+      source: 'runtime-artifact-registry',
+      rule: 'untrusted_runtime_receipt',
+      allowed: false,
+      detail: `Controller runtime projection receipt is not trusted: ${runtimeReceipt.reason}.`,
+      registryId: CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.id,
+      owner: 'proof-or-stop',
+      origin: 'proof-or-stop-generated',
+      blockerCode: 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT',
+      nextCommand,
+      safeToAutoRun: Boolean(storyReceiptRepairable),
+      nextAction: storyReceiptRepairable
+        ? `The common signed receipt is valid but the Story copy is invalid. Recreate only that controller-owned copy with: ${nextCommand}. Do not expand product Story scope.`
+        : controllerRoot
+          ? `The projection authority or hook bytes require controller repair. Inspect the primary controller with: ${nextCommand}; repair its managed assets, then rerun a Story command to re-attest the projection. Do not expand product Story scope.`
+          : `Projection verification requires the registered Story worktree context. Rerun there with: ${nextCommand}. Do not expand product Story scope.`,
+      hint: 'The framework projection proof is invalid; acceptance_amendment_propose cannot repair a framework-owned artifact.',
+    });
+  }
+
+  const lifecycle = lifecycleCandidate;
   if (lifecycle) {
     return classification({
       path,

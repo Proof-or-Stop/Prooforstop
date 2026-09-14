@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { closeSync, constants, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
+import { CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
 
 export const CONTROLLER_RUNTIME_ASSET_PATHS = [
   '.codex/hooks.json',
@@ -12,7 +13,7 @@ export const CONTROLLER_RUNTIME_ASSET_PATHS = [
 
 const SCHEMA = 'proof-or-stop.controller-runtime-projection.v1' as const;
 const COMMON_RECEIPT_DIR = 'proof-or-stop-controller-runtime-projections';
-const STORY_RECEIPT = 'evidence/controller-runtime-projection.json';
+export const CONTROLLER_RUNTIME_PROJECTION_STORY_RECEIPT = CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.path;
 
 interface Claims {
   schemaVersion: typeof SCHEMA;
@@ -98,7 +99,7 @@ export function attestControllerRuntimeProjection(args: { gitCwd: string; storyI
   if (expected.assets.length === 0) return;
   const common = commonRoot(args.gitCwd);
   const commonReceipt = join(common, COMMON_RECEIPT_DIR, `${args.storyId}.json`);
-  const storyReceipt = join(realpathSync(args.storyRoot), STORY_RECEIPT);
+  const storyReceipt = join(realpathSync(args.storyRoot), CONTROLLER_RUNTIME_PROJECTION_STORY_RECEIPT);
   const record = { ...expected, signature: signValidationArtifact(expected, args.gitCwd) };
   if (existsSync(commonReceipt)) {
     if (!matches(commonReceipt, expected, common, args.gitCwd)) throw new Error('controller runtime projection refused controller asset drift');
@@ -114,9 +115,35 @@ export function hasValidControllerRuntimeProjection(args: { gitCwd: string; stor
     if (expected.assets.length === 0) return false;
     const common = commonRoot(args.gitCwd);
     if (!matches(join(common, COMMON_RECEIPT_DIR, `${args.storyId}.json`), expected, common, args.gitCwd)) return false;
-    if (!matches(join(realpathSync(args.storyRoot), STORY_RECEIPT), expected, args.storyRoot, args.gitCwd)) return false;
+    if (!matches(join(realpathSync(args.storyRoot), CONTROLLER_RUNTIME_PROJECTION_STORY_RECEIPT), expected, args.storyRoot, args.gitCwd)) return false;
     return expected.assets.every(({ path }) =>
       safeRegularFile(args.controllerRoot, join(args.controllerRoot, path)).equals(safeRegularFile(args.worktreeRoot, join(args.worktreeRoot, path))),
     );
   } catch { return false; }
+}
+
+export interface ControllerRuntimeProjectionInspection {
+  valid: boolean;
+  reason: 'valid' | 'no-controller-assets' | 'common-receipt-invalid' | 'story-receipt-invalid' | 'asset-bytes-differ' | 'workspace-invalid';
+}
+
+/** Explain the same strict proof used by hook classification without weakening it. */
+export function inspectControllerRuntimeProjection(args: { gitCwd: string; storyId: string; controllerRoot: string; worktreeRoot: string; storyRoot: string }): ControllerRuntimeProjectionInspection {
+  try {
+    const expected = buildClaims(args);
+    if (expected.assets.length === 0) return { valid: false, reason: 'no-controller-assets' };
+    const common = commonRoot(args.gitCwd);
+    if (!matches(join(common, COMMON_RECEIPT_DIR, `${args.storyId}.json`), expected, common, args.gitCwd)) {
+      return { valid: false, reason: 'common-receipt-invalid' };
+    }
+    if (!matches(join(realpathSync(args.storyRoot), CONTROLLER_RUNTIME_PROJECTION_STORY_RECEIPT), expected, args.storyRoot, args.gitCwd)) {
+      return { valid: false, reason: 'story-receipt-invalid' };
+    }
+    const identical = expected.assets.every(({ path }) =>
+      safeRegularFile(args.controllerRoot, join(args.controllerRoot, path)).equals(safeRegularFile(args.worktreeRoot, join(args.worktreeRoot, path))),
+    );
+    return identical ? { valid: true, reason: 'valid' } : { valid: false, reason: 'asset-bytes-differ' };
+  } catch {
+    return { valid: false, reason: 'workspace-invalid' };
+  }
 }

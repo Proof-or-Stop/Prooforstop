@@ -2213,7 +2213,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'workspace-binding', 'gate-evidence'],
     level: 'L4',
     producer: 'cli/runtime-root via core/controller-config-projection',
-    consumerGate: 'scope-path classifier and scope-contract REVIEW admission',
+    producerSourceRefs: [
+      'packages/main/src/core/managed-artifact-descriptors.ts',
+      'packages/main/src/core/controller-config-projection.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/lifecycle-registry.ts',
+      'packages/main/src/core/scope-path-classifier.ts',
+      'packages/main/src/core/scope-contract.ts',
+    ],
+    consumerGate: 'scope-contract REVIEW admission',
     artifact: {
       name: 'controller-config-projection-receipt',
       path: 'evidence/controller-config-projection.json',
@@ -2221,7 +2230,33 @@ export const PROCESS_FACT_ARTIFACTS = [
       signature: 'signValidationArtifact/verifyValidationArtifact binds first projected config digest, Story, controller root, worktree root, and config path',
       consumerGate: 'scope-contract REVIEW admission',
     },
-    rationale: 'Only an untracked config pair matching both immutable first-projection receipts can be classified as a control artifact. Both receipt stores enforce canonical containment and no-follow regular-file ancestry. Editing either or both config copies, deleting, replacing, aliasing, or redirecting either receipt, changing workspace identity, using a tracked path, or losing the signing key returns the config to ordinary fail-closed scope enforcement.',
+    rationale: 'The canonical managed artifact descriptor owns the producer path and lifecycle registration. Only an untracked config pair matching both immutable first-projection receipts is admitted; editing either copy or receipt returns it to ordinary fail-closed scope enforcement.',
+  },
+  {
+    name: 'artifact:evidence/controller-runtime-projection.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'workspace-binding', 'gate-evidence'],
+    level: 'L4',
+    producer: 'cli/runtime-root via core/controller-runtime-projection',
+    producerSourceRefs: [
+      'packages/main/src/core/managed-artifact-descriptors.ts',
+      'packages/main/src/core/controller-runtime-projection.ts',
+    ],
+    consumerSourceRefs: [
+      'packages/main/src/core/lifecycle-registry.ts',
+      'packages/main/src/core/runtime-artifact-registry.ts',
+      'packages/main/src/core/scope-path-classifier.ts',
+      'packages/main/src/core/scope-contract.ts',
+    ],
+    consumerGate: 'scope-path classifier and scope-contract REVIEW admission',
+    artifact: {
+      name: 'controller-runtime-projection-receipt',
+      path: 'evidence/controller-runtime-projection.json',
+      signed: true,
+      signature: 'signValidationArtifact/verifyValidationArtifact binds Story, controller root, worktree root, exact hook paths and digests',
+      consumerGate: 'scope-path classifier and scope-contract REVIEW admission',
+    },
+    rationale: 'The canonical managed artifact descriptor owns the producer path and lifecycle registration. The Story receipt is admitted only while its signed common receipt, workspace identity, exact hook set and byte identity remain valid; tampering fails closed as a framework-owned projection error.',
   },
   {
     name: 'artifact:managed-review-evidence-proposal',

@@ -47,6 +47,7 @@ import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { createAcceptanceAmendmentController } from '../core/acceptance-amendment-journal.js';
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import { signCanonical } from '../core/authority-signing.js';
+import { runScopeTransitionGate } from '../handlers/phase-gates.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '../../..');
@@ -422,18 +423,54 @@ check('linked worktree inherits global-thin identity from the common repository'
     assert.equal(completeProjectionScope.status, 'pass', completeProjectionScope.summary);
     assert.equal(completeProjectionScope.violations.length, 0);
 
+    const worktreeStore = new StoryStore(worktree);
+    worktreeStore.writeScopeContract('B-global-thin', {
+      ...contract,
+      allowedModify: ['src/feature.ts'],
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+    });
+    const scopeContext: HandlerContext = { root: worktree, scanRoot: worktree, store: worktreeStore };
+    assert.doesNotThrow(() => runScopeTransitionGate(scopeContext, 'B-global-thin', 'REVIEW'));
+
     writeFileSync(runtimeReceiptAbsolute, `${runtimeReceiptBytes.toString('utf8').trim()}tampered\n`);
     const tamperedReceipt = classifyScopePath(contract, runtimeReceiptPath, { projectRoot: worktree, gitCwd: worktree });
     assert.equal(tamperedReceipt.allowed, false);
     assert.equal((tamperedReceipt as any).blockerCode, 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT');
     assert.equal((tamperedReceipt as any).owner, 'proof-or-stop');
     assert.doesNotMatch((tamperedReceipt as any).nextAction ?? '', /acceptance_amendment_propose/);
+    assert.equal((tamperedReceipt as any).safeToAutoRun, true);
+    assert.match((tamperedReceipt as any).nextCommand ?? '', /rm -f -- .*controller-runtime-projection\.json.*proof-or-stop session_brief/);
     assertControllerExemptionRefused(classifyScopePath(contract, CONTROLLER_RUNTIME_ASSET_PATHS[0], { projectRoot: worktree, gitCwd: worktree }));
+    assert.throws(
+      () => runScopeTransitionGate(scopeContext, 'B-global-thin', 'REVIEW'),
+      (error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        assert.match(message, /UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT/);
+        assert.match(message, /Do not expand product Story scope/);
+        assert.doesNotMatch(message, /用 acceptance_amendment_propose/);
+        return true;
+      },
+    );
     writeFileSync(runtimeReceiptAbsolute, runtimeReceiptBytes);
+
+    const commonReceiptAbsolute = join(root, '.git', 'proof-or-stop-controller-runtime-projections', 'B-global-thin.json');
+    const commonReceiptBytes = readFileSync(commonReceiptAbsolute);
+    writeFileSync(commonReceiptAbsolute, `${commonReceiptBytes.toString('utf8').trim()}tampered\n`);
+    const tamperedCommonReceipt = classifyScopePath(contract, runtimeReceiptPath, { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(tamperedCommonReceipt.allowed, false);
+    assert.equal((tamperedCommonReceipt as any).safeToAutoRun, false);
+    assert.match((tamperedCommonReceipt as any).nextCommand ?? '', /proof-or-stop check/);
+    writeFileSync(commonReceiptAbsolute, commonReceiptBytes);
 
     rmSync(runtimeReceiptAbsolute);
     assertControllerExemptionRefused(classifyScopePath(contract, CONTROLLER_RUNTIME_ASSET_PATHS[0], { projectRoot: worktree, gitCwd: worktree }));
     writeFileSync(runtimeReceiptAbsolute, runtimeReceiptBytes);
+
+    git(worktree, ['add', '-f', runtimeReceiptPath]);
+    const trackedReceipt = classifyScopePath(contract, runtimeReceiptPath, { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(trackedReceipt.allowed, false);
+    assert.equal((trackedReceipt as any).blockerCode, 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT');
+    git(worktree, ['reset', '-q', 'HEAD', '--', runtimeReceiptPath]);
 
     const asset = CONTROLLER_RUNTIME_ASSET_PATHS[0];
     const controllerBytes = readFileSync(join(root, asset));
@@ -469,6 +506,48 @@ check('controller runtime projection receipt is registered as one managed proces
     PROCESS_FACT_REGISTRY.filter(entry => entry.name === 'artifact:evidence/controller-runtime-projection.json').length,
     1,
   );
+  const withoutVerificationContext = classifyScopePath({
+    storyId: 'B-registry', allowedModify: ['src/feature.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [],
+  }, '.proof-or-stop/story/actives/B-registry/evidence/controller-runtime-projection.json');
+  assert.equal(withoutVerificationContext.allowed, false);
+  assert.equal((withoutVerificationContext as any).blockerCode, 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT');
+});
+
+check('global-thin DEV to REVIEW scope gate admits a complete projection on main and master', () => {
+  for (const integrationBranch of ['main', 'master']) {
+    const root = mkdtempSync(join(tmpdir(), `proof-or-stop-${integrationBranch}-projection-gate-`));
+    const storyId = `B-${integrationBranch}-projection`;
+    const worktree = join(root, '.worktrees', storyId);
+    try {
+      initRepo(root, integrationBranch);
+      write(root, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ assetMode: 'global-thin' }));
+      write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+      write(root, `.proof-or-stop/story/actives/${storyId}/index.json`, JSON.stringify({ storyId, phase: 'DEV' }));
+      write(root, '.codex/hooks.json', '{"hooks":[]}\n');
+      write(root, '.codex/hooks/proof-or-stop-evidence-pretool.cjs', 'module.exports = {};\n');
+      write(root, '.codex/hooks/proof-or-stop-scope-pretool.cjs', 'module.exports = {};\n');
+      git(root, ['branch', `story/${storyId}`]);
+      mkdirSync(dirname(worktree), { recursive: true });
+      git(root, ['worktree', 'add', '-q', worktree, `story/${storyId}`]);
+      projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId });
+      const store = new StoryStore(worktree);
+      store.writeScopeContract(storyId, {
+        storyId,
+        mode: 'enforce',
+        allowedModify: ['src/feature.ts'],
+        allowedCreate: [],
+        allowedTest: [],
+        protectedFiles: [],
+        explicitExcludes: [],
+        acknowledgements: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+      });
+      const ctx: HandlerContext = { root: worktree, scanRoot: worktree, store };
+      assert.doesNotThrow(() => runScopeTransitionGate(ctx, storyId, 'REVIEW'), `${integrationBranch} projection should pass the real transition scope gate`);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
 });
 
 check('global-thin Story worktree check inspects the controller and refuses local apply', () => {

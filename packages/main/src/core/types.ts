@@ -3536,6 +3536,7 @@ export type ScopePathRule =
   | 'allowed_test'
   | 'lifecycle_artifact'
   | 'runtime_artifact'
+  | 'untrusted_runtime_receipt'
   | 'unknown';
 
 export interface ScopePathClassification {
@@ -3549,6 +3550,12 @@ export interface ScopePathClassification {
   matchedPattern?: string;
   registryId?: string;
   hint?: string;
+  owner?: 'proof-or-stop' | 'story';
+  origin?: 'proof-or-stop-generated' | 'story-change';
+  blockerCode?: string;
+  nextCommand?: string;
+  safeToAutoRun?: boolean;
+  nextAction?: string;
 }
 
 export interface ScopeCheckRow {
@@ -3566,6 +3573,10 @@ export interface ScopeCheckRow {
   rule?: ScopePathRule;
   nextAction?: string;
   hint?: string;
+  owner?: 'proof-or-stop' | 'story';
+  blockerCode?: string;
+  nextCommand?: string;
+  safeToAutoRun?: boolean;
 }
 
 export interface ScopeViolation {

@@ -8,7 +8,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { hasValidControllerConfigProjection } from './controller-config-projection.js';
-import { CONTROLLER_RUNTIME_ASSET_PATHS, hasValidControllerRuntimeProjection } from './controller-runtime-projection.js';
+import { CONTROLLER_RUNTIME_ASSET_PATHS, inspectControllerRuntimeProjection } from './controller-runtime-projection.js';
+import { CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
 import { loadConfig } from './config.js';
 
 function hasGitMetadata(dir: string): boolean {
@@ -87,14 +88,55 @@ export function isByteIdenticalControllerRuntimeAsset(args: {
     for (const cwd of [worktreeRoot, controllerRoot]) {
       if (execFileSync('git', ['ls-files', '--', args.path], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) return false;
     }
-    return hasValidControllerRuntimeProjection({
+    return inspectControllerRuntimeProjection({
       gitCwd: worktreeRoot,
       storyId: args.storyId,
       controllerRoot,
       worktreeRoot,
       storyRoot: join(worktreeRoot, loadConfig(worktreeRoot).storyDir, args.storyId),
-    });
+    }).valid;
   } catch { return false; }
+}
+
+export interface ControllerRuntimeProjectionReceiptStatus {
+  matched: boolean;
+  valid: boolean;
+  reason: string;
+  expectedPath?: string;
+  controllerRoot?: string;
+}
+
+/** Classify the exact Story receipt path and verify its full projection proof. */
+export function inspectControllerRuntimeProjectionReceipt(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  path: string;
+}): ControllerRuntimeProjectionReceiptStatus {
+  try {
+    const worktreeRoot = realpathSync(args.gitCwd);
+    if (realpathSync(args.projectRoot) !== worktreeRoot) return { matched: false, valid: false, reason: 'project-root-mismatch' };
+    const config = loadConfig(worktreeRoot);
+    const expectedPath = `${config.storyDir.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/$/, '')}/${args.storyId}/${CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.path}`;
+    if (args.path.replace(/\\/g, '/').replace(/^\.\//, '') !== expectedPath) return { matched: false, valid: false, reason: 'different-path', expectedPath };
+    const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (controllerRoot === worktreeRoot) return { matched: true, valid: false, reason: 'not-linked-worktree', expectedPath, controllerRoot };
+    const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (branch !== `refs/heads/story/${args.storyId}`) return { matched: true, valid: false, reason: 'story-branch-mismatch', expectedPath, controllerRoot };
+    if (execFileSync('git', ['ls-files', '--', expectedPath], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) {
+      return { matched: true, valid: false, reason: 'tracked-story-receipt', expectedPath, controllerRoot };
+    }
+    const inspection = inspectControllerRuntimeProjection({
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      controllerRoot,
+      worktreeRoot,
+      storyRoot: join(worktreeRoot, config.storyDir, args.storyId),
+    });
+    return { matched: true, valid: inspection.valid, reason: inspection.reason, expectedPath, controllerRoot };
+  } catch {
+    return { matched: true, valid: false, reason: 'workspace-or-receipt-invalid' };
+  }
 }
 
 export type RuntimeArtifactPathMatcher =

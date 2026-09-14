@@ -365,6 +365,10 @@ function passRow(classification: ScopePathClassification): ScopeCheckRow {
     rule: classification.rule,
     detail: classification.detail,
     hint: classification.hint ?? 'This path is non-blocking under the shared scope classifier.',
+    owner: classification.owner,
+    blockerCode: classification.blockerCode,
+    nextCommand: classification.nextCommand,
+    safeToAutoRun: classification.safeToAutoRun,
   };
 }
 
@@ -407,8 +411,12 @@ function problemRow(
     category: classification.category,
     rule: violation.rule,
     detail: `${classification.detail}${violation.acknowledged ? ' A matching acknowledgement exists.' : ''}`,
-    nextAction: nextActionForViolation(contract, violation),
+    nextAction: classification.nextAction ?? nextActionForViolation(contract, violation),
     hint: classification.hint ?? 'Scope rows are derived from the shared path classifier; unclassified paths use out_of_scope behavior.',
+    owner: classification.owner,
+    blockerCode: classification.blockerCode,
+    nextCommand: classification.nextCommand,
+    safeToAutoRun: classification.safeToAutoRun,
   };
 }
 
