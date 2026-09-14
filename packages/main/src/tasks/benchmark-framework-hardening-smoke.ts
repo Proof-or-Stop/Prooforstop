@@ -40,7 +40,11 @@ import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/part
 import { evaluateRegisteredCommandEvidence } from '../core/pre-review-check.js';
 import { writeReleasePushApproval } from '../core/release-push-approval.js';
 import { CONTROLLER_RUNTIME_ASSET_PATHS } from '../core/controller-runtime-projection.js';
-import { classifyScopePath } from '../core/scope-path-classifier.js';
+import { classifyScopePath, SCOPE_PATH_CANONICALIZER_VERSION } from '../core/scope-path-classifier.js';
+import { checkScopeContract } from '../core/scope-contract.js';
+import { classifyLifecycleArtifact } from '../core/lifecycle-registry.js';
+import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
+import { createAcceptanceAmendmentController } from '../core/acceptance-amendment-journal.js';
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import { signCanonical } from '../core/authority-signing.js';
 
@@ -382,7 +386,7 @@ check('linked worktree inherits global-thin identity from the common repository'
     assert.equal(isManagedGlobalThinRoot(worktree), true);
     projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId: 'B-global-thin' });
     const contract = {
-      storyId: 'B-global-thin', mode: 'enforce', allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
+      storyId: 'B-global-thin', mode: 'enforce' as const, allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
     };
     const assertControllerExemptionRefused = (classification: ReturnType<typeof classifyScopePath>) => {
@@ -396,7 +400,40 @@ check('linked worktree inherits global-thin identity from the common repository'
       assert.equal(classification.category, 'runtime_artifact');
       assert.equal(classification.registryId, 'external-controller-runtime');
     }
-    assert.equal(existsSync(join(worktree, '.proof-or-stop/story/actives/B-global-thin/evidence/controller-runtime-projection.json')), true);
+    const runtimeReceiptPath = '.proof-or-stop/story/actives/B-global-thin/evidence/controller-runtime-projection.json';
+    const runtimeReceiptAbsolute = join(worktree, runtimeReceiptPath);
+    assert.equal(existsSync(runtimeReceiptAbsolute), true);
+    const runtimeReceiptBytes = readFileSync(runtimeReceiptAbsolute);
+    const receiptClassification = classifyScopePath(contract, runtimeReceiptPath, { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(receiptClassification.allowed, true);
+    assert.equal(receiptClassification.category, 'lifecycle_artifact');
+    assert.equal(receiptClassification.registryId, 'controller-runtime-projection-receipt');
+    assert.equal((receiptClassification as any).owner, 'proof-or-stop');
+
+    const completeProjectionScope = checkScopeContract({
+      ...contract,
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+    }, [
+      ...CONTROLLER_RUNTIME_ASSET_PATHS,
+      runtimeReceiptPath,
+      '.proof-or-stop/story/actives/B-global-thin/evidence/controller-config-projection.json',
+      'proof-or-stop.config.json',
+    ], { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(completeProjectionScope.status, 'pass', completeProjectionScope.summary);
+    assert.equal(completeProjectionScope.violations.length, 0);
+
+    writeFileSync(runtimeReceiptAbsolute, `${runtimeReceiptBytes.toString('utf8').trim()}tampered\n`);
+    const tamperedReceipt = classifyScopePath(contract, runtimeReceiptPath, { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(tamperedReceipt.allowed, false);
+    assert.equal((tamperedReceipt as any).blockerCode, 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT');
+    assert.equal((tamperedReceipt as any).owner, 'proof-or-stop');
+    assert.doesNotMatch((tamperedReceipt as any).nextAction ?? '', /acceptance_amendment_propose/);
+    assertControllerExemptionRefused(classifyScopePath(contract, CONTROLLER_RUNTIME_ASSET_PATHS[0], { projectRoot: worktree, gitCwd: worktree }));
+    writeFileSync(runtimeReceiptAbsolute, runtimeReceiptBytes);
+
+    rmSync(runtimeReceiptAbsolute);
+    assertControllerExemptionRefused(classifyScopePath(contract, CONTROLLER_RUNTIME_ASSET_PATHS[0], { projectRoot: worktree, gitCwd: worktree }));
+    writeFileSync(runtimeReceiptAbsolute, runtimeReceiptBytes);
 
     const asset = CONTROLLER_RUNTIME_ASSET_PATHS[0];
     const controllerBytes = readFileSync(join(root, asset));
@@ -419,6 +456,70 @@ check('linked worktree inherits global-thin identity from the common repository'
 
     assertControllerExemptionRefused(classifyScopePath({ ...contract, storyId: 'B-wrong-story' }, asset, { projectRoot: worktree, gitCwd: worktree }));
     assertControllerExemptionRefused(classifyScopePath(contract, '.codex/not-projected.cjs', { projectRoot: worktree, gitCwd: worktree }));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+check('controller runtime projection receipt is registered as one managed process artifact', () => {
+  const lifecycle = classifyLifecycleArtifact(
+    '.proof-or-stop/story/actives/B-registry/evidence/controller-runtime-projection.json',
+    { storyId: 'B-registry' },
+  );
+  assert.equal(lifecycle?.kind, 'lifecycle');
+  assert.equal(
+    PROCESS_FACT_REGISTRY.filter(entry => entry.name === 'artifact:evidence/controller-runtime-projection.json').length,
+    1,
+  );
+});
+
+check('global-thin Story worktree check inspects the controller and refuses local apply', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-global-thin-check-'));
+  const worktree = join(root, '.worktrees', 'B-check');
+  try {
+    initRepo(root, 'main');
+    write(root, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ assetMode: 'global-thin' }));
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    write(root, '.proof-or-stop/story/actives/B-check/index.json', JSON.stringify({ storyId: 'B-check', phase: 'DEV' }));
+    git(root, ['branch', 'story/B-check']);
+    mkdirSync(dirname(worktree), { recursive: true });
+    git(root, ['worktree', 'add', '-q', worktree, 'story/B-check']);
+    projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId: 'B-check' });
+
+    const cliPath = join(repositoryRoot, 'packages/main/dist/cli.js');
+    const readOnly = spawnSync(process.execPath, [cliPath, 'check', '--json'], { cwd: worktree, encoding: 'utf8' });
+    assert.equal(readOnly.status, 0, readOnly.stderr);
+    assert.equal(JSON.parse(readOnly.stdout).assetRoot, realpathSync(root));
+
+    const before = ['AGENTS.md', '.gitignore'].map(path => existsSync(join(worktree, path)));
+    const apply = spawnSync(process.execPath, [cliPath, 'check', '--apply', '--json'], { cwd: worktree, encoding: 'utf8' });
+    assert.notEqual(apply.status, 0);
+    const applyOutput = `${apply.stdout}\n${apply.stderr}`;
+    assert.match(applyOutput, new RegExp(`cd ${JSON.stringify(realpathSync(root)).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+    assert.match(applyOutput, /proof-or-stop check --apply/);
+    assert.deepEqual(['AGENTS.md', '.gitignore'].map(path => existsSync(join(worktree, path))), before);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+check('acceptance amendment reports each missing prerequisite and exact repair command', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-amendment-prerequisites-'));
+  try {
+    initRepo(root, 'main');
+    const store = new StoryStore(root);
+    store.writeStory('B-amend', {
+      storyId: 'B-amend', name: 'amend', title: 'Amendment prerequisite error', description: 'Exercise exact recovery guidance',
+      type: 'bug', phase: 'DEV', priority: 'low', createdAt: new Date().toISOString(), startedAt: null, endedAt: null,
+    });
+    const controller = createAcceptanceAmendmentController(store, root);
+    assert.throws(() => controller.propose({
+      storyId: 'B-amend', amendmentId: 'A-1', submitterSessionId: 'session-test',
+      delta: { addItems: [], appendIntents: [], scopeDelta: { modify: [], create: [], test: [] }, topologyDelta: [] },
+    }), (error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      assert.match(message, /scope-contract\.json/);
+      assert.match(message, /scope_contract_init_from_plan --storyId=B-amend/);
+      assert.match(message, /proofstory-contract\.json/);
+      assert.match(message, /proofstory_contract_set --storyId=B-amend/);
+      return true;
+    });
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
