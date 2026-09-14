@@ -1351,7 +1351,7 @@ Behavior:
   }},
   { name: 'done_prepare', description: 'Conservative pre-DONE readiness assistant; prints Memory Runtime Preflight packDigest/gateEvidence=false and never advances DONE or mutates version files. Alias: proof-or-stop done prepare', schema: {
     storyId: z.string().describe('Story ID'),
-    mergeMain: z.boolean().optional().describe('Attempt git merge main before closure checks (default true).'),
+    mergeMain: z.boolean().optional().describe('Attempt git merge of the resolved integration branch before closure checks (default true).'),
     refreshStale: z.boolean().optional().describe('Refresh stale evidence only when the dry-run classification says it is safe (default true).'),
     validate: z.boolean().optional().describe('Run proof-or-stop validate --story=<storyId> --json before DONE closure projection (default true).'),
     build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global proofOrStop.'),
@@ -2118,10 +2118,10 @@ Behavior:
     runtimeArtifact: z.enum(['runtime-causal-evidence-receipts']).optional().describe('With repair:true, only migrate causal cache ignore rules and untrack index/receipt cache files; preserves bytes and skips all other repair operations.'),
     ...BRIEF_OUTPUT_FLAGS,
   }},
-  { name: 'done_recover', description: 'Recover a partial-DONE story (phase DONE but branch not yet merged into main)', schema: {
+  { name: 'done_recover', description: 'Recover a partial-DONE story (phase DONE but branch not yet merged into the resolved integration branch)', schema: {
     storyId: z.string().describe('Story ID to recover.'),
   }},
-  { name: 'release_approve_push', description: 'Create a short-lived local approval for one remote main push; never pushes by itself', schema: {
+  { name: 'release_approve_push', description: 'Create a short-lived local approval for one remote integration-branch push; never pushes by itself', schema: {
     confirm: z.boolean().optional().describe('Required explicit human confirmation; must be true'),
     sha: z.string().optional().describe('Expected commit SHA/ref to publish; defaults to HEAD and is resolved to a full SHA'),
     ttlSeconds: z.number().optional().describe('Approval TTL in seconds; defaults to 300 and is capped at 900'),

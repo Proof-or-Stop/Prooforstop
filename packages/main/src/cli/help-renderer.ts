@@ -422,11 +422,11 @@ export function printHelp(options: GlobalHelpOptions) {
 
     ── TEST → DONE ──
    12. ${brand.usageBin} story_advance --storyId=B-xxx --phase=TEST
-   13. ${brand.usageBin} story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree
+   13. ${brand.usageBin} story_advance --storyId=B-xxx --phase=DONE     # Merge back to the local integration branch and clean worktree
 
   Parallelism and branch discipline:
     Proof-or-Stop parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.
-    If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs ${brand.usageBin} release_approve_push --confirm, and then manually runs git push origin main.
+    If remote publishing is needed, first let DONE merge back to the local integration branch, confirm it is clean, then a human explicitly runs ${brand.usageBin} release_approve_push --confirm and manually executes the exact git push command returned by that approval.
 
   Initialize a new project:
     ${brand.usageBin} init                          # Initialize Proof-or-Stop project state in the current directory

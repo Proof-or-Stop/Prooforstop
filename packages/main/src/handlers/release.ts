@@ -7,6 +7,7 @@ import {
   writeReleasePushApproval,
 } from '../core/release-push-approval.js';
 import { resolveRepositoryBaseline } from '../core/git-baseline.js';
+import { localIntegrationBranchNameForRef } from '../core/story-integration-target.js';
 
 interface ReleaseApprovePushArgs {
   confirm?: boolean;
@@ -46,11 +47,9 @@ export function createReleaseHandlers(ctx: HandlerContext) {
       }
       const branch = git(ctx.root, ['rev-parse', '--abbrev-ref', 'HEAD']);
       const baseline = resolveRepositoryBaseline(ctx.root);
-      const integrationBranch = baseline?.ref.startsWith('refs/heads/')
-        ? baseline.ref.slice('refs/heads/'.length)
-        : baseline?.ref.startsWith('refs/remotes/')
-          ? baseline.ref.split('/').slice(3).join('/')
-          : baseline?.ref;
+      const integrationBranch = baseline
+        ? localIntegrationBranchNameForRef(baseline.ref)
+        : undefined;
       if (!integrationBranch || branch !== integrationBranch) {
         throw new Error(`release_approve_push must run from local integration branch ${integrationBranch || '(unresolved)'}, but current branch is ${branch}`);
       }

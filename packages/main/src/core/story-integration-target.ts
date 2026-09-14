@@ -17,7 +17,7 @@ function git(cwd: string, args: string[]): string {
   }).trim();
 }
 
-function localBranchName(ref: string): string | undefined {
+export function localIntegrationBranchNameForRef(ref: string): string | undefined {
   if (ref.startsWith('refs/heads/')) return ref.slice('refs/heads/'.length);
   if (ref.startsWith('refs/remotes/')) return ref.split('/').slice(3).join('/');
   return ref && !ref.startsWith('refs/') ? ref : undefined;
@@ -29,7 +29,7 @@ function validIntegrationBranch(branch: string | undefined): branch is string {
 
 function repositoryBaselineIntegrationTarget(gitCwd: string): StoryIntegrationTarget | undefined {
   const baseline = resolveRepositoryBaseline(gitCwd);
-  const branch = baseline ? localBranchName(baseline.ref) : undefined;
+  const branch = baseline ? localIntegrationBranchNameForRef(baseline.ref) : undefined;
   if (!validIntegrationBranch(branch)) return undefined;
   try {
     return {
