@@ -4,8 +4,8 @@
  * Gives a reviewer role its most recent prior verdict (review-pass or finding)
  * for the current story, the headHash that verdict was bound to, and the set of
  * MATERIAL files that changed since that headHash. When the reviewer has never
- * passed on this story it reports isFirstPass=true and the full main...HEAD
- * material diff.
+ * passed on this story it reports isFirstPass=true and the full frozen Story
+ * integration-base...HEAD material diff.
  *
  * The legacy per-reviewer context below remains STRICTLY READ-ONLY. The same
  * module also owns the separately signed post-remediation selection consumed by
@@ -76,6 +76,7 @@ import {
   verifyReviewInventoryReceipt,
 } from './review-inventory-epoch.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+import { resolveStoryIntegrationTarget } from './story-integration-target.js';
 
 export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proof-or-stop.post-remediation-review-selection.v2' as const;
 
@@ -750,9 +751,9 @@ export function fixtureCaseClosure(
  *   isFirstPass = false; a review basis is emitted.
  * - No prior verdict (or prior verdict has no resolvable bound headHash) →
  *   isFirstPass = true, priorHeadHash = null, scopeChanged = true, and
- *   changedFiles = the full main...HEAD material diff.
+ *   changedFiles = the full frozen Story-base...HEAD material diff.
  * - A trusted prior whose diff exceeds the bounded path lists → the full
- *   story diff against main, with the trusted prior retained for audit only,
+ *   story diff against the frozen integration base, with the trusted prior retained for audit only,
  *   no review basis, and the explicit FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS
  *   reason code.
  */
@@ -768,7 +769,39 @@ function resolveFullStoryCommitObject(gitCwd: string, ref: string): string | und
 
 export function resolveFullStoryBaseHead(store: StoryStore, projectRoot: string, storyId: string): string | undefined {
   const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
-  return resolveFullStoryCommitObject(gitCwd, 'main');
+  const story = store.readStory(storyId);
+  if (story.integrationTarget !== undefined) {
+    const storedTarget = story.integrationTarget as unknown;
+    if (!storedTarget || typeof storedTarget !== 'object' || Array.isArray(storedTarget)) {
+      throw new Error('FULL_STORY_BASE_INVALID: Story integration target is malformed');
+    }
+    const target = storedTarget as Record<string, unknown>;
+    const branch = target.parentBranch;
+    const frozenBase = target.parentCommitAtCreation;
+    if (typeof branch !== 'string' || !branch.trim() || branch !== branch.trim()
+      || branch === 'HEAD' || /^(?:story|codex|lab)\//.test(branch)
+      || (target.source !== 'creation_branch' && target.source !== 'repository_baseline')
+      || target.deliveryMode !== 'merge_to_parent'
+      || typeof frozenBase !== 'string') {
+      throw new Error('FULL_STORY_BASE_INVALID: Story integration target is malformed');
+    }
+    try {
+      validateFullStoryBaseHead(frozenBase);
+    } catch {
+      throw new Error('FULL_STORY_BASE_INVALID: Story integration target commit is malformed');
+    }
+    if (resolveFullStoryCommitObject(gitCwd, frozenBase) !== frozenBase) {
+      throw new Error(`FULL_STORY_BASE_UNAVAILABLE: Story integration base ${frozenBase} does not resolve to a commit`);
+    }
+    return frozenBase;
+  }
+  // Historical Stories may predate integrationTarget. Preserve their exact
+  // optional-field behavior when repository policy cannot identify a base.
+  const legacyTarget = resolveStoryIntegrationTarget(gitCwd, story);
+  const legacyBase = legacyTarget?.parentCommitAtCreation;
+  return legacyBase && resolveFullStoryCommitObject(gitCwd, legacyBase) === legacyBase
+    ? legacyBase
+    : resolveFullStoryCommitObject(gitCwd, 'main');
 }
 
 export function reviewIncrementalContext(
