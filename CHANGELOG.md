@@ -1,5 +1,27 @@
 # Changelog
 
+## Lab review-base-portability - v0.3.367 - 2026-09-15
+
+Fixed first-review startup in repositories whose integration branch is not
+named `main`. New Stories now bind the reviewer comparison range to the frozen
+`integrationTarget.parentCommitAtCreation` commit captured at Story creation.
+Renaming, deleting, or advancing the parent branch cannot change that review
+base. A declared target that is malformed or whose commit is unavailable fails
+closed; only historical Stories that truly lack the field use repository
+baseline compatibility resolution.
+
+Verification passed: Lab RED reproduced `git diff ... main..HEAD`; GREEN starts
+`review_run_start` after confirming `main`, `master`, and the original `develop`
+ref are all absent; malformed, tampered, and missing-object targets are refused;
+the historical envelope remains bound while live material drift becomes stale;
+the as-of-run compatibility smoke, TypeScript build, and complete process-fact
+contract passed. Independent Codex specification and standards reviews passed.
+The U18 static scan has no candidate-only failing calls relative to v0.3.366.
+
+Maintenance provenance: codex/lab-review-base-portability. This entry records
+Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction;
+it does not assert a different-vendor Lab audit or formal Story DONE.
+
 ## Lab benchmark-lifecycle-recovery - v0.3.366 - 2026-09-15
 
 Fixed two benchmark lifecycle blockers. Story creation now persists an explicit
