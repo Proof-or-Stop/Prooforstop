@@ -84,11 +84,15 @@ await check('fresh init prompt consumer and verifier agree', () => {
       roles: {},
     });
 
-    const assertBoth = (label, expectedStatus) => {
+    const assertBoth = (label, expectedStatus, reasonPattern) => {
       const prompt = runCli(root, ['agent_prompt', '--role=proof-or-stop-review-story-init']);
       const verify = runCli(root, ['verify_codex']);
       assert.equal(prompt.status, expectedStatus, `${label} prompt: ${prompt.stdout}${prompt.stderr}`);
       assert.equal(verify.status, expectedStatus, `${label} verify: ${verify.stdout}${verify.stderr}`);
+      if (reasonPattern) {
+        assert.match(prompt.stdout + prompt.stderr, reasonPattern, `${label} prompt reason`);
+        assert.match(verify.stdout + verify.stderr, reasonPattern, `${label} verify reason`);
+      }
     };
     assertBoth('generated config', 0);
     git(root, ['init', '-q', '-b', 'main']);
@@ -110,16 +114,17 @@ await check('fresh init prompt consumer and verifier agree', () => {
     assertBoth('legacy omitted promptEnvelope', 0);
 
     const invalidCases = [
-      ['retired version', { version: 'proofbound.prompt-envelope-rollout.v1', roles: {} }],
-      ['unknown role', { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'unknown-reviewer': 'full-envelope' } }],
-      ['invalid mode', { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-review-story-init': 'off' } }],
+      ['retired version', { version: 'proofbound.prompt-envelope-rollout.v1', roles: {} }, /retired active protocol identity/i],
+      ['retired hyphen role', { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'proofbound-review-story-init': 'full-envelope' } }, /retired active protocol identity.*proofbound-review-story-init/is],
+      ['unknown role', { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'unknown-reviewer': 'full-envelope' } }, /unknown-reviewer|unknown prompt envelope role/i],
+      ['invalid mode', { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { 'proof-or-stop-review-story-init': 'off' } }, /proof-or-stop-review-story-init|invalid|full-envelope/i],
     ];
-    for (const [label, promptEnvelope] of invalidCases) {
+    for (const [label, promptEnvelope, reasonPattern] of invalidCases) {
       writeJson(configPath, { ...generated, promptEnvelope });
-      assertBoth(label, 1);
+      assertBoth(label, 1, reasonPattern);
     }
     writeFileSync(configPath, '{"promptEnvelope":{"version":"proof-or-stop.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-story-init":"full-envelope","proof-or-stop-review-story-init":"full-envelope"}}}\n');
-    assertBoth('duplicate role key', 1);
+    assertBoth('duplicate role key', 1, /duplicate promptEnvelope\.roles\..* key/i);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

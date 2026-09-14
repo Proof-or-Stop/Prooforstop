@@ -1161,13 +1161,33 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
 ] satisfies readonly ActiveIdentityOperationBoundary[]);
 
 const RETIRED_ACTIVE_PROTOCOL_PREFIX = ['proof', 'bound.'].join('');
+const RETIRED_ACTIVE_ROLE_PREFIX = ['proof', 'bound-'].join('');
 
 function assertNoRetiredPromptConfigIdentity(projectRoot: string, label: string): void {
   const configPath = resolve(projectRoot, 'proof-or-stop.config.json');
   if (!existsSync(configPath) || !statSync(configPath).isFile()) return;
-  if (!readFileSync(configPath, 'utf8').includes(RETIRED_ACTIVE_PROTOCOL_PREFIX)) return;
+  const configBytes = readFileSync(configPath, 'utf8');
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(configBytes);
+  } catch {
+    return; // loadConfig owns malformed JSON and duplicate-key diagnostics.
+  }
+  const envelope = parsed && typeof parsed === 'object'
+    ? (parsed as { promptEnvelope?: unknown }).promptEnvelope
+    : undefined;
+  if (!envelope || typeof envelope !== 'object') return;
+  const version = (envelope as { version?: unknown }).version;
+  const roles = (envelope as { roles?: unknown }).roles;
+  const identities = [
+    ...(typeof version === 'string' ? [version] : []),
+    ...(roles && typeof roles === 'object' ? Object.keys(roles) : []),
+  ];
+  const offendingIdentity = identities.find(identity =>
+    identity.startsWith(RETIRED_ACTIVE_PROTOCOL_PREFIX) || identity.startsWith(RETIRED_ACTIVE_ROLE_PREFIX));
+  if (!offendingIdentity) return;
   throw new Error(
-    `retired active protocol identity at proof-or-stop.config.json is not admitted by ${label}; ` +
+    `retired active protocol identity ${JSON.stringify(offendingIdentity)} at proof-or-stop.config.json is not admitted by ${label}; ` +
     `restore the canonical proof-or-stop.* runtime before retrying`,
   );
 }
