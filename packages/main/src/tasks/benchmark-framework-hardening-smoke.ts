@@ -7,17 +7,23 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  CAUSAL_AUTHORITY_KEY_FILE,
   CAUSAL_MAX_OUTPUT_CHARS,
+  CAUSAL_OUTPUT_TAIL_CHARS,
   DEFAULT_CAUSAL_SELECTOR_POLICY,
+  causalDigest,
+  computeCausalReceiptHash,
   executeCausalEvidence,
+  importCausalEvidenceReceipt,
   preflightCausalEvidence,
   redactCausalOutput,
   redactCausalSelectorOutput,
   redactEnvironment,
+  verifyCausalEvidenceReceipt,
 } from '../core/causal-evidence.js';
 import { acceptanceDiscoveryProfile, runAcceptanceDiscoveryAdapters } from '../core/acceptance-discovery-adapters.js';
 import { resolveRepositoryBaseline } from '../core/git-baseline.js';
-import { isManagedGlobalThinRoot } from '../core/config.js';
+import { isManagedGlobalThinRoot, resetConfigCache } from '../core/config.js';
 import { renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { StoryStore } from '../core/store.js';
 import { evaluatePreReviewCheckForContext } from '../handlers/proofstory.js';
@@ -33,6 +39,10 @@ import { createReleaseHandlers } from '../handlers/release.js';
 import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/partial-done-recovery.js';
 import { evaluateRegisteredCommandEvidence } from '../core/pre-review-check.js';
 import { writeReleasePushApproval } from '../core/release-push-approval.js';
+import { CONTROLLER_RUNTIME_ASSET_PATHS } from '../core/controller-runtime-projection.js';
+import { classifyScopePath } from '../core/scope-path-classifier.js';
+import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
+import { signCanonical } from '../core/authority-signing.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '../../..');
@@ -84,8 +94,8 @@ function causalIdentity(storyId: string) {
 function causalPreflight(identity: ReturnType<typeof causalIdentity>) {
   return preflightCausalEvidence({
     cli: { available: true, path: '/usr/bin/proof-or-stop' },
-    worktree: { expected: repositoryRoot, actual: repositoryRoot },
-    gitIndex: { readable: true, path: join(repositoryRoot, '.git/index'), expected: 'head-parent-secret', actual: 'head-parent-secret', contentDigest: 'sha256:parent-secret-index' },
+    worktree: { expected: identity.cwd, actual: identity.cwd },
+    gitIndex: { readable: true, path: join(identity.cwd, '.git/index'), expected: 'head-parent-secret', actual: 'head-parent-secret', contentDigest: 'sha256:parent-secret-index' },
     gitMaterial: { available: true, headHash: 'head-parent-secret', materialHash: 'material-parent-secret', storyFilesHash: 'story-parent-secret' },
     writerLease: { available: true, valid: true },
     providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
@@ -151,6 +161,8 @@ await checkAsync('benign vendor and session environment values remain selector-v
   assert.equal(result.verdict.result, 'pass');
   assert.match(result.receipt.selectorProbe ?? '', /mode: default/);
   assert.match(result.receipt.selectorProbe ?? '', /listening on localhost/);
+  assert.equal(result.receipt.outputTail, result.receipt.selectorProbe);
+  assert.equal(result.receipt.outputProbe, result.receipt.selectorProbe);
 });
 
 await checkAsync('parent-process secrets never enter short or durable selector evidence', async () => {
@@ -168,6 +180,7 @@ await checkAsync('parent-process secrets never enter short or durable selector e
     });
     assert.equal(short.verdict.result, 'pass');
     assert.equal(short.receipt.selectorProbe?.includes(secret), false);
+    assert.equal(short.receipt.outputTail, short.receipt.selectorProbe?.replace(/\0/g, '<redacted>'));
 
     let persistedSelectorOutput = '';
     const longIdentity = causalIdentity('B-parent-secret-long');
@@ -186,10 +199,45 @@ await checkAsync('parent-process secrets never enter short or durable selector e
     });
     assert.equal(long.verdict.result, 'pass');
     assert.equal(persistedSelectorOutput.includes(secret), false);
+    assert.equal(long.receipt.outputTail, persistedSelectorOutput.slice(-CAUSAL_OUTPUT_TAIL_CHARS).replace(/\0/g, '<redacted>'));
   } finally {
     if (previous === undefined) delete process.env.GITHUB_TOKEN;
     else process.env.GITHUB_TOKEN = previous;
   }
+});
+
+await checkAsync('story-lifecycle causal identity v2 migration rejects a signed coherent v1 receipt', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-causal-v1-'));
+  try {
+    initRepo(root, 'main');
+    const identity = { ...causalIdentity('B-causal-v1'), cwd: root };
+    const current = await executeCausalEvidence({
+      identity,
+      selector: 'CAUSAL_PARENT_SECRET_OK',
+      run: async () => ({ code: 0, output: 'CAUSAL_PARENT_SECRET_OK' }),
+      preflight: causalPreflight(identity),
+      revalidateBeforeRun: () => true,
+    });
+    const legacyIdentity = { ...current.receipt.identity, schemaVersion: 'proof-or-stop.causal-execution-key.v1' };
+    const identityDigest = causalDigest(legacyIdentity);
+    const executionKey = `ce:v1:${identityDigest}`;
+    const { receiptHash: _hash, signerPublicKey, signature: _signature, ...currentPayload } = current.receipt;
+    const authorityPayload = { ...currentPayload, identity: legacyIdentity, identityDigest, executionKey };
+    const privateKey = readFileSync(join(root, '.proof-or-stop/runtime', CAUSAL_AUTHORITY_KEY_FILE), 'utf8').trim();
+    const signed = { ...authorityPayload, signerPublicKey, signature: signCanonical(authorityPayload, privateKey) };
+    const legacyReceipt = { ...signed, receiptHash: computeCausalReceiptHash(signed as any) };
+    assert.equal(verifyCausalEvidenceReceipt(legacyReceipt as any, executionKey), false);
+    assert.throws(
+      () => importCausalEvidenceReceipt({
+        receipt: legacyReceipt as any,
+        expectedStoryId: identity.storyId,
+        expectedExecutionKey: executionKey,
+        revalidate: () => true,
+        commit: () => undefined,
+      }),
+      /causal_receipt_invalid/,
+    );
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 check('INIT reviewer uses a host-neutral instruction source', () => {
@@ -212,6 +260,42 @@ check('master-only repository is a valid integration worktree', () => {
     assert.equal(approval.approval.branch, 'refs/heads/master');
     assert.match(approval.nextAction, /git push origin master/);
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+await checkAsync('done_prepare plans the resolved master integration branch', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-prepare-master-'));
+  const worktree = join(root, '.worktrees', 'B-done-prepare-master');
+  const previousCwd = process.cwd();
+  try {
+    initRepo(root, 'master');
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    const store = new StoryStore(root);
+    const parentCommitAtCreation = git(root, ['rev-parse', 'HEAD']);
+    store.writeStory('B-done-prepare-master', {
+      storyId: 'B-done-prepare-master', name: 'done-prepare-master', title: 'Prepare DONE on master', description: 'Use the captured master integration branch',
+      type: 'bug', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null,
+      integrationTarget: { parentBranch: 'master', parentCommitAtCreation, source: 'creation_branch', deliveryMode: 'merge_to_parent' },
+      worktree: { branch: 'story/B-done-prepare-master', path: worktree, createdAt: new Date().toISOString() },
+    });
+    store.writeChecklist('B-done-prepare-master', { items: [] });
+    git(root, ['add', '-f', 'proof-or-stop.config.json', '.proof-or-stop/story/actives/B-done-prepare-master']);
+    git(root, ['commit', '-qm', 'fixture story']);
+    git(root, ['branch', 'story/B-done-prepare-master']);
+    mkdirSync(dirname(worktree), { recursive: true });
+    git(root, ['worktree', 'add', '-q', worktree, 'story/B-done-prepare-master']);
+    process.chdir(worktree);
+    resetConfigCache();
+    const worktreeStore = new StoryStore(worktree);
+    const transcript = await createDonePrepareHandlers({ root: worktree, scanRoot: worktree, store: worktreeStore }).done_prepare({
+      storyId: 'B-done-prepare-master', mergeMain: true, refreshStale: false, validate: false, build: false, dryRun: true, json: false,
+    });
+    assert.doesNotMatch(transcript, /local main cannot be found/);
+    assert.match(transcript, /dryRun would run git merge master|mergeMain: PASS/);
+  } finally {
+    process.chdir(previousCwd);
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 check('pre-push accepts only the resolved local integration branch', () => {
@@ -293,10 +377,40 @@ check('linked worktree inherits global-thin identity from the common repository'
     git(root, ['worktree', 'add', '-q', worktree, 'story/B-global-thin']);
     assert.equal(isManagedGlobalThinRoot(worktree), true);
     projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId: 'B-global-thin' });
-    for (const path of ['.codex/hooks.json', '.codex/hooks/proof-or-stop-evidence-pretool.cjs', '.codex/hooks/proof-or-stop-scope-pretool.cjs']) {
+    const contract = {
+      storyId: 'B-global-thin', mode: 'enforce', allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+    };
+    for (const path of CONTROLLER_RUNTIME_ASSET_PATHS) {
       assert.equal(readFileSync(join(worktree, path), 'utf8'), readFileSync(join(root, path), 'utf8'));
+      const classification = classifyScopePath(contract, path, { projectRoot: worktree, gitCwd: worktree });
+      assert.equal(classification.allowed, true);
+      assert.equal(classification.category, 'runtime_artifact');
+      assert.equal(classification.registryId, 'external-controller-runtime');
     }
     assert.equal(existsSync(join(worktree, '.proof-or-stop/story/actives/B-global-thin/evidence/controller-runtime-projection.json')), true);
+
+    const asset = CONTROLLER_RUNTIME_ASSET_PATHS[0];
+    const controllerBytes = readFileSync(join(root, asset));
+    const worktreeBytes = readFileSync(join(worktree, asset));
+    writeFileSync(join(root, asset), Buffer.concat([controllerBytes, Buffer.from('controller drift\n')]));
+    assert.notEqual(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    writeFileSync(join(root, asset), controllerBytes);
+
+    writeFileSync(join(worktree, asset), Buffer.concat([worktreeBytes, Buffer.from('worktree drift\n')]));
+    assert.notEqual(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    writeFileSync(join(worktree, asset), worktreeBytes);
+
+    git(root, ['add', '-f', asset]);
+    assert.notEqual(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    git(root, ['reset', '-q', 'HEAD', '--', asset]);
+
+    git(worktree, ['add', '-f', asset]);
+    assert.notEqual(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    git(worktree, ['reset', '-q', 'HEAD', '--', asset]);
+
+    assert.notEqual(classifyScopePath({ ...contract, storyId: 'B-wrong-story' }, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    assert.notEqual(classifyScopePath(contract, '.codex/not-projected.cjs', { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
