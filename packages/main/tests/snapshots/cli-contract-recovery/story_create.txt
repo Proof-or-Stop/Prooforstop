@@ -1,0 +1,260 @@
+
+  proof-or-stop story_create — Create a Story entry
+
+  Proof-or-Stop <VERSION>
+
+══════════════════════════════════════════════════════════
+  proof-or-stop story_create — Create a Story (the unit of work)
+══════════════════════════════════════════════════════════
+
+WHEN TO USE
+  ✓ User requests building, developing, or fixing something in any language
+  ✓ User describes a concrete need with checklist-able items
+  ✓ Onboarding existing code: backfill DONE stories with --phase=DONE
+
+WHEN NOT TO USE
+  ✗ User is still discussing / brainstorming — wait
+  ✗ User asks a question — answer first
+  ✗ Adding item to existing story — use proof-or-stop checklist_add
+  ✗ Trivial 2-line edits where the user explicitly asks for an immediate edit in any language — just do it
+
+REQUIRED FIELDS
+  name        — short slug
+  title       — one-sentence summary
+  description — multi-line context (the "why")
+  type        — feature | bug | refactor | chore (test is accepted as chore)
+  priority    — high | medium | low
+                high-risk keywords such as hotfix/incident/git reset override
+                the requested value: even priority=low is elevated to the
+                effective high-risk gate with decision + ≥3 preMortem.
+  background  — four markdown sections:
+                ## Trigger Event / ## Key Insights / ## Solution Tradeoffs / ## Conversational Texture
+                Each section needs >= 50 chars; total >= 300 chars.
+                The Trigger Event section needs a concrete ID/date:
+                B-xxxx / F-123 / CHK-001 / commit hash / YYYY-MM-DD.
+
+OPTIONAL BUT RECOMMENDED
+  keywords    — domain tags → triggers duplicate-detection
+  checklist   — array of {title, context}
+
+EXAMPLES
+
+  proof-or-stop story_create '{
+    "name":"add-pagination",
+    "title":"Add pagination to the list page",
+    "description":"Rendering 1k+ product rows at once makes the product list slow",
+    "type":"feature",
+    "priority":"high",
+    "background":"## Trigger Event
+On 2026-05-03, a user reported that rendering 1k+ product rows made the product list noticeably slow during scrolling and search, so the performance issue needs to be tracked as a story.
+
+## Key Insights
+The issue is not only page speed; list loading, pagination state, and visible user feedback all shape the experience, so acceptance should cover normal loading, empty results, and API errors.
+
+## Solution Tradeoffs
+Prefer cursor pagination while keeping the existing list component structure, avoiding a larger virtual-list rollout or API rewrite in this story.
+
+## Conversational Texture
+The user cares about smooth real-world use rather than internal implementation terms, so outputs and acceptance should focus on visible responsiveness and continuous interaction.",
+    "checklist":[
+      {"title":"Add a cursor parameter to the backend API","context":"Reference docs/api/pagination.md"},
+      {"title":"Wire pagination into the frontend list component","context":"Reuse InfiniteScroll"}
+    ]
+  }'
+
+STEP-BY-STEP
+  1. proof-or-stop session_brief — recover active story and next step
+  2. proof-or-stop story_list — check for duplicates
+  3. Discuss with user until requirements crystallize
+  4. proof-or-stop story_create with checklist
+  5. proof-or-stop story_advance phase=INIT_CHECK to create worktree
+
+  Arguments:
+    --name                     string           Short name.
+    --title                    string           Title.
+    --description              string           Description.
+    --type                     feature|bug|refactor|chore Type; test is normalized to chore.
+    --priority                 string           Priority.
+    --source                   string           Source.
+    --depends                  array            Dependent Story ID. (JSON)
+      depends[]: string
+    --keywords                 array            Keywords (domain/module/concept, used for duplicate detection). (JSON)
+      keywords[]: string
+    --checklist                array            Development checklist. (JSON)
+      checklist[].title: string
+      checklist[].context?: string
+      checklist[].relatedDocs?: array Related documentation paths used for the three reminders.
+        checklist[].relatedDocs[]: string
+      checklist[].userSees?: string User-visible output.
+      checklist[].excludes?: array Explicitly declared out-of-scope functionality.
+        checklist[].excludes[]: string
+      checklist[].files?: object Affected file declarations used by story intake and review gates.
+        checklist[].files.modify?: array
+          checklist[].files.modify[]: string
+        checklist[].files.create?: array
+          checklist[].files.create[]: string
+        checklist[].files.test?: array
+          checklist[].files.test[]: string
+      checklist[].verificationIntent?: object Happy-path, edge-case, and adversarial verification intent.
+        checklist[].verificationIntent.happy?: array  (default: [])
+          checklist[].verificationIntent.happy[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+          checklist[].verificationIntent.happy[].desc: string Verification intent description.
+          checklist[].verificationIntent.happy[].type: logic|cli|browser|manual|docs Verification type.
+          checklist[].verificationIntent.happy[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+          checklist[].verificationIntent.happy[].priority?: must|should|nice must enters the evidence gate.
+          checklist[].verificationIntent.happy[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+          checklist[].verificationIntent.happy[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+          checklist[].verificationIntent.happy[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+          checklist[].verificationIntent.happy[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+          checklist[].verificationIntent.happy[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+          checklist[].verificationIntent.happy[].plannedPathDeclarations?: array
+            checklist[].verificationIntent.happy[].plannedPathDeclarations[].schemaVersion: any
+            checklist[].verificationIntent.happy[].plannedPathDeclarations[].id: string
+            checklist[].verificationIntent.happy[].plannedPathDeclarations[].relation: any
+            checklist[].verificationIntent.happy[].plannedPathDeclarations[].producer: object
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].producer.id: string
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].producer.role: any
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].producer.expectedFileRef: string
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+            checklist[].verificationIntent.happy[].plannedPathDeclarations[].consumers: array
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].consumers[].id: string
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].consumers[].role: any
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+              checklist[].verificationIntent.happy[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+            checklist[].verificationIntent.happy[].plannedPathDeclarations[].outputFactRef: string
+          checklist[].verificationIntent.happy[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+            checklist[].verificationIntent.happy[].verification.command: string
+            checklist[].verificationIntent.happy[].verification.selector: string
+        checklist[].verificationIntent.edge?: array  (default: [])
+          checklist[].verificationIntent.edge[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+          checklist[].verificationIntent.edge[].desc: string Verification intent description.
+          checklist[].verificationIntent.edge[].type: logic|cli|browser|manual|docs Verification type.
+          checklist[].verificationIntent.edge[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+          checklist[].verificationIntent.edge[].priority?: must|should|nice must enters the evidence gate.
+          checklist[].verificationIntent.edge[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+          checklist[].verificationIntent.edge[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+          checklist[].verificationIntent.edge[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+          checklist[].verificationIntent.edge[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+          checklist[].verificationIntent.edge[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+          checklist[].verificationIntent.edge[].plannedPathDeclarations?: array
+            checklist[].verificationIntent.edge[].plannedPathDeclarations[].schemaVersion: any
+            checklist[].verificationIntent.edge[].plannedPathDeclarations[].id: string
+            checklist[].verificationIntent.edge[].plannedPathDeclarations[].relation: any
+            checklist[].verificationIntent.edge[].plannedPathDeclarations[].producer: object
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].producer.id: string
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].producer.role: any
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].producer.expectedFileRef: string
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+            checklist[].verificationIntent.edge[].plannedPathDeclarations[].consumers: array
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].consumers[].id: string
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].consumers[].role: any
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+              checklist[].verificationIntent.edge[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+            checklist[].verificationIntent.edge[].plannedPathDeclarations[].outputFactRef: string
+          checklist[].verificationIntent.edge[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+            checklist[].verificationIntent.edge[].verification.command: string
+            checklist[].verificationIntent.edge[].verification.selector: string
+        checklist[].verificationIntent.adversarial?: array  (default: [])
+          checklist[].verificationIntent.adversarial[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+          checklist[].verificationIntent.adversarial[].desc: string Verification intent description.
+          checklist[].verificationIntent.adversarial[].type: logic|cli|browser|manual|docs Verification type.
+          checklist[].verificationIntent.adversarial[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+          checklist[].verificationIntent.adversarial[].priority?: must|should|nice must enters the evidence gate.
+          checklist[].verificationIntent.adversarial[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+          checklist[].verificationIntent.adversarial[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+          checklist[].verificationIntent.adversarial[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+          checklist[].verificationIntent.adversarial[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+          checklist[].verificationIntent.adversarial[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+          checklist[].verificationIntent.adversarial[].plannedPathDeclarations?: array
+            checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].schemaVersion: any
+            checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].id: string
+            checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].relation: any
+            checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].producer: object
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].producer.id: string
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].producer.role: any
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].producer.expectedFileRef: string
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+            checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].consumers: array
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].id: string
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].role: any
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+              checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+            checklist[].verificationIntent.adversarial[].plannedPathDeclarations[].outputFactRef: string
+          checklist[].verificationIntent.adversarial[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+            checklist[].verificationIntent.adversarial[].verification.command: string
+            checklist[].verificationIntent.adversarial[].verification.selector: string
+    --milestones               array            Optional explicit machine-countable milestone rows. When supplied, story_create writes a candidate milestone ledger; no rows means no ledger is inferred from prose or checklist text. (JSON)
+      milestones[].id: string Stable milestone id, for example M1.
+      milestones[].sourceRequirementId: string Original intent key requirement id this milestone derives from.
+      milestones[].claim: string Milestone claim.
+      milestones[].doneMeans: string Observable completion rule.
+      milestones[].requiredEvidence?: array Evidence kinds expected for this milestone.
+        milestones[].requiredEvidence[]: string
+      milestones[].checklistRefs?: array Checklist item ids that deliver this milestone.
+        milestones[].checklistRefs[]: string
+      milestones[].verificationIntentRefs?: array Verification intent refs covering this milestone.
+        milestones[].verificationIntentRefs[]: string
+      milestones[].parentLedgerId?: string Optional parent ledger row this milestone slices from.
+      milestones[].assignedStory?: string Optional child story assigned to deliver this row.
+      milestones[].status?: planned|covered|done|not_applicable Milestone coverage status.
+      milestones[].notApplicableDecision?: object Required auditable justification when status=not_applicable; omit for other statuses.
+        milestones[].notApplicableDecision.reason: string Non-empty scope reason the milestone row does not apply.
+        milestones[].notApplicableDecision.decidedBy: string Human / agent identity of record for the exemption.
+        milestones[].notApplicableDecision.decidedAt: string ISO timestamp the exemption was decided.
+    --scopeBoundary            object           Optional: story_create writes scope-boundary.json synchronously; otherwise run scope_boundary_set during INIT. (JSON)
+      scopeBoundary.mode?: correctness_fix|feature|maintenance|custom Scope boundary mode; correctness_fix enables the default future denylist.
+      scopeBoundary.allowed?: array Scope entries the user confirmed as allowed.
+        scopeBoundary.allowed[]: string
+      scopeBoundary.allowedScope?: array Compatibility alias for allowed.
+        scopeBoundary.allowedScope[]: string
+      scopeBoundary.excluded?: array Scope entries the user confirmed as excluded or not to be done.
+        scopeBoundary.excluded[]: string
+      scopeBoundary.excludedScope?: array Compatibility alias for excluded.
+        scopeBoundary.excludedScope[]: string
+      scopeBoundary.userConfirmed: boolean Must be true: confirms this is the user-confirmed INIT scope boundary.
+      scopeBoundary.confirmation?: string Confirmation note or source excerpt.
+      scopeBoundary.actor?: string Recorded by; defaults to story_create.
+    --executionBoundary        object           Optional: story_create writes execution-boundary.json synchronously; otherwise run execution_boundary_set during INIT. (JSON)
+      executionBoundary.allowedCommands?: array Allowed command patterns for execution or verification.
+        executionBoundary.allowedCommands[]: string
+      executionBoundary.allowedTools?: array Allowed tool or adapter names.
+        executionBoundary.allowedTools[]: string
+      executionBoundary.allowedPaths?: array Allowed relative paths; rejects absolute paths and .. traversal.
+        executionBoundary.allowedPaths[]: string
+      executionBoundary.excludedCommands?: array Explicitly blocked command patterns.
+        executionBoundary.excludedCommands[]: string
+      executionBoundary.excludedTools?: array Explicitly blocked tool or adapter names.
+        executionBoundary.excludedTools[]: string
+      executionBoundary.excludedPaths?: array Explicitly blocked relative paths; rejects absolute paths and .. traversal.
+        executionBoundary.excludedPaths[]: string
+      executionBoundary.blockedPaths?: array Compatibility alias for excludedPaths.
+        executionBoundary.blockedPaths[]: string
+      executionBoundary.confirmation?: string Execution-boundary confirmation note.
+      executionBoundary.actor?: string Recorded by; defaults to story_create.
+    --prefix                   string           ID prefix (default: B).
+    --phase                    IDEA|INIT        Optional intake phase. Post-intake lifecycle phases require story_advance.
+    --forceNew                 boolean          B-0af4: bypass same-name story idempotency and force creation; unfinished same-name stories are reused by default.
+    --background               string           B-45ed CHK-006: four-section background.md content. Must include Trigger Event, Key Insight, Tradeoff, and Conversation Texture sections; each section at least 50 characters, total at least 300, and Trigger Event must include a concrete ID (B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD). Not required in fromDraft mode.
+    --fromDraft                string           B-9975: create a story from a reviewed draft by passing draft name. Conservatively stops in INIT, then follows normal INIT_CHECK gates.
+    --reproFirstBypassReason   string           Documented STORY_INTAKE exception for emergency/non-reproducible work; later lifecycle gates still require binding for code-declaring stories.
+
+  Examples:
+    Minimal classified verificationIntent JSON:
+    {"title":"Example Story","description":"Example Story description","checklist":[{"title":"Focused acceptance","verificationIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[],"adversarial":[]}}]}
+
+  Usage: proof-or-stop story_create [--name=value] [--title=value] [--description=value] [--type=value] [--priority=value] [--source=value] [--depends=value] [--keywords=value] [--checklist=value] [--milestones=value] [--scopeBoundary=value] [--executionBoundary=value] [--prefix=value] [--phase=value] [--forceNew] [--background=value] [--fromDraft=value] [--reproFirstBypassReason=value]
+  (* = required)
+
+-> Not sure what to do next? Run proof-or-stop session_brief to recover the project context.

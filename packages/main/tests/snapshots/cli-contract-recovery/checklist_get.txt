@@ -1,0 +1,120 @@
+
+  proof-or-stop checklist_get — Read the checklist
+
+  Proof-or-Stop <VERSION>
+
+  Arguments:
+    --storyId          string           Story ID *
+    --proposalFor      string           Read-only current baseIntentHash for this checklist item; combine with proposalIntent to compute an exact approval digest.
+    --proposalIntent   object           Proposed intent JSON; with proposalFor returns digest only, never applies or approves the proposal. (JSON)
+      proposalIntent.happy?: array  (default: [])
+        proposalIntent.happy[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+        proposalIntent.happy[].desc: string Verification intent description.
+        proposalIntent.happy[].type: logic|cli|browser|manual|docs Verification type.
+        proposalIntent.happy[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+        proposalIntent.happy[].priority?: must|should|nice must enters the evidence gate.
+        proposalIntent.happy[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+        proposalIntent.happy[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+        proposalIntent.happy[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+        proposalIntent.happy[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+        proposalIntent.happy[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+        proposalIntent.happy[].plannedPathDeclarations?: array
+          proposalIntent.happy[].plannedPathDeclarations[].schemaVersion: any
+          proposalIntent.happy[].plannedPathDeclarations[].id: string
+          proposalIntent.happy[].plannedPathDeclarations[].relation: any
+          proposalIntent.happy[].plannedPathDeclarations[].producer: object
+            proposalIntent.happy[].plannedPathDeclarations[].producer.id: string
+            proposalIntent.happy[].plannedPathDeclarations[].producer.role: any
+            proposalIntent.happy[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+            proposalIntent.happy[].plannedPathDeclarations[].producer.expectedFileRef: string
+            proposalIntent.happy[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+            proposalIntent.happy[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+          proposalIntent.happy[].plannedPathDeclarations[].consumers: array
+            proposalIntent.happy[].plannedPathDeclarations[].consumers[].id: string
+            proposalIntent.happy[].plannedPathDeclarations[].consumers[].role: any
+            proposalIntent.happy[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+            proposalIntent.happy[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+            proposalIntent.happy[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+            proposalIntent.happy[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+          proposalIntent.happy[].plannedPathDeclarations[].outputFactRef: string
+        proposalIntent.happy[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+          proposalIntent.happy[].verification.command: string
+          proposalIntent.happy[].verification.selector: string
+      proposalIntent.edge?: array  (default: [])
+        proposalIntent.edge[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+        proposalIntent.edge[].desc: string Verification intent description.
+        proposalIntent.edge[].type: logic|cli|browser|manual|docs Verification type.
+        proposalIntent.edge[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+        proposalIntent.edge[].priority?: must|should|nice must enters the evidence gate.
+        proposalIntent.edge[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+        proposalIntent.edge[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+        proposalIntent.edge[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+        proposalIntent.edge[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+        proposalIntent.edge[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+        proposalIntent.edge[].plannedPathDeclarations?: array
+          proposalIntent.edge[].plannedPathDeclarations[].schemaVersion: any
+          proposalIntent.edge[].plannedPathDeclarations[].id: string
+          proposalIntent.edge[].plannedPathDeclarations[].relation: any
+          proposalIntent.edge[].plannedPathDeclarations[].producer: object
+            proposalIntent.edge[].plannedPathDeclarations[].producer.id: string
+            proposalIntent.edge[].plannedPathDeclarations[].producer.role: any
+            proposalIntent.edge[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+            proposalIntent.edge[].plannedPathDeclarations[].producer.expectedFileRef: string
+            proposalIntent.edge[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+            proposalIntent.edge[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+          proposalIntent.edge[].plannedPathDeclarations[].consumers: array
+            proposalIntent.edge[].plannedPathDeclarations[].consumers[].id: string
+            proposalIntent.edge[].plannedPathDeclarations[].consumers[].role: any
+            proposalIntent.edge[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+            proposalIntent.edge[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+            proposalIntent.edge[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+            proposalIntent.edge[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+          proposalIntent.edge[].plannedPathDeclarations[].outputFactRef: string
+        proposalIntent.edge[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+          proposalIntent.edge[].verification.command: string
+          proposalIntent.edge[].verification.selector: string
+      proposalIntent.adversarial?: array  (default: [])
+        proposalIntent.adversarial[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+        proposalIntent.adversarial[].desc: string Verification intent description.
+        proposalIntent.adversarial[].type: logic|cli|browser|manual|docs Verification type.
+        proposalIntent.adversarial[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+        proposalIntent.adversarial[].priority?: must|should|nice must enters the evidence gate.
+        proposalIntent.adversarial[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+        proposalIntent.adversarial[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+        proposalIntent.adversarial[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+        proposalIntent.adversarial[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+        proposalIntent.adversarial[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+        proposalIntent.adversarial[].plannedPathDeclarations?: array
+          proposalIntent.adversarial[].plannedPathDeclarations[].schemaVersion: any
+          proposalIntent.adversarial[].plannedPathDeclarations[].id: string
+          proposalIntent.adversarial[].plannedPathDeclarations[].relation: any
+          proposalIntent.adversarial[].plannedPathDeclarations[].producer: object
+            proposalIntent.adversarial[].plannedPathDeclarations[].producer.id: string
+            proposalIntent.adversarial[].plannedPathDeclarations[].producer.role: any
+            proposalIntent.adversarial[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+            proposalIntent.adversarial[].plannedPathDeclarations[].producer.expectedFileRef: string
+            proposalIntent.adversarial[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+            proposalIntent.adversarial[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+          proposalIntent.adversarial[].plannedPathDeclarations[].consumers: array
+            proposalIntent.adversarial[].plannedPathDeclarations[].consumers[].id: string
+            proposalIntent.adversarial[].plannedPathDeclarations[].consumers[].role: any
+            proposalIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+            proposalIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+            proposalIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+            proposalIntent.adversarial[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+          proposalIntent.adversarial[].plannedPathDeclarations[].outputFactRef: string
+        proposalIntent.adversarial[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+          proposalIntent.adversarial[].verification.command: string
+          proposalIntent.adversarial[].verification.selector: string
+    --slim             boolean          Opt-in compact checklist view. Default output is unchanged when omitted.
+    --fields           array            Opt-in top-level field filter. With slim=true, filter storyId/counts/items. (JSON)
+      fields[]: string
+
+  Examples:
+    Compute one proposal digest:
+    {"storyId":"B-1234","proposalFor":"CHK-001","proposalIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[],"adversarial":[]}}
+
+  Usage: proof-or-stop checklist_get --storyId=value [--proposalFor=value] [--proposalIntent=value] [--slim] [--fields=value]
+  (* = required)
+
+-> Not sure what to do next? Run proof-or-stop session_brief to recover the project context.

@@ -2829,8 +2829,20 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         // Persist every per-item event in one append before publishing the
         // checklist update. A failed event write therefore cannot be hidden by
         // a successful command or leave a partially updated checklist.
-        store.appendProcessEvents(args.storyId, processEvents);
-        store.writeChecklist(args.storyId, next);
+        const eventAppend = store.appendProcessEvents(args.storyId, processEvents);
+        try {
+          store.writeChecklist(args.storyId, next);
+        } catch (error) {
+          try {
+            store.rollbackProcessEventAppend(args.storyId, eventAppend);
+          } catch (rollbackError) {
+            throw new Error(
+              `PLAN_ACCEPTANCE_PERSISTENCE_ROLLBACK_FAILED: ${(rollbackError as Error).message}`,
+              { cause: error },
+            );
+          }
+          throw error;
+        }
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'plan_acceptance_apply');
         return `Applied ${args.prepared.items.length} PLAN acceptance items atomically to ${args.storyId}.${commitHint}`;
       });

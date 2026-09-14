@@ -3,7 +3,7 @@
  * Each story gets a process-events.jsonl file for telemetry events.
  */
 
-import { existsSync, readFileSync, appendFileSync, mkdirSync, statSync } from 'fs';
+import { existsSync, readFileSync, appendFileSync, mkdirSync, statSync, truncateSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import type { ProcessEvent } from './types.js';
 import { withMkdirLock } from './mkdir-lock.js';
@@ -12,6 +12,7 @@ const FILENAME = 'process-events.jsonl';
 
 export interface ProcessEventAppendIdentity {
   filePath: string;
+  fileExisted: boolean;
   start: number;
   end: number;
   eventBytes: Buffer;
@@ -37,15 +38,35 @@ export function appendRawProcessEventBytes(
   const filePath = join(storyDir, FILENAME);
   mkdirSync(dirname(filePath), { recursive: true });
   return withMkdirLock(lockDir, () => {
-    const start = existsSync(filePath) ? statSync(filePath).size : 0;
+    const fileExisted = existsSync(filePath);
+    const start = fileExisted ? statSync(filePath).size : 0;
     appendFileSync(filePath, eventBytes);
     return {
       filePath,
+      fileExisted,
       start,
       end: start + eventBytes.length,
       eventBytes,
     };
   }, { label: 'process-events append' });
+}
+
+export function rollbackProcessEventAppend(
+  identity: ProcessEventAppendIdentity,
+  lockDir: string,
+): void {
+  withMkdirLock(lockDir, () => {
+    if (!existsSync(identity.filePath)) throw new Error('process-event rollback target is missing');
+    const current = readFileSync(identity.filePath);
+    if (current.length !== identity.end
+      || identity.start < 0
+      || identity.end !== identity.start + identity.eventBytes.length
+      || !current.subarray(identity.start, identity.end).equals(identity.eventBytes)) {
+      throw new Error('process-event rollback refused: appended bytes are no longer the exact file suffix');
+    }
+    if (!identity.fileExisted && identity.start === 0) unlinkSync(identity.filePath);
+    else truncateSync(identity.filePath, identity.start);
+  }, { label: 'process-events rollback' });
 }
 
 export function appendProcessEventRecord(

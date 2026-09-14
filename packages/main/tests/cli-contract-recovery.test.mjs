@@ -173,6 +173,14 @@ await check('verification intent help exposes the real nested schema', () => {
     for (const example of tool.examples) {
       assert.equal(z.object(tool.schema).safeParse(example.body).success, true, `${command}: ${example.title}`);
     }
+    const normalizedSnapshot = `${output
+      .replace(/Proof-or-Stop \d+\.\d+\.\d+/g, 'Proof-or-Stop <VERSION>')
+      .split('\n').map(line => line.trimEnd()).join('\n').trimEnd()}\n`;
+    assert.equal(
+      normalizedSnapshot,
+      readFileSync(join(here, 'snapshots', 'cli-contract-recovery', `${command}.txt`), 'utf8'),
+      `${command} complete help snapshot`,
+    );
   }
 });
 
@@ -452,6 +460,20 @@ await check('plan acceptance prepare and apply are atomic', () => {
     store.appendProcessEvents = originalAppendProcessEvents;
     assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeEventFailure,
       'event persistence failure occurs before the checklist transaction');
+
+    const beforeChecklistFailureEvents = JSON.stringify(store.readProcessEvents(storyId));
+    const originalWriteChecklist = store.writeChecklist.bind(store);
+    store.writeChecklist = () => { throw new Error('fixture checklist publication failure'); };
+    assert.throws(() => handlers.plan_acceptance_apply({
+      storyId,
+      prepared: eventFailurePrepared,
+      reason: 'Roll back the exact process-event append when checklist publication cannot complete.',
+    }), /fixture checklist publication failure/);
+    store.writeChecklist = originalWriteChecklist;
+    assert.equal(JSON.stringify(store.readProcessEvents(storyId)), beforeChecklistFailureEvents,
+      'checklist publication failure rolls back the exact event append');
+    assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeEventFailure,
+      'checklist publication failure leaves the checklist unchanged');
 
     const cliEnvironment = {
       PROOF_OR_STOP_SESSION_ID: 'plan-acceptance-owner',

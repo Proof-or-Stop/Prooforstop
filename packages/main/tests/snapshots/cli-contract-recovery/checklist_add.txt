@@ -1,0 +1,137 @@
+
+  proof-or-stop checklist_add — Append a checklist item to an existing story
+
+  Proof-or-Stop <VERSION>
+
+  Arguments:
+    --storyId              string           Story ID *
+    --title                string           What to do, in one sentence. *
+    --context              string           Root cause or reference approach.
+    --relatedDocs          array            Related documentation paths used for the three reminders. (JSON)
+      relatedDocs[]: string
+    --userSees             string           Specific terminal/UI text the user sees after completing this item.
+    --excludes             array            Explicitly declared out-of-scope functionality. (JSON)
+      excludes[]: string
+    --files                object           B-45ed: affected file set declared in PLAN; story_review checks touchpoints-to-files coverage. (JSON)
+      files.modify: array
+        files.modify[]: string
+      files.create: array
+        files.create[]: string
+      files.test: array
+        files.test[]: string
+    --verificationIntent   object           Happy-path, edge-case, and adversarial verification intent (PLAN phase). (JSON)
+      verificationIntent.happy?: array  (default: [])
+        verificationIntent.happy[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+        verificationIntent.happy[].desc: string Verification intent description.
+        verificationIntent.happy[].type: logic|cli|browser|manual|docs Verification type.
+        verificationIntent.happy[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+        verificationIntent.happy[].priority?: must|should|nice must enters the evidence gate.
+        verificationIntent.happy[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+        verificationIntent.happy[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+        verificationIntent.happy[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+        verificationIntent.happy[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+        verificationIntent.happy[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+        verificationIntent.happy[].plannedPathDeclarations?: array
+          verificationIntent.happy[].plannedPathDeclarations[].schemaVersion: any
+          verificationIntent.happy[].plannedPathDeclarations[].id: string
+          verificationIntent.happy[].plannedPathDeclarations[].relation: any
+          verificationIntent.happy[].plannedPathDeclarations[].producer: object
+            verificationIntent.happy[].plannedPathDeclarations[].producer.id: string
+            verificationIntent.happy[].plannedPathDeclarations[].producer.role: any
+            verificationIntent.happy[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+            verificationIntent.happy[].plannedPathDeclarations[].producer.expectedFileRef: string
+            verificationIntent.happy[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+            verificationIntent.happy[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+          verificationIntent.happy[].plannedPathDeclarations[].consumers: array
+            verificationIntent.happy[].plannedPathDeclarations[].consumers[].id: string
+            verificationIntent.happy[].plannedPathDeclarations[].consumers[].role: any
+            verificationIntent.happy[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+            verificationIntent.happy[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+            verificationIntent.happy[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+            verificationIntent.happy[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+          verificationIntent.happy[].plannedPathDeclarations[].outputFactRef: string
+        verificationIntent.happy[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+          verificationIntent.happy[].verification.command: string
+          verificationIntent.happy[].verification.selector: string
+      verificationIntent.edge?: array  (default: [])
+        verificationIntent.edge[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+        verificationIntent.edge[].desc: string Verification intent description.
+        verificationIntent.edge[].type: logic|cli|browser|manual|docs Verification type.
+        verificationIntent.edge[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+        verificationIntent.edge[].priority?: must|should|nice must enters the evidence gate.
+        verificationIntent.edge[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+        verificationIntent.edge[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+        verificationIntent.edge[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+        verificationIntent.edge[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+        verificationIntent.edge[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+        verificationIntent.edge[].plannedPathDeclarations?: array
+          verificationIntent.edge[].plannedPathDeclarations[].schemaVersion: any
+          verificationIntent.edge[].plannedPathDeclarations[].id: string
+          verificationIntent.edge[].plannedPathDeclarations[].relation: any
+          verificationIntent.edge[].plannedPathDeclarations[].producer: object
+            verificationIntent.edge[].plannedPathDeclarations[].producer.id: string
+            verificationIntent.edge[].plannedPathDeclarations[].producer.role: any
+            verificationIntent.edge[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+            verificationIntent.edge[].plannedPathDeclarations[].producer.expectedFileRef: string
+            verificationIntent.edge[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+            verificationIntent.edge[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+          verificationIntent.edge[].plannedPathDeclarations[].consumers: array
+            verificationIntent.edge[].plannedPathDeclarations[].consumers[].id: string
+            verificationIntent.edge[].plannedPathDeclarations[].consumers[].role: any
+            verificationIntent.edge[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+            verificationIntent.edge[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+            verificationIntent.edge[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+            verificationIntent.edge[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+          verificationIntent.edge[].plannedPathDeclarations[].outputFactRef: string
+        verificationIntent.edge[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+          verificationIntent.edge[].verification.command: string
+          verificationIntent.edge[].verification.selector: string
+      verificationIntent.adversarial?: array  (default: [])
+        verificationIntent.adversarial[].id?: string Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.
+        verificationIntent.adversarial[].desc: string Verification intent description.
+        verificationIntent.adversarial[].type: logic|cli|browser|manual|docs Verification type.
+        verificationIntent.adversarial[].requiredIn?: light|balanced|strict Minimum workflow profile that requires this.
+        verificationIntent.adversarial[].priority?: must|should|nice must enters the evidence gate.
+        verificationIntent.adversarial[].scope?: focused|repository Whether the intent targets changed behavior or the complete repository.
+        verificationIntent.adversarial[].expectation?: absolute_pass|no_new_regressions Absolute green or a comparison against the pre-change baseline.
+        verificationIntent.adversarial[].requirementSource?: story|external_verifier|repository_health Why this verification belongs in acceptance.
+        verificationIntent.adversarial[].baselineRef?: string Pointer to the inspected pre-change baseline for no-new-regressions acceptance.
+        verificationIntent.adversarial[].requirementRef?: string Pointer to the task, user statement, or official verifier contract requiring repository-wide absolute success.
+        verificationIntent.adversarial[].plannedPathDeclarations?: array
+          verificationIntent.adversarial[].plannedPathDeclarations[].schemaVersion: any
+          verificationIntent.adversarial[].plannedPathDeclarations[].id: string
+          verificationIntent.adversarial[].plannedPathDeclarations[].relation: any
+          verificationIntent.adversarial[].plannedPathDeclarations[].producer: object
+            verificationIntent.adversarial[].plannedPathDeclarations[].producer.id: string
+            verificationIntent.adversarial[].plannedPathDeclarations[].producer.role: any
+            verificationIntent.adversarial[].plannedPathDeclarations[].producer.expectedArtifactKind: source_file|handler|dispatch|process_fact
+            verificationIntent.adversarial[].plannedPathDeclarations[].producer.expectedFileRef: string
+            verificationIntent.adversarial[].plannedPathDeclarations[].producer.expectedSymbolOrFact: string
+            verificationIntent.adversarial[].plannedPathDeclarations[].producer.fileDeclarationRef: string
+          verificationIntent.adversarial[].plannedPathDeclarations[].consumers: array
+            verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].id: string
+            verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].role: any
+            verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedArtifactKind: source_file|handler|dispatch|process_fact
+            verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedFileRef: string
+            verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].expectedSymbolOrFact: string
+            verificationIntent.adversarial[].plannedPathDeclarations[].consumers[].fileDeclarationRef: string
+          verificationIntent.adversarial[].plannedPathDeclarations[].outputFactRef: string
+        verificationIntent.adversarial[].verification?: object Immutable executable proof pin: exact command plus required output selector.
+          verificationIntent.adversarial[].verification.command: string
+          verificationIntent.adversarial[].verification.selector: string
+    --reason               string           Required replan/scope audit reason when adding an item during PLAN (at least 10 characters).
+    --agent                string           Actor or agent lane; INIT reviewer lanes may not directly change requirement definitions.
+    --actor                string           Actor alias; INIT reviewer lanes may not directly change requirement definitions.
+
+  Examples:
+    Add one classified acceptance item:
+    {"storyId":"B-1234","title":"Focused acceptance","verificationIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[],"adversarial":[]}}
+
+  Usage: proof-or-stop checklist_add --storyId=value --title=value [--context=value] [--relatedDocs=value] [--userSees=value] [--excludes=value] [--files=value] [--verificationIntent=value] [--reason=value] [--agent=value] [--actor=value]
+  (* = required)
+
+  Owner lease meta options:
+    --takeover          recover a stale foreign lease (no heartbeat for 30+ min)
+    --forceTakeover     seize an active foreign lease (deliberate human override; also transfers stale)
+
+-> Not sure what to do next? Run proof-or-stop session_brief to recover the project context.
