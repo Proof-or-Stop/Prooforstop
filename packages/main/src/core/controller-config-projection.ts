@@ -153,3 +153,25 @@ export function hasValidControllerConfigProjection(args: Parameters<typeof claim
     return false;
   }
 }
+
+export interface ControllerConfigProjectionInspection {
+  valid: boolean;
+  reason: 'valid' | 'common-receipt-invalid' | 'story-receipt-invalid' | 'workspace-invalid';
+}
+
+export function inspectControllerConfigProjection(args: Parameters<typeof claims>[0]): ControllerConfigProjectionInspection {
+  try {
+    const expected = claims(args);
+    const commonRoot = gitCommonDir(args.gitCwd);
+    const storyRoot = realpathSync(args.storyRoot);
+    if (!matchesStored(commonRoot, receiptPath(args.gitCwd, args.storyId), expected, args.gitCwd)) {
+      return { valid: false, reason: 'common-receipt-invalid' };
+    }
+    if (!matchesStored(storyRoot, join(storyRoot, STORY_RECEIPT_RELATIVE), expected, args.gitCwd)) {
+      return { valid: false, reason: 'story-receipt-invalid' };
+    }
+    return { valid: true, reason: 'valid' };
+  } catch {
+    return { valid: false, reason: 'workspace-invalid' };
+  }
+}

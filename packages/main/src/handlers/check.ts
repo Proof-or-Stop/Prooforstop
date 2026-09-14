@@ -11,6 +11,7 @@ import {
 } from '../core/runtime-environment-checks.js';
 import { isManagedGlobalThinRoot } from '../core/config.js';
 import { resolveCanonicalRuntimeProjectRoot } from '../core/runtime-artifact-registry.js';
+import { shellQuote } from '../core/shell-quote.js';
 
 function renderProofOrStopManagedAssetCheck(result: ReturnType<typeof runManagedAssetCheck>): string {
   // core renderManagedAssetCheck already emits Proof-or-Stop-branded output; no legacy rewrite needed.
@@ -29,7 +30,7 @@ export function createCheckHandlers(ctx: HandlerContext) {
         throw new Error(
           `Cannot run proof-or-stop check ${flag} from a global-thin Story worktree.\n`
           + `Project-level managed assets belong to the primary controller and must not be written into Story scope.\n`
-          + `→ Run: cd ${JSON.stringify(assetRoot)} && proof-or-stop check ${flag}`,
+          + `→ Run: cd -- ${shellQuote(assetRoot)} && proof-or-stop check ${flag}`,
         );
       }
       const runtime = runRuntimeEnvironmentChecks(assetRoot);

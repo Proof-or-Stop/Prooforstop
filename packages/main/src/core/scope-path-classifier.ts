@@ -6,11 +6,13 @@
  */
 
 import { classifyLifecycleArtifact, classifySharedLifecycleMetadata } from './lifecycle-registry.js';
-import { findRuntimeArtifactEntry, inspectControllerRuntimeProjectionReceipt, isByteIdenticalControllerConfig, isByteIdenticalControllerRuntimeAsset } from './runtime-artifact-registry.js';
-import { CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
+import { findRuntimeArtifactEntry, inspectControllerConfigProjectionReceipt, inspectControllerRuntimeProjectionReceipt, isByteIdenticalControllerConfig, isByteIdenticalControllerRuntimeAsset } from './runtime-artifact-registry.js';
+import { CONTROLLER_PROJECTION_ARTIFACTS, CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
 import { existsSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { STATE_DIR_NAMES } from './brand-paths.js';
+import { shellQuote } from './shell-quote.js';
+import { loadConfig } from './config.js';
 import type {
   ScopeContractData,
   ScopePathCategory,
@@ -397,37 +399,53 @@ export function classifyScopePath(
     });
   }
 
-  const lifecycleCandidate = classifyLifecycleArtifact(normalizedPath, { storyId: contract.storyId });
-  const isRuntimeReceipt = lifecycleCandidate
-    && normalizedPath.endsWith(`/${CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.path}`);
-  const runtimeReceipt = isRuntimeReceipt
-    ? (options.projectRoot ? inspectControllerRuntimeProjectionReceipt({
-      projectRoot: options.projectRoot,
-      gitCwd: options.gitCwd ?? options.projectRoot,
-      storyId: contract.storyId,
-      path: normalizedPath,
-    }) : { matched: true, valid: false, reason: 'verification-context-missing' })
+  const storyDir = options.projectRoot ? loadConfig(options.projectRoot).storyDir : undefined;
+  const lifecycleCandidate = classifyLifecycleArtifact(normalizedPath, { storyId: contract.storyId, storyDir });
+  const projectionDescriptor = lifecycleCandidate
+    ? CONTROLLER_PROJECTION_ARTIFACTS.find(descriptor => normalizedPath.endsWith(`/${descriptor.path}`))
+    : undefined;
+  const projectionReceipt = projectionDescriptor
+    ? (options.projectRoot
+      ? (projectionDescriptor.id === CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.id
+        ? inspectControllerRuntimeProjectionReceipt({
+          projectRoot: options.projectRoot,
+          gitCwd: options.gitCwd ?? options.projectRoot,
+          storyId: contract.storyId,
+          path: normalizedPath,
+        })
+        : inspectControllerConfigProjectionReceipt({
+          projectRoot: options.projectRoot,
+          gitCwd: options.gitCwd ?? options.projectRoot,
+          storyId: contract.storyId,
+          path: normalizedPath,
+        }))
+      : { matched: true, valid: false, reason: 'verification-context-missing' })
     : null;
-  if (runtimeReceipt?.matched) {
-    const controllerRoot = runtimeReceipt.controllerRoot ?? options.projectRoot ?? null;
-    const receiptAbsolute = options.projectRoot && runtimeReceipt.expectedPath
-      ? join(options.projectRoot, runtimeReceipt.expectedPath)
+  if (projectionDescriptor && projectionReceipt?.matched) {
+    const controllerRoot = projectionReceipt.controllerRoot ?? options.projectRoot ?? null;
+    const receiptAbsolute = options.projectRoot && projectionReceipt.expectedPath
+      ? join(options.projectRoot, projectionReceipt.expectedPath)
       : null;
-    const storyReceiptRepairable = runtimeReceipt.reason === 'story-receipt-invalid' && receiptAbsolute !== null;
+    const storyReceiptRepairable = projectionReceipt.reason === 'story-receipt-invalid' && receiptAbsolute !== null;
+    const trackedReceiptRepairable = projectionReceipt.reason === 'tracked-story-receipt'
+      && options.projectRoot
+      && projectionReceipt.expectedPath;
     const nextCommand = storyReceiptRepairable
-      ? `rm -f -- ${JSON.stringify(receiptAbsolute!)} && cd ${JSON.stringify(options.projectRoot!)} && proof-or-stop session_brief`
+      ? `rm -f -- ${shellQuote(receiptAbsolute!)} && cd -- ${shellQuote(options.projectRoot!)} && proof-or-stop session_brief`
+      : trackedReceiptRepairable
+        ? `cd -- ${shellQuote(options.projectRoot!)} && git rm --cached -- ${shellQuote(projectionReceipt.expectedPath!)}`
       : controllerRoot
-        ? `cd ${JSON.stringify(controllerRoot)} && proof-or-stop check`
+        ? `cd -- ${shellQuote(controllerRoot)} && proof-or-stop check`
         : `proof-or-stop scope_contract_check --storyId=${contract.storyId}`;
-    if (runtimeReceipt.valid) {
+    if (projectionReceipt.valid) {
       return classification({
         path,
         category: 'lifecycle_artifact',
         source: 'runtime-artifact-registry',
         rule: 'lifecycle_artifact',
         allowed: true,
-        detail: 'Signed controller runtime projection receipt matches the current Story, controller, worktree, common receipt and exact hook bytes.',
-        registryId: CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.id,
+        detail: `Signed ${projectionDescriptor.id} matches its current Story, controller, worktree, common receipt, tracked-file policy and projected bytes.`,
+        registryId: projectionDescriptor.id,
         owner: 'proof-or-stop',
         origin: 'proof-or-stop-generated',
         safeToAutoRun: true,
@@ -438,17 +456,21 @@ export function classifyScopePath(
       path,
       category: 'unknown',
       source: 'runtime-artifact-registry',
-      rule: 'untrusted_runtime_receipt',
+      rule: 'untrusted_controller_receipt',
       allowed: false,
-      detail: `Controller runtime projection receipt is not trusted: ${runtimeReceipt.reason}.`,
-      registryId: CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.id,
+      detail: `${projectionDescriptor.id} is not trusted: ${projectionReceipt.reason}.`,
+      registryId: projectionDescriptor.id,
       owner: 'proof-or-stop',
       origin: 'proof-or-stop-generated',
-      blockerCode: 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT',
+      blockerCode: projectionDescriptor.id === CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.id
+        ? 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT'
+        : 'UNTRUSTED_CONTROLLER_CONFIG_PROJECTION_RECEIPT',
       nextCommand,
       safeToAutoRun: Boolean(storyReceiptRepairable),
       nextAction: storyReceiptRepairable
         ? `The common signed receipt is valid but the Story copy is invalid. Recreate only that controller-owned copy with: ${nextCommand}. Do not expand product Story scope.`
+        : trackedReceiptRepairable
+          ? `The controller receipt must remain untracked. Remove only its index entry with: ${nextCommand}; keep the signed working-tree copy, then rerun the blocked lifecycle command. Do not expand product Story scope.`
         : controllerRoot
           ? `The projection authority or hook bytes require controller repair. Inspect the primary controller with: ${nextCommand}; repair its managed assets, then rerun a Story command to re-attest the projection. Do not expand product Story scope.`
           : `Projection verification requires the registered Story worktree context. Rerun there with: ${nextCommand}. Do not expand product Story scope.`,

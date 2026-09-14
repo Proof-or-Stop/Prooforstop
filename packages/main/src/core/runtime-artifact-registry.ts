@@ -7,10 +7,10 @@ export const MANAGED_REVIEW_TEMP_ARTIFACT = { directoryName: 'provider-temp', lo
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { hasValidControllerConfigProjection } from './controller-config-projection.js';
+import { hasValidControllerConfigProjection, inspectControllerConfigProjection } from './controller-config-projection.js';
 import { CONTROLLER_RUNTIME_ASSET_PATHS, inspectControllerRuntimeProjection } from './controller-runtime-projection.js';
-import { CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
-import { loadConfig } from './config.js';
+import { CONTROLLER_CONFIG_PROJECTION_ARTIFACT, CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
+import { loadConfig, pickProjectConfigPath } from './config.js';
 
 function hasGitMetadata(dir: string): boolean {
   let current = dir;
@@ -98,12 +98,61 @@ export function isByteIdenticalControllerRuntimeAsset(args: {
   } catch { return false; }
 }
 
-export interface ControllerRuntimeProjectionReceiptStatus {
+export interface ControllerProjectionReceiptStatus {
   matched: boolean;
   valid: boolean;
   reason: string;
   expectedPath?: string;
   controllerRoot?: string;
+}
+
+export function inspectControllerConfigProjectionReceipt(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  path: string;
+}): ControllerProjectionReceiptStatus {
+  try {
+    const worktreeRoot = realpathSync(args.gitCwd);
+    if (realpathSync(args.projectRoot) !== worktreeRoot) return { matched: false, valid: false, reason: 'project-root-mismatch' };
+    const config = loadConfig(worktreeRoot);
+    const expectedPath = `${config.storyDir.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/$/, '')}/${args.storyId}/${CONTROLLER_CONFIG_PROJECTION_ARTIFACT.path}`;
+    if (args.path.replace(/\\/g, '/').replace(/^\.\//, '') !== expectedPath) return { matched: false, valid: false, reason: 'different-path', expectedPath };
+    const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (controllerRoot === worktreeRoot) return { matched: true, valid: false, reason: 'not-linked-worktree', expectedPath, controllerRoot };
+    const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (branch !== `refs/heads/story/${args.storyId}`) return { matched: true, valid: false, reason: 'story-branch-mismatch', expectedPath, controllerRoot };
+    if (execFileSync('git', ['ls-files', '--', expectedPath], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) {
+      return { matched: true, valid: false, reason: 'tracked-story-receipt', expectedPath, controllerRoot };
+    }
+    const configRef = pickProjectConfigPath(controllerRoot);
+    if (!configRef) return { matched: true, valid: false, reason: 'controller-config-missing', expectedPath, controllerRoot };
+    for (const cwd of [worktreeRoot, controllerRoot]) {
+      if (execFileSync('git', ['ls-files', '--', configRef.filename], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) {
+        return { matched: true, valid: false, reason: 'tracked-controller-config', expectedPath, controllerRoot };
+      }
+    }
+    const controllerStat = lstatSync(configRef.path);
+    const worktreeConfig = join(worktreeRoot, configRef.filename);
+    const worktreeStat = lstatSync(worktreeConfig);
+    if (!controllerStat.isFile() || controllerStat.isSymbolicLink() || !worktreeStat.isFile() || worktreeStat.isSymbolicLink()) {
+      return { matched: true, valid: false, reason: 'unsafe-controller-config', expectedPath, controllerRoot };
+    }
+    const configBytes = readFileSync(configRef.path);
+    if (!configBytes.equals(readFileSync(worktreeConfig))) return { matched: true, valid: false, reason: 'config-bytes-differ', expectedPath, controllerRoot };
+    const inspection = inspectControllerConfigProjection({
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      configPath: configRef.filename,
+      controllerRoot,
+      worktreeRoot,
+      storyRoot: join(worktreeRoot, config.storyDir, args.storyId),
+      configBytes,
+    });
+    return { matched: true, valid: inspection.valid, reason: inspection.reason, expectedPath, controllerRoot };
+  } catch {
+    return { matched: true, valid: false, reason: 'workspace-or-receipt-invalid' };
+  }
 }
 
 /** Classify the exact Story receipt path and verify its full projection proof. */
@@ -112,7 +161,7 @@ export function inspectControllerRuntimeProjectionReceipt(args: {
   gitCwd: string;
   storyId: string;
   path: string;
-}): ControllerRuntimeProjectionReceiptStatus {
+}): ControllerProjectionReceiptStatus {
   try {
     const worktreeRoot = realpathSync(args.gitCwd);
     if (realpathSync(args.projectRoot) !== worktreeRoot) return { matched: false, valid: false, reason: 'project-root-mismatch' };

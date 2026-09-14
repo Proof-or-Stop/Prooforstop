@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +48,7 @@ import { createAcceptanceAmendmentController } from '../core/acceptance-amendmen
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import { signCanonical } from '../core/authority-signing.js';
 import { runScopeTransitionGate } from '../handlers/phase-gates.js';
+import { shellQuote } from '../core/shell-quote.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '../../..');
@@ -79,6 +80,23 @@ function initRepo(root: string, branch: string): void {
   write(root, 'README.md', 'fixture\n');
   git(root, ['add', 'README.md']);
   git(root, ['commit', '-qm', 'fixture']);
+}
+
+function runCurrentCliShellCommand(command: string, cwd: string): ReturnType<typeof spawnSync> {
+  const recoveryBin = mkdtempSync(join(tmpdir(), 'proof-or-stop-recovery-bin-'));
+  try {
+    const cliPath = join(repositoryRoot, 'packages/main/dist/cli.js');
+    const shim = join(recoveryBin, 'proof-or-stop');
+    writeFileSync(shim, `#!/bin/sh\nexec ${shellQuote(process.execPath)} ${shellQuote(cliPath)} "$@"\n`);
+    chmodSync(shim, 0o755);
+    return spawnSync('/bin/sh', ['-c', command], {
+      cwd,
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${recoveryBin}:${process.env.PATH ?? ''}` },
+    });
+  } finally {
+    rmSync(recoveryBin, { recursive: true, force: true });
+  }
 }
 
 function causalIdentity(storyId: string) {
@@ -422,6 +440,12 @@ check('linked worktree inherits global-thin identity from the common repository'
     ], { projectRoot: worktree, gitCwd: worktree });
     assert.equal(completeProjectionScope.status, 'pass', completeProjectionScope.summary);
     assert.equal(completeProjectionScope.violations.length, 0);
+    const configReceiptPath = '.proof-or-stop/story/actives/B-global-thin/evidence/controller-config-projection.json';
+    const configReceiptAbsolute = join(worktree, configReceiptPath);
+    const configReceiptBytes = readFileSync(configReceiptAbsolute);
+    const configReceiptClassification = classifyScopePath(contract, configReceiptPath, { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(configReceiptClassification.allowed, true);
+    assert.equal(configReceiptClassification.registryId, 'controller-config-projection-receipt');
 
     const worktreeStore = new StoryStore(worktree);
     worktreeStore.writeScopeContract('B-global-thin', {
@@ -441,6 +465,12 @@ check('linked worktree inherits global-thin identity from the common repository'
     assert.equal((tamperedReceipt as any).safeToAutoRun, true);
     assert.match((tamperedReceipt as any).nextCommand ?? '', /rm -f -- .*controller-runtime-projection\.json.*proof-or-stop session_brief/);
     assertControllerExemptionRefused(classifyScopePath(contract, CONTROLLER_RUNTIME_ASSET_PATHS[0], { projectRoot: worktree, gitCwd: worktree }));
+    const emptyAllowedTamper = checkScopeContract({
+      ...contract,
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+    }, [runtimeReceiptPath], { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(emptyAllowedTamper.status, 'fail');
+    assert.equal(emptyAllowedTamper.rows?.[0]?.blockerCode, 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT');
     assert.throws(
       () => runScopeTransitionGate(scopeContext, 'B-global-thin', 'REVIEW'),
       (error: unknown) => {
@@ -451,7 +481,10 @@ check('linked worktree inherits global-thin identity from the common repository'
         return true;
       },
     );
-    writeFileSync(runtimeReceiptAbsolute, runtimeReceiptBytes);
+    const recovery = runCurrentCliShellCommand((tamperedReceipt as any).nextCommand, worktree);
+    assert.equal(recovery.status, 0, `${recovery.stdout}\n${recovery.stderr}`);
+    assert.equal(classifyScopePath(contract, runtimeReceiptPath, { projectRoot: worktree, gitCwd: worktree }).allowed, true);
+    assert.doesNotThrow(() => runScopeTransitionGate(scopeContext, 'B-global-thin', 'REVIEW'));
 
     const commonReceiptAbsolute = join(root, '.git', 'proof-or-stop-controller-runtime-projections', 'B-global-thin.json');
     const commonReceiptBytes = readFileSync(commonReceiptAbsolute);
@@ -470,7 +503,24 @@ check('linked worktree inherits global-thin identity from the common repository'
     const trackedReceipt = classifyScopePath(contract, runtimeReceiptPath, { projectRoot: worktree, gitCwd: worktree });
     assert.equal(trackedReceipt.allowed, false);
     assert.equal((trackedReceipt as any).blockerCode, 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT');
-    git(worktree, ['reset', '-q', 'HEAD', '--', runtimeReceiptPath]);
+    const runtimeUntrack = runCurrentCliShellCommand((trackedReceipt as any).nextCommand, worktree);
+    assert.equal(runtimeUntrack.status, 0, `${runtimeUntrack.stdout}\n${runtimeUntrack.stderr}`);
+    assert.equal(classifyScopePath(contract, runtimeReceiptPath, { projectRoot: worktree, gitCwd: worktree }).allowed, true);
+
+    writeFileSync(configReceiptAbsolute, `${configReceiptBytes.toString('utf8').trim()}tampered\n`);
+    const tamperedConfigReceipt = classifyScopePath(contract, configReceiptPath, { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(tamperedConfigReceipt.allowed, false);
+    assert.equal((tamperedConfigReceipt as any).blockerCode, 'UNTRUSTED_CONTROLLER_CONFIG_PROJECTION_RECEIPT');
+    const configRecovery = runCurrentCliShellCommand((tamperedConfigReceipt as any).nextCommand, worktree);
+    assert.equal(configRecovery.status, 0, `${configRecovery.stdout}\n${configRecovery.stderr}`);
+    assert.equal(classifyScopePath(contract, configReceiptPath, { projectRoot: worktree, gitCwd: worktree }).allowed, true);
+    git(worktree, ['add', '-f', configReceiptPath]);
+    const trackedConfigReceipt = classifyScopePath(contract, configReceiptPath, { projectRoot: worktree, gitCwd: worktree });
+    assert.equal(trackedConfigReceipt.allowed, false);
+    assert.equal((trackedConfigReceipt as any).blockerCode, 'UNTRUSTED_CONTROLLER_CONFIG_PROJECTION_RECEIPT');
+    const configUntrack = runCurrentCliShellCommand((trackedConfigReceipt as any).nextCommand, worktree);
+    assert.equal(configUntrack.status, 0, `${configUntrack.stdout}\n${configUntrack.stderr}`);
+    assert.equal(classifyScopePath(contract, configReceiptPath, { projectRoot: worktree, gitCwd: worktree }).allowed, true);
 
     const asset = CONTROLLER_RUNTIME_ASSET_PATHS[0];
     const controllerBytes = readFileSync(join(root, asset));
@@ -511,6 +561,11 @@ check('controller runtime projection receipt is registered as one managed proces
   }, '.proof-or-stop/story/actives/B-registry/evidence/controller-runtime-projection.json');
   assert.equal(withoutVerificationContext.allowed, false);
   assert.equal((withoutVerificationContext as any).blockerCode, 'UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT');
+  const configWithoutVerificationContext = classifyScopePath({
+    storyId: 'B-registry', allowedModify: ['src/feature.ts'], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [],
+  }, '.proof-or-stop/story/actives/B-registry/evidence/controller-config-projection.json');
+  assert.equal(configWithoutVerificationContext.allowed, false);
+  assert.equal((configWithoutVerificationContext as any).blockerCode, 'UNTRUSTED_CONTROLLER_CONFIG_PROJECTION_RECEIPT');
 });
 
 check('global-thin DEV to REVIEW scope gate admits a complete projection on main and master', () => {
@@ -520,9 +575,10 @@ check('global-thin DEV to REVIEW scope gate admits a complete projection on main
     const worktree = join(root, '.worktrees', storyId);
     try {
       initRepo(root, integrationBranch);
+      const storyDir = integrationBranch === 'master' ? '.custom-pos/stories' : '.proof-or-stop/story/actives';
       write(root, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ assetMode: 'global-thin' }));
-      write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
-      write(root, `.proof-or-stop/story/actives/${storyId}/index.json`, JSON.stringify({ storyId, phase: 'DEV' }));
+      write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir, scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+      write(root, `${storyDir}/${storyId}/index.json`, JSON.stringify({ storyId, phase: 'DEV' }));
       write(root, '.codex/hooks.json', '{"hooks":[]}\n');
       write(root, '.codex/hooks/proof-or-stop-evidence-pretool.cjs', 'module.exports = {};\n');
       write(root, '.codex/hooks/proof-or-stop-scope-pretool.cjs', 'module.exports = {};\n');
@@ -572,10 +628,64 @@ check('global-thin Story worktree check inspects the controller and refuses loca
     const apply = spawnSync(process.execPath, [cliPath, 'check', '--apply', '--json'], { cwd: worktree, encoding: 'utf8' });
     assert.notEqual(apply.status, 0);
     const applyOutput = `${apply.stdout}\n${apply.stderr}`;
-    assert.match(applyOutput, new RegExp(`cd ${JSON.stringify(realpathSync(root)).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+    assert.ok(applyOutput.includes(`cd -- ${shellQuote(realpathSync(root))}`));
     assert.match(applyOutput, /proof-or-stop check --apply/);
     assert.deepEqual(['AGENTS.md', '.gitignore'].map(path => existsSync(join(worktree, path))), before);
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+check('controller runtime receipt writes refuse Story and Git-common symlink ancestors', () => {
+  for (const targetKind of ['story', 'common'] as const) {
+    const root = mkdtempSync(join(tmpdir(), `proof-or-stop-runtime-receipt-${targetKind}-`));
+    const outside = mkdtempSync(join(tmpdir(), `proof-or-stop-runtime-receipt-outside-${targetKind}-`));
+    const storyId = `B-receipt-${targetKind}`;
+    const worktree = join(root, '.worktrees', storyId);
+    try {
+      initRepo(root, 'main');
+      write(root, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ assetMode: 'global-thin' }));
+      write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+      git(root, ['add', 'proof-or-stop.config.json']);
+      git(root, ['commit', '-qm', 'track fixture config']);
+      write(root, `.proof-or-stop/story/actives/${storyId}/index.json`, JSON.stringify({ storyId, phase: 'DEV' }));
+      write(root, '.codex/hooks.json', '{"hooks":[]}\n');
+      write(root, '.codex/hooks/proof-or-stop-evidence-pretool.cjs', 'module.exports = {};\n');
+      write(root, '.codex/hooks/proof-or-stop-scope-pretool.cjs', 'module.exports = {};\n');
+      git(root, ['branch', `story/${storyId}`]);
+      mkdirSync(dirname(worktree), { recursive: true });
+      git(root, ['worktree', 'add', '-q', worktree, `story/${storyId}`]);
+      if (targetKind === 'common') {
+        symlinkSync(outside, join(root, '.git', 'proof-or-stop-controller-runtime-projections'));
+      } else {
+        projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId });
+        const evidenceDir = join(worktree, '.proof-or-stop/story/actives', storyId, 'evidence');
+        rmSync(evidenceDir, { recursive: true, force: true });
+        symlinkSync(outside, evidenceDir);
+      }
+      assert.throws(
+        () => projectControllerAssetsIntoStoryWorktree({ controllerRoot: root, worktreeRoot: worktree, storyId }),
+        /symlink receipt path|symlink path/i,
+      );
+      assert.equal(existsSync(join(outside, 'controller-runtime-projection.json')), false);
+      assert.equal(existsSync(join(outside, `${storyId}.json`)), false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  }
+});
+
+check('emitted recovery paths are POSIX quoted against command substitution', () => {
+  const parent = mkdtempSync(join(tmpdir(), 'proof-or-stop-shell-quote-'));
+  const literalName = 'repo $(touch PWNED) `touch ALSO_PWNED`';
+  const target = join(parent, literalName);
+  try {
+    mkdirSync(target);
+    const probe = spawnSync('/bin/sh', ['-c', `cd -- ${shellQuote(target)} && pwd`], { cwd: parent, encoding: 'utf8' });
+    assert.equal(probe.status, 0, probe.stderr);
+    assert.equal(realpathSync(probe.stdout.trim()), realpathSync(target));
+    assert.equal(existsSync(join(parent, 'PWNED')), false);
+    assert.equal(existsSync(join(parent, 'ALSO_PWNED')), false);
+  } finally { rmSync(parent, { recursive: true, force: true }); }
 });
 
 check('acceptance amendment reports each missing prerequisite and exact repair command', () => {

@@ -42,13 +42,20 @@ before ordinary lifecycle filename classification:
      `packages/main/src/core/managed-artifact-descriptors.ts` define the two
      exact Story receipt paths, their owner, producer, signature policy,
      projection policy, and tracked-file policy;
-   – the runtime projection receipt is admitted only when its Story id,
-     controller/worktree roots, Git common receipt, signature, exact hook set,
-     digests, and controller/worktree bytes all match the current registered
-     Story worktree;
-   – a tracked, missing, malformed, stale, or tampered receipt fails closed as
-     `UNTRUSTED_CONTROLLER_RUNTIME_PROJECTION_RECEIPT`. It is a framework repair,
-     so the recovery path never asks the product Story to widen its scope.
+   – both config and runtime projection receipts are admitted only when their
+     Story id, controller/worktree roots, Git common receipt, signatures,
+     projected assets, digests, and controller/worktree bytes all match the
+     current registered Story worktree, including a configured custom
+     `storyDir`;
+   – tracked, malformed, stale, tampered, mismatched, or context-free receipts
+     fail closed as a controller-owned projection error even when the product
+     scope contract has no allowed paths. Receipt directories use canonical
+     containment and no-follow ancestor checks;
+   – an absent redundant Story receipt can be recreated only by the same exact
+     registered-worktree bootstrap, which rechecks its signed common receipt
+     and current assets. A tracked receipt is recovered with an explicit
+     `git rm --cached` command. Generated recovery commands use POSIX-safe
+     quoting and never ask the product Story to widen its scope.
 
 2. **`classifyLifecycleArtifact(file, { storyId })`**
    – returns a hit only when the path matches:

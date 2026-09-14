@@ -3536,7 +3536,7 @@ export type ScopePathRule =
   | 'allowed_test'
   | 'lifecycle_artifact'
   | 'runtime_artifact'
-  | 'untrusted_runtime_receipt'
+  | 'untrusted_controller_receipt'
   | 'unknown';
 
 export interface ScopePathClassification {

@@ -9,6 +9,7 @@ import {
 } from './command-policy.js';
 import { FLOW_FACT_POLICIES } from './flow-fact-policy.js';
 import { PROCESS_FACT_LEVELS, type ProcessFactLevel, type ProcessFactLevelEntry } from './process-fact-levels.js';
+import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js';
 
 export const CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION = 'proof-or-stop.candidate-spec-set.v1' as const;
 
@@ -2207,57 +2208,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'No-blocker review pass signatures are accepted only with exactly one registered-broker invocation attestation bound to the exact story, lane, ReviewRun, writer session, signed dispatch, adapter, host, and one-shot nonce, or one managed provider receipt/proposal binding. Observable mixed-provider ancestry is an additional veto; unavailable ancestry does not invalidate a trusted broker attestation. Missing, conflicting, replayed, stale, or rewritten provenance fails the REVIEW consumer.',
   },
 
-  {
-    name: 'artifact:evidence/controller-config-projection.json',
-    kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'workspace-binding', 'gate-evidence'],
-    level: 'L4',
-    producer: 'cli/runtime-root via core/controller-config-projection',
-    producerSourceRefs: [
-      'packages/main/src/core/managed-artifact-descriptors.ts',
-      'packages/main/src/core/controller-config-projection.ts',
-    ],
-    consumerSourceRefs: [
-      'packages/main/src/core/lifecycle-registry.ts',
-      'packages/main/src/core/scope-path-classifier.ts',
-      'packages/main/src/core/scope-contract.ts',
-    ],
-    consumerGate: 'scope-contract REVIEW admission',
-    artifact: {
-      name: 'controller-config-projection-receipt',
-      path: 'evidence/controller-config-projection.json',
-      signed: true,
-      signature: 'signValidationArtifact/verifyValidationArtifact binds first projected config digest, Story, controller root, worktree root, and config path',
-      consumerGate: 'scope-contract REVIEW admission',
-    },
-    rationale: 'The canonical managed artifact descriptor owns the producer path and lifecycle registration. Only an untracked config pair matching both immutable first-projection receipts is admitted; editing either copy or receipt returns it to ordinary fail-closed scope enforcement.',
-  },
-  {
-    name: 'artifact:evidence/controller-runtime-projection.json',
-    kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'workspace-binding', 'gate-evidence'],
-    level: 'L4',
-    producer: 'cli/runtime-root via core/controller-runtime-projection',
-    producerSourceRefs: [
-      'packages/main/src/core/managed-artifact-descriptors.ts',
-      'packages/main/src/core/controller-runtime-projection.ts',
-    ],
-    consumerSourceRefs: [
-      'packages/main/src/core/lifecycle-registry.ts',
-      'packages/main/src/core/runtime-artifact-registry.ts',
-      'packages/main/src/core/scope-path-classifier.ts',
-      'packages/main/src/core/scope-contract.ts',
-    ],
-    consumerGate: 'scope-path classifier and scope-contract REVIEW admission',
-    artifact: {
-      name: 'controller-runtime-projection-receipt',
-      path: 'evidence/controller-runtime-projection.json',
-      signed: true,
-      signature: 'signValidationArtifact/verifyValidationArtifact binds Story, controller root, worktree root, exact hook paths and digests',
-      consumerGate: 'scope-path classifier and scope-contract REVIEW admission',
-    },
-    rationale: 'The canonical managed artifact descriptor owns the producer path and lifecycle registration. The Story receipt is admitted only while its signed common receipt, workspace identity, exact hook set and byte identity remain valid; tampering fails closed as a framework-owned projection error.',
-  },
+  ...CONTROLLER_PROJECTION_ARTIFACTS,
   {
     name: 'artifact:managed-review-evidence-proposal',
     kind: 'artifact',

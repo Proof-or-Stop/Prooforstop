@@ -5,11 +5,15 @@
 Fixed the global-thin lifecycle deadlock where Proof-or-Stop generated a signed
 controller runtime projection receipt and then rejected that same receipt as an
 out-of-scope Story change. Controller projection artifacts now share one
-descriptor inventory across producers and lifecycle classification, and the
-runtime receipt receives a strict current-Story, worktree, common-receipt,
-signature, tracked-file, digest, and byte-identity check before scope admission.
-Tampered, missing, tracked, mismatched, and context-free projections remain
-fail-closed with framework-owned recovery diagnostics.
+descriptor inventory across producers, process facts, and lifecycle
+classification. Config and runtime receipts receive strict current-Story,
+custom-storyDir, worktree, common-receipt, signature, tracked-file, digest, and
+byte-identity checks before scope admission. Tampered, missing, tracked,
+mismatched, and context-free projections remain fail-closed even when the
+product scope has no allowed paths. Missing redundant Story receipts are
+recreated only through the registered-worktree bootstrap; tracked receipts
+receive an explicit untrack command. Receipt writes reject symlinked ancestors,
+and every emitted recovery command uses POSIX-safe quoting.
 
 Read-only `proof-or-stop check` calls from global-thin linked worktrees now
 inspect the primary controller. `check --apply` and `check --upgrade` refuse to

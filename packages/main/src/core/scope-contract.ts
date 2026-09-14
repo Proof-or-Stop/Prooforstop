@@ -505,6 +505,10 @@ export function checkScopeContract(
 
     if (classification.allowed) {
       rows.push(passRow(classification));
+    } else if (classification.rule === 'untrusted_controller_receipt') {
+      const v: ScopeViolation = { path: file, rule: 'out_of_scope', acknowledged: false };
+      violations.push(v);
+      rows.push(problemRow(contract, classification, v, false));
     } else if (classification.registryId === 'shared-gap-log-metadata-v1') {
       const v: ScopeViolation = { path: file, rule: 'out_of_scope', acknowledged: false };
       violations.push(v);

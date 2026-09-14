@@ -83,12 +83,32 @@ function matches(path: string, expected: Claims, root: string, gitCwd: string): 
   } catch { return false; }
 }
 
-function writeExclusive(path: string, record: unknown): void {
+function assertSafeReceiptPath(root: string, target: string, finalKind: 'file' | 'directory' = 'file'): void {
+  const canonicalRoot = realpathSync(root);
+  const absolute = resolve(target);
+  const rel = relative(canonicalRoot, absolute);
+  if (rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) throw new Error('controller runtime projection receipt escaped its authority root');
+  let cursor = canonicalRoot;
+  for (const segment of rel.split(/[\\/]/).filter(Boolean)) {
+    cursor = join(cursor, segment);
+    if (!existsSync(cursor)) return;
+    const stat = lstatSync(cursor);
+    if (stat.isSymbolicLink()) throw new Error(`controller runtime projection refused symlink receipt path: ${cursor}`);
+    if (cursor !== absolute && !stat.isDirectory()) throw new Error(`controller runtime projection refused non-directory receipt ancestor: ${cursor}`);
+    if (cursor === absolute && finalKind === 'file' && !stat.isFile()) throw new Error(`controller runtime projection refused non-regular receipt: ${cursor}`);
+    if (cursor === absolute && finalKind === 'directory' && !stat.isDirectory()) throw new Error(`controller runtime projection refused non-directory receipt path: ${cursor}`);
+  }
+}
+
+function writeExclusive(root: string, path: string, record: unknown): void {
+  assertSafeReceiptPath(root, path);
   mkdirSync(dirname(path), { recursive: true });
+  assertSafeReceiptPath(root, dirname(path), 'directory');
   const temporary = `${path}.tmp-${randomBytes(6).toString('hex')}`;
   try {
     writeFileSync(temporary, `${JSON.stringify(record)}\n`, { flag: 'wx', mode: 0o600 });
     linkSync(temporary, path);
+    assertSafeReceiptPath(root, path);
   } finally {
     try { unlinkSync(temporary); } catch { rmSync(temporary, { force: true }); }
   }
@@ -103,10 +123,10 @@ export function attestControllerRuntimeProjection(args: { gitCwd: string; storyI
   const record = { ...expected, signature: signValidationArtifact(expected, args.gitCwd) };
   if (existsSync(commonReceipt)) {
     if (!matches(commonReceipt, expected, common, args.gitCwd)) throw new Error('controller runtime projection refused controller asset drift');
-  } else writeExclusive(commonReceipt, record);
+  } else writeExclusive(common, commonReceipt, record);
   if (existsSync(storyReceipt)) {
     if (!matches(storyReceipt, expected, args.storyRoot, args.gitCwd)) throw new Error('controller runtime projection refused Story receipt drift');
-  } else writeExclusive(storyReceipt, record);
+  } else writeExclusive(args.storyRoot, storyReceipt, record);
 }
 
 export function hasValidControllerRuntimeProjection(args: { gitCwd: string; storyId: string; controllerRoot: string; worktreeRoot: string; storyRoot: string }): boolean {

@@ -174,7 +174,6 @@ function assertUntrackedControllerConfigAndMasterBaseline(project: ProjectContro
 
     writeFileSync(join(worktreeRoot, 'feature.go'), 'implemented\n');
     git(worktreeRoot, ['add', 'feature.go']);
-    git(worktreeRoot, ['add', '-f', `.proof-or-stop/story/actives/${storyId}/evidence/controller-config-projection.json`]);
     git(worktreeRoot, ['commit', '-qm', 'implement benchmark feature']);
     git(controllerRoot, ['update-ref', 'refs/remotes/origin/story/poison', git(worktreeRoot, ['rev-parse', 'HEAD'])]);
     git(controllerRoot, ['symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/story/poison']);

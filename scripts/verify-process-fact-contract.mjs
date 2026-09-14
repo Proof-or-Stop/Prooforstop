@@ -5739,6 +5739,37 @@ function parseInlineProcessFactArtifactFromSource(block, label) {
   };
 }
 
+function parseControllerProjectionDescriptorProcessFacts(
+  source = read('packages/main/src/core/managed-artifact-descriptors.ts'),
+) {
+  const entries = [];
+  for (const match of source.matchAll(/defineManagedArtifactDescriptor\(\{/g)) {
+    const openIndex = match.index + match[0].lastIndexOf('{');
+    const block = extractBalancedBlock(source, openIndex, '{', '}', 'managed controller projection descriptor');
+    const id = readStringProperty(block, 'id');
+    const path = readStringProperty(block, 'path');
+    const producer = readStringProperty(block, 'producer');
+    const signature = readStringProperty(block, 'signature');
+    const consumerGate = readStringProperty(block, 'consumerGate');
+    const rationale = readStringProperty(block, 'rationale');
+    assert(id && path && producer && signature && consumerGate && rationale,
+      'managed controller projection descriptor must declare every process-fact field');
+    entries.push({
+      name: `artifact:${path}`,
+      kind: 'signed-artifact',
+      semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'workspace-binding', 'gate-evidence'],
+      level: 'L4',
+      producer,
+      consumerGate,
+      artifact: { name: id, path, signed: true, signature, consumerGate },
+      reviewerLane: '',
+      rationale,
+      block,
+    });
+  }
+  return entries;
+}
+
 function parseProcessFactRequiredSemanticsFromSource(text) {
   const body = extractExportedObjectBody(text, 'PROCESS_FACT_REQUIRED_SEMANTICS', processFactRegistryPath);
   const semantics = new Map();
@@ -5938,7 +5969,7 @@ function parseProcessFactRegistry() {
       ? artifactByCommand.get(artifactRefMatch[1])
       : parseInlineProcessFactArtifactFromSource(entry.block, `${processFactRegistryPath} ${entry.name}`);
     return { ...entry, artifact: artifact || null };
-  });
+  }).concat(parseControllerProjectionDescriptorProcessFacts());
   const flowPolicyEntries = parseFlowFactPolicies().map(entry => ({
     name: entry.name,
     kind: 'flow-policy',
@@ -8479,28 +8510,37 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 
   const managedDescriptorText = read('packages/main/src/core/managed-artifact-descriptors.ts');
   const lifecycleRegistryText = read('packages/main/src/core/lifecycle-registry.ts');
+  const processRegistrySource = read(processFactRegistryPath);
   const runtimeProjectionText = read('packages/main/src/core/controller-runtime-projection.ts');
   const configProjectionText = read('packages/main/src/core/controller-config-projection.ts');
   assert(
     lifecycleRegistryText.includes('...CONTROLLER_PROJECTION_ARTIFACTS.map((artifact) => artifact.path)'),
     'controller projection lifecycle paths must derive from the canonical managed artifact descriptors',
   );
-  for (const descriptor of [
-    { id: 'controller-config-projection-receipt', path: 'evidence/controller-config-projection.json', producerText: configProjectionText },
-    { id: 'controller-runtime-projection-receipt', path: 'evidence/controller-runtime-projection.json', producerText: runtimeProjectionText },
-  ]) {
+  assert(
+    processRegistrySource.includes("import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js'")
+      && processRegistrySource.includes('...CONTROLLER_PROJECTION_ARTIFACTS,'),
+    'process fact artifacts must consume the canonical controller projection descriptors directly',
+  );
+  const controllerDescriptors = parseControllerProjectionDescriptorProcessFacts(managedDescriptorText);
+  assert(controllerDescriptors.length === 2, 'exactly two controller projection artifact descriptors must be registered');
+  for (const descriptor of controllerDescriptors) {
+    const producerText = descriptor.artifact.name === 'controller-config-projection-receipt'
+      ? configProjectionText
+      : runtimeProjectionText;
     assert(
-      managedDescriptorText.includes(`id: '${descriptor.id}'`) && managedDescriptorText.includes(`path: '${descriptor.path}'`),
-      `managed artifact descriptor missing ${descriptor.id}`,
+      producerText.includes('PROJECTION_ARTIFACT.path'),
+      `producer must derive ${descriptor.artifact.name} path from the managed artifact descriptor`,
     );
+    const processEntry = registry.get(descriptor.name);
     assert(
-      descriptor.producerText.includes('PROJECTION_ARTIFACT.path'),
-      `producer must derive ${descriptor.id} path from the managed artifact descriptor`,
-    );
-    const processEntry = registry.get(`artifact:${descriptor.path}`);
-    assert(
-      processEntry?.artifact?.name === descriptor.id && processEntry.artifact.path === descriptor.path,
-      `process fact registry must derive ${descriptor.id} from the managed artifact descriptor`,
+      processEntry?.artifact?.name === descriptor.artifact.name
+        && processEntry.artifact.path === descriptor.artifact.path
+        && processEntry.artifact.signature === descriptor.artifact.signature
+        && processEntry.producer === descriptor.producer
+        && processEntry.consumerGate === descriptor.consumerGate
+        && processEntry.rationale === descriptor.rationale,
+      `process fact registry must derive the complete ${descriptor.artifact.name} contract from its descriptor`,
     );
   }
 
@@ -11586,13 +11626,13 @@ for (const [path, tokens] of [
  ['packages/main/src/handlers/story-dispatch.ts',['ownerDispositions']],
 ]) for (const token of tokens) assert(read(path).includes(token), 'Missing selected owner contract: '+path+':'+token);
 
-for (const file of ['process-fact-registry','command-policy','process-fact-levels','flow-fact-policy']) {
+for (const file of ['process-fact-registry','command-policy','process-fact-levels','flow-fact-policy','managed-artifact-descriptors']) {
   assert(read('packages/main/src/core/plan-touchpoint-coverage.ts').includes('packages/main/src/core/'+file+'.ts'), 'Unbound registry projection input: '+file);
 }
 
 // Structural dependency inventory: newly imported mapping inputs require an explicit binding review.
 for (const [file, expected] of [
- ['process-fact-registry',['./command-policy.js','./flow-fact-policy.js','./process-fact-levels.js','node:path']],
+ ['process-fact-registry',['./command-policy.js','./flow-fact-policy.js','./managed-artifact-descriptors.js','./process-fact-levels.js','node:path']],
  ['command-policy',[]], ['process-fact-levels',[]],
  // This helper import serves only evaluator functions, not the literal FLOW_FACT_POLICIES projection.
  ['flow-fact-policy',['./agent-dispatch-registry.js']],
