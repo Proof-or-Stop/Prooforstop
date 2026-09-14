@@ -345,7 +345,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   const gitCwd = options.gitCwd ?? root;
   // Completed history is not a new admission attempt. Preserve its established
   // artifact/assurance projection; only active readiness consumes live gates.
-  const completedSnapshot = story.phase === 'DONE' ? options.completedSnapshot : undefined;
+  const completedSnapshot = store.readStory(storyId).phase === 'DONE' ? options.completedSnapshot : undefined;
   const donePredicates = completedSnapshot ? null : [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];
   const suppliedSnapshotReuse = options.evidenceHashSnapshot
     ? checkEvidenceHashSnapshotReuse(options.evidenceHashSnapshot, { gitCwd, metadataRoot: root, ref: 'HEAD' })
