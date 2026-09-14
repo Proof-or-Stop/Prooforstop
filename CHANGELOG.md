@@ -1,5 +1,33 @@
 # Changelog
 
+## Lab benchmark-lifecycle-recovery - v0.3.366 - 2026-09-15
+
+Fixed two benchmark lifecycle blockers. Story creation now persists an explicit
+empty checklist before recording creation authority, so valid no-checklist
+Stories no longer fail later gates because the artifact is absent.
+
+Managed reviews now execute provider commands in a disposable detached worktree
+at the same sealed commit while retaining a separate immutable source worktree.
+Ignored and untracked files produced by legitimate tests remain confined to the
+execution copy. Tracked drift, Git metadata tampering, worktree replacement,
+registration changes, and sealed-source mutation remain fail-closed. Cleanup
+verifies a protected per-generation identity before removing either worktree,
+preserves replacement objects for diagnosis, and keeps historical single-worktree
+specifications executable and cleanable.
+
+Verification passed: empty-checklist creation and process-fact regressions;
+managed-review scratch-isolation RED/GREEN coverage for generated test artifacts,
+tracked mutations, Git tampering, same-path replacements, cleanup diagnostics,
+source mutation, historical specs, setup failures, timeouts, and terminal states;
+TypeScript build; process/runtime contract checks through the changed surfaces;
+and independent Codex specification and standards reviews. The U18 static scan
+contains no candidate-only failing calls relative to the 0.3.365 baseline; its
+remaining failures are pre-existing stale dependency evidence.
+
+Maintenance provenance: codex/lab-empty-checklist-lifecycle. This entry records
+Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction;
+it does not assert a different-vendor Lab audit or formal Story DONE.
+
 ## Lab lifecycle-portability-hardening - v0.3.365 - 2026-09-15
 
 Fixed the global-thin lifecycle deadlock where Proof-or-Stop generated a signed
