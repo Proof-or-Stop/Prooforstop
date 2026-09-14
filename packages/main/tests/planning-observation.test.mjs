@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import ts from 'typescript';
 import fs from 'node:fs';import path from 'node:path';import {syncBuiltinESMExports} from 'node:module';
-import {prepareVerificationExecutionIdentity,withVerificationPlanningObservation,withVerificationRefreshObservation} from '../dist/core/verification-execution-evidence.js';
+import {captureVerificationFreshness,prepareVerificationExecutionIdentity,withVerificationPlanningObservation,withVerificationRefreshObservation} from '../dist/core/verification-execution-evidence.js';
 const original=fs.readFileSync,anchor=path.resolve('packages/main/dist/core/execution-implementation.js');let scans=0,revision=0;
 fs.readFileSync=function(file,...rest){let value=original.call(this,file,...rest);if(String(file)===anchor){scans++;if(revision)value=Buffer.isBuffer(value)?Buffer.concat([value,Buffer.from('\n// observed revision '+revision)]):value+'\n// observed revision '+revision;}return value;};syncBuiltinESMExports();
 const input={command:'node --version',cwd:process.cwd(),effectiveTimeoutMs:2000};
@@ -111,6 +111,9 @@ try{
  probes=[];currentGitHead(repo);assert.equal(heads(),1,'a throwing scope releases its observation');
  await withVerificationRefreshObservation(async()=>{currentGitHead(repo);await Promise.resolve();probes=[];currentGitHead(repo);assert.equal(heads(),1,'no git state observation crosses await');});
  probes=[];withVerificationRefreshObservation(()=>{currentGitHead(repo);withVerificationRefreshObservation(()=>currentGitHead(repo));currentGitHead(repo);});assert.equal(heads(),1,'a nested scope shares the outer synchronous observation');
+ // A freshness triple outside any scope is one observation of its own: one resolved HEAD and one tree read serve all three hashes.
+ probes=[];const triple=captureVerificationFreshness(repo,repo);assert.equal(heads(),1,'a freshness triple resolves HEAD once');assert.equal(probes.filter(a=>a.startsWith('ls-tree ')).length,1,'a freshness triple reads its tree once for both projections');assert.equal(new Set(probes).size,probes.length,'a freshness triple never repeats a probe');assert.equal(triple.headHash,currentGitHead(repo),'the triple describes the current HEAD');
+ probes=[];captureVerificationFreshness(repo,repo);captureVerificationFreshness(repo,repo);assert.equal(heads(),2,'independent triples re-resolve HEAD');
  console.log('GIT_STATE_OBSERVATION PASS one HEAD, material and story probe set per synchronous refresh scope; fresh outside; coherent under external movement; released on throw and await');
 }finally{cp.execFileSync=originalExec;syncBuiltinESMExports();rmSync(repo,{recursive:true,force:true});}
 
@@ -129,24 +132,32 @@ try{
   for(const st of statements.slice(from,to)){const check=x=>{assert.notEqual(x.kind,ts.SyntaxKind.AwaitExpression,'no await between the producer plan and its recovery call');ts.forEachChild(x,check);};check(st);}
   let call;const findCall=x=>{if(ts.isCallExpression(x)&&x.expression.getText(ast)==='enforceWithPublicationRecovery')call=x;ts.forEachChild(x,findCall);};findCall(statements[to]);
   assert.equal(call.arguments[3]?.getText(ast).replace(/\s+/g,' '),'{ plan: currentPlan }','every producer forwards the plan it computed inside its lock');}
- // Completion: exactly one synchronous planning scope inside enforceAndStampEvidence holds both identities and the receipt.
- let enforceDeclaration;function findEnforceSource(n){if(ts.isFunctionDeclaration(n)&&n.name?.text==='enforceAndStampEvidence')enforceDeclaration=n;ts.forEachChild(n,findEnforceSource);}findEnforceSource(ast);
- const completion=[];function findCompletion(n){if(ts.isCallExpression(n)&&n.expression.getText(ast)==='withVerificationPlanningObservation')completion.push(n);ts.forEachChild(n,findCompletion);}findCompletion(enforceDeclaration);
- assert.equal(completion.length,1,'one completion observation per enforcement');
- const completionBody=completion[0].arguments[0];assert.ok(ts.isArrowFunction(completionBody)&&!completionBody.modifiers?.some(m=>m.kind===ts.SyntaxKind.AsyncKeyword));
- const completionText=completionBody.getText(ast);assert.ok(!/\bawait\b/.test(completionText)&&completionText.includes('assertVerificationInputUnchanged(')&&completionText.includes('createVerificationExecutionReceipt('),'completion scope holds the post-execution identity and the receipt only');
- assert.ok(!completionText.includes('runCommand')&&!completionText.includes('executeCausalEvidence'),'launch stays outside the completion observation');
- // Every synchronous planning scope in the handler: initial batch planning, two completion scopes
- // (enforcement and stale refresh) and the stale refresh launch prefix; none awaits or launches.
- const planningScopes=[];function findPlanning(n){if(ts.isCallExpression(n)&&n.expression.getText(ast)==='withVerificationPlanningObservation')planningScopes.push(n);ts.forEachChild(n,findPlanning);}findPlanning(ast);
- assert.equal(planningScopes.length,4,'four synchronous planning scopes');
- const scopeTexts=planningScopes.map(n=>{const cb=n.arguments[0];assert.ok(ts.isArrowFunction(cb)&&!cb.modifiers?.some(m=>m.kind===ts.SyntaxKind.AsyncKeyword));const text=cb.getText(ast);assert.ok(!/\bawait\b/.test(text)&&!text.includes('executeCausalEvidence')&&!text.includes('runCommand')&&!text.includes('executePinnedCommand'),'planning scopes never await or launch');return text;});
- assert.equal(scopeTexts.filter(x=>x.includes('createVerificationExecutionReceipt(')).length,2,'enforcement and stale refresh each hold one completion scope');
- assert.equal(scopeTexts.filter(x=>x.includes('planVerificationExecutionReuse(')&&x.includes('return { reuse, launchIdentity }')).length,1,'the stale refresh launch prefix shares one observation between reuse planning and its launch identity');
+ // Scope inventory: every synchronous observation in the handler is bounded, never awaits, never launches
+ // and never mutates git. Launches run inside withoutGitObservation and assert that no observation is active.
+ const scopeCalls=name=>{const out=[];const visit=n=>{if(ts.isCallExpression(n)&&n.expression.getText(ast)===name)out.push(n);ts.forEachChild(n,visit);};visit(ast);return out;};
+ const bodyText=call=>{const cb=call.arguments[0];if(ts.isIdentifier(cb))return cb.text;assert.ok(ts.isArrowFunction(cb)&&!cb.modifiers?.some(m=>m.kind===ts.SyntaxKind.AsyncKeyword),'observation callbacks are synchronous arrows');const text=cb.getText(ast);assert.ok(!/\bawait\b/.test(text)&&!text.includes('executeCausalEvidence(')&&!text.includes('runCommand(')&&!text.includes('executePinnedCommand(')&&!text.includes('autoCommitStoryMetadata('),'observation scopes never await, launch or mutate git');return text;};
+ const planning=scopeCalls('withVerificationPlanningObservation').map(bodyText);assert.equal(planning.length,1,'one synchronous planning scope: the initial batch plans');assert.ok(planning[0].includes('verificationProducerPlan('));
+ const launch=scopeCalls('withVerificationLaunchObservation').map(bodyText);assert.equal(launch.length,4,'three producers and the stale refresh prefix each open one launch observation');
+ assert.equal(launch.filter(x=>x.includes('verificationProducerPlan(')&&x.includes('return enforceWithPublicationRecovery(')||x.includes('pending = enforceWithPublicationRecovery(')).length,3,'every producer plans and recovers inside its launch observation');
+ assert.equal(launch.filter(x=>x.includes('planVerificationExecutionReuse(')&&x.includes('captureVerificationFreshness(')&&x.includes('preflightCausalEvidence(')).length,1,'the stale refresh prefix shares freshness, reuse planning, launch identity and causal preflight');
+ const completion=scopeCalls('withVerificationCompletionObservation').map(bodyText);assert.equal(completion.length,3,'enforcement plus both stale refresh branches complete inside one observation');
+ assert.equal(completion.filter(x=>x.includes('createVerificationExecutionReceipt(')).length,2,'fresh executions issue their execution receipt inside the completion observation');
+ assert.equal(completion.filter(x=>x.includes('createCurrentVerificationAssertionReceipt(')||x.includes('publishCandidates')).length,3,'every assertion receipt publishes inside a completion observation');
+ const launches=scopeCalls('withoutGitObservation');assert.equal(launches.length,2,'both launches run outside any git observation');for(const call of launches)assert.ok(call.arguments[0].getText(ast).includes('executeCausalEvidence('));
+ assert.equal((source.match(/executeCausalEvidence\(/g)??[]).length,2,'no launch escapes withoutGitObservation');
+ assert.equal((source.match(/assertGitObservationInactive\('launch revalidation'\)/g)??[]).length,2,'every launch revalidation asserts that no observation is active');
+ // The checklist critical section is the only implicit git observation, and every git mutation it can reach invalidates it.
+ const sections=scopeCalls('withGitTreeObservation').map(bodyText);assert.equal(sections.length,2,'two implicit observations: the checklist critical section and the evidence-hash triple');
+ assert.ok(sections.includes('fn'),'the checklist lock helper forwards its callback into one observation');assert.equal(sections.filter(x=>x.includes('currentGitHead(')&&x.includes('currentMaterialHash(')&&x.includes('currentStoryFilesHash(')&&!x.includes('withChecklistLock(')).length,1,'the evidence-hash triple is its own observation and nothing more');
+ let lockDeclaration;function findLock(n){if(ts.isFunctionDeclaration(n)&&n.name?.text==='withChecklistLock')lockDeclaration=n;ts.forEachChild(n,findLock);}findLock(ast);
+ assert.ok(lockDeclaration&&lockDeclaration.getText(ast).includes('withGitTreeObservation(fn)'),'the checklist lock helper opens the observation around its synchronous callback');
+ const checkpointSource=fs.readFileSync('packages/main/src/core/verification-intent-checkpoint.ts','utf8');assert.ok(/args\[0\]==='for-each-ref'\|\|args\[0\]==='log'\)\)return observedGit\(/.test(checkpointSource)&&checkpointSource.includes('finally{forgetGitObservation();}'),'checkpoint object and ref writes invalidate the observation');
+ const autoCommitSource=fs.readFileSync('packages/main/src/core/auto-commit-metadata.ts','utf8');assert.equal((autoCommitSource.match(/forgetGitObservation\(\);/g)??[]).length,2,'the index and commit mutations of the metadata auto-commit invalidate the observation');
  // Commit: exactly one synchronous commit scope wrapping the canonical causal commit.
  const commits=[];function findCommits(n){if(ts.isCallExpression(n)&&n.expression.getText(ast)==='withVerificationCommitObservation')commits.push(n);ts.forEachChild(n,findCommits);}findCommits(ast);
- assert.equal(commits.length,1,'one commit observation');const commitBody=commits[0].arguments[0];assert.ok(ts.isArrowFunction(commitBody)&&!commitBody.modifiers?.some(m=>m.kind===ts.SyntaxKind.AsyncKeyword));
- const commitText=commitBody.getText(ast);assert.ok(!/\bawait\b/.test(commitText)&&commitText.includes('revalidateFresh')&&commitText.includes('commitWithCacheInvalidation')&&commitText.includes('observedImplementationDigest()'),'commit scope holds both snapshots and the canonical write');
+ assert.equal(commits.length,3,'the canonical commit and the two single-row lock callbacks each hold one commit observation');
+ const commitTexts=commits.map(bodyText);assert.equal(commitTexts.filter(x=>x.includes('revalidateFresh')&&x.includes('commitWithCacheInvalidation')&&x.includes('observedImplementationDigest()')).length,1,'commit scope holds both snapshots and the canonical write');
+ assert.equal(commitTexts.filter(x=>x.includes('evidenceHashes(gitCwd, root)')&&x.includes('commitCanonicalCausalEvidence(')).length,2,'single-row lock callbacks bind their hashes and commit inside one observation');
  // Runtime: the commit scope shares one implementation read; outside it every call reads afresh.
  const originalRead=fs.readFileSync;let reads=0;fs.readFileSync=function(file,...rest){if(String(file)===anchor)reads++;return originalRead.call(this,file,...rest);};syncBuiltinESMExports();
  try{reads=0;const digests=withVerificationCommitObservation(()=>[observedImplementationDigest(),observedImplementationDigest(),observedImplementationDigest()]);assert.equal(reads,1,'one implementation read per synchronous commit scope');assert.ok(digests.every(d=>d===digests[0]));
@@ -154,4 +165,55 @@ try{
   assert.throws(()=>withVerificationCommitObservation(()=>{observedImplementationDigest();throw Error('abort');}),/abort/);reads=0;observedImplementationDigest();assert.equal(reads,1,'a throwing commit scope releases its observation');}
  finally{fs.readFileSync=originalRead;syncBuiltinESMExports();}
  console.log('SEGMENT_OBSERVATION_BOUNDARIES PASS plan forwarded by three producers and the recovery closure, one completion scope, one commit scope, independent outside');
+}
+
+// Identical read-only git probes run once per synchronous observation; launches run outside it.
+{
+ const cp=(await import('node:child_process')).default;const {mkdtempSync,rmSync,writeFileSync}=await import('node:fs');const {tmpdir}=await import('node:os');
+ const {currentGitHead,gitCommitAtRef}=await import('../dist/core/evidence-freshness.js');
+ const {withVerificationLaunchObservation,withVerificationCompletionObservation}=await import('../dist/core/verification-execution-evidence.js');
+ const {withoutGitObservation,assertGitObservationInactive}=await import('../dist/core/git-tree-observation.js');
+ const repo=mkdtempSync(path.join(tmpdir(),'git-segment-observation-'));
+ const git=(...args)=>cp.execFileSync('git',['-c','user.name=lab','-c','user.email=lab@example.invalid','-c','commit.gpgsign=false',...args],{cwd:repo,encoding:'utf8',stdio:['pipe','pipe','pipe']}).trim();
+ git('init','-q','-b','main');writeFileSync(path.join(repo,'a.txt'),'a\n');git('add','a.txt');git('commit','-qm','base');
+ const originalExec=cp.execFileSync;let probes=[];
+ cp.execFileSync=function(file,args,...rest){if(file==='git'&&Array.isArray(args))probes.push(args.join(' '));return originalExec.call(this,file,args,...rest);};syncBuiltinESMExports();
+ const heads=()=>probes.filter(a=>a==='rev-parse HEAD').length;
+ try{
+  probes=[];withVerificationLaunchObservation(()=>{currentGitHead(repo);currentGitHead(repo);gitCommitAtRef(repo,'HEAD');});assert.equal(heads(),1,'one identical probe per launch observation');
+  probes=[];withVerificationCompletionObservation(()=>{currentGitHead(repo);currentGitHead(repo);});assert.equal(heads(),1,'one identical probe per completion observation');
+  probes=[];withVerificationLaunchObservation(()=>{currentGitHead(repo);withoutGitObservation(()=>{assertGitObservationInactive('launch');currentGitHead(repo);});currentGitHead(repo);});assert.equal(heads(),2,'a launch inside withoutGitObservation rereads and leaves the outer observation intact');
+  assert.throws(()=>withVerificationLaunchObservation(()=>assertGitObservationInactive('launch revalidation')),/git_observation_active/,'a launch inside an observation fails closed');
+  assert.equal(assertGitObservationInactive('outside'),true);
+  probes=[];withVerificationLaunchObservation(()=>{assert.equal(gitCommitAtRef(repo,'refs/heads/absent'),undefined);assert.equal(gitCommitAtRef(repo,'refs/heads/absent'),undefined);});assert.equal(probes.filter(a=>a==='rev-parse refs/heads/absent').length,1,'a failing probe is observed once per scope and fails the same way');
+  probes=[];gitCommitAtRef(repo,'refs/heads/absent');gitCommitAtRef(repo,'refs/heads/absent');assert.equal(probes.filter(a=>a==='rev-parse refs/heads/absent').length,2,'outside an observation a failing probe runs each time');
+  probes=[];currentGitHead(repo);currentGitHead(repo);assert.equal(heads(),2,'outside an observation every call probes git');
+  console.log('GIT_SEGMENT_OBSERVATION PASS identical probes run once per launch or completion observation, launches reread outside it and fail closed inside it, failures observed once per scope');
+ }finally{cp.execFileSync=originalExec;syncBuiltinESMExports();rmSync(repo,{recursive:true,force:true});}
+}
+
+// A git mutation issued inside an observation invalidates it: the next read is fresh.
+{
+ const cp=(await import('node:child_process')).default;const {mkdtempSync,mkdirSync,rmSync,writeFileSync}=await import('node:fs');const {tmpdir}=await import('node:os');
+ const {withGitTreeObservation,forgetGitObservation}=await import('../dist/core/git-tree-observation.js');
+ const {readIntentCheckpoint,writeIntentCheckpoint}=await import('../dist/core/verification-intent-checkpoint.js');
+ const {acceptanceIntentHash,createIntentAmendment}=await import('../dist/core/verification-intent-amendment.js');
+ const {currentGitHead}=await import('../dist/core/evidence-freshness.js');
+ const repo=mkdtempSync(path.join(tmpdir(),'git-mutation-observation-'));const storyDir=path.join(repo,'story','B-lab');mkdirSync(storyDir,{recursive:true});
+ const git=(...args)=>cp.execFileSync('git',['-c','user.name=lab','-c','user.email=lab@example.invalid','-c','commit.gpgsign=false',...args],{cwd:repo,encoding:'utf8',stdio:['pipe','pipe','pipe']}).trim();
+ git('init','-q','-b','main');writeFileSync(path.join(repo,'a.txt'),'a\n');git('add','a.txt');git('commit','-qm','base');
+ const item={id:'CHK-001',title:'lab item',status:'todo',verificationIntent:{happy:[{id:'H1',desc:'lab happy path',type:'logic',priority:'must'}]}};
+ const seeded=createIntentAmendment({item,storyId:'B-lab',expectedIntentHash:acceptanceIntentHash(item.verificationIntent),reason:'Seed a signed amendment so the checkpoint anchor write runs inside an observation.',addition:{edge:[{id:'E1',desc:'lab edge path',type:'logic',priority:'must'}]},sessionId:'lab',leaseId:'lab-lease',headHash:git('rev-parse','HEAD'),gitCwd:storyDir});
+ const data={items:[{...item,verificationIntent:seeded.intent,verificationIntentAmendments:[seeded.amendment]}]};
+ const originalExec=cp.execFileSync;let probes=[];
+ cp.execFileSync=function(file,args,...rest){if(file==='git'&&Array.isArray(args))probes.push(args.join(' '));return originalExec.call(this,file,args,...rest);};syncBuiltinESMExports();
+ try{
+  withGitTreeObservation(()=>{
+   assert.equal(readIntentCheckpoint('B-lab',storyDir),null,'no checkpoint yet');assert.equal(readIntentCheckpoint('B-lab',storyDir),null);
+   writeIntentCheckpoint('B-lab',data,storyDir);
+   const after=readIntentCheckpoint('B-lab',storyDir);assert.ok(after&&after.generation===1,'the checkpoint written inside the observation is visible to the next read');
+  });
+  probes=[];withGitTreeObservation(()=>{const head=currentGitHead(repo);forgetGitObservation();assert.equal(currentGitHead(repo),head);});assert.equal(probes.filter(a=>a==='rev-parse HEAD').length,2,'forgetting the observation makes the next probe run again');
+  console.log('GIT_MUTATION_OBSERVATION PASS a checkpoint anchor written inside an observation is visible to the next read; forgetting reruns probes');
+ }finally{cp.execFileSync=originalExec;syncBuiltinESMExports();rmSync(repo,{recursive:true,force:true});}
 }

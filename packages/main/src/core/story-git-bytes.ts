@@ -1,4 +1,4 @@
-import { readObservedGitTree } from './git-tree-observation.js';
+import { observedGit, readObservedGitTree } from './git-tree-observation.js';
 /** Process-local memo of immutable Git bytes, never filtered Story evidence. */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -12,10 +12,12 @@ const treeMemo = new Map<string, MemoEntry>();
 const diffMemo = new Map<string, MemoEntry>();
 let memoBytes = 0;
 function git(cwd: string, args: string[], input?: string): string {
-  return execFileSync('git', args, {
+  const run = () => execFileSync('git', args, {
     cwd, input, encoding: 'utf8', maxBuffer: 1024 * 1024 * 1024,
     stdio: ['pipe', 'pipe', 'pipe'],
   }).toString();
+  // Only input-free read-only probes share a synchronous observation.
+  return input === undefined ? observedGit(cwd, args, run) : run();
 }
 function clear(): void { treeMemo.clear(); diffMemo.clear(); memoBytes = 0; }
 function forget(map: Map<string, MemoEntry>, key: string): void {

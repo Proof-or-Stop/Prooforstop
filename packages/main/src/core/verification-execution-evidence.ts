@@ -326,13 +326,18 @@ export interface CreateVerificationAssertionInput {
 
 /** Strict publication coordinates are captured by the producer, never supplied by a caller. */
 export function captureVerificationFreshness(cwd: string, projectRoot: string): VerificationFreshnessBinding {
-  const headHash = currentGitHead(cwd);
-  const materialHash = currentMaterialHash(cwd, 'HEAD', projectRoot);
-  const storyFilesHash = currentStoryFilesHash(cwd, 'HEAD', projectRoot);
-  if (!isCanonicalGitHeadHash(headHash) || !isCanonicalSha256Hash(materialHash) || !isCanonicalSha256Hash(storyFilesHash)) {
-    throw new Error('receiptIssued=false reason=incomplete_freshness_hash_binding');
-  }
-  return { headHash, materialHash, storyFilesHash };
+  // One freshness triple is one observation: its three hashes describe the same
+  // resolved HEAD, and one tree read serves both projections. Nothing outlives
+  // this call, so a launch or publication capture still reads current state.
+  return withGitTreeObservation(() => {
+    const headHash = currentGitHead(cwd);
+    const materialHash = currentMaterialHash(cwd, 'HEAD', projectRoot);
+    const storyFilesHash = currentStoryFilesHash(cwd, 'HEAD', projectRoot);
+    if (!isCanonicalGitHeadHash(headHash) || !isCanonicalSha256Hash(materialHash) || !isCanonicalSha256Hash(storyFilesHash)) {
+      throw new Error('receiptIssued=false reason=incomplete_freshness_hash_binding');
+    }
+    return { headHash, materialHash, storyFilesHash };
+  });
 }
 
 export function assertVerificationFreshnessUnchanged(
@@ -598,6 +603,19 @@ export function withVerificationRefreshObservation<T>(read: () => T): T {
  * one implementation and Git state observation; the write itself stays inside. */
 export function withVerificationCommitObservation<T>(commit: () => T): T {
   return withGitTreeObservation(() => withVerificationPlanningObservation(commit));
+}
+
+/** A synchronous launch prefix: planning, recovery lookup and enforcement preflight
+ * share one implementation and repository observation. The launch itself runs
+ * outside it through withoutGitObservation. */
+export function withVerificationLaunchObservation<T>(prepare: () => T): T {
+  return withGitTreeObservation(() => withVerificationPlanningObservation(prepare));
+}
+
+/** A synchronous completion segment: the post-execution identity and every receipt's
+ * own freshness capture and signer lookup share one observation. */
+export function withVerificationCompletionObservation<T>(complete: () => T): T {
+  return withGitTreeObservation(() => withVerificationPlanningObservation(complete));
 }
 
 /** The implementation digest as observed by the enclosing synchronous scope; a fresh read outside one. */

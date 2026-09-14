@@ -33,6 +33,49 @@ export function readObservedGitState<T>(key: string, probe: () => T): T {
   return value;
 }
 
+class ObservedGitFailure { constructor(readonly error: unknown) {} }
+
+/** Identical read-only git probes (same cwd, argv and inherited environment) inside
+ * one synchronous observation run once; a failing command is observed as failed for
+ * the rest of that segment and fails the same way. Outside an observation every call
+ * runs git, and mutating commands must never pass here. */
+export function observedGit(gitCwd: string, argv: readonly string[], run: () => string): string {
+  if (!observation) return run();
+  const key = 'git\0' + gitObservationKey([resolve(gitCwd), argv]);
+  if (observation.has(key)) {
+    const known = observation.get(key);
+    if (known instanceof ObservedGitFailure) throw known.error;
+    return known as string;
+  }
+  try {
+    const value = run();
+    observation.set(key, value);
+    return value;
+  } catch (error) {
+    observation.set(key, new ObservedGitFailure(error));
+    throw error;
+  }
+}
+
+/** Run a launch outside any observation: whatever it reads is never a memoized snapshot. */
+export function withoutGitObservation<T>(launch: () => T): T {
+  const previous = observation;
+  observation = undefined;
+  try { return launch(); } finally { observation = previous; }
+}
+
+/** A git mutation issued by this process ends what the current observation knows:
+ * every later probe in the same segment reads afresh. */
+export function forgetGitObservation(): void {
+  observation?.clear();
+}
+
+/** Fail closed when a launch-time reread finds an observation still active. */
+export function assertGitObservationInactive(label: string): true {
+  if (observation) throw new Error(label + ' must reread outside a synchronous git observation [git_observation_active]');
+  return true;
+}
+
 /** Only the identical standard NUL-framed tree command shares an observation.
  * Other formats and caller-specific limits keep their existing separate readers.
  * Full object names include annotated tags; the tree memo never keys on a

@@ -1,4 +1,5 @@
-import { observedImplementationDigest, withVerificationCommitObservation, withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
+import { observedImplementationDigest, withVerificationCommitObservation, withVerificationCompletionObservation, withVerificationLaunchObservation, withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
+import { assertGitObservationInactive, observedGit, withGitTreeObservation, withoutGitObservation } from '../core/git-tree-observation.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
 import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
@@ -220,8 +221,11 @@ function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T)
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'checklist', 'checklist');
   // REVIEW acceptance semantics and review-inventory evidence share one outer
   // lock. The stable order is inventory -> checklist for every checklist writer.
+  // A checklist critical section is one synchronous git observation: its reads
+  // share one repository snapshot, and its own git mutations (checkpoint anchors,
+  // metadata auto-commits) invalidate that snapshot for every later read.
   return withReviewInventoryMutationLock(ctx.store, storyId, () =>
-    withMkdirLock(lockDir, fn, { label: 'checklist metadata', heartbeatMs: 1_000 }));
+    withMkdirLock(lockDir, () => withGitTreeObservation(fn), { label: 'checklist metadata', heartbeatMs: 1_000 }));
 }
 
 /**
@@ -390,17 +394,20 @@ export function assertChecklistAddAllowed(
  * defaults to gitCwd, so the hashes are byte-identical to before.
  */
 function evidenceHashes(gitCwd: string, metadataRoot: string = gitCwd): { headHash?: string; materialHash?: string; storyFilesHash?: string } {
-  let headHash = '';
-  try {
-    headHash = execSync('git rev-parse HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-  } catch { /* PROBE: non-git or unavailable, omit freshness hash */ }
-  const materialHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
-  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
-  return {
-    ...(headHash ? { headHash } : {}),
-    ...(materialHash ? { materialHash } : {}),
-    ...(storyFilesHash ? { storyFilesHash } : {}),
-  };
+  // One freshness triple is one observation: its three hashes describe the same
+  // resolved HEAD, and one tree read serves both the material and the Story
+  // projection. Nothing outlives this call.
+  return withGitTreeObservation(() => {
+    // PROBE: a non-git or unavailable repository omits the freshness hash.
+    const headHash = currentGitHead(gitCwd) ?? '';
+    const materialHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
+    const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
+    return {
+      ...(headHash ? { headHash } : {}),
+      ...(materialHash ? { materialHash } : {}),
+      ...(storyFilesHash ? { storyFilesHash } : {}),
+    };
+  });
 }
 
 type CausalPreflightProbeInput = {
@@ -423,11 +430,11 @@ function canonicalProbePath(path: string): string | null {
 
 function probeGitTopLevel(cwd: string): string | null {
   try {
-    const topLevel = execSync('git rev-parse --show-toplevel', {
+    const topLevel = observedGit(cwd, ['rev-parse', '--show-toplevel'], () => execSync('git rev-parse --show-toplevel', {
       cwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
+    }).trim());
     return topLevel ? canonicalProbePath(topLevel) : null;
   } catch {
     return null;
@@ -441,11 +448,11 @@ function probeGitIndex(cwd: string): {
   reason?: string;
 } {
   try {
-    const rawPath = execSync('git rev-parse --path-format=absolute --git-path index', {
+    const rawPath = observedGit(cwd, ['rev-parse', '--path-format=absolute', '--git-path', 'index'], () => execSync('git rev-parse --path-format=absolute --git-path index', {
       cwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
+    }).trim());
     const indexPath = canonicalProbePath(isAbsolute(rawPath) ? rawPath : resolve(cwd, rawPath));
     if (!indexPath) return { readable: false, reason: 'git_index_path_unavailable' };
     if (!statSync(indexPath).isFile()) return { readable: false, path: indexPath, reason: 'git_index_not_a_file' };
@@ -1482,15 +1489,17 @@ async function enforceAndStampEvidence(
   // CAS observation. This records a real reused consumer in the causal ledger,
   // never a new child, observation UUID, execution signature or execution time.
   // The bounded causal verdict is diagnostic only; V5 full output decides below.
+  // The launch runs outside any observation: its last-moment revalidation and
+  // the post-execution reread never see a memoized snapshot.
   const causal = !sharedExecution || sharedCausalReceipt
-    ? await executeCausalEvidence({
+    ? await withoutGitObservation(() => executeCausalEvidence({
     identity: causalIdentity,
     selector: pinSelector,
     intentRef: input.intentRef,
     receiptStore: deps.receiptStore,
     batch: deps.batch,
     preflight,
-    revalidateBeforeRun: () => preflightFactsUnchanged() && executionImplementationIdentity().digest === implementationDigest,
+    revalidateBeforeRun: () => assertGitObservationInactive('launch revalidation') && preflightFactsUnchanged() && executionImplementationIdentity().digest === implementationDigest,
     // The causal API performs its last-moment check immediately before this
     // actual launch. Preserve the complete result separately for V5; the causal
     // receipt intentionally retains only its bounded diagnostic observation.
@@ -1510,7 +1519,7 @@ async function enforceAndStampEvidence(
         timeoutMs: run.timeoutMs,
       };
     },
-  })
+  }))
     : undefined;
   if (!run) {
     throw new Error('verification evidence refused: ordinary observation did not execute [verification_execution_observation_missing]');
@@ -1550,11 +1559,12 @@ async function enforceAndStampEvidence(
   }
   // Refuse: the pinned selector must appear in captured output (kills same-command,
   // wrong/absent-case false passes). Applies regardless of the caller's claimed result.
-  // One synchronous completion observation: the post-execution identity and the
-  // execution receipt's own identity (with its reported timeout) share the
-  // implementation read. Nothing survives this scope.
+  // One synchronous completion observation: the post-execution identity, the
+  // execution receipt's own identity (with its reported timeout), the assertion
+  // receipt's freshness capture and its signer lookup share the implementation
+  // and repository reads. Nothing survives this scope.
   const completedRun = run;
-  const executionReceipt = withVerificationPlanningObservation(() => {
+  const { executionReceipt, verificationReceipt } = withVerificationCompletionObservation(() => {
     const afterIdentity = prepareVerificationExecutionIdentity({
       command: pinCommand,
       cwd: deps.cwd,
@@ -1565,12 +1575,11 @@ async function enforceAndStampEvidence(
     assertVerificationFreshnessUnchanged(launchFreshness, captureVerificationFreshness(deps.cwd, deps.metadataRoot));
     const sourceExecutedAt = sharedExecution?.executedAt ?? causal?.receipt.executedAt;
     if (!sourceExecutedAt) throw new Error('verification evidence refused: signed execution time missing [causal_execution_time_missing]');
-    return sharedExecution ?? createVerificationExecutionReceipt({
+    const executionReceipt = sharedExecution ?? createVerificationExecutionReceipt({
       projectRoot: deps.projectRoot, storyId: deps.storyId, command: pinCommand,
       cwd: deps.cwd, run: completedRun, manifestPath, executedAt: sourceExecutedAt,
     });
-  });
-  const verificationReceipt = createCurrentVerificationAssertionReceipt({
+    const verificationReceipt = createCurrentVerificationAssertionReceipt({
     freshness: deps.sharedFreshness ?? launchFreshness,
     projectRoot: deps.projectRoot,
     storyId: deps.storyId,
@@ -1587,6 +1596,8 @@ async function enforceAndStampEvidence(
           },
         }
       : {}),
+    });
+    return { executionReceipt, verificationReceipt };
   });
   if (!verificationReceipt.selectorMatched) {
     throw new Error(
@@ -2039,16 +2050,17 @@ function collectStaleRefreshContext(ctx: HandlerContext, storyId: string): Stale
   // `git rev-parse HEAD` threw and refresh was impossible. metadataRoot stays
   // `root` for the storyDir-aware material exclusion. Plain repos: gitCwd==root.
   const refreshGitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
-  let headHash = '';
-  try {
-    headHash = execSync('git rev-parse HEAD', { cwd: refreshGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-  } catch {
+  // One synchronous refresh context observation: the current HEAD, material and
+  // story-files hashes and every coverage row share one repository observation.
+  const { headHash, materialHash, storyFilesHash, cl, coverage } = withVerificationRefreshObservation(() => {
+  const headHash = currentGitHead(refreshGitCwd);
+  if (!headHash) {
     throw new Error('verification_evidence_refresh_stale: cannot read git HEAD in current directory, unable to refresh freshness');
   }
   const materialHash = currentMaterialHash(refreshGitCwd, 'HEAD', root);
   const storyFilesHash = currentStoryFilesHash(refreshGitCwd, 'HEAD', root);
   const cl = store.readChecklist(storyId);
-  const coverage = withVerificationRefreshObservation(() => buildVerificationCoverage(
+  const coverage = buildVerificationCoverage(
     cl,
     headHash,
     (oldHeadHash, evidence) => {
@@ -2063,7 +2075,9 @@ function collectStaleRefreshContext(ctx: HandlerContext, storyId: string): Stale
       ).fresh;
     },
     { deferredGateEvidence: 'missing', receiptAdmissibility: createVerificationEvidenceGateEvaluator(root, storyId) },
-  ));
+  );
+  return { headHash, materialHash, storyFilesHash, cl, coverage };
+  });
   // F089: maintenance scheduling is not lifecycle admission. Gate-owned
   // classification correctly rejects receipt-less legacy logic attestations,
   // but that must not hide their metadata drift from the demotion-only writer.
@@ -3573,6 +3587,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const currentCl = store.readChecklist(args.storyId);
         const preItem = currentCl.items.find(i => i.id === args.itemId);
         if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
+        // One synchronous launch observation: plan, concurrent publication lookup,
+        // recovery request and enforcement preflight share one implementation and
+        // repository observation; the launch itself runs outside it.
+        const stamp = await withVerificationLaunchObservation(() => {
         const currentPlan = verificationProducerPlan(root, preItem, evidenceInput, gitCwd);
         if (initialPlan && currentPlan?.executionKey !== initialPlan.executionKey) {
           throw new Error('receiptIssued=false reason=input_changed_during_execution');
@@ -3582,7 +3600,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               root, args.storyId, currentCl, currentPlan, initialPublicationDigests, evidenceHashes(gitCwd, root),
             )
           : undefined;
-        const stamp = await enforceWithPublicationRecovery(preItem, evidenceInput, {
+        return enforceWithPublicationRecovery(preItem, evidenceInput, {
           runCommand: executePinnedCommand,
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: gitCwd,
@@ -3599,11 +3617,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
           } : {}),
         }, { plan: currentPlan });
+        });
         return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === args.itemId);
         if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
         if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId);
+        // One synchronous commit observation: the evidence binding hashes and the
+        // canonical commit's snapshots share one repository observation.
+        const evidence = withVerificationCommitObservation(() => {
         const hashes = evidenceHashes(gitCwd, root);
         const command = stamp.evidencePatch.command ?? (args.command ? args.command.trim() : undefined);
         const result = stamp.evidencePatch.result ?? args.result;
@@ -3642,6 +3664,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           () => store.writeChecklist(args.storyId, cl),
           causalBatch,
         );
+        return evidence;
+        });
         const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
         const receiptNote = evidence.receipt
           ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderReceiptSelectorNote(evidence.receipt)}${renderTimeoutOverrideNote(evidence.receipt)}`
@@ -3749,6 +3773,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           const entry = args.evidences[i];
           const item = currentCl.items.find(it => it.id === entry.itemId);
           if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+          // One synchronous launch observation per row, as in verification_evidence_add.
+          const { currentPlan, pending } = withVerificationLaunchObservation(() => {
           const currentPlan = verificationProducerPlan(root, item, evidenceInputs[i], gitCwd);
           if (initialPlans[i] && currentPlan?.executionKey !== initialPlans[i]?.executionKey) {
             throw new Error('receiptIssued=false reason=input_changed_during_execution');
@@ -3760,7 +3786,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               )
             : undefined;
           executingKey = currentPlan?.executionKey;
-          const stamp = await enforceWithPublicationRecovery(item, evidenceInputs[i], {
+          const pending = enforceWithPublicationRecovery(item, evidenceInputs[i], {
             runCommand,
             preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
             cwd: gitCwd,
@@ -3777,6 +3803,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
             } : {}),
           }, { plan: currentPlan });
+          return { currentPlan, pending };
+          });
+          const stamp = await pending;
           stamps.push(stamp);
           if (currentPlan && stamp.evidencePatch.receipt && isSplitVerificationReceipt(stamp.evidencePatch.receipt)) {
             const execution = stamp.evidencePatch.receipt.executionReceipt;
@@ -3975,6 +4004,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           selector: currentPin.selector,
           result: 'pass',
         };
+        // One synchronous launch observation, as in verification_evidence_add.
+        const stamp = await withVerificationLaunchObservation(() => {
         const currentPlan = verificationProducerPlan(root, currentItem, currentInput, runCwd);
         if (currentPlan?.executionKey !== initialPlan.executionKey) {
           throw new Error('receiptIssued=false reason=input_changed_during_execution');
@@ -3982,7 +4013,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const sharedPublication = concurrentPublishedExecution(
           root, args.storyId, currentCl, currentPlan, initialPublicationDigests, evidenceHashes(gitCwd, root),
         );
-        const stamp = await enforceWithPublicationRecovery(currentItem, currentInput, {
+        return enforceWithPublicationRecovery(currentItem, currentInput, {
           runCommand: executePinnedCommand,
           preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: runCwd,
@@ -3999,12 +4030,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
           } : {}),
         }, { plan: currentPlan });
+        });
 
         return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === itemId);
         if (!item) throw new Error(`Checklist item ${itemId} not found`);
         if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId); // defensive: pin already existed
+        // One synchronous commit observation, as in verification_evidence_add.
+        const evidence = withVerificationCommitObservation(() => {
         const hashes = evidenceHashes(gitCwd, root);
         const note = (args.note && args.note.trim().length >= 5)
           ? args.note.trim()
@@ -4035,6 +4069,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           () => store.writeChecklist(args.storyId, cl),
           causalBatch,
         );
+        return evidence;
+        });
         const receiptNote = evidence.receipt
           ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderReceiptSelectorNote(evidence.receipt)}`
           : '';
@@ -4141,17 +4177,17 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           }
           const representative = group[0];
           try {
-            const publicationFreshness = captureVerificationFreshness(computed.refreshGitCwd, root);
             const command = representative.input.command;
             if (!command) continue;
             const everyHashBindingCanonical = group.every(candidate =>
               isCanonicalGitHeadHash(candidate.evidenceHeadHash)
               && isCanonicalSha256Hash(candidate.evidenceMaterialHash)
               && isCanonicalSha256Hash(candidate.evidenceStoryFilesHash));
-            // One synchronous launch prefix: the reuse decision and the launch
-            // identity share the implementation read. Launch revalidation,
-            // completion and publication still reread outside this scope.
-            const { reuse, launchIdentity } = withVerificationPlanningObservation(() => {
+            // One synchronous launch observation: publication freshness, the reuse
+            // decision, the launch identity and the causal preflight share one
+            // implementation and repository observation. The launch runs outside it.
+            const prefix = withVerificationLaunchObservation(() => {
+              const publicationFreshness = captureVerificationFreshness(computed.refreshGitCwd, root);
               const reuse = planVerificationExecutionReuse({
                 projectRoot: root,
                 storyId: args.storyId,
@@ -4176,15 +4212,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 effectiveTimeoutMs: representative.effectiveTimeoutMs,
                 manifestPath: representative.manifestPath,
               });
-              return { reuse, launchIdentity };
-            });
-            let executionReceipt = reuse.executionReceipt;
-            let causalStamp: Pick<ReexecStamp, 'causalReceipt' | 'causalPreflight'> | undefined;
-            if (executionReceipt) {
-              assertVerificationInputUnchanged(reuse.identity, launchIdentity);
-            } else {
-              const beforeIdentity = launchIdentity;
-              const implementationDigest = beforeIdentity.implementationDigest;
+              if (reuse.executionReceipt) return { publicationFreshness, reuse, launchIdentity, launch: undefined };
+              const implementationDigest = launchIdentity.implementationDigest;
               const preflightInput = {
                 command,
                 cwd: computed.refreshGitCwd,
@@ -4224,21 +4253,61 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               if (!causalPreflight.ready || !preflightFactsUnchanged()) {
                 throw new Error('causal preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
               }
+              return { publicationFreshness, reuse, launchIdentity, launch: { implementationDigest, preflightInput, initialPreflightFacts, preflightFactsUnchanged, causalIdentity, causalPreflight } };
+            });
+            const { publicationFreshness, reuse, launchIdentity } = prefix;
+            let executionReceipt = reuse.executionReceipt;
+            let causalStamp: Pick<ReexecStamp, 'causalReceipt' | 'causalPreflight'> | undefined;
+            // Every candidate's assertion receipt publishes inside one synchronous
+            // completion observation, shared with the execution receipt when one is issued.
+            const publishCandidates = (): void => {
+              const issued = executionReceipt;
+              if (!issued) throw new Error('verification_evidence_refresh_stale: execution receipt missing before publication [verification_refresh_execution_receipt_missing]');
+              let causalStampPending = causalStamp;
+              for (const candidate of group) {
+                const selector = candidate.input.selector;
+                if (!selector) continue;
+                const receipt = createCurrentVerificationAssertionReceipt({
+                  freshness: publicationFreshness,
+                  projectRoot: root, storyId: args.storyId, executionReceipt: issued,
+                  intentRef: candidate.input.intentRef, selector,
+                  ...(reuse.reuseReceipt ? { reuseReceipt: reuse.reuseReceipt } : {}),
+                  ...(candidate.timeoutOverride ? { timeoutOverride: {
+                    timeoutMs: candidate.timeoutOverride.timeoutMs,
+                    defaultTimeoutMs: DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+                    reason: candidate.timeoutOverride.reason,
+                  } } : {}),
+                });
+                if (!receipt.selectorMatched) continue;
+                reexecByKey.set(candidate.rowKey, {
+                  command, result: 'pass', mechanical: true, receipt,
+                  executionKey: candidate.executionKey, assertionKey: candidate.assertionKey,
+                  ...(causalStampPending ?? {}),
+                });
+                causalStampPending = undefined;
+              }
+            };
+            if (prefix.launch === undefined) {
+              assertVerificationInputUnchanged(reuse.identity, launchIdentity);
+              withVerificationCompletionObservation(publishCandidates);
+            } else {
+              const { implementationDigest, preflightInput, initialPreflightFacts, preflightFactsUnchanged, causalIdentity, causalPreflight } = prefix.launch;
+              const beforeIdentity = launchIdentity;
               let run: SingleCommandExecutionResult | undefined;
-              const causal = await executeCausalEvidence({
+              const causal = await withoutGitObservation(() => executeCausalEvidence({
                 identity: causalIdentity,
                 selector: representative.input.selector ?? '',
                 intentRef: representative.input.intentRef,
                 receiptStore: store,
                 batch: createCausalEvidenceBatch(),
                 preflight: causalPreflight,
-                revalidateBeforeRun: () => preflightFactsUnchanged() && executionImplementationIdentity().digest === implementationDigest,
+                revalidateBeforeRun: () => assertGitObservationInactive('launch revalidation') && preflightFactsUnchanged() && executionImplementationIdentity().digest === implementationDigest,
                 run: async () => {
                   run = await executePinnedCommand(command, computed.refreshGitCwd, representative.effectiveTimeoutMs);
                   if (executionImplementationIdentity().digest !== implementationDigest) throw new Error('Verification implementation changed during refresh [execution_implementation_changed]');
                   return run;
                 },
-              });
+              }));
               if (!run) {
                 throw new Error('verification evidence refused: ordinary observation did not execute [verification_execution_observation_missing]');
               }
@@ -4262,9 +4331,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 }
                 continue;
               }
-              // One synchronous completion observation, as in enforceAndStampEvidence.
+              // One synchronous completion observation: the post-execution identity,
+              // the execution receipt and every candidate's assertion receipt share one
+              // implementation and repository observation.
               const completedRun = run;
-              executionReceipt = withVerificationPlanningObservation(() => {
+              withVerificationCompletionObservation(() => {
                 const afterIdentity = prepareVerificationExecutionIdentity({
                   command, cwd: computed.refreshGitCwd,
                   effectiveTimeoutMs: representative.effectiveTimeoutMs,
@@ -4272,36 +4343,14 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 });
                 assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
                 assertVerificationFreshnessUnchanged(publicationFreshness, captureVerificationFreshness(computed.refreshGitCwd, root));
-                return createVerificationExecutionReceipt({
+                executionReceipt = createVerificationExecutionReceipt({
                   projectRoot: root, storyId: args.storyId, command,
                   cwd: computed.refreshGitCwd, run: completedRun,
                   executedAt: causal.receipt.executedAt,
                   manifestPath: representative.manifestPath,
                 });
+                publishCandidates();
               });
-            }
-            let causalStampPending = causalStamp;
-            for (const candidate of group) {
-              const selector = candidate.input.selector;
-              if (!selector) continue;
-              const receipt = createCurrentVerificationAssertionReceipt({
-                freshness: publicationFreshness,
-                projectRoot: root, storyId: args.storyId, executionReceipt,
-                intentRef: candidate.input.intentRef, selector,
-                ...(reuse.reuseReceipt ? { reuseReceipt: reuse.reuseReceipt } : {}),
-                ...(candidate.timeoutOverride ? { timeoutOverride: {
-                  timeoutMs: candidate.timeoutOverride.timeoutMs,
-                  defaultTimeoutMs: DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
-                  reason: candidate.timeoutOverride.reason,
-                } } : {}),
-              });
-              if (!receipt.selectorMatched) continue;
-              reexecByKey.set(candidate.rowKey, {
-                command, result: 'pass', mechanical: true, receipt,
-                executionKey: candidate.executionKey, assertionKey: candidate.assertionKey,
-                ...(causalStampPending ?? {}),
-              });
-              causalStampPending = undefined;
             }
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);

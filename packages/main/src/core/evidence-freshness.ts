@@ -1,4 +1,4 @@
-import { gitObservationKey, readObservedGitState, readObservedGitTree, withGitTreeObservation } from './git-tree-observation.js';
+import { gitObservationKey, observedGit, readObservedGitState, readObservedGitTree, withGitTreeObservation } from './git-tree-observation.js';
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { lstatSync, readFileSync, realpathSync } from 'fs';
@@ -412,10 +412,10 @@ const GIT_EXEC_OPTS = {
  */
 export function gitCommitAtRef(gitCwd: string, ref: string): string | undefined {
   try {
-    return execFileSync('git', ['rev-parse', ref], {
+    return observedGit(gitCwd, ['rev-parse', ref], () => execFileSync('git', ['rev-parse', ref], {
       cwd: gitCwd,
       ...GIT_EXEC_OPTS,
-    }).trim();
+    }).trim());
   } catch {
     return undefined;
   }
@@ -827,17 +827,17 @@ const treeMemo = new Map<string, { sha: string; raw: string; bytes: number }>();
 let treeMemoBytes = 0;
 function readCommittedTree(gitCwd: string, ref: string): string {
   const cwd = realpathSync(gitCwd);
-  const sha = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{object}`], {
+  const sha = observedGit(cwd, ['rev-parse', '--verify', '--end-of-options', `${ref}^{object}`], () => execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{object}`], {
     cwd, ...GIT_EXEC_OPTS,
-  }).trim();
+  }).trim());
   // Replacement refs can redirect commits or nested trees without changing
   // the requested object id. Ask Git so packed refs and linked worktrees work
   // too; conservatively bypass caching whenever the selected namespace is used.
   const customReplacementBase = process.env.GIT_REPLACE_REF_BASE !== undefined;
   // A custom prefix need not end in '/', unlike for-each-ref path matching.
-  const replacements = customReplacementBase || execFileSync('git', ['for-each-ref', '--format=%(refname)', 'refs/replace/'], {
+  const replacements = customReplacementBase || observedGit(cwd, ['for-each-ref', '--format=%(refname)', 'refs/replace/'], () => execFileSync('git', ['for-each-ref', '--format=%(refname)', 'refs/replace/'], {
     cwd, ...GIT_EXEC_OPTS,
-  }).trim();
+  }).trim());
   const previous = treeMemo.get(cwd);
   if (replacements) {
     if (previous) { treeMemo.delete(cwd); treeMemoBytes -= previous.bytes; }
