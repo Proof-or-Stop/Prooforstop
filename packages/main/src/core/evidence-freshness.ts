@@ -1,4 +1,4 @@
-import { readObservedGitTree, withGitTreeObservation } from './git-tree-observation.js';
+import { gitObservationKey, readObservedGitState, readObservedGitTree, withGitTreeObservation } from './git-tree-observation.js';
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { lstatSync, readFileSync, realpathSync } from 'fs';
@@ -422,7 +422,9 @@ export function gitCommitAtRef(gitCwd: string, ref: string): string | undefined 
 }
 
 export function currentGitHead(gitCwd: string): string | undefined {
-  return gitCommitAtRef(gitCwd, 'HEAD');
+  // One synchronous observation resolves the moving HEAD once; every call
+  // outside an observation still asks Git (see git-tree-observation).
+  return readObservedGitState(gitObservationKey(['current-head', resolvePath(gitCwd)]), () => gitCommitAtRef(gitCwd, 'HEAD'));
 }
 
 function normalizeSnapshotRoot(path: string): string {
@@ -875,6 +877,7 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
 }
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
+  return readObservedGitState(gitObservationKey(['story-files-hash', resolvePath(gitCwd), ref, resolvePath(metadataRoot)]), () => {
   try {
     const mergeBase = resolveStoryMergeBase(gitCwd, ref);
     if (!mergeBase) return undefined;
@@ -885,6 +888,7 @@ export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot
   } catch {
     return undefined;
   }
+  });
 }
 
 // B-6666 CHK-002: gitCwd is the resolved git invocation cwd (wrapper-root
@@ -901,6 +905,7 @@ export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot
 // plain repos (metadataRoot==gitCwd) and every existing positional caller stay
 // byte-identical.
 export function currentMaterialHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
+  return readObservedGitState(gitObservationKey(['material-hash', resolvePath(gitCwd), ref, resolvePath(metadataRoot)]), () => {
   try {
     const raw = readCommittedTree(gitCwd, ref);
     const entries = raw.split('\0').filter(Boolean);
@@ -920,6 +925,7 @@ export function currentMaterialHash(gitCwd: string, ref = 'HEAD', metadataRoot: 
   } catch {
     return undefined;
   }
+  });
 }
 
 // B-6666 CHK-002: gitCwd is the resolved git invocation cwd (wrapper-root

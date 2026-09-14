@@ -1,4 +1,5 @@
 import { withExecutableDigestObservation, readObservedExecutableDigest } from './executable-digest-observation.js';
+import { gitObservationKey, readObservedGitState, withGitTreeObservation } from './git-tree-observation.js';
 import { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 export { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 import { executionImplementationIdentity } from './execution-implementation.js';
@@ -404,8 +405,12 @@ function sha256Text(value: string): string {
 }
 
 function gitCommonDir(gitCwd: string): string {
-  const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, encoding: 'utf8' }).trim();
-  return realpathSync(isAbsolute(raw) ? raw : resolve(gitCwd, raw));
+  // Receipt validation inside one synchronous refresh scope locates the signer
+  // key directory once; outside an observation every call asks Git.
+  return readObservedGitState(gitObservationKey(['common-dir', resolve(gitCwd)]), () => {
+    const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, encoding: 'utf8' }).trim();
+    return realpathSync(isAbsolute(raw) ? raw : resolve(gitCwd, raw));
+  });
 }
 
 function verificationSignerKeyPath(gitCwd: string): string {
@@ -583,9 +588,10 @@ export function withVerificationPlanningObservation<T>(plan: () => T): T {
   finally { planningObservation = previous; }
 }
 
-/** A separate synchronous refresh scope; execution and publication remain outside. */
+/** A separate synchronous refresh scope; execution and publication remain outside.
+ * Its rows share one implementation digest and one current Git state observation. */
 export function withVerificationRefreshObservation<T>(read: () => T): T {
-  return withVerificationPlanningObservation(read);
+  return withGitTreeObservation(() => withVerificationPlanningObservation(read));
 }
 
 function planningImplementationIdentityDigest(): string {

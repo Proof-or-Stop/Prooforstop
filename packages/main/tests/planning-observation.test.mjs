@@ -88,3 +88,28 @@ const {checkImplementationReadObservation}=await import('./implementation-read-o
 console.log('FOUR_BOUNDARY_RESULTS '+JSON.stringify({fourDefects,preflightObservations:observations,...readResult}));
 assert.deepEqual(fourDefects,[],'FOUR_BOUNDARIES_RED: duplicate observations remain');
 console.log('FOUR_BOUNDARIES_GREEN full scope retained, no same-scan rereads, current batch plan, one strict preflight observation');
+
+// Current Git state is observed once per synchronous refresh scope.
+const cp=(await import('node:child_process')).default;const {mkdtempSync,rmSync,writeFileSync}=await import('node:fs');const {tmpdir}=await import('node:os');
+const {currentGitHead,currentMaterialHash,currentStoryFilesHash,checkEvidenceFreshnessForGit,checkStrictVerificationEvidenceFreshnessForGit}=await import('../dist/core/evidence-freshness.js');
+const repo=mkdtempSync(path.join(tmpdir(),'git-state-observation-'));
+const git=(...args)=>cp.execFileSync('git',['-c','user.name=lab','-c','user.email=lab@example.invalid','-c','commit.gpgsign=false',...args],{cwd:repo,encoding:'utf8',stdio:['pipe','pipe','pipe']}).trim();
+git('init','-q','-b','main');writeFileSync(path.join(repo,'a.txt'),'a\n');git('add','a.txt');git('commit','-qm','base');
+git('checkout','-qb','story/lab');writeFileSync(path.join(repo,'b.txt'),'b\n');git('add','b.txt');git('commit','-qm','story');
+const head1=git('rev-parse','HEAD');
+const originalExec=cp.execFileSync;let probes=[];
+cp.execFileSync=function(file,args,...rest){if(file==='git'&&Array.isArray(args))probes.push(args.join(' '));return originalExec.call(this,file,args,...rest);};syncBuiltinESMExports();
+const heads=()=>probes.filter(a=>a==='rev-parse HEAD').length;
+try{
+ const material1=currentMaterialHash(repo,'HEAD',repo),story1=currentStoryFilesHash(repo,'HEAD',repo);assert.ok(material1&&story1,'fixture hashes resolve');
+ probes=[];currentGitHead(repo);currentGitHead(repo);assert.equal(heads(),2,'independent calls re-resolve HEAD');
+ const row=()=>[checkEvidenceFreshnessForGit(repo,head1,material1,repo,story1),checkStrictVerificationEvidenceFreshnessForGit(repo,head1,material1,repo,story1)];
+ probes=[];withVerificationRefreshObservation(()=>{const first=row();const afterFirst=probes.length;const more=[...row(),...row()];assert.ok([...first,...more].every(r=>r.fresh),'fixture rows are fresh');assert.equal(probes.length,afterFirst,'additional rows add no git probes inside one refresh scope');assert.equal(heads(),1,'one current HEAD observation per refresh scope');});
+ withVerificationRefreshObservation(()=>{const before=currentGitHead(repo);writeFileSync(path.join(repo,'c.txt'),'c\n');git('add','c.txt');git('commit','-qm','moved');assert.equal(currentGitHead(repo),before,'a synchronous scope observes one coherent HEAD');});
+ assert.notEqual(currentGitHead(repo),head1,'the next call outside the scope observes the moved HEAD');
+ assert.throws(()=>withVerificationRefreshObservation(()=>{currentGitHead(repo);throw Error('abort');}),/abort/);
+ probes=[];currentGitHead(repo);assert.equal(heads(),1,'a throwing scope releases its observation');
+ await withVerificationRefreshObservation(async()=>{currentGitHead(repo);await Promise.resolve();probes=[];currentGitHead(repo);assert.equal(heads(),1,'no git state observation crosses await');});
+ probes=[];withVerificationRefreshObservation(()=>{currentGitHead(repo);withVerificationRefreshObservation(()=>currentGitHead(repo));currentGitHead(repo);});assert.equal(heads(),1,'a nested scope shares the outer synchronous observation');
+ console.log('GIT_STATE_OBSERVATION PASS one HEAD, material and story probe set per synchronous refresh scope; fresh outside; coherent under external movement; released on throw and await');
+}finally{cp.execFileSync=originalExec;syncBuiltinESMExports();rmSync(repo,{recursive:true,force:true});}
