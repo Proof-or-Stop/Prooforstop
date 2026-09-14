@@ -126,6 +126,32 @@ check('selector redaction preserves ordinary environment words', () => {
   assert.equal(redactCausalSelectorOutput('token=pass-secret', { API_TOKEN: 'pass-secret' }).includes('pass-secret'), false);
 });
 
+await checkAsync('benign vendor and session environment values remain selector-visible', async () => {
+  const identity = {
+    ...causalIdentity('B-benign-selector-environment'),
+    effectiveEnvironment: {
+      NODE_ENV: 'test',
+      AWS_PROFILE: 'default',
+      AWS_REGION: 'us-east-1',
+      SSH_TTY: '/dev/pts/0',
+      XDG_SESSION_CLASS: 'user',
+      NO_PROXY: 'localhost',
+      GOOGLE_CLOUD_PROJECT: 'demo',
+      APP_SESSION: 'interactive',
+    },
+  };
+  const result = await executeCausalEvidence({
+    identity,
+    selector: 'mode: default',
+    run: async () => ({ code: 0, output: 'mode: default; status: user; listening on localhost; project: demo; session: interactive' }),
+    preflight: causalPreflight(identity),
+    revalidateBeforeRun: () => true,
+  });
+  assert.equal(result.verdict.result, 'pass');
+  assert.match(result.receipt.selectorProbe ?? '', /mode: default/);
+  assert.match(result.receipt.selectorProbe ?? '', /listening on localhost/);
+});
+
 await checkAsync('parent-process secrets never enter short or durable selector evidence', async () => {
   const secret = 'parent-only-secret-89d5817f';
   const previous = process.env.GITHUB_TOKEN;
