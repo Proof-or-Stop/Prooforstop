@@ -77,6 +77,14 @@ On the normal path, `INIT → INIT_CHECK` requires the independent INIT reviewer
 
 For the canonical command template and design constraints, see the "INIT→INIT_CHECK hard gate" section of CLAUDE.md.
 
+### Causal execution identity v2 migration position (2026-09-14)
+
+**Decision: v1 receipts remain historical audit records and are not reused as current evidence.** Causal identity v2 uses the `proof-or-stop.causal-execution-key.v2` domain and hashes every non-safe effective environment value. Reusing a `ce:v1:*` receipt would restore the environment-collision weakness that v2 closes, so current verification must re-earn a passing receipt under v2. The product must not rewrite or re-sign old Story JSON in place.
+
+A read-only scan of this checkout on 2026-09-14 found **1,131 unique `ce:v1:*` execution keys and receipt hashes**, all represented by pass-like receipt objects, across **11 Story IDs**. The scan recursively parsed JSON below `.proof-or-stop/story/actives`, selected objects whose `executionKey` starts with `ce:v1:`, and deduplicated `executionKey` and `receiptHash`. These numbers are a dated corpus measurement, not a live invariant or a release gate.
+
+When a current gate encounters a v1 receipt, the operator should use `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` to inspect the affected intents, then run the reported refresh or `verification_evidence_add` command so the pinned verifier executes under the current identity. Direct edits to receipt, checklist, or Story JSON are not a migration path.
+
 ### init-check signature domain widened to the reviewer verdict — migration position (B-8df9 CHK-002 / CHK-005)
 
 **Decision: no migration. The existing `init-check.json` corpus is left as it is, and the invalidation is accepted.**

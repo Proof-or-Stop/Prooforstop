@@ -607,6 +607,8 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 
 **存量语料迁移立场**：不迁移，接受失效——理由和重新测得的计数见 `docs/requirements/decisions/story-lifecycle.md` 的「init-check signature domain widened to the reviewer verdict — migration position」节。
 
+**Causal identity v2 存量立场**：`ce:v1:*` 只保留为历史审计记录，不迁移、不复用为当前 PASS；当前证据必须通过正式 evidence 命令重新执行获得。设计理由、2026-09-14 语料计数和操作步骤见 `docs/requirements/decisions/story-lifecycle.md` 的「Causal execution identity v2 migration position」节。
+
 **反自豁免设计**：EXP-001 的实验记录证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot）。当前 `init_check_set` 会在写入前对 `agentId` 做 byte-exact canonical admission：只接受已注册的 `proof-or-stop-review-story-init` 与 `proof-or-stop-product-reviewer`，拒绝空白变体、退役角色和未注册角色；独立性仍由签名机制、reviewer 模板 fresh-context fence 与宿主编排共同保证。
 
 **调用模板**：

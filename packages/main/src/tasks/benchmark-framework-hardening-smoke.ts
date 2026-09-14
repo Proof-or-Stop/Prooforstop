@@ -353,6 +353,42 @@ check('DONE projections fail closed when no integration target exists', () => {
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+await checkAsync('DONE refuses an unresolved target before fetch or merge', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-no-mutation-'));
+  const tracePath = join(root, 'git-trace.jsonl');
+  const previousTrace = process.env.GIT_TRACE2_EVENT;
+  try {
+    initRepo(root, 'main');
+    git(root, ['switch', '--orphan', 'story/B-no-target']);
+    write(root, 'story.txt', 'unrelated story history\n');
+    git(root, ['add', 'story.txt']);
+    git(root, ['commit', '-qm', 'orphan story']);
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    const store = new StoryStore(root);
+    store.writeStory('B-no-target', {
+      storyId: 'B-no-target', name: 'no-target', title: 'No target', description: 'Unrelated main and Story histories have no integration basis',
+      type: 'bug', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null,
+      worktree: { branch: 'story/B-no-target', path: root, createdAt: new Date().toISOString() },
+    });
+    const before = git(root, ['rev-parse', 'HEAD']);
+    process.env.GIT_TRACE2_EVENT = tracePath;
+    await assert.rejects(
+      () => createStoryAdvanceHandlers({ root, scanRoot: root, store }).story_advance({ storyId: 'B-no-target', phase: 'DONE', json: true }),
+      /no integration branch can be resolved.*No fetch, merge, phase mutation, or DONE effect was attempted/i,
+    );
+    const trace = existsSync(tracePath) ? readFileSync(tracePath, 'utf8') : '';
+    assert.equal(/"argv":\["git","fetch"/.test(trace), false, trace);
+    assert.equal(/"argv":\["git","merge"/.test(trace), false, trace);
+    assert.equal(store.readStory('B-no-target').phase, 'TEST');
+    assert.equal(git(root, ['rev-parse', 'HEAD']), before);
+    assert.equal(existsSync(join(root, '.git', 'MERGE_HEAD')), false);
+  } finally {
+    if (previousTrace === undefined) delete process.env.GIT_TRACE2_EVENT;
+    else process.env.GIT_TRACE2_EVENT = previousTrace;
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 check('Go profile describes command evidence instead of unsupported topology adapters', () => {
   const profile = acceptanceDiscoveryProfile('go-command') as { methods: readonly string[] };
   assert.deepEqual(profile.methods, ['registered_command_receipts']);

@@ -1119,7 +1119,7 @@ async function runStoryTransitionInner(
     // the SAME value resolved ONCE in the DONE pre-check block (preMortem #4)
     // can be threaded into runDonePreMergeGate below — no second resolveGitCwd.
     let doneGitCwd: string = ctx.root;
-    let doneIntegrationBranch = 'main';
+    let doneIntegrationBranch = '';
 
     // B-c622 CL-006: auto-sync main BEFORE actor.can() to avoid TOCTOU —
     // guard evaluates post-merge state, not pre-merge state.
@@ -1137,7 +1137,14 @@ async function runStoryTransitionInner(
         metadataRoot: ctx.root,
         projectRoot: ctx.root,
       });
-      doneIntegrationBranch = resolveStoryIntegrationTarget(doneGitCwd, story)?.parentBranch ?? 'main';
+      const integrationTarget = resolveStoryIntegrationTarget(doneGitCwd, story);
+      if (!integrationTarget) {
+        throw new Error(
+          `Cannot enter DONE: no integration branch can be resolved for Story ${args.storyId}. ` +
+          'No fetch, merge, phase mutation, or DONE effect was attempted.',
+        );
+      }
+      doneIntegrationBranch = integrationTarget.parentBranch;
       // B-4c38 CHK-001: serialize every main-affecting DONE operation before
       // any DONE preflight can mutate the story branch or main. The lock spans
       // checkMainDivergence/autoSyncMain, DONE gates, phase persistence, and

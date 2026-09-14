@@ -1943,12 +1943,15 @@ function buildResult(
       adapterId: adapterId(method),
       method,
       pathRefs: [],
-      coverageClaim: 'complete_for_scope',
-      blindSpots: [],
-      provenanceRefs: ['registered-command-receipts:verification-evidence:v1'],
+      // This adapter declares the command-evidence seam; it does not load or
+      // validate verification receipts itself. The independent pre-review
+      // command gate owns that proof and fails when required receipts are absent.
+      coverageClaim: 'unsupported',
+      blindSpots: ['registered_command_receipts:not_loaded_by_acceptance_discovery_adapter'],
+      provenanceRefs: ['registered-command-receipts:pre-review-gate:v1'],
       asymmetryPolicy: {
-        kind: 'exhaustive',
-        policyRef: 'policy:registered-command-receipts:v1',
+        kind: 'unsupported',
+        policyRef: 'policy:registered-command-receipts-external-gate:v1',
         scopeRefs: stable(input.scopeRefs),
       },
     };

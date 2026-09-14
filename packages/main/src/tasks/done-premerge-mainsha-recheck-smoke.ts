@@ -238,16 +238,10 @@ function buildDoneReadyStoryWithLinkedWorktree(storyId: string): { root: string;
     worktree: { path: `.worktrees/${storyId}`, branch: `story/${storyId}`, createdAt: now },
     events: [{ phase: 'TEST' as StoryInfo['phase'], action: 'advance', timestamp: now }],
   };
-  const checklist: ChecklistData = {
-    items: [{
-      id: 'CHK-001',
-      title: 'Synthetic item',
-      context: 'Synthetic context',
-      status: 'done',
-      startTime: null,
-      endTime: null,
-    }],
-  };
+  // This fixture exercises the DONE merge race itself. An empty checklist keeps
+  // it outside acceptance-amendment policy; adding a done item without a real
+  // verification intent would now (correctly) block before the merge-tree seam.
+  const checklist: ChecklistData = { items: [] };
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
 
@@ -340,7 +334,7 @@ function assertExternalAdvanceAbortsBeforePersist(): void {
     check(
       'abort: external-advance shim fired (marker written)',
       existsSync(shim.markerPath),
-      'the merge-tree interception marker was never created — the injection did not run',
+      `the merge-tree interception marker was never created — the injection did not run; CLI output:\n${output}`,
     );
 
     // The CLI must abort with the resync message naming the externally advanced main.

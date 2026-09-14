@@ -94,7 +94,14 @@ try {
   }).trim();
   if (remoteHead.startsWith("refs/remotes/origin/")) {
     const branch = remoteHead.slice("refs/remotes/origin/".length);
-    if (!/^(story|codex|lab)\//.test(branch)) expectedBranch = `refs/heads/${branch}`;
+    if (!/^(story|codex|lab)\//.test(branch)) {
+      const localRef = `refs/heads/${branch}`;
+      // A remote-tracking ref is a baseline candidate for read-only comparison,
+      // but publication must target a real local integration branch. Refuse
+      // before consuming an approval when origin/HEAD has no local counterpart.
+      if (!refExists(localRef)) reject(`remote default branch lacks a local integration ref: ${localRef}`);
+      expectedBranch = localRef;
+    }
   }
 } catch { /* conventional local baseline fallback */ }
 if (!expectedBranch && refExists("refs/heads/main")) expectedBranch = "refs/heads/main";

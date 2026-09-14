@@ -1642,6 +1642,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
     ],
     consumerSourceRefs: [
       'packages/main/src/core/story-aware-validation.ts',
+      'packages/main/src/core/done-oracle.ts',
       'packages/main/src/core/evidence-freshness.ts',
       'packages/main/src/core/scope-contract.ts',
       'packages/main/src/core/scope-diff-pack.ts',
@@ -1651,6 +1652,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/handlers/done-effects.ts',
       'packages/main/src/handlers/done-recover.ts',
       'packages/main/src/handlers/release.ts',
+      'packages/main/src/handlers/transition-orchestrator.ts',
     ],
   },
   'runtime:go_command_acceptance_gate': {

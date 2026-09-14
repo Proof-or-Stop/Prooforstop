@@ -810,7 +810,14 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
       }
       const run = await args.run();
       const runStatus = statusForRun(run);
-      const matchingOutput = redactCausalSelectorOutput(run.output, args.identity.effectiveEnvironment);
+      // Selector witnesses are durable evidence too. The child identity only
+      // records its effective environment, but command output may echo a secret
+      // inherited from the broker process. Scrub both sources before matching,
+      // probing, hashing, or persisting selector-visible bytes.
+      const matchingOutput = redactCausalSelectorOutput(
+        run.output,
+        { ...process.env, ...args.identity.effectiveEnvironment },
+      );
       const redactedOutput = redactCausalOutput(
         run.output,
         { ...process.env, ...args.identity.effectiveEnvironment },

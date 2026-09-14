@@ -320,8 +320,23 @@ function donePrepareRecoveryHint(storyId: string, detail?: string): string {
 }
 
 export function buildDoneChecklist(storyId: string, store: StoryStore, root: string, options: BuildDoneChecklistOptions = {}): DoneCheckRow[] {
-  const integrationBranch = resolveStoryIntegrationTarget(options.gitCwd ?? root, store.readStory(storyId))?.parentBranch ?? 'main';
+  const story = store.readStory(storyId);
+  const resolvedIntegrationBranch = resolveStoryIntegrationTarget(options.gitCwd ?? root, story)?.parentBranch;
+  // Keep the oracle's single final return and full diagnostic projection. An
+  // impossible sentinel makes all read-only git probes fail closed without
+  // silently substituting main when repository policy has no target.
+  const integrationBranch = resolvedIntegrationBranch ?? '<unresolved-integration-target>';
   const rows: DoneCheckRow[] = [];
+  if (!resolvedIntegrationBranch) {
+    rows.push(doneCheckRow({
+      id: 'integration-target',
+      status: 'fail',
+      label: 'Integration target',
+      detail: `no integration branch can be resolved for Story ${storyId}`,
+      hint: 'restore or explicitly capture the repository integration target before retrying DONE',
+      source: 'story integration target + repository baseline',
+    }));
+  }
 
   // B-6666 CHK-001: the cwd for every git probe below. Falls back to `root`
   // (metadataRoot) when no resolved gitCwd is threaded, so plain repos and
@@ -330,7 +345,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   const gitCwd = options.gitCwd ?? root;
   // Completed history is not a new admission attempt. Preserve its established
   // artifact/assurance projection; only active readiness consumes live gates.
-  const completedSnapshot = store.readStory(storyId).phase === 'DONE' ? options.completedSnapshot : undefined;
+  const completedSnapshot = story.phase === 'DONE' ? options.completedSnapshot : undefined;
   const donePredicates = completedSnapshot ? null : [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];
   const suppliedSnapshotReuse = options.evidenceHashSnapshot
     ? checkEvidenceHashSnapshotReuse(options.evidenceHashSnapshot, { gitCwd, metadataRoot: root, ref: 'HEAD' })

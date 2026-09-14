@@ -734,7 +734,14 @@ function assertSafeResidualWorktreeRm(ctx: DoneWorktreeContext, target: string, 
  * instructions point at the right directory.
  */
 export function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string, integrationBranch?: string): string {
-  const targetBranch = integrationBranch ?? resolveStoryIntegrationTarget(mainRepoRoot)?.parentBranch ?? 'main';
+  const targetBranch = integrationBranch ?? resolveStoryIntegrationTarget(mainRepoRoot)?.parentBranch;
+  if (!targetBranch) {
+    throw new Error(
+      `Cannot enter DONE: no integration branch can be resolved for Story ${storyId}.\n` +
+      `Repository root: "${mainRepoRoot}".\n` +
+      `Story ${storyId} phase was not changed.`,
+    );
+  }
   const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot, targetBranch);
   let mainBranch: string;
   try {

@@ -463,9 +463,11 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     ...unsigned,
     blindSpots: derivationBlindSpots,
     snapshotSeal,
-    status: supported && snapshotSeal.status === 'complete'
-      ? classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, derivationBlindSpots)
-      : supported ? 'partial' : 'unsupported',
+    status: !supported || reconciled.status === 'unsupported'
+      ? 'unsupported'
+      : snapshotSeal.status === 'complete'
+        ? classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, derivationBlindSpots)
+        : 'partial',
   };
   return { basis: { ...unsigned, basisDigest: digestAcceptanceCoverageBasis(unsigned) }, diagnostics, topologyDigest };
 }
