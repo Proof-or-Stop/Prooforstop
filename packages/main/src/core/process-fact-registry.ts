@@ -9,6 +9,7 @@ import {
 } from './command-policy.js';
 import { FLOW_FACT_POLICIES } from './flow-fact-policy.js';
 import { PROCESS_FACT_LEVELS, type ProcessFactLevel, type ProcessFactLevelEntry } from './process-fact-levels.js';
+import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js';
 
 export const CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION = 'proof-or-stop.candidate-spec-set.v1' as const;
 
@@ -1624,6 +1625,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/cli/runtime-root.ts',
       'packages/main/src/cli/ownership-gate.ts',
       'packages/main/src/core/controller-config-projection.ts',
+      'packages/main/src/core/controller-runtime-projection.ts',
       'packages/main/src/core/runtime-artifact-registry.ts',
     ],
     consumerSourceRefs: [
@@ -1637,20 +1639,28 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
   'runtime:repository_default_baseline_gate': {
     producerSourceRefs: [
       'packages/main/src/core/git-baseline.ts',
+      'packages/main/src/core/story-integration-target.ts',
     ],
     consumerSourceRefs: [
       'packages/main/src/core/story-aware-validation.ts',
+      'packages/main/src/core/done-oracle.ts',
       'packages/main/src/core/evidence-freshness.ts',
       'packages/main/src/core/scope-contract.ts',
       'packages/main/src/core/scope-diff-pack.ts',
       'packages/main/src/core/material-code-policy.ts',
       'packages/main/src/core/review-assurance-floor.ts',
       'packages/main/src/handlers/scope-contract.ts',
+      'packages/main/src/handlers/done-prepare.ts',
+      'packages/main/src/handlers/done-effects.ts',
+      'packages/main/src/handlers/done-recover.ts',
+      'packages/main/src/handlers/release.ts',
+      'packages/main/src/handlers/transition-orchestrator.ts',
     ],
   },
   'runtime:go_command_acceptance_gate': {
     producerSourceRefs: [
       'packages/main/src/core/acceptance-discovery-adapters.ts',
+      'packages/main/src/core/acceptance-coverage-basis.ts',
       'packages/main/src/core/pre-review-check.ts',
       'packages/main/src/core/verification-execution-evidence.ts',
       'packages/main/src/core/validation-executor.ts',
@@ -1804,10 +1814,14 @@ export const PROCESS_FACT_ARTIFACTS = [
     kind: 'artifact',
     semantics: ['artifact', 'gate-evidence'],
     level: 'L4',
-    producer: 'handlers/checklist',
+    producer: 'handlers/story-create and handlers/checklist',
+    producerSourceRefs: [
+      'packages/main/src/handlers/story-create.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
     consumerGate: 'storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.checklist_update,
-    rationale: 'Checklist status and verification evidence are consumed by REVIEW and validate gates.',
+    rationale: 'Story creation persists the canonical checklist artifact, including an empty items array, before the creation commit; later checklist status and verification evidence mutations are consumed by REVIEW and validate gates.',
   },
   {
     name: 'artifact:init-check.json',
@@ -2198,22 +2212,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'No-blocker review pass signatures are accepted only with exactly one registered-broker invocation attestation bound to the exact story, lane, ReviewRun, writer session, signed dispatch, adapter, host, and one-shot nonce, or one managed provider receipt/proposal binding. Observable mixed-provider ancestry is an additional veto; unavailable ancestry does not invalidate a trusted broker attestation. Missing, conflicting, replayed, stale, or rewritten provenance fails the REVIEW consumer.',
   },
 
-  {
-    name: 'artifact:evidence/controller-config-projection.json',
-    kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'workspace-binding', 'gate-evidence'],
-    level: 'L4',
-    producer: 'cli/runtime-root via core/controller-config-projection',
-    consumerGate: 'scope-path classifier and scope-contract REVIEW admission',
-    artifact: {
-      name: 'controller-config-projection-receipt',
-      path: 'evidence/controller-config-projection.json',
-      signed: true,
-      signature: 'signValidationArtifact/verifyValidationArtifact binds first projected config digest, Story, controller root, worktree root, and config path',
-      consumerGate: 'scope-contract REVIEW admission',
-    },
-    rationale: 'Only an untracked config pair matching both immutable first-projection receipts can be classified as a control artifact. Both receipt stores enforce canonical containment and no-follow regular-file ancestry. Editing either or both config copies, deleting, replacing, aliasing, or redirecting either receipt, changing workspace identity, using a tracked path, or losing the signing key returns the config to ordinary fail-closed scope enforcement.',
-  },
+  ...CONTROLLER_PROJECTION_ARTIFACTS,
   {
     name: 'artifact:managed-review-evidence-proposal',
     kind: 'artifact',
@@ -2607,10 +2606,10 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = ([
     name: 'runtime:managed_review_readonly_build', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'workspace-binding', 'freshness-policy', 'gate-evidence'],
     producer: 'core/managed-review-lane + core/managed-host-run',
-    producerSourceRefs: ['packages/main/src/core/managed-review-lane.ts', 'packages/main/src/core/managed-review-lane-build.mjs', 'packages/main/src/core/managed-review-lane-policy.ts', 'packages/main/src/core/managed-review-provider-state.ts'],
-    consumerSourceRefs: ['packages/main/src/core/managed-host-run.ts', 'packages/main/src/core/host-run.ts', 'packages/main/src/core/managed-review-readonly.ts', 'packages/main/src/handlers/cross-host-review.ts'],
+    producerSourceRefs: ['packages/main/src/core/managed-review-lane.ts', 'packages/main/src/core/managed-review-lane-build.mjs', 'packages/main/src/core/managed-review-lane-policy.ts', 'packages/main/src/core/managed-review-provider-state.ts', 'packages/main/src/core/runtime-artifact-registry.ts', 'packages/main/src/core/runtime-fact-registry.ts'],
+    consumerSourceRefs: ['packages/main/src/core/managed-host-run.ts', 'packages/main/src/core/host-run.ts', 'packages/main/src/core/managed-review-evidence.ts', 'packages/main/src/core/managed-review-readonly.ts', 'packages/main/src/handlers/cross-host-review.ts'],
     consumerGate: 'Opted-in managed reviewer and fresh cross-host reviewer startup and successful terminal consumption',
-    rationale: 'Fresh cross-host runs seal the same lane on their registered detached snapshot, retaining the cross-host profile and controller cleanup ownership. Legacy resumed specs retain their original execution facts. Trusted preflight checks the selected credential input before environment redaction and before snapshot creation. Provider state capture holds bounded no-follow file bytes in a controller-local opaque capability; each lane materializes those captured bytes into its own private directory without rereading mutable source credentials. An explicit registered project adapter seals readonly source and independent build-source/output/temp/cache paths in the existing owner-bound spec. Unsupported requested projects/platforms refuse before provider startup; unconfigured projects retain existing behavior. Real platform probes and the actual provider wrapper deny writes outside declared lane outputs. Initial source and compiled output digests are verified before execution and before successful proposal intake. Build output writes are permitted locally but drift never passes as the sealed initial build. Trusted provider attestation and proposal signing remain outside the sandbox; no provider result or PASS is manufactured by the build.',
+    rationale: 'Fresh cross-host runs seal the same lane on their registered detached snapshot, retaining the cross-host profile and controller cleanup ownership. Legacy resumed specs retain their original execution facts. Trusted preflight checks the selected credential input before environment redaction and before snapshot creation. Provider state capture holds bounded no-follow file bytes in a controller-local opaque capability; each lane materializes those captured bytes into its own private directory without rereading mutable source credentials. An explicit registered project adapter seals a read-only review source plus a distinct same-HEAD disposable execution worktree and independent build-source/output/temp/cache paths in the existing owner-bound spec. Fresh managed providers start in the execution worktree, so commands that generate files are isolated mechanically rather than by reviewer discretion; both directory identities and Git indirection files are sealed, and tracked material must still match the signed review binding before a successful terminal, while ignored test products are removed with the owned scratch. Unsupported requested projects/platforms refuse before provider startup; unconfigured projects retain existing behavior. Real platform probes and the actual provider wrapper deny writes outside declared lane outputs and the execution worktree. Initial source and compiled output digests are verified before execution and before successful proposal intake. Build output writes are permitted locally but drift never passes as the sealed initial build. Trusted provider attestation and proposal signing remain outside the sandbox; no provider result or PASS is manufactured by the build.',
   },
 
   {

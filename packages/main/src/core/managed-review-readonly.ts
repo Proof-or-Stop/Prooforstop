@@ -12,6 +12,7 @@ export interface ManagedReadonlyLayout {
   deniedSharedDist?: string[];
   probeRoot: string; // trusted synthetic immutable probe, outside reviewed material
   buildSource: string; // immutable independent checkout/copy, NOT an allowed write root
+  execution?: string; // managed-review-only disposable same-HEAD worktree for tests that generate files
   originalWorktree: string;
   gitCommonDir: string;
   outputs: string[]; // Exact registered, untracked scratch runtime output subtree.
@@ -32,7 +33,7 @@ function directory(path: string): string {
 }
 function validated(layout: ManagedReadonlyLayout): { protectedRoots: string[]; writableRoots: string[] } {
   const protectedRoots = [layout.source, layout.buildSource, layout.originalWorktree, layout.gitCommonDir, layout.probeRoot].map(directory);
-  const writableRoots = [...layout.outputs, layout.temporary, layout.cache].map(directory);
+  const writableRoots = [...(layout.execution ? [layout.execution] : []), ...layout.outputs, layout.temporary, layout.cache].map(directory);
   if (!layout.outputs.length) throw new Error('managed readonly requires a declared independent build output');
   const expectedOutput=join(layout.source,MANAGED_REVIEW_LANE_ARTIFACT.sourceOutput);
   if(layout.outputs.length!==1||layout.outputs[0]!==expectedOutput)throw new Error('managed readonly output is not registered scratch runtime');
@@ -58,6 +59,7 @@ export function managedReadonlyPolicy(layout: ManagedReadonlyLayout): string {
   return ['(version 1)', '(allow default)', '(deny file-write*)','(allow file-write* (literal "/dev/null"))',
     `(deny file-read* (subpath ${JSON.stringify(admissionRoot)}))`,
     ...writableRoots.map(root => `(allow file-write* (subpath ${JSON.stringify(root)}))`),
+    ...(layout.execution ? [`(deny file-write* (literal ${JSON.stringify(join(layout.execution, '.git'))}))`] : []),
     ...(layout.deniedSharedDist ?? []).map(root => {if(!isAbsolute(root))throw new Error('shared dist deny path must be absolute');return `(deny file-read* (subpath ${JSON.stringify(root)}))`;})].join('\n');
 }
 /** Must run before invoking any provider. Does not provide login capability proof. */
@@ -67,7 +69,9 @@ export function prepareManagedReadonlyLaunch(layout: ManagedReadonlyLayout, laun
   if (!existsSync(sandbox)) throw new Error('managed readonly sandbox unavailable');
   const policy = managedReadonlyPolicy(layout);
   const cwd = directory(launch.cwd);
-  if (cwd !== layout.source && cwd !== layout.buildSource) throw new Error('managed readonly cwd is not a bound source directory');
+  if (cwd !== layout.source && cwd !== layout.execution && cwd !== layout.buildSource) {
+    throw new Error('managed readonly cwd is not a bound source or execution directory');
+  }
   // Dedicated immutable probe input was prepared by the trusted caller; do not
   // mutate source merely to exercise capability. The parent path is not writable.
   const token = randomUUID();

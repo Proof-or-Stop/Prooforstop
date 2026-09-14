@@ -174,7 +174,6 @@ function assertUntrackedControllerConfigAndMasterBaseline(project: ProjectContro
 
     writeFileSync(join(worktreeRoot, 'feature.go'), 'implemented\n');
     git(worktreeRoot, ['add', 'feature.go']);
-    git(worktreeRoot, ['add', '-f', `.proof-or-stop/story/actives/${storyId}/evidence/controller-config-projection.json`]);
     git(worktreeRoot, ['commit', '-qm', 'implement benchmark feature']);
     git(controllerRoot, ['update-ref', 'refs/remotes/origin/story/poison', git(worktreeRoot, ['rev-parse', 'HEAD'])]);
     git(controllerRoot, ['symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/story/poison']);
@@ -398,7 +397,7 @@ function assertGoCommandProfile(resolveProfile: ResolveProfile, evaluate: Evalua
     const planArtifact = { schemaVersion: 'proofstory.acceptance_basis_artifact.v1' as const, basis: plan.basis, receipt: issueAcceptanceBasisReceipt({ gitCwd: root, basis: plan.basis, topologyDigest: plan.topologyDigest }) };
     const planReceipt = verifyAcceptanceBasisReceipt({ artifact: planArtifact, gitCwd: root, metadataRoot: root, expectedStoryId: storyId, expectedTopologyDigest: plan.topologyDigest, expectedClosureFilesHash: plan.basis.binding.closureFilesHash, expectedSealDigest: plan.basis.snapshotSeal.sealDigest });
     const planGate = evaluateAcceptanceTopologyCheck({ storyId, mode: 'enforce', checklist, contract: null, ledger: null, artifact: planArtifact, receiptVerification: planReceipt, currentBasisDiagnostics: plan.diagnostics, topologyBasisDiagnostics: [] });
-    assert.equal(planGate.structuralPass, true, `go-command PLAN admission is reachable in enforce mode: ${planGate.diagnostics.map(row => row.code).join(',')}`);
+    assert.equal(planGate.structuralPass, true, `go-command PLAN admission is reachable in enforce mode: ${planGate.diagnostics.map(row => row.code).join(',')}; basis=${plan.basis.status}; receipt=${JSON.stringify(planReceipt)}`);
     const current = deriveAcceptanceCoverageBasis({ storyId, workspaceRoot: root, checklist, contract: null, scopeCheck: null, scopeContract: null, ...freshness, verificationProfile: 'go-command', phaseBasis: 'pre_review', priorPlanBasisDigest: plan.basis.basisDigest });
     const currentArtifact = { schemaVersion: 'proofstory.acceptance_basis_artifact.v1' as const, basis: current.basis, receipt: issueAcceptanceBasisReceipt({ gitCwd: root, basis: current.basis, topologyDigest: current.topologyDigest }) };
     const rebound = evaluate({ gitCwd: root, metadataRoot: root, storyId, checklist, cutoffAt, freshness: current.basis.binding });

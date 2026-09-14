@@ -7,7 +7,7 @@
 - At the start of a new session, or when resuming interrupted work, run `proof-or-stop session_brief`.
 - Before acting, run `proof-or-stop aux_doc_list` to inspect relevant docs.
 - Use the global `proof-or-stop` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local `main` and cleaning the worktree. Remote publish is default-denied; a human must run `proof-or-stop release_approve_push --confirm` for a short-lived one-shot approval before any `git push origin main`.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to the resolved local integration branch and cleaning the worktree. Remote publish is default-denied; a human must run `proof-or-stop release_approve_push --confirm` for a short-lived one-shot approval before pushing that exact branch and SHA.
 - Codex adapter verification uses the global CLI: `proof-or-stop codex verify`. For diagnostics, run `proof-or-stop codex doctor`.
 - Run `proof-or-stop check` to check Proof-or-Stop managed asset/template drift; after review, use `proof-or-stop check --apply` to sync safe items.
 
@@ -188,7 +188,7 @@ help can lag a handler detail; the state machine and gate output are decisive.
 | DEV | Main agent | Modify scoped files, commit implementation, and record tool-owned verification evidence. Code or document implementation changes are allowed only here. |
 | REVIEW | Independent reviewer lanes | Start signed reviewer runs, inspect the committed diff and intent coverage, then record current passes or findings. Complete any configured independent-host quorum. |
 | TEST | Main agent and CLI | Run routine validation, resolve recorded bugs, refresh stale admissible evidence, and complete the delivery/summary prerequisites. |
-| DONE | CLI | Prepare convergence, validate current evidence and policy, merge to local main, run post-merge effects, and remove the Story worktree. |
+| DONE | CLI | Prepare convergence, validate current evidence and policy, merge to the resolved local integration branch, run post-merge effects, and remove the Story worktree. |
 
 ### Story creation and INIT
 
@@ -597,14 +597,14 @@ Before DONE, run:
 proof-or-stop done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate
 ```
 
-`done_prepare` is a conservative readiness assistant. It can merge main, safely
+`done_prepare` is a conservative readiness assistant. It can merge the resolved integration branch, safely
 refresh classified stale evidence, validate, and aggregate the next blockers;
 it never advances DONE and never mutates version files. Related Story-file drift
 still requires the appropriate re-review, re-quorum, re-verification, or
 re-delivery work. Advance to DONE only after the prepare result and every
-applicable lifecycle gate pass. The Story branch must contain current local main.
+applicable lifecycle gate pass. The Story branch must contain the current local integration branch.
 
-DONE merges the Story to local main and performs post-merge effects. When watched
+DONE merges the Story to the resolved local integration branch and performs post-merge effects. When watched
 CLI/runtime or capability-contract inputs changed, the DONE effect automatically
 patch-bumps and commits all synchronized version points. It skips the bump when
 no watched inputs changed, including ordinary documentation-only work. Do not
@@ -613,9 +613,9 @@ manually bump a version merely because a Story completed, and do not ask
 
 Remote publication is a separate human-authorized action. Story branches are
 local implementation details and must not be pushed. After a clean, verified
-local main exists, a human may grant one exact-SHA, exact-main, short-lived
-approval with `proof-or-stop release_approve_push --confirm`, then perform the
-manual push.
+local integration branch exists, a human may grant one exact-SHA, exact-branch,
+short-lived approval with `proof-or-stop release_approve_push --confirm`, then
+perform the exact manual push command returned by the approval.
 
 ## Codex, Claude, and subagent assets
 

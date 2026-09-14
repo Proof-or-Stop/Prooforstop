@@ -10,7 +10,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
@@ -22,6 +22,7 @@ import {
   runCase, buildChainGroups, scanFixtureFiles, findCaseByName, isExecutableCase,
   createIsolatedHandlers, createTempStoryFactory, cleanupTempStories, cleanupFixtureDir,
 } from './test-runner-core.js';
+import { requireRepositoryBaselineRef } from '../core/git-baseline.js';
 
 function readGitIdentity(cwd: string): { head: string | null; branch: string | null } {
   const read = (cmd: string): string | null => {
@@ -103,10 +104,9 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       // When git fails (non-git repo, detached, etc.) fall back to "no file restriction" legacy behavior with warning.
       let scopedFiles: Set<string> | null = null;
       try {
-        const diff = execSync(
-          `git diff --name-only --diff-filter=ACMR main...HEAD -- ${JSON.stringify(config.fixturesDir)}`,
-          { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
-        ).trim();
+        const baseline = requireRepositoryBaselineRef(root);
+        const diff = execFileSync('git', ['diff', '--name-only', '--diff-filter=ACMR', `${baseline}...HEAD`, '--', config.fixturesDir],
+          { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
         if (diff.length > 0) {
           scopedFiles = new Set(
             diff.split('\n')

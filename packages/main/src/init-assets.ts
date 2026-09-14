@@ -35,7 +35,7 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 - At the start of a new session, or when resuming interrupted work, run \`node bin/proof-or-stop.js session_brief\`.
 - Before acting, run \`node bin/proof-or-stop.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/proof-or-stop.js\` (or global \`proof-or-stop\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to the resolved local integration branch and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before pushing that exact branch and SHA.
 - Codex subagent prompts use the Proof-or-Stop adapter: full asset mode materializes \`${PROOF_OR_STOP_ADAPTER_DIR}/agents\`, while thin asset mode resolves prompts from the package registry. Claude Code-only assets are generated only when the Claude profile is enabled.
 - After changing the Codex adapter, \`${PROOF_OR_STOP_ADAPTER_DIR}\`, or \`bin/proof-or-stop-codex.js\`, run \`node bin/proof-or-stop-codex.js verify_codex\` so REVIEW/DONE gates can consume hard evidence.
 - For Codex adapter diagnostics, run \`node bin/proof-or-stop-codex.js doctor\`.
@@ -54,7 +54,7 @@ export const PROOF_OR_STOP_MD_TEMPLATE = `# PROOF_OR_STOP.md
 - At the start of a new session, or when resuming interrupted work, run \`node bin/proof-or-stop.js session_brief\`.
 - Before acting, run \`node bin/proof-or-stop.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/proof-or-stop.js\` (or global \`proof-or-stop\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to the resolved local integration branch and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before pushing that exact branch and SHA.
 - The default local entrypoint is \`node bin/proof-or-stop.js\`; if the profile generated a Codex adapter, also use \`node bin/proof-or-stop-codex.js\`.
 - Codex-specific notes live in \`AGENTS.md\` and \`${PROOF_OR_STOP_ADAPTER_DIR}/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
 - After changing Proof-or-Stop adapter assets, run the corresponding verification: project validation uses \`node bin/proof-or-stop.js validate\`, and the Codex adapter additionally uses \`node bin/proof-or-stop-codex.js verify_codex\`.
@@ -71,7 +71,7 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 - \`PROOF_OR_STOP.md\` is the canonical, host-neutral Proof-or-Stop guide; Story lifecycle facts and shared rules derive from it.
 - Claude Code entrypoints should first run \`node bin/proof-or-stop.js session_brief\`; daily operations should use \`node bin/proof-or-stop.js\` or global \`proof-or-stop\`.
-- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to the resolved local integration branch and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before pushing that exact branch and SHA.
 - Claude Code subagents live in \`.claude/agents\`.
 - Claude Code hooks live in \`.claude/hooks\`, and Claude settings live in \`.claude/settings.json\`.
 - When the repository also enables the Codex profile, Codex assets live separately under \`${PROOF_OR_STOP_ADAPTER_DIR}/\`; do not treat this file as a shared truth source for both hosts.
@@ -101,7 +101,7 @@ export const PROOF_OR_STOP_DOT_DIR_MD_TEMPLATE = `# Proof-or-Stop.md
 - At the start of a new session, or when resuming interrupted work, run \`proof-or-stop session_brief\`.
 - Before acting, run \`proof-or-stop aux_doc_list\` to inspect relevant docs.
 - Use the global \`proof-or-stop\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to the resolved local integration branch and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before pushing that exact branch and SHA.
 - Codex adapter verification and diagnostics use the global CLI: \`proof-or-stop codex verify\` and \`proof-or-stop codex doctor\`.
 - Run \`proof-or-stop check\` to check Proof-or-Stop managed asset/template drift; after review, use \`proof-or-stop check --apply\` to sync safe items.
 - Legacy project documents may still mention old project names, but active runtime assets generated by global-thin init use Proof-or-Stop entrypoints only.
@@ -118,7 +118,7 @@ export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 - At the start of a new session, or when resuming interrupted work, run \`proof-or-stop session_brief\`.
 - Before acting, run \`proof-or-stop aux_doc_list\` to inspect relevant docs.
 - Use the global \`proof-or-stop\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to the resolved local integration branch and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before pushing that exact branch and SHA.
 - Codex adapter verification uses the global CLI: \`proof-or-stop codex verify\`. For diagnostics, run \`proof-or-stop codex doctor\`.
 - Run \`proof-or-stop check\` to check Proof-or-Stop managed asset/template drift; after review, use \`proof-or-stop check --apply\` to sync safe items.
 

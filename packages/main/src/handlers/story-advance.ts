@@ -30,6 +30,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // B-8b69: required, audited reason for the gated PLAN->INIT reopen; ignored for
       // every other transition. Threaded straight into runStoryTransition.
       reason?: string;
+      json?: boolean;
     }): Promise<string> {
       if (['DEV', 'REVIEW', 'TEST'].includes(ctx.store.readStory(args.storyId).phase)) {
         try {
@@ -41,7 +42,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         }
       }
       const result = await runStoryTransition(ctx, args);
-      return renderTransitionResult(result);
+      return args.json ? JSON.stringify(result, null, 2) : renderTransitionResult(result);
     },
   };
 }

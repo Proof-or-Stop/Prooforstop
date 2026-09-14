@@ -494,8 +494,10 @@ const MANAGED_REVIEW_SCRATCH_REGISTRATION = 'managed-review-scratch.json';
 /**
  * A sealed, provider-only execution workspace for a formal managed review.
  * `root` remains the canonical story worktree that owns all durable run and
- * evidence artifacts; `cwd` is the detached immutable HEAD snapshot where the
- * provider is permitted to execute.
+ * evidence artifacts; `cwd` is the detached sealed source snapshot. Fresh
+ * specs also carry `executionCwd`, a second same-HEAD worktree used only for
+ * commands that may generate files. It is optional solely so historical
+ * in-flight specs can still be read and cleaned up.
  */
 export interface ManagedReviewScratchWorktree {
   schemaVersion: typeof MANAGED_REVIEW_SCRATCH_SCHEMA_VERSION;
@@ -503,9 +505,23 @@ export interface ManagedReviewScratchWorktree {
   root: string;
   parent: string;
   cwd: string;
+  executionCwd?: string;
+  sourceGitFileDigest?: string;
+  executionGitFileDigest?: string;
+  sourceDirectoryIdentity?: ManagedReviewScratchPathIdentity;
+  executionDirectoryIdentity?: ManagedReviewScratchPathIdentity;
+  sourceGitFileIdentity?: ManagedReviewScratchPathIdentity;
+  executionGitFileIdentity?: ManagedReviewScratchPathIdentity;
+  sourceGitAdminDir?: string;
+  executionGitAdminDir?: string;
   headHash: string;
   nonce: string;
   readonlyLane?: ManagedReviewLane;
+}
+
+interface ManagedReviewScratchPathIdentity {
+  dev: number;
+  ino: number;
 }
 
 type ManagedReviewScratchCleanupStage =
@@ -867,6 +883,22 @@ function canonicalManagedReviewScratchPath(path: string): string {
   }
 }
 
+function managedReviewScratchPathIdentity(path: string, kind: 'directory' | 'file'): ManagedReviewScratchPathIdentity {
+  const stat = lstatSync(path);
+  if (stat.isSymbolicLink() || (kind === 'directory' ? !stat.isDirectory() : !stat.isFile())) {
+    throw new Error(`managed host run: managed-review scratch ${kind} identity is invalid`);
+  }
+  return { dev: stat.dev, ino: stat.ino };
+}
+
+function isManagedReviewScratchPathIdentity(value: unknown): value is ManagedReviewScratchPathIdentity {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const identity = value as Record<string, unknown>;
+  return Object.keys(identity).sort().join(',') === 'dev,ino'
+    && Number.isSafeInteger(identity.dev) && Number(identity.dev) >= 0
+    && Number.isSafeInteger(identity.ino) && Number(identity.ino) >= 0;
+}
+
 function assertManagedReviewScratchShape(scratch: ManagedReviewScratchWorktree): void {
   const canonicalTmp = canonicalManagedReviewScratchPath(tmpdir());
   const canonicalRoot = canonicalManagedReviewScratchPath(scratch.root);
@@ -881,6 +913,15 @@ function assertManagedReviewScratchShape(scratch: ManagedReviewScratchWorktree):
     || dirname(canonicalParent) !== canonicalTmp
     || !basename(canonicalParent).startsWith(MANAGED_REVIEW_SCRATCH_PARENT_PREFIX)
     || canonicalCwd !== join(canonicalParent, 'worktree')
+    || (scratch.executionCwd !== undefined
+      && (canonicalManagedReviewScratchPath(scratch.executionCwd) !== join(canonicalParent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree)
+        || scratch.executionCwd === scratch.cwd))
+    || (scratch.sourceGitFileDigest !== undefined && !/^sha256:[a-f0-9]{64}$/.test(scratch.sourceGitFileDigest))
+    || (scratch.executionGitFileDigest !== undefined && !/^sha256:[a-f0-9]{64}$/.test(scratch.executionGitFileDigest))
+    || (scratch.sourceDirectoryIdentity !== undefined && !isManagedReviewScratchPathIdentity(scratch.sourceDirectoryIdentity))
+    || (scratch.executionDirectoryIdentity !== undefined && !isManagedReviewScratchPathIdentity(scratch.executionDirectoryIdentity))
+    || (scratch.sourceGitFileIdentity !== undefined && !isManagedReviewScratchPathIdentity(scratch.sourceGitFileIdentity))
+    || (scratch.executionGitFileIdentity !== undefined && !isManagedReviewScratchPathIdentity(scratch.executionGitFileIdentity))
     || !/^[0-9a-f]{40,64}$/i.test(scratch.headHash)
     || !/^[A-Za-z0-9_-]{16,128}$/.test(scratch.nonce)) {
     throw new Error('managed host run: managed-review scratch shape is not an owned canonical detached-worktree path');
@@ -908,6 +949,64 @@ function managedReviewScratchHead(gitCwd: string): string {
   }).trim();
 }
 
+function managedReviewScratchGitAdminDir(gitCwd: string): string {
+  const path = execFileSync('git', ['rev-parse', '--git-dir'], {
+    cwd: gitCwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    maxBuffer: 1024 * 1024,
+  }).trim();
+  return canonicalManagedReviewScratchPath(resolve(gitCwd, path));
+}
+
+function managedReviewScratchAdminMarkerContent(scratch: ManagedReviewScratchWorktree, side: 'source' | 'execution'): string {
+  return `${scratch.schemaVersion}:${scratch.runId}:${scratch.nonce}:${side}\n`;
+}
+
+function assertManagedReviewScratchAdminMarker(scratch: ManagedReviewScratchWorktree, side: 'source' | 'execution'): void {
+  const adminDir = side === 'source' ? scratch.sourceGitAdminDir : scratch.executionGitAdminDir;
+  const cwd = side === 'source' ? scratch.cwd : scratch.executionCwd;
+  if (!adminDir || !cwd
+    || managedReviewScratchGitAdminDir(cwd) !== adminDir
+    || readFileSync(join(adminDir, MANAGED_REVIEW_LANE_ARTIFACT.scratchAdminMarker), 'utf8') !== managedReviewScratchAdminMarkerContent(scratch, side)) {
+    throw new Error('managed host run: managed-review scratch Git admin identity changed after registration');
+  }
+}
+
+function assertManagedReviewScratchGenerationIdentity(
+  scratch: ManagedReviewScratchWorktree,
+  registered = registeredWorktreePaths(scratch.root),
+): void {
+  const identityFields = [
+    scratch.executionCwd,
+    scratch.sourceGitFileDigest,
+    scratch.executionGitFileDigest,
+    scratch.sourceDirectoryIdentity,
+    scratch.executionDirectoryIdentity,
+    scratch.sourceGitFileIdentity,
+    scratch.executionGitFileIdentity,
+    scratch.sourceGitAdminDir,
+    scratch.executionGitAdminDir,
+  ];
+  if (identityFields.every(value => value === undefined)) return; // Historical single-worktree spec.
+  if (identityFields.some(value => value === undefined) || !scratch.executionCwd
+    || !registered.has(scratch.cwd) || !registered.has(scratch.executionCwd)) {
+    throw new Error('managed host run: managed-review scratch generation identity is incomplete');
+  }
+  if (sha256(readFileSync(join(scratch.cwd, '.git'), 'utf8')) !== scratch.sourceGitFileDigest
+    || sha256(readFileSync(join(scratch.executionCwd, '.git'), 'utf8')) !== scratch.executionGitFileDigest) {
+    throw new Error('managed host run: managed-review scratch git metadata changed after registration');
+  }
+  if (canonicalJson(managedReviewScratchPathIdentity(scratch.cwd, 'directory')) !== canonicalJson(scratch.sourceDirectoryIdentity)
+    || canonicalJson(managedReviewScratchPathIdentity(scratch.executionCwd, 'directory')) !== canonicalJson(scratch.executionDirectoryIdentity)
+    || canonicalJson(managedReviewScratchPathIdentity(join(scratch.cwd, '.git'), 'file')) !== canonicalJson(scratch.sourceGitFileIdentity)
+    || canonicalJson(managedReviewScratchPathIdentity(join(scratch.executionCwd, '.git'), 'file')) !== canonicalJson(scratch.executionGitFileIdentity)) {
+    throw new Error('managed host run: managed-review scratch path identity changed after registration');
+  }
+  assertManagedReviewScratchAdminMarker(scratch, 'source');
+  assertManagedReviewScratchAdminMarker(scratch, 'execution');
+}
+
 /**
  * Setup failures happen before a worker or provider has been launched. The
  * parent came from this invocation's private mkdtemp allocation, so only this
@@ -916,9 +1015,10 @@ function managedReviewScratchHead(gitCwd: string): string {
  */
 function cleanupManagedReviewScratchSetupFailure(scratch: ManagedReviewScratchWorktree): void {
   assertManagedReviewScratchShape(scratch);
-  const registered = registeredWorktreePaths(scratch.root).has(scratch.cwd);
-  if (registered) {
-    execFileSync('git', ['worktree', 'remove', '--force', scratch.cwd], {
+  const registered = registeredWorktreePaths(scratch.root);
+  for (const worktree of [scratch.executionCwd, scratch.cwd].filter((path): path is string => path !== undefined)) {
+    if (!registered.has(worktree)) continue;
+    execFileSync('git', ['worktree', 'remove', '--force', worktree], {
       cwd: scratch.root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -946,12 +1046,14 @@ export function createManagedReviewScratchWorktree(args: {
   // what it is; the struct field `root` below is unchanged.
   const scratchGitCwd = canonicalManagedReviewScratchPath(args.gitCwd);
   const parent = canonicalManagedReviewScratchPath((args.parentFactory ?? (() => mkdtempSync(join(tmpdir(), MANAGED_REVIEW_SCRATCH_PARENT_PREFIX))))());
+  const executionCwd = join(parent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree);
   const scratch: ManagedReviewScratchWorktree = {
     schemaVersion: MANAGED_REVIEW_SCRATCH_SCHEMA_VERSION,
     runId: args.runId,
     root: scratchGitCwd,
     parent,
     cwd: join(parent, 'worktree'),
+    executionCwd,
     headHash: args.headHash.trim(),
     nonce: randomBytes(24).toString('base64url'),
   };
@@ -966,8 +1068,29 @@ export function createManagedReviewScratchWorktree(args: {
       stdio: ['ignore', 'pipe', 'pipe'],
       maxBuffer: 8 * 1024 * 1024,
     });
+    execFileSync('git', ['worktree', 'add', '--detach', executionCwd, scratch.headHash], {
+      cwd: scratchGitCwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 8 * 1024 * 1024,
+    });
+    scratch.sourceGitFileDigest = sha256(readFileSync(join(scratch.cwd, '.git'), 'utf8'));
+    scratch.executionGitFileDigest = sha256(readFileSync(join(executionCwd, '.git'), 'utf8'));
+    scratch.sourceDirectoryIdentity = managedReviewScratchPathIdentity(scratch.cwd, 'directory');
+    scratch.executionDirectoryIdentity = managedReviewScratchPathIdentity(executionCwd, 'directory');
+    scratch.sourceGitFileIdentity = managedReviewScratchPathIdentity(join(scratch.cwd, '.git'), 'file');
+    scratch.executionGitFileIdentity = managedReviewScratchPathIdentity(join(executionCwd, '.git'), 'file');
+    scratch.sourceGitAdminDir = managedReviewScratchGitAdminDir(scratch.cwd);
+    scratch.executionGitAdminDir = managedReviewScratchGitAdminDir(executionCwd);
+    writeFileSync(join(scratch.sourceGitAdminDir, MANAGED_REVIEW_LANE_ARTIFACT.scratchAdminMarker),
+      managedReviewScratchAdminMarkerContent(scratch, 'source'), { flag: 'wx', mode: 0o400 });
+    writeFileSync(join(scratch.executionGitAdminDir, MANAGED_REVIEW_LANE_ARTIFACT.scratchAdminMarker),
+      managedReviewScratchAdminMarkerContent(scratch, 'execution'), { flag: 'wx', mode: 0o400 });
+    assertManagedReviewScratchShape(scratch);
     if (managedReviewScratchHead(scratch.cwd) !== scratch.headHash
-      || !registeredWorktreePaths(scratchGitCwd).has(scratch.cwd)) {
+      || managedReviewScratchHead(executionCwd) !== scratch.headHash
+      || !registeredWorktreePaths(scratchGitCwd).has(scratch.cwd)
+      || !registeredWorktreePaths(scratchGitCwd).has(executionCwd)) {
       throw new Error('managed host run: detached managed-review scratch registration/head verification failed');
     }
     atomicWrite(managedReviewScratchRegistrationPath(scratch), scratch);
@@ -998,9 +1121,9 @@ function cleanupManagedReviewScratchWorktree(gitCwd: string, scratch: ManagedRev
   if (canonicalManagedReviewScratchPath(gitCwd) !== scratch.root) {
     throw new Error('managed host run: refusing managed-review scratch cleanup from a root other than its sealed canonical worktree');
   }
-  const registered = registeredWorktreePaths(scratch.root).has(scratch.cwd);
+  const registered = registeredWorktreePaths(scratch.root);
   if (!existsSync(scratch.parent)) {
-    if (registered) {
+    if (registered.has(scratch.cwd) || (scratch.executionCwd !== undefined && registered.has(scratch.executionCwd))) {
       throw new Error('managed host run: scratch parent is absent but its git worktree remains registered; retain for manual recovery');
     }
     return;
@@ -1013,8 +1136,13 @@ function cleanupManagedReviewScratchWorktree(gitCwd: string, scratch: ManagedRev
   if (canonicalJson(marker) !== canonicalJson(scratch)) {
     throw new Error('managed host run: scratch registration marker does not match the sealed run identity');
   }
-  if (registered) {
-    execFileSync('git', ['worktree', 'remove', '--force', scratch.cwd], {
+  // Fresh scratch cleanup consumes the same generation identity as terminal
+  // validation. A replacement is retained with a diagnostic for manual
+  // recovery; path equality never grants deletion authority.
+  assertManagedReviewScratchGenerationIdentity(scratch, registered);
+  for (const worktree of [scratch.executionCwd, scratch.cwd].filter((path): path is string => path !== undefined)) {
+    if (!registered.has(worktree)) continue;
+    execFileSync('git', ['worktree', 'remove', '--force', worktree], {
       cwd: scratch.root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -1036,7 +1164,10 @@ function managedReviewTemporaryEnvironment(spec: ManagedHostRunSpec): NodeJS.Pro
   if (!lstatSync(temporaryRoot).isDirectory() || lstatSync(temporaryRoot).isSymbolicLink()
     || realpathSync(temporaryRoot) !== temporaryRoot) throw new Error('managed review temporary root is not an owned canonical directory');
   chmodSync(temporaryRoot, MANAGED_REVIEW_TEMP_RUNTIME_POLICY.directoryMode);
-  return Object.fromEntries(MANAGED_REVIEW_TEMP_RUNTIME_POLICY.environmentKeys.map(key => [key, temporaryRoot]));
+  return {
+    ...Object.fromEntries(MANAGED_REVIEW_TEMP_RUNTIME_POLICY.environmentKeys.map(key => [key, temporaryRoot])),
+    ...(scratch.executionCwd ? { PROOF_OR_STOP_REVIEW_EXECUTION_CWD: scratch.executionCwd } : {}),
+  };
 }
 
 /**
@@ -1063,23 +1194,42 @@ function assertManagedReviewScratchExecution(
   const scratch = spec.managedReviewScratch;
   if (!scratch) return;
   if (!isIsolatedReviewerProfile(spec.profile)
-    || spec.cwd !== scratch.cwd
+    || spec.cwd !== (scratch.executionCwd ?? scratch.cwd)
     || canonicalManagedReviewScratchPath(spec.root) !== scratch.root
     || spec.reviewBinding?.headHash !== scratch.headHash) {
     throw new Error('managed host run: sealed managed-review scratch does not match the provider execution binding');
   }
   assertManagedReviewScratchShape(scratch);
   const marker = readJson<ManagedReviewScratchWorktree>(managedReviewScratchRegistrationPath(scratch));
+  const registered = registeredWorktreePaths(scratch.root);
   if (canonicalJson(marker) !== canonicalJson(scratch)
-    || !registeredWorktreePaths(scratch.root).has(scratch.cwd)
-    || managedReviewScratchHead(scratch.cwd) !== scratch.headHash) {
+    || !registered.has(scratch.cwd)
+    || (scratch.executionCwd !== undefined && !registered.has(scratch.executionCwd))
+    || managedReviewScratchHead(scratch.cwd) !== scratch.headHash
+    || (scratch.executionCwd !== undefined && managedReviewScratchHead(scratch.executionCwd) !== scratch.headHash)) {
     throw new Error('managed host run: managed-review scratch was replaced, unregistered, or moved off its sealed detached HEAD');
   }
+  assertManagedReviewScratchGenerationIdentity(scratch, registered);
   if (scratch.readonlyLane) verifyManagedReviewLane(scratch.readonlyLane, scratch);
   if (!options.verifyBoundMaterial) return;
   const observedMaterialHash = currentMaterialHash(scratch.cwd);
   if (!observedMaterialHash || observedMaterialHash !== spec.reviewBinding?.materialHash) {
     throw new Error('managed host run: managed-review scratch material no longer matches its signed review binding');
+  }
+  if (scratch.executionCwd !== undefined) {
+    const executionMaterialHash = currentMaterialHash(scratch.executionCwd);
+    if (!executionMaterialHash || executionMaterialHash !== spec.reviewBinding?.materialHash) {
+      throw new Error('managed host run: managed-review execution worktree tracked material no longer matches its signed review binding');
+    }
+    const trackedExecutionDrift = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=no'], {
+      cwd: scratch.executionCwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 8 * 1024 * 1024,
+    }).trim();
+    if (trackedExecutionDrift) {
+      throw new Error('managed host run: managed-review execution worktree tracked material no longer matches its signed review binding');
+    }
   }
   const dirty = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all', '--ignored=matching'], {
     cwd: scratch.cwd,
@@ -2502,7 +2652,7 @@ export async function submitManagedHostRun(
     agentType: args.agentType,
     reviewRunId: args.reviewRunId ?? null,
     lane: args.lane ?? null,
-    cwd: managedReviewScratch?.cwd ?? args.cwd,
+    cwd: managedReviewScratch?.executionCwd ?? managedReviewScratch?.cwd ?? args.cwd,
     root: args.root,
     managedReviewScratch,
     ...(crossHostReadonlyLane ? {crossHostReadonlyLane} : {}),

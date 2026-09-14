@@ -110,6 +110,7 @@ import { acquireStoryTransitionLock } from '../core/story-transition-lock.js';
 import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { resolveSharedLockRoot, sanitizeLockSegment } from '../core/validation-execution-lock.js';
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
+import { resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import {
@@ -463,19 +464,19 @@ function renderStoryAdvanceMemoryRuntimeAdvisory(projectRoot: string, story: Sto
 }
 
 /**
- * B-0e53: read main's commit sha in `gitCwd`, or undefined if unreadable.
+ * B-0e53: read the integration branch commit sha in `gitCwd`, or undefined if unreadable.
  *
- * Used to capture main's sha right AFTER the DONE pre-check autoSyncMain and to
+ * Used to capture the integration branch sha right AFTER the DONE pre-check autoSyncMain and to
  * re-read it just BEFORE store.writeStory persists phase=DONE. A CONFIRMED change
- * between the two reads means main advanced externally (between the pre-check
+ * between the two reads means the integration branch advanced externally (between the pre-check
  * sync and the in-lock merge) and the DONE transition must abort before any
  * partial DONE is written. FAIL-OPEN: an unreadable sha (transient git error)
  * returns undefined and must NOT abort the common DONE path — only two
  * successful reads that DIFFER constitute a confirmed external advance.
  */
-function readMainSha(gitCwd: string): string | undefined {
+function readIntegrationBranchSha(gitCwd: string, integrationBranch: string): string | undefined {
   try {
-    return execFileSync('git', ['rev-parse', '--verify', 'main^{commit}'], {
+    return execFileSync('git', ['rev-parse', '--verify', `${integrationBranch}^{commit}`], {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -944,7 +945,7 @@ async function runStoryTransitionInner(
   // Outer-scoped so the capture point (end of the DONE pre-check block) and the
   // re-check point (just before store.writeStory persists phase=DONE) both see
   // it. Stays undefined for non-DONE transitions and when the capture read fails.
-  let syncedMainSha: string | undefined;
+  let syncedIntegrationSha: string | undefined;
   // The orchestrator is the SOLE owner of the actor lifecycle. It is assigned
   // inside the try (after the early guards) and unconditionally stopped in the
   // finally — covering success, guard failure, gate failure, and exceptions.
@@ -1118,6 +1119,7 @@ async function runStoryTransitionInner(
     // the SAME value resolved ONCE in the DONE pre-check block (preMortem #4)
     // can be threaded into runDonePreMergeGate below — no second resolveGitCwd.
     let doneGitCwd: string = ctx.root;
+    let doneIntegrationBranch = '';
 
     // B-c622 CL-006: auto-sync main BEFORE actor.can() to avoid TOCTOU —
     // guard evaluates post-merge state, not pre-merge state.
@@ -1135,6 +1137,14 @@ async function runStoryTransitionInner(
         metadataRoot: ctx.root,
         projectRoot: ctx.root,
       });
+      const integrationTarget = resolveStoryIntegrationTarget(doneGitCwd, story);
+      if (!integrationTarget) {
+        throw new Error(
+          `Cannot enter DONE: no integration branch can be resolved for Story ${args.storyId}. ` +
+          'No fetch, merge, phase mutation, or DONE effect was attempted.',
+        );
+      }
+      doneIntegrationBranch = integrationTarget.parentBranch;
       // B-4c38 CHK-001: serialize every main-affecting DONE operation before
       // any DONE preflight can mutate the story branch or main. The lock spans
       // checkMainDivergence/autoSyncMain, DONE gates, phase persistence, and
@@ -1154,20 +1164,20 @@ async function runStoryTransitionInner(
       if (doneWorktree) {
         assertDoneStoryBranchMatches(args.storyId, doneWorktree.branch);
       }
-      const divergence = checkMainDivergence(doneGitCwd);
+      const divergence = checkMainDivergence(doneGitCwd, doneIntegrationBranch);
       if (divergence.needsSync) {
-        ctx.log?.(`DONE pre-check: current branch is ${divergence.behind} commits behind main, auto-syncing...`);
-        const syncResult = autoSyncMain(doneGitCwd);
+        ctx.log?.(`DONE pre-check: current branch is ${divergence.behind} commits behind ${doneIntegrationBranch}, auto-syncing...`);
+        const syncResult = autoSyncMain(doneGitCwd, doneIntegrationBranch);
         if (syncResult.ok) {
           ctx.log?.(`✓ ${syncResult.message}`);
         } else {
           ctx.log?.(`⚠ ${syncResult.message}`);
         }
       }
-      // B-0e53: capture main's sha AFTER autoSyncMain so Proof-or-Stop's own sync is
+      // B-0e53: capture the integration branch sha AFTER autoSyncMain so Proof-or-Stop's own sync is
       // already in the baseline. The re-check before writeStory compares against
       // this; only an EXTERNAL advance after this point trips the abort.
-      syncedMainSha = readMainSha(doneGitCwd);
+      syncedIntegrationSha = readIntegrationBranchSha(doneGitCwd, doneIntegrationBranch);
     }
 
     // ── actor lifecycle: created + started here, owned by this orchestrator,
@@ -1286,20 +1296,20 @@ async function runStoryTransitionInner(
       });
     }
 
-    // B-0e53: pre-merge mainSha re-check. This point is AFTER the slow
+    // B-0e53: pre-merge integration branch sha re-check. This point is AFTER the slow
     // runDonePreMergeGate (so it covers that window) and strictly BEFORE
-    // store.writeStory persists phase=DONE. If main advanced EXTERNALLY between
-    // the pre-check sync (where syncedMainSha was captured) and here, abort
+    // store.writeStory persists phase=DONE. If the integration branch advanced
+    // EXTERNALLY between the pre-check sync (where syncedIntegrationSha was captured) and here, abort
     // before any partial DONE is written — nothing is merged and the story stays
     // at TEST. The throw propagates to the existing try/finally which releases
     // the DONE merge lock; no new lock handling is added here. FAIL-OPEN: if
     // either read returns undefined (transient git error), do NOT abort — only a
     // confirmed change (both reads succeeded and differ) trips the abort.
-    if (args.phase === 'DONE' && syncedMainSha !== undefined) {
-      const currentMainSha = readMainSha(doneGitCwd);
-      if (currentMainSha !== undefined && currentMainSha !== syncedMainSha) {
+    if (args.phase === 'DONE' && syncedIntegrationSha !== undefined) {
+      const currentIntegrationSha = readIntegrationBranchSha(doneGitCwd, doneIntegrationBranch);
+      if (currentIntegrationSha !== undefined && currentIntegrationSha !== syncedIntegrationSha) {
         throw new Error(
-          `DONE aborted: main advanced (${syncedMainSha.slice(0, 7)} -> ${currentMainSha.slice(0, 7)}) after the pre-check sync; ` +
+          `DONE aborted: ${doneIntegrationBranch} advanced (${syncedIntegrationSha.slice(0, 7)} -> ${currentIntegrationSha.slice(0, 7)}) after the pre-check sync; ` +
           `nothing was merged and the story stays at TEST. Re-run story_advance DONE to resync.`,
         );
       }

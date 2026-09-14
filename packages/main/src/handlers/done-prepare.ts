@@ -34,6 +34,8 @@ import {
   type DirtyWorktreeEntry,
 } from '../core/dirty-worktree.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { resolveRepositoryBaseline } from '../core/git-baseline.js';
+import { resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 import { renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import type { MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
@@ -481,8 +483,8 @@ function unchangedFromInitialAllowedMetadata(
     && initialAllowedMetadataSignatures.has(dirtyEntrySignature(gitCwd, entry));
 }
 
-function pathExistsOnMain(gitCwd: string, path: string): boolean {
-  return gitMaybe(gitCwd, ['cat-file', '-e', `main:${path}`]).ok;
+function pathExistsOnIntegrationBranch(gitCwd: string, integrationBranch: string, path: string): boolean {
+  return gitMaybe(gitCwd, ['cat-file', '-e', `${integrationBranch}:${path}`]).ok;
 }
 
 function dirtyCategoryLabel(entry: DirtyWorktreeEntry): string {
@@ -511,10 +513,11 @@ function dirtyEntryDisplayPath(entry: DirtyWorktreeEntry): string {
 
 function buildInitialDirtyGuidance(
   gitCwd: string,
+  integrationBranch: string,
   entries: DirtyWorktreeEntry[],
 ): DonePrepareGuidanceSection[] {
   const mergeHazards = entries
-    .filter((entry) => entry.statusCode === '??' && pathExistsOnMain(gitCwd, entry.path))
+    .filter((entry) => entry.statusCode === '??' && pathExistsOnIntegrationBranch(gitCwd, integrationBranch, entry.path))
     .sort((left, right) => left.path.localeCompare(right.path));
   const lines: string[] = [];
 
@@ -580,8 +583,8 @@ function buildGeneratedMetadataDirtyGuidance(
   return lines.length > 0 ? [{ title: 'generated metadata delta', lines }] : [];
 }
 
-function isMainAncestor(gitCwd: string): boolean {
-  return gitMaybe(gitCwd, ['merge-base', '--is-ancestor', 'main', 'HEAD']).ok;
+function isIntegrationBranchAncestor(gitCwd: string, integrationBranch: string): boolean {
+  return gitMaybe(gitCwd, ['merge-base', '--is-ancestor', integrationBranch, 'HEAD']).ok;
 }
 
 function ensureStep(steps: DonePrepareStep[], id: StepId): DonePrepareStep {
@@ -1421,7 +1424,9 @@ function isCommentLikeLine(line: string): boolean {
 }
 
 function runtimeDiffHasOnlyComments(gitCwd: string, path: string): boolean {
-  const result = gitMaybe(gitCwd, ['diff', '--unified=0', 'main...HEAD', '--', path]);
+  const baseline = resolveRepositoryBaseline(gitCwd);
+  if (!baseline) return false;
+  const result = gitMaybe(gitCwd, ['diff', '--unified=0', `${baseline.ref}...HEAD`, '--', path]);
   if (!result.ok) return false;
   const changed = result.output
     .split('\n')
@@ -1460,7 +1465,10 @@ function readVersionSources(root: string): Record<string, string> {
 }
 
 function detectRuntimeChanges(root: string, gitCwd: string): RuntimeChangeReport {
-  const diff = gitMaybe(gitCwd, ['diff', '--name-only', 'main...HEAD']);
+  const baseline = resolveRepositoryBaseline(gitCwd);
+  const diff = baseline
+    ? gitMaybe(gitCwd, ['diff', '--name-only', `${baseline.ref}...HEAD`])
+    : { ok: false as const, output: '' };
   const changedFiles = diff.ok && diff.output.trim()
     ? diff.output.split('\n').map((line) => line.trim()).filter(Boolean)
     : [];
@@ -1862,6 +1870,17 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     });
   }
 
+  const integrationBranch = resolveStoryIntegrationTarget(gitCwd, story)?.parentBranch;
+  if (!integrationBranch) {
+    setStep(steps, 'preflight', 'blocked', 'no integration branch can be resolved');
+    return blocked({
+      blockedAt: 'preflight',
+      reason: `no integration branch can be resolved for Story ${storyId}`,
+      next: 'restore or explicitly capture the Story integration target, then rerun proof-or-stop done_prepare',
+      steps,
+    });
+  }
+
   const expectedBranch = story.worktree?.branch || `story/${storyId}`;
   const branch = gitMaybe(gitCwd, ['rev-parse', '--abbrev-ref', 'HEAD']);
   if (!branch.ok || branch.output !== expectedBranch) {
@@ -1874,13 +1893,13 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     });
   }
 
-  const mainRef = gitMaybe(gitCwd, ['rev-parse', '--verify', 'main^{commit}']);
-  if (!mainRef.ok) {
-    setStep(steps, 'preflight', 'blocked', 'local main ref is unavailable');
+  const integrationRef = gitMaybe(gitCwd, ['rev-parse', '--verify', `${integrationBranch}^{commit}`]);
+  if (!integrationRef.ok) {
+    setStep(steps, 'preflight', 'blocked', `local ${integrationBranch} ref is unavailable`);
     return blocked({
       blockedAt: 'preflight',
-      reason: `local main cannot be found: ${mainRef.error}`,
-      next: 'fetch or create a local main branch, then rerun proof-or-stop done_prepare',
+      reason: `local integration branch ${integrationBranch} cannot be found: ${integrationRef.error}`,
+      next: `fetch or create the local ${integrationBranch} branch, then rerun proof-or-stop done_prepare`,
       steps,
     });
   }
@@ -1891,14 +1910,14 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   if (initialBlockingEntries.length > 0) {
     const files = entryFiles(initialBlockingEntries);
     const hasMergeOverwriteHazard = initialBlockingEntries.some(
-      (entry) => entry.statusCode === '??' && pathExistsOnMain(gitCwd, entry.path),
+      (entry) => entry.statusCode === '??' && pathExistsOnIntegrationBranch(gitCwd, integrationBranch, entry.path),
     );
     setStep(steps, 'cleanTree', 'blocked', 'worktree must be clean before DONE prepare can mutate');
     return blocked({
       blockedAt: 'cleanTree',
       reason: 'worktree has dirty files that are not Proof-or-Stop story lifecycle metadata; done_prepare cannot mutate yet',
       files,
-      guidanceSections: buildInitialDirtyGuidance(gitCwd, initialBlockingEntries),
+      guidanceSections: buildInitialDirtyGuidance(gitCwd, integrationBranch, initialBlockingEntries),
       next: hasMergeOverwriteHazard
         ? 'preserve or move the file, then rerun done_prepare'
         : 'inspect the dirty file classification above, then rerun done_prepare after the worktree is safe',
@@ -1922,28 +1941,29 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   if (!args.mergeMain) {
     setStep(steps, 'mergeMain', 'skipped', 'mergeMain=false');
   } else if (args.dryRun) {
+    const alreadyMerged = isIntegrationBranchAncestor(gitCwd, integrationBranch);
     setStep(
       steps,
       'mergeMain',
-      isMainAncestor(gitCwd) ? 'pass' : 'skipped',
-      isMainAncestor(gitCwd) ? undefined : 'planned mutation skipped: dryRun would run git merge main',
-      'git merge main',
+      alreadyMerged ? 'pass' : 'skipped',
+      alreadyMerged ? undefined : `planned mutation skipped: dryRun would run git merge ${integrationBranch}`,
+      `git merge ${integrationBranch}`,
     );
   } else {
-    const merge = gitMaybe(gitCwd, ['merge', 'main', '--no-edit']);
+    const merge = gitMaybe(gitCwd, ['merge', integrationBranch, '--no-edit']);
     if (!merge.ok) {
       const files = conflictFiles(gitCwd);
-      setStep(steps, 'mergeMain', 'blocked', 'git merge main failed with conflicts', 'git merge main');
+      setStep(steps, 'mergeMain', 'blocked', `git merge ${integrationBranch} failed with conflicts`, `git merge ${integrationBranch}`);
       return blocked({
         blockedAt: 'mergeMain',
-        reason: merge.error || 'git merge main failed',
+        reason: merge.error || `git merge ${integrationBranch} failed`,
         files,
         guidanceSections: buildMergeConflictGuidance(),
         next: 'resolve the listed merge conflict files manually, commit the merge, then rerun proof-or-stop done_prepare',
         steps,
       });
     }
-    setStep(steps, 'mergeMain', 'pass', merge.output || 'main already merged', 'git merge main');
+    setStep(steps, 'mergeMain', 'pass', merge.output || `${integrationBranch} already merged`, `git merge ${integrationBranch}`);
   }
 
   const prepareMutationStartHead = currentGitHead(gitCwd);

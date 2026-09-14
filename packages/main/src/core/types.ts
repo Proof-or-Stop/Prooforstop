@@ -247,6 +247,13 @@ export interface StoryInfo {
     branch: string;
     createdAt: string;
   };
+  /** Integration branch frozen when the Story is created. Legacy Stories resolve it from repository policy. */
+  integrationTarget?: {
+    parentBranch: string;
+    parentCommitAtCreation: string;
+    source: 'creation_branch' | 'repository_baseline';
+    deliveryMode: 'merge_to_parent';
+  };
   /** Current REVIEW round ID (ISO 8601 timestamp), generated each time REVIEW is entered */
   currentReviewRound?: string;
   /** High-risk signals (auto-detection): triggered keyword categories */
@@ -468,7 +475,8 @@ export type CoverageDiscoveryMethodV1 =
   | 'process_fact_registry'
   | 'handler_dispatch_inventory'
   | 'static_call_graph'
-  | 'runtime_trace';
+  | 'runtime_trace'
+  | 'registered_command_receipts';
 
 export interface CoverageAdapterResultV1 {
   schemaVersion: 'proofstory.coverage_adapter_result.v1';
@@ -600,6 +608,7 @@ export interface AcceptanceBasisArtifactV1 {
 export type PreReviewCheckCodeV1 =
   | 'ok'
   | 'PR_ARTIFACT_MISSING'
+  | 'PR_COVERAGE_BASIS_MISSING'
   | 'PR_COVERAGE_BASIS_CHANGED'
   | 'PR_COVERAGE_INCONCLUSIVE'
   | 'PR_PLANNED_PATH_UNRESOLVED'
@@ -3527,6 +3536,7 @@ export type ScopePathRule =
   | 'allowed_test'
   | 'lifecycle_artifact'
   | 'runtime_artifact'
+  | 'untrusted_controller_receipt'
   | 'unknown';
 
 export interface ScopePathClassification {
@@ -3540,6 +3550,12 @@ export interface ScopePathClassification {
   matchedPattern?: string;
   registryId?: string;
   hint?: string;
+  owner?: 'proof-or-stop' | 'story';
+  origin?: 'proof-or-stop-generated' | 'story-change';
+  blockerCode?: string;
+  nextCommand?: string;
+  safeToAutoRun?: boolean;
+  nextAction?: string;
 }
 
 export interface ScopeCheckRow {
@@ -3557,6 +3573,10 @@ export interface ScopeCheckRow {
   rule?: ScopePathRule;
   nextAction?: string;
   hint?: string;
+  owner?: 'proof-or-stop' | 'story';
+  blockerCode?: string;
+  nextCommand?: string;
+  safeToAutoRun?: boolean;
 }
 
 export interface ScopeViolation {

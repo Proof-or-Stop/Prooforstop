@@ -365,6 +365,10 @@ function passRow(classification: ScopePathClassification): ScopeCheckRow {
     rule: classification.rule,
     detail: classification.detail,
     hint: classification.hint ?? 'This path is non-blocking under the shared scope classifier.',
+    owner: classification.owner,
+    blockerCode: classification.blockerCode,
+    nextCommand: classification.nextCommand,
+    safeToAutoRun: classification.safeToAutoRun,
   };
 }
 
@@ -407,8 +411,12 @@ function problemRow(
     category: classification.category,
     rule: violation.rule,
     detail: `${classification.detail}${violation.acknowledged ? ' A matching acknowledgement exists.' : ''}`,
-    nextAction: nextActionForViolation(contract, violation),
+    nextAction: classification.nextAction ?? nextActionForViolation(contract, violation),
     hint: classification.hint ?? 'Scope rows are derived from the shared path classifier; unclassified paths use out_of_scope behavior.',
+    owner: classification.owner,
+    blockerCode: classification.blockerCode,
+    nextCommand: classification.nextCommand,
+    safeToAutoRun: classification.safeToAutoRun,
   };
 }
 
@@ -497,6 +505,10 @@ export function checkScopeContract(
 
     if (classification.allowed) {
       rows.push(passRow(classification));
+    } else if (classification.rule === 'untrusted_controller_receipt') {
+      const v: ScopeViolation = { path: file, rule: 'out_of_scope', acknowledged: false };
+      violations.push(v);
+      rows.push(problemRow(contract, classification, v, false));
     } else if (classification.registryId === 'shared-gap-log-metadata-v1') {
       const v: ScopeViolation = { path: file, rule: 'out_of_scope', acknowledged: false };
       violations.push(v);

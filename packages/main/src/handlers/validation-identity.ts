@@ -1,5 +1,5 @@
 /** Shared read-only validation entry construction and identity policy. */
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { HandlerContext } from './context.js';
@@ -13,6 +13,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { findValidateFile, validateFileDefaultTimeoutMs } from '../core/validation-file-entry.js';
 import { buildRoutineValidationIdentity } from '../core/validation-evidence-reuse.js';
+import { requireRepositoryBaselineRef } from '../core/git-baseline.js';
 
 export { commandFromString, filterFocusedConfiguredCommands } from '../core/validation-command-config.js';
 
@@ -94,10 +95,8 @@ export function buildValidateFileCommand(ctx: HandlerContext, args: { story?: st
         // (metadataRoot ≠ gitRoot) run git diff in the real repo subdir.
         const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot });
         try {
-          const diff = execSync('git diff main...HEAD --name-only', {
-            cwd: gitCwd,
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe'],
+          const diff = execFileSync('git', ['diff', `${requireRepositoryBaselineRef(gitCwd)}...HEAD`, '--name-only'], {
+            cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
           }).trim();
           if (diff) {
             const changedFiles = diff.split('\n')

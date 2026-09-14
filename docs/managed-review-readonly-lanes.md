@@ -7,11 +7,21 @@ registered Proof-or-Stop project layout. Unsupported requested configurations
 fail before provider startup; projects without this opt-in keep their existing behavior.
 
 Tracked review source and original project/Git files remain read-only to the
-provider. Each lane builds its own four-package runtime and graph assets. Only
-the declared lane output, temporary files, and cache are writable. The consumer
-checks sealed source, generated links, and output bindings before accepting a
-successful managed result. This does not make writable output immutable during
-execution.
+provider. A fresh managed review also creates a second detached worktree at the
+same HEAD and starts the provider there. Tests, formatters, and generators may
+create ignored or untracked products in that disposable execution worktree;
+none are copied back. Before accepting a successful managed result, the
+controller verifies that both worktrees remain registered at the sealed HEAD,
+that tracked execution material has no working-tree drift, and that the sealed
+source still matches the signed review binding. Both worktrees are removed by
+the marker-bound terminal cleanup. Historical in-flight specs retain their
+original single-worktree execution facts.
+
+Each lane builds its own four-package runtime and graph assets. The disposable
+execution worktree, declared lane output, temporary files, and cache are
+writable. The consumer checks sealed source, generated links, and output
+bindings before accepting a successful managed result. This does not make
+writable output immutable during execution.
 
 Codex uses a private `CODEX_HOME` copied from supported file-backed state.
 Claude uses a private `CLAUDE_CONFIG_DIR` with supported file-backed credentials

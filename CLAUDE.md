@@ -431,11 +431,11 @@ project/
 4. `story_advance PLAN` → 正式进入开发流程
 5. PLAN / DEV / TEST 全部在 worktree 里完成
 6. `story_advance --phase=TEST` → 推进 TEST
-7. `story_advance --phase=DONE` → 合并回本地 main 并清理 worktree（可从 worktree 子目录触发，清理目标仍是 git 顶层 worktree）；如果需要远端发布，只在本地 main 干净且已验证后，由人类显式运行 `proof-or-stop release_approve_push --confirm` 创建短 TTL 一次性 approval，再手动 `git push origin main`
+7. `story_advance --phase=DONE` → 合并回本地 integration branch 并清理 worktree（可从 worktree 子目录触发，清理目标仍是 git 顶层 worktree）；如果需要远端发布，只在本地 integration branch（通常为 `main` 或 `master`）干净且已验证后，由人类显式运行 `proof-or-stop release_approve_push --confirm` 创建短 TTL 一次性 approval，再执行命令返回的 `git push`
 
 **cwd 门禁**：PLAN 起所有 `story_advance` 都校验 cwd 是 story 的 worktree。
 
-**远端写入纪律**：Proof-or-Stop 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `proof-or-stop release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
+**远端写入纪律**：Proof-or-Stop 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge integration branch + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 integration branch 上运行 `proof-or-stop release_approve_push --confirm` 后，hook 才允许一次 exact resolved branch + exact SHA 的 push。
 
 **版本递增纪律**：每个会改变 Proof-or-Stop CLI / runtime 行为的 story 合并回本地 `main` 后，必须把 CLI patch 版本递增 1（例如 `0.3.6` → `0.3.7`），同步根目录 `package.json`、`packages/main/package.json`、对应 lockfiles 和 `packages/main/src/core/proof-or-stop-brand.ts` 中的 `PROOF_OR_STOP_CLI_VERSION`，运行 `npm --prefix packages/main run build`，并确认 `proof-or-stop --version` 输出新版本。纯文档、story metadata-only、review evidence-only 合并不强制 bump，避免无意义消耗版本号。
 
@@ -606,6 +606,8 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 **issues gate**：`init-check.json` 中适用于 INIT 的 critical/high issues 会阻塞 INIT_CHECK；`kind: post_implementation_evidence_missing` 表示只有实现后才能取得的证据，在 INIT 中延后且不阻塞；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
 
 **存量语料迁移立场**：不迁移，接受失效——理由和重新测得的计数见 `docs/requirements/decisions/story-lifecycle.md` 的「init-check signature domain widened to the reviewer verdict — migration position」节。
+
+**Causal identity v2 存量立场**：`ce:v1:*` 只保留为历史审计记录，不迁移、不复用为当前 PASS；当前证据必须通过正式 evidence 命令重新执行获得。设计理由、2026-09-14 语料计数和操作步骤见 `docs/requirements/decisions/story-lifecycle.md` 的「Causal execution identity v2 migration position」节。
 
 **反自豁免设计**：EXP-001 的实验记录证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot）。当前 `init_check_set` 会在写入前对 `agentId` 做 byte-exact canonical admission：只接受已注册的 `proof-or-stop-review-story-init` 与 `proof-or-stop-product-reviewer`，拒绝空白变体、退役角色和未注册角色；独立性仍由签名机制、reviewer 模板 fresh-context fence 与宿主编排共同保证。
 
@@ -1260,7 +1262,7 @@ B-5a28 针对「Proof-or-Stop 自举开发」场景引入两条防线：(1) `pro
 git config core.hooksPath .githooks
 ```
 
-`.githooks/pre-push` 跟仓库一起提交，启用后每次 `git push` 前先默认拒绝远端写入；非 `main` 的远端分支 push 直接拒绝，`main` push 也必须携带 `proof-or-stop release_approve_push --confirm` 写入的短 TTL 一次性 approval，匹配后才继续跑递归 tsc gate。
+`.githooks/pre-push` 跟仓库一起提交，启用后每次 `git push` 前先默认拒绝远端写入；非仓库 resolved integration branch 的远端分支 push 直接拒绝，integration branch push 也必须携带 `proof-or-stop release_approve_push --confirm` 写入的短 TTL 一次性 approval，匹配后才继续跑递归 tsc gate。
 
 ### 外部防线原则
 
@@ -1272,7 +1274,7 @@ pre-push hook 的核心设计约束：**不调用旧 CLI alias**。原因：hook
 
 - 临时文件用 `mktemp -d` 创建唯一临时目录，`trap '... cleanup' EXIT` 在 hook 退出时清理（避免并发 push 同名互覆盖、`/tmp` 累积）。`mktemp` 失败 → push 被拒
 - 先 `git rev-parse --show-toplevel` 拿 REPO_ROOT
-- **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 `refs/heads/main` 的 `refs/heads/*` 直接拒绝。`refs/heads/main` 也默认拒绝，除非由 `proof-or-stop release_approve_push --confirm` 创建的 `.proof-or-stop/tmp/remote-push-approval.json` 的 canonical schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。旧路径和旧 schema 不授予审批。Proof-or-Stop 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，并停止在本地。
+- **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 resolved integration branch 的 `refs/heads/*` 直接拒绝。resolved integration branch 也默认拒绝，除非由 `proof-or-stop release_approve_push --confirm` 创建的 `.proof-or-stop/tmp/remote-push-approval.json` 的 canonical schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。旧路径和旧 schema 不授予审批。Proof-or-Stop 并行开发只使用本地 worktree/local branch，完成后合回本地 integration branch、清理 worktree，并停止在本地。
 - **Proof-or-Stop 自举仓检测**：
   1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 Proof-or-Stop 仓，立即 `exit 0`（对非 Proof-or-Stop 仓零摩擦）
   2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 Proof-or-Stop 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）

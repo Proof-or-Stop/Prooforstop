@@ -514,10 +514,21 @@ export function runScopeTransitionGate(
   const rowDetails = renderScopeLifecycleRows(result, phase);
   const renderedWithRows = rowDetails ? `${rendered}\n${rowDetails}` : rendered;
   if (result.status === 'fail') {
+    const frameworkRows = (result.rows ?? []).filter(row => row.blocking && row.owner === 'proof-or-stop');
+    const productRows = (result.rows ?? []).filter(row => row.blocking && row.owner !== 'proof-or-stop');
+    const recovery = frameworkRows.length > 0
+      ? [
+        '→ Proof-or-Stop generated artifact validation failed. Do not expand product Story scope.',
+        ...frameworkRows.map(row => `   ${row.blockerCode ?? 'FRAMEWORK_ARTIFACT_INVALID'}: ${row.nextAction ?? row.hint ?? row.path}`),
+        ...(productRows.length > 0
+          ? ['→ Other product-owned out-of-scope changes must be reverted or independently approved with acceptance_amendment_propose.']
+          : []),
+      ].join('\n')
+      : `→ 修复 out-of-scope diff，或回到 DEV 用 acceptance_amendment_propose 提交必要扩展并取得独立批准后重跑 story_advance --phase=${phase}`;
     throw new Error(
       `Cannot enter ${phase}: ${result.summary}\n\n` +
       renderedWithRows +
-      `\n\n→ 修复 out-of-scope diff，或回到 DEV 用 acceptance_amendment_propose 提交必要扩展并取得独立批准后重跑 story_advance --phase=${phase}`,
+      `\n\n${recovery}`,
     );
   }
   // CHK-004 B-a30e: advisory warning copy — name recovery path depending on phase.

@@ -30,6 +30,18 @@ if (!readonlyManagedSource.includes('verifyManagedReviewLane(spec.crossHostReado
 if (!readonlyManagedSource.includes('verifyManagedReviewLane(scratch.readonlyLane, scratch)')
   || !readonlyManagedSource.includes('readonlyLane: await createManagedReviewLane')) failures.push('Managed readonly source/build binding must be sealed and consumed');
 if (!readFileSync(join(root,'packages/main/src/core/process-fact-registry.ts'),'utf8').includes('runtime:managed_review_readonly_build')) failures.push('Managed readonly build process semantics must be registered');
+const managedReviewEvidenceSource=readFileSync(join(root,'packages/main/src/core/managed-review-evidence.ts'),'utf8');
+const managedReadonlyRegistrySource=readFileSync(join(root,'packages/main/src/core/process-fact-registry.ts'),'utf8');
+if (!readonlyManagedSource.includes('const executionCwd = join(parent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree)')
+  || !readonlyManagedSource.includes('currentMaterialHash(scratch.executionCwd)')
+  || !readonlyManagedSource.includes('cwd: managedReviewScratch?.executionCwd ?? managedReviewScratch?.cwd ?? args.cwd')
+  || !readonlyManagedSource.includes('scratch.sourceDirectoryIdentity = managedReviewScratchPathIdentity')
+  || !readonlyManagedSource.includes('MANAGED_REVIEW_LANE_ARTIFACT.scratchAdminMarker')
+  || (readonlyManagedSource.match(/assertManagedReviewScratchGenerationIdentity\(scratch, registered\)/g) ?? []).length < 2
+  || !managedReviewEvidenceSource.includes('$PROOF_OR_STOP_REVIEW_EXECUTION_CWD')
+  || !managedReadonlyRegistrySource.includes('distinct same-HEAD disposable execution worktree')) {
+  failures.push('Managed review generated-file execution must use a registered same-HEAD disposable worktree with tracked-material enforcement');
+}
 
 const warnings = [];
 const hanCharacterPattern = /[\u3400-\u9fff]/;
@@ -5739,6 +5751,37 @@ function parseInlineProcessFactArtifactFromSource(block, label) {
   };
 }
 
+function parseControllerProjectionDescriptorProcessFacts(
+  source = read('packages/main/src/core/managed-artifact-descriptors.ts'),
+) {
+  const entries = [];
+  for (const match of source.matchAll(/defineManagedArtifactDescriptor\(\{/g)) {
+    const openIndex = match.index + match[0].lastIndexOf('{');
+    const block = extractBalancedBlock(source, openIndex, '{', '}', 'managed controller projection descriptor');
+    const id = readStringProperty(block, 'id');
+    const path = readStringProperty(block, 'path');
+    const producer = readStringProperty(block, 'producer');
+    const signature = readStringProperty(block, 'signature');
+    const consumerGate = readStringProperty(block, 'consumerGate');
+    const rationale = readStringProperty(block, 'rationale');
+    assert(id && path && producer && signature && consumerGate && rationale,
+      'managed controller projection descriptor must declare every process-fact field');
+    entries.push({
+      name: `artifact:${path}`,
+      kind: 'signed-artifact',
+      semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'workspace-binding', 'gate-evidence'],
+      level: 'L4',
+      producer,
+      consumerGate,
+      artifact: { name: id, path, signed: true, signature, consumerGate },
+      reviewerLane: '',
+      rationale,
+      block,
+    });
+  }
+  return entries;
+}
+
 function parseProcessFactRequiredSemanticsFromSource(text) {
   const body = extractExportedObjectBody(text, 'PROCESS_FACT_REQUIRED_SEMANTICS', processFactRegistryPath);
   const semantics = new Map();
@@ -5938,7 +5981,7 @@ function parseProcessFactRegistry() {
       ? artifactByCommand.get(artifactRefMatch[1])
       : parseInlineProcessFactArtifactFromSource(entry.block, `${processFactRegistryPath} ${entry.name}`);
     return { ...entry, artifact: artifact || null };
-  });
+  }).concat(parseControllerProjectionDescriptorProcessFacts());
   const flowPolicyEntries = parseFlowFactPolicies().map(entry => ({
     name: entry.name,
     kind: 'flow-policy',
@@ -8476,6 +8519,42 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
     duplicateRegistryNames.length === 0,
     `${processFactRegistryPath}: duplicate PROCESS_FACT_REGISTRY entries: ${duplicateRegistryNames.join(', ')}`,
   );
+
+  const managedDescriptorText = read('packages/main/src/core/managed-artifact-descriptors.ts');
+  const lifecycleRegistryText = read('packages/main/src/core/lifecycle-registry.ts');
+  const processRegistrySource = read(processFactRegistryPath);
+  const runtimeProjectionText = read('packages/main/src/core/controller-runtime-projection.ts');
+  const configProjectionText = read('packages/main/src/core/controller-config-projection.ts');
+  assert(
+    lifecycleRegistryText.includes('...CONTROLLER_PROJECTION_ARTIFACTS.map((artifact) => artifact.path)'),
+    'controller projection lifecycle paths must derive from the canonical managed artifact descriptors',
+  );
+  assert(
+    processRegistrySource.includes("import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js'")
+      && processRegistrySource.includes('...CONTROLLER_PROJECTION_ARTIFACTS,'),
+    'process fact artifacts must consume the canonical controller projection descriptors directly',
+  );
+  const controllerDescriptors = parseControllerProjectionDescriptorProcessFacts(managedDescriptorText);
+  assert(controllerDescriptors.length === 2, 'exactly two controller projection artifact descriptors must be registered');
+  for (const descriptor of controllerDescriptors) {
+    const producerText = descriptor.artifact.name === 'controller-config-projection-receipt'
+      ? configProjectionText
+      : runtimeProjectionText;
+    assert(
+      producerText.includes('PROJECTION_ARTIFACT.path'),
+      `producer must derive ${descriptor.artifact.name} path from the managed artifact descriptor`,
+    );
+    const processEntry = registry.get(descriptor.name);
+    assert(
+      processEntry?.artifact?.name === descriptor.artifact.name
+        && processEntry.artifact.path === descriptor.artifact.path
+        && processEntry.artifact.signature === descriptor.artifact.signature
+        && processEntry.producer === descriptor.producer
+        && processEntry.consumerGate === descriptor.consumerGate
+        && processEntry.rationale === descriptor.rationale,
+      `process fact registry must derive the complete ${descriptor.artifact.name} contract from its descriptor`,
+    );
+  }
 
   for (const entry of registryEntries) {
     assert(processFactRegistryKinds.has(entry.kind), `${processFactRegistryPath}: ${entry.name} has unknown kind "${entry.kind}"`);
@@ -11559,13 +11638,13 @@ for (const [path, tokens] of [
  ['packages/main/src/handlers/story-dispatch.ts',['ownerDispositions']],
 ]) for (const token of tokens) assert(read(path).includes(token), 'Missing selected owner contract: '+path+':'+token);
 
-for (const file of ['process-fact-registry','command-policy','process-fact-levels','flow-fact-policy']) {
+for (const file of ['process-fact-registry','command-policy','process-fact-levels','flow-fact-policy','managed-artifact-descriptors']) {
   assert(read('packages/main/src/core/plan-touchpoint-coverage.ts').includes('packages/main/src/core/'+file+'.ts'), 'Unbound registry projection input: '+file);
 }
 
 // Structural dependency inventory: newly imported mapping inputs require an explicit binding review.
 for (const [file, expected] of [
- ['process-fact-registry',['./command-policy.js','./flow-fact-policy.js','./process-fact-levels.js','node:path']],
+ ['process-fact-registry',['./command-policy.js','./flow-fact-policy.js','./managed-artifact-descriptors.js','./process-fact-levels.js','node:path']],
  ['command-policy',[]], ['process-fact-levels',[]],
  // This helper import serves only evaluator functions, not the literal FLOW_FACT_POLICIES projection.
  ['flow-fact-policy',['./agent-dispatch-registry.js']],
@@ -11670,6 +11749,36 @@ const managedCriticArtifact = parseRegistryArrayEntriesFromSource(read(processFa
   .find(entry => entry.name === 'artifact:managed-inventory-critic-receipt');
 assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.managed_review_evidence_import'
   && managedCriticArtifact.kind === 'signed-artifact', 'Managed importer must explicitly register its second signed critic artifact');
+
+// A Story with no initial checklist items must still create the canonical L4
+// artifact. Keep both producer paths registered and bind the creation write to
+// the same preflight value that is committed with the new Story metadata.
+{
+  const registrySource = read(processFactRegistryPath);
+  const checklistArtifact = parseRegistryArrayEntriesFromSource(registrySource, 'PROCESS_FACT_ARTIFACTS')
+    .find(entry => entry.name === 'artifact:checklist.json');
+  assert(checklistArtifact?.producer === 'handlers/story-create and handlers/checklist',
+    'checklist artifact must register Story creation and later checklist mutations as producers');
+  const checklistArtifactStart = registrySource.indexOf("name: 'artifact:checklist.json'");
+  const checklistArtifactEnd = registrySource.indexOf("name: 'artifact:init-check.json'", checklistArtifactStart);
+  const checklistArtifactSource = registrySource.slice(checklistArtifactStart, checklistArtifactEnd);
+  for (const sourceRef of ['packages/main/src/handlers/story-create.ts', 'packages/main/src/handlers/checklist.ts']) {
+    assert(checklistArtifactSource.includes(sourceRef), `checklist artifact producer source missing: ${sourceRef}`);
+  }
+  const storyCreateSource = read('packages/main/src/handlers/story-create.ts');
+  const checklistWrites = [...storyCreateSource.matchAll(/store\.writeChecklist\(storyId, preflightChecklist\)/g)].map(match => match.index);
+  const creationCommits = [...storyCreateSource.matchAll(/commitSafeInitMetadata\(storyId\)/g)]
+    .map(match => match.index)
+    .filter(index => index > (checklistWrites[0] ?? Number.MAX_SAFE_INTEGER));
+  assert(checklistWrites.length === 2,
+    'story_create must persist the canonical checklist in both explicit and default creation paths');
+  assert(creationCommits.length === 3
+    && checklistWrites[0] < creationCommits[0]
+    && creationCommits[0] < checklistWrites[1]
+    && checklistWrites[1] < creationCommits[1]
+    && checklistWrites[1] < creationCommits[2],
+    'story_create must persist checklist.json before each safe creation commit');
+}
 
 // Managed inventory transport checks must precede the final failure gate.
 assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
