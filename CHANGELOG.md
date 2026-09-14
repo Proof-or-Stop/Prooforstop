@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab init-product-review-phase-contract - v0.3.363 - 2026-09-14
+
+Fix the INIT lifecycle deadlock where the required product reviewer asked for implementation and delivery transcripts before the Story worktree could be created.
+
+The product INIT contract now reviews concrete user outcomes, executable verification intent, requirements, scope, compatibility, and safety boundaries. It explicitly permits planned evidence before implementation. A signed structured issue kind distinguishes post-implementation evidence gaps from genuine INIT blockers; post-implementation-only gaps remain visible but cannot block INIT_CHECK, while legacy high issues and real INIT deficiencies remain fail-closed. Final transcript and delivery evidence checks remain assigned to the TEST-phase delivery reviewer.
+
+Verification passed: the product reviewer regression covers both agent_prompt --readOnly and dispatch, issue-kind persistence, deferred evidence handling, true blocker behavior, and legacy compatibility. The INIT required-agents lifecycle smoke proves story_advance reaches INIT_CHECK with a deferred high evidence gap and still blocks a genuine high product gap. The init fallback smoke, full TypeScript build, and process-fact contract also passed.
+
+Maintenance provenance: codex/lab-init-product-review-phase-contract, repair 75c2247cd75da114b33a28932dfd2fd6d9298a79.
+Verification command (replayed before integration and on main): `["node","scripts/verify-product-reviewer.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab cli-contract-recovery - v0.3.362 - 2026-09-14
 
 Fix fresh-init prompt consumer consistency, CLI schema recovery, atomic PLAN acceptance, and missing requirements corpus handling.
