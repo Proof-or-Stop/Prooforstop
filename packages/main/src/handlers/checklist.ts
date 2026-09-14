@@ -2692,9 +2692,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       ...(hashes.materialHash ? { expectedMaterialHash: hashes.materialHash } : {}),
       ...(hashes.storyFilesHash ? { expectedStoryFilesHash: hashes.storyFilesHash } : {}),
       currentIdentity: () => cachedSnapshot?.preflightByInput.get(preflightInputKey(firstPreflight.input, firstReceipt.executionKey))?.identity,
-      // Re-probe immediately before the actual checklist write. No-op receipt
-      // imports above use the bounded batch snapshot; the canonical write gets
-      // its own fresh transaction snapshot.
+      // Rebuild the transaction snapshot immediately before the canonical write:
+      // the receipt index and every preflight readiness report are evaluated
+      // again. Its implementation digest and repository hashes come from this
+      // synchronous commit observation, so they differ from the batch snapshot
+      // only when a git mutation inside this segment invalidated it; drift during
+      // execution is caught by comparing them with the launch-time values above.
       revalidate: revalidateFresh,
       commit: commitWithCacheInvalidation,
       batch,

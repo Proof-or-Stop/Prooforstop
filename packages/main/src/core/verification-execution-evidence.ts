@@ -1067,6 +1067,9 @@ export function planVerificationExecutionReuse(input: {
     || !isCanonicalSha256Hash(hashBinding.currentMaterialHash)
     || !isCanonicalSha256Hash(hashBinding.currentStoryFilesHash)
   ) return denied('incomplete_freshness_hash_binding');
+  // Recompute the hashes the caller claims are current. Inside the caller's
+  // synchronous observation this confirms the binding belongs to the same
+  // coherent repository snapshot; outside one it rereads the repository.
   const computedCurrentHead = currentGitHead(input.cwd);
   const computedCurrentMaterial = currentMaterialHash(input.cwd, 'HEAD', input.projectRoot);
   const computedCurrentStoryFiles = currentStoryFilesHash(input.cwd, 'HEAD', input.projectRoot);

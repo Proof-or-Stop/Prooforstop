@@ -35,10 +35,23 @@ export function readObservedGitState<T>(key: string, probe: () => T): T {
 
 class ObservedGitFailure { constructor(readonly error: unknown) {} }
 
+/** Only a command git itself refused (it ran to completion and exited non-zero)
+ * is observed as failed for the rest of the segment. A command this process could
+ * not complete (caller deadline, timeout, signal, buffer or spawn failure) is
+ * never memoized: a later caller with a different budget probes again. */
+function gitRefused(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false;
+  const failure = error as { status?: unknown; signal?: unknown; code?: unknown };
+  return Number.isInteger(failure.status) && failure.status !== 0
+    && (failure.signal === null || failure.signal === undefined) && failure.code === undefined;
+}
+
 /** Identical read-only git probes (same cwd, argv and inherited environment) inside
- * one synchronous observation run once; a failing command is observed as failed for
- * the rest of that segment and fails the same way. Outside an observation every call
- * runs git, and mutating commands must never pass here. */
+ * one synchronous observation run once; a command git refused is observed as failed
+ * for the rest of that segment and fails the same way, while an incomplete command
+ * (see gitRefused) is never memoized. A successful output does not depend on the
+ * caller's budget or buffer, so those options are not part of the key. Outside an
+ * observation every call runs git, and mutating commands must never pass here. */
 export function observedGit(gitCwd: string, argv: readonly string[], run: () => string): string {
   if (!observation) return run();
   const key = 'git\0' + gitObservationKey([resolve(gitCwd), argv]);
@@ -52,7 +65,7 @@ export function observedGit(gitCwd: string, argv: readonly string[], run: () => 
     observation.set(key, value);
     return value;
   } catch (error) {
-    observation.set(key, new ObservedGitFailure(error));
+    if (gitRefused(error)) observation.set(key, new ObservedGitFailure(error));
     throw error;
   }
 }

@@ -172,7 +172,7 @@ try{
  const cp=(await import('node:child_process')).default;const {mkdtempSync,rmSync,writeFileSync}=await import('node:fs');const {tmpdir}=await import('node:os');
  const {currentGitHead,gitCommitAtRef}=await import('../dist/core/evidence-freshness.js');
  const {withVerificationLaunchObservation,withVerificationCompletionObservation}=await import('../dist/core/verification-execution-evidence.js');
- const {withoutGitObservation,assertGitObservationInactive}=await import('../dist/core/git-tree-observation.js');
+ const {withoutGitObservation,assertGitObservationInactive,observedGit}=await import('../dist/core/git-tree-observation.js');
  const repo=mkdtempSync(path.join(tmpdir(),'git-segment-observation-'));
  const git=(...args)=>cp.execFileSync('git',['-c','user.name=lab','-c','user.email=lab@example.invalid','-c','commit.gpgsign=false',...args],{cwd:repo,encoding:'utf8',stdio:['pipe','pipe','pipe']}).trim();
  git('init','-q','-b','main');writeFileSync(path.join(repo,'a.txt'),'a\n');git('add','a.txt');git('commit','-qm','base');
@@ -188,7 +188,9 @@ try{
   probes=[];withVerificationLaunchObservation(()=>{assert.equal(gitCommitAtRef(repo,'refs/heads/absent'),undefined);assert.equal(gitCommitAtRef(repo,'refs/heads/absent'),undefined);});assert.equal(probes.filter(a=>a==='rev-parse refs/heads/absent').length,1,'a failing probe is observed once per scope and fails the same way');
   probes=[];gitCommitAtRef(repo,'refs/heads/absent');gitCommitAtRef(repo,'refs/heads/absent');assert.equal(probes.filter(a=>a==='rev-parse refs/heads/absent').length,2,'outside an observation a failing probe runs each time');
   probes=[];currentGitHead(repo);currentGitHead(repo);assert.equal(heads(),2,'outside an observation every call probes git');
-  console.log('GIT_SEGMENT_OBSERVATION PASS identical probes run once per launch or completion observation, launches reread outside it and fail closed inside it, failures observed once per scope');
+  // Only git's own refusal is memoized: caller deadline, timeout, buffer and spawn failures rerun for the next caller.
+ withVerificationLaunchObservation(()=>{const refusal=Object.assign(new Error('refused'),{status:128,signal:null});for(const failure of [refusal,new Error('Git baseline observation budget exhausted'),Object.assign(new Error('timeout'),{status:null,signal:'SIGTERM',code:'ETIMEDOUT'}),Object.assign(new Error('buffer'),{status:0,signal:null,code:'ENOBUFS'}),Object.assign(new Error('spawn'),{status:null,signal:null,code:'ENOENT'})]){let runs=0;const probe=()=>observedGit(repo,['fake',failure.message],()=>{runs++;throw failure;});assert.throws(probe,failure);assert.throws(probe,failure);assert.equal(runs,failure===refusal?1:2,failure.message+(failure===refusal?': a refused command is observed once per scope':': an incomplete command is never memoized'));}});
+ console.log('GIT_SEGMENT_OBSERVATION PASS identical probes run once per launch or completion observation, launches reread outside it and fail closed inside it, refusals observed once per scope, incomplete commands never memoized');
  }finally{cp.execFileSync=originalExec;syncBuiltinESMExports();rmSync(repo,{recursive:true,force:true});}
 }
 

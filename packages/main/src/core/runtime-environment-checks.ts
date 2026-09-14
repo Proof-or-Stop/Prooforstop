@@ -358,7 +358,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/executable-digest-observation.ts': 'efaa0e0be32dd9e8833d6de120081b32f9c56c27b4d749b7eb2fa309445e0c4d',
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
-  'packages/main/src/core/git-tree-observation.ts': '1f4448e5730462a1446711afd63a5130f7ca13280028c3a3733029268a34c155',
+  'packages/main/src/core/git-tree-observation.ts': 'e3310d811d2c0e7f78a41e14ee6995593c23cb6a0e5d8c7686be5d5a7cbfe3f9',
   'packages/main/src/core/evidence-freshness.ts': 'd3120733e853509d3cc1a5643fe1316e1a820f68b20f27affd0254699f99257c',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
   'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
