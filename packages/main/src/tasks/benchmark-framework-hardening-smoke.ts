@@ -281,6 +281,9 @@ await checkAsync('done_prepare plans the resolved master integration branch', as
     git(root, ['add', '-f', 'proof-or-stop.config.json', '.proof-or-stop/story/actives/B-done-prepare-master']);
     git(root, ['commit', '-qm', 'fixture story']);
     git(root, ['branch', 'story/B-done-prepare-master']);
+    write(root, 'integration-advance.txt', 'master advanced after Story branch creation\n');
+    git(root, ['add', 'integration-advance.txt']);
+    git(root, ['commit', '-qm', 'advance master']);
     mkdirSync(dirname(worktree), { recursive: true });
     git(root, ['worktree', 'add', '-q', worktree, 'story/B-done-prepare-master']);
     process.chdir(worktree);
@@ -290,7 +293,8 @@ await checkAsync('done_prepare plans the resolved master integration branch', as
       storyId: 'B-done-prepare-master', mergeMain: true, refreshStale: false, validate: false, build: false, dryRun: true, json: false,
     });
     assert.doesNotMatch(transcript, /local main cannot be found/);
-    assert.match(transcript, /dryRun would run git merge master|mergeMain: PASS/);
+    assert.match(transcript, /dryRun would run git merge master/);
+    assert.doesNotMatch(transcript, /git merge main/);
   } finally {
     process.chdir(previousCwd);
     resetConfigCache();
@@ -626,6 +630,23 @@ check('story_advance exposes a structured JSON result option', () => {
   const definition = MAIN_TOOLS.find(tool => tool.name === 'story_advance');
   assert.ok(definition);
   assert.ok(definition && 'json' in definition.schema);
+});
+
+check('public lifecycle contracts describe the resolved integration branch', () => {
+  const catalog = readFileSync(join(repositoryRoot, 'packages/main/src/cli/command-catalog.ts'), 'utf8');
+  const help = readFileSync(join(repositoryRoot, 'packages/main/src/cli/help-renderer.ts'), 'utf8');
+  const policy = readFileSync(join(repositoryRoot, 'packages/main/src/core/command-policy.ts'), 'utf8');
+  const levels = readFileSync(join(repositoryRoot, 'packages/main/src/core/process-fact-levels.ts'), 'utf8');
+  const agents = readFileSync(join(repositoryRoot, 'AGENTS.md'), 'utf8');
+  assert.match(catalog, /resolved integration branch/);
+  assert.match(help, /local integration branch/);
+  assert.match(policy, /resolved integration branch/);
+  assert.match(levels, /resolved integration branch/);
+  assert.doesNotMatch(catalog, /merged into main|one remote main push/);
+  assert.doesNotMatch(help, /Merge back to local main|git push origin main/);
+  assert.doesNotMatch(policy, /merge local main|refs\/heads\/main remote publish/);
+  assert.doesNotMatch(levels, /main-safety checks|remote main publish/);
+  assert.doesNotMatch(agents, /merge to local main, run post-merge|exact-main|Story branch must contain current local main/);
 });
 
 await checkAsync('story_advance JSON mode returns the actual structured transition', async () => {
