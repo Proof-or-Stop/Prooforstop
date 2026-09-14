@@ -51,6 +51,24 @@ function pruneFixture({gonePids=[],goneGroups=[]}={}) {
 }
 console.log('NESTED_ENROLLMENT_PRUNING_UNIT_CONTROLS PASS');
 
+// Pending-fence resolution unit controls on the extracted predicate: an unmarked fence resolves on owner
+// loss alone; a marked fence resolves only through its noted spawned PID, and only once the owner is
+// provably gone and that PID and whole group are absent; a marked fence without a note stays terminal.
+const resolvedCompiled=ts.transpileModule(identityDeclaration(retirementSource,'pendingRowResolved')+'\npendingRowResolved;',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
+function resolvedUnit({ownerGone=false,gonePids=[]}={}){return vm.runInNewContext(resolvedCompiled,{registrationTargetGone:pid=>gonePids.includes(pid),pendingOwnerGone:()=>ownerGone});}
+{
+ const row=extra=>({pid:100,start:1,...extra});
+ assert.equal(resolvedUnit({ownerGone:true})(row({})),true,'unmarked fence resolves on owner loss');
+ assert.equal(resolvedUnit({ownerGone:false})(row({})),false,'unmarked fence with a live owner stays');
+ assert.equal(resolvedUnit({ownerGone:true})(row({spawnAttempted:true})),false,'marked fence without a note stays terminal');
+ assert.equal(resolvedUnit({ownerGone:true,gonePids:[555]})(row({spawnAttempted:true,spawnedPid:555})),true,'NOTED_FENCE_RESOLVES_ON_OWNER_AND_CHILD_ABSENCE');
+ assert.equal(resolvedUnit({ownerGone:false,gonePids:[555]})(row({spawnAttempted:true,spawnedPid:555})),false,'noted fence with a live owner stays');
+ assert.equal(resolvedUnit({ownerGone:true})(row({spawnAttempted:true,spawnedPid:555})),false,'noted fence with a live child stays');
+ assert.equal(resolvedUnit({ownerGone:false,gonePids:[555]})(row({target:{pid:555,pgid:555,start:2}})),true,'observed target resolves on absence');
+ assert.equal(resolvedUnit({ownerGone:true,gonePids:[555]})(row({target:{pid:555,pgid:556,start:2}})),false,'non-leader target never resolves');
+}
+console.log('NESTED_PENDING_RESOLUTION_UNIT_CONTROLS PASS');
+
 // Actual identity-function controls with explicit stubbed ps output, plus a real
 // absent-PID refusal. Observation stubs are unit inputs, never kernel authority.
 const mkdirIdentitySource=readFileSync(new URL('../../packages/main/src/core/mkdir-lock.ts',import.meta.url),'utf8');

@@ -78,7 +78,7 @@ import {
 
 /** Public rendering seam: diagnostics and pinned docs evidence consume the same operator projection. */
 
-interface FencedMachineTicket { ticket: string; registeredLive: number; pendingTargetLive: number; pendingTargetless: number; deadOwners: number; malformed: boolean }
+interface FencedMachineTicket { ticket: string; registeredLive: number; pendingTargetLive: number; pendingSpawnedLive: number; pendingTargetless: number; deadOwners: number; malformed: boolean }
 interface FencedMachineTicketScan { pool: string; fenced: FencedMachineTicket[]; error?: string }
 
 /** Read-only projection of machine tickets whose pending fences cannot resolve by owner death alone. */
@@ -91,11 +91,12 @@ function scanFencedMachineTickets(): FencedMachineTicketScan {
       const ticket = join(pool, name);
       // Every fencing shape of the release predicate is reported: a live or
       // unobservable registered group, a pending fence whose proven target is
-      // still live, and a pending fence that never recorded a target.
+      // still live, a pending fence whose noted spawned PID or group is still present, and a
+      // pending fence that never recorded a target or a note.
       const residuals = classifyMachineReservationResiduals(ticket);
       if (!residuals.present) continue;
-      if (residuals.malformed || residuals.registeredLive || residuals.pendingTargetLive || residuals.pendingTargetless) {
-        fenced.push({ ticket, registeredLive: residuals.registeredLive, pendingTargetLive: residuals.pendingTargetLive, pendingTargetless: residuals.pendingTargetless, deadOwners: residuals.deadOwners, malformed: residuals.malformed });
+      if (residuals.malformed || residuals.registeredLive || residuals.pendingTargetLive || residuals.pendingSpawnedLive || residuals.pendingTargetless) {
+        fenced.push({ ticket, registeredLive: residuals.registeredLive, pendingTargetLive: residuals.pendingTargetLive, pendingSpawnedLive: residuals.pendingSpawnedLive, pendingTargetless: residuals.pendingTargetless, deadOwners: residuals.deadOwners, malformed: residuals.malformed });
       }
     }
   } catch (error) {
@@ -111,9 +112,9 @@ function renderFencedMachineTickets(scan: FencedMachineTicketScan): string[] {
   for (const row of scan.fenced) {
     lines.push(row.malformed
       ? `  ⚠ ${row.ticket}: malformed residual record; the ticket stays fenced`
-      : `  ⚠ ${row.ticket}: ${row.registeredLive} live or unobservable registered group(s), ${row.pendingTargetLive} pending fence(s) with a live target, ${row.pendingTargetless} pending fence(s) without an observed target (${row.deadOwners} from dead owners)`);
+      : `  ⚠ ${row.ticket}: ${row.registeredLive} live or unobservable registered group(s), ${row.pendingTargetLive} pending fence(s) with a live target, ${row.pendingSpawnedLive} pending fence(s) whose noted spawned PID or group is still present, ${row.pendingTargetless} pending fence(s) without an observed target (${row.deadOwners} from dead owners)`);
   }
-  lines.push('  → Live registered groups and live targets resolve on their own once absent. Unknown detached work stays fenced by design: a different kernel boot session (reboot) releases the ticket through its boot witness; otherwise remove the ticket only after independently confirming no detached child remains.');
+  lines.push('  → Live registered groups, live targets and noted spawned PIDs resolve on their own once absent. Unknown detached work stays fenced by design: a different kernel boot session (reboot) releases the ticket through its boot witness; otherwise remove the ticket only after independently confirming no detached child remains.');
   return lines;
 }
 

@@ -4,7 +4,7 @@ import { syncBuiltinESMExports } from 'node:module';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 const selector = process.argv[2];
-const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport","isolated-observation-retry","isolated-observation-unavailable","cancel-refused-withdrawn","cancel-refused-live","fault-declared-owner-unclassified","fault-declared-owner-expansion","fault-retirement-backoff","result-caller-deadline","fault-controller-transport-unavailable","fault-drain-observation-transient","fault-unattempted-owner-loss","fault-attempted-owner-loss","cancel-client-rejects-applied","isolated-observation-unavailable-no-token","isolated-observation-worker-spawn-failure","result-descriptor-unavailable","result-refused-registration-cleanup","result-attempt-refusal","fault-registered-row-pruned"];
+const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport","isolated-observation-retry","isolated-observation-unavailable","cancel-refused-withdrawn","cancel-refused-live","fault-declared-owner-unclassified","fault-declared-owner-expansion","fault-retirement-backoff","result-caller-deadline","fault-controller-transport-unavailable","fault-drain-observation-transient","fault-unattempted-owner-loss","fault-attempted-owner-loss","cancel-client-rejects-applied","isolated-observation-unavailable-no-token","isolated-observation-worker-spawn-failure","result-descriptor-unavailable","result-refused-registration-cleanup","result-attempt-refusal","fault-registered-row-pruned","fault-spawned-owner-loss"];
 if (process.argv.length !== 3 || !selectors.includes(selector)) throw new Error('Unknown nested reservation regression selector');
 // Only selectors that need Darwin kernel descriptor or process identity observation are
 // platform-gated; the executor result-contract selectors run through the platform
@@ -243,6 +243,10 @@ if (process.platform !== 'darwin' && DARWIN_ONLY.has(selector)) {
       break;
     case "fault-registered-row-pruned":
       process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-faults.mjs", import.meta.url)), ...["registered-row-pruned"]];
+      await import("./verify-nested-reservation-faults.mjs");
+      break;
+    case "fault-spawned-owner-loss":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-faults.mjs", import.meta.url)), ...["spawned-owner-loss"]];
       await import("./verify-nested-reservation-faults.mjs");
       break;
     default: throw new Error('Unreachable nested reservation selector');

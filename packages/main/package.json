@@ -203,7 +203,8 @@
     "test:nested-reservation-result-descriptor-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs result-descriptor-unavailable",
     "test:nested-reservation-result-refused-registration-cleanup": "node ../../scripts/verify-nested-reservation-registered.mjs result-refused-registration-cleanup",
     "test:nested-reservation-result-attempt-refusal": "node ../../scripts/verify-nested-reservation-registered.mjs result-attempt-refusal",
-    "test:nested-reservation-fault-registered-row-pruned": "node ../../scripts/verify-nested-reservation-registered.mjs fault-registered-row-pruned"
+    "test:nested-reservation-fault-registered-row-pruned": "node ../../scripts/verify-nested-reservation-registered.mjs fault-registered-row-pruned",
+    "test:nested-reservation-fault-spawned-owner-loss": "node ../../scripts/verify-nested-reservation-registered.mjs fault-spawned-owner-loss"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

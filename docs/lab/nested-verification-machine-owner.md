@@ -29,6 +29,18 @@ its own PID/start, nonce and signed grant. The supported trust boundary is the
 registered cooperating executor/fixture chain, not hostile code in the issuer's
 own process or a hostile same-user filesystem administrator.
 
+Forwarding is explicit only at Node spawn boundaries. On macOS every
+Node-spawned child receives only its explicitly listed stdio descriptors, so
+the reserved descriptor and the locator reach exactly the child spawned with
+the controlled stdio and environment helpers; a non-Node child or a shell
+wrapper then passes both to its own descendants by ordinary exec inheritance
+(the mapped descriptor is not close-on-exec), and the registered policy names
+this boundary as `explicit-node-spawn-boundary-only`. Holding the descriptor
+grants nothing: every operation still needs the cooperating client, the
+kernel-matched owner identity and the signed protocol, and a process that
+merely inherited the descriptor without the client runs exactly as before
+delegation existed.
+
 Non-macOS execution retains the existing non-delegated queue path. It does not
 claim detached delegation support. On macOS every Node-spawned child receives
 only its explicitly listed stdio descriptors, so a plain wrapper such as `npm run`
@@ -79,7 +91,16 @@ follow it: the sixteen raw-API spawn sites across the fault, cancellation,
 wrapper-transport, cleanup-diagnostics, owner-loss, handshake-deadline and
 registration-race controls and the lifecycle support each mark their fence
 immediately before the spawn call, and the only unmarked fence in the controls
-belongs to the `unattempted-owner-loss` descendant, which never spawns. `cancelValidationReservationChild(pendingToken, options)` is
+belongs to the `unattempted-owner-loss` descendant, which never spawns. `noteValidationReservationSpawn(pendingToken, pid, options)` records the
+spawned PID on the marked fence immediately after the spawn call returns and
+before the registration handshake (locally through the frame, remotely through
+a `spawned` operation bound to the same private capability); the executor and
+the isolated fixture's launcher note every spawn, so an owner lost between the
+spawn call and the applied registration leaves a fence that resolves once that
+PID and its whole group are proven absent, and only the window between the
+mark and the return of the spawn call is terminal. Raw-API holders in the
+controls register immediately after their spawn call instead.
+`cancelValidationReservationChild(pendingToken, options)` is
 cleanup-only and its caller must have proved that no child was spawned.
 Separately, controller retirement can resolve an already-observed owned target
 after fresh PID and whole-group absence checks, and it resolves an unmarked
@@ -151,7 +172,8 @@ real executor before this repair.
 | Registered descendant PID and whole group provably absent | Yes; the enrollment row is pruned from the residual record, and its consumed withdrawal capability survives one bounded cleanup window so a withdrawal racing the applied registration stays idempotent. |
 | Transitive descendant grant remains | No; revocation does not prove completion. |
 | Pending registration has no proven target absence | No; unknown work remains fenced. |
-| Pending registration never recorded a proven target and its preparing owner is dead | No; a child may have been spawned before the owner died, so the fence is terminal until a different-boot witness or explicit operator action. |
+| Pending registration noted its spawned PID, its owner is provably dead, and that PID and its whole group are absent | Yes; the note written immediately after the spawn call resolves the fence without a registration. |
+| Pending registration is marked but noted no spawned PID and its preparing owner is dead | No; a child may have been spawned between the mark and the return of the spawn call, so the fence is terminal until a different-boot witness or explicit operator action. |
 | Ownership or process observation is unknown | No. |
 
 A continuous bounded frame parser handles the signed grant and subsequent
@@ -199,8 +221,9 @@ asserts, and
 `refused-registration-withdrawn` and `refused-registration-live` drive the real
 executor through a refused registration: an exiting workload releases the ticket
 cleanly, while a workload that leaves a same-group grandchild ignoring the signal
-keeps the pending fence (`owned group cleanup unproven`, one targetless pending
-row in the doctor classification). Replayed against the pre-repair executor the
+keeps the pending fence (`owned group cleanup unproven`; since the executor
+notes every spawned PID, the doctor classification reports one pending fence
+whose noted spawned PID or group is still present and no targetless fence). Replayed against the pre-repair executor the
 withdrawn mode fails with `owned group cleanup unproven`. A token that still
 ends targetless because its owner died between prepare and registration, or
 because every bounded observation failed, cannot be resolved by owner death
@@ -213,16 +236,29 @@ live, and pending fences without an observed target, with dead-owner counts;
 dead owner's ticket while its orphan lives and after it stops. An unmarked pre-spawn fence (its owner died before ever reaching the spawn
 call) resolves automatically once that owner is proven absent, so the window
 that captureValidationCommand opens before every spawn cannot wedge the
-same-user pool. A marked fence whose owner died before registering keeps the
-ticket fenced by design, because a detached child may already exist; doctor
-counts it as a pending fence without an observed target. Recovery for that case
+same-user pool. A marked fence that noted its spawned PID resolves once its
+owner is provably gone and that PID and whole group are absent, so an owner lost
+anywhere between the return of the spawn call and the applied registration (the
+registration observations and socket round trip) no longer wedges the pool;
+doctor lists such a fence as a pending fence whose noted spawned PID or group is
+still present until then. A marked fence that noted no spawned PID (its owner
+died between the mark and the return of the spawn call, a window of
+microseconds) keeps the ticket fenced by design, because a detached child may
+already exist; doctor counts it as a pending fence without an observed target.
+Recovery for that case
 is the different-boot witness path after a reboot, or removal of the ticket
 directory only after an operator has independently confirmed that no detached
 child remains; the tool never releases it automatically.
 `verify-nested-reservation-faults.mjs` modes `unattempted-owner-loss` and
 `attempted-owner-loss` prove both outcomes with a real descendant that dies
 between prepare and spawn; against the pre-repair source the unmarked fence
-stayed and the owner's release was refused.
+stayed and the owner's release was refused. Mode `spawned-owner-loss` has a
+descendant mark its fence, spawn a detached leaf, note the leaf PID and die
+before registering: while the leaf lives the doctor classifier reports the
+noted spawned PID and no targetless fence, and once the leaf is terminated the
+fence resolves and the owner releases cleanly; against the pre-repair
+controller the same fence stayed targetless and terminal. The lifecycle support
+runs the extracted resolution predicate as unit controls for every row shape.
 
 The isolated Finding fixture previously prepared and marked one fence in the
 fixture process for a spawn call that its launcher performed two process hops
@@ -400,6 +436,65 @@ candidate, so npm-wrapped fixture targets remain non-delegated and unchanged;
 fixture repository error unrelated to delegation. These are bounded targeted
 observations, not a full validation run.
 
+### Candidate-versus-main comparison of the descriptor-channel and native-fixture commands
+
+Every configured command whose entry consumes a numbered descriptor channel or
+the native review and isolated Finding fixtures, the three named validation
+smokes (command timeout, progress heartbeat, parallel equivalence) and the
+npm-wrapped test targets were run through the real compiled executor with the
+machine reservation held, first on local main 0.3.363 and then on the
+candidate, sequentially because both use the same machine pool (no configured
+command sets `shell: true`, and no caller passes `exactEnvironment`). Command
+indexes are identical in both configurations because this Lab only appends
+entries.
+
+| index | command | main 0.3.363 | candidate | main s | candidate s |
+| --- | --- | --- | --- | --- | --- |
+| 0 | `npm --prefix packages/main run test:dynamic-finding-evidence-closure` | timeout (124) | timeout (124) | 180.5 | 180.4 |
+| 1 | `npm --prefix packages/main run test:dynamic-finding-applicability` | pass | pass | 1.3 | 1.3 |
+| 2 | `packages/main/dist/tasks/finding-identity-lineage-smoke.js --section=d` | fail (1, validation_failure) | fail (1, validation_failure) | 442.1 | 402.4 |
+| 12 | `packages/main/dist/tasks/review-pass-discard-smoke.js` | fail (1, validation_failure) | fail (1, validation_failure) | 37.2 | 30.5 |
+| 15 | `scripts/verify-process-fact-contract.mjs --quiet` | fail (1, validation_failure) | fail (1, validation_failure) | 9.7 | 9.9 |
+| 16 | `scripts/verify-runtime-fact-contract.mjs` | fail (1, validation_failure) | fail (1, validation_failure) | 3.7 | 6.4 |
+| 19 | `scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/vali` | pass | pass | 8.0 | 7.8 |
+| 20 | `scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/vali` | pass | pass | 116.8 | 109.7 |
+| 25 | `packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js` | pass | pass | 4.8 | 5.2 |
+| 85 | `packages/main/tests/red/red-done-prepare-done-parity.mjs` | pass | pass | 6.5 | 5.8 |
+| 126 | `scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/vali` | pass | pass | 9.5 | 9.9 |
+| 155 | `scripts/verify-managed-inventory-critic-transport.mjs` | pass | pass | 160.0 | 169.3 |
+| 156 | `packages/main/dist/tasks/managed-review-evidence-smoke.js` | fail (1, validation_failure) | fail (1, validation_failure) | 0.5 | 0.5 |
+| 159 | `packages/main/dist/tasks/semantic-scope-guard-smoke.js` | pass | pass | 17.3 | 17.9 |
+| 166 | `packages/main/dist/tasks/provider-codex-smoke.js --canonical-core` | pass | pass | 3.0 | 3.2 |
+| 168 | `scripts/verify-validation-static-edges.mjs` | fail (1, validation_failure) | fail (1, validation_failure) | 1.6 | 4.8 |
+
+Fifteen of the sixteen outcomes were identical on the first candidate run. The
+seven shared failures are main's own: index 0 reaches its 180-second timeout
+on both, index 2 fails a signed reproduction receipt check inside the
+finding-identity lineage smoke, index 12 fails with the fixture repository
+error already recorded above, index 15 fails on both only under the executor
+because the acceptance-closure publication-lifecycle experiment it spawns
+fails in that context (run directly, the contract exits 0 on the candidate),
+index 16 is the runtime fact contract that is red on main, index 156 fails on
+both with `Cannot access 'DIRTY_WORKTREE_CATEGORIES' before initialization`
+at module load, and index 168 is the static-edge scanner (71 rows on main, 60
+on the candidate). The one difference was a genuine candidate regression that
+this comparison found: `verify-managed-inventory-critic-transport.mjs` (index
+155) extracts the tail of `verify-process-fact-contract.mjs` after its marker
+`Managed inventory transport checks must precede the final failure gate` and
+executes it in a subprocess whose `read` resolves only three synthetic
+sources, and this Lab had appended its structural delegation process-fact
+check after that marker, so the sandboxed tail failed in half a second. The
+block now sits above the marker; the contract still runs it against the real
+registry source, the transport check passes again on the candidate through
+the executor in 169.3 seconds (160.0 on main), and the table records that
+rerun. Aggregate wall clock over the sixteen commands was 1002.5 seconds on
+main and 965.0 seconds on the candidate with that rerun (796.3 seconds before
+it, when index 155 stopped in half a second; index 2 and index 20 dominate the
+remaining difference and vary between runs of the same source), so the
+per-command delegation observations add no measurable aggregate cost at this
+scale; the candidate's index 16 and 168 rows run a few seconds longer because
+they compare more rows.
+
 The static-edge scanner's remaining rows are, up to moved line numbers inside
 Lab-changed files, a subset of the rows already present on local main: 60
 NEEDS_REVIEW rows on the candidate against 71 on main, where every differing
@@ -463,7 +558,7 @@ refreshed.
 
 ## Verification boundaries
 
-Fifty direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Fifty-one direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
@@ -504,11 +599,13 @@ client-rejection cancellation selectors and the two eighth-round result-contract
 selectors and the ninth-round `result-attempt-refusal`, in 1 to 5 seconds
 against 30 seconds (each wraps one child whose own timeout is at most 12
 seconds), and every remaining selector, including the four isolated-observation
-selectors whose child allows 40 seconds and the ninth-round
-`fault-registered-row-pruned`, in under 13 seconds against its 60-second budget;
-the eighth-round sequential sweep of all forty-eight selectors passed in 181.5
-seconds in total and the ninth-round sweep of all fifty in 184.6 seconds
-(`core` 36.4 seconds). Before the `core` selector
+selectors whose child allows 40 seconds and the ninth- and tenth-round
+`fault-registered-row-pruned` and `fault-spawned-owner-loss`, in under 13
+seconds against its 60-second budget; the eighth-round sequential sweep of all
+forty-eight selectors passed in 181.5 seconds in total, the ninth-round sweep of
+all fifty in 184.6 seconds (`core` 36.4 seconds) and the tenth-round sweep of
+all fifty-one in 205.4 seconds (`core` 38.5 seconds, measured while the
+candidate-versus-main evidence runs below held the real machine pool). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
@@ -554,8 +651,8 @@ Supplemental source-bound native fault commands are recorded separately:
 `verify-nested-reservation-faults.mjs` modes `registered`, `same-group`, `pending`,
 `coalesced`, `finite-owner`, `pending-lineage`, `declared-owner-unclassified`,
 `declared-owner-expansion`, `retirement-backoff`, `controller-transport-unavailable`,
-`drain-observation-transient`, `unattempted-owner-loss`, `attempted-owner-loss`
-and `registered-row-pruned`
+`drain-observation-transient`, `unattempted-owner-loss`, `attempted-owner-loss`,
+`registered-row-pruned` and `spawned-owner-loss`
 (every mode composes `--preimage` for the delegation source and
 `--preimage-executor` for the executor of the same revision, so a pre-repair
 replay is a consistent pair and can never silently run current source), plus

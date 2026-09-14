@@ -1,4 +1,4 @@
-import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, unregisteredValidationReservationChildGone, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, isValidationDelegationError } from './validation-reservation-delegation.js';
+import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, noteValidationReservationSpawn, unregisteredValidationReservationChildGone, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, isValidationDelegationError } from './validation-reservation-delegation.js';
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
@@ -1660,7 +1660,10 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     });
     spawned = child.pid !== undefined;
     spawnedPid = child.pid;
-    childRegistration = child.pid ? registerValidationReservationChild(child.pid, pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal}) : Promise.resolve();
+    // The spawned PID is noted on the fence before the registration handshake, so an owner lost
+    // between this spawn call and the applied registration leaves a fence that resolves once the
+    // child and its whole group are proven absent instead of a terminal one.
+    childRegistration = child.pid ? noteValidationReservationSpawn(pendingSpawn, child.pid, {deadlineAt: options.deadlineAt, signal: options.abortSignal}).then(() => registerValidationReservationChild(child.pid!, pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal})) : Promise.resolve();
     // A refused registration terminates the whole spawned group, exactly like a timeout;
     // the owned pending fence is withdrawn below only once that group is proven absent.
     childRegistration.catch(() => { registrationRefused = true; try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ } });

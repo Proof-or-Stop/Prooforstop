@@ -101,7 +101,7 @@ process.exit(code);`;
   // controller resolves once its owner is proven gone. The launcher starts only after this
   // process has registered it, so its own requests are those of an enrolled descendant.
   const launcherCode = `import {spawn} from 'node:child_process';
-import {validationReservationChildStdio,validationReservationChildEnvironment,prepareValidationReservationChild,attemptValidationReservationSpawn,registerValidationReservationChild,cancelValidationReservationChild,unregisteredValidationReservationChildGone} from ${JSON.stringify(new URL('../core/validation-reservation-delegation' + (import.meta.url.endsWith('.ts') ? '.ts' : '.js'),import.meta.url).href)};
+import {validationReservationChildStdio,validationReservationChildEnvironment,prepareValidationReservationChild,attemptValidationReservationSpawn,noteValidationReservationSpawn,registerValidationReservationChild,cancelValidationReservationChild,unregisteredValidationReservationChildGone} from ${JSON.stringify(new URL('../core/validation-reservation-delegation' + (import.meta.url.endsWith('.ts') ? '.ts' : '.js'),import.meta.url).href)};
 let workerReady = false;
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const go = await new Promise(resolve => { process.once('message', resolve); process.once('disconnect', () => resolve(undefined)); });
@@ -118,7 +118,11 @@ const refuse = async () => {
 await attemptValidationReservationSpawn(token);
 const worker = spawn(process.execPath, ['--input-type=module', '--eval', ${JSON.stringify(code)}, String(process.pid)],
   {detached:true, stdio:validationReservationChildStdio(['ignore',1,2,'ipc']), env:validationReservationChildEnvironment(process.env)});
-worker.once('spawn', () => { if (process.connected) process.send({pid:worker.pid, fenced:token !== undefined}); });
+worker.once('spawn', async () => {
+  // The spawned PID is noted on the fence before the fixture process observes the worker.
+  try { await noteValidationReservationSpawn(token, worker.pid); } catch (error) { console.error(error); await refuse(); return; }
+  if (process.connected) process.send({pid:worker.pid, fenced:token !== undefined});
+});
 worker.once('error', async error => {
   console.error(error);
   process.exitCode = 1;
