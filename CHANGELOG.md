@@ -1,5 +1,14 @@
 # Changelog
 
+## Lab lifecycle-portability-hardening - v0.3.364 - 2026-09-14
+
+Fixed benchmark lifecycle portability and fail-closed behavior across controller asset projection, INIT review planning, Go command evidence, integration-branch resolution, remote-push approval, causal receipt redaction, and scope classification. Public CLI, policy, process-fact, and operator guidance now describe the resolved integration branch consistently.
+
+Verification: benchmark-framework-hardening smoke, build, process-fact contract, external Go worktree pre-review, DONE pre-merge SHA recheck, and release-push approval migration passed. Runtime-fact U18 retains the identical pre-existing static baseline (71 needs-review, 17 skipped, 262 exceptions) observed on main.
+
+Maintenance provenance: codex/lab-lifecycle-portability-hardening.
+This entry records Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction; it does not assert a different-vendor Lab audit or formal Story DONE.
+
 ## Lab init-product-review-phase-contract - v0.3.363 - 2026-09-14
 
 Fix the INIT lifecycle deadlock where the required product reviewer asked for implementation and delivery transcripts before the Story worktree could be created.
