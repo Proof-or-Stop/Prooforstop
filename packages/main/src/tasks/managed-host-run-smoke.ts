@@ -40,6 +40,7 @@ import {
   classifyManagedReviewFinalEnvelope,
   isStrictManagedReviewFindingProposal,
   normalizeHostRunModelSelection,
+  runHostRun,
   type HostRunRunner,
   type HostRunSpawnResult,
 } from '../core/host-run.js';
@@ -144,6 +145,77 @@ async function main(): Promise<void> {
       /Claude --reasoningEffort must be one of low, medium, high, xhigh, max/,
     );
   }
+  const ordinaryPrompt = 'ordinary model selection smoke';
+  const captureOrdinaryArgv = async (host: 'codex' | 'claude'): Promise<{
+    argv: string[];
+    promptFile: string | null;
+  }> => {
+    let argv: string[] = [];
+    let promptFile: string | null = null;
+    await runHostRun({
+      host,
+      model: host === 'codex' ? 'gpt-5.6-terra' : 'claude-fable-5',
+      reasoningEffort: host === 'codex' ? 'high' : 'xhigh',
+      storyId: null,
+      agentType: 'model-selection-smoke',
+      phase: 'adhoc',
+      promptText: ordinaryPrompt,
+      env: { PROOF_OR_STOP_USAGE_LEDGER: '0' },
+      cwd: root,
+      root,
+      recordedAt: new Date().toISOString(),
+      projectRootHash: 'sha256:model-selection-smoke',
+    }, { runner: async plan => {
+      argv = [...plan.argv];
+      promptFile = plan.promptFile ?? null;
+      return { stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' };
+    } });
+    return { argv, promptFile };
+  };
+  const ordinaryCodex = await captureOrdinaryArgv('codex');
+  assert.deepEqual(ordinaryCodex.argv, [
+    'exec', '--json', '--skip-git-repo-check', '--ephemeral', '--ignore-rules',
+    '--model', 'gpt-5.6-terra', '--config', 'model_reasoning_effort="high"', '-',
+  ], 'ordinary Codex model selection preserves the complete canonical argv');
+  const ordinaryClaude = await captureOrdinaryArgv('claude');
+  assert.ok(ordinaryClaude.promptFile, 'ordinary Claude model selection retains its protected prompt-file transport');
+  assert.deepEqual(ordinaryClaude.argv, [
+    '--print', '--verbose', '--output-format=stream-json',
+    '--model', 'claude-fable-5', '--effort', 'xhigh', ordinaryClaude.promptFile,
+  ], 'ordinary Claude model selection preserves the complete canonical argv');
+  let managedClaudeArgv: string[] = [];
+  let managedClaudePromptFile: string | null = null;
+  await runHostRun({
+    host: 'claude',
+    model: 'claude-fable-5',
+    reasoningEffort: 'xhigh',
+    storyId: 'B-managed',
+    agentType: 'lattice-review-quality',
+    phase: 'REVIEW',
+    promptText: ordinaryPrompt,
+    reviewRunId: 'B-managed:RR-001',
+    lane: 'lattice-review-quality',
+    launchProfile: 'managed_reviewer',
+    managedRunId: `model-selection-${randomUUID()}`,
+    env: { PROOF_OR_STOP_USAGE_LEDGER: '0' },
+    cwd: root,
+    root,
+    recordedAt: new Date().toISOString(),
+    projectRootHash: 'sha256:model-selection-smoke',
+  }, { runner: async plan => {
+    managedClaudeArgv = [...plan.argv];
+    managedClaudePromptFile = plan.promptFile ?? null;
+    return { stdout: '', stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed' };
+  } });
+  const managedClaudeSchemaIndex = managedClaudeArgv.indexOf('--json-schema');
+  assert.ok(managedClaudePromptFile && managedClaudeSchemaIndex >= 0,
+    'managed Claude selector smoke captures its schema and protected prompt file');
+  assert.deepEqual(managedClaudeArgv, [
+    '--print', '--verbose', '--output-format=stream-json',
+    '--model', 'claude-fable-5', '--effort', 'xhigh',
+    '--permission-mode', 'bypassPermissions',
+    '--json-schema', managedClaudeArgv[managedClaudeSchemaIndex + 1]!, managedClaudePromptFile,
+  ], 'managed Claude model selection preserves the complete canonical argv');
   const missingReadBinding = JSON.stringify({
     schemaVersion: 'lattice.managed_review_final_proposal.v1',
     storyId: 'B-managed',
@@ -723,7 +795,9 @@ async function main(): Promise<void> {
 
   const historicalCase = join(root, 'historical-model-selection');
   let historicalArgv: string[] = [];
+  let historicalLaunches = 0;
   const historicalLauncher: ManagedHostRunWorkerLauncher = async request => {
+    historicalLaunches += 1;
     const runDir = managedHostRunDirectory(historicalCase, request.runId);
     const specPath = join(runDir, 'spec.json');
     const ownerPath = join(runDir, 'owner.json');
@@ -751,6 +825,14 @@ async function main(): Promise<void> {
   );
   await eventually(async () => (await getManagedHostRunStatus({ root: historicalCase, runId: historical.runId })).run.state === 'completed',
     'historical selector-less managed review did not complete');
+  const historicalRetry = await submitManagedHostRun(
+    submitArgs(historicalCase, 'historical managed review without selector fields'),
+    { launchWorker: historicalLauncher, claimTimeoutMs: 500, claimPollMs: 5 },
+  );
+  assert.equal(historicalRetry.runId, historical.runId,
+    'a selector-less resubmit reuses the pre-upgrade logical run identity');
+  assert.equal(historicalLaunches, 1,
+    'a selector-less resubmit against a historical spec does not dispatch a duplicate worker');
   const historicalRunDir = managedHostRunDirectory(historicalCase, historical.runId);
   const historicalResultPath = join(historicalRunDir, 'result.json');
   const historicalResultRecord = JSON.parse(readFileSync(historicalResultPath, 'utf8')) as Record<string, unknown>;

@@ -2139,8 +2139,10 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
     writeFileSync(promptFile, args.promptText, { encoding: 'utf8', mode: 0o600 });
     const full = materializeLauncherArgv(spec, { promptFile });
     const argv = full.slice(1);
+    // The canonical Claude launcher ends in its protected prompt-file token.
+    // Insert selectors immediately before it so flag/value pairs stay intact.
     argv.splice(
-      Math.max(0, argv.length - 1),
+      argv.length - 1,
       0,
       ...(selection.model ? ['--model', selection.model] : []),
       ...(selection.reasoningEffort ? ['--effort', selection.reasoningEffort] : []),
@@ -2150,7 +2152,7 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
       // approve its required inspection/Lattice commands. Scope this mode to
       // the signed managed-review profile; ordinary Claude runs retain policy.
       argv.splice(
-        Math.max(0, argv.length - 1),
+        argv.length - 1,
         0,
         '--permission-mode', 'bypassPermissions',
         '--json-schema', args.finalResultSchema === ACCEPTANCE_REVIEW_FINAL_SCHEMA ? JSON.stringify(acceptanceReviewJsonSchema()) : managedReviewClaudeJsonSchema(args),
@@ -2172,8 +2174,10 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
   const full = materializeLauncherArgv(spec, {});
   const argv = full.slice(1);
   if (args.host === 'codex') {
+    // The canonical Codex launcher ends in its protected stdin marker (`-`).
+    // Insert selectors immediately before it and after the `exec` subcommand.
     argv.splice(
-      Math.max(1, argv.length - 1),
+      argv.length - 1,
       0,
       ...(selection.model ? ['--model', selection.model] : []),
       ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),

@@ -1812,6 +1812,14 @@ async function main(): Promise<void> {
           'managed review model selection reaches the exact Claude invocation');
         assert.deepEqual(plan.argv.slice(effortIndex, effortIndex + 2), ['--effort', REQUESTED_CLAUDE_REASONING],
           'managed review reasoning selection reaches the exact Claude invocation');
+        assert.deepEqual(plan.argv, [
+          '--print', '--verbose', '--output-format=stream-json',
+          '--model', REQUESTED_CLAUDE_MODEL,
+          '--effort', REQUESTED_CLAUDE_REASONING,
+          '--permission-mode', 'bypassPermissions',
+          '--json-schema', plan.argv[schemaIndex + 1]!,
+          claudePromptFile,
+        ], 'managed Claude model selection preserves the complete canonical argv');
         const fencedProse = `Review complete.\n\`\`\`json\n${finalEnvelopeFor(REVIEW_RUN_ID)}\n\`\`\``;
         return defaultHostRunRunner({
           ...plan,

@@ -2404,9 +2404,18 @@ export async function submitManagedHostRun(
     : args.idempotencyKey !== undefined
       ? ['request', args.idempotencyKey]
       : null;
+  const submissionArgs = { ...args };
+  delete submissionArgs.model;
+  delete submissionArgs.reasoningEffort;
   const submissionDigest = logicalIdentity ? sha256(canonicalJson({
-    ...args, ...selection, burnTokenLimit, root: realpathSync(args.root), cwd: realpathSync(args.cwd),
-    deadlineMs, timeoutMs,
+    ...submissionArgs,
+    ...(selection.model !== null ? { model: selection.model } : {}),
+    ...(selection.reasoningEffort !== null ? { reasoningEffort: selection.reasoningEffort } : {}),
+    burnTokenLimit,
+    root: realpathSync(args.root),
+    cwd: realpathSync(args.cwd),
+    deadlineMs,
+    timeoutMs,
   })) : undefined;
   const runId = logicalIdentity
     ? `request-${createHash('sha256').update(canonicalJson(logicalIdentity)).digest('hex')}`
