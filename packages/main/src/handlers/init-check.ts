@@ -275,7 +275,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
      *    suffix + `fallback` block keep the manual attestation mechanically
      *    distinguishable from an independent reviewer run (initCheckAttestationMode).
      *  - Operator-supplied issues still flow through blockingInitCheckIssues: attesting
-     *    a high/critical issue self-blocks (you cannot fallback past a real blocker).
+     *    a high/critical INIT-applicable issue self-blocks (you cannot fallback past a
+     *    real blocker). A post_implementation_evidence_missing issue is deferred.
      *
      * NOT default-on: rejects (no file written, no phase change) unless BOTH an
      * explicit `acknowledge: true` AND a `fallbackReason` (>= 30 chars) are supplied.

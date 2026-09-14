@@ -6,7 +6,8 @@ import { join } from 'path';
 import { execFileSync } from 'child_process';
 import { ADAPTER_DIR_NAMES } from '../packages/main/dist/core/brand-paths.js';
 import { legacyAgentRoleIds } from '../packages/main/dist/core/agent-role-identity.js';
-import { blockingInitCheckIssues } from '../packages/main/dist/core/init-check-gate.js';
+import { blockingInitCheckIssues, initCheckSignatureIsValid } from '../packages/main/dist/core/init-check-gate.js';
+import { StoryStore } from '../packages/main/dist/core/store.js';
 
 
 const root = process.cwd();
@@ -165,6 +166,10 @@ try {
   const storedInitCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
   assert(storedInitCheck.agentResults?.[0]?.issues?.[0]?.kind === 'post_implementation_evidence_missing', 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_set must persist structured stage applicability');
   assert(blockingInitCheckIssues(storedInitCheck).length === 0, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: stored post-implementation evidence cannot block INIT');
+  assert(initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, storedInitCheck), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: stored issue kind must have a valid signature');
+  const tamperedKind = structuredClone(storedInitCheck);
+  tamperedKind.agentResults[0].issues[0].kind = 'user_outcome_unspecified';
+  assert(!initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, tamperedKind), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: changing issue kind must invalidate the signature');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,
