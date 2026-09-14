@@ -11738,6 +11738,28 @@ const managedCriticArtifact = parseRegistryArrayEntriesFromSource(read(processFa
 assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.managed_review_evidence_import'
   && managedCriticArtifact.kind === 'signed-artifact', 'Managed importer must explicitly register its second signed critic artifact');
 
+// A Story with no initial checklist items must still create the canonical L4
+// artifact. Keep both producer paths registered and bind the creation write to
+// the same preflight value that is committed with the new Story metadata.
+{
+  const registrySource = read(processFactRegistryPath);
+  const checklistArtifact = parseRegistryArrayEntriesFromSource(registrySource, 'PROCESS_FACT_ARTIFACTS')
+    .find(entry => entry.name === 'artifact:checklist.json');
+  assert(checklistArtifact?.producer === 'handlers/story-create and handlers/checklist',
+    'checklist artifact must register Story creation and later checklist mutations as producers');
+  const checklistArtifactStart = registrySource.indexOf("name: 'artifact:checklist.json'");
+  const checklistArtifactEnd = registrySource.indexOf("name: 'artifact:init-check.json'", checklistArtifactStart);
+  const checklistArtifactSource = registrySource.slice(checklistArtifactStart, checklistArtifactEnd);
+  for (const sourceRef of ['packages/main/src/handlers/story-create.ts', 'packages/main/src/handlers/checklist.ts']) {
+    assert(checklistArtifactSource.includes(sourceRef), `checklist artifact producer source missing: ${sourceRef}`);
+  }
+  const storyCreateSource = read('packages/main/src/handlers/story-create.ts');
+  assert((storyCreateSource.match(/store\.writeChecklist\(storyId, preflightChecklist\)/g) ?? []).length === 2,
+    'story_create must persist the canonical checklist in both explicit and default creation paths');
+  assert((storyCreateSource.match(/store\.writeChecklist\(storyId, preflightChecklist\);[\s\S]{0,1200}commitSafeInitMetadata/g) ?? []).length === 2,
+    'story_create must persist checklist.json before each safe creation commit');
+}
+
 // Managed inventory transport checks must precede the final failure gate.
 assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
 assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
