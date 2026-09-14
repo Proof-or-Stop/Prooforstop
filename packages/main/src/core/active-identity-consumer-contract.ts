@@ -17,12 +17,12 @@ const EXPECTED_ACTIVE_IDENTITIES: Readonly<Record<string, string>> = Object.free
   'capability-release-ledger': ['proof-or-stop', '.product-capability-release.v1'].join(''),
 });
 
-export function assertActiveIdentityConsumerContract(boundary: string, actual: string): void {
+export function assertActiveIdentityConsumerContract(boundary: string, actual: string, projectRoot?: string): void {
   const expected = EXPECTED_ACTIVE_IDENTITIES[boundary];
   if (!expected) throw new Error(`unregistered active identity consumer boundary: ${boundary}`);
   // Name the exact changed source site before the representative value check.
   // Both checks still run before the consumer performs its operation.
-  assertCanonicalActiveIdentityBoundary({ boundaryId: boundary });
+  assertCanonicalActiveIdentityBoundary({ boundaryId: boundary, projectRoot });
   if (actual !== expected) {
     throw new Error(
       `${boundary} consumer rejected active identity ${JSON.stringify(actual)}; expected exact ${expected}`,

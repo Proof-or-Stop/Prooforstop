@@ -98,6 +98,26 @@ const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
 type ChecklistGetArgs = { storyId: string; slim?: boolean; fields?: string[]; proposalFor?: string; proposalIntent?: VerificationIntent };
+type PlanAcceptanceInput = {
+  itemId: string;
+  files: { modify: string[]; create: string[]; test: string[] };
+  verificationIntent: VerificationIntent;
+};
+type PreparedPlanAcceptanceItem = PlanAcceptanceInput & {
+  baseIntentHash: string;
+  baseItemHash: string;
+  proposalDigest: string;
+};
+type PreparedPlanAcceptance = {
+  schemaVersion: 'proof-or-stop.plan-acceptance-batch.v1';
+  storyId: string;
+  items: PreparedPlanAcceptanceItem[];
+  digest: string;
+};
+
+function planAcceptanceBatchDigest(value: Omit<PreparedPlanAcceptance, 'digest'>): string {
+  return digestCanonicalJson(value);
+}
 
 /**
  * Resolve the configured validate.commands timeout for a pinned verification command.
@@ -223,7 +243,18 @@ function assertVerificationIntentClassification(itemId: string, verificationInte
   for (const lane of VERIFICATION_LANES) {
     for (const [index, intent] of (verificationIntent[lane] ?? []).entries()) {
       if (!intent.scope || !intent.expectation || !intent.requirementSource) {
-        throw new Error(`checklist_update refused: ${ownerProposal ? 'owner proposals' : 'verification-intent roles'} must classify ${itemId}:${lane}:${index} with scope, expectation, and requirementSource before PLAN acceptance is frozen [verification_intent_metadata_required]`);
+        const classified = {
+          ...intent,
+          scope: intent.scope ?? 'focused',
+          expectation: intent.expectation ?? 'absolute_pass',
+          requirementSource: intent.requirementSource ?? 'story',
+        };
+        throw new Error(
+          `checklist_update refused: ${ownerProposal ? 'owner proposals' : 'verification-intent roles'} must classify ${itemId}:${lane}:${index} before PLAN acceptance is frozen [verification_intent_metadata_required]\n` +
+          `Allowed values: scope=focused|repository; expectation=absolute_pass|no_new_regressions; requirementSource=story|external_verifier|repository_health\n` +
+          `Copyable classified row: ${JSON.stringify(classified)}\n` +
+          `Next: rerun plan_acceptance_prepare with the complete classified verificationIntent, then plan_acceptance_apply its unchanged result.`,
+        );
       }
     }
   }
@@ -2636,6 +2667,162 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       return pickTopLevelFields(result, args.fields);
     },
 
+    plan_acceptance_prepare(args: { storyId: string; items: PlanAcceptanceInput[] }): PreparedPlanAcceptance {
+      const story = store.readStory(args.storyId);
+      if (story.phase !== 'PLAN') throw new Error(`PLAN_ACCEPTANCE_PHASE_INVALID: expected PLAN, received ${story.phase}`);
+      if (args.items.length === 0) throw new Error('PLAN_ACCEPTANCE_ITEMS_REQUIRED: provide at least one checklist item');
+      const seen = new Set<string>();
+      const checklist = store.readChecklist(args.storyId);
+      const preparedItems = args.items.map(input => {
+        if (seen.has(input.itemId)) throw new Error(`PLAN_ACCEPTANCE_DUPLICATE_ITEM: ${input.itemId}`);
+        seen.add(input.itemId);
+        const current = checklist.items.find(item => item.id === input.itemId);
+        if (!current) throw new Error(`Checklist item ${input.itemId} not found`);
+        assertEnglishAuthoringText(
+          'plan_acceptance_prepare',
+          checklistEnglishAuthoringFields({ verificationIntent: input.verificationIntent }, input.itemId),
+        );
+        assertNoReviewGateVerificationIntent('plan_acceptance_prepare', input.verificationIntent, input.itemId);
+        assertVerificationIntentClassification(input.itemId, input.verificationIntent, true);
+        const proposed = structuredClone(current);
+        proposed.files = structuredClone(input.files);
+        proposed.verificationIntent = structuredClone(input.verificationIntent);
+        if (verificationIntentHasPlannedPathDeclarations(input.verificationIntent)) {
+          validatePlannedPathDeclarationsForChecklistItem(proposed, input.verificationIntent);
+        }
+        const baseIntentHash = digestCanonicalJson(current.verificationIntent ?? null);
+        return {
+          itemId: input.itemId,
+          files: structuredClone(input.files),
+          verificationIntent: structuredClone(input.verificationIntent),
+          baseIntentHash,
+          baseItemHash: digestCanonicalJson(current),
+          proposalDigest: digestCanonicalJson({
+            storyId: args.storyId,
+            itemId: input.itemId,
+            baseIntentHash,
+            verificationIntent: input.verificationIntent,
+          }),
+        };
+      });
+      const body: Omit<PreparedPlanAcceptance, 'digest'> = {
+        schemaVersion: 'proof-or-stop.plan-acceptance-batch.v1',
+        storyId: args.storyId,
+        items: preparedItems,
+      };
+      return { ...body, digest: planAcceptanceBatchDigest(body) };
+    },
+
+    plan_acceptance_apply(args: { storyId: string; prepared: PreparedPlanAcceptance; reason: string }): string {
+      if (args.reason.trim().length < 30) throw new Error('PLAN_ACCEPTANCE_REASON_INVALID: reason requires at least 30 characters');
+      if (args.prepared.storyId !== args.storyId) throw new Error('PLAN_ACCEPTANCE_BINDING_INVALID: prepared Story does not match request');
+      if (args.prepared.schemaVersion !== 'proof-or-stop.plan-acceptance-batch.v1') throw new Error('PLAN_ACCEPTANCE_SCHEMA_INVALID');
+      const { digest, ...body } = args.prepared;
+      if (digest !== planAcceptanceBatchDigest(body)) throw new Error('PLAN_ACCEPTANCE_DIGEST_INVALID: prepare the full batch again');
+      return withChecklistLock(ctx, args.storyId, () => {
+        const story = assertChecklistMutationCwd(store, args.storyId);
+        if (story.phase !== 'PLAN') throw new Error(`PLAN_ACCEPTANCE_PHASE_INVALID: expected PLAN, received ${story.phase}`);
+        const authority = resolveAgentMutationAuthority({ command: 'checklist_update' });
+        if (authority.entry) throw new Error('PLAN_ACCEPTANCE_OWNER_REQUIRED: dispatched roles cannot approve a batch');
+        const gitCwd = resolveStoryGitCwd(args.storyId);
+        const owner = probeWriterLease(store.storyDirPath(args.storyId), gitCwd);
+        if (!owner.valid) throw new Error(`PLAN_ACCEPTANCE_OWNER_REQUIRED: ${owner.reason}`);
+        const checklist = store.readChecklist(args.storyId);
+        const next = structuredClone(checklist);
+        const seen = new Set<string>();
+        const now = new Date().toISOString();
+        for (const prepared of args.prepared.items) {
+          if (seen.has(prepared.itemId)) throw new Error(`PLAN_ACCEPTANCE_DUPLICATE_ITEM: ${prepared.itemId}`);
+          seen.add(prepared.itemId);
+          const item = next.items.find(candidate => candidate.id === prepared.itemId);
+          if (!item) throw new Error(`PLAN_ACCEPTANCE_STALE: checklist item ${prepared.itemId} no longer exists`);
+          if (digestCanonicalJson(item) !== prepared.baseItemHash
+            || digestCanonicalJson(item.verificationIntent ?? null) !== prepared.baseIntentHash) {
+            throw new Error(`PLAN_ACCEPTANCE_STALE: checklist item ${prepared.itemId} changed; prepare the full batch again`);
+          }
+          const expectedProposalDigest = digestCanonicalJson({
+            storyId: args.storyId,
+            itemId: prepared.itemId,
+            baseIntentHash: prepared.baseIntentHash,
+            verificationIntent: prepared.verificationIntent,
+          });
+          if (expectedProposalDigest !== prepared.proposalDigest) throw new Error(`PLAN_ACCEPTANCE_ITEM_DIGEST_INVALID: ${prepared.itemId}`);
+          assertNoReviewGateVerificationIntent('plan_acceptance_apply', prepared.verificationIntent, prepared.itemId);
+          assertVerificationIntentClassification(prepared.itemId, prepared.verificationIntent, true);
+          assertEnglishAuthoringText(
+            'plan_acceptance_apply',
+            checklistEnglishAuthoringFields({ verificationIntent: prepared.verificationIntent, reason: args.reason }, prepared.itemId),
+          );
+          const before = structuredClone(item);
+          const proposed = structuredClone(item);
+          proposed.files = structuredClone(prepared.files);
+          proposed.verificationIntent = structuredClone(prepared.verificationIntent);
+          if (verificationIntentHasPlannedPathDeclarations(prepared.verificationIntent)) {
+            validatePlannedPathDeclarationsForChecklistItem(proposed, prepared.verificationIntent);
+          }
+          item.files = proposed.files;
+          item.verificationIntent = proposed.verificationIntent;
+          item.verificationIntentAuthorship = {
+            kind: 'owner_applied_proposal',
+            actor: authority.actor || 'owner',
+            intentDigest: acceptanceIntentHash(item.verificationIntent),
+            proposalDigest: prepared.proposalDigest,
+            independentlyAttested: false,
+          };
+          if (before.verificationIntentAmendments?.length && (
+            acceptanceScopeHash(before) !== acceptanceScopeHash(item)
+            || acceptanceIntentHash(before.verificationIntent!) !== acceptanceIntentHash(item.verificationIntent!)
+          )) {
+            const lease = readOwnerLease(store.storyDirPath(args.storyId));
+            if (!lease?.leaseId || isLeaseStale(lease)) throw new Error('AMENDMENT_OWNER_GENERATION_REQUIRED');
+            const revision = createIntentRevision({
+              before,
+              after: item,
+              storyId: args.storyId,
+              phase: story.phase,
+              reason: args.reason,
+              actor: authority.actor || 'owner',
+              sessionId: getSessionId(),
+              leaseId: lease.leaseId,
+              headHash: currentGitHead(gitCwd) ?? '',
+              gitCwd,
+            });
+            (item.verificationIntentAmendments ??= []).push(revision);
+            item.status = 'pending';
+            item.startTime = null;
+            item.endTime = null;
+          }
+          (next.auditLog ??= []).push({
+            timestamp: now,
+            phase: story.phase,
+            itemId: item.id,
+            action: 'update',
+            from: before.status,
+            to: item.status,
+            agent: authority.actor || 'owner',
+            reason: `Owner-approved plan acceptance batch ${digest}: ${args.reason.trim()}`,
+          });
+        }
+        store.writeChecklist(args.storyId, next);
+        for (const prepared of args.prepared.items) {
+          const item = next.items.find(candidate => candidate.id === prepared.itemId)!;
+          try {
+            store.appendProcessEvent(args.storyId, {
+              type: 'plan_updated',
+              action: 'verification_intent_applied',
+              itemId: item.id,
+              phase: story.phase,
+              authorship: item.verificationIntentAuthorship,
+            });
+          } catch (error) {
+            console.warn(`[process-events] append failed for ${args.storyId}:`, (error as Error).message);
+          }
+        }
+        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'plan_acceptance_apply');
+        return `Applied ${args.prepared.items.length} PLAN acceptance items atomically to ${args.storyId}.${commitHint}`;
+      });
+    },
+
     checklist_add(args: {
       storyId: string;
       title: string;
@@ -2966,8 +3153,19 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const approval = args.intentProposalApproval!;
         const allowed = new Set(['storyId', 'itemId', 'verificationIntent', 'intentProposalApproval']);
         const unexpected = Object.keys(args).filter(key => !allowed.has(key));
-        if (unexpected.length) throw new Error(`INTENT_PROPOSAL_FIELDS_INVALID: unexpected fields ${unexpected.join(', ')}`);
         if (!args.verificationIntent) throw new Error('INTENT_PROPOSAL_INTENT_REQUIRED: verificationIntent is required');
+        if (unexpected.length) {
+          const preparePayload = { storyId: args.storyId, items: [{
+            itemId: args.itemId,
+            files: args.files ?? item.files ?? { modify: [], create: [], test: [] },
+            verificationIntent: args.verificationIntent,
+          }] };
+          throw new Error(
+            `INTENT_PROPOSAL_FIELDS_INVALID: unexpected fields ${unexpected.join(', ')}\n` +
+            `Next 1: proof-or-stop plan_acceptance_prepare '${JSON.stringify(preparePayload)}'\n` +
+            `Next 2: pass the unchanged prepare response plus a reason to proof-or-stop plan_acceptance_apply.`,
+          );
+        }
         if (!approval || typeof approval.reason !== 'string' || approval.reason.trim().length < 30) {
           throw new Error(`INTENT_PROPOSAL_REASON_INVALID: reason requires at least 30 characters; received ${typeof approval?.reason === 'string' ? approval.reason.trim().length : 0}`);
         }

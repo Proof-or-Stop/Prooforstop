@@ -550,7 +550,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
     'story_update', 'story_review', 'story_review_dismiss',
-    'checklist_add', 'checklist_update',
+    'checklist_add', 'checklist_update', 'plan_acceptance_prepare', 'plan_acceptance_apply',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill (refused in INIT/INIT_CHECK/terminal)
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',

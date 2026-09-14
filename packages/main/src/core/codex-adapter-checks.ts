@@ -24,9 +24,12 @@ import {
   canonicalPromptRegistrySchemaVersion,
   normalizePromptRegistryManifest,
   promptRegistryManifest,
+  PROMPT_REGISTRY_VERSION,
   readPromptRegistry,
   renderPromptEntryForHost,
 } from './prompt-registry.js';
+import { resolvePromptRoleBody } from './prompt-role-contract-registry.js';
+import { assertActiveIdentityConsumerContract } from './active-identity-consumer-contract.js';
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
 import { applyBrandEnv, readBrandEnv } from './brand-env.js';
@@ -239,7 +242,13 @@ const CODEX_MATERIAL_PATHS = [
   'packages/main/src/init-assets.ts',
   'packages/main/src/cli-init.ts',
   'packages/main/src/core/codex-adapter-checks.ts',
+  'packages/main/src/core/config.ts',
+  'packages/main/src/core/active-identity-consumer-contract.ts',
+  'packages/main/src/core/runtime-environment-checks.ts',
+  'packages/main/src/core/prompt-role-contract-registry.ts',
   'packages/main/src/core/prompt-registry.ts',
+  'packages/main/src/handlers/agent-prompt.ts',
+  'proof-or-stop.config.json',
   'packages/main/src/handlers/codex-adapter.ts',
   'packages/main/src/handlers/review-preflight.ts',
   'packages/main/src/handlers/story-advance.ts',
@@ -536,15 +545,20 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   push(checks, 'agents-mirror', 'Codex agents mirror', 'pass', true, `${sourceFiles.length} prompt(s) mirrored`);
 }
 
-function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
+function checkPromptRegistry(root: string, checks: CodexAdapterCheck[]): void {
   try {
+    assertActiveIdentityConsumerContract('prompt-runtime', PROMPT_REGISTRY_VERSION, root);
     const registry = readPromptRegistry();
     if (registry.agentCount === 0) {
       push(checks, 'prompt-registry', 'Codex prompt registry', 'fail', true, 'package prompt registry has no agent prompts', LOCAL_INIT_VERIFY_COMMAND);
       return;
     }
+    const configured = loadConfig(root).promptEnvelope;
     const unrenderable = registry.agents
-      .filter(entry => renderPromptEntryForHost(entry, 'codex').trim().length === 0)
+      .filter(entry => {
+        const resolved = resolvePromptRoleBody(entry.agentId, configured, registry);
+        return renderPromptEntryForHost(entry, 'codex', resolved.mode).trim().length === 0;
+      })
       .map(entry => entry.file);
     if (unrenderable.length > 0) {
       push(checks, 'prompt-registry', 'Codex prompt registry', 'fail', true, `empty Codex render(s): ${unrenderable.slice(0, 6).join(', ')}`, LOCAL_INIT_VERIFY_COMMAND);
@@ -1055,7 +1069,7 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
   checkAgentAssetResolution(agentAssetResolution, checks);
   const promptMode = checkManifest(root, checks, agentAssetResolution);
   if (promptMode === 'registry') {
-    checkPromptRegistry(checks);
+    checkPromptRegistry(root, checks);
   } else {
     checkAgentMirror(root, checks);
   }

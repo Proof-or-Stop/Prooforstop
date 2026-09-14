@@ -529,6 +529,8 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
   'finding_rollout_scorecard',
   'milestone_status',
   'milestone_closeout',
+  'plan_acceptance_prepare',
+  'plan_acceptance_apply',
 ]);
 
 // B-7c05 CHK-004: commands whose CLI stdout defaults to brief via an explicit
@@ -590,6 +592,10 @@ function parseCommandArgs(rawArgs: string[], tool: ToolDef): Record<string, unkn
   return parseFlags(rawArgs, tool.schema);
 }
 
+function requestsJsonErrorOutput(parsed: Record<string, unknown>): boolean {
+  return parsed.json === true || parsed.format === 'json';
+}
+
 function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, argv: string[]): void {
   if (!cmd || !STRICT_COMMAND_ARG_COMMANDS.has(cmd)) return;
   if (argv[1] === '--help' || argv[1] === '-h') return;
@@ -605,7 +611,9 @@ function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, arg
   }
   const v = validationSchemaForCommand(cmd, tool).safeParse(parsed);
   if (!v.success) {
-    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock);
+    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock, {
+      json: requestsJsonErrorOutput(parsed),
+    });
     process.exit(1);
   }
 }
@@ -997,7 +1005,10 @@ export async function runCli(opts?: {
   const schema = validationSchemaForCommand(cmd, tool);
   const v = schema.safeParse(parsed);
   if (!v.success) {
-    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock);
+    printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock, {
+      json: requestsJsonErrorOutput(parsed),
+      invocation: helpInvocation,
+    });
     process.exit(1);
   }
   parsed = v.data as Record<string, unknown>;

@@ -856,6 +856,10 @@ const proofOrStopConfig: Record<string, unknown> = {
   storyDir: PROOF_OR_STOP_STORY_DIR,
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
+  promptEnvelope: {
+    version: 'proof-or-stop.prompt-envelope-rollout.v1',
+    roles: {},
+  },
 };
 if (isPython) {
   proofOrStopConfig.language = 'python';
