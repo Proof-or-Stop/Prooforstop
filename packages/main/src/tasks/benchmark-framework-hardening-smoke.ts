@@ -72,6 +72,7 @@ check('master-only repository is a valid integration worktree', () => {
     assert.equal(assertMainWorktreeReadyForMerge('B-master', root), realpathSync(root));
     const store = new StoryStore(root);
     const approval = createReleaseHandlers({ root, scanRoot: root, store }).release_approve_push({ confirm: true, json: true });
+    if (typeof approval === 'string') throw new Error('JSON release approval unexpectedly returned text');
     assert.equal(approval.approval.branch, 'refs/heads/master');
     assert.match(approval.nextAction, /git push origin master/);
   } finally { rmSync(root, { recursive: true, force: true }); }
