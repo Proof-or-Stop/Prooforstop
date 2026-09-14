@@ -126,7 +126,8 @@ export function blockingInitCheckIssues(data: InitCheckData): Array<{ agentId: s
   const blockers: Array<{ agentId: string; issue: InitCheckIssue }> = [];
   for (const result of initCheckAgentResults(data)) {
     for (const issue of result.issues || []) {
-      if (issue?.severity === 'critical' || issue?.severity === 'high') {
+      const postImplementationOnly = issue?.kind === 'post_implementation_evidence_missing';
+      if (!postImplementationOnly && (issue?.severity === 'critical' || issue?.severity === 'high')) {
         blockers.push({ agentId: result.agentId || '<unknown>', issue });
       }
     }

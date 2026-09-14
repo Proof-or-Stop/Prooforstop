@@ -2373,13 +2373,13 @@ function assertCloseoutTrustBoundary() {
     assert(!contractText.includes('transcript-diff.md presence'), `${contractPath}: active delivery context contract must not name legacy transcript-diff.md presence`);
   }
   for (const promptPath of [
-    rolePromptPath('packages/main/templates/agents', 'proof-or-stop-product-reviewer'),
-    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-product-reviewer'),
-    rolePromptPath('.claude/agents', 'proof-or-stop-product-reviewer'),
+    rolePromptPath('packages/main/templates/agents', 'proof-or-stop-review-delivery'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-review-delivery'),
+    rolePromptPath('.claude/agents', 'proof-or-stop-review-delivery'),
   ]) {
     const promptText = read(promptPath);
-    assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: product-reviewer must consume the canonical live-smoke transcript`);
-    assert(!promptText.includes('evidence/transcript-diff.md'), `${promptPath}: product-reviewer must not consume the legacy transcript-diff path`);
+    assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: delivery reviewer must consume the canonical live-smoke transcript`);
+    assert(!promptText.includes('evidence/transcript-diff.md'), `${promptPath}: delivery reviewer must not consume the legacy transcript-diff path`);
   }
   const lifecycleTranscriptText = read(lifecycleRegistryPath);
   assert(lifecycleTranscriptText.includes("'evidence/transcript-diff.md'") && lifecycleTranscriptText.includes("'evidence/live-smoke-transcript.json'"), `${lifecycleRegistryPath}: retain legacy scope compatibility beside the canonical transcript artifact`);
@@ -8131,7 +8131,7 @@ function assertPromptEvidenceBoundaries(promptMap) {
         `${relPath}: fresh-worker guidance must name dispatch/process-event/commit evidence as the observable boundary`,
       );
     }
-    if (text.includes('delivery-check.json') || canonicalRoleId(name) === 'proof-or-stop-product-reviewer') {
+    if (text.includes('delivery-check.json')) {
       assert(
         text.includes('transcript/delivery evidence is required; prompt-only user-value claims are not enough'),
         `${relPath}: delivery/product guidance must reject prompt-only user-value claims`,
@@ -8139,6 +8139,16 @@ function assertPromptEvidenceBoundaries(promptMap) {
       assert(
         text.includes('non-mechanical user approval'),
         `${relPath}: delivery/product guidance must distinguish subjective approval from mechanical evidence`,
+      );
+    }
+    if (canonicalRoleId(name) === 'proof-or-stop-product-reviewer') {
+      assert(
+        text.includes('implementation has not started') && text.includes('must not require'),
+        `${relPath}: INIT product guidance must permit planned evidence before implementation`,
+      );
+      assert(
+        !text.includes('story_advance DONE') && !text.includes('live-smoke-transcript.json'),
+        `${relPath}: INIT product guidance must not request post-implementation artifacts`,
       );
     }
   }

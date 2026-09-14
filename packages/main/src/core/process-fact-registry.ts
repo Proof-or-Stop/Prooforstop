@@ -1448,7 +1448,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     reviewerLane: 'proof-or-stop-product-reviewer',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
-    rationale: 'Product init reviewer is a required init-check producer for user-value readiness.',
+    rationale: 'Product INIT reviewer signs planned user-outcome and verification-plan readiness; post-implementation evidence is deferred to later lifecycle gates.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-review-scope-plan',

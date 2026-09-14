@@ -82,7 +82,7 @@ const agentPaths = [
 for (const path of agentPaths) {
   assert(existsSync(path), `missing product-reviewer agent: ${path}`);
   const text = readFileSync(path, 'utf8');
-  assert(text.includes('user-facing transcript') || text.includes('what the user actually sees'), `${path} missing user-value scope`);
+  assert(text.includes('user-visible result') || text.includes('concrete, observable user result'), `${path} missing user-value scope`);
   assert(text.includes('Not modifying code') || text.includes('not modifying code') || text.includes('不修改代码'), `${path} missing non-edit boundary`);
   assert(text.includes('init_check_set') && text.includes('pass') && text.includes('fail'), `${path} missing INIT review recording requirement`);
   assert(text.includes('agentId":"proof-or-stop-product-reviewer') || text.includes('agentId` must be exactly `proof-or-stop-product-reviewer`'), `${path} missing exact product-reviewer agentId requirement`);
@@ -134,6 +134,15 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert(storyId, 'failed to parse temp story id');
 
+  const readOnlyPrompt = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'agent_prompt', JSON.stringify({
+    role: PRODUCT_REVIEWER_ROLE,
+    storyId,
+    readOnly: true,
+    format: 'text',
+  })]);
+  assert(readOnlyPrompt.includes('implementation has not started') && readOnlyPrompt.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: read-only prompt must explain the INIT evidence boundary');
+  assert(!readOnlyPrompt.includes('story_advance DONE') && !readOnlyPrompt.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: read-only prompt must not request post-implementation artifacts');
+
   const dispatchRaw = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'dispatch', JSON.stringify({
     storyId,
     agentType: PRODUCT_REVIEWER_ROLE,
@@ -143,6 +152,19 @@ try {
   assert(dispatchRaw.includes('Do not pass "proof-or-stop-review-story-init"') || dispatchRaw.includes('Do not pass \\"proof-or-stop-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
   assert(dispatchRaw.includes('implementation has not started') && dispatchRaw.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: dispatch must explain implementation evidence is unavailable during INIT');
   assert(!dispatchRaw.includes('story_advance DONE') && !dispatchRaw.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: dispatch must not request post-implementation artifacts');
+
+  run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'init_check_set', JSON.stringify({
+    storyId,
+    agentId: PRODUCT_REVIEWER_ROLE,
+    issues: [{
+      kind: 'post_implementation_evidence_missing',
+      severity: 'high',
+      desc: 'The implementation transcript does not exist before development begins.',
+    }],
+  })]);
+  const storedInitCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  assert(storedInitCheck.agentResults?.[0]?.issues?.[0]?.kind === 'post_implementation_evidence_missing', 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_set must persist structured stage applicability');
+  assert(blockingInitCheckIssues(storedInitCheck).length === 0, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: stored post-implementation evidence cannot block INIT');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,
@@ -158,11 +180,11 @@ try {
     storyId,
     itemId: 'CHK-001',
     verificationIntent: {
-      happy: [{ desc: 'Normal scenario -> product acceptance reminder', type: 'cli_blackbox' }],
-      edge: [{ desc: 'Abstract outcome -> emit advisory', type: 'cli_blackbox' }],
-      adversarial: [{ desc: 'Engineering complete but user still asks what comes next -> expose gap', type: 'cli_blackbox' }],
+      happy: [{ desc: 'Normal scenario -> product acceptance reminder', type: 'cli_blackbox', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+      edge: [{ desc: 'Abstract outcome -> emit advisory', type: 'cli_blackbox', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+      adversarial: [{ desc: 'Engineering complete but user still asks what comes next -> expose gap', type: 'cli_blackbox', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
     },
-    agent: 'test-intent',
+    agent: 'proof-or-stop-verification-intent',
   })]);
 
   const reviewRaw = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'story_review', JSON.stringify({ storyId })]);
@@ -170,7 +192,7 @@ try {
   assert(review.summary && typeof review.summary.issueCount === 'number', 'story_review should return structured summary');
 
   const dispatchSource = readFileSync(join(root, 'packages/main/src/handlers/story-dispatch.ts'), 'utf8');
-  assert(dispatchSource.includes('user value perspective') && dispatchSource.includes('what comes next'), 'product reviewer user-value guidance missing');
+  assert(dispatchSource.includes('user value perspective') && dispatchSource.includes('verificationIntent'), 'product reviewer planned user-value guidance missing');
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

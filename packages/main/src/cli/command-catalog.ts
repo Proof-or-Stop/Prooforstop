@@ -5,7 +5,7 @@ import { candidateAddSchema, candidateGetSchema, candidateMergeSchema, candidate
 import { routeRequestSchema, routeRevokeSchema, routeVerifySchema, candidateRouteRequestSchema, routeSourceSchema } from '../core/finding-route.js';
 import { progressCaptureSchema, progressPredecessorRequestSchema } from '../core/finding-progress.js';
 import { publicToolCatalog, type ToolDef } from './main-tools.js';
-import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
+import { INIT_CHECK_ISSUE_KINDS, STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
 import {
   ContextPackDependencyEdgeContractSchema,
   ContextPackSnippetContractSchema,
@@ -2674,9 +2674,10 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     issues: z.array(z.object({
       id: z.string().optional().describe('Reviewer self-assigned ID, for example I-1; optional.'),
+      kind: z.enum(INIT_CHECK_ISSUE_KINDS).optional().describe('INIT-stage applicability. post_implementation_evidence_missing is deferred and cannot block implementation start.'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Issue details (reviewer subjective judgment must be specific).'),
-    })).describe('List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.'),
+    })).describe('List of issues raised by Reviewer; critical/high INIT-applicable issues block INIT_CHECK, while post-implementation evidence gaps are deferred; empty array allowed.'),
     agent: z.string().optional().describe('Reviewer self-reported agent name; proof-or-stop-product-reviewer must pass proof-or-stop-product-reviewer.'),
     agentId: z.string().optional().describe('Reviewer self-reported agent ID; proof-or-stop-product-reviewer must pass proof-or-stop-product-reviewer and must not pass proof-or-stop-review-story-init.'),
   }},
@@ -2693,9 +2694,10 @@ Behavior:
     evidenceRefs: z.array(z.string()).optional().describe('Optional: evidence references for the manual check (file/URL/transcript summary).'),
     issues: z.array(z.object({
       id: z.string().optional().describe('Self-assigned ID, optional.'),
+      kind: z.enum(INIT_CHECK_ISSUE_KINDS).optional().describe('INIT-stage applicability. post_implementation_evidence_missing is deferred and cannot block implementation start.'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character.').describe('Issue details.'),
-    })).optional().describe('Optional issues raised by manual attestation; high/critical still block INIT_CHECK.'),
+    })).optional().describe('Optional issues raised by manual attestation; high/critical INIT-applicable issues block INIT_CHECK, while post-implementation evidence gaps are deferred.'),
     actor: z.string().optional().describe('Optional actor identifier; defaults to git user.name.'),
   }},
 

@@ -1746,10 +1746,12 @@ async function runStoryTransitionInner(
             ? initCheck.agentResults.flatMap(result => result.issues || [])
             : initCheck.issues || [];
           const advisoryCount = allIssues.filter(
-            i => i && typeof i.desc === 'string' && i.desc.trim().length >= 1 && (i.severity === 'medium' || i.severity === 'low'),
+            i => i && typeof i.desc === 'string' && i.desc.trim().length >= 1 && (
+              i.severity === 'medium' || i.severity === 'low' || i.kind === 'post_implementation_evidence_missing'
+            ),
           ).length;
           if (advisoryCount > 0) {
-            initCheckAdvisory = `\n\n⚠ init reviewer recorded ${advisoryCount} medium/low advisories, recommend digesting them before PLAN`;
+            initCheckAdvisory = `\n\n⚠ init reviewer recorded ${advisoryCount} non-blocking or deferred issue(s), review them during PLAN and later verification`;
           }
         }
       } catch { /* ignore */ }
