@@ -19,7 +19,7 @@ const wrapped=Object.freeze({completeOutput:'COMPLETE_OUTPUT_WITNESS '+('y'.repe
 let observed,child,childExit;
 try {
  const value=await machine({root:${JSON.stringify(base)},workspaceRoot:${JSON.stringify(base)},command:'bounded cleanup diagnostic control',deadlineAt:Date.now()+5000},async()=>{
-  if(${JSON.stringify(mode)}==='registered-result'){const token=await api.prepareValidationReservationChild();child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{detached:true,stdio:'ignore'});childExit=new Promise(resolve=>child.once('exit',resolve));await api.registerValidationReservationChild(child.pid,token);}
+  if(${JSON.stringify(mode)}==='registered-result'){const token=await api.prepareValidationReservationChild();await api.attemptValidationReservationSpawn(token);child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{detached:true,stdio:'ignore'});childExit=new Promise(resolve=>child.once('exit',resolve));await api.registerValidationReservationChild(child.pid,token);}
   if(!${JSON.stringify(mode)}.startsWith('clean'))await api.prepareValidationReservationChild();
   if(${JSON.stringify(mode)}.endsWith('error'))throw original;
   return ${JSON.stringify(mode)}==='wrapped-result'?wrapped:result;

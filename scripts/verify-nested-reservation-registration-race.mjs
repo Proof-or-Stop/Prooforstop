@@ -28,7 +28,7 @@ globalThis.__registrationRace=pid=>{assert.equal(pid,leaf);if(${JSON.stringify(m
 };
 try{
  await machine({root:${JSON.stringify(base)},workspaceRoot:${JSON.stringify(base)},command:'actual registration race control',deadlineAt:Date.now()+7000},async()=>{
-  const token=await api.prepareValidationReservationChild();launcher=spawn(process.execPath,[${JSON.stringify(launcher)}],{env:process.env,stdio:['ignore','inherit','inherit','ipc']});
+  const token=await api.prepareValidationReservationChild();await api.attemptValidationReservationSpawn(token);launcher=spawn(process.execPath,[${JSON.stringify(launcher)}],{env:process.env,stdio:['ignore','inherit','inherit','ipc']});
   leaf=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('owned launcher readiness unavailable')),3000);launcher.once('message',value=>{clearTimeout(timer);resolve(value.pid);});});record=api.observeValidationReservationChild(leaf);
   if(${JSON.stringify(mode)}==='retry-recovers'||${JSON.stringify(mode)}.startsWith('retry-exhausted')){
    const {VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY:policy}=await import(${JSON.stringify(registry)});

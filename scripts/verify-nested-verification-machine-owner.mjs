@@ -92,11 +92,13 @@ const probe=root+'/descriptor-probe.mjs';
 writeFileSync(probe,${JSON.stringify("import "+JSON.stringify(loader)+";const {withMachineValidationResources:machine}=await import("+JSON.stringify(new URL('../packages/main/src/core/validation-execution-lock.ts',import.meta.url).href)+");try{await machine({root:"+JSON.stringify(scratch)+",workspaceRoot:"+JSON.stringify(scratch)+",command:'descriptor-refusal-control',deadlineAt:Date.now()+1500},()=>{throw Error('UNEXPECTED_CALLBACK');});process.exitCode=2;}catch(error){if(error.message.includes('VALIDATION_DELEGATION_REFUSED'))console.log('DESCRIPTOR_REFUSED '+error.message);else if(error.message.includes('capacity wait deadline exceeded'))console.log('DESCRIPTOR_DROPPED_DEGRADED '+error.message);else throw error;}")});
 const bytes=Buffer.alloc(Number(fstatSync(4).size));readSync(4,bytes,0,bytes.length,0);
 const fakePath=root+'/copied-bootstrap';writeFileSync(fakePath,bytes,{mode:0o600});const fake=openSync(fakePath,'r');unlinkSync(fakePath);
+const junkPath=root+'/junk-bootstrap';writeFileSync(junkPath,'not a bootstrap envelope',{mode:0o600});const junk=openSync(junkPath,'r');unlinkSync(junkPath);
 // A dropped descriptor (every plain Node wrapper on Darwin) degrades to the ordinary
 // queue, which the live outer reservation still blocks, and is diagnosed once; a copied
-// bootstrap at the reserved slot is refused outright.
-try {for(const [name,slot,expected] of [['dropped','ignore',/DESCRIPTOR_DROPPED_DEGRADED/],['copied-key',fake,/DESCRIPTOR_REFUSED/]]){const child=spawnSync(process.execPath,[probe],{env:{...process.env,PROOF_OR_STOP_DELEGATION_DIAGNOSTICS:'1'},stdio:['ignore','pipe','pipe','ignore',slot],encoding:'utf8',timeout:5000});assert.equal(child.status,0,name+': '+child.stdout+child.stderr);assert.match(child.stdout,expected,name);if(name==='dropped')assert.match(child.stderr,/VALIDATION_DELEGATION_UNAVAILABLE/,'dropped descriptor must be diagnosed');else assert.doesNotMatch(child.stderr,/VALIDATION_DELEGATION_UNAVAILABLE/,'copied key is a refusal, not a dropped transport');}}
-finally{closeSync(fake);}
+// bootstrap at the reserved slot is refused outright, and an unlinked non-JSON descriptor there
+// is refused as a typed envelope failure, never a raw parse error.
+try {for(const [name,slot,expected] of [['dropped','ignore',/DESCRIPTOR_DROPPED_DEGRADED/],['copied-key',fake,/DESCRIPTOR_REFUSED/],['non-json',junk,/DESCRIPTOR_REFUSED .*bootstrap is not a bounded JSON envelope/]]){const child=spawnSync(process.execPath,[probe],{env:{...process.env,PROOF_OR_STOP_DELEGATION_DIAGNOSTICS:'1'},stdio:['ignore','pipe','pipe','ignore',slot],encoding:'utf8',timeout:5000});assert.equal(child.status,0,name+': '+child.stdout+child.stderr);assert.match(child.stdout,expected,name);if(name==='dropped')assert.match(child.stderr,/VALIDATION_DELEGATION_UNAVAILABLE/,'dropped descriptor must be diagnosed');else assert.doesNotMatch(child.stderr,/VALIDATION_DELEGATION_UNAVAILABLE/,'copied key is a refusal, not a dropped transport');}}
+finally{closeSync(fake);closeSync(junk);}
 console.log('NESTED_DESCRIPTOR_DROP_DEGRADED_AND_COPIED_KEY_REFUSED');
 }
 if(group==='lifetime'){

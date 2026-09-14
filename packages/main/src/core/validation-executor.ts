@@ -1527,8 +1527,18 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   try { pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
   catch (error) { const stop = callerStop(); throw stop ?? error; }
   // Marked before the spawn call: an unmarked pending fence proves that no child was ever spawned
-  // under it, so owner loss before this point can be recovered without a detached-child risk.
-  await attemptValidationReservationSpawn(pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal});
+  // under it, so owner loss before this point can be recovered without a detached-child risk. A
+  // refused mark is withdrawn at once, because no spawn call was made under the fence; a refused
+  // withdrawal is reported together with the refusal, never in place of it.
+  try { await attemptValidationReservationSpawn(pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
+  catch (error) {
+    try { await cancelValidationReservationChild(pendingSpawn, {deadlineAt: Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs}); }
+    catch (cleanupError) {
+      const stop = callerStop(); if (stop) throw stop;
+      throw new ValidationNoSpawnCleanupError(`${boundedValidationErrorMessage(error)}; validation no-spawn cleanup refused: ${boundedValidationErrorMessage(cleanupError)}`, error);
+    }
+    const stop = callerStop(); throw stop ?? error;
+  }
   let spawned = false;
   let spawnedPid: number | undefined;
   let registrationRefused = false;

@@ -160,7 +160,8 @@ function readBootstrap(fd: number = FD, cleanupOnly = false): Bootstrap | undefi
   // A foreign unlinked regular file at the reserved slot is not silently treated as no delegation.
   if (!stat.isFile() || stat.nlink !== 0n || stat.size <= 0n || stat.size > BigInt(LIMIT)) throw failure('bootstrap is not a bounded unlinked regular descriptor');
   const buffer = Buffer.alloc(Number(stat.size)); if (readSync(fd, buffer, 0, buffer.length, 0) !== buffer.length) throw failure('bootstrap incomplete');
-  const value = JSON.parse(buffer.toString('utf8')) as Bootstrap;
+  // A foreign unlinked descriptor with non-JSON bytes is a typed refusal, never a raw parse error.
+  let value: Bootstrap; try { value = JSON.parse(buffer.toString('utf8')) as Bootstrap; } catch { throw failure('bootstrap is not a bounded JSON envelope'); }
   if (value.schema !== 'validation-reservation-delegation.v1' || !Number.isSafeInteger(value.rootFd) || value.rootFd < 3 || !Number.isFinite(value.deadlineAt)) throw failure('bootstrap shape');
   const actual = inspectMachineReservationOwner(value.ticket, value.lockId);
   if (!actual || actual.pid !== value.pid || actual.start !== value.start || JSON.stringify(actual.resources)!==JSON.stringify(value.resources)) throw failure('reservation not live/admitted');
@@ -328,7 +329,11 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   const keys = generateEd25519KeyPair(), directory = mkdtempSync(join(temporaryRoot, artifacts.temporaryPrefix)), socketPath = join(directory, artifacts.socketFile);
   const bootstrapPath = join(directory, artifacts.bootstrapFile);
   const pendingChildren = new Map<string,{pid:number;start:number;parents:string[];target?:ProcessIdentity;cleanupCapability:string;spawnAttempted?:boolean}>();
-  const consumedPending = new Map<string,string>(); // tokens already turned into enrollments, keyed to their cleanup capability
+  // Tokens already turned into enrollments, keyed to their cleanup capability; an entry outlives its
+  // pruned enrollment for one bounded cleanup window so a withdrawal racing the applied registration
+  // stays idempotent, then expires.
+  const consumedPending = new Map<string,{capability:string;expiresAt?:number}>();
+  const registeredTokens = new Map<number,string>();
   const registered = new Map<number, ProcessIdentity & { parents: string[] }>(), active = new Map<Socket, { subject: ProcessIdentity; resources: ResourceClaim[] | null; grantId: string; parents: string[]; deadlineAt: number; revoked?: boolean; terminal?: boolean; disconnected?: boolean }>();
   const grantTimers = new Map<Socket, NodeJS.Timeout>();
   const sockets = new Set<Socket>(), pending: Array<{ socket: Socket; input: Request }> = [];
@@ -351,10 +356,11 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     }
     throw failure('unenrolled request subject');
   };
-  const prepare = (subject=identity(process.pid),parents:string[]=[]):string => {if(!live())throw failure('reservation closed before spawn');const token=randomUUID();pendingChildren.set(token,{pid:subject.pid,start:subject.start,parents,cleanupCapability:randomUUID()});publish();return token;};
-  const cancel=(token:string,subject=identity(process.pid)):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');pendingChildren.delete(token);publish();};
+  // The local frame observes its own subject with the same bounded retry as every socket request.
+  const prepare = (subject=observeWithRetry(() => identity(process.pid)),parents:string[]=[]):string => {if(!live())throw failure('reservation closed before spawn');const token=randomUUID();pendingChildren.set(token,{pid:subject.pid,start:subject.start,parents,cleanupCapability:randomUUID()});publish();return token;};
+  const cancel=(token:string,subject=observeWithRetry(() => identity(process.pid))):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');pendingChildren.delete(token);publish();};
   // Marked immediately before the spawn call, so an unmarked row proves that no child was ever spawned under it.
-  const attempt=(token:string,subject=identity(process.pid)):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');if(!pending.spawnAttempted){pending.spawnAttempted=true;publish();}};
+  const attempt=(token:string,subject=observeWithRetry(() => identity(process.pid))):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');if(!pending.spawnAttempted){pending.spawnAttempted=true;publish();}};
   const register = (pid: number, parent = process.pid, parents: string[] = [], pendingToken?: string, parentStart?: number) => {
     if (!live()) throw failure('registration after release');
     const pending=pendingToken && pendingChildren.get(pendingToken);if(!pending||pending.pid!==parent)throw failure('registration has no owned pre-spawn fence');
@@ -390,7 +396,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     // Identity and real pre-orphan ancestry are proven before persisting an
     // owned target. An earlier unavailable observation leaves the fence unknown.
     pending.target=target;publish();
-    registered.set(pid, { ...target, parents:inheritedParents });consumedPending.set(pendingToken!, pending.cleanupCapability);pendingChildren.delete(pendingToken!); publish();
+    registered.set(pid, { ...target, parents:inheritedParents });registeredTokens.set(pid, pendingToken!);consumedPending.set(pendingToken!, {capability: pending.cleanupCapability});pendingChildren.delete(pendingToken!); publish();
   };
   const revokeGrant = (grantId: string) => {
     for (const [socket, grant] of active) if ((grant.grantId === grantId || grant.parents.includes(grantId)) && !grant.revoked) {
@@ -410,6 +416,22 @@ export async function withMachineReservationController<T>(owner: MachineReservat
       return [...rows.values()].some(row=>row.pgid===subject.pgid&&row.pid!==subject.pid&&!ancestors.has(row.pid));
     }catch{return true;}
   };
+  // A resolved enrollment leaves the residual record once its PID and whole group are proven
+  // absent, so the record stays bounded across a run and a PID the kernel later recycles can be
+  // enrolled again; a live or half-observed row stays. The pruned row's consumed capability is
+  // kept for one bounded cleanup window, then dropped.
+  const pruneResolvedEnrollments = (): boolean => {
+    let pruned = false;
+    for (const [pid, row] of registered) {
+      if (!registrationTargetGone(pid) || !groupGone(row.pgid)) continue;
+      registered.delete(pid); pruned = true;
+      const token = registeredTokens.get(pid); registeredTokens.delete(pid);
+      const consumed = token === undefined ? undefined : consumedPending.get(token);
+      if (consumed && consumed.expiresAt === undefined) consumed.expiresAt = Date.now() + 2 * CLEANUP_MS;
+    }
+    for (const [token, consumed] of consumedPending) if (consumed.expiresAt !== undefined && Date.now() >= consumed.expiresAt) consumedPending.delete(token);
+    return pruned;
+  };
   const retireReleasedGrants = () => {
     let retired = 0;
     for (const [socket, grant] of [...active].reverse()) {
@@ -425,7 +447,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   // Returns whether this tick changed anything, so idle polling can back off.
   const drain = () => {
     resetTick();
-    let resolved=false;for(const [token,row]of pendingChildren)if(pendingRowResolved(row)){pendingChildren.delete(token);resolved=true;}
+    let resolved=pruneResolvedEnrollments();for(const [token,row]of pendingChildren)if(pendingRowResolved(row)){pendingChildren.delete(token);resolved=true;}
     // The residual record may be unwritable under a live controller (operator cleanup of the ticket
     // directory); the on-disk record then stays at its more conservative fenced state rather than
     // crashing the owner from the retirement timer or a socket close handler.
@@ -497,7 +519,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
             // A withdrawal that races an already-applied registration finds no pending row; with the
             // matching capability that is an idempotent success because the fence it would remove is gone.
             const consumed=input.pendingToken && consumedPending.get(input.pendingToken);
-            if(!consumed || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==consumed)throw failure('cleanup capability not owned');
+            if(!consumed || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==consumed.capability)throw failure('cleanup capability not owned');
           } else {
             if(typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('cleanup capability not owned');
             cancel(input.pendingToken!, subject);

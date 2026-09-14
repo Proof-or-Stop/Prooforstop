@@ -24,6 +24,33 @@ for(const [options,expected]of [[{},0],[{branching:true},0],[{pending:true},2],[
 }
 console.log('NESTED_RETIREMENT_ORDER_UNIT_CONTROLS PASS');
 
+// Resolved-enrollment pruning unit controls on the extracted closure: a row leaves the record only
+// when its PID and whole group are both proven absent (so the exact predicate registration uses for
+// enrollment immutability no longer holds for that PID), the pruned row's consumed capability
+// survives one bounded cleanup window and then expires, and a live or half-observed row stays.
+const pruneStart='  const pruneResolvedEnrollments = (): boolean => {';
+const pruneEnd='  const retireReleasedGrants = () => {';
+assert.equal(retirementSource.split(pruneStart).length,2);
+const pruneBody=retirementSource.slice(retirementSource.indexOf(pruneStart),retirementSource.indexOf(pruneEnd));
+const pruneCompiled=ts.transpileModule(pruneBody+'\npruneResolvedEnrollments;',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
+function pruneFixture({gonePids=[],goneGroups=[]}={}) {
+ const registered=new Map([[101,{pid:101,pgid:101,start:1,parents:['a']}],[202,{pid:202,pgid:202,start:2,parents:['a']}]]);
+ const registeredTokens=new Map([[101,'t101'],[202,'t202']]);
+ const consumedPending=new Map([['t101',{capability:'c101'}],['t202',{capability:'c202'}],['t303',{capability:'c303',expiresAt:500}]]);
+ const clock={now:1000};
+ const context={registered,registeredTokens,consumedPending,registrationTargetGone:pid=>gonePids.includes(pid),groupGone:pgid=>goneGroups.includes(pgid),CLEANUP_MS:2000,Date:{now:()=>clock.now}};
+ return {registered,registeredTokens,consumedPending,clock,prune:vm.runInNewContext(pruneCompiled,context)};
+}
+{
+ const resolved=pruneFixture({gonePids:[101],goneGroups:[101]});
+ assert.equal(resolved.prune(),true,'PRUNE_RESOLVED_ENROLLMENT_REQUIRED');assert.equal(resolved.registered.has(101),false,'resolved enrollment must be pruned');assert.equal(resolved.registered.has(202),true,'live enrollment must stay');assert.equal(resolved.registeredTokens.has(101),false);
+ assert.deepEqual(resolved.consumedPending.get('t101'),{capability:'c101',expiresAt:5000},'pruned capability survives one bounded window');assert.equal(resolved.consumedPending.has('t303'),false,'expired capability is dropped');
+ resolved.clock.now=5000;assert.equal(resolved.prune(),false);assert.equal(resolved.consumedPending.has('t101'),false,'capability expires after its window');assert.equal(resolved.consumedPending.has('t202'),true);
+ const half=pruneFixture({gonePids:[101],goneGroups:[]});assert.equal(half.prune(),false);assert.equal(half.registered.has(101),true,'a PID absent with its group present stays fenced');
+ const live=pruneFixture();assert.equal(live.prune(),false);assert.equal(live.registered.size,2);
+}
+console.log('NESTED_ENROLLMENT_PRUNING_UNIT_CONTROLS PASS');
+
 // Actual identity-function controls with explicit stubbed ps output, plus a real
 // absent-PID refusal. Observation stubs are unit inputs, never kernel authority.
 const mkdirIdentitySource=readFileSync(new URL('../../packages/main/src/core/mkdir-lock.ts',import.meta.url),'utf8');
@@ -82,7 +109,7 @@ for(const kind of ['release','expiry']) {
  const parentHold=new Promise(resolve=>{releaseParent=resolve;});
  const a=machine({...options(),deadlineAt},async()=>{
   descendant=machine({...options(),deadlineAt},async()=>{
-   const token=await api.prepareValidationReservationChild({deadlineAt});
+   const token=await api.prepareValidationReservationChild({deadlineAt});await api.attemptValidationReservationSpawn(token,{deadlineAt});
    child=spawn(process.execPath,[childFile],{env:api.validationReservationChildEnvironment(process.env),stdio:api.validationReservationChildStdio(['ignore','inherit','inherit','ipc']),detached:true});
    childClosed=new Promise(resolve=>child.once('close',(code,signal)=>{if(code!==0)childError=Error('lifecycle child failed '+code+'/'+signal);resolve();}));
    child.on('error',error=>{childError=error;readyResolve();revokedResolve();});

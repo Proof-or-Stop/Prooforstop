@@ -75,14 +75,19 @@ spawning caller is prepare, attempt, spawn, register, and the process that
 performs the spawn call owns that fence; the executor, both spawning processes
 of the isolated Finding fixture (the fixture process for its launcher, the
 registered launcher for its worker) and every raw-API holder in the controls
-follow it. `cancelValidationReservationChild(pendingToken, options)` is
+follow it: the sixteen raw-API spawn sites across the fault, cancellation,
+wrapper-transport, cleanup-diagnostics, owner-loss, handshake-deadline and
+registration-race controls and the lifecycle support each mark their fence
+immediately before the spawn call, and the only unmarked fence in the controls
+belongs to the `unattempted-owner-loss` descendant, which never spawns. `cancelValidationReservationChild(pendingToken, options)` is
 cleanup-only and its caller must have proved that no child was spawned.
 Separately, controller retirement can resolve an already-observed owned target
 after fresh PID and whole-group absence checks, and it resolves an unmarked
 pending fence whose owner PID is proven absent (or observed with a different
 start), because an unmarked fence proves that no child was ever spawned under
 it. A marked fence without an observed target remains fenced. Immediate
-operations retry their single kernel observation before refusing; a queued grant
+operations, including the local frame's own prepare, attempt and cancel subject
+observations, retry their single kernel observation before refusing; a queued grant
 request is observed only inside the retirement tick, where a transient
 observation failure leaves it queued until its own deadline. Retirement polling is
 event-driven and backs off: any grant, release or disconnect re-arms a 20 ms tick
@@ -143,6 +148,7 @@ real executor before this repair.
 | Live caller explicitly completes a callback; no associated work remains | Yes; the caller need not exit before its next invocation. |
 | Unexpected EOF or holder death; its group still exists | No. |
 | Registered descendant group still exists | No, including after normal callback return. |
+| Registered descendant PID and whole group provably absent | Yes; the enrollment row is pruned from the residual record, and its consumed withdrawal capability survives one bounded cleanup window so a withdrawal racing the applied registration stays idempotent. |
 | Transitive descendant grant remains | No; revocation does not prove completion. |
 | Pending registration has no proven target absence | No; unknown work remains fenced. |
 | Pending registration never recorded a proven target and its preparing owner is dead | No; a child may have been spawned before the owner died, so the fence is terminal until a different-boot witness or explicit operator action. |
@@ -258,7 +264,34 @@ mode `descriptor-unavailable` registers a real child of a live controller whose
 own nested executor meets a failing descriptor observation while reading its
 inherited bootstrap and asserts the folded non-success result naming that
 refusal, with no leaf launched; against the pre-repair reader the raw error
-escaped the executor as an exception.
+escaped the executor as an exception. A foreign unlinked regular descriptor
+whose bytes are not a JSON envelope is refused as `bootstrap is not a bounded
+JSON envelope`, a typed refusal that folds like every other bootstrap refusal;
+the pinned driver's `descriptor` group passes such a descriptor at the reserved
+slot as its third case and asserts the typed refusal without a dropped-transport
+diagnostic. Replayed against the pre-repair delegation source the pinned command
+stops before that group, because the lifecycle support it imports extracts the
+pruning closure that source does not contain; the reader-level RED was therefore
+shown with a direct probe of the same queue entry and the same descriptor, which
+reported a raw `SyntaxError` before the repair and the typed refusal after it.
+
+Resolved enrollments are pruned. Once a registered child's PID and whole group
+are proven absent, the retirement tick removes its row from the published
+residual record, so the record stays bounded across a run of many commands,
+every publish and residual probe rescans only live and unresolved rows, and a
+PID the kernel later recycles can be enrolled again instead of being refused as
+an immutable enrollment. A live row, or a PID observed absent while its group
+is still present, stays. The pruned row's consumed withdrawal capability
+survives one bounded cleanup window (twice `cleanupMs`) so a withdrawal racing
+the applied registration stays an idempotent success, then expires.
+`verify-nested-reservation-faults.mjs` mode `registered-row-pruned` registers a
+descendant that exits and asserts that the doctor classifier of the live ticket
+reports neither a live nor a resolved enrollment within four seconds, where the
+pre-repair controller carried the resolved row for the rest of the run;
+`scripts/support/nested-reservation-lifecycle.mjs` runs the extracted pruning
+closure as unit controls for the resolution predicate, the capability window
+and the half-observed row. Recycled process-group ids remain the accepted
+limitation recorded under worker exit.
 
 ### Prior-boot recovery
 
@@ -315,6 +348,16 @@ and asserts that the artifact still carries the payload, that the projection's
 prefix is the artifact's prefix and that the projection does not carry the
 whole payload; against the pre-repair executor the bounded projection was
 returned under the artifact's name.
+
+A refused spawn-attempt mark is handled the same way: the executor withdraws
+the fence it prepared at once, because no spawn call was made under it, and
+the refusal folds into a bounded infrastructure result; a refused withdrawal is
+reported together with the refusal, never in place of it. Mode
+`attempt-refusal` refuses the mark inside a live owner's own executor and
+asserts the folded result, that no cleanup was refused, that the leaf never
+launched and that the owner's ticket is released; against the pre-repair
+executor the mark sat outside the withdrawing block, the fence stayed and the
+controller refused its release with `owned group cleanup unproven`.
 
 The caller's own abort, or a caller-supplied deadline error, is decided before
 any pending fence is prepared and again ahead of a delegation refusal, so it
@@ -420,22 +463,22 @@ refreshed.
 
 ## Verification boundaries
 
-Forty-eight direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Fifty direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
 closed selector wrapper normalizes the repository working directory; selectors
 that need Darwin kernel descriptor or process identity observation print an
 explicit skip on other platforms before loading native controls, while seven of
-the nine executor result-contract selectors (`result-prepare-refusal`,
+the ten executor result-contract selectors (`result-prepare-refusal`,
 `result-cleanup-primary`, `result-cleanup-result`, `result-ordinary-error`,
 `result-armed-timeout`, `result-caller-deadline` and
 `result-refused-registration-cleanup`) run through the platform-independent
 queue in a private OS-home namespace and are not gated (they were exercised
 only on Darwin in this Lab); `result-post-capture-cleanup` patches the
-Darwin-only controller cleanup and `result-descriptor-unavailable` needs a live
-controller and the Darwin descriptor observation, so both are gated like the
-native controls. The entries declare the existing exclusive machine heavy and
+Darwin-only controller cleanup, and `result-descriptor-unavailable` and
+`result-attempt-refusal` need a live controller and the Darwin descriptor
+observation, so the three are gated like the native controls. The entries declare the existing exclusive machine heavy and
 process-fanout resources so validation serializes them against other heavy
 commands; under the real executor each selector process inherits that declared
 reservation and its unclassified leaf commands resolve to the declaration (see
@@ -458,11 +501,14 @@ modes stack in the worst case), `cleanup-diagnostics` in 6 to 9.1 seconds agains
 90 seconds (six 10-second modes), the result-contract, cancellation and
 boot-recovery selectors, including the three refused-registration and
 client-rejection cancellation selectors and the two eighth-round result-contract
-selectors, in 1 to 5 seconds against 30 seconds (each wraps one child whose own
-timeout is at most 12 seconds), and every remaining selector, including the four
-isolated-observation selectors whose child allows 40 seconds, in under 13 seconds
-against its 60-second budget; the eighth-round sequential sweep of all
-forty-eight selectors passed in 181.5 seconds in total. Before the `core` selector
+selectors and the ninth-round `result-attempt-refusal`, in 1 to 5 seconds
+against 30 seconds (each wraps one child whose own timeout is at most 12
+seconds), and every remaining selector, including the four isolated-observation
+selectors whose child allows 40 seconds and the ninth-round
+`fault-registered-row-pruned`, in under 13 seconds against its 60-second budget;
+the eighth-round sequential sweep of all forty-eight selectors passed in 181.5
+seconds in total and the ninth-round sweep of all fifty in 184.6 seconds
+(`core` 36.4 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
@@ -508,7 +554,8 @@ Supplemental source-bound native fault commands are recorded separately:
 `verify-nested-reservation-faults.mjs` modes `registered`, `same-group`, `pending`,
 `coalesced`, `finite-owner`, `pending-lineage`, `declared-owner-unclassified`,
 `declared-owner-expansion`, `retirement-backoff`, `controller-transport-unavailable`,
-`drain-observation-transient`, `unattempted-owner-loss` and `attempted-owner-loss`
+`drain-observation-transient`, `unattempted-owner-loss`, `attempted-owner-loss`
+and `registered-row-pruned`
 (every mode composes `--preimage` for the delegation source and
 `--preimage-executor` for the executor of the same revision, so a pre-repair
 replay is a consistent pair and can never silently run current source), plus
