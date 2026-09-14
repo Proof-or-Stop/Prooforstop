@@ -38,6 +38,8 @@ import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/part
 import { renderMainWriteLockScan, scanMainWriteLock } from '../core/main-write-lock-doctor.js';
 import { renderStoryOwnerLeaseScan, scanStoryOwnerLeases } from '../core/story-owner-lease-doctor.js';
 import { renderGuardSessionDoctorSection, scanGuardSessions } from '../core/guard-session-doctor.js';
+import { canonicalMachineCapacityRoot } from '../core/validation-execution-lock.js';
+import { VALIDATION_DELEGATION_RESIDUAL_FILE } from '../core/validation-reservation-delegation.js';
 import {
   renderAuxiliaryClassification,
   repairAuxiliaryWorktreeResidues,
@@ -75,6 +77,49 @@ import {
 } from '../core/managed-host-run.js';
 
 /** Public rendering seam: diagnostics and pinned docs evidence consume the same operator projection. */
+
+interface FencedMachineTicket { ticket: string; unresolvedPending: number; deadOwners: number; malformed: boolean }
+interface FencedMachineTicketScan { pool: string; fenced: FencedMachineTicket[]; error?: string }
+
+/** Read-only projection of machine tickets whose pending fences cannot resolve by owner death alone. */
+function scanFencedMachineTickets(): FencedMachineTicketScan {
+  const pool = canonicalMachineCapacityRoot();
+  const fenced: FencedMachineTicket[] = [];
+  try {
+    for (const name of readdirSync(pool)) {
+      if (!name.endsWith('.ticket')) continue;
+      const ticket = join(pool, name), residual = join(ticket, VALIDATION_DELEGATION_RESIDUAL_FILE);
+      if (!existsSync(residual)) continue;
+      let rows: unknown;
+      try { rows = JSON.parse(readFileSync(residual, 'utf8')); } catch { fenced.push({ ticket, unresolvedPending: 0, deadOwners: 0, malformed: true }); continue; }
+      if (!Array.isArray(rows)) { fenced.push({ ticket, unresolvedPending: 0, deadOwners: 0, malformed: true }); continue; }
+      const pending = rows.filter((row): row is { pid?: unknown } => Boolean(row) && typeof row === 'object' && (row as { pending?: unknown }).pending !== undefined && !(row as { target?: unknown }).target);
+      if (!pending.length) continue;
+      const deadOwners = pending.filter(row => {
+        if (!Number.isSafeInteger(row.pid) || (row.pid as number) <= 1) return false;
+        try { process.kill(row.pid as number, 0); return false; } catch (error) { return (error as NodeJS.ErrnoException).code === 'ESRCH'; }
+      }).length;
+      fenced.push({ ticket, unresolvedPending: pending.length, deadOwners, malformed: false });
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return { pool, fenced, error: (error as Error).message };
+  }
+  return { pool, fenced };
+}
+
+function renderFencedMachineTickets(scan: FencedMachineTicketScan): string[] {
+  const lines = ['Nested reservation fences (machine tickets):'];
+  if (scan.error) { lines.push(`  ⚠ unavailable: ${scan.error}`); return lines; }
+  if (!scan.fenced.length) { lines.push('  none: no machine ticket holds an unresolved pending fence'); return lines; }
+  for (const row of scan.fenced) {
+    lines.push(row.malformed
+      ? `  ⚠ ${row.ticket}: malformed residual record; the ticket stays fenced`
+      : `  ⚠ ${row.ticket}: ${row.unresolvedPending} pending fence(s) without an observed target (${row.deadOwners} from dead owners)`);
+  }
+  lines.push('  → Unknown detached work stays fenced by design. Recovery: a different kernel boot session (reboot) releases the ticket through its boot witness; otherwise remove the ticket only after independently confirming no detached child remains.');
+  return lines;
+}
+
 export function renderManagedHostRunDoctorSection(
   managedHostRuns: ManagedHostRunRuntimeScan,
   managedHostRunGc: ManagedHostRunGcResult | null = null,
@@ -191,6 +236,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // Guard session scan: report prewrite scope guard status for active stories
       // and check whether the Claude Code PreToolUse hook is installed.
       const guardSessionScan = scanGuardSessions(store, root);
+      // Nested reservation fences: a machine ticket whose pending pre-spawn rows never
+      // recorded a proven target stays fenced by design. Doctor only surfaces it; it
+      // never releases capacity or signals foreign processes.
+      const fencedMachineTickets = scanFencedMachineTickets();
       // B-c054 (W2a): non-gating red-evidence policy health line. Resolves the
       // optional redEvidence block and renders exactly ONE advisory line (the
       // resolved policyDigest when a valid block is present, else the fail-closed
@@ -324,6 +373,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           runtimeMode: runtime.runtimeMode,
           healthPath: getHealthPath(),
           hostBurnScan: { ...hostBurnScan, scanWindowHours: burnThresholds.recentHours, disabled: burnDisabled },
+          fencedMachineTickets,
           ...summary,
           worktrees: {
             registered: orphanScan.registered,
@@ -592,6 +642,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       lines.push('');
       for (const line of renderStoryOwnerLeaseScan(storyOwnerLeases)) lines.push(line);
+
+      lines.push('');
+      for (const line of renderFencedMachineTickets(fencedMachineTickets)) lines.push(line);
 
       lines.push('');
       lines.push('Owner session identity:');

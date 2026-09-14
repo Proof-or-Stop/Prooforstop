@@ -656,7 +656,7 @@ function machineBootIdentity(): string | undefined {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value) ? value : undefined;
   } catch { return undefined; }
 }
-function canonicalMachineCapacityRoot(): string {
+export function canonicalMachineCapacityRoot(): string {
   return join(userInfo().homedir, PROOF_OR_STOP_DIR, 'locks', MACHINE_FIXED_PORT_ARTIFACT.directoryName);
 }
 /** Read-only prior-boot proof. Only an already-stale canonical ticket may use it. */
@@ -778,7 +778,8 @@ function createValidationCapacityCandidate(path: string, holder: MkdirLockHolder
   // identity is complete. A process killed while preparing leaves only an
   // ignored, never-reused private path; the atomic rename is the publication.
   const preparingPath = `${path}.${process.pid}-${randomUUID()}.preparing`;
-  mkdirSync(preparingPath);
+  // The published ticket must satisfy the boot-recovery reader's private-mode requirement.
+  mkdirSync(preparingPath, { mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode });
   try {
     writeFileSync(join(preparingPath, 'holder.json'), JSON.stringify(holder, null, 2) + '\n', 'utf8');
     if (declaration) writeFileSync(join(preparingPath, 'resources.json'), JSON.stringify(declaration) + '\n', 'utf8');

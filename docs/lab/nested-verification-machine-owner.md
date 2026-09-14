@@ -30,8 +30,18 @@ registered cooperating executor/fixture chain, not hostile code in the issuer's
 own process or a hostile same-user filesystem administrator.
 
 Non-macOS execution retains the existing non-delegated queue path. It does not
-claim detached delegation support. Arbitrary shell/npm wrappers that drop the
-capability are unsupported; no environment-key fallback repairs a dropped FD.
+claim detached delegation support. On macOS every Node-spawned child receives
+only its explicitly listed stdio descriptors, so a plain wrapper such as `npm run`
+or a runner spawning with `stdio: 'inherit'` drops the reserved descriptor while
+the locator environment survives. That state is classified as a dropped
+transport: the descendant is diagnosed once on stderr
+(`VALIDATION_DELEGATION_UNAVAILABLE`), runs without a borrowed reservation
+exactly as before delegation existed, and forwards no locator. Nothing is repaired
+from the environment, and a regular file at the reserved slot is never downgraded:
+a copied bootstrap stays refused. The repository's own
+`scripts/run-validation-fixture-suite.mjs` is a cooperating wrapper and forwards
+the descriptor explicitly; npm-wrapped fixture targets remain non-delegated, which
+is their pre-existing behavior on main.
 Resource delegation grants neither Story mutation nor reviewer/provider authority.
 The closed verification capsule retains its exact existing leaf environment.
 
@@ -77,6 +87,7 @@ checks. Conflicting siblings serialize, including while revoked work is stopping
 | Registered descendant group still exists | No, including after normal callback return. |
 | Transitive descendant grant remains | No; revocation does not prove completion. |
 | Pending registration has no proven target absence | No; unknown work remains fenced. |
+| Pending registration never recorded a proven target and its preparing owner is dead | No; a child may have been spawned before the owner died, so the fence is terminal until a different-boot witness or explicit operator action. |
 | Ownership or process observation is unknown | No. |
 
 A continuous bounded frame parser handles the signed grant and subsequent
@@ -88,6 +99,20 @@ standalone use; an outcome file alone does not establish absence.
 Unknown residuals retain the machine
 reservation and produce a non-PASS cleanup result. This fence applies only to the
 machine queue, not unrelated workspace capacity or metadata locks.
+
+A pending row records its proven registration target only after identity, group
+leadership and pre-orphan ancestry are observed. Transient kernel observation
+failures during registration are retried a bounded number of times
+(`observationRetries` with `observationBackoffMs` in the registered runtime
+policy) before the registration is refused, so a single `ps` hiccup does not
+strand a targetless token. A token that still ends targetless because its owner
+died between prepare and registration, or because every bounded observation
+failed, cannot be resolved by owner death alone: a detached child may already
+exist. `proof-or-stop doctor` lists such tickets under "Nested reservation
+fences" with the count of unresolved pending rows and dead owners. Recovery is
+the different-boot witness path after a reboot, or removal of the ticket
+directory only after an operator has independently confirmed that no detached
+child remains; the tool never releases it automatically.
 
 ### Prior-boot recovery
 
@@ -107,9 +132,16 @@ Legacy tickets without a boot witness cannot use this recovery path.
 
 The witness uses the existing private ticket-filesystem trust boundary; it is
 not cryptographic protection against an actor who can rewrite that private
-state. `scripts/verify-nested-reservation-boot-recovery.mjs` exercises actual
-pre-publication recording and controlled reader/queue conditions. Those controls
-do not claim that the host was rebooted during verification.
+state. The ticket directory is published with the registered private directory
+mode, because the reader refuses any ticket readable by group or others; an
+earlier candidate created it with the process default mode, which left the
+recovery branch unreachable on the public path while a hand-made 0o700 fixture
+still passed. `scripts/verify-nested-reservation-boot-recovery.mjs` therefore
+evaluates the reader against the actually published ticket under controlled
+kernel observations, in addition to its pre-publication recording and
+controlled reader/queue matrix; against the unfixed publication it fails with
+MACHINE_TICKET_PRIVATE_DIRECTORY_MODE_REQUIRED. Those controls do not claim that
+the host was rebooted during verification.
 
 ### Command result preservation
 
@@ -120,15 +152,46 @@ command result with a bounded cleanup diagnostic; it does not relabel completed
 execution as a prelaunch refusal. Reported effective timeout uses the same value
 as the armed execution timer, excluding time already consumed by setup.
 
+### Normal validation under the changed executor
+
+Configured commands that reach the changed fixtures were executed through the real
+compiled executor on 2026-09-14 with the machine reservation held, on the merged
+candidate and on local main 0.3.363 for comparison. The fixture-suite-wrapped
+`post-done-closure-snapshot` target passes on both (24 seconds on main, 24 seconds
+on the candidate); an intermediate candidate that forwarded the outer reservation
+into the fixture's separate machine environment failed it, which is why the suite
+wrapper now strips the locator instead. The reviewer-scan budget guard passes on
+the candidate. The npm-wrapped `test:dynamic-finding-evidence-closure` target reaches
+the same 180-second timeout with the same single failing case on main and on the
+candidate, so npm-wrapped fixture targets remain non-delegated and unchanged;
+`review-pass-discard-smoke` fails identically on main and on the candidate with a
+fixture repository error unrelated to delegation. These are bounded targeted
+observations, not a full validation run; the static-edge scanner's remaining rows
+equal the set already present on local main.
+
 ## Verification boundaries
 
-The named `test:nested-reservation-*` targets in `packages/main/package.json`
-are registered individually in normal validation. A closed selector wrapper
-normalizes the repository working directory and prints an explicit skip on
-unsupported platforms before loading native controls. The entries preserve the
-underlying workload limits and declare the existing exclusive machine heavy and
-process-fanout resources; private fixture directories do not permit concurrent
-machine contention. The original pinned Lab driver remains unchanged.
+Thirty direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+commands are registered in `proof-or-stop.config.json`; the matching
+`test:nested-reservation-*` entries in `packages/main/package.json` are
+convenience aliases for manual runs and are not validation gate inputs. The
+closed selector wrapper normalizes the repository working directory and prints
+an explicit skip on unsupported platforms before loading native controls. The
+entries declare the existing exclusive machine heavy and process-fanout
+resources; private fixture directories do not permit concurrent machine
+contention. The original pinned Lab driver remains unchanged. Registered budgets
+are evidence-backed: measured sequentially on 2026-09-14 against the merged
+candidate, `core` completed in 30.8 to 40.6 seconds against a 120-second budget
+(five 15-second outer cases plus setup stack in the worst case),
+`registration-race` in 9.5 seconds against 120 seconds (eight 10-second modes
+stack in the worst case), `cleanup-diagnostics` in 6.2 seconds against 90
+seconds (six 10-second modes), and every remaining selector in under 37 seconds
+against its 12-second or 60-second budget.
+The pinned driver admits its leaf commands through the real same-user machine
+pool rather than a private namespace, which is why its command declares the
+exclusive machine heavy and process-fanout resources: run concurrently with
+another holder of that pool outside validation, its 1.5-second leaf deadline is
+reached before launch and it fails exactly like the original RED.
 
 Static evidence for this route must directly bind the resource configuration,
 registered runtime policy and actual loaded implementation helpers. Regression
@@ -143,8 +206,12 @@ The originally pinned Lab command remains
 `node scripts/verify-nested-verification-machine-owner.mjs`, with its original
 60-second Lab cap, 15-second outer executor cases and 1.5-second leaf timeout. It
 covers the actual deadlock regression, absent leaf output, sibling/ancestor
-nesting, revoked contexts, subset and fixed-port refusal, copied/dropped
-capabilities, transitive release/expiry and immutable enrollment.
+nesting, revoked contexts, subset and fixed-port refusal, copied-key refusal with
+dropped-descriptor degradation, transitive release/expiry and immutable
+enrollment. `verify-nested-reservation-wrapper-transport.mjs` registers a plain
+and a cooperating Node wrapper as detached children of a real controller and
+proves that the dropped transport degrades without a token, locator or reserved
+slot while the forwarded transport keeps the pending-fence capability.
 
 Supplemental source-bound native fault commands are recorded separately:
 `verify-nested-reservation-faults.mjs` modes `registered`, `same-group`, `pending`,

@@ -1462,12 +1462,6 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
   options = { ...options, deadlineAt: Math.min(options.deadlineAt ?? Infinity, started + configuredTimeoutMs) };
-  const deadlineRemainingMs = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt)
-    ? Math.max(1, Math.floor(options.deadlineAt - Date.now()))
-    : undefined;
-  const timeoutMs = deadlineRemainingMs === undefined
-    ? configuredTimeoutMs
-    : Math.min(configuredTimeoutMs, deadlineRemainingMs);
   // A policy-owned reuse capsule supplies its already-closed environment. Do not
   // merge ambient variables back into that boundary while retaining the normal
   // validation environment construction for every ordinary command.

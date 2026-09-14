@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 const selector = process.argv[2];
-const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup"];
+const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport"];
 if (process.argv.length !== 3 || !selectors.includes(selector)) throw new Error('Unknown nested reservation regression selector');
 if (process.platform !== 'darwin') {
   console.log('NESTED_RESERVATION_REGISTERED SKIP ' + selector + ': requires Darwin kernel descriptor and process identity observation; platform=' + process.platform);
@@ -126,6 +126,10 @@ if (process.platform !== 'darwin') {
     case "result-post-capture-cleanup":
       process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-validation-result-contract.mjs", import.meta.url)), ...["post-capture-cleanup"]];
       await import("./verify-nested-validation-result-contract.mjs");
+      break;
+    case "wrapper-transport":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-wrapper-transport.mjs", import.meta.url)), ...[]];
+      await import("./verify-nested-reservation-wrapper-transport.mjs");
       break;
     default: throw new Error('Unreachable nested reservation selector');
   }

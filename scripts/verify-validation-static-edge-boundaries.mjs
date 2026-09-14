@@ -220,7 +220,9 @@ try{
    'scripts/verify-nested-reservation-cancellation.mjs':['./support/nested-reservation-source-runtime.mjs'],
    'scripts/verify-nested-reservation-boot-recovery.mjs':['./support/nested-reservation-source-runtime.mjs'],
    'scripts/verify-nested-validation-result-contract.mjs':['./support/nested-reservation-source-runtime.mjs'],
-   [entry]:['./verify-nested-isolated-cleanup.mjs','./verify-nested-isolated-worker-exit.mjs','./verify-nested-reservation-cleanup-diagnostics.mjs','./verify-nested-reservation-faults.mjs','./verify-nested-reservation-handshake-deadline.mjs','./verify-nested-reservation-owner-loss.mjs','./verify-nested-reservation-registration-race.mjs','./verify-nested-source-loader-semantics.mjs','./verify-nested-verification-machine-owner.mjs','./verify-nested-validation-result-contract.mjs','./verify-nested-reservation-cancellation.mjs','./verify-nested-reservation-boot-recovery.mjs'],
+   'scripts/verify-nested-reservation-handshake-deadline.mjs':['./support/nested-reservation-source-runtime.mjs'],
+   'scripts/verify-nested-reservation-wrapper-transport.mjs':['./support/nested-reservation-source-runtime.mjs'],
+   [entry]:['./verify-nested-isolated-cleanup.mjs','./verify-nested-isolated-worker-exit.mjs','./verify-nested-reservation-cleanup-diagnostics.mjs','./verify-nested-reservation-faults.mjs','./verify-nested-reservation-handshake-deadline.mjs','./verify-nested-reservation-owner-loss.mjs','./verify-nested-reservation-registration-race.mjs','./verify-nested-source-loader-semantics.mjs','./verify-nested-verification-machine-owner.mjs','./verify-nested-validation-result-contract.mjs','./verify-nested-reservation-cancellation.mjs','./verify-nested-reservation-boot-recovery.mjs','./verify-nested-reservation-wrapper-transport.mjs'],
    'scripts/verify-nested-verification-machine-owner.mjs':['./support/nested-reservation-lifecycle.mjs','./lab-source-loader.mjs','../packages/main/src/core/validation-executor.ts'],
    ...Object.fromEntries(['isolated-worker-exit','isolated-cleanup','reservation-cleanup-diagnostics','reservation-registration-race','reservation-owner-loss','reservation-faults'].map(name=>['scripts/verify-nested-'+name+'.mjs',['./support/nested-reservation-source-runtime.mjs']]))
   };
@@ -250,6 +252,12 @@ try{
   const wrongExcerpt=structuredClone(exact);wrongExcerpt.requiredEvidence[0].excerpt+=' altered';pin([wrongExcerpt]);
   assert.equal(expect(1,'native route exact source excerpt remains mandatory').rows[0].state,'NEEDS_REVIEW');
   pin([exact]);expect(0,'native route complete binding restored');
+  // A route script that loads a ./support/ helper without its own reviewed row must fail the scan itself.
+  const unrowed='scripts/verify-nested-source-loader-semantics.mjs';
+  put(unrowed,"await import('./support/nested-reservation-source-runtime.mjs');\n");
+  const unrowedReport=expect(1,'nested route helper import without a reviewed helper-import row is refused');
+  assert.ok(unrowedReport.coverage.some(row=>row.file===unrowed&&row.reason==='nested route script imports ./support/ without a reviewed helper-import row'),'missing helper-import row must be named');
+  put(unrowed,'');pin([exact]);expect(0,'native route complete binding restored after helper-import control');
  }
  const releaseStarted=performance.now();
  const releaseCase=spawnSync(process.execPath,[path.join(repo,'scripts/verify-lab-version-source-evidence.mjs')],{encoding:'utf8',timeout:LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS,maxBuffer:32*1024*1024});

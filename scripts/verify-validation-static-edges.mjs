@@ -24,6 +24,8 @@ const NESTED_RESERVATION_REQUIRED_DEPENDENCIES = [
 ];
 const REVIEWED_VERIFIER_HELPER_IMPORTS = new Map([
  ["scripts/verify-nested-reservation-cancellation.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-handshake-deadline.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-wrapper-transport.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
  ["scripts/verify-nested-reservation-boot-recovery.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
  ["scripts/verify-nested-validation-result-contract.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
  ["scripts/verify-nested-isolated-worker-exit.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
@@ -33,7 +35,7 @@ const REVIEWED_VERIFIER_HELPER_IMPORTS = new Map([
  ["scripts/verify-nested-reservation-owner-loss.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
  ["scripts/verify-nested-reservation-faults.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
  ["scripts/verify-nested-verification-machine-owner.mjs", ["./support/nested-reservation-lifecycle.mjs", "./lab-source-loader.mjs", "../packages/main/src/core/validation-executor.ts"]],
- ["scripts/verify-nested-reservation-registered.mjs", ["./verify-nested-isolated-cleanup.mjs", "./verify-nested-isolated-worker-exit.mjs", "./verify-nested-reservation-cleanup-diagnostics.mjs", "./verify-nested-reservation-faults.mjs", "./verify-nested-reservation-handshake-deadline.mjs", "./verify-nested-reservation-owner-loss.mjs", "./verify-nested-reservation-registration-race.mjs", "./verify-nested-source-loader-semantics.mjs", "./verify-nested-verification-machine-owner.mjs", "./verify-nested-validation-result-contract.mjs", "./verify-nested-reservation-cancellation.mjs", "./verify-nested-reservation-boot-recovery.mjs"]],
+ ["scripts/verify-nested-reservation-registered.mjs", ["./verify-nested-isolated-cleanup.mjs", "./verify-nested-isolated-worker-exit.mjs", "./verify-nested-reservation-cleanup-diagnostics.mjs", "./verify-nested-reservation-faults.mjs", "./verify-nested-reservation-handshake-deadline.mjs", "./verify-nested-reservation-owner-loss.mjs", "./verify-nested-reservation-registration-race.mjs", "./verify-nested-source-loader-semantics.mjs", "./verify-nested-verification-machine-owner.mjs", "./verify-nested-validation-result-contract.mjs", "./verify-nested-reservation-cancellation.mjs", "./verify-nested-reservation-boot-recovery.mjs", "./verify-nested-reservation-wrapper-transport.mjs"]],
  ['scripts/verify-proof-or-stop-identity-cutover.mjs', ['./identity-reviewed-json-contexts.mjs','./identity-reviewed-fixture-contexts.mjs','./identity-reviewed-source-contexts.mjs','./identity-maintenance-boundaries.mjs']],
  ['packages/graph/scripts/verify-json-no-listener.mjs', ['./graph-process.mjs']],
  ['packages/graph/scripts/verify-serves.mjs', ['./graph-process.mjs']],
@@ -76,6 +78,10 @@ function scan(file,index,entry,argv,seen,depth=0){const invocationKey=JSON.strin
  const moduleFile=path.join(root,runtime(file));
  const identityPlan=identityChildClosure({ts,file,text,ast,entry,argv,contract:identityContract});
  const graphImports = REVIEWED_VERIFIER_HELPER_IMPORTS.get(file);
+ // Every script reachable from the closed nested reservation wrapper that loads a
+ // ./support/ helper must carry its own reviewed helper-import row; otherwise its
+ // helper would silently escape traversal for that configured command.
+ if(file==='scripts/verify-nested-reservation-registered.mjs')for(const spec of graphImports??[]){const routeScript=path.posix.normalize(path.posix.join(path.posix.dirname(file),spec));let routeText='';try{routeText=fs.readFileSync(path.join(root,routeScript),'utf8');}catch{continue;}if(/(?:from\s*|import\s*\(\s*)['"]\.\/support\//.test(routeText)&&!REVIEWED_VERIFIER_HELPER_IMPORTS.has(routeScript))coverage.push({index,file:routeScript,state:'NEEDS_REVIEW',reason:'nested route script imports ./support/ without a reviewed helper-import row'});}
  const seenGraphImports = new Set();
  function observeGraphImport(node, specifier) {
   if (!graphImports) return;

@@ -76,6 +76,19 @@ function groupGone(pgid: number): boolean {
   try { process.kill(-pgid, 0); return false; } catch (error) { return (error as NodeJS.ErrnoException).code === 'ESRCH'; }
 }
 /** Resolve an unobserved target only when neither its PID nor group exists. */
+// Transient kernel observation failures (ps spawn or timeout) are retried a bounded
+// number of times before a registration is refused; absence still resolves only
+// through registrationTargetGone, never through the retry itself.
+function observeWithRetry<T>(observe: () => T): T {
+  let last: unknown;
+  for (let attempt = 0; attempt < policy.observationRetries; attempt++) {
+    try { return observe(); } catch (error) {
+      last = error;
+      if (attempt + 1 < policy.observationRetries) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, policy.observationBackoffMs);
+    }
+  }
+  throw last;
+}
 function registrationTargetGone(pid: number): boolean {
   if (!Number.isSafeInteger(pid) || pid <= 1) return false;
   try { process.kill(pid, 0); return false; } catch (error) {
@@ -92,11 +105,34 @@ function descriptor(pid: number, fd: number): { dev: bigint; ino: bigint } {
   if (dev.length !== 1 || ino.length !== 1) throw failure('kernel descriptor fields unavailable');
   return { dev: BigInt(dev[0].slice(1)), ino: BigInt(ino[0].slice(1)) };
 }
+// On Darwin every Node-spawned child receives only its explicitly listed stdio
+// descriptors (posix_spawn closes the rest), so a plain wrapper such as npm drops
+// the reserved descriptor while the locator environment survives. That loss is
+// classified as a dropped transport: the process runs without a borrowed
+// reservation, exactly as before delegation existed, and forwards no locator.
+// Child output stays byte-identical by default; the registered diagnostics
+// environment opts into one stderr line per process. Nothing is repaired from the
+// environment, and a regular file at the reserved slot is never downgraded: a
+// copied bootstrap stays refused.
+let droppedTransportDiagnosed = false;
+function droppedTransport(reason: string): undefined {
+  if (!droppedTransportDiagnosed && process.env[policy.diagnosticsEnvironment] === '1') {
+    droppedTransportDiagnosed = true;
+    process.stderr.write(`VALIDATION_DELEGATION_UNAVAILABLE: ${reason}; an intermediate wrapper dropped the reserved descriptor, so this process runs without a borrowed machine reservation and forwards no locator\n`);
+  }
+  return undefined;
+}
 function readBootstrap(fd: number = FD, cleanupOnly = false): Bootstrap | undefined {
-  if (!frames.getStore() && process.env[ENV] === undefined) return undefined;
-  if (!frames.getStore() && process.env[ENV] !== String(FD)) throw failure('invalid descriptor locator');
-  let stat; try { stat = fstatSync(fd, { bigint: true }); } catch (error) { if ((error as NodeJS.ErrnoException).code === 'EBADF') throw failure('missing inherited descriptor'); throw error; }
-  // A foreign fd at the reserved slot is not silently treated as no delegation.
+  const inherited = !frames.getStore();
+  if (inherited && process.env[ENV] === undefined) return undefined;
+  if (inherited && process.env[ENV] !== String(FD)) throw failure('invalid descriptor locator');
+  let stat; try { stat = fstatSync(fd, { bigint: true }); } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EBADF') throw error;
+    if (inherited) return droppedTransport('missing inherited descriptor');
+    throw failure('missing inherited descriptor');
+  }
+  if (inherited && !stat.isFile()) return droppedTransport('reserved descriptor is not a regular file');
+  // A foreign regular file at the reserved slot is not silently treated as no delegation.
   if (!stat.isFile() || stat.nlink !== 0n || stat.size <= 0n || stat.size > BigInt(LIMIT)) throw failure('bootstrap is not a bounded unlinked regular descriptor');
   const buffer = Buffer.alloc(Number(stat.size)); if (readSync(fd, buffer, 0, buffer.length, 0) !== buffer.length) throw failure('bootstrap incomplete');
   const value = JSON.parse(buffer.toString('utf8')) as Bootstrap;
@@ -122,7 +158,10 @@ export function validationReservationChildStdio(base: StdioOptions = ['ignore', 
 export function validationReservationChildEnvironment(base: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const frame=frames.getStore();if(frame && !frame.active)throw failure('invocation no longer active');
   const bootstrap = frame?.bootstrap ?? readBootstrap();
-  return bootstrap ? { ...base, [ENV]: String(FD) } : base;
+  if (bootstrap) return { ...base, [ENV]: String(FD) };
+  if (base[ENV] === undefined) return base;
+  // A dangling locator inherited through a dropping wrapper is never forwarded.
+  const stripped = { ...base }; delete stripped[ENV]; return stripped;
 }
 export function currentValidationReservationAbortSignal(): AbortSignal | undefined { return frames.getStore()?.abort.signal; }
 function subset(requested: ResourceClaim[] | null, held: ResourceClaim[] | null): boolean {
@@ -262,7 +301,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     if(registrationTargetGone(pid)){pendingChildren.delete(pendingToken!);publish();return;}
     if(registered.has(pid))throw failure('child enrollment is immutable');
     let target: ProcessIdentity;
-    try { target = identity(pid); } catch (error) {
+    try { target = observeWithRetry(() => identity(pid)); } catch (error) {
       // Pending ownership, parent invocation and immutable enrollment were
       // checked above. Only fresh absence resolves this one owned fence.
       if (!registrationTargetGone(pid)) throw error;
@@ -273,7 +312,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     if(target.pgid!==target.pid)throw failure('registered child must own its detached group');
     if(pending.target && (pending.target.start!==target.start || pending.target.pgid!==target.pgid))throw failure('pending target identity changed');
     try {
-      if (!ancestors(pid).includes(parent)) throw failure('registration requires observed pre-orphan ancestry');
+      if (!observeWithRetry(() => ancestors(pid)).includes(parent)) throw failure('registration requires observed pre-orphan ancestry');
     } catch (error) {
       if (!registrationTargetGone(pid)) throw error;
       pendingChildren.delete(pendingToken!); publish(); return;
