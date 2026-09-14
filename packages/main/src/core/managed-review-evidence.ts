@@ -505,6 +505,7 @@ export function buildManagedReviewerPrompt(
     'readLog.summary.readCount MUST equal the number of unique paths in readLog.filesReadFully (not the number of read operations you performed).',
     'The managed host adapter reads only this bounded final assistant result after provider exit, seals the exact verdict, and then permits receipt import. The controller cannot substitute or override it.',
     'Execution boundary: remain in the host-configured isolated scratch cwd for this managed provider run. The signed ReviewRun may record a canonical primary worktree only for audit binding; do not cd to, run commands from, or write to that canonical path.',
+    'The current cwd is a disposable same-HEAD execution checkout seeded from the sealed review source, and $PROOF_OR_STOP_REVIEW_EXECUTION_CWD names this exact checkout. Inspect and cite tracked source here, and run every test, build, formatter, generator, or other command here so generated files remain disposable. Never access the canonical Story worktree or copy outputs back into it.',
     '--- END MANAGED REVIEW EVIDENCE PROTOCOL ---',
     '',
     renderManagedReviewerProviderPrompt(resolveManagedReviewerBasePrompt(root, run), root),

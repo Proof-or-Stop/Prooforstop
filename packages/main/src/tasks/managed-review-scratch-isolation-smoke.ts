@@ -9,6 +9,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -25,6 +26,7 @@ import {
 } from '../core/managed-host-run.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import type { HostRunRunner, HostRunSpawnPlan } from '../core/host-run.js';
+import { MANAGED_REVIEW_LANE_ARTIFACT } from '../core/runtime-artifact-registry.js';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -101,18 +103,26 @@ function isRegistered(root: string, worktree: string): boolean {
     .some(line => line === `worktree ${worktree}`);
 }
 
+function recoverRetainedScratchFixture(root: string, parent: string): void {
+  for (const path of [join(parent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree), join(parent, 'worktree')]) {
+    if (isRegistered(root, path)) git(root, ['worktree', 'remove', '--force', path]);
+  }
+  rmSync(parent, { recursive: true, force: true, maxRetries: 3, retryDelay: 10 });
+}
+
 async function submitIsolatedManagedReview(args: {
   root: string;
   headHash: string;
   materialHash: string;
   runId: string;
   runner: HostRunRunner;
-  beforeWorker?: () => void;
+  beforeWorker?: (actualRunId: string) => void;
   parentFactory?: () => string;
   environment?: NodeJS.ProcessEnv;
 }): Promise<{ terminal: ManagedHostRunTerminal; plan: HostRunSpawnPlan | null }> {
   let worker: Promise<ManagedHostRunTerminal> | null = null;
   let plan: HostRunSpawnPlan | null = null;
+  let beforeWorkerError: unknown = null;
   const observedRunner: HostRunRunner = async spawnPlan => {
     plan = spawnPlan;
     return args.runner(spawnPlan);
@@ -138,7 +148,12 @@ async function submitIsolatedManagedReview(args: {
     claimPollMs: 5,
     managedReviewScratchParentFactory: args.parentFactory,
     launchWorker: async request => {
-      args.beforeWorker?.();
+      try {
+        args.beforeWorker?.(request.runId);
+      } catch (error) {
+        beforeWorkerError = error;
+        throw error;
+      }
       worker = runManagedHostRunWorker(request, {
         runner: observedRunner,
         env: { PROOF_OR_STOP_USAGE_LEDGER: '0' },
@@ -146,7 +161,7 @@ async function submitIsolatedManagedReview(args: {
       return { pid: process.pid };
     },
   });
-  assert.ok(worker, 'injected worker launch occurred');
+  assert.ok(worker, `injected worker launch occurred${beforeWorkerError ? `: ${String(beforeWorkerError)}` : ''}`);
   return { terminal: await worker, plan };
 }
 
@@ -174,14 +189,17 @@ async function main(): Promise<void> {
     const persistedSpec = JSON.parse(readFileSync(
       join(managedHostRunDirectory(root, completed.terminal.runId), 'spec.json'),
       'utf8',
-    )) as { root: string; cwd: string; managedReviewScratch?: { headHash?: string; cwd?: string } };
+    )) as { root: string; cwd: string; managedReviewScratch?: { headHash?: string; cwd?: string; executionCwd?: string } };
 
     assert.equal(completed.terminal.state, 'failed', 'safe injected provider failure reaches a terminal state');
     assert.equal(completed.terminal.replacementSafe, true, 'terminal records a reaped, replacement-safe provider boundary');
     assert.equal(persistedSpec.root, root, 'durable evidence root remains the canonical primary worktree');
     assert.equal(binding.cwd, persistedSpec.cwd, 'sealed binding persists the exact provider execution cwd');
     assert.notEqual(binding.cwd, root, 'provider execution cwd is never the canonical primary worktree');
-    assert.equal(persistedSpec.managedReviewScratch?.cwd, binding.cwd, 'sealed scratch registration binds the spec cwd');
+    assert.equal(persistedSpec.managedReviewScratch?.executionCwd, binding.cwd,
+      'sealed scratch registration binds the provider cwd to its disposable execution checkout');
+    assert.notEqual(persistedSpec.managedReviewScratch?.cwd, binding.cwd,
+      'the sealed review source remains distinct from the provider execution cwd');
     assert.equal(persistedSpec.managedReviewScratch?.headHash, headHash, 'sealed scratch registration binds the submitted HEAD');
     assert.equal(completed.plan?.cwd, binding.cwd, 'provider plan executes only in the sealed detached scratch cwd');
     assert.deepEqual(completed.plan?.argv, ['exec', '--json', '-s', 'danger-full-access', '-C', binding.cwd, '-'],
@@ -241,6 +259,105 @@ async function main(): Promise<void> {
     assert.equal(isRegistered(root, join(failedParent, 'worktree')), false,
       'failed setup leaves no detached scratch registration behind');
 
+    let testExecutionRouted = false;
+    const generatedTestArtifact = 'provider-test-output.fixture';
+    const testExecutionReceipt = await submitIsolatedManagedReview({
+      root,
+      headHash,
+      materialHash,
+      runId: 'managed-review-scratch-test-execution',
+      runner: spawnPlan => {
+        const executionCwd = spawnPlan.env.PROOF_OR_STOP_REVIEW_EXECUTION_CWD || spawnPlan.cwd;
+        writeFileSync(join(executionCwd, generatedTestArtifact), 'generated by an inspected test\n');
+        const sealedSourceCwd = join(dirname(executionCwd), 'worktree');
+        testExecutionRouted = executionCwd === spawnPlan.cwd
+          && existsSync(join(executionCwd, generatedTestArtifact))
+          && executionCwd !== sealedSourceCwd
+          && !existsSync(join(sealedSourceCwd, generatedTestArtifact));
+        return successfulPassResult('B-scratch:managed-review-scratch-test-execution');
+      },
+    });
+    if (testExecutionReceipt.terminal.state !== 'completed' || !testExecutionRouted) {
+      console.error('RED::MANAGED_REVIEW_TEST_EXECUTION_MUTATES_SEALED_SOURCE');
+    }
+    assert.equal(testExecutionReceipt.terminal.state, 'completed',
+      'provider test artifacts written in the disposable execution checkout do not invalidate the sealed review source');
+    assert.equal(testExecutionRouted, true,
+      'managed reviewers start in a writable execution checkout distinct from the sealed review source');
+
+    const mutatedExecutionReceipt = await submitIsolatedManagedReview({
+      root,
+      headHash,
+      materialHash,
+      runId: 'managed-review-scratch-mutated-execution',
+      runner: spawnPlan => {
+        const executionCwd = spawnPlan.env.PROOF_OR_STOP_REVIEW_EXECUTION_CWD;
+        assert.ok(executionCwd, 'fresh managed reviews publish their disposable execution checkout');
+        writeFileSync(join(executionCwd, 'primary-sentinel.txt'), 'provider changed tracked execution material\n');
+        return successfulPassResult('B-scratch:managed-review-scratch-mutated-execution');
+      },
+    });
+    assert.equal(mutatedExecutionReceipt.terminal.state, 'failed',
+      'tracked mutations in the disposable execution checkout cannot produce a successful terminal');
+    assert.ok(mutatedExecutionReceipt.terminal.reason.includes('managed-review execution worktree tracked material no longer matches'),
+      `execution checkout freedom covers generated products but not tracked source drift: ${mutatedExecutionReceipt.terminal.reason}`);
+    assert.equal(readFileSync(join(root, 'primary-sentinel.txt'), 'utf8'), 'primary worktree must remain intact\n',
+      'a tracked execution-checkout mutation never reaches the primary worktree');
+
+    let gitMetadataTamperParent = '';
+    let originalExecutionGitFile = '';
+    const gitMetadataTamperReceipt = await submitIsolatedManagedReview({
+      root,
+      headHash,
+      materialHash,
+      runId: 'managed-review-scratch-git-metadata-tamper',
+      runner: spawnPlan => {
+        gitMetadataTamperParent = dirname(spawnPlan.cwd);
+        const sealedSourceCwd = join(dirname(spawnPlan.cwd), 'worktree');
+        originalExecutionGitFile = readFileSync(join(spawnPlan.cwd, '.git'), 'utf8');
+        writeFileSync(join(spawnPlan.cwd, '.git'), readFileSync(join(sealedSourceCwd, '.git')));
+        return successfulPassResult('B-scratch:managed-review-scratch-git-metadata-tamper');
+      },
+    });
+    assert.equal(gitMetadataTamperReceipt.terminal.state, 'failed',
+      'rewriting the execution checkout Git indirection cannot produce a successful terminal');
+    assert.ok(gitMetadataTamperReceipt.terminal.reason.includes('scratch git metadata changed after registration'),
+      `execution Git metadata is sealed independently of HEAD equality: ${gitMetadataTamperReceipt.terminal.reason}`);
+    const gitTamperStatus = await getManagedHostRunStatus({ root, runId: gitMetadataTamperReceipt.terminal.runId, waitMs: 0 });
+    assert.equal(gitTamperStatus.run.managedReviewScratchCleanupDiagnostic?.stage, 'terminal',
+      'Git metadata tamper is retained instead of deleting an object whose identity no longer matches');
+    writeFileSync(join(gitMetadataTamperParent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree, '.git'), originalExecutionGitFile);
+    recoverRetainedScratchFixture(root, gitMetadataTamperParent);
+
+    for (const side of ['source', 'execution'] as const) {
+      let replacementParent = '';
+      let replacementTarget = '';
+      const replacementReceipt = await submitIsolatedManagedReview({
+        root,
+        headHash,
+        materialHash,
+        runId: `managed-review-scratch-${side}-replacement`,
+        runner: spawnPlan => {
+          replacementParent = dirname(spawnPlan.cwd);
+          replacementTarget = side === 'source' ? join(replacementParent, 'worktree') : spawnPlan.cwd;
+          git(root, ['worktree', 'remove', '--force', replacementTarget]);
+          git(root, ['worktree', 'add', '--detach', replacementTarget, headHash]);
+          return successfulPassResult(`B-scratch:managed-review-scratch-${side}-replacement`);
+        },
+      });
+      assert.equal(replacementReceipt.terminal.state, 'failed',
+        `same-path same-HEAD ${side} replacement cannot produce a successful terminal`);
+      assert.ok(replacementReceipt.terminal.reason.includes('scratch path identity changed after registration')
+        || replacementReceipt.terminal.reason.includes('scratch Git admin identity changed after registration'),
+      `${side} replacement is bound by filesystem and Git-admin identity: ${replacementReceipt.terminal.reason}`);
+      const replacementStatus = await getManagedHostRunStatus({ root, runId: replacementReceipt.terminal.runId, waitMs: 0 });
+      assert.equal(replacementStatus.run.managedReviewScratchCleanupDiagnostic?.stage, 'terminal',
+        `${side} replacement is retained with a terminal cleanup diagnostic`);
+      assert.equal(isRegistered(root, replacementTarget), true,
+        `${side} replacement is not deleted merely because it reused the owned path`);
+      recoverRetainedScratchFixture(root, replacementParent);
+    }
+
     const cleanReceipt = await submitIsolatedManagedReview({
       root,
       headHash,
@@ -253,13 +370,56 @@ async function main(): Promise<void> {
     assert.equal(existsSync(join(managedHostRunDirectory(root, cleanReceipt.terminal.runId), 'evidence-proposal.json')), true,
       'the valid unchanged provider proposal remains available for managed-review evidence import');
 
+    const historicalRunId = 'managed-review-scratch-historical-single-worktree';
+    const historicalReceipt = await submitIsolatedManagedReview({
+      root,
+      headHash,
+      materialHash,
+      runId: historicalRunId,
+      beforeWorker: actualRunId => {
+        const dir = managedHostRunDirectory(root, actualRunId);
+        const specPath = join(dir, 'spec.json');
+        const ownerPath = join(dir, 'owner.json');
+        const spec = JSON.parse(readFileSync(specPath, 'utf8')) as Record<string, any>;
+        const scratch = spec.managedReviewScratch as Record<string, any>;
+        git(root, ['worktree', 'remove', '--force', scratch.executionCwd]);
+        if (scratch.sourceGitAdminDir) {
+          unlinkSync(join(scratch.sourceGitAdminDir, MANAGED_REVIEW_LANE_ARTIFACT.scratchAdminMarker));
+        }
+        for (const key of [
+          'executionCwd', 'sourceGitFileDigest', 'executionGitFileDigest',
+          'sourceDirectoryIdentity', 'executionDirectoryIdentity',
+          'sourceGitFileIdentity', 'executionGitFileIdentity',
+          'sourceGitAdminDir', 'executionGitAdminDir',
+        ]) delete scratch[key];
+        spec.cwd = scratch.cwd;
+        const specText = `${JSON.stringify(spec, null, 2)}\n`;
+        writeFileSync(specPath, specText);
+        const owner = JSON.parse(readFileSync(ownerPath, 'utf8')) as Record<string, any>;
+        owner.specDigest = `sha256:${createHash('sha256').update(specText).digest('hex')}`;
+        writeFileSync(ownerPath, `${JSON.stringify(owner, null, 2)}\n`);
+        writeFileSync(join(scratch.parent, 'managed-review-scratch.json'),
+          `${JSON.stringify(scratch, null, 2)}\n`);
+      },
+      runner: () => successfulPassResult(`B-scratch:${historicalRunId}`),
+    });
+    assert.equal(historicalReceipt.terminal.state, 'completed',
+      'a historical sealed single-worktree spec remains readable and terminal-capable');
+    assert.equal(historicalReceipt.plan?.env.PROOF_OR_STOP_REVIEW_EXECUTION_CWD, undefined,
+      'historical specs retain their original environment rather than gaining new execution facts');
+    assert.equal(existsSync(dirname(historicalReceipt.plan!.cwd)), false,
+      'historical single-worktree terminal cleanup remains exact and complete');
+    assert.equal(isRegistered(root, historicalReceipt.plan!.cwd), false,
+      'historical single-worktree cleanup removes its original registration');
+
     const mutatedReceipt = await submitIsolatedManagedReview({
       root,
       headHash,
       materialHash,
       runId: 'managed-review-scratch-mutated-receipt',
       runner: spawnPlan => {
-        writeFileSync(join(spawnPlan.cwd, 'primary-sentinel.txt'), 'provider changed detached review material\n');
+        const sealedSourceCwd = join(dirname(spawnPlan.cwd), 'worktree');
+        writeFileSync(join(sealedSourceCwd, 'primary-sentinel.txt'), 'provider changed detached review material\n');
         return successfulPassResult('B-scratch:managed-review-scratch-mutated-receipt');
       },
     });
@@ -302,6 +462,7 @@ async function main(): Promise<void> {
       'terminal',
       'runtime health scan exposes the retained terminal cleanup failure',
     );
+    git(root, ['worktree', 'remove', '--force', join(terminalCleanupParent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree)]);
     git(root, ['worktree', 'remove', '--force', join(terminalCleanupParent, 'worktree')]);
     rmSync(terminalCleanupParent, { recursive: true, force: true, maxRetries: 3, retryDelay: 10 });
 
@@ -334,6 +495,7 @@ async function main(): Promise<void> {
     } finally {
       if (previousHealthPath === undefined) delete process.env.PROOF_OR_STOP_HEALTH_PATH;
       else process.env.PROOF_OR_STOP_HEALTH_PATH = previousHealthPath;
+      git(root, ['worktree', 'remove', '--force', join(healthFailureParent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree)]);
       git(root, ['worktree', 'remove', '--force', join(healthFailureParent, 'worktree')]);
       rmSync(healthFailureParent, { recursive: true, force: true, maxRetries: 3, retryDelay: 10 });
     }
@@ -383,6 +545,7 @@ async function main(): Promise<void> {
       assert.equal(existsSync(join(inputFailureDir, oneShotInput)), false,
         `pre-launch failure erases one-shot ${oneShotInput} while retaining the cleanup diagnostic`);
     }
+    git(root, ['worktree', 'remove', '--force', join(inputFailureParent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree)]);
     git(root, ['worktree', 'remove', '--force', join(inputFailureParent, 'worktree')]);
     rmSync(inputFailureParent, { recursive: true, force: true, maxRetries: 3, retryDelay: 10 });
 

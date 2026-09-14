@@ -83,10 +83,13 @@ different: the runtime-artifact registry resolves the canonical **primary
 worktree** as the durable runtime/audit root for the sealed run, output journal,
 terminal receipt, receipt archive, and imported evidence. A linked Story
 worktree may submit the run, but is not the durable runtime location and can be
-removed at DONE. The provider executes only in a fresh detached scratch
-worktree at the submitted HEAD. The scratch is read-only for Codex and is
-retained until terminal cleanup is proven replacement-safe; it is never a
-substitute for the audit root.
+removed at DONE. A fresh managed review creates two detached scratch worktrees
+at the submitted HEAD: one sealed source and one disposable execution checkout.
+The provider starts in the execution checkout, so ordinary test commands may
+generate ignored or untracked products without touching the sealed source.
+Tracked execution changes still invalidate the run, and neither scratch is a
+substitute for the audit root. Both are retained until terminal cleanup is
+proven replacement-safe.
 
 Provider output is durably journaled and projected to an attached foreground
 caller as it arrives, up to the per-run 8 MiB retention ceiling. The foreground
@@ -240,8 +243,8 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 原始 ReviewRun/round/Envelope 解释，不能因后来切换 flag 被重新绑定。
 
 For a formal managed review, the provider must remain in its host-configured
-detached scratch worktree. It must never `cd` to, execute commands in, or write
-to the canonical Story worktree named by the signed ReviewRun. The controller
+disposable execution worktree. It must never `cd` to, execute commands in, or
+write to the canonical Story worktree named by the signed ReviewRun. The controller
 evaluates the canonical read-only acceptance topology, pre-review, rollout
 report, and rollout-policy projections before launch, then places only a
 bounded path-free status snapshot in the provider-visible derived prompt. A
@@ -272,8 +275,9 @@ Inside the provider process, the managed prompt forbids `review_run_start`,
 one bounded `lattice.managed_review_final_proposal.v1` JSON envelope containing
 pass-or-findings plus truthful read evidence. This protocol overrides the generic
 reviewer role template's normal `review_pass_set` / `finding_add` closing rules.
-The protected managed Codex launcher uses `codex exec --json -s read-only -C
-<scratch> -`, so after a successful provider exit its formal path accepts
+The protected managed Codex launcher runs from the disposable same-HEAD
+execution checkout inside the registered outer readonly-lane policy, so after a
+successful provider exit its formal path accepts
 exactly one schema-valid terminal `item.completed` `agent_message` envelope.
 The exact standalone raw stdout envelope remains a bounded compatibility path
 for a non-JSON Codex transport; Claude accepts only its terminal `result` lane.
@@ -647,8 +651,10 @@ the same durable run; changed inputs for that identity are refused. A partial
 submission reports its run ID for recovery, and an archived run reports its
 terminal-receipt anchor. Neither condition authorizes another provider launch.
 
-For projects opting into `managedReviewIsolation`, fresh `cross_host_review`
-Codex runs also build a private readonly lane on the existing detached snapshot.
+For projects opting into `managedReviewIsolation`, fresh ordinary managed
+reviews use the sealed-source plus disposable-execution pair described above.
+Fresh `cross_host_review` Codex runs build a private readonly lane on their
+existing detached snapshot and retain that controller's existing cleanup model.
 Executable and supported credential-format preflight runs before creating that
 snapshot. Resume attaches the original sealed run without rebuilding or changing
 its recorded isolation facts. See [readonly lane support and limits](managed-review-readonly-lanes.md).
