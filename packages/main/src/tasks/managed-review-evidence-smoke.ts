@@ -59,7 +59,11 @@ import {
 } from '../core/native-review-evidence.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import { StoryStore } from '../core/store.js';
-import { defaultHostRunRunner, type HostRunRunner } from '../core/host-run.js';
+import {
+  defaultHostRunRunner,
+  normalizeHostRunModelSelection,
+  type HostRunRunner,
+} from '../core/host-run.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo } from '../core/types.js';
 import { createFindingHandlers } from '../handlers/finding.js';
 import { currentStoryRoutingInput } from '../handlers/candidate-spec-routing.js';
@@ -1182,6 +1186,30 @@ async function assertManagedImportEnforcesCandidateReadBinding(brokerPublicKey: 
 }
 
 async function main(): Promise<void> {
+  assert.deepEqual(
+    normalizeHostRunModelSelection({ host: 'codex' }),
+    { model: null, reasoningEffort: null },
+    'omitted model selection preserves the historical default contract',
+  );
+  for (const model of ['model with whitespace', 'model\ncontrol', 'x'.repeat(257)]) {
+    assert.throws(
+      () => normalizeHostRunModelSelection({ host: 'codex', model }),
+      /--model must be a non-empty model id of at most 256 characters without whitespace or controls/,
+      'model ids that are unsafe or outside the bounded contract fail before provider launch',
+    );
+  }
+  assert.throws(
+    () => normalizeHostRunModelSelection({ host: 'codex', reasoningEffort: 'extreme' }),
+    /--reasoningEffort must be one of/,
+    'unknown reasoning effort fails before provider launch',
+  );
+  for (const reasoningEffort of ['none', 'minimal', 'ultra'] as const) {
+    assert.throws(
+      () => normalizeHostRunModelSelection({ host: 'claude', reasoningEffort }),
+      /Claude --reasoningEffort must be one of low, medium, high, xhigh, max/,
+      'Claude rejects reasoning levels that its public CLI cannot honor',
+    );
+  }
   assertHostOwnedMutationEnvDropsReviewerDispatchAuthority();
   const root = mkdtempSync(join(tmpdir(), 'managed-review-evidence-smoke-'));
   const originalCwd = process.cwd();
@@ -1312,6 +1340,11 @@ async function main(): Promise<void> {
       json: true,
     } as const;
     const detached = await hostHandlers.host_run(managedSelectionRequest) as HostRunDetachResult;
+    await assert.rejects(
+      hostHandlers.host_run({ ...managedSelectionRequest, model: 'gpt-5.6-sol' }),
+      /idempotency input conflict; keep the original run/,
+      'resubmitting one review identity with a different model cannot silently reuse or replace the original run',
+    );
     const submitted = detached.run;
     assert.match(deliveredPrompt, /BEGIN MANAGED REVIEW EVIDENCE PROTOCOL/);
     assert.match(deliveredPrompt, /overrides any generic reviewer-role instruction/i,
@@ -2596,6 +2629,8 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
     const managedBinding = readManagedHostRunBinding(root, submitted.runId);
     const expectedBinding: ManagedReviewExpectedBinding = {
       providerHost: managedBinding.host,
+      model: managedBinding.model ?? null,
+      reasoningEffort: managedBinding.reasoningEffort ?? null,
       headHash: run.headHash,
       materialHash: run.materialHash,
       storyFilesHash: run.storyFilesHash ?? '',
@@ -2603,6 +2638,27 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       envelopeId: run.envelopeId ?? null,
       managedPromptDigest: managedBinding.promptDigest,
     };
+    const verifySelectedBinding = (
+      binding: NonNullable<typeof passes[0]>['managedEvidenceBinding'],
+    ) => verifyManagedReviewEvidence({
+      root,
+      storyId: STORY_ID,
+      agent: LANE,
+      lane: LANE,
+      reviewRunId: REVIEW_RUN_ID,
+      binding: binding!,
+      expected: expectedBinding,
+    });
+    assert.equal(
+      verifySelectedBinding({ ...passes[0]!.managedEvidenceBinding!, model: 'different-model' }).valid,
+      false,
+      'REVIEW verification rejects a persisted model that differs from the sealed spec, receipt, and result',
+    );
+    assert.equal(
+      verifySelectedBinding({ ...passes[0]!.managedEvidenceBinding!, reasoningEffort: 'low' }).valid,
+      false,
+      'REVIEW verification rejects persisted reasoning that differs from the sealed spec, receipt, and result',
+    );
     type IntakeArgs = Parameters<typeof createManagedReviewEvidenceBinding>[0];
     const exactIntake: IntakeArgs = {
       root,
