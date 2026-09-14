@@ -1,4 +1,4 @@
-import './scan-attribution-profile.mjs';
+import './four-costs-profile.mjs';
 import fs from 'node:fs';import cp from 'node:child_process';import {syncBuiltinESMExports} from 'node:module';
 const output=process.env.SCAN_ATTRIBUTION_DIR+'/'+process.pid+'.jsonl',append=fs.appendFileSync;
 const emit=r=>append(output,JSON.stringify({pid:process.pid,...r})+'\n');
