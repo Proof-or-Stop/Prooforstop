@@ -192,7 +192,13 @@
     "test:nested-reservation-fault-declared-owner-unclassified": "node ../../scripts/verify-nested-reservation-registered.mjs fault-declared-owner-unclassified",
     "test:nested-reservation-fault-declared-owner-expansion": "node ../../scripts/verify-nested-reservation-registered.mjs fault-declared-owner-expansion",
     "test:nested-reservation-fault-retirement-backoff": "node ../../scripts/verify-nested-reservation-registered.mjs fault-retirement-backoff",
-    "test:nested-reservation-result-caller-deadline": "node ../../scripts/verify-nested-reservation-registered.mjs result-caller-deadline"
+    "test:nested-reservation-result-caller-deadline": "node ../../scripts/verify-nested-reservation-registered.mjs result-caller-deadline",
+    "test:nested-reservation-fault-controller-transport-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs fault-controller-transport-unavailable",
+    "test:nested-reservation-fault-drain-observation-transient": "node ../../scripts/verify-nested-reservation-registered.mjs fault-drain-observation-transient",
+    "test:nested-reservation-fault-unattempted-owner-loss": "node ../../scripts/verify-nested-reservation-registered.mjs fault-unattempted-owner-loss",
+    "test:nested-reservation-fault-attempted-owner-loss": "node ../../scripts/verify-nested-reservation-registered.mjs fault-attempted-owner-loss",
+    "test:nested-reservation-cancel-client-rejects-applied": "node ../../scripts/verify-nested-reservation-registered.mjs cancel-client-rejects-applied",
+    "test:nested-reservation-isolated-observation-unavailable-no-token": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-unavailable-no-token"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

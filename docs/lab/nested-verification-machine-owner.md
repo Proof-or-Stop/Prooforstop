@@ -67,17 +67,48 @@ signal. Handshakes are additionally capped at the registered 5-second startup
 limit and remaining reservation time. The executor derives one absolute deadline
 from its original configured timeout and uses its remaining time after setup.
 
-`cancelValidationReservationChild(pendingToken, options)` is cleanup-only and
-its caller must have proved that no child was spawned. Separately, controller
-retirement can resolve an already-observed owned target after fresh PID and
-whole-group absence checks. Unknown targets remain fenced. Retirement polling is
+`attemptValidationReservationSpawn(pendingToken, options)` is called
+immediately before the spawn call and stamps the pending fence with a
+spawn-attempt marker (locally through the frame, remotely through an `attempt`
+operation bound to the same private capability). The contract for every
+spawning caller is prepare, attempt, spawn, register; the executor and the
+isolated Finding fixture follow it, and every raw-API holder in the controls
+does too. `cancelValidationReservationChild(pendingToken, options)` is
+cleanup-only and its caller must have proved that no child was spawned.
+Separately, controller retirement can resolve an already-observed owned target
+after fresh PID and whole-group absence checks, and it resolves an unmarked
+pending fence whose owner PID is proven absent (or observed with a different
+start), because an unmarked fence proves that no child was ever spawned under
+it. A marked fence without an observed target remains fenced. Immediate
+operations retry their single kernel observation before refusing; a queued grant
+request is observed only inside the retirement tick, where a transient
+observation failure leaves it queued until its own deadline. Retirement polling is
 event-driven and backs off: any grant, release or disconnect re-arms a 20 ms tick
 (`retirementPollMs`), and while a tick changes nothing the interval doubles up
 to 500 ms (`retirementPollMaxMs`); within one tick the process table and each
 process identity are observed at most once. `verify-nested-reservation-faults.mjs`
 mode `retirement-backoff` leaves a released grant with lingering same-group work
 and counts kernel identity observations over one second: 49 against the
-pre-repair fixed 20 ms interval, at most 12 (measured 4) afterwards.
+pre-repair fixed 20 ms interval, at most 12 (measured 4) afterwards. Mode
+`drain-observation-transient` fails the tick's first four observations of a
+requesting sibling, more than one bounded retry, and proves the queued grant
+survives a requeue; the pre-repair controller refused it on the first failure.
+Mode `controller-transport-unavailable` makes the controller's first socket
+listen fail and proves the admission is refused by name
+(`controller transport unavailable`), leaves no scratch directory behind and
+keeps the ticket usable; the socket path additionally falls back to `/tmp` when
+a deep scratch TMPDIR would exceed Darwin's unix-socket path limit. A refused
+registration keeps its private cleanup capability only until the caller's
+withdrawal, which releases it whether applied or refused, and a withdrawal that
+races an already-applied registration is an idempotent success on the
+controller; `verify-nested-reservation-cancellation.mjs` mode
+`client-rejects-applied-registration` rejects a registration on the client after
+the controller applied it and proves the delegated command's bounded result
+survives without a cleanup-refusal diagnostic. Against the pre-repair pair the
+controller answered `cleanup capability not owned` to that withdrawal: the
+completed result was still recovered through the diagnostic's `completed`
+field, but it carried a false `refused-registration cleanup refused` line and
+the descendant retained the capability entry.
 The executor gives cleanup its own bounded cleanup deadline after workload expiry
 or abort; an explicitly expired cleanup deadline still refuses. Cleanup cannot
 issue a work grant or extend workload time.
@@ -147,8 +178,14 @@ for the controller to report, and a refused withdrawal is surfaced with the
 bounded result preserved. `verify-nested-reservation-registration-race.mjs`
 modes `retry-recovers` and `retry-exhausted` fail the inner observation itself
 and assert the attempt count, `retry-exhausted-withdrawn` shows a raw API caller
-withdrawing after proven absence, `verify-nested-isolated-observation.mjs`
-proves the fixture's recovery and withdrawal under a live controller, and
+withdrawing after proven absence, `verify-nested-isolated-observation.mjs` proves the fixture's recovery and
+withdrawal under a live controller, and its `unavailable-no-token` mode proves
+that without a borrowed reservation an unobservable worker degrades (the worker
+runs and cleanup stays best-effort) instead of refusing, where the pre-repair
+fixture reported its cleanup as unproven; only observation unavailability
+degrades, while a definitive non-leader observation is still refused with or
+without a reservation, as `verify-nested-isolated-cleanup.mjs --non-isolated`
+asserts, and
 `verify-nested-reservation-cancellation.mjs` modes
 `refused-registration-withdrawn` and `refused-registration-live` drive the real
 executor through a refused registration: an exiting workload releases the ticket
@@ -164,10 +201,19 @@ the same exported classifier (`classifyMachineReservationResiduals`): live or
 unobservable registered groups, pending fences whose proven target is still
 live, and pending fences without an observed target, with dead-owner counts;
 `verify-nested-reservation-owner-loss.mjs` asserts that classification on the
-dead owner's ticket while its orphan lives and after it stops. Recovery is
-the different-boot witness path after a reboot, or removal of the ticket
+dead owner's ticket while its orphan lives and after it stops. An unmarked pre-spawn fence (its owner died before ever reaching the spawn
+call) resolves automatically once that owner is proven absent, so the window
+that captureValidationCommand opens before every spawn cannot wedge the
+same-user pool. A marked fence whose owner died before registering keeps the
+ticket fenced by design, because a detached child may already exist; doctor
+counts it as a pending fence without an observed target. Recovery for that case
+is the different-boot witness path after a reboot, or removal of the ticket
 directory only after an operator has independently confirmed that no detached
 child remains; the tool never releases it automatically.
+`verify-nested-reservation-faults.mjs` modes `unattempted-owner-loss` and
+`attempted-owner-loss` prove both outcomes with a real descendant that dies
+between prepare and spawn; against the pre-repair source the unmarked fence
+stayed and the owner's release was refused.
 
 ### Prior-boot recovery
 
@@ -208,6 +254,13 @@ the original error through the cause chain, or retains an already-captured
 command result with a bounded cleanup diagnostic; it does not relabel completed
 execution as a prelaunch refusal. Reported effective timeout uses the same value
 as the armed execution timer, excluding time already consumed by setup.
+
+When a completed command's enclosing cleanup fails, the complete authenticated
+output artifact is preserved verbatim with the cleanup diagnostic appended and
+only the bounded projection is trimmed; the `post-capture-cleanup` mode drives
+the wrapper-returning entry point with a 5000-character payload and asserts the
+artifact still carries it, where the pre-repair executor returned a 2000-byte
+slice under the same name.
 
 The caller's own abort, or a caller-supplied deadline error, is decided before
 any pending fence is prepared and again ahead of a delegation refusal, so it
@@ -313,7 +366,7 @@ refreshed.
 
 ## Verification boundaries
 
-Thirty-nine direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Forty-five direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
@@ -346,11 +399,11 @@ candidate, `core` completed in 30.8 to 41.1 seconds against a 120-second budget
 `registration-race` in 9.5 to 20.1 seconds against 120 seconds (eleven 10-second
 modes stack in the worst case), `cleanup-diagnostics` in 6 to 9.1 seconds against
 90 seconds (six 10-second modes), the result-contract, cancellation and
-boot-recovery selectors, including the two refused-registration cancellation
-selectors, in 1 to 4 seconds against 30 seconds (each wraps one child whose own
-timeout is at most 12 seconds), and every remaining selector,
+boot-recovery selectors, including the three refused-registration and
+client-rejection cancellation selectors, in 1 to 5 seconds against 30 seconds
+(each wraps one child whose own timeout is at most 12 seconds), and every remaining selector,
 including the two isolated-observation selectors whose child allows 40 seconds,
-in under 12 seconds against its 60-second budget. Before the `core` selector
+in under 13 seconds against its 60-second budget. Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
@@ -391,7 +444,11 @@ resolution, hoisted or not, instead of a hardcoded nested `node_modules` path.
 Supplemental source-bound native fault commands are recorded separately:
 `verify-nested-reservation-faults.mjs` modes `registered`, `same-group`, `pending`,
 `coalesced`, `finite-owner`, `pending-lineage`, `declared-owner-unclassified`,
-`declared-owner-expansion` and `retirement-backoff`, plus
+`declared-owner-expansion`, `retirement-backoff`, `controller-transport-unavailable`,
+`drain-observation-transient`, `unattempted-owner-loss` and `attempted-owner-loss`
+(every mode composes `--preimage` for the delegation source and
+`--preimage-executor` for the executor of the same revision, so a pre-repair
+replay is a consistent pair and can never silently run current source), plus
 `verify-nested-reservation-handshake-deadline.mjs`,
 `verify-nested-reservation-owner-loss.mjs`,
 `verify-nested-isolated-cleanup.mjs`, and

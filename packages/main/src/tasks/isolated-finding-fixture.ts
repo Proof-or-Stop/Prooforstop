@@ -1,5 +1,5 @@
 import { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY as delegationPolicy } from '../core/runtime-fact-registry.js';
-import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, observeValidationReservationChild, validationReservationChildIdentityMatches, validationReservationGroupIsAbsent, unregisteredValidationReservationChildGone } from '../core/validation-reservation-delegation.js';
+import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, attemptValidationReservationSpawn, observeValidationReservationChild, validationReservationChildIdentityMatches, validationReservationGroupIsAbsent, unregisteredValidationReservationChildGone } from '../core/validation-reservation-delegation.js';
 import { MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY as criticBudget } from '../core/runtime-fact-registry.js';
 import { REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY as epochBudget } from '../core/runtime-fact-registry.js';
 /** Test-only OS isolation for native-broker fixtures. Never used by production
@@ -66,8 +66,10 @@ export async function runIsolatedFindingFixture(entry: string): Promise<boolean>
   const fd = openSync(output, 'w', 0o600);
   let workerPid: number | undefined;
   let workerIdentity: ReturnType<typeof observeValidationReservationChild> | undefined;
+  type ProcessIdentity = ReturnType<typeof observeValidationReservationChild>;
   let workerPending: string | undefined;
   let launcherSpawned = false;
+  let observationDegraded = false;
   let outputWritten = false;
   let fixtureFailure: unknown;
   const code = `import {writeFileSync,renameSync} from 'node:fs';
@@ -95,6 +97,7 @@ worker.once('message', message=>{workerReady=message?.ready===true;if(message?.r
 worker.once('error', error => {console.error(error); process.exitCode=1; process.disconnect();});`;
   try {
     workerPending = await prepareValidationReservationChild();
+    await attemptValidationReservationSpawn(workerPending);
     const launcher = spawn(process.execPath, ['--input-type=module', '--eval', launcherCode], {
       cwd: process.cwd(), env: validationReservationChildEnvironment(sanitizedFixtureChildEnvironment(process.env)), stdio: validationReservationChildStdio(['ignore', fd, fd, 'ipc']),
     });
@@ -110,7 +113,14 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
       registration = Promise.resolve().then(() => {
         // Transient kernel observation failures are retried with the registered policy
         // before the worker is refused; a definitive non-leader observation is refused at once.
-        const observed=observeWithBoundedRetry(()=>observeValidationReservationChild(workerPid!));
+        let observed: ProcessIdentity;
+        try { observed=observeWithBoundedRetry(()=>observeValidationReservationChild(workerPid!)); }
+        catch (error) {
+          if (workerPending !== undefined) throw error;
+          // No reservation is borrowed, so no fence protects anything: an unavailable observation
+          // is advisory, the worker runs, and cleanup falls back to the best-effort group signal.
+          observationDegraded = true; console.error(error); return;
+        }
         if(observed.pgid!==observed.pid)throw new Error('isolated worker group identity unavailable');
         workerIdentity=observed;
         return registerValidationReservationChild(workerPid!,workerPending);
@@ -164,6 +174,7 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
       try{process.kill(-workerIdentity.pgid,signal);}catch{/* Absence below is decisive. */}
     };
     if(workerIdentity&&!existsSync(outcome))signalOwnWorker('SIGTERM');
+    if(observationDegraded&&workerPid!==undefined&&!existsSync(outcome)){try{process.kill(-workerPid,'SIGTERM');}catch{/* best effort without an observed identity */}}
     const cleanupUntil=Date.now()+delegationPolicy.cleanupMs;
     while(workerIdentity&&!validationReservationGroupIsAbsent(workerIdentity.pgid)&&Date.now()<cleanupUntil){
       if(Date.now()>=cleanupUntil-delegationPolicy.cleanupMs/2)signalOwnWorker('SIGKILL');
@@ -173,7 +184,7 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
     let cleanupFailure: unknown;
     if (!launcherSpawned) {try{await cancelValidationReservationChild(workerPending);}catch(error){cleanupFailure=error;}}
     closeSync(fd);
-    if(cleanupFailure||launcherSpawned&&(!workerIdentity||!validationReservationGroupIsAbsent(workerIdentity.pgid))){
+    if(cleanupFailure||launcherSpawned&&!observationDegraded&&(!workerIdentity||!validationReservationGroupIsAbsent(workerIdentity.pgid))){
       const primary=fixtureFailure===undefined?'':(fixtureFailure instanceof Error?fixtureFailure.message:String(fixtureFailure))+'; ';
       throw new Error(primary+'isolated Finding fixture cleanup unproven; retained '+scratch+(cleanupFailure?'; '+String(cleanupFailure):''),{cause:fixtureFailure??cleanupFailure});
     }

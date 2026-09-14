@@ -1,4 +1,4 @@
-import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, unregisteredValidationReservationChildGone, currentValidationReservationAbortSignal, isValidationDelegationError } from './validation-reservation-delegation.js';
+import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, unregisteredValidationReservationChildGone, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, isValidationDelegationError } from './validation-reservation-delegation.js';
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
@@ -1401,8 +1401,11 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
     const expired = !options.deadlineError && boundedValidationErrorMessage(error) === 'workspace validation capacity wait deadline exceeded';
     const delegationRefused = isValidationDelegationError(error);
     if (completedCapture) {
-      const output = `${completedCapture.result.output.slice(0, 2000)}\n${boundedValidationErrorMessage(error)}`;
-      return { completeOutput: output, result: { ...completedCapture.result,
+      // The complete authenticated artifact is preserved verbatim with the cleanup diagnostic
+      // appended; only the bounded projection is trimmed.
+      const diagnostic = boundedValidationErrorMessage(error);
+      const output = `${completedCapture.result.output.slice(0, 2000)}\n${diagnostic}`;
+      return { completeOutput: `${completedCapture.completeOutput}\n${diagnostic}`, result: { ...completedCapture.result,
         code: completedCapture.result.code === 0 ? 1 : completedCapture.result.code,
         failureKind: 'infra_failure', output,
       } };
@@ -1512,6 +1515,9 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   let pendingSpawn: string | undefined;
   try { pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
   catch (error) { const stop = callerStop(); throw stop ?? error; }
+  // Marked before the spawn call: an unmarked pending fence proves that no child was ever spawned
+  // under it, so owner loss before this point can be recovered without a detached-child risk.
+  await attemptValidationReservationSpawn(pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal});
   let spawned = false;
   let spawnedPid: number | undefined;
   let registrationRefused = false;

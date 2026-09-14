@@ -4719,6 +4719,156 @@
             "access": "exclusive"
           }
         ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "fault-controller-transport-unavailable"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "fault-drain-observation-transient"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "fault-unattempted-owner-loss"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "fault-attempted-owner-loss"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "cancel-client-rejects-applied"
+        ],
+        "timeoutMs": 30000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "isolated-observation-unavailable-no-token"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [

@@ -18,10 +18,10 @@ export const VALIDATION_DELEGATION_RESIDUAL_FILE = artifacts.residualFile;
 type ProcessIdentity = { pid: number; start: number; pgid: number };
 export interface MachineReservationOwner { ticket: string; lockId: string; pid: number; start: number; deadlineAt: number; resources: ResourceClaim[] | null }
 type Bootstrap = MachineReservationOwner & { schema: 'validation-reservation-delegation.v1'; rootFd: number; publicKey: string; socket: string };
-type Request = { operation: 'grant' | 'register' | 'confirm' | 'prepare' | 'cancel'; pid: number; start: number; nonce: string; deadlineAt: number; resources?: ResourceClaim[] | null; targetPid?: number; parentGrantId?: string; pendingToken?: string; cleanupCapability?: string };
+type Request = { operation: 'grant' | 'register' | 'confirm' | 'prepare' | 'cancel' | 'attempt'; pid: number; start: number; nonce: string; deadlineAt: number; resources?: ResourceClaim[] | null; targetPid?: number; parentGrantId?: string; pendingToken?: string; cleanupCapability?: string };
 type Grant = { reservation: string; subject: ProcessIdentity; nonce: string; operation: Request['operation']; resources: ResourceClaim[] | null; deadlineAt: number; heldPorts?: string[]; grantId: string; pendingToken?: string; cleanupCapability?: string };
 export interface ValidationReservationHandshakeOptions { deadlineAt?: number; signal?: AbortSignal }
-type Frame = { heldPorts?: string[]; grantId?: string; active: boolean; resources: ResourceClaim[] | null; fd: number; bootstrap: Bootstrap; abort: AbortController; register?: (pid: number, pendingToken?: string) => void; prepare?: () => string; cancel?: (token: string) => void };
+type Frame = { heldPorts?: string[]; grantId?: string; active: boolean; resources: ResourceClaim[] | null; fd: number; bootstrap: Bootstrap; abort: AbortController; register?: (pid: number, pendingToken?: string) => void; prepare?: () => string; cancel?: (token: string) => void; attempt?: (token: string) => void };
 const frames = new AsyncLocalStorage<Frame>();
 // Private per-invocation cleanup material. It is never an environment value or
 // residual-file field and cannot grant execution resources.
@@ -89,6 +89,18 @@ function observeWithRetry<T>(observe: () => T): T {
     }
   }
   throw last;
+}
+/** A pending row's owner is provably gone when its PID is absent or observed with a different start; an unobservable owner keeps the row. */
+function pendingOwnerGone(pid: number, start: number): boolean {
+  if (!Number.isSafeInteger(pid) || pid <= 1) return false;
+  try { process.kill(pid, 0); } catch (error) { return (error as NodeJS.ErrnoException).code === 'ESRCH'; }
+  try { return identity(pid).start !== start; } catch { return false; }
+}
+/** A pending row resolves through its observed target's absence, or, when no spawn was ever attempted under it, through its owner's proven absence. An attempted row without a target is terminal. */
+function pendingRowResolved(row: { pid?: unknown; start?: unknown; target?: { pid?: number; pgid?: number; start?: number }; spawnAttempted?: unknown }): boolean {
+  const target = row.target;
+  if (target) return target.pid === target.pgid && Number.isFinite(target.start) && registrationTargetGone(target.pid as number);
+  return row.spawnAttempted !== true && Number.isSafeInteger(row.pid) && Number.isFinite(row.start) && pendingOwnerGone(row.pid as number, row.start as number);
 }
 function registrationTargetGone(pid: number): boolean {
   if (!Number.isSafeInteger(pid) || pid <= 1) return false;
@@ -248,13 +260,13 @@ export async function withInheritedMachineReservation<T>(resources: ResourceClai
 export function machineReservationResidualsPresent(ticket: string): boolean {
   const path = join(ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); if (!existsSync(path)) return false;
   try { const rows = JSON.parse(readFileSync(path, 'utf8')); if (!Array.isArray(rows)) return true; return rows.some(row => {
-    if (row.pending !== undefined) { const target=row.target;return !target || target.pid!==target.pgid || !Number.isFinite(target.start) || !registrationTargetGone(target.pid); }
+    if (row.pending !== undefined) return !pendingRowResolved(row);
     return !Number.isSafeInteger(row.pgid) || !groupGone(row.pgid);
   }); } catch { return true; }
 }
 /** Read-only classification of one ticket's residual rows with the exact release predicates; a doctor projection that never releases or signals anything. */
-export function classifyMachineReservationResiduals(ticket: string): { present: boolean; malformed: boolean; registeredLive: number; registeredResolved: number; pendingTargetLive: number; pendingTargetResolved: number; pendingTargetless: number; deadOwners: number } {
-  const result = { present: false, malformed: false, registeredLive: 0, registeredResolved: 0, pendingTargetLive: 0, pendingTargetResolved: 0, pendingTargetless: 0, deadOwners: 0 };
+export function classifyMachineReservationResiduals(ticket: string): { present: boolean; malformed: boolean; registeredLive: number; registeredResolved: number; pendingTargetLive: number; pendingTargetResolved: number; pendingTargetless: number; pendingUnattemptedResolved: number; deadOwners: number } {
+  const result = { present: false, malformed: false, registeredLive: 0, registeredResolved: 0, pendingTargetLive: 0, pendingTargetResolved: 0, pendingTargetless: 0, pendingUnattemptedResolved: 0, deadOwners: 0 };
   const path = join(ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); if (!existsSync(path)) return result;
   result.present = true;
   let rows: unknown; try { rows = JSON.parse(readFileSync(path, 'utf8')); } catch { result.malformed = true; return result; }
@@ -264,6 +276,7 @@ export function classifyMachineReservationResiduals(ticket: string): { present: 
     if (row.pending !== undefined) {
       const target = row.target as { pid?: number; pgid?: number; start?: number } | undefined;
       if (!target || target.pid !== target.pgid || !Number.isFinite(target.start)) {
+        if (pendingRowResolved(row)) { result.pendingUnattemptedResolved++; continue; }
         result.pendingTargetless++;
         const ownerPid = row.pid;
         if (Number.isSafeInteger(ownerPid) && (ownerPid as number) > 1) { try { process.kill(ownerPid as number, 0); } catch (error) { if ((error as NodeJS.ErrnoException).code === 'ESRCH') result.deadOwners++; } }
@@ -301,9 +314,12 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   if (process.platform !== policy.platform) return await fn();
   const admitted=inspectMachineReservationOwner(owner.ticket,owner.lockId);
   if(!isLive()||!admitted||admitted.pid!==process.pid||admitted.start!==owner.start||JSON.stringify(admitted.resources)!==JSON.stringify(owner.resources))throw failure('controller owner/declaration mismatch');
-  const keys = generateEd25519KeyPair(), directory = mkdtempSync(join(tmpdir(), artifacts.temporaryPrefix)), socketPath = join(directory, artifacts.socketFile);
+  // A unix socket path is capped at 104 bytes on Darwin; a deep scratch TMPDIR falls back to /tmp.
+  const temporaryRoot = Buffer.byteLength(join(tmpdir(), artifacts.temporaryPrefix)) + 6 + 1 + artifacts.socketFile.length + 1 <= 100 ? tmpdir() : '/tmp';
+  const keys = generateEd25519KeyPair(), directory = mkdtempSync(join(temporaryRoot, artifacts.temporaryPrefix)), socketPath = join(directory, artifacts.socketFile);
   const bootstrapPath = join(directory, artifacts.bootstrapFile);
-  const pendingChildren = new Map<string,{pid:number;start:number;parents:string[];target?:ProcessIdentity;cleanupCapability:string}>();
+  const pendingChildren = new Map<string,{pid:number;start:number;parents:string[];target?:ProcessIdentity;cleanupCapability:string;spawnAttempted?:boolean}>();
+  const consumedPending = new Map<string,string>(); // tokens already turned into enrollments, keyed to their cleanup capability
   const registered = new Map<number, ProcessIdentity & { parents: string[] }>(), active = new Map<Socket, { subject: ProcessIdentity; resources: ResourceClaim[] | null; grantId: string; parents: string[]; deadlineAt: number; revoked?: boolean; terminal?: boolean; disconnected?: boolean }>();
   const grantTimers = new Map<Socket, NodeJS.Timeout>();
   const sockets = new Set<Socket>(), pending: Array<{ socket: Socket; input: Request }> = [];
@@ -314,10 +330,10 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   // One retirement tick observes the process table and each identity at most once.
   const tick = { rows: undefined as ReturnType<typeof table> | undefined, identities: new Map<number, ProcessIdentity | null>() };
   const resetTick = (): void => { tick.rows = undefined; tick.identities.clear(); };
-  const rowsNow = (): ReturnType<typeof table> => tick.rows ??= table();
-  const identityNow = (pid: number): ProcessIdentity | null => { if (!tick.identities.has(pid)) { try { tick.identities.set(pid, identity(pid)); } catch { tick.identities.set(pid, null); } } return tick.identities.get(pid) ?? null; };
+  const rowsNow = (): ReturnType<typeof table> => tick.rows ??= observeWithRetry(() => table());
+  const identityNow = (pid: number): ProcessIdentity | null => { if (!tick.identities.has(pid)) { try { tick.identities.set(pid, observeWithRetry(() => identity(pid))); } catch { tick.identities.set(pid, null); } } return tick.identities.get(pid) ?? null; };
   const sameNow = (value: ProcessIdentity): boolean => { const current = identityNow(value.pid); return current !== null && current.start === value.start && current.pgid === value.pgid; };
-  const publish = () => { const path = join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); writeFileSync(path + '.pending', JSON.stringify([...registered.values(),...[...pendingChildren].map(([pending,subject])=>({pending,pid:subject.pid,start:subject.start,parents:subject.parents,...(subject.target?{target:subject.target}:{})}))]), { mode: 0o600 }); renameSync(path + '.pending', path); };
+  const publish = () => { const path = join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); writeFileSync(path + '.pending', JSON.stringify([...registered.values(),...[...pendingChildren].map(([pending,subject])=>({pending,pid:subject.pid,start:subject.start,parents:subject.parents,...(subject.spawnAttempted?{spawnAttempted:true}:{}),...(subject.target?{target:subject.target}:{})}))]), { mode: 0o600 }); renameSync(path + '.pending', path); };
   const enrollment = (subject: ProcessIdentity, rows: ReturnType<typeof table> = table(), same: (value: ProcessIdentity) => boolean = sameProcess): string[] => {
     if (!same(subject)) throw failure('request process changed');
     for (const pid of [subject.pid,...ancestors(subject.pid, rows)]) { const known=registered.get(pid); if (!known || !same(known)) continue;
@@ -328,6 +344,8 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   };
   const prepare = (subject=identity(process.pid),parents:string[]=[]):string => {if(!live())throw failure('reservation closed before spawn');const token=randomUUID();pendingChildren.set(token,{pid:subject.pid,start:subject.start,parents,cleanupCapability:randomUUID()});publish();return token;};
   const cancel=(token:string,subject=identity(process.pid)):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');pendingChildren.delete(token);publish();};
+  // Marked immediately before the spawn call, so an unmarked row proves that no child was ever spawned under it.
+  const attempt=(token:string,subject=identity(process.pid)):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');if(!pending.spawnAttempted){pending.spawnAttempted=true;publish();}};
   const register = (pid: number, parent = process.pid, parents: string[] = [], pendingToken?: string, parentStart?: number) => {
     if (!live()) throw failure('registration after release');
     const pending=pendingToken && pendingChildren.get(pendingToken);if(!pending||pending.pid!==parent)throw failure('registration has no owned pre-spawn fence');
@@ -363,7 +381,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     // Identity and real pre-orphan ancestry are proven before persisting an
     // owned target. An earlier unavailable observation leaves the fence unknown.
     pending.target=target;publish();
-    registered.set(pid, { ...target, parents:inheritedParents });pendingChildren.delete(pendingToken!); publish();
+    registered.set(pid, { ...target, parents:inheritedParents });consumedPending.set(pendingToken!, pending.cleanupCapability);pendingChildren.delete(pendingToken!); publish();
   };
   const revokeGrant = (grantId: string) => {
     for (const [socket, grant] of active) if ((grant.grantId === grantId || grant.parents.includes(grantId)) && !grant.revoked) {
@@ -398,7 +416,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   // Returns whether this tick changed anything, so idle polling can back off.
   const drain = () => {
     resetTick();
-    let resolved=false;for(const [token,row]of pendingChildren)if(row.target && registrationTargetGone(row.target.pid)){pendingChildren.delete(token);resolved=true;}
+    let resolved=false;for(const [token,row]of pendingChildren)if(pendingRowResolved(row)){pendingChildren.delete(token);resolved=true;}
     // The residual record may be unwritable under a live controller (operator cleanup of the ticket
     // directory); the on-disk record then stays at its more conservative fenced state rather than
     // crashing the owner from the retirement timer or a socket close handler.
@@ -409,7 +427,12 @@ export async function withMachineReservationController<T>(owner: MachineReservat
       const { socket, input } = item; if (socket.destroyed) { pending.splice(pending.indexOf(item), 1); continue; }
       try {
         if (!live() || Date.now() >= input.deadlineAt) throw failure('reservation/request expired');
-        const subject = identityNow(input.pid); if (!subject) throw failure('process identity unavailable'); if (subject.start !== input.start) throw failure('request subject changed'); const parents=enrollment(subject, rowsNow(), sameNow);
+        // A transient kernel observation failure leaves the request queued for the next tick; only
+        // its own deadline or a genuine policy refusal removes it.
+        const subject = identityNow(input.pid); if (!subject) continue;
+        if (subject.start !== input.start) throw failure('request subject changed');
+        let rows: ReturnType<typeof table>; try { rows = rowsNow(); } catch { continue; }
+        const parents=enrollment(subject, rows, sameNow);
         const parent = input.parentGrantId ? [...active.values()].find(row=>row.grantId===input.parentGrantId&&!row.revoked&&Date.now()<row.deadlineAt&&row.subject.pid===subject.pid&&row.subject.start===subject.start) : undefined;
         if (input.parentGrantId && !parent) throw failure('parent grant/claim mismatch');
         const requested = input.resources ?? null;
@@ -452,18 +475,35 @@ export async function withMachineReservationController<T>(owner: MachineReservat
         const input = JSON.parse(bytes.slice(0, bytes.indexOf('\n'))) as Request;
         if(bytes.slice(bytes.indexOf('\n')+1).length!==0)throw failure('unexpected request frames'); bytes='';
         if (!(input.operation === 'cancel' ? alive && isLive() : live()) || !Number.isSafeInteger(input.pid) || typeof input.nonce !== 'string' || !/^[0-9a-f-]{36}$/.test(input.nonce) || !Number.isFinite(input.deadlineAt)) throw failure('invalid request');
-        const subject = identity(input.pid); if (subject.start !== input.start) throw failure('request subject changed');
+        // A grant request is observed only inside the retirement tick, where a transient failure
+        // requeues it; immediate operations retry their single observation before refusing.
+        if (input.operation === 'grant') { pending.push({ socket, input }); drainNow(); return; }
+        const subject = observeWithRetry(() => identity(input.pid)); if (subject.start !== input.start) throw failure('request subject changed');
         // Cleanup only removes this exact subject's pending token. It neither
         // obtains a grant nor inherits admission from revoked parents.
         if (input.operation === 'cancel') {
           if (Date.now() >= input.deadlineAt || input.deadlineAt > Date.now() + CLEANUP_MS) throw failure('cleanup deadline');
           const ownedPending=input.pendingToken && pendingChildren.get(input.pendingToken);
-          if(!ownedPending || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('cleanup capability not owned');
-          cancel(input.pendingToken!, subject);
+          if(!ownedPending){
+            // A withdrawal that races an already-applied registration finds no pending row; with the
+            // matching capability that is an idempotent success because the fence it would remove is gone.
+            const consumed=input.pendingToken && consumedPending.get(input.pendingToken);
+            if(!consumed || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==consumed)throw failure('cleanup capability not owned');
+          } else {
+            if(typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('cleanup capability not owned');
+            cancel(input.pendingToken!, subject);
+          }
           const grant: Grant = {reservation:owner.lockId,subject,nonce:input.nonce,operation:'cancel',resources:null,deadlineAt:input.deadlineAt,grantId:randomUUID()};
           socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');return;
         }
         const parents=enrollment(subject);
+        if (input.operation === 'attempt') {
+          const ownedPending=input.pendingToken && pendingChildren.get(input.pendingToken);
+          if(!ownedPending || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('pending mutation capability not owned');
+          attempt(input.pendingToken!, subject);
+          const grant: Grant={reservation:owner.lockId,subject,nonce:input.nonce,operation:'attempt',resources:null,deadlineAt:Math.min(owner.deadlineAt,input.deadlineAt),grantId:randomUUID()};
+          socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');return;
+        }
         if (input.operation === 'register') {
           const ownedPending=input.pendingToken && pendingChildren.get(input.pendingToken);
           if(!ownedPending || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('pending mutation capability not owned');
@@ -477,11 +517,13 @@ export async function withMachineReservationController<T>(owner: MachineReservat
           const grant: Grant={reservation:owner.lockId,subject,nonce:input.nonce,operation:input.operation,resources:null,deadlineAt:Math.min(owner.deadlineAt,input.deadlineAt),grantId:randomUUID(),...(pendingToken?{pendingToken,cleanupCapability:pendingChildren.get(pendingToken)!.cleanupCapability}:{})};socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');
         } else if (input.operation === 'confirm') {
           const grant: Grant={reservation:owner.lockId,subject,nonce:input.nonce,operation:input.operation,resources:null,deadlineAt:Math.min(owner.deadlineAt,input.deadlineAt),grantId:randomUUID()};socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');
-        } else if (input.operation === 'grant') { pending.push({ socket, input }); drainNow(); } else throw failure('unknown operation');
+        } else throw failure('unknown operation');
       } catch (error) { socket.end(JSON.stringify({ error: String(error) }) + '\n'); }
     });
   });
-  await new Promise<void>((resolve, reject) => { server.once('error', reject); server.listen(socketPath, resolve); });
+  // Transport setup failures are named delegation refusals and leave no scratch state behind.
+  try { await new Promise<void>((resolve, reject) => { server.once('error', reject); server.listen(socketPath, resolve); }); }
+  catch (error) { try { server.close(); } catch { /* never listened */ } rmSync(directory, { recursive: true, force: true }); throw failure('controller transport unavailable: ' + ((error as NodeJS.ErrnoException).code ?? String(error))); }
   // Idle retirement polling backs off exponentially; any event resets it to the minimum.
   let retirementTimer: NodeJS.Timeout | undefined, retirementDelay: number = policy.retirementPollMs;
   const scheduleRetirement = (delay: number): void => {
@@ -497,7 +539,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     writeFileSync(bootstrapPath, '', { mode: 0o600 }); fd = openSync(bootstrapPath, constants.O_RDONLY);
     const bootstrap: Bootstrap = { ...owner, schema: 'validation-reservation-delegation.v1', rootFd: fd, publicKey: keys.publicKey, socket: socketPath };
     writeFileSync(bootstrapPath, JSON.stringify(bootstrap)); unlinkSync(bootstrapPath);
-    frame={active:true,resources:owner.resources,fd,bootstrap,abort,register:(pid,token)=>register(pid,process.pid,[],token),prepare:()=>prepare(),cancel:token=>cancel(token)};
+    frame={active:true,resources:owner.resources,fd,bootstrap,abort,register:(pid,token)=>register(pid,process.pid,[],token),prepare:()=>prepare(),cancel:token=>cancel(token),attempt:token=>attempt(token)};
     try {callbackStarted=true;const result=await frames.run(frame, fn);callbackResult=result;return result;}catch(error){callbackThrew=true;callbackError=error;throw error;}
   } finally {
     alive = false; if (retirementTimer) clearTimeout(retirementTimer); for(const timer of grantTimers.values())clearTimeout(timer); if(frame)frame.active=false; abort.abort(failure('reservation ended')); for (const socket of sockets) socket.destroy();
@@ -529,6 +571,14 @@ export async function prepareValidationReservationChild(options: ValidationReser
  const frame=frames.getStore();if(frame&&!frame.active)throw failure('inactive spawn invocation');if(frame?.prepare){handshake(frame.bootstrap,options);return frame.prepare();}const bootstrap=frame?.bootstrap??readBootstrap();if(!bootstrap)return undefined;
  const bounded=handshake(bootstrap,options);const result=await request(bootstrap,{operation:'prepare',parentGrantId:frame?.grantId,deadlineAt:bounded.deadlineAt},bounded.signal);result.socket.end();if(!result.grant.pendingToken || typeof result.grant.cleanupCapability!=='string')throw failure('pending spawn cleanup material absent');cleanupCapabilities.set(result.grant.pendingToken,{reservation:bootstrap.lockId,capability:result.grant.cleanupCapability});return result.grant.pendingToken;
 }
+/** Marks an owned pending fence as spawn-attempted immediately before the spawn call. An unmarked fence of a provably gone owner is the only targetless fence that ever resolves. */
+export async function attemptValidationReservationSpawn(token: string | undefined, options: ValidationReservationHandshakeOptions = {}): Promise<void> {
+ if(!token)return;const frame=frames.getStore();if(frame&&!frame.active)throw failure('inactive spawn invocation');
+ if(frame?.attempt){frame.attempt(token);return;}
+ const bootstrap=frame?.bootstrap??readBootstrap();if(!bootstrap)return;
+ const cleanup=cleanupCapabilities.get(token);if(!cleanup || cleanup.reservation!==bootstrap.lockId)throw failure('pending mutation capability unavailable');
+ const bounded=handshake(bootstrap,options);const result=await request(bootstrap,{operation:'attempt',pendingToken:token,cleanupCapability:cleanup.capability,deadlineAt:bounded.deadlineAt},bounded.signal);result.socket.end();
+}
 /** Only the caller that proved no child was spawned may cancel its own pending fence. */
 export async function cancelValidationReservationChild(token:string | undefined, options: ValidationReservationHandshakeOptions = {}): Promise<void> {
  if(!token)return;const frame=frames.getStore();
@@ -537,7 +587,8 @@ export async function cancelValidationReservationChild(token:string | undefined,
  if(frame?.cancel){frame.cancel(token);return;}
  const bootstrap=frame?.bootstrap??readBootstrap(FD,true);if(!bootstrap)throw failure('pending spawn owner missing');
  const cleanup=cleanupCapabilities.get(token);if(!cleanup || cleanup.reservation!==bootstrap.lockId)throw failure('cleanup capability unavailable');
- const result=await request(bootstrap,{operation:'cancel',pendingToken:token,cleanupCapability:cleanup.capability,deadlineAt},options.signal);result.socket.end();cleanupCapabilities.delete(token);
+ // The capability is released whether the withdrawal was applied or refused; a refused registration keeps it only until this withdrawal.
+ try{const result=await request(bootstrap,{operation:'cancel',pendingToken:token,cleanupCapability:cleanup.capability,deadlineAt},options.signal);result.socket.end();}finally{cleanupCapabilities.delete(token);}
 }
 
 export function inheritedValidationReservationPortAlreadyHeld(key:string): boolean { const frame=frames.getStore();return frame?.active===true&&!frame.abort.signal.aborted&&frame.heldPorts?.includes(key)===true; }
