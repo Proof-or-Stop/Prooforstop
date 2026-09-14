@@ -1,5 +1,5 @@
 import { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY as delegationPolicy } from '../core/runtime-fact-registry.js';
-import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, attemptValidationReservationSpawn, observeValidationReservationChild, validationReservationChildIdentityMatches, validationReservationGroupIsAbsent, unregisteredValidationReservationChildGone } from '../core/validation-reservation-delegation.js';
+import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, attemptValidationReservationSpawn, noteValidationReservationSpawn, observeValidationReservationChild, validationReservationChildIdentityMatches, validationReservationGroupIsAbsent, unregisteredValidationReservationChildGone } from '../core/validation-reservation-delegation.js';
 import { MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY as criticBudget } from '../core/runtime-fact-registry.js';
 import { REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY as epochBudget } from '../core/runtime-fact-registry.js';
 /** Test-only OS isolation for native-broker fixtures. Never used by production
@@ -183,9 +183,10 @@ worker.once('message', message=>{workerReady=message?.ready===true;if(message?.r
     });
     launcherExit.catch(() => { /* awaited below; an early rejection must not be unhandled */ });
     if (launcher.pid !== undefined) {
-      // Registered exactly like an executor child before it proceeds; a refused registration
-      // terminates the launcher with its group and the fence is withdrawn only once proven absent.
-      try { await registerValidationReservationChild(launcher.pid, launcherPending); }
+      // Noted and registered exactly like an executor child before it proceeds; a refused note or
+      // registration terminates the launcher with its group and the fence is withdrawn only once
+      // proven absent.
+      try { await noteValidationReservationSpawn(launcherPending, launcher.pid); await registerValidationReservationChild(launcher.pid, launcherPending); }
       catch (error) {
         launcherRegistrationRefused = true;
         try { process.kill(-launcher.pid, 'SIGTERM'); } catch { try { launcher.kill('SIGTERM'); } catch { /* absence below is decisive */ } }

@@ -104,8 +104,9 @@ immediately before the spawn call, and the only unmarked fence in the controls
 belongs to the `unattempted-owner-loss` descendant, which never spawns. `noteValidationReservationSpawn(pendingToken, pid, options)` records the
 spawned PID on the marked fence immediately after the spawn call returns and
 before the registration handshake (locally through the frame, remotely through
-a `spawned` operation bound to the same private capability); the executor and
-the isolated fixture's launcher note every spawn, so an owner lost between the
+a `spawned` operation bound to the same private capability); the executor, the
+isolated fixture process (for its launcher) and that launcher (for its worker)
+note every spawn, so an owner lost between the
 spawn call and the applied registration leaves a fence that resolves once that
 PID and its whole group are proven absent, and only the window between the
 mark and the return of the spawn call is terminal. Raw-API holders in the
@@ -424,14 +425,28 @@ recorded, and that the projection still names both refusals. The post-capture
 cleanup diagnostic remains appended after the complete artifact, separated by a
 newline, as the seventh round required.
 
-The default per-command deadline is derived at the spawn call rather than at
-entry, so the pre-launch handshakes and setup no longer shorten the armed
-timer; a caller-supplied deadline stays absolute. Measured from the comparison
-runs below, the setup-to-arming delta was 0 to 14 ms per command on main
-0.3.363 and 136 to 366 ms (median 151 ms) on the tenth-round candidate, which
-is the cost of the prepare, attempt and note handshakes and their kernel
-observations; with this change the armed timer equals the configured timeout
-for every command without a caller deadline.
+The armed per-command timer is fixed at capture entry, before setup and the
+pre-launch handshakes, exactly as before delegation existed: the configured
+timeout capped by the caller's remaining deadline at entry. Measured from the
+comparison runs below, the setup-to-arming delta was 0 to 14 ms per command on
+main 0.3.363 and 136 to 366 ms (median 151 ms) on the tenth-round candidate,
+which is the cost of the prepare, attempt and note handshakes and their kernel
+observations; that delta no longer reduces any command's budget. A refused
+registration or note that arrives after the child has already exited sends no
+signal, guarded exactly like the timeout path, so a recycled process group is
+never targeted; mode `refused-registration-cleanup` refuses only after the
+child exited and asserts that the refusal path sent nothing, and mode
+`refused-registration-short` repeats it with a short output in its own process
+(the first refused command deliberately leaves its ticket fenced) and asserts
+that the artifact is exactly the command bytes followed by the
+newline-separated withdrawal diagnostic, that the registration refusal is
+absent from it, and that the folded projection is, byte for byte, the
+untainted command bytes, the registration refusal once and the withdrawal
+diagnostic once; against the pre-repair executor the projection carried the
+registration refusal twice. Mode `armed-timeout` asserts that without a
+caller deadline the armed timer equals the configured budget; the capture
+receives the caller's own deadline, and the bounded deadline the outer stage
+derives governs only the capacity wait and the pre-launch handshakes.
 
 The caller's own abort, or a caller-supplied deadline error, is decided before
 any pending fence is prepared and again ahead of a delegation refusal, so it
@@ -570,8 +585,8 @@ negative source integrity pins of `verify-process-fact-contract.mjs` and
 The rule for every identity re-pin in this Lab is checkable: a re-pinned row is
 bound to a file this Lab modified, and no row bound to an unmodified file is
 refreshed. Enumerated from
-`git diff main -- scripts/identity-reviewed-source-data.json scripts/identity-reviewed-fixture-data.json scripts/identity-reviewed-json-data.json scripts/verify-proof-or-stop-identity-cutover.mjs scripts/identity-reviewed-*-contexts.mjs`
-against `git diff --name-only main`, the 35 re-pinned rows are, by the
+`git diff main -- scripts/identity-reviewed-source-data.json scripts/identity-reviewed-fixture-data.json scripts/identity-reviewed-json-data.json scripts/verify-proof-or-stop-identity-cutover.mjs scripts/identity-reviewed-*-contexts.mjs scripts/identity-child-contract.json`
+against `git diff --name-only main`, the 36 re-pinned rows are, by the
 Lab-changed file that caused each one:
 
 - `packages/main/src/core/runtime-artifact-registry.ts` (one added export): the
@@ -582,7 +597,9 @@ Lab-changed file that caused each one:
   source digest, same line hash and occurrence count.
 - `scripts/run-validation-fixture-suite.mjs` (named stale-build failure and
   namespace import): the reviewed-source row for `env.LATTICE_HEALTH_PATH`,
-  line 37 to 45 with its source digest, same line hash and occurrence count.
+  line 37 to 45 with its source digest, same line hash and occurrence count,
+  and the `wrapperDigest` of `scripts/identity-child-contract.json`, which
+  pins that file's sha256.
 - `packages/main/src/tasks/native-review-fixture.ts` (delegation environment
   forwarding): six reviewed-fixture rows (`lattice` line 44 to 45,
   `LATTICE_NATIVE_REVIEW_ATTESTATION_FD` lines 194, 234 and 342 shifted by one,
@@ -608,17 +625,18 @@ refreshed.
 
 ## Verification boundaries
 
-Fifty-one direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Fifty-two direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
 closed selector wrapper normalizes the repository working directory; selectors
 that need Darwin kernel descriptor or process identity observation print an
-explicit skip on other platforms before loading native controls, while seven of
-the ten executor result-contract selectors (`result-prepare-refusal`,
+explicit skip on other platforms before loading native controls, while eight of
+the eleven executor result-contract selectors (`result-prepare-refusal`,
 `result-cleanup-primary`, `result-cleanup-result`, `result-ordinary-error`,
-`result-armed-timeout`, `result-caller-deadline` and
-`result-refused-registration-cleanup`) run through the platform-independent
+`result-armed-timeout`, `result-caller-deadline`,
+`result-refused-registration-cleanup` and `result-refused-registration-short`)
+run through the platform-independent
 queue in a private OS-home namespace and are not gated (they were exercised
 only on Darwin in this Lab); `result-post-capture-cleanup` patches the
 Darwin-only controller cleanup, and `result-descriptor-unavailable` and
@@ -658,7 +676,10 @@ all fifty-one in 205.4 seconds (`core` 38.5 seconds, measured while the
 candidate-versus-main evidence runs below held the real machine pool), and the
 eleventh-round sweep of all fifty-one on the candidate resynchronized with main
 0.3.366 in 205.4 seconds (`core` 37.4 seconds, every 30-second selector
-under 3.7 seconds, every 60-second selector under 10.6 seconds). Before the `core` selector
+under 3.7 seconds, every 60-second selector under 10.6 seconds), and the
+twelfth-round sweep of all fifty-two in 201.1 seconds (`core` 35.9 seconds,
+every 30-second selector under 3.8 seconds, every 60-second selector under
+10.9 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay

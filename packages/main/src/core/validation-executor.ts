@@ -1394,7 +1394,9 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
     resources: command.resources?.length ? command.resources : undefined, abortSignal: options.abortSignal, deadlineAt,
       deadlineError: options.deadlineError }, () => {
         enteredCapture = true;
-        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }, reportedTimeoutMs).then(value => { completedCapture = value; return value; });
+        // The bounded deadline above governs only the capacity wait; the capture receives the caller's
+        // own deadline (possibly none) and owns the default budget from its entry.
+        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options }, reportedTimeoutMs).then(value => { completedCapture = value; return value; });
       });
   } catch (error) {
     const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || boundedValidationErrorMessage(error) === 'workspace validation capacity wait aborted');
@@ -1419,7 +1421,8 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
       // A command that completed before its cleanup was refused keeps its complete
       // authenticated artifact verbatim with the diagnostic appended; only the bounded
       // projection is trimmed, exactly as on the post-capture cleanup path.
-      const output = `${completed.result.output.slice(0, 2000)}${completed.result.delegationDiagnostic === undefined ? '' : `\n${completed.result.delegationDiagnostic}`}\n${diagnostic}`;
+      // The projection is rebuilt from the untainted command bytes, so each diagnostic appears exactly once.
+      const output = `${completed.completeOutput.slice(0, 2000)}${completed.result.delegationDiagnostic === undefined ? '' : `\n${completed.result.delegationDiagnostic}`}\n${diagnostic}`;
       return { completeOutput: `${completed.completeOutput}\n${diagnostic}`, result: {
         ...completed.result, code: completed.result.code === 0 ? 1 : completed.result.code,
         failureKind: 'infra_failure', output,
@@ -1475,10 +1478,12 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
-  // A caller-supplied deadline is absolute. The default budget is bounded here for the pre-launch
-  // handshakes and re-derived at the spawn call below, so setup time never shortens the armed timer.
+  // The armed timer is fixed here, before setup and the pre-launch handshakes, exactly as before
+  // delegation existed: the configured timeout, capped by the caller's remaining deadline at entry
+  // when the caller supplied one. The bounded deadline below governs only the pre-launch handshakes.
   const callerDeadlineAt = options.deadlineAt;
-  options = { ...options, deadlineAt: Math.min(options.deadlineAt ?? Infinity, started + configuredTimeoutMs) };
+  const armedTimeoutMs = callerDeadlineAt === undefined ? configuredTimeoutMs : Math.max(1, Math.min(configuredTimeoutMs, Math.floor(callerDeadlineAt - started)));
+  options = { ...options, deadlineAt: Math.min(callerDeadlineAt ?? Infinity, started + configuredTimeoutMs) };
   // A policy-owned reuse capsule supplies its already-closed environment. Do not
   // merge ambient variables back into that boundary while retaining the normal
   // validation environment construction for every ordinary command.
@@ -1654,7 +1659,6 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
       throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
     }
-    if (callerDeadlineAt === undefined) options = { ...options, deadlineAt: Date.now() + configuredTimeoutMs };
     const child = spawn(command.command, command.args, {
       cwd,
       env: options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv),
@@ -1675,7 +1679,9 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     childRegistration = child.pid ? noteValidationReservationSpawn(pendingSpawn, child.pid, {deadlineAt: options.deadlineAt, signal: options.abortSignal}).then(() => registerValidationReservationChild(child.pid!, pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal})) : Promise.resolve();
     // A refused registration terminates the whole spawned group, exactly like a timeout;
     // the owned pending fence is withdrawn below only once that group is proven absent.
-    childRegistration.catch(() => { registrationRefused = true; try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ } });
+    // A refusal that arrives after the child has already exited sends no signal, exactly like the
+    // timeout path; a recycled process group is never targeted.
+    childRegistration.catch(() => { registrationRefused = true; if (settled || child.exitCode !== null || child.signalCode !== null) return; try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ } });
     runtimeEvents.push('spawn');
 
     emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
@@ -1750,7 +1756,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     // hung command is then killed (whole group) + attributed (exit 124) here, instead of
     // the global idle watchdog silently force-exiting the whole validate. unref() so a
     // stray timer never keeps the event loop alive on its own (the awaited child does).
-    effectiveTimeoutMs = Math.max(1, options.deadlineAt! - Date.now());
+    effectiveTimeoutMs = armedTimeoutMs;
     timer = setTimeout(() => {
       timeOutCommand(1000);
     }, effectiveTimeoutMs);
