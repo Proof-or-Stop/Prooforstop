@@ -186,7 +186,9 @@
     "test:nested-reservation-result-post-capture-cleanup": "node ../../scripts/verify-nested-reservation-registered.mjs result-post-capture-cleanup",
     "test:nested-reservation-wrapper-transport": "node ../../scripts/verify-nested-reservation-registered.mjs wrapper-transport",
     "test:nested-reservation-isolated-observation-retry": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-retry",
-    "test:nested-reservation-isolated-observation-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-unavailable"
+    "test:nested-reservation-isolated-observation-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-unavailable",
+    "test:nested-reservation-cancel-refused-withdrawn": "node ../../scripts/verify-nested-reservation-registered.mjs cancel-refused-withdrawn",
+    "test:nested-reservation-cancel-refused-live": "node ../../scripts/verify-nested-reservation-registered.mjs cancel-refused-live"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

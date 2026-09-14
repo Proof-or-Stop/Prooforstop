@@ -70,6 +70,8 @@ function sameProcess(value: ProcessIdentity): boolean {
 export function observeValidationReservationChild(pid:number): ProcessIdentity {return identity(pid);}
 export function validationReservationChildIdentityMatches(value:ProcessIdentity):boolean{return sameProcess(value);}
 export function validationReservationGroupIsAbsent(pgid:number):boolean{return groupGone(pgid);}
+/** An unregistered child is provably gone only when its PID and its whole group are both absent; a live or unobservable child never is. Read-only: never a release authority by itself. */
+export function unregisteredValidationReservationChildGone(pid:number):boolean{if(!Number.isSafeInteger(pid)||pid<=1)return false;try{process.kill(pid,0);return false;}catch(error){if((error as NodeJS.ErrnoException).code!=='ESRCH')return false;}return groupGone(pid);}
 function groupGone(pgid: number): boolean {
   if (!Number.isSafeInteger(pgid) || pgid <= 1) return false;
   try { process.kill(-pgid, 0); return false; } catch (error) { return (error as NodeJS.ErrnoException).code === 'ESRCH'; }

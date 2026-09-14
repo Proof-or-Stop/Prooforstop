@@ -4569,6 +4569,56 @@
             "access": "exclusive"
           }
         ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "cancel-refused-withdrawn"
+        ],
+        "timeoutMs": 30000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "cancel-refused-live"
+        ],
+        "timeoutMs": 30000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [

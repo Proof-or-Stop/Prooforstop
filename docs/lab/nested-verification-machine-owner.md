@@ -112,10 +112,25 @@ already observed, and the local frame observes itself with the same retry. The
 isolated Finding fixture retries its worker observation with the same policy;
 when a refused worker's PID and whole group are proven absent after the launcher
 terminates it, the fixture withdraws its owned pending fence so the live
-controller releases cleanly. `verify-nested-reservation-registration-race.mjs`
+controller releases cleanly. The executor applies the same rule to every
+validation command: a refused registration signals the spawned group exactly
+as a timeout does, and once the direct child's PID and its whole group are
+proven absent (the exported `unregisteredValidationReservationChildGone`
+predicate, shared with the fixture) the owned pending fence is withdrawn before
+the command result is returned; a live or unobservable group keeps the fence
+for the controller to report, and a refused withdrawal is surfaced with the
+bounded result preserved. `verify-nested-reservation-registration-race.mjs`
 modes `retry-recovers` and `retry-exhausted` fail the inner observation itself
-and assert the attempt count; `verify-nested-isolated-observation.mjs` proves the
-fixture's recovery and withdrawal under a live controller. A token that still
+and assert the attempt count, `retry-exhausted-withdrawn` shows a raw API caller
+withdrawing after proven absence, `verify-nested-isolated-observation.mjs`
+proves the fixture's recovery and withdrawal under a live controller, and
+`verify-nested-reservation-cancellation.mjs` modes
+`refused-registration-withdrawn` and `refused-registration-live` drive the real
+executor through a refused registration: an exiting workload releases the ticket
+cleanly, while a workload that leaves a same-group grandchild ignoring the signal
+keeps the pending fence (`owned group cleanup unproven`, one targetless pending
+row in the doctor classification). Replayed against the pre-repair executor the
+withdrawn mode fails with `owned group cleanup unproven`. A token that still
 ends targetless because its owner died between prepare and registration, or
 because every bounded observation failed, cannot be resolved by owner death
 alone: a detached child may already exist. `proof-or-stop doctor` lists every
@@ -181,23 +196,72 @@ the same 180-second timeout with the same single failing case on main and on the
 candidate, so npm-wrapped fixture targets remain non-delegated and unchanged;
 `review-pass-discard-smoke` fails identically on main and on the candidate with a
 fixture repository error unrelated to delegation. These are bounded targeted
-observations, not a full validation run. The static-edge scanner's remaining rows
-are, up to moved line numbers inside Lab-changed files, a subset of the rows
-already present on local main (60 rows on the candidate against 71 on main; the
-difference is main entries whose stale source digest the candidate's refresh
-made current), and every stale exception id on the candidate is stale on main.
+observations, not a full validation run.
+
+The static-edge scanner's remaining rows are, up to moved line numbers inside
+Lab-changed files, a subset of the rows already present on local main: 60
+NEEDS_REVIEW rows on the candidate against 71 on main, where every differing
+group is the same `incomplete exception` row at a moved line
+(`native-review-fixture.ts` 189 to 190 and `isolated-finding-fixture.ts` 73 to
+98, both inherited stale dependency pins on main) or main entries for
+`verify-process-fact-contract.mjs` whose stale source digest the candidate's
+refresh made current (13 rows on main, 2 on the candidate), and every stale
+exception id on the candidate is stale on main (32 of main's 45). The manifest
+and the identity verifier pin each other, so the refresh order is fixed: every
+source, script and verifier edit is finished first, then the reviewed identity
+inventories and the verifier's own pins are refreshed, then the manifest is
+regenerated last so its dependency digests record the final verifier bytes, and
+the verifier is run once more; the verifier's pin over the manifest covers only
+the token-bearing excerpt lines, which a dependency-digest refresh never
+touches, so one pass reaches the fixed point (checked: every manifest occurrence
+of the verifier digest equals the committed file, and the verifier output is
+byte-identical before and after the regeneration).
+
 The identity-cutover verifier reports on the candidate exactly the issue list it
-reports on local main 0.3.363 except one inherited row that moved from
-`runtime-fact-registry.ts` line 502 to 504, and its self-test fails identically
-on both. The candidate's only identity re-pins are Lab-owned: the reviewed-source
-row for `runtime-artifact-registry.ts` (same line hash and occurrence count) and
-the manifest schema-context digest for the managed critic's copied excerpt of
-`native-review-fixture.ts` (same count), with the source-contexts reader pin
-refreshed accordingly. Inherited main drift is left visible, not refreshed.
+reports on local main 0.3.363 minus three inherited rows that the candidate
+rebinds because it modified their files (`runtime-fact-registry.ts` reviewed
+source row, and the negative source integrity pins of
+`verify-process-fact-contract.mjs` and `verify-runtime-fact-contract.mjs`); its
+self-test fails identically on both. The rule for every identity re-pin in this
+Lab is checkable: a re-pinned row is bound to a file this Lab modified, and no
+row bound to an unmodified file is refreshed. Enumerated from
+`git diff main -- scripts/identity-reviewed-source-data.json scripts/identity-reviewed-fixture-data.json scripts/identity-reviewed-json-data.json scripts/verify-proof-or-stop-identity-cutover.mjs scripts/identity-reviewed-*-contexts.mjs`
+against `git diff --name-only main`, the 34 re-pinned rows are, by the
+Lab-changed file that caused each one:
+
+- `packages/main/src/core/runtime-artifact-registry.ts` (one added export): the
+  reviewed-source row for `.lattice/runtime/host-runs/`, line 367 to 368 with
+  its source digest, same line hash and occurrence count.
+- `packages/main/src/core/runtime-fact-registry.ts` (delegation policy and
+  fact): the reviewed-source row for `LATTICE_AGENT`, line 502 to 507 with its
+  source digest, same line hash and occurrence count.
+- `packages/main/src/tasks/native-review-fixture.ts` (delegation environment
+  forwarding): six reviewed-fixture rows (`lattice` line 44 to 45,
+  `LATTICE_NATIVE_REVIEW_ATTESTATION_FD` lines 194, 234 and 342 shifted by one,
+  `process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD` lines 244 and 352 shifted
+  by one) with the source digest.
+- `scripts/verify-process-fact-contract.mjs` (delegation process fact): nine
+  reviewed-fixture rows re-digested at unchanged lines (6536 to 6572, 7301,
+  7393, 7422) and its negative source integrity pin.
+- `scripts/verify-runtime-fact-contract.mjs` (delegation runtime fact): its
+  negative source integrity pin.
+- `scripts/lab/u18-static-edges/exceptions.json` (repinned manifest): eight
+  reviewed-JSON context digests for the copied excerpts of
+  `native-review-fixture.ts` and `isolated-finding-fixture.ts` under
+  `/entries/39`, `/entries/269` and `/entries/270`, plus the
+  CURRENT_COMPATIBLE_SCHEMA_ROWS context digest for
+  `lattice.native_review_invocation_attestation.v1` (count unchanged at 4).
+- the three reviewed-context readers (`identity-reviewed-source-contexts.mjs`,
+  `-fixture-contexts.mjs`, `-json-contexts.mjs`): their EXPECTED_SHA256 and
+  entry-count pins and the verifier's digest pin of each reader, because the
+  inventories above changed.
+
+Inherited main drift on files this Lab did not modify is left visible, not
+refreshed.
 
 ## Verification boundaries
 
-Thirty-three direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Thirty-five direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
@@ -211,15 +275,16 @@ and process-fanout resources; private fixture directories do not permit
 concurrent machine contention. The original pinned Lab driver remains unchanged.
 Registered budgets strictly exceed each wrapped child's own timeout plus setup
 and are evidence-backed: measured sequentially on 2026-09-14 against the merged
-candidate, `core` completed in 30.8 to 40.6 seconds against a 120-second budget
+candidate, `core` completed in 30.8 to 41.1 seconds against a 120-second budget
 (five 15-second outer cases plus setup stack in the worst case),
-`registration-race` in 9.5 to 12.2 seconds against 120 seconds (ten 10-second
-modes stack in the worst case), `cleanup-diagnostics` in 6 seconds against 90
-seconds (six 10-second modes), the result-contract, cancellation and
-boot-recovery selectors in 1 to 2.7 seconds against 30 seconds (each wraps one
-child whose own timeout is at most 12 seconds), and every remaining selector,
+`registration-race` in 9.5 to 20.1 seconds against 120 seconds (eleven 10-second
+modes stack in the worst case), `cleanup-diagnostics` in 6 to 9.1 seconds against
+90 seconds (six 10-second modes), the result-contract, cancellation and
+boot-recovery selectors, including the two refused-registration cancellation
+selectors, in 1 to 4 seconds against 30 seconds (each wraps one child whose own
+timeout is at most 12 seconds), and every remaining selector,
 including the two isolated-observation selectors whose child allows 40 seconds,
-in under 10 seconds against its 60-second budget. `core` is the one selector
+in under 11 seconds against its 60-second budget. `core` is the one selector
 that exercises the real machine pool: in the final sequential sweep it failed
 once with NESTED_FIXTURE_STARTED_REQUIRED while an identity verifier self-test
 in another checkout held that pool, and it passed again alone in 37 seconds,
@@ -307,6 +372,11 @@ It rechecks the outcome after that observation, so published outcomes take
 precedence. A still-missing outcome fails promptly with captured output through
 the unchanged cleanup path; live or unknown groups retain the original wait and
 deadline. This does not cover every owner-loss case with surviving descendants.
+The release predicates compare only PID and group presence, never a recorded
+start identity: a process group id that the kernel later reuses for an unrelated
+group keeps a resolved row fenced until that group exits. This is an accepted
+limitation, not a bound; releasing on identity alone would risk releasing an
+unobservable group, so the fence stays until the group is provably absent.
 
 `node scripts/verify-nested-isolated-worker-exit.mjs` uses an actual worker that
 calls `process.exit(7)` before publishing an outcome. The committed pre-repair

@@ -1,5 +1,5 @@
 import { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY as delegationPolicy } from '../core/runtime-fact-registry.js';
-import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, observeValidationReservationChild, validationReservationChildIdentityMatches, validationReservationGroupIsAbsent } from '../core/validation-reservation-delegation.js';
+import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, observeValidationReservationChild, validationReservationChildIdentityMatches, validationReservationGroupIsAbsent, unregisteredValidationReservationChildGone } from '../core/validation-reservation-delegation.js';
 import { MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY as criticBudget } from '../core/runtime-fact-registry.js';
 import { REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY as epochBudget } from '../core/runtime-fact-registry.js';
 /** Test-only OS isolation for native-broker fixtures. Never used by production
@@ -53,10 +53,7 @@ function observeWithBoundedRetry<T>(observe: () => T): T {
   throw last;
 }
 /** An unregistered worker is gone only when its PID and its whole group are both absent; a live non-leader is never treated as gone. */
-function unregisteredWorkerGone(pid: number): boolean {
-  try { process.kill(pid, 0); return false; } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') return false; }
-  return validationReservationGroupIsAbsent(pid);
-}
+function unregisteredWorkerGone(pid: number): boolean { return unregisteredValidationReservationChildGone(pid); }
 export async function runIsolatedFindingFixture(entry: string): Promise<boolean> {
   if (process.argv.includes(MARKER)) return false;
   const file = fileURLToPath(entry);

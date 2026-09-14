@@ -1,4 +1,4 @@
-import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, currentValidationReservationAbortSignal, isValidationDelegationError } from './validation-reservation-delegation.js';
+import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, unregisteredValidationReservationChildGone, currentValidationReservationAbortSignal, isValidationDelegationError } from './validation-reservation-delegation.js';
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
@@ -1501,6 +1501,8 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
 
   const pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal});
   let spawned = false;
+  let spawnedPid: number | undefined;
+  let registrationRefused = false;
   let captureFailed = false, captureError: unknown;
   let captured: CapturedValidationCommandResult | undefined;
   try { captured = await new Promise<CapturedValidationCommandResult>((resolveResult) => {
@@ -1618,8 +1620,11 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
       ...(isWindows ? {} : { detached: true }),
     });
     spawned = child.pid !== undefined;
+    spawnedPid = child.pid;
     childRegistration = child.pid ? registerValidationReservationChild(child.pid, pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal}) : Promise.resolve();
-    childRegistration.catch(() => { try { child.kill('SIGTERM'); } catch { /* finish reports registration failure. */ } });
+    // A refused registration terminates the whole spawned group, exactly like a timeout;
+    // the owned pending fence is withdrawn below only once that group is proven absent.
+    childRegistration.catch(() => { registrationRefused = true; try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ } });
     runtimeEvents.push('spawn');
 
     emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
@@ -1728,6 +1733,30 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
           effectiveTimeoutMs: captured.result.effectiveTimeoutMs,
         }});
         throw diagnostic;
+      }
+    } else if (registrationRefused && spawnedPid !== undefined) {
+      // The refused child was signalled with its group. Once its PID and whole group are
+      // proven absent nothing this spawn started can remain, so the owned pending fence is
+      // withdrawn; a live or unobservable child keeps the fence for the controller to report.
+      const until = Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs;
+      while (!unregisteredValidationReservationChildGone(spawnedPid) && Date.now() < until) await new Promise(resolve => setTimeout(resolve, 10));
+      if (unregisteredValidationReservationChildGone(spawnedPid)) {
+        try { await cancelValidationReservationChild(pendingSpawn, {deadlineAt: Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs}); }
+        catch (cleanupError) {
+          // Withdrawal refusal stays fail-closed without replacing the caller's original
+          // error or erasing the completed command's bounded result.
+          const diagnostic = new ValidationNoSpawnCleanupError(
+            `${captureFailed ? boundedValidationErrorMessage(captureError) + '; ' : ''}validation refused-registration cleanup refused: ${boundedValidationErrorMessage(cleanupError)}`,
+            captureFailed ? captureError : cleanupError, captured?.result,
+          );
+          Object.defineProperty(diagnostic, 'cleanupFailure', {value: boundedValidationErrorMessage(cleanupError)});
+          if (captured) Object.defineProperty(diagnostic, 'result', {value: {
+            code: captured.result.code, timedOut: captured.result.timedOut,
+            failureKind: captured.result.failureKind, output: captured.result.output.slice(0, 2000),
+            effectiveTimeoutMs: captured.result.effectiveTimeoutMs,
+          }});
+          throw diagnostic;
+        }
       }
     }
   }
