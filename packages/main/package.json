@@ -198,7 +198,10 @@
     "test:nested-reservation-fault-unattempted-owner-loss": "node ../../scripts/verify-nested-reservation-registered.mjs fault-unattempted-owner-loss",
     "test:nested-reservation-fault-attempted-owner-loss": "node ../../scripts/verify-nested-reservation-registered.mjs fault-attempted-owner-loss",
     "test:nested-reservation-cancel-client-rejects-applied": "node ../../scripts/verify-nested-reservation-registered.mjs cancel-client-rejects-applied",
-    "test:nested-reservation-isolated-observation-unavailable-no-token": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-unavailable-no-token"
+    "test:nested-reservation-isolated-observation-unavailable-no-token": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-unavailable-no-token",
+    "test:nested-reservation-isolated-observation-worker-spawn-failure": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-worker-spawn-failure",
+    "test:nested-reservation-result-descriptor-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs result-descriptor-unavailable",
+    "test:nested-reservation-result-refused-registration-cleanup": "node ../../scripts/verify-nested-reservation-registered.mjs result-refused-registration-cleanup"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

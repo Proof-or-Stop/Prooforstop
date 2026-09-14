@@ -42,7 +42,11 @@ export function isValidationDelegationError(error: unknown): boolean {
 }
 function failure(reason: string): Error { return new ValidationDelegationError(reason); }
 function table(): Map<number, ProcessIdentity & { ppid: number }> {
-  const rows = execFileSync('ps', ['-axo', 'pid=,ppid=,pgid='], { encoding: 'utf8', timeout: policy.kernelObservationMs, maxBuffer: 8 * 1024 * 1024 });
+  // A process-table observation failure is a typed refusal like every other kernel
+  // observation; retrying paths observe it through observeWithRetry.
+  let rows: string;
+  try { rows = execFileSync('ps', ['-axo', 'pid=,ppid=,pgid='], { encoding: 'utf8', timeout: policy.kernelObservationMs, maxBuffer: 8 * 1024 * 1024 }); }
+  catch { throw failure('process table unavailable'); }
   const result = new Map<number, ProcessIdentity & { ppid: number }>();
   for (const row of rows.trim().split('\n')) { const [pid, ppid, pgid] = row.trim().split(/\s+/).map(Number); if (pid > 1 && Number.isSafeInteger(ppid) && pgid > 1) result.set(pid, { pid, ppid, pgid, start: 0 }); }
   return result;
@@ -111,7 +115,12 @@ function registrationTargetGone(pid: number): boolean {
 }
 function descriptor(pid: number, fd: number): { dev: bigint; ino: bigint } {
   if (process.platform !== policy.platform) throw failure('kernel descriptor observation unsupported');
-  const raw = execFileSync('/usr/sbin/lsof', ['-n', '-P', '-a', '-p', String(pid), '-d', String(fd), '-F', 'paftDi'], { encoding: 'utf8', timeout: policy.kernelObservationMs, maxBuffer: LIMIT });
+  // The descriptor observation is retried with the registered policy and refused as a typed
+  // delegation failure; a transient lsof failure never escapes as a raw error.
+  const raw = observeWithRetry(() => {
+    try { return execFileSync('/usr/sbin/lsof', ['-n', '-P', '-a', '-p', String(pid), '-d', String(fd), '-F', 'paftDi'], { encoding: 'utf8', timeout: policy.kernelObservationMs, maxBuffer: LIMIT }); }
+    catch { throw failure('kernel descriptor observation unavailable'); }
+  });
   const rows = raw.trim().split('\n');
   if (rows.filter(x => x.startsWith('p')).join() !== 'p' + pid || rows.filter(x => x.startsWith('f')).join() !== 'f' + fd || !rows.includes('tREG') || !rows.includes('ar')) throw failure('kernel descriptor identity ambiguous');
   const dev = rows.filter(x => x.startsWith('D')), ino = rows.filter(x => x.startsWith('i'));
@@ -496,7 +505,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
           const grant: Grant = {reservation:owner.lockId,subject,nonce:input.nonce,operation:'cancel',resources:null,deadlineAt:input.deadlineAt,grantId:randomUUID()};
           socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');return;
         }
-        const parents=enrollment(subject);
+        const parents=enrollment(subject, observeWithRetry(() => table()));
         if (input.operation === 'attempt') {
           const ownedPending=input.pendingToken && pendingChildren.get(input.pendingToken);
           if(!ownedPending || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('pending mutation capability not owned');

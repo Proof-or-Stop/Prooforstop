@@ -71,9 +71,11 @@ from its original configured timeout and uses its remaining time after setup.
 immediately before the spawn call and stamps the pending fence with a
 spawn-attempt marker (locally through the frame, remotely through an `attempt`
 operation bound to the same private capability). The contract for every
-spawning caller is prepare, attempt, spawn, register; the executor and the
-isolated Finding fixture follow it, and every raw-API holder in the controls
-does too. `cancelValidationReservationChild(pendingToken, options)` is
+spawning caller is prepare, attempt, spawn, register, and the process that
+performs the spawn call owns that fence; the executor, both spawning processes
+of the isolated Finding fixture (the fixture process for its launcher, the
+registered launcher for its worker) and every raw-API holder in the controls
+follow it. `cancelValidationReservationChild(pendingToken, options)` is
 cleanup-only and its caller must have proved that no child was spawned.
 Separately, controller retirement can resolve an already-observed owned target
 after fresh PID and whole-group absence checks, and it resolves an unmarked
@@ -166,9 +168,10 @@ token. The owner's start identity is compared against the observation that
 recorded the pending row: a socket caller supplies the subject identity it
 already observed, and the local frame observes itself with the same retry. The
 isolated Finding fixture retries its worker observation with the same policy;
-when a refused worker's PID and whole group are proven absent after the launcher
-terminates it, the fixture withdraws its owned pending fence so the live
-controller releases cleanly. The executor applies the same rule to every
+its launcher, which performs the worker spawn call and therefore owns that
+fence, terminates a refused worker with its group and withdraws the fence only
+once the worker's PID and whole group are proven absent, so the live controller
+releases cleanly. The executor applies the same rule to every
 validation command: a refused registration signals the spawned group exactly
 as a timeout does, and once the direct child's PID and its whole group are
 proven absent (the exported `unregisteredValidationReservationChildGone`
@@ -215,6 +218,48 @@ child remains; the tool never releases it automatically.
 between prepare and spawn; against the pre-repair source the unmarked fence
 stayed and the owner's release was refused.
 
+The isolated Finding fixture previously prepared and marked one fence in the
+fixture process for a spawn call that its launcher performed two process hops
+later, so a launcher that never delivered a worker PID (a failed worker spawn
+call under load, or a launcher lost before its message) left a marked,
+targetless fence that wedged the same-user pool. Each process now owns the
+fence of the spawn call it performs. The fixture process prepares, marks,
+spawns and registers its launcher exactly like an executor child and sends it
+GO only after that registration, so the launcher's own requests are those of
+an enrolled descendant; the launcher then prepares its own fence, marks it
+immediately before its worker spawn call, and registers the worker once the
+fixture process has observed a matching group leader, or terminates the
+refused worker with its group and withdraws that fence once the worker's PID
+and whole group are proven absent. A spawn call that fails creates no child,
+so the launcher withdraws its fence at once and reports the failure; the
+fixture then names the failed spawn (`isolated fixture worker spawn failed`)
+without claiming an unproven cleanup, and a refused launcher registration is
+withdrawn under the executor's rule once the launcher is proven absent. A
+launcher lost before its attempt mark leaves an unmarked fence that the
+controller resolves once its owner is proven gone; the window between the mark
+and the spawn call is the same accepted window the executor has.
+`verify-nested-isolated-observation.mjs` mode `worker-spawn-failure` replaces
+the executable of the launcher's worker spawn call inside the fixture's
+launcher template and asserts that the fixture fails naming the spawn, that no
+cleanup is reported unproven, that no worker entered its workload and that the
+live controller releases its ticket; against the pre-repair fixture the
+controller refused its release with `owned group cleanup unproven` and the
+ticket stayed fenced.
+
+Kernel process-table (`ps`) and descriptor (`lsof`) observation failures are
+typed delegation refusals like every other kernel observation: the descriptor
+observation inside the bootstrap reader retries with the registered policy and
+refuses as `kernel descriptor observation unavailable`, the process table
+refuses as `process table unavailable`, and immediate socket operations observe
+the process table with the same bounded retry, so a transient `lsof` or `ps`
+failure on the pre-launch path folds into a bounded infrastructure result
+instead of escaping as a raw error. `verify-nested-validation-result-contract.mjs`
+mode `descriptor-unavailable` registers a real child of a live controller whose
+own nested executor meets a failing descriptor observation while reading its
+inherited bootstrap and asserts the folded non-success result naming that
+refusal, with no leaf launched; against the pre-repair reader the raw error
+escaped the executor as an exception.
+
 ### Prior-boot recovery
 
 Unknown pending work cannot be reclaimed from a deadline or owner death alone:
@@ -260,7 +305,16 @@ output artifact is preserved verbatim with the cleanup diagnostic appended and
 only the bounded projection is trimmed; the `post-capture-cleanup` mode drives
 the wrapper-returning entry point with a 5000-character payload and asserts the
 artifact still carries it, where the pre-repair executor returned a 2000-byte
-slice under the same name.
+slice under the same name. The same holds on the other cleanup path: when a
+completed command's refused-registration withdrawal or no-spawn cleanup is
+itself refused, the cleanup error carries the complete artifact alongside the
+bounded result and the fold appends the diagnostic to that artifact. Mode
+`refused-registration-cleanup` completes a 5000-character command, refuses its
+registration only after the payload has been flushed, refuses the withdrawal,
+and asserts that the artifact still carries the payload, that the projection's
+prefix is the artifact's prefix and that the projection does not carry the
+whole payload; against the pre-repair executor the bounded projection was
+returned under the artifact's name.
 
 The caller's own abort, or a caller-supplied deadline error, is decided before
 any pending fence is prepared and again ahead of a delegation refusal, so it
@@ -308,7 +362,7 @@ Lab-changed files, a subset of the rows already present on local main: 60
 NEEDS_REVIEW rows on the candidate against 71 on main, where every differing
 group is the same `incomplete exception` row at a moved line
 (`native-review-fixture.ts` 189 to 190 and `isolated-finding-fixture.ts` 73 to
-98, both inherited stale dependency pins on main) or main entries for
+140, both inherited stale dependency pins on main) or main entries for
 `verify-process-fact-contract.mjs` whose stale source digest the candidate's
 refresh made current (13 rows on main, 2 on the candidate), and every stale
 exception id on the candidate is stale on main (32 of main's 45). The manifest
@@ -366,28 +420,31 @@ refreshed.
 
 ## Verification boundaries
 
-Forty-five direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Forty-eight direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
 closed selector wrapper normalizes the repository working directory; selectors
 that need Darwin kernel descriptor or process identity observation print an
-explicit skip on other platforms before loading native controls, while six of
-the seven executor result-contract selectors (`result-prepare-refusal`,
+explicit skip on other platforms before loading native controls, while seven of
+the nine executor result-contract selectors (`result-prepare-refusal`,
 `result-cleanup-primary`, `result-cleanup-result`, `result-ordinary-error`,
-`result-armed-timeout` and `result-caller-deadline`) run through the
-platform-independent queue in a private OS-home namespace and are not gated
-(they were exercised only on Darwin in this Lab); `result-post-capture-cleanup`
-patches the Darwin-only controller cleanup and is gated like the native
-controls. The entries declare the existing exclusive machine heavy and
+`result-armed-timeout`, `result-caller-deadline` and
+`result-refused-registration-cleanup`) run through the platform-independent
+queue in a private OS-home namespace and are not gated (they were exercised
+only on Darwin in this Lab); `result-post-capture-cleanup` patches the
+Darwin-only controller cleanup and `result-descriptor-unavailable` needs a live
+controller and the Darwin descriptor observation, so both are gated like the
+native controls. The entries declare the existing exclusive machine heavy and
 process-fanout resources so validation serializes them against other heavy
 commands; under the real executor each selector process inherits that declared
 reservation and its unclassified leaf commands resolve to the declaration (see
-the controlled child API). The `core` selector imports the unchanged pinned
-driver statically but first removes the locator and rebinds the machine pool root
-(`os.userInfo().homedir`) to a private scratch home, in place and through
-NODE_OPTIONS for every child, so the driver is the genuine owner of that
-namespace's pool instead of an inheriting descendant; registered index 169 was
+the controlled child API). The `core` selector first removes the locator and
+rebinds the machine pool root (`os.userInfo().homedir`) to a private scratch
+home, in place and through NODE_OPTIONS for every child, and only then loads
+the unchanged pinned driver through a dynamic import, so the override is in
+place before the driver's module graph loads and the driver is the genuine
+owner of that namespace's pool instead of an inheriting descendant; registered index 169 was
 executed through the real compiled executor with the machine reservation held
 and passed in 34.6 seconds, where before this round it failed at its first leaf
 command. The Lab's own RED/GREEN replay still
@@ -400,10 +457,12 @@ candidate, `core` completed in 30.8 to 41.1 seconds against a 120-second budget
 modes stack in the worst case), `cleanup-diagnostics` in 6 to 9.1 seconds against
 90 seconds (six 10-second modes), the result-contract, cancellation and
 boot-recovery selectors, including the three refused-registration and
-client-rejection cancellation selectors, in 1 to 5 seconds against 30 seconds
-(each wraps one child whose own timeout is at most 12 seconds), and every remaining selector,
-including the two isolated-observation selectors whose child allows 40 seconds,
-in under 13 seconds against its 60-second budget. Before the `core` selector
+client-rejection cancellation selectors and the two eighth-round result-contract
+selectors, in 1 to 5 seconds against 30 seconds (each wraps one child whose own
+timeout is at most 12 seconds), and every remaining selector, including the four
+isolated-observation selectors whose child allows 40 seconds, in under 13 seconds
+against its 60-second budget; the eighth-round sequential sweep of all
+forty-eight selectors passed in 181.5 seconds in total. Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
@@ -439,7 +498,11 @@ run of the plain wrapper passes an unrelated linked regular file at descriptor 4
 and proves that it degrades identically, naming the linked-file reason, where
 the pre-repair reader refused it as a foreign bootstrap. The Lab's source-runtime
 helper resolves the TypeScript compiler from `packages/main` through Node's own
-resolution, hoisted or not, instead of a hardcoded nested `node_modules` path.
+resolution, hoisted or not, instead of a hardcoded nested `node_modules` path,
+and every control composes its source hooks through that helper's patch
+parameter; the handshake-deadline control previously rewrote the helper's
+loader with a hardcoded compiler path and now composes its stall hook the same
+way.
 
 Supplemental source-bound native fault commands are recorded separately:
 `verify-nested-reservation-faults.mjs` modes `registered`, `same-group`, `pending`,

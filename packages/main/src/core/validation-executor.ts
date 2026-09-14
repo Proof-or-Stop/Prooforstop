@@ -1413,13 +1413,19 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
     if (!delegationRefused && (enteredCapture || (!aborted && !expired))) throw error;
     // Preserve the command-result API without launching a child merely to abort
     // it. A caller-supplied deadline error remains an exception above.
-    const completed = completedValidationCleanupResult(error);
+    const completed = completedValidationCleanupCapture(error);
     const diagnostic = delegationRefused ? boundedValidationErrorMessage(error) : `${aborted ? 'aborted' : 'deadline exceeded'} before child launch`;
-    const output = completed ? `${completed.output.slice(0, 2000)}\n${diagnostic}` : diagnostic;
-    if (completed) return { completeOutput: output, result: {
-      ...completed, code: completed.code === 0 ? 1 : completed.code,
-      failureKind: 'infra_failure', output,
-    } };
+    if (completed) {
+      // A command that completed before its cleanup was refused keeps its complete
+      // authenticated artifact verbatim with the diagnostic appended; only the bounded
+      // projection is trimmed, exactly as on the post-capture cleanup path.
+      const output = `${completed.result.output.slice(0, 2000)}\n${diagnostic}`;
+      return { completeOutput: `${completed.completeOutput}\n${diagnostic}`, result: {
+        ...completed.result, code: completed.result.code === 0 ? 1 : completed.result.code,
+        failureKind: 'infra_failure', output,
+      } };
+    }
+    const output = diagnostic;
     return { completeOutput: output, result: {
       label: command.label, command: command.command, args: command.args,
       ...(command.optional ? { optional: true } : {}),
@@ -1431,15 +1437,20 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
 
 class ValidationNoSpawnCleanupError extends Error {
   readonly completed?: ValidationCommandResult;
-  constructor(message: string, cause: unknown, completed?: ValidationCommandResult) {
+  /** The completed command's complete authenticated artifact, carried verbatim past the refused cleanup. */
+  readonly completeOutput?: string;
+  constructor(message: string, cause: unknown, completed?: ValidationCommandResult, completeOutput?: string) {
     super(message, { cause });
     this.completed = completed;
+    this.completeOutput = completeOutput;
   }
 }
-function completedValidationCleanupResult(error: unknown): ValidationCommandResult | undefined {
+function completedValidationCleanupCapture(error: unknown): CapturedValidationCommandResult | undefined {
   try {
     for (let depth = 0; error && typeof error === 'object' && depth < 8; depth++) {
-      if (error instanceof ValidationNoSpawnCleanupError) return error.completed;
+      if (error instanceof ValidationNoSpawnCleanupError) {
+        return error.completed ? { result: error.completed, completeOutput: error.completeOutput ?? error.completed.output } : undefined;
+      }
       const cause = Object.getOwnPropertyDescriptor(error, 'cause');
       error = cause && 'value' in cause ? cause.value : undefined;
     }
@@ -1742,7 +1753,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
         // original abort/deadline or erase a completed command's bounded result.
         const diagnostic = new ValidationNoSpawnCleanupError(
           `${captureFailed ? boundedValidationErrorMessage(captureError) + '; ' : ''}validation no-spawn cleanup refused: ${boundedValidationErrorMessage(cleanupError)}`,
-          captureFailed ? captureError : cleanupError, captured?.result,
+          captureFailed ? captureError : cleanupError, captured?.result, captured?.completeOutput,
         );
         Object.defineProperty(diagnostic, 'cleanupFailure', {value: boundedValidationErrorMessage(cleanupError)});
         if (captured) Object.defineProperty(diagnostic, 'result', {value: {
@@ -1765,7 +1776,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
           // error or erasing the completed command's bounded result.
           const diagnostic = new ValidationNoSpawnCleanupError(
             `${captureFailed ? boundedValidationErrorMessage(captureError) + '; ' : ''}validation refused-registration cleanup refused: ${boundedValidationErrorMessage(cleanupError)}`,
-            captureFailed ? captureError : cleanupError, captured?.result,
+            captureFailed ? captureError : cleanupError, captured?.result, captured?.completeOutput,
           );
           Object.defineProperty(diagnostic, 'cleanupFailure', {value: boundedValidationErrorMessage(cleanupError)});
           if (captured) Object.defineProperty(diagnostic, 'result', {value: {
