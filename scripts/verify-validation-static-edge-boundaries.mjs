@@ -212,6 +212,45 @@ try{
  for(const name of ['native-review-fixture.ts','fixture-environment.ts'])assert(brandReport.coverage.some(row=>row.file===tasks+name&&row.state==='SCANNED'));
  writeHelper('fixture-environment.ts',"import './brand-depth-three.js';");writeHelper('brand-depth-three.ts',"import './brand-depth-four.js';");writeHelper('brand-depth-four.ts','');
  assert(expect(1,'brand-role entry retains generic depth-four refusal').coverage.some(row=>row.file===tasks+'brand-depth-four.ts'&&row.reason==='helper depth exceeds declared bound'));
+ // The closed native regression route must bind resource policy and URL-loaded APIs
+ // directly. A fresh global configDigest alone is not direct dependency evidence.
+ {
+  const entry='scripts/verify-nested-reservation-registered.mjs';
+  const graph={
+   'scripts/verify-nested-reservation-cancellation.mjs':['./support/nested-reservation-source-runtime.mjs'],
+   'scripts/verify-nested-reservation-boot-recovery.mjs':['./support/nested-reservation-source-runtime.mjs'],
+   'scripts/verify-nested-validation-result-contract.mjs':['./support/nested-reservation-source-runtime.mjs'],
+   [entry]:['./verify-nested-isolated-cleanup.mjs','./verify-nested-isolated-worker-exit.mjs','./verify-nested-reservation-cleanup-diagnostics.mjs','./verify-nested-reservation-faults.mjs','./verify-nested-reservation-handshake-deadline.mjs','./verify-nested-reservation-owner-loss.mjs','./verify-nested-reservation-registration-race.mjs','./verify-nested-source-loader-semantics.mjs','./verify-nested-verification-machine-owner.mjs','./verify-nested-validation-result-contract.mjs','./verify-nested-reservation-cancellation.mjs','./verify-nested-reservation-boot-recovery.mjs'],
+   'scripts/verify-nested-verification-machine-owner.mjs':['./support/nested-reservation-lifecycle.mjs','./lab-source-loader.mjs','../packages/main/src/core/validation-executor.ts'],
+   ...Object.fromEntries(['isolated-worker-exit','isolated-cleanup','reservation-cleanup-diagnostics','reservation-registration-race','reservation-owner-loss','reservation-faults'].map(name=>['scripts/verify-nested-'+name+'.mjs',['./support/nested-reservation-source-runtime.mjs']]))
+  };
+  const policyInputs=['proof-or-stop.config.json','packages/main/src/core/runtime-fact-registry.ts','packages/main/src/core/validation-reservation-delegation.ts','packages/main/src/core/validation-execution-lock.ts','packages/main/src/core/validation-executor.ts','packages/main/src/tasks/isolated-finding-fixture.ts','scripts/support/nested-reservation-source-runtime.mjs','scripts/support/nested-reservation-lifecycle.mjs'];
+  const put=(file,text)=>{fs.mkdirSync(path.dirname(path.join(root,file)),{recursive:true});fs.writeFileSync(path.join(root,file),text);};
+  for(const file of policyInputs)put(file,'// Synthetic scanner input; never executed.\n');
+  const inputs=new Set(policyInputs);
+  for(const [file,imports]of Object.entries(graph)){
+   inputs.add(file);put(file,imports.map(spec=>'await import('+JSON.stringify(spec)+');').join('\n'));
+   for(const spec of imports){const leaf=path.posix.normalize(path.posix.join(path.posix.dirname(file),spec));inputs.add(leaf);if(!fs.existsSync(path.join(root,leaf)))put(leaf,'');}
+  }
+  const callFile='scripts/support/nested-reservation-lifecycle.mjs';
+  const call="spawnSync(process.execPath, ['-e', ''], { timeout: 1000 })";
+  const text="import { spawnSync } from 'node:child_process';\n"+call+';\n';put(callFile,text);
+  commands.splice(0,commands.length,{command:'node',args:[entry,'core'],timeoutMs:60000,resources:[{type:'machine-cpu',key:'heavy',access:'exclusive'}]});save();
+  const exact={id:'EX-NESTED-BINDING-TEST',key:callFile+':2:spawnSync',callDigest:hash(call),sourceDigest:hash(text),configIndexes:[0],kind:'INLINE_PROCESS_PROBE',reason:'Synthetic scanner-only source fixture; never executed.',requiredEvidence:[{file:callFile,startLine:1,endLine:2,sourceDigest:hash(text),excerpt:text.trimEnd()}],dependencyDigests:Object.fromEntries([...inputs].map(file=>[file,hash(fs.readFileSync(path.join(root,file)))]))};
+  pin([exact]);const complete=expect(0,'native route exact direct policy and API dependencies');
+  assert.equal(complete.configDrift,false);assert.equal(complete.rows.length,1);assert.equal(complete.rows[0].state,'EXCEPTION');
+  for(const file of ['proof-or-stop.config.json','packages/main/src/core/validation-reservation-delegation.ts']){
+   const missing=structuredClone(exact);delete missing.dependencyDigests[file];pin([missing]);
+   const missingReport=expect(1,'native route missing direct dependency '+file);
+   assert.equal(missingReport.configDrift,false,'global config remains fresh in the missing direct-binding control');
+   assert.equal(missingReport.rows[0].reason,'exception dependency coverage missing or changed');
+   const changed=structuredClone(exact);changed.dependencyDigests[file]='0'.repeat(64);pin([changed]);
+   assert.equal(expect(1,'native route wrong direct dependency '+file).rows[0].state,'NEEDS_REVIEW');
+  }
+  const wrongExcerpt=structuredClone(exact);wrongExcerpt.requiredEvidence[0].excerpt+=' altered';pin([wrongExcerpt]);
+  assert.equal(expect(1,'native route exact source excerpt remains mandatory').rows[0].state,'NEEDS_REVIEW');
+  pin([exact]);expect(0,'native route complete binding restored');
+ }
  const releaseStarted=performance.now();
  const releaseCase=spawnSync(process.execPath,[path.join(repo,'scripts/verify-lab-version-source-evidence.mjs')],{encoding:'utf8',timeout:LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS,maxBuffer:32*1024*1024});
  console.log('STATIC_EVIDENCE_CHILD_TIMING '+JSON.stringify({label:'version-release-contract',elapsedMs:performance.now()-releaseStarted,budgetMs:LAB_VERSION_FIXTURE_TOTAL_TIMEOUT_MS,status:releaseCase.status,signal:releaseCase.signal}));

@@ -52,9 +52,18 @@ signal. Handshakes are additionally capped at the registered 5-second startup
 limit and remaining reservation time. The executor derives one absolute deadline
 from its original configured timeout and uses its remaining time after setup.
 
-Only proven no-spawn rollback may call
-`cancelValidationReservationChild(pendingToken, options)`. An expired or
-unavailable cancellation is a refusal, not proof of cleanup. Enrollment is
+`cancelValidationReservationChild(pendingToken, options)` is cleanup-only and
+its caller must have proved that no child was spawned. Separately, controller
+retirement can resolve an already-observed owned target after fresh PID and
+whole-group absence checks. Unknown targets remain fenced.
+The executor gives cleanup its own bounded cleanup deadline after workload expiry
+or abort; an explicitly expired cleanup deadline still refuses. Cleanup cannot
+issue a work grant or extend workload time.
+
+Remote registration and cancellation of a pending token require its private
+capability, retained by the invoking module and issuer. That capability is not
+published in residual records, environment variables or diagnostics. A claimed
+PID and public pending token alone cannot authorize mutation. Enrollment is
 immutable; registering the same child again cannot replace its invocation lineage.
 All ancestor grants and their deadlines participate in subset and revocation
 checks. Conflicting siblings serialize, including while revoked work is stopping.
@@ -67,7 +76,7 @@ checks. Conflicting siblings serialize, including while revoked work is stopping
 | Unexpected EOF or holder death; its group still exists | No. |
 | Registered descendant group still exists | No, including after normal callback return. |
 | Transitive descendant grant remains | No; revocation does not prove completion. |
-| Pending pre-spawn registration is unresolved | No; its record intentionally has no group ID. |
+| Pending registration has no proven target absence | No; unknown work remains fenced. |
 | Ownership or process observation is unknown | No. |
 
 A continuous bounded frame parser handles the signed grant and subsequent
@@ -80,7 +89,52 @@ Unknown residuals retain the machine
 reservation and produce a non-PASS cleanup result. This fence applies only to the
 machine queue, not unrelated workspace capacity or metadata locks.
 
+### Prior-boot recovery
+
+Unknown pending work cannot be reclaimed from a deadline or owner death alone:
+a detached child may still be running. New canonical machine tickets record the
+kernel boot-session UUID before atomic publication and before workload entry.
+The private boot witness binds the ticket holder, host and OS user separately
+from the residual record.
+
+An already-stale ticket can follow the existing atomic quarantine path when its
+bounded witness matches the holder and a fresh kernel observation proves a
+different boot session. This proves that processes from the recorded boot cannot
+remain. The reader rejects missing, malformed, oversized, symlinked or mismatched
+witnesses. Same-boot and unavailable observations retain the fence. A live or
+unobservable holder PID also retains it, including conservative PID-reuse cases.
+Legacy tickets without a boot witness cannot use this recovery path.
+
+The witness uses the existing private ticket-filesystem trust boundary; it is
+not cryptographic protection against an actor who can rewrite that private
+state. `scripts/verify-nested-reservation-boot-recovery.mjs` exercises actual
+pre-publication recording and controlled reader/queue conditions. Those controls
+do not claim that the host was rebooted during verification.
+
+### Command result preservation
+
+A typed refusal before launch becomes a non-success infrastructure result.
+Ordinary caller errors retain their exception behavior. Cleanup failure preserves
+the original error through the cause chain, or retains an already-captured
+command result with a bounded cleanup diagnostic; it does not relabel completed
+execution as a prelaunch refusal. Reported effective timeout uses the same value
+as the armed execution timer, excluding time already consumed by setup.
+
 ## Verification boundaries
+
+The named `test:nested-reservation-*` targets in `packages/main/package.json`
+are registered individually in normal validation. A closed selector wrapper
+normalizes the repository working directory and prints an explicit skip on
+unsupported platforms before loading native controls. The entries preserve the
+underlying workload limits and declare the existing exclusive machine heavy and
+process-fanout resources; private fixture directories do not permit concurrent
+machine contention. The original pinned Lab driver remains unchanged.
+
+Static evidence for this route must directly bind the resource configuration,
+registered runtime policy and actual loaded implementation helpers. Regression
+controls remove individual bindings while keeping the global configuration
+fresh, proving that missing direct evidence is rejected. These scanner fixtures
+are source-only controls and do not stand in for native behavioral verification.
 
 The originally pinned Lab command remains
 `node scripts/verify-nested-verification-machine-owner.mjs`, with its original
@@ -150,21 +204,21 @@ aggregate target GREEN or a changed workload budget.
 ### Generated loader setup cost
 
 An external five-pair, alternating-order comparison of fresh plain Node leaves
-measured eager compiler loading at a median172.252ms and lazy loading at52.809ms.
-All pairs used the same `console.log(12345)` command and1500ms cap. The shared
+measured eager compiler loading at a median of 172.252 ms and lazy loading at 52.809 ms.
+All pairs used the same `console.log(12345)` command and a 1500 ms cap. The shared
 Lab resolver already uses native TS stripping and does not import the compiler;
 only the generated loader now loads the same compiler lazily on its first TS
 load-hook call. Compiler options, source bytes, resolver and original target
 commands/groups/assertions/deadlines are unchanged. TS-using workers still load
 the compiler. This measured local startup saving does not guarantee aggregate
-completion within60seconds or explain every prior timeout.
+completion within 60 seconds or explain every prior timeout.
 
 The separate `node scripts/verify-nested-source-loader-semantics.mjs` control
 checks that a plain leaf does not load the compiler, and compares actual helper
 exports, budget value and emitted module hashes against the eager preimage's
 semantics. Its semantic checks are separate from the original target; the
 five-pair benchmark is not added to that target. The external initial comparison
-matched173 emitted modules. Its exact source fingerprints and all timings are
+matched 173 emitted modules. Its exact source fingerprints and all timings are
 retained with the Lab report. The modified driver has no existing static-edge
 source, evidence or dependency binding, so this change needs no manifest repin.
 

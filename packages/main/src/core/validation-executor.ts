@@ -1,7 +1,7 @@
-import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, currentValidationReservationAbortSignal } from './validation-reservation-delegation.js';
+import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, currentValidationReservationAbortSignal, isValidationDelegationError } from './validation-reservation-delegation.js';
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
-import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
+import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { execFileSync, execSync, spawn } from 'node:child_process';
@@ -1388,27 +1388,71 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
   const reportedTimeoutMs = Math.min(configured, options.deadlineAt === undefined ? Infinity : Math.max(1, options.deadlineAt - started));
   const deadlineAt = Math.min(options.deadlineAt ?? Infinity, started + configured);
   let enteredCapture = false;
+  let completedCapture: CapturedValidationCommandResult | undefined;
   try {
     return await withMachineValidationResources({ root: projectRoot, workspaceRoot: projectRoot, command: command.label,
     resources: command.resources?.length ? command.resources : undefined, abortSignal: options.abortSignal, deadlineAt,
       deadlineError: options.deadlineError }, () => {
         enteredCapture = true;
-        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }, reportedTimeoutMs);
+        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }, reportedTimeoutMs).then(value => { completedCapture = value; return value; });
       });
   } catch (error) {
-    const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || (error instanceof Error && error.message === 'workspace validation capacity wait aborted'));
-    const expired = !options.deadlineError && error instanceof Error && error.message === 'workspace validation capacity wait deadline exceeded';
-    if (enteredCapture || (!aborted && !expired)) throw error;
+    const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || boundedValidationErrorMessage(error) === 'workspace validation capacity wait aborted');
+    const expired = !options.deadlineError && boundedValidationErrorMessage(error) === 'workspace validation capacity wait deadline exceeded';
+    const delegationRefused = isValidationDelegationError(error);
+    if (completedCapture) {
+      const output = `${completedCapture.result.output.slice(0, 2000)}\n${boundedValidationErrorMessage(error)}`;
+      return { completeOutput: output, result: { ...completedCapture.result,
+        code: completedCapture.result.code === 0 ? 1 : completedCapture.result.code,
+        failureKind: 'infra_failure', output,
+      } };
+    }
+    if (!delegationRefused && (enteredCapture || (!aborted && !expired))) throw error;
     // Preserve the command-result API without launching a child merely to abort
     // it. A caller-supplied deadline error remains an exception above.
-    const output = `${aborted ? 'aborted' : 'deadline exceeded'} before child launch`;
+    const completed = completedValidationCleanupResult(error);
+    const diagnostic = delegationRefused ? boundedValidationErrorMessage(error) : `${aborted ? 'aborted' : 'deadline exceeded'} before child launch`;
+    const output = completed ? `${completed.output.slice(0, 2000)}\n${diagnostic}` : diagnostic;
+    if (completed) return { completeOutput: output, result: {
+      ...completed, code: completed.code === 0 ? 1 : completed.code,
+      failureKind: 'infra_failure', output,
+    } };
     return { completeOutput: output, result: {
       label: command.label, command: command.command, args: command.args,
       ...(command.optional ? { optional: true } : {}),
-      code: 124, timedOut: true, failureKind: 'infra_failure', output,
+      code: delegationRefused ? 1 : 124, ...(delegationRefused ? {} : { timedOut: true }), failureKind: 'infra_failure', output,
       timeoutMs: reportedTimeoutMs, effectiveTimeoutMs: 0, durationMs: Date.now() - started,
     } };
   }
+}
+
+class ValidationNoSpawnCleanupError extends Error {
+  readonly completed?: ValidationCommandResult;
+  constructor(message: string, cause: unknown, completed?: ValidationCommandResult) {
+    super(message, { cause });
+    this.completed = completed;
+  }
+}
+function completedValidationCleanupResult(error: unknown): ValidationCommandResult | undefined {
+  try {
+    for (let depth = 0; error && typeof error === 'object' && depth < 8; depth++) {
+      if (error instanceof ValidationNoSpawnCleanupError) return error.completed;
+      const cause = Object.getOwnPropertyDescriptor(error, 'cause');
+      error = cause && 'value' in cause ? cause.value : undefined;
+    }
+  } catch { /* Diagnostic access cannot replace the original failure. */ }
+  return undefined;
+}
+
+function boundedValidationErrorMessage(error: unknown): string {
+  if (typeof error === 'string') return error.slice(0, 2000);
+  if (error && typeof error === 'object') {
+    try {
+      const descriptor = Object.getOwnPropertyDescriptor(error, 'message');
+      if (descriptor && 'value' in descriptor && typeof descriptor.value === 'string') return descriptor.value.slice(0, 2000);
+    } catch { /* Unavailable detail must not obscure the primary cause. */ }
+  }
+  return 'unavailable error detail';
 }
 
 async function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions, reportedTimeoutMs: number): Promise<CapturedValidationCommandResult> {
@@ -1463,12 +1507,15 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
 
   const pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal});
   let spawned = false;
-  try { return await new Promise((resolveResult) => {
+  let captureFailed = false, captureError: unknown;
+  let captured: CapturedValidationCommandResult | undefined;
+  try { captured = await new Promise<CapturedValidationCommandResult>((resolveResult) => {
     const isWindows = process.platform === 'win32';
     let output = '';
     let timedOut = false;
     let runnerFailure = false;
     let settled = false;
+    let effectiveTimeoutMs = 0;
     let timer: NodeJS.Timeout | undefined;
     let killTimer: NodeJS.Timeout | undefined;
     let heartbeatTimer: NodeJS.Timeout | undefined;
@@ -1515,7 +1562,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
         timeoutMs: reportedTimeoutMs,
-        effectiveTimeoutMs: timeoutMs,
+        effectiveTimeoutMs,
         ...(failureKind ? { failureKind } : {}),
         durationMs: Date.now() - started,
         runtimeTrace: {
@@ -1653,9 +1700,10 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     // hung command is then killed (whole group) + attributed (exit 124) here, instead of
     // the global idle watchdog silently force-exiting the whole validate. unref() so a
     // stray timer never keeps the event loop alive on its own (the awaited child does).
+    effectiveTimeoutMs = Math.max(1, options.deadlineAt! - Date.now());
     timer = setTimeout(() => {
       timeOutCommand(1000);
-    }, Math.max(1, options.deadlineAt! - Date.now()));
+    }, effectiveTimeoutMs);
     timer.unref?.();
 
     child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
@@ -1667,7 +1715,28 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
       output += output ? `\n${e.message}` : e.message;
       finish(null);
     });
-  }); } finally { if (!spawned) await cancelValidationReservationChild(pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
+  }); return captured;
+  } catch (error) { captureFailed = true; captureError = error; throw error;
+  } finally {
+    if (!spawned) {
+      try { await cancelValidationReservationChild(pendingSpawn, {deadlineAt: Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs}); }
+      catch (cleanupError) {
+        // Cleanup refusal stays fail-closed, but must not replace the caller's
+        // original abort/deadline or erase a completed command's bounded result.
+        const diagnostic = new ValidationNoSpawnCleanupError(
+          `${captureFailed ? boundedValidationErrorMessage(captureError) + '; ' : ''}validation no-spawn cleanup refused: ${boundedValidationErrorMessage(cleanupError)}`,
+          captureFailed ? captureError : cleanupError, captured?.result,
+        );
+        Object.defineProperty(diagnostic, 'cleanupFailure', {value: boundedValidationErrorMessage(cleanupError)});
+        if (captured) Object.defineProperty(diagnostic, 'result', {value: {
+          code: captured.result.code, timedOut: captured.result.timedOut,
+          failureKind: captured.result.failureKind, output: captured.result.output.slice(0, 2000),
+          effectiveTimeoutMs: captured.result.effectiveTimeoutMs,
+        }});
+        throw diagnostic;
+      }
+    }
+  }
 }
 
 /**

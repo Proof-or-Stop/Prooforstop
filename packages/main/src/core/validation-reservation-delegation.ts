@@ -19,12 +19,29 @@ export const VALIDATION_DELEGATION_RESIDUAL_FILE = artifacts.residualFile;
 type ProcessIdentity = { pid: number; start: number; pgid: number };
 export interface MachineReservationOwner { ticket: string; lockId: string; pid: number; start: number; deadlineAt: number; resources: ResourceClaim[] | null }
 type Bootstrap = MachineReservationOwner & { schema: 'validation-reservation-delegation.v1'; rootFd: number; publicKey: string; socket: string };
-type Request = { operation: 'grant' | 'register' | 'confirm' | 'prepare' | 'cancel'; pid: number; start: number; nonce: string; deadlineAt: number; resources?: ResourceClaim[] | null; targetPid?: number; parentGrantId?: string; pendingToken?: string };
-type Grant = { reservation: string; subject: ProcessIdentity; nonce: string; operation: Request['operation']; resources: ResourceClaim[] | null; deadlineAt: number; heldPorts?: string[]; grantId: string; pendingToken?: string };
+type Request = { operation: 'grant' | 'register' | 'confirm' | 'prepare' | 'cancel'; pid: number; start: number; nonce: string; deadlineAt: number; resources?: ResourceClaim[] | null; targetPid?: number; parentGrantId?: string; pendingToken?: string; cleanupCapability?: string };
+type Grant = { reservation: string; subject: ProcessIdentity; nonce: string; operation: Request['operation']; resources: ResourceClaim[] | null; deadlineAt: number; heldPorts?: string[]; grantId: string; pendingToken?: string; cleanupCapability?: string };
 export interface ValidationReservationHandshakeOptions { deadlineAt?: number; signal?: AbortSignal }
 type Frame = { heldPorts?: string[]; grantId?: string; active: boolean; resources: ResourceClaim[] | null; fd: number; bootstrap: Bootstrap; abort: AbortController; register?: (pid: number, pendingToken?: string) => void; prepare?: () => string; cancel?: (token: string) => void };
 const frames = new AsyncLocalStorage<Frame>();
-function failure(reason: string): Error { return new Error('VALIDATION_DELEGATION_REFUSED: ' + reason); }
+// Private per-invocation cleanup material. It is never an environment value or
+// residual-file field and cannot grant execution resources.
+const cleanupCapabilities = new Map<string,{reservation:string;capability:string}>();
+export class ValidationDelegationError extends Error {
+  constructor(reason: string) { super('VALIDATION_DELEGATION_REFUSED: ' + reason); this.name = 'ValidationDelegationError'; }
+}
+/** Classification only; neither message text nor caller-authored fields grant authority. */
+export function isValidationDelegationError(error: unknown): boolean {
+  try {
+    for (let depth = 0; error && typeof error === 'object' && depth < 8; depth++) {
+      if (error instanceof ValidationDelegationError) return true;
+      const cause = Object.getOwnPropertyDescriptor(error, 'cause');
+      error = cause && 'value' in cause ? cause.value : undefined;
+    }
+  } catch { /* A hostile diagnostic object is not a typed infrastructure fact. */ }
+  return false;
+}
+function failure(reason: string): Error { return new ValidationDelegationError(reason); }
 function table(): Map<number, ProcessIdentity & { ppid: number }> {
   const rows = execFileSync('ps', ['-axo', 'pid=,ppid=,pgid='], { encoding: 'utf8', timeout: policy.kernelObservationMs, maxBuffer: 8 * 1024 * 1024 });
   const result = new Map<number, ProcessIdentity & { ppid: number }>();
@@ -75,7 +92,7 @@ function descriptor(pid: number, fd: number): { dev: bigint; ino: bigint } {
   if (dev.length !== 1 || ino.length !== 1) throw failure('kernel descriptor fields unavailable');
   return { dev: BigInt(dev[0].slice(1)), ino: BigInt(ino[0].slice(1)) };
 }
-function readBootstrap(fd: number = FD): Bootstrap | undefined {
+function readBootstrap(fd: number = FD, cleanupOnly = false): Bootstrap | undefined {
   if (!frames.getStore() && process.env[ENV] === undefined) return undefined;
   if (!frames.getStore() && process.env[ENV] !== String(FD)) throw failure('invalid descriptor locator');
   let stat; try { stat = fstatSync(fd, { bigint: true }); } catch (error) { if ((error as NodeJS.ErrnoException).code === 'EBADF') throw failure('missing inherited descriptor'); throw error; }
@@ -89,7 +106,7 @@ function readBootstrap(fd: number = FD): Bootstrap | undefined {
   const own = descriptor(process.pid, fd), root = descriptor(actual.pid, value.rootFd);
   if (own.dev !== stat.dev || own.ino !== stat.ino || root.dev !== stat.dev || root.ino !== stat.ino) throw failure('bootstrap not held by reservation owner');
   const after = inspectMachineReservationOwner(value.ticket, value.lockId);
-  if (!after || after.pid !== actual.pid || after.start !== actual.start || JSON.stringify(after.resources)!==JSON.stringify(value.resources) || Date.now() >= value.deadlineAt) throw failure('reservation changed during bootstrap');
+  if (!after || after.pid !== actual.pid || after.start !== actual.start || JSON.stringify(after.resources)!==JSON.stringify(value.resources) || !cleanupOnly && Date.now() >= value.deadlineAt) throw failure('reservation changed during bootstrap');
   return value;
 }
 /** Explicit cooperating spawn boundary; native broker fd3 remains untouched. */
@@ -140,8 +157,8 @@ async function request(bootstrap: Bootstrap, input: Omit<Request, 'pid' | 'start
           if (settled) return;
           if (response.error) throw failure(response.error);
           const grant = response.grant as Grant;
-          if (!verifyCanonical(grant, response.signature, bootstrap.publicKey) || grant.reservation !== bootstrap.lockId || grant.subject.pid !== self.pid || grant.subject.start !== self.start || grant.nonce !== nonce || grant.operation !== input.operation || JSON.stringify(grant.resources) !== JSON.stringify(input.resources ?? null) || grant.deadlineAt > Math.min(bootstrap.deadlineAt, input.deadlineAt) || Date.now() >= grant.deadlineAt) throw failure('grant subject/binding/signature');
-          const fresh = readBootstrap(frames.getStore()?.fd ?? FD); if (!fresh || fresh.publicKey !== bootstrap.publicKey || !sameProcess(self)) throw failure('grant owner changed');
+          if (!verifyCanonical(grant, response.signature, bootstrap.publicKey) || grant.reservation !== bootstrap.lockId || grant.subject.pid !== self.pid || grant.subject.start !== self.start || grant.nonce !== nonce || grant.operation !== input.operation || JSON.stringify(grant.resources) !== JSON.stringify(input.resources ?? null) || grant.deadlineAt > (input.operation === 'cancel' ? input.deadlineAt : Math.min(bootstrap.deadlineAt, input.deadlineAt)) || Date.now() >= grant.deadlineAt) throw failure('grant subject/binding/signature');
+          const fresh = readBootstrap(frames.getStore()?.fd ?? FD, input.operation === 'cancel'); if (!fresh || fresh.publicKey !== bootstrap.publicKey || !sameProcess(self)) throw failure('grant owner changed');
           accepted = grant; settled = true; clearTimeout(timer); signal?.removeEventListener('abort',cancel); resolve({ socket, grant, revocation: revocation.signal });
         } catch (error) { fail(error instanceof Error ? error : failure('invalid response')); }
       }
@@ -159,7 +176,8 @@ function handshake(bootstrap: Bootstrap, options: ValidationReservationHandshake
 export async function registerValidationReservationChild(pid: number, pendingToken?: string, options: ValidationReservationHandshakeOptions = {}): Promise<void> {
   const local = frames.getStore(); if(local && !local.active)throw failure('invocation no longer active'); if (local?.register) { handshake(local.bootstrap,options); local.register(pid, pendingToken); return; }
   const bootstrap = local?.bootstrap ?? readBootstrap(); if (!bootstrap) return;
-  const bounded = handshake(bootstrap, options); const response = await request(bootstrap, { operation: 'register', targetPid: pid, pendingToken, parentGrantId: local?.grantId, deadlineAt: bounded.deadlineAt }, bounded.signal); response.socket.end();
+  const cleanup=pendingToken && cleanupCapabilities.get(pendingToken);if(!cleanup || cleanup.reservation!==bootstrap.lockId)throw failure('pending mutation capability unavailable');
+  const bounded = handshake(bootstrap, options); const response = await request(bootstrap, { operation: 'register', targetPid: pid, pendingToken, cleanupCapability:cleanup.capability, parentGrantId: local?.grantId, deadlineAt: bounded.deadlineAt }, bounded.signal); response.socket.end();if(pendingToken)cleanupCapabilities.delete(pendingToken);
 }
 export async function withInheritedMachineReservation<T>(resources: ResourceClaim[] | null, deadlineAt: number, signal: AbortSignal | undefined, fn: () => Promise<T> | T): Promise<{ inherited: false } | { inherited: true; value: T }> {
   const current = frames.getStore();
@@ -180,7 +198,10 @@ export async function withInheritedMachineReservation<T>(resources: ResourceClai
 /** Machine-only stale fence. Unknown records retain capacity; no foreign process is signaled. */
 export function machineReservationResidualsPresent(ticket: string): boolean {
   const path = join(ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); if (!existsSync(path)) return false;
-  try { const rows = JSON.parse(readFileSync(path, 'utf8')); if (!Array.isArray(rows)) return true; return rows.some(row => !Number.isSafeInteger(row.pgid) || !groupGone(row.pgid)); } catch { return true; }
+  try { const rows = JSON.parse(readFileSync(path, 'utf8')); if (!Array.isArray(rows)) return true; return rows.some(row => {
+    if (row.pending !== undefined) { const target=row.target;return !target || target.pid!==target.pgid || !Number.isFinite(target.start) || !registrationTargetGone(target.pid); }
+    return !Number.isSafeInteger(row.pgid) || !groupGone(row.pgid);
+  }); } catch { return true; }
 }
 /** Failure-only diagnostics; these observations never release or authorize work. */
 function machineCleanupFailure(owner: MachineReservationOwner, registered: Iterable<ProcessIdentity>, pending: Iterable<{pid:number;start:number}>, callbackStarted:boolean, callbackThrew:boolean, callbackError:unknown, callbackResult:unknown): Error {
@@ -213,7 +234,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   if(!isLive()||!admitted||admitted.pid!==process.pid||admitted.start!==owner.start||JSON.stringify(admitted.resources)!==JSON.stringify(owner.resources))throw failure('controller owner/declaration mismatch');
   const keys = generateEd25519KeyPair(), directory = mkdtempSync(join(tmpdir(), artifacts.temporaryPrefix)), socketPath = join(directory, artifacts.socketFile);
   const bootstrapPath = join(directory, artifacts.bootstrapFile);
-  const pendingChildren = new Map<string,{pid:number;start:number;parents:string[]}>();
+  const pendingChildren = new Map<string,{pid:number;start:number;parents:string[];target?:ProcessIdentity;cleanupCapability:string}>();
   const registered = new Map<number, ProcessIdentity & { parents: string[] }>(), active = new Map<Socket, { subject: ProcessIdentity; resources: ResourceClaim[] | null; grantId: string; parents: string[]; deadlineAt: number; revoked?: boolean; terminal?: boolean; disconnected?: boolean }>();
   const grantTimers = new Map<Socket, NodeJS.Timeout>();
   const sockets = new Set<Socket>(), pending: Array<{ socket: Socket; input: Request }> = [];
@@ -221,7 +242,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   let callbackStarted=false, callbackThrew=false, callbackError:unknown, callbackResult:unknown;
   const abort = new AbortController();
   const live = () => alive && isLive() && Date.now() < owner.deadlineAt;
-  const publish = () => { const path = join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); writeFileSync(path + '.pending', JSON.stringify([...registered.values(),...[...pendingChildren].map(([pending,subject])=>({pending,...subject}))]), { mode: 0o600 }); renameSync(path + '.pending', path); };
+  const publish = () => { const path = join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); writeFileSync(path + '.pending', JSON.stringify([...registered.values(),...[...pendingChildren].map(([pending,subject])=>({pending,pid:subject.pid,start:subject.start,parents:subject.parents,...(subject.target?{target:subject.target}:{})}))]), { mode: 0o600 }); renameSync(path + '.pending', path); };
   const enrollment = (subject: ProcessIdentity): string[] => {
     if (!sameProcess(subject)) throw failure('request process changed');
     for (const pid of [subject.pid,...ancestors(subject.pid)]) { const known=registered.get(pid); if (!known || !sameProcess(known)) continue;
@@ -230,13 +251,14 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     }
     throw failure('unenrolled request subject');
   };
-  const prepare = (subject=identity(process.pid),parents:string[]=[]):string => {if(!live())throw failure('reservation closed before spawn');const token=randomUUID();pendingChildren.set(token,{pid:subject.pid,start:subject.start,parents});publish();return token;};
+  const prepare = (subject=identity(process.pid),parents:string[]=[]):string => {if(!live())throw failure('reservation closed before spawn');const token=randomUUID();pendingChildren.set(token,{pid:subject.pid,start:subject.start,parents,cleanupCapability:randomUUID()});publish();return token;};
   const cancel=(token:string,subject=identity(process.pid)):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');pendingChildren.delete(token);publish();};
   const register = (pid: number, parent = process.pid, parents: string[] = [], pendingToken?: string) => {
     if (!live()) throw failure('registration after release');
     const pending=pendingToken && pendingChildren.get(pendingToken);if(!pending||pending.pid!==parent||pending.start!==observedProcessStartTimeMs(parent))throw failure('registration has no owned pre-spawn fence');
     const inheritedParents=[...new Set([...pending.parents,...parents])];
     if(inheritedParents.some(id=>![...active.values()].some(grant=>grant.grantId===id&&!grant.revoked&&Date.now()<grant.deadlineAt)))throw failure('pending parent invocation released');
+    if(pending.target && pending.target.pid!==pid)throw failure('pending target is immutable');
     if(registrationTargetGone(pid)){pendingChildren.delete(pendingToken!);publish();return;}
     if(registered.has(pid))throw failure('child enrollment is immutable');
     let target: ProcessIdentity;
@@ -249,12 +271,16 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     // A live non-leader may have no group at its PID; never treat that as its
     // work being absent, including when ancestry observations fail afterward.
     if(target.pgid!==target.pid)throw failure('registered child must own its detached group');
+    if(pending.target && (pending.target.start!==target.start || pending.target.pgid!==target.pgid))throw failure('pending target identity changed');
     try {
       if (!ancestors(pid).includes(parent)) throw failure('registration requires observed pre-orphan ancestry');
     } catch (error) {
       if (!registrationTargetGone(pid)) throw error;
       pendingChildren.delete(pendingToken!); publish(); return;
     }
+    // Identity and real pre-orphan ancestry are proven before persisting an
+    // owned target. An earlier unavailable observation leaves the fence unknown.
+    pending.target=target;publish();
     registered.set(pid, { ...target, parents:inheritedParents });pendingChildren.delete(pendingToken!); publish();
   };
   const revokeGrant = (grantId: string) => {
@@ -286,6 +312,8 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     }
   };
   const drain = () => {
+    let resolved=false;for(const [token,row]of pendingChildren)if(row.target && registrationTargetGone(row.target.pid)){pendingChildren.delete(token);resolved=true;}
+    if(resolved)publish();
     retireReleasedGrants();
     for (const item of [...pending]) {
       const { socket, input } = item; if (socket.destroyed) { pending.splice(pending.indexOf(item), 1); continue; }
@@ -326,17 +354,30 @@ export async function withMachineReservationController<T>(owner: MachineReservat
       try {
         const input = JSON.parse(bytes.slice(0, bytes.indexOf('\n'))) as Request;
         if(bytes.slice(bytes.indexOf('\n')+1).length!==0)throw failure('unexpected request frames'); bytes='';
-        if (!live() || !Number.isSafeInteger(input.pid) || typeof input.nonce !== 'string' || !/^[0-9a-f-]{36}$/.test(input.nonce) || !Number.isFinite(input.deadlineAt)) throw failure('invalid request');
-        const subject = identity(input.pid); if (subject.start !== input.start) throw failure('request subject changed'); const parents=enrollment(subject);
+        if (!(input.operation === 'cancel' ? alive && isLive() : live()) || !Number.isSafeInteger(input.pid) || typeof input.nonce !== 'string' || !/^[0-9a-f-]{36}$/.test(input.nonce) || !Number.isFinite(input.deadlineAt)) throw failure('invalid request');
+        const subject = identity(input.pid); if (subject.start !== input.start) throw failure('request subject changed');
+        // Cleanup only removes this exact subject's pending token. It neither
+        // obtains a grant nor inherits admission from revoked parents.
+        if (input.operation === 'cancel') {
+          if (Date.now() >= input.deadlineAt || input.deadlineAt > Date.now() + CLEANUP_MS) throw failure('cleanup deadline');
+          const ownedPending=input.pendingToken && pendingChildren.get(input.pendingToken);
+          if(!ownedPending || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('cleanup capability not owned');
+          cancel(input.pendingToken!, subject);
+          const grant: Grant = {reservation:owner.lockId,subject,nonce:input.nonce,operation:'cancel',resources:null,deadlineAt:input.deadlineAt,grantId:randomUUID()};
+          socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');return;
+        }
+        const parents=enrollment(subject);
         if (input.operation === 'register') {
+          const ownedPending=input.pendingToken && pendingChildren.get(input.pendingToken);
+          if(!ownedPending || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('pending mutation capability not owned');
           if (input.parentGrantId) { const parent=[...active.values()].find(row=>row.grantId===input.parentGrantId && !row.revoked && Date.now()<row.deadlineAt && row.subject.pid===subject.pid && row.subject.start===subject.start); if(!parent)throw failure('parent invocation not owned'); parents.push(...parent.parents,parent.grantId); }
           register(input.targetPid!, subject.pid, [...new Set(parents)],input.pendingToken);
           const grant: Grant = { reservation: owner.lockId, subject, nonce: input.nonce, operation: input.operation, resources: null, deadlineAt: Math.min(owner.deadlineAt, input.deadlineAt), grantId: randomUUID() };
           socket.write(JSON.stringify({ grant, signature: signCanonical(grant, keys.privateKey) }) + '\n');
-        } else if (input.operation === 'prepare' || input.operation === 'cancel') {
+        } else if (input.operation === 'prepare') {
           if(input.parentGrantId){const parent=[...active.values()].find(row=>row.grantId===input.parentGrantId&&!row.revoked&&Date.now()<row.deadlineAt&&row.subject.pid===subject.pid&&row.subject.start===subject.start);if(!parent)throw failure('pending parent invocation not owned');parents.push(...parent.parents,parent.grantId);}
-          const pendingToken=input.operation==='prepare'?prepare(subject,[...new Set(parents)]):undefined;if(input.operation==='cancel')cancel(input.pendingToken!,subject);
-          const grant: Grant={reservation:owner.lockId,subject,nonce:input.nonce,operation:input.operation,resources:null,deadlineAt:Math.min(owner.deadlineAt,input.deadlineAt),grantId:randomUUID(),...(pendingToken?{pendingToken}:{})};socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');
+          const pendingToken=prepare(subject,[...new Set(parents)]);
+          const grant: Grant={reservation:owner.lockId,subject,nonce:input.nonce,operation:input.operation,resources:null,deadlineAt:Math.min(owner.deadlineAt,input.deadlineAt),grantId:randomUUID(),...(pendingToken?{pendingToken,cleanupCapability:pendingChildren.get(pendingToken)!.cleanupCapability}:{})};socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');
         } else if (input.operation === 'confirm') {
           const grant: Grant={reservation:owner.lockId,subject,nonce:input.nonce,operation:input.operation,resources:null,deadlineAt:Math.min(owner.deadlineAt,input.deadlineAt),grantId:randomUUID()};socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');
         } else if (input.operation === 'grant') { pending.push({ socket, input }); drain(); } else throw failure('unknown operation');
@@ -381,11 +422,17 @@ export async function confirmValidationReservationRegistration(options: Validati
 /** Publish an owned unknown-child fence before the actual spawn; never an admission grant. */
 export async function prepareValidationReservationChild(options: ValidationReservationHandshakeOptions = {}): Promise<string | undefined> {
  const frame=frames.getStore();if(frame&&!frame.active)throw failure('inactive spawn invocation');if(frame?.prepare){handshake(frame.bootstrap,options);return frame.prepare();}const bootstrap=frame?.bootstrap??readBootstrap();if(!bootstrap)return undefined;
- const bounded=handshake(bootstrap,options);const result=await request(bootstrap,{operation:'prepare',parentGrantId:frame?.grantId,deadlineAt:bounded.deadlineAt},bounded.signal);result.socket.end();if(!result.grant.pendingToken)throw failure('pending spawn token absent');return result.grant.pendingToken;
+ const bounded=handshake(bootstrap,options);const result=await request(bootstrap,{operation:'prepare',parentGrantId:frame?.grantId,deadlineAt:bounded.deadlineAt},bounded.signal);result.socket.end();if(!result.grant.pendingToken || typeof result.grant.cleanupCapability!=='string')throw failure('pending spawn cleanup material absent');cleanupCapabilities.set(result.grant.pendingToken,{reservation:bootstrap.lockId,capability:result.grant.cleanupCapability});return result.grant.pendingToken;
 }
 /** Only the caller that proved no child was spawned may cancel its own pending fence. */
 export async function cancelValidationReservationChild(token:string | undefined, options: ValidationReservationHandshakeOptions = {}): Promise<void> {
- if(!token)return;const frame=frames.getStore();if(frame?.cancel){handshake(frame.bootstrap,options);frame.cancel(token);return;}const bootstrap=frame?.bootstrap??readBootstrap();if(!bootstrap)throw failure('pending spawn owner missing');const bounded=handshake(bootstrap,options);const result=await request(bootstrap,{operation:'cancel',pendingToken:token,deadlineAt:bounded.deadlineAt},bounded.signal);result.socket.end();
+ if(!token)return;const frame=frames.getStore();
+ const deadlineAt=Math.min(options.deadlineAt??Infinity,Date.now()+CLEANUP_MS);
+ if(options.signal?.aborted||Date.now()>=deadlineAt||frame&&!frame.active)throw failure('cleanup invocation expired/revoked');
+ if(frame?.cancel){frame.cancel(token);return;}
+ const bootstrap=frame?.bootstrap??readBootstrap(FD,true);if(!bootstrap)throw failure('pending spawn owner missing');
+ const cleanup=cleanupCapabilities.get(token);if(!cleanup || cleanup.reservation!==bootstrap.lockId)throw failure('cleanup capability unavailable');
+ const result=await request(bootstrap,{operation:'cancel',pendingToken:token,cleanupCapability:cleanup.capability,deadlineAt},options.signal);result.socket.end();cleanupCapabilities.delete(token);
 }
 
 export function inheritedValidationReservationPortAlreadyHeld(key:string): boolean { const frame=frames.getStore();return frame?.active===true&&!frame.abort.signal.aborted&&frame.heldPorts?.includes(key)===true; }
