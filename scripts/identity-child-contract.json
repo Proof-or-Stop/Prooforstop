@@ -251,7 +251,7 @@
     "callDigest": "0eea0b5fb1787362eb31dc4cc40a131ef9bba90f434c9026d3f9691a835d4b41",
     "expression": "spawn(process.execPath, [fileURLToPath(import.meta.url), `--case-shard=${shardIndex}/${shardCount}`], {\n      cwd: process.cwd(),\n      env: process.env,\n      stdio: ['ignore', 'pipe', 'pipe'],\n    })"
   },
-  "wrapperDigest": "fd2736851f472aed8e573b9c75582fecf17fa22ef79a9d4e393715799081ec6c",
+  "wrapperDigest": "134a08355b7b24f51f850bc9f3b5ace1f229420704ce92e74042208df0d84ce7",
   "extra": {
     "scripts/verify-proof-or-stop-pack-boundary.mjs": {
       "sourceDigest": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",

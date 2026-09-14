@@ -399,7 +399,10 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   const drain = () => {
     resetTick();
     let resolved=false;for(const [token,row]of pendingChildren)if(row.target && registrationTargetGone(row.target.pid)){pendingChildren.delete(token);resolved=true;}
-    if(resolved)publish();
+    // The residual record may be unwritable under a live controller (operator cleanup of the ticket
+    // directory); the on-disk record then stays at its more conservative fenced state rather than
+    // crashing the owner from the retirement timer or a socket close handler.
+    if(resolved){try{publish();}catch{ /* fenced on disk until the next successful publish */ }}
     let changed = resolved || retireReleasedGrants() > 0;
     const waiting = pending.length;
     for (const item of [...pending]) {

@@ -219,6 +219,21 @@ result, which is what `verify-nested-reservation-handshake-deadline.mjs` asserts
 preparation and asserts the caller's own error object propagates; against the
 pre-repair executor the same run returned a folded result with no exception.
 
+### Version and build
+
+Candidate commits carry no CLI version bump by Lab policy: `finish --bump patch`
+applies the atomic patch bump to both manifests, both lockfiles and the CLI brand
+constant, rebuilds, checks `proof-or-stop --version` and only then merges to
+local main (`docs/lab-maintenance.md`, "Finish"). The two build-product
+consumers this Lab adds, the fixture-suite wrapper's import of the delegation
+runtime policy and the registered selectors' use of the compiled executor, run
+against a dist that the content-bound build binding (`scripts/ensure-dist.mjs`
+through `build-main-with-binding.mjs`, a sha256 over all sources) rebuilds
+whenever source changed, independently of the version constant; the wrapper
+additionally names a stale dist explicitly instead of failing at module link.
+Every registered selector and the executor evidence in this record were run
+against a dist rebuilt from the candidate source.
+
 ### Normal validation under the changed executor
 
 Configured commands that reach the changed fixtures were executed through the real
@@ -335,7 +350,7 @@ boot-recovery selectors, including the two refused-registration cancellation
 selectors, in 1 to 4 seconds against 30 seconds (each wraps one child whose own
 timeout is at most 12 seconds), and every remaining selector,
 including the two isolated-observation selectors whose child allows 40 seconds,
-in under 11 seconds against its 60-second budget. Before the `core` selector
+in under 12 seconds against its 60-second budget. Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
@@ -369,7 +384,9 @@ proves that the dropped transport degrades without a token, locator or reserved
 slot while the forwarded transport keeps the pending-fence capability; a third
 run of the plain wrapper passes an unrelated linked regular file at descriptor 4
 and proves that it degrades identically, naming the linked-file reason, where
-the pre-repair reader refused it as a foreign bootstrap.
+the pre-repair reader refused it as a foreign bootstrap. The Lab's source-runtime
+helper resolves the TypeScript compiler from `packages/main` through Node's own
+resolution, hoisted or not, instead of a hardcoded nested `node_modules` path.
 
 Supplemental source-bound native fault commands are recorded separately:
 `verify-nested-reservation-faults.mjs` modes `registered`, `same-group`, `pending`,
@@ -413,6 +430,17 @@ unknown groups retain the refusal and fence. The registration-race regression
 uses an actual detached child and a separate launcher that reaps it at controlled
 identity/ancestry observation boundaries; unavailable-observation negatives
 remain distinct from actual child disappearance.
+
+The worker-exit controls arm a 20-second diagnostic limit and print the elapsed
+time (about 4 seconds measured), far above the run and far below the 120-second
+fixture deadline the unrepaired wrapper waited on, so a loaded machine cannot
+turn the repair into a false RED while the original RED signal is preserved. The
+`core` selector removes the locator through a named constant that is checked
+against the registered policy source, so a renamed locator fails loudly instead
+of leaving the driver on the outer reservation. The residual record rewrite
+inside retirement is guarded: a ticket directory removed or made unwritable
+under a live controller leaves the on-disk record at its more conservative
+fenced state instead of crashing the owner from a timer or socket handler.
 
 ### Worker exit without an outcome
 

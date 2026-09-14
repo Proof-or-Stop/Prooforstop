@@ -4,7 +4,14 @@ import { runProviderNeutralFixture } from './helpers/provider-neutral-fixture.mj
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createFixtureMachineEnvironment, inspectFixtureCompileCache } from '../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
-import { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from '../packages/main/dist/core/runtime-fact-registry.js';
+import * as runtimeFacts from '../packages/main/dist/core/runtime-fact-registry.js';
+// The delegation policy is a build product: a dist compiled from source that predates it must fail
+// with a named cause rather than an anonymous missing-export link error. The content-bound build
+// binding (scripts/ensure-dist.mjs) rebuilds such a dist before the suite runs.
+const VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY = runtimeFacts.VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY;
+if (typeof VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY?.descriptorEnvironment !== 'string') {
+  throw new Error('run-validation-fixture-suite requires packages/main/dist built from the current source (missing VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY); run node scripts/ensure-dist.mjs');
+}
 
 export const FIXTURE_ENTRIES = new Set([
   'packages/main/dist/tasks/withdrawn-disposition-smoke.js',

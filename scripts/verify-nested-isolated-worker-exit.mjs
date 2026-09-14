@@ -15,8 +15,12 @@ const absent=pid=>{try{process.kill(-pid,0);return false;}catch(error){return er
 try {
  child=spawn(process.execPath,[entry],{env:{...env,TMPDIR:base},stdio:['ignore','pipe','pipe']});
  child.stdout.on('data',chunk=>output+=chunk);child.stderr.on('data',chunk=>output+=chunk);
- const result=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{timedOut=true;child.kill('SIGTERM');},6000);child.once('error',reject);child.once('close',(code,signal)=>{clearTimeout(timer);resolve({code,signal});});});
- console.log(output);assert.ok(existsSync(record),'actual worker must enter');
+ // The diagnostic limit sits far above the measured 4-second run and far below the 120-second
+ // fixture deadline the unrepaired wrapper waited on, so a loaded machine cannot turn the
+ // repair into a false RED while the original RED signal is preserved; elapsed time is printed.
+ const started=Date.now();
+ const result=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{timedOut=true;child.kill('SIGTERM');},20000);child.once('error',reject);child.once('close',(code,signal)=>{clearTimeout(timer);resolve({code,signal});});});
+ console.log(output);console.log('ISOLATED_WORKER_EXIT_ELAPSED_MS '+(Date.now()-started));assert.ok(existsSync(record),'actual worker must enter');
  assert.ok(absent(Number(readFileSync(record,'utf8'))),'actual entire worker group must be absent');
  assert.equal(timedOut,false,'WORKER_EXIT_WITHOUT_OUTCOME_MUST_NOT_WAIT_FIXTURE_DEADLINE');
  assert.equal(result.signal,null);assert.match(output,/ACTUAL_WORKER_ENTERED/);

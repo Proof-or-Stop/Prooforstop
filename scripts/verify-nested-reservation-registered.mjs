@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import { syncBuiltinESMExports } from 'node:module';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 const selector = process.argv[2];
 const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport","isolated-observation-retry","isolated-observation-unavailable","cancel-refused-withdrawn","cancel-refused-live","fault-declared-owner-unclassified","fault-declared-owner-expansion","fault-retirement-backoff","result-caller-deadline"];
@@ -31,7 +31,12 @@ if (process.platform !== 'darwin' && DARWIN_ONLY.has(selector)) {
       writeFileSync(isolation, `import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';const original=os.userInfo;os.userInfo=(...args)=>({...original(...args),homedir:${JSON.stringify(home)}});os.homedir=()=>${JSON.stringify(home)};syncBuiltinESMExports();`);
       process.env.HOME = home;
       process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS ?? ''} --import=${JSON.stringify(isolation)}`.trim();
-      delete process.env.PROOF_OR_STOP_VALIDATION_RESERVATION_FD;
+      // The locator name is the registered runtime policy's descriptorEnvironment. This closed
+      // wrapper cannot import the policy without widening its reviewed import graph, so a rename
+      // must fail here instead of silently leaving the driver on the outer reservation.
+      const DESCRIPTOR_LOCATOR = 'PROOF_OR_STOP_VALIDATION_RESERVATION_FD';
+      if (!readFileSync(new URL('../packages/main/src/core/runtime-fact-registry.ts', import.meta.url), 'utf8').includes(`descriptorEnvironment: '${DESCRIPTOR_LOCATOR}'`)) throw new Error('nested reservation locator name changed; update the core selector isolation');
+      delete process.env[DESCRIPTOR_LOCATOR];
       const originalUserInfo = os.userInfo;
       os.userInfo = (...args) => ({ ...originalUserInfo(...args), homedir: home });
       os.homedir = () => home;
