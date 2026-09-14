@@ -17,7 +17,7 @@ export interface ManagedReviewLane {
   providerState: ManagedReviewProviderState;
   binding: {schema: string; headHash: string; sourceDigest: string; outputDigest: string; compilerPath: string; compilerFiles:Array<{path:string;digest:string}>; deniedSharedDist: string[]; sourceRuntimeLinks:Array<{path:string;target:string}>; launcherDigest:string};
 }
-export async function createManagedReviewLane(scratch: {parent:string; cwd:string; root:string; headHash:string},host:string,environment:NodeJS.ProcessEnv,providerSeed:ManagedProviderStateSnapshot): Promise<ManagedReviewLane> {
+export async function createManagedReviewLane(scratch: {parent:string; cwd:string; executionCwd?:string; root:string; headHash:string},host:string,environment:NodeJS.ProcessEnv,providerSeed:ManagedProviderStateSnapshot): Promise<ManagedReviewLane> {
   if (process.platform !== 'darwin') throw new Error('managed readonly platform capability unavailable');
   const lane = join(scratch.parent, MANAGED_REVIEW_LANE_ARTIFACT.directoryName);
   mkdirSync(lane, {mode:0o700});
@@ -40,6 +40,7 @@ export async function createManagedReviewLane(scratch: {parent:string; cwd:strin
   writeFileSync(join(directories.probe!,'.managed-readonly-capability'),'immutable capability probe\n',{flag:'wx',mode:0o400});
   const common=await exec('git',['rev-parse','--git-common-dir'],{cwd:scratch.cwd,encoding:'utf8'});
   const layout: ManagedReadonlyLayout={source:scratch.cwd,buildSource:directories['build-source']!,
+    ...(scratch.executionCwd ? {execution:scratch.executionCwd} : {}),
     probeRoot:directories.probe!,originalWorktree:scratch.root,
     gitCommonDir:realpathSync(resolve(scratch.cwd,common.stdout.trim())),outputs:[directories.output!],
     temporary:directories.tmp!,cache:directories.cache!};
@@ -72,17 +73,21 @@ export function managedReviewLaneEnvironment(lane: ManagedReviewLane): NodeJS.Pr
   const environment: NodeJS.ProcessEnv = {TMPDIR:lane.layout.temporary,TMP:lane.layout.temporary,TEMP:lane.layout.temporary,
     XDG_CACHE_HOME:lane.layout.cache,
     PROOF_OR_STOP_REVIEW_BUILD_SOURCE:lane.layout.buildSource,
-    PROOF_OR_STOP_REVIEW_BUILD_OUTPUT:join(lane.layout.outputs[0]!,'packages/main/dist')};
-  if(Object.keys(environment).sort().join(',')!==[...MANAGED_REVIEW_READONLY_RUNTIME_POLICY.environmentKeys].sort().join(','))throw new Error('managed readonly environment registry mismatch');
+    PROOF_OR_STOP_REVIEW_BUILD_OUTPUT:join(lane.layout.outputs[0]!,'packages/main/dist'),
+    ...(lane.layout.execution ? {PROOF_OR_STOP_REVIEW_EXECUTION_CWD:lane.layout.execution} : {})};
+  const expectedKeys=[...MANAGED_REVIEW_READONLY_RUNTIME_POLICY.environmentKeys,
+    ...(lane.layout.execution ? MANAGED_REVIEW_READONLY_RUNTIME_POLICY.optionalEnvironmentKeys : [])];
+  if(Object.keys(environment).sort().join(',')!==expectedKeys.sort().join(','))throw new Error('managed readonly environment registry mismatch');
   return {...environment,...managedProviderStateEnvironment(lane.providerState)};
 }
 
 /** Consume the sealed initial build, never a provider's claim that its outputs match. */
-export function verifyManagedReviewLane(lane: ManagedReviewLane, expected: {cwd:string; parent:string; root:string; headHash:string}): void {
+export function verifyManagedReviewLane(lane: ManagedReviewLane, expected: {cwd:string; executionCwd?:string; parent:string; root:string; headHash:string}): void {
   const base=join(expected.parent,MANAGED_REVIEW_LANE_ARTIFACT.directoryName);
   const layout=lane.layout;
   if(layout.source!==expected.cwd||layout.originalWorktree!==expected.root
     ||layout.buildSource!==join(base,MANAGED_REVIEW_LANE_ARTIFACT.buildSource)
+    ||layout.execution!==expected.executionCwd
     ||layout.outputs.length!==1||layout.outputs[0]!==join(expected.cwd,MANAGED_REVIEW_LANE_ARTIFACT.sourceOutput)
     ||layout.temporary!==join(base,MANAGED_REVIEW_LANE_ARTIFACT.temporary)
     ||layout.cache!==join(base,MANAGED_REVIEW_LANE_ARTIFACT.cache)

@@ -3,10 +3,11 @@ import { execFileSync } from 'node:child_process';
 import { closeSync, constants, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
+import { CONTROLLER_CONFIG_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
 
 const SCHEMA = 'proof-or-stop.controller-config-projection.v1' as const;
 const RECEIPT_DIR = 'proof-or-stop-controller-config-projections';
-const STORY_RECEIPT_RELATIVE = 'evidence/controller-config-projection.json';
+const STORY_RECEIPT_RELATIVE = CONTROLLER_CONFIG_PROJECTION_ARTIFACT.path;
 
 interface ProjectionClaims {
   schemaVersion: typeof SCHEMA;
@@ -150,5 +151,27 @@ export function hasValidControllerConfigProjection(args: Parameters<typeof claim
       && matchesStored(storyRoot, join(storyRoot, STORY_RECEIPT_RELATIVE), expected, args.gitCwd);
   } catch {
     return false;
+  }
+}
+
+export interface ControllerConfigProjectionInspection {
+  valid: boolean;
+  reason: 'valid' | 'common-receipt-invalid' | 'story-receipt-invalid' | 'workspace-invalid';
+}
+
+export function inspectControllerConfigProjection(args: Parameters<typeof claims>[0]): ControllerConfigProjectionInspection {
+  try {
+    const expected = claims(args);
+    const commonRoot = gitCommonDir(args.gitCwd);
+    const storyRoot = realpathSync(args.storyRoot);
+    if (!matchesStored(commonRoot, receiptPath(args.gitCwd, args.storyId), expected, args.gitCwd)) {
+      return { valid: false, reason: 'common-receipt-invalid' };
+    }
+    if (!matchesStored(storyRoot, join(storyRoot, STORY_RECEIPT_RELATIVE), expected, args.gitCwd)) {
+      return { valid: false, reason: 'story-receipt-invalid' };
+    }
+    return { valid: true, reason: 'valid' };
+  } catch {
+    return { valid: false, reason: 'workspace-invalid' };
   }
 }

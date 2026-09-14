@@ -62,6 +62,7 @@ import {
   renderReviewAssuranceGuidanceSummary,
 } from './review-assurance-floor.js';
 import { evaluateDoneRequiredEvidence } from './done-required-validation.js';
+import { resolveStoryIntegrationTarget } from './story-integration-target.js';
 
 // B-c622 CHK-004: DONE phase auto-syncs main — detect divergence + auto merge main
 
@@ -72,9 +73,9 @@ import { evaluateDoneRequiredEvidence } from './done-required-validation.js';
  * not the bare metadataRoot. Callers thread `resolveGitCwd(...)` here; plain
  * repos pass projectRoot==gitCwd so behavior is byte-identical.
  */
-export function checkMainDivergence(gitCwd: string): { behind: number; needsSync: boolean } {
+export function checkMainDivergence(gitCwd: string, integrationBranch = 'main'): { behind: number; needsSync: boolean } {
   try {
-    const result = execSync('git rev-list --count HEAD..main', {
+    const result = execFileSync('git', ['rev-list', '--count', `HEAD..${integrationBranch}`], {
       cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const behind = parseInt(result, 10) || 0;
@@ -134,8 +135,8 @@ function gitRefExists(gitCwd: string, ref: string): boolean {
   }
 }
 
-function gitRefContainsMain(gitCwd: string, ref: string): boolean {
-  execFileSync('git', ['merge-base', '--is-ancestor', 'main', ref], {
+function gitRefContainsMain(gitCwd: string, ref: string, integrationBranch = 'main'): boolean {
+  execFileSync('git', ['merge-base', '--is-ancestor', integrationBranch, ref], {
     cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -319,7 +320,23 @@ function donePrepareRecoveryHint(storyId: string, detail?: string): string {
 }
 
 export function buildDoneChecklist(storyId: string, store: StoryStore, root: string, options: BuildDoneChecklistOptions = {}): DoneCheckRow[] {
+  const story = store.readStory(storyId);
+  const resolvedIntegrationBranch = resolveStoryIntegrationTarget(options.gitCwd ?? root, story)?.parentBranch;
+  // Keep the oracle's single final return and full diagnostic projection. An
+  // impossible sentinel makes all read-only git probes fail closed without
+  // silently substituting main when repository policy has no target.
+  const integrationBranch = resolvedIntegrationBranch ?? '<unresolved-integration-target>';
   const rows: DoneCheckRow[] = [];
+  if (!resolvedIntegrationBranch) {
+    rows.push(doneCheckRow({
+      id: 'integration-target',
+      status: 'fail',
+      label: 'Integration target',
+      detail: `no integration branch can be resolved for Story ${storyId}`,
+      hint: 'restore or explicitly capture the repository integration target before retrying DONE',
+      source: 'story integration target + repository baseline',
+    }));
+  }
 
   // B-6666 CHK-001: the cwd for every git probe below. Falls back to `root`
   // (metadataRoot) when no resolved gitCwd is threaded, so plain repos and
@@ -630,16 +647,16 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         });
       } else {
         try {
-          gitRefContainsMain(gitCwd, branch);
+          gitRefContainsMain(gitCwd, branch, integrationBranch);
           rows.push(doneCheckRow({
             id: 'branch-synced-main',
             status: 'pass',
             label: 'Branch synced with main',
             detail: branch,
-            source: 'git merge-base --is-ancestor main',
+            source: `git merge-base --is-ancestor ${integrationBranch}`,
           }));
         } catch {
-          const divergence = checkMainDivergence(gitCwd);
+          const divergence = checkMainDivergence(gitCwd, integrationBranch);
           rows.push(doneCheckRow({
             id: 'branch-synced-main',
             status: 'fail',
@@ -651,13 +668,13 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
               storyId,
               'done_prepare merges main before final evidence refresh so DONE does not invalidate its own evidence binding.',
             ),
-            source: 'git merge-base --is-ancestor main',
+            source: `git merge-base --is-ancestor ${integrationBranch}`,
           }));
         }
       }
     } else {
       // No worktree branch recorded — detect from git directly
-      const divergence = checkMainDivergence(gitCwd);
+      const divergence = checkMainDivergence(gitCwd, integrationBranch);
       if (divergence.needsSync) {
         rows.push(doneCheckRow({
           id: 'branch-synced-main',
@@ -701,11 +718,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       // (no inner no-op `const gitCwd = root` alias) so wrapper-root layouts
       // resolve the diff against the real gitRoot.
       try {
-        const out = execSync('git diff main...HEAD --name-only', {
-          cwd: gitCwd,
-          encoding: 'utf8',
-          timeout: 5000,
-          stdio: ['pipe', 'pipe', 'pipe'],
+        const out = execFileSync('git', ['diff', `${integrationBranch}...HEAD`, '--name-only'], {
+          cwd: gitCwd, encoding: 'utf8', timeout: 5000, stdio: ['pipe', 'pipe', 'pipe'],
         }).trim();
         if (out) changedFiles = new Set(out.split('\n'));
       } catch { /* ignore */ }

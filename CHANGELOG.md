@@ -1,5 +1,75 @@
 # Changelog
 
+## Lab benchmark-lifecycle-recovery - v0.3.366 - 2026-09-15
+
+Fixed two benchmark lifecycle blockers. Story creation now persists an explicit
+empty checklist before recording creation authority, so valid no-checklist
+Stories no longer fail later gates because the artifact is absent.
+
+Managed reviews now execute provider commands in a disposable detached worktree
+at the same sealed commit while retaining a separate immutable source worktree.
+Ignored and untracked files produced by legitimate tests remain confined to the
+execution copy. Tracked drift, Git metadata tampering, worktree replacement,
+registration changes, and sealed-source mutation remain fail-closed. Cleanup
+verifies a protected per-generation identity before removing either worktree,
+preserves replacement objects for diagnosis, and keeps historical single-worktree
+specifications executable and cleanable.
+
+Verification passed: empty-checklist creation and process-fact regressions;
+managed-review scratch-isolation RED/GREEN coverage for generated test artifacts,
+tracked mutations, Git tampering, same-path replacements, cleanup diagnostics,
+source mutation, historical specs, setup failures, timeouts, and terminal states;
+TypeScript build; process/runtime contract checks through the changed surfaces;
+and independent Codex specification and standards reviews. The U18 static scan
+contains no candidate-only failing calls relative to the 0.3.365 baseline; its
+remaining failures are pre-existing stale dependency evidence.
+
+Maintenance provenance: codex/lab-empty-checklist-lifecycle. This entry records
+Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction;
+it does not assert a different-vendor Lab audit or formal Story DONE.
+
+## Lab lifecycle-portability-hardening - v0.3.365 - 2026-09-15
+
+Fixed the global-thin lifecycle deadlock where Proof-or-Stop generated a signed
+controller runtime projection receipt and then rejected that same receipt as an
+out-of-scope Story change. Controller projection artifacts now share one
+descriptor inventory across producers, process facts, and lifecycle
+classification. Config and runtime receipts receive strict current-Story,
+custom-storyDir, worktree, common-receipt, signature, tracked-file, digest, and
+byte-identity checks before scope admission. Tampered, missing, tracked,
+mismatched, and context-free projections remain fail-closed even when the
+product scope has no allowed paths. Missing redundant Story receipts are
+recreated only through the registered-worktree bootstrap; tracked receipts
+receive an explicit untrack command. Receipt writes reject symlinked ancestors,
+and every emitted recovery command uses POSIX-safe quoting.
+
+Read-only `proof-or-stop check` calls from global-thin linked worktrees now
+inspect the primary controller. `check --apply` and `check --upgrade` refuse to
+write project-level managed assets into the Story worktree and return the exact
+controller command. Acceptance-amendment failures now identify each missing
+scope or ProofStory prerequisite and its creation command.
+
+Verification passed: benchmark framework hardening smoke with main/master
+projection scope gates and tamper/deletion/tracked controls; managed-assets
+wrapper-root smoke; scope-contract smoke; external-worktree Go pre-review
+smoke; TypeScript build; and the full process-fact contract. The runtime-fact
+contract retained the identical pre-existing U18 static baseline (71
+needs-review, 17 skipped, 262 exceptions).
+
+Maintenance provenance: codex/lab-lifecycle-portability-hardening. This entry
+records Codex-reviewed Lab maintenance under the user's explicit no-Claude
+instruction; it does not assert a different-vendor Lab audit or formal Story
+DONE.
+
+## Lab lifecycle-portability-hardening - v0.3.364 - 2026-09-14
+
+Fixed benchmark lifecycle portability and fail-closed behavior across controller asset projection, INIT review planning, Go command evidence, integration-branch resolution, remote-push approval, causal receipt redaction, and scope classification. Public CLI, policy, process-fact, and operator guidance now describe the resolved integration branch consistently.
+
+Verification: benchmark-framework-hardening smoke, build, process-fact contract, external Go worktree pre-review, DONE pre-merge SHA recheck, and release-push approval migration passed. Runtime-fact U18 retains the identical pre-existing static baseline (71 needs-review, 17 skipped, 262 exceptions) observed on main.
+
+Maintenance provenance: codex/lab-lifecycle-portability-hardening.
+This entry records Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction; it does not assert a different-vendor Lab audit or formal Story DONE.
+
 ## Lab init-product-review-phase-contract - v0.3.363 - 2026-09-14
 
 Fix the INIT lifecycle deadlock where the required product reviewer asked for implementation and delivery transcripts before the Story worktree could be created.

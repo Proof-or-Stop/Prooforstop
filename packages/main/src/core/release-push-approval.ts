@@ -15,7 +15,7 @@ export const MAX_RELEASE_PUSH_TTL_SECONDS = 900;
 
 export interface ReleasePushApproval {
   schema: typeof RELEASE_PUSH_APPROVAL_SCHEMA;
-  branch: 'refs/heads/main';
+  branch: `refs/heads/${string}`;
   remote: string;
   sha: string;
   createdAt: string;
@@ -28,6 +28,7 @@ export interface ReleasePushApproval {
 export interface CreateReleasePushApprovalInput {
   root: string;
   sha: string;
+  branch?: string;
   remote?: string;
   ttlSeconds?: number;
   approvedBy?: string;
@@ -53,14 +54,14 @@ export function createReleasePushApproval(input: CreateReleasePushApprovalInput)
   const expiresAt = new Date(now.getTime() + ttlSeconds * 1000);
   return {
     schema: RELEASE_PUSH_APPROVAL_SCHEMA,
-    branch: 'refs/heads/main',
+    branch: `refs/heads/${input.branch || 'main'}`,
     remote: input.remote || 'origin',
     sha: input.sha,
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     ttlSeconds,
     approvedBy: input.approvedBy || process.env.USER || process.env.LOGNAME || 'human',
-    reason: input.reason || 'human-approved remote main publish',
+    reason: input.reason || `human-approved remote ${input.branch || 'main'} publish`,
   };
 }
 

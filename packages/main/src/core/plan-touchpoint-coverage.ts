@@ -63,7 +63,7 @@ export interface PlanOwnerCoverage {
   domain: 'plan-owner-coverage.v1'; storyId: string; actor: string;
   binding: string; dispositions: PlanOwnerDisposition[]; signature: string;
 }
-export const PLAN_OWNER_REGISTRY_INPUTS = ['packages/main/src/core/process-fact-registry.ts','packages/main/src/core/command-policy.ts','packages/main/src/core/process-fact-levels.ts','packages/main/src/core/flow-fact-policy.ts'] as const;
+export const PLAN_OWNER_REGISTRY_INPUTS = ['packages/main/src/core/process-fact-registry.ts','packages/main/src/core/command-policy.ts','packages/main/src/core/process-fact-levels.ts','packages/main/src/core/flow-fact-policy.ts','packages/main/src/core/managed-artifact-descriptors.ts'] as const;
 const SCOPE_ROLE = 'proof-or-stop-review-scope-plan';
 
 export function currentPlanOwnerBinding(store: StoryStore, root: string, storyId: string) {

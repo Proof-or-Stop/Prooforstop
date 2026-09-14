@@ -310,6 +310,7 @@ function productionConsumers(machineSource, oracleSource, state) {
     evaluateReviewAssuranceFloor: context => { calls.push(['floor', context.projectRoot, context.storyId, context.gitCwd]); return context.materialHash === 'historical-material' ? state.historicalFloor ?? state.floor : state.floor; },
     formatReviewEscalationFailure: value => `Cannot enter DONE: ${value.reason ?? 'escalation'} [review_escalation]`,
     formatReviewAssuranceFloorFailure: value => `Cannot enter DONE: ${value.reason ?? 'floor'} [review_assurance_floor]`,
+    resolveStoryIntegrationTarget: () => ({ parentBranch: 'main', parentCommitAtCreation: 'fixture' }),
     resolveGitCwd: () => 'GIT',
     checkEvidenceHashSnapshotReuse: () => ({ reusable: false }),
     captureEvidenceHashSnapshot: () => ({ materialHash: 'material', storyFilesHash: 'story-files' }),

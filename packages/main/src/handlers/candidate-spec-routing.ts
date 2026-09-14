@@ -24,6 +24,7 @@ import {
   type CandidateRoutingEvaluationWindow,
 } from '../core/candidate-spec-routing.js';
 import { assertActiveIdentityConsumerContract } from '../core/active-identity-consumer-contract.js';
+import { requireRepositoryBaselineRef } from '../core/git-baseline.js';
 import { runHostRun, type HostRunResult } from '../core/host-run.js';
 import {
   probeReviewHostAvailability,
@@ -150,7 +151,7 @@ function changedPaths(ctx: HandlerContext, storyId: string): string[] {
       metadataRoot: ctx.root,
       projectRoot: ctx.root,
     });
-    return execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+    return execFileSync('git', ['diff', '--name-only', `${requireRepositoryBaselineRef(gitCwd)}...HEAD`], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
       .split(/\r?\n/)
       .map(value => value.trim())
       .filter(path => Boolean(path) && !isStoryMetadataPath(path, ctx.root))

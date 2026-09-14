@@ -40,7 +40,12 @@ function runHook(root, input, remote = 'origin') {
 
 const hookRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-release-hook-'));
 try {
-  execFileSync('git', ['init', '-q'], { cwd: hookRoot });
+  execFileSync('git', ['init', '-q', '-b', 'main'], { cwd: hookRoot });
+  execFileSync('git', ['config', 'user.email', 'migration@test.invalid'], { cwd: hookRoot });
+  execFileSync('git', ['config', 'user.name', 'Migration Test'], { cwd: hookRoot });
+  writeFileSync(join(hookRoot, 'README.md'), 'fixture\n');
+  execFileSync('git', ['add', 'README.md'], { cwd: hookRoot });
+  execFileSync('git', ['commit', '-qm', 'fixture'], { cwd: hookRoot });
   const hookSource = readFileSync(join(repoRoot, '.githooks/pre-push'), 'utf8');
   mkdirSync(join(hookRoot, '.githooks'), { recursive: true });
   writeFileSync(join(hookRoot, '.githooks/pre-push'), hookSource);
@@ -86,7 +91,12 @@ try {
   assertRejectedWithoutMutation({ sha: 'def456' }, /approval sha mismatch/);
   assertRejectedWithoutMutation({}, /approval remote mismatch/, pushLine, 'other');
   assertRejectedWithoutMutation({ branch: 'refs/heads/story' }, /only valid for refs\/heads\/main/);
-  assertRejectedWithoutMutation({}, /refusing to push remote branch/, pushLine.replace('refs/heads/main 0000', 'refs/heads/story 0000'));
+  assertRejectedWithoutMutation(
+    { branch: 'refs/heads/release/candidate' },
+    /only valid for refs\/heads\/main/,
+    pushLine.replaceAll('refs/heads/main', 'refs/heads/release/candidate'),
+  );
+  assertRejectedWithoutMutation({}, /only valid for refs\/heads\/main/, pushLine.replace('refs/heads/main 0000', 'refs/heads/story 0000'));
   assertRejectedWithoutMutation({ expiresAt: 'invalid' }, /expiresAt is missing or invalid/);
 
   const stale = approval.createReleasePushApproval({

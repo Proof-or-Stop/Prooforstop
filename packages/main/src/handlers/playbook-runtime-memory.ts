@@ -265,7 +265,9 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
     },
 
     final_response_check(args: { storyId?: string; claim?: string } & FormatArgs = {}) {
-      const story = args.storyId ? ctx.store.readStory(args.storyId) : undefined;
+      const story = args.storyId && ctx.store.storyExists(args.storyId)
+        ? ctx.store.readStory(args.storyId)
+        : undefined;
       // Experience-ablation control-arm isolation: route the render through the
       // shared arm gate (surfaceRuntimeMemoryPack fires the experience_pack_surfaced
       // event on both arms and suppresses the TEXT section on control), then
@@ -295,6 +297,18 @@ export function createPlaybookRuntimeMemoryHandlers(ctx: HandlerContext): Record
       const result = {
         schemaVersion: 'proof-or-stop.final-response-check.v1',
         storyId: args.storyId,
+        storyPhase: story?.phase ?? null,
+        lifecycleComplete: story ? story.phase === 'DONE' || story.phase === 'DISCARDED' : false,
+        completionStatus: !story
+          ? 'unknown' as const
+          : story.phase !== 'DONE' && story.phase !== 'DISCARDED'
+            ? 'continuation_required' as const
+            : 'complete' as const,
+        nextAction: !story
+          ? `Story ${args.storyId ?? '<missing>'} was not found. Verify the Story id before claiming lifecycle completion.`
+          : story.phase !== 'DONE' && story.phase !== 'DISCARDED'
+            ? `An active repository Story remains non-terminal. Run proof-or-stop next and continue or return a structured BLOCKED result.`
+            : null,
         completionClaimSource: 'ParentRollupResult/current-structured-facts' as const,
         memoryFreshnessPack: redactMemoryPackForControlArm(pack),
         memoryCompletionProof: false as const,

@@ -31,7 +31,7 @@ You are only spawned by the main agent before the INIT → INIT_CHECK transition
 Your input has two layers:
 
 **Required reading (in order)**:
-1. `CLAUDE.md` (root directory) — establish the baseline system understanding: architecture, phase transitions, existing tools/concepts
+1. The repository instruction file for the active host, when present — use `AGENTS.md` for Codex, `CLAUDE.md` for Claude Code, or the repository's documented host-neutral equivalent to establish architecture, phase transitions, and existing concepts. A missing optional host instruction file is not insufficient Story input.
 2. `package-specific framework docs` (if it exists) — internal framework conventions
 3. Run `proof-or-stop background_get '{"storyId":"<storyId>"}'` and read the full background returned by the CLI
 4. Run `proof-or-stop story_get '{"storyId":"<storyId>"}'` and use only the returned `title` / `description` / `type` / `priority` / `riskSignals` fields
@@ -47,7 +47,7 @@ Your input has two layers:
 - understanding / decision / plan data (these are not produced in the INIT phase and should not exist; even if returned, ignore them)
 - Checklist `items[].userSees` / `items[].relatedDocs` / `items[].files` (implementer notes, not within the INIT review scope)
 
-**When input is insufficient**: add a high-severity issue in `issues` with desc "Input file X is missing or unreadable", and call `init_check_set` as usual.
+**When required Story input is insufficient**: add a high-severity issue in `issues` with desc "Required Story input X is missing or unreadable", and call `init_check_set` as usual. Do not issue this finding for an absent optional host instruction file.
 
 ## 2. Obtaining storyId
 

@@ -26,7 +26,7 @@ import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
-import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile, isRuntimeActivityRoot } from './core/config.js';
+import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile, isManagedGlobalThinRoot, isRuntimeActivityRoot } from './core/config.js';
 import { commandRequiresAuthoritativeRuntime, formatCommandLifecycleHint, getCommandPolicy, isMemoryRetrievalCommand } from './core/command-policy.js';
 import { resolveExperimentArm } from './core/experiment-arm.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
@@ -72,6 +72,7 @@ import {
   printValidationFailure,
 } from './cli/help-renderer.js';
 import { normalizeNestedSpaceAlias, STRIPPABLE_BIN_TOKENS } from './cli/alias-normalizer.js';
+import { CONTROLLER_PROJECTION_ARTIFACTS } from './core/managed-artifact-descriptors.js';
 import { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 import { dispatchRecoverEvidenceWithStructuredFailure } from './cli/recover-evidence-dispatch.js';
 import { dispatchUsageSweepAlertWithExit } from './handlers/usage-sweep.js';
@@ -1047,6 +1048,21 @@ export async function runCli(opts?: {
     && hasProjectConfigFile(process.cwd())
     && existsSync(new StoryStore(process.cwd()).storyDirPath(bootstrapStoryId)));
   if (localStoryAlreadyProjected) {
+    const localStore = new StoryStore(process.cwd());
+    const localStoryRoot = localStore.storyDirPath(bootstrapStoryId!);
+    const missingProjectionReceipt = CONTROLLER_PROJECTION_ARTIFACTS.some(descriptor =>
+      !existsSync(join(localStoryRoot, descriptor.path)),
+    );
+    if (missingProjectionReceipt
+      && bootstrapMainRoot !== null
+      && realpathSync(bootstrapMainRoot) === realpathSync(controllerRoot)
+      && isManagedGlobalThinRoot(controllerRoot)) {
+      // A Story receipt is a redundant controller-owned projection of an
+      // already signed common receipt. Reconstruct only through the same exact
+      // registered-worktree bootstrap, which rechecks branch/common-dir,
+      // no-follow paths, config identity and hook bytes before writing.
+      projectControllerAssetsIntoStoryWorktree({ controllerRoot, worktreeRoot: process.cwd(), storyId: bootstrapStoryId! });
+    }
     root = process.cwd();
     activeStory = detectActiveStory(root);
   } else if (bootstrapStoryId

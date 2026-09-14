@@ -1,6 +1,6 @@
 export const VALIDATION_RESERVATION_DELEGATION_ARTIFACT = { residualFile: 'delegated-processes.json', bootFile: 'machine-boot.json', temporaryPrefix: 'validation-owner-', bootstrapFile: 'bootstrap', socketFile: 's', location: 'machine-ticket-and-owned-temporary-directory', cleanup: 'observed-owned-group-absence' } as const;
 export const REVIEWER_BATCH_ADMISSION_ARTIFACT = { directoryName: 'reviewer-batch-admission', identityKeyFile: 'execution-identity.key', seedDirectoryName: 'provider-seeds', seedFileSuffix: '.seed.json', rosterFile: 'assignments.json', rosterLockDirectory: 'assignments.lock', probeWorkDirectoryName: 'work', probeTemporaryDirectoryName: 'tmp', inputPlanPrefix: 'input-plan-', inputPlanSuffix: '.json', launchReservationDirectoryName: 'launch-reservations', launchReservationFileSuffix: '.json', launchReservationLockSuffix: '.lock', location: 'canonical-project-runtime' } as const;
-export const MANAGED_REVIEW_LANE_ARTIFACT = { directoryName: 'readonly-lane', buildSource: 'build-source', output: 'output', sourceOutput: '.proof-or-stop/runtime/managed-review-build', temporary: 'tmp', cache: 'cache', probe: 'probe', launchers: 'launchers', binding: 'build-binding.json', location: 'sealed-scratch-parent', cleanup: 'owned-scratch-terminal-cleanup' } as const;
+export const MANAGED_REVIEW_LANE_ARTIFACT = { directoryName: 'readonly-lane', buildSource: 'build-source', executionWorktree: 'execution-worktree', scratchAdminMarker: 'proof-or-stop-managed-review-identity', output: 'output', sourceOutput: '.proof-or-stop/runtime/managed-review-build', temporary: 'tmp', cache: 'cache', probe: 'probe', launchers: 'launchers', binding: 'build-binding.json', location: 'sealed-scratch-parent-and-git-admin', cleanup: 'owned-scratch-terminal-cleanup' } as const;
 export const MACHINE_PROVIDER_ADMISSION_ARTIFACT = { directoryName: 'machine-provider-process-slots', location: 'os-user-home-runtime-locks' } as const;
 export const MACHINE_FIXED_PORT_ARTIFACT = { directoryName: 'machine-fixed-port-capacity', location: 'os-user-home-runtime-locks' } as const;
 export const MANAGED_REVIEW_TEMP_ARTIFACT = { directoryName: 'provider-temp', location: 'sealed-scratch-parent', cleanup: 'owned-scratch-terminal-cleanup' } as const;
@@ -8,8 +8,10 @@ export const MANAGED_REVIEW_TEMP_ARTIFACT = { directoryName: 'provider-temp', lo
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { hasValidControllerConfigProjection } from './controller-config-projection.js';
-import { loadConfig } from './config.js';
+import { hasValidControllerConfigProjection, inspectControllerConfigProjection } from './controller-config-projection.js';
+import { CONTROLLER_RUNTIME_ASSET_PATHS, inspectControllerRuntimeProjection } from './controller-runtime-projection.js';
+import { CONTROLLER_CONFIG_PROJECTION_ARTIFACT, CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
+import { loadConfig, pickProjectConfigPath } from './config.js';
 
 function hasGitMetadata(dir: string): boolean {
   let current = dir;
@@ -69,6 +71,121 @@ export function isByteIdenticalControllerConfig(args: {
     });
   } catch {
     return false;
+  }
+}
+
+export function isByteIdenticalControllerRuntimeAsset(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  path: string;
+}): boolean {
+  if (!(CONTROLLER_RUNTIME_ASSET_PATHS as readonly string[]).includes(args.path) || !/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/.test(args.storyId)) return false;
+  try {
+    const worktreeRoot = realpathSync(args.gitCwd);
+    if (realpathSync(args.projectRoot) !== worktreeRoot) return false;
+    const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (controllerRoot === worktreeRoot) return false;
+    for (const cwd of [worktreeRoot, controllerRoot]) {
+      if (execFileSync('git', ['ls-files', '--', args.path], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) return false;
+    }
+    return inspectControllerRuntimeProjection({
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      controllerRoot,
+      worktreeRoot,
+      storyRoot: join(worktreeRoot, loadConfig(worktreeRoot).storyDir, args.storyId),
+    }).valid;
+  } catch { return false; }
+}
+
+export interface ControllerProjectionReceiptStatus {
+  matched: boolean;
+  valid: boolean;
+  reason: string;
+  expectedPath?: string;
+  controllerRoot?: string;
+}
+
+export function inspectControllerConfigProjectionReceipt(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  path: string;
+}): ControllerProjectionReceiptStatus {
+  try {
+    const worktreeRoot = realpathSync(args.gitCwd);
+    if (realpathSync(args.projectRoot) !== worktreeRoot) return { matched: false, valid: false, reason: 'project-root-mismatch' };
+    const config = loadConfig(worktreeRoot);
+    const expectedPath = `${config.storyDir.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/$/, '')}/${args.storyId}/${CONTROLLER_CONFIG_PROJECTION_ARTIFACT.path}`;
+    if (args.path.replace(/\\/g, '/').replace(/^\.\//, '') !== expectedPath) return { matched: false, valid: false, reason: 'different-path', expectedPath };
+    const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (controllerRoot === worktreeRoot) return { matched: true, valid: false, reason: 'not-linked-worktree', expectedPath, controllerRoot };
+    const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (branch !== `refs/heads/story/${args.storyId}`) return { matched: true, valid: false, reason: 'story-branch-mismatch', expectedPath, controllerRoot };
+    if (execFileSync('git', ['ls-files', '--', expectedPath], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) {
+      return { matched: true, valid: false, reason: 'tracked-story-receipt', expectedPath, controllerRoot };
+    }
+    const configRef = pickProjectConfigPath(controllerRoot);
+    if (!configRef) return { matched: true, valid: false, reason: 'controller-config-missing', expectedPath, controllerRoot };
+    for (const cwd of [worktreeRoot, controllerRoot]) {
+      if (execFileSync('git', ['ls-files', '--', configRef.filename], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) {
+        return { matched: true, valid: false, reason: 'tracked-controller-config', expectedPath, controllerRoot };
+      }
+    }
+    const controllerStat = lstatSync(configRef.path);
+    const worktreeConfig = join(worktreeRoot, configRef.filename);
+    const worktreeStat = lstatSync(worktreeConfig);
+    if (!controllerStat.isFile() || controllerStat.isSymbolicLink() || !worktreeStat.isFile() || worktreeStat.isSymbolicLink()) {
+      return { matched: true, valid: false, reason: 'unsafe-controller-config', expectedPath, controllerRoot };
+    }
+    const configBytes = readFileSync(configRef.path);
+    if (!configBytes.equals(readFileSync(worktreeConfig))) return { matched: true, valid: false, reason: 'config-bytes-differ', expectedPath, controllerRoot };
+    const inspection = inspectControllerConfigProjection({
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      configPath: configRef.filename,
+      controllerRoot,
+      worktreeRoot,
+      storyRoot: join(worktreeRoot, config.storyDir, args.storyId),
+      configBytes,
+    });
+    return { matched: true, valid: inspection.valid, reason: inspection.reason, expectedPath, controllerRoot };
+  } catch {
+    return { matched: true, valid: false, reason: 'workspace-or-receipt-invalid' };
+  }
+}
+
+/** Classify the exact Story receipt path and verify its full projection proof. */
+export function inspectControllerRuntimeProjectionReceipt(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  path: string;
+}): ControllerProjectionReceiptStatus {
+  try {
+    const worktreeRoot = realpathSync(args.gitCwd);
+    if (realpathSync(args.projectRoot) !== worktreeRoot) return { matched: false, valid: false, reason: 'project-root-mismatch' };
+    const config = loadConfig(worktreeRoot);
+    const expectedPath = `${config.storyDir.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/$/, '')}/${args.storyId}/${CONTROLLER_RUNTIME_PROJECTION_ARTIFACT.path}`;
+    if (args.path.replace(/\\/g, '/').replace(/^\.\//, '') !== expectedPath) return { matched: false, valid: false, reason: 'different-path', expectedPath };
+    const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (controllerRoot === worktreeRoot) return { matched: true, valid: false, reason: 'not-linked-worktree', expectedPath, controllerRoot };
+    const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (branch !== `refs/heads/story/${args.storyId}`) return { matched: true, valid: false, reason: 'story-branch-mismatch', expectedPath, controllerRoot };
+    if (execFileSync('git', ['ls-files', '--', expectedPath], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) {
+      return { matched: true, valid: false, reason: 'tracked-story-receipt', expectedPath, controllerRoot };
+    }
+    const inspection = inspectControllerRuntimeProjection({
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      controllerRoot,
+      worktreeRoot,
+      storyRoot: join(worktreeRoot, config.storyDir, args.storyId),
+    });
+    return { matched: true, valid: inspection.valid, reason: inspection.reason, expectedPath, controllerRoot };
+  } catch {
+    return { matched: true, valid: false, reason: 'workspace-or-receipt-invalid' };
   }
 }
 

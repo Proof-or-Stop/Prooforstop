@@ -190,8 +190,18 @@ async function main() {
   const readonlyLane=read(root,'packages/main/src/core/managed-review-lane.ts');
   const readonlyPolicy=read(root,'packages/main/src/core/managed-review-lane-policy.ts');
   check(registrySource.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY')
+    && registrySource.includes("optionalEnvironmentKeys: ['PROOF_OR_STOP_REVIEW_EXECUTION_CWD']")
     && readonlyLane.includes('MANAGED_REVIEW_LANE_ARTIFACT.directoryName')
     && readonlyLane.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.buildTimeoutMs')
+    && readonlyLane.includes('PROOF_OR_STOP_REVIEW_EXECUTION_CWD')
+    && managedHost.includes('const executionCwd = join(parent, MANAGED_REVIEW_LANE_ARTIFACT.executionWorktree)')
+    && managedHost.includes('currentMaterialHash(scratch.executionCwd)')
+    && managedHost.includes('cwd: managedReviewScratch?.executionCwd ?? managedReviewScratch?.cwd ?? args.cwd')
+    && read(root,'packages/main/src/core/runtime-artifact-registry.ts').includes("scratchAdminMarker: 'proof-or-stop-managed-review-identity'")
+    && managedHost.includes('scratch.sourceDirectoryIdentity = managedReviewScratchPathIdentity')
+    && managedHost.includes('MANAGED_REVIEW_LANE_ARTIFACT.scratchAdminMarker')
+    && (managedHost.match(/assertManagedReviewScratchGenerationIdentity\(scratch, registered\)/g) ?? []).length >= 2
+    && read(root,'packages/main/src/core/managed-review-readonly.ts').includes('cwd !== layout.execution')
     && readonlyPolicy.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.adapter')
     && managedHost.includes('requestedReadonlyLane')
     && read(root,'packages/main/src/core/host-run.ts').includes('prepareManagedReadonlyLaunch'),

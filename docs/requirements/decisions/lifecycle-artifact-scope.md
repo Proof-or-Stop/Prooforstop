@@ -33,10 +33,31 @@ unrelated runtime features.
 
 ## The classifier outputs
 
-`packages/main/src/core/scope-contract.ts` evaluates each changed file in this
-order:
+`packages/main/src/core/scope-contract.ts` evaluates each changed file through
+the shared classifier. Controller projection receipts use a stricter proof
+before ordinary lifecycle filename classification:
 
-1. **`classifyLifecycleArtifact(file, { storyId })`**
+1. **Controller projection receipt proof**
+   – the canonical descriptors in
+     `packages/main/src/core/managed-artifact-descriptors.ts` define the two
+     exact Story receipt paths, their owner, producer, signature policy,
+     projection policy, and tracked-file policy;
+   – both config and runtime projection receipts are admitted only when their
+     Story id, controller/worktree roots, Git common receipt, signatures,
+     projected assets, digests, and controller/worktree bytes all match the
+     current registered Story worktree, including a configured custom
+     `storyDir`;
+   – tracked, malformed, stale, tampered, mismatched, or context-free receipts
+     fail closed as a controller-owned projection error even when the product
+     scope contract has no allowed paths. Receipt directories use canonical
+     containment and no-follow ancestor checks;
+   – an absent redundant Story receipt can be recreated only by the same exact
+     registered-worktree bootstrap, which rechecks its signed common receipt
+     and current assets. A tracked receipt is recovered with an explicit
+     `git rm --cached` command. Generated recovery commands use POSIX-safe
+     quoting and never ask the product Story to widen its scope.
+
+2. **`classifyLifecycleArtifact(file, { storyId })`**
    – returns a hit only when the path matches:
    – a recognized story-dir prefix (`docs/story/actives/`,
      `.proof-or-stop/story/actives/`, or a custom `storyDir`;
@@ -46,15 +67,15 @@ order:
      `PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
      `PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
      `packages/main/src/core/lifecycle-registry.ts`).
-     The relative-path set is intentionally tiny: today it includes only the
-     TEST transcript evidence paths `evidence/transcript-diff.md` and
-     `evidence/live-smoke-transcript.json`. It does not allow arbitrary files
+     The relative-path set is intentionally closed. It includes registered
+     transcript paths plus the controller config/runtime projection receipt
+     paths derived from the canonical descriptors. It does not allow arbitrary files
      under `evidence/`, even when their basename is a known top-level lifecycle
      filename such as `summary.json`.
    – Legacy story-tree paths under `docs/story/...` resolve as
      `legacy-metadata` for back-compat with PLAN-time files.
 
-2. **`isRuntimeArtifactPath(file)`**
+3. **`isRuntimeArtifactPath(file)`**
    – returns true for paths registered in the runtime-artifact registry:
      `.proof-or-stop/activity.jsonl`, `.proof-or-stop/runtime/...`, `.proof-or-stop/traces/...`,
      `.proof-or-stop/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
@@ -65,7 +86,7 @@ order:
      pass.** An arbitrary file like `.proof-or-stop/foo.json` does not match any registered runtime matcher and
      therefore falls through.
 
-3. **`classifySharedLifecycleMetadata(root, file)`**
+4. **`classifySharedLifecycleMetadata(root, file)`**
    – recognizes only the canonical B-META `findings.json` and its separate
      `gap-log-provenance.jsonl` append ledger;
    – admits either path only when the complete HMAC receipt chain is contiguous,
@@ -83,7 +104,7 @@ order:
      ledger symlinks are rejected even when they remain inside the repository
      and expose identical content.
 
-4. **fall-through** → normal `allowedModify` / `allowedCreate` /
+5. **fall-through** → normal `allowedModify` / `allowedCreate` /
    `allowedTest` / `protectedFiles` / `explicitExcludes` enforcement applies.
    This includes ordinary source files and any unrecognized JSON under
    `.proof-or-stop/`.
@@ -96,7 +117,7 @@ Both reviewers and tests must continue to assert:
   in the contract still fails scope when unacknowledged;
 - an unknown `.proof-or-stop/foo.json` not registered in the runtime registry and not
   matching the lifecycle filename set still fails scope when unacknowledged;
-- removing or weakening rule (2) — for example reverting to
+- removing or weakening rule (3) — for example reverting to
   `if (file.startsWith('.proof-or-stop/')) continue;` — is a regression and must be
   flagged by the contract test.
 - an arbitrary `.proof-or-stop/foo.json`, nested story evidence note, undeclared
@@ -126,6 +147,13 @@ Expected row families:
 > the gates are independent — one cannot stand in for the other.
 
 ## Operational implications
+
+- Global-thin project-level managed assets remain owned by the primary
+  controller. A read-only `proof-or-stop check` invoked in a registered Story
+  worktree inspects that controller. Mutating `check --apply` and
+  `check --upgrade` are refused from the Story worktree with an exact
+  controller-directory command, so a repair command cannot manufacture new
+  out-of-scope Story files.
 
 - `delivery_check_set` and `summary_set` may freely write
   `.proof-or-stop/story/actives/<id>/delivery-check.json` and `summary.json` during

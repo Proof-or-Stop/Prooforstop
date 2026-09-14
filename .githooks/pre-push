@@ -9,7 +9,8 @@
 # agent 默认不应该在 GitHub/origin 创建 story/codex/lab 分支，也不应该顺手 push
 # main。完成路径是本地 DONE 合并回 main、清理 worktree 后停止。若人类确实要发布
 # 远端，必须先运行 `proof-or-stop release_approve_push --confirm` 创建短 TTL 的一次性
-# 本地 approval；本 hook 只在 approval 的 remote/ref/sha/TTL 全匹配时允许 refs/heads/main。
+# 本地 approval；本 hook 重新解析仓库 integration branch，并只在 approval 的
+# remote/ref/sha/TTL 全匹配时允许该分支。
 #
 # 核心约束：本 hook **不调用 `proof-or-stop` 命令**。它要防御的就是「全局
 # proof-or-stop 可执行文件版本错位」情形——若 hook 自己依赖 proof-or-stop，CLI 翻车时
@@ -63,11 +64,12 @@ check_release_push_approval() {
   node -e '
 const fs = require("fs");
 const path = require("path");
+const { execFileSync } = require("child_process");
 const [root, remoteName, localSha, remoteRef] = process.argv.slice(1);
 const approvalPath = path.join(root, ".proof-or-stop", "tmp", "remote-push-approval.json");
 function reject(message) {
   console.error(`[pre-push] REJECTED: ${message}`);
-  console.error("[pre-push] Remote writes are default-denied. Run `proof-or-stop release_approve_push --confirm` from a clean local main, then retry `git push origin main` before the approval expires.");
+  console.error("[pre-push] Remote writes are default-denied. Run `proof-or-stop release_approve_push --confirm` from the clean local integration branch, then retry the reported git push command before the approval expires.");
   process.exit(1);
 }
 let approval;
@@ -79,8 +81,34 @@ try {
 if (!approval || approval.schema !== "proof-or-stop.remote-push-approval.v1") {
   reject("approval schema is missing or invalid");
 }
-if (approval.branch !== "refs/heads/main" || remoteRef !== "refs/heads/main") {
-  reject(`approval is only valid for refs/heads/main (got approval=${approval.branch || ""}, push=${remoteRef})`);
+function refExists(ref) {
+  try {
+    execFileSync("git", ["show-ref", "--verify", "--quiet", ref], { cwd: root, stdio: "ignore" });
+    return true;
+  } catch { return false; }
+}
+let expectedBranch = "";
+try {
+  const remoteHead = execFileSync("git", ["symbolic-ref", "-q", "refs/remotes/origin/HEAD"], {
+    cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
+  if (remoteHead.startsWith("refs/remotes/origin/")) {
+    const branch = remoteHead.slice("refs/remotes/origin/".length);
+    if (!/^(story|codex|lab)\//.test(branch)) {
+      const localRef = `refs/heads/${branch}`;
+      // A remote-tracking ref is a baseline candidate for read-only comparison,
+      // but publication must target a real local integration branch. Refuse
+      // before consuming an approval when origin/HEAD has no local counterpart.
+      if (!refExists(localRef)) reject(`remote default branch lacks a local integration ref: ${localRef}`);
+      expectedBranch = localRef;
+    }
+  }
+} catch { /* conventional local baseline fallback */ }
+if (!expectedBranch && refExists("refs/heads/main")) expectedBranch = "refs/heads/main";
+if (!expectedBranch && refExists("refs/heads/master")) expectedBranch = "refs/heads/master";
+if (!expectedBranch) reject("repository integration branch cannot be resolved");
+if (approval.branch !== expectedBranch || remoteRef !== expectedBranch) {
+  reject(`approval is only valid for ${expectedBranch} (got approval=${approval.branch || ""}, push=${remoteRef})`);
 }
 if (approval.remote && approval.remote !== remoteName) {
   reject(`approval remote mismatch: expected ${approval.remote}, got ${remoteName}`);
@@ -107,7 +135,13 @@ console.error(`[pre-push] one-shot remote publish approval consumed for ${remote
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ -z "${remote_ref:-}" ] && continue
   case "$remote_ref" in
-    refs/heads/main)
+    refs/heads/story/*|refs/heads/codex/*|refs/heads/lab/*)
+      branch="${remote_ref#refs/heads/}"
+      echo "[pre-push] REJECTED: refusing to push remote branch '$branch'." >&2
+      echo "[pre-push] Proof-or-Stop parallel work is local-only: merge task branches into the repository integration branch first." >&2
+      exit 1
+      ;;
+    refs/heads/*)
       if ! command -v node >/dev/null 2>&1; then
         echo "[pre-push] FAIL: 'node' not found in PATH — cannot validate Proof-or-Stop remote publish approval." >&2
         echo "[pre-push] Refusing push (fail-closed)." >&2
@@ -116,13 +150,6 @@ while read -r local_ref local_sha remote_ref remote_sha; do
       if ! check_release_push_approval "$local_sha" "$remote_ref"; then
         exit 1
       fi
-      ;;
-    refs/heads/*)
-      branch="${remote_ref#refs/heads/}"
-      echo "[pre-push] REJECTED: refusing to push remote branch '$branch'." >&2
-      echo "[pre-push] Proof-or-Stop parallel work is local-only: use local worktrees/branches, merge to local main, clean the worktree, and do not push task branches." >&2
-      echo "[pre-push] Remote publish is main-only and requires a one-shot local approval." >&2
-      exit 1
       ;;
   esac
 done <"$REF_UPDATES"

@@ -355,6 +355,7 @@ function sameStrings(left: readonly string[], right: readonly string[]): boolean
 const PRE_REVIEW_CODE_PRIORITY: readonly PreReviewCheckCodeV1[] = [
   'PR_ARTIFACT_MISSING',
   'PR_ARTIFACT_TAMPERED',
+  'PR_COVERAGE_BASIS_MISSING',
   'PR_NEW_PATH_UNMAPPED',
   'PR_COVERAGE_BASIS_CHANGED',
   'PR_COVERAGE_INCONCLUSIVE',
@@ -424,7 +425,9 @@ function executableProofState(contract: ProofStoryContractData | null, proof: Pr
 }
 
 function remediationFor(codes: readonly PreReviewCheckCodeV1[]): string[] {
-  return stable(codes.map(code => code === 'PR_ARTIFACT_MISSING'
+  return stable(codes.map(code => code === 'PR_COVERAGE_BASIS_MISSING'
+    ? 'Run proof-or-stop acceptance_basis_generate --storyId=<id>, then rerun proof-or-stop pre_review_check --storyId=<id>.'
+    : code === 'PR_ARTIFACT_MISSING'
     ? 'Run proof-or-stop pre_review_check --storyId=<id> after recording a current canonical live_smoke_transcript proof.'
     : code === 'PR_ARTIFACT_TAMPERED'
       ? 'Discard the invalid pre-review artifact and reissue it through proof-or-stop pre_review_check; do not edit StoryStore files directly.'
