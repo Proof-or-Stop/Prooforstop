@@ -2816,21 +2816,21 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             reason: `Owner-approved plan acceptance batch ${digest}: ${args.reason.trim()}`,
           });
         }
-        store.writeChecklist(args.storyId, next);
-        for (const prepared of args.prepared.items) {
+        const processEvents = args.prepared.items.map(prepared => {
           const item = next.items.find(candidate => candidate.id === prepared.itemId)!;
-          try {
-            store.appendProcessEvent(args.storyId, {
-              type: 'plan_updated',
-              action: 'verification_intent_applied',
-              itemId: item.id,
-              phase: story.phase,
-              authorship: item.verificationIntentAuthorship,
-            });
-          } catch (error) {
-            console.warn(`[process-events] append failed for ${args.storyId}:`, (error as Error).message);
-          }
-        }
+          return {
+            type: 'plan_updated' as const,
+            action: 'verification_intent_applied',
+            itemId: item.id,
+            phase: story.phase,
+            authorship: item.verificationIntentAuthorship,
+          };
+        });
+        // Persist every per-item event in one append before publishing the
+        // checklist update. A failed event write therefore cannot be hidden by
+        // a successful command or leave a partially updated checklist.
+        store.appendProcessEvents(args.storyId, processEvents);
+        store.writeChecklist(args.storyId, next);
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'plan_acceptance_apply');
         return `Applied ${args.prepared.items.length} PLAN acceptance items atomically to ${args.storyId}.${commitHint}`;
       });

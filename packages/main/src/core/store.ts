@@ -42,7 +42,7 @@ import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } fro
 import type { ClusterData } from './cluster-types.js';
 import type { MilestoneCloseoutSnapshot } from './milestone-status.js';
 import type { CandidateSpecSetArtifact } from './candidate-spec-routing.js';
-import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
+import { appendProcessEvent as appendProcessEventFn, appendProcessEventRecords, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { storyRuntimeLockPath } from './validation-execution-lock.js';
 import { acquireMkdirLock, withMkdirLock } from './mkdir-lock.js';
 import { loadConfig } from './config.js';
@@ -2234,6 +2234,17 @@ export class StoryStore {
       // gitignored shared `.proof-or-stop/locks/process-events/` prefix (not inside the
       // git-tracked story dir) so a transient holder.json can never be committed.
       return appendProcessEventFn(dir, event, this.runtimeLockDirPath(storyId, 'process-events', 'process-events-append'));
+    });
+  }
+
+  appendProcessEvents(storyId: string, events: Array<Omit<ProcessEvent, 'timestamp'>>) {
+    return withValidationMetadataWrite(this.projectRootValue, storyId, () => {
+      const dir = this.storyDir(storyId);
+      return appendProcessEventRecords(
+        dir,
+        events,
+        this.runtimeLockDirPath(storyId, 'process-events', 'process-events-append'),
+      );
     });
   }
 

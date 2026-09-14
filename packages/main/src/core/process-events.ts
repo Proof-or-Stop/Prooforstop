@@ -61,6 +61,19 @@ export function appendProcessEventRecord(
   return appendRawProcessEventBytes(storyDir, `${JSON.stringify(full)}\n`, lockDir);
 }
 
+export function appendProcessEventRecords(
+  storyDir: string,
+  events: Array<Record<string, unknown>>,
+  lockDir: string,
+): ProcessEventAppendIdentity {
+  if (events.length === 0) throw new Error('process-event batch requires at least one event');
+  const timestamp = new Date().toISOString();
+  const bytes = events.map(event => JSON.stringify(
+    typeof event.timestamp === 'string' ? event : { ...event, timestamp },
+  )).join('\n') + '\n';
+  return appendRawProcessEventBytes(storyDir, bytes, lockDir);
+}
+
 export function appendProcessEvent(
   storyDir: string,
   event: Omit<ProcessEvent, 'timestamp'>,

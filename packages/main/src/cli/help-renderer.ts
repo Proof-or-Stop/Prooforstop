@@ -266,6 +266,24 @@ function formatValidationIssue(issue: ZodIssue): string {
   return `  ${path}: ${issue.message}`;
 }
 
+const VALIDATION_FAILURE_TEXT_MAX_BYTES = 4096;
+
+function boundedValidationFailureText(lines: string[], nextCommand: string): string {
+  const header = 'Argument validation failed:\n';
+  const footer = `Next: ${nextCommand}\n`;
+  const included: string[] = [];
+  for (const line of lines) {
+    const candidate = `${header}${included.map(value => `${value}\n`).join('')}${line}\n`;
+    const omitted = lines.length - included.length - 1;
+    const omission = omitted > 0 ? `  ... ${omitted} additional validation issues omitted.\n` : '';
+    if (Buffer.byteLength(candidate + omission + footer) > VALIDATION_FAILURE_TEXT_MAX_BYTES) break;
+    included.push(line);
+  }
+  const omitted = lines.length - included.length;
+  const omission = omitted > 0 ? `  ... ${omitted} additional validation issues omitted.\n` : '';
+  return `${header}${included.map(value => `${value}\n`).join('')}${omission}${footer}`;
+}
+
 export function printValidationFailure(
   tool: ToolDef,
   issues: ZodIssue[],
@@ -293,9 +311,7 @@ export function printValidationFailure(
     })}\n`);
     return;
   }
-  process.stderr.write('Argument validation failed:\n');
-  for (const line of lines) process.stderr.write(`${line}\n`);
-  process.stderr.write(`Next: ${nextCommand}\n`);
+  process.stderr.write(boundedValidationFailureText(lines, nextCommand));
 }
 
 export function printHelp(options: GlobalHelpOptions) {

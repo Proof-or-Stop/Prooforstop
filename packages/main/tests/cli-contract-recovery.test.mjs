@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import {
+  chmodSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -183,6 +184,21 @@ await check('validation failures are concise and machine recoverable', () => {
   assert.match(textFailure.stderr, /proof-or-stop checklist_get --help/);
   assert.ok(Buffer.byteLength(textFailure.stderr) < 4096, `stderr was ${Buffer.byteLength(textFailure.stderr)} bytes`);
 
+  const noisyItems = Array.from({ length: 300 }, (_, index) => ({
+    itemId: index,
+    files: index,
+    verificationIntent: index,
+  }));
+  const boundedFailure = runCli(repositoryRoot, ['plan_acceptance_prepare', JSON.stringify({
+    storyId: 'B-bounded-errors',
+    items: noisyItems,
+  })]);
+  assert.equal(boundedFailure.status, 1);
+  assert.ok(Buffer.byteLength(boundedFailure.stderr) <= 4096,
+    `bounded stderr was ${Buffer.byteLength(boundedFailure.stderr)} bytes`);
+  assert.match(boundedFailure.stderr, /additional validation issues? omitted/i);
+  assert.match(boundedFailure.stderr, /proof-or-stop plan_acceptance_prepare --help/);
+
   const jsonFailure = runCli(repositoryRoot, ['checklist_get', '{"storyId":42,"json":true}']);
   assert.equal(jsonFailure.status, 1);
   assert.equal(jsonFailure.stderr, '');
@@ -283,7 +299,7 @@ await check('plan acceptance prepare and apply are atomic', () => {
       events: [],
     });
     store.writeChecklist(storyId, {
-      items: ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-006', 'CHK-004', 'CHK-005'].map(id => ({
+      items: ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-006', 'CHK-004', 'CHK-005', 'CHK-008'].map(id => ({
         id,
         title: `Acceptance ${id}`,
         context: 'Fixture item',
@@ -420,6 +436,23 @@ await check('plan acceptance prepare and apply are atomic', () => {
     assert.deepEqual(applied.items.slice(0, 3).map(item => item.verificationIntent), items.map(item => item.verificationIntent));
     assert.equal(store.readProcessEvents(storyId).filter(event => event.action === 'verification_intent_applied').length, 4);
 
+    const eventFailurePrepared = handlers.plan_acceptance_prepare({ storyId, items: [{
+      itemId: 'CHK-008',
+      files: { modify: ['src/event-failure.ts'], create: [], test: [] },
+      verificationIntent: intentFor('CHK-008'),
+    }] });
+    const beforeEventFailure = JSON.stringify(store.readChecklist(storyId));
+    const originalAppendProcessEvents = store.appendProcessEvents.bind(store);
+    store.appendProcessEvents = () => { throw new Error('fixture process-event append failure'); };
+    assert.throws(() => handlers.plan_acceptance_apply({
+      storyId,
+      prepared: eventFailurePrepared,
+      reason: 'Reject the whole acceptance batch when its per-item audit event cannot be persisted.',
+    }), /fixture process-event append failure/);
+    store.appendProcessEvents = originalAppendProcessEvents;
+    assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeEventFailure,
+      'event persistence failure occurs before the checklist transaction');
+
     const cliEnvironment = {
       PROOF_OR_STOP_SESSION_ID: 'plan-acceptance-owner',
       PROOF_OR_STOP_AGENT: 'main-agent',
@@ -539,7 +572,7 @@ await check('plan acceptance prepare and apply are atomic', () => {
   }
 });
 
-await check('missing requirements corpus is deterministic and symlinks preserve safe compatibility', () => {
+await check('missing requirements corpus is deterministic and unsafe filesystem inputs fail closed', () => {
   const missingRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-missing-corpus-'));
   const emptyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-empty-corpus-'));
   const danglingRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-dangling-corpus-'));
@@ -564,23 +597,31 @@ await check('missing requirements corpus is deterministic and symlinks preserve 
     assert.equal(verifyCandidateSpecSet(missingRoute), true);
 
     symlinkSync(join(danglingRoot, 'deleted-requirements'), join(danglingRoot, 'requirements-link'));
-    const dangling = buildCorpusIndex(danglingRoot, 'requirements-link');
-    assert.equal(dangling.corpusStatus, 'missing');
-    assert.equal(dangling.corpusDigest, empty.corpusDigest);
+    assert.throws(() => buildCorpusIndex(danglingRoot, 'requirements-link'), /symbolic link/i);
 
     writeFileSync(join(missingRoot, 'requirements-file'), 'not a directory\n');
     assert.throws(() => buildCorpusIndex(missingRoot, 'requirements-file'), /not.*directory/i);
     mkdirSync(join(missingRoot, 'in-root-requirements'));
     symlinkSync(join(missingRoot, 'in-root-requirements'), join(missingRoot, 'requirements-link'));
-    assert.equal(buildCorpusIndex(missingRoot, 'requirements-link').corpusDigest, empty.corpusDigest);
+    assert.throws(() => buildCorpusIndex(missingRoot, 'requirements-link'), /symbolic link/i);
     symlinkSync(join(emptyRoot, 'docs', 'requirements'), join(missingRoot, 'external-requirements-link'));
-    assert.throws(() => buildCorpusIndex(missingRoot, 'external-requirements-link'), /escapes project root/i);
+    assert.throws(() => buildCorpusIndex(missingRoot, 'external-requirements-link'), /symbolic link/i);
 
     writeFileSync(join(emptyRoot, 'shared.md'), '# Shared requirement\n');
     symlinkSync(join(emptyRoot, 'shared.md'), join(emptyRoot, 'docs', 'requirements', 'shared-link.md'));
-    assert.deepEqual(buildCorpusIndex(emptyRoot, 'docs/requirements').entries, [], 'in-root nested links remain skipped');
+    assert.throws(() => buildCorpusIndex(emptyRoot, 'docs/requirements'), /symbolic link/i);
+    rmSync(join(emptyRoot, 'docs', 'requirements', 'shared-link.md'));
     symlinkSync(join(missingRoot, 'requirements-file'), join(emptyRoot, 'docs', 'requirements', 'escape-link.md'));
-    assert.throws(() => buildCorpusIndex(emptyRoot, 'docs/requirements'), /escapes project root/i);
+    assert.throws(() => buildCorpusIndex(emptyRoot, 'docs/requirements'), /symbolic link/i);
+    rmSync(join(emptyRoot, 'docs', 'requirements', 'escape-link.md'));
+
+    const unreadable = join(emptyRoot, 'docs', 'requirements');
+    chmodSync(unreadable, 0o000);
+    try {
+      assert.throws(() => buildCorpusIndex(emptyRoot, 'docs/requirements'), /EACCES|permission denied/i);
+    } finally {
+      chmodSync(unreadable, 0o755);
+    }
   } finally {
     rmSync(missingRoot, { recursive: true, force: true });
     rmSync(emptyRoot, { recursive: true, force: true });

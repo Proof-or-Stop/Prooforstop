@@ -256,11 +256,12 @@ function walkMarkdown(root: string, dir: string): string[] {
   const rootReal = realpathSync(root);
   let rootStat;
   try {
-    rootStat = statSync(absolute);
+    rootStat = lstatSync(absolute);
   } catch (error: any) {
     if (error?.code === 'ENOENT') return [];
     throw error;
   }
+  if (rootStat.isSymbolicLink()) throw new Error(`requirementsDir must not be a symbolic link: ${dir}`);
   const dirReal = realpathSync(absolute);
   if (relative(rootReal, dirReal).startsWith('..')) throw new Error('requirementsDir escapes project root');
   if (!rootStat.isDirectory()) throw new Error(`requirementsDir is not a directory: ${dir}`);
@@ -270,11 +271,7 @@ function walkMarkdown(root: string, dir: string): string[] {
       const file = join(current, name);
       const stat = lstatSync(file);
       if (stat.isSymbolicLink()) {
-        const target = realpathSync(file);
-        if (relative(rootReal, target).startsWith('..')) {
-          throw new Error(`requirements symlink escapes project root: ${relative(rootReal, file)}`);
-        }
-        continue;
+        throw new Error(`requirements corpus must not contain a symbolic link: ${relative(rootReal, file)}`);
       }
       if (stat.isDirectory()) visit(file);
       else if (stat.isFile() && name.toLowerCase().endsWith('.md')) result.push(relative(rootReal, file).replace(/\\/g, '/'));
@@ -302,7 +299,8 @@ export function buildCorpusIndex(projectRoot: string, requirementsDir = 'docs/re
   const absoluteDir = resolve(projectRoot, normalizedDir);
   let missing = false;
   try {
-    statSync(absoluteDir);
+    const topLevel = lstatSync(absoluteDir);
+    if (topLevel.isSymbolicLink()) throw new Error(`requirementsDir must not be a symbolic link: ${normalizedDir}`);
   } catch (error: any) {
     if (error?.code === 'ENOENT') missing = true;
     else throw error;
