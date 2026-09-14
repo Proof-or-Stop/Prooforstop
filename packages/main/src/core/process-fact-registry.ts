@@ -1814,10 +1814,14 @@ export const PROCESS_FACT_ARTIFACTS = [
     kind: 'artifact',
     semantics: ['artifact', 'gate-evidence'],
     level: 'L4',
-    producer: 'handlers/checklist',
+    producer: 'handlers/story-create and handlers/checklist',
+    producerSourceRefs: [
+      'packages/main/src/handlers/story-create.ts',
+      'packages/main/src/handlers/checklist.ts',
+    ],
     consumerGate: 'storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.checklist_update,
-    rationale: 'Checklist status and verification evidence are consumed by REVIEW and validate gates.',
+    rationale: 'Story creation persists the canonical checklist artifact, including an empty items array, before the creation commit; later checklist status and verification evidence mutations are consumed by REVIEW and validate gates.',
   },
   {
     name: 'artifact:init-check.json',

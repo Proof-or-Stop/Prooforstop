@@ -1103,13 +1103,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
         writeBackground();
         writeInitialScopeArtifacts();
-        // Explicit phase selection is an intake-only compatibility surface.
-        if (hasChecklist) {
-          const checklist = {
-            items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, 'pending')),
-          };
-          store.writeChecklist(storyId, checklist);
-        }
+        // The checklist artifact is a lifecycle invariant even when intake has
+        // no items yet. Later PLAN writers read it unconditionally, and the
+        // creation commit must carry the same empty state that INIT gates saw.
+        store.writeChecklist(storyId, preflightChecklist);
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ Current directory is not a git repo: story is recorded, but branch/worktree phase is not yet available. To continue the normal INIT_CHECK/DEV flow, first git init + initial commit.`
           : '';
@@ -1160,12 +1157,9 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
       writeBackground();
       writeInitialScopeArtifacts();
+      store.writeChecklist(storyId, preflightChecklist);
 
       if (hasChecklist) {
-        const checklist = {
-          items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, 'pending')),
-        };
-        store.writeChecklist(storyId, checklist);
         const noContext = args.checklist!.filter((c: any) => !c.context).length;
         const hints: string[] = [];
         if (noContext > 0) hints.push(`${noContext} items missing context (root cause/reference); please supplement`);
@@ -1193,7 +1187,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
         // the create conclusion + INIT-review guidance stays on stdout.
         emitAdvisoryToStderr();
-        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${initReviewHint}${nonGitHint}`;
+        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${initReviewHint}${nonGitHint}`;
       }
 
       // B-02a6 CHK-002: an IDEA story still persists index.json + background.md on
