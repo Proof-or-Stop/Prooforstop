@@ -2193,6 +2193,10 @@ export interface ManagedReviewEvidenceBinding {
   importedAt: string;
   providerAgent: string;
   providerHost: 'codex' | 'claude' | 'agy';
+  /** Exact model selector used by the managed provider; absent on historical evidence. */
+  model?: string | null;
+  /** Exact reasoning selector used by the managed provider; absent on historical evidence. */
+  reasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max' | 'ultra' | null;
   lane: string;
   reviewRunId: string;
   headHash: string;

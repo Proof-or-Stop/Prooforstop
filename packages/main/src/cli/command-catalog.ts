@@ -3392,6 +3392,8 @@ Behavior:
   { name: 'host_run', description: 'Submit a durable managed Codex or Claude CLI run. Foreground mode attaches to the same durable run; --detach returns after the worker claim. Silence never implies failure. Alias: proof-or-stop host run', schema: {
     idempotencyKey: z.string().min(1).max(512).optional().describe('Stable logical request key for retry-safe submission; changed inputs are refused. Formal reviews automatically bind host/story/reviewRunId/lane.'),
     host: z.string().describe('Canonical managed host: codex or claude (alias: claude-code->claude)'),
+    model: z.string().min(1).max(256).optional().describe('Exact provider model id placed on the managed invocation argv and sealed into its run binding and receipt'),
+    reasoningEffort: z.enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra']).optional().describe('Exact provider reasoning effort placed on invocation argv and sealed into the run binding and receipt; Claude supports low through max'),
     agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / proof-or-stop-review-quality / autopilot-repair'),
     storyId: z.string().optional().describe('Canonical Story id; when set the story index resolves the phase (omit for an adhoc run)'),
     phase: z.string().optional().describe('Explicit attribution phase; when omitted and storyId is set, resolves from the story index'),

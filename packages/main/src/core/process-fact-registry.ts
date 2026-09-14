@@ -2592,6 +2592,17 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = ([
   },
 
   {
+    name: 'runtime:managed_review_model_selection_binding', kind: 'runtime-behavior', level: 'L4',
+    semantics: ['runtime-behavior', 'schema-contract', 'execution-evidence', 'gate-evidence'],
+    gateEvidence: true,
+    producer: 'handlers/host-run + core/managed-host-run + core/host-run',
+    producerSourceRefs: ['packages/main/src/cli/command-catalog.ts', 'packages/main/src/handlers/host-run.ts', 'packages/main/src/core/managed-host-run.ts', 'packages/main/src/core/host-run.ts'],
+    consumerSourceRefs: ['packages/main/src/handlers/managed-review-evidence.ts', 'packages/main/src/core/managed-review-evidence.ts', 'packages/main/src/core/review-run.ts'],
+    consumerGate: 'managed_review_evidence_import and REVIEW managed-receipt admissibility',
+    rationale: 'Optional exact model and reasoning selectors are normalized before submission, sealed into the immutable run spec and digest-bound projection, materialized on provider argv, copied into the result and receipt, and matched again during evidence import. Historical absent selectors normalize to null. The receipt proves the protected launch selector, not provider-side alias resolution. Native broker issuance and private-key custody remain unchanged.',
+  },
+
+  {
     name: 'runtime:reviewer_batch_admission', kind: 'runtime-behavior', level: 'L4',
     semantics: ['runtime-behavior', 'host-readiness', 'freshness-policy', 'blocker-state'],
     producer: 'handlers/reviewer-batch-admit + core/reviewer-batch-producer',

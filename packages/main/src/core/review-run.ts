@@ -1742,6 +1742,8 @@ function validateEvidenceRunBinding(
       binding: managedBinding,
       expected: {
         providerHost: managedBinding.providerHost,
+        model: managedBinding.model ?? null,
+        reasoningEffort: managedBinding.reasoningEffort ?? null,
         headHash: run.headHash,
         materialHash: run.materialHash,
         storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',

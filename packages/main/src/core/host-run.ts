@@ -101,6 +101,36 @@ import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export type HostRunHost = CanonicalReviewHost;
 
+export const HOST_RUN_REASONING_EFFORTS = [
+  'none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra',
+] as const;
+export type HostRunReasoningEffort = typeof HOST_RUN_REASONING_EFFORTS[number];
+
+export function normalizeHostRunModelSelection(args: {
+  host: HostRunHost;
+  model?: unknown;
+  reasoningEffort?: unknown;
+}): { model: string | null; reasoningEffort: HostRunReasoningEffort | null } {
+  const model = args.model === undefined || args.model === null ? null
+    : typeof args.model === 'string' ? args.model.trim() : '';
+  if (args.model !== undefined && args.model !== null
+    && (!model || model.length > 256 || /[\s\x00-\x1f\x7f]/.test(model))) {
+    throw new Error('host_run: --model must be a non-empty model id of at most 256 characters without whitespace or controls');
+  }
+  const reasoningEffort = args.reasoningEffort === undefined || args.reasoningEffort === null
+    ? null : args.reasoningEffort;
+  if (reasoningEffort !== null
+    && (typeof reasoningEffort !== 'string'
+      || !HOST_RUN_REASONING_EFFORTS.includes(reasoningEffort as HostRunReasoningEffort))) {
+    throw new Error(`host_run: --reasoningEffort must be one of ${HOST_RUN_REASONING_EFFORTS.join(', ')}`);
+  }
+  if (args.host === 'claude' && reasoningEffort !== null
+    && !['low', 'medium', 'high', 'xhigh', 'max'].includes(reasoningEffort)) {
+    throw new Error('host_run: Claude --reasoningEffort must be one of low, medium, high, xhigh, max');
+  }
+  return { model, reasoningEffort: reasoningEffort as HostRunReasoningEffort | null };
+}
+
 /** A single live output chunk from a host, as it arrives. */
 export interface HostRunChunk {
   stream: 'stdout' | 'stderr';
@@ -332,6 +362,10 @@ export interface HostRunArgs {
   /** Sealed layout from managed worker. */
   managedReadonlyLayout?: ManagedReadonlyLayout;
   host: HostRunHost;
+  /** Exact provider selector to place on argv; null/absent uses provider default. */
+  model?: string | null;
+  /** Exact provider reasoning selector to place on argv; null/absent uses provider default. */
+  reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
   agentType: string;
   /** When omitted and storyId is set, resolved from the configured store; else 'adhoc'. */
@@ -405,6 +439,10 @@ export interface HostRunUsageSummary {
 
 export interface HostRunResult {
   host: HostRunHost;
+  /** Exact selector placed on provider argv, or null when the provider default was used. */
+  model?: string | null;
+  /** Exact reasoning selector placed on provider argv, or null when the provider default was used. */
+  reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
   phase: string;
   agentType: string;
@@ -2037,6 +2075,7 @@ export function managedClaudePromptDirectoryForRun(cwd: string, runId: string): 
 }
 
 function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
+  const selection = normalizeHostRunModelSelection(args);
   if (args.launchProfile === 'cross_host_review_codex'
     || (args.launchProfile === 'managed_reviewer' && args.host === 'codex')) {
     if (args.host !== 'codex') throw new Error('host_run: protected Codex review profile requires host=codex');
@@ -2053,7 +2092,12 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
       // Formal managed review consumes Codex's observable JSON event stream:
       // final proposal and usage/progress parsing require the terminal event,
       // not ordinary rendered final prose.
-      argv: ['exec', '--json', '-s', sandboxMode, '-C', args.cwd, '-'],
+      argv: [
+        'exec', '--json',
+        ...(selection.model ? ['--model', selection.model] : []),
+        ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
+        '-s', sandboxMode, '-C', args.cwd, '-',
+      ],
       stdinText: args.promptText,
       cleanup: () => {},
     };
@@ -2091,6 +2135,12 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
     writeFileSync(promptFile, args.promptText, { encoding: 'utf8', mode: 0o600 });
     const full = materializeLauncherArgv(spec, { promptFile });
     const argv = full.slice(1);
+    argv.splice(
+      Math.max(0, argv.length - 1),
+      0,
+      ...(selection.model ? ['--model', selection.model] : []),
+      ...(selection.reasoningEffort ? ['--effort', selection.reasoningEffort] : []),
+    );
     if (args.launchProfile === 'managed_reviewer') {
       // A detached managed reviewer has no human terminal on which Claude can
       // approve its required inspection/Lattice commands. Scope this mode to
@@ -2116,9 +2166,18 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
     );
   }
   const full = materializeLauncherArgv(spec, {});
+  const argv = full.slice(1);
+  if (args.host === 'codex') {
+    argv.splice(
+      Math.max(1, argv.length - 1),
+      0,
+      ...(selection.model ? ['--model', selection.model] : []),
+      ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
+    );
+  }
   return {
     command: full[0],
-    argv: full.slice(1),
+    argv,
     ...(args.host === 'codex' ? { stdinText: args.promptText } : {}),
     cleanup: () => {},
   };
@@ -2179,6 +2238,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   if (typeof args.cwd !== 'string' || args.cwd.length === 0) {
     throw new Error('host_run: cwd is required (the resolved project root); refuse pre-spawn rather than spawn in the caller cwd');
   }
+  const selection = normalizeHostRunModelSelection(args);
 
   const runner = deps.runner ?? defaultHostRunRunner;
   const usageEnv = args.usageEnv ?? args.env;
@@ -2324,6 +2384,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     if (!admission.admitted) {
       return {
         host: args.host,
+        model: selection.model,
+        reasoningEffort: selection.reasoningEffort,
         storyId: args.storyId,
         phase,
         agentType: args.agentType,
@@ -2361,6 +2423,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     releaseAdmissionAfterResult(admission, spawn);
     return {
       host: args.host,
+      model: selection.model,
+      reasoningEffort: selection.reasoningEffort,
       storyId: args.storyId,
       phase,
       agentType: args.agentType,
@@ -2417,6 +2481,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     const rowAppended = budget.appended === true;
     return {
       host: args.host,
+      model: selection.model,
+      reasoningEffort: selection.reasoningEffort,
       storyId: args.storyId,
       phase,
       agentType: args.agentType,
@@ -2542,6 +2608,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
 
   return {
     host: args.host,
+    model: selection.model,
+    reasoningEffort: selection.reasoningEffort,
     storyId: args.storyId,
     phase,
     agentType: args.agentType,
