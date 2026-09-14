@@ -4,10 +4,12 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
+import { strict as nodeAssert } from 'node:assert';
 import { ADAPTER_DIR_NAMES } from '../packages/main/dist/core/brand-paths.js';
 import { legacyAgentRoleIds } from '../packages/main/dist/core/agent-role-identity.js';
 import { blockingInitCheckIssues, initCheckSignatureIsValid } from '../packages/main/dist/core/init-check-gate.js';
 import { StoryStore } from '../packages/main/dist/core/store.js';
+import { createInitCheckHandlers } from '../packages/main/dist/handlers/init-check.js';
 
 
 const root = process.cwd();
@@ -134,6 +136,26 @@ try {
   })]);
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert(storyId, 'failed to parse temp story id');
+
+  const directHandlers = createInitCheckHandlers({ store: new StoryStore(temp), root: temp, scanRoot: join(temp, 'packages/main') });
+  const previousAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    nodeAssert.throws(() => directHandlers.init_check_set({
+      storyId,
+      issues: [{ kind: 'bogus', severity: 'high', desc: 'Unknown kinds must be rejected after bypassing Zod.' }],
+    }), /init_check_set: unsupported issue\.kind/, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_set runtime must reject unknown kinds');
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  nodeAssert.throws(() => directHandlers.init_check_repair({
+    storyId,
+    acknowledge: true,
+    fallbackReason: 'The test directly exercises the runtime fallback validation boundary.',
+    issues: [{ kind: 'bogus', severity: 'high', desc: 'Unknown fallback kinds must be rejected after bypassing Zod.' }],
+  }), /init_check_repair: unsupported issue\.kind/, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_repair runtime must reject unknown kinds');
+  assert(blockingInitCheckIssues({ issues: [{ kind: 'bogus', severity: 'high', desc: 'Unknown persisted kinds remain blocking.' }] }).length === 1, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: unknown persisted kinds must remain fail-closed');
 
   const readOnlyPrompt = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'agent_prompt', JSON.stringify({
     role: PRODUCT_REVIEWER_ROLE,
