@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab cli-contract-recovery - v0.3.362 - 2026-09-14
+
+Fix fresh-init prompt consumer consistency, CLI schema recovery, atomic PLAN acceptance, and missing requirements corpus handling.
+
+Fresh global-thin and thin projects now emit a canonical prompt envelope while legacy omitted configuration remains valid. Codex verification executes the same identity and role-resolution path as agent_prompt, so invalid prompt configurations fail both checks. Consumer configuration is no longer required to match this repository's exact reviewer-role occurrence inventory; semantic config parsing plus a dedicated retired-identity guard for both legacy `proofbound.` protocol names and `proofbound-` role names preserve the active identity boundary.
+
+Verification-intent help now renders nested defaults, enum values, classification metadata, and parseable examples. Argument-validation failures are concise and expose stable JSON recovery fields, including consistent nested-space alias recovery. PLAN owners can prepare and atomically apply a multi-item files and verificationIntent batch with whole-batch digest, per-item stale checks, owner lease enforcement, initial planned-path binding, subsequent file-binding protection, signed amendment revision, and per-item events.
+
+Missing or dangling-linked requirements directories now produce a deterministic empty corpus with an explicit missing diagnostic and a fail-closed routing escalation. Existing in-project requirements-directory symlinks remain compatible, nested in-project symlinks remain skipped, and symlinks escaping the project root remain fail-closed.
+
+Verification: Lab RED/GREEN regression covering five framework contracts; TypeScript build; lifecycle registry; 414-command ownership contract; candidate-routing smoke; and the full process-fact contract. The pinned GREEN run completed in about 20.6 seconds.
+
+Maintenance provenance: codex/lab-cli-contract-recovery, repair 90307f2ab4201fd8173db03866d44eae0004eee6.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/cli-contract-recovery.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-review-model-binding - v0.3.361 - 2026-09-14
 
 Problem
