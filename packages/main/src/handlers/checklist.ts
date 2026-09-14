@@ -1375,8 +1375,10 @@ async function enforceAndStampEvidence(
     throw new Error('verification evidence refused: shared execution identity mismatch [verification_shared_execution_identity_mismatch]');
   }
 
-  const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
+  // One strict preflight observation binds both the causal identity inputs and
+  // the launch freshness. The post-execution capture below stays independent.
   const launchFreshness = captureVerificationFreshness(deps.cwd, deps.metadataRoot);
+  const hashes = launchFreshness;
   const preflightInput = { command: pinCommand, cwd: deps.cwd, timeoutMs: effectiveTimeoutMs };
   // Reuse the implementation projection from the same synchronous preflight.
   // The independent launch, completion and publication checks still reread.
@@ -1391,7 +1393,7 @@ async function enforceAndStampEvidence(
     bootstrap: { executable: 'proof-or-stop', args: ['verification-evidence'] },
     inputs: sharedCausalReceipt?.identity.inputs ?? {
       storyId: deps.storyId,
-      materialHash: hashes.materialHash ?? null,
+      materialHash: hashes.materialHash,
       timeoutMs: effectiveTimeoutMs,
       preflightFacts: initialPreflightFacts,
       implementationDigest,
@@ -2381,8 +2383,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
   const enforceWithPublicationRecovery = async (
     item: ChecklistItem, input: EvidenceWriteInput,
     deps: Parameters<typeof enforceAndStampEvidence>[2],
+    // A batch row is planned inside its execution lock immediately before this
+    // call; that same synchronous observation keys its recovery request.
+    planned?: { plan: VerificationProducerPlan | undefined },
   ): Promise<EnforceAndStampResult> => {
-    const plan = verificationProducerPlan(root, item, input, deps.cwd);
+    const plan = planned ? planned.plan : verificationProducerPlan(root, item, input, deps.cwd);
     if (!plan) return enforceAndStampEvidence(item, input, deps);
     const freshness = captureVerificationFreshness(deps.cwd, root);
     const requestKey = causalDigest({ schemaVersion: 'publication-attempt.v1',
@@ -3527,7 +3532,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               sharedFreshness: sharedPublication.freshness,
               ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
             } : {}),
-          });
+          }, { plan: currentPlan });
           stamps.push(stamp);
           if (currentPlan && stamp.evidencePatch.receipt && isSplitVerificationReceipt(stamp.evidencePatch.receipt)) {
             const execution = stamp.evidencePatch.receipt.executionReceipt;

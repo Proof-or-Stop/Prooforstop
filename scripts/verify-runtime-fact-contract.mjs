@@ -31,6 +31,7 @@ const requiredEvidenceFacts = [
   'verification-planning-observation',
   'verification-refresh-observation',
   'publication-recovery-plan-observation',
+  'implementation-scan-single-read',
   'verification-reuse-capsule-authority',
   'verification-execution-producer-lock',
   'verification-lifecycle-admissibility',

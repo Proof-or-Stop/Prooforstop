@@ -69,3 +69,22 @@ const checkReceipt=receipt=>checkShared(receipt,'node --version',{cwd:process.cw
 assert.doesNotThrow(()=>checkReceipt(currentReceipt));
 for(const patch of [{executionIdentityDigest:'old'},{command:'node different.js'},{cwd:'/different'},{effectiveTimeoutMs:1000}])assert.throws(()=>checkReceipt({...currentReceipt,...patch}),/verification_shared_execution_identity_mismatch/);
 console.log('RECOVERY_SHARED_RECEIPT_GUARD PASS actual compiled guard rejects stale identity, command, cwd and unauthorized timeout');
+
+const fourDefects=[];
+// A supplied internal batch plan must not trigger a second producer plan.
+failPlan=false;pending=undefined;drift=false;implementation='current-producer';
+const suppliedPlan={executionKey:'supplied-key',preparedIdentity:{implementationDigest:'supplied-implementation'}};
+await recovery(...recoveryArgs,{plan:suppliedPlan});
+if(request.executionKey!==suppliedPlan.executionKey||request.implementationDigest!==suppliedPlan.preparedIdentity.implementationDigest)fourDefects.push('duplicate-batch-plan');
+// Evaluate the actual preflight assignments with two distinct observations.
+let enforceBody;
+function findEnforce(n){if(ts.isFunctionDeclaration(n)&&n.name?.text==='enforceAndStampEvidence')enforceBody=n.body;ts.forEachChild(n,findEnforce);}findEnforce(compiledAst);
+const preflightAssignments=enforceBody.statements.filter(n=>ts.isVariableStatement(n)&&n.declarationList.declarations.some(d=>['hashes','launchFreshness'].includes(d.name.getText(compiledAst))));assert.equal(preflightAssignments.length,2);
+const preflight=new Function('evidenceHashes','captureVerificationFreshness','deps',preflightAssignments.map(n=>n.getText(compiledAst)).join('\n')+'\nreturn {hashes,launchFreshness};');
+let observations=0;const pair=preflight(()=>{observations++;return {headHash:'old'};},()=>{observations++;return {headHash:'current'};},{cwd:'.',metadataRoot:'.'});
+if(observations!==1||pair.hashes!==pair.launchFreshness)fourDefects.push('duplicate-preflight-freshness');
+assert.throws(()=>preflight(()=>({}),()=>{throw Error('strict freshness unavailable');},{cwd:'.',metadataRoot:'.'}),/strict freshness unavailable/);
+const {checkImplementationReadObservation}=await import('./implementation-read-observation.test.mjs');const readResult=checkImplementationReadObservation();if(readResult.duplicateReads!==0)fourDefects.push('duplicate-file-reads');
+console.log('FOUR_BOUNDARY_RESULTS '+JSON.stringify({fourDefects,preflightObservations:observations,...readResult}));
+assert.deepEqual(fourDefects,[],'FOUR_BOUNDARIES_RED: duplicate observations remain');
+console.log('FOUR_BOUNDARIES_GREEN full scope retained, no same-scan rereads, current batch plan, one strict preflight observation');

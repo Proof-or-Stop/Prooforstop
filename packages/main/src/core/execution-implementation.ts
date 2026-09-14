@@ -7,6 +7,7 @@ import {createRequire} from 'node:module';
 import {EXECUTION_IMPLEMENTATION_PIN_POLICY} from './runtime-fact-registry.js';
 
 const sha=(bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex');
+interface PackageDescriptor {name?:string;version?:string;dependencies?:Record<string,string>}
 /** Content identity of this loaded implementation, not the target project's version. */
 export function executionImplementationIdentity() {
   const modulePath=realpathSync(fileURLToPath(import.meta.url));
@@ -15,6 +16,27 @@ export function executionImplementationIdentity() {
   const repositoryRoot=resolve(packageRoot,'../..');
   const files: Array<{path:string;digest:string}>=[];
   const visited=new Set<string>();
+  // Every file is read once per synchronous scan: descriptor parsing and content
+  // digests consume the same bytes. Nothing outlives this call, so the next scan
+  // still observes current bytes, additions, deletions and symlinks itself.
+  const digests=new Map<string,string>();
+  const descriptors=new Map<string,PackageDescriptor>();
+  const digestOf=(path:string):string=>{
+    const known=digests.get(path);
+    if(known!==undefined)return known;
+    const digest=sha(readFileSync(path));
+    digests.set(path,digest);
+    return digest;
+  };
+  const descriptorOf=(path:string):PackageDescriptor=>{
+    const known=descriptors.get(path);
+    if(known!==undefined)return known;
+    const bytes=readFileSync(path);
+    if(!digests.has(path))digests.set(path,sha(bytes));
+    const descriptor=JSON.parse(bytes.toString('utf8')) as PackageDescriptor;
+    descriptors.set(path,descriptor);
+    return descriptor;
+  };
   const scan=(directory:string,label:string,includeAll=false):void=>{
     if(!existsSync(directory))return;
     const actual=realpathSync(directory);
@@ -23,7 +45,7 @@ export function executionImplementationIdentity() {
       if(item.name==='node_modules'||item.name==='.git')continue;
       const path=join(actual,item.name),key=label+'/'+item.name;
       if(item.isDirectory())scan(path,key,includeAll);
-      else if(item.isFile() && (includeAll || /\.(?:js|cjs|mjs|ts|json|node)$/.test(item.name)) && !/\.d\.ts$/.test(item.name)) files.push({path:key,digest:sha(readFileSync(path))});
+      else if(item.isFile() && (includeAll || /\.(?:js|cjs|mjs|ts|json|node)$/.test(item.name)) && !/\.d\.ts$/.test(item.name)) files.push({path:key,digest:digestOf(path)});
       else if(item.isSymbolicLink())throw new Error('IMPLEMENTATION_IDENTITY_SYMLINK: '+key);
     }
   };
@@ -34,11 +56,12 @@ export function executionImplementationIdentity() {
   // ordinary project verification scripts remain execution inputs, not CLI code.
   scan(join(repositoryRoot,'bin'),'bootstrap');
   const bootstrapLockHelper=join(repositoryRoot,'scripts/build-lock-target.mjs');
-  if(existsSync(bootstrapLockHelper)) files.push({path:'bootstrap/build-lock-target.mjs',digest:sha(readFileSync(bootstrapLockHelper))});
+  if(existsSync(bootstrapLockHelper)) files.push({path:'bootstrap/build-lock-target.mjs',digest:digestOf(bootstrapLockHelper)});
   scan(join(packageRoot,'templates'),'core/templates',true);
   for(const name of ['utils','lab'])scan(join(repositoryRoot,'packages',name,'dist'),name);
-  const pkg=JSON.parse(readFileSync(join(packageRoot,'package.json'),'utf8'));
-  files.push({path:'core/package.json',digest:sha(readFileSync(join(packageRoot,'package.json')))});
+  const packageDescriptor=join(packageRoot,'package.json');
+  const pkg=descriptorOf(packageDescriptor);
+  files.push({path:'core/package.json',digest:digestOf(packageDescriptor)});
   const packageVisited=new Set<string>();
   const dependencies=(from:string,names:Record<string,string>):void=>{
     const require=createRequire(join(from,'package.json'));
@@ -53,10 +76,10 @@ export function executionImplementationIdentity() {
       let directory=dirname(realpathSync(entry));
       while (dirname(directory)!==directory) {
         const path=join(directory,'package.json');
-        if (existsSync(path) && JSON.parse(readFileSync(path,'utf8')).name===name) break;
+        if (existsSync(path) && descriptorOf(path).name===name) break;
         directory=dirname(directory);
       }
-      const descriptor=JSON.parse(readFileSync(join(directory,'package.json'),'utf8'));
+      const descriptor=descriptorOf(join(directory,'package.json'));
       if (descriptor.name!==name) throw new Error('IMPLEMENTATION_DEPENDENCY_ROOT_MISMATCH: '+name);
       if(packageVisited.has(directory))continue;packageVisited.add(directory);
       scan(directory,'dependency/'+name+'@'+descriptor.version);
@@ -65,11 +88,11 @@ export function executionImplementationIdentity() {
   };
   dependencies(packageRoot,pkg.dependencies??{});
   const utilsRoot=join(repositoryRoot,'packages/utils');
-  if (existsSync(join(utilsRoot,'package.json'))) dependencies(utilsRoot,JSON.parse(readFileSync(join(utilsRoot,'package.json'),'utf8')).dependencies??{});
+  if (existsSync(join(utilsRoot,'package.json'))) dependencies(utilsRoot,descriptorOf(join(utilsRoot,'package.json')).dependencies??{});
   const executable=realpathSync(process.execPath);
   const entrypoint=process.argv[1]?realpathSync(resolve(process.argv[1])):null;
   const runtime={version:process.version,executableDigest:readObservedExecutableDigest(executable),
-    entrypointDigest:entrypoint?sha(readFileSync(entrypoint)):null,
+    entrypointDigest:entrypoint?digestOf(entrypoint):null,
     execArgv:process.execArgv, nodeOptionsDigest:sha(process.env.NODE_OPTIONS??'')};
   files.sort((a,b)=>a.path<b.path?-1:a.path>b.path?1:0);
   const digest=sha(JSON.stringify({schema:EXECUTION_IMPLEMENTATION_PIN_POLICY.schema,runtime,files}));
