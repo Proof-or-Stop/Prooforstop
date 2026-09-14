@@ -45,6 +45,18 @@ export function reviewEpochFixtureBudgetMs(environment: NodeJS.ProcessEnv = proc
 }
 
 const MARKER = '--isolated-finding-fixture-worker';
+function observeWithBoundedRetry<T>(observe: () => T): T {
+  let last: unknown;
+  for (let attempt = 0; attempt < delegationPolicy.observationRetries; attempt++) {
+    try { return observe(); } catch (error) { last = error; if (attempt + 1 < delegationPolicy.observationRetries) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delegationPolicy.observationBackoffMs); }
+  }
+  throw last;
+}
+/** An unregistered worker is gone only when its PID and its whole group are both absent; a live non-leader is never treated as gone. */
+function unregisteredWorkerGone(pid: number): boolean {
+  try { process.kill(pid, 0); return false; } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') return false; }
+  return validationReservationGroupIsAbsent(pid);
+}
 export async function runIsolatedFindingFixture(entry: string): Promise<boolean> {
   if (process.argv.includes(MARKER)) return false;
   const file = fileURLToPath(entry);
@@ -99,11 +111,21 @@ worker.once('error', error => {console.error(error); process.exitCode=1; process
       if (workerPid !== undefined) return;
       workerPid = (value as {pid: number}).pid;
       registration = Promise.resolve().then(() => {
-        const observed=observeValidationReservationChild(workerPid!);
+        // Transient kernel observation failures are retried with the registered policy
+        // before the worker is refused; a definitive non-leader observation is refused at once.
+        const observed=observeWithBoundedRetry(()=>observeValidationReservationChild(workerPid!));
         if(observed.pgid!==observed.pid)throw new Error('isolated worker group identity unavailable');
         workerIdentity=observed;
         return registerValidationReservationChild(workerPid!,workerPending);
-      }).then(() => acknowledge(true), error => { acknowledge(false); console.error(error); });
+      }).then(() => acknowledge(true), async (error: unknown) => {
+        acknowledge(false); console.error(error);
+        // The launcher terminates an unregistered worker. Once that worker's own PID and
+        // whole group are proven absent nothing this fixture spawned can remain, so the
+        // owned pending fence is withdrawn; a live or unobservable worker keeps it fenced.
+        const until=Date.now()+delegationPolicy.cleanupMs;
+        while(!unregisteredWorkerGone(workerPid!)&&Date.now()<until)await new Promise(resolve=>setTimeout(resolve,10));
+        if(unregisteredWorkerGone(workerPid!)&&workerPending){try{await cancelValidationReservationChild(workerPending);workerPending=undefined;}catch(cleanupError){console.error(cleanupError);}}
+      });
     });
     await new Promise<void>((resolve, reject) => {
       launcher.once('error', reject);

@@ -25,7 +25,11 @@ if(mode==='same-group'||mode==='pending') {
  else {
   value=value.replace('await api.registerValidationReservationChild(child.pid,token);child.send({go:true});','');
   writeFileSync(leaf,`process.send({ready:true});setInterval(()=>{},1000);`);
-  writeFileSync(sibling,readFileSync(sibling,'utf8').replace("await machine(options(),()=>process.send({entered:true}));", "await assert.rejects(()=>machine({...options(),deadlineAt:Date.now()+1200},()=>process.send({entered:true})),/deadline/);process.send({blocked:true});"));
+  // The queued grant request is refused at its deadline either by the sibling's own handshake
+  // timer ("handshake deadline") or, when the controller's expiry response arrives first, by the
+  // controller ("reservation/request expired"); both are the same deadline refusal, and entry is
+  // asserted separately through the owner's `entered` flag.
+  writeFileSync(sibling,readFileSync(sibling,'utf8').replace("await machine(options(),()=>process.send({entered:true}));", "await assert.rejects(()=>machine({...options(),deadlineAt:Date.now()+1200},()=>process.send({entered:true})),/deadline|reservation\\/request expired/);process.send({blocked:true});"));
   writeFileSync(owner,readFileSync(owner,'utf8').replace('assert.equal(entered,true);','assert.equal(entered,false);'));
  }
  writeFileSync(holder,value);
@@ -56,7 +60,7 @@ const observe=pid=>{assert.ok(Number.isSafeInteger(pid)&&pid>1);const start=star
 let child,output='';
 try {
  child=spawn(process.execPath,[owner,...(mode==='coalesced'?['--coalesce-owner']:[])],{env,stdio:['ignore','pipe','pipe','ipc'],detached:true});observe(child.pid);child.on('message',message=>{if(message.ownedPid)observe(message.ownedPid);});child.stdout.on('data',x=>output+=x);child.stderr.on('data',x=>output+=x);
- const result=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('own diagnostic deadline')),15000);child.once('close',(code,signal)=>{clearTimeout(timer);resolve({code,signal});});});
+ const result=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('own diagnostic deadline; partial output:\n'+output)),15000);child.once('close',(code,signal)=>{clearTimeout(timer);resolve({code,signal});});});
  console.log(output);assert.equal(result.code,['pending','pending-lineage'].includes(mode)?1:0,output);assert.match(output,mode==='pending-lineage'?/PENDING_ANCESTRY_LAUNDERING_REFUSED PASS/:mode==='finite-owner'?/FINITE_OWNER_WIDENED_CONTROLLER_REFUSED PASS/:mode==='coalesced'?/COALESCED_SIGNED_REVOCATION_REFUSES_ENTRY PASS/:/UNEXPECTED_EOF_RETAINS_DESCENDANT_CLAIMS PASS/);if(['pending','pending-lineage'].includes(mode))assert.match(output,/owned group cleanup unproven/);console.log('NESTED_RESERVATION_FAULT '+mode+' PASS');
 }finally{
  for(const [pid,start] of observed)if(startOf(pid)===start){try{process.kill(pid,'SIGTERM');}catch{}}

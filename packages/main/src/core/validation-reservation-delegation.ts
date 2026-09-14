@@ -8,7 +8,6 @@ import { join } from 'node:path';
 import { createConnection, createServer, type Socket } from 'node:net';
 import { randomUUID } from 'node:crypto';
 import { generateEd25519KeyPair, signCanonical, verifyCanonical } from './authority-signing.js';
-import { observedProcessStartTimeMs } from './mkdir-lock.js';
 import { canonicalizeEntries, claimsConflict, type ResourceClaim } from './keyed-scheduler.js';
 import { inspectMachineReservationOwner } from './validation-execution-lock.js';
 
@@ -242,6 +241,26 @@ export function machineReservationResidualsPresent(ticket: string): boolean {
     return !Number.isSafeInteger(row.pgid) || !groupGone(row.pgid);
   }); } catch { return true; }
 }
+/** Read-only classification of one ticket's residual rows with the exact release predicates; a doctor projection that never releases or signals anything. */
+export function classifyMachineReservationResiduals(ticket: string): { present: boolean; malformed: boolean; registeredLive: number; registeredResolved: number; pendingTargetLive: number; pendingTargetResolved: number; pendingTargetless: number; deadOwners: number } {
+  const result = { present: false, malformed: false, registeredLive: 0, registeredResolved: 0, pendingTargetLive: 0, pendingTargetResolved: 0, pendingTargetless: 0, deadOwners: 0 };
+  const path = join(ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); if (!existsSync(path)) return result;
+  result.present = true;
+  let rows: unknown; try { rows = JSON.parse(readFileSync(path, 'utf8')); } catch { result.malformed = true; return result; }
+  if (!Array.isArray(rows)) { result.malformed = true; return result; }
+  for (const row of rows as Array<Record<string, unknown>>) {
+    if (!row || typeof row !== 'object') { result.malformed = true; continue; }
+    if (row.pending !== undefined) {
+      const target = row.target as { pid?: number; pgid?: number; start?: number } | undefined;
+      if (!target || target.pid !== target.pgid || !Number.isFinite(target.start)) {
+        result.pendingTargetless++;
+        const ownerPid = row.pid;
+        if (Number.isSafeInteger(ownerPid) && (ownerPid as number) > 1) { try { process.kill(ownerPid as number, 0); } catch (error) { if ((error as NodeJS.ErrnoException).code === 'ESRCH') result.deadOwners++; } }
+      } else if (registrationTargetGone(target.pid as number)) result.pendingTargetResolved++; else result.pendingTargetLive++;
+    } else if (!Number.isSafeInteger(row.pgid) || !groupGone(row.pgid as number)) result.registeredLive++; else result.registeredResolved++;
+  }
+  return result;
+}
 /** Failure-only diagnostics; these observations never release or authorize work. */
 function machineCleanupFailure(owner: MachineReservationOwner, registered: Iterable<ProcessIdentity>, pending: Iterable<{pid:number;start:number}>, callbackStarted:boolean, callbackThrew:boolean, callbackError:unknown, callbackResult:unknown): Error {
   let truncated=false, remaining=Math.floor(LIMIT/8);
@@ -292,9 +311,16 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   };
   const prepare = (subject=identity(process.pid),parents:string[]=[]):string => {if(!live())throw failure('reservation closed before spawn');const token=randomUUID();pendingChildren.set(token,{pid:subject.pid,start:subject.start,parents,cleanupCapability:randomUUID()});publish();return token;};
   const cancel=(token:string,subject=identity(process.pid)):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');pendingChildren.delete(token);publish();};
-  const register = (pid: number, parent = process.pid, parents: string[] = [], pendingToken?: string) => {
+  const register = (pid: number, parent = process.pid, parents: string[] = [], pendingToken?: string, parentStart?: number) => {
     if (!live()) throw failure('registration after release');
-    const pending=pendingToken && pendingChildren.get(pendingToken);if(!pending||pending.pid!==parent||pending.start!==observedProcessStartTimeMs(parent))throw failure('registration has no owned pre-spawn fence');
+    const pending=pendingToken && pendingChildren.get(pendingToken);if(!pending||pending.pid!==parent)throw failure('registration has no owned pre-spawn fence');
+    // The owner's start identity comes from the same observer that recorded the
+    // pending row, never from a second independent parser. A socket caller that has
+    // already observed its subject supplies it; the local frame observes itself with
+    // the same bounded retry and the same absence fallback as the target observations.
+    let ownerStart=parentStart;
+    if(ownerStart===undefined){try{ownerStart=observeWithRetry(()=>identity(parent)).start;}catch(error){if(!registrationTargetGone(pid))throw error;pendingChildren.delete(pendingToken!);publish();return;}}
+    if(pending.start!==ownerStart)throw failure('registration has no owned pre-spawn fence');
     const inheritedParents=[...new Set([...pending.parents,...parents])];
     if(inheritedParents.some(id=>![...active.values()].some(grant=>grant.grantId===id&&!grant.revoked&&Date.now()<grant.deadlineAt)))throw failure('pending parent invocation released');
     if(pending.target && pending.target.pid!==pid)throw failure('pending target is immutable');
@@ -410,7 +436,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
           const ownedPending=input.pendingToken && pendingChildren.get(input.pendingToken);
           if(!ownedPending || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('pending mutation capability not owned');
           if (input.parentGrantId) { const parent=[...active.values()].find(row=>row.grantId===input.parentGrantId && !row.revoked && Date.now()<row.deadlineAt && row.subject.pid===subject.pid && row.subject.start===subject.start); if(!parent)throw failure('parent invocation not owned'); parents.push(...parent.parents,parent.grantId); }
-          register(input.targetPid!, subject.pid, [...new Set(parents)],input.pendingToken);
+          register(input.targetPid!, subject.pid, [...new Set(parents)],input.pendingToken,subject.start);
           const grant: Grant = { reservation: owner.lockId, subject, nonce: input.nonce, operation: input.operation, resources: null, deadlineAt: Math.min(owner.deadlineAt, input.deadlineAt), grantId: randomUUID() };
           socket.write(JSON.stringify({ grant, signature: signCanonical(grant, keys.privateKey) }) + '\n');
         } else if (input.operation === 'prepare') {

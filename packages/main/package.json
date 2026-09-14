@@ -184,7 +184,9 @@
     "test:nested-reservation-result-ordinary-error": "node ../../scripts/verify-nested-reservation-registered.mjs result-ordinary-error",
     "test:nested-reservation-boot-recovery": "node ../../scripts/verify-nested-reservation-registered.mjs boot-recovery",
     "test:nested-reservation-result-post-capture-cleanup": "node ../../scripts/verify-nested-reservation-registered.mjs result-post-capture-cleanup",
-    "test:nested-reservation-wrapper-transport": "node ../../scripts/verify-nested-reservation-registered.mjs wrapper-transport"
+    "test:nested-reservation-wrapper-transport": "node ../../scripts/verify-nested-reservation-registered.mjs wrapper-transport",
+    "test:nested-reservation-isolated-observation-retry": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-retry",
+    "test:nested-reservation-isolated-observation-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-unavailable"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

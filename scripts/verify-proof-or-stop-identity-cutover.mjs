@@ -5522,7 +5522,7 @@ const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
   },{path:"scripts/verify-review-epoch-certification-continuity.mjs",token:retiredToken("lat","tice.managed_review_final_proposal.v1"),count:1,contextSha256:"85bbf1a3e793dbe83d6c7bd9c06c1ab7d4246445140a1e76295bff681c502165"}
 ,
   {path:"scripts/lab/u18-static-edges/exceptions.json", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:4, contextSha256:"2374712c57a5869a63b5961ec358c3c4222002f5384a9d2cd75f4f7dc483b730"},
-  {path:"scripts/lab/u18-static-edges/exceptions.json", token:retiredToken("lat", "tice.native_review_invocation_attestation.v1"), count:4, contextSha256:"b58fd0fb142fab599374852a9173b7e09a093cd41c0ae56b1705eb2910834214"},
+  {path:"scripts/lab/u18-static-edges/exceptions.json", token:retiredToken("lat", "tice.native_review_invocation_attestation.v1"), count:4, contextSha256:"0e62c8752a7f7840794d21f483760e0fb0672081fdeaf7cd3f31e3ad12f49bc7"},
   {path:"scripts/verify-managed-inventory-critic-import.mjs", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:1, contextSha256:"c52c6b5bca96f206a923327d512bbce1bcf9849dfd6ed570266ccc607418cb49"},
   {path:"scripts/verify-managed-inventory-critic-transport.mjs", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:1, contextSha256:"5ac97185d6fc7902811a5ffa71b75225592142b5eb26a50980244a9815c42028"}
 ];
@@ -7420,7 +7420,7 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "3d099468d0f495107cf8281c12f7faa7094361c3a808b9c432350489b6d5eb8c"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "908fd581c27fc5789da6fec53b747f94f19e6f89da2bd02e6c84ec8674b299ad"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
     "sha256": "78d04784a533f5fce0edc443518238a94587eec23c27f804da6270392e3afbab"

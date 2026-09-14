@@ -1,8 +1,12 @@
 import { fileURLToPath } from 'node:url';
 const selector = process.argv[2];
-const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport"];
+const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport","isolated-observation-retry","isolated-observation-unavailable"];
 if (process.argv.length !== 3 || !selectors.includes(selector)) throw new Error('Unknown nested reservation regression selector');
-if (process.platform !== 'darwin') {
+// Only selectors that need Darwin kernel descriptor or process identity observation are
+// platform-gated; the executor result-contract selectors run through the platform
+// independent queue in a private OS-home namespace and execute everywhere.
+const DARWIN_ONLY = new Set(selectors.filter(name => !name.startsWith('result-')));
+if (process.platform !== 'darwin' && DARWIN_ONLY.has(selector)) {
   console.log('NESTED_RESERVATION_REGISTERED SKIP ' + selector + ': requires Darwin kernel descriptor and process identity observation; platform=' + process.platform);
 } else {
   process.chdir(fileURLToPath(new URL('../', import.meta.url)));
@@ -130,6 +134,14 @@ if (process.platform !== 'darwin') {
     case "wrapper-transport":
       process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-wrapper-transport.mjs", import.meta.url)), ...[]];
       await import("./verify-nested-reservation-wrapper-transport.mjs");
+      break;
+    case "isolated-observation-retry":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-isolated-observation.mjs", import.meta.url)), ...["retry"]];
+      await import("./verify-nested-isolated-observation.mjs");
+      break;
+    case "isolated-observation-unavailable":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-isolated-observation.mjs", import.meta.url)), ...["unavailable"]];
+      await import("./verify-nested-isolated-observation.mjs");
       break;
     default: throw new Error('Unreachable nested reservation selector');
   }

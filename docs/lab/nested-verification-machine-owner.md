@@ -101,15 +101,30 @@ reservation and produce a non-PASS cleanup result. This fence applies only to th
 machine queue, not unrelated workspace capacity or metadata locks.
 
 A pending row records its proven registration target only after identity, group
-leadership and pre-orphan ancestry are observed. Transient kernel observation
-failures during registration are retried a bounded number of times
-(`observationRetries` with `observationBackoffMs` in the registered runtime
-policy) before the registration is refused, so a single `ps` hiccup does not
-strand a targetless token. A token that still ends targetless because its owner
-died between prepare and registration, or because every bounded observation
-failed, cannot be resolved by owner death alone: a detached child may already
-exist. `proof-or-stop doctor` lists such tickets under "Nested reservation
-fences" with the count of unresolved pending rows and dead owners. Recovery is
+leadership and pre-orphan ancestry are observed. Every kernel observation on the
+registration path, including the owner's own start identity, is retried a
+bounded number of times (`observationRetries` with `observationBackoffMs` in the
+registered runtime policy) and falls back to proven target absence before the
+registration is refused, so a single `ps` hiccup does not strand a targetless
+token. The owner's start identity is compared against the observation that
+recorded the pending row: a socket caller supplies the subject identity it
+already observed, and the local frame observes itself with the same retry. The
+isolated Finding fixture retries its worker observation with the same policy;
+when a refused worker's PID and whole group are proven absent after the launcher
+terminates it, the fixture withdraws its owned pending fence so the live
+controller releases cleanly. `verify-nested-reservation-registration-race.mjs`
+modes `retry-recovers` and `retry-exhausted` fail the inner observation itself
+and assert the attempt count; `verify-nested-isolated-observation.mjs` proves the
+fixture's recovery and withdrawal under a live controller. A token that still
+ends targetless because its owner died between prepare and registration, or
+because every bounded observation failed, cannot be resolved by owner death
+alone: a detached child may already exist. `proof-or-stop doctor` lists every
+fencing shape of the release predicate under "Nested reservation fences" through
+the same exported classifier (`classifyMachineReservationResiduals`): live or
+unobservable registered groups, pending fences whose proven target is still
+live, and pending fences without an observed target, with dead-owner counts;
+`verify-nested-reservation-owner-loss.mjs` asserts that classification on the
+dead owner's ticket while its orphan lives and after it stops. Recovery is
 the different-boot witness path after a reboot, or removal of the ticket
 directory only after an operator has independently confirmed that no detached
 child remains; the tool never releases it automatically.
@@ -166,27 +181,49 @@ the same 180-second timeout with the same single failing case on main and on the
 candidate, so npm-wrapped fixture targets remain non-delegated and unchanged;
 `review-pass-discard-smoke` fails identically on main and on the candidate with a
 fixture repository error unrelated to delegation. These are bounded targeted
-observations, not a full validation run; the static-edge scanner's remaining rows
-equal the set already present on local main.
+observations, not a full validation run. The static-edge scanner's remaining rows
+are, up to moved line numbers inside Lab-changed files, a subset of the rows
+already present on local main (60 rows on the candidate against 71 on main; the
+difference is main entries whose stale source digest the candidate's refresh
+made current), and every stale exception id on the candidate is stale on main.
+The identity-cutover verifier reports on the candidate exactly the issue list it
+reports on local main 0.3.363 except one inherited row that moved from
+`runtime-fact-registry.ts` line 502 to 504, and its self-test fails identically
+on both. The candidate's only identity re-pins are Lab-owned: the reviewed-source
+row for `runtime-artifact-registry.ts` (same line hash and occurrence count) and
+the manifest schema-context digest for the managed critic's copied excerpt of
+`native-review-fixture.ts` (same count), with the source-contexts reader pin
+refreshed accordingly. Inherited main drift is left visible, not refreshed.
 
 ## Verification boundaries
 
-Thirty direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Thirty-three direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
-closed selector wrapper normalizes the repository working directory and prints
-an explicit skip on unsupported platforms before loading native controls. The
-entries declare the existing exclusive machine heavy and process-fanout
-resources; private fixture directories do not permit concurrent machine
-contention. The original pinned Lab driver remains unchanged. Registered budgets
-are evidence-backed: measured sequentially on 2026-09-14 against the merged
+closed selector wrapper normalizes the repository working directory; selectors
+that need Darwin kernel descriptor or process identity observation print an
+explicit skip on other platforms before loading native controls, while the six
+executor result-contract selectors run through the platform-independent queue in
+a private OS-home namespace and are not gated (they were exercised only on
+Darwin in this Lab). The entries declare the existing exclusive machine heavy
+and process-fanout resources; private fixture directories do not permit
+concurrent machine contention. The original pinned Lab driver remains unchanged.
+Registered budgets strictly exceed each wrapped child's own timeout plus setup
+and are evidence-backed: measured sequentially on 2026-09-14 against the merged
 candidate, `core` completed in 30.8 to 40.6 seconds against a 120-second budget
 (five 15-second outer cases plus setup stack in the worst case),
-`registration-race` in 9.5 seconds against 120 seconds (eight 10-second modes
-stack in the worst case), `cleanup-diagnostics` in 6.2 seconds against 90
-seconds (six 10-second modes), and every remaining selector in under 37 seconds
-against its 12-second or 60-second budget.
+`registration-race` in 9.5 to 12.2 seconds against 120 seconds (ten 10-second
+modes stack in the worst case), `cleanup-diagnostics` in 6 seconds against 90
+seconds (six 10-second modes), the result-contract, cancellation and
+boot-recovery selectors in 1 to 2.7 seconds against 30 seconds (each wraps one
+child whose own timeout is at most 12 seconds), and every remaining selector,
+including the two isolated-observation selectors whose child allows 40 seconds,
+in under 10 seconds against its 60-second budget. `core` is the one selector
+that exercises the real machine pool: in the final sequential sweep it failed
+once with NESTED_FIXTURE_STARTED_REQUIRED while an identity verifier self-test
+in another checkout held that pool, and it passed again alone in 37 seconds,
+so it must not be scheduled concurrently with another real-pool holder.
 The pinned driver admits its leaf commands through the real same-user machine
 pool rather than a private namespace, which is why its command declares the
 exclusive machine heavy and process-fanout resources: run concurrently with
@@ -217,9 +254,17 @@ Supplemental source-bound native fault commands are recorded separately:
 `verify-nested-reservation-faults.mjs` modes `registered`, `same-group`, `pending`,
 `coalesced`, `finite-owner`, and `pending-lineage`, plus
 `verify-nested-reservation-handshake-deadline.mjs`,
-`verify-nested-reservation-owner-loss.mjs`, and
-`verify-nested-isolated-cleanup.mjs`. They use real queue APIs in a
-test-only private OS-home namespace. Fault injection changes only disposable
+`verify-nested-reservation-owner-loss.mjs`,
+`verify-nested-isolated-cleanup.mjs`, and
+`verify-nested-isolated-observation.mjs`. They use real queue APIs in a
+test-only private OS-home namespace. In `pending` mode the sibling's queued
+grant request is refused at its deadline either by its own handshake timer or,
+when the controller's expiry response arrives first, by the controller
+(`reservation/request expired`); the control accepts both wordings of that one
+deadline refusal and asserts non-entry separately through the owner's `entered`
+flag. Before that widening the mode failed once in twenty-three sequential runs
+on 2026-09-14; afterwards it passed sixty-six consecutive runs, and the control's
+own fifteen-second deadline now reports the partial transcript. Fault injection changes only disposable
 source-loader inputs or signals the diagnostic's own controlled processes. No
 production alternate-pool switch, forged ticket, receipt or authority is used.
 Their results must be rerun against the final source/HEAD, separately from the

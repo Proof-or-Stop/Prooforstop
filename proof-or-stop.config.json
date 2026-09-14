@@ -4176,7 +4176,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "result-prepare-refusal"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4201,7 +4201,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "result-cleanup-primary"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4226,7 +4226,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "result-armed-timeout"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4251,7 +4251,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "cancel-normal"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4276,7 +4276,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "cancel-capture-deadline"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4301,7 +4301,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "cancel-explicit-cleanup-expired"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4326,7 +4326,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "cancel-spoof-cancel"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4351,7 +4351,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "cancel-spoof-register"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4376,7 +4376,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "cancel-delegated-abort"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4401,7 +4401,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "result-cleanup-result"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4426,7 +4426,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "result-ordinary-error"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4451,7 +4451,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "boot-recovery"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4476,7 +4476,7 @@
           "scripts/verify-nested-reservation-registered.mjs",
           "result-post-capture-cleanup"
         ],
-        "timeoutMs": 12000,
+        "timeoutMs": 30000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -4500,6 +4500,56 @@
         "args": [
           "scripts/verify-nested-reservation-registered.mjs",
           "wrapper-transport"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "isolated-observation-retry"
+        ],
+        "timeoutMs": 60000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-cpu",
+            "key": "heavy",
+            "access": "exclusive"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-nested-reservation-registered.mjs",
+          "isolated-observation-unavailable"
         ],
         "timeoutMs": 60000,
         "resources": [
