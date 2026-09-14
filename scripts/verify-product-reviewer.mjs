@@ -6,6 +6,7 @@ import { join } from 'path';
 import { execFileSync } from 'child_process';
 import { ADAPTER_DIR_NAMES } from '../packages/main/dist/core/brand-paths.js';
 import { legacyAgentRoleIds } from '../packages/main/dist/core/agent-role-identity.js';
+import { blockingInitCheckIssues } from '../packages/main/dist/core/init-check-gate.js';
 
 
 const root = process.cwd();
@@ -53,6 +54,11 @@ function createTempProject() {
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
+  execFileSync('git', ['init', '-b', 'main'], { cwd: dir, stdio: 'pipe' });
+  execFileSync('git', ['config', 'user.name', 'product-reviewer-smoke'], { cwd: dir, stdio: 'pipe' });
+  execFileSync('git', ['config', 'user.email', 'product-reviewer-smoke@example.com'], { cwd: dir, stdio: 'pipe' });
+  execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: dir, stdio: 'pipe' });
+  execFileSync('git', ['commit', '-m', 'fixture: initialize product reviewer project'], { cwd: dir, stdio: 'pipe' });
   return dir;
 }
 
@@ -80,7 +86,39 @@ for (const path of agentPaths) {
   assert(text.includes('Not modifying code') || text.includes('not modifying code') || text.includes('不修改代码'), `${path} missing non-edit boundary`);
   assert(text.includes('init_check_set') && text.includes('pass') && text.includes('fail'), `${path} missing INIT review recording requirement`);
   assert(text.includes('agentId":"proof-or-stop-product-reviewer') || text.includes('agentId` must be exactly `proof-or-stop-product-reviewer`'), `${path} missing exact product-reviewer agentId requirement`);
+  assert(text.includes('implementation has not started') && text.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: product reviewer must explicitly allow planned evidence before implementation');
+  assert(!text.includes('story_advance DONE') && !text.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: INIT reviewer must not request post-implementation artifacts');
 }
+
+const deferredEvidenceIssue = {
+  storyId: 'B-phase',
+  checkedAt: '2026-09-14T00:00:00.000Z',
+  reviewRound: '',
+  agentId: PRODUCT_REVIEWER_ROLE,
+  issues: [{
+    kind: 'post_implementation_evidence_missing',
+    severity: 'high',
+    desc: 'The implementation transcript does not exist before development begins.',
+  }],
+  _hash: 'fixture',
+};
+assert(blockingInitCheckIssues(deferredEvidenceIssue).length === 0, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: post-implementation evidence cannot block INIT');
+
+const trueInitIssue = {
+  ...deferredEvidenceIssue,
+  issues: [{
+    kind: 'user_outcome_unspecified',
+    severity: 'high',
+    desc: 'The Story does not say what observable result the user receives.',
+  }],
+};
+assert(blockingInitCheckIssues(trueInitIssue).length === 1, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: genuine INIT product gaps must still block');
+
+const legacyInitIssue = {
+  ...deferredEvidenceIssue,
+  issues: [{ severity: 'high', desc: 'Legacy signed INIT issue without a kind remains blocking.' }],
+};
+assert(blockingInitCheckIssues(legacyInitIssue).length === 1, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: legacy high issues must remain fail-closed');
 
 const temp = createTempProject();
 try {
@@ -103,6 +141,8 @@ try {
   assert(dispatchRaw.includes('proof-or-stop-product-reviewer'), 'product-reviewer dispatch should identify the canonical reviewer role');
   assert(dispatchRaw.includes('"agentId":"proof-or-stop-product-reviewer"') || dispatchRaw.includes('\\"agentId\\":\\"proof-or-stop-product-reviewer\\"'), 'product-reviewer dispatch should include exact canonical agentId command');
   assert(dispatchRaw.includes('Do not pass "proof-or-stop-review-story-init"') || dispatchRaw.includes('Do not pass \\"proof-or-stop-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
+  assert(dispatchRaw.includes('implementation has not started') && dispatchRaw.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: dispatch must explain implementation evidence is unavailable during INIT');
+  assert(!dispatchRaw.includes('story_advance DONE') && !dispatchRaw.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: dispatch must not request post-implementation artifacts');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,
