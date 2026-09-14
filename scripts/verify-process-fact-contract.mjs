@@ -11437,6 +11437,9 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
   const contracts = readFileSync(join(root, 'packages/main/src/core/prompt-contracts.ts'), 'utf8');
   assert(producer.includes('resolveFullStoryBaseHead(store, signedWorkspaceRoot, args.storyId)'), 'Review-run producer must resolve its own full-story comparison base');
   assert(!producer.includes('args.fullStoryBaseHead'), 'Caller-supplied full-story base cannot become evidence');
+  assert(context.includes('resolveStoryIntegrationTarget(gitCwd, story)')
+    && context.includes('story.integrationTarget !== undefined')
+    && context.includes('FULL_STORY_BASE_INVALID:'), 'Review-run comparison base must distinguish a frozen Story integration target from legacy fallback and fail closed on malformed stored authority');
   assert(context.includes("['rev-parse', '--verify', `${ref}^{commit}`]"), 'Full-story base must resolve to an existing commit, not merely a revision-shaped string');
   assert(context.includes('FULL_STORY_BASE_UNAVAILABLE:'), 'Unavailable signed comparison bases must have a distinct refusal');
   assert(context.includes('changedFilesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef)')
