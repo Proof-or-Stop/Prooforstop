@@ -4291,8 +4291,19 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               }
             };
             if (prefix.launch === undefined) {
-              assertVerificationInputUnchanged(reuse.identity, launchIdentity);
-              withVerificationCompletionObservation(publishCandidates);
+              // Reuse without execution: the publication scope rereads the launch
+              // identity independently of the prefix observation, so a CLI
+              // implementation change between the reuse decision and publication
+              // is detected exactly as it is after an executed command.
+              withVerificationCompletionObservation(() => {
+                const publicationIdentity = prepareVerificationExecutionIdentity({
+                  command, cwd: computed.refreshGitCwd,
+                  effectiveTimeoutMs: representative.effectiveTimeoutMs,
+                  manifestPath: representative.manifestPath,
+                });
+                assertVerificationInputUnchanged(reuse.identity, publicationIdentity);
+                publishCandidates();
+              });
             } else {
               const { implementationDigest, preflightInput, initialPreflightFacts, preflightFactsUnchanged, causalIdentity, causalPreflight } = prefix.launch;
               const beforeIdentity = launchIdentity;

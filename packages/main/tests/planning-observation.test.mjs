@@ -143,6 +143,9 @@ try{
  const completion=scopeCalls('withVerificationCompletionObservation').map(bodyText);assert.equal(completion.length,3,'enforcement plus both stale refresh branches complete inside one observation');
  assert.equal(completion.filter(x=>x.includes('createVerificationExecutionReceipt(')).length,2,'fresh executions issue their execution receipt inside the completion observation');
  assert.equal(completion.filter(x=>x.includes('createCurrentVerificationAssertionReceipt(')||x.includes('publishCandidates')).length,3,'every assertion receipt publishes inside a completion observation');
+ // Drift detection never compares two reads of one observation: the reuse-only publication rereads the identity in its own completion scope.
+ assert.equal(completion.filter(x=>x.includes('assertVerificationInputUnchanged(reuse.identity')&&x.includes('prepareVerificationExecutionIdentity(')&&x.includes('publishCandidates()')).length,1,'the reuse-only publication rereads the launch identity inside its own completion observation');
+ assert.ok(launch.every(x=>!x.includes('assertVerificationInputUnchanged(')),'no drift check compares two reads of the same launch observation');
  const launches=scopeCalls('withoutGitObservation');assert.equal(launches.length,2,'both launches run outside any git observation');for(const call of launches)assert.ok(call.arguments[0].getText(ast).includes('executeCausalEvidence('));
  assert.equal((source.match(/executeCausalEvidence\(/g)??[]).length,2,'no launch escapes withoutGitObservation');
  assert.equal((source.match(/assertGitObservationInactive\('launch revalidation'\)/g)??[]).length,2,'every launch revalidation asserts that no observation is active');
