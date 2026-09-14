@@ -381,6 +381,10 @@ check('linked worktree inherits global-thin identity from the common repository'
       storyId: 'B-global-thin', mode: 'enforce', allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
     };
+    const assertControllerExemptionRefused = (classification: ReturnType<typeof classifyScopePath>) => {
+      assert.equal(classification.allowed, false);
+      assert.notEqual(classification.registryId, 'external-controller-runtime');
+    };
     for (const path of CONTROLLER_RUNTIME_ASSET_PATHS) {
       assert.equal(readFileSync(join(worktree, path), 'utf8'), readFileSync(join(root, path), 'utf8'));
       const classification = classifyScopePath(contract, path, { projectRoot: worktree, gitCwd: worktree });
@@ -394,23 +398,23 @@ check('linked worktree inherits global-thin identity from the common repository'
     const controllerBytes = readFileSync(join(root, asset));
     const worktreeBytes = readFileSync(join(worktree, asset));
     writeFileSync(join(root, asset), Buffer.concat([controllerBytes, Buffer.from('controller drift\n')]));
-    assert.notEqual(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    assertControllerExemptionRefused(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }));
     writeFileSync(join(root, asset), controllerBytes);
 
     writeFileSync(join(worktree, asset), Buffer.concat([worktreeBytes, Buffer.from('worktree drift\n')]));
-    assert.notEqual(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    assertControllerExemptionRefused(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }));
     writeFileSync(join(worktree, asset), worktreeBytes);
 
     git(root, ['add', '-f', asset]);
-    assert.notEqual(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    assertControllerExemptionRefused(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }));
     git(root, ['reset', '-q', 'HEAD', '--', asset]);
 
     git(worktree, ['add', '-f', asset]);
-    assert.notEqual(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    assertControllerExemptionRefused(classifyScopePath(contract, asset, { projectRoot: worktree, gitCwd: worktree }));
     git(worktree, ['reset', '-q', 'HEAD', '--', asset]);
 
-    assert.notEqual(classifyScopePath({ ...contract, storyId: 'B-wrong-story' }, asset, { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
-    assert.notEqual(classifyScopePath(contract, '.codex/not-projected.cjs', { projectRoot: worktree, gitCwd: worktree }).registryId, 'external-controller-runtime');
+    assertControllerExemptionRefused(classifyScopePath({ ...contract, storyId: 'B-wrong-story' }, asset, { projectRoot: worktree, gitCwd: worktree }));
+    assertControllerExemptionRefused(classifyScopePath(contract, '.codex/not-projected.cjs', { projectRoot: worktree, gitCwd: worktree }));
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
