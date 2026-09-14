@@ -1,18 +1,29 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { redactCausalOutput, redactCausalSelectorOutput, redactEnvironment } from '../core/causal-evidence.js';
+import {
+  CAUSAL_MAX_OUTPUT_CHARS,
+  DEFAULT_CAUSAL_SELECTOR_POLICY,
+  executeCausalEvidence,
+  preflightCausalEvidence,
+  redactCausalOutput,
+  redactCausalSelectorOutput,
+  redactEnvironment,
+} from '../core/causal-evidence.js';
 import { acceptanceDiscoveryProfile, runAcceptanceDiscoveryAdapters } from '../core/acceptance-discovery-adapters.js';
+import { resolveRepositoryBaseline } from '../core/git-baseline.js';
 import { isManagedGlobalThinRoot } from '../core/config.js';
 import { renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { StoryStore } from '../core/store.js';
 import { evaluatePreReviewCheckForContext } from '../handlers/proofstory.js';
 import { assertMainWorktreeReadyForMerge } from '../handlers/done-effects.js';
+import { buildDoneChecklist } from '../core/done-oracle.js';
+import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -20,6 +31,8 @@ import { projectControllerAssetsIntoStoryWorktree } from '../cli/runtime-root.js
 import { captureStoryIntegrationTarget, resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 import { createReleaseHandlers } from '../handlers/release.js';
 import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/partial-done-recovery.js';
+import { evaluateRegisteredCommandEvidence } from '../core/pre-review-check.js';
+import { writeReleasePushApproval } from '../core/release-push-approval.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '../../..');
@@ -27,6 +40,11 @@ const failures: string[] = [];
 
 function check(name: string, run: () => void): void {
   try { run(); }
+  catch (error) { failures.push(`${name}: ${error instanceof Error ? error.message : String(error)}`); }
+}
+
+async function checkAsync(name: string, run: () => Promise<void>): Promise<void> {
+  try { await run(); }
   catch (error) { failures.push(`${name}: ${error instanceof Error ? error.message : String(error)}`); }
 }
 
@@ -46,6 +64,45 @@ function initRepo(root: string, branch: string): void {
   write(root, 'README.md', 'fixture\n');
   git(root, ['add', 'README.md']);
   git(root, ['commit', '-qm', 'fixture']);
+}
+
+function causalIdentity(storyId: string) {
+  return {
+    storyId,
+    cwd: repositoryRoot,
+    command: { executable: process.execPath, args: ['-e', "console.log('CAUSAL_PARENT_SECRET_OK')"] },
+    bootstrap: { executable: 'proof-or-stop', args: ['verification-evidence'] },
+    inputs: { materialHash: 'material-parent-secret' },
+    storyFilesHash: 'story-parent-secret',
+    effectiveEnvironment: { NODE_ENV: 'test' },
+    runtimeVersion: process.version,
+    toolVersion: 'benchmark-framework-hardening@1',
+    selectorPolicy: DEFAULT_CAUSAL_SELECTOR_POLICY,
+  };
+}
+
+function causalPreflight(identity: ReturnType<typeof causalIdentity>) {
+  return preflightCausalEvidence({
+    cli: { available: true, path: '/usr/bin/proof-or-stop' },
+    worktree: { expected: repositoryRoot, actual: repositoryRoot },
+    gitIndex: { readable: true, path: join(repositoryRoot, '.git/index'), expected: 'head-parent-secret', actual: 'head-parent-secret', contentDigest: 'sha256:parent-secret-index' },
+    gitMaterial: { available: true, headHash: 'head-parent-secret', materialHash: 'material-parent-secret', storyFilesHash: 'story-parent-secret' },
+    writerLease: { available: true, valid: true },
+    providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
+    resources: { required: { timeoutMs: 1_000 }, available: { timeoutMs: 1_000 } },
+    evidenceTarget: { writable: true, path: `${identity.storyId}/causal-evidence/` },
+    sideChannel: { available: true, maxOutputChars: CAUSAL_MAX_OUTPUT_CHARS, maxProgressEvents: 10 },
+  }, undefined, identity);
+}
+
+function runPushHook(root: string, branch: string, sha: string): { status: number; output: string } {
+  const result = spawnSync('bash', [join(repositoryRoot, '.githooks/pre-push'), 'origin', 'unused-url'], {
+    cwd: root,
+    input: `refs/heads/${branch} ${sha} refs/heads/${branch} ${'0'.repeat(40)}\n`,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  return { status: result.status ?? 1, output: `${result.stdout || ''}${result.stderr || ''}` };
 }
 
 check('proxy credentials are absent from causal identity and output-redaction inputs', () => {
@@ -69,6 +126,45 @@ check('selector redaction preserves ordinary environment words', () => {
   assert.equal(redactCausalSelectorOutput('token=pass-secret', { API_TOKEN: 'pass-secret' }).includes('pass-secret'), false);
 });
 
+await checkAsync('parent-process secrets never enter short or durable selector evidence', async () => {
+  const secret = 'parent-only-secret-89d5817f';
+  const previous = process.env.GITHUB_TOKEN;
+  process.env.GITHUB_TOKEN = secret;
+  try {
+    const shortIdentity = causalIdentity('B-parent-secret-short');
+    const short = await executeCausalEvidence({
+      identity: shortIdentity,
+      selector: 'CAUSAL_PARENT_SECRET_OK',
+      run: async () => ({ code: 0, output: `CAUSAL_PARENT_SECRET_OK ${secret}` }),
+      preflight: causalPreflight(shortIdentity),
+      revalidateBeforeRun: () => true,
+    });
+    assert.equal(short.verdict.result, 'pass');
+    assert.equal(short.receipt.selectorProbe?.includes(secret), false);
+
+    let persistedSelectorOutput = '';
+    const longIdentity = causalIdentity('B-parent-secret-long');
+    const long = await executeCausalEvidence({
+      identity: longIdentity,
+      selector: 'CAUSAL_PARENT_SECRET_OK',
+      run: async () => ({ code: 0, output: `${'x'.repeat(CAUSAL_MAX_OUTPUT_CHARS + 1)} CAUSAL_PARENT_SECRET_OK ${secret}` }),
+      receiptStore: {
+        readCausalEvidenceReceipt: () => null,
+        writeCausalEvidenceReceipt: () => undefined,
+        readCausalSelectorOutput: () => '',
+        writeCausalSelectorOutput: (_storyId, _digest, output) => { persistedSelectorOutput = output; },
+      },
+      preflight: causalPreflight(longIdentity),
+      revalidateBeforeRun: () => true,
+    });
+    assert.equal(long.verdict.result, 'pass');
+    assert.equal(persistedSelectorOutput.includes(secret), false);
+  } finally {
+    if (previous === undefined) delete process.env.GITHUB_TOKEN;
+    else process.env.GITHUB_TOKEN = previous;
+  }
+});
+
 check('INIT reviewer uses a host-neutral instruction source', () => {
   const prompt = readFileSync(join(repositoryRoot, 'packages/main/templates/agents/proof-or-stop-review-story-init.md'), 'utf8');
   assert.equal(prompt.includes('`CLAUDE.md` (root directory)'), false);
@@ -89,6 +185,47 @@ check('master-only repository is a valid integration worktree', () => {
     assert.equal(approval.approval.branch, 'refs/heads/master');
     assert.match(approval.nextAction, /git push origin master/);
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+check('pre-push accepts only the resolved local integration branch', () => {
+  const masterRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-hook-master-'));
+  const developRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-hook-develop-'));
+  const missingRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-hook-missing-local-'));
+  try {
+    initRepo(masterRoot, 'master');
+    const masterSha = git(masterRoot, ['rev-parse', 'HEAD']);
+    writeReleasePushApproval({ root: masterRoot, sha: masterSha, branch: 'master', remote: 'origin', ttlSeconds: 60 });
+    const master = runPushHook(masterRoot, 'master', masterSha);
+    assert.equal(master.status, 0, master.output);
+    assert.equal(resolveRepositoryBaseline(masterRoot)?.ref, 'refs/heads/master');
+
+    initRepo(developRoot, 'develop');
+    const developSha = git(developRoot, ['rev-parse', 'HEAD']);
+    git(developRoot, ['update-ref', 'refs/remotes/origin/develop', developSha]);
+    git(developRoot, ['symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/develop']);
+    writeReleasePushApproval({ root: developRoot, sha: developSha, branch: 'develop', remote: 'origin', ttlSeconds: 60 });
+    const develop = runPushHook(developRoot, 'develop', developSha);
+    assert.equal(develop.status, 0, develop.output);
+    assert.equal(resolveRepositoryBaseline(developRoot)?.ref, 'refs/remotes/origin/develop');
+
+    initRepo(missingRoot, 'main');
+    const missingSha = git(missingRoot, ['rev-parse', 'HEAD']);
+    git(missingRoot, ['update-ref', 'refs/remotes/origin/develop', missingSha]);
+    git(missingRoot, ['symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/develop']);
+    writeReleasePushApproval({ root: missingRoot, sha: missingSha, branch: 'main', remote: 'origin', ttlSeconds: 60 });
+    const missing = runPushHook(missingRoot, 'main', missingSha);
+    assert.notEqual(missing.status, 0);
+    assert.match(missing.output, /remote default branch lacks a local integration ref/);
+    const store = new StoryStore(missingRoot);
+    assert.throws(
+      () => createReleaseHandlers({ root: missingRoot, scanRoot: missingRoot, store }).release_approve_push({ confirm: true, json: true }),
+      /integration branch develop.*current branch is main/,
+    );
+  } finally {
+    rmSync(masterRoot, { recursive: true, force: true });
+    rmSync(developRoot, { recursive: true, force: true });
+    rmSync(missingRoot, { recursive: true, force: true });
+  }
 });
 
 check('legacy Story integration target ignores the current task checkout', () => {
@@ -194,6 +331,28 @@ check('partial-DONE detection reports an unresolved legacy integration target', 
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+check('DONE projections fail closed when no integration target exists', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-unresolved-'));
+  try {
+    initRepo(root, 'story/B-unresolved');
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    const store = new StoryStore(root);
+    store.writeStory('B-unresolved', {
+      storyId: 'B-unresolved', name: 'unresolved', title: 'Unresolved', description: 'No integration branch can be resolved',
+      type: 'bug', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null,
+      worktree: { branch: 'story/B-unresolved', path: root, createdAt: new Date().toISOString() },
+    });
+    assert.throws(
+      () => assertMainWorktreeReadyForMerge('B-unresolved', root),
+      /no integration branch can be resolved/i,
+    );
+    const rows = buildDoneChecklist('B-unresolved', store, root, { gitCwd: root, auditWriter: null });
+    const target = rows.find(row => row.id === 'integration-target');
+    assert.equal(target?.status, 'fail');
+    assert.equal(target?.blocking, true);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 check('Go profile describes command evidence instead of unsupported topology adapters', () => {
   const profile = acceptanceDiscoveryProfile('go-command') as { methods: readonly string[] };
   assert.deepEqual(profile.methods, ['registered_command_receipts']);
@@ -206,6 +365,27 @@ check('Go profile describes command evidence instead of unsupported topology ada
     scopeRefs: [],
   });
   assert.deepEqual(results.map(result => result.method), ['registered_command_receipts']);
+  assert.equal(results[0]?.coverageClaim, 'unsupported');
+  assert.ok((results[0]?.blindSpots.length ?? 0) > 0);
+  const commandGate = evaluateRegisteredCommandEvidence({
+    gitCwd: repositoryRoot,
+    metadataRoot: repositoryRoot,
+    storyId: 'B-go-command',
+    checklist: {
+      items: [{
+        id: 'CHK-001', title: 'Run Go checks', status: 'in_progress',
+        verificationIntent: {
+          happy: [{ id: 'GO-TEST', desc: 'go test passes', type: 'cli', priority: 'must', verification: { command: 'go test ./...', selector: 'PASS' } }],
+          edge: [], adversarial: [],
+        },
+        verificationEvidence: [],
+      }],
+    } as any,
+    cutoffAt: new Date().toISOString(),
+    freshness: { headHash: 'head-go', materialHash: 'material-go', storyFilesHash: 'story-go' },
+  });
+  assert.equal(commandGate.ok, false);
+  assert.ok(commandGate.codes.includes('PR_POSITIVE_EVIDENCE_MISSING'));
 });
 
 check('stale evidence hint names every stale intent', () => {
@@ -265,6 +445,26 @@ check('story_advance exposes a structured JSON result option', () => {
   const definition = MAIN_TOOLS.find(tool => tool.name === 'story_advance');
   assert.ok(definition);
   assert.ok(definition && 'json' in definition.schema);
+});
+
+await checkAsync('story_advance JSON mode returns the actual structured transition', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-advance-json-'));
+  try {
+    initRepo(root, 'main');
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: '.', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' }));
+    const store = new StoryStore(root);
+    store.writeStory('B-json', {
+      storyId: 'B-json', name: 'json', title: 'JSON transition', description: 'Exercise the public JSON transition result',
+      type: 'bug', phase: 'IDEA', priority: 'low', createdAt: new Date().toISOString(), startedAt: null, endedAt: null,
+    });
+    const output = await createStoryAdvanceHandlers({ root, scanRoot: root, store }).story_advance({
+      storyId: 'B-json', phase: 'PLAN', checklist: [{ id: 'CHK-001', title: 'Verify JSON output' }], json: true,
+    });
+    const parsed = JSON.parse(output) as { storyId?: string; newState?: string };
+    assert.equal(parsed.storyId, 'B-json');
+    assert.equal(parsed.newState, 'PLAN');
+    assert.equal(store.readStory('B-json').phase, 'PLAN');
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 if (failures.length > 0) {
