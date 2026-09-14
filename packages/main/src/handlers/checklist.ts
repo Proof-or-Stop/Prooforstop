@@ -2762,8 +2762,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           );
           const before = structuredClone(item);
           const proposed = structuredClone(item);
-          if ((verificationIntentHasPlannedPathDeclarations(item.verificationIntent)
-            || verificationIntentHasPlannedPathDeclarations(prepared.verificationIntent))
+          if (verificationIntentHasPlannedPathDeclarations(item.verificationIntent)
             && JSON.stringify(prepared.files) !== JSON.stringify(item.files)) {
             throw new Error(
               'plan_acceptance_apply refused: ChecklistItem.files entries referenced by plannedPathDeclarations are frozen [planned_path_file_binding_frozen]',

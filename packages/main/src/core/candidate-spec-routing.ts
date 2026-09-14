@@ -254,15 +254,16 @@ function safeRelativePath(value: string, label: string): string {
 function walkMarkdown(root: string, dir: string): string[] {
   const absolute = resolve(root, dir);
   const rootReal = realpathSync(root);
+  let rootStat;
   try {
-    lstatSync(absolute);
+    rootStat = statSync(absolute);
   } catch (error: any) {
     if (error?.code === 'ENOENT') return [];
     throw error;
   }
   const dirReal = realpathSync(absolute);
   if (relative(rootReal, dirReal).startsWith('..')) throw new Error('requirementsDir escapes project root');
-  if (!statSync(absolute).isDirectory()) throw new Error(`requirementsDir is not a directory: ${dir}`);
+  if (!rootStat.isDirectory()) throw new Error(`requirementsDir is not a directory: ${dir}`);
   const result: string[] = [];
   const visit = (current: string): void => {
     for (const name of readdirSync(current).sort((a, b) => a.localeCompare(b, 'en'))) {
@@ -301,7 +302,7 @@ export function buildCorpusIndex(projectRoot: string, requirementsDir = 'docs/re
   const absoluteDir = resolve(projectRoot, normalizedDir);
   let missing = false;
   try {
-    lstatSync(absoluteDir);
+    statSync(absoluteDir);
   } catch (error: any) {
     if (error?.code === 'ENOENT') missing = true;
     else throw error;

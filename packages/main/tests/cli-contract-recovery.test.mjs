@@ -16,9 +16,15 @@ import { z } from 'zod';
 import { MAIN_TOOLS } from '../dist/cli-engine.js';
 import { resetConfigCache } from '../dist/core/config.js';
 import { digestCanonicalJson } from '../dist/core/digest.js';
-import { buildCorpusIndex } from '../dist/core/candidate-spec-routing.js';
+import {
+  buildCorpusIndex,
+  buildKeywordSeeds,
+  routeCandidateSpecs,
+  verifyCandidateSpecSet,
+} from '../dist/core/candidate-spec-routing.js';
 import { resetSessionIdForTest } from '../dist/core/story-owner-lease.js';
 import { acquireOwnerLease } from '../dist/core/story-owner-lease.js';
+import { acceptanceIntentHash, createIntentAmendment } from '../dist/core/verification-intent-amendment.js';
 import { StoryStore } from '../dist/core/store.js';
 import { createChecklistHandlers } from '../dist/handlers/checklist.js';
 
@@ -92,6 +98,9 @@ await check('fresh init prompt consumer and verifier agree', () => {
       if (reasonPattern) {
         assert.match(prompt.stdout + prompt.stderr, reasonPattern, `${label} prompt reason`);
         assert.match(verify.stdout + verify.stderr, reasonPattern, `${label} verify reason`);
+        const unrelatedPrompt = runCli(root, ['agent_prompt', '--role=proof-or-stop-review-quality']);
+        assert.equal(unrelatedPrompt.status, expectedStatus, `${label} unrelated-role prompt: ${unrelatedPrompt.stdout}${unrelatedPrompt.stderr}`);
+        assert.match(unrelatedPrompt.stdout + unrelatedPrompt.stderr, reasonPattern, `${label} unrelated-role prompt reason`);
       }
     };
     assertBoth('generated config', 0);
@@ -184,6 +193,10 @@ await check('validation failures are concise and machine recoverable', () => {
   assert.equal(parsed.nextCommand, 'proof-or-stop checklist_get --help');
   assert.deepEqual(parsed.issues[0].path, ['storyId']);
 
+  const aliasFailure = runCli(repositoryRoot, ['plan', 'acceptance', 'apply', '{"storyId":42}']);
+  assert.equal(aliasFailure.status, 1);
+  assert.match(aliasFailure.stderr, /proof-or-stop plan acceptance apply --help/);
+
   const enumRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-enum-'));
   try {
     const enumFailure = runCli(enumRoot, ['checklist_update', '{"storyId":"B-x","itemId":"CHK-001","status":"invalid","json":true}']);
@@ -270,21 +283,21 @@ await check('plan acceptance prepare and apply are atomic', () => {
       events: [],
     });
     store.writeChecklist(storyId, {
-      items: ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-CLI'].map(id => ({
+      items: ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-006', 'CHK-004', 'CHK-005'].map(id => ({
         id,
         title: `Acceptance ${id}`,
         context: 'Fixture item',
         status: 'pending',
         files: { modify: [], create: [], test: [] },
       })).concat([{
-        id: 'CHK-FROZEN',
+        id: 'CHK-007',
         title: 'Frozen planned-path acceptance',
         context: 'Fixture item with an existing planned-path binding',
         status: 'pending',
-        files: { modify: ['src/CHK-FROZEN-producer.ts', 'src/CHK-FROZEN-consumer.ts'], create: [], test: [] },
+        files: { modify: ['src/CHK-007-producer.ts', 'src/CHK-007-consumer.ts'], create: [], test: [] },
         verificationIntent: {
-          ...intentFor('CHK-FROZEN'),
-          happy: [{ ...intentFor('CHK-FROZEN').happy[0], plannedPathDeclarations: [plannedDeclarationFor('CHK-FROZEN')] }],
+          ...intentFor('CHK-007'),
+          happy: [{ ...intentFor('CHK-007').happy[0], plannedPathDeclarations: [plannedDeclarationFor('CHK-007')] }],
         },
       }]),
     });
@@ -292,7 +305,7 @@ await check('plan acceptance prepare and apply are atomic', () => {
     process.env.PROOF_OR_STOP_SESSION_ID = 'plan-acceptance-owner';
     process.env.PROOF_OR_STOP_AGENT = 'main-agent';
     resetSessionIdForTest();
-    acquireOwnerLease(store.storyDirPath(storyId), { command: 'plan_acceptance_apply', cwd: root });
+    const ownerLease = acquireOwnerLease(store.storyDirPath(storyId), { command: 'plan_acceptance_apply', cwd: root });
     const handlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'src') });
     const items = ['CHK-001', 'CHK-002', 'CHK-003'].map((itemId, index) => ({
       itemId,
@@ -321,9 +334,9 @@ await check('plan acceptance prepare and apply are atomic', () => {
     }
 
     const frozenPrepared = handlers.plan_acceptance_prepare({ storyId, items: [{
-      itemId: 'CHK-FROZEN',
+      itemId: 'CHK-007',
       files: { modify: ['src/rebound.ts'], create: [], test: [] },
-      verificationIntent: intentFor('CHK-FROZEN'),
+      verificationIntent: intentFor('CHK-007'),
     }] });
     const beforeFrozen = JSON.stringify(store.readChecklist(storyId));
     assert.throws(() => handlers.plan_acceptance_apply({
@@ -332,6 +345,25 @@ await check('plan acceptance prepare and apply are atomic', () => {
       reason: 'Reject rebinding files after a planned path declaration has frozen their indices.',
     }), /planned_path_file_binding_frozen/);
     assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeFrozen, 'file-binding refusal is atomic');
+
+    const initialBindingIntent = {
+      ...intentFor('CHK-004'),
+      happy: [{ ...intentFor('CHK-004').happy[0], plannedPathDeclarations: [plannedDeclarationFor('CHK-004')] }],
+    };
+    const initialBindingFiles = {
+      modify: ['src/CHK-004-producer.ts', 'src/CHK-004-consumer.ts'], create: [], test: [],
+    };
+    const initialPrepared = handlers.plan_acceptance_prepare({ storyId, items: [{
+      itemId: 'CHK-004', files: initialBindingFiles, verificationIntent: initialBindingIntent,
+    }] });
+    handlers.plan_acceptance_apply({
+      storyId,
+      prepared: initialPrepared,
+      reason: 'Atomically establish the first files and planned-path declaration binding.',
+    });
+    const initialApplied = store.readChecklist(storyId).items.find(item => item.id === 'CHK-004');
+    assert.deepEqual(initialApplied.files, initialBindingFiles);
+    assert.deepEqual(initialApplied.verificationIntent, initialBindingIntent);
 
     assert.throws(() => handlers.checklist_update({
       storyId,
@@ -386,16 +418,16 @@ await check('plan acceptance prepare and apply are atomic', () => {
     const applied = store.readChecklist(storyId);
     assert.deepEqual(applied.items.slice(0, 3).map(item => item.files), items.map(item => item.files));
     assert.deepEqual(applied.items.slice(0, 3).map(item => item.verificationIntent), items.map(item => item.verificationIntent));
-    assert.equal(store.readProcessEvents(storyId).filter(event => event.action === 'verification_intent_applied').length, 3);
+    assert.equal(store.readProcessEvents(storyId).filter(event => event.action === 'verification_intent_applied').length, 4);
 
     const cliEnvironment = {
       PROOF_OR_STOP_SESSION_ID: 'plan-acceptance-owner',
       PROOF_OR_STOP_AGENT: 'main-agent',
     };
     const cliItems = [{
-      itemId: 'CHK-CLI',
+      itemId: 'CHK-006',
       files: { modify: ['src/cli-round-trip.ts'], create: [], test: ['tests/cli-round-trip.test.ts'] },
-      verificationIntent: intentFor('CHK-CLI'),
+      verificationIntent: intentFor('CHK-006'),
     }];
     const cliPrepare = runCli(root, ['plan_acceptance_prepare', JSON.stringify({ storyId, items: cliItems })], cliEnvironment);
     assert.equal(cliPrepare.status, 0, cliPrepare.stdout + cliPrepare.stderr);
@@ -406,7 +438,7 @@ await check('plan acceptance prepare and apply are atomic', () => {
       reason: 'Apply the unchanged prepared payload through the public strict CLI command path.',
     })], cliEnvironment);
     assert.equal(cliApply.status, 0, cliApply.stdout + cliApply.stderr);
-    assert.deepEqual(store.readChecklist(storyId).items.find(item => item.id === 'CHK-CLI').verificationIntent, intentFor('CHK-CLI'));
+    assert.deepEqual(store.readChecklist(storyId).items.find(item => item.id === 'CHK-006').verificationIntent, intentFor('CHK-006'));
 
     const cliTampered = structuredClone(cliPrepared);
     cliTampered.digest = '0'.repeat(64);
@@ -426,6 +458,56 @@ await check('plan acceptance prepare and apply are atomic', () => {
     })], cliEnvironment);
     assert.equal(cliExtraField.status, 1);
     assert.match(cliExtraField.stderr, /Unrecognized key|validation failed/i);
+
+    const amendedChecklist = store.readChecklist(storyId);
+    const amendmentItem = amendedChecklist.items.find(item => item.id === 'CHK-005');
+    amendmentItem.verificationIntent = intentFor('CHK-005');
+    const seededAmendment = createIntentAmendment({
+      item: amendmentItem,
+      storyId,
+      expectedIntentHash: acceptanceIntentHash(amendmentItem.verificationIntent),
+      reason: 'Seed an existing signed amendment so batch revision behavior is exercised.',
+      addition: { edge: [{ id: 'AMEND_EDGE', desc: 'Exercise the signed amendment revision path', type: 'logic', priority: 'must' }] },
+      sessionId: 'plan-acceptance-owner',
+      leaseId: ownerLease.leaseId,
+      headHash: git(root, ['rev-parse', 'HEAD']),
+      gitCwd: root,
+    });
+    amendmentItem.verificationIntent = seededAmendment.intent;
+    amendmentItem.verificationIntentAmendments = [seededAmendment.amendment];
+    amendmentItem.status = 'done';
+    amendmentItem.startTime = now;
+    amendmentItem.endTime = now;
+    store.writeChecklist(storyId, amendedChecklist);
+    const revisedIntent = structuredClone(seededAmendment.intent);
+    revisedIntent.edge[0] = {
+      ...revisedIntent.edge[0],
+      scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
+    };
+    const amendmentPrepared = handlers.plan_acceptance_prepare({ storyId, items: [{
+      itemId: 'CHK-005', files: amendmentItem.files, verificationIntent: revisedIntent,
+    }] });
+    handlers.plan_acceptance_apply({
+      storyId,
+      prepared: amendmentPrepared,
+      reason: 'Revise the signed acceptance intent and reset prior completion state for re-verification.',
+    });
+    const revisedItem = store.readChecklist(storyId).items.find(item => item.id === 'CHK-005');
+    assert.equal(revisedItem.verificationIntentAmendments.length, 2);
+    assert.equal(revisedItem.verificationIntentAmendments[1].schema, 'proof-or-stop.intent-revision.v1');
+    assert.equal(revisedItem.status, 'pending');
+    assert.equal(revisedItem.startTime, null);
+    assert.equal(revisedItem.endTime, null);
+
+    const planStory = store.readStory(storyId);
+    store.writeStory(storyId, { ...planStory, phase: 'DEV' });
+    assert.throws(() => handlers.plan_acceptance_prepare({ storyId, items }), /PLAN_ACCEPTANCE_PHASE_INVALID/);
+    assert.throws(() => handlers.plan_acceptance_apply({
+      storyId,
+      prepared,
+      reason: 'Reject applying a prepared acceptance batch after the Story has left PLAN.',
+    }), /PLAN_ACCEPTANCE_PHASE_INVALID/);
+    store.writeStory(storyId, planStory);
 
     const stalePrepared = handlers.plan_acceptance_prepare({ storyId, items: items.map((item, index) => ({
       ...item,
@@ -460,6 +542,7 @@ await check('plan acceptance prepare and apply are atomic', () => {
 await check('missing requirements corpus is deterministic and symlinks preserve safe compatibility', () => {
   const missingRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-missing-corpus-'));
   const emptyRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-empty-corpus-'));
+  const danglingRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-dangling-corpus-'));
   try {
     mkdirSync(join(emptyRoot, 'docs', 'requirements'), { recursive: true });
     const missing = buildCorpusIndex(missingRoot, 'docs/requirements');
@@ -468,6 +551,22 @@ await check('missing requirements corpus is deterministic and symlinks preserve 
     assert.deepEqual(missing.entries, []);
     assert.equal(missing.corpusDigest, empty.corpusDigest);
     assert.match(missing.diagnostic, /missing/i);
+    const missingRoute = routeCandidateSpecs({
+      projectRoot: missingRoot,
+      storyId: 'B-missing-corpus',
+      corpus: missing,
+      seeds: buildKeywordSeeds({ title: 'Missing requirements corpus routing' }),
+    });
+    assert.equal(missingRoute.requiresEscalation, true);
+    assert.ok(missingRoute.escalationReasons.includes('requirements_corpus_missing'));
+    assert.equal(missingRoute.corpusStatus, 'missing');
+    assert.equal(missingRoute.corpusDiagnostic, missing.diagnostic);
+    assert.equal(verifyCandidateSpecSet(missingRoute), true);
+
+    symlinkSync(join(danglingRoot, 'deleted-requirements'), join(danglingRoot, 'requirements-link'));
+    const dangling = buildCorpusIndex(danglingRoot, 'requirements-link');
+    assert.equal(dangling.corpusStatus, 'missing');
+    assert.equal(dangling.corpusDigest, empty.corpusDigest);
 
     writeFileSync(join(missingRoot, 'requirements-file'), 'not a directory\n');
     assert.throws(() => buildCorpusIndex(missingRoot, 'requirements-file'), /not.*directory/i);
@@ -485,6 +584,7 @@ await check('missing requirements corpus is deterministic and symlinks preserve 
   } finally {
     rmSync(missingRoot, { recursive: true, force: true });
     rmSync(emptyRoot, { recursive: true, force: true });
+    rmSync(danglingRoot, { recursive: true, force: true });
   }
 });
 

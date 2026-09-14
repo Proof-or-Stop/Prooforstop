@@ -596,7 +596,7 @@ function requestsJsonErrorOutput(parsed: Record<string, unknown>): boolean {
   return parsed.json === true || parsed.format === 'json';
 }
 
-function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, argv: string[]): void {
+function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, argv: string[], invocation?: string): void {
   if (!cmd || !STRICT_COMMAND_ARG_COMMANDS.has(cmd)) return;
   if (argv[1] === '--help' || argv[1] === '-h') return;
   const tool = TOOLS.find(t => t.name === cmd);
@@ -606,13 +606,14 @@ function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, arg
     parsed = parseCommandArgs(argv.slice(1), tool);
   } catch (e) {
     console.error((e as Error).message);
-    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock });
+    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock, invocation });
     process.exit(1);
   }
   const v = validationSchemaForCommand(cmd, tool).safeParse(parsed);
   if (!v.success) {
     printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock, {
       json: requestsJsonErrorOutput(parsed),
+      invocation,
     });
     process.exit(1);
   }
@@ -888,7 +889,11 @@ export async function runCli(opts?: {
     return;
   }
 
-  preflightStrictCommandArgsBeforeStoryReads(cmd, argv);
+  preflightStrictCommandArgsBeforeStoryReads(
+    cmd,
+    argv,
+    normalizedAlias.matched ? normalizedAlias.displayAlias : undefined,
+  );
 
   // Detect active story from git branch only after runtime authority passes.
   let activeStory = detectActiveStory(root0);
