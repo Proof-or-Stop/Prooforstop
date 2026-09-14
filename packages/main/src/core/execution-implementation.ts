@@ -1,3 +1,4 @@
+import {readObservedExecutableDigest} from './executable-digest-observation.js';
 import {createHash} from 'node:crypto';
 import {existsSync,readFileSync,readdirSync,realpathSync} from 'node:fs';
 import {dirname,isAbsolute,join,resolve} from 'node:path';
@@ -67,7 +68,7 @@ export function executionImplementationIdentity() {
   if (existsSync(join(utilsRoot,'package.json'))) dependencies(utilsRoot,JSON.parse(readFileSync(join(utilsRoot,'package.json'),'utf8')).dependencies??{});
   const executable=realpathSync(process.execPath);
   const entrypoint=process.argv[1]?realpathSync(resolve(process.argv[1])):null;
-  const runtime={version:process.version,executableDigest:sha(readFileSync(executable)),
+  const runtime={version:process.version,executableDigest:readObservedExecutableDigest(executable),
     entrypointDigest:entrypoint?sha(readFileSync(entrypoint)):null,
     execArgv:process.execArgv, nodeOptionsDigest:sha(process.env.NODE_OPTIONS??'')};
   files.sort((a,b)=>a.path<b.path?-1:a.path>b.path?1:0);

@@ -46,10 +46,14 @@ import { buildVerifiedDeferral, deferralPolicyForWrite, verifyDeferralProjection
 import { signApplicabilityAssessment, type FindingApplicabilityAssessment } from '../core/finding-applicability.js';
 import { reconcileFindingDeferralRecalls } from '../handlers/finding-deferral-recall.js';
 import { runIsolatedFindingFixture } from './isolated-finding-fixture.js';
+import { inspectFixtureCompileCache } from './helpers/fixture-machine-environment.js';
 
 const section = process.argv.find(arg => arg.startsWith('--section='))?.split('=')[1] ?? 'candidates';
 if (section === 'routes' && await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const smokeStarted = performance.now();
+const compileCache = section === 'delivery' ? mkdtempSync(join(tmpdir(), 'identity-delivery-compile-cache-')) : undefined;
+const previousCompileCache = process.env.NODE_COMPILE_CACHE;
+if (compileCache) process.env.NODE_COMPILE_CACHE = compileCache;
 assert.ok(['candidates', 'routes', 'history', 'scorecard', 'worktrees', 'delivery'].includes(section), 'only implemented smoke sections are supported');
 const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'proof-or-stop-identity-')));
 const oldCwd = process.cwd(); const oldActor = process.env.PROOF_OR_STOP_AGENT;
@@ -61,8 +65,10 @@ const sha = (value: string) => createHash('sha256').update(value).digest('hex');
 let assertions = 0;
 let failures = 0;
 function test(name: string, fn: () => void) {
+  const started = performance.now();
   try { fn(); assertions++; console.log(`CANDIDATE ${name} PASS`); }
   catch (error) { failures++; console.error(`CANDIDATE ${name} FAIL: ${error instanceof Error ? error.message : error}`); }
+  finally { if (section === 'delivery') console.log('IDENTITY_CASE_TIMING '+JSON.stringify({name,wallMs:performance.now()-started})); }
 }
 function concurrentCli(command: string, input: object) {
   const script = `const {spawn}=require('node:child_process'); const [cli,command,input]=process.argv.slice(1); Promise.all([0,1].map(()=>new Promise((resolve,reject)=>{const child=spawn(process.execPath,[cli,command,input],{env:process.env});let stdout='',stderr='';child.stdout.on('data',data=>stdout+=data);child.stderr.on('data',data=>stderr+=data);child.on('error',reject);child.on('close',status=>resolve({status,stdout,stderr}));}))).then(rows=>console.log(JSON.stringify(rows)),error=>{console.error(error);process.exitCode=1;});`;
@@ -1686,4 +1692,10 @@ try {
   if (oldProvider === undefined) delete process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER; else process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = oldProvider;
   resetSessionIdForTest();
   rmSync(scratch, { recursive: true, force: true });
+  if (compileCache) {
+    if (previousCompileCache === undefined) delete process.env.NODE_COMPILE_CACHE;
+    else process.env.NODE_COMPILE_CACHE = previousCompileCache;
+    console.log('FIXTURE_COMPILE_CACHE ' + JSON.stringify(inspectFixtureCompileCache(compileCache)));
+    rmSync(compileCache, { recursive: true, force: true });
+  }
 }

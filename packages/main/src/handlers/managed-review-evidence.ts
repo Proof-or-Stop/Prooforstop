@@ -1,3 +1,7 @@
+import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
+import { isManagedInventoryCritic } from '../core/managed-inventory-critic.js';
+import { currentOpenReviewInventory, inventoryPurposeMatchesEpoch } from '../core/review-inventory-epoch.js';
+import { importManagedInventoryCritic } from './review-inventory.js';
 import { execFileSync } from 'node:child_process';
 import { relative } from 'node:path';
 import type { HandlerContext } from './context.js';
@@ -76,7 +80,11 @@ export function createManagedReviewEvidenceHandlers(
       readManifest?: unknown;
       readLog?: unknown;
       readDiagnostics?: unknown;
+      inventoryCritic?: unknown;
     }) {
+      if (args.inventoryCritic !== undefined) {
+        throw new Error('MANAGED_INVENTORY_FINAL_ENVELOPE_REQUIRED: inventoryCritic is supported only in the final assistant JSON envelope; this legacy proposal callback cannot finish an inventory critic review');
+      }
       assertOnlyKeys('managed_review_proposal_set', args as Record<string, unknown>, [
         'runId', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion',
         'note', 'findings', 'readManifest', 'readLog', 'readDiagnostics',
@@ -180,7 +188,13 @@ export function createManagedReviewEvidenceHandlers(
       // enough for a concurrent commit to change the reviewed tree. Recheck
       // while both canonical persistence locks are held immediately before
       // admitting an existing receipt or writing any new evidence/binding.
+      let inventoryCriticImport = false;
       const assertLiveReviewBinding = (): void => {
+        if (inventoryCriticImport) {
+          const dirty = readMaterialDirtyFiles(gitCwd, ctx.root);
+          if (dirty.error) throw new Error(`managed_review_evidence_import: material status-unavailable: ${dirty.error}`);
+          if (dirty.files.length) throw new Error(`managed_review_evidence_import: material drift: ${dirty.files.join(', ')}`);
+        }
         const live = verifyManagedReviewLiveBinding({
           gitCwd,
           metadataRoot: ctx.root,
@@ -214,6 +228,18 @@ export function createManagedReviewEvidenceHandlers(
       });
       const proposal = intake.verification.proposal ?? sealedProposal;
       if (!proposal) throw new Error('managed_review_evidence_import: shared Proof Admissibility accepted no provider proposal');
+      if (proposal.inventoryCritic !== undefined) {
+        inventoryCriticImport = true;
+        assertLiveReviewBinding();
+        const epoch = currentOpenReviewInventory(ctx.store, proposal.storyId);
+        if (!isManagedInventoryCritic(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0)
+          || !epoch || proposal.inventoryCritic.epochId !== epoch.epochId
+          || proposal.inventoryCritic.wave !== epoch.waves.length + 1
+          || reviewRun.reviewPurpose !== 'inventory-completeness'
+          || !inventoryPurposeMatchesEpoch(reviewRun.inventoryBinding, epoch)) {
+          throw new Error('managed_review_evidence_import: invalid inventory critic purpose or wave');
+        }
+      }
       const lockDir = ctx.store.runtimeLockDirPath(proposal.storyId, 'managed-review-evidence', receiptId.replace(/[^A-Za-z0-9._-]/g, '_'));
       // The receipt lock makes replay of one receipt idempotent. A second,
       // story-level lock is still required because distinct receipts allocate
@@ -475,10 +501,24 @@ export function createManagedReviewEvidenceHandlers(
           ...(alreadyAudited ? [] : ['process-events.jsonl']),
         ],
       } });
+      // Complete terminal bookkeeping before critic validation: a deterministic
+      // refusal must not strand signed terminal evidence without its audit event.
+      // OPEN inventory uses the existing metadata deferral policy, not forced Git commits.
+      let criticHint = '';
+      let criticCommitHint = '';
+      if (proposal.inventoryCritic !== undefined) {
+        try { criticHint = importManagedInventoryCritic(ctx, {runId, receiptId}); }
+        catch (error) {
+          throw new Error(`managed_review_evidence_import: terminal evidence imported; completeness critic incomplete: ${error instanceof Error ? error.message : String(error)}${commitHint}`);
+        }
+        criticCommitHint = commitReviewResultMetadata({root: ctx.root, store: ctx.store, storyId: proposal.storyId,
+          reviewRunId: proposal.reviewRunId, reason: 'managed_review_evidence_import',
+          options: {exactStoryArtifactNames: ['review-inventory-epochs.json']}});
+      }
       const summary = created
         ? `Managed review evidence imported from ${runId}: ${importedIds.join(', ')}`
         : `Managed review evidence already imported from ${runId}: ${importedIds.join(', ')}`;
-      return `${summary}${commitHint}`;
+      return `${summary}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
     },
   };
 }

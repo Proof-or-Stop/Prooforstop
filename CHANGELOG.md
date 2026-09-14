@@ -1,5 +1,208 @@
 # Changelog
 
+## Lab validation-top5-performance - v0.3.360 - 2026-09-13
+
+Reduce repeated validation identity and planning work while preserving fresh execution checks.
+
+This Lab release combines per-observation executable hashing, synchronous batch planning reuse, bounded exact-source canonical digest memoization, isolated admissibility mutation workers, and disposable Node compilation caches for selected native validation fixtures. The imported planning repair retains independent post-lock, launch, completion, and publication checks. No validation PASS result is cached.
+
+Historical RED/GREEN measurements (single paired observations, not a guaranteed release-wide speedup):
+
+| Check | Before | After | Observed reduction |
+|---|---:|---:|---:|
+| Admissibility registry | 306.907 s | 295.596 s | 3.69% |
+| Verification run/guard | 354.728 s | 311.240 s | 12.26% |
+| Identity delivery | 699.948 s | 692.099 s | 1.12% |
+| Heartbeat validation | 135.069 s | 127.935 s | 5.28% |
+| Initial planning, 71 evidence rows | 6.458 s | 0.106 s | 98.35% |
+| Initial planning scans | 71 | 1 | 98.59% |
+| Initial planning logical reads | 3858.73 MB | 54.35 MB | 98.59% |
+| Original planning fanout shard | 421.541 s | 346.339 s | 17.84% |
+
+The combined candidate also passed a native fanout run with 71 assertions, 2 executions, one planning scan, and 93.141 ms planning. Original RED/GREEN logs, rejected candidates, a blocked quorum run, and SHA-256 manifests are committed under docs/lab/validation-top5-performance/. These are staged historical baselines; their savings cannot be added to estimate full-suite performance. Logical reads are not physical disk I/O. The small identity-delivery gain does not prove a stable improvement or resolution of its dominant hotspot.
+
+Quorum-submit optimization remains excluded: its 73 cases passed, but protected-directory monitoring failed. No successful optimization or GREEN baseline is claimed for that command. No guard was disabled.
+
+Validation includes source-mutation refusal, ordinary fresh observations, exceptions, no cache crossing await, nested planning scopes, full runtime-fact checks, native planning fanout, and the heartbeat suite. The pinned combined regression runs on the release candidate and after local main integration. Independent vendor audit and final Finish verification are recorded separately by the Lab tool. This is local maintenance evidence, not formal Story DONE.
+
+Lab: validation-top5-performance. Imported source Lab: validation-planning-scan, original repair a754176b77, integrated as 852938e89d. Release version is assigned by Lab Finish from the synchronized main baseline.
+
+Integration checks on the synchronized 0.3.357 base passed review-intent-cycle, the complete process-fact contract, and static source-evidence boundaries. Static scanning covers 330 exception uses with no unresolved or nested validation; 270 manifest entries have current covering source evidence. The later combined GREEN attempt on commit 23af3e0278 passed every native heartbeat group but took 151.881 seconds and failed the original 133.718-second performance threshold. That rejected attempt is retained in docs/lab/validation-top5-performance/logs/release-combined-green-rejected.log and is not passing release evidence. Final candidate and post-merge outcomes must be read from the subsequent successful Finish record, if one is obtained.
+
+The synchronized 0.3.358 candidate 6ab34f538c passed the unchanged combined GREEN command: native heartbeat 132.247 seconds, complete runtime-fact contract PASS, native fanout 291.696 seconds with 71 assertion receipts and 2 execution receipts, one planning scan in 107.885 ms. GitHub main 6c163f9693 is an ancestor of this candidate. This pre-Finish result supplements, but does not replace, the versioned candidate, independent vendor audit and post-merge checks.
+
+The 0.3.358 pre-Finish measurement is retained in docs/lab/validation-top5-performance/logs/release-358-combined-green.log and covered by manifest.json. The earlier 0.3.359 candidate c9b66d93e9 was withdrawn after an unsuccessful audit and was never integrated into local main by this Lab. Its complete Finish output and the unaccepted vendor response are retained as logs/release-finish-attempt1.log and logs/audit-attempt-1-response.json. The audit response reported four release-material issues and also omitted required read references, so it is not an accepted audit credential. The corrected record distinguishes the imported remote host version from the integration release, fixes the rejected-log path, retains the missing measured-run log, and restores the unrelated trailing blank line. Fresh candidate validation, audit and main verification are required.
+
+Maintenance provenance: codex/lab-validation-top5-performance, repair e09c60d6b5de4f2861c62d0743bc1f107490f91b.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/lab-top5-cache-performance.mjs","5"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-inventory-critic-transport - v0.3.359 - 2026-09-13
+
+# Managed inventory critic transport repair
+
+B-0980 BUG-002 exposed an unsupported disposition field in a real failed managed critic run. The repair adds a strictly validated optional inventoryCritic block for the topology critic lane, carries it through sealed provider proposals, and imports classifications only from authenticated successful managed receipts. Failed provider output remains preserved. Provider indexes resolve to exact signed imported findings; native actor checks, current signed purpose and inventory wave, live material freshness, terminal persistence and byte-stable receipt replay remain enforced.
+
+Verification covers fifteen disposable integration cases, parser and provider-schema constraints, actual final-guard negative controls, native retries, duplicate references and resolved IDs, cancellation, drift, missing dispositions and bounded per-case deadlines. These fixture identities do not authorize real Stories. Static exceptions bind exact invocations, source excerpts and dependencies. No production admission budget is widened.
+
+Integration with main 8b64e4e6c0 (0.3.358) also closes the current identity witnesses. Existing source and fixture context text, classifications and token counts are preserved while exact file digests and line positions refresh. Four protocol-schema rows, 26 copied-source JSON nodes and one disposable fixture read are explicitly bound. The final self-test requires all additions and retains missing, duplicate, changed-count, changed-context, changed-path and changed-token refusals. Its scanner import-use pin is exactly 568 with the derived digest; all 264 literal rows and the other 45 import-use rows remain unchanged. The actual identity-sites command reproduced RED for the initially stale pin and passed after correction. Full reviewed-source consumer verification then passed, including the actual schema self-test, static edge scan and bounded route dependency checks. This does not claim the full native route suite or the default runtime identity campaign.
+
+Repair head 0a37f4246a includes that closure. Earlier repair heads passed the pinned GREEN in 156401ms, 206870ms, 279983ms and 197751ms under a shared machine workload; these are execution observations, not a controlled performance comparison. The early actual Claude audit of 55dff3c4c8 passed with zero findings in 665094ms, but cannot approve this later release candidate. The first prepared candidate 0216f965 was deliberately stopped before audit or integration when the stale import pin was identified, then reverted with official reopen. Its interrupted run and all earlier failed audits remain recorded. A subsequent version-mismatch retry was an unreconstructed local dist after reopen; the checkout has now been rebuilt.
+
+The official Finish must prepare the version, rebuild, verify and independently audit its exact candidate before local integration, then verify main and clean the worktree. This is a bounded local compatibility repair, not benchmark runner delivery, Story DONE or signed product-release evidence. Full-development token usage is incomplete. No remote push is authorized by these notes.
+
+Maintenance provenance: codex/lab-managed-inventory-critic-transport, repair 0a37f4246a28dabb3fdd7aae4cc4b4dd10eebae7.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-inventory-critic-transport.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab identity-current-witness-coverage - v0.3.358 - 2026-09-13
+
+# Exact current identity witness coverage
+
+Main 0.3.355 at a6bd46c653 failed the unchanged default identity scanner with 53 occurrences in nine files. This repair preserves the reported source and historical material, classifying its existing exact contexts through the established JSON, fixture and provenance readers. It adds 45 JSON rows, four fixture rows and three provenance rows; the last group covers four occurrences. No directory, token-family or general fixture exemption is added. The two private descriptor operations retain their broker callback and paired channel requirements, while the two disposable ignore entries create no directory or authority.
+
+The actual readers and scanner now exercise changed counts, same-count changed contexts, missing occurrences, incorrect pointers or paths, removed provenance rows and copied neighboring files. The new self-test reports 420 assertions, including repeated validation assertions; that number is not a count of unique independent cases. Existing assertions and selectors are preserved. The pinned driver is byte-identical to RED commit bbebccaf83 and executes the original default scanner followed by the existing reviewed-source verifier. The latter checks actual source and fixture consumers, scanner self-test, static edges and the bounded route dependency closure. It does not execute or claim success for the native route suite. All commands retain their existing budgets.
+
+Official sync incorporated main 0.3.356 at 2433b8037750d4f0ff313b40640c92fc66101efc. Complete canonical derivation found exactly two stale import pins among 46 rows, with all 264 literal contexts and the other 44 import rows unchanged. The store pin changes from 402 to 411 because main already added nine evidence-size and immutable-publication import contexts. The scanner pin changes from 457 to 556 because this repair adds 99 scratch and actual-reader control contexts. Both previous pins reproduce at d788f9adaf; no old import context is removed. Added actual-oracle controls reject both an extra imported-symbol use and a same-count changed call argument. Incoming main assertions are retained.
+
+Derived source and fixture bindings are refreshed only where exact unchanged reviewed lines are recovered. The main 356 command catalog, process-fact levels, process-contract fixture and native lock fixture changes are separately documented in the external provenance reports. Canonical test insertion shifts seven static call keys by 16 lines, with identical AST call digests. At the context-only checkpoint 6473be078a, the 267 static rows retained their identities, classifications, claims and dependency key sets, with no new static exception. The later ordering repair and its additional binding are described separately below.
+
+Official RED was recorded in 20.272636041 seconds, including its failing default-scanner child of 18.682832625 seconds. Separate retained failures include the private dependency setup, a scratch truth-source omission, downstream canonical stale pins and seven shifted static keys. These failures are not relabeled as passing evidence. The repaired self-test checkpoint passed in 42.804656583 seconds; current focused canonical identity-sites passed in 53.392190041 seconds, static edges in 2.795444042 seconds, and the complete reader/witness census in 0.623415041 seconds. Durations are measured subprocess-monotonic elapsed values, with independently recorded UTC timestamps. Parent and nested child durations are not additive totals. Some diagnostics overlapped other local work; none establishes an idle-host performance claim.
+
+The first full-command candidate was 6473be078a1e624c110f5c265eee421b99021f14. Its first official unchanged-command GREEN failed in the existing canonical runtime child with ETIMEDOUT: 600.389975 seconds for the outer Lab command and 598.496940292 seconds for the default-scanner child. The original runtime timeout remains 300000 milliseconds. The log records 13 PASS lines and an initially missing offline dependency cache; it does not isolate cache cost or prove the cause of the overrun. That failure is retained; later approved diagnostics and setup recovery are recorded below. No budget was changed. Prepared-head verification, independent vendor audit and local integration remain separate requirements. Historical diagnostics do not establish a later prepared-head result. No Story DONE, reviewer credential or remote-release authority is claimed.
+
+
+The subsequent approved diagnostic retained the same runtime timeout and failed in 435.161703958 seconds despite a warm dependency cache. The three real positive acceptance/publication proofs were running before a known-invalid runtime-admission source could be refused. All four negative commands still ran their complete actual oracle and remained nonzero. The repair relocates that unchanged oracle before the unchanged three proof commands, after every dependency is initialized; it reports all relevant diagnostics and exits nonzero on invalid source. Every original positive command, marker, assertion and budget still runs on admitted input. No mutation-specific shortcut or added AST cache is used.
+
+The committed real ordering witness failed in 36.173035333 seconds after observing actual refusal following three real proof launches. It passed after reordering in 5.241315125 seconds with zero launches. The final additive recursion-order guard passed in 3.861992041 seconds; static closure passed in 1.4661305 seconds. These focused durations do not claim a full-scanner speedup. The witness is durably invoked on the admitted path with a 60000 ms limit; its invalid child exits before recursive registration.
+
+Nine existing fixture contexts retain byte-identical lines/counts and shift by 15 lines. Twelve existing static call keys retain their exact call digests. The formerly contiguous proof-loop/import excerpt is split into two exact witnesses, preserving both byte sequences and adding one evidence item. Twelve existing dependency maps add the exact regression source. One explicit negative registered-verifier exception brings the manifest from 267 to 268 rows; all existing identities and claims remain. A derived trailing-blank-line endpoint error was caught and repaired before static success; its failed checks are retained. Full source binding census still matches all 46 import pins, 264 literal contexts and 50 whole-source witnesses.
+
+Current committed repair is 977f36072ba7b38ac58594774da53ceb690f2215. Its unchanged official GREEN failed in 273.885888292 seconds after passing the runtime group and then encountering a missing private Lab package build in the later brand-role witness. That failed attempt does not establish full-command success. The original RED driver remains byte-identical; the later setup-recovered result is recorded below.
+
+The private setup census found missing Lab index/register output while Main and Utils declared JavaScript entrypoints are present. The existing npm run build:lab command is the approved setup recovery; source, manifests, locks, assertions and pins stay unchanged. This setup failure is retained separately from the earlier runtime timeout failures. The private build passed in 0.811172458 seconds without tracked changes. The subsequent unchanged official GREEN passed in 384.320472625 seconds at commit 977f36072ba7b38ac58594774da53ceb690f2215: the default scanner passed in 345.240709959 seconds and the existing actual final-head consumer verifier passed in 38.031975875 seconds. The outer command ran from independently recorded UTC timestamps 2026-09-13T13:46:33.148604+00:00 to 2026-09-13T13:52:57.446182+00:00; elapsed values are subprocess-monotonic measurements, not UTC subtraction. All 14 candidate file hashes and clean main 0.3.356 were checked before Finish. Prepared-head replay, independent vendor audit and local integration remain separate pending requirements.
+
+
+The first prepared candidate 49ca229924e320f2fef49eb1745b6c3ee73e0ea5 passed its actual independent Claude audit with zero findings in 861.112 seconds. Its Finish attempt ended in 1717.906175459 seconds with a main-freshness refusal, because memory-intake-measurement integrated main 00b1ec05ae7cfb0e9e045b0bb5e3a734fcbd3130 at version 0.3.357 during the audit. This is a freshness stop, not a content rejection. The historical audited candidate was not integrated. Official reopen reverted only its release preparation, preserving all repair history.
+
+Official sync now incorporates main 00b1ec05ae at merge faea3cda08a651eeca71b8c9e6228b911c454a93. All 112 incoming nonmanifest changed files remain byte-identical to that main. Six reviewed derived files reconcile one source row from line 495 to 497 with unchanged line bytes, token count and classification, the incoming runtime verifier whole-source witness, and exact static dependencies/excerpts. All 774 previous JSON records remain unchanged; two exact historical contexts are appended for the incoming memory-intake static report at /rows/187/reason, bringing that inventory to 776. These contexts classify the existing removed-alias negative statement and authorize no execution. The static manifest retains all 269 incoming rows in order plus the existing admission-order row, for 270 total, preserving duplicate occurrences, claims and call digests. The twelve moved proof witnesses retain their exact reviewed bytes. Actual static verification and actual reader positive/mutation controls passed after guarded application. The original pinned driver, process oracle, assertions and all budgets remain unchanged. Earlier counts and measurements retain their explicitly named historical bases. Fresh official GREEN and a new prepared-head audit are still required for this merged candidate.
+
+
+The first merged-head GREEN failed in 6.564309291 seconds because the scanner's separate reviewed-reader table still held the two previous helper hashes. A complete reader-binding census identified those exact two omitted bindings. After repairing those literals and their 56 existing static source/dependency fields, the actual consumer preflight exposed the self-test's historical 45-row slice including the two new rows; that failed check took 37.42015925 seconds. The repair retains the original 45/4/3 assertion verbatim, separately requires the exact two incoming report contexts, and applies every existing per-row mutation and neighboring-file control to all 47 JSON rows. The actual consumer preflight then passed in 39.773323166 seconds, including real reader integrity, scanner self-test and static checks. These diagnostics do not replace the unchanged full-command GREEN. The existing boundary-only command separately exposed an incoming memory identity-context pin mismatch in 13.678216208 seconds; its failure is retained for exact provenance-based repair.
+
+
+The full current inventory census found two identity-site and five import-context mismatches after incoming main changed memory-cache behavior; source and emitted inventories still contain 264 sites and 46 import rows. The cache policy is actually version 2 in main, so its existing runtime owner and registered mutation-case declarations are aligned to that version. The other affected identity has one added early-cache schema consumer. All other 41 import rows remain unchanged. The scanner import pin also includes the six additional import-use contexts from the exact incoming-report self-test coverage. Added actual owning-oracle controls refuse extra uses, same-count changed consumer properties and removed mutation-case registration, while all original public-operation checks, selectors and budgets remain. Five existing registry source-witness rows and one canonical fixture retain exact line bytes/counts; dependent reader, checker and static bindings were reconciled from saved preimages. The registry adjustment is part of this repair and lies outside the 112 incoming changed files; those incoming files remain preserved. The actual private rebuild passed in 12.971046459 seconds, static checks in 1.45883425 seconds and the existing owning boundary-only mode in 39.097385584 seconds. Full unchanged-command GREEN and new prepared-head audit remain required.
+
+
+At final committed source 4c98f74147333c52e0e56c4c48ee3e15251e01f7, the unchanged official GREEN passed in 417.18939725 seconds. Its original default-scanner child passed in 370.858543584 seconds and the actual final-head consumer verifier passed in 45.221054792 seconds. These nested durations are not added to the outer elapsed value. The outer command's independently recorded UTC timestamps are 2026-09-13T14:50:50.446569+00:00 and 2026-09-13T14:57:47.609247+00:00; elapsed duration uses the subprocess monotonic clock. All 15 final changed-file hashes, the original pinned driver and clean main 00b1ec05ae at version 0.3.357 were rechecked before this Finish attempt. A fresh prepared-head replay, independent vendor audit and local post-merge checks remain the official integration requirements. No Story DONE or remote publication is claimed.
+
+
+The next prepared candidate, 72dc85e2a209711a20a4754fbd480fb8eeaa1eeb, was rejected by its independent audit after 876.495 seconds. The outer Finish attempt ended in 1704.392318417 seconds. The finding stated that the two new canonical assertion blocks had not executed. The actual scanner already executes the canonical identity-sites group and requires its successful group selector, but it captured that stdout without forwarding the individual assertion selectors. The nested source verifier's separate limitation about the native route suite therefore made the audit output ambiguous. This rejection is retained rather than relabeled as a passing audit.
+
+The repair forwards the actual captured identity-sites stdout only after the existing required-selector validation. It adds no child execution, selector fabrication, timeout change or alternate test route. The unchanged pinned driver already forwards scanner stdout, so the actual per-assertion results now reach its receipt. The real boundary command remained successful in the focused visibility RED, but both individual selectors were absent; that diagnostic failed in 46.735430083 seconds. Fresh execution and final output-tail checks are required before another Finish.
+
+
+The repaired visibility diagnostic passed in 36.976341416 seconds using the same actual boundary command. The source census preserves all 264 source/emitted identity sites and the other 45 import rows; the scanner row gains exactly the use that forwards its captured result. Seven existing scanner context positions move by one with unchanged witnessed line bytes. The selector contract changes only its main-body fingerprint, with exact AST equality after removing the one approved output statement. Existing selector refusal controls passed in 0.526074917 seconds and static verification passed in 1.386790083 seconds with no unresolved edges. Intermediate guard failures remain recorded; they were not passing visibility evidence. Full original GREEN and its actual last-12000-character receipt projection remain pending.
+
+
+At source fa0abe77bb78d76f0dda088c6c820ed2bdd879b9, the first full replay retained a setup failure in 251.859065958 seconds: official reopen had restored package 0.3.357 while private compiled output still reported the rejected candidate version 0.3.358. The original four runtime diagnostics are retained. The existing private Main build passed in 0.799604208 seconds; the actual CLI version, current source/dist build binding and six required Main/Lab/Utils entrypoints then passed in 1.11668325 seconds. No source, assertion, command or budget changed during this setup recovery.
+
+The unchanged official GREEN subsequently passed in 416.01369575 seconds. Its default scanner took 369.349080583 seconds and its consumer verifier took 45.706693916 seconds; these child durations are not added to the outer elapsed duration. The actual tool-owned GREEN output has 6062 characters, and both new canonical assertion selectors are present in its real final 12000-character projection. All 16 committed changed-file hashes remain exact and main remains 00b1ec05ae at version 0.3.357. This proves current output visibility, not a future independent audit result; prepared-head replay and actual independent review remain required.
+
+
+The subsequent Finish stopped in 409.30379175 seconds after its synced full replay passed; version preparation was rolled back when its format guard refused the manifest, leaving no prepared release or audit. The version transaction requires canonical ASCII-escaped manifest serialization; the last selector-contract binding writer had emitted equivalent literal Unicode. The exact repository canonicalManifest formatter was applied and parsed JSON deep equality proved every manifest value unchanged. This formatting-only stop and correction are retained separately from content verification and independent review.
+
+
+The formatting-only checkpoint f5b709f6b6 passed unchanged official GREEN in 375.642429834 seconds. Its actual receipt again retains both canonical selectors in the final 12000 characters. Current static source, dependency and excerpt bindings passed before that replay. No semantic records or assertions changed in the serialization correction.
+
+
+Audit b949c414 rejected candidate fa67249e in 652.885 seconds; the outer Finish ended in 1585.432321208 seconds without integration. It accepted the witness classification, mutation controls, binding consistency and canonical-output visibility, but requested positive process-contract execution evidence. The existing runtime group already executes the unmutated contract and asserts exit zero; the nested capture hid its individual result. A direct current-head diagnostic subsequently passed in 89.984117042 seconds under the unchanged 180000 ms budget, with no timeout and observed process-group absence (outer 90.013674375 seconds). The standalone actual ordering witness passed in 3.794940291 seconds.
+
+The bounded repair adds compact monotonic elapsed, actual command/arguments/status, and success lines present in stdout to the two existing positive verifier executions. The scanner forwards only these captured measurement lines after its existing runtime-group PASS assertion. It adds no child or budget and retains every assertion. The recorded successful candidate receipt supplied the missing-output RED; subsequent full and prepared-head replays must show both actual execution measurements and both prior identity selectors in the unchanged audit-tail limit. Official reopen was followed by the existing private Main rebuild and actual CLI/version/build-binding/required-entrypoint checks. One canonical fixture's exact line is shifted and rebound; all other source/fixture semantics remain unchanged. Static excerpt updates preserve every original witnessed line while including only the approved output insertions, and the manifest retains its required escaped serialization.
+
+
+At source 80c3d8a2d234914aecc0d2476557c9e2683f4f46, unchanged official GREEN passed in 377.732449375 seconds. Its actual 6754-character receipt contains both prior canonical selectors and both compact positive-execution records within the unchanged final 12000-character audit projection. The existing process contract passed with actual elapsed 97808.592625 ms and both emitted success selectors; the existing runtime contract passed in 24291.3705 ms with its actual reuse success selector. These are measured child intervals, not additive to the outer GREEN duration. Source hashes and clean main 00b1ec05ae were checked again before Finish; independent prepared-head review remains pending.
+
+Maintenance provenance: codex/lab-identity-current-witness-coverage, repair 80c3d8a2d234914aecc0d2476557c9e2683f4f46.
+Verification command (replayed before integration and on main): `["node","scripts/verify-identity-current-witness-coverage.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab memory-intake-measurement - v0.3.357 - 2026-09-13
+
+# Consolidated Memory and Evidence Intake maintenance
+
+This release integrates the single `memory-intake-measurement` Lab. It consolidates the earlier Memory timing and static AST Labs with four subsequent bounded optimization rounds. Historical records remain bound to their original commits. This maintenance is not formal Story DONE evidence.
+
+## Before and after
+
+Different rows represent different rounds and workloads. Do not add their durations or multiply their percentages. Counts are deterministic fixture observations; wall times are local measurements, not production latency guarantees.
+
+| Repair / workload | Before | After | Evidence / qualification |
+|---|---:|---:|---|
+| Per-query timer includes actual pack construction | [0, 0] ms | [11, 17] ms | Deterministic clock; 28 ms total, or 33 ms with shared setup. Measurement correctness, not acceleration. |
+| Static AST parsing, identical full strict report | 368 parses at scanner Lab head 0884d377; 370 at reviewed candidate c40c48d82d | 234 at scanner Lab head; 236 at reviewed candidate | Counts depend on the scanned closure. Both observations eliminate 134 duplicate parses. Historical five-pair median 1881 to 1692 ms; report bytes equal. |
+| Workspace discovery, 20 calls | 605.425 ms; 60 Git | 404.889 ms; 40 Git | Inventory calls 40 to 20, same-call successful reuse. |
+| Story hash, first repair, 20 calls | 1500.004 ms; 149 Git | 1127.564 ms; 109 Git | Combined probes; moving-reference freshness retained. |
+| Baseline discovery, first repair, 20 calls | 1181.438 ms; 120 Git | 820.228 ms; 80 Git | Same matched ABBA workload. |
+| Workspace health | 38/40 | 40/40 | Fix duplicate configuration ownership check and default output budget; no checks removed. |
+| Default smoke output | 11252 characters | 9450 characters | 11000 limit preserved; full caller details available with verbose. |
+| Memory early warm hit, 2000 records | 198.372 ms | 63.166 ms | Five warm requests: five index builds to zero; all 20 pack digests equal. |
+| Story hash, second repair, 20 calls | 1261.677 ms; 109 Git | 1003.911 ms; 89 Git | Conventional candidate avoids unnecessary worktree inventory. |
+| Baseline discovery, second repair, 20 calls | 881.457 ms; 80 Git | 661.813 ms; 60 Git | Linked/custom/failure/freshness checks preserved. |
+| Memory root discovery, 2000-record warm query | 69.073 ms; 6 Git | 23.714 ms; 2 Git | Operation-local successful root reuse. |
+| Memory root discovery, 2000-record cold pack | 439.974 ms; 32 Git | 63.353 ms; 2 Git | Failed probes remain retryable; next operation observes new topology. |
+| Cold candidate selection, 5000 records | 2 selections; 10000 fallback record visits | 1 selection; 5000 visits | One complete fallback scan retained; same result used for pack/cache projection. |
+| Same single cold query, final fourth-round ABBA | 100.804 ms | 92.078 ms | 8.66% in this run; small timing gain varied across runs. |
+| Ten cold batch queries, 5000 records | 382.597 ms; 24 Git; 21 source reads; 20 selections | 92.569 ms; 2 Git; 1 source read; 10 selections | 75.81% measured reduction; full serialized output parity. |
+| Ten warm batch queries, 5000 records | 43.433 ms | 21.461 ms | 50.59% measured reduction. |
+| Persisted index warm query, 20000 records | 89.213 ms; 5 validations/5 hits | 45.116 ms; 0 validations/5 hits | 49.43%; every hit still reads, hashes exact bytes and JSON.parses independently. |
+
+## Detailed evidence map
+
+All paths below are repository-relative and survive Lab cleanup:
+
+- `docs/lab/memory-intake-measurement/REPORT.md`: original timing defect and deterministic RED/GREEN.
+- `docs/lab/static-ast-reuse/`: scanner RED/GREEN, equivalence and invalidation controls.
+- `docs/lab/memory-intake-measurement/CONSOLIDATION.md`: complete source ancestry and retired duplicate workspace.
+- `docs/lab/memory-intake-measurement/history-repair/REPORT.md`: first discovery/hash repair and historical baseline failures.
+- `docs/lab/memory-intake-measurement/round-two/REPORT.md`: 38/40 to 40/40, early cache hit and conventional baseline probes.
+- `docs/lab/memory-intake-measurement/round-three/REPORT.md`: root scope, topology/failure boundaries, live sampling limitations.
+- `docs/lab/memory-intake-measurement/round-four/REPORT.md`, `abba.json`, `summary.json`: final bottom-layer ABBA and source/commit provenance.
+
+The fourth-round benchmark uses before/after/after/before ordering, fresh child processes, identical valid nonempty data and shared fixture repository conditions. Each version has two cold and ten warm observations per scenario. The baseline is 446351148f; the synchronized measured source is cb71c28d031960f0860d0d546889aff75844936a. The subsequent 1578f0645723989de0e6fbcf2f0e21d6568bc26a only changes three Lab documentation/data files. Later main synchronization and release preparation require fresh functional GREEN; historical timings are not relabelled as measurements of the release commit.
+
+## Preserved behavior and limits
+
+Cache hits retain source/configuration/query freshness and mutation isolation. Persisted validation reuse is process-local and byte-digest bound, with four-entry FIFO and a 32 MiB aggregate serialized-size eligibility budget; it does not retain parsed objects. Same-size/same-mtime tampering, deletion, invalid shape, source change, read failures and eviction remain checked. Batches share one consistent source observation and copy public digest objects. Mixed roots are refused; empty batches make no Git calls.
+
+B-e6d9's 34.98 to 6.29 seconds and 828 equal blocks preceded this Lab and included intake/Git work. It is not a newly delivered pure-parser optimization. JSON.parse was not established as the general Story-query bottleneck. The normal live learning path did not use a persisted index in the sampled checkout; the 20000-record persisted case is an API workload. The remaining 89 Git calls per 20 Story hash queries are not claimed eliminated. A selected eight-CLI sample does not establish fleet-wide cold/fallback frequency. Ordinary single-query warm timing changes in round four mostly track Git noise and are not another claimed optimization.
+
+## Verification and release provenance
+
+The final pre-Finish fourth-round GREEN at 1578f06457 completed in 201047 ms: focused bottom-layer controls, index smoke 9/9, learning store 21/21, workspace 40/40, Memory M3-M6 9/9, complete scanner report parity and all prior failure/freshness controls.
+
+The real scoped Claude CLI review passed without actionable defects, but is not whole-Lab Finish approval. The original whole-Lab provider invocation failed before review because repeated inline diff and file bodies exceeded its context limit. Final integration requires a new exact-candidate managed different-vendor audit and post-merge verification; the tool-owned record and generated CHANGELOG entry identify that candidate and result.
+
+## Finish transport repair
+
+A fresh synthetic transport witness reproduced the context-amplification defect: 3,700,307 input bytes produced a 1,903,210-byte initial prompt. Complete snapshot transport reduces that prompt to 3,225 bytes while preserving the original input digest within each invocation and exact source/diff bytes. A malicious adapter modifying diff.patch is rejected. These counts are from equivalent disposable fixtures; commit timestamps can change input digests across runs. The regression is registered in the existing Lab worktree verifier and the pinned Finish wrapper includes all four prior optimization rounds.
+
+Main synchronization at 0.3.355 preserves both added npm test scripts and all static exception entries. Dependency hashes were refreshed only for merged changed inputs; runtime-verifier source excerpts and line positions reflect its four added lines checking continuity policy. These are local reviewed static records, not vendor audit approval.
+
+Synchronization with main 0.3.356 retains the new validation catalog imports while preserving reuse of workspace.config. The selector authority implementation and its dependency edges are retained from main. Full pinned verification is required again after this merge.
+
+## Synchronized verifier compatibility repair
+
+The 0.3.356 GREEN attempt preserved a real failure: verify-material-tree-memo imported a newly expanded source closure containing a TypeScript parameter property. Node 26 native strip-only loading raised ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX before its assertions. The pinned wrapper now runs this witness first, and managed RED reproduces that exact failure. The verifier alone uses the already installed TypeScript compiler through a temporary synchronous load hook; the shared Lab bootstrap and product source are unchanged. Its original hash, repeated-tree, new-HEAD, replacement-ref, packed-ref, environment and missing-ref assertions remain intact. The targeted source verifier passes after repair. This is verification compatibility, not another product speedup.
+
+## First complete Finish audit and repair disposition
+
+The real Claude audit of c40c48d82d completed in 829790 ms with a fail verdict and three low findings. Its full review covered 19958 diff lines and the supplied changed-region snapshots. All findings are repaired in this Lab: the scanner table now explicitly binds counts to their historical and reviewed candidate heads; the uncached merge-base call retains --end-of-options without an extra subprocess; and all six intake harness levels share one cumulative deadline, reserve nested cleanup time and distinguish timeouts/interruption from ordinary RED. The original 900-second managed outer budget remains unchanged. The rejected candidate is retained as historical audit evidence and is not represented as approved.
+
+Maintenance provenance: codex/lab-memory-intake-measurement, repair d7c48bb894bd4f4a7f08ed394ec8b57c5f84486b.
+Verification command (replayed before integration and on main): `["node","scripts/lab/verify-intake-finish.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab story-tier-selector-authority - v0.3.356 - 2026-09-13
 
 ### Story-aware validation selector and execution authority
@@ -327,9 +530,9 @@ Maintenance provenance: codex/lab-route-reader-regression, repair dec07e5c8e2f30
 Verification command (replayed before integration and on main): `["node","scripts/verify-route-reader-regression.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
-## Lab review-intent-stage-cycle - v0.3.351 - 2026-09-13
+## Imported remote provenance: review-intent-stage-cycle - source v0.3.351 - 2026-09-13
 
-The Lab migrates the review-intent-stage-cycle repair from the remote host onto the current local main baseline.
+This is the source-host maintenance record imported from origin/main 6c163f9693, which already contains repair 82365ddd9d57bebd96617e58bfa054434de9e293. Its 0.3.351 label describes that source host, not the availability of this refusal on the previously divergent local main. The validation-top5-performance maintenance release incorporates this existing remote repair into local main; its actual local integration version is recorded in the new release entry. The original source-host verification and provenance follow.
 
 The repair prevents PLAN verification intent from requiring a REVIEW lifecycle verdict that can only be produced after entering REVIEW. Direct Story creation, draft materialization, checklist addition or replacement, and DEV intent amendment reject the bounded invalid shapes before persistence; Story review also reports a blocking, actionable issue for retained legacy data. Legitimate product tests for review pages, review-related CLI behavior, and complete executable pins remain admissible. Verification-intent prompts for Codex, Claude, templates, and the handoff handler teach the same boundary, and the process-fact registry records the writer and consumer contract.
 

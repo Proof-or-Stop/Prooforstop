@@ -22,11 +22,13 @@ const requiredFacts = [
 ];
 
 const requiredEvidenceFacts = [
+  'identity-canonical-digest-memo',
   'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
   'verification-receipt-authenticity',
   'verification-input-scoped-reuse',
+  'verification-planning-observation',
   'verification-reuse-capsule-authority',
   'verification-execution-producer-lock',
   'verification-lifecycle-admissibility',
@@ -70,11 +72,22 @@ async function importDist(root, relPath) {
 
 async function main() {
   const root = findRepoRoot(process.cwd());
+  check(read(root, 'packages/main/src/core/runtime-fact-registry.ts').includes('MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY'), 'Managed critic fixture runtime policy must be registered');
+  check(read(root, 'packages/main/src/tasks/isolated-finding-fixture.ts').includes('managedCriticFixtureBudgetMs(process.env,budgetStartedAt)'), 'Isolated fixture must consume the managed critic budget');
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('memory-query-latency-boundary'), 'Memory query timing runtime fact is registered');
+  execFileSync(process.execPath, [join(root, 'scripts/verify-memory-query-timing.mjs')],
+    { cwd: root, stdio: 'inherit', timeout: 60_000 });
+  check(registrySource.includes('static-scanner-source-ast-reuse'), 'Static AST runtime fact is registered');
+  // Outer 180s exceeds two 60s scanner arms plus setup and failure reporting.
+  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN']]) {
+    const output = execFileSync(process.execPath, [join(root, 'scripts', test)], { cwd: root, encoding: 'utf8', timeout: 180_000 });
+    check(output.includes(marker), 'Executed static AST control: ' + test);
+  }
   check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')
     && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),
   'CLI startup must bind its compiled version to the installed runtime package');
@@ -88,6 +101,9 @@ async function main() {
   try {
     execFileSync(process.execPath, ['scripts/verify-cli-audit-runtime-coverage.mjs'], { cwd: root, stdio: 'pipe', timeout: 450000 });
   } catch (error) { fail(verificationFailureMessage('CLI runtime coverage', error)); }
+  check(registrySource.includes('verification-executable-observation'), 'Fresh executable observation must have a runtime contract');
+  execFileSync(process.execPath, ['packages/main/tests/lab-top5-identity.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+  execFileSync(process.execPath, ['packages/main/tests/identity-canonical-digest-memo.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
   check(registrySource.includes('validation-invocation-baseline-serialization'), 'Invocation-local baseline serialization must be registered');
   execFileSync(process.execPath, [join(root, 'scripts/verify-validation-snapshot-binding.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30000 });
@@ -802,6 +818,8 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
   for (const test of ['verify-doctor-runtime-scan.mjs', 'verify-doctor-runtime-cache.mjs']) {
     execFileSync(process.execPath, [join(root, 'scripts', test)], {cwd: root, stdio: 'inherit', timeout: 120000});
   }
+
+  execFileSync(process.execPath, [join(root, 'packages/main/tests/planning-observation.test.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 
   execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 

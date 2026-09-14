@@ -1,0 +1,41 @@
+
+> proof-or-stop@0.3.356 lab:worktree
+> node scripts/lab-worktree.mjs red validation-top5-performance --expect TOP5_5_RED: repeated native children have no disposable compilation cache --timeout-ms 1250000 -- node packages/main/tests/lab-top5-cache-performance.mjs 5
+
+TOP5_NATIVE_OUTPUT {"outputRoot":"/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/top5-native-output-VsfASX"}
+TOP5_PROFILE {"suite":5,"command":["node","scripts/run-validation-fixture-suite.mjs","packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"],"wallMs":135068.903292,"nativeExitCode":0,"nativeSignal":null,"formalStoryEvidence":false}
+B29BC_DELAYED_FIXTURE_READINESS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertDelayedFixtureReadiness","wallMs":6062.035917}
+B29BC_READINESS_TERMINAL_AND_CLOSE_CONTROLS PASS
+HEARTBEAT_GROUP_TIMING {"name":"assertReadinessFailureControls","wallMs":407.70579199999975}
+HEARTBEAT_GROUP_TIMING {"name":"runValidate","wallMs":12413.59225}
+HEARTBEAT_GROUP_TIMING {"name":"assertMainDirectHandlerClosesTerminal","wallMs":10562.072540999998}
+HEARTBEAT_GROUP_TIMING {"name":"assertStoryAdvanceReceivesHeartbeat","wallMs":22479.157042000003}
+HEARTBEAT_GROUP_TIMING {"name":"assertMidValidationForeignAppendFailsClosed","wallMs":16482.062707999998}
+HEARTBEAT_GROUP_TIMING {"name":"assertFailedStoryAdvancePreservesValidationEvidence","wallMs":9265.892166999998}
+HEARTBEAT_GROUP_TIMING {"name":"assertTrueHangFailsClosedWithNamedDiagnostics","wallMs":1860.6567910000012}
+HEARTBEAT_GROUP_TIMING {"name":"assertDirectDoneRequiredTimeoutMatrix","wallMs":21433.951291999998}
+HEARTBEAT_GROUP_TIMING {"name":"assertDonePrepareRoutineTimeoutMatrix","wallMs":13091.970000000001}
+HEARTBEAT_GROUP_TIMING {"name":"assertOuterWatchdogsKillDescendants","wallMs":13848.545041000005}
+HEARTBEAT_GROUP_TIMING {"name":"assertNonDivisibleMaxUsesNamedDeadline","wallMs":6635.319417000006}
+validate-progress-heartbeat smoke passed
+FIXTURE_COMPILE_CACHE {"files":0,"bytes":0}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: TOP5_5_RED: repeated native children have no disposable compilation cache
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/tests/lab-top5-cache-performance.mjs:40:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+Target RED recorded locally.

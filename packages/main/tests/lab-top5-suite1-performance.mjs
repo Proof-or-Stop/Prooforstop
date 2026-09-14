@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import path from 'node:path';
+const root=path.resolve(import.meta.dirname,'../../..');
+const argv=['scripts/run-validation-fixture-suite.mjs','packages/main/dist/tasks/verification-run-and-guard-smoke.js'];
+const start=performance.now();
+const native=spawnSync(process.execPath,argv,{cwd:root,encoding:'utf8',timeout:1200000,maxBuffer:64*1024*1024});
+process.stdout.write(native.stdout??'');process.stderr.write(native.stderr??'');
+console.log('TOP5_PROFILE '+JSON.stringify({suite:1,command:['node',...argv],wallMs:performance.now()-start,nativeExitCode:native.status,nativeSignal:native.signal,formalStoryEvidence:false}));
+assert.equal(native.status,0,'Full native suite must pass before asserting performance');
+assert.match(native.stdout,/PASS verification-run-and-guard-smoke/);
+const focused=spawnSync(process.execPath,['packages/main/tests/lab-top5-identity.mjs'],{cwd:root,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024});
+process.stdout.write(focused.stdout??'');process.stderr.write(focused.stderr??'');
+assert.equal(focused.status,0,'Fresh executable observation regression must pass');
+console.log('TOP5_1_GREEN');

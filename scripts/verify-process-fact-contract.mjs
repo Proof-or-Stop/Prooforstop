@@ -17,20 +17,6 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
 const quiet = process.argv.slice(2).includes('--quiet');
-// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
-for (const [file, marker, timeout] of [
-  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
-]) {
-  try {
-    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
-    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
-    if (!quiet) process.stdout.write(output);
-  } catch (error) {
-    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
-  }
-}
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
@@ -5508,6 +5494,35 @@ function parseProcessFactLevelDefinitions() {
 }
 
 let cachedCommandPolicyEntries = null;
+
+// Refuse the complete actual ownership contract before launching positive proofs.
+assertStoryWriterRuntimeAdmissionContract();
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
+
+// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
+for (const [file, marker, timeout] of [
+  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
+]) {
+  try {
+    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
+    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
+    if (!quiet) process.stdout.write(output);
+  } catch (error) {
+    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
+  }
+}
+
+// Durable ordering witness: its invalid child exits at the admission gate above.
+const admissionOrderOutput = execFileSync(process.execPath, [join(root, 'scripts/verify-process-runtime-admission-order.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
+nodeAssert(admissionOrderOutput.includes('PASS process runtime admission order:'), 'Runtime admission ordering witness must emit its PASS marker');
+if (!quiet) process.stdout.write(admissionOrderOutput);
 
 function readStringProperty(block, propertyName) {
   const match = new RegExp(`\\b${propertyName}\\s*:\\s*(['"\`])`).exec(block);
@@ -11123,7 +11138,6 @@ for (const frozenCommand of expectedStory2Validation) {
 assert(currentStory2Validation.some(row => row.command === 'node' && row.args?.includes('--section=delivery') && row.timeoutMs === 600000), 'Story2 full delivery selector has bounded measured-duration timeout');
 assertCurrentPromptIdentityBoundary();
 assertCapabilityMaterialContract();
-assertStoryWriterRuntimeAdmissionContract();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);
@@ -11605,6 +11619,26 @@ nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRe
  nodeAssert(receiptSource.includes("publicKeyForPrivate(readFileSync(join(location.commonDir, VERIFICATION_SIGNER_KEY_FILE), 'utf8').trim())"), 'Each signature stage must read current key bytes');
  nodeAssert(receiptScripts['test:verification-key-location'] === 'node scripts/verify-verification-key-location.mjs' && receiptScripts['test:serial-reference'].includes('npm run test:verification-key-location'), 'Location continuity regression must run in canonical suite');
  nodeAssert(read('packages/main/src/tasks/full-suite-runner.ts').includes("repoRead('test:verification-key-location')"), 'Location regression needs canonical resource policy');
+}
+
+const managedCriticArtifact = parseRegistryArrayEntriesFromSource(read(processFactRegistryPath), 'PROCESS_FACT_ARTIFACTS')
+  .find(entry => entry.name === 'artifact:managed-inventory-critic-receipt');
+assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.managed_review_evidence_import'
+  && managedCriticArtifact.kind === 'signed-artifact', 'Managed importer must explicitly register its second signed critic artifact');
+
+// Managed inventory transport checks must precede the final failure gate.
+assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
+assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
+{
+ const source = read('packages/main/src/handlers/review-inventory.ts');
+ const required = ['export function importManagedInventoryCritic', 'createManagedReviewEvidenceBinding',
+   'verifyManagedReviewLiveBinding', 'proposalFindingIndex',
+   'only proof-or-stop-review-topology-critic may write critic authority'];
+ const missing = candidate => required.filter(token => !candidate.includes(token));
+ assert(missing(source).length === 0, 'Managed critic transport must authenticate its receipt and preserve native actor checks');
+ for (const token of required) {
+   nodeAssert(missing(source.replaceAll(token, '')).includes(token), 'Managed critic negative control must detect removed authority token: ' + token);
+ }
 }
 
 if (failures.length) {

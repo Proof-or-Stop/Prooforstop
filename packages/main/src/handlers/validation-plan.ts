@@ -67,7 +67,6 @@ import type { RoutineValidationSourceKind, ValidationCommand } from '../core/val
 import type { SignedValidationDurationArtifact } from '../core/validation-relevance-input.js';
 import { buildValidationCommandInventory } from '../core/validation-command-identity.js';
 import { resolveStoryWorkspace } from '../core/story-workspace.js';
-import { loadConfig } from '../core/config.js';
 import {
   compileValidationCatalog,
   discoverValidationInventory,
@@ -876,7 +875,7 @@ export function createValidationPlanHandlers(ctx: HandlerContext) {
         durationHistory: { artifacts },
       });
 
-      const projectConfig = loadConfig(projectRoot);
+      const projectConfig = workspace.config;
       const validationConfig = projectConfig.validate ?? projectConfig.validation;
       const configuredImpactIndex = validationConfig?.dynamic?.impactIndex as ValidationImpactIndex | undefined;
       const projection = projectValidationImpactIndexForPlan({

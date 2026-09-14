@@ -3053,6 +3053,7 @@ async function runVerificationIntegrityShard(): Promise<void> {
 }
 
 function runVerificationShard<T>(argument: string, marker: string): Promise<{ receipt: T; stdout: string; stderr: string }> {
+  const shardStarted = performance.now();
   const child = spawn(process.execPath, [fileURLToPath(import.meta.url), argument], { stdio: ['ignore', 'pipe', 'pipe'] });
   let stdout = '';
   let stderr = '';
@@ -3061,6 +3062,7 @@ function runVerificationShard<T>(argument: string, marker: string): Promise<{ re
   return new Promise((resolveShard, rejectShard) => {
     child.once('error', rejectShard);
     child.once('close', code => {
+      console.log('VERIFICATION_SHARD_TIMING ' + JSON.stringify({ argument, wallMs: performance.now() - shardStarted, code }));
       const markerLine = stdout.split(/\r?\n/).find(line => line.startsWith(marker));
       if (code !== 0 || !markerLine) {
         rejectShard(new Error(`verification shard ${argument} failed or omitted ${marker}: ${stderr || stdout}`));

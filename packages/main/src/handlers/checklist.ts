@@ -1,3 +1,4 @@
+import { withVerificationPlanningObservation } from '../core/verification-execution-evidence.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
 import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
@@ -1354,9 +1355,13 @@ async function enforceAndStampEvidence(
   });
   const sharedExecution = deps.sharedExecutionReceipt;
   const sharedCausalReceipt = deps.sharedCausalReceipt;
-  const sharedIdentity = sharedExecution ? prepareVerificationExecutionIdentity({
-    command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs: sharedExecution.effectiveTimeoutMs, manifestPath,
-  }) : undefined;
+  const sharedIdentity = sharedExecution
+    ? sharedExecution.effectiveTimeoutMs === effectiveTimeoutMs
+      ? beforeIdentity
+      : prepareVerificationExecutionIdentity({
+          command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs: sharedExecution.effectiveTimeoutMs, manifestPath,
+        })
+    : undefined;
   if (sharedExecution && (
     sharedExecution.command !== pinCommand
     || sharedExecution.cwd !== deps.cwd
@@ -1373,7 +1378,9 @@ async function enforceAndStampEvidence(
   const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
   const launchFreshness = captureVerificationFreshness(deps.cwd, deps.metadataRoot);
   const preflightInput = { command: pinCommand, cwd: deps.cwd, timeoutMs: effectiveTimeoutMs };
-  const implementationDigest = executionImplementationIdentity().digest;
+  // Reuse the implementation projection from the same synchronous preflight.
+  // The independent launch, completion and publication checks still reread.
+  const implementationDigest = beforeIdentity.implementationDigest;
   const initialPreflightFacts = deps.preflightFacts(preflightInput);
   const preflightFactsUnchanged = () =>
     causalCanonical(deps.preflightFacts(preflightInput)) === causalCanonical(initialPreflightFacts);
@@ -3463,11 +3470,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         ...(entry.commandTimeoutReason !== undefined ? { commandTimeoutReason: entry.commandTimeoutReason } : {}),
       }));
       const initialCl = store.readChecklist(args.storyId);
-      const initialPlans = args.evidences.map((entry, i) => {
+      const initialPlans = withVerificationPlanningObservation(() => args.evidences.map((entry, i) => {
         const item = initialCl.items.find(it => it.id === entry.itemId);
         if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
         return verificationProducerPlan(root, item, evidenceInputs[i], gitCwd);
-      });
+      }));
       const commandOrdinals = new Map([...new Set(initialPlans.flatMap(plan => plan ? [plan.executionKey] : []))]
         .map((key, index) => [key, index + 1]));
       let executingKey: string | undefined;
@@ -3915,12 +3922,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               });
               assertVerificationInputUnchanged(reuse.identity, beforeReuseIssue);
             } else {
-              const implementationDigest = executionImplementationIdentity().digest;
               const beforeIdentity = prepareVerificationExecutionIdentity({
                 command, cwd: computed.refreshGitCwd,
                 effectiveTimeoutMs: representative.effectiveTimeoutMs,
                 manifestPath: representative.manifestPath,
               });
+              const implementationDigest = beforeIdentity.implementationDigest;
               const preflightInput = {
                 command,
                 cwd: computed.refreshGitCwd,

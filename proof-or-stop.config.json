@@ -3541,6 +3541,20 @@
       {
         "command": "node",
         "args": [
+          "scripts/verify-managed-inventory-critic-transport.mjs"
+        ],
+        "timeoutMs": 900000,
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": ".proof-or-stop/runtime/validate-plan-barrier",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/dist/tasks/managed-review-evidence-smoke.js"
         ],
         "timeoutMs": 900000,

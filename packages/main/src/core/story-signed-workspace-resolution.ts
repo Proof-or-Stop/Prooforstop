@@ -68,8 +68,12 @@ interface PersistedStoryWorktreeResolution {
   reason: string | null;
 }
 
+// Caller-owned output only; never consumed as authority or retained across calls.
+interface WorktreeDiscoveryObservation { gitCwd?: string; worktreePath?: string | null }
+
 export function resolveStorySignedWorkspace(
   opts: ResolveStorySignedWorkspaceOptions,
+  observation?: WorktreeDiscoveryObservation,
 ): StorySignedWorkspaceResolution {
   const story = opts.store.readStory(opts.storyId);
   const metadataRoot = canonicalPath(opts.metadataRoot);
@@ -102,7 +106,7 @@ export function resolveStorySignedWorkspace(
       return unresolved(story, metadataRoot, storyDir, requiresWorktree, configuredGitRoot.reason!);
     }
 
-    const linkedWorktree = resolveLinkedStoryWorktree(configuredGitRoot.path!, expectedBranch);
+    const linkedWorktree = resolveLinkedStoryWorktree(configuredGitRoot.path!, expectedBranch, observation);
     if (linkedWorktree) {
       return resolved(
         story,
@@ -131,7 +135,7 @@ export function resolveStorySignedWorkspace(
 
   const metadataGitRoot = probeGitRoot(metadataRoot);
   if (metadataGitRoot.ok && metadataGitRoot.topLevel) {
-    const linkedWorktree = resolveLinkedStoryWorktree(metadataGitRoot.topLevel, expectedBranch);
+    const linkedWorktree = resolveLinkedStoryWorktree(metadataGitRoot.topLevel, expectedBranch, observation);
     if (linkedWorktree) {
       return resolved(
         story,
@@ -193,6 +197,14 @@ export interface ResolveGitCwdOptions {
 }
 
 export function resolveGitCwd(opts: ResolveGitCwdOptions): string {
+  return resolveGitCwdWithWorkspace(opts).gitCwd;
+}
+
+/** Reuse the same authoritative observation when the caller also needs its worktree.
+ * An undefined worktreePath means no reusable successful inventory, not observed absence.
+ */
+export function resolveGitCwdWithWorkspace(opts: ResolveGitCwdOptions): { gitCwd: string; worktreePath?: string | null } {
+  const observation: WorktreeDiscoveryObservation = {};
   try {
     const resolution = resolveStorySignedWorkspace({
       store: opts.store,
@@ -200,14 +212,18 @@ export function resolveGitCwd(opts: ResolveGitCwdOptions): string {
       metadataRoot: opts.metadataRoot,
       cwd: opts.cwd,
       config: opts.config,
-    });
+    }, observation);
     if (resolution.resolved && resolution.authoritativeCwd) {
-      return resolution.authoritativeCwd;
+      return {
+        gitCwd: resolution.authoritativeCwd,
+        ...(observation.gitCwd === canonicalPath(resolution.authoritativeCwd)
+          ? { worktreePath: observation.worktreePath } : {}),
+      };
     }
   } catch {
     // Resolver error (absent story metadata, etc.): fail safe to projectRoot.
   }
-  return opts.projectRoot;
+  return { gitCwd: opts.projectRoot };
 }
 
 /**
@@ -550,11 +566,16 @@ function storyWorktreeCandidates(metadataRoot: string, storedPath: string): stri
   return uniquePaths(candidates);
 }
 
-function resolveLinkedStoryWorktree(repoRoot: string, expectedBranch: string): string | null {
-  const linked = listGitWorktrees(repoRoot).find((entry) => entry.branch === expectedBranch);
+function resolveLinkedStoryWorktree(repoRoot: string, expectedBranch: string, observation?: WorktreeDiscoveryObservation): string | null {
+  if (observation) { delete observation.gitCwd; delete observation.worktreePath; }
+  let linked;
+  try { linked = listGitWorktrees(repoRoot, { throwOnError: true }).find((entry) => entry.branch === expectedBranch); }
+  catch { return null; }
+  if (observation) { observation.gitCwd = canonicalPath(repoRoot); observation.worktreePath = linked?.path ?? null; }
   if (!linked) return null;
   const probe = probeGitRoot(linked.path);
   if (!probe.ok || !probe.topLevel) return null;
+  if (observation) observation.gitCwd = canonicalPath(probe.topLevel);
   return probe.topLevel;
 }
 

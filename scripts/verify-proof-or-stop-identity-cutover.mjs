@@ -19,8 +19,8 @@ const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept
 const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'b97d6d33dc481c3e16a928606c44827bae2986bc69156bfc7ed108ab32a3b963';
 const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 51;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'de47d523b721c1be067de039dc57d397ac5447bd7234f69b7aac333de35055ab';
-const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 199;
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'c18c553699aa57f86a04fdfd63876d7052698005c7a20238530a006094dc0206';
+const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 202;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const STORY_INIT_COMMIT = '1bde8a8280d68fe652dadfcdf42aad5190350ba7';
 // Rewritten from 1dab23ae287f by the authorized repository-wide Git identity
@@ -3144,7 +3144,7 @@ FINAL_NEGATIVE_CONTEXT_ROWS.push(...mainIntegrationNegativeContextRows(), { id: 
 // Integrity obligations for reviewed negative witnesses; these are NOT scan exemptions.
 // Runtime obligations below and the normal focused suites establish rejection behavior.
 const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-core-realpath.test.mjs', sha256: '387ff3d85490ead23ca8780190574a02148163cca9a924d18af9193ae24b32f0' },
-  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"3a9d67cdc00fc68ca9f7a69565e8b7c532cc953c10d4b4a592d588fe02747c0f"},
+  {"path":"packages/main/src/core/runtime-environment-checks.ts","sha256":"e617c5209eaf981b79222da24ac7e173bc0a880939da440319b1cd4f0bfb4927"},
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "sha256": "173b375e436424fae6b073aaf407e0e0b132250f0d0fc44c5387def8b3009027"
@@ -3223,7 +3223,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7"
+    "sha256": "f939b3eb5e3ebab1f5f171a2ba993f9c095475a4c06e7f46a2d8120209a23d41"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "c4486554d092dbeece2a0b461eccf2e8c6e44f625a60d524076082d8fe7cd9ba"
+    "sha256": "709c48ad2f2f95119e09e6dadef398a62971aab2003ede8d3bcf255fb210a9be"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "7bee4a0fe6b4551a694f81af5ae115b33d1293e8bd5f12558a58a924a8910b47"
+    "sha256": "a09a1249fe9e0f965c0ec9eb4b68211b5341c591fbcd6147dd61bcfd1dbe5a86"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -3603,7 +3603,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"14e080ca1ead661ee86bcb06a547ae249a173bdbe68fbbd7d4c148f2ea2485d7"],
+  [4,"f939b3eb5e3ebab1f5f171a2ba993f9c095475a4c06e7f46a2d8120209a23d41"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -3639,7 +3639,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"3a9d67cdc00fc68ca9f7a69565e8b7c532cc953c10d4b4a592d588fe02747c0f"],
+  [52,"e617c5209eaf981b79222da24ac7e173bc0a880939da440319b1cd4f0bfb4927"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -4283,72 +4283,72 @@ const SCANNER_RETIRED_LINE_CONTEXTS = [
   ["b144c363723da225c6b5b2c742586071adff88300ce572dd66a0a9e285e42a02",1,[5483]],
   ["d8ecf7bfdcd3160c73170262459ac6163aa6cdeb17bdb11689cab37b61b831c2",1,[5501]],
   ["68b656bd9f8dc50fdfc838bccc63a59cfaa90d90998469a55c92588b44129afb",2,[5507,5513]],
-  ["6ae87bb5a5186b3157bd859dfb5cb7d7bf072eaea6e56782c83d82d0cbddd9f2",2,[5529,5625]],
-  ["86195d5c5fb3de96b356b82d4a9f36cbb6271b95a92963237a5d545ba25767b6",1,[5535]],
-  ["59bf409ed11d657b3fed31e5f3e0ada0882e977a748bc6d62a7cbff38020415c",1,[5541]],
-  ["56d1791f990793dbb626695ea21f9a33ea9c2461dea0837c2369ad50b645ce31",2,[5547,5589]],
-  ["43b85e9e2a8d36c03ee5d3a501daaf7f53a3a310eec4d8c9ca9c1ee6b449c071",1,[5553]],
-  ["00b55b735a6af963b5aad5245cee05833870d7a60a512851e352da681ec57bcb",2,[5559,5619]],
-  ["dd66b22f4a5b82433188d5101966f309372a02e03580bbbef672450cad6cb8bd",1,[5565]],
-  ["4cb26c50b4d3ad570db6dce1a6d14816c82e6eeff122cf15ee57f3b1a36daa88",1,[5571]],
-  ["0b4cdcfcd851441ba9b40c5ef111fa50e163232fc1dd4263f5329aac1d9a79f4",1,[5577]],
-  ["061d3dcca4bdee365f3d0bd7373e4590c485edce6b29a0aaa7eb1fe037eaf145",1,[5583]],
-  ["1fc08551a9c0025596f2f5fa6129249a62617b2d5b88da364e6ce89dcf5a085b",1,[5595]],
-  ["e1044ed4592ac8f0227b06311f3ee0e0453082963b9853698d2ed88258e1bc6a",1,[5601]],
-  ["19aa3472006012f8c1a0eb7fbeed9cef469ca862c209664aa4ba11b1d76c60ae",1,[5607]],
-  ["62e90d95c1a213125b2e5e77cd223be97e90f5d5343ed4c387bb982f2e6548eb",1,[5613]],
-  ["3698588407ceb7ca89e310f1a2fa0f3e7b73def8e1785374a05c9dcaed3b0773",1,[5631]],
-  ["ecc135b10b51527a48461eb01ab46e16f73e48e8b6528d5a297d73eedf32e664",1,[5774]],
-  ["c86502aedb438bb464f95fcf74347508cfcd66a0b95baa53831828212677fd98",1,[5775]],
-  ["29c046207e93fb9d926b3c0be6e3f26d48a181813f1174e2335e9080d4f91781",1,[5776]],
-  ["66b3446236cc6ef450be84316e159598768877d4b666937e69465c8cec6a5fd2",1,[5777]],
-  ["1c7962aa64cccb285c8946784d00d73857680222960f8c84bab5e38b0aef4341",1,[5778]],
-  ["41ba6274ebd838a3d212fd67952eb0768c1fa9d9204632586b6b44fa522907e5",3,[5846,6466,6482]],
-  ["0a6f4088f6fb0e2b9162fc53abaaa15e9a231e160f672b9d78c9163bf6301c4d",1,[5933]],
-  ["2a2366e22845a91975efb81f1695d4b601cd5598e8e54b1f81f190d961dc039d",1,[6244]],
-  ["34dbb2f67b7e93058291a0e53a21d5e7468a6e6d8065655412afe69f17356484",1,[6248]],
-  ["a86c722b8b18ec05cf5997bb988e5037f204912992e21e07e17fa5477be1982c",1,[6252]],
-  ["2f2d31fee7f09cad07db0f20721e07dd6340259af90cb9ce8263046a55e5bc19",1,[6425]],
-  ["5a2ce17286beedcd061775698a21dcbc441f91a45e5bec966382b5ff39d044aa",1,[6506]],
-  ["acc91fed7898d0bca3a29b1bfee475e8ce21d2919fcc1b43fbed1034fcefa46b",1,[6529]],
-  ["664947c955a7f5804f2c2d2ab711d96b8d86964ade92714453cd0bf496796531",1,[6530]],
-  ["851a427a06e1a257f663767b167c3fe09d97530160835be12668915bcdc6182f",1,[6532]],
-  ["4ce5469cf8d83cadd1645d2ef49b11ae3fdd2362270e6e5b736828e133f61dda",1,[6534]],
-  ["8c8c5cb6b850d6f758127b2ee573bb3d5bfabc9dd396bf223ea4316d40f0da38",1,[6535]],
-  ["ff4213c359fbe1a20359ed7c53b01dfaa5d3a733f541128b0ea8c38048a3122e",1,[6538]],
-  ["dba9df28233a56080612e6fdc6355094fd29ae43d019ac88591e226b55bd67ef",1,[6629]],
-  ["fed7a0d7bc4e4899e161ebd24d771cf969990d960837e903b353b04d1067e84b",1,[6716]],
-  ["44d1468b3794e8790a7433d0b8e0e2ae7758ba7bef71f2028ae92a922249f76c",1,[6740]],
-  ["8f5105810d07545344ecd156e207e6150bbe3a5074d0c42b3b7d73be82505528",1,[6762]],
-  ["1578e0e84bd7a481225bd8f5a1fa54c5d98813841f3a9af04e14e84403ef4992",1,[6763]],
-  ["df639fd0f83169089ee081df79ebcd04a12597ddf22818ff503f7c4c8909e13a",1,[6764]],
-  ["577a9a5205ebc67a74e853089e666357586949b725c62bb24e0f70ad5fca3a8d",1,[6765]],
-  ["9ee639fe6f42fb62dc7650a050bbc4851794e9e7b1bc2d28f3cd9fabca8ea65e",1,[6766]],
-  ["d4c07ef6d7fb26ebdb6d90ffa02bac8573ee61cf0eceb34b880bcede74cb34dd",1,[6767]],
-  ["ca4c93c80da3e65c5b62864e12336551f4eaa017241aafa664405edcce33e7b9",1,[6768]],
-  ["30b35d8684571bd463e907ce88531baedeef3b7403f016d4ce5ffadcda79263d",1,[6769]],
-  ["99a9d700d4ce9bdf439f5197df6ab872948a2b647d1f096f9bfa05fc068c1d81",1,[6770]],
-  ["7ff8336e3d7482a104f575bd8b71b6cdc065833d639a46d78176aea2c6297fdf",1,[6825]],
-  ["4af81d017a785e06de58e1d07b8e4dc6006eb02eb79eab712db9b0af3f3a3a92",1,[6835]],
-  ["c568efbb7b956d3ec038ab49bb35b9bff80d0a353d52fd486d0d5224f7d145fb",1,[6906]],
-  ["471fed82f05ce6c78080216f0aa1697f461b781e25db4ba297b774e9afe26956",1,[6910]],
-  ["91b6a617340307941edf74c8d7debb26ad2ca1f9d4b44c742039379fe35f049e",1,[6914]],
-  ["d49726ce93b549ef2ffd306745642dc79590dfdc7d4f16e0a917badb6e5ce9e5",1,[7065]],
-  ["4b56c392d1992648da19fb8bc13310d79022b92d7168113f115869fa82b97064",1,[7068]],
-  ["4a1e42cea269e577e5273724dbdad851cca273683e95ce4f92b5096de6e71a28",1,[7071]],
-  ["580d08037f5467d9d2f8beeeafbc3a727eb2f14d2520a2abf102a5b0eb5cb56b",1,[7072]],
-  ["082583da93f52a1ab8bba465cc7f03bcac21ce53e1da7db0d577c65b302e488b",1,[7388]],
-  ["8cf86b9695e64d03dc57e77d2e72137cdca62019f0ada5bebe1a3ec93be2c6c8",1,[7629]],
-  ["89ccfd14489425fcb56c3d73259421da9f7f7c9e94a8766d4e8e524b1bf1dade",1,[7630]],
-  ["d84137314d16fda9982ea9e1ed9ddd96075b96d8a0748369ccb6855f8d585cdf",1,[7631]],
-  ["96dc3ab16a41abba4060bbe2a8e64c5fad90cf81af6feeb833143b37ffa6941d",1,[7632]],
-  ["963c7080e32d784acd2c648e61448bdd0bcc5233f66b63c42b467b0ca53272fa",1,[7633]],
-  ["0325c3dca2d5c5eb392316644efec1fbf2760f5b104e6341dcea12853d261a94",1,[7634]],
-  ["42105b00f31d8747b978364998d48ac7ad0dbdc5da51623639a8ce649ccb51b9",1,[7635]],
+  ["6ae87bb5a5186b3157bd859dfb5cb7d7bf072eaea6e56782c83d82d0cbddd9f2",2,[5534,5630]],
+  ["86195d5c5fb3de96b356b82d4a9f36cbb6271b95a92963237a5d545ba25767b6",1,[5540]],
+  ["59bf409ed11d657b3fed31e5f3e0ada0882e977a748bc6d62a7cbff38020415c",1,[5546]],
+  ["56d1791f990793dbb626695ea21f9a33ea9c2461dea0837c2369ad50b645ce31",2,[5552,5594]],
+  ["43b85e9e2a8d36c03ee5d3a501daaf7f53a3a310eec4d8c9ca9c1ee6b449c071",1,[5558]],
+  ["00b55b735a6af963b5aad5245cee05833870d7a60a512851e352da681ec57bcb",2,[5564,5624]],
+  ["dd66b22f4a5b82433188d5101966f309372a02e03580bbbef672450cad6cb8bd",1,[5570]],
+  ["4cb26c50b4d3ad570db6dce1a6d14816c82e6eeff122cf15ee57f3b1a36daa88",1,[5576]],
+  ["0b4cdcfcd851441ba9b40c5ef111fa50e163232fc1dd4263f5329aac1d9a79f4",1,[5582]],
+  ["061d3dcca4bdee365f3d0bd7373e4590c485edce6b29a0aaa7eb1fe037eaf145",1,[5588]],
+  ["1fc08551a9c0025596f2f5fa6129249a62617b2d5b88da364e6ce89dcf5a085b",1,[5600]],
+  ["e1044ed4592ac8f0227b06311f3ee0e0453082963b9853698d2ed88258e1bc6a",1,[5606]],
+  ["19aa3472006012f8c1a0eb7fbeed9cef469ca862c209664aa4ba11b1d76c60ae",1,[5612]],
+  ["62e90d95c1a213125b2e5e77cd223be97e90f5d5343ed4c387bb982f2e6548eb",1,[5618]],
+  ["3698588407ceb7ca89e310f1a2fa0f3e7b73def8e1785374a05c9dcaed3b0773",1,[5636]],
+  ["ecc135b10b51527a48461eb01ab46e16f73e48e8b6528d5a297d73eedf32e664",1,[5779]],
+  ["c86502aedb438bb464f95fcf74347508cfcd66a0b95baa53831828212677fd98",1,[5780]],
+  ["29c046207e93fb9d926b3c0be6e3f26d48a181813f1174e2335e9080d4f91781",1,[5781]],
+  ["66b3446236cc6ef450be84316e159598768877d4b666937e69465c8cec6a5fd2",1,[5782]],
+  ["1c7962aa64cccb285c8946784d00d73857680222960f8c84bab5e38b0aef4341",1,[5783]],
+  ["41ba6274ebd838a3d212fd67952eb0768c1fa9d9204632586b6b44fa522907e5",3,[5851,6471,6487]],
+  ["0a6f4088f6fb0e2b9162fc53abaaa15e9a231e160f672b9d78c9163bf6301c4d",1,[5938]],
+  ["2a2366e22845a91975efb81f1695d4b601cd5598e8e54b1f81f190d961dc039d",1,[6249]],
+  ["34dbb2f67b7e93058291a0e53a21d5e7468a6e6d8065655412afe69f17356484",1,[6253]],
+  ["a86c722b8b18ec05cf5997bb988e5037f204912992e21e07e17fa5477be1982c",1,[6257]],
+  ["2f2d31fee7f09cad07db0f20721e07dd6340259af90cb9ce8263046a55e5bc19",1,[6430]],
+  ["5a2ce17286beedcd061775698a21dcbc441f91a45e5bec966382b5ff39d044aa",1,[6511]],
+  ["acc91fed7898d0bca3a29b1bfee475e8ce21d2919fcc1b43fbed1034fcefa46b",1,[6534]],
+  ["664947c955a7f5804f2c2d2ab711d96b8d86964ade92714453cd0bf496796531",1,[6535]],
+  ["851a427a06e1a257f663767b167c3fe09d97530160835be12668915bcdc6182f",1,[6537]],
+  ["4ce5469cf8d83cadd1645d2ef49b11ae3fdd2362270e6e5b736828e133f61dda",1,[6539]],
+  ["8c8c5cb6b850d6f758127b2ee573bb3d5bfabc9dd396bf223ea4316d40f0da38",1,[6540]],
+  ["ff4213c359fbe1a20359ed7c53b01dfaa5d3a733f541128b0ea8c38048a3122e",1,[6543]],
+  ["dba9df28233a56080612e6fdc6355094fd29ae43d019ac88591e226b55bd67ef",1,[6634]],
+  ["fed7a0d7bc4e4899e161ebd24d771cf969990d960837e903b353b04d1067e84b",1,[6721]],
+  ["44d1468b3794e8790a7433d0b8e0e2ae7758ba7bef71f2028ae92a922249f76c",1,[6745]],
+  ["8f5105810d07545344ecd156e207e6150bbe3a5074d0c42b3b7d73be82505528",1,[6767]],
+  ["1578e0e84bd7a481225bd8f5a1fa54c5d98813841f3a9af04e14e84403ef4992",1,[6768]],
+  ["df639fd0f83169089ee081df79ebcd04a12597ddf22818ff503f7c4c8909e13a",1,[6769]],
+  ["577a9a5205ebc67a74e853089e666357586949b725c62bb24e0f70ad5fca3a8d",1,[6770]],
+  ["9ee639fe6f42fb62dc7650a050bbc4851794e9e7b1bc2d28f3cd9fabca8ea65e",1,[6771]],
+  ["d4c07ef6d7fb26ebdb6d90ffa02bac8573ee61cf0eceb34b880bcede74cb34dd",1,[6772]],
+  ["ca4c93c80da3e65c5b62864e12336551f4eaa017241aafa664405edcce33e7b9",1,[6773]],
+  ["30b35d8684571bd463e907ce88531baedeef3b7403f016d4ce5ffadcda79263d",1,[6774]],
+  ["99a9d700d4ce9bdf439f5197df6ab872948a2b647d1f096f9bfa05fc068c1d81",1,[6775]],
+  ["7ff8336e3d7482a104f575bd8b71b6cdc065833d639a46d78176aea2c6297fdf",1,[6830]],
+  ["4af81d017a785e06de58e1d07b8e4dc6006eb02eb79eab712db9b0af3f3a3a92",1,[6840]],
+  ["c568efbb7b956d3ec038ab49bb35b9bff80d0a353d52fd486d0d5224f7d145fb",1,[6911]],
+  ["471fed82f05ce6c78080216f0aa1697f461b781e25db4ba297b774e9afe26956",1,[6915]],
+  ["91b6a617340307941edf74c8d7debb26ad2ca1f9d4b44c742039379fe35f049e",1,[6919]],
+  ["d49726ce93b549ef2ffd306745642dc79590dfdc7d4f16e0a917badb6e5ce9e5",1,[7070]],
+  ["4b56c392d1992648da19fb8bc13310d79022b92d7168113f115869fa82b97064",1,[7073]],
+  ["4a1e42cea269e577e5273724dbdad851cca273683e95ce4f92b5096de6e71a28",1,[7076]],
+  ["580d08037f5467d9d2f8beeeafbc3a727eb2f14d2520a2abf102a5b0eb5cb56b",1,[7077]],
+  ["082583da93f52a1ab8bba465cc7f03bcac21ce53e1da7db0d577c65b302e488b",1,[7393]],
+  ["8cf86b9695e64d03dc57e77d2e72137cdca62019f0ada5bebe1a3ec93be2c6c8",1,[7638]],
+  ["89ccfd14489425fcb56c3d73259421da9f7f7c9e94a8766d4e8e524b1bf1dade",1,[7639]],
+  ["d84137314d16fda9982ea9e1ed9ddd96075b96d8a0748369ccb6855f8d585cdf",1,[7640]],
+  ["96dc3ab16a41abba4060bbe2a8e64c5fad90cf81af6feeb833143b37ffa6941d",1,[7641]],
+  ["963c7080e32d784acd2c648e61448bdd0bcc5233f66b63c42b467b0ca53272fa",1,[7642]],
+  ["0325c3dca2d5c5eb392316644efec1fbf2760f5b104e6341dcea12853d261a94",1,[7643]],
+  ["42105b00f31d8747b978364998d48ac7ad0dbdc5da51623639a8ce649ccb51b9",1,[7644]],
 ];
 
 EXACT_ALLOWLIST.push(...MAINTENANCE_SCHEMA_PROVENANCE_ROWS);
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 691;
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 694;
 
 // Historical artifact bytes can contain retired salts, but active source may not.
 const FROZEN_SALTS = [];
@@ -5520,6 +5520,11 @@ const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "count": 1,
     "contextSha256": "e5acecb0da24537d83bbf8212164e6ff87af6b3c8e7b7d2af93dccc1bfd75e94"
   },{path:"scripts/verify-review-epoch-certification-continuity.mjs",token:retiredToken("lat","tice.managed_review_final_proposal.v1"),count:1,contextSha256:"85bbf1a3e793dbe83d6c7bd9c06c1ab7d4246445140a1e76295bff681c502165"}
+,
+  {path:"scripts/lab/u18-static-edges/exceptions.json", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:4, contextSha256:"2374712c57a5869a63b5961ec358c3c4222002f5384a9d2cd75f4f7dc483b730"},
+  {path:"scripts/lab/u18-static-edges/exceptions.json", token:retiredToken("lat", "tice.native_review_invocation_attestation.v1"), count:4, contextSha256:"b58fd0fb142fab599374852a9173b7e09a093cd41c0ae56b1705eb2910834214"},
+  {path:"scripts/verify-managed-inventory-critic-import.mjs", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:1, contextSha256:"c52c6b5bca96f206a923327d512bbce1bcf9849dfd6ed570266ccc607418cb49"},
+  {path:"scripts/verify-managed-inventory-critic-transport.mjs", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:1, contextSha256:"5ac97185d6fc7902811a5ffa71b75225592142b5eb26a50980244a9815c42028"}
 ];
 // Exact imported rejection fixtures, independently reviewed with canonical controls.
 // These pins exempt only schema occurrences, never their files or other identities.
@@ -6702,7 +6707,7 @@ function createOrderingSelfTestFixture(productionBeforePolicy = false, productio
 function runSelfTest(root, files) {
   if (verifyBothFamilyContexts(root).length > 0) throw new Error('both-family exact contexts or witnesses are not current');
   const failures = [...verifyImportedFinishDecisionBoundary(root, files), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-e256.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-29bc.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-42f6.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-5a52.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-adc3.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-88c7.json'), ...verifyImportedFinishDecisionBoundary(root, files, '.proof-or-stop/dev-memory/finish-decisions/B-0208.json')];
-  const expect = (condition, message) => { if (!condition) failures.push(message); };
+  const expect = (condition, message) => { if (!condition) failures.push(message); }; verifyCurrentWitnessCoverage(root, files, expect);
   expect(verifyReviewedNegativeSourceIntegrity(root).length === 0, 'reviewed negative source integrity failed');
   const customWitnessControls = new Map([
     ['packages/main/src/core/runtime-environment-checks.ts', 'if (exactOccurrenceDrift || countNeedle(site.sourceNeedle) === 0 || (!counts && countNeedle(site.retiredNeedle) > 0)) {'],
@@ -7402,7 +7407,7 @@ function verifySchemaInventory(root, schemas) {
   for (const pin of MAINTENANCE_SCHEMA_WITNESSES) if (sha256(readFileSync(resolve(root, pin.path))) !== pin.sha256) errors.push(`archived candidate source witness changed: ${pin.path}`);
   const originalRows = schemas.filter(row => !negativeKeys.has(key(row)) && !mutationKeys.has(key(row)) && !maintainedKeys.has(key(row)));
   const expected = new Map(CURRENT_COMPATIBLE_SCHEMA_ROWS.map(row => [key(row), row]));
-  if (expected.size !== CURRENT_COMPATIBLE_SCHEMA_ROWS.length || expected.size !== 90) errors.push('current compatibility schema inventory duplicated or incomplete');
+  if (expected.size !== CURRENT_COMPATIBLE_SCHEMA_ROWS.length || expected.size !== 94) errors.push('current compatibility schema inventory duplicated or incomplete');
   const actual = new Map();
   for (const row of originalRows) {
     const id = key(row), pin = expected.get(id);
@@ -7415,14 +7420,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "552b459f926ff4b12cc52540c1f5726ab6f33d1f767c32e3a94ab5abd9693087"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "f934a950be23a44932b7b949120086f1197484841d806cdf6cbab8bc86254792"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "1dacd1faaea163df0b6a4b977b47dc31d608f59975f2d1b35f94ea6555fafa51"
+    "sha256": "1903c84846b15e2f3160ef358bcb74603302d17f112f26e986ad17d0914d9d9a"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "afae82e5f51f3253966239eb9c1177f1430f858f0550dc2ee04ee9404aa56595"
+    "sha256": "bde0defaf77145afc753652a1b2742d81cda15cfba03ed9c5dd2a4168c8af11f"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7514,6 +7519,7 @@ function main() {
   // scanner invocation or an integrity-hash substitute for behavioral proof.
   const identitySitesCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=identity-sites'], { cwd: root, encoding: 'utf8', timeout: 60000 });
   if (!identitySitesCheck.includes('GREEN B-49df: identity-sites group pass.')) throw new Error('independent owned identity totality verification did not produce its required selector');
+  process.stdout.write(identitySitesCheck);
 
   // Disposable immutable-boundary controls require the same structural scan
   // and independent source/emitted identity totality, but do not certify the
@@ -7534,6 +7540,9 @@ function main() {
   // five-minute ceiling instead of truncating the behavioral proof.
   const runtimeCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: 300000 });
   if (!runtimeCheck.includes('GREEN B-49df: runtime group pass.')) throw new Error('runtime deny-only verification did not produce its required selector');
+  for (const line of runtimeCheck.split('\n')) {
+    if (line.startsWith('CANONICAL_VERIFIER_EXECUTION ')) process.stdout.write(line + '\n');
+  }
   const markerCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/managed-marker-migration.test.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
   if (!markerCheck.includes('managed-marker migration test passed')) throw new Error('managed-marker migration verification did not produce its required selector');
 
@@ -7640,4 +7649,99 @@ function mainIntegrationNegativeContextRows() {
     disposition: 'frozen', verificationCommand: 'internal:verify-exact-frozen-occurrence',
     expectedVerification: 'PASS exact reviewed negative occurrence and bounded context',
   }));
+}
+
+// Exercise the actual existing readers on each newly reviewed witness.
+function verifyCurrentWitnessCoverage(root, files, expect) {
+  const record = expect; let failed = false;
+  expect = (condition, message) => { if (!condition) failed = true; record(condition, message); };
+  const read = path => readFileSync(resolve(root, path), 'utf8');
+  const jsonEntries = JSON.parse(read('scripts/identity-reviewed-json-data.json')).entries;
+  const jsonRows = jsonEntries.slice(729, 774);
+  const incomingJsonRows = jsonEntries.slice(774, 776);
+  const criticJsonRows = jsonEntries.slice(776);
+  expect(criticJsonRows.length === 26 && criticJsonRows.every(row =>
+    row.path === 'scripts/lab/u18-static-edges/exceptions.json' && row.nodeKind === 'value' &&
+    /^\/entries\/(269|270)\/requiredEvidence\/\d+\/excerpt$/.test(row.jsonPointer)),
+    'managed critic witness coverage requires all 26 exact copied-source nodes');
+  expect(incomingJsonRows.length === 2 && incomingJsonRows.every((row, index) =>
+    row.path === 'docs/lab/memory-intake-measurement/u18-static-report.json' && row.jsonPointer === '/rows/187/reason' &&
+    row.token === [`${LEGACY_WORD}.js`, `${LEGACY_WORD}-codex`][index]),
+    'incoming witness coverage requires the two exact historical report contexts');
+  const allJsonRows = [...jsonRows, ...incomingJsonRows, ...criticJsonRows];
+  const fixtureRows = JSON.parse(read('scripts/identity-reviewed-fixture-data.json')).entries.slice(268);
+  const provenanceRows = CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.id.startsWith('current-witness-coverage-'));
+  expect(jsonRows.length === 45 && fixtureRows.length === 5 && provenanceRows.length === 3,
+    'current witness coverage requires every reviewed addition');
+  const scratch = mkdtempSync(join(tmpdir(), 'identity-current-witness-'));
+  let controls = 0;
+  try {
+    for (const row of allJsonRows) {
+      const text = read(row.path), parsed = JSON.parse(text);
+      const keys = row.jsonPointer.slice(1).split('/').map(key => key.replaceAll('~1', '/').replaceAll('~0', '~'));
+      const parent = keys.slice(0, -1).reduce((value, key) => value[key], parsed);
+      const key = keys.at(-1), value = parent[key];
+      expect(typeof value === 'string', 'reviewed JSON pointer must name its actual string');
+      const check = (document, file = row.path) => {
+        const input = JSON.stringify(document);
+        if (file !== row.path) return reviewedDataResidueAllowed({path: file, token: row.token, lineNumber: 1, line: input, text: input});
+        return validateReviewedDataSources(path => path === row.path ? input : read(path)).length === 0;
+      };
+      expect(check(parsed), 'exact current JSON witness rejected'); controls++;
+      for (const replacement of [value + row.token, value + ' changed-context']) {
+        parent[key] = replacement;
+        expect(!check(parsed), 'changed JSON count or same-count context admitted'); controls++;
+        expect(validateReviewedDataSources(path => path === row.path ? JSON.stringify(parsed) : read(path)).length > 0,
+          'actual JSON source integrity accepted changed witness'); controls++;
+      }
+      delete parent[key];
+      expect(!check(parsed), 'removed JSON pointer admitted'); controls++;
+      parent[key + '-unlisted'] = value;
+      expect(!check(parsed), 'relocated JSON pointer admitted'); controls++;
+      delete parent[key + '-unlisted']; parent[key] = value;
+      expect(!check(parsed, row.path + '.unlisted.json'), 'unlisted JSON path admitted'); controls++;
+    }
+    for (const row of fixtureRows) {
+      const text = read(row.path), lines = text.split(/\r?\n/), line = lines[row.lineNumber - 1];
+      const check = (input, file = row.path) => reviewedFixtureResidueAllowed({path: file, token: row.token,
+        lineNumber: row.lineNumber, line: input.split(/\r?\n/)[row.lineNumber - 1], text: input});
+      expect(check(text), 'exact private or metadata fixture witness rejected'); controls++;
+      for (const input of [text + '\n' + row.token, text.replace(line, line + ' // changed-context'), text.replace(line, '')]) {
+        expect(!check(input), 'changed fixture count/context/removal admitted'); controls++;
+        expect(validateReviewedFixtureSources(path => path === row.path ? input : read(path)).length > 0,
+          'actual fixture source integrity accepted mutation'); controls++;
+      }
+      expect(!check(text, row.path + '.unlisted.ts'), 'unlisted fixture path admitted'); controls++;
+    }
+    const tracked = new Set(files);
+    for (const row of provenanceRows) {
+      const text = read(row.path);
+      expect(validateExactRows(EXACT_ALLOWLIST, tracked, root).length === 0, 'current provenance positive refused'); controls++;
+      for (const input of [text + '\n' + row.token, text.replace(row.token, row.token + ' changed-context'), text.replaceAll(row.token, '')]) {
+        expect(validateExactRows(EXACT_ALLOWLIST, tracked, root, path => path === row.path ? input : read(path)).length > 0,
+          'provenance count/context/removal mutation admitted'); controls++;
+      }
+      expect(validateExactRows(EXACT_ALLOWLIST.filter(candidate => candidate !== row), tracked, root).length > 0,
+        'removed provenance inventory row admitted'); controls++;
+      expect(validateExactRows(EXACT_ALLOWLIST.map(candidate => candidate === row ? {...row, path: 'docs/unlisted-witness.md'} : candidate), tracked, root).length > 0,
+        'changed provenance path admitted'); controls++;
+    }
+    for (const entrypoint of TRUTH_SOURCE_ENTRYPOINTS) {
+      mkdirSync(dirname(resolve(scratch, entrypoint)), {recursive:true});
+      writeFileSync(resolve(scratch, entrypoint), read(entrypoint));
+    }
+    const targets = [...new Set([...allJsonRows, ...fixtureRows, ...provenanceRows].map(row => row.path))];
+    for (const file of targets) {
+      const destination = resolve(scratch, file);
+      mkdirSync(dirname(destination), {recursive:true}); writeFileSync(destination, read(file));
+    }
+    expect(scanActiveResidue(scratch, targets).length === 0, 'exact current witnesses still produce residue'); controls++;
+    // Same-directory neighbors remain active, even when they copy approved bytes.
+    for (const file of targets) {
+      const dot = file.lastIndexOf('.'), neighbor = file.slice(0, dot) + '-unlisted' + file.slice(dot);
+      writeFileSync(resolve(scratch, neighbor), read(file));
+      expect(scanActiveResidue(scratch, [neighbor]).length > 0, 'unlisted neighboring witness escaped actual scanner'); controls++;
+    }
+  } finally { rmSync(scratch, {recursive:true, force:true}); }
+  if (!failed) console.log(`PASS current witness consumers: ${allJsonRows.length} JSON, ${fixtureRows.length} fixture, ${provenanceRows.length} provenance rows; ${controls} actual checks`);
 }

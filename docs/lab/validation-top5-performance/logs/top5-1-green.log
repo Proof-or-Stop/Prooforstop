@@ -1,0 +1,116 @@
+
+> proof-or-stop@0.3.353 lab:worktree
+> node scripts/lab-worktree.mjs green validation-top5-performance
+
+VERIFICATION_SHARD_TIMING {"argument":"--baa5f-verification-foundation-shard","wallMs":49381.75625,"code":0}
+VERIFICATION_SHARD_TIMING {"argument":"--baa5f-verification-integrity-shard","wallMs":181326.725666,"code":0}
+VERIFICATION_SHARD_TIMING {"argument":"--baa5f-story-identity-shard","wallMs":236817.204875,"code":0}
+VERIFICATION_SHARD_TIMING {"argument":"--baa5f-verification-fanout-shard","wallMs":310886.67745799996,"code":0}
+B-aa5f F089 legacy-metadata-maintenance PASS
+F088 owned-process {"event":"worker-ready","label":"healthy-A","pid":44930,"ppid":27605,"at":1789298684260}
+F088 owned-process {"event":"acquired","label":"healthy-A","pid":44930,"ppid":27605,"at":1789298684262}
+F088 owned-process {"event":"child-spawned","label":"healthy-A","pid":44930,"ppid":27605,"at":1789298684263,"childPid":45737}
+F088 owned-process {"event":"child-start","label":"healthy-A","pid":45737,"ppid":44930,"at":1789298684292}
+F088 owned-process {"event":"worker-ready","label":"healthy-B","pid":45972,"ppid":27605,"at":1789298684555}
+F088 owned-process {"event":"child-end","label":"healthy-A","pid":45737,"ppid":44930,"at":1789298684696}
+F088 owned-process {"event":"complete","label":"healthy-A","pid":44930,"ppid":27605,"at":1789298684701}
+F088 owned-process {"event":"acquired","label":"healthy-B","pid":45972,"ppid":27605,"at":1789298684721}
+F088 owned-process {"event":"child-spawned","label":"healthy-B","pid":45972,"ppid":27605,"at":1789298684721,"childPid":47368}
+F088 owned-process {"event":"child-start","label":"healthy-B","pid":47368,"ppid":45972,"at":1789298684748}
+F088 owned-process {"event":"child-end","label":"healthy-B","pid":47368,"ppid":45972,"at":1789298685152}
+F088 owned-process {"event":"complete","label":"healthy-B","pid":45972,"ppid":27605,"at":1789298685156}
+F088 owned-process {"event":"worker-ready","label":"paused-A","pid":48653,"ppid":27605,"at":1789298685420}
+F088 owned-process {"event":"acquired","label":"paused-A","pid":48653,"ppid":27605,"at":1789298685423}
+F088 owned-process {"event":"child-spawned","label":"paused-A","pid":48653,"ppid":27605,"at":1789298685424,"childPid":49421}
+F088 owned-process {"event":"child-start","label":"paused-A","pid":49421,"ppid":48653,"at":1789298685455}
+F088 owned-process {"event":"worker-ready","label":"paused-B","pid":37222,"ppid":27605,"at":1789298716782}
+F088 realPauseMs=32036 ownerAlive=true childAlive=true maxSimultaneous=1
+F088 owned-process {"event":"child-end","label":"paused-A","pid":49421,"ppid":48653,"at":1789298722459}
+F088 owned-process {"event":"complete","label":"paused-A","pid":48653,"ppid":27605,"at":1789298722466}
+F088 owned-process {"event":"acquired","label":"paused-B","pid":37222,"ppid":27605,"at":1789298722469}
+F088 owned-process {"event":"child-spawned","label":"paused-B","pid":37222,"ppid":27605,"at":1789298722471,"childPid":51301}
+F088 owned-process {"event":"child-start","label":"paused-B","pid":51301,"ppid":37222,"at":1789298722501}
+F088 owned-process {"event":"child-end","label":"paused-B","pid":51301,"ppid":37222,"at":1789298723104}
+F088 owned-process {"event":"complete","label":"paused-B","pid":37222,"ppid":27605,"at":1789298723108}
+F088 owned-process {"event":"worker-ready","label":"choosing-B","pid":52789,"ppid":27605,"at":1789298723411}
+F088 owned-process {"event":"choosing-pending","label":"choosing-B","pid":52789,"ppid":27605,"at":1789298723413}
+F088 owned-process {"event":"worker-ready","label":"choosing-A","pid":53470,"ppid":27605,"at":1789298723701}
+F088 owned-process {"event":"choosing-snapshot-observed","label":"choosing-A","pid":53470,"ppid":27605,"at":1789298723703}
+F088 owned-process {"event":"acquired","label":"choosing-B","pid":52789,"ppid":27605,"at":1789298723704}
+F088 owned-process {"event":"child-spawned","label":"choosing-B","pid":52789,"ppid":27605,"at":1789298723705,"childPid":54298}
+F088 owned-process {"event":"child-start","label":"choosing-B","pid":54298,"ppid":52789,"at":1789298723737}
+F088 owned-process {"event":"child-end","label":"choosing-B","pid":54298,"ppid":52789,"at":1789298724240}
+F088 owned-process {"event":"complete","label":"choosing-B","pid":52789,"ppid":27605,"at":1789298724243}
+F088 owned-process {"event":"acquired","label":"choosing-A","pid":53470,"ppid":27605,"at":1789298724253}
+F088 owned-process {"event":"child-spawned","label":"choosing-A","pid":53470,"ppid":27605,"at":1789298724254,"childPid":55947}
+F088 owned-process {"event":"child-start","label":"choosing-A","pid":55947,"ppid":53470,"at":1789298724281}
+F088 owned-process {"event":"child-end","label":"choosing-A","pid":55947,"ppid":53470,"at":1789298724385}
+F088 owned-process {"event":"complete","label":"choosing-A","pid":53470,"ppid":27605,"at":1789298724388}
+F088 owned-process {"event":"worker-ready","label":"dead-owner","pid":56274,"ppid":27605,"at":1789298724644}
+F088 owned-process {"event":"acquired","label":"dead-owner","pid":56274,"ppid":27605,"at":1789298724647}
+F088 owned-process {"event":"worker-ready","label":"dead-recovery","pid":57074,"ppid":27605,"at":1789298724910}
+F088 owned-process {"event":"acquired","label":"dead-recovery","pid":57074,"ppid":27605,"at":1789298724912}
+F088 owned-process {"event":"child-spawned","label":"dead-recovery","pid":57074,"ppid":27605,"at":1789298724913,"childPid":57595}
+F088 owned-process {"event":"child-start","label":"dead-recovery","pid":57595,"ppid":57074,"at":1789298724943}
+F088 owned-process {"event":"child-end","label":"dead-recovery","pid":57595,"ppid":57074,"at":1789298724996}
+F088 owned-process {"event":"complete","label":"dead-recovery","pid":57074,"ppid":27605,"at":1789298724999}
+F088 owned-process {"event":"worker-ready","label":"legacy","pid":57874,"ppid":27605,"at":1789298725328}
+F088 owned-process {"event":"worker-ready","label":"malformed","pid":58685,"ppid":27605,"at":1789298725744}
+B-aa5f F088 live-producer-ownership PASS
+F078 normal-control authenticV5=true current=true actualOutput=NODE_CONTROL
+F078 drift actualOutput=NODE_CHANGED unchangedPATH=true unchangedGit=true unchangedReceipt=true
+CHK008 causal matrix: same-identity import, crossed preflight/CAS refusal, signed time/bytes and timeout fan-out verified
+F057 environment normal-control admissible=true doneFresh=true
+F057 toolchain normal-control admissible=true doneFresh=true
+F058 controls actualLegacyExecution=true authenticAuditReadable=true materialDrift=true signedBytesChanged=false
+B-aa5f F057 live-identity-drift PASS
+B-aa5f F058 signed-publication-binding PASS
+B-aa5f F078 actual-node-path-drift PASS
+B-aa5f CHK008 causal-import-integration PASS
+
+baa5f-execution-failure-fans-out timeout=true subprocessExecutionCount=1 assertionsFailed=2 passReceiptCount=0 persistedReason="verification_evidence_refresh_stale: shared execution was attempted and timed out; executionKey=54b3f7968f63cce440274766b0ba74d535170ef59caf735326780fe7b509770f; timeoutMs=500; no pass receipt was issued [verification_refresh_execution_timeout]"
+B-aa5f fanout actualExecutionCount=2 expectedExecutionCount=2 executionReceiptCount=2 assertionReceiptCount=71 outputArtifactCount=2
+unrelatedDrift executions=0 reuseReceipts=2
+oneInputChanged executions=1 reuseReceipts=1
+reuse=denied reason=incomplete_input_closure
+reuse authority selfAttested=denied arbitraryCommand=denied capsule=admitted
+capsule sandbox undeclaredRead=denied env=closed network=denied child=denied write=denied dynamicImport=denied injection=denied
+capsule direct attacks enforcement=supported_true_denial unsupported=fail_closed escapedPath=nonreusable symlink=nonreusable worker=denied addon=denied ffi=denied wasi=denied inspector=denied
+concurrentRefreshCalls=2 subprocessExecutionCount=1 receiptsValid=2
+crossIntent addRun launches=1 sharedExecution=true independentAssertions=true
+crossIntent reusedPublication waiterLaunches=0 lineage=preserved
+producer lock matrix addAdd=1 runRun=1 batchRefresh=1 receiptsValid=3
+receiptIssued=false reason=input_changed_during_execution
+selector compatibility PASS
+partial-hash PASS
+lostCapsuleAuthority stale=true executions=1 receiptRestamped=false
+receiptSignatures execution=PASS assertion=PASS reuse=PASS graphRecompute=denied keySwap=denied
+lifecycle receipt admissibility PASS
+NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.
+verification receipt layering executionReceipts=2 assertionReceipts=71 outputArtifacts=2 integrity=pass
+PASS verification-run-and-guard-smoke subprocessExecutionCount=2 assertionReceiptCount=71
+TOP5_PROFILE {"suite":1,"command":["node","scripts/run-validation-fixture-suite.mjs","packages/main/dist/tasks/verification-run-and-guard-smoke.js"],"wallMs":311240.071041,"nativeExitCode":0,"nativeSignal":null,"formalStoryEvidence":false}
+TOP5_IDENTITY_PROFILE {"firstReads":1,"secondReads":1,"durationMs":312.0528330000001,"freshByteDrift":true}
+TOP5_1_IDENTITY_GREEN
+TOP5_1_GREEN
+F088 legacy: file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/dist/core/verification-execution-evidence.js:148
+            throw new Error('verification execution lock legacy/mixed ownership [verification_execution_lock_legacy_layout]');
+                  ^
+
+Error: verification execution lock legacy/mixed ownership [verification_execution_lock_legacy_layout]
+    at acquireVerificationExecutionLock (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/dist/core/verification-execution-evidence.js:148:19)
+    at withVerificationExecutionLocks (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/dist/core/verification-execution-evidence.js:225:33)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/[eval1]:44:11
+
+Node.js v26.8.1
+F088 malformed: file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/dist/core/verification-execution-evidence.js:148
+            throw new Error('verification execution lock legacy/mixed ownership [verification_execution_lock_legacy_layout]');
+                  ^
+
+Error: verification execution lock legacy/mixed ownership [verification_execution_lock_legacy_layout]
+    at acquireVerificationExecutionLock (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/dist/core/verification-execution-evidence.js:148:19)
+    at withVerificationExecutionLocks (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/packages/main/dist/core/verification-execution-evidence.js:225:33)
+    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/Lab-validation-top5-performance/[eval1]:44:11
+
+Node.js v26.8.1
+GREEN recorded for current committed HEAD.

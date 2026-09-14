@@ -8,7 +8,7 @@
     "runIdentityVerifier": "6d16caecdb08bd40ec3cfc5fe013a92dab6c5cd7406941becc59a45cfdafcd16",
     "createIdentityVerifierClone": "4e0a464942e41cc98125de3be88108fcdb4e3649e2d0401838991895fb009bc3",
     "createIdentityRedVerifierClone": "ff8590080c602bca764d6f447a3ea26672104b70b9c1d2be9ad9099f47d068fa",
-    "main": "387b7754088b39576de1dbeafc51bd6a339dc428bd721f21f89fe91f83727f2e",
+    "main": "b01bba9ce6d68758d0a4f699c5a0555a543f8e7e05a0835c3e2fc5a8c6617752",
     "boundaryOnly": "aafd00e7bb95c8b8ea93679d321a74ce496f34f656d0445f76ecddae939701f1",
     "NEGATIVE_SCHEMA_WITNESSES": "d5a52fa74a229fc488c2b0cd191463ac28c92485f3e88fecd40f58adfe6717fa",
     "CLOSED_ROLE_RUNTIME_WITNESSES": "4c43ce9144744e6e70dab1e673e110ea50751b6fa323001e69b4e7ac9239d016"
@@ -186,7 +186,7 @@
         {
           "file": "packages/main/dist/tasks/codex-registry-mode-smoke.js",
           "argv": [],
-          "selector": "✓ codex registry mode smoke passed"
+          "selector": "\u2713 codex registry mode smoke passed"
         },
         {
           "file": "packages/main/tests/artifact-schema-migration.test.mjs",
@@ -251,7 +251,7 @@
     "callDigest": "0eea0b5fb1787362eb31dc4cc40a131ef9bba90f434c9026d3f9691a835d4b41",
     "expression": "spawn(process.execPath, [fileURLToPath(import.meta.url), `--case-shard=${shardIndex}/${shardCount}`], {\n      cwd: process.cwd(),\n      env: process.env,\n      stdio: ['ignore', 'pipe', 'pipe'],\n    })"
   },
-  "wrapperDigest": "26d645ef8a02ffd70a7b47af94e9dc1badc748ec05ba8c7376a769b8ccae9999",
+  "wrapperDigest": "4db38126bc0d871bea0a098629f3d7e7c1733e0fa6a20c218596ddde9ab46f66",
   "extra": {
     "scripts/verify-proof-or-stop-pack-boundary.mjs": {
       "sourceDigest": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",

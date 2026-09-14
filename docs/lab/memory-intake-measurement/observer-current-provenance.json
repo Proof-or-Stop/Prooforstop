@@ -1,0 +1,21 @@
+{
+  "command": [
+    "node",
+    "--import",
+    "./scripts/lab/memory-intake-observer.mjs",
+    "packages/main/dist/tasks/playbook-runtime-memory-performance-smoke.js",
+    "--profile=full"
+  ],
+  "environment": {
+    "MEMORY_INTAKE_OUTPUT": "docs/lab/memory-intake-measurement/observer-current-intake.json"
+  },
+  "exitCode": 0,
+  "recordedAt": "2026-09-12T23:40:14.539604+00:00",
+  "sourceDigests": {
+    "scripts/lab/memory-intake-observer.mjs": "0e17d98268ddf7b4ab57ccbb6bea124b3b1757cb2bfe1f252afc27af46a8bc65",
+    "packages/main/dist/core/playbook-runtime-memory.js": "eab21a3e56cf8d32d941c14bac9f28ba096a8251a5398e98afd76b1fc6508edd",
+    "packages/main/dist/core/playbook-runtime-memory-index.js": "8c95732c08fe0808a0781844cc73b5f0b86c5362c5f9936e1106ff064a73416c",
+    "packages/main/dist/core/playbook-runtime-baseline.js": "fdfba69508596aa6e4a4658d6524ed0c406e7ba5639b76a2272c24645adfc74c"
+  },
+  "logSha256": "a2df2880b9c6e01ac8ee70fe8669d7f97f020bbcf526bca41600245159017170"
+}

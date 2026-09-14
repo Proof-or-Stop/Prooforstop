@@ -355,13 +355,14 @@ type ActiveIdentityOperationBoundarySeed = Omit<ActiveIdentityOperationBoundary,
 };
 
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
+  'packages/main/src/core/executable-digest-observation.ts': 'efaa0e0be32dd9e8833d6de120081b32f9c56c27b4d749b7eb2fa309445e0c4d',
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
   'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
   'packages/main/src/core/evidence-freshness.ts': '6eca17a48ac39083a7a601c52b49eb24300fad0ac5a7628efb12f8096d644df7',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
-  'packages/main/src/core/verification-execution-evidence.ts': 'ecd665658003dd342c888427da8d474ea7fbe23a3a37eed6587d1408259481e6',
-  'packages/main/src/handlers/checklist.ts': '7208c62e79462b1ce1332662307fb10445081afbac7a24e99ef491281cea6a73',
+  'packages/main/src/core/verification-execution-evidence.ts': '2f9f9fa37e64b41c1a164fb064da3df080b999a4a1e5689b83e927c8a39447bc',
+  'packages/main/src/handlers/checklist.ts': 'f80ea80a9d0bd920f2c21f0ba2bb1d37cc4ac6a3be77c64fed08938228416582',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
@@ -509,11 +510,12 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       runtimeSource('packages/main/src/core/git-tree-observation.ts'),
       runtimeSource('packages/main/src/core/evidence-freshness.ts'),
       runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
+      runtimeSource('packages/main/src/core/executable-digest-observation.ts'),
       runtimeSource('packages/main/src/core/impact-classification-policy.ts'),
       runtimeSource('packages/main/src/core/review-incremental-context.ts'),
       runtimeSource('packages/main/src/handlers/review-run.ts'),
     ]),
-    identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/git-tree-observation.ts', 'Raw Git observation delegate contains no artifact/domain/role identity literal; its emitted executable bytes are independently pinned and mutation-tested')]),
+    identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/executable-digest-observation.ts', 'Synchronous executable byte observation has no artifact or role identity literal; emitted delegate bytes are independently pinned and mutation-tested'), identityFreePath('packages/main/src/core/git-tree-observation.ts', 'Raw Git observation delegate contains no artifact/domain/role identity literal; its emitted executable bytes are independently pinned and mutation-tested')]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.evidence-freshness-classifier.v1'),
       { ...identitySite('packages/main/src/core/evidence-freshness.ts', 'proof-or-stop.verifier-dependency-manifest.v1'), valueBinding: { kind: 'export-const', name: 'VERIFIER_DEPENDENCY_MANIFEST_VERSION' } },
@@ -569,8 +571,10 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
     paths: Object.freeze([
       runtimeSource('packages/main/src/core/review-inventory-epoch.ts'),
       runtimeSource('packages/main/src/core/verification-execution-evidence.ts'),
+      runtimeSource('packages/main/src/core/executable-digest-observation.ts'),
       runtimeSource('packages/main/src/handlers/checklist.ts'),
     ]),
+    identityFreePaths: Object.freeze([identityFreePath('packages/main/src/core/executable-digest-observation.ts', 'Synchronous executable byte observation has no artifact or role identity literal; emitted delegate bytes are independently pinned and mutation-tested')]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.review_inventory_epochs.v1'),
       { ...identitySite('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'), valueBinding: { kind: 'property', name: 'schemaVersion', functionName: 'reviewInventoryAcceptanceSubjectDigest' } },
@@ -730,7 +734,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-runtime-corpus-", "proofbound-memory-baseline-runtime-corpus-", "producer-or-domain", { canonical: 1, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop.memory-playbook-baseline.gold.v1", "proofbound.memory-playbook-baseline.gold.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
       historicalIdentitySite("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop.memory-playbook-optimized-parity.v1", "proofbound.memory-playbook-optimized-parity.v1", "producer-or-domain", { canonical: 1, retired: 0 }),
-      identitySite('packages/main/src/core/playbook-runtime-memory-cache.ts', 'proof-or-stop.runtime-memory-pack-cache.v1'),
+      identitySite('packages/main/src/core/playbook-runtime-memory-cache.ts', 'proof-or-stop.runtime-memory-pack-cache.v2'),
       identitySite('packages/main/src/core/playbook-runtime-memory-index.ts', 'proof-or-stop.runtime-memory-index.v3'),
       identitySite('packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.memory-pack.v1'),
       identitySite('packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.dev-memory-finish-decision.v1'),
@@ -746,7 +750,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop-memory-baseline-runtime-corpus-"),
       identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop.memory-playbook-baseline.gold.v1"),
       identityMutationCase("packages/main/src/core/playbook-runtime-baseline.ts", "proof-or-stop.memory-playbook-optimized-parity.v1"),
-      identityMutationCase('packages/main/src/core/playbook-runtime-memory-cache.ts', 'proof-or-stop.runtime-memory-pack-cache.v1'),
+      identityMutationCase('packages/main/src/core/playbook-runtime-memory-cache.ts', 'proof-or-stop.runtime-memory-pack-cache.v2'),
       identityMutationCase('packages/main/src/core/playbook-runtime-memory-index.ts', 'proof-or-stop.runtime-memory-index.v3'),
       identityMutationCase('packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.memory-pack.v1'),
       identityMutationCase('packages/main/src/core/playbook-runtime-memory.ts', 'proof-or-stop.dev-memory-finish-decision.v1'),
@@ -1247,12 +1251,44 @@ export function assertCanonicalActiveIdentityRuntime(input: {
 
 
 
+// Memoize only the pure parse/print/hash projection of exact source bytes.
+// Callers still reread files and compare the current expected binding on every
+// observation. Neither filesystem metadata nor a prior PASS authorizes reuse.
+const identityCanonicalDigests = new Map<string, { text: string; digest: string }>();
+const IDENTITY_CANONICAL_MAX_ENTRIES = 32;
+const IDENTITY_CANONICAL_MAX_CHARACTERS = 4 * 1024 * 1024;
+let identityCanonicalCharacters = 0;
+function canonicalIdentityExecutableDigest(sourcePath: string, text: string): string {
+  const prior = identityCanonicalDigests.get(sourcePath);
+  if (prior?.text === text) {
+    identityCanonicalDigests.delete(sourcePath);
+    identityCanonicalDigests.set(sourcePath, prior);
+    return prior.digest;
+  }
+  const source = ts.createSourceFile(sourcePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const canonical = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(source);
+  const digest = createHash('sha256').update(canonical).digest('hex');
+  if (prior) {
+    identityCanonicalDigests.delete(sourcePath);
+    identityCanonicalCharacters -= prior.text.length;
+  }
+  if (text.length <= IDENTITY_CANONICAL_MAX_CHARACTERS) {
+    while (identityCanonicalDigests.size >= IDENTITY_CANONICAL_MAX_ENTRIES
+      || identityCanonicalCharacters + text.length > IDENTITY_CANONICAL_MAX_CHARACTERS) {
+      const key = identityCanonicalDigests.keys().next().value!;
+      identityCanonicalCharacters -= identityCanonicalDigests.get(key)!.text.length;
+      identityCanonicalDigests.delete(key);
+    }
+    identityCanonicalDigests.set(sourcePath, { text, digest });
+    identityCanonicalCharacters += text.length;
+  }
+  return digest;
+}
+
 function assertIdentityExecutableSource(sourcePath: string, text: string, label: string): void {
   const expected = ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS[sourcePath];
   if (!expected) return;
-  const source = ts.createSourceFile(sourcePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  const canonical = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(source);
-  const actual = createHash('sha256').update(canonical).digest('hex');
+  const actual = canonicalIdentityExecutableDigest(sourcePath, text);
   if (actual !== expected) throw new Error(`${label}/${sourcePath} consumer rejected active identity bytes; executable declaration/producer/consumer binding changed`);
 }
 

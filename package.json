@@ -1,6 +1,6 @@
 {
   "name": "proof-or-stop",
-  "version": "0.3.356",
+  "version": "0.3.360",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -178,6 +178,7 @@
     "test:receipt-authority-v5": "node scripts/verify-review-remediation-close.mjs",
     "test:scope-diff-pack": "node packages/main/tests/scope-diff-pack.test.mjs",
     "test:verification-key-location": "node scripts/verify-verification-key-location.mjs",
+    "test:memory-query-timing": "node scripts/verify-memory-query-timing.mjs",
     "test:scope-approval-continuity": "node scripts/verify-scope-approval-continuity.mjs",
     "test:review-gate-intent-cycle": "node scripts/verify-review-gate-intent-cycle.mjs"
   },

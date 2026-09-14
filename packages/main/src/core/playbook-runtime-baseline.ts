@@ -1412,13 +1412,19 @@ function runRuntimePackQueries(
   const started = performance.now();
   const queryElapsedMs: number[] = [];
   const packOptions = gold.queries.map((query) => packOptionsForGoldQuery(root, query, overrides));
+  const observeQueryElapsed = (elapsedMs: number) => {
+    queryElapsedMs.push(Math.max(0, Math.round(elapsedMs)));
+  };
   const builtPacks = overrides.runtimeIndex
-    ? buildMemoryFreshnessPacksWithRuntimeIndex(packOptions, overrides.runtimeIndex)
-    : packOptions.map((options) => buildMemoryFreshnessPack(options));
+    ? buildMemoryFreshnessPacksWithRuntimeIndex(packOptions, overrides.runtimeIndex, observeQueryElapsed)
+    : packOptions.map((options) => {
+      const queryStarted = performance.now();
+      const pack = buildMemoryFreshnessPack(options);
+      observeQueryElapsed(performance.now() - queryStarted);
+      return pack;
+    });
   const packs = gold.queries.map((query, index) => {
-    const queryStarted = performance.now();
     const pack = builtPacks[index]!;
-    queryElapsedMs.push(Math.max(0, Math.round(performance.now() - queryStarted)));
     return { queryId: query.id, pack };
   });
   return {

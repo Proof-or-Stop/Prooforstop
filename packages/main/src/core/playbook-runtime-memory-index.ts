@@ -474,13 +474,36 @@ export function validateRuntimeMemoryIndex(raw: unknown): RuntimeMemoryIndexVali
   return { ok: true };
 }
 
+// Keep bounded validation receipts, never parsed caller-owned objects. Each
+// read observes all file bytes; timestamps never authorize reuse.
+const validatedIndexMemo = new Map<string, { digest: string; bytes: number }>();
+const VALIDATED_INDEX_MEMO_BYTES = 32 * 1024 * 1024;
+function forgetValidatedIndex(path: string): void { validatedIndexMemo.delete(path); }
 export function readRuntimeMemoryIndex(projectRoot: string): RuntimeMemoryIndex | null {
   const indexPath = resolveRuntimeMemoryIndexPath(projectRoot);
-  if (!existsSync(indexPath)) return null;
+  if (!existsSync(indexPath)) { forgetValidatedIndex(indexPath); return null; }
   try {
-    const parsed = JSON.parse(readFileSync(indexPath, 'utf-8')) as RuntimeMemoryIndex;
-    return validateRuntimeMemoryIndex(parsed).ok ? parsed : null;
+    const bytesRead = readFileSync(indexPath);
+    const digest = createHash('sha256').update(bytesRead).digest('hex');
+    const raw = bytesRead.toString('utf-8');
+    const previous = validatedIndexMemo.get(indexPath);
+    if (previous?.digest === digest) return JSON.parse(raw) as RuntimeMemoryIndex;
+    forgetValidatedIndex(indexPath);
+    const parsed = JSON.parse(raw) as RuntimeMemoryIndex;
+    if (!validateRuntimeMemoryIndex(parsed).ok) return null;
+    const bytes = bytesRead.byteLength;
+    if (bytes <= VALIDATED_INDEX_MEMO_BYTES) {
+      let retained = [...validatedIndexMemo.values()].reduce((sum, entry) => sum + entry.bytes, 0);
+      while (validatedIndexMemo.size && (validatedIndexMemo.size >= 4 || retained + bytes > VALIDATED_INDEX_MEMO_BYTES)) {
+        const oldest = validatedIndexMemo.keys().next().value!;
+        retained -= validatedIndexMemo.get(oldest)!.bytes;
+        forgetValidatedIndex(oldest);
+      }
+      validatedIndexMemo.set(indexPath, { digest, bytes });
+    }
+    return parsed;
   } catch {
+    forgetValidatedIndex(indexPath);
     return null;
   }
 }
