@@ -12,7 +12,7 @@ const all=readdirSync(directory).filter(n=>n.endsWith('.jsonl')).flatMap(n=>read
 // The four-costs guarantees stay in force: no same-scan rereads and no second producer plan per batch row.
 const scans=all.filter(r=>r.kind==='scan'),details=all.filter(r=>r.kind==='scanDetail');assert.ok(scans.length>0&&details.length>0);
 const plans=scans.filter(r=>{const i=r.stack.findIndex(s=>s.includes('at verificationProducerPlan ('));return i>=0&&r.stack[i+1]?.includes('at enforceWithPublicationRecovery (');});
-const fourCosts={duplicateBatchPlans:Math.max(0,plans.length-17),duplicateFileReads:details.reduce((s,r)=>s+r.duplicateReads,0)};console.log('FOUR_COSTS_DEFECTS '+JSON.stringify(fourCosts));
+const fourCosts={duplicateBatchPlans:plans.length,duplicateFileReads:details.reduce((s,r)=>s+r.duplicateReads,0)};console.log('FOUR_COSTS_DEFECTS '+JSON.stringify(fourCosts));
 assert.deepEqual(fourCosts,{duplicateBatchPlans:0,duplicateFileReads:0},'FOUR_COSTS_REGRESSION: duplicate batch planning or repeated file reads returned');
 const rows=all.filter(r=>r.kind==='refreshSubprocess');
 const large=rows.filter(r=>r.rows>=71);

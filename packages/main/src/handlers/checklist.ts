@@ -1,4 +1,4 @@
-import { withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
+import { observedImplementationDigest, withVerificationCommitObservation, withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
 import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
 import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
@@ -1251,6 +1251,8 @@ async function enforceAndStampEvidence(
     metadataRoot: string;
     receiptStore: CausalEvidenceReceiptStore;
     batch?: CausalEvidenceBatch;
+    /** The producer plan computed inside the caller's lock in this same synchronous segment. */
+    plan?: VerificationProducerPlan;
   },
 ): Promise<EnforceAndStampResult> {
   const resolved = resolveIntentForRef(item, input.intentRef);
@@ -1388,9 +1390,17 @@ async function enforceAndStampEvidence(
     ?? resolvePinnedCommandTimeoutMs(deps.projectRoot, pinCommand)
     ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
   const manifestPath = dependencyManifestPath(input.file);
-  const beforeIdentity = prepareVerificationExecutionIdentity({
-    command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs, manifestPath,
-  });
+  // The producer planned this row inside its lock in the same synchronous
+  // segment; when every input matches, that observation is the launch preflight
+  // identity. Launch, completion and publication still reread the implementation.
+  const planned = deps.plan;
+  const beforeIdentity = planned
+    && planned.command === pinCommand && planned.cwd === deps.cwd
+    && planned.effectiveTimeoutMs === effectiveTimeoutMs && planned.manifestPath === manifestPath
+    ? planned.preparedIdentity
+    : prepareVerificationExecutionIdentity({
+      command: pinCommand, cwd: deps.cwd, effectiveTimeoutMs, manifestPath,
+    });
   const sharedExecution = deps.sharedExecutionReceipt;
   const sharedCausalReceipt = deps.sharedCausalReceipt;
   const sharedIdentity = sharedExecution
@@ -1540,19 +1550,25 @@ async function enforceAndStampEvidence(
   }
   // Refuse: the pinned selector must appear in captured output (kills same-command,
   // wrong/absent-case false passes). Applies regardless of the caller's claimed result.
-  const afterIdentity = prepareVerificationExecutionIdentity({
-    command: pinCommand,
-    cwd: deps.cwd,
-    effectiveTimeoutMs,
-    manifestPath,
-  });
-  assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
-  assertVerificationFreshnessUnchanged(launchFreshness, captureVerificationFreshness(deps.cwd, deps.metadataRoot));
-  const sourceExecutedAt = sharedExecution?.executedAt ?? causal?.receipt.executedAt;
-  if (!sourceExecutedAt) throw new Error('verification evidence refused: signed execution time missing [causal_execution_time_missing]');
-  const executionReceipt = sharedExecution ?? createVerificationExecutionReceipt({
-    projectRoot: deps.projectRoot, storyId: deps.storyId, command: pinCommand,
-    cwd: deps.cwd, run, manifestPath, executedAt: sourceExecutedAt,
+  // One synchronous completion observation: the post-execution identity and the
+  // execution receipt's own identity (with its reported timeout) share the
+  // implementation read. Nothing survives this scope.
+  const completedRun = run;
+  const executionReceipt = withVerificationPlanningObservation(() => {
+    const afterIdentity = prepareVerificationExecutionIdentity({
+      command: pinCommand,
+      cwd: deps.cwd,
+      effectiveTimeoutMs,
+      manifestPath,
+    });
+    assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
+    assertVerificationFreshnessUnchanged(launchFreshness, captureVerificationFreshness(deps.cwd, deps.metadataRoot));
+    const sourceExecutedAt = sharedExecution?.executedAt ?? causal?.receipt.executedAt;
+    if (!sourceExecutedAt) throw new Error('verification evidence refused: signed execution time missing [causal_execution_time_missing]');
+    return sharedExecution ?? createVerificationExecutionReceipt({
+      projectRoot: deps.projectRoot, storyId: deps.storyId, command: pinCommand,
+      cwd: deps.cwd, run: completedRun, manifestPath, executedAt: sourceExecutedAt,
+    });
   });
   const verificationReceipt = createCurrentVerificationAssertionReceipt({
     freshness: deps.sharedFreshness ?? launchFreshness,
@@ -2454,7 +2470,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         causalReceipt: value.causalReceipt,
         ...(receipt.reuseReceipt ? { reuseReceipt: receipt.reuseReceipt } : {}) };
     }
-    const stamp = await enforceAndStampEvidence(item, input, { ...deps,
+    const stamp = await enforceAndStampEvidence(item, input, { ...deps, plan,
       ...(publication ? { sharedExecutionReceipt: publication.executionReceipt,
         sharedCausalReceipt: publication.causalReceipt, sharedFreshness: publication.freshness,
         ...(publication.reuseReceipt ? { sharedReuseReceipt: publication.reuseReceipt } : {}) } : {}),
@@ -2476,6 +2492,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
     commit: () => void,
     batch?: CausalEvidenceBatch,
   ): void => {
+    // One synchronous canonical commit segment: the bounded batch snapshot and
+    // the fresh transaction snapshot share one implementation and Git state
+    // observation. Nothing survives the commit callback.
+    withVerificationCommitObservation(() => {
     const usable = stamps.filter((stamp): stamp is Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight' | 'publicationRecoveryKey'> => Boolean(stamp.causalReceipt && stamp.causalPreflight));
     if (stamps.some(stamp => Boolean(stamp.causalReceipt) !== Boolean(stamp.causalPreflight))) {
       throw new Error('causal evidence commit refused: receipt/preflight identity pairing is incomplete [causal_commit_identity_missing]');
@@ -2509,7 +2529,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         return { currentHashes, preflightByInput: new Map(), valid: false };
       }
 
-      const currentImplementationDigest = executionImplementationIdentity().digest;
+      const currentImplementationDigest = observedImplementationDigest();
       const preflightByInput = new Map<string, CachedCausalPreflight>();
       for (const { causalPreflight, causalReceipt: sourceReceipt } of usable) {
         if (!causalPreflight || !sourceReceipt) continue;
@@ -2664,6 +2684,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       revalidate: revalidateFresh,
       commit: commitWithCacheInvalidation,
       batch,
+    });
     });
   };
   return {
@@ -3577,7 +3598,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             sharedFreshness: sharedPublication.freshness,
             ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
           } : {}),
-        });
+        }, { plan: currentPlan });
         return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === args.itemId);
@@ -3977,7 +3998,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             sharedFreshness: sharedPublication.freshness,
             ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
           } : {}),
-        });
+        }, { plan: currentPlan });
 
         return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
@@ -4127,40 +4148,42 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               isCanonicalGitHeadHash(candidate.evidenceHeadHash)
               && isCanonicalSha256Hash(candidate.evidenceMaterialHash)
               && isCanonicalSha256Hash(candidate.evidenceStoryFilesHash));
-            const reuse = planVerificationExecutionReuse({
-              projectRoot: root,
-              storyId: args.storyId,
-              priorReceipt: representative.priorReceipt,
-              intentRef: representative.input.intentRef,
-              selector: representative.input.selector ?? '',
-              command,
-              cwd: computed.refreshGitCwd,
-              effectiveTimeoutMs: representative.effectiveTimeoutMs,
-              manifestPath: representative.manifestPath,
-              freshnessHashBinding: {
-                evidenceHeadHash: everyHashBindingCanonical ? representative.evidenceHeadHash : undefined,
-                evidenceMaterialHash: everyHashBindingCanonical ? representative.evidenceMaterialHash : undefined,
-                evidenceStoryFilesHash: everyHashBindingCanonical ? representative.evidenceStoryFilesHash : undefined,
-                currentHeadHash: computed.headHash,
-                currentMaterialHash: computed.materialHash,
-                currentStoryFilesHash: computed.storyFilesHash,
-              },
+            // One synchronous launch prefix: the reuse decision and the launch
+            // identity share the implementation read. Launch revalidation,
+            // completion and publication still reread outside this scope.
+            const { reuse, launchIdentity } = withVerificationPlanningObservation(() => {
+              const reuse = planVerificationExecutionReuse({
+                projectRoot: root,
+                storyId: args.storyId,
+                priorReceipt: representative.priorReceipt,
+                intentRef: representative.input.intentRef,
+                selector: representative.input.selector ?? '',
+                command,
+                cwd: computed.refreshGitCwd,
+                effectiveTimeoutMs: representative.effectiveTimeoutMs,
+                manifestPath: representative.manifestPath,
+                freshnessHashBinding: {
+                  evidenceHeadHash: everyHashBindingCanonical ? representative.evidenceHeadHash : undefined,
+                  evidenceMaterialHash: everyHashBindingCanonical ? representative.evidenceMaterialHash : undefined,
+                  evidenceStoryFilesHash: everyHashBindingCanonical ? representative.evidenceStoryFilesHash : undefined,
+                  currentHeadHash: computed.headHash,
+                  currentMaterialHash: computed.materialHash,
+                  currentStoryFilesHash: computed.storyFilesHash,
+                },
+              });
+              const launchIdentity = prepareVerificationExecutionIdentity({
+                command, cwd: computed.refreshGitCwd,
+                effectiveTimeoutMs: representative.effectiveTimeoutMs,
+                manifestPath: representative.manifestPath,
+              });
+              return { reuse, launchIdentity };
             });
             let executionReceipt = reuse.executionReceipt;
             let causalStamp: Pick<ReexecStamp, 'causalReceipt' | 'causalPreflight'> | undefined;
             if (executionReceipt) {
-              const beforeReuseIssue = prepareVerificationExecutionIdentity({
-                command, cwd: computed.refreshGitCwd,
-                effectiveTimeoutMs: representative.effectiveTimeoutMs,
-                manifestPath: representative.manifestPath,
-              });
-              assertVerificationInputUnchanged(reuse.identity, beforeReuseIssue);
+              assertVerificationInputUnchanged(reuse.identity, launchIdentity);
             } else {
-              const beforeIdentity = prepareVerificationExecutionIdentity({
-                command, cwd: computed.refreshGitCwd,
-                effectiveTimeoutMs: representative.effectiveTimeoutMs,
-                manifestPath: representative.manifestPath,
-              });
+              const beforeIdentity = launchIdentity;
               const implementationDigest = beforeIdentity.implementationDigest;
               const preflightInput = {
                 command,
@@ -4239,18 +4262,22 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
                 }
                 continue;
               }
-              const afterIdentity = prepareVerificationExecutionIdentity({
-                command, cwd: computed.refreshGitCwd,
-                effectiveTimeoutMs: representative.effectiveTimeoutMs,
-                manifestPath: representative.manifestPath,
-              });
-              assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
-              assertVerificationFreshnessUnchanged(publicationFreshness, captureVerificationFreshness(computed.refreshGitCwd, root));
-              executionReceipt = createVerificationExecutionReceipt({
-                projectRoot: root, storyId: args.storyId, command,
-                cwd: computed.refreshGitCwd, run,
-                executedAt: causal.receipt.executedAt,
-                manifestPath: representative.manifestPath,
+              // One synchronous completion observation, as in enforceAndStampEvidence.
+              const completedRun = run;
+              executionReceipt = withVerificationPlanningObservation(() => {
+                const afterIdentity = prepareVerificationExecutionIdentity({
+                  command, cwd: computed.refreshGitCwd,
+                  effectiveTimeoutMs: representative.effectiveTimeoutMs,
+                  manifestPath: representative.manifestPath,
+                });
+                assertVerificationInputUnchanged(beforeIdentity, afterIdentity);
+                assertVerificationFreshnessUnchanged(publicationFreshness, captureVerificationFreshness(computed.refreshGitCwd, root));
+                return createVerificationExecutionReceipt({
+                  projectRoot: root, storyId: args.storyId, command,
+                  cwd: computed.refreshGitCwd, run: completedRun,
+                  executedAt: causal.receipt.executedAt,
+                  manifestPath: representative.manifestPath,
+                });
               });
             }
             let causalStampPending = causalStamp;

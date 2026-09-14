@@ -33,6 +33,7 @@ const requiredEvidenceFacts = [
   'publication-recovery-plan-observation',
   'implementation-scan-single-read',
   'refresh-git-state-observation',
+  'synchronous-segment-implementation-observation',
   'verification-reuse-capsule-authority',
   'verification-execution-producer-lock',
   'verification-lifecycle-admissibility',

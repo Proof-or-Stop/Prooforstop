@@ -46,7 +46,7 @@ const recoveryDependencies=['verificationProducerPlan','enforceAndStampEvidence'
 let implementation='implementation-A',plan,request,executionReads=[],pending,failPlan=false,drift=false,directReads=0;
 const recovery=new Function(...recoveryDependencies,'return ('+recoveryExpression+');')(
  ()=>{plan=failPlan?undefined:{executionKey:'execution-'+implementation,preparedIdentity:{implementationDigest:implementation}};return plan;},
- async(_item,_input,deps)=>{executionReads.push({implementation,shared:deps.sharedExecutionReceipt});await Promise.resolve();return {evidencePatch:{result:'fail'}};},
+ async(_item,_input,deps)=>{executionReads.push({implementation,shared:deps.sharedExecutionReceipt,plan:deps.plan});await Promise.resolve();return {evidencePatch:{result:'fail'}};},
  ()=>{if(drift)implementation='implementation-B';return {};},
  value=>{request=value;return JSON.stringify(value);},
  {readChecklist:()=>({items:[]}),storyDirPath:()=>'.',readPendingPublication:()=>pending},
@@ -113,3 +113,45 @@ try{
  probes=[];withVerificationRefreshObservation(()=>{currentGitHead(repo);withVerificationRefreshObservation(()=>currentGitHead(repo));currentGitHead(repo);});assert.equal(heads(),1,'a nested scope shares the outer synchronous observation');
  console.log('GIT_STATE_OBSERVATION PASS one HEAD, material and story probe set per synchronous refresh scope; fresh outside; coherent under external movement; released on throw and await');
 }finally{cp.execFileSync=originalExec;syncBuiltinESMExports();rmSync(repo,{recursive:true,force:true});}
+
+// One synchronous segment observes the implementation once: producers forward their plan,
+// completion and commit segments share one observation, launch stays independent.
+{
+ const {observedImplementationDigest,withVerificationCommitObservation}=await import('../dist/core/verification-execution-evidence.js');
+ const forwarded=await recovery(...recoveryArgs,{plan:suppliedPlan});void forwarded;
+ assert.equal(executionReads.at(-1).plan,suppliedPlan,'recovery forwards the supplied plan to enforcement');
+ failPlan=false;await recovery(...recoveryArgs);assert.equal(executionReads.at(-1).plan,plan,'recovery forwards its own plan when none is supplied');
+ // Producers: the plan is computed and forwarded within one synchronous segment.
+ const producers=[];
+ function findProducers(n){if(ts.isVariableDeclaration(n)&&n.name.getText(ast)==='currentPlan'&&n.initializer&&ts.isCallExpression(n.initializer)&&n.initializer.expression.getText(ast)==='verificationProducerPlan'){let block=n.parent;while(block&&!ts.isBlock(block))block=block.parent;producers.push({declaration:n,block});}ts.forEachChild(n,findProducers);}findProducers(ast);
+ assert.equal(producers.length,3,'three producer entrypoints plan inside their locks');
+ for(const {declaration,block} of producers){const statements=block.statements;const from=statements.findIndex(st=>st.getText(ast).includes(declaration.getText(ast)));const to=statements.findIndex((st,i)=>i>from&&st.getText(ast).includes('enforceWithPublicationRecovery('));assert.ok(from>=0&&to>from,'plan precedes recovery');
+  for(const st of statements.slice(from,to)){const check=x=>{assert.notEqual(x.kind,ts.SyntaxKind.AwaitExpression,'no await between the producer plan and its recovery call');ts.forEachChild(x,check);};check(st);}
+  let call;const findCall=x=>{if(ts.isCallExpression(x)&&x.expression.getText(ast)==='enforceWithPublicationRecovery')call=x;ts.forEachChild(x,findCall);};findCall(statements[to]);
+  assert.equal(call.arguments[3]?.getText(ast).replace(/\s+/g,' '),'{ plan: currentPlan }','every producer forwards the plan it computed inside its lock');}
+ // Completion: exactly one synchronous planning scope inside enforceAndStampEvidence holds both identities and the receipt.
+ let enforceDeclaration;function findEnforceSource(n){if(ts.isFunctionDeclaration(n)&&n.name?.text==='enforceAndStampEvidence')enforceDeclaration=n;ts.forEachChild(n,findEnforceSource);}findEnforceSource(ast);
+ const completion=[];function findCompletion(n){if(ts.isCallExpression(n)&&n.expression.getText(ast)==='withVerificationPlanningObservation')completion.push(n);ts.forEachChild(n,findCompletion);}findCompletion(enforceDeclaration);
+ assert.equal(completion.length,1,'one completion observation per enforcement');
+ const completionBody=completion[0].arguments[0];assert.ok(ts.isArrowFunction(completionBody)&&!completionBody.modifiers?.some(m=>m.kind===ts.SyntaxKind.AsyncKeyword));
+ const completionText=completionBody.getText(ast);assert.ok(!/\bawait\b/.test(completionText)&&completionText.includes('assertVerificationInputUnchanged(')&&completionText.includes('createVerificationExecutionReceipt('),'completion scope holds the post-execution identity and the receipt only');
+ assert.ok(!completionText.includes('runCommand')&&!completionText.includes('executeCausalEvidence'),'launch stays outside the completion observation');
+ // Every synchronous planning scope in the handler: initial batch planning, two completion scopes
+ // (enforcement and stale refresh) and the stale refresh launch prefix; none awaits or launches.
+ const planningScopes=[];function findPlanning(n){if(ts.isCallExpression(n)&&n.expression.getText(ast)==='withVerificationPlanningObservation')planningScopes.push(n);ts.forEachChild(n,findPlanning);}findPlanning(ast);
+ assert.equal(planningScopes.length,4,'four synchronous planning scopes');
+ const scopeTexts=planningScopes.map(n=>{const cb=n.arguments[0];assert.ok(ts.isArrowFunction(cb)&&!cb.modifiers?.some(m=>m.kind===ts.SyntaxKind.AsyncKeyword));const text=cb.getText(ast);assert.ok(!/\bawait\b/.test(text)&&!text.includes('executeCausalEvidence')&&!text.includes('runCommand')&&!text.includes('executePinnedCommand'),'planning scopes never await or launch');return text;});
+ assert.equal(scopeTexts.filter(x=>x.includes('createVerificationExecutionReceipt(')).length,2,'enforcement and stale refresh each hold one completion scope');
+ assert.equal(scopeTexts.filter(x=>x.includes('planVerificationExecutionReuse(')&&x.includes('return { reuse, launchIdentity }')).length,1,'the stale refresh launch prefix shares one observation between reuse planning and its launch identity');
+ // Commit: exactly one synchronous commit scope wrapping the canonical causal commit.
+ const commits=[];function findCommits(n){if(ts.isCallExpression(n)&&n.expression.getText(ast)==='withVerificationCommitObservation')commits.push(n);ts.forEachChild(n,findCommits);}findCommits(ast);
+ assert.equal(commits.length,1,'one commit observation');const commitBody=commits[0].arguments[0];assert.ok(ts.isArrowFunction(commitBody)&&!commitBody.modifiers?.some(m=>m.kind===ts.SyntaxKind.AsyncKeyword));
+ const commitText=commitBody.getText(ast);assert.ok(!/\bawait\b/.test(commitText)&&commitText.includes('revalidateFresh')&&commitText.includes('commitWithCacheInvalidation')&&commitText.includes('observedImplementationDigest()'),'commit scope holds both snapshots and the canonical write');
+ // Runtime: the commit scope shares one implementation read; outside it every call reads afresh.
+ const originalRead=fs.readFileSync;let reads=0;fs.readFileSync=function(file,...rest){if(String(file)===anchor)reads++;return originalRead.call(this,file,...rest);};syncBuiltinESMExports();
+ try{reads=0;const digests=withVerificationCommitObservation(()=>[observedImplementationDigest(),observedImplementationDigest(),observedImplementationDigest()]);assert.equal(reads,1,'one implementation read per synchronous commit scope');assert.ok(digests.every(d=>d===digests[0]));
+  reads=0;observedImplementationDigest();observedImplementationDigest();assert.equal(reads,2,'independent reads outside a scope');
+  assert.throws(()=>withVerificationCommitObservation(()=>{observedImplementationDigest();throw Error('abort');}),/abort/);reads=0;observedImplementationDigest();assert.equal(reads,1,'a throwing commit scope releases its observation');}
+ finally{fs.readFileSync=originalRead;syncBuiltinESMExports();}
+ console.log('SEGMENT_OBSERVATION_BOUNDARIES PASS plan forwarded by three producers and the recovery closure, one completion scope, one commit scope, independent outside');
+}

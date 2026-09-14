@@ -594,6 +594,17 @@ export function withVerificationRefreshObservation<T>(read: () => T): T {
   return withGitTreeObservation(() => withVerificationPlanningObservation(read));
 }
 
+/** A synchronous canonical commit segment: its bounded and fresh snapshots share
+ * one implementation and Git state observation; the write itself stays inside. */
+export function withVerificationCommitObservation<T>(commit: () => T): T {
+  return withGitTreeObservation(() => withVerificationPlanningObservation(commit));
+}
+
+/** The implementation digest as observed by the enclosing synchronous scope; a fresh read outside one. */
+export function observedImplementationDigest(): string {
+  return planningImplementationIdentityDigest();
+}
+
 function planningImplementationIdentityDigest(): string {
   if (!planningObservation) return executionImplementationIdentity().digest;
   return planningObservation.digest ??= executionImplementationIdentity().digest;
