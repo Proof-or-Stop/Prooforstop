@@ -11754,9 +11754,17 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
     assert(checklistArtifactSource.includes(sourceRef), `checklist artifact producer source missing: ${sourceRef}`);
   }
   const storyCreateSource = read('packages/main/src/handlers/story-create.ts');
-  assert((storyCreateSource.match(/store\.writeChecklist\(storyId, preflightChecklist\)/g) ?? []).length === 2,
+  const checklistWrites = [...storyCreateSource.matchAll(/store\.writeChecklist\(storyId, preflightChecklist\)/g)].map(match => match.index);
+  const creationCommits = [...storyCreateSource.matchAll(/commitSafeInitMetadata\(storyId\)/g)]
+    .map(match => match.index)
+    .filter(index => index > (checklistWrites[0] ?? Number.MAX_SAFE_INTEGER));
+  assert(checklistWrites.length === 2,
     'story_create must persist the canonical checklist in both explicit and default creation paths');
-  assert((storyCreateSource.match(/store\.writeChecklist\(storyId, preflightChecklist\);[\s\S]{0,1200}commitSafeInitMetadata/g) ?? []).length === 2,
+  assert(creationCommits.length === 3
+    && checklistWrites[0] < creationCommits[0]
+    && creationCommits[0] < checklistWrites[1]
+    && checklistWrites[1] < creationCommits[1]
+    && checklistWrites[1] < creationCommits[2],
     'story_create must persist checklist.json before each safe creation commit');
 }
 
