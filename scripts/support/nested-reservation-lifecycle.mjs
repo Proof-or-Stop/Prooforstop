@@ -28,7 +28,9 @@ console.log('NESTED_RETIREMENT_ORDER_UNIT_CONTROLS PASS');
 // absent-PID refusal. Observation stubs are unit inputs, never kernel authority.
 const mkdirIdentitySource=readFileSync(new URL('../../packages/main/src/core/mkdir-lock.ts',import.meta.url),'utf8');
 function identityDeclaration(source,name){const file=ts.createSourceFile('identity.ts',source,ts.ScriptTarget.Latest,true);const rows=file.statements.filter(node=>ts.isFunctionDeclaration(node)&&node.name?.text===name);assert.equal(rows.length,1,name);return rows[0].getText(file).replace(/^export /,'');}
-const identityFunctions=['failure','table','identity'].map(name=>identityDeclaration(retirementSource,name)).join('\n')+'\n'+identityDeclaration(mkdirIdentitySource,'observedProcessStartTimeMs');
+function identityClassDeclaration(source,name){const file=ts.createSourceFile('identity.ts',source,ts.ScriptTarget.Latest,true);const rows=file.statements.filter(node=>ts.isClassDeclaration(node)&&node.name?.text===name);assert.equal(rows.length,1,name);return rows[0].getText(file).replace(/^export /,'');}
+// The typed refusal class is part of the extracted failure helper's real source; the unit sandbox loads it verbatim.
+const identityFunctions=identityClassDeclaration(retirementSource,'ValidationDelegationError')+'\n'+['failure','table','identity'].map(name=>identityDeclaration(retirementSource,name)).join('\n')+'\n'+identityDeclaration(mkdirIdentitySource,'observedProcessStartTimeMs');
 const identityCompiled=ts.transpileModule(identityFunctions+'\nidentity;',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
 function identityUnit(query){return vm.runInNewContext(identityCompiled,{execFileSync:query,policy:{kernelObservationMs:1000}});}
 const observationDate='Sun Sep 13 18:00:00 2026';let observationQueries=0;
