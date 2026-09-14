@@ -135,6 +135,9 @@ registered runtime policy and actual loaded implementation helpers. Regression
 controls remove individual bindings while keeping the global configuration
 fresh, proving that missing direct evidence is rejected. These scanner fixtures
 are source-only controls and do not stand in for native behavioral verification.
+Sixteen reviewed static-edge exception entries cover the route's generated-fixture
+and inline-probe subprocess call sites, and the handshake-deadline control asserts
+the folded result contract for a stalled issuer rather than an exception.
 
 The originally pinned Lab command remains
 `node scripts/verify-nested-verification-machine-owner.mjs`, with its original

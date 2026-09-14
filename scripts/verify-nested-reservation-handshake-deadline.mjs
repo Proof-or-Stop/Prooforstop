@@ -19,7 +19,10 @@ try {
    child.stdout.on('data',x=>output+=x);child.stderr.on('data',x=>output+=x);
    child.on('message',message=>{if(message.stalled){let state=execFileSync('ps',['-p',String(child.pid),'-o','stat='],{encoding:'utf8'});assert.match(state,/T/);writeFileSync(marker,'stopped');resume=setTimeout(()=>child.kill('SIGCONT'),2300);}});
    const closed=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('diagnostic transport deadline')),12000);child.once('close',(code,signal)=>{clearTimeout(timer);resolve({code,signal});});});
-   const match=output.match(/FAULT_REFUSED (\{[^\n]+\})/);assert.ok(match,output);const result=JSON.parse(match[1]);console.log('OBSERVED '+JSON.stringify({mode,result,closed,seconds:(performance.now()-start)/1000}));assert.match(result.message,/deadline|expired|live reservation revoked/);assert.ok(result.ms< (mode==='short-outer'?1300:1900),JSON.stringify(result));assert.equal(existsSync(leaf),false);
+   // A typed delegation refusal before launch is folded into the command result
+   // contract as a non-success infrastructure result; it must not surface as an
+   // exception, must carry the refusal diagnostic, and must never launch the leaf.
+   assert.doesNotMatch(output,/FAULT_REFUSED /,output);const match=output.match(/FAULT_RESULT (\{[^\n]+\})/);assert.ok(match,output);const observed=JSON.parse(match[1]);const result=observed.result;console.log('OBSERVED '+JSON.stringify({mode,observed,closed,seconds:(performance.now()-start)/1000}));assert.notEqual(result.code,0,JSON.stringify(result));assert.match(result.output,/deadline|expired|live reservation revoked/);assert.ok(observed.ms< (mode==='short-outer'?1300:1900),JSON.stringify(observed));assert.equal(existsSync(leaf),false);
    
   }finally{clearTimeout(resume);if(child?.exitCode===null){child.kill('SIGCONT');child.kill('SIGTERM');} }
  }
