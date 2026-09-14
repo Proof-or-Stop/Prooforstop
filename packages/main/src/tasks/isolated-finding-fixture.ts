@@ -1,5 +1,5 @@
 import { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY as delegationPolicy } from '../core/runtime-fact-registry.js';
-import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, attemptValidationReservationSpawn, noteValidationReservationSpawn, observeValidationReservationChild, validationReservationChildIdentityMatches, validationReservationGroupIsAbsent, unregisteredValidationReservationChildGone } from '../core/validation-reservation-delegation.js';
+import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, attemptValidationReservationSpawn, noteValidationReservationSpawn, observeValidationReservationChild, validationReservationOwnedGroupSignalTarget, validationReservationGroupIsAbsent, unregisteredValidationReservationChildGone } from '../core/validation-reservation-delegation.js';
 import { MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY as criticBudget } from '../core/runtime-fact-registry.js';
 import { REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY as epochBudget } from '../core/runtime-fact-registry.js';
 /** Test-only OS isolation for native-broker fixtures. Never used by production
@@ -224,13 +224,17 @@ worker.once('message', message=>{workerReady=message?.ready===true;if(message?.r
     if (result.code !== 0) throw new Error(`isolated Finding fixture failed with exit ${result.code}`);
     return true;
   } catch(error) { fixtureFailure=error;throw error; } finally {
-    // The original workload deadline is unchanged. Cleanup has its separately
-    // registered bounded window and may signal only a still-matching own leader.
+    // The original workload deadline is unchanged. Cleanup has its separately registered bounded
+    // window and may signal only the recorded own worker group under the controller's own rule: its
+    // leader still observed with the recorded identity, or absent while that group persists. A group
+    // that persists once the outcome is published, or without one, is signalled at once and SIGKILL
+    // follows at the half-budget point, so a lingering same-group descendant is cleared instead of
+    // turning a published outcome into a refusal.
     const signalOwnWorker=(signal:'SIGTERM'|'SIGKILL')=>{
-      if(!workerIdentity||workerIdentity.pid<=1||workerIdentity.pgid!==workerIdentity.pid||!validationReservationChildIdentityMatches(workerIdentity))return;
+      if(!workerIdentity||workerIdentity.pid<=1||!validationReservationOwnedGroupSignalTarget(workerIdentity))return;
       try{process.kill(-workerIdentity.pgid,signal);}catch{/* Absence below is decisive. */}
     };
-    if(workerIdentity&&!existsSync(outcome))signalOwnWorker('SIGTERM');
+    if(workerIdentity&&!validationReservationGroupIsAbsent(workerIdentity.pgid))signalOwnWorker('SIGTERM');
     if(observationDegraded&&workerPid!==undefined&&!existsSync(outcome)){try{process.kill(-workerPid,'SIGTERM');}catch{/* best effort without an observed identity */}}
     const cleanupUntil=Date.now()+delegationPolicy.cleanupMs;
     while(workerIdentity&&!validationReservationGroupIsAbsent(workerIdentity.pgid)&&Date.now()<cleanupUntil){

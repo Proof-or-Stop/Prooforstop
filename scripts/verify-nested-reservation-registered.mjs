@@ -4,7 +4,7 @@ import { syncBuiltinESMExports } from 'node:module';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 const selector = process.argv[2];
-const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport","isolated-observation-retry","isolated-observation-unavailable","cancel-refused-withdrawn","cancel-refused-live","fault-declared-owner-unclassified","fault-declared-owner-expansion","fault-retirement-backoff","result-caller-deadline","fault-controller-transport-unavailable","fault-drain-observation-transient","fault-unattempted-owner-loss","fault-attempted-owner-loss","cancel-client-rejects-applied","isolated-observation-unavailable-no-token","isolated-observation-worker-spawn-failure","result-descriptor-unavailable","result-refused-registration-cleanup","result-attempt-refusal","fault-registered-row-pruned","fault-spawned-owner-loss","result-refused-registration-short"];
+const selectors = ["core","fault-registered","fault-same-group","fault-pending","fault-coalesced","fault-finite-owner","fault-pending-lineage","handshake-deadline","owner-loss","registration-race","cleanup-diagnostics","isolated-cleanup","isolated-cleanup-non-isolated","isolated-cleanup-primary-failure","isolated-worker-exit","isolated-worker-exit-normal","source-loader","result-prepare-refusal","result-cleanup-primary","result-armed-timeout","cancel-normal","cancel-capture-deadline","cancel-explicit-cleanup-expired","cancel-spoof-cancel","cancel-spoof-register","cancel-delegated-abort","result-cleanup-result","result-ordinary-error","boot-recovery","result-post-capture-cleanup","wrapper-transport","isolated-observation-retry","isolated-observation-unavailable","cancel-refused-withdrawn","cancel-refused-live","fault-declared-owner-unclassified","fault-declared-owner-expansion","fault-retirement-backoff","result-caller-deadline","fault-controller-transport-unavailable","fault-drain-observation-transient","fault-unattempted-owner-loss","fault-attempted-owner-loss","cancel-client-rejects-applied","isolated-observation-unavailable-no-token","isolated-observation-worker-spawn-failure","result-descriptor-unavailable","result-refused-registration-cleanup","result-attempt-refusal","fault-registered-row-pruned","fault-spawned-owner-loss","result-refused-registration-short","result-completed-group-residual","result-nested-grant-deadline","fault-controller-inspection-transient","fault-controller-inspection-unavailable","isolated-cleanup-unclearable"];
 if (process.argv.length !== 3 || !selectors.includes(selector)) throw new Error('Unknown nested reservation regression selector');
 // Only selectors that need Darwin kernel descriptor or process identity observation are
 // platform-gated; the executor result-contract selectors run through the platform
@@ -13,7 +13,7 @@ if (process.argv.length !== 3 || !selectors.includes(selector)) throw new Error(
 // patches the Darwin-only controller cleanup and the one that runs a real controller with a
 // registered child meeting a failing Darwin kernel descriptor observation, and the one whose live
 // owner meets a refused spawn-attempt mark.
-const DARWIN_ONLY = new Set(selectors.filter(name => !name.startsWith('result-') || name === 'result-post-capture-cleanup' || name === 'result-descriptor-unavailable' || name === 'result-attempt-refusal'));
+const DARWIN_ONLY = new Set(selectors.filter(name => !name.startsWith('result-') || name === 'result-post-capture-cleanup' || name === 'result-descriptor-unavailable' || name === 'result-attempt-refusal' || name === 'result-completed-group-residual' || name === 'result-nested-grant-deadline'));
 if (process.platform !== 'darwin' && DARWIN_ONLY.has(selector)) {
   console.log('NESTED_RESERVATION_REGISTERED SKIP ' + selector + ': requires Darwin kernel descriptor and process identity observation; platform=' + process.platform);
 } else {
@@ -252,6 +252,26 @@ if (process.platform !== 'darwin' && DARWIN_ONLY.has(selector)) {
     case "result-refused-registration-short":
       process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-validation-result-contract.mjs", import.meta.url)), ...["refused-registration-short"]];
       await import("./verify-nested-validation-result-contract.mjs");
+      break;
+    case "result-completed-group-residual":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-validation-result-contract.mjs", import.meta.url)), ...["completed-group-residual"]];
+      await import("./verify-nested-validation-result-contract.mjs");
+      break;
+    case "result-nested-grant-deadline":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-validation-result-contract.mjs", import.meta.url)), ...["nested-grant-deadline"]];
+      await import("./verify-nested-validation-result-contract.mjs");
+      break;
+    case "fault-controller-inspection-transient":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-faults.mjs", import.meta.url)), ...["controller-inspection-transient"]];
+      await import("./verify-nested-reservation-faults.mjs");
+      break;
+    case "fault-controller-inspection-unavailable":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-reservation-faults.mjs", import.meta.url)), ...["controller-inspection-unavailable"]];
+      await import("./verify-nested-reservation-faults.mjs");
+      break;
+    case "isolated-cleanup-unclearable":
+      process.argv = [process.execPath, fileURLToPath(new URL("./verify-nested-isolated-cleanup.mjs", import.meta.url)), ...["--unclearable"]];
+      await import("./verify-nested-isolated-cleanup.mjs");
       break;
     default: throw new Error('Unreachable nested reservation selector');
   }

@@ -21,7 +21,7 @@ type Bootstrap = MachineReservationOwner & { schema: 'validation-reservation-del
 type Request = { operation: 'grant' | 'register' | 'confirm' | 'prepare' | 'cancel' | 'attempt' | 'spawned'; pid: number; start: number; nonce: string; deadlineAt: number; resources?: ResourceClaim[] | null; targetPid?: number; spawnedPid?: number; parentGrantId?: string; pendingToken?: string; cleanupCapability?: string };
 type Grant = { reservation: string; subject: ProcessIdentity; nonce: string; operation: Request['operation']; resources: ResourceClaim[] | null; deadlineAt: number; heldPorts?: string[]; grantId: string; pendingToken?: string; cleanupCapability?: string };
 export interface ValidationReservationHandshakeOptions { deadlineAt?: number; signal?: AbortSignal }
-type Frame = { heldPorts?: string[]; grantId?: string; active: boolean; resources: ResourceClaim[] | null; fd: number; bootstrap: Bootstrap; abort: AbortController; register?: (pid: number, pendingToken?: string) => void; prepare?: () => string; cancel?: (token: string) => void; attempt?: (token: string) => void; spawned?: (token: string, pid: number) => void };
+type Frame = { heldPorts?: string[]; grantId?: string; deadlineAt?: number; active: boolean; resources: ResourceClaim[] | null; fd: number; bootstrap: Bootstrap; abort: AbortController; register?: (pid: number, pendingToken?: string) => void; prepare?: () => string; cancel?: (token: string) => void; attempt?: (token: string) => void; spawned?: (token: string, pid: number) => void };
 const frames = new AsyncLocalStorage<Frame>();
 // Private per-invocation cleanup material. It is never an environment value or
 // residual-file field and cannot grant execution resources.
@@ -74,11 +74,23 @@ function sameProcess(value: ProcessIdentity): boolean {
 export function observeValidationReservationChild(pid:number): ProcessIdentity {return identity(pid);}
 export function validationReservationChildIdentityMatches(value:ProcessIdentity):boolean{return sameProcess(value);}
 export function validationReservationGroupIsAbsent(pgid:number):boolean{return groupGone(pgid);}
+/** Read-only signal-target observation for the cooperating isolation helper: exactly the rule the controller teardown applies to its own enrollments. Never a release authority. */
+export function validationReservationOwnedGroupSignalTarget(value:ProcessIdentity):boolean{return ownedGroupSignalTarget(value);}
 /** An unregistered child is provably gone only when its PID and its whole group are both absent; a live or unobservable child never is. Read-only: never a release authority by itself. */
 export function unregisteredValidationReservationChildGone(pid:number):boolean{if(!Number.isSafeInteger(pid)||pid<=1)return false;try{process.kill(pid,0);return false;}catch(error){if((error as NodeJS.ErrnoException).code!=='ESRCH')return false;}return groupGone(pid);}
 function groupGone(pgid: number): boolean {
   if (!Number.isSafeInteger(pgid) || pgid <= 1) return false;
   try { process.kill(-pgid, 0); return false; } catch (error) { return (error as NodeJS.ErrnoException).code === 'ESRCH'; }
+}
+/** A recorded group leader's PID is absent (ESRCH) while its recorded group persists. The kernel allocates no PID that any live or zombie process still carries as its process-group or session id, so a persisting group whose leader PID is absent is the recorded group; a live process observed at that PID with a different start is a recycled PID and never a signal target. */
+function leaderAbsent(pid: number): boolean {
+  if (!Number.isSafeInteger(pid) || pid <= 1) return false;
+  try { process.kill(pid, 0); return false; } catch (error) { return (error as NodeJS.ErrnoException).code === 'ESRCH'; }
+}
+/** The one signal-target rule for a previously observed owned group leader, shared by the controller teardown and the isolated fixture: the leader still observed with its recorded identity, or absent while its recorded group persists. Never a non-leader, a gone group, or a PID observed with a different start. */
+function ownedGroupSignalTarget(value: ProcessIdentity): boolean {
+  if (value.pid !== value.pgid || groupGone(value.pgid)) return false;
+  return sameProcess(value) || leaderAbsent(value.pid);
 }
 /** Resolve an unobserved target only when neither its PID nor group exists. */
 // Transient kernel observation failures (ps spawn or timeout) are retried a bounded
@@ -276,7 +288,7 @@ export async function withInheritedMachineReservation<T>(resources: ResourceClai
   response.revocation.addEventListener('abort', revoke, {once:true}); if(response.revocation.aborted)revoke();
   response.socket.once('close', revoke); const timer = setTimeout(revoke, Math.max(1, response.grant.deadlineAt - Date.now()));
   const forward = () => abort.abort(signal?.reason); signal?.addEventListener('abort', forward, { once: true });
-  const frame: Frame = { active: true, heldPorts: response.grant.heldPorts ?? [], grantId: response.grant.grantId, resources: response.grant.resources ?? resources, fd: FD, bootstrap, abort };
+  const frame: Frame = { active: true, heldPorts: response.grant.heldPorts ?? [], grantId: response.grant.grantId, deadlineAt: response.grant.deadlineAt, resources: response.grant.resources ?? resources, fd: FD, bootstrap, abort };
   try { if (signal?.aborted || abort.signal.aborted || response.socket.destroyed || Date.now() >= response.grant.deadlineAt) throw failure('grant revoked before entry'); return { inherited: true, value: await frames.run(frame, fn) }; }
   finally { frame.active = false; clearTimeout(timer); signal?.removeEventListener('abort', forward); response.socket.removeListener('close', revoke); response.revocation.removeEventListener('abort', revoke); response.socket.end(JSON.stringify({release:response.grant.grantId})+'\n'); }
 }
@@ -338,8 +350,15 @@ function machineCleanupFailure(owner: MachineReservationOwner, registered: Itera
 }
 export async function withMachineReservationController<T>(owner: MachineReservationOwner, isLive: () => boolean, fn: () => Promise<T> | T): Promise<T> {
   if (process.platform !== policy.platform) return await fn();
-  const admitted=inspectMachineReservationOwner(owner.ticket,owner.lockId);
-  if(!isLive()||!admitted||admitted.pid!==process.pid||admitted.start!==owner.start||JSON.stringify(admitted.resources)!==JSON.stringify(owner.resources))throw failure('controller owner/declaration mismatch');
+  // The owner's own admission is a ticket and kernel observation like every other one in this
+  // module: retried with the registered observation policy, and when it stays unavailable the
+  // command runs without a controller exactly as on an unsupported platform (no delegation is
+  // offered, nothing is weakened). An owner observed with a different identity or declaration is
+  // still refused.
+  let admitted: NonNullable<ReturnType<typeof inspectMachineReservationOwner>>;
+  try { admitted = observeWithRetry(() => { const observed = inspectMachineReservationOwner(owner.ticket, owner.lockId); if (!observed) throw failure('controller owner observation unavailable'); return observed; }); }
+  catch { if (!isLive()) throw failure('controller owner/declaration mismatch'); return await fn(); }
+  if(!isLive()||admitted.pid!==process.pid||admitted.start!==owner.start||JSON.stringify(admitted.resources)!==JSON.stringify(owner.resources))throw failure('controller owner/declaration mismatch');
   // A unix socket path is capped at 104 bytes on Darwin; a deep scratch TMPDIR falls back to /tmp.
   const temporaryRoot = Buffer.byteLength(join(tmpdir(), artifacts.temporaryPrefix)) + 6 + 1 + artifacts.socketFile.length + 1 <= 100 ? tmpdir() : '/tmp';
   const keys = generateEd25519KeyPair(), directory = mkdtempSync(join(temporaryRoot, artifacts.temporaryPrefix)), socketPath = join(directory, artifacts.socketFile);
@@ -452,6 +471,9 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     for (const [token, consumed] of consumedPending) if (consumed.expiresAt !== undefined && Date.now() >= consumed.expiresAt) consumedPending.delete(token);
     return pruned;
   };
+  // A queued request is removed only where it still sits: a request already dequeued must never
+  // remove a neighbour, which splice(-1, 1) would silently do.
+  const dequeue = (item: { socket: Socket; input: Request }): void => { const index = pending.indexOf(item); if (index >= 0) pending.splice(index, 1); };
   const retireReleasedGrants = () => {
     let retired = 0;
     for (const [socket, grant] of [...active].reverse()) {
@@ -475,7 +497,7 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     let changed = resolved || retireReleasedGrants() > 0;
     const waiting = pending.length;
     for (const item of [...pending]) {
-      const { socket, input } = item; if (socket.destroyed) { pending.splice(pending.indexOf(item), 1); continue; }
+      const { socket, input } = item; if (socket.destroyed) { dequeue(item); continue; }
       try {
         if (!live() || Date.now() >= input.deadlineAt) throw failure('reservation/request expired');
         // A transient kernel observation failure leaves the request queued for the next tick; only
@@ -494,14 +516,14 @@ export async function withMachineReservationController<T>(owner: MachineReservat
         if (!subset(resources, owner.resources)) throw failure('resource expansion');
         if (parent) { if (!subset(resources, parent.resources)) throw failure('parent grant/claim mismatch'); parents.push(...parent.parents, parent.grantId); }
         if ([...active.values()].some(prior => conflict(prior.resources, resources) && !(parents.includes(prior.grantId) && subset(resources, prior.resources)))) continue;
-        pending.splice(pending.indexOf(item), 1);
+        dequeue(item);
         const grant: Grant = { reservation: owner.lockId, subject, nonce: input.nonce, operation: input.operation, resources, deadlineAt: Math.min(owner.deadlineAt, input.deadlineAt, ...[...active.values()].filter(prior=>parents.includes(prior.grantId)).map(prior=>prior.deadlineAt)), grantId: randomUUID() };
         grant.heldPorts=(resources??[]).filter(row=>row.class==='fixed-port'&&row.access==='exclusive'&&[owner.resources,...[...active.values()].filter(prior=>parents.includes(prior.grantId)).map(prior=>prior.resources)].some(rows=>rows?.some(prior=>prior.class==='fixed-port'&&prior.access==='exclusive'&&prior.key===row.key))).map(row=>row.key);
         active.set(socket, { subject, resources, parents, grantId: grant.grantId, deadlineAt: grant.deadlineAt });
         grantTimers.set(socket,setTimeout(()=>{revokeGrant(grant.grantId);drainNow();},Math.max(1,grant.deadlineAt-Date.now())));
         socket.write(JSON.stringify({ grant, signature: signCanonical(grant, keys.privateKey) }) + '\n');
         changed = true;
-      } catch (error) { pending.splice(pending.indexOf(item), 1); socket.end(JSON.stringify({ error: String(error) }) + '\n'); }
+      } catch (error) { dequeue(item); socket.end(JSON.stringify({ error: String(error) }) + '\n'); }
     }
     return changed || pending.length !== waiting;
   };
@@ -602,14 +624,15 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   } finally {
     alive = false; if (retirementTimer) clearTimeout(retirementTimer); for(const timer of grantTimers.values())clearTimeout(timer); if(frame)frame.active=false; abort.abort(failure('reservation ended')); for (const socket of sockets) socket.destroy();
     for (const group of registered.values()) {
-      if (groupGone(group.pgid)) continue;
-      // Only previously observed owned group leaders are signal targets.
-      if (group.pid !== group.pgid || !sameProcess(group)) continue;
+      // Only previously observed owned group leaders are signal targets: still observed with the
+      // recorded identity, or absent while the recorded group persists, which is the common shape
+      // once the direct child has exited and a same-group descendant lingers.
+      if (!ownedGroupSignalTarget(group)) continue;
       try { process.kill(-group.pgid, 'SIGTERM'); } catch { /* Absence verified below. */ }
     }
     const deadline = Date.now() + CLEANUP_MS;
     while ([...registered.values()].some(row => !groupGone(row.pgid)) && Date.now() < deadline) {
-      if (Date.now() >= deadline - CLEANUP_MS / 2) for (const row of registered.values()) if (row.pid === row.pgid && sameProcess(row) && !groupGone(row.pgid)) { try { process.kill(-row.pgid, 'SIGKILL'); } catch { /* Observation remains decisive. */ } }
+      if (Date.now() >= deadline - CLEANUP_MS / 2) for (const row of registered.values()) if (ownedGroupSignalTarget(row)) { try { process.kill(-row.pgid, 'SIGKILL'); } catch { /* Observation remains decisive. */ } }
       await new Promise(resolve => setTimeout(resolve, 20));
     }
     await new Promise<void>(resolve => server.close(() => resolve())); if (fd >= 0) closeSync(fd); rmSync(directory, { recursive: true, force: true });
@@ -658,3 +681,5 @@ export async function cancelValidationReservationChild(token:string | undefined,
 }
 
 export function inheritedValidationReservationPortAlreadyHeld(key:string): boolean { const frame=frames.getStore();return frame?.active===true&&!frame.abort.signal.aborted&&frame.heldPorts?.includes(key)===true; }
+/** The deadline of the live grant an inherited invocation runs under: the ceiling at which its revocation kills the command. Undefined for a controller's own command and outside delegation. */
+export function currentValidationReservationDeadline(): number | undefined { const frame=frames.getStore();return frame?.active===true&&!frame.abort.signal.aborted&&frame.deadlineAt!==undefined?frame.deadlineAt:undefined; }

@@ -205,7 +205,12 @@
     "test:nested-reservation-result-attempt-refusal": "node ../../scripts/verify-nested-reservation-registered.mjs result-attempt-refusal",
     "test:nested-reservation-fault-registered-row-pruned": "node ../../scripts/verify-nested-reservation-registered.mjs fault-registered-row-pruned",
     "test:nested-reservation-fault-spawned-owner-loss": "node ../../scripts/verify-nested-reservation-registered.mjs fault-spawned-owner-loss",
-    "test:nested-reservation-result-refused-registration-short": "node ../../scripts/verify-nested-reservation-registered.mjs result-refused-registration-short"
+    "test:nested-reservation-result-refused-registration-short": "node ../../scripts/verify-nested-reservation-registered.mjs result-refused-registration-short",
+    "test:nested-reservation-result-completed-group-residual": "node ../../scripts/verify-nested-reservation-registered.mjs result-completed-group-residual",
+    "test:nested-reservation-result-nested-grant-deadline": "node ../../scripts/verify-nested-reservation-registered.mjs result-nested-grant-deadline",
+    "test:nested-reservation-fault-controller-inspection-transient": "node ../../scripts/verify-nested-reservation-registered.mjs fault-controller-inspection-transient",
+    "test:nested-reservation-fault-controller-inspection-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs fault-controller-inspection-unavailable",
+    "test:nested-reservation-isolated-cleanup-unclearable": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-cleanup-unclearable"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

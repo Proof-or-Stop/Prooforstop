@@ -1,4 +1,4 @@
-import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, noteValidationReservationSpawn, unregisteredValidationReservationChildGone, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, isValidationDelegationError } from './validation-reservation-delegation.js';
+import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, noteValidationReservationSpawn, unregisteredValidationReservationChildGone, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, currentValidationReservationDeadline, isValidationDelegationError } from './validation-reservation-delegation.js';
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
@@ -1480,10 +1480,14 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
   // The armed timer is fixed here, before setup and the pre-launch handshakes, exactly as before
   // delegation existed: the configured timeout, capped by the caller's remaining deadline at entry
-  // when the caller supplied one. The bounded deadline below governs only the pre-launch handshakes.
-  const callerDeadlineAt = options.deadlineAt;
-  const armedTimeoutMs = callerDeadlineAt === undefined ? configuredTimeoutMs : Math.max(1, Math.min(configuredTimeoutMs, Math.floor(callerDeadlineAt - started)));
-  options = { ...options, deadlineAt: Math.min(callerDeadlineAt ?? Infinity, started + configuredTimeoutMs) };
+  // when the caller supplied one. Under delegation the live grant's deadline is the ceiling at
+  // which its revocation kills the command, so the armed timer, and with it the reported effective
+  // timeout, is bounded by that deadline as well. The bounded deadline below governs only the
+  // pre-launch handshakes.
+  const grantDeadlineAt = currentValidationReservationDeadline();
+  const ceilingAt = Math.min(options.deadlineAt ?? Infinity, grantDeadlineAt ?? Infinity);
+  const armedTimeoutMs = ceilingAt === Infinity ? configuredTimeoutMs : Math.max(1, Math.min(configuredTimeoutMs, Math.floor(ceilingAt - started)));
+  options = { ...options, deadlineAt: Math.min(ceilingAt, started + configuredTimeoutMs) };
   // A policy-owned reuse capsule supplies its already-closed environment. Do not
   // merge ambient variables back into that boundary while retaining the normal
   // validation environment construction for every ordinary command.
