@@ -193,7 +193,6 @@ function laneLaunchInstruction(storyId: string, lane: string, reason: string): s
   return `${renderReviewerDispatchLaunch({
     storyId,
     agentType: `proof-or-stop-review-${name}`,
-    taskName: `review_${name}`,
   })} ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} Every launched child id must be nonempty; when the plan launches multiple lanes, their child ids must also be distinct. Activation reason: ${why}.`;
 }
 

@@ -275,6 +275,9 @@ function assertAgentLaunchInstruction(instruction: string | null, lane: string):
   assert.match(value, /never call wait with an empty target\/receiver set/, `${lane}: empty waits are forbidden`);
   assert.match(value, /child id must be nonempty/, `${lane}: empty child ids are forbidden`);
   assert.match(value, /multiple lanes.*distinct/, `${lane}: parallel lane child ids must be distinct`);
+  const taskName = value.match(/spawn_agent\(\{ task_name: "([^"]+)"/)?.[1];
+  assert.match(taskName ?? '', /^[a-z0-9_]+$/, `${lane}: Codex task name uses only accepted characters`);
+  assert.equal(taskName, `review_${lane.replace(/-/g, '_')}`, `${lane}: Codex task name is canonical`);
 }
 
 // ---- Policy / registration assertions -------------------------------------

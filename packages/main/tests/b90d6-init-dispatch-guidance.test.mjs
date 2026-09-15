@@ -7,7 +7,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -456,6 +456,9 @@ function assertLifecycleReviewerLaunchGuidance() {
       assert.match(value, /never call wait with an empty target\/receiver set/);
     }
     assert.match(next.REVIEW, /every child id must be nonempty and distinct/i);
+    assert.match(next.REVIEW, /task_name: "review_test_coverage"/);
+    assert.doesNotMatch(next.REVIEW, /task_name: "[^"]*-/);
+    assert.match(next.REVIEW, /issue all host launch calls/);
     assert.match(next.TEST, /proof-or-stop-review-delivery/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -487,10 +490,23 @@ function assertReviewerRecoveryGuidance() {
     assert.match(decorated, /canonical dispatch \+ fresh-context launchInstruction/);
     assert.match(decorated, /非空且并行时互异的 child IDs/);
 
-    const sessionSource = readFileSync(fileURLToPath(new URL('../src/handlers/session.ts', import.meta.url)), 'utf8');
-    assert.match(sessionSource, /retry: `proof-or-stop reviewer_batch/);
-    assert.match(sessionSource, /canonical dispatch prompt unchanged/);
-    assert.match(sessionSource, /nonempty returned child id/);
+    const story = store.readStory(storyId);
+    const worktree = join(root, '.worktrees', storyId);
+    store.writeStory(storyId, {
+      ...story,
+      currentReviewRound: '2026-07-08T12:00:00.000Z',
+      worktree: { path: `.worktrees/${storyId}`, branch: `story/${storyId}` },
+    });
+    execFileSync('git', ['add', '.proof-or-stop'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['commit', '-m', 'seed review story'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['branch', `story/${storyId}`], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    mkdirSync(dirname(worktree), { recursive: true });
+    execFileSync('git', ['worktree', 'add', worktree, `story/${storyId}`], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    const worktreeStore = new StoryStore(worktree);
+    const brief = createSessionHandlers(ctx(worktree, worktreeStore)).session_brief({ concise: true });
+    assert.match(brief, /proof-or-stop reviewer_batch/);
+    assert.match(brief, /canonical dispatch prompt unchanged/);
+    assert.match(brief, /nonempty returned child id/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

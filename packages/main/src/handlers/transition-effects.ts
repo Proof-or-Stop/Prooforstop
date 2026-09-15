@@ -278,7 +278,7 @@ export function buildNextSteps(
         activeLine = renderActiveReviewersText(active);
         finalReviewLine = renderFinalReviewRoster(roster, storyId);
         agentLines = roster.requiredReviewers.map(r =>
-          `  ${renderReviewerDispatchLaunch({ storyId, agentType: r.lane, taskName: r.lane.replace(/^proof-or-stop-review-/, 'review_') })}`,
+          `  ${renderReviewerDispatchLaunch({ storyId, agentType: r.lane })}`,
         ).join('\n');
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         agentLines = [
@@ -287,7 +287,7 @@ export function buildNextSteps(
         ].map(line => `  ${line}`).join('\n');
       }
       let base = `→ ${activeLine}${finalReviewLine ? `\n${finalReviewLine}` : ''}
-→ Story owner persists each dispatch above, then launches the reviewers in parallel (issue all Agent calls in a single message):
+→ Story owner persists each dispatch above, then launches the reviewers in parallel (issue all host launch calls in a single message):
 ${agentLines}
 → ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} When launching multiple reviewers, every child id must be nonempty and distinct.
 → reviewer liveness: each reviewer should first output REVIEW_START after starting
