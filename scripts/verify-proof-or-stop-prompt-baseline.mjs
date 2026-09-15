@@ -273,6 +273,10 @@ const STORY_INIT_REQUIRED_CLI_COMMANDS = [
   'proof-or-stop checklist_get',
   'proof-or-stop init_check_set',
 ];
+const STORY_INIT_METADATA_DETAIL_QUERY =
+  `proof-or-stop story_get '{"storyId":"<storyId>","detail":true}'`;
+const STORY_INIT_METADATA_DETAIL_FIELDS =
+  '`index.title` / `index.description` / `index.type` / `index.priority` / `index.riskSignals`';
 const STORY_INIT_FORBIDDEN_ACTIVE_FRAGMENTS = [
   'docs/story/actives',
   '.proof-or-stop/story/actives',
@@ -2252,6 +2256,12 @@ function assertStoryInitCliOnlyPromptSurfaces(roleEntries) {
   for (const surface of surfaces) {
     for (const command of STORY_INIT_REQUIRED_CLI_COMMANDS) {
       if (!surface.content.includes(command)) errors.push(`${surface.path}: missing ${command}`);
+    }
+    if (!surface.content.includes(STORY_INIT_METADATA_DETAIL_QUERY)) {
+      errors.push(`${surface.path}: missing exact Story metadata detail query ${STORY_INIT_METADATA_DETAIL_QUERY}`);
+    }
+    if (!surface.content.includes(STORY_INIT_METADATA_DETAIL_FIELDS)) {
+      errors.push(`${surface.path}: missing result.index Story metadata field contract`);
     }
     for (const fragment of STORY_INIT_FORBIDDEN_ACTIVE_FRAGMENTS) {
       if (surface.content.includes(fragment)) errors.push(`${surface.path}: forbidden active fragment ${fragment}`);
