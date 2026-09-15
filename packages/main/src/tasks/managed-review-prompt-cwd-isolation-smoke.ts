@@ -140,6 +140,15 @@ function main(): void {
     ...validProposal,
     readLog: { ...validProposal.readLog, filesReadPartially: [] },
   })).kind, 'malformed', 'terminal validator rejects nested fields excluded by the shared provider schema');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    readDiagnostics: [{
+      code: 'read_manifest_missing_full_read',
+      severity: 'finding',
+      message: 'The required file was not read.',
+      extraAuthority: true,
+    }],
+  })).kind, 'malformed', 'terminal validator rejects diagnostic fields excluded by the shared provider schema');
   const criticLane = 'proof-or-stop-review-topology-critic';
   const criticSchema = managedReviewFinalProposalJsonSchema({
     storyId: REVIEW_RUN.storyId,

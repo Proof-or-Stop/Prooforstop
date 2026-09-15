@@ -882,6 +882,14 @@ const MANAGED_REVIEW_READ_MANIFEST_FIELDS = [
 ] as const;
 const MANAGED_REVIEW_READ_LOG_FIELDS = ['filesReadFully', 'filesTriagedByName', 'summary', 'digest'] as const;
 const MANAGED_REVIEW_READ_LOG_SUMMARY_FIELDS = ['readCount', 'tokenCount'] as const;
+const MANAGED_REVIEW_READ_DIAGNOSTIC_FIELDS = ['code', 'severity', 'message', 'path'] as const;
+const MANAGED_REVIEW_READ_DIAGNOSTIC_CODES = [
+  'read_manifest_missing_full_read',
+  'read_manifest_extra_full_read',
+  'read_manifest_missing_triage',
+  'read_manifest_extra_triage',
+  'full_scan_without_scanEscalationReason',
+] as const;
 
 export interface ManagedReviewFinalEnvelopeReadManifest extends Record<string, unknown> {
   filesReadFully: string[];
@@ -1034,13 +1042,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
           additionalProperties: false,
           required: ['code', 'severity', 'message'],
           properties: {
-            code: { enum: [
-              'read_manifest_missing_full_read',
-              'read_manifest_extra_full_read',
-              'read_manifest_missing_triage',
-              'read_manifest_extra_triage',
-              'full_scan_without_scanEscalationReason',
-            ] },
+            code: { enum: [...MANAGED_REVIEW_READ_DIAGNOSTIC_CODES] },
             severity: { const: 'finding' },
             message: nonBlankString,
             path: nonBlankString,
@@ -1079,6 +1081,13 @@ function isStringArray(value: unknown): value is string[] {
 function hasOnlyKeys(value: Record<string, unknown>, allowed: readonly string[]): boolean {
   const allowlist = new Set(allowed);
   return Object.keys(value).every(key => allowlist.has(key));
+}
+
+function isStrictManagedReviewReadDiagnostic(value: unknown): boolean {
+  if (!isPlainRecord(value) || !hasOnlyKeys(value, MANAGED_REVIEW_READ_DIAGNOSTIC_FIELDS)) return false;
+  if (typeof value.code !== 'string' || !(MANAGED_REVIEW_READ_DIAGNOSTIC_CODES as readonly string[]).includes(value.code)) return false;
+  if (value.severity !== 'finding' || typeof value.message !== 'string' || value.message.trim().length === 0) return false;
+  return value.path === undefined || (typeof value.path === 'string' && value.path.trim().length > 0);
 }
 
 /** Shared strict validator consumed at adapter, persistence, and import/gate boundaries. */
@@ -1196,7 +1205,8 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
     || !validConclusionPayload
     || (parsed.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC && parsed.inventoryCritic === undefined)
     || (parsed.inventoryCritic !== undefined && !isManagedInventoryCritic(parsed.inventoryCritic, String(parsed.lane), String(parsed.providerAgent), Array.isArray(parsed.findings) ? parsed.findings.length : 0))
-    || (parsed.readDiagnostics !== undefined && !Array.isArray(parsed.readDiagnostics))) {
+    || (parsed.readDiagnostics !== undefined
+      && (!Array.isArray(parsed.readDiagnostics) || !parsed.readDiagnostics.every(isStrictManagedReviewReadDiagnostic)))) {
     return { kind: 'malformed' };
   }
   return { kind: 'valid', envelope: parsed as ManagedReviewFinalEnvelopeRecord };

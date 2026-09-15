@@ -11903,6 +11903,7 @@ assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isMan
    '(parsed.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC && parsed.inventoryCritic === undefined)',
    'hasOnlyKeys(readManifest, MANAGED_REVIEW_READ_MANIFEST_FIELDS)',
    'hasOnlyKeys(readLog, MANAGED_REVIEW_READ_LOG_FIELDS)',
+   'parsed.readDiagnostics.every(isStrictManagedReviewReadDiagnostic)',
  ];
  for (const token of requiredSchemaTokens) {
    assert(hostRunSource.includes(token), `Managed final-proposal schema contract missing enforcement token: ${token}`);
