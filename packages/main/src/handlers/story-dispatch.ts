@@ -1186,6 +1186,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const lines = [
           `As ${canonicalType}, run the registered acceptance-rollout cohort for ${args.storyId}.`,
           `Working directory (subagent must cd here): ${root}`,
+          REVIEWER_NO_DELEGATION_BOUNDARY,
           '',
         ];
         appendDispatchLivenessGuidance(lines, `${canonicalType}/story`);

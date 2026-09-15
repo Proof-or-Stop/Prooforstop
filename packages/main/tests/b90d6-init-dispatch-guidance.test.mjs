@@ -24,6 +24,7 @@ const { createScopeAntiExpansionHandlers } = await import(join(distRoot, 'handle
 const { createStoryCreateHandlers } = await import(join(distRoot, 'handlers/story-create.js'));
 const { createStoryDispatchHandlers } = await import(join(distRoot, 'handlers/story-dispatch.js'));
 const { createStoryReviewHandlers } = await import(join(distRoot, 'handlers/story-review.js'));
+const { buildNextSteps } = await import(join(distRoot, 'handlers/transition-effects.js'));
 
 function write(root, path, content) {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -435,10 +436,35 @@ function assertScopePlanDispatchPhaseGate() {
   }
 }
 
+function assertLifecycleReviewerLaunchGuidance() {
+  const storyId = 'B-lifecycle-guidance';
+  const root = makeRoot();
+  try {
+    initGitRoot(root);
+    const store = new StoryStore(root);
+    seedStory(store, storyId, 'REVIEW');
+    const next = buildNextSteps(store, root, storyId);
+    for (const value of [next.REVIEW, next.TEST]) {
+      assert.match(value, /proof-or-stop dispatch/);
+      assert.match(value, /spawn_agent\(\{ task_name:/);
+      assert.match(value, /fork_turns: "none"/);
+      assert.match(value, /Agent\(\{ subagent_type:/);
+      assert.match(value, /Other hosts launch one equivalent fresh-context reviewer task without parent conversation history/);
+      assert.match(value, /Retain every returned child agent id/);
+      assert.match(value, /never call wait with an empty target\/receiver set/);
+    }
+    assert.match(next.REVIEW, /every child id must be nonempty and distinct/i);
+    assert.match(next.TEST, /proof-or-stop-review-delivery/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertInitCheckGuardGuidance();
 assertInitPreflightFailureRouting();
 assertSessionAndNextInitGuidance();
 assertStoryCreateAndGlobalHelpInitGuidance();
 assertScopePlanDispatchAndReviewGuidance();
 assertScopePlanDispatchPhaseGate();
+assertLifecycleReviewerLaunchGuidance();
 console.log('b90d6-init-dispatch-guidance: ALL PASS');

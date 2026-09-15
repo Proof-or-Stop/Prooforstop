@@ -258,20 +258,19 @@ function laneByName(report: ReviewerBatchReport, lane: string) {
 }
 
 /**
- * Assert a needs-run lane's launchInstruction is the canonical Agent subagent-spawn
- * form — NOT a runnable dispatch CLI command. Asserts the SHAPE (prefix, storyId,
- * absence of "dispatch") so the old broken dispatch template would FAIL the smoke.
+ * Assert a needs-run lane carries the complete host-neutral fresh-context launch
+ * contract rather than the legacy Claude-only Agent(...) shortcut.
  */
 function assertAgentLaunchInstruction(instruction: string | null, lane: string): void {
   assert.ok(instruction, `${lane}: needs-run lane carries a launch instruction`);
   const value = instruction!;
-  assert.match(
-    value,
-    new RegExp(`^Agent\\(\\{ subagent_type: "proof-or-stop-review-${lane}"`),
-    `${lane}: launch instruction is the canonical Agent-spawn form`,
-  );
+  assert.match(value, new RegExp(`agentType[^\\n]+proof-or-stop-review-${lane}`));
   assert.ok(value.includes(STORY_ID), `${lane}: launch instruction names the storyId`);
-  assert.ok(!value.includes('dispatch'), `${lane}: launch instruction is NOT a dispatch CLI command`);
+  assert.match(value, /spawn_agent\(\{ task_name:/, `${lane}: Codex launch is present`);
+  assert.match(value, /fork_turns: "none"/, `${lane}: Codex launch drops parent history`);
+  assert.match(value, /Agent\(\{ subagent_type:/, `${lane}: Claude launch is present`);
+  assert.match(value, /Other hosts launch one equivalent fresh-context reviewer task/, `${lane}: other hosts retain the boundary`);
+  assert.match(value, /passes the returned prompt unchanged/, `${lane}: launch uses the canonical dispatch prompt`);
 }
 
 // ---- Policy / registration assertions -------------------------------------

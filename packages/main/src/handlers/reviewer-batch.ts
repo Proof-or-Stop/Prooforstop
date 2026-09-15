@@ -21,12 +21,10 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  *                          or metadata-only drift; guidance only, never a gate PASS.
  *       · blocking       — a blocking verified finding is open for/affecting the
  *                          lane (round-decayed via isFindingBlocking).
- *   - The orchestrator launch INSTRUCTION for each lane that needs a (re-)run, in
- *     the canonical Agent subagent-spawn form
- *     `Agent({ subagent_type: "proof-or-stop-review-<lane>", prompt: "Review story <id> (<reason>)" })`
- *     (matching transition-effects.ts). This is an instruction the orchestrator
- *     executes to spawn the reviewer subagent — a CLI cannot spawn one, so it is
- *     NOT a runnable `dispatch` CLI command.
+ *   - Host-neutral owner guidance for each lane that needs a (re-)run: obtain the
+ *     canonical dispatch prompt, use a fresh-context host launch, and retain the
+ *     exact returned child id. This is an instruction the orchestrator executes;
+ *     reviewer_batch itself cannot spawn a subagent.
  *   - The overall REVIEW gate status (which lanes block REVIEW->TEST/DONE),
  *     consumed from the V1 buildStoryReadinessReport review readiness rows plus
  *     the per-lane blocking findings.
@@ -67,6 +65,7 @@ import type { Finding } from '../core/types.js';
 import type { StoryStore } from '../core/store.js';
 import { checkEvidenceFreshnessForGit, classifyEvidenceFreshness } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { renderReviewerDispatchLaunch } from '../core/reviewer-launch-guidance.js';
 
 interface ReviewerBatchArgs {
   storyId: string;
@@ -104,8 +103,7 @@ interface ReviewerLanePlan {
   /** Human summary of the prior verdict (review_incremental_context.priorVerdict), or null. */
   priorVerdict: string | null;
   /**
-   * The orchestrator launch INSTRUCTION to spawn this lane's reviewer subagent,
-   * in the canonical Agent(...) form, present iff the lane needs a (re-)run
+   * Host-neutral owner launch guidance, present iff the lane needs a (re-)run
    * (scope-changed / no-receipt / blocking). null for current-pass or awaiting-repair. This is an
    * instruction for the orchestrator, NOT a runnable `dispatch` CLI command.
    */
@@ -182,16 +180,18 @@ function assertBoundary(args: ReviewerBatchArgs): void {
 }
 
 /**
- * The orchestrator launch INSTRUCTION to spawn a lane's reviewer subagent, in the
- * canonical Agent subagent-spawn form (matching transition-effects.ts). This is an
- * instruction the orchestrator executes — a CLI cannot spawn a subagent — so it is
- * NOT a runnable `dispatch` CLI command. The lane's activation reason annotates the
- * prompt (falling back to "baseline" when absent).
+ * Host-neutral owner launch guidance. The owner first obtains the canonical
+ * dispatch prompt, then launches exactly one fresh-context reviewer and retains
+ * the returned child id. This remains guidance; reviewer_batch never launches it.
  */
 function laneLaunchInstruction(storyId: string, lane: string, reason: string): string {
   const name = lane.startsWith('proof-or-stop-review-') ? lane.slice('proof-or-stop-review-'.length) : lane;
   const why = reason && reason.trim() ? reason.trim() : 'baseline';
-  return `Agent({ subagent_type: "proof-or-stop-review-${name}", prompt: "Review story ${storyId} (${why})" })`;
+  return `${renderReviewerDispatchLaunch({
+    storyId,
+    agentType: `proof-or-stop-review-${name}`,
+    taskName: `review_${name}`,
+  })} Activation reason: ${why}.`;
 }
 
 /**
