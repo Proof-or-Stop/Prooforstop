@@ -252,6 +252,13 @@ digest 与 provider process identity 封存在 managed run 中。controller 还�
 INIT gate 仍会验证完成态 receipt 和其中精确的 delivery run binding。篡改
 Story/role/run、重放凭证或在 run 终态后调用均 fail closed。
 
+凭证通过环境变量传递，是为了兼容会把每条工具命令放入新 session/PGID 的
+Codex host；这里的环境变量只是 transport，信任来自 controller 的 Ed25519
+签名、精确 claims 校验和 nonce 原子消费。该边界依赖 managed reviewer 已有的
+host/container 隔离来阻止无关的同 UID 或 root 进程读取其环境；环境变量本身
+不提供针对同 UID/root 进程的保密性。若 host 能稳定把 capability descriptor
+传入 reviewer 后续启动的每条工具命令，可改用 fd transport 而不改变签名协议。
+
 provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story store 中读到
 与该 Story、role 和 managed run ID 精确绑定的 `agentResults` 记录后才写
 `completed` terminal。记录不存在或不匹配时以

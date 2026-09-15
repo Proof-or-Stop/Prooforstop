@@ -10732,7 +10732,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
-        patterns: ['caller-supplied required reviewer role must fail closed', 'Promise.all(agentTypes.map', 'barrier timeout: peer reviewer never became ready', 'tamper-story', 'tamper-role', 'a terminal managed dispatch attestation must stay unusable', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
+        patterns: ['caller-supplied required reviewer role must fail closed', 'Promise.all(agentTypes.map', 'barrier timeout: peer reviewer never became ready', 'tamper-story', 'tamper-role', 'tamper-signature', 'missing-signature', 'malformed-null', 'attestation-$peer.json', 'env -u LATTICE_MANAGED_INIT_INVOCATION', 'a terminal managed dispatch attestation must stay unusable', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
       },
       {
         relPath: 'packages/main/src/core/host-run.ts',

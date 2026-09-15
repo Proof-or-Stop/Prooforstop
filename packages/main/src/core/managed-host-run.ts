@@ -781,9 +781,11 @@ function boundedPositiveMs(value: number | undefined, fallback: number, max: num
   return Math.min(Math.floor(value), max);
 }
 
-function assertRunId(runId: string): void {
-  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(runId) || runId.includes('..')) {
-    throw new Error(`managed host run: invalid runId "${runId}"`);
+function assertRunId(runId: unknown): asserts runId is string {
+  if (typeof runId !== 'string'
+    || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(runId)
+    || runId.includes('..')) {
+    throw new Error(`managed host run: invalid runId "${String(runId)}"`);
   }
 }
 
@@ -3557,11 +3559,31 @@ function readManagedInitInvocationFromEnvironment(
   if (Buffer.byteLength(raw, 'utf8') > 16 * 1024) {
     throw new Error('managed INIT invocation attestation exceeds 16 KiB');
   }
+  let parsed: unknown;
   try {
-    return JSON.parse(raw) as ManagedInitInvocationAttestation;
+    parsed = JSON.parse(raw) as unknown;
   } catch {
     throw new Error('managed INIT invocation attestation is not JSON');
   }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('managed INIT invocation attestation must be a JSON object');
+  }
+  const record = parsed as Record<string, unknown>;
+  const expectedKeys = [
+    'expiresAt', 'invocationNonce', 'issuedAt', 'providerAgent',
+    'runId', 'schemaVersion', 'signature', 'storyId',
+  ];
+  const actualKeys = Object.keys(record).sort();
+  if (actualKeys.length !== expectedKeys.length
+    || actualKeys.some((key, index) => key !== expectedKeys[index])) {
+    throw new Error('managed INIT invocation attestation has an invalid shape');
+  }
+  for (const key of expectedKeys) {
+    if (typeof record[key] !== 'string' || record[key]!.length === 0) {
+      throw new Error(`managed INIT invocation attestation field "${key}" must be a non-empty string`);
+    }
+  }
+  return record as unknown as ManagedInitInvocationAttestation;
 }
 
 function consumeManagedInitInvocationAttestation(args: {
@@ -3626,7 +3648,11 @@ function consumeManagedInitInvocationAttestation(args: {
  * Resolve the controller-owned INIT reviewer run authorizing this CLI process.
  * Real provider tool hosts may create a fresh process group/session for each
  * command, so a signed, one-shot controller attestation is authoritative. The
- * legacy same-process-group path remains for older managed adapters.
+ * environment is transport, not trust: the controller signature binds every
+ * claim and the nonce is consumed atomically. This assumes the managed child is
+ * protected from unrelated same-UID/root processes by its existing host or
+ * container isolation boundary. The legacy same-process-group path remains for
+ * older managed adapters.
  */
 export function resolveManagedDispatchInvocation(args: {
   root: string;
