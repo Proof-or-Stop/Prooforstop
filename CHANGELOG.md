@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab init-story-metadata-read - v0.3.369 - 2026-09-15
+
+Fixed an INIT lifecycle deadlock introduced when the Story reviewer was routed
+through CLI reads. The reviewer now requests `story_get` with `detail:true` and
+reads `title`, `description`, `type`, `priority`, and `riskSignals` from the
+documented `result.index` projection. Default `story_get` output remains
+unchanged for compatibility.
+
+The regression test covers the canonical template, both managed host mirrors,
+the approved prompt hash, full-suite registration, the detailed runtime
+projection, and the unchanged default projection. Lab RED reproduced the
+missing metadata query and GREEN passed after the repair. The TypeScript build
+and independent Codex specification and standards reviews passed.
+
+Maintenance provenance: codex/lab-init-story-metadata-read. This entry records
+Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction;
+it does not assert a different-vendor Lab audit or formal Story DONE.
+
 ## Lab topology-provenance-base - v0.3.368 - 2026-09-15
 
 Fixed topology authority dispatch in repositories whose integration branch is
