@@ -16,6 +16,7 @@ const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const { resetConfigCache } = await import(join(distRoot, 'core/config.js'));
 const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const { getGuardFailureReason } = await import(join(distRoot, 'core/machine.js'));
+const { recomputeInitCheckHash } = await import(join(distRoot, 'core/init-check-gate.js'));
 const { createInitCheckHandlers } = await import(join(distRoot, 'handlers/init-check.js'));
 const { createInitPreflightHandlers } = await import(join(distRoot, 'handlers/init-preflight.js'));
 const { createSessionHandlers } = await import(join(distRoot, 'handlers/session.js'));
@@ -171,7 +172,29 @@ function assertInitCheckGuardGuidance() {
     assert.match(productInitPrompt, /fresh context/i);
     assert.match(productInitPrompt, /do not carry over the main agent's conclusions/i);
     assert.match(productInitPrompt, /do not spawn or delegate another reviewer/i);
+    assert.match(productInitPrompt, /collaboration tools, if visible, are outside this role/i);
     assert.doesNotMatch(productInitPrompt, /spawn_agent\(|Agent\(\{ subagent_type:/);
+
+    const legacyInitCheckWithoutRequiredReviewers = {
+      storyId,
+      checkedAt: '2026-07-08T12:00:00.000Z',
+      reviewRound: '',
+      agentId: 'legacy-unknown-reviewer',
+      issues: [],
+      agentResults: [],
+      _hash: '',
+    };
+    legacyInitCheckWithoutRequiredReviewers._hash = recomputeInitCheckHash(
+      storyId,
+      store,
+      root,
+      legacyInitCheckWithoutRequiredReviewers,
+    );
+    store.writeInitCheck(storyId, legacyInitCheckWithoutRequiredReviewers);
+    const bothInitAgentsMissing = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
+    assert.doesNotMatch(bothInitAgentsMissing ?? '', /init_check_tampered/);
+    assert.match(bothInitAgentsMissing ?? '', /missing_init_check_agent/);
+    assert.match(bothInitAgentsMissing ?? '', /nonempty and distinct/i);
 
     createInitCheckHandlers(ctx(root, store)).init_check_set({
       storyId,

@@ -365,7 +365,8 @@ export function initCheckSignatureIsValid(
  *
  * `verdictSource` (B-8df9 CHK-002) defaults to the persisted init-check.json, which is what a
  * VERIFIER wants: recompute over what is on disk and compare with the `_hash` stored beside it.
- * A PRODUCER passes the record it is about to write, because at that moment the file on disk is
+ * A PRODUCER, including an isolated regression fixture, passes the record it is about to write as
+ * the fourth argument, because at that moment the file on disk is
  * either absent or still holds the previous verdict. Pass `null` to recompute against no verdict
  * at all.
  */
