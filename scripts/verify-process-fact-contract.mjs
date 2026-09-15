@@ -11462,12 +11462,18 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
     && !provenance.includes("['log', '-n', '50'"),
   'Topology implementation provenance must use only the frozen commit range');
   assert(dispatch.includes('resolveFullStoryBaseHead(store, root, story.storyId)')
+    && dispatch.includes('story.integrationTarget !== undefined')
     && dispatch.includes('currentImplementationBusinessCommit(gitCwd, frozenStoryBase)'),
   'Topology dispatch must bind implementation provenance to the frozen Story base');
   assert(receipt.includes('resolveFullStoryBaseHead(store, ctx.root, storyId)')
+    && receipt.includes('story.integrationTarget !== undefined')
     && receipt.includes('deriveImplementationProvenance(')
     && receipt.includes('frozenStoryBase,'),
   'Topology receipt production must verify implementation provenance against the frozen Story base');
+  assert(provenance.includes('IMPLEMENTATION_PROVENANCE_COMMIT_MISSING')
+    && dispatch.includes('topologyProvenanceDiagnostic')
+    && dispatch.includes('required,'),
+  'Topology provenance refusal must expose stable optional/required diagnostics');
 }
 
 

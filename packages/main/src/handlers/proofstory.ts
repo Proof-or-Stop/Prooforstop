@@ -378,8 +378,10 @@ function currentTopologyReceiptStateForContext(ctx: HandlerContext, storyId: str
     findingRefs: store.readFindings(storyId).findings.filter(finding => finding.status === 'open').map(finding => finding.id),
   });
   const events = store.readProcessEvents(storyId);
-  const frozenStoryBase = resolveFullStoryBaseHead(store, ctx.root, storyId);
-  if (!frozenStoryBase) throw new Error('IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE: Story integration base is unavailable');
+  const story = store.readStory(storyId);
+  const frozenStoryBase = story.integrationTarget !== undefined
+    ? resolveFullStoryBaseHead(store, ctx.root, storyId)
+    : undefined;
   const implementation = deriveImplementationProvenance(
     current.workspace.signedWorkspaceRoot,
     events,

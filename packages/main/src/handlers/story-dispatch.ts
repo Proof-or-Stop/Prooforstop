@@ -56,7 +56,11 @@ import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
-import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
+import {
+  currentImplementationBusinessCommit,
+  IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE,
+  topologyDispatchBusinessAuthor,
+} from '../core/topology-critic-receipt.js';
 import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
@@ -218,6 +222,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     businessCommit?: string;
     businessCommitAuthor?: string;
     businessCommitAuthorSource?: 'git-var:GIT_AUTHOR_IDENT';
+    topologyProvenanceDiagnostic?: { status: 'unavailable'; required: boolean; code: string; message: string };
     budgetViolation?: 'incremental' | 'full';
     promptBudget?: PromptBudgetObservation;
   }): void {
@@ -241,6 +246,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(args.businessCommit ? { businessCommit: args.businessCommit } : {}),
         ...(args.businessCommitAuthor ? { businessCommitAuthor: args.businessCommitAuthor } : {}),
         ...(args.businessCommitAuthorSource ? { businessCommitAuthorSource: args.businessCommitAuthorSource } : {}),
+        ...(args.topologyProvenanceDiagnostic ? { topologyProvenanceDiagnostic: args.topologyProvenanceDiagnostic } : {}),
         ...(args.itemId ? { itemId: args.itemId, checklistId: args.itemId } : {}),
         ...(args.findingId ? { findingId: args.findingId } : {}),
         ...(args.clusterId ? { clusterId: args.clusterId } : {}),
@@ -329,8 +335,15 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         projectRoot: root,
         cwd: process.cwd(),
       });
-      const frozenStoryBase = resolveFullStoryBaseHead(store, root, story.storyId);
-      if (!frozenStoryBase) throw new Error('IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE: Story integration base is unavailable');
+      const frozenStoryBase = story.integrationTarget !== undefined
+        ? resolveFullStoryBaseHead(store, root, story.storyId)
+        : undefined;
+      if (story.integrationTarget !== undefined && !frozenStoryBase) {
+        throw Object.assign(
+          new Error(`${IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE}: Story integration base is unavailable`),
+          { code: IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE },
+        );
+      }
       const implementation = currentImplementationBusinessCommit(gitCwd, frozenStoryBase);
       return {
         headHash: snapshot.headHash,
@@ -341,7 +354,18 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       };
     } catch (error) {
       if (required) throw error;
-      return {};
+      const detail = error instanceof Error ? error : new Error(String(error));
+      const code = typeof (detail as Error & { code?: unknown }).code === 'string'
+        ? String((detail as Error & { code: string }).code)
+        : 'IMPLEMENTATION_PROVENANCE_UNAVAILABLE';
+      return {
+        topologyProvenanceDiagnostic: {
+          status: 'unavailable' as const,
+          required,
+          code,
+          message: detail.message,
+        },
+      };
     }
   }
 

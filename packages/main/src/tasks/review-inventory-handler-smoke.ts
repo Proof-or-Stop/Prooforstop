@@ -16,7 +16,11 @@ import { fileURLToPath } from 'node:url';
 import { buildReviewGateRows, buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
 import { classifyLaneState } from '../handlers/reviewer-batch.js';
 import { StoryStore } from '../core/store.js';
-import { currentImplementationBusinessCommit, deriveRoleProvenance } from '../core/topology-critic-receipt.js';
+import {
+  currentImplementationBusinessCommit,
+  deriveRoleProvenance,
+  IMPLEMENTATION_PROVENANCE_COMMIT_MISSING,
+} from '../core/topology-critic-receipt.js';
 import { resetConfigCache } from '../core/config.js';
 import { digestCandidateRoutingValue, verifyCandidateSpecSet, type CandidateSpecSetArtifact } from '../core/candidate-spec-routing.js';
 import {
@@ -228,9 +232,29 @@ async function inventoryPurposeRecovery(): Promise<void> {
   });
   const topology = setup();
   const fixture = setup({ name: 'Harmonynet', email: '26995688+Harmonynet@users.noreply.github.com' });
+  const scopeFixture = setup({ name: 'Harmonynet', email: '26995688+Harmonynet@users.noreply.github.com' });
   try {
     assert.match(cli(topology.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-topology-control')), /topology/);
-    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-default-refusal')), /implementation|author|provenance/i);
+    const scopeActor = 'proof-or-stop-review-scope-plan';
+    const scopeStory = scopeFixture.store.readStory(storyId);
+    scopeFixture.store.writeStory(storyId, { ...scopeStory, phase: 'PLAN', currentReviewRound: undefined });
+    assert.match(cli(scopeFixture.root, 'dispatch', { storyId, agentType: scopeActor }, env(scopeActor, 'b29bc-scope-diagnostic')), /scope/i);
+    const scopeDiagnostic = scopeFixture.store.readProcessEvents(storyId).find(event =>
+      event.agentType === scopeActor && event.targetKind === 'scope-plan-review')?.topologyProvenanceDiagnostic as
+      { status?: string; required?: boolean; code?: string } | undefined;
+    assert.equal(scopeDiagnostic?.status, 'unavailable');
+    assert.equal(scopeDiagnostic?.required, false);
+    assert.equal(scopeDiagnostic?.code, IMPLEMENTATION_PROVENANCE_COMMIT_MISSING,
+      'optional topology provenance records a stable machine-readable diagnostic');
+    assert.throws(
+      () => cli(fixture.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-default-refusal')),
+      new RegExp(IMPLEMENTATION_PROVENANCE_COMMIT_MISSING),
+      'required topology provenance returns the same stable refusal code',
+    );
+    if (process.argv.includes('--topology-provenance-only')) {
+      console.log('TOPOLOGY_PROVENANCE_HANDLER_GREEN optional diagnostic and required refusal share a stable code');
+      return;
+    }
     cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
     const epoch = fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
     assert.equal(epoch.state, 'OPEN');
@@ -633,6 +657,7 @@ async function inventoryPurposeRecovery(): Promise<void> {
   } finally {
     rmSync(topology.root, { recursive: true, force: true });
     rmSync(fixture.root, { recursive: true, force: true });
+    rmSync(scopeFixture.root, { recursive: true, force: true });
   }
 }
 
@@ -690,6 +715,7 @@ if (process.argv.includes('--discovery-only')) {
 }
 if (!process.argv.includes('--lifecycle-only') && !process.argv.includes('--roster-only')) {
   await inventoryPurposeRecovery();
+  if (process.argv.includes('--topology-provenance-only')) process.exit(0);
   if (process.argv.includes('--progress-capture-fixture')) {
     console.log('PASS U11 real inventory finalization captures verified progress');
     process.exit(0);

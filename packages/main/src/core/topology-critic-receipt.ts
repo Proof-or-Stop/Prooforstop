@@ -19,6 +19,13 @@ export const TOPOLOGY_CRITIC_ROLE = 'proof-or-stop-review-topology-critic' as co
 export const TOPOLOGY_EXCLUSION_APPROVER_ROLE = 'proof-or-stop-review-scope-plan' as const;
 const IMPLEMENTER_ROLE = 'proof-or-stop-implementer' as const;
 const IMPLEMENTER_AUTHOR = 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>';
+export const IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE = 'IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE' as const;
+export const IMPLEMENTATION_PROVENANCE_RANGE_UNAVAILABLE = 'IMPLEMENTATION_PROVENANCE_RANGE_UNAVAILABLE' as const;
+export const IMPLEMENTATION_PROVENANCE_COMMIT_MISSING = 'IMPLEMENTATION_PROVENANCE_COMMIT_MISSING' as const;
+
+function implementationProvenanceError(code: string, message: string): Error & { code: string } {
+  return Object.assign(new Error(`${code}: ${message}`), { code });
+}
 
 function canonicalBusinessAuthorIdentity(identity: string): string {
   // Preserve observed Git identity; retired names cannot become canonical
@@ -121,19 +128,33 @@ export function currentImplementationBusinessCommit(
 ): { businessCommit: string; businessCommitAuthor: string } {
   const baseCommit = frozenStoryBase?.trim() || resolveRepositoryBaseline(gitCwd)?.mergeBase;
   if (!baseCommit) {
-    throw new Error('IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE: no frozen Story or repository baseline commit is available');
+    throw implementationProvenanceError(
+      IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE,
+      'no frozen Story or repository baseline commit is available',
+    );
   }
   let resolvedBase = '';
   try { resolvedBase = git(gitCwd, ['rev-parse', '--verify', `${baseCommit}^{commit}`]); } catch { /* structured refusal below */ }
   if (resolvedBase !== baseCommit) {
-    throw new Error(`IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE: ${baseCommit} does not resolve to the exact frozen commit`);
+    throw implementationProvenanceError(
+      IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE,
+      `${baseCommit} does not resolve to the exact frozen commit`,
+    );
   }
   let rows = '';
   try { rows = git(gitCwd, ['log', `${baseCommit}..HEAD`, '--format=%H%x09%an <%ae>']); } catch {
-    throw new Error(`IMPLEMENTATION_PROVENANCE_RANGE_UNAVAILABLE: cannot inspect ${baseCommit}..HEAD`);
+    throw implementationProvenanceError(
+      IMPLEMENTATION_PROVENANCE_RANGE_UNAVAILABLE,
+      `cannot inspect ${baseCommit}..HEAD`,
+    );
   }
   const line = rows.split('\n').find(row => row.endsWith(`\t${IMPLEMENTER_AUTHOR}`));
-  if (!line) throw new Error(`implementation provenance is missing a business commit authored by ${IMPLEMENTER_AUTHOR}`);
+  if (!line) {
+    throw implementationProvenanceError(
+      IMPLEMENTATION_PROVENANCE_COMMIT_MISSING,
+      `implementation provenance is missing a business commit authored by ${IMPLEMENTER_AUTHOR}`,
+    );
+  }
   const [businessCommit, businessCommitAuthor] = line.split('\t');
   return { businessCommit, businessCommitAuthor: canonicalBusinessAuthorIdentity(businessCommitAuthor) };
 }
