@@ -1832,7 +1832,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/init-check',
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
-    rationale: 'Init-check signature and each independent reviewer delivery receipt are checked before worktree bootstrap. A managed INIT dispatch reaches a completed terminal only after the configured Story store contains an exact agentResult bound to that runId and role. On Linux, nested Codex sandbox bypass is selected only when a Docker/OCI boundary marker is present; uncontained Linux and Darwin retain their ordinary provider sandbox.',
+    rationale: 'Init-check signature and each independent reviewer delivery receipt are checked before worktree bootstrap. A managed INIT dispatch issues a signed, deadline-bound, single-use invocation attestation so a provider tool host may execute init_check_set in a separate process group without weakening Story, role, run, signature, nonce, replay, or terminal-state checks. The dispatch reaches a completed terminal only after the configured Story store contains an exact agentResult bound to that runId and role. On Linux, nested Codex sandbox bypass is selected only when a Docker/OCI boundary marker is present; uncontained Linux and Darwin retain their ordinary provider sandbox.',
   },
   {
     name: 'artifact:scope-boundary.json',

@@ -307,6 +307,24 @@ export interface ManagedReviewProposalInvocationAttestation extends ManagedRevie
   signature: string;
 }
 
+export interface ManagedInitInvocationAttestation {
+  schemaVersion: 'lattice.managed_init_invocation.v1';
+  runId: string;
+  storyId: string;
+  providerAgent: string;
+  invocationNonce: string;
+  issuedAt: string;
+  expiresAt: string;
+  signature: string;
+}
+
+export function signManagedInitInvocation(
+  claims: Omit<ManagedInitInvocationAttestation, 'signature'>,
+  privateKey: PrivateKeyBase64,
+): ManagedInitInvocationAttestation {
+  return { ...claims, signature: signCanonical(claims, privateKey) };
+}
+
 export function signManagedReviewProposalInvocation(
   claims: Omit<ManagedReviewProposalInvocationAttestation, 'signature'>,
   privateKey: PrivateKeyBase64,
@@ -733,6 +751,7 @@ interface ManagedHostRunPaths {
   evidenceBinding: string;
   evidenceBindingSeal: string;
   scratchCleanupDiagnostic: string;
+  initInvocationConsumption: string;
   claimLock: string;
   reconcileLock: string;
   terminalLock: string;
@@ -1290,6 +1309,7 @@ function pathsFor(root: string, runId: string): ManagedHostRunPaths {
     evidenceBinding: join(dir, 'evidence-binding.json'),
     evidenceBindingSeal: join(dir, 'evidence-binding.seal.json'),
     scratchCleanupDiagnostic: join(dir, 'managed-review-scratch-cleanup-diagnostic.json'),
+    initInvocationConsumption: join(dir, 'init-invocation-consumed.json'),
     claimLock: join(dir, 'claim.lock'),
     reconcileLock: join(dir, 'reconcile.lock'),
     terminalLock: join(dir, 'terminal.lock'),
@@ -2663,7 +2683,9 @@ export async function submitManagedHostRun(
     throw error;
   }
 
-  const proposalInvocationKeys = isIsolatedReviewerProfile(args.profile) ? generateEd25519KeyPair() : null;
+  const proposalInvocationKeys = (isIsolatedReviewerProfile(args.profile) || args.profile === 'managed_dispatch')
+    ? generateEd25519KeyPair()
+    : null;
   const capability = proposalInvocationKeys?.privateKey ?? randomBytes(32).toString('base64url');
   const spec: ManagedHostRunSpec = {
     ...(admission ? { executionAdmission: { version: 1 as const, binding: admission.binding } } : {}),
@@ -3044,6 +3066,19 @@ export async function runManagedHostRunWorker(
       // they receive only an exact signed attestation on descriptor fd 3.
       ...(spec.profile === 'managed_reviewer' && deps.runner
         ? { LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: capability }
+        : {}),
+      ...(spec.profile === 'managed_dispatch' && proposalInvocationPrivateKey
+        ? {
+          LATTICE_MANAGED_INIT_INVOCATION: canonicalJson(signManagedInitInvocation({
+            schemaVersion: 'lattice.managed_init_invocation.v1',
+            runId: spec.runId,
+            storyId: spec.storyId!,
+            providerAgent: spec.agentType,
+            invocationNonce: randomUUID(),
+            issuedAt: new Date(now()).toISOString(),
+            expiresAt: spec.deadlineAt,
+          }, proposalInvocationPrivateKey as PrivateKeyBase64)),
+        }
         : {}),
     };
     // Descriptor 3 is repurposed at the provider boundary for the one-shot
@@ -3514,18 +3549,109 @@ function providerInvocationMatches(
     && leader.sessionId === caller.sessionId;
 }
 
+function readManagedInitInvocationFromEnvironment(
+  environment: NodeJS.ProcessEnv,
+): ManagedInitInvocationAttestation | null {
+  const raw = environment.LATTICE_MANAGED_INIT_INVOCATION?.trim();
+  if (!raw) return null;
+  if (Buffer.byteLength(raw, 'utf8') > 16 * 1024) {
+    throw new Error('managed INIT invocation attestation exceeds 16 KiB');
+  }
+  try {
+    return JSON.parse(raw) as ManagedInitInvocationAttestation;
+  } catch {
+    throw new Error('managed INIT invocation attestation is not JSON');
+  }
+}
+
+function consumeManagedInitInvocationAttestation(args: {
+  root: string;
+  storyId: string;
+  agentType: string;
+  attestation: ManagedInitInvocationAttestation;
+}): string {
+  const { attestation } = args;
+  assertRunId(attestation.runId);
+  const paths = pathsFor(args.root, attestation.runId);
+  return withTerminalAuthorityLock(paths, () => {
+    if (readTerminal(paths)) throw new Error('managed INIT invocation run is terminal');
+    const spec = readManagedHostRunSpec(paths).value;
+    const owner = readManagedHostRunOwner(paths);
+    const snapshot = readManagedHostRunSnapshot(paths);
+    const { signature, ...claims } = attestation;
+    const issuedAt = Date.parse(attestation.issuedAt);
+    const expiresAt = Date.parse(attestation.expiresAt);
+    const now = Date.now();
+    const valid = attestation.schemaVersion === 'lattice.managed_init_invocation.v1'
+      && attestation.storyId === args.storyId
+      && attestation.providerAgent === args.agentType
+      && spec.runId === attestation.runId
+      && spec.profile === 'managed_dispatch'
+      && spec.storyId === args.storyId
+      && spec.agentType === args.agentType
+      && snapshot.state === 'running'
+      && snapshot.providerIdentity !== null
+      && typeof owner.proposalInvocationPublicKey === 'string'
+      && /^[A-Za-z0-9._-]{16,128}$/.test(attestation.invocationNonce)
+      && Number.isFinite(issuedAt)
+      && Number.isFinite(expiresAt)
+      && issuedAt <= now + 5_000
+      && expiresAt >= now
+      && attestation.expiresAt === spec.deadlineAt
+      && verifyCanonical(claims, signature, owner.proposalInvocationPublicKey);
+    if (!valid) throw new Error('managed INIT invocation attestation is invalid or mismatched');
+    const consumedAt = new Date(now).toISOString();
+    if (!writeExclusive(paths.initInvocationConsumption, {
+      schemaVersion: 'lattice.managed_init_invocation_consumption.v1',
+      runId: attestation.runId,
+      storyId: attestation.storyId,
+      providerAgent: attestation.providerAgent,
+      invocationNonce: attestation.invocationNonce,
+      consumedAt,
+    })) {
+      throw new Error('managed INIT invocation attestation was already consumed');
+    }
+    appendFileSync(paths.events, `${canonicalJson({
+      schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
+      runId: attestation.runId,
+      at: consumedAt,
+      type: 'managed_init_invocation_consumed',
+      detail: { storyId: attestation.storyId, providerAgent: attestation.providerAgent },
+    })}\n`, { encoding: 'utf8', mode: 0o600 });
+    return attestation.runId;
+  });
+}
+
 /**
- * Resolve the controller-owned INIT reviewer run containing the current CLI
- * process. A caller-provided role name or run id is never authority: the live
- * provider process group, sealed Story/role tuple, and managed-dispatch profile
- * must all agree, and exactly one run may match.
+ * Resolve the controller-owned INIT reviewer run authorizing this CLI process.
+ * Real provider tool hosts may create a fresh process group/session for each
+ * command, so a signed, one-shot controller attestation is authoritative. The
+ * legacy same-process-group path remains for older managed adapters.
  */
 export function resolveManagedDispatchInvocation(args: {
   root: string;
   storyId: string;
   agentType: string;
   callerPid?: number;
+  environment?: NodeJS.ProcessEnv;
 }): string {
+  let attestation: ManagedInitInvocationAttestation | null;
+  try {
+    attestation = readManagedInitInvocationFromEnvironment(args.environment ?? process.env);
+    if (attestation) {
+      return consumeManagedInitInvocationAttestation({
+        root: args.root,
+        storyId: args.storyId,
+        agentType: args.agentType,
+        attestation,
+      });
+    }
+  } catch (error) {
+    throw new Error(
+      `init_check_set refused: managed INIT invocation was not accepted (${error instanceof Error ? error.message : String(error)}). `
+      + 'Use a fresh host_run managedDispatch reviewer. [delivery_not_acknowledged]',
+    );
+  }
   if (process.platform === 'win32') {
     throw new Error('init_check_set: managed reviewer delivery attestation is unsupported on win32');
   }

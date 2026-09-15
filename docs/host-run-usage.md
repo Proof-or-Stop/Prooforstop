@@ -244,8 +244,13 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 
 INIT reviewer 使用独立的 `managedDispatch` 模式。它不接受调用方 prompt，
 而是调用 canonical `dispatch` 取得完整 envelope，并把 Story、role、prompt
-digest 与 provider process identity 封存在 managed run 中。`init_check_set`
-只接受该 live process group 的调用；INIT gate 还会验证其完成态 receipt。
+digest 与 provider process identity 封存在 managed run 中。controller 还会签发
+一个只在 run deadline 前有效、绑定 Story、role、run ID 和随机 nonce 的一次性
+调用凭证。真实 Codex 工具宿主可以为每条 CLI 命令创建独立 process group/session；
+`init_check_set` 因此以该签名凭证为权威并原子消费 nonce，而不是要求 CLI
+进程仍属于外层 provider 的 PGID。旧 adapter 的同进程组路径只保留兼容性；
+INIT gate 仍会验证完成态 receipt 和其中精确的 delivery run binding。篡改
+Story/role/run、重放凭证或在 run 终态后调用均 fail closed。
 
 provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story store 中读到
 与该 Story、role 和 managed run ID 精确绑定的 `agentResults` 记录后才写

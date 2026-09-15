@@ -19,7 +19,13 @@ assert.match(hostRun, /managedDispatch.*managedReview|managedReview.*managedDisp
 assert.match(hostRun, /proof-or-stop-review-story-init.*proof-or-stop-product-reviewer/s,
   'the first managed-dispatch boundary must admit exactly the required INIT reviewers');
 assert.match(managedHostRun, /resolveManagedDispatchInvocation/,
-  'managed runs must expose a live provider-process binding for reviewer writes');
+  'managed runs must expose a live provider-invocation binding for reviewer writes');
+assert.match(managedHostRun, /signManagedInitInvocation/,
+  'the controller must sign the exact INIT callback authority without exposing its private key');
+assert.match(managedHostRun, /initInvocationConsumption/,
+  'managed INIT callback authority must be consumed once before it can write evidence');
+assert.match(managedHostRun, /verifyCanonical\(claims, signature, owner\.proposalInvocationPublicKey\)/,
+  'managed INIT callback authority must verify against the controller-owned public key');
 assert.match(initCheck, /resolveManagedDispatchInvocation/,
   'init_check_set must consume the live managed-dispatch binding');
 assert.match(initCheck, /authority\.source.*dispatched-env|dispatched-env.*authority\.source/s,
