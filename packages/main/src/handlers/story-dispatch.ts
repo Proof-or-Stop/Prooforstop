@@ -543,7 +543,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     const lines: string[] = [];
     lines.push(`Review PLAN scope coverage for story ${args.storyId}.`);
     lines.push('');
-    lines.push('You are the proof-or-stop-review-scope-plan reviewer; review in a fresh context and do not carry over the main agent\'s conclusions.');
+    lines.push('Owner launch contract:');
+    lines.push('- Codex owner launch: spawn_agent({ task_name: "review_scope_plan", fork_turns: "none", message: "<this exact dispatch prompt>" }). Retain the returned child agent id and wait only on that id; never wait with an empty target/receiver set.');
+    lines.push('- Other hosts must launch exactly one equivalent fresh-context reviewer task containing this prompt and no parent conversation history.');
+    lines.push('');
+    lines.push('Reviewer execution contract:');
+    lines.push('- You are the proof-or-stop-review-scope-plan reviewer. Execute this scope review directly in the current reviewer task and finish by calling scope_check_save.');
+    lines.push('- The reviewer must not spawn or delegate another reviewer. Collaboration tools, if visible, are outside this role.');
     lines.push(`Working directory (subagent must cd here): ${root}`);
     lines.push('');
     appendDispatchLivenessGuidance(lines, 'proof-or-stop-review-scope-plan/story-scope');

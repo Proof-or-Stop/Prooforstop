@@ -317,7 +317,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(result.prompt, /Review PLAN scope coverage/);
     assert.match(result.prompt, /Codex owner launch: spawn_agent\(/);
     assert.match(result.prompt, /fork_turns:\s*"none"/);
-    assert.match(result.prompt, /retain the returned child agent id/);
+    assert.match(result.prompt, /retain the returned child agent id/i);
     assert.match(result.prompt, /execute this scope review directly in the current reviewer task/i);
     assert.match(result.prompt, /must not spawn or delegate another reviewer/i);
     assert.match(result.prompt, /never wait with an empty target\/receiver set/i);
