@@ -821,42 +821,52 @@ refreshed.
 ### Full configured-command comparison
 
 Every configured command of local main 0.3.367 (indexes 0 to 168; the candidate
-appends its fifty-seven selectors after them) was run through the real compiled
+appends its sixty-seven selectors after them) was run through the real compiled
 executor with the machine reservation held, sequentially and in the same order,
 first in the main checkout and then in the candidate worktree, with the same
 harness as the targeted comparison above; the complete table is
 `nested-verification-machine-owner-full-comparison.md` beside this record.
+The candidate column was measured on the nineteenth-round candidate revision
+`3d9c7534cb` on 2026-09-15 (UTC), after the last runtime change of
+this Lab; the delivered candidate differs from that revision only by the
+documentation commit that records the table, so the executor code the compared
+commands traverse (including the fourteenth round's refusal paths, the
+fifteenth round's armed-timer derivation, which every compared command
+traverses, and the eighteenth round's refused-registration cleanup) is
+byte-identical to the measured revision. A previous table, measured on the
+thirteenth-round candidate, was replaced by this rerun after the release-time
+audit of the eighteenth candidate found it carried no revision provenance.
 Of the 169 commands, 166 have the same outcome on both trees
 (136 pass on main and 133 on the candidate; the failures shared
 with main are main's own, listed in the table) and 3 differ:
 2 (main pass, candidate fail (1, validation_failure)), 3 (main pass, candidate fail (2, validation_failure)), 142 (main pass, candidate fail (1, validation_failure)). Aggregate wall clock over the set was 3296.2 seconds on main
-and 3277.4 seconds on the candidate.
+and 2789.8 seconds on the candidate.
 
-The differing rows are attributed as follows. Indexes 2, 3 and 142 fail on the
-candidate only because the candidate is a linked worktree: main 0.3.367's
-runtime-root projection refuses story-scoped commands from any linked worktree
-that is not the story's own (`controller projection refused unsigned or
-unregistered linked worktree for B-cdf6`, and the same for B-fe8f), indexes 2
-and 3 invoke `finding_list --storyId=B-cdf6` and index 142 invokes
-`red_evidence_get` for B-fe8f, the same refusals were reproduced for all three
-commands from a throwaway linked worktree of unmodified main 6d6884c940, and all
-three pass in the main checkout. Index 2 is the identity-lineage delivery smoke,
-whose ninety-three cases pass on main and of which exactly the one that invokes
-that command fails on the candidate; index 3 is its red harness; index 142 is
-the ledger runtime-integrity red harness. A first candidate
-run, stopped after forty-nine commands once its differences were known, had two
-more: the precert fast set (index 6) failed with the `resource expansion`
-refusal repaired in the controlled child API section, and the fixture suite at
-index 14 spent its budget without progress after a nineteen-minute wait for a
-machine pool shared with another session, the shape discussed with the owner
-inspection above; both pass in the complete rerun on the repaired candidate
-recorded here. The fourteenth round, made after this comparison, changed two
-refusal paths only (an unavailable owner start observation and an unwritable
-residual record), neither reachable in this run, and the selector sweep and the
-pinned driver were rerun on the final candidate. The commands that reach `runIsolatedFindingFixture` directly,
-through an npm alias or through one script hop (indexes 0, 2, 8, 15, 39, 155
-and 168) have the same outcome on both trees except index 2, whose single
-failing case is the environmental refusal above.
+The differing rows are attributed from this run's own transcripts. Indexes 3
+and 142 fail on the candidate only because the candidate is a linked worktree:
+main 0.3.367's runtime-root projection refuses story-scoped commands from any
+linked worktree that is not the story's own (`controller projection refused
+unsigned or unregistered linked worktree for B-cdf6`, and the same for
+B-fe8f); index 3, the identity-lineage red harness, invokes
+`finding_list --storyId=B-cdf6` and index 142, the ledger runtime-integrity
+red harness, invokes `red_evidence_get` for B-fe8f, and both pass in the main
+checkout. Index 2, the identity-lineage delivery smoke, failed in the recorded
+run at its delivery section's cross-provider boundary (`cross-provider direct
+reviewer evidence is advisory-only: current environment host=codex, nearest
+provider process=claude`): the production native-host authority boundary
+(`observeNativeHostProcess` in `native-review-evidence.ts`) observes the
+nearest provider process in the OS ancestry, and this run was launched from a
+Claude session inside the Codex-developed Lab worktree, whose session identity
+is the codex host. Rerun alone on the same revision, detached from that
+session's process tree (reparented under launchd), index 2 reports 92 passing
+and 1 failed case in each of its four sections, the single failure being the
+same `finding_list --storyId=B-cdf6` refusal as index 3, and its ninety-three
+cases pass in the main checkout. The commands that reach
+`runIsolatedFindingFixture` directly, through an npm alias or through one
+script hop (indexes 0, 2, 8, 15, 39, 155 and 168) have the same outcome on
+both trees except index 2, attributed above; the precert fast set (index 6)
+and the fixture suite (index 14), which differed in the first candidate run of
+the thirteenth round, are identical on both trees in this run.
 
 ## Verification boundaries
 
