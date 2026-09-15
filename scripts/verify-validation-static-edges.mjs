@@ -74,6 +74,10 @@ function parseStaticSource(file, text) {
  parsedSourceCache.set(file, { text, ast });
  return ast;
 }
+// Every literal specifier a route script can load, read from its parsed syntax tree rather than a text
+// pattern: import declarations (including the bare side-effect form `import './support/x.mjs';`),
+// re-exports and import() calls whose specifier starts with ./support/.
+function routeLoadsSupportHelper(file,text){const ast=ts.createSourceFile(file,text,ts.ScriptTarget.Latest,true);let found=false;const visit=n=>{if(found)return;if((ts.isImportDeclaration(n)||ts.isExportDeclaration(n))&&n.moduleSpecifier&&ts.isStringLiteralLike(n.moduleSpecifier)&&n.moduleSpecifier.text.startsWith('./support/'))found=true;else if(ts.isCallExpression(n)&&n.expression.kind===ts.SyntaxKind.ImportKeyword&&n.arguments[0]&&ts.isStringLiteralLike(n.arguments[0])&&n.arguments[0].text.startsWith('./support/'))found=true;else ts.forEachChild(n,visit);};visit(ast);return found;}
 function scan(file,index,entry,argv,seen,depth=0){const invocationKey=JSON.stringify([file,entry,argv]);if(seen.has(invocationKey))return;seen.add(invocationKey);if(depth>3 && !(entry==='packages/main/dist/tasks/quorum-submit-smoke.js' && QUORUM_NATIVE_HELPER_DEPTHS.get(file)?.includes(depth))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'helper depth exceeds declared bound'});return;}if(!fs.existsSync(path.join(root,file))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source missing'});return;}
  const sourceBytes=fs.readFileSync(path.join(root,file)),text=sourceBytes.toString('utf8'),ast=parseStaticSource(file,text),decls=new Map(),cpNames=new Map(),spaces=new Set(),helpers=[],fileTargets=new Set(),mutable=new Set(),aliases=[],pureNames=new Map(),pureSpaces=new Map(),bindings=[];
  if(ast.parseDiagnostics?.length)coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source parse diagnostics'});
@@ -83,7 +87,7 @@ function scan(file,index,entry,argv,seen,depth=0){const invocationKey=JSON.strin
  // Every script reachable from the closed nested reservation wrapper that loads a
  // ./support/ helper must carry its own reviewed helper-import row; otherwise its
  // helper would silently escape traversal for that configured command.
- if(file==='scripts/verify-nested-reservation-registered.mjs')for(const spec of graphImports??[]){const routeScript=path.posix.normalize(path.posix.join(path.posix.dirname(file),spec));let routeText='';try{routeText=fs.readFileSync(path.join(root,routeScript),'utf8');}catch{continue;}if(/(?:from\s*|import\s*\(\s*)['"]\.\/support\//.test(routeText)&&!REVIEWED_VERIFIER_HELPER_IMPORTS.has(routeScript))coverage.push({index,file:routeScript,state:'NEEDS_REVIEW',reason:'nested route script imports ./support/ without a reviewed helper-import row'});}
+ if(file==='scripts/verify-nested-reservation-registered.mjs')for(const spec of graphImports??[]){const routeScript=path.posix.normalize(path.posix.join(path.posix.dirname(file),spec));let routeText='';try{routeText=fs.readFileSync(path.join(root,routeScript),'utf8');}catch{continue;}if(routeLoadsSupportHelper(routeScript,routeText)&&!REVIEWED_VERIFIER_HELPER_IMPORTS.has(routeScript))coverage.push({index,file:routeScript,state:'NEEDS_REVIEW',reason:'nested route script imports ./support/ without a reviewed helper-import row'});}
  const seenGraphImports = new Set();
  function observeGraphImport(node, specifier) {
   if (!graphImports) return;

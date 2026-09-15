@@ -828,9 +828,12 @@ harness as the targeted comparison above; the complete table is
 `nested-verification-machine-owner-full-comparison.md` beside this record.
 The candidate column was measured on the nineteenth-round candidate revision
 `3d9c7534cb` on 2026-09-15 (UTC), after the last runtime change of
-this Lab; the delivered candidate differs from that revision only by the
-documentation commit that records the table, so the executor code the compared
-commands traverse (including the fourteenth round's refusal paths, the
+this Lab; the delivered candidate differs from that revision by the
+documentation commit that records the table and by the twentieth round's
+change to the static-edge scanner's helper-import detection, whose own
+compared command (index 168) was rerun on the delivered scanner source with
+the identical outcome (main's own sixty residual rows), so the executor code
+the compared commands traverse (including the fourteenth round's refusal paths, the
 fifteenth round's armed-timer derivation, which every compared command
 traverses, and the eighteenth round's refused-registration cleanup) is
 byte-identical to the measured revision. A previous table, measured on the
@@ -943,7 +946,9 @@ every 60-second selector under 9.8 seconds), and the fifteenth-round sweep of al
 (`core` 38.3 seconds, every 30-second selector under 7.1 seconds, every
 60-second selector under 10.1 seconds), and the nineteenth-round sweep of all sixty-seven in 240.0 seconds
 (`core` 35.6 seconds, every 30-second selector under 7.1 seconds, every
-60-second selector under 9.9 seconds). Before the `core` selector
+60-second selector under 9.9 seconds), and the twentieth-round sweep of all sixty-seven in 240.9 seconds
+(`core` 34.9 seconds, every 30-second selector under 7.1 seconds, every
+60-second selector under 10.1 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
@@ -955,6 +960,21 @@ pool, its 1.5-second leaf deadline is reached before launch and it fails exactly
 like the original RED. The registered `core` selector isolates the same driver
 in a private OS-home pool, and the machine heavy and process-fanout claims its
 entry declares are what the executor's delegated reservation carries for it.
+
+The static scanner's closed wrapper graph (`REVIEWED_VERIFIER_HELPER_IMPORTS`
+in `verify-validation-static-edges.mjs`) lists every route script the closed
+wrapper may import and, for each route script, the `./support/` helpers it may
+load; a route script that loads a `./support/` helper without its own reviewed
+row fails the scan itself (`nested route script imports ./support/ without a
+reviewed helper-import row`), so no helper escapes traversal for a configured
+command. Since the twentieth round that detection walks the route script's
+syntax tree (import declarations, re-exports and `import()` calls with literal
+specifiers), so the bare side-effect form `import './support/x.mjs';`, which
+is idiomatic in this route family, is caught as well; the release-time audit
+of the nineteenth candidate found the previous text pattern silent on that
+form. The boundary control
+(`verify-validation-static-edge-boundaries.mjs`) exercises both the dynamic
+and the bare form of the unrowed route script and expects the same refusal.
 
 Static evidence for this route must directly bind the resource configuration,
 registered runtime policy and actual loaded implementation helpers. Regression

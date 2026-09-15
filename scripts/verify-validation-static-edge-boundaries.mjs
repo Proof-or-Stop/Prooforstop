@@ -254,11 +254,14 @@ try{
   const wrongExcerpt=structuredClone(exact);wrongExcerpt.requiredEvidence[0].excerpt+=' altered';pin([wrongExcerpt]);
   assert.equal(expect(1,'native route exact source excerpt remains mandatory').rows[0].state,'NEEDS_REVIEW');
   pin([exact]);expect(0,'native route complete binding restored');
-  // A route script that loads a ./support/ helper without its own reviewed row must fail the scan itself.
+  // A route script that loads a ./support/ helper without its own reviewed row must fail the scan itself,
+  // whether it loads the helper dynamically or through the bare side-effect import form.
   const unrowed='scripts/verify-nested-source-loader-semantics.mjs';
-  put(unrowed,"await import('./support/nested-reservation-source-runtime.mjs');\n");
-  const unrowedReport=expect(1,'nested route helper import without a reviewed helper-import row is refused');
-  assert.ok(unrowedReport.coverage.some(row=>row.file===unrowed&&row.reason==='nested route script imports ./support/ without a reviewed helper-import row'),'missing helper-import row must be named');
+  for(const form of ["await import('./support/nested-reservation-source-runtime.mjs');\n","import './support/nested-reservation-source-runtime.mjs';\n"]){
+   put(unrowed,form);
+   const unrowedReport=expect(1,'nested route helper import without a reviewed helper-import row is refused: '+form.trim());
+   assert.ok(unrowedReport.coverage.some(row=>row.file===unrowed&&row.reason==='nested route script imports ./support/ without a reviewed helper-import row'),'missing helper-import row must be named for '+form.trim());
+  }
   put(unrowed,'');pin([exact]);expect(0,'native route complete binding restored after helper-import control');
  }
  const releaseStarted=performance.now();

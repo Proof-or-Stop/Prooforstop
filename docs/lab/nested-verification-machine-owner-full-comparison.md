@@ -1,9 +1,12 @@
 # Full configured-command comparison of the nested-verification-machine-owner Lab
 
 Measured on candidate revision `3d9c7534cb` on 2026-09-15 (UTC); the
-delivered candidate differs from that revision only by the documentation commit
-that records this table, so the executor and every other runtime module the
-compared commands traverse are byte-identical to the measured revision. The main
+delivered candidate differs from that revision by the documentation commit that
+records this table and by the twentieth round's change to the static-edge
+scanner's helper-import detection (index 168, rerun on the delivered scanner
+source with the identical outcome, main's own sixty residual rows), so the
+executor and every other runtime module the compared commands traverse are
+byte-identical to the measured revision. The main
 column was measured on unmodified local main 0.3.367 (`6d6884c940`), which is
 still the base of the candidate.
 
