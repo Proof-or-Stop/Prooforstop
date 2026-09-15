@@ -1989,6 +1989,9 @@ function assertProofStoryProgressiveBoundary() {
       && read('packages/main/src/handlers/review-run.ts').includes('inspectExpectedControllerRuntimeProjection')
       && read('packages/main/src/core/runtime-artifact-registry.ts').includes('Verify the complete controller-owned runtime projection')
       && externalWorktreeSmokeText.includes('review preflight must reject an entirely absent untracked controller runtime projection')
+      && externalWorktreeSmokeText.includes('real review_run_start handler rejects an entirely absent controller projection before snapshotting')
+      && externalWorktreeSmokeText.includes('tracked hook projections remain forbidden')
+      && externalWorktreeSmokeText.includes('tracked config projection remains forbidden')
       && externalWorktreeSmokeText.includes('a changed projected hook must return to fail-closed dirty classification')
       && read('packages/main/src/core/material-code-policy.ts').includes('resolveRepositoryBaseline')
       && read('packages/main/src/cli-engine.ts').includes('enforceStoryOwnerLeaseGate(cmd, parsed, controllerStore')
@@ -10685,11 +10688,11 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/init-check.ts',
-        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash', 'normalizeReviewerBlockingAuthority', 'normalizeUnchangedInputBlockerExpansion', 'missing_or_invalid_requirement_ref', 'outside_init_reviewer_blocking_authority', 'unchanged_input_blocker_expansion'],
+        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash', 'computeInitReviewerAuthorityInputHash', 'authorityInputHash', 'normalizeReviewerBlockingAuthority', 'normalizeUnchangedInputBlockerExpansion', 'missing_or_invalid_requirement_ref', 'outside_init_reviewer_blocking_authority', 'unchanged_input_blocker_expansion'],
       },
       {
         relPath: 'packages/main/src/core/types.ts',
-        patterns: ['PRODUCT_INIT_BLOCKING_ISSUE_KINDS', 'STORY_INIT_BLOCKING_ISSUE_KINDS', 'requirementRef', 'reportedSeverity', 'dispositionReason', 'unchanged_input_blocker_expansion'],
+        patterns: ['PRODUCT_INIT_BLOCKING_ISSUE_KINDS', 'STORY_INIT_BLOCKING_ISSUE_KINDS', 'requirementRef', 'reportedSeverity', 'dispositionReason', 'authorityInputHash', 'unchanged_input_blocker_expansion'],
       },
       {
         relPath: 'packages/main/src/core/init-check-gate.ts',

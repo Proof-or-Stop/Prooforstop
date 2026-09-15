@@ -135,10 +135,18 @@ export function inspectExpectedControllerRuntimeProjection(args: {
     if (controllerRoot === worktreeRoot || !isManagedGlobalThinRoot(controllerRoot)) {
       return { expected: false, valid: true, reason: 'not-controller-managed-worktree', expectedPaths: [], controllerRoot };
     }
-    const expectedPaths = existingControllerRuntimeAssetPaths(controllerRoot);
-    if (expectedPaths.length === 0) {
-      return { expected: false, valid: true, reason: 'no-controller-assets', expectedPaths, controllerRoot };
+    const runtimePaths = existingControllerRuntimeAssetPaths(controllerRoot);
+    if (runtimePaths.length === 0) {
+      return { expected: false, valid: true, reason: 'no-controller-assets', expectedPaths: [], controllerRoot };
     }
+    const configRef = pickProjectConfigPath(controllerRoot);
+    const controllerConfigIsTracked = configRef
+      ? Boolean(execFileSync('git', ['ls-files', '--', configRef.filename], {
+        cwd: controllerRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim())
+      : false;
+    const projectedConfigPath = configRef && !controllerConfigIsTracked ? configRef.filename : undefined;
+    const expectedPaths = [...(projectedConfigPath ? [projectedConfigPath] : []), ...runtimePaths];
     const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], {
       cwd: worktreeRoot,
       encoding: 'utf8',
@@ -146,6 +154,23 @@ export function inspectExpectedControllerRuntimeProjection(args: {
     }).trim();
     if (branch !== `refs/heads/story/${args.storyId}`) {
       return { expected: true, valid: false, reason: 'story-branch-mismatch', expectedPaths, controllerRoot };
+    }
+    for (const path of runtimePaths) {
+      for (const cwd of [controllerRoot, worktreeRoot]) {
+        if (execFileSync('git', ['ls-files', '--', path], {
+          cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+        }).trim()) {
+          return { expected: true, valid: false, reason: 'tracked-controller-projection', expectedPaths, controllerRoot };
+        }
+      }
+    }
+    if (projectedConfigPath && !isByteIdenticalControllerConfig({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      path: projectedConfigPath,
+    })) {
+      return { expected: true, valid: false, reason: 'config-projection-invalid', expectedPaths, controllerRoot };
     }
     const inspection = inspectControllerRuntimeProjection({
       gitCwd: worktreeRoot,

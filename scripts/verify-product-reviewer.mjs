@@ -10,6 +10,7 @@ import { legacyAgentRoleIds } from '../packages/main/dist/core/agent-role-identi
 import { blockingInitCheckIssues, initCheckSignatureIsValid } from '../packages/main/dist/core/init-check-gate.js';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 import { createInitCheckHandlers } from '../packages/main/dist/handlers/init-check.js';
+import { buildScopeBoundary } from '../packages/main/dist/core/scope-anti-expansion.js';
 
 
 const root = process.cwd();
@@ -272,6 +273,72 @@ try {
     'unchanged_input_blocker_expansion',
     'INIT_REVIEW_MONOTONICITY: unchanged-input blocker expansion must preserve a machine-owned disposition',
   );
+
+  directStore.writeScopeBoundary(storyId, buildScopeBoundary({
+    storyId,
+    mode: 'feature',
+    allowed: ['Changed authoritative scope boundary'],
+    excluded: ['Unrelated behavior'],
+    confirmedBy: 'product-reviewer-smoke',
+    confirmationNote: 'Change a blocker-citable source that is outside the legacy INIT signature components.',
+    now: '2026-09-15T00:00:00.000Z',
+  }));
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'scope_or_safety_boundary_missing',
+        requirementRef: 'scope-boundary',
+        severity: 'high',
+        desc: 'The changed authoritative scope boundary introduces a blocking ambiguity.',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const changedScopeCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  const changedScopeResult = changedScopeCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(changedScopeResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_MONOTONICITY: changed scope-boundary input permits a newly discovered source-bound blocker');
+
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [] });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const changedChecklist = directStore.readChecklist(storyId);
+  directStore.writeChecklist(storyId, {
+    ...changedChecklist,
+    items: changedChecklist.items.map((item, index) => index === 0 ? {
+      ...item,
+      verificationIntent: {
+        happy: [{ id: 'INT-CHANGED', desc: 'Changed verification plan must execute.', type: 'cli', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        edge: [],
+        adversarial: [],
+      },
+    } : item),
+  });
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'verification_plan_unexecutable',
+        requirementRef: 'verification-intent:INT-CHANGED',
+        severity: 'high',
+        desc: 'The changed verification intent cannot be executed as written.',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const changedIntentCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  const changedIntentResult = changedIntentCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(changedIntentResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_MONOTONICITY: changed verificationIntent permits a newly discovered source-bound blocker');
 
   const changedStory = directStore.readStory(storyId);
   directStore.writeStory(storyId, {

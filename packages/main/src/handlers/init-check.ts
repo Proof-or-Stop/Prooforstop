@@ -16,6 +16,8 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  */
 
 import { execSync } from 'child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
 import {
@@ -51,6 +53,7 @@ import {
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { digestCanonicalJson, digestText } from '../core/digest.js';
 
 const INIT_CHECK_ISSUE_KIND_SET = new Set<string>(INIT_CHECK_ISSUE_KINDS);
 const PRODUCT_INIT_BLOCKING_KIND_SET = new Set<string>(PRODUCT_INIT_BLOCKING_ISSUE_KINDS);
@@ -101,6 +104,43 @@ function validInitRequirementRefs(checklistItems: ChecklistItem[]): Set<string> 
     for (const id of verificationIntentIds(item)) refs.add(`verification-intent:${id}`);
   }
   return refs;
+}
+
+function computeInitReviewerAuthorityInputHash(args: {
+  root: string;
+  store: StoryStore;
+  storyId: string;
+  story: ReturnType<StoryStore['readStory']>;
+  backgroundHash: string;
+  checklistItems: ChecklistItem[];
+}): string {
+  const guideDigests = ['AGENTS.md', 'CLAUDE.md'].map(path => {
+    const absolute = join(args.root, path);
+    return { path, digest: existsSync(absolute) ? digestText(readFileSync(absolute, 'utf8')) : 'missing' };
+  });
+  return digestCanonicalJson({
+    story: {
+      title: args.story.title,
+      description: args.story.description,
+      type: args.story.type,
+      priority: args.story.priority,
+      riskSignals: args.story.riskSignals ?? [],
+    },
+    backgroundHash: args.backgroundHash,
+    checklist: args.checklistItems.map(item => ({
+      id: item.id,
+      title: item.title,
+      context: item.context,
+      relatedDocs: item.relatedDocs,
+      userSees: item.userSees,
+      excludes: item.excludes,
+      files: item.files,
+      verificationIntent: item.verificationIntent,
+    })),
+    scopeBoundary: args.store.readScopeBoundary(args.storyId),
+    executionBoundary: args.store.readExecutionBoundary(args.storyId),
+    repositoryGuides: guideDigests,
+  });
 }
 
 function normalizeReviewerBlockingAuthority(
@@ -232,8 +272,9 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       let title = '';
       let description = '';
       let reviewRound = '';
+      let story: ReturnType<StoryStore['readStory']>;
       try {
-        const story = store.readStory(args.storyId);
+        story = store.readStory(args.storyId);
         title = story.title;
         description = story.description;
         reviewRound = story.currentReviewRound || '';
@@ -259,6 +300,14 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         // when checklist.json does not exist, hash is computed against an empty array (consistent with recomputeInitCheckHash behavior)
       }
       const checklistHash = computeChecklistHash(items);
+      const authorityInputHash = computeInitReviewerAuthorityInputHash({
+        root,
+        store,
+        storyId: args.storyId,
+        story,
+        backgroundHash,
+        checklistItems,
+      });
 
       // 4) construct InitCheckData (the verdict is part of the signature domain since
       //    B-8df9 CHK-002, so the record must exist BEFORE it can be signed)
@@ -314,7 +363,10 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       const previousAgentResult = previousTrusted && previous
         ? initCheckAgentResults(previous).find(result => initCheckAgentMatches(result.agentId, agentId) || result.agentId === agentId)
         : undefined;
-      const monotonicIssues = normalizeUnchangedInputBlockerExpansion(normalizedIssues.issues, previousAgentResult?.issues);
+      const monotonicIssues = normalizeUnchangedInputBlockerExpansion(
+        normalizedIssues.issues,
+        previousAgentResult?.authorityInputHash === authorityInputHash ? previousAgentResult.issues : undefined,
+      );
       const issues = monotonicIssues.issues;
       if (monotonicIssues.normalizedCount > 0) {
         process.stderr.write(
@@ -327,7 +379,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,
       ) : [];
       const droppedResults = !previousTrusted && previous ? initCheckAgentResults(previous) : [];
-      agentResults.push({ agentId, checkedAt, issues });
+      agentResults.push({ agentId, checkedAt, authorityInputHash, issues });
 
       // Name the corruption. Silently discarding another reviewer's record would be
       // indistinguishable from that reviewer never having run, which is the confusion this

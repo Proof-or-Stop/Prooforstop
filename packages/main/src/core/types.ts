@@ -2993,6 +2993,8 @@ export interface InitCheckData {
   agentResults?: Array<{
     agentId: string;
     checkedAt: string;
+    /** Signed digest of every authoritative INIT input this reviewer could cite as a blocker. */
+    authorityInputHash?: string;
     issues: InitCheckIssue[];
   }>;
   /**

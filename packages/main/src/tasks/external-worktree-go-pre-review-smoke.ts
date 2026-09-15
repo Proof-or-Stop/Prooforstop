@@ -25,6 +25,7 @@ import {
   readGitStatusLines,
 } from '../core/dirty-worktree-gate.js';
 import { renderReproFirstStoryCreatePreflight } from '../handlers/story-create.js';
+import { createReviewRunHandlers } from '../handlers/review-run.js';
 import { StoryStore } from '../core/store.js';
 import { captureVerificationFreshness, createCurrentVerificationAssertionReceipt, createVerificationExecutionReceipt } from '../core/verification-execution-evidence.js';
 import type { ChecklistData, StoryInfo, VerificationEvidence } from '../core/types.js';
@@ -183,6 +184,43 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
       storyId,
     });
     assert.equal(restoredProjection.valid, true, 'CLI bootstrap restores the exact signed controller runtime projection before review');
+
+    git(worktreeRoot, ['add', '-f', ...expectedHookPaths]);
+    assert.equal(
+      inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
+      false,
+      'tracked hook projections remain forbidden even when their bytes and receipts are exact',
+    );
+    git(worktreeRoot, ['rm', '--cached', '-q', ...expectedHookPaths]);
+    git(worktreeRoot, ['add', '-f', 'proof-or-stop.config.json']);
+    assert.equal(
+      inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
+      false,
+      'tracked config projection remains forbidden even when its bytes and receipt are exact',
+    );
+    git(worktreeRoot, ['rm', '--cached', '-q', 'proof-or-stop.config.json']);
+
+    for (const expectedHookPath of expectedHookPaths) rmSync(join(worktreeRoot, expectedHookPath));
+    const reviewStory = localStore.readStory(storyId);
+    localStore.writeStory(storyId, { ...reviewStory, phase: 'REVIEW' });
+    const previousReviewerAgent = process.env.PROOF_OR_STOP_AGENT;
+    const previousCwd = process.cwd();
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-quality';
+    process.chdir(worktreeRoot);
+    try {
+      const reviewHandlers = createReviewRunHandlers({ store: localStore, root: worktreeRoot, scanRoot: worktreeRoot });
+      assert.throws(
+        () => reviewHandlers.review_run_start({ storyId }),
+        /controller runtime projection is incomplete or invalid/,
+        'real review_run_start handler rejects an entirely absent controller projection before snapshotting',
+      );
+    } finally {
+      process.chdir(previousCwd);
+      if (previousReviewerAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousReviewerAgent;
+    }
+    localStore.writeStory(storyId, reviewStory);
+    project({ controllerRoot, worktreeRoot, storyId });
 
     const hookPath = '.codex/hooks/proof-or-stop-evidence-pretool.cjs';
     const hookBytes = readFileSync(join(worktreeRoot, hookPath));
