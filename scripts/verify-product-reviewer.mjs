@@ -371,13 +371,25 @@ try {
   nodeAssert.equal(derivedIntentResult?.issues?.[0]?.dispositionReason, undefined, 'INIT_REVIEW_AUTHORITY_BOUNDARY: a valid derived intent ref must not be normalized');
   assert(blockingInitCheckIssues(derivedIntentCheck).some(({ issue }) => issue.desc === derivedIntentIssue.desc), 'INIT_REVIEW_AUTHORITY_BOUNDARY: a valid derived intent blocker remains blocking');
 
+  const correctionChecklist = directStore.readChecklist(storyId);
+  directStore.writeChecklist(storyId, {
+    ...correctionChecklist,
+    items: correctionChecklist.items.map((item, index) => index === 0 ? {
+      ...item,
+      verificationIntent: {
+        ...item.verificationIntent,
+        edge: [{ desc: 'Correctable derived-id edge intent.', type: 'cli', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+      },
+    } : item),
+  });
   const correctedIntentIssue = {
     ...derivedIntentIssue,
+    requirementRef: 'verification-intent:CHK-001:edge:0',
     desc: 'The reviewer corrects only the requirement reference for this observation.',
   };
   process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
   try {
-    directHandlers.init_check_set({ storyId, issues: [{ ...correctedIntentIssue, requirementRef: 'verification-intent:CHK-001:happy:99' }] });
+    directHandlers.init_check_set({ storyId, issues: [{ ...correctedIntentIssue, requirementRef: 'verification-intent:CHK-001:edge:99' }] });
   } finally {
     if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
     else process.env.PROOF_OR_STOP_AGENT = previousAgent;
@@ -398,6 +410,55 @@ try {
   const correctedIntentRefResult = correctedIntentRefCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
   nodeAssert.equal(correctedIntentRefResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_MONOTONICITY: correcting a previously reported invalid ref must restore its blocking severity');
   nodeAssert.equal(correctedIntentRefResult?.issues?.[0]?.dispositionReason, undefined, 'INIT_REVIEW_MONOTONICITY: a corrected valid ref must not retain the prior normalization');
+
+  const bypassStory = directStore.readStory(storyId);
+  directStore.writeStory(storyId, {
+    ...bypassStory,
+    description: `${bypassStory.description} Establish a new authoritative-input generation for the monotonic bypass regression.`,
+  });
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [] });
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        severity: 'medium',
+        desc: 'Caller-authored machine fields must be discarded.',
+        reportedSeverity: 'high',
+        dispositionReason: 'missing_or_invalid_requirement_ref',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const machineFieldCheck = directStore.readInitCheck(storyId);
+  const machineFieldIssue = machineFieldCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE)?.issues?.[0];
+  nodeAssert.equal(machineFieldIssue?.reportedSeverity, undefined, 'INIT_REVIEW_MACHINE_FIELDS: caller-authored reportedSeverity must be discarded');
+  nodeAssert.equal(machineFieldIssue?.dispositionReason, undefined, 'INIT_REVIEW_MACHINE_FIELDS: caller-authored dispositionReason must be discarded');
+
+  const bypassDesc = 'The same-hash PASS cannot be replaced by a newly constructed blocker.';
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [{ severity: 'high', desc: bypassDesc }] });
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'user_outcome_unspecified',
+        requirementRef: 'story:description',
+        severity: 'high',
+        desc: bypassDesc,
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const bypassCheck = directStore.readInitCheck(storyId);
+  const bypassResult = bypassCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(bypassResult?.issues?.[0]?.severity, 'medium', 'INIT_REVIEW_MONOTONICITY: PASS then kind-less advisory cannot become a same-input blocker');
+  nodeAssert.equal(bypassResult?.issues?.[0]?.dispositionReason, 'unchanged_input_blocker_expansion', 'INIT_REVIEW_MONOTONICITY: same-input two-call bypass receives the monotonic disposition');
+  assert(!blockingInitCheckIssues(bypassCheck).some(({ issue }) => issue.desc === bypassDesc), 'INIT_REVIEW_MONOTONICITY: the constructed same-input blocker must not reach the gate');
 
   const changedStory = directStore.readStory(storyId);
   directStore.writeStory(storyId, {

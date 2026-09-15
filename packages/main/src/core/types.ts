@@ -3000,6 +3000,12 @@ export interface InitCheckData {
     checkedAt: string;
     /** Signed digest of every authoritative INIT input this reviewer could cite as a blocker. */
     authorityInputHash?: string;
+    /**
+     * Signed first verdict observed for this authorityInputHash. Same-input
+     * retries compare against this immutable baseline rather than allowing an
+     * intermediate advisory write to erase an earlier PASS or blocker set.
+     */
+    authorityBaselineIssues?: InitCheckIssue[];
     issues: InitCheckIssue[];
   }>;
   /**

@@ -59,13 +59,27 @@ const INIT_CHECK_ISSUE_KIND_SET = new Set<string>(INIT_CHECK_ISSUE_KINDS);
 const PRODUCT_INIT_BLOCKING_KIND_SET = new Set<string>(PRODUCT_INIT_BLOCKING_ISSUE_KINDS);
 const STORY_INIT_BLOCKING_KIND_SET = new Set<string>(STORY_INIT_BLOCKING_ISSUE_KINDS);
 
-function assertValidInitCheckIssue(issue: InitCheckIssue | null | undefined, command: 'init_check_set' | 'init_check_repair'): void {
+function normalizeSubmittedInitCheckIssue(issue: InitCheckIssue | null | undefined, command: 'init_check_set' | 'init_check_repair'): InitCheckIssue {
   if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
     throw new Error(`${command}: each issue.desc must be >= 1 character after trim`);
+  }
+  if (!['critical', 'high', 'medium', 'low'].includes(issue.severity)) {
+    throw new Error(`${command}: unsupported issue.severity ${JSON.stringify(issue.severity)}`);
   }
   if (issue.kind !== undefined && !INIT_CHECK_ISSUE_KIND_SET.has(issue.kind)) {
     throw new Error(`${command}: unsupported issue.kind ${JSON.stringify(issue.kind)}`);
   }
+  if (issue.id !== undefined && typeof issue.id !== 'string') {
+    throw new Error(`${command}: issue.id must be a string when provided`);
+  }
+  if (issue.requirementRef !== undefined && typeof issue.requirementRef !== 'string') {
+    throw new Error(`${command}: issue.requirementRef must be a string when provided`);
+  }
+  const normalized: InitCheckIssue = { severity: issue.severity, desc: issue.desc };
+  if (issue.id !== undefined) normalized.id = issue.id;
+  if (issue.kind !== undefined) normalized.kind = issue.kind;
+  if (issue.requirementRef !== undefined) normalized.requirementRef = issue.requirementRef;
+  return normalized;
 }
 
 function verificationIntentIds(item: Pick<ChecklistItem, 'id' | 'verificationIntent'>): string[] {
@@ -301,10 +315,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
 
       // 2) runtime validation of issues (guards against Zod-bypass paths, aligned with the gate-side trim standard)
-      const submittedIssues = Array.isArray(args.issues) ? args.issues : [];
-      for (const issue of submittedIssues) {
-        assertValidInitCheckIssue(issue, 'init_check_set');
-      }
+      const submittedIssues = (Array.isArray(args.issues) ? args.issues : [])
+        .map(issue => normalizeSubmittedInitCheckIssue(issue, 'init_check_set'));
 
       // 3) compute the three hashes required for the signature
       const backgroundHash = computeBackgroundHash(root, args.storyId);
@@ -381,9 +393,13 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       const previousAgentResult = previousTrusted && previous
         ? initCheckAgentResults(previous).find(result => initCheckAgentMatches(result.agentId, agentId) || result.agentId === agentId)
         : undefined;
+      const sameAuthorityInputs = previousAgentResult?.authorityInputHash === authorityInputHash;
+      const authorityBaselineIssues = sameAuthorityInputs
+        ? (previousAgentResult.authorityBaselineIssues ?? previousAgentResult.issues)
+        : normalizedIssues.issues;
       const monotonicIssues = normalizeUnchangedInputBlockerExpansion(
         normalizedIssues.issues,
-        previousAgentResult?.authorityInputHash === authorityInputHash ? previousAgentResult.issues : undefined,
+        sameAuthorityInputs ? authorityBaselineIssues : undefined,
       );
       const issues = monotonicIssues.issues;
       if (monotonicIssues.normalizedCount > 0) {
@@ -397,7 +413,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,
       ) : [];
       const droppedResults = !previousTrusted && previous ? initCheckAgentResults(previous) : [];
-      agentResults.push({ agentId, checkedAt, authorityInputHash, issues });
+      agentResults.push({ agentId, checkedAt, authorityInputHash, authorityBaselineIssues, issues });
 
       // Name the corruption. Silently discarding another reviewer's record would be
       // indistinguishable from that reviewer never having run, which is the confusion this
@@ -520,10 +536,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         ? args.evidenceRefs.map(r => String(r).trim()).filter(r => r.length > 0)
         : [];
       // issues runtime validation mirrors init_check_set (defend the bypass path).
-      const issues = Array.isArray(args.issues) ? args.issues : [];
-      for (const issue of issues) {
-        assertValidInitCheckIssue(issue, 'init_check_repair');
-      }
+      const issues = (Array.isArray(args.issues) ? args.issues : [])
+        .map(issue => normalizeSubmittedInitCheckIssue(issue, 'init_check_repair'));
 
       return withInitCheckLock(store, args.storyId, () => {
         // 1) story existence (preflight already passed; refusal above wrote nothing).
