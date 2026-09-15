@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
 import { tmpdir } from 'node:os';
-import { defaultHostRunRunner } from '../dist/core/host-run.js';
+import { defaultHostRunRunner, HOST_RUN_FINAL_ASSISTANT_RESULT_CAP } from '../dist/core/host-run.js';
 
 const envelope = JSON.stringify({
   schemaVersion: 'lattice.managed_review_final_proposal.v1',
@@ -27,80 +27,73 @@ const envelope = JSON.stringify({
   },
 });
 
-const child = new EventEmitter();
-child.pid = 424242;
-child.stdin = new PassThrough();
-child.stdout = new PassThrough();
-child.stderr = new PassThrough();
-const descriptor = new PassThrough();
-child.stdio = [child.stdin, child.stdout, child.stderr, descriptor];
-let killCount = 0;
-child.kill = () => { killCount += 1; return true; };
+const codexEvent = text => `${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text } })}\n`;
 
-const pending = defaultHostRunRunner({
-  command: 'fixture-codex',
-  argv: [],
-  env: {},
-  cwd: tmpdir(),
-  host: 'codex',
-  stdinText: 'managed review prompt',
-  reviewInvocationPayload: () => 'one-shot callback capability',
-  onChunk: () => {},
-}, {
-  spawnChild: () => child,
-  readProcessStartFingerprint: () => null,
+async function runCase({ descriptorCode, stdout = [], exitCode = 0 }) {
+  const child = new EventEmitter();
+  child.pid = 424242;
+  child.stdin = new PassThrough();
+  child.stdout = new PassThrough();
+  child.stderr = new PassThrough();
+  const descriptor = new PassThrough();
+  child.stdio = [child.stdin, child.stdout, child.stderr, descriptor];
+  let killCount = 0;
+  child.kill = () => { killCount += 1; return true; };
+
+  const pending = defaultHostRunRunner({
+    command: 'fixture-codex', argv: [], env: {}, cwd: tmpdir(), host: 'codex',
+    stdinText: 'managed review prompt',
+    reviewInvocationPayload: () => 'one-shot callback capability',
+    onChunk: () => {},
+  }, {
+    spawnChild: () => child,
+    readProcessStartFingerprint: () => null,
+  });
+  await new Promise(resolve => setImmediate(resolve));
+  for (const chunk of stdout) child.stdout.write(chunk);
+  const descriptorError = new Error('descriptor peer closed');
+  descriptorError.code = descriptorCode;
+  descriptor.emit('error', descriptorError);
+  child.stdout.end();
+  child.stderr.end();
+  child.emit('close', exitCode, null);
+  return { result: await pending, killCount };
+}
+
+for (const descriptorCode of ['EPIPE', 'ECONNRESET']) {
+  const { result, killCount } = await runCase({
+    descriptorCode,
+    stdout: [codexEvent(envelope), `${JSON.stringify({ type: 'turn.completed', usage: {} })}\n`],
+  });
+  assert.equal(result.exitCode, 0, `one complete final proposal survives late ${descriptorCode}`);
+  assert.equal(result.terminalReason, 'completed');
+  assert.equal(result.finalAssistantResult, envelope);
+  assert.equal(result.finalAssistantResultCount, 1);
+  assert.equal(result.finalAssistantResultTruncated, false);
+  assert.equal(killCount, 0, `late ${descriptorCode} must not kill an already-complete provider turn`);
+}
+
+const early = await runCase({ descriptorCode: 'ECONNRESET' });
+assert.equal(early.result.exitCode, 1, 'descriptor reset before any final proposal remains fail closed');
+assert.equal(early.result.terminalReason, 'child_error');
+assert.equal(early.killCount, 1, 'early descriptor failure still terminates the provider');
+
+const nonzero = await runCase({ descriptorCode: 'EPIPE', stdout: [codexEvent(envelope)], exitCode: 7 });
+assert.equal(nonzero.result.exitCode, 7, 'a late descriptor close cannot convert a provider failure into success');
+assert.equal(nonzero.killCount, 0, 'provider exit status remains authoritative after a complete candidate');
+
+const multiple = await runCase({ descriptorCode: 'EPIPE', stdout: [codexEvent(envelope), codexEvent(envelope)] });
+assert.equal(multiple.result.exitCode, 1, 'multiple final proposals remain fail closed');
+assert.equal(multiple.result.terminalReason, 'child_error');
+assert.equal(multiple.killCount, 1);
+
+const oversizedEnvelope = JSON.stringify({
+  schemaVersion: 'lattice.managed_review_final_proposal.v1',
+  note: 'x'.repeat(HOST_RUN_FINAL_ASSISTANT_RESULT_CAP),
 });
-
-await new Promise(resolve => setImmediate(resolve));
-child.stdout.write(`${JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: envelope } })}\n`);
-child.stdout.write(`${JSON.stringify({ type: 'turn.completed', usage: {} })}\n`);
-
-// Reproduce the benchmark ordering: the provider has authored its one complete
-// terminal proposal before the optional callback descriptor reports that its
-// peer has already closed the channel.
-const reset = new Error('socket hang up');
-reset.code = 'ECONNRESET';
-descriptor.emit('error', reset);
-child.stdout.end();
-child.stderr.end();
-child.emit('close', 0, null);
-
-const result = await pending;
-assert.equal(result.exitCode, 0, 'a complete provider-authored final proposal survives a late descriptor reset');
-assert.equal(result.terminalReason, 'completed');
-assert.equal(result.finalAssistantResult, envelope);
-assert.equal(result.finalAssistantResultCount, 1);
-assert.equal(result.finalAssistantResultTruncated, false);
-assert.equal(killCount, 0, 'late optional descriptor reset must not kill an already-complete provider turn');
-
-const earlyChild = new EventEmitter();
-earlyChild.pid = 424243;
-earlyChild.stdin = new PassThrough();
-earlyChild.stdout = new PassThrough();
-earlyChild.stderr = new PassThrough();
-const earlyDescriptor = new PassThrough();
-earlyChild.stdio = [earlyChild.stdin, earlyChild.stdout, earlyChild.stderr, earlyDescriptor];
-let earlyKillCount = 0;
-earlyChild.kill = () => { earlyKillCount += 1; return true; };
-const earlyPending = defaultHostRunRunner({
-  command: 'fixture-codex', argv: [], env: {}, cwd: tmpdir(), host: 'codex',
-  stdinText: 'managed review prompt',
-  reviewInvocationPayload: () => 'one-shot callback capability',
-  onChunk: () => {},
-}, {
-  spawnChild: () => earlyChild,
-  readProcessStartFingerprint: () => null,
-});
-await new Promise(resolve => setImmediate(resolve));
-const earlyReset = new Error('socket hang up');
-earlyReset.code = 'ECONNRESET';
-earlyDescriptor.emit('error', earlyReset);
-earlyChild.stdout.end();
-earlyChild.stderr.end();
-earlyChild.emit('close', 0, null);
-const earlyResult = await earlyPending;
-assert.equal(earlyResult.exitCode, 1, 'descriptor reset before any final proposal remains fail closed');
-assert.equal(earlyResult.terminalReason, 'child_error');
-assert.equal(earlyKillCount, 1, 'early descriptor failure still terminates the provider');
+const oversized = await runCase({ descriptorCode: 'ECONNRESET', stdout: [codexEvent(oversizedEnvelope)] });
+assert.equal(oversized.result.exitCode, 1, 'an oversized final proposal remains fail closed');
+assert.equal(oversized.result.finalAssistantResultTruncated, true);
+assert.equal(oversized.killCount, 1);
 
 console.log('MANAGED_REVIEW_LATE_DESCRIPTOR_RESET_GREEN');

@@ -7468,9 +7468,16 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['descriptorPeerClosedAfterFinal', "error.code === 'EPIPE'", "error.code === 'ECONNRESET'", 'finalResult.count === 1', 'finalResult.truncated === false']) {
     assert(lowLevelHostRunText.includes(token), `packages/main/src/core/host-run.ts: required late descriptor-close authority boundary missing: ${token}`);
   }
+  const lateDescriptorResetTest = read('packages/main/tests/managed-review-late-descriptor-reset.test.mjs');
+  const validationConfig = read('proof-or-stop.config.json');
   assert(read('packages/main/package.json').includes('test:managed-review-late-descriptor-reset')
-    && read('packages/main/tests/managed-review-late-descriptor-reset.test.mjs').includes('descriptor reset before any final proposal remains fail closed'),
-  'late descriptor-close tolerance requires executable positive and early-failure controls');
+    && validationConfig.includes('packages/main/tests/managed-review-late-descriptor-reset.test.mjs')
+    && lateDescriptorResetTest.includes("['EPIPE', 'ECONNRESET']")
+    && lateDescriptorResetTest.includes('descriptor reset before any final proposal remains fail closed')
+    && lateDescriptorResetTest.includes('a late descriptor close cannot convert a provider failure into success')
+    && lateDescriptorResetTest.includes('multiple final proposals remain fail closed')
+    && lateDescriptorResetTest.includes('an oversized final proposal remains fail closed'),
+  'late descriptor-close tolerance requires canonical validation wiring and executable success/failure controls');
   for (const token of [
     'delete submissionArgs.model',
     'delete submissionArgs.reasoningEffort',
