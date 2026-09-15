@@ -3461,6 +3461,7 @@ Behavior:
     deadlineMs: z.number().int().positive().optional().describe('Finite absolute managed-run deadline in milliseconds; defaults to timeoutMs or 30 minutes'),
     detach: z.boolean().optional().describe('Return after durable worker claim instead of attaching until terminal'),
     managedReview: z.boolean().optional().describe('Formal cross-provider reviewer mode: derive the exact prompt from reviewRunId/lane, require agentType=lane, and accept only a provider-authored proposal plus successful terminal receipt. Do not pass prompt/promptFile.'),
+    managedDispatch: z.boolean().optional().describe('Controller-owned INIT reviewer mode: derive and deliver the exact canonical dispatch prompt, seal the Story/role identity, and expose a nonempty managed run id for bounded status waits. Do not pass prompt/promptFile.'),
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},

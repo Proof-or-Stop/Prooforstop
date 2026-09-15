@@ -2976,8 +2976,8 @@ export interface InitCheckData {
    */
   reviewRound: string;
   /**
-   * Reviewer's self-reported agent id (subagent session id or human-assigned identifier).
-   * **Not part of the signature / not part of gate validation**, only an audit trace field (EXP-001 has disproved the mechanical distinguishability of agentId).
+   * Canonical reviewer role. Independent records are accepted only when their
+   * agentResults row also carries a controller-verified deliveryRunId.
    */
   agentId: string;
   /**
@@ -2998,6 +2998,8 @@ export interface InitCheckData {
   agentResults?: Array<{
     agentId: string;
     checkedAt: string;
+    /** Controller-owned managed run whose live provider process wrote this verdict. */
+    deliveryRunId?: string;
     /** Signed digest of every authoritative INIT input this reviewer could cite as a blocker. */
     authorityInputHash?: string;
     /**

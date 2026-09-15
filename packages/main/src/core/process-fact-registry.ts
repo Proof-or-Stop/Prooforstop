@@ -1441,7 +1441,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     reviewerLane: 'proof-or-stop-review-story-init',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
-    rationale: 'INIT reviewer writes signed init-check evidence before worktree bootstrap.',
+    rationale: 'INIT reviewer writes signed init-check evidence from its live controller-owned managed-dispatch process before worktree bootstrap.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-product-reviewer',
@@ -1449,7 +1449,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     reviewerLane: 'proof-or-stop-product-reviewer',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
-    rationale: 'Product INIT reviewer signs planned user-outcome and verification-plan readiness; post-implementation evidence is deferred to later lifecycle gates.',
+    rationale: 'Product INIT reviewer signs planned user-outcome and verification-plan readiness from its distinct live managed-dispatch process; post-implementation evidence is deferred to later lifecycle gates.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-review-scope-plan',

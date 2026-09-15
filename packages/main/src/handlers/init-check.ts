@@ -54,6 +54,7 @@ import {
 } from '../core/init-check-gate.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { digestCanonicalJson, digestText } from '../core/digest.js';
+import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
 
 const INIT_CHECK_ISSUE_KIND_SET = new Set<string>(INIT_CHECK_ISSUE_KINDS);
 const PRODUCT_INIT_BLOCKING_KIND_SET = new Set<string>(PRODUCT_INIT_BLOCKING_ISSUE_KINDS);
@@ -299,6 +300,17 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         command: 'init_check_set',
         payloadActors: [args.agent, args.agentId],
       });
+      if (authority.source !== 'dispatched-env') {
+        throw new Error(
+          'init_check_set refused: caller-supplied or omitted reviewer identity cannot create independent INIT evidence. '
+          + 'Use host_run with managedDispatch=true, or the explicit acknowledged init_check_repair fallback. [delivery_not_acknowledged]',
+        );
+      }
+      const deliveryRunId = resolveManagedDispatchInvocation({
+        root,
+        storyId: args.storyId,
+        agentType: normalizeAgentId(authority.actor),
+      });
       return withInitCheckLock(store, args.storyId, () => {
       // 1) story existence check (same approach as scope_check_save)
       let title = '';
@@ -413,7 +425,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,
       ) : [];
       const droppedResults = !previousTrusted && previous ? initCheckAgentResults(previous) : [];
-      agentResults.push({ agentId, checkedAt, authorityInputHash, authorityBaselineIssues, issues });
+      agentResults.push({ agentId, checkedAt, deliveryRunId, authorityInputHash, authorityBaselineIssues, issues });
 
       // Name the corruption. Silently discarding another reviewer's record would be
       // indistinguishable from that reviewer never having run, which is the confusion this

@@ -5,6 +5,7 @@ import { digestScopeFreezeCheck } from '../core/scope-anti-expansion.js';
 import {
   missingRequiredInitCheckAgents,
   blockingInitCheckIssues,
+  invalidInitReviewerDeliveries,
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
 import type { InitCheckData } from '../core/types.js';
@@ -151,6 +152,17 @@ function initCheckRow(
       status: 'MISSING',
       fix,
       detail: `required INIT reviewer(s) not yet persisted: ${missingAgents.join(', ')}`,
+    };
+  }
+  const invalidDeliveries = invalidInitReviewerDeliveries(initCheck, projectRoot, storyId);
+  if (invalidDeliveries.length > 0) {
+    return {
+      id,
+      status: 'BLOCKED',
+      fix,
+      detail: `required INIT reviewer delivery not acknowledged: ${invalidDeliveries
+        .map(row => `${row.agentId}:${row.reason}`)
+        .join(', ')} [delivery_not_acknowledged]`,
     };
   }
   const blockers = blockingInitCheckIssues(initCheck);

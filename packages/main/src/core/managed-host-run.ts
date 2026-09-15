@@ -3479,6 +3479,56 @@ function providerInvocationMatches(
 }
 
 /**
+ * Resolve the controller-owned INIT reviewer run containing the current CLI
+ * process. A caller-provided role name or run id is never authority: the live
+ * provider process group, sealed Story/role tuple, and managed-dispatch profile
+ * must all agree, and exactly one run may match.
+ */
+export function resolveManagedDispatchInvocation(args: {
+  root: string;
+  storyId: string;
+  agentType: string;
+  callerPid?: number;
+}): string {
+  if (process.platform === 'win32') {
+    throw new Error('init_check_set: managed reviewer delivery attestation is unsupported on win32');
+  }
+  const callerPid = args.callerPid ?? process.pid;
+  const candidates: string[] = [];
+  let entries: string[] = [];
+  try { entries = readdirSync(managedHostRunsRoot(args.root)); } catch { /* no active managed runs */ }
+  for (const runId of entries) {
+    try {
+      const paths = pathsFor(args.root, runId);
+      if (readTerminal(paths)) continue;
+      const spec = readManagedHostRunSpec(paths).value;
+      if (spec.profile !== 'managed_dispatch'
+        || spec.storyId !== args.storyId
+        || spec.agentType !== args.agentType) continue;
+      const snapshot = readManagedHostRunSnapshot(paths);
+      if (snapshot.state !== 'running') continue;
+      const identity = snapshot.providerIdentity;
+      if (!identity?.processGroupIsolated || !identity.pgid || !identity.startFingerprint) continue;
+      const rows = processGroupRows(identity.pgid);
+      const leader = rows?.find(row => row.pid === identity.pid);
+      const caller = rows?.find(row => row.pid === callerPid);
+      if (!leader || !caller || leader.start !== identity.startFingerprint) continue;
+      if (process.platform !== 'darwin' && leader.sessionId !== caller.sessionId) continue;
+      candidates.push(runId);
+    } catch {
+      // A corrupt, partial, stale, or foreign run can never grant authority.
+    }
+  }
+  if (candidates.length !== 1) {
+    throw new Error(
+      `init_check_set refused: required INIT reviewer delivery was not acknowledged by exactly one active managed dispatch (matched ${candidates.length}). `
+      + 'Use host_run with managedDispatch=true, or the explicit acknowledged init_check_repair fallback. [delivery_not_acknowledged]',
+    );
+  }
+  return candidates[0]!;
+}
+
+/**
  * Provider-tool broker: resolve exactly one active managed reviewer whose
  * recorded provider process group contains this invocation. PGID is never a
  * bearer by itself: exact review binding, live leader fingerprint, POSIX
@@ -4384,6 +4434,29 @@ export function managedHostRunReceipt(root: string, runId: string): ManagedHostR
   }
   assertSealedManagedHostRunArtifacts(paths, terminal);
   return receiptPayloadFor(paths, terminal);
+}
+
+export function verifyManagedDispatchDelivery(args: {
+  root: string;
+  runId: string;
+  storyId: string;
+  agentType: string;
+}): { valid: true } | { valid: false; reason: string } {
+  try {
+    const binding = readManagedHostRunBinding(args.root, args.runId);
+    if (binding.profile !== 'managed_dispatch'
+      || binding.storyId !== args.storyId
+      || binding.agentType !== args.agentType) {
+      return { valid: false, reason: 'managed dispatch Story/role binding mismatch' };
+    }
+    const receipt = managedHostRunReceipt(args.root, args.runId);
+    if (receipt.state !== 'completed' || !receipt.replacementSafe) {
+      return { valid: false, reason: 'managed dispatch terminal receipt is not a safe completion' };
+    }
+    return { valid: true };
+  } catch (error) {
+    return { valid: false, reason: error instanceof Error ? error.message : String(error) };
+  }
 }
 
 export function writeManagedHostRunEvidenceBinding(

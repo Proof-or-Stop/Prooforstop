@@ -10690,19 +10690,31 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/init-check.ts',
-        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash', 'computeInitReviewerAuthorityInputHash', 'authorityInputHash', 'authorityBaselineIssues', 'normalizeSubmittedInitCheckIssue', 'normalizeReviewerBlockingAuthority', 'normalizeUnchangedInputBlockerExpansion', 'missing_or_invalid_requirement_ref', 'outside_init_reviewer_blocking_authority', 'unchanged_input_blocker_expansion'],
+        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash', 'computeInitReviewerAuthorityInputHash', 'authorityInputHash', 'authorityBaselineIssues', 'deliveryRunId', 'resolveManagedDispatchInvocation', 'delivery_not_acknowledged', 'normalizeSubmittedInitCheckIssue', 'normalizeReviewerBlockingAuthority', 'normalizeUnchangedInputBlockerExpansion', 'missing_or_invalid_requirement_ref', 'outside_init_reviewer_blocking_authority', 'unchanged_input_blocker_expansion'],
       },
       {
         relPath: 'packages/main/src/core/types.ts',
-        patterns: ['PRODUCT_INIT_BLOCKING_ISSUE_KINDS', 'STORY_INIT_BLOCKING_ISSUE_KINDS', 'requirementRef', 'reportedSeverity', 'dispositionReason', 'authorityInputHash', 'authorityBaselineIssues', 'unchanged_input_blocker_expansion'],
+        patterns: ['PRODUCT_INIT_BLOCKING_ISSUE_KINDS', 'STORY_INIT_BLOCKING_ISSUE_KINDS', 'requirementRef', 'reportedSeverity', 'dispositionReason', 'authorityInputHash', 'authorityBaselineIssues', 'deliveryRunId', 'unchanged_input_blocker_expansion'],
       },
       {
         relPath: 'packages/main/src/core/init-check-gate.ts',
-        patterns: ['INIT_CHECK_SALT', 'signInitCheck', 'recomputeInitCheckHash', 'missingRequiredInitCheckAgents', 'blockingInitCheckIssues'],
+        patterns: ['INIT_CHECK_SALT', 'signInitCheck', 'recomputeInitCheckHash', 'missingRequiredInitCheckAgents', 'invalidInitReviewerDeliveries', 'verifyManagedDispatchDelivery', 'blockingInitCheckIssues'],
       },
       {
         relPath: 'packages/main/src/core/machine.ts',
-        patterns: ['canEnterInitCheck', 'missingRequiredInitCheckAgents', 'blockingInitCheckIssues'],
+        patterns: ['canEnterInitCheck', 'missingRequiredInitCheckAgents', 'invalidInitReviewerDeliveries', 'delivery_not_acknowledged', 'managedDispatch: true', 'blockingInitCheckIssues'],
+      },
+      {
+        relPath: 'packages/main/src/core/managed-host-run.ts',
+        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest'],
+      },
+      {
+        relPath: 'packages/main/src/handlers/host-run.ts',
+        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'"],
+      },
+      {
+        relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
+        patterns: ['caller-supplied required reviewer role must fail closed', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
       },
     ],
   },

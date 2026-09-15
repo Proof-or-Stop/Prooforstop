@@ -475,7 +475,9 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       // B-95d8 CHK-001: surface the INIT_CHECK attestation so callers / dashboard can
       // distinguish an independent reviewer run from a manual fallback/repair.
       const initCheck = store.readInitCheck(args.storyId);
-      const initCheckAttestation = initCheck ? initCheckAttestationMode(initCheck) : null;
+      const initCheckAttestation = initCheck
+        ? initCheckAttestationMode(initCheck, { root, storyId: args.storyId })
+        : null;
       if (initCheck) {
         result.initCheck = initCheck;
         const attestation = initCheckAttestation;

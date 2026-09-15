@@ -584,7 +584,7 @@ English-artifact gates scan all recursively scanned string leaves of story metad
 
 **触发**：所有 INIT → INIT_CHECK 转换（`story_advance INIT_CHECK`）。其他来源（IDEA→INIT_CHECK 等）不门禁。
 
-**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "proof-or-stop-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `.proof-or-stop/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
+**机制**：`story_create` 完成后停在 INIT 阶段。主 agent 分别以 `host_run ... "managedDispatch":true` 启动两个 reviewer；PoS 从 canonical `dispatch` envelope 派生 prompt，通过受控 provider stdin 交付，并返回非空 runId。reviewer 在该 live provider process group 内调用 `init_check_set`。每条结果写入 `deliveryRunId`，`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 中重新校验完成态 receipt。
 
 **签名域**（真相源是 [init-check-gate.ts](packages/main/src/core/init-check-gate.ts) 的 `INIT_CHECK_SIGNATURE_DOMAIN`；`describeInitCheckSignatureDomain()` 渲染当前列表，别照抄下面这行）：
 
@@ -601,6 +601,7 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 - `[missing_init_check]` — init-check.json 不存在（reviewer 没跑或没调 init_check_set）
 - `[init_check_tampered]` — `_hash` 与重算结果不符（签名域内任一组件改了：background / title / description / checklist / reviewRound / reviewer verdict）。注意 `recomputeInitCheckHash` 是对 story **当前**内容重算的，而 story 内容在 PLAN/DEV 会正常演进——所以 INIT 之后 `_hash` 失配是**预期常态**，不是损坏；gate 只在 phase === `INIT` 时读它，其他 phase 直接 early-return
 - `[missing_init_check_agent]` — 必需 reviewer 没有记录结果
+- `[delivery_not_acknowledged]` — reviewer 结果没有匹配的受控派发、完成态 receipt 或 Story/role 绑定
 - `[init_check_blocking_issues]` — init-check.json 中存在适用于 INIT、且 kind 属于提交 reviewer 的允许集合、requirementRef 精确指向权威 INIT 输入的 critical/high issue；`kind: post_implementation_evidence_missing` 会延后到实现后的验证阶段
 
 **issues gate**：`init-check.json` 中适用于 INIT 的 critical/high issues 只有在 kind 属于提交 reviewer 的角色允许集合、且 requirementRef 精确解析到 Story/checklist/verification intent/scope/execution/repository guide 的权威 INIT 输入时才会阻塞 INIT_CHECK。新提交的 kind 缺失、越权 kind 或无效 requirementRef 会被 handler 规范化为 medium advisory，并保留 `reportedSeverity` 与 `dispositionReason`；已持久化且签名有效的旧版 kind-less high 记录在该 reviewer lane 重写前仍按旧语义 fail-closed。`kind: post_implementation_evidence_missing` 表示只有实现后才能取得的证据，在 INIT 中延后且不阻塞；其他 medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
@@ -609,17 +610,14 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 
 **Causal identity v2 存量立场**：`ce:v1:*` 只保留为历史审计记录，不迁移、不复用为当前 PASS；当前证据必须通过正式 evidence 命令重新执行获得。设计理由、2026-09-14 语料计数和操作步骤见 `docs/requirements/decisions/story-lifecycle.md` 的「Causal execution identity v2 migration position」节。
 
-**反自豁免设计**：EXP-001 的实验记录证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot）。当前 `init_check_set` 会在写入前对 `agentId` 做 byte-exact canonical admission：只接受已注册的 `proof-or-stop-review-story-init` 与 `proof-or-stop-product-reviewer`，拒绝空白变体、退役角色和未注册角色；独立性仍由签名机制、reviewer 模板 fresh-context fence 与宿主编排共同保证。
+**反自豁免设计**：EXP-001 证明裸 Bash actor label 不能证明 subagent 独立性。当前 `init_check_set` 拒绝 payload/omitted identity，并要求当前 CLI 进程属于唯一 live `managed_dispatch` provider group；gate 随后校验 digest-bound terminal receipt。裸 `agentId`、手工设置 `PROOF_OR_STOP_AGENT` 或伪造 `deliveryRunId` 都不能满足 required reviewer lane。
 
 **调用模板**：
 
 ```bash
-# 两个独立 reviewer 分别调用；agentId 必须是下面两个 byte-exact canonical identity
-proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"proof-or-stop-review-story-init","issues":[{"severity":"medium","desc":"..."}]}'
-proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"proof-or-stop-product-reviewer","issues":[]}'
-
-# 失配后强制重跑：reviewer 没有 itemId/findingId/clusterId，主 agent 直接 spawn
-# Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "storyId: B-xxx，请审查 background + checklist 初版" })
+# owner 启动；保留两个不同的非空 runId，并用 host_run_status 做有界等待
+proof-or-stop host_run '{"host":"codex","storyId":"B-xxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'
+proof-or-stop host_run '{"host":"codex","storyId":"B-xxx","agentType":"proof-or-stop-product-reviewer","managedDispatch":true,"detach":true,"json":true}'
 ```
 
 **无 subagent 环境的受控 fallback（B-95d8 CHK-001）**：

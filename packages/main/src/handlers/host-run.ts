@@ -73,6 +73,7 @@ import {
   evaluateAcceptanceTopologyForContext,
   evaluatePreReviewCheckForContext,
 } from './proofstory.js';
+import { createStoryDispatchHandlers } from './story-dispatch.js';
 
 export interface HostRunCommandArgs extends FormatArgs {
   idempotencyKey?: string;
@@ -88,6 +89,7 @@ export interface HostRunCommandArgs extends FormatArgs {
   deadlineMs?: number;
   detach?: boolean;
   managedReview?: boolean;
+  managedDispatch?: boolean;
   model?: string;
   reasoningEffort?: HostRunReasoningEffort;
 }
@@ -413,6 +415,10 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         managedPromptDigest: string;
         fullScanEscalationReason?: string;
       } | null = null;
+      let managedDispatch = false;
+      if (args.managedReview === true && args.managedDispatch === true) {
+        throw new Error('host_run: --managedReview and --managedDispatch are mutually exclusive');
+      }
       if (args.managedReview === true) {
         if (hasPrompt || hasPromptFile) {
           throw new Error('host_run: --managedReview derives the exact prompt from ReviewRun; do not pass --prompt or --promptFile');
@@ -445,6 +451,22 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           managedPromptDigest: managedReviewerPromptDigest(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding),
           ...(fullScanBinding ? { fullScanEscalationReason: fullScanBinding.scanEscalationReason } : {}),
         };
+      } else if (args.managedDispatch === true) {
+        if (hasPrompt || hasPromptFile) {
+          throw new Error('host_run: --managedDispatch derives the exact canonical prompt; do not pass --prompt or --promptFile');
+        }
+        if (!storyId || !['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'].includes(agentType)) {
+          throw new Error('host_run: --managedDispatch currently requires storyId and one required INIT reviewer agentType');
+        }
+        if (reviewRunId || lane || normalizeString(args.phase)) {
+          throw new Error('host_run: --managedDispatch derives INIT phase and role binding; do not pass reviewRunId, lane, or phase');
+        }
+        const story = ctx.store.readStory(storyId);
+        if (story.phase !== 'INIT') {
+          throw new Error(`host_run: --managedDispatch INIT reviewer requires Story phase INIT, got ${story.phase}`);
+        }
+        promptText = createStoryDispatchHandlers(ctx).dispatch({ storyId, agentType }).prompt;
+        managedDispatch = true;
       } else if (hasPrompt === hasPromptFile) {
         throw new Error('host_run: provide exactly one of --prompt or --promptFile (or use --managedReview with an exact ReviewRun)');
       } else if (hasPromptFile) {
@@ -516,7 +538,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           projectRootHash: projectRootHashFor(ctx.root),
           ...(formalReviewBinding
             ? { profile: 'managed_reviewer', reviewBinding: formalReviewBinding, isolateManagedReview: true }
-            : {}),
+            : managedDispatch ? { profile: 'managed_dispatch' } : {}),
         },
         { launchWorker: options.launchWorker ?? injectedLauncher },
       );

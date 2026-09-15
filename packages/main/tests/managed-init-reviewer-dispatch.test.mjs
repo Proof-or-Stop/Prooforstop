@@ -25,7 +25,7 @@ assert.match(initCheck, /authority\.source.*dispatched-env|dispatched-env.*autho
   'caller-supplied reviewer role ids must not count as independent evidence');
 assert.match(catalog, /managedDispatch:/,
   'the public CLI schema must expose managedDispatch');
-assert.match(machine, /"managedDispatch":true/,
+assert.match(machine, /managedDispatch: true/,
   'INIT recovery guidance must use the controller-owned delivery path');
 assert.doesNotMatch(machine, /renderReviewerDispatchLaunch\(\{ storyId, agentType: 'proof-or-stop-review-story-init'/,
   'INIT recovery guidance must not depend on host spawn_agent/followup_task behavior');

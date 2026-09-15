@@ -242,6 +242,16 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 也不会改变 pass/finding 的签名与 freshness 门禁。在途 legacy pass 仍只按其
 原始 ReviewRun/round/Envelope 解释，不能因后来切换 flag 被重新绑定。
 
+INIT reviewer 使用独立的 `managedDispatch` 模式。它不接受调用方 prompt，
+而是调用 canonical `dispatch` 取得完整 envelope，并把 Story、role、prompt
+digest 与 provider process identity 封存在 managed run 中。`init_check_set`
+只接受该 live process group 的调用；INIT gate 还会验证其完成态 receipt。
+
+```bash
+proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'
+proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-product-reviewer","managedDispatch":true,"detach":true,"json":true}'
+```
+
 For a formal managed review, the provider must remain in its host-configured
 disposable execution worktree. It must never `cd` to, execute commands in, or
 write to the canonical Story worktree named by the signed ReviewRun. The controller

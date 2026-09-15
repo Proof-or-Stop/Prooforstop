@@ -202,13 +202,16 @@ silently skip INIT or create the worktree.
 
 INIT to INIT_CHECK requires independent records from both
 `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; each reviewer persists
-its result through `init_check_set`. The gate consumes six facts/artifacts:
+its result through `init_check_set`. Launch each through `host_run` with
+`managedDispatch:true`; PoS derives and delivers the canonical prompt, returns a
+nonempty run id, and binds the reviewer write to that live provider process. A
+caller-supplied `agentId` does not create independent evidence. The gate consumes:
 `init-check.json`, `scope-boundary.json`, `execution-boundary.json`,
 `scope-freeze-check.json`, `scope-extension-proposals.json`, and
 `scope-discard-digest.json`. Use the read-only `init_preflight` command to inspect
 every prerequisite and its repair hint. The CLI does not automatically invent
 missing reviewer evidence. Only when the independent INIT reviewers cannot be
-spawned may an authorized operator use the explicit, acknowledged
+launched may an authorized operator use the explicit, acknowledged
 `init_check_repair` fallback with a substantive fallback reason; otherwise run
 both reviewers and repair the underlying scope artifact reported by the gate.
 
