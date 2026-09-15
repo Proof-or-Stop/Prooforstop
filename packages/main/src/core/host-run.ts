@@ -946,7 +946,8 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
   const stringArray = { type: 'array', items: { type: 'string' } };
   // Match normalizeReviewerReadManifest: existing native and managed evidence
   // accepts either the canonical raw digest or its explicit sha256: form.
-  const digest = { type: 'string', pattern: '^(?:sha256:)?[a-f0-9]{64}$' };
+  const routingDigest = { type: 'string', pattern: '^(?:sha256:)?[a-f0-9]{64}$' };
+  const readLogDigest = { type: 'string', pattern: '^[a-f0-9]{64}$' };
   const readManifest = {
     type: 'object',
     additionalProperties: false,
@@ -955,8 +956,8 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
       filesReadFully: stringArray,
       filesTriagedByName: stringArray,
       scanEscalationReason: { type: ['string', 'null'] },
-      candidateSpecSetDigest: digest,
-      corpusDigest: digest,
+      candidateSpecSetDigest: routingDigest,
+      corpusDigest: routingDigest,
     },
   };
   const readLog = {
@@ -988,7 +989,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
           tokenCount: { type: ['integer', 'null'] },
         },
       },
-      digest,
+      digest: readLogDigest,
     },
   };
   const finding = {
