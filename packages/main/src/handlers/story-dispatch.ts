@@ -57,6 +57,8 @@ import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
 import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
+import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 import type { ReviewInventoryPurposeBinding } from '../core/types.js';
 import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
@@ -320,12 +322,21 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     try {
       const snapshot = captureReviewRunSnapshot(root, { storyId: story.storyId, storyPhase: story.phase }, root);
       if (!snapshot.storyFilesHash) throw new Error('topology authority dispatch requires a current storyFilesHash');
-      const implementation = currentImplementationBusinessCommit(root);
+      const gitCwd = resolveGitCwd({
+        store,
+        storyId: story.storyId,
+        metadataRoot: root,
+        projectRoot: root,
+        cwd: process.cwd(),
+      });
+      const frozenStoryBase = resolveFullStoryBaseHead(store, root, story.storyId);
+      if (!frozenStoryBase) throw new Error('IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE: Story integration base is unavailable');
+      const implementation = currentImplementationBusinessCommit(gitCwd, frozenStoryBase);
       return {
         headHash: snapshot.headHash,
         storyFilesHash: snapshot.storyFilesHash,
         businessCommit: implementation.businessCommit,
-        businessCommitAuthor: topologyDispatchBusinessAuthor(root),
+        businessCommitAuthor: topologyDispatchBusinessAuthor(gitCwd),
         businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT' as const,
       };
     } catch (error) {

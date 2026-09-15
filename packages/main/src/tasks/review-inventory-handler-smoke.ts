@@ -142,10 +142,14 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
   }
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
+  git(root, ['config', 'user.name', 'Integration Owner']);
+  git(root, ['config', 'user.email', 'integration@noreply.local']);
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'integration baseline']);
+  git(root, ['checkout', '-b', `story/${storyId}`]);
   git(root, ['config', 'user.name', author.name]);
   git(root, ['config', 'user.email', author.email]);
-  git(root, ['add', '.']);
-  git(root, ['commit', '-m', 'initial']);
+  git(root, ['commit', '--allow-empty', '-m', 'Story implementation']);
   resetConfigCache();
   const store = new StoryStore(root);
   const story: StoryInfo = {
@@ -225,7 +229,6 @@ async function inventoryPurposeRecovery(): Promise<void> {
   const topology = setup();
   const fixture = setup({ name: 'Harmonynet', email: '26995688+Harmonynet@users.noreply.github.com' });
   try {
-    if (process.argv.includes('--metadata-batch-fixture')) git(fixture.root, ['checkout', '-b', `story/${storyId}`]);
     assert.match(cli(topology.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-topology-control')), /topology/);
     assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-default-refusal')), /implementation|author|provenance/i);
     cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));

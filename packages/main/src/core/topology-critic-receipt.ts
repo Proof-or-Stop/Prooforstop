@@ -13,6 +13,7 @@ import type { SessionSource } from './owner-session.js';
 import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical, verifyCanonical } from './authority-signing.js';
 import { digestCanonicalJson } from './digest.js';
 import { agentRoleIdsEqual } from './agent-role-identity.js';
+import { resolveRepositoryBaseline } from './git-baseline.js';
 
 export const TOPOLOGY_CRITIC_ROLE = 'proof-or-stop-review-topology-critic' as const;
 export const TOPOLOGY_EXCLUSION_APPROVER_ROLE = 'proof-or-stop-review-scope-plan' as const;
@@ -76,7 +77,11 @@ function registeredPublicKey(gitCwd: string, role: typeof TOPOLOGY_CRITIC_ROLE |
 }
 
 function git(gitCwd: string, args: string[]): string {
-  return execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8' }).trim();
+  return execFileSync('git', args, {
+    cwd: gitCwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).trim();
 }
 
 function normalizeRefs(refs: readonly string[]): string[] {
@@ -110,10 +115,23 @@ function currentGitAuthorIdentity(gitCwd: string): string {
   return match[1].trim();
 }
 
-export function currentImplementationBusinessCommit(gitCwd: string): { businessCommit: string; businessCommitAuthor: string } {
+export function currentImplementationBusinessCommit(
+  gitCwd: string,
+  frozenStoryBase?: string,
+): { businessCommit: string; businessCommitAuthor: string } {
+  const baseCommit = frozenStoryBase?.trim() || resolveRepositoryBaseline(gitCwd)?.mergeBase;
+  if (!baseCommit) {
+    throw new Error('IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE: no frozen Story or repository baseline commit is available');
+  }
+  let resolvedBase = '';
+  try { resolvedBase = git(gitCwd, ['rev-parse', '--verify', `${baseCommit}^{commit}`]); } catch { /* structured refusal below */ }
+  if (resolvedBase !== baseCommit) {
+    throw new Error(`IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE: ${baseCommit} does not resolve to the exact frozen commit`);
+  }
   let rows = '';
-  try { rows = git(gitCwd, ['log', 'main..HEAD', '--format=%H%x09%an <%ae>']); } catch { /* no local main */ }
-  if (!rows) rows = git(gitCwd, ['log', '-n', '50', '--format=%H%x09%an <%ae>']);
+  try { rows = git(gitCwd, ['log', `${baseCommit}..HEAD`, '--format=%H%x09%an <%ae>']); } catch {
+    throw new Error(`IMPLEMENTATION_PROVENANCE_RANGE_UNAVAILABLE: cannot inspect ${baseCommit}..HEAD`);
+  }
   const line = rows.split('\n').find(row => row.endsWith(`\t${IMPLEMENTER_AUTHOR}`));
   if (!line) throw new Error(`implementation provenance is missing a business commit authored by ${IMPLEMENTER_AUTHOR}`);
   const [businessCommit, businessCommitAuthor] = line.split('\t');
@@ -124,8 +142,13 @@ export function topologyDispatchBusinessAuthor(gitCwd: string): string {
   return canonicalBusinessAuthorIdentity(currentGitAuthorIdentity(gitCwd));
 }
 
-export function deriveImplementationProvenance(gitCwd: string, events: readonly ProcessEvent[], context: ReceiptContext): TopologyImplementationProvenanceV1 {
-  const { businessCommit, businessCommitAuthor } = currentImplementationBusinessCommit(gitCwd);
+export function deriveImplementationProvenance(
+  gitCwd: string,
+  events: readonly ProcessEvent[],
+  context: ReceiptContext,
+  frozenStoryBase?: string,
+): TopologyImplementationProvenanceV1 {
+  const { businessCommit, businessCommitAuthor } = currentImplementationBusinessCommit(gitCwd, frozenStoryBase);
   const event = [...events].reverse().find(candidate => candidate.type === 'dispatch'
     && agentRoleIdsEqual(typeof candidate.agentType === 'string' ? candidate.agentType : undefined, IMPLEMENTER_ROLE));
   if (!event || typeof event.sessionId !== 'string' || !event.sessionId.trim()) {

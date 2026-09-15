@@ -1981,7 +1981,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'topology_critic_receipt_check CLI verification only',
     consumerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.topology_critic_receipt_set,
-    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Git business-author identity remains raw: retired author spellings cannot be mapped or selected as canonical implementation provenance. Partial or unsupported discovery remains non-pass.',
+    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Implementation provenance is selected only from the frozen Story integration commit through HEAD; branch names and unrelated earlier implementer commits cannot supply authority. Git business-author identity remains raw: retired author spellings cannot be mapped or selected as canonical implementation provenance. Partial or unsupported discovery remains non-pass.',
   },
   {
     name: 'artifact:milestone-ledger.json',

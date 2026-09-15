@@ -93,31 +93,39 @@ function assertCanonicalBusinessAuthorIdentity(): void {
     git(authorRoot, ['init', '-b', 'develop']);
     git(authorRoot, ['config', 'user.name', retiredRole]);
     git(authorRoot, ['config', 'user.email', `${retiredRole}@noreply.local`]);
+    git(authorRoot, ['commit', '--allow-empty', '--author=Integration Owner <integration@noreply.local>', '-m', 'initial integration base']);
+    const initialBase = git(authorRoot, ['rev-parse', 'HEAD']);
+    git(authorRoot, ['switch', '-c', 'story/B-author-identity']);
     git(authorRoot, ['commit', '--allow-empty', '-m', 'synthetic retired author fixture']);
-    assert.throws(() => currentImplementationBusinessCommit(authorRoot), /missing a business commit authored by proof-or-stop-implementer/,
+    assert.throws(() => currentImplementationBusinessCommit(authorRoot, initialBase), /missing a business commit authored by proof-or-stop-implementer/,
       'a retired author must never be promoted to canonical implementation provenance');
     assert.equal(topologyDispatchBusinessAuthor(authorRoot), retiredAuthor,
       'dispatch author evidence must preserve the real identity rather than remapping a retired spelling');
     git(authorRoot, ['commit', '--allow-empty', `--author=${canonicalAuthor}`, '-m', 'synthetic canonical author fixture']);
-    const canonical = currentImplementationBusinessCommit(authorRoot);
+    const canonical = currentImplementationBusinessCommit(authorRoot, initialBase);
     assert.equal(canonical.businessCommitAuthor, canonicalAuthor);
     assert.equal(canonical.businessCommit, git(authorRoot, ['rev-parse', 'HEAD']));
+    git(authorRoot, ['switch', 'develop']);
+    git(authorRoot, ['merge', '--ff-only', 'story/B-author-identity']);
     git(authorRoot, ['commit', '--allow-empty', '--author=Integration Owner <integration@noreply.local>', '-m', 'freeze Story integration base']);
     const frozenBase = git(authorRoot, ['rev-parse', 'HEAD']);
     git(authorRoot, ['switch', '-c', 'story/B-portable-provenance']);
-    const resolveFromFrozenBase = currentImplementationBusinessCommit as unknown as
-      (gitCwd: string, baseCommit: string) => ReturnType<typeof currentImplementationBusinessCommit>;
     assert.throws(
-      () => resolveFromFrozenBase(authorRoot, frozenBase),
+      () => currentImplementationBusinessCommit(authorRoot, frozenBase),
       /missing a business commit authored by proof-or-stop-implementer/,
       'an implementer commit before the frozen Story base cannot become current Story provenance',
     );
     git(authorRoot, ['commit', '--allow-empty', `--author=${canonicalAuthor}`, '-m', 'current Story implementation']);
-    const currentStory = resolveFromFrozenBase(authorRoot, frozenBase);
+    const currentStory = currentImplementationBusinessCommit(authorRoot, frozenBase);
     assert.equal(currentStory.businessCommit, git(authorRoot, ['rev-parse', 'HEAD']));
     git(authorRoot, ['branch', '-D', 'develop']);
-    assert.equal(resolveFromFrozenBase(authorRoot, frozenBase).businessCommit, currentStory.businessCommit,
+    assert.equal(currentImplementationBusinessCommit(authorRoot, frozenBase).businessCommit, currentStory.businessCommit,
       'the frozen commit range survives deletion of the original integration branch');
+    assert.throws(
+      () => currentImplementationBusinessCommit(authorRoot, 'missing-frozen-base'),
+      /IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE/,
+      'an unavailable frozen base produces a structured refusal without leaking Git stderr',
+    );
     console.log('topology author identity: retired rejection, frozen-base isolation, deleted-parent portability PASS');
   } finally {
     rmSync(authorRoot, { recursive: true, force: true });

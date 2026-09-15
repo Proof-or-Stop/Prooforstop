@@ -11452,6 +11452,24 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
   assert(readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('optional fullStoryBaseHead'), 'Comparison-base process semantics must remain registered');
 }
 
+// Topology implementation provenance is Story-bound and branch-name independent.
+{
+  const provenance = read('packages/main/src/core/topology-critic-receipt.ts');
+  const dispatch = read('packages/main/src/handlers/story-dispatch.ts');
+  const receipt = read('packages/main/src/handlers/proofstory.ts');
+  assert(provenance.includes("['log', `${baseCommit}..HEAD`")
+    && !provenance.includes("['log', 'main..HEAD'")
+    && !provenance.includes("['log', '-n', '50'"),
+  'Topology implementation provenance must use only the frozen commit range');
+  assert(dispatch.includes('resolveFullStoryBaseHead(store, root, story.storyId)')
+    && dispatch.includes('currentImplementationBusinessCommit(gitCwd, frozenStoryBase)'),
+  'Topology dispatch must bind implementation provenance to the frozen Story base');
+  assert(receipt.includes('resolveFullStoryBaseHead(store, ctx.root, storyId)')
+    && receipt.includes('deriveImplementationProvenance(')
+    && receipt.includes('frozenStoryBase,'),
+  'Topology receipt production must verify implementation provenance against the frozen Story base');
+}
+
 
 if (failures.length) {
   console.error('');
