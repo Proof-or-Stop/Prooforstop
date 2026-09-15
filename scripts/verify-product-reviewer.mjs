@@ -138,6 +138,31 @@ try {
   assert(storyId, 'failed to parse temp story id');
 
   const directHandlers = createInitCheckHandlers({ store: new StoryStore(temp), root: temp, scanRoot: join(temp, 'packages/main') });
+  const previousStoryInitAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-story-init';
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        severity: 'high',
+        desc: 'Choose exact trace labels and active-load reset transitions before implementation starts.',
+      }],
+    });
+  } finally {
+    if (previousStoryInitAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousStoryInitAgent;
+  }
+  const outOfBoundaryInitCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  nodeAssert.equal(
+    outOfBoundaryInitCheck.agentResults?.[0]?.issues?.[0]?.severity,
+    'medium',
+    'LAB_RED: out-of-bound INIT implementation preference must be advisory',
+  );
+  assert(
+    blockingInitCheckIssues(outOfBoundaryInitCheck).length === 0,
+    'INIT_REVIEW_AUTHORITY_BOUNDARY: an untyped story-init implementation preference cannot block INIT_CHECK',
+  );
+
   const previousAgent = process.env.PROOF_OR_STOP_AGENT;
   process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
   try {
