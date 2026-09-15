@@ -10702,7 +10702,11 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/core/machine.ts',
-        patterns: ['canEnterInitCheck', 'missingRequiredInitCheckAgents', 'invalidInitReviewerDeliveries', 'delivery_not_acknowledged', 'managedDispatch: true', 'blockingInitCheckIssues'],
+        patterns: ['canEnterInitCheck', 'missingRequiredInitCheckAgents', 'invalidInitReviewerDeliveries', 'delivery_not_acknowledged', 'renderManagedInitReviewerDispatches', 'blockingInitCheckIssues'],
+      },
+      {
+        relPath: 'packages/main/src/core/reviewer-launch-guidance.ts',
+        patterns: ['renderManagedInitReviewerDispatches', 'managedDispatch: true', 'host_run_status', 'init_check_set accepts only a matching live managed dispatch'],
       },
       {
         relPath: 'packages/main/src/core/managed-host-run.ts',
