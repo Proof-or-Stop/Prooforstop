@@ -89,13 +89,40 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.match(cliOutput, /metadata auto-committed/, 'real CLI projects and commits controller metadata in the linked worktree');
+    const projectionReceiptPaths = [
+      `.proof-or-stop/story/actives/${storyId}/evidence/controller-config-projection.json`,
+      `.proof-or-stop/story/actives/${storyId}/evidence/controller-runtime-projection.json`,
+    ];
+    for (const receiptPath of projectionReceiptPaths) {
+      assert.equal(existsSync(join(worktreeRoot, receiptPath)), true, `${receiptPath} remains present for runtime verification`);
+      assert.equal(
+        git(worktreeRoot, ['ls-files', '--', receiptPath]),
+        '',
+        `LAB_RED: controller projection receipt must remain untracked after the first real metadata auto-commit: ${receiptPath}`,
+      );
+    }
+    const secondCliOutput = execFileSync(process.execPath, [cliEntry, '--root', controllerRoot, 'checklist_update', `--storyId=${storyId}`, '--itemId=CHK-001', '--status=done'], {
+      cwd: worktreeRoot,
+      encoding: 'utf8',
+      env: { ...process.env, PROOF_OR_STOP_AGENT: 'main', PROOF_OR_STOP_SESSION_ID: 'lab-owner' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.match(secondCliOutput, /metadata auto-committed/, 'second real CLI metadata mutation is auto-committed');
+    for (const receiptPath of projectionReceiptPaths) {
+      assert.equal(existsSync(join(worktreeRoot, receiptPath)), true, `${receiptPath} remains present after the second metadata auto-commit`);
+      assert.equal(
+        git(worktreeRoot, ['ls-files', '--', receiptPath]),
+        '',
+        `controller projection receipt must remain untracked after repeated metadata auto-commit: ${receiptPath}`,
+      );
+    }
     assert.equal(readFileSync(controllerLeasePath, 'utf8'), controllerLeaseBytes, 'controller owner lease remains byte-identical during bootstrap');
     const projected = project({ controllerRoot, worktreeRoot, storyId });
     assert.equal(projected.storyRoot, join(realpathSync(worktreeRoot), '.proof-or-stop/story/actives', storyId));
     assert.equal(readFileSync(join(worktreeRoot, 'proof-or-stop.config.json'), 'utf8'), configBytes, 'controller config bytes are projected exactly');
     const localStore = new StoryStore(worktreeRoot);
     const checklist = localStore.readChecklist(storyId);
-    assert.equal(checklist.items[0]!.status, 'in_progress');
+    assert.equal(checklist.items[0]!.status, 'done');
     assert.match(git(worktreeRoot, ['show', '--name-only', '--format=', 'HEAD']), new RegExp(`^\\.proof-or-stop/story/actives/${storyId}/`, 'm'));
     assert.equal(git(controllerRoot, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${storyId}`]).startsWith('??'), true, 'controller Story copy remains read-only and uncommitted');
 
@@ -104,7 +131,7 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
       cwd: worktreeRoot, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_AGENT: 'main', PROOF_OR_STOP_SESSION_ID: 'lab-owner' }, stdio: ['ignore', 'pipe', 'pipe'],
     }), /branch-local authoritative Story/, 'a committed branch-local Story cannot be repopulated from the stale controller copy');
     git(worktreeRoot, ['checkout', '--', '.proof-or-stop']);
-    assert.equal(new StoryStore(worktreeRoot).readChecklist(storyId).items[0]!.status, 'in_progress', 'branch-local recovery restores the committed authority');
+    assert.equal(new StoryStore(worktreeRoot).readChecklist(storyId).items[0]!.status, 'done', 'branch-local recovery restores the committed authority');
 
     rmSync(join(worktreeRoot, '.proof-or-stop'), { recursive: true, force: true });
     const escapeTarget = join(controllerRoot, 'escape-target');
