@@ -222,7 +222,7 @@ export const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntrie
   isolatedHeavy('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
   isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'),
-  isolated('test:review-gate-intent-cycle'), repoRead('test:process-fact-contract'),
+  isolated('test:review-gate-intent-cycle'), repoRead('test:managed-review-final-schema'), repoRead('test:process-fact-contract'),
   // Previous real-executor fixture measured 22.315s standalone. Its nested
   // admission caused two recorded contention timeouts; the fixture now executes
   // its fixed leaf directly under the outer admission. Retain the 120s cap.
