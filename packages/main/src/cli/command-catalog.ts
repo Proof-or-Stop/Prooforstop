@@ -2676,6 +2676,7 @@ Behavior:
     issues: z.array(z.object({
       id: z.string().optional().describe('Reviewer self-assigned ID, for example I-1; optional.'),
       kind: z.enum(INIT_CHECK_ISSUE_KINDS).optional().describe('INIT-stage applicability. post_implementation_evidence_missing is deferred and cannot block implementation start.'),
+      requirementRef: z.string().optional().describe('Exact authoritative INIT input pointer required for critical/high blockers, for example story:description, background:Trigger Event, checklist:CHK-001, or verification-intent:CHK-001:happy:0.'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Issue details (reviewer subjective judgment must be specific).'),
     })).describe('List of issues raised by Reviewer; critical/high INIT-applicable issues block INIT_CHECK, while post-implementation evidence gaps are deferred; empty array allowed.'),
@@ -2696,6 +2697,7 @@ Behavior:
     issues: z.array(z.object({
       id: z.string().optional().describe('Self-assigned ID, optional.'),
       kind: z.enum(INIT_CHECK_ISSUE_KINDS).optional().describe('INIT-stage applicability. post_implementation_evidence_missing is deferred and cannot block implementation start.'),
+      requirementRef: z.string().optional().describe('Optional authoritative INIT input pointer; manual fallback attestations remain operator-bound.'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character.').describe('Issue details.'),
     })).optional().describe('Optional issues raised by manual attestation; high/critical INIT-applicable issues block INIT_CHECK, while post-implementation evidence gaps are deferred.'),

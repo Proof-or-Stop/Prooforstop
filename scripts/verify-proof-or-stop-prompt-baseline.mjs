@@ -109,7 +109,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-story-init',
-    templateHash: '75e2de5fe610e65a630dc73fcaa6ae795958d24a5d572e8089d0c4005c329d97',
+    templateHash: '9b396a67785f95355131be3b878d4574d8bdf3ed5f7511914cb9c309aadf916e',
   },
   {
     role: 'proof-or-stop-review-test-coverage',
@@ -121,7 +121,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-product-reviewer',
-    templateHash: '0206b195e26ba067e863b2f54c9117f75bd56f2ea86d345bee8ed00187a3bbda',
+    templateHash: '6c0d053e89e503ad29f54e59b2dfe8551ffeb0ecc423f08d2e5c2f9e72f2960f',
   },
   {
     role: 'proof-or-stop-test-case-reviewer',

@@ -125,7 +125,7 @@ try {
   assert.match(missingProduct, /Host-native task liveness policy/, 'partial product recovery should include canonical liveness guidance');
   assert.match(missingProduct, /unknown or temporarily unavailable/, 'partial product recovery should preserve ambiguous task identity');
 
-  run(root, 'init_check_set', { storyId, issues: [{ kind: 'user_outcome_unspecified', severity: 'high', desc: 'Product value is not yet clear.' }], agentId: 'proof-or-stop-product-reviewer' });
+  run(root, 'init_check_set', { storyId, issues: [{ kind: 'user_outcome_unspecified', requirementRef: 'story:description', severity: 'high', desc: 'Product value is not yet clear.' }], agentId: 'proof-or-stop-product-reviewer' });
   const blockingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(blockingProduct, /init_check_blocking_issues/);
   assert.match(blockingProduct, /Product value is not yet clear/);

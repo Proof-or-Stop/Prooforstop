@@ -2891,11 +2891,24 @@ export interface ScopeCheckData {
 // issues as blockers. Post-implementation evidence gaps are deferred; legacy
 // kind-less high issues remain fail-closed. Medium / low are advisory.
 
-export const INIT_CHECK_ISSUE_KINDS = [
+export const PRODUCT_INIT_BLOCKING_ISSUE_KINDS = [
   'requirements_ambiguous',
   'user_outcome_unspecified',
   'verification_plan_unexecutable',
   'scope_or_safety_boundary_missing',
+] as const;
+
+export const STORY_INIT_BLOCKING_ISSUE_KINDS = [
+  'required_story_input_missing',
+  'undefined_term_or_reference',
+  'story_metadata_inconsistent',
+  'existing_system_claim_inaccurate',
+  'initial_checklist_invalid',
+] as const;
+
+export const INIT_CHECK_ISSUE_KINDS = [
+  ...PRODUCT_INIT_BLOCKING_ISSUE_KINDS,
+  ...STORY_INIT_BLOCKING_ISSUE_KINDS,
   'post_implementation_evidence_missing',
 ] as const;
 
@@ -2913,7 +2926,17 @@ export interface InitCheckIssue {
    * and retain the original fail-closed severity behavior.
    */
   kind?: InitCheckIssueKind;
+  /**
+   * Stable pointer to the authoritative INIT input that makes a critical/high
+   * issue blocking, for example `story:description`, `background:Trigger Event`,
+   * `checklist:CHK-001`, or `verification-intent:CHK-001:happy:0`.
+   */
+  requirementRef?: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
+  /** Original reviewer severity when the handler narrows an out-of-authority blocker to advisory. */
+  reportedSeverity?: 'critical' | 'high';
+  /** Machine-owned explanation for a severity normalization at the INIT authority boundary. */
+  dispositionReason?: 'outside_init_reviewer_blocking_authority' | 'missing_or_invalid_requirement_ref';
   /** Concrete description (runtime validation trim().length >= 1, blank strings forbidden) */
   desc: string;
 }

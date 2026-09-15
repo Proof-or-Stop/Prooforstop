@@ -348,7 +348,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
-    responsibility: 'Review INIT story facts and standalone readability.',
+    responsibility: 'Review only INIT term definitions, standalone readability, metadata consistency, existing-system claims, and mechanical checklist sanity.',
     allowedCommandIds: ['init_check_set'],
     requiredOutputIds: ['init-check'],
   },

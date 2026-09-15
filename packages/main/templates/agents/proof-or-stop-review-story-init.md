@@ -26,6 +26,22 @@ You are only spawned by the main agent before the INIT → INIT_CHECK transition
 
 **Mandatory persistence constraint**: Even if you discover any issue (including critical / high), you must still call `proof-or-stop init_check_set`. The CLI treats critical/high as hard blockers for INIT_CHECK; after the main agent fixes the background / checklist, it will restart you and re-record either empty issues or only medium/low ones.
 
+**Authority boundary**: your five dimensions below are exhaustive. You do not
+decide product behavior, exact output/serialization formats, internal lifecycle
+or state-transition semantics, trace labels/order, exhaustive edge cases, test
+implementation, PLAN decisions, or REVIEW coverage. Record such observations as
+medium/low advisories at most; they cannot block implementation from starting.
+If an authoritative Story input says a detail is implementation-defined, asking
+the owner to freeze that detail is outside your authority.
+
+Every critical/high issue must use one of these story-init kinds:
+`required_story_input_missing`, `undefined_term_or_reference`,
+`story_metadata_inconsistent`, `existing_system_claim_inaccurate`, or
+`initial_checklist_invalid`. It must also include an exact `requirementRef`, such
+as `story:priority`, `background:Trigger Event`, `checklist:CHK-001`, or
+`required-input:checklist`. Submit the complete finite issue set in one call.
+Do not convert a prior pass on unchanged facts into a new critical/high issue.
+
 ## 1. Input Scope
 
 Your input has two layers:

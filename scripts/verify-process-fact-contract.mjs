@@ -10674,7 +10674,11 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/init-check.ts',
-        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash'],
+        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash', 'normalizeReviewerBlockingAuthority', 'missing_or_invalid_requirement_ref', 'outside_init_reviewer_blocking_authority'],
+      },
+      {
+        relPath: 'packages/main/src/core/types.ts',
+        patterns: ['PRODUCT_INIT_BLOCKING_ISSUE_KINDS', 'STORY_INIT_BLOCKING_ISSUE_KINDS', 'requirementRef', 'reportedSeverity', 'dispositionReason'],
       },
       {
         relPath: 'packages/main/src/core/init-check-gate.ts',

@@ -18,7 +18,15 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import { execSync } from 'child_process';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
-import { INIT_CHECK_ISSUE_KINDS, type InitCheckData, type InitCheckIssue } from '../core/types.js';
+import {
+  INIT_CHECK_ISSUE_KINDS,
+  PRODUCT_INIT_BLOCKING_ISSUE_KINDS,
+  STORY_INIT_BLOCKING_ISSUE_KINDS,
+  type ChecklistItem,
+  type InitCheckData,
+  type InitCheckIssue,
+  type VerificationLane,
+} from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -45,6 +53,8 @@ import {
 import { withMkdirLock } from '../core/mkdir-lock.js';
 
 const INIT_CHECK_ISSUE_KIND_SET = new Set<string>(INIT_CHECK_ISSUE_KINDS);
+const PRODUCT_INIT_BLOCKING_KIND_SET = new Set<string>(PRODUCT_INIT_BLOCKING_ISSUE_KINDS);
+const STORY_INIT_BLOCKING_KIND_SET = new Set<string>(STORY_INIT_BLOCKING_ISSUE_KINDS);
 
 function assertValidInitCheckIssue(issue: InitCheckIssue | null | undefined, command: 'init_check_set' | 'init_check_repair'): void {
   if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
@@ -53,6 +63,78 @@ function assertValidInitCheckIssue(issue: InitCheckIssue | null | undefined, com
   if (issue.kind !== undefined && !INIT_CHECK_ISSUE_KIND_SET.has(issue.kind)) {
     throw new Error(`${command}: unsupported issue.kind ${JSON.stringify(issue.kind)}`);
   }
+}
+
+function verificationIntentIds(item: Pick<ChecklistItem, 'verificationIntent'>): string[] {
+  const intent = item?.verificationIntent;
+  if (!intent || typeof intent !== 'object') return [];
+  const lanes: VerificationLane[] = ['happy', 'edge', 'adversarial'];
+  return lanes.flatMap(lane =>
+    Array.isArray(intent[lane])
+      ? intent[lane].map(entry => typeof entry?.id === 'string' ? entry.id.trim() : '').filter(Boolean)
+      : [],
+  );
+}
+
+function validInitRequirementRefs(checklistItems: ChecklistItem[]): Set<string> {
+  const refs = new Set([
+    'story:title',
+    'story:description',
+    'story:type',
+    'story:priority',
+    'story:riskSignals',
+    'background:Trigger Event',
+    'background:Key Insights',
+    'background:Solution Tradeoffs',
+    'background:Conversational Texture',
+    'scope-boundary',
+    'execution-boundary',
+    'required-input:background',
+    'required-input:story-metadata',
+    'required-input:checklist',
+    'required-input:repository-guide',
+    'required-input:scope-boundary',
+    'required-input:execution-boundary',
+  ]);
+  for (const item of checklistItems) {
+    if (typeof item?.id === 'string' && item.id.trim()) refs.add(`checklist:${item.id.trim()}`);
+    for (const id of verificationIntentIds(item)) refs.add(`verification-intent:${id}`);
+  }
+  return refs;
+}
+
+function normalizeReviewerBlockingAuthority(
+  issues: InitCheckIssue[],
+  agentId: string,
+  checklistItems: ChecklistItem[],
+): { issues: InitCheckIssue[]; normalizedCount: number } {
+  const allowedKinds = agentId === 'proof-or-stop-product-reviewer'
+    ? PRODUCT_INIT_BLOCKING_KIND_SET
+    : agentId === 'proof-or-stop-review-story-init'
+      ? STORY_INIT_BLOCKING_KIND_SET
+      : new Set<string>();
+  const validRefs = validInitRequirementRefs(checklistItems);
+  let normalizedCount = 0;
+  const normalized = issues.map(issue => {
+    if ((issue.severity !== 'critical' && issue.severity !== 'high') || issue.kind === 'post_implementation_evidence_missing') {
+      return issue;
+    }
+    const reportedSeverity = issue.severity;
+    const kindAllowed = typeof issue.kind === 'string' && allowedKinds.has(issue.kind);
+    const requirementRef = typeof issue.requirementRef === 'string' ? issue.requirementRef.trim() : '';
+    const refAllowed = requirementRef.length > 0 && validRefs.has(requirementRef);
+    if (kindAllowed && refAllowed) return { ...issue, requirementRef };
+    normalizedCount += 1;
+    return {
+      ...issue,
+      severity: 'medium' as const,
+      reportedSeverity,
+      dispositionReason: kindAllowed
+        ? 'missing_or_invalid_requirement_ref' as const
+        : 'outside_init_reviewer_blocking_authority' as const,
+    };
+  });
+  return { issues: normalized, normalizedCount };
 }
 
 // Backward-compatible re-exports: existing importers (core/machine.ts now reads
@@ -130,17 +212,19 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
 
       // 2) runtime validation of issues (guards against Zod-bypass paths, aligned with the gate-side trim standard)
-      const issues = Array.isArray(args.issues) ? args.issues : [];
-      for (const issue of issues) {
+      const submittedIssues = Array.isArray(args.issues) ? args.issues : [];
+      for (const issue of submittedIssues) {
         assertValidInitCheckIssue(issue, 'init_check_set');
       }
 
       // 3) compute the three hashes required for the signature
       const backgroundHash = computeBackgroundHash(root, args.storyId);
+      let checklistItems: ChecklistItem[] = [];
       let items: Array<{ title: string; context?: string }> = [];
       try {
         const checklist = store.readChecklist(args.storyId);
-        items = checklist.items.map(i => ({ title: i.title, context: i.context }));
+        checklistItems = checklist.items;
+        items = checklistItems.map(i => ({ title: i.title, context: i.context }));
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         // when checklist.json does not exist, hash is computed against an empty array (consistent with recomputeInitCheckHash behavior)
       }
@@ -150,6 +234,15 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       //    B-8df9 CHK-002, so the record must exist BEFORE it can be signed)
       const checkedAt = new Date().toISOString();
       const agentId = normalizeAgentId(authority.actor);
+      const normalizedIssues = normalizeReviewerBlockingAuthority(submittedIssues, agentId, checklistItems);
+      const issues = normalizedIssues.issues;
+      if (normalizedIssues.normalizedCount > 0) {
+        process.stderr.write(
+          `⚠ init_check_set ${args.storyId}: normalized ${normalizedIssues.normalizedCount} out-of-authority ` +
+          `critical/high issue(s) to advisory; INIT blockers require an actor-allowed kind and an exact requirementRef. ` +
+          `[init_reviewer_blocking_authority]\n`,
+        );
+      }
 
       // B-8df9 CHK-003 — the carry-forward is the LAST laundering path, and it is closed here.
       //
@@ -254,7 +347,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
       const missing = missingRequiredInitCheckAgents(data);
       const commitHint = autoCommitStoryMetadata(root, args.storyId, 'init_check_set');
-      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${untrustedNotice}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
+      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${normalizedIssues.normalizedCount > 0 ? `; normalized ${normalizedIssues.normalizedCount} out-of-authority blocker(s) to advisory` : ''}${untrustedNotice}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
       });
     },
 
