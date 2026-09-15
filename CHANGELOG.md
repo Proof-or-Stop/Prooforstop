@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab managed-review-final-schema-contract - v0.3.381 - 2026-09-15
+
+# Managed reviewer final proposal schema contract
+
+## Problem
+
+Managed reviewers were instructed only to return a truthful read manifest and read log, while terminal intake required a stricter shape. Valid reviews therefore ended as managed_review_final_result_malformed and could not produce REVIEW evidence. The topology critic could also omit inventoryCritic, preventing its required critic receipt.
+
+## Repair
+
+Codex and Claude managed-review adapters now share one generated final-proposal JSON schema. The schema declares all required readManifest, readLog and summary fields, uses the same routing-digest grammar as terminal normalization, and requires inventoryCritic for the topology-critic lane. Terminal intake rejects unknown nested fields and critic proposals without inventoryCritic. The process-fact registry and verifier now record and protect these constraints.
+
+## Verification
+
+Lab RED reproduced the missing schema in the managed provider prompt. GREEN proves a minimal schema-conforming proposal passes terminal validation, explicit sha256 routing digests remain compatible, nested extras fail closed, and topology-critic proposals without inventoryCritic fail closed. The managed inventory critic transport verifier passed every authenticated import and negative-control scenario. The process-fact verifier reached the new contract checks; its unrelated isolated CLI fixture later failed because copied installations lacked proper-lockfile/typescript. Codex Sol/high found and closed the stale critic transport expectation plus digest, nested diagnostic, process-fact, and canonical-suite registration gaps. A final focused Sol/high audit of immutable HEAD 16d8eafb3808aaf91b2fbf08cbf3d7b8012fdfca reported no findings.
+
+Maintenance provenance: codex/lab-managed-review-final-schema-contract, repair 593fd106040b962a2673d36e297406c2bf4adcc1.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-dispatch-validate-before-consume - v0.3.380 - 2026-09-15
 
 # Managed dispatch validates before consuming reviewer delivery
