@@ -49,6 +49,7 @@ import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import {
@@ -377,7 +378,16 @@ function currentTopologyReceiptStateForContext(ctx: HandlerContext, storyId: str
     findingRefs: store.readFindings(storyId).findings.filter(finding => finding.status === 'open').map(finding => finding.id),
   });
   const events = store.readProcessEvents(storyId);
-  const implementation = deriveImplementationProvenance(current.workspace.signedWorkspaceRoot, events, context);
+  const story = store.readStory(storyId);
+  const frozenStoryBase = story.integrationTarget !== undefined
+    ? resolveFullStoryBaseHead(store, ctx.root, storyId)
+    : undefined;
+  const implementation = deriveImplementationProvenance(
+    current.workspace.signedWorkspaceRoot,
+    events,
+    context,
+    frozenStoryBase,
+  );
   return { current, artifact, context, events, implementation, basisVerification };
 }
 

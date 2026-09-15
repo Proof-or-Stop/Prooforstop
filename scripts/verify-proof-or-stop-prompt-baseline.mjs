@@ -109,7 +109,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-story-init',
-    templateHash: '8612861b959b1d04ddb9a504b11d253cfd6b1e9f102e97cfae7e49fc37a4e03c',
+    templateHash: '9b396a67785f95355131be3b878d4574d8bdf3ed5f7511914cb9c309aadf916e',
   },
   {
     role: 'proof-or-stop-review-test-coverage',
@@ -121,7 +121,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-product-reviewer',
-    templateHash: '0206b195e26ba067e863b2f54c9117f75bd56f2ea86d345bee8ed00187a3bbda',
+    templateHash: '6c0d053e89e503ad29f54e59b2dfe8551ffeb0ecc423f08d2e5c2f9e72f2960f',
   },
   {
     role: 'proof-or-stop-test-case-reviewer',
@@ -273,6 +273,10 @@ const STORY_INIT_REQUIRED_CLI_COMMANDS = [
   'proof-or-stop checklist_get',
   'proof-or-stop init_check_set',
 ];
+const STORY_INIT_METADATA_DETAIL_QUERY =
+  `proof-or-stop story_get '{"storyId":"<storyId>","detail":true}'`;
+const STORY_INIT_METADATA_DETAIL_FIELDS =
+  '`index.title` / `index.description` / `index.type` / `index.priority` / `index.riskSignals`';
 const STORY_INIT_FORBIDDEN_ACTIVE_FRAGMENTS = [
   'docs/story/actives',
   '.proof-or-stop/story/actives',
@@ -2252,6 +2256,12 @@ function assertStoryInitCliOnlyPromptSurfaces(roleEntries) {
   for (const surface of surfaces) {
     for (const command of STORY_INIT_REQUIRED_CLI_COMMANDS) {
       if (!surface.content.includes(command)) errors.push(`${surface.path}: missing ${command}`);
+    }
+    if (!surface.content.includes(STORY_INIT_METADATA_DETAIL_QUERY)) {
+      errors.push(`${surface.path}: missing exact Story metadata detail query ${STORY_INIT_METADATA_DETAIL_QUERY}`);
+    }
+    if (!surface.content.includes(STORY_INIT_METADATA_DETAIL_FIELDS)) {
+      errors.push(`${surface.path}: missing result.index Story metadata field contract`);
     }
     for (const fragment of STORY_INIT_FORBIDDEN_ACTIVE_FRAGMENTS) {
       if (surface.content.includes(fragment)) errors.push(`${surface.path}: forbidden active fragment ${fragment}`);

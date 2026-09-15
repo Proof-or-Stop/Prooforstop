@@ -29,6 +29,15 @@ At INIT, planned evidence is the requirement-facing `userSees` text plus executa
 
 Actual behavior and delivery evidence remain mandatory at their later REVIEW, TEST, and DONE gates. Do not treat this INIT pass as proof that the feature works.
 
+INIT decides whether implementation can start. Do not choose implementation
+details for the owner, require exhaustive internal lifecycle semantics, or turn
+an additional edge case into a critical/high blocker when the authoritative
+Story already defines an observable result and an executable pass/fail check.
+Exact internal state transitions, trace labels/order, serialization details, and
+test-exhaustiveness refinements belong in PLAN or REVIEW unless an authoritative
+INIT input explicitly fixes them. If the Story says a detail is
+implementation-defined, a request to freeze that detail cannot block INIT.
+
 ## Issue kinds
 
 Use one of these structured kinds when recording an issue:
@@ -40,6 +49,15 @@ Use one of these structured kinds when recording an issue:
 - `post_implementation_evidence_missing`: an observation about evidence that can only exist later. This kind is deferred and cannot block INIT.
 
 Only the first four kinds may be critical or high INIT blockers. Do not relabel missing post-implementation evidence as another kind to make it block.
+
+Every critical/high issue must include `requirementRef`, pointing to the exact
+authoritative INIT input that is contradictory, missing, unsafe, or
+unexecutable. Supported forms include `story:description`,
+`background:Trigger Event`, `checklist:CHK-001`,
+`verification-intent:CHK-001:happy:0`, `scope-boundary`, and
+`execution-boundary`. A concern without that source binding is advisory. Report
+the complete finite issue set in one call; a later fresh review must not invent
+a new critical/high requirement from unchanged facts.
 
 ## What you are not responsible for
 
@@ -59,7 +77,7 @@ proof-or-stop init_check_set '{"storyId":"<STORY_ID>","issues":[],"agentId":"pro
 For a blocking issue, include its kind:
 
 ```bash
-proof-or-stop init_check_set '{"storyId":"<STORY_ID>","issues":[{"kind":"user_outcome_unspecified","severity":"high","desc":"The Story does not define an observable user result."}],"agentId":"proof-or-stop-product-reviewer"}'
+proof-or-stop init_check_set '{"storyId":"<STORY_ID>","issues":[{"kind":"user_outcome_unspecified","requirementRef":"story:description","severity":"high","desc":"The Story does not define an observable user result."}],"agentId":"proof-or-stop-product-reviewer"}'
 ```
 
 `agentId` must be exactly `proof-or-stop-product-reviewer`. Do not pass `proof-or-stop-review-story-init`; that is a different reviewer. Critical and high INIT-applicable issues block INIT_CHECK. Medium and low issues are advisory.

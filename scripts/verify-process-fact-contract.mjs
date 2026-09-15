@@ -1952,6 +1952,8 @@ function assertProofStoryProgressiveBoundary() {
   );
   const preReviewText = read('packages/main/src/core/pre-review-check.ts');
   const acceptanceDiscoveryText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
+  const dirtyWorktreeText = read('packages/main/src/core/dirty-worktree.ts');
+  const externalWorktreeSmokeText = read('packages/main/src/tasks/external-worktree-go-pre-review-smoke.ts');
   const preReviewPolicy = commandPolicyEntries.get('pre_review_check');
   assert(
     catalogText.includes("name: 'pre_review_check'")
@@ -1979,6 +1981,20 @@ function assertProofStoryProgressiveBoundary() {
       && read('packages/main/src/cli/runtime-root.ts').includes('projectControllerAssetsIntoStoryWorktree')
       && read('packages/main/src/core/controller-config-projection.ts').includes('signValidationArtifact')
       && read('packages/main/src/core/controller-config-projection.ts').includes('verifyValidationArtifact')
+      && dirtyWorktreeText.includes('isByteIdenticalControllerConfig')
+      && dirtyWorktreeText.includes('isByteIdenticalControllerRuntimeAsset')
+      && dirtyWorktreeText.includes('trustedRuntimeArtifactMatcher')
+      && dirtyWorktreeText.includes("runtimeArtifactId: 'controller-projection'")
+      && externalWorktreeSmokeText.includes('valid signed controller config and hook projections must not block review_run_start')
+      && read('packages/main/src/handlers/review-run.ts').includes('inspectExpectedControllerRuntimeProjection')
+      && read('packages/main/src/core/runtime-artifact-registry.ts').includes('Verify the complete controller-owned runtime projection')
+      && externalWorktreeSmokeText.includes('review preflight must reject an entirely absent untracked controller runtime projection')
+      && externalWorktreeSmokeText.includes('real review_run_start handler rejects an entirely absent controller projection before snapshotting')
+      && externalWorktreeSmokeText.includes('review preflight must reject a single absent untracked controller hook that git status cannot observe')
+      && externalWorktreeSmokeText.includes('real review_run_start handler rejects one absent untracked controller hook before snapshotting')
+      && externalWorktreeSmokeText.includes('tracked hook projections remain forbidden')
+      && externalWorktreeSmokeText.includes('tracked config projection remains forbidden')
+      && externalWorktreeSmokeText.includes('a changed projected hook must return to fail-closed dirty classification')
       && read('packages/main/src/core/material-code-policy.ts').includes('resolveRepositoryBaseline')
       && read('packages/main/src/cli-engine.ts').includes('enforceStoryOwnerLeaseGate(cmd, parsed, controllerStore')
       && processRegistryText.includes('runtime:external_story_worktree_bootstrap_authority_gate')
@@ -7448,6 +7464,20 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['finalAssistantResult', 'finalAssistantResultCount', 'finalAssistantResultTruncated', 'parseManagedReviewFinalProposal', 'managed_review_final_result_missing', 'assertSealedManagedHostRunArtifacts', 'isRecoverableManagedReviewImportBinding', 'withTerminalAuthorityLock', 'liveOutputDigest', "mismatches.push('live-output')", 'providerLaunchState', 'evidenceBindingSeal', 'cleanupManagedCrossHostReviewWorktree', 'cleanupManagedClaudePromptForTerminal', 'managedClaudePromptDirectoryForRun', 'reapManagedHostRunProviderProcess', 'AMBIGUOUS_PROCESS_CLEANUP', "launchProfile: 'managed_reviewer'", 'delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD', "descriptor.once('finish'", 'worker capability descriptor closed before write completion', 'classifyManagedHostRunCancellation', "reason === 'absolute_deadline_exceeded'", "state: 'timed_out'"]) {
     assert(managedHostRunText.includes(token), `packages/main/src/core/managed-host-run.ts: required final-result/seal authority token missing: ${token}`);
   }
+  const lowLevelHostRunText = read('packages/main/src/core/host-run.ts');
+  for (const token of ['descriptorPeerClosedAfterFinal', "error.code === 'EPIPE'", "error.code === 'ECONNRESET'", 'finalResult.count === 1', 'finalResult.truncated === false']) {
+    assert(lowLevelHostRunText.includes(token), `packages/main/src/core/host-run.ts: required late descriptor-close authority boundary missing: ${token}`);
+  }
+  const lateDescriptorResetTest = read('packages/main/tests/managed-review-late-descriptor-reset.test.mjs');
+  const validationConfig = read('proof-or-stop.config.json');
+  assert(read('packages/main/package.json').includes('test:managed-review-late-descriptor-reset')
+    && validationConfig.includes('packages/main/tests/managed-review-late-descriptor-reset.test.mjs')
+    && lateDescriptorResetTest.includes("['EPIPE', 'ECONNRESET']")
+    && lateDescriptorResetTest.includes('descriptor reset before any final proposal remains fail closed')
+    && lateDescriptorResetTest.includes('a late descriptor close cannot convert a provider failure into success')
+    && lateDescriptorResetTest.includes('multiple final proposals remain fail closed')
+    && lateDescriptorResetTest.includes('an oversized final proposal remains fail closed'),
+  'late descriptor-close tolerance requires canonical validation wiring and executable success/failure controls');
   for (const token of [
     'delete submissionArgs.model',
     'delete submissionArgs.reasoningEffort',
@@ -8525,6 +8555,7 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
   const processRegistrySource = read(processFactRegistryPath);
   const runtimeProjectionText = read('packages/main/src/core/controller-runtime-projection.ts');
   const configProjectionText = read('packages/main/src/core/controller-config-projection.ts');
+  const autoCommitMetadataText = read('packages/main/src/core/auto-commit-metadata.ts');
   assert(
     lifecycleRegistryText.includes('...CONTROLLER_PROJECTION_ARTIFACTS.map((artifact) => artifact.path)'),
     'controller projection lifecycle paths must derive from the canonical managed artifact descriptors',
@@ -8533,6 +8564,12 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
     processRegistrySource.includes("import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js'")
       && processRegistrySource.includes('...CONTROLLER_PROJECTION_ARTIFACTS,'),
     'process fact artifacts must consume the canonical controller projection descriptors directly',
+  );
+  assert(
+    autoCommitMetadataText.includes("import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js'")
+      && autoCommitMetadataText.includes("descriptor.trackedPolicy === 'untracked-only'")
+      && autoCommitMetadataText.includes('...untrackedOnlyPaths.map(path => `:(exclude)${path}`)'),
+    'Story metadata auto-commit must derive untracked-only projection exclusions from the canonical descriptors',
   );
   const controllerDescriptors = parseControllerProjectionDescriptorProcessFacts(managedDescriptorText);
   assert(controllerDescriptors.length === 2, 'exactly two controller projection artifact descriptors must be registered');
@@ -10667,15 +10704,59 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/init-check.ts',
-        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash'],
+        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash', 'computeInitReviewerAuthorityInputHash', 'authorityInputHash', 'authorityBaselineIssues', 'deliveryRunId', 'resolveManagedDispatchInvocation', 'delivery_not_acknowledged', 'normalizeSubmittedInitCheckIssue', 'normalizeReviewerBlockingAuthority', 'normalizeUnchangedInputBlockerExpansion', 'missing_or_invalid_requirement_ref', 'outside_init_reviewer_blocking_authority', 'unchanged_input_blocker_expansion'],
+      },
+      {
+        relPath: 'packages/main/src/core/types.ts',
+        patterns: ['PRODUCT_INIT_BLOCKING_ISSUE_KINDS', 'STORY_INIT_BLOCKING_ISSUE_KINDS', 'requirementRef', 'reportedSeverity', 'dispositionReason', 'authorityInputHash', 'authorityBaselineIssues', 'deliveryRunId', 'unchanged_input_blocker_expansion'],
       },
       {
         relPath: 'packages/main/src/core/init-check-gate.ts',
-        patterns: ['INIT_CHECK_SALT', 'signInitCheck', 'recomputeInitCheckHash', 'missingRequiredInitCheckAgents', 'blockingInitCheckIssues'],
+        patterns: ['INIT_CHECK_SALT', 'signInitCheck', 'recomputeInitCheckHash', 'missingRequiredInitCheckAgents', 'invalidInitReviewerDeliveries', 'verifyManagedDispatchDelivery', 'blockingInitCheckIssues'],
       },
       {
         relPath: 'packages/main/src/core/machine.ts',
-        patterns: ['canEnterInitCheck', 'missingRequiredInitCheckAgents', 'blockingInitCheckIssues'],
+        patterns: ['canEnterInitCheck', 'missingRequiredInitCheckAgents', 'invalidInitReviewerDeliveries', 'delivery_not_acknowledged', 'renderManagedInitReviewerDispatches', 'blockingInitCheckIssues'],
+      },
+      {
+        relPath: 'packages/main/src/core/reviewer-launch-guidance.ts',
+        patterns: ['renderManagedInitReviewerDispatches', 'managedDispatch: true', 'host_run_status', 'init_check_set accepts only a matching live managed dispatch'],
+      },
+      {
+        relPath: 'packages/main/src/core/managed-host-run.ts',
+        patterns: ['resolveManagedDispatchInvocation', 'signManagedInitInvocation', 'lattice.managed_init_invocation.v1', 'initInvocationConsumption', 'lattice.managed_dispatch_invocation_consumption.v2', 'lattice.managed_dispatch_process_group_consumption.v1', 'managed_dispatch_process_group_invocation_consumed', 'managedDispatchInvocationConsumptionIsValid', 'managedDispatchOutputDigest', 'managed-dispatch-output', 'managed dispatch scope output does not match the completed receipt', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managedDispatchOutputValidation', 'afterManagedDispatchOutputValidated', 'managed_dispatch_output_changed_before_seal', 'managedDispatchOutputFailureReason', 'managed_dispatch_story_missing', 'managed_dispatch_output_missing', 'managed_dispatch_invocation_unconsumed', 'managed_dispatch_output_unreadable', 'managed_dispatch_output_invalid', 'initCheckSignatureIsValid', 'row.deliveryRunId === input.runId', 'verifyScopeCheckContentSignature', 'scopeCheck?.deliveryRunId !== input.runId'],
+      },
+      {
+        relPath: 'packages/main/src/handlers/host-run.ts',
+        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'", 'proof-or-stop-review-scope-plan', 'managed_review_candidate_spec_missing', 'candidate_spec_route'],
+      },
+      {
+        relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
+        patterns: ['caller-supplied required reviewer role must fail closed', 'Promise.all(agentTypes.map', 'barrier timeout: peer reviewer never became ready', 'tamper-story', 'tamper-role', 'tamper-signature', 'missing-signature', 'malformed-null', 'attestation-$peer.json', 'env -u LATTICE_MANAGED_INIT_INVOCATION', 'a terminal managed dispatch attestation must stay unusable', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
+      },
+      {
+        relPath: 'packages/main/src/core/host-run.ts',
+        patterns: ['CANONICAL_CODEX_NONINTERACTIVE_FLAGS', 'managedDispatchCodexSandboxMode', 'materializeHostRunLaunch', "existsSync('/.dockerenv')", "existsSync('/run/.containerenv')", "launchProfile === 'managed_dispatch'", "'danger-full-access'", 'read_manifest_candidate_spec_digest_missing'],
+      },
+      {
+        relPath: 'packages/main/tests/managed-review-candidate-preflight.test.mjs',
+        patterns: ['read_manifest_candidate_spec_digest_missing', 'managed_review_candidate_spec_missing', 'missing candidate routing must not launch the provider', 'MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN'],
+      },
+      {
+        relPath: 'packages/main/src/core/host-execution-readiness.ts',
+        patterns: ['CANONICAL_CODEX_NONINTERACTIVE_FLAGS', "'--skip-git-repo-check'", "'--ephemeral'", "'--ignore-rules'"],
+      },
+      {
+        relPath: 'packages/main/tests/managed-init-dispatch-required-output.test.mjs',
+        patterns: ['managedDispatch must fail when the provider exits zero without its bound init_check_set output', 'a same-role result from another run must not satisfy managed dispatch output', 'a direct init-check Store write must not substitute for invocation consumption', 'a tampered INIT result must not satisfy managed dispatch output', 'an unreadable INIT result must remain fail-closed', 'materializeHostRunLaunch', 'managed_dispatch_output_missing', 'managed_dispatch_invocation_unconsumed', 'managed_dispatch_output_unreadable', "managedDispatchCodexSandboxMode('linux', true)", "managedDispatchCodexSandboxMode('linux', false)", "managedDispatchCodexSandboxMode('darwin', true)"],
+      },
+      {
+        relPath: 'packages/main/tests/managed-scope-dispatch-required-output.test.mjs',
+        patterns: ['managed scope dispatch must fail when provider completion lacks scope_check_save output', 'direct Store writes must not substitute for scope_check_save invocation consumption', 'managed_dispatch_invocation_unconsumed', 'story_review must reject a scope artifact whose managed delivery did not complete', 'tampered scope evidence must not satisfy managed dispatch output', 'resolveManagedDispatchInvocation', 'deliveryRunId', 'MANAGED_SCOPE_DISPATCH_REQUIRED_OUTPUT_GREEN'],
+      },
+      {
+        relPath: 'packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs',
+        patterns: ['Review PLAN scope coverage', 'scope_check_save', 'deliveryRunId', 'verifyManagedDispatchDelivery', 'a rejected payload must not consume the managed scope invocation before a corrected retry', 'a completed scope run cannot authorize replacement evidence with a recomputed public hash', 'story_review must reject post-terminal replacement of managed scope evidence', 'a real isolated provider cannot replace scope_check_save with a direct public-hash Store write', 'managed_dispatch_invocation_unconsumed', 'validated scope bytes cannot be replaced before terminal sealing', 'managed_dispatch_output_changed_before_seal', 'MANAGED_SCOPE_REVIEWER_DISPATCH_E2E_GREEN'],
       },
     ],
   },
@@ -10786,11 +10867,15 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/scope-check.ts',
-        patterns: ['scope_check_save', 'signScopeCheck'],
+        patterns: ['scope_check_save', 'signScopeCheck', 'resolveManagedDispatchInvocation', 'deliveryRunId'],
+      },
+      {
+        relPath: 'packages/main/src/core/scope-check-integrity.ts',
+        patterns: ['scopeCheckContentHash', 'verifyScopeCheckContentSignature', 'deliveryRunId'],
       },
       {
         relPath: 'packages/main/src/handlers/story-review.ts',
-        patterns: ['verifyScopeCheckSignature', 'scope-check.json', 'scope_check_save'],
+        patterns: ['verifyScopeCheckSignature', 'verifyManagedDispatchDelivery', 'scope_check_delivery_invalid', 'scope-check.json', 'scope_check_save'],
       },
     ],
   },
@@ -11437,6 +11522,9 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
   const contracts = readFileSync(join(root, 'packages/main/src/core/prompt-contracts.ts'), 'utf8');
   assert(producer.includes('resolveFullStoryBaseHead(store, signedWorkspaceRoot, args.storyId)'), 'Review-run producer must resolve its own full-story comparison base');
   assert(!producer.includes('args.fullStoryBaseHead'), 'Caller-supplied full-story base cannot become evidence');
+  assert(context.includes('resolveStoryIntegrationTarget(gitCwd, story)')
+    && context.includes('story.integrationTarget !== undefined')
+    && context.includes('FULL_STORY_BASE_INVALID:'), 'Review-run comparison base must distinguish a frozen Story integration target from legacy fallback and fail closed on malformed stored authority');
   assert(context.includes("['rev-parse', '--verify', `${ref}^{commit}`]"), 'Full-story base must resolve to an existing commit, not merely a revision-shaped string');
   assert(context.includes('FULL_STORY_BASE_UNAVAILABLE:'), 'Unavailable signed comparison bases must have a distinct refusal');
   assert(context.includes('changedFilesBetweenRenameAware(gitCwd, fullStoryBaseRef, asOfRef)')
@@ -11447,6 +11535,30 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
   assert(consumer.includes('fullStoryBaseHead: envelope.fullStoryBaseHead'), 'Historical verifier must consume the signed comparison base');
   assert(contracts.includes('validateFullStoryBaseHead(record.fullStoryBaseHead)'), 'Prompt contract must validate the base object-id syntax');
   assert(readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('optional fullStoryBaseHead'), 'Comparison-base process semantics must remain registered');
+}
+
+// Topology implementation provenance is Story-bound and branch-name independent.
+{
+  const provenance = read('packages/main/src/core/topology-critic-receipt.ts');
+  const dispatch = read('packages/main/src/handlers/story-dispatch.ts');
+  const receipt = read('packages/main/src/handlers/proofstory.ts');
+  assert(provenance.includes("['log', `${baseCommit}..HEAD`")
+    && !provenance.includes("['log', 'main..HEAD'")
+    && !provenance.includes("['log', '-n', '50'"),
+  'Topology implementation provenance must use only the frozen commit range');
+  assert(dispatch.includes('resolveFullStoryBaseHead(store, root, story.storyId)')
+    && dispatch.includes('story.integrationTarget !== undefined')
+    && dispatch.includes('currentImplementationBusinessCommit(gitCwd, frozenStoryBase)'),
+  'Topology dispatch must bind implementation provenance to the frozen Story base');
+  assert(receipt.includes('resolveFullStoryBaseHead(store, ctx.root, storyId)')
+    && receipt.includes('story.integrationTarget !== undefined')
+    && receipt.includes('deriveImplementationProvenance(')
+    && receipt.includes('frozenStoryBase,'),
+  'Topology receipt production must verify implementation provenance against the frozen Story base');
+  assert(provenance.includes('IMPLEMENTATION_PROVENANCE_COMMIT_MISSING')
+    && dispatch.includes('topologyProvenanceDiagnostic')
+    && dispatch.includes('required,'),
+  'Topology provenance refusal must expose stable optional/required diagnostics');
 }
 
 

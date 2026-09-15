@@ -5,9 +5,11 @@ import { digestScopeFreezeCheck } from '../core/scope-anti-expansion.js';
 import {
   missingRequiredInitCheckAgents,
   blockingInitCheckIssues,
+  invalidInitReviewerDeliveries,
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
 import type { InitCheckData } from '../core/types.js';
+import { renderManagedInitReviewerDispatches } from '../core/reviewer-launch-guidance.js';
 
 interface InitPreflightArgs {
   storyId: string;
@@ -125,8 +127,9 @@ function initCheckRow(
 ): PrerequisiteRow {
   const id = 'init-check';
   const fix =
-    `run the two INIT reviewers (proof-or-stop-review-story-init + proof-or-stop-product-reviewer) then ` +
-    `proof-or-stop init_check_set --storyId=${storyId}`;
+    `${renderManagedInitReviewerDispatches(storyId, ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'])}\n` +
+    `If a managed reviewer cannot be launched, use the explicit operator fallback: proof-or-stop init_check_repair ` +
+    `'${JSON.stringify({ storyId, acknowledge: true, fallbackReason: '<why both independent INIT reviewers are unavailable and what was checked instead>' })}'`;
   if (!initCheck) {
     return { id, status: 'MISSING', fix, detail: 'init-check.json is missing (no INIT reviewer has persisted yet)' };
   }
@@ -151,6 +154,17 @@ function initCheckRow(
       status: 'MISSING',
       fix,
       detail: `required INIT reviewer(s) not yet persisted: ${missingAgents.join(', ')}`,
+    };
+  }
+  const invalidDeliveries = invalidInitReviewerDeliveries(initCheck, projectRoot, storyId);
+  if (invalidDeliveries.length > 0) {
+    return {
+      id,
+      status: 'BLOCKED',
+      fix,
+      detail: `required INIT reviewer delivery not acknowledged: ${invalidDeliveries
+        .map(row => `${row.agentId}:${row.reason}`)
+        .join(', ')} [delivery_not_acknowledged]`,
     };
   }
   const blockers = blockingInitCheckIssues(initCheck);

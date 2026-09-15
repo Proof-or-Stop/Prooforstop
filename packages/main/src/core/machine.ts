@@ -14,7 +14,7 @@ import { resolveAuditConfig } from './audit-config.js';
 import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
 import { safeReadScopeContract } from './proof-or-stop-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
-import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, describeInitCheckSignatureDomain, initCheckSignatureIsValid, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
+import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, describeInitCheckSignatureDomain, initCheckSignatureIsValid, invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
@@ -72,6 +72,7 @@ import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -243,17 +244,7 @@ function initPreflightGuidance(storyId: string): string {
 }
 
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
-  const dispatches = missingAgents.map(agentId => {
-    if (agentId === 'proof-or-stop-review-story-init') {
-      return `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "<owner-produced standard prompt>" })`;
-    }
-    if (agentId === 'proof-or-stop-product-reviewer') {
-      return `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: "<owner-produced standard prompt>" })`;
-    }
-    throw new Error(`unsupported required INIT reviewer: ${agentId}`);
-  });
-  return `→ Preferred: have the Story owner separately dispatch only the missing reviewer records:\n${dispatches.join('\n')}\n` +
-    `   Every reviewer independently performs its reviewerWrite by calling init_check_set regardless of pass/fail; review_run_start begins only after the Story enters REVIEW, not during INIT.`;
+  return renderManagedInitReviewerDispatches(storyId, missingAgents);
 }
 
 function renderScopeFreezeIssue(storyId: string, issue: ScopeFreezeIssue): string {
@@ -561,6 +552,7 @@ export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
     // same one the carry-forward crosses — so "trusted" cannot mean two things.
     return initCheckSignatureIsValid(context.storyId, context.store, context.projectRoot, initCheck)
       && missingRequiredInitCheckAgents(initCheck).length === 0
+      && invalidInitReviewerDeliveries(initCheck, context.projectRoot, context.storyId).length === 0
       && blockingInitCheckIssues(initCheck).length === 0;
   } catch (err) {
     // B-e71f F-016: xstate guard must not throw (it would push the actor into the error state), but going completely silent
@@ -1323,10 +1315,7 @@ export function getGuardFailureReason(
       return `Cannot enter INIT_CHECK: init-check.json is missing. [missing_init_check]\n` +
         `${initPreflightGuidance(storyId)}\n` +
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
-        `→ Preferred: have the Story owner prepare both independent reviewers\n` +
-        `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "<owner-produced standard prompt>" })\n` +
-        `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: "<owner-produced standard prompt>" })\n` +
-        `   Each reviewer independently performs its reviewerWrite by calling init_check_set; review_run_start begins only after the Story enters REVIEW, not during INIT.\n` +
+        `${renderMissingInitReviewerDispatches(storyId, [...REQUIRED_INIT_CHECK_AGENTS])}\n` +
         `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   proof-or-stop init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
@@ -1343,6 +1332,12 @@ export function getGuardFailureReason(
         `${renderAgentLivenessGuidance({ label: 'missing INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   proof-or-stop init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
+    }
+    const invalidDeliveries = invalidInitReviewerDeliveries(initCheck, projectRoot ?? process.cwd(), storyId);
+    if (invalidDeliveries.length > 0) {
+      return `Cannot enter INIT_CHECK: required reviewer delivery receipt is missing, incomplete, or mismatched. [delivery_not_acknowledged]\n` +
+        invalidDeliveries.map(row => `  - ${row.agentId} run ${row.runId}: ${row.reason}`).join('\n') + '\n' +
+        `${renderMissingInitReviewerDispatches(storyId, invalidDeliveries.map(row => row.agentId))}`;
     }
     const blockers = blockingInitCheckIssues(initCheck);
     if (blockers.length > 0) {

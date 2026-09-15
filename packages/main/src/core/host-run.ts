@@ -60,6 +60,7 @@ import { StringDecoder } from 'node:string_decoder';
 import { fileURLToPath } from 'node:url';
 
 import {
+  CANONICAL_CODEX_NONINTERACTIVE_FLAGS,
   canonicalReviewHostLauncherSpec,
   classifyHostExecutionDiagnosticText,
   classifyHostExecutionFailure,
@@ -382,7 +383,7 @@ export interface HostRunArgs {
   /** Optional caller cancellation. */
   signal?: AbortSignal;
   /** Exact protected launcher profile owned by cross_host_review or the managed-review worker. */
-  launchProfile?: 'cross_host_review_codex' | 'managed_reviewer';
+  launchProfile?: 'cross_host_review_codex' | 'managed_reviewer' | 'managed_dispatch';
   finalResultSchema?: typeof ACCEPTANCE_REVIEW_FINAL_SCHEMA;
   /**
    * Internal durable-run identity for the managed Claude prompt custody path.
@@ -1034,7 +1035,7 @@ export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
 
 export type ManagedReviewFinalEnvelopeClassification =
   | { kind: 'ordinary' }
-  | { kind: 'malformed' }
+  | { kind: 'malformed'; reason?: string }
   | { kind: 'valid'; envelope: ManagedReviewFinalEnvelopeRecord };
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
@@ -1120,6 +1121,14 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
     'readManifest', 'readLog', 'readDiagnostics', 'note', 'findings', 'inventoryCritic',
   ]);
   const readManifest = parsed.readManifest;
+  if (isPlainRecord(readManifest)
+    && typeof readManifest.candidateSpecSetDigest !== 'string') {
+    return { kind: 'malformed', reason: 'read_manifest_candidate_spec_digest_missing' };
+  }
+  if (isPlainRecord(readManifest)
+    && typeof readManifest.corpusDigest !== 'string') {
+    return { kind: 'malformed', reason: 'read_manifest_corpus_digest_missing' };
+  }
   const validReadManifest = isPlainRecord(readManifest)
     && isStringArray(readManifest.filesReadFully)
     && isStringArray(readManifest.filesTriagedByName)
@@ -1840,6 +1849,25 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       error: NodeJS.ErrnoException,
     ): void => {
       if (settled) return;
+      // The descriptor authorizes the legacy in-run callback. A provider that
+      // has already emitted exactly one bounded final-result candidate no
+      // longer needs that callback channel: the managed worker will validate
+      // the candidate's schema and exact Story/reviewer tuple before it can
+      // seal evidence. Codex can close fd 3 while its normal JSON stream is
+      // still draining, which Darwin may report as a late EPIPE/ECONNRESET.
+      // Do not let that peer-close overwrite the provider's later authoritative
+      // exit status. Missing, multiple, oversized or malformed candidates still
+      // fail closed in the managed final-result parser; an early descriptor
+      // failure with no candidate keeps the existing kill-and-fail behavior.
+      const descriptorPeerClosedAfterFinal = channel === 'review invocation descriptor'
+        && (error.code === 'EPIPE' || error.code === 'ECONNRESET')
+        && (() => {
+          const finalResult = finalResultScanner.snapshot();
+          return finalResult.count === 1
+            && finalResult.truncated === false
+            && finalResult.result !== null;
+        })();
+      if (descriptorPeerClosedAfterFinal) return;
       terminalReason = 'child_error';
       failureKind = preferredHostFailure(failureKind, 'unknown');
       const detail = error.code ?? error.message ?? 'unknown';
@@ -2078,19 +2106,37 @@ export function managedClaudePromptDirectoryForRun(cwd: string, runId: string): 
   return join(cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts', runId);
 }
 
-function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
+export function managedDispatchCodexSandboxMode(
+  platform: NodeJS.Platform = process.platform,
+  containerBoundaryPresent = existsSync('/.dockerenv') || existsSync('/run/.containerenv'),
+): 'danger-full-access' | null {
+  return platform === 'linux' && containerBoundaryPresent ? 'danger-full-access' : null;
+}
+
+export function materializeHostRunLaunch(
+  args: HostRunArgs,
+  managedDispatchEnvironment?: { platform: NodeJS.Platform; containerBoundaryPresent: boolean },
+): MaterializedLaunch {
   const selection = normalizeHostRunModelSelection(args);
+  const managedDispatchSandbox = args.launchProfile === 'managed_dispatch' && args.host === 'codex'
+    ? managedDispatchCodexSandboxMode(
+      managedDispatchEnvironment?.platform,
+      managedDispatchEnvironment?.containerBoundaryPresent,
+    )
+    : null;
   if (args.launchProfile === 'cross_host_review_codex'
-    || (args.launchProfile === 'managed_reviewer' && args.host === 'codex')) {
+    || (args.launchProfile === 'managed_reviewer' && args.host === 'codex')
+    || managedDispatchSandbox !== null) {
     if (args.host !== 'codex') throw new Error('host_run: protected Codex review profile requires host=codex');
     // The managed-review worker already runs the provider inside the signed
-    // Darwin read-only lane. Asking Codex to install a second seatbelt profile
-    // inside that lane fails with sandbox_apply: Operation not permitted and
-    // prevents even read-only evidence collection. Disable only the nested
-    // provider sandbox; the outer lane remains the enforcement boundary.
+    // Darwin read-only lane, while managed dispatch bypasses nested sandboxing
+    // only when a Linux Docker/OCI marker path is present.
+    // Asking Codex to install another seatbelt/bwrap profile inside either outer
+    // boundary can fail before evidence collection. Uncontained Linux and Darwin
+    // managed dispatches deliberately retain the ordinary Codex sandbox.
     const sandboxMode = args.launchProfile === 'managed_reviewer'
       ? 'danger-full-access'
-      : 'read-only';
+      : managedDispatchSandbox ?? 'read-only';
     return {
       command: 'codex',
       // Formal managed review consumes Codex's observable JSON event stream:
@@ -2098,6 +2144,9 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
       // not ordinary rendered final prose.
       argv: [
         'exec', '--json',
+        ...(args.launchProfile === 'managed_dispatch'
+          ? [...CANONICAL_CODEX_NONINTERACTIVE_FLAGS]
+          : []),
         ...(selection.model ? ['--model', selection.model] : []),
         ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
         '-s', sandboxMode, '-C', args.cwd, '-',
@@ -2423,7 +2472,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     }
     let spawn: HostRunSpawnResult;
     try {
-      spawn = await invokeRunner(materializeLaunch(args), admission);
+      spawn = await invokeRunner(materializeHostRunLaunch(args), admission);
     } catch (error) {
       if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
       throw error;
@@ -2593,7 +2642,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
 
   let spawn: HostRunSpawnResult;
   try {
-    spawn = await invokeRunner(materializeLaunch(args), admission);
+    spawn = await invokeRunner(materializeHostRunLaunch(args), admission);
   } catch (error) {
     if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
     throw error;

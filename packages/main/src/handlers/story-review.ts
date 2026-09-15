@@ -28,6 +28,7 @@ import { resolveAuditConfig } from '../core/audit-config.js';
 import { safeReadScopeContract } from '../core/proof-or-stop-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
+import { verifyManagedDispatchDelivery } from '../core/managed-host-run.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
@@ -43,6 +44,11 @@ import { tryBuildMaterialClassificationSnapshotForDiagnostics, type MaterialClas
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
+import {
+  renderClaudeFreshReviewerHandoff,
+  renderCodexFreshReviewerHandoff,
+  REVIEWER_CHILD_ID_WAIT_BOUNDARY,
+} from '../core/reviewer-launch-guidance.js';
 
 export { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 
@@ -607,7 +613,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=proof-or-stop-review-scope-plan\`; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
+          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Preferred controller-owned path: \`proof-or-stop host_run '{"host":"codex","storyId":"${args.storyId}","agentType":"proof-or-stop-review-scope-plan","managedDispatch":true,"detach":true,"json":true}'\`; this path derives the canonical dispatch prompt and cannot complete without an exact signed scope_check_save delivery. Native-host alternative: first run \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=proof-or-stop-review-scope-plan\`. For Codex, launch exactly one child with \`${renderCodexFreshReviewerHandoff('review_scope_plan', '<the exact returned prompt>')}\`; for Claude, launch exactly one child with \`${renderClaudeFreshReviewerHandoff('proof-or-stop-review-scope-plan', '<the exact returned prompt>')}\`. ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} The reviewer must execute the scope review directly and must not spawn or delegate another reviewer; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
         // Verify both legacy and read-manifest-bound signatures without relying on cwd.
@@ -618,6 +624,21 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             message: 'scope-check.json signature verification failed; must be written by the scope agent via scope_check_save',
           });
         } else {
+          if (scopeData.deliveryRunId) {
+            const delivery = verifyManagedDispatchDelivery({
+              root: ctx.root,
+              runId: scopeData.deliveryRunId,
+              storyId: args.storyId,
+              agentType: 'proof-or-stop-review-scope-plan',
+            });
+            if (!delivery.valid) {
+              issues.push({
+                type: 'scope_check_delivery_invalid',
+                severity: 'blocker',
+                message: `scope-check.json managed delivery receipt is invalid: ${delivery.reason}`,
+              });
+            }
+          }
           // Verify review round matches current round
           if (story.currentReviewRound && scopeData.reviewRound !== story.currentReviewRound) {
             issues.push({

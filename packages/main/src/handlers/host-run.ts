@@ -73,6 +73,7 @@ import {
   evaluateAcceptanceTopologyForContext,
   evaluatePreReviewCheckForContext,
 } from './proofstory.js';
+import { createStoryDispatchHandlers } from './story-dispatch.js';
 
 export interface HostRunCommandArgs extends FormatArgs {
   idempotencyKey?: string;
@@ -88,6 +89,7 @@ export interface HostRunCommandArgs extends FormatArgs {
   deadlineMs?: number;
   detach?: boolean;
   managedReview?: boolean;
+  managedDispatch?: boolean;
   model?: string;
   reasoningEffort?: HostRunReasoningEffort;
 }
@@ -413,6 +415,10 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         managedPromptDigest: string;
         fullScanEscalationReason?: string;
       } | null = null;
+      let managedDispatch = false;
+      if (args.managedReview === true && args.managedDispatch === true) {
+        throw new Error('host_run: --managedReview and --managedDispatch are mutually exclusive');
+      }
       if (args.managedReview === true) {
         if (hasPrompt || hasPromptFile) {
           throw new Error('host_run: --managedReview derives the exact prompt from ReviewRun; do not pass --prompt or --promptFile');
@@ -426,6 +432,12 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (!storyFilesHash) throw new Error('host_run: --managedReview requires a ReviewRun with storyFilesHash binding');
         const canonicalReportStatuses = collectManagedReviewCanonicalReportStatuses(ctx, storyId);
         const candidateArtifact = ctx.store.readCandidateSpecSet(storyId);
+        if (!candidateArtifact) {
+          throw new Error(
+            'host_run: managed_review_candidate_spec_missing: candidate-spec-set.json is required before managed review; '
+            + `run candidate_spec_route for Story ${storyId} and then start a fresh ReviewRun`,
+          );
+        }
         const fullScanBinding: ManagedReviewFullScanBinding | undefined = candidateArtifact?.fullScan === true
           ? (() => {
             if (typeof candidateArtifact.scanEscalationReason !== 'string' || candidateArtifact.scanEscalationReason.length === 0) {
@@ -445,6 +457,27 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           managedPromptDigest: managedReviewerPromptDigest(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding),
           ...(fullScanBinding ? { fullScanEscalationReason: fullScanBinding.scanEscalationReason } : {}),
         };
+      } else if (args.managedDispatch === true) {
+        if (hasPrompt || hasPromptFile) {
+          throw new Error('host_run: --managedDispatch derives the exact canonical prompt; do not pass --prompt or --promptFile');
+        }
+        const managedDispatchPhase = agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
+        if (!storyId || ![
+          'proof-or-stop-review-story-init',
+          'proof-or-stop-product-reviewer',
+          'proof-or-stop-review-scope-plan',
+        ].includes(agentType)) {
+          throw new Error('host_run: --managedDispatch requires storyId and a supported required reviewer agentType');
+        }
+        if (reviewRunId || lane || normalizeString(args.phase)) {
+          throw new Error('host_run: --managedDispatch derives phase and role binding; do not pass reviewRunId, lane, or phase');
+        }
+        const story = ctx.store.readStory(storyId);
+        if (story.phase !== managedDispatchPhase) {
+          throw new Error(`host_run: --managedDispatch ${agentType} requires Story phase ${managedDispatchPhase}, got ${story.phase}`);
+        }
+        promptText = createStoryDispatchHandlers(ctx).dispatch({ storyId, agentType }).prompt;
+        managedDispatch = true;
       } else if (hasPrompt === hasPromptFile) {
         throw new Error('host_run: provide exactly one of --prompt or --promptFile (or use --managedReview with an exact ReviewRun)');
       } else if (hasPromptFile) {
@@ -516,7 +549,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           projectRootHash: projectRootHashFor(ctx.root),
           ...(formalReviewBinding
             ? { profile: 'managed_reviewer', reviewBinding: formalReviewBinding, isolateManagedReview: true }
-            : {}),
+            : managedDispatch ? { profile: 'managed_dispatch' } : {}),
         },
         { launchWorker: options.launchWorker ?? injectedLauncher },
       );

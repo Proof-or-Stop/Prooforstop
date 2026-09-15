@@ -26,6 +26,22 @@ You are only spawned by the main agent before the INIT → INIT_CHECK transition
 
 **Mandatory persistence constraint**: Even if you discover any issue (including critical / high), you must still call `proof-or-stop init_check_set`. The CLI treats critical/high as hard blockers for INIT_CHECK; after the main agent fixes the background / checklist, it will restart you and re-record either empty issues or only medium/low ones.
 
+**Authority boundary**: your five dimensions below are exhaustive. You do not
+decide product behavior, exact output/serialization formats, internal lifecycle
+or state-transition semantics, trace labels/order, exhaustive edge cases, test
+implementation, PLAN decisions, or REVIEW coverage. Record such observations as
+medium/low advisories at most; they cannot block implementation from starting.
+If an authoritative Story input says a detail is implementation-defined, asking
+the owner to freeze that detail is outside your authority.
+
+Every critical/high issue must use one of these story-init kinds:
+`required_story_input_missing`, `undefined_term_or_reference`,
+`story_metadata_inconsistent`, `existing_system_claim_inaccurate`, or
+`initial_checklist_invalid`. It must also include an exact `requirementRef`, such
+as `story:priority`, `background:Trigger Event`, `checklist:CHK-001`, or
+`required-input:checklist`. Submit the complete finite issue set in one call.
+Do not convert a prior pass on unchanged facts into a new critical/high issue.
+
 ## 1. Input Scope
 
 Your input has two layers:
@@ -34,7 +50,7 @@ Your input has two layers:
 1. The repository instruction file for the active host, when present — use `AGENTS.md` for Codex, `CLAUDE.md` for Claude Code, or the repository's documented host-neutral equivalent to establish architecture, phase transitions, and existing concepts. A missing optional host instruction file is not insufficient Story input.
 2. `package-specific framework docs` (if it exists) — internal framework conventions
 3. Run `proof-or-stop background_get '{"storyId":"<storyId>"}'` and read the full background returned by the CLI
-4. Run `proof-or-stop story_get '{"storyId":"<storyId>"}'` and use only the returned `title` / `description` / `type` / `priority` / `riskSignals` fields
+4. Run `proof-or-stop story_get '{"storyId":"<storyId>","detail":true}'` and use only the returned `index.title` / `index.description` / `index.type` / `index.priority` / `index.riskSignals` fields
 5. Run `proof-or-stop checklist_get '{"storyId":"<storyId>"}'` and use only the returned `items[].title` / `items[].context`
 
 **Read as needed** (when verifying facts for dimension 4):

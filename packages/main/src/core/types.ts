@@ -2849,6 +2849,8 @@ export interface ScopeCheckFeature {
 export interface ScopeCheckData {
   ownerCoverage?: import('./plan-touchpoint-coverage.js').PlanOwnerCoverage;
   storyId: string;
+  /** Exact controller-owned managed dispatch that delivered this scope verdict. */
+  deliveryRunId?: string;
   checkedAt: string;
   features: ScopeCheckFeature[];
   /** Signed self-reported reviewer read coverage. Missing only on legacy scope checks. */
@@ -2887,15 +2889,32 @@ export interface ScopeCheckData {
 // agentId field is reviewer's self-reported id, **for audit traceability only** (EXP-001 disproved mechanical verifiability of agentId, see
 // docs/story/actives/B-e71f/experiments/exp-001.md), and is not a gate decision input on its own; when `agentResults`
 // is absent it is one of the inputs the gate's decision array is synthesized from, and is bound through that value.
-// issues DO gate: blockingInitCheckIssues treats critical / high INIT-applicable
-// issues as blockers. Post-implementation evidence gaps are deferred; legacy
-// kind-less high issues remain fail-closed. Medium / low are advisory.
+// issues DO gate: blockingInitCheckIssues treats persisted critical / high
+// INIT-applicable issues as blockers. New reviewer writes retain that severity
+// only when the actor-specific kind and exact requirementRef are valid;
+// otherwise the handler records a medium advisory with reportedSeverity and a
+// machine-owned dispositionReason. Post-implementation evidence gaps are
+// deferred. Existing signed legacy kind-less high records remain fail-closed
+// until that reviewer lane submits a replacement result.
 
-export const INIT_CHECK_ISSUE_KINDS = [
+export const PRODUCT_INIT_BLOCKING_ISSUE_KINDS = [
   'requirements_ambiguous',
   'user_outcome_unspecified',
   'verification_plan_unexecutable',
   'scope_or_safety_boundary_missing',
+] as const;
+
+export const STORY_INIT_BLOCKING_ISSUE_KINDS = [
+  'required_story_input_missing',
+  'undefined_term_or_reference',
+  'story_metadata_inconsistent',
+  'existing_system_claim_inaccurate',
+  'initial_checklist_invalid',
+] as const;
+
+export const INIT_CHECK_ISSUE_KINDS = [
+  ...PRODUCT_INIT_BLOCKING_ISSUE_KINDS,
+  ...STORY_INIT_BLOCKING_ISSUE_KINDS,
   'post_implementation_evidence_missing',
 ] as const;
 
@@ -2909,11 +2928,22 @@ export interface InitCheckIssue {
    */
   id?: string;
   /**
-   * Stage applicability of the observation. Legacy records may omit this field
-   * and retain the original fail-closed severity behavior.
+   * Stage applicability of the observation. Existing signed legacy records may
+   * omit this field and remain fail-closed while persisted; newly submitted
+   * kind-less critical/high issues are normalized to medium advisories.
    */
   kind?: InitCheckIssueKind;
+  /**
+   * Stable pointer to the authoritative INIT input that makes a critical/high
+   * issue blocking, for example `story:description`, `background:Trigger Event`,
+   * `checklist:CHK-001`, or `verification-intent:CHK-001:happy:0`.
+   */
+  requirementRef?: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
+  /** Original reviewer severity when the handler narrows an out-of-authority blocker to advisory. */
+  reportedSeverity?: 'critical' | 'high';
+  /** Machine-owned explanation for a severity normalization at the INIT authority boundary. */
+  dispositionReason?: 'outside_init_reviewer_blocking_authority' | 'missing_or_invalid_requirement_ref' | 'unchanged_input_blocker_expansion';
   /** Concrete description (runtime validation trim().length >= 1, blank strings forbidden) */
   desc: string;
 }
@@ -2948,8 +2978,8 @@ export interface InitCheckData {
    */
   reviewRound: string;
   /**
-   * Reviewer's self-reported agent id (subagent session id or human-assigned identifier).
-   * **Not part of the signature / not part of gate validation**, only an audit trace field (EXP-001 has disproved the mechanical distinguishability of agentId).
+   * Canonical reviewer role. Independent records are accepted only when their
+   * agentResults row also carries a controller-verified deliveryRunId.
    */
   agentId: string;
   /**
@@ -2970,6 +3000,16 @@ export interface InitCheckData {
   agentResults?: Array<{
     agentId: string;
     checkedAt: string;
+    /** Controller-owned managed run whose live provider process wrote this verdict. */
+    deliveryRunId?: string;
+    /** Signed digest of every authoritative INIT input this reviewer could cite as a blocker. */
+    authorityInputHash?: string;
+    /**
+     * Signed first verdict observed for this authorityInputHash. Same-input
+     * retries compare against this immutable baseline rather than allowing an
+     * intermediate advisory write to erase an earlier PASS or blocker set.
+     */
+    authorityBaselineIssues?: InitCheckIssue[];
     issues: InitCheckIssue[];
   }>;
   /**

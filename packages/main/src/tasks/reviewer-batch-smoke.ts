@@ -258,20 +258,31 @@ function laneByName(report: ReviewerBatchReport, lane: string) {
 }
 
 /**
- * Assert a needs-run lane's launchInstruction is the canonical Agent subagent-spawn
- * form — NOT a runnable dispatch CLI command. Asserts the SHAPE (prefix, storyId,
- * absence of "dispatch") so the old broken dispatch template would FAIL the smoke.
+ * Assert a needs-run lane carries the complete host-neutral fresh-context launch
+ * contract rather than the legacy Claude-only Agent(...) shortcut.
  */
 function assertAgentLaunchInstruction(instruction: string | null, lane: string): void {
   assert.ok(instruction, `${lane}: needs-run lane carries a launch instruction`);
   const value = instruction!;
-  assert.match(
-    value,
-    new RegExp(`^Agent\\(\\{ subagent_type: "proof-or-stop-review-${lane}"`),
-    `${lane}: launch instruction is the canonical Agent-spawn form`,
-  );
+  assert.match(value, new RegExp(`agentType[^\\n]+proof-or-stop-review-${lane}`));
   assert.ok(value.includes(STORY_ID), `${lane}: launch instruction names the storyId`);
-  assert.ok(!value.includes('dispatch'), `${lane}: launch instruction is NOT a dispatch CLI command`);
+  assert.match(value, /spawn_agent\(\{ task_name:/, `${lane}: Codex launch is present`);
+  assert.match(value, /fork_turns: "none"/, `${lane}: Codex launch drops parent history`);
+  assert.match(value, /followup_task\(\{ target: <returned reviewer target>, message: <the same exact prompt> \}\)/,
+    `${lane}: Codex launch redundantly delivers the canonical prompt to the returned target`);
+  assert.match(value, /agent id or canonical task name/, `${lane}: current Codex target forms are accepted`);
+  assert.match(value, /do not wait until the reviewer has acknowledged the assignment/i,
+    `${lane}: the owner waits only after delivery acknowledgement`);
+  assert.match(value, /Agent\(\{ subagent_type:/, `${lane}: Claude launch is present`);
+  assert.match(value, /Other hosts launch one equivalent fresh-context reviewer task/, `${lane}: other hosts retain the boundary`);
+  assert.match(value, /passes the returned prompt unchanged/, `${lane}: launch uses the canonical dispatch prompt`);
+  assert.match(value, /Retain every returned child agent id/, `${lane}: exact child ids are retained`);
+  assert.match(value, /never call wait with an empty target\/receiver set/, `${lane}: empty waits are forbidden`);
+  assert.match(value, /child id must be nonempty/, `${lane}: empty child ids are forbidden`);
+  assert.match(value, /multiple lanes.*distinct/, `${lane}: parallel lane child ids must be distinct`);
+  const taskName = value.match(/spawn_agent\(\{ task_name: "([^"]+)"/)?.[1];
+  assert.match(taskName ?? '', /^[a-z0-9_]+$/, `${lane}: Codex task name uses only accepted characters`);
+  assert.equal(taskName, `review_${lane.replace(/-/g, '_')}`, `${lane}: Codex task name is canonical`);
 }
 
 // ---- Policy / registration assertions -------------------------------------

@@ -6,6 +6,11 @@ import { isAbsolute, join } from 'node:path';
 
 export const CANONICAL_REVIEW_HOSTS = ['codex', 'claude', 'agy'] as const;
 export type CanonicalReviewHost = typeof CANONICAL_REVIEW_HOSTS[number];
+export const CANONICAL_CODEX_NONINTERACTIVE_FLAGS = [
+  '--skip-git-repo-check',
+  '--ephemeral',
+  '--ignore-rules',
+] as const;
 
 export type HostExecutionProgressMode =
   | 'jsonl'
@@ -119,9 +124,7 @@ export function canonicalReviewHostLauncherSpec(host: CanonicalReviewHost): Host
         'codex',
         'exec',
         '--json',
-        '--skip-git-repo-check',
-        '--ephemeral',
-        '--ignore-rules',
+        ...CANONICAL_CODEX_NONINTERACTIVE_FLAGS,
         '-',
       ],
     progressMode: 'jsonl',

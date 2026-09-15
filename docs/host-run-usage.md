@@ -242,6 +242,46 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 也不会改变 pass/finding 的签名与 freshness 门禁。在途 legacy pass 仍只按其
 原始 ReviewRun/round/Envelope 解释，不能因后来切换 flag 被重新绑定。
 
+INIT reviewer 和 PLAN 的必需 scope reviewer 可使用独立的 `managedDispatch` 模式。它不接受调用方 prompt，
+而是调用 canonical `dispatch` 取得完整 envelope，并把 Story、role、prompt
+digest 与 provider process identity 封存在 managed run 中。controller 还会签发
+一个只在 run deadline 前有效、绑定 Story、role、run ID 和随机 nonce 的一次性
+调用凭证。真实 Codex 工具宿主可以为每条 CLI 命令创建独立 process group/session；
+`init_check_set` 或 `scope_check_save` 因此以该签名凭证为权威并原子消费 nonce，而不是要求 CLI
+进程仍属于外层 provider 的 PGID。旧 adapter 的同进程组路径只保留兼容性；
+对应 gate 仍会验证完成态 receipt 和其中精确的 delivery run binding。篡改
+Story/role/run、重放凭证或在 run 终态后调用均 fail closed。
+
+凭证通过环境变量传递，是为了兼容会把每条工具命令放入新 session/PGID 的
+Codex host；这里的环境变量只是 transport，信任来自 controller 的 Ed25519
+签名、精确 claims 校验和 nonce 原子消费。该边界依赖 managed reviewer 已有的
+host/container 隔离来阻止无关的同 UID 或 root 进程读取其环境；环境变量本身
+不提供针对同 UID/root 进程的保密性。若 host 能稳定把 capability descriptor
+传入 reviewer 后续启动的每条工具命令，可改用 fd transport 而不改变签名协议。
+
+provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story store 中读到
+与该 Story、role 和 managed run ID 精确绑定的 `init-check.json` reviewer 记录或
+`scope-check.json` 记录后才写
+`completed` terminal。记录不存在或不匹配时以
+`managed_dispatch_output_missing` 失败；配置路径中的记录无法读取或解析时以
+`managed_dispatch_output_unreadable` 保留受限错误诊断并继续 fail closed；签名
+或当前 Story 内容绑定失效时以 `managed_dispatch_output_invalid` 失败。
+PLAN scope reviewer 的 completed terminal/receipt 还封存当时精确的
+`scope-check.json` 摘要；完成后替换内容，即使保留 delivery run ID 并重算公开
+内容哈希，也会在 receipt 校验与 `story_review` 中失败。
+
+Linux Docker/OCI 中的 Codex reviewer 已位于外层容器隔离边界。PoS 检测到
+`/.dockerenv` 或 `/run/.containerenv` 时为这个 managedDispatch 子进程关闭
+不可用的嵌套 bwrap；未容器化 Linux 与 Darwin 不采用该旁路，仍使用 Codex
+正常 sandbox。两条路径都保留既有 canonical Codex 非交互参数
+`--skip-git-repo-check --ephemeral --ignore-rules`；容器检测只决定 sandbox mode。
+
+```bash
+proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'
+proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-product-reviewer","managedDispatch":true,"detach":true,"json":true}'
+proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-scope-plan","managedDispatch":true,"detach":true,"json":true}'
+```
+
 For a formal managed review, the provider must remain in its host-configured
 disposable execution worktree. It must never `cd` to, execute commands in, or
 write to the canonical Story worktree named by the signed ReviewRun. The controller

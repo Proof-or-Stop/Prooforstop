@@ -33,6 +33,9 @@ import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/pla
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
+import {
+  renderManagedInitReviewerDispatches,
+} from '../core/reviewer-launch-guidance.js';
 import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 import { captureStoryIntegrationTarget } from '../core/story-integration-target.js';
 
@@ -1165,13 +1168,11 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         if (noContext > 0) hints.push(`${noContext} items missing context (root cause/reference); please supplement`);
         const hint = hints.length > 0 ? '\n⚠ ' + hints.join('\n⚠ ') : '';
         // B-e71f CHK-004: INIT→INIT_CHECK hard gate guidance.
-        // INIT phase must have an independent subagent review the initial background + checklist; main agent must not self-invoke
-        // init_check_set with a forged signature (anti-self-absolution). Only after review passes can story_advance INIT_CHECK proceed.
+        // INIT phase requires two controller-owned managed reviewer deliveries.
+        // The reviewer process identity and terminal receipt are verified before INIT_CHECK can proceed.
         const initReviewHint =
-          `\n\n→ Now please spawn two INIT reviewers in parallel:\n` +
-          `  · Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "<owner-produced standard prompt>" })\n` +
-          `  · Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: "<owner-produced standard prompt>; whether pass/fail, call init_check_set with agentId exactly proof-or-stop-product-reviewer" })\n` +
-          `  · Do not have the main agent self-invoke proof-or-stop init_check_set (the CLI does not mechanically validate agentId, but the reviewer template fresh-context fence + CLAUDE.md behavior rules require invocation by an independent subagent—main agent self-invocation effectively bypasses the reviewer, violating the anti-self-absolution convention)\n` +
+          `\n\n→ Run the two managed INIT reviewers in parallel:\n` +
+          `${renderManagedInitReviewerDispatches(storyId, ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'])}\n` +
           `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
           `  · INIT_CHECK gate requires both proof-or-stop-review-story-init and proof-or-stop-product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +
           `  · Before story_advance, run proof-or-stop init_preflight --storyId=${storyId}; it is read-only, writes no evidence, and creates no worktree\n` +

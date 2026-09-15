@@ -10,10 +10,12 @@ import { legacyAgentRoleIds } from '../packages/main/dist/core/agent-role-identi
 import { blockingInitCheckIssues, initCheckSignatureIsValid } from '../packages/main/dist/core/init-check-gate.js';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 import { createInitCheckHandlers } from '../packages/main/dist/handlers/init-check.js';
+import { buildScopeBoundary } from '../packages/main/dist/core/scope-anti-expansion.js';
 
 
 const root = process.cwd();
 const PRODUCT_REVIEWER_ROLE = 'proof-or-stop-product-reviewer';
+const STORY_INIT_REVIEWER_ROLE = 'proof-or-stop-review-story-init';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -90,7 +92,20 @@ for (const path of agentPaths) {
   assert(text.includes('init_check_set') && text.includes('pass') && text.includes('fail'), `${path} missing INIT review recording requirement`);
   assert(text.includes('agentId":"proof-or-stop-product-reviewer') || text.includes('agentId` must be exactly `proof-or-stop-product-reviewer`'), `${path} missing exact product-reviewer agentId requirement`);
   assert(text.includes('implementation has not started') && text.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: product reviewer must explicitly allow planned evidence before implementation');
+  assert(text.includes('unchanged facts'), `${path} missing monotonic blocker-set instruction`);
   assert(!text.includes('story_advance DONE') && !text.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: INIT reviewer must not request post-implementation artifacts');
+}
+
+const storyInitAgentPaths = [
+  resolveSupportedAgentPath(['.claude'], STORY_INIT_REVIEWER_ROLE),
+  resolveSupportedAgentPath(ADAPTER_DIR_NAMES, STORY_INIT_REVIEWER_ROLE),
+];
+for (const path of storyInitAgentPaths) {
+  const text = readFileSync(path, 'utf8');
+  assert(text.includes('five dimensions below are exhaustive'), `${path} missing finite story-init authority boundary`);
+  assert(text.includes('implementation-defined') && text.includes('requirementRef'), `${path} missing anti-amplification and source-binding rules`);
+  assert(text.includes('unchanged facts'), `${path} missing monotonic blocker-set instruction`);
+  assert(text.includes('initial_checklist_invalid') && text.includes('existing_system_claim_inaccurate'), `${path} missing role-specific blocker kinds`);
 }
 
 const deferredEvidenceIssue = {
@@ -137,7 +152,70 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert(storyId, 'failed to parse temp story id');
 
-  const directHandlers = createInitCheckHandlers({ store: new StoryStore(temp), root: temp, scanRoot: join(temp, 'packages/main') });
+  const directStore = new StoryStore(temp);
+  const directHandlers = createInitCheckHandlers({ store: directStore, root: temp, scanRoot: join(temp, 'packages/main') });
+  const previousStoryInitAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-story-init';
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        severity: 'high',
+        desc: 'Choose exact trace labels and active-load reset transitions before implementation starts.',
+      }],
+    });
+  } finally {
+    if (previousStoryInitAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousStoryInitAgent;
+  }
+  const outOfBoundaryInitCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  nodeAssert.equal(
+    outOfBoundaryInitCheck.agentResults?.[0]?.issues?.[0]?.severity,
+    'medium',
+    'LAB_RED: out-of-bound INIT implementation preference must be advisory',
+  );
+  assert(
+    blockingInitCheckIssues(outOfBoundaryInitCheck).length === 0,
+    'INIT_REVIEW_AUTHORITY_BOUNDARY: an untyped story-init implementation preference cannot block INIT_CHECK',
+  );
+  nodeAssert.equal(
+    outOfBoundaryInitCheck.agentResults?.[0]?.issues?.[0]?.reportedSeverity,
+    'high',
+    'INIT_REVIEW_AUTHORITY_BOUNDARY: normalized advisory must preserve the reported severity',
+  );
+  nodeAssert.equal(
+    outOfBoundaryInitCheck.agentResults?.[0]?.issues?.[0]?.dispositionReason,
+    'outside_init_reviewer_blocking_authority',
+    'INIT_REVIEW_AUTHORITY_BOUNDARY: normalized advisory must state why it cannot block',
+  );
+
+  const storyAfterAdvisory = directStore.readStory(storyId);
+  directStore.writeStory(storyId, {
+    ...storyAfterAdvisory,
+    description: `${storyAfterAdvisory.description} The authoritative checklist requirement changed before the next review.`,
+  });
+
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-story-init';
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'initial_checklist_invalid',
+        requirementRef: 'checklist:CHK-001',
+        severity: 'high',
+        desc: 'The named checklist item is mechanically invalid.',
+      }],
+    });
+  } finally {
+    if (previousStoryInitAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousStoryInitAgent;
+  }
+  const inBoundaryInitCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  assert(
+    blockingInitCheckIssues(inBoundaryInitCheck).length === 1,
+    'INIT_REVIEW_AUTHORITY_BOUNDARY: source-bound structural story-init defects must remain blocking',
+  );
+
   const previousAgent = process.env.PROOF_OR_STOP_AGENT;
   process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
   try {
@@ -149,6 +227,264 @@ try {
     if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
     else process.env.PROOF_OR_STOP_AGENT = previousAgent;
   }
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'requirements_ambiguous',
+        severity: 'high',
+        desc: 'Choose a more exact internal trace format before implementation.',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const unboundProductCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  const productResult = unboundProductCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(productResult?.issues?.[0]?.severity, 'medium', 'INIT_REVIEW_AUTHORITY_BOUNDARY: unbound product-reviewer high issue must be advisory');
+
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [] });
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'user_outcome_unspecified',
+        requirementRef: 'story:description',
+        severity: 'high',
+        desc: 'The Story description does not identify an observable user outcome.',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const unchangedExpansionCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  const unchangedExpansionResult = unchangedExpansionCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(
+    unchangedExpansionResult?.issues?.[0]?.severity,
+    'medium',
+    'INIT_REVIEW_MONOTONICITY: PASS cannot become a new high blocker when authoritative INIT inputs are unchanged',
+  );
+  nodeAssert.equal(
+    unchangedExpansionResult?.issues?.[0]?.dispositionReason,
+    'unchanged_input_blocker_expansion',
+    'INIT_REVIEW_MONOTONICITY: unchanged-input blocker expansion must preserve a machine-owned disposition',
+  );
+
+  directStore.writeScopeBoundary(storyId, buildScopeBoundary({
+    storyId,
+    mode: 'feature',
+    allowed: ['Changed authoritative scope boundary'],
+    excluded: ['Unrelated behavior'],
+    confirmedBy: 'product-reviewer-smoke',
+    confirmationNote: 'Change a blocker-citable source that is outside the legacy INIT signature components.',
+    now: '2026-09-15T00:00:00.000Z',
+  }));
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'scope_or_safety_boundary_missing',
+        requirementRef: 'scope-boundary',
+        severity: 'high',
+        desc: 'The changed authoritative scope boundary introduces a blocking ambiguity.',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const changedScopeCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  const changedScopeResult = changedScopeCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(changedScopeResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_MONOTONICITY: changed scope-boundary input permits a newly discovered source-bound blocker');
+
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [] });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const changedChecklist = directStore.readChecklist(storyId);
+  directStore.writeChecklist(storyId, {
+    ...changedChecklist,
+    items: changedChecklist.items.map((item, index) => index === 0 ? {
+      ...item,
+      verificationIntent: {
+        happy: [{ id: 'INT-CHANGED', desc: 'Changed verification plan must execute.', type: 'cli', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        edge: [],
+        adversarial: [],
+      },
+    } : item),
+  });
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'verification_plan_unexecutable',
+        requirementRef: 'verification-intent:INT-CHANGED',
+        severity: 'high',
+        desc: 'The changed verification intent cannot be executed as written.',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const changedIntentCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  const changedIntentResult = changedIntentCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(changedIntentResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_MONOTONICITY: changed verificationIntent permits a newly discovered source-bound blocker');
+
+  const derivedIntentChecklist = directStore.readChecklist(storyId);
+  directStore.writeChecklist(storyId, {
+    ...derivedIntentChecklist,
+    items: derivedIntentChecklist.items.map((item, index) => index === 0 ? {
+      ...item,
+      verificationIntent: {
+        happy: [{ desc: 'Derived-id verification plan must execute.', type: 'cli', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        edge: [],
+        adversarial: [],
+      },
+    } : item),
+  });
+  const derivedIntentIssue = {
+    kind: 'verification_plan_unexecutable',
+    requirementRef: 'verification-intent:CHK-001:happy:0',
+    severity: 'high',
+    desc: 'The derived-id verification intent cannot be executed as written.',
+  };
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [derivedIntentIssue] });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const derivedIntentCheck = directStore.readInitCheck(storyId);
+  const derivedIntentResult = derivedIntentCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(derivedIntentResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_AUTHORITY_BOUNDARY: positional intent ids documented by VerificationIntentItem must be valid blocker refs');
+  nodeAssert.equal(derivedIntentResult?.issues?.[0]?.dispositionReason, undefined, 'INIT_REVIEW_AUTHORITY_BOUNDARY: a valid derived intent ref must not be normalized');
+  assert(blockingInitCheckIssues(derivedIntentCheck).some(({ issue }) => issue.desc === derivedIntentIssue.desc), 'INIT_REVIEW_AUTHORITY_BOUNDARY: a valid derived intent blocker remains blocking');
+
+  const correctionChecklist = directStore.readChecklist(storyId);
+  directStore.writeChecklist(storyId, {
+    ...correctionChecklist,
+    items: correctionChecklist.items.map((item, index) => index === 0 ? {
+      ...item,
+      verificationIntent: {
+        ...item.verificationIntent,
+        edge: [{ desc: 'Correctable derived-id edge intent.', type: 'cli', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+      },
+    } : item),
+  });
+  const correctedIntentIssue = {
+    ...derivedIntentIssue,
+    requirementRef: 'verification-intent:CHK-001:edge:0',
+    desc: 'The reviewer corrects only the requirement reference for this observation.',
+  };
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [{ ...correctedIntentIssue, requirementRef: 'verification-intent:CHK-001:edge:99' }] });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const invalidIntentRefCheck = directStore.readInitCheck(storyId);
+  const invalidIntentRefResult = invalidIntentRefCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(invalidIntentRefResult?.issues?.[0]?.severity, 'medium', 'INIT_REVIEW_AUTHORITY_BOUNDARY: a nonexistent derived intent ref must remain advisory');
+  nodeAssert.equal(invalidIntentRefResult?.issues?.[0]?.dispositionReason, 'missing_or_invalid_requirement_ref', 'INIT_REVIEW_AUTHORITY_BOUNDARY: invalid derived refs retain the exact normalization reason');
+
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [correctedIntentIssue] });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const correctedIntentRefCheck = directStore.readInitCheck(storyId);
+  const correctedIntentRefResult = correctedIntentRefCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(correctedIntentRefResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_MONOTONICITY: correcting a previously reported invalid ref must restore its blocking severity');
+  nodeAssert.equal(correctedIntentRefResult?.issues?.[0]?.dispositionReason, undefined, 'INIT_REVIEW_MONOTONICITY: a corrected valid ref must not retain the prior normalization');
+
+  const bypassStory = directStore.readStory(storyId);
+  directStore.writeStory(storyId, {
+    ...bypassStory,
+    description: `${bypassStory.description} Establish a new authoritative-input generation for the monotonic bypass regression.`,
+  });
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [] });
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        severity: 'medium',
+        desc: 'Caller-authored machine fields must be discarded.',
+        reportedSeverity: 'high',
+        dispositionReason: 'missing_or_invalid_requirement_ref',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const machineFieldCheck = directStore.readInitCheck(storyId);
+  const machineFieldIssue = machineFieldCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE)?.issues?.[0];
+  nodeAssert.equal(machineFieldIssue?.reportedSeverity, undefined, 'INIT_REVIEW_MACHINE_FIELDS: caller-authored reportedSeverity must be discarded');
+  nodeAssert.equal(machineFieldIssue?.dispositionReason, undefined, 'INIT_REVIEW_MACHINE_FIELDS: caller-authored dispositionReason must be discarded');
+
+  const bypassDesc = 'The same-hash PASS cannot be replaced by a newly constructed blocker.';
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [{ severity: 'high', desc: bypassDesc }] });
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'user_outcome_unspecified',
+        requirementRef: 'story:description',
+        severity: 'high',
+        desc: bypassDesc,
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const bypassCheck = directStore.readInitCheck(storyId);
+  const bypassResult = bypassCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(bypassResult?.issues?.[0]?.severity, 'medium', 'INIT_REVIEW_MONOTONICITY: PASS then kind-less advisory cannot become a same-input blocker');
+  nodeAssert.equal(bypassResult?.issues?.[0]?.dispositionReason, 'unchanged_input_blocker_expansion', 'INIT_REVIEW_MONOTONICITY: same-input two-call bypass receives the monotonic disposition');
+  assert(!blockingInitCheckIssues(bypassCheck).some(({ issue }) => issue.desc === bypassDesc), 'INIT_REVIEW_MONOTONICITY: the constructed same-input blocker must not reach the gate');
+
+  const changedStory = directStore.readStory(storyId);
+  directStore.writeStory(storyId, {
+    ...changedStory,
+    description: `${changedStory.description} The authoritative user outcome changed after the previous review.`,
+  });
+
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'user_outcome_unspecified',
+        requirementRef: 'story:description',
+        severity: 'high',
+        desc: 'The Story description does not identify an observable user outcome.',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const boundProductCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  const boundProductResult = boundProductCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(boundProductResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_AUTHORITY_BOUNDARY: source-bound product defect must retain high severity');
+  assert(blockingInitCheckIssues(boundProductCheck).length >= 1, 'INIT_REVIEW_AUTHORITY_BOUNDARY: source-bound product defect must block INIT_CHECK');
   nodeAssert.throws(() => directHandlers.init_check_repair({
     storyId,
     acknowledge: true,
@@ -164,6 +500,7 @@ try {
     format: 'text',
   })]);
   assert(readOnlyPrompt.includes('implementation has not started') && readOnlyPrompt.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: read-only prompt must explain the INIT evidence boundary');
+  assert(readOnlyPrompt.includes('implementation-defined') && readOnlyPrompt.includes('requirementRef'), 'INIT_REVIEW_AUTHORITY_BOUNDARY: product reviewer prompt must forbid requirement amplification and require source binding');
   assert(!readOnlyPrompt.includes('story_advance DONE') && !readOnlyPrompt.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: read-only prompt must not request post-implementation artifacts');
 
   const dispatchRaw = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'dispatch', JSON.stringify({
@@ -174,7 +511,16 @@ try {
   assert(dispatchRaw.includes('"agentId":"proof-or-stop-product-reviewer"') || dispatchRaw.includes('\\"agentId\\":\\"proof-or-stop-product-reviewer\\"'), 'product-reviewer dispatch should include exact canonical agentId command');
   assert(dispatchRaw.includes('Do not pass "proof-or-stop-review-story-init"') || dispatchRaw.includes('Do not pass \\"proof-or-stop-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
   assert(dispatchRaw.includes('implementation has not started') && dispatchRaw.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: dispatch must explain implementation evidence is unavailable during INIT');
+  assert(dispatchRaw.includes('implementation-defined') && dispatchRaw.includes('requirementRef'), 'INIT_REVIEW_AUTHORITY_BOUNDARY: product dispatch must preserve requirement-amplification and source-binding rules');
   assert(!dispatchRaw.includes('story_advance DONE') && !dispatchRaw.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: dispatch must not request post-implementation artifacts');
+
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-story-init';
+  try {
+    directHandlers.init_check_set({ storyId, issues: [] });
+  } finally {
+    if (previousStoryInitAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousStoryInitAgent;
+  }
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'init_check_set', JSON.stringify({
     storyId,
@@ -186,12 +532,16 @@ try {
     }],
   })]);
   const storedInitCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
-  assert(storedInitCheck.agentResults?.[0]?.issues?.[0]?.kind === 'post_implementation_evidence_missing', 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_set must persist structured stage applicability');
+  const storedProductResult = storedInitCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  assert(storedProductResult?.issues?.[0]?.kind === 'post_implementation_evidence_missing', 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: init_check_set must persist structured stage applicability');
   assert(blockingInitCheckIssues(storedInitCheck).length === 0, 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: stored post-implementation evidence cannot block INIT');
   assert(initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, storedInitCheck), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: stored issue kind must have a valid signature');
   const tamperedKind = structuredClone(storedInitCheck);
-  tamperedKind.agentResults[0].issues[0].kind = 'user_outcome_unspecified';
+  tamperedKind.agentResults.find(result => result.agentId === PRODUCT_REVIEWER_ROLE).issues[0].kind = 'user_outcome_unspecified';
   assert(!initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, tamperedKind), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: changing issue kind must invalidate the signature');
+  const tamperedAuthorityInputHash = structuredClone(storedInitCheck);
+  tamperedAuthorityInputHash.agentResults.find(result => result.agentId === PRODUCT_REVIEWER_ROLE).authorityInputHash = '0'.repeat(64);
+  assert(!initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, tamperedAuthorityInputHash), 'INIT_REVIEW_AUTHORITY_INPUT_SIGNATURE: changing only authorityInputHash must invalidate the signature');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,
@@ -220,6 +570,8 @@ try {
 
   const dispatchSource = readFileSync(join(root, 'packages/main/src/handlers/story-dispatch.ts'), 'utf8');
   assert(dispatchSource.includes('user value perspective') && dispatchSource.includes('verificationIntent'), 'product reviewer planned user-value guidance missing');
+  assert(!dispatchSource.includes('Whether there are high-risk signals but insufficient PLAN/decision/verification preparation'), 'INIT_REVIEW_AUTHORITY_BOUNDARY: story-init dispatch must not review PLAN preparation');
+  assert(dispatchSource.includes('the five dimensions in the canonical role prompt') && dispatchSource.includes('Out-of-authority or unbound critical/high reports are stored as advisory'), 'INIT_REVIEW_AUTHORITY_BOUNDARY: story-init dispatch must state its complete blocking authority');
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

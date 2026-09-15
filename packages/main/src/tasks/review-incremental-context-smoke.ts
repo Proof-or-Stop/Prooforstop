@@ -19,18 +19,18 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
  *       isFirstPass=false, scopeChanged=true, changedFiles includes that file,
  *       priorVerdict present.
  *   (b) FIRST-TIMER — a reviewer with no prior pass: isFirstPass=true,
- *       scopeChanged=true, changedFiles = the full main...HEAD material diff.
+ *       scopeChanged=true, changedFiles = the full Story-base...HEAD material diff.
  *   (c) RENAME CASE — a file renamed since the reviewer's last pass is counted as
  *       changed (rename-aware `git diff --name-status -M`): both old + new paths
  *       surface, scopeChanged=true.
  *   (e) PRIOR VERDICT W/ UNRESOLVABLE headHash — a reviewer that DID pass before,
  *       but whose bound run has an unresolvable headHash: the helper falls back to
- *       isFirstPass=true, priorHeadHash=null, full main...HEAD diff, while
+ *       isFirstPass=true, priorHeadHash=null, full Story-base...HEAD diff, while
  *       priorVerdict stays NON-null. Pins the documented contract that consumers
  *       must key off isFirstPass (not priorVerdict) for "no incremental baseline".
  *   (f) BOUNDED-PATHS DEGRADATION — a prior that DOES resolve but whose diff to
  *       HEAD does not fit the bounded review-basis path lists: the read degrades
- *       to the full story diff against main (reason code
+ *       to the full story diff against the frozen integration base (reason code
  *       FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS, contextMode full,
  *       reviewBasis null) while still reporting the resolved prior. Asserts the
  *       boundary is exact — at the cap an incremental basis is emitted, one path
@@ -944,9 +944,12 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
     }, null, 2) + '\n');
     write(root, 'src/feature.ts', 'export const feature = true;\n');
     git(root, ['init']);
-    git(root, ['checkout', '-B', 'main']);
+    const integrationBranch = firstBaseOnly ? 'develop' : 'main';
+    const movedIntegrationBranch = 'alternate-integration';
+    git(root, ['checkout', '-B', integrationBranch]);
     git(root, ['add', '.']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed as-of-run base']);
+    const integrationBase = git(root, ['rev-parse', 'HEAD']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
 
     const store = new StoryStore(root);
@@ -955,6 +958,14 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       title: 'As-of-run eligibility regression',
       description: 'Pin verifier eligibility to the signed ReviewRun headHash.',
       priority: 'high',
+      ...(firstBaseOnly ? {
+        integrationTarget: {
+          parentBranch: integrationBranch,
+          parentCommitAtCreation: integrationBase,
+          source: 'creation_branch' as const,
+          deliveryMode: 'merge_to_parent' as const,
+        },
+      } : {}),
     });
     store.writeChecklist(storyId, {
       items: [{
@@ -979,6 +990,37 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
     git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed as-of-run review metadata']);
 
+    if (firstBaseOnly) {
+      const validStory = store.readStory(storyId);
+      const invalidTargets: Array<[string, unknown]> = [
+        ['null target', null],
+        ['invalid parent branch', { ...validStory.integrationTarget, parentBranch: 'story/attacker' }],
+        ['blank parent branch', { ...validStory.integrationTarget, parentBranch: ' ' }],
+        ['missing commit', { parentBranch: integrationBranch, source: 'creation_branch', deliveryMode: 'merge_to_parent' }],
+        ['blank commit', { ...validStory.integrationTarget, parentCommitAtCreation: '' }],
+        ['malformed commit', { ...validStory.integrationTarget, parentCommitAtCreation: 'A'.repeat(40) }],
+        ['invalid source', { ...validStory.integrationTarget, source: 'caller_supplied' }],
+        ['invalid delivery mode', { ...validStory.integrationTarget, deliveryMode: 'push_directly' }],
+      ];
+      for (const [label, integrationTarget] of invalidTargets) {
+        store.writeStory(storyId, { ...validStory, integrationTarget } as StoryInfo);
+        assert.throws(() => resolveFullStoryBaseHead(store, root, storyId), /FULL_STORY_BASE_INVALID/, label);
+      }
+      const absentBase = '0'.repeat(40);
+      store.writeStory(storyId, {
+        ...validStory,
+        integrationTarget: { ...validStory.integrationTarget!, parentCommitAtCreation: absentBase },
+      });
+      assert.throws(() => resolveFullStoryBaseHead(store, root, storyId), {
+        message: `FULL_STORY_BASE_UNAVAILABLE: Story integration base ${absentBase} does not resolve to a commit`,
+      });
+      store.writeStory(storyId, validStory);
+      git(root, ['branch', '-m', integrationBranch, movedIntegrationBranch]);
+      for (const absentRef of ['main', 'master', integrationBranch]) {
+        assert.throws(() => git(root, ['show-ref', '--verify', `refs/heads/${absentRef}`]), Error, `${absentRef} must not exist before review_run_start`);
+      }
+    }
+
     runCli('dispatch', { storyId, agentType: role }, 'main');
     runCli('review_run_start', { storyId, agent: role }, role);
     const runA = store.readReviewRuns(storyId).runs.at(-1)!;
@@ -987,7 +1029,12 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       const base = resolveFullStoryBaseHead(store, root, storyId)!;
       assert.equal(envelope.fullStoryBaseHead, base, 'FIRST_REVIEW_BASE_NOT_BOUND');
       const options = { ...verifierOptions(runA), asOfRef: runA.headHash };
+      // Preserve the historical omitted-field digest check without weakening
+      // the production reproduction above: review_run_start already succeeded
+      // with no local main, then this temporary compatibility ref is removed.
+      git(root, ['branch', 'main', integrationBase]);
       const legacy = reviewIncrementalContext(store, root, storyId, role, { ...options, fullStoryBaseHead: undefined });
+      git(root, ['branch', '-D', 'main']);
       // Golden captured by replaying the 9c0a6a1cbb context implementation with the same shared dependencies and one-file fixture.
       assert.equal(legacy.eligibilityDigest, 'ad06de9687d644e7ce6b50c9d2d7aa15428becb0f59e3594da158d7322493935', 'Omitting the new field preserves the legacy eligibility bytes');
       console.log(`LEGACY_FIRST_BASE_DIGEST=${legacy.eligibilityDigest}`);
@@ -1007,14 +1054,22 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA, [tampered]), {
         ok: false, reason: 'Prompt Envelope integrity verification failed',
       });
-      git(root, ['checkout', 'main']);
+      assert.equal(base, integrationBase, 'first review binds the Story creation commit rather than a hard-coded branch');
+      git(root, ['checkout', movedIntegrationBranch]);
       write(root, 'src/unrelated.ts', 'export const unrelated = true;\n');
       git(root, ['add', 'src/unrelated.ts']);
-      git(root, [...COMMIT_ENV, 'commit', '-m', 'advance main after first review']);
+      git(root, [...COMMIT_ENV, 'commit', '-m', 'advance integration branch after first review']);
       git(root, ['checkout', `story/${storyId}`]);
-      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'First review survives main moving before any merge');
-      git(root, ['merge', '--no-ff', 'main', '-m', 'merge unrelated main into reviewed Story']);
-      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'First review survives unrelated main merge');
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'First review survives the integration branch moving before any merge');
+      git(root, ['merge', '--no-ff', movedIntegrationBranch, '-m', 'merge unrelated integration branch into reviewed Story']);
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'First review survives unrelated integration-branch merge');
+      assert.throws(
+        () => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runA.reviewRunId),
+        /stale|material/i,
+        'A material merge after review must require fresh live evidence even though the historical envelope stays valid',
+      );
+      git(root, ['rm', 'src/unrelated.ts']);
+      git(root, [...COMMIT_ENV, 'commit', '-m', 'remove unrelated integration change']);
       assert.doesNotThrow(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runA.reviewRunId));
       assert.equal(reviewIncrementalContext(store, root, storyId, role, options).eligibilityDigest, envelope.eligibilityDigest);
       write(root, 'src/feature.ts', 'export const feature = false;\n');
@@ -1026,13 +1081,13 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       git(root, ['add', 'src/feature.ts']);
       git(root, [...COMMIT_ENV, 'commit', '-m', 'restore controlled Story input']);
       assert.doesNotThrow(() => assertCurrentReviewRunForEvidence(store, store.readStory(storyId), root, role, runA.reviewRunId));
-      git(root, ['checkout', 'main']);
+      git(root, ['checkout', movedIntegrationBranch]);
       git(root, ['merge', '--ff-only', `story/${storyId}`]);
       git(root, ['checkout', `story/${storyId}`]);
-      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'Even a later main containing the reviewed commit cannot choose a new historical base');
-      git(root, ['branch', '-m', 'main', 'alternate-main']);
-      assert.equal(resolveFullStoryBaseHead(store, root, storyId), undefined, 'Missing main preserves legacy producer behavior');
-      console.log(`${MARKER} FIRST-REVIEW-BASE GREEN: pinned main, tamper/ref/missing-object refusals, live material refusal, merged-head replay`);
+      assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'Even a later integration branch containing the reviewed commit cannot choose a new historical base');
+      git(root, ['branch', '-m', movedIntegrationBranch, 'final-integration']);
+      assert.equal(resolveFullStoryBaseHead(store, root, storyId), integrationBase, 'The frozen Story base remains resolvable after the branch is renamed');
+      console.log(`${MARKER} FIRST-REVIEW-BASE GREEN: pinned Story creation commit without local main, tamper/ref/missing-object refusals, live material refusal, merged-head replay`);
       return;
     }
     const passA = signedPass(storyId, `${runA.reviewRunId}:PASS`, role, ts(6), round);

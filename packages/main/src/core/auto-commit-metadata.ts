@@ -14,7 +14,9 @@
  *     synchronously before any git invocation.
  *   - The classifier (B-6326 classifyDirtyWorktree) is consulted ONLY for the
  *     tail-note about coexisting non-metadata dirt. It is NOT used to decide
- *     whether to stage paths — `git add` is always scoped to the story dir.
+ *     whether to stage paths. `git add` is scoped to the story dir and excludes
+ *     every controller projection artifact whose canonical descriptor requires
+ *     `trackedPolicy: untracked-only`.
  *
  * Idempotency (preMortem #2 anchor):
  *   - When nothing under the story dir is dirty, the function returns ''.
@@ -60,6 +62,7 @@ import {
   type DonePrepareGeneratedMetadataTransaction,
   type ImmutableMetadataCommitTestHooks,
 } from './done-prepare-generated-metadata.js';
+import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js';
 
 /**
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
@@ -610,7 +613,17 @@ export function autoCommitStoryMetadata(
       }
       return `${storyRel}/${name}`;
     }) ?? null;
-    const commitPaths = exactStoryArtifactPaths ?? [storyRel];
+    const untrackedOnlyPaths = CONTROLLER_PROJECTION_ARTIFACTS
+      .filter(descriptor => descriptor.trackedPolicy === 'untracked-only')
+      .map(descriptor => `${storyRel}/${descriptor.path}`);
+    const untrackedOnlyPathSet = new Set(untrackedOnlyPaths);
+    if (exactStoryArtifactPaths?.some(path => untrackedOnlyPathSet.has(path))) {
+      throw new Error('autoCommitStoryMetadata: refusing to commit a controller projection artifact whose trackedPolicy is untracked-only');
+    }
+    const commitPaths = exactStoryArtifactPaths ?? [
+      storyRel,
+      ...untrackedOnlyPaths.map(path => `:(exclude)${path}`),
+    ];
     const exactPathSet = exactStoryArtifactPaths ? new Set(exactStoryArtifactPaths) : null;
 
     // 4. snapshot the FULL dirty classification BEFORE committing (so the
@@ -649,12 +662,15 @@ export function autoCommitStoryMetadata(
       receiptFailureNote = `\n⚠ local causal closeout receipt was not issued: ${message}`;
     }
 
+    const preStaged = execFileSync('git', ['diff', '--cached', '--name-only'], {
+      cwd: gitCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim().split('\n').filter(Boolean);
+    if (preStaged.some(path => untrackedOnlyPathSet.has(normalizeRelPath(path)))) {
+      throw new Error('autoCommitStoryMetadata: refusing pre-staged controller projection artifact whose trackedPolicy is untracked-only');
+    }
     if (exactPathSet) {
-      const preStaged = execFileSync('git', ['diff', '--cached', '--name-only'], {
-        cwd: gitCwd,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      }).trim().split('\n').filter(Boolean);
       if (preStaged.some(path => !exactPathSet.has(path))) {
         throw new Error('autoCommitStoryMetadata: refusing exact-artifact commit with unrelated staged paths');
       }
@@ -678,13 +694,16 @@ export function autoCommitStoryMetadata(
     }).trim();
     const stagedPaths = staged.split('\n').filter(Boolean);
     if (stagedPaths.length === 0) return '';
+    if (stagedPaths.some(path => untrackedOnlyPathSet.has(normalizeRelPath(path)))) {
+      throw new Error('autoCommitStoryMetadata: refusing staged controller projection artifact whose trackedPolicy is untracked-only');
+    }
     if (exactPathSet && stagedPaths.some(path => !exactPathSet.has(path))) {
       throw new Error('autoCommitStoryMetadata: refusing exact-artifact commit with an adjacent staged path');
     }
 
     // 8. commit
     const subject = `${COMMIT_SUBJECT_PREFIX} record ${storyId} ${reason} metadata`;
-    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', subject], {
+    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', subject, '--', ...commitPaths], {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],

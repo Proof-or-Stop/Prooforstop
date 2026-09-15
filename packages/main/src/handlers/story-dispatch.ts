@@ -56,8 +56,17 @@ import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
-import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
+import {
+  currentImplementationBusinessCommit,
+  IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE,
+  topologyDispatchBusinessAuthor,
+} from '../core/topology-critic-receipt.js';
+import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
+import {
+  REVIEWER_NO_DELEGATION_BOUNDARY,
+} from '../core/reviewer-launch-guidance.js';
 import type { ReviewInventoryPurposeBinding } from '../core/types.js';
 import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { requireInventoryCriticSubjectLocked } from './review-inventory.js';
@@ -216,6 +225,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     businessCommit?: string;
     businessCommitAuthor?: string;
     businessCommitAuthorSource?: 'git-var:GIT_AUTHOR_IDENT';
+    topologyProvenanceDiagnostic?: { status: 'unavailable'; required: boolean; code: string; message: string };
     budgetViolation?: 'incremental' | 'full';
     promptBudget?: PromptBudgetObservation;
   }): void {
@@ -239,6 +249,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(args.businessCommit ? { businessCommit: args.businessCommit } : {}),
         ...(args.businessCommitAuthor ? { businessCommitAuthor: args.businessCommitAuthor } : {}),
         ...(args.businessCommitAuthorSource ? { businessCommitAuthorSource: args.businessCommitAuthorSource } : {}),
+        ...(args.topologyProvenanceDiagnostic ? { topologyProvenanceDiagnostic: args.topologyProvenanceDiagnostic } : {}),
         ...(args.itemId ? { itemId: args.itemId, checklistId: args.itemId } : {}),
         ...(args.findingId ? { findingId: args.findingId } : {}),
         ...(args.clusterId ? { clusterId: args.clusterId } : {}),
@@ -320,17 +331,44 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     try {
       const snapshot = captureReviewRunSnapshot(root, { storyId: story.storyId, storyPhase: story.phase }, root);
       if (!snapshot.storyFilesHash) throw new Error('topology authority dispatch requires a current storyFilesHash');
-      const implementation = currentImplementationBusinessCommit(root);
+      const gitCwd = resolveGitCwd({
+        store,
+        storyId: story.storyId,
+        metadataRoot: root,
+        projectRoot: root,
+        cwd: process.cwd(),
+      });
+      const frozenStoryBase = story.integrationTarget !== undefined
+        ? resolveFullStoryBaseHead(store, root, story.storyId)
+        : undefined;
+      if (story.integrationTarget !== undefined && !frozenStoryBase) {
+        throw Object.assign(
+          new Error(`${IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE}: Story integration base is unavailable`),
+          { code: IMPLEMENTATION_PROVENANCE_BASE_UNAVAILABLE },
+        );
+      }
+      const implementation = currentImplementationBusinessCommit(gitCwd, frozenStoryBase);
       return {
         headHash: snapshot.headHash,
         storyFilesHash: snapshot.storyFilesHash,
         businessCommit: implementation.businessCommit,
-        businessCommitAuthor: topologyDispatchBusinessAuthor(root),
+        businessCommitAuthor: topologyDispatchBusinessAuthor(gitCwd),
         businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT' as const,
       };
     } catch (error) {
       if (required) throw error;
-      return {};
+      const detail = error instanceof Error ? error : new Error(String(error));
+      const code = typeof (detail as Error & { code?: unknown }).code === 'string'
+        ? String((detail as Error & { code: string }).code)
+        : 'IMPLEMENTATION_PROVENANCE_UNAVAILABLE';
+      return {
+        topologyProvenanceDiagnostic: {
+          status: 'unavailable' as const,
+          required,
+          code,
+          message: detail.message,
+        },
+      };
     }
   }
 
@@ -402,13 +440,14 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         `Review the initial background + checklist for story ${args.storyId}.`,
         '',
         'You are the proof-or-stop-review-story-init reviewer; please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        REVIEWER_NO_DELEGATION_BOUNDARY,
         `Must read: ${bgPath}`,
         `Must read: ${checklistPath}`,
         '',
         'Review focus:',
-        '- Whether the background sufficiently explains the triggering event, key insights, trade-offs in the approach, and conversational texture',
-        '- Whether the checklist is broken down into items that are user-observable, verifiable, and non-overlapping',
-        '- Whether there are high-risk signals but insufficient PLAN/decision/verification preparation',
+        '- Only the five dimensions in the canonical role prompt: term definitions, standalone readability, metadata consistency, quick verification of existing-system claims, and mechanical checklist sanity',
+        '- Do not judge product semantics, exact formats, internal lifecycle/state transitions, trace labels/order, test implementation, PLAN decisions, or REVIEW coverage during this INIT review',
+        '- If an authoritative Story input marks a detail implementation-defined, asking the owner to freeze that detail is outside this reviewer authority',
         '',
         renderAgentLivenessGuidance({ label: 'proof-or-stop-review-story-init/story', startSignal: 'INIT_REVIEW_START' }),
         '- After starting, first output `INIT_REVIEW_START`; after finishing reading background/checklist, output `INIT_REVIEW_READ_DONE`.',
@@ -416,7 +455,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '',
         'Hard requirements:',
         `- Regardless of whether the conclusion is pass or fail, you must call init_check_set once to record the result; merely outputting a textual conclusion does not count as complete.`,
-        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"proof-or-stop-review-story-init"}'`,
+        '- Report the complete finite issue set in one call; do not turn a prior pass on unchanged facts into a new critical/high requirement.',
+        '- Critical/high issues require one of: required_story_input_missing, undefined_term_or_reference, story_metadata_inconsistent, existing_system_claim_inaccurate, initial_checklist_invalid.',
+        '- Every critical/high issue also requires an exact requirementRef such as story:priority, background:Trigger Event, checklist:CHK-001, or required-input:checklist. Out-of-authority or unbound critical/high reports are stored as advisory.',
+        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"kind":"initial_checklist_invalid","requirementRef":"checklist:CHK-001","severity":"high","desc":"..."}],"agentId":"proof-or-stop-review-story-init"}'`,
         `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"proof-or-stop-review-story-init"}'`,
         '- The INIT_CHECK gate also requires proof-or-stop-product-reviewer to call init_check_set; you are only responsible for the proof-or-stop-review-story-init record.',
         '- Do not directly edit story files.',
@@ -441,6 +483,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         `Review whether the INIT of story ${args.storyId} is ready to advance, from a user value perspective.`,
         '',
         'You are proof-or-stop-product-reviewer, not proof-or-stop-review-story-init. Please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        REVIEWER_NO_DELEGATION_BOUNDARY,
         `Must read: ${bgPath}`,
         `Required reading: ${checklistPath}`,
         '',
@@ -455,6 +498,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- You must not require implementation code, executed tests, actual CLI/UI output, or final delivery evidence before allowing implementation to start.',
         '- Missing evidence that can only exist after implementation is not an INIT failure. If recorded, use kind "post_implementation_evidence_missing"; the INIT gate defers it.',
         '- Actual behavior and delivery evidence remain subject to the later REVIEW, TEST, and DONE gates.',
+        '- Do not require exhaustive internal lifecycle semantics, exact trace labels/order, serialization choices, or extra edge cases unless an authoritative INIT input explicitly fixes them.',
+        '- A detail explicitly marked implementation-defined cannot become a critical/high INIT requirement.',
         '',
         renderAgentLivenessGuidance({ label: 'proof-or-stop-product-reviewer/story', startSignal: 'DISPATCH_START:proof-or-stop-product-reviewer/story' }),
         '',
@@ -462,7 +507,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Whether the conclusion is pass or fail, you must call init_check_set once to record the result; outputting only a text conclusion does not count as complete.',
         `- agentId must be passed exactly as "proof-or-stop-product-reviewer". Do not pass "proof-or-stop-review-story-init"; that is a different reviewer and will cause the INIT_CHECK gate to keep reporting a missing proof-or-stop-product-reviewer.`,
         '- INIT-blocking issue kinds are "requirements_ambiguous", "user_outcome_unspecified", "verification_plan_unexecutable", and "scope_or_safety_boundary_missing".',
-        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"kind":"user_outcome_unspecified","severity":"medium","desc":"..."}],"agentId":"proof-or-stop-product-reviewer"}'`,
+        '- Report the complete finite issue set in one call; do not invent a new critical/high requirement from unchanged facts on a later fresh review.',
+        '- Every critical/high issue requires an exact requirementRef such as story:description, background:Trigger Event, checklist:CHK-001, verification-intent:CHK-001:happy:0, scope-boundary, or execution-boundary. Unbound critical/high reports are stored as advisory.',
+        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"kind":"user_outcome_unspecified","requirementRef":"story:description","severity":"high","desc":"..."}],"agentId":"proof-or-stop-product-reviewer"}'`,
         `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"proof-or-stop-product-reviewer"}'`,
         '- Critical/high INIT-applicable issues hard-block INIT_CHECK; medium/low and post-implementation-only issues are recorded as non-blocking or deferred.',
         '- Do not edit story files directly.',
@@ -501,7 +548,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     const lines: string[] = [];
     lines.push(`Review PLAN scope coverage for story ${args.storyId}.`);
     lines.push('');
-    lines.push('You are the proof-or-stop-review-scope-plan reviewer; review in a fresh context and do not carry over the main agent\'s conclusions.');
+    lines.push('Reviewer execution contract:');
+    lines.push('- You are the proof-or-stop-review-scope-plan reviewer. Review in a fresh context and do not carry over the main agent\'s or Story owner\'s conclusions. Finish by calling scope_check_save.');
+    lines.push(`- ${REVIEWER_NO_DELEGATION_BOUNDARY}`);
     lines.push(`Working directory (subagent must cd here): ${root}`);
     lines.push('');
     appendDispatchLivenessGuidance(lines, 'proof-or-stop-review-scope-plan/story-scope');
@@ -554,6 +603,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       renderAgentLivenessGuidance({ label: 'proof-or-stop-review-topology-critic/story', startSignal: 'DISPATCH_START:proof-or-stop-review-topology-critic/story' }),
       '',
       'Use the canonical proof-or-stop-review-topology-critic role. Do not edit implementation or story files.',
+      REVIEWER_NO_DELEGATION_BOUNDARY,
       `Run proof-or-stop acceptance_basis '{"storyId":"${args.storyId}","json":true}' and inspect topology, scope, exclusions, discovery status, and closure.`,
       'A missing, partial, unsupported, stale, or tampered basis cannot receive pass.',
       'Every exclusion must already have a separately attributable proof-or-stop-review-scope-plan approval.',
@@ -582,6 +632,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     ];
     appendDispatchLivenessGuidance(lines, `${entry.canonicalName}/story`);
     lines.push('Role boundary:');
+    lines.push(`- ${REVIEWER_NO_DELEGATION_BOUNDARY}`);
     lines.push('- Review only; do not change code, tests, checklist status, or story metadata.');
     lines.push('- This is a story-level dispatch: review every checklist item and the integrated change, not one selected item.');
     lines.push('');
@@ -612,6 +663,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     store.readStory(args.storyId);
     const lines: string[] = [
       `As ${args.resolved.canonicalType}, perform the delivery review for story ${args.storyId}.`,
+      REVIEWER_NO_DELEGATION_BOUNDARY,
       '',
       `Working directory (subagent must cd here): ${root}`,
       '',
@@ -641,6 +693,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     ];
     appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/${args.itemId}`);
     lines.push('Role boundary:');
+    lines.push(`- ${REVIEWER_NO_DELEGATION_BOUNDARY}`);
     lines.push('- Define adversarial acceptance intent only; do not implement, edit code/tests, or change checklist completion.');
     lines.push('- You may write only verificationIntent through checklist_update; do not write status, verificationEvidence, or checklist definition fields.');
     lines.push('');
@@ -1015,6 +1068,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
               `Trusted inventory subject: ${JSON.stringify(inventoryBinding)}`,
               renderAgentLivenessGuidance({ label: 'proof-or-stop-review-topology-critic/inventory', startSignal: 'DISPATCH_START:proof-or-stop-review-topology-critic/inventory' }),
               'Use the canonical critic role with the inventory-only duties. Preserve real Git attribution; never manufacture role-named implementation commits.',
+              REVIEWER_NO_DELEGATION_BOUNDARY,
               'Launch only against the OPEN inventory. After official finalization, consumers verify the sealed launch prompt and signed completed-wave subject; do not reconstruct a new OPEN prompt or rewrite the terminal evidence.',
               'A managed reviewer may start after an OPEN epoch cutoff when ancestry and both content hashes remain bound. Earlier-wave critic evidence is historical, not current authority; an older PASS is omitted from invalid only after its native or managed authority authenticates and a newer valid lane record (PASS or FINDING) exists. It never becomes current authority, and open findings remain blocking. Receipt tampering remains blocking.',
               'Evidence-only retention refuses commits that also flush pending inventory initialization or unrelated process facts; a writer label never grants authority over those additional changes.',
@@ -1132,6 +1186,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const lines = [
           `As ${canonicalType}, run the registered acceptance-rollout cohort for ${args.storyId}.`,
           `Working directory (subagent must cd here): ${root}`,
+          REVIEWER_NO_DELEGATION_BOUNDARY,
           '',
         ];
         appendDispatchLivenessGuidance(lines, `${canonicalType}/story`);

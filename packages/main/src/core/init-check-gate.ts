@@ -38,15 +38,13 @@ import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amen
  * would re-sign hand-edited reviewer records into validity: tamper once, wait for any
  * legitimate call, and CHK-002's tamper-evidence is laundered away.
  *
- * SCOPE OF THAT PROPERTY: it makes the record TAMPER-EVIDENT, it does not make reviewer
- * coverage trustworthy. One caller can still legally satisfy both required reviewers by
- * calling init_check_set twice (EXP-001: caller identity is not mechanically verifiable
- * from inside a Bash invocation), which is by design and asserted by shipped smoke tests.
- * What tampering additionally bought was zero audit trail and a bypass of the actor
- * registry; that is what closes here.
+ * SCOPE OF THAT PROPERTY: it makes the record TAMPER-EVIDENT. Reviewer coverage is
+ * independently constrained by the controller-owned managed-dispatch run recorded on
+ * each bare required-role result. Caller-supplied role ids cannot satisfy either lane;
+ * an explicit @fallback record remains the only non-independent path.
  *
- * The agentId field does not participate in the signature DIRECTLY (EXP-001 has disproved the mechanical verifiability of agentId, see
- * docs/story/actives/B-e71f/experiments/exp-001.md), used only for audit traceability — but when `agentResults`
+ * The top-level agentId field does not participate in the signature DIRECTLY and remains
+ * an audit projection — but when `agentResults`
  * is absent it is one of the inputs initCheckAgentResults synthesizes the gate's decision array from, and in
  * that shape it is bound through the synthesized value (see computeInitCheckVerdictHash).
  */
@@ -56,6 +54,7 @@ import { existsSync, readFileSync } from 'fs';
 import { StoryStore } from './store.js';
 import type { InitCheckData, InitCheckIssue } from './types.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { verifyManagedDispatchDelivery } from './managed-host-run.js';
 
 export const INIT_CHECK_SALT = 'proof-or-stop-init-check-integrity-v1';
 export const REQUIRED_INIT_CHECK_AGENTS = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'] as const;
@@ -79,13 +78,19 @@ export const INIT_CHECK_FALLBACK_AGENT_SUFFIX = 'fallback';
  * Pure derivation over persisted data; used by story_get / dashboard / report to
  * surface "this gate was passed by a human fallback, not a reviewer".
  */
-export function initCheckAttestationMode(data: InitCheckData): 'independent' | 'fallback' {
+export function initCheckAttestationMode(
+  data: InitCheckData,
+  verification?: { root: string; storyId: string },
+): 'independent' | 'fallback' | 'unverified' {
   if (data.fallback) return 'fallback';
   const suffix = `@${INIT_CHECK_FALLBACK_AGENT_SUFFIX}`;
   for (const result of initCheckAgentResults(data)) {
     if (normalizeAgentId(result.agentId).endsWith(suffix)) return 'fallback';
   }
-  return 'independent';
+  if (!verification || missingRequiredInitCheckAgents(data).length > 0) return 'unverified';
+  return invalidInitReviewerDeliveries(data, verification.root, verification.storyId).length === 0
+    ? 'independent'
+    : 'unverified';
 }
 
 export function normalizeAgentId(agentId: string | undefined): string {
@@ -118,8 +123,29 @@ export function initCheckAgentResults(data: InitCheckVerdictSource): NonNullable
 export function missingRequiredInitCheckAgents(data: InitCheckData): string[] {
   const results = initCheckAgentResults(data);
   return REQUIRED_INIT_CHECK_AGENTS.filter(required =>
-    !results.some(result => initCheckAgentMatches(result.agentId, required)),
+    !results.some(result => {
+      if (!initCheckAgentMatches(result.agentId, required)) return false;
+      if (result.agentId === `${required}@${INIT_CHECK_FALLBACK_AGENT_SUFFIX}`) return true;
+      return typeof result.deliveryRunId === 'string' && result.deliveryRunId.trim().length > 0;
+    }),
   );
+}
+
+export function invalidInitReviewerDeliveries(
+  data: InitCheckData,
+  root: string,
+  storyId: string,
+): Array<{ agentId: string; runId: string; reason: string }> {
+  const invalid: Array<{ agentId: string; runId: string; reason: string }> = [];
+  for (const result of initCheckAgentResults(data)) {
+    if (result.agentId.endsWith(`@${INIT_CHECK_FALLBACK_AGENT_SUFFIX}`)) continue;
+    if (!REQUIRED_INIT_CHECK_AGENTS.some(required => result.agentId === required)) continue;
+    const runId = result.deliveryRunId?.trim() ?? '';
+    if (!runId) continue; // reported by missingRequiredInitCheckAgents
+    const verdict = verifyManagedDispatchDelivery({ root, runId, storyId, agentType: result.agentId });
+    if (!verdict.valid) invalid.push({ agentId: result.agentId, runId, reason: verdict.reason });
+  }
+  return invalid;
 }
 
 export function blockingInitCheckIssues(data: InitCheckData): Array<{ agentId: string; issue: InitCheckIssue }> {
@@ -365,7 +391,8 @@ export function initCheckSignatureIsValid(
  *
  * `verdictSource` (B-8df9 CHK-002) defaults to the persisted init-check.json, which is what a
  * VERIFIER wants: recompute over what is on disk and compare with the `_hash` stored beside it.
- * A PRODUCER passes the record it is about to write, because at that moment the file on disk is
+ * A PRODUCER, including an isolated regression fixture, passes the record it is about to write as
+ * the fourth argument, because at that moment the file on disk is
  * either absent or still holds the previous verdict. Pass `null` to recompute against no verdict
  * at all.
  */

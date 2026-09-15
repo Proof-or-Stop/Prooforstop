@@ -16,7 +16,16 @@ import { SCOPE_PATH_CANONICALIZER_VERSION } from '../core/scope-path-classifier.
 import { resolveStoryMergeBase } from '../core/story-aware-validation.js';
 import { buildMaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
+import { loadConfig } from '../core/config.js';
+import { inspectExpectedControllerRuntimeProjection } from '../core/runtime-artifact-registry.js';
+import {
+  classifierOptionsForCheck,
+  classifyGitStatusRows,
+  isBlockingDirty,
+  readGitStatusLines,
+} from '../core/dirty-worktree-gate.js';
 import { renderReproFirstStoryCreatePreflight } from '../handlers/story-create.js';
+import { createReviewRunHandlers } from '../handlers/review-run.js';
 import { StoryStore } from '../core/store.js';
 import { captureVerificationFreshness, createCurrentVerificationAssertionReceipt, createVerificationExecutionReceipt } from '../core/verification-execution-evidence.js';
 import type { ChecklistData, StoryInfo, VerificationEvidence } from '../core/types.js';
@@ -48,6 +57,35 @@ function initRepository(root: string): void {
   git(root, ['commit', '-qm', 'fixture']);
 }
 
+function assertOrdinaryLinkedWorktreeHasNoControllerProjectionGate(): void {
+  const primaryRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-ordinary-primary-'));
+  const storyId = 'B-ordinary';
+  const worktreeRoot = join(primaryRoot, '.worktrees', storyId);
+  try {
+    initRepository(primaryRoot);
+    git(primaryRoot, ['branch', `story/${storyId}`]);
+    mkdirSync(join(primaryRoot, '.worktrees'), { recursive: true });
+    git(primaryRoot, ['worktree', 'add', '-q', worktreeRoot, `story/${storyId}`]);
+    const status = inspectExpectedControllerRuntimeProjection({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId,
+    });
+    assert.equal(status.expected, false, 'ordinary linked worktrees must not require controller runtime assets');
+    assert.equal(status.valid, true, 'ordinary linked worktree applicability resolves without a projection failure');
+    assert.equal(status.reason, 'not-controller-managed-worktree');
+    const unresolved = inspectExpectedControllerRuntimeProjection({
+      projectRoot: join(worktreeRoot, 'missing-project-root'),
+      gitCwd: join(worktreeRoot, 'missing-git-root'),
+      storyId,
+    });
+    assert.equal(unresolved.expected, false, 'an applicability resolution error must not invent a controller projection requirement');
+    assert.equal(unresolved.reason, 'controller-applicability-unresolved');
+  } finally {
+    rmSync(primaryRoot, { recursive: true, force: true });
+  }
+}
+
 function story(storyId: string, worktreePath: string): StoryInfo {
   const now = '2026-09-11T00:00:00.000Z';
   return {
@@ -66,6 +104,12 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
   const worktreeRoot = join(controllerRoot, '.worktrees', storyId);
   try {
     initRepository(controllerRoot);
+    mkdirSync(join(controllerRoot, '.proof-or-stop'), { recursive: true });
+    writeFileSync(join(controllerRoot, '.proof-or-stop', 'proof-or-stop.json'), '{"assetMode":"global-thin"}\n');
+    mkdirSync(join(controllerRoot, '.codex', 'hooks'), { recursive: true });
+    writeFileSync(join(controllerRoot, '.codex', 'hooks.json'), '{"hooks":[]}\n');
+    writeFileSync(join(controllerRoot, '.codex', 'hooks', 'proof-or-stop-evidence-pretool.cjs'), 'module.exports = {};\n');
+    writeFileSync(join(controllerRoot, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs'), 'module.exports = {};\n');
     git(controllerRoot, ['branch', `story/${storyId}`]);
     mkdirSync(join(controllerRoot, '.worktrees'), { recursive: true });
     git(controllerRoot, ['worktree', 'add', '-q', worktreeRoot, `story/${storyId}`]);
@@ -89,13 +133,168 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.match(cliOutput, /metadata auto-committed/, 'real CLI projects and commits controller metadata in the linked worktree');
+    const projectionReceiptPaths = [
+      `.proof-or-stop/story/actives/${storyId}/evidence/controller-config-projection.json`,
+      `.proof-or-stop/story/actives/${storyId}/evidence/controller-runtime-projection.json`,
+    ];
+    for (const receiptPath of projectionReceiptPaths) {
+      assert.equal(existsSync(join(worktreeRoot, receiptPath)), true, `${receiptPath} remains present for runtime verification`);
+      assert.equal(
+        git(worktreeRoot, ['ls-files', '--', receiptPath]),
+        '',
+        `LAB_RED: controller projection receipt must remain untracked after the first real metadata auto-commit: ${receiptPath}`,
+      );
+    }
+    const secondCliOutput = execFileSync(process.execPath, [cliEntry, '--root', controllerRoot, 'checklist_update', `--storyId=${storyId}`, '--itemId=CHK-001', '--status=pending'], {
+      cwd: worktreeRoot,
+      encoding: 'utf8',
+      env: { ...process.env, PROOF_OR_STOP_AGENT: 'main', PROOF_OR_STOP_SESSION_ID: 'lab-owner' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.match(secondCliOutput, /metadata auto-committed/, 'second real CLI metadata mutation is auto-committed');
+    for (const receiptPath of projectionReceiptPaths) {
+      assert.equal(existsSync(join(worktreeRoot, receiptPath)), true, `${receiptPath} remains present after the second metadata auto-commit`);
+      assert.equal(
+        git(worktreeRoot, ['ls-files', '--', receiptPath]),
+        '',
+        `controller projection receipt must remain untracked after repeated metadata auto-commit: ${receiptPath}`,
+      );
+    }
     assert.equal(readFileSync(controllerLeasePath, 'utf8'), controllerLeaseBytes, 'controller owner lease remains byte-identical during bootstrap');
     const projected = project({ controllerRoot, worktreeRoot, storyId });
     assert.equal(projected.storyRoot, join(realpathSync(worktreeRoot), '.proof-or-stop/story/actives', storyId));
     assert.equal(readFileSync(join(worktreeRoot, 'proof-or-stop.config.json'), 'utf8'), configBytes, 'controller config bytes are projected exactly');
     const localStore = new StoryStore(worktreeRoot);
     const checklist = localStore.readChecklist(storyId);
-    assert.equal(checklist.items[0]!.status, 'in_progress');
+    assert.equal(checklist.items[0]!.status, 'pending');
+    const projectedStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(projectedStatus.ok, true, 'projected Story worktree git status is readable');
+    const projectedClassification = classifyGitStatusRows(
+      projectedStatus.ok ? projectedStatus.lines : [],
+      classifierOptionsForCheck(loadConfig(worktreeRoot), storyId, localStore, worktreeRoot),
+    );
+    const projectedDirty = isBlockingDirty(projectedClassification);
+    assert.equal(
+      projectedDirty.blocked,
+      false,
+      `LAB_RED: valid signed controller config and hook projections must not block review_run_start: ${projectedDirty.blockingPaths.join(', ')}`,
+    );
+    const projectedRuntimePaths = projectedClassification.groups.runtime_artifact_changes.map(entry => entry.path);
+    assert.ok(projectedRuntimePaths.includes('proof-or-stop.config.json'), 'valid projected controller config is classified as a runtime artifact');
+    for (const hookPath of [
+      '.codex/hooks.json',
+      '.codex/hooks/proof-or-stop-evidence-pretool.cjs',
+      '.codex/hooks/proof-or-stop-scope-pretool.cjs',
+    ]) {
+      assert.ok(projectedRuntimePaths.includes(hookPath), `${hookPath} is classified as a runtime artifact`);
+    }
+
+    const expectedHookPaths = [
+      '.codex/hooks.json',
+      '.codex/hooks/proof-or-stop-evidence-pretool.cjs',
+      '.codex/hooks/proof-or-stop-scope-pretool.cjs',
+    ];
+    for (const expectedHookPath of expectedHookPaths) rmSync(join(worktreeRoot, expectedHookPath));
+    const missingProjection = inspectExpectedControllerRuntimeProjection({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId,
+    });
+    assert.equal(missingProjection.expected, true, 'global-thin Story worktree requires the controller runtime projection');
+    assert.equal(
+      missingProjection.valid,
+      false,
+      'LAB_RED: review preflight must reject an entirely absent untracked controller runtime projection',
+    );
+    project({ controllerRoot, worktreeRoot, storyId });
+    const restoredProjection = inspectExpectedControllerRuntimeProjection({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId,
+    });
+    assert.equal(restoredProjection.valid, true, 'CLI bootstrap restores the exact signed controller runtime projection before review');
+
+    git(worktreeRoot, ['add', '-f', ...expectedHookPaths]);
+    assert.equal(
+      inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
+      false,
+      'tracked hook projections remain forbidden even when their bytes and receipts are exact',
+    );
+    git(worktreeRoot, ['rm', '--cached', '-q', ...expectedHookPaths]);
+    git(worktreeRoot, ['add', '-f', 'proof-or-stop.config.json']);
+    assert.equal(
+      inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
+      false,
+      'tracked config projection remains forbidden even when its bytes and receipt are exact',
+    );
+    git(worktreeRoot, ['rm', '--cached', '-q', 'proof-or-stop.config.json']);
+
+    for (const expectedHookPath of expectedHookPaths) rmSync(join(worktreeRoot, expectedHookPath));
+    const reviewStory = localStore.readStory(storyId);
+    localStore.writeStory(storyId, { ...reviewStory, phase: 'REVIEW' });
+    const previousReviewerAgent = process.env.PROOF_OR_STOP_AGENT;
+    const previousCwd = process.cwd();
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-quality';
+    process.chdir(worktreeRoot);
+    try {
+      const reviewHandlers = createReviewRunHandlers({ store: localStore, root: worktreeRoot, scanRoot: worktreeRoot });
+      assert.throws(
+        () => reviewHandlers.review_run_start({ storyId }),
+        /controller runtime projection is incomplete or invalid/,
+        'real review_run_start handler rejects an entirely absent controller projection before snapshotting',
+      );
+    } finally {
+      process.chdir(previousCwd);
+      if (previousReviewerAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousReviewerAgent;
+    }
+    localStore.writeStory(storyId, reviewStory);
+    project({ controllerRoot, worktreeRoot, storyId });
+
+    const singleMissingHookPath = '.codex/hooks/proof-or-stop-scope-pretool.cjs';
+    rmSync(join(worktreeRoot, singleMissingHookPath));
+    const singleMissingStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(singleMissingStatus.ok, true, 'single-hook deletion git status remains readable');
+    assert.equal(
+      singleMissingStatus.ok && singleMissingStatus.lines.some(line => line.endsWith(` ${singleMissingHookPath}`)),
+      false,
+      'git status has no row for the absent untracked controller hook',
+    );
+    assert.equal(
+      inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
+      false,
+      'LAB_RED: review preflight must reject a single absent untracked controller hook that git status cannot observe',
+    );
+    localStore.writeStory(storyId, { ...reviewStory, phase: 'REVIEW' });
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-quality';
+    process.chdir(worktreeRoot);
+    try {
+      const reviewHandlers = createReviewRunHandlers({ store: localStore, root: worktreeRoot, scanRoot: worktreeRoot });
+      assert.throws(
+        () => reviewHandlers.review_run_start({ storyId }),
+        /uncommitted unexpected_dirty_files|controller runtime projection is incomplete or invalid/,
+        'real review_run_start handler rejects one absent untracked controller hook before snapshotting',
+      );
+    } finally {
+      process.chdir(previousCwd);
+      if (previousReviewerAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousReviewerAgent;
+    }
+    localStore.writeStory(storyId, reviewStory);
+    project({ controllerRoot, worktreeRoot, storyId });
+
+    const hookPath = '.codex/hooks/proof-or-stop-evidence-pretool.cjs';
+    const hookBytes = readFileSync(join(worktreeRoot, hookPath));
+    writeFileSync(join(worktreeRoot, hookPath), `${hookBytes.toString('utf8')}tampered\n`);
+    const tamperedStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(tamperedStatus.ok, true, 'tampered Story worktree git status is readable');
+    const tamperedDirty = isBlockingDirty(classifyGitStatusRows(
+      tamperedStatus.ok ? tamperedStatus.lines : [],
+      classifierOptionsForCheck(loadConfig(worktreeRoot), storyId, localStore, worktreeRoot),
+    ));
+    assert.equal(tamperedDirty.blocked, true, 'a changed projected hook must return to fail-closed dirty classification');
+    assert.ok(tamperedDirty.blockingPaths.includes(hookPath), 'fail-closed classification identifies the changed projected hook');
+    writeFileSync(join(worktreeRoot, hookPath), hookBytes);
     assert.match(git(worktreeRoot, ['show', '--name-only', '--format=', 'HEAD']), new RegExp(`^\\.proof-or-stop/story/actives/${storyId}/`, 'm'));
     assert.equal(git(controllerRoot, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${storyId}`]).startsWith('??'), true, 'controller Story copy remains read-only and uncommitted');
 
@@ -104,7 +303,7 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
       cwd: worktreeRoot, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_AGENT: 'main', PROOF_OR_STOP_SESSION_ID: 'lab-owner' }, stdio: ['ignore', 'pipe', 'pipe'],
     }), /branch-local authoritative Story/, 'a committed branch-local Story cannot be repopulated from the stale controller copy');
     git(worktreeRoot, ['checkout', '--', '.proof-or-stop']);
-    assert.equal(new StoryStore(worktreeRoot).readChecklist(storyId).items[0]!.status, 'in_progress', 'branch-local recovery restores the committed authority');
+    assert.equal(new StoryStore(worktreeRoot).readChecklist(storyId).items[0]!.status, 'pending', 'branch-local recovery restores the committed authority');
 
     rmSync(join(worktreeRoot, '.proof-or-stop'), { recursive: true, force: true });
     const escapeTarget = join(controllerRoot, 'escape-target');
@@ -445,6 +644,7 @@ function assertGoCommandProfile(resolveProfile: ResolveProfile, evaluate: Evalua
 
 const project = (runtimeRootModule as unknown as Record<string, unknown>).projectControllerAssetsIntoStoryWorktree;
 assert.equal(typeof project, 'function', 'LAB_RED: external controller assets are not projected into the signed Story worktree');
+assertOrdinaryLinkedWorktreeHasNoControllerProjectionGate();
 assertExternalControllerProjection(project as ProjectControllerAssets);
 assertUntrackedControllerConfigAndMasterBaseline(project as ProjectControllerAssets);
 assertMissingTrackedConfigIsNotRecreated(project as ProjectControllerAssets);

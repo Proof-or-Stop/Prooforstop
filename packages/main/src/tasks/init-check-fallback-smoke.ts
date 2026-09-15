@@ -225,17 +225,35 @@ try {
     'initCheckFallbackWarning must name the authorization boundary',
   );
 
-  // independent reviewer path for contrast
-  const indepStory = createStory(root, 'independent-review', 'Independent reviewer story');
-  run(root, 'init_check_set', { storyId: indepStory, issues: [], agentId: 'proof-or-stop-review-story-init' });
-  run(root, 'init_check_set', { storyId: indepStory, issues: [], agent: 'proof-or-stop-product-reviewer' });
-  const indepView = JSON.parse(run(root, 'story_get', { storyId: indepStory }));
-  assert.equal(indepView.initCheckAttestation, 'independent', 'independent reviewer story_get must report attestation=independent');
-  assert.ok(!indepView.initCheckFallback, 'independent path must NOT carry a fallback block');
-  // B-6894: independent reviewer stories must NOT carry the warning field.
-  assert.ok(!indepView.initCheckFallbackWarning, 'independent path must NOT carry initCheckFallbackWarning');
-  const indepAdvanced = run(root, 'story_advance', { storyId: indepStory, phase: 'INIT_CHECK' });
-  assert.match(indepAdvanced, /advanced to INIT_CHECK/, 'independent reviewer path still advances normally');
+  // A caller-supplied role name is not independent evidence. The managed INIT
+  // dispatch e2e owns the real independent-provider path; this fallback smoke
+  // pins the negative boundary and confirms it cannot be relabelled independent.
+  const unboundStory = createStory(root, 'unbound-review', 'Unbound reviewer story');
+  const unboundStoryInit = run(root, 'init_check_set', {
+    storyId: unboundStory,
+    issues: [],
+    agentId: 'proof-or-stop-review-story-init',
+  }, true);
+  assert.match(unboundStoryInit, /delivery_not_acknowledged/, 'bare payload reviewer identity must be rejected');
+  const unboundProduct = run(root, 'init_check_set', {
+    storyId: unboundStory,
+    issues: [],
+    agent: 'proof-or-stop-product-reviewer',
+  }, true);
+  assert.match(unboundProduct, /delivery_not_acknowledged/, 'bare product reviewer identity must be rejected');
+  assert.ok(!existsSync(initCheckPath(root, unboundStory)), 'rejected role payloads must not write init-check evidence');
+
+  run(root, 'init_check_repair', {
+    storyId: unboundStory,
+    acknowledge: true,
+    fallbackReason: 'No managed INIT reviewer is available in this fixture; the operator manually checked both required review concerns.',
+  });
+  const unboundView = JSON.parse(run(root, 'story_get', { storyId: unboundStory }));
+  assert.equal(unboundView.initCheckAttestation, 'fallback', 'explicit repair remains visibly non-independent');
+  assert.ok(unboundView.initCheckFallback, 'explicit repair must carry its fallback block');
+  assert.match(unboundView.initCheckFallbackWarning, /not independent reviewer approval/);
+  const unboundAdvanced = run(root, 'story_advance', { storyId: unboundStory, phase: 'INIT_CHECK' });
+  assert.match(unboundAdvanced, /advanced to INIT_CHECK/, 'explicit acknowledged fallback still advances normally');
 
   // B-6894: session_brief for fallback story must surface the authorization boundary warning.
   // Run session_brief on the root (main branch has no story branch active) so the

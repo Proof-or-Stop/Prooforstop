@@ -1254,7 +1254,7 @@ Behavior:
   }},
   // Lifecycle Readiness P7: reviewer_batch — read-only reviewer-launcher PLAN producer.
   { name: 'reviewer_batch_admit', description: 'Owner-only shared capability admission for an explicit complete reviewer roster in the current signed REVIEW inventory wave. Does not launch a reviewer or issue review evidence.', schema: ReviewerBatchAdmitArgsSchema.shape },
-  { name: 'reviewer_batch', description: 'Awaiting-repair suppresses repeat launch plans only for valid blocking observations with unchanged committed material or metadata-only head drift; it proves no repair, applicability or gate readiness. Read-only reviewer-launcher PLAN producer: for a story in REVIEW, consolidates the per-lane reviewer state (current-pass / scope-changed / no-receipt / blocking / awaiting-repair) from existing facts, emits the Agent(...) launch instruction (the orchestrator subagent-spawn form, not a dispatch CLI command) for each lane needing a (re-)run, and reports the REVIEW gate status from the StoryReadinessReport review rows. Launches no reviewer, runs no review_run_start, writes no review-runs/review-passes/findings or any evidence; there is NO --write/--launch/--run flag.', schema: {
+  { name: 'reviewer_batch', description: 'Awaiting-repair suppresses repeat launch plans only for valid blocking observations with unchanged committed material or metadata-only head drift; it proves no repair, applicability or gate readiness. Read-only reviewer-launcher PLAN producer: for a story in REVIEW, consolidates the per-lane reviewer state (current-pass / scope-changed / no-receipt / blocking / awaiting-repair) from existing facts, emits host-neutral canonical-dispatch plus fresh-context launch guidance for each lane needing a (re-)run, and reports the REVIEW gate status from the StoryReadinessReport review rows. Launches no reviewer, runs no review_run_start, writes no review-runs/review-passes/findings or any evidence; there is NO --write/--launch/--run flag.', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
@@ -2676,6 +2676,7 @@ Behavior:
     issues: z.array(z.object({
       id: z.string().optional().describe('Reviewer self-assigned ID, for example I-1; optional.'),
       kind: z.enum(INIT_CHECK_ISSUE_KINDS).optional().describe('INIT-stage applicability. post_implementation_evidence_missing is deferred and cannot block implementation start.'),
+      requirementRef: z.string().optional().describe('Exact authoritative INIT input pointer required for critical/high blockers, for example story:description, background:Trigger Event, checklist:CHK-001, or verification-intent:CHK-001:happy:0.'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Issue details (reviewer subjective judgment must be specific).'),
     })).describe('List of issues raised by Reviewer; critical/high INIT-applicable issues block INIT_CHECK, while post-implementation evidence gaps are deferred; empty array allowed.'),
@@ -2696,6 +2697,7 @@ Behavior:
     issues: z.array(z.object({
       id: z.string().optional().describe('Self-assigned ID, optional.'),
       kind: z.enum(INIT_CHECK_ISSUE_KINDS).optional().describe('INIT-stage applicability. post_implementation_evidence_missing is deferred and cannot block implementation start.'),
+      requirementRef: z.string().optional().describe('Optional authoritative INIT input pointer; manual fallback attestations remain operator-bound.'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character.').describe('Issue details.'),
     })).optional().describe('Optional issues raised by manual attestation; high/critical INIT-applicable issues block INIT_CHECK, while post-implementation evidence gaps are deferred.'),
@@ -3459,6 +3461,7 @@ Behavior:
     deadlineMs: z.number().int().positive().optional().describe('Finite absolute managed-run deadline in milliseconds; defaults to timeoutMs or 30 minutes'),
     detach: z.boolean().optional().describe('Return after durable worker claim instead of attaching until terminal'),
     managedReview: z.boolean().optional().describe('Formal cross-provider reviewer mode: derive the exact prompt from reviewRunId/lane, require agentType=lane, and accept only a provider-authored proposal plus successful terminal receipt. Do not pass prompt/promptFile.'),
+    managedDispatch: z.boolean().optional().describe('Controller-owned required-reviewer mode for INIT reviewers and the PLAN scope reviewer: derive the canonical dispatch prompt, seal Story/role identity, and require the role-specific signed output before completion. Do not pass prompt/promptFile.'),
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},

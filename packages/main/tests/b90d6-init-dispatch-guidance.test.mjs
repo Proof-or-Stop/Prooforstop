@@ -16,6 +16,7 @@ const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const { resetConfigCache } = await import(join(distRoot, 'core/config.js'));
 const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const { getGuardFailureReason } = await import(join(distRoot, 'core/machine.js'));
+const { recomputeInitCheckHash } = await import(join(distRoot, 'core/init-check-gate.js'));
 const { createInitCheckHandlers } = await import(join(distRoot, 'handlers/init-check.js'));
 const { createInitPreflightHandlers } = await import(join(distRoot, 'handlers/init-preflight.js'));
 const { createSessionHandlers } = await import(join(distRoot, 'handlers/session.js'));
@@ -23,6 +24,9 @@ const { createScopeAntiExpansionHandlers } = await import(join(distRoot, 'handle
 const { createStoryCreateHandlers } = await import(join(distRoot, 'handlers/story-create.js'));
 const { createStoryDispatchHandlers } = await import(join(distRoot, 'handlers/story-dispatch.js'));
 const { createStoryReviewHandlers } = await import(join(distRoot, 'handlers/story-review.js'));
+const { buildNextSteps } = await import(join(distRoot, 'handlers/transition-effects.js'));
+const { getGuardFailureReason: getTransitionGuardFailureReason } = await import(join(distRoot, 'core/guard-utils.js'));
+const { decorateResult } = await import(join(distRoot, 'handlers/hints.js'));
 
 function write(root, path, content) {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -119,6 +123,7 @@ function assertInitCheckGuardGuidance() {
   const storyId = 'B-guidance';
   const root = makeRoot();
   try {
+    initGitRoot(root);
     const store = new StoryStore(root);
     seedStory(store, storyId);
 
@@ -150,19 +155,68 @@ function assertInitCheckGuardGuidance() {
     assert.match(scopeHandlers(root, store).scope_freeze_check({ storyId }), /PASS/);
     const missingInitCheck = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
     assert.match(missingInitCheck ?? '', /missing_init_check/);
+    assert.match(missingInitCheck ?? '', /proof-or-stop host_run/);
+    assert.match(missingInitCheck ?? '', /"agentType":"proof-or-stop-review-story-init","managedDispatch":true/);
+    assert.match(missingInitCheck ?? '', /"agentType":"proof-or-stop-product-reviewer","managedDispatch":true/);
+    assert.match(missingInitCheck ?? '', /returned nonempty runId/);
+    assert.match(missingInitCheck ?? '', /host_run_status/);
+    assert.match(missingInitCheck ?? '', /init_check_set accepts only a matching live managed dispatch/);
+    assert.match(missingInitCheck ?? '', /Never use a host wait with an empty receiver set/);
+    assert.doesNotMatch(missingInitCheck ?? '', /spawn_agent\(|followup_task\(/);
     assertIncludesInitPreflight(missingInitCheck, storyId, 'missing init-check guidance');
 
-    createInitCheckHandlers(ctx(root, store)).init_check_set({
+    const initDispatch = createStoryDispatchHandlers(ctx(root, store));
+    const storyInitPrompt = initDispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-story-init' }).prompt;
+    const productInitPrompt = initDispatch.dispatch({ storyId, agentType: 'proof-or-stop-product-reviewer' }).prompt;
+    assert.match(storyInitPrompt, /fresh context/i);
+    assert.match(storyInitPrompt, /do not carry over the main agent's conclusions/i);
+    assert.match(storyInitPrompt, /do not spawn or delegate another reviewer/i);
+    assert.match(storyInitPrompt, /collaboration tools, if visible, are outside this role/i);
+    assert.doesNotMatch(storyInitPrompt, /spawn_agent\(|Agent\(\{ subagent_type:/);
+    assert.match(productInitPrompt, /fresh context/i);
+    assert.match(productInitPrompt, /do not carry over the main agent's conclusions/i);
+    assert.match(productInitPrompt, /do not spawn or delegate another reviewer/i);
+    assert.match(productInitPrompt, /collaboration tools, if visible, are outside this role/i);
+    assert.doesNotMatch(productInitPrompt, /spawn_agent\(|Agent\(\{ subagent_type:/);
+
+    const legacyInitCheckWithoutRequiredReviewers = {
       storyId,
+      checkedAt: '2026-07-08T12:00:00.000Z',
+      reviewRound: '',
+      agentId: 'legacy-unknown-reviewer',
       issues: [],
-      agentId: 'proof-or-stop-review-story-init',
-    });
-    const missingInitAgent = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
-    assert.match(missingInitAgent ?? '', /missing_init_check_agent/);
-    assert.match(missingInitAgent ?? '', /proof-or-stop-product-reviewer/);
-    assert.doesNotMatch(missingInitAgent ?? '', /lattice-review-story-init/);
-    assert.doesNotMatch(missingInitAgent ?? '', /subagent_type: "product-reviewer"/);
-    assertIncludesInitPreflight(missingInitAgent, storyId, 'missing init-check agent guidance');
+      agentResults: [],
+      _hash: '',
+    };
+    legacyInitCheckWithoutRequiredReviewers._hash = recomputeInitCheckHash(
+      storyId,
+      store,
+      root,
+      legacyInitCheckWithoutRequiredReviewers,
+    );
+    store.writeInitCheck(storyId, legacyInitCheckWithoutRequiredReviewers);
+    const bothInitAgentsMissing = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
+    assert.doesNotMatch(bothInitAgentsMissing ?? '', /init_check_tampered/);
+    assert.match(bothInitAgentsMissing ?? '', /missing_init_check_agent/);
+    assert.match(bothInitAgentsMissing ?? '', /managedDispatch/);
+    assert.match(bothInitAgentsMissing ?? '', /returned nonempty runId/);
+
+    assert.throws(
+      () => createInitCheckHandlers(ctx(root, store)).init_check_set({
+        storyId,
+        issues: [],
+        agentId: 'proof-or-stop-review-story-init',
+      }),
+      /delivery_not_acknowledged/,
+      'a caller-supplied role cannot create partial independent INIT evidence',
+    );
+    const stillMissingBoth = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
+    assert.match(stillMissingBoth ?? '', /missing_init_check_agent/);
+    assert.match(stillMissingBoth ?? '', /proof-or-stop-review-story-init/);
+    assert.match(stillMissingBoth ?? '', /proof-or-stop-product-reviewer/);
+    assert.match(stillMissingBoth ?? '', /managedDispatch/);
+    assert.doesNotMatch(stillMissingBoth ?? '', /spawn_agent\(|followup_task\(/);
+    assertIncludesInitPreflight(stillMissingBoth, storyId, 'missing init-check agent guidance');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -248,9 +302,17 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     });
     const storyId = output.match(/Story (B-[a-f0-9]+) created/)?.[1];
     assert.ok(storyId, 'story_create output should include the created story id');
-    assert.match(output, /spawn two INIT reviewers in parallel/);
+    assert.match(output, /managed INIT reviewers/i);
     assert.match(output, /proof-or-stop-review-story-init/);
     assert.match(output, /proof-or-stop-product-reviewer/);
+    assert.match(output, /proof-or-stop host_run/);
+    assert.match(output, /"agentType":"proof-or-stop-review-story-init","managedDispatch":true/);
+    assert.match(output, /"agentType":"proof-or-stop-product-reviewer","managedDispatch":true/);
+    assert.match(output, /nonempty runId/);
+    assert.match(output, /host_run_status/);
+    assert.match(output, /init_check_set accepts only a matching live managed dispatch/);
+    assert.match(output, /empty receiver set/i);
+    assert.doesNotMatch(output, /spawn_agent\(|followup_task\(/);
     assert.doesNotMatch(output, /subagent_type: "lattice-review-story-init"/);
     assert.doesNotMatch(output, /agentType":"lattice-review-story-init"/);
     assert.doesNotMatch(output, /subagent_type: "product-reviewer"/);
@@ -313,8 +375,21 @@ function assertScopePlanDispatchAndReviewGuidance() {
     });
 
     const dispatch = createStoryDispatchHandlers(ctx(root, store));
+    const verificationIntent = dispatch.dispatch({
+      storyId,
+      itemId: 'CHK-001',
+      agentType: 'proof-or-stop-verification-intent',
+    });
+    assert.match(verificationIntent.prompt, /do not spawn or delegate another reviewer/i);
+    assert.match(verificationIntent.prompt, /collaboration tools, if visible, are outside this role/i);
     const result = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' });
     assert.match(result.prompt, /Review PLAN scope coverage/);
+    assert.doesNotMatch(result.prompt, /spawn_agent\(/);
+    assert.doesNotMatch(result.prompt, /Agent\(\{ subagent_type:/);
+    assert.match(result.prompt, /execute this (?:scope )?review directly in the current reviewer task/i);
+    assert.match(result.prompt, /(?:must|do) not spawn or delegate another reviewer/i);
+    assert.match(result.prompt, /fresh context/i);
+    assert.match(result.prompt, /do not carry over the main agent's or Story owner's conclusions/i);
     assert.match(result.prompt, /Must read story artifacts/);
     assert.match(result.prompt, /Dispatch output is not gate evidence/);
     assert.match(result.prompt, /proof-or-stop scope_check_save/);
@@ -324,7 +399,14 @@ function assertScopePlanDispatchAndReviewGuidance() {
       .story_review({ storyId });
     const issue = storyReview.issues.find((entry) => entry.type === 'missing_scope_check');
     assert.ok(issue, 'story_review should report missing_scope_check');
+    assert.match(issue.message, new RegExp(`"storyId":"${storyId}".*"agentType":"proof-or-stop-review-scope-plan".*"managedDispatch":true`));
     assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=proof-or-stop-review-scope-plan`));
+    assert.match(issue.message, /spawn_agent/);
+    assert.match(issue.message, /fork_turns.*none/);
+    assert.match(issue.message, /Agent\(\{ subagent_type: "proof-or-stop-review-scope-plan"/);
+    assert.match(issue.message, /returned child agent id/);
+    assert.match(issue.message, /(?:must|do) not spawn or delegate another reviewer/i);
+    assert.match(issue.message, /empty target\/receiver set/i);
     assert.match(issue.message, /dispatch output is not gate evidence/);
     assert.match(issue.message, /proof-or-stop scope_check_save/);
   } finally {
@@ -361,10 +443,89 @@ function assertScopePlanDispatchPhaseGate() {
   }
 }
 
+function assertLifecycleReviewerLaunchGuidance() {
+  const storyId = 'B-lifecycle-guidance';
+  const root = makeRoot();
+  try {
+    initGitRoot(root);
+    const store = new StoryStore(root);
+    seedStory(store, storyId, 'REVIEW');
+    const next = buildNextSteps(store, root, storyId);
+    for (const value of [next.REVIEW, next.TEST]) {
+      assert.match(value, /proof-or-stop dispatch/);
+      assert.match(value, /spawn_agent\(\{ task_name:/);
+      assert.match(value, /fork_turns: "none"/);
+      assert.match(value, /followup_task\(\{ target: <returned reviewer target>, message: <the same exact prompt> \}\)/);
+      assert.match(value, /agent id or canonical task name/i);
+      assert.match(value, /do not wait until the reviewer has acknowledged the assignment/i);
+      assert.match(value, /Agent\(\{ subagent_type:/);
+      assert.match(value, /Other hosts launch one equivalent fresh-context reviewer task without parent conversation history/);
+      assert.match(value, /Retain every returned child agent id/);
+      assert.match(value, /never call wait with an empty target\/receiver set/);
+    }
+    assert.match(next.REVIEW, /every child id must be nonempty and distinct/i);
+    assert.match(next.REVIEW, /task_name: "review_test_coverage"/);
+    assert.doesNotMatch(next.REVIEW, /task_name: "[^"]*-/);
+    assert.match(next.REVIEW, /issue all host launch calls/);
+    assert.match(next.TEST, /proof-or-stop-review-delivery/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertReviewerRecoveryGuidance() {
+  const storyId = 'B-review-recovery';
+  const root = makeRoot();
+  try {
+    initGitRoot(root);
+    const store = new StoryStore(root);
+    seedStory(store, storyId, 'REVIEW');
+
+    const blocked = getTransitionGuardFailureReason(storyId, store, 'TEST', root);
+    assert.match(blocked ?? '', /proof-or-stop reviewer_batch/);
+    assert.match(blocked ?? '', /canonical fresh-context launchInstruction/);
+    assert.match(blocked ?? '', /nonempty, mutually distinct child ids/);
+
+    const decorated = decorateResult({
+      cmd: 'dev_finish',
+      args: { storyId },
+      result: 'advanced',
+      store,
+      root,
+      activeStory: { storyId, phase: 'REVIEW' },
+    });
+    assert.match(decorated, /proof-or-stop reviewer_batch/);
+    assert.match(decorated, /canonical dispatch \+ fresh-context launchInstruction/);
+    assert.match(decorated, /非空且并行时互异的 child IDs/);
+
+    const story = store.readStory(storyId);
+    const worktree = join(root, '.worktrees', storyId);
+    store.writeStory(storyId, {
+      ...story,
+      currentReviewRound: '2026-07-08T12:00:00.000Z',
+      worktree: { path: `.worktrees/${storyId}`, branch: `story/${storyId}` },
+    });
+    execFileSync('git', ['add', '.proof-or-stop'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['commit', '-m', 'seed review story'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    execFileSync('git', ['branch', `story/${storyId}`], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    mkdirSync(dirname(worktree), { recursive: true });
+    execFileSync('git', ['worktree', 'add', worktree, `story/${storyId}`], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    const worktreeStore = new StoryStore(worktree);
+    const brief = createSessionHandlers(ctx(worktree, worktreeStore)).session_brief({ concise: true });
+    assert.match(brief, /proof-or-stop reviewer_batch/);
+    assert.match(brief, /canonical dispatch prompt unchanged/);
+    assert.match(brief, /nonempty returned child id/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertInitCheckGuardGuidance();
 assertInitPreflightFailureRouting();
 assertSessionAndNextInitGuidance();
 assertStoryCreateAndGlobalHelpInitGuidance();
 assertScopePlanDispatchAndReviewGuidance();
 assertScopePlanDispatchPhaseGate();
+assertLifecycleReviewerLaunchGuidance();
+assertReviewerRecoveryGuidance();
 console.log('b90d6-init-dispatch-guidance: ALL PASS');

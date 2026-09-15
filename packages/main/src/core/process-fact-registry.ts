@@ -1441,7 +1441,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     reviewerLane: 'proof-or-stop-review-story-init',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
-    rationale: 'INIT reviewer writes signed init-check evidence before worktree bootstrap.',
+    rationale: 'INIT reviewer writes signed init-check evidence from its live controller-owned managed-dispatch process before worktree bootstrap.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-product-reviewer',
@@ -1449,7 +1449,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     reviewerLane: 'proof-or-stop-product-reviewer',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
-    rationale: 'Product INIT reviewer signs planned user-outcome and verification-plan readiness; post-implementation evidence is deferred to later lifecycle gates.',
+    rationale: 'Product INIT reviewer signs planned user-outcome and verification-plan readiness from its distinct live managed-dispatch process; post-implementation evidence is deferred to later lifecycle gates.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-review-scope-plan',
@@ -1457,7 +1457,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'story_review scope-check gate',
     reviewerLane: 'proof-or-stop-review-scope-plan',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_check_save,
-    rationale: 'PLAN scope reviewer signs scope-check evidence before implementation.',
+    rationale: 'PLAN scope reviewer signs scope-check evidence before implementation. Controller-owned managed dispatch is available when the ordinary reviewer sandbox cannot execute; completion requires an exact signed scope_check_save artifact bound to the managed run.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-review-topology-critic',
@@ -1634,6 +1634,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/scope-contract.ts',
       'packages/main/src/handlers/context.ts',
       'packages/main/src/handlers/checklist.ts',
+      'packages/main/src/handlers/review-run.ts',
     ],
   },
   'runtime:repository_default_baseline_gate': {
@@ -1831,7 +1832,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/init-check',
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.init_check_set,
-    rationale: 'Init-check signature is checked before worktree bootstrap.',
+    rationale: 'Init-check signature and each independent reviewer delivery receipt are checked before worktree bootstrap. A managed INIT dispatch issues a signed, deadline-bound, single-use invocation attestation so a provider tool host may execute init_check_set in a separate process group without weakening Story, role, run, signature, nonce, replay, or terminal-state checks. The dispatch reaches a completed terminal only after the configured Story store contains an exact agentResult bound to that runId and role. On Linux, nested Codex sandbox bypass is selected only when a Docker/OCI boundary marker is present; uncontained Linux and Darwin retain their ordinary provider sandbox.',
   },
   {
     name: 'artifact:scope-boundary.json',
@@ -1901,7 +1902,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/scope-check',
     consumerGate: 'story_review scope-check gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_check_save,
-    rationale: 'Scope-check signature is consumed by PLAN review.',
+    rationale: 'Scope-check signature is consumed by PLAN review. Managed scope-review delivery includes the exact deliveryRunId in the signature domain; the completed terminal receipt seals the exact scope-check bytes, and story_review compares the current artifact to that receipt. Missing, replaced, or unconsumed output fails rather than becoming provider_completed.',
   },
   {
     name: 'artifact:candidate-spec-set.json',
@@ -1981,7 +1982,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'topology_critic_receipt_check CLI verification only',
     consumerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.topology_critic_receipt_set,
-    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Git business-author identity remains raw: retired author spellings cannot be mapped or selected as canonical implementation provenance. Partial or unsupported discovery remains non-pass.',
+    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Implementation provenance is selected only from the frozen Story integration commit through HEAD, with repository merge-base fallback only for legacy Stories that lack a frozen target; branch names and unrelated earlier implementer commits cannot supply authority. Stable IMPLEMENTATION_PROVENANCE_* diagnostics are retained on optional dispatch and refuse required dispatch. Git business-author identity remains raw: retired author spellings cannot be mapped or selected as canonical implementation provenance. Partial or unsupported discovery remains non-pass.',
   },
   {
     name: 'artifact:milestone-ledger.json',
@@ -2110,7 +2111,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/agent-prompt + handlers/review-run',
     consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. Fresh Story writers persist exact proof-or-stop.* Prompt identities. Envelopes from the retired identity family remain inert historical bytes; verifyPromptEnvelopeIntegrity rejects them without fallback or rewrite. The package prompt-registry snapshot is also identity-bearing: its role-contract consumer rejects every schemaVersion or source other than the exact canonical proof-or-stop registry identities before deriving a contract. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, the selected mode-aware host identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash. Claude Code/CLI and Codex/CLI map explicitly to their matching PromptHost; a nonblank explicit unsupported provider becomes unknown before any environment inference, and antigravity/agy, fake, unknown, and absent providers fail closed instead of borrowing another host identity. The actual runtime-owned/global-thin package-registry resolver and explicit full-asset renderer return the same canonical body-free bootstrap; review_run_start supplies exactly one selected role-body render, so no modular+legacy double body is hidden. Review-run envelopes also bind an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata cannot rewrite historical eligibility. New conditional review envelopes additionally bind optional fullStoryBaseHead from the producer-resolved main commit. First-pass and bounded-overflow replay use that immutable base with the signed run head; declared unavailable bases refuse, while absent legacy fields preserve the previous digest. Live material, scope, native identity and Finding checks remain independent.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. Fresh Story writers persist exact proof-or-stop.* Prompt identities. Envelopes from the retired identity family remain inert historical bytes; verifyPromptEnvelopeIntegrity rejects them without fallback or rewrite. The package prompt-registry snapshot is also identity-bearing: its role-contract consumer rejects every schemaVersion or source other than the exact canonical proof-or-stop registry identities before deriving a contract. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, the selected mode-aware host identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash. Claude Code/CLI and Codex/CLI map explicitly to their matching PromptHost; a nonblank explicit unsupported provider becomes unknown before any environment inference, and antigravity/agy, fake, unknown, and absent providers fail closed instead of borrowing another host identity. The actual runtime-owned/global-thin package-registry resolver and explicit full-asset renderer return the same canonical body-free bootstrap; review_run_start supplies exactly one selected role-body render, so no modular+legacy double body is hidden. Review-run envelopes also bind an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata cannot rewrite historical eligibility. New conditional review envelopes additionally bind optional fullStoryBaseHead from the Story integration target parentCommitAtCreation, with repository-baseline resolution only for legacy Stories. First-pass and bounded-overflow replay use that immutable base with the signed run head; declared unavailable bases refuse, while absent legacy fields preserve the previous digest. Live material, scope, native identity and Finding checks remain independent.',
   },
   {
     name: 'artifact:review-runs.json',
@@ -2221,7 +2222,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/managed-review-evidence + core/managed-host-run',
     consumerGate: 'managed_review_evidence_import successful-terminal intake only',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.managed_review_proposal_set,
-    rationale: 'Managed review submissions are idempotent by host/story/reviewRunId/lane, with the normalized submission digest sealed in the spec; conflicting inputs and archived or interrupted requests never launch replacements. A purpose-bound inventory-completeness critic additionally receives a controller-fetched projection of the current signed epoch, required-lane ReviewRuns, Findings, and passes in its managedPromptDigest-bound prompt, because its detached committed scratch intentionally cannot contain current uncommitted inventory metadata. The projection is inspection input only and grants no topology, TEST, DONE, or implementation authority. The provider-owned immutable proposal is stored at the dynamic managed-run evidence-proposal.json path and is not gate evidence until an exact successful terminal seals it. The formal path accepts only one schema-valid bounded Codex agent_message or exact standalone Codex raw stdout envelope, or one Claude result final-result envelope after successful provider exit, and binds the exact run/review/provider tuple. Ordinary Codex progress agent messages are ignored; envelope-looking malformed/oversized attempts remain explicit failures, and multiple valid envelopes, tool-log, ordinary or mixed raw stdout, arbitrary streamed-output, or controller-authored input fails closed. The older signed-descriptor provider callback remains compatibility-only.',
+    rationale: 'Managed review submissions are idempotent by host/story/reviewRunId/lane, with the normalized submission digest sealed in the spec; conflicting inputs and archived or interrupted requests never launch replacements. A formal managed review requires the signed candidate-spec-set routing artifact, so host_run refuses before prompt construction or provider launch when it is absent and names candidate_spec_route as the owner repair. Provider null or missing routing digests retain a stable field-level malformed diagnostic instead of collapsing into an unexplained generic failure. A purpose-bound inventory-completeness critic additionally receives a controller-fetched projection of the current signed epoch, required-lane ReviewRuns, Findings, and passes in its managedPromptDigest-bound prompt, because its detached committed scratch intentionally cannot contain current uncommitted inventory metadata. The projection is inspection input only and grants no topology, TEST, DONE, or implementation authority. The provider-owned immutable proposal is stored at the dynamic managed-run evidence-proposal.json path and is not gate evidence until an exact successful terminal seals it. The formal path accepts only one schema-valid bounded Codex agent_message or exact standalone Codex raw stdout envelope, or one Claude result final-result envelope after successful provider exit, and binds the exact run/review/provider tuple. Ordinary Codex progress agent messages are ignored; envelope-looking malformed/oversized attempts remain explicit failures, and multiple valid envelopes, tool-log, ordinary or mixed raw stdout, arbitrary streamed-output, or controller-authored input fails closed. The older signed-descriptor provider callback remains compatibility-only. A late descriptor EPIPE or ECONNRESET after exactly one bounded final candidate no longer overrides the provider exit status; early descriptor failure remains fatal, and the managed parser still rejects malformed, multiple, or oversized candidates before evidence can be sealed.',
   },
   {
     name: 'artifact:convergence-progress.json',

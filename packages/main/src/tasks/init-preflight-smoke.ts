@@ -189,7 +189,12 @@ function freeze(store: StoryStore): ScopeFreezeCheckData {
   return result.check;
 }
 
-/** Write a valid signed init-check with both required reviewers and no blocking issues. */
+/**
+ * Write a valid signed synthetic fallback check with both required roles and no
+ * blockers. This fixture exercises preflight/hash parity rather than managed
+ * process delivery; real managed receipt verification is covered by
+ * managed-init-reviewer-dispatch-e2e.test.mjs.
+ */
 function writeGoodInitCheck(root: string, store: StoryStore): void {
   const data: InitCheckData = {
     storyId: STORY_ID,
@@ -198,8 +203,8 @@ function writeGoodInitCheck(root: string, store: StoryStore): void {
     agentId: 'proof-or-stop-review-story-init',
     issues: [],
     agentResults: [
-      { agentId: 'proof-or-stop-review-story-init', checkedAt: NOW, issues: [] },
-      { agentId: 'proof-or-stop-product-reviewer', checkedAt: NOW, issues: [] },
+      { agentId: 'proof-or-stop-review-story-init@fallback', checkedAt: NOW, issues: [] },
+      { agentId: 'proof-or-stop-product-reviewer@fallback', checkedAt: NOW, issues: [] },
     ],
     _hash: '',
   } as InitCheckData;
@@ -348,6 +353,12 @@ assert.equal(isCommandAllowed('init_preflight', 'DEV', DEFAULT_PHASE_TOOLS), tru
     // scope-boundary fix names scope_boundary_set; execution names execution_boundary_set.
     assert.match(report.prerequisites.find((r) => r.id === 'scope-boundary')!.fix!, /scope_boundary_set/);
     assert.match(report.prerequisites.find((r) => r.id === 'execution-boundary')!.fix!, /execution_boundary_set/);
+    const initFix = report.prerequisites.find((r) => r.id === 'init-check')!.fix!;
+    assert.match(initFix, /"agentType":"proof-or-stop-review-story-init","managedDispatch":true/);
+    assert.match(initFix, /"agentType":"proof-or-stop-product-reviewer","managedDispatch":true/);
+    assert.match(initFix, /host_run_status/);
+    assert.match(initFix, /init_check_repair/);
+    assert.doesNotMatch(initFix, /then proof-or-stop init_check_set/);
 
     // All 6 prerequisite rows are surveyed in the single run.
     assert.equal(report.prerequisites.length, 6, 'all six prerequisites are surveyed in one run');

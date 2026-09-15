@@ -1,5 +1,284 @@
 # Changelog
 
+## Lab managed-dispatch-validate-before-consume - v0.3.380 - 2026-09-15
+
+# Managed dispatch validates before consuming reviewer delivery
+
+## Problem
+
+`scope_check_save` consumed the managed reviewer's one-shot invocation attestation before validating owner dispositions and the rest of the scope payload. If the reviewer corrected a rejected tool call in the same provider run, the retry failed as a replay and PLAN remained blocked without `scope-check.json`. The shared error also incorrectly named `init_check_set` for PLAN failures.
+
+## Repair
+
+The handler now completes authority, owner coverage, Story, read-manifest, candidate-binding, and summary validation before consuming the attestation. A valid payload still consumes exactly once immediately before the delivery-bound signature and write. Managed-dispatch errors now use command-neutral wording.
+
+## Verification
+
+The Lab RED reproduced the first invalid payload consuming the attestation and making the corrected retry fail. GREEN runs both calls through one real managed provider invocation and proves that the corrected payload succeeds while retaining replay rejection, deliveryRunId binding, scope signature verification, output sealing, and post-terminal replacement defenses. Related managed scope/INIT tests and the complete process-fact contract passed. Codex Sol/high independently reviewed immutable repair HEAD `33ccc3a93a96e14714ffd728d914c5dcc7f5beaf` and reported PASS with no blocker. This Codex audit is used under the user's explicit exception because Claude quota is unavailable.
+
+Maintenance provenance: codex/lab-managed-dispatch-validate-before-consume, repair 33ccc3a93a96e14714ffd728d914c5dcc7f5beaf.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-scope-reviewer-dispatch - v0.3.379 - 2026-09-15
+
+# Managed PLAN scope reviewer delivery
+
+## Problem
+
+A required PLAN scope reviewer launched through an ordinary Codex host could receive a nested bwrap configuration that could not execute any CLI command. The run was still recorded as provider_completed without `scope-check.json`. The controller-owned `managedDispatch` recovery path admitted only INIT roles, leaving PLAN permanently blocked by missing_scope_check.
+
+## Repair
+
+`host_run --managedDispatch` now admits `proof-or-stop-review-scope-plan` only in PLAN, derives its canonical dispatch prompt, and uses the existing container-aware Codex launch profile. `scope_check_save` consumes the exact one-shot managed invocation and stores its deliveryRunId in a new v3 scope-check signature while preserving legacy and v2 verification. The managed worker requires a valid role-specific scope artifact plus a persisted signed-attestation or exact legacy process-group consumption receipt before completion. It parses, validates, and hashes one exact byte read, passes that verified digest into terminal sealing, and rejects replacement before or after sealing. Missing output, wrong run IDs, tampered evidence, direct public-hash Store writes, and unconsumed invocations fail closed. `story_review` independently revalidates a managed delivery receipt before accepting the scope artifact, and its repair guidance now exposes the managed path directly.
+
+## Verification
+
+The Lab RED reproduced the pre-spawn rejection for the PLAN scope role. GREEN covers missing output, direct Store-write bypass, wrong or tampered evidence, signed-attestation consumption, legacy same-PGID consumption, receipt validation, post-terminal replacement, and deterministic replacement between validation and terminal sealing. A real child-process E2E proves canonical prompt delivery and successful scope_check_save, then proves that the same isolated provider cannot substitute a direct public-hash Store write. Existing INIT required-output and dual-reviewer E2E tests, scope signature compatibility smoke, lifecycle guidance regression, TypeScript build, git diff check, and the complete process-fact contract passed. Codex Sol/high performed iterative independent review; every reported high finding was repaired and re-reviewed before integration.
+
+Maintenance provenance: codex/lab-managed-scope-reviewer-dispatch, repair 4faa0e2969d3736e0d956649ecefabdc4e406de0.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-scope-dispatch-required-output.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-review-null-candidate-spec - v0.3.378 - 2026-09-15
+
+# Managed review candidate-spec preflight
+
+## Problem
+
+A formal managed REVIEW run could start an expensive external reviewer even when `candidate-spec-set.json` was absent. The generated proposal then carried null candidate and corpus digests, and import collapsed the failure into the generic `managed_review_final_result_malformed` error. Every lane could consume time and tokens while remaining unable to create admissible evidence, leaving the Story blocked in REVIEW without a direct repair instruction.
+
+## Repair
+
+`host_run --managedReview` now reads and requires the candidate-spec artifact before it builds the reviewer prompt or submits any provider run. A missing artifact returns the stable `managed_review_candidate_spec_missing` refusal and directs the owner to `candidate_spec_route`. Final-envelope classification also reports stable field-level reasons for missing candidate-spec and corpus digests, and managed output parsing preserves those reasons. The process-fact registry records the preflight and diagnostic contract.
+
+## Verification
+
+The Lab RED reproduced the prior generic malformed result for realistic null digests. GREEN proves field-level classification, source-order refusal before prompt construction/provider submission, and the exact repair command. The package build, managed-review late-descriptor regression, git diff check, and complete process-fact contract all passed. An independent Codex Sol/high reviewer is reviewing the committed candidate before integration because Claude capacity is unavailable and the user authorized Codex review as the fallback.
+
+Maintenance provenance: codex/lab-managed-review-null-candidate-spec, repair 0062e7c787dc642276729107bbde0dd53bdc2866.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-review-candidate-preflight.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-init-invocation-broker - v0.3.377 - 2026-09-15
+
+# Managed INIT invocation broker repair
+
+## Problem
+
+Codex tool execution may create a new process group and session for each CLI command. The managed INIT dispatcher previously authorized `init_check_set` only when the command remained in the outer provider process group, so a legitimate reviewer could write its result but PoS could not associate that evidence with the managed run. INIT then remained blocked with `delivery_not_acknowledged`.
+
+## Fix
+
+Managed INIT dispatch now issues a controller-signed, one-use Ed25519 invocation attestation bound to the exact run, Story, reviewer role, nonce, and deadline. The CLI strictly validates its JSON shape and signature, checks the live run binding, and consumes the nonce atomically. The previous same-process-group authorization remains available for older adapters. Documentation records that environment transport is used because tool hosts do not preserve the outer descriptor and that same-UID/root secrecy depends on the existing host or container isolation boundary.
+
+## Verification
+
+The Lab RED reproduced a detached unified-exec command that matched zero managed runs. GREEN proves successful detached delivery for the signed path and successful direct delivery for the legacy PGID path. Negative cases cover Story and role tampering, signature corruption, missing signatures, malformed null input, two concurrently live runs exchanging credentials, repeated use of one credential, terminal replay, and substituted delivery IDs. The main TypeScript build, focused managed INIT suites, complete process-fact contract verifier, and git diff checks pass. A Codex Sol/high read-only review found no blocking issue after all findings from the earlier Claude audit were repaired. Claude could not rerun because its session quota returned HTTP 429.
+
+## Measured impact
+
+The focused E2E completes in under twenty seconds on the local machine. The change removes a deterministic INIT lifecycle deadlock; it makes no claim about full benchmark duration.
+
+Maintenance provenance: codex/lab-managed-init-invocation-broker, repair dd5d6d6760c06e01f074aa0921b7cbf16689e26f.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-init-runtime-output - v0.3.376 - 2026-09-15
+
+# Managed INIT runtime output repair
+
+## Problem
+
+On Linux benchmark workers already isolated by Docker or OCI, a nested Codex sandbox could fail before an INIT reviewer recorded its result. The managed dispatch controller nevertheless treated a provider exit code of zero as successful even when the exact reviewer run had not written `init_check_set`, leaving the Story permanently blocked in INIT with a misleading completed run.
+
+## Fix
+
+Managed Codex dispatches use `danger-full-access` only on Linux when a Docker or OCI container marker is present, leaving the outer container as the isolation boundary. Other platforms, uncontained Linux hosts, non-Codex providers, and managed review keep their existing launch behavior. Both Codex paths retain the pre-existing canonical noninteractive flags. A managed INIT dispatch can now complete only after a valid signed result for the expected Story, reviewer role, and run ID appears in the configured Story store; absent, unreadable, invalid, and malformed-story cases receive distinct fail-closed terminal reasons.
+
+## Verification
+
+The Lab captured RED when an injected provider exited zero without writing the bound INIT result, then recorded GREEN after the repair. The focused regression covers absent output, a stale same-role run ID, exact bound output success, tampered evidence, unreadable JSON, malformed Story identity, the platform sandbox matrix, and exact contained/uncontained Codex argv. The managed INIT real-process-group E2E now releases both documented reviewer roles into `init_check_set` concurrently, verifies both reviewer rows are preserved, and confirms both distinct run receipts remain valid. TypeScript build, production validation resource validator, version evidence contract, and `git diff --check` pass. Codex Sol/high reviewed the committed repair and version evidence refresh. Claude identified missing control cases, ambiguous diagnostics, incomplete boundary documentation, an untested materialized argv branch, signature and concurrency boundaries, duplicate canonical flags, stale bounded excerpts, and an imprecise concurrency claim across four review rounds; all findings were repaired before the final candidate. DeepSeek was not used for review or review evidence.
+
+## Measured impact
+
+The new focused regression completes in about one second in the Lab replay. No end-to-end benchmark completion-time claim is made; the behavioral result is that missing INIT output fails explicitly instead of being recorded as a successful managed dispatch.
+
+Maintenance provenance: codex/lab-managed-init-runtime-output, repair 7850f8a9f499e0e4f6f30cdb8c403fc29598a56f.
+Verification command (replayed before integration and on main): `["npm","--prefix","packages/main","run","test:managed-init-dispatch-required-output"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-review-late-descriptor-reset - v0.3.375 - 2026-09-15
+
+# Preserve completed managed review proposals across late descriptor reset
+
+Problem: Codex could emit exactly one complete managed-review final proposal and
+finish its normal turn, then close the compatibility invocation-descriptor channel.
+Darwin reported the late peer close as `EPIPE` or `ECONNRESET`; the host runner
+overwrote the provider result with `child_error`, so the worker discarded the valid
+proposal and left REVIEW permanently pending.
+
+Fix: The host runner now treats only a descriptor-channel `EPIPE` or `ECONNRESET`
+after exactly one bounded, nontruncated final candidate as a late optional-channel
+close. It preserves the provider's later authoritative exit status. An early close,
+provider nonzero exit, missing final, multiple finals, oversized final, malformed
+envelope, or tuple mismatch still fails closed before managed evidence can be sealed.
+
+Verification: Lab RED reproduced the benchmark ordering. GREEN covers both peer-close
+codes plus early close, nonzero provider exit, multiple finals, and oversized-final
+controls. The regression is registered in canonical validation, the build passed, and
+the process-fact contract protects the registration and authority boundary. Codex
+gpt-5.6-sol/high independently reviewed the final committed range and returned PASS.
+DeepSeek was not used for review. Claude quota was unavailable, so this is recorded as
+the operator-authorized Codex fallback and is not represented as a different-vendor
+Lab audit.
+
+Maintenance provenance: codex/lab-managed-review-late-descriptor-reset, repair
+2ffd53f96e, canonical regression e02d7907c5. Verification command:
+`["npm","--prefix","packages/main","run","test:managed-review-late-descriptor-reset"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-init-reviewer-dispatch - v0.3.374 - 2026-09-15
+
+# Receipt-bound managed INIT reviewer delivery
+
+Problem: An owner could submit `init_check_set` twice with caller-selected reviewer
+role names and satisfy the two-reviewer INIT gate without either independent reviewer
+running. Native reviewer launch guidance could also lose its prompt or child identity,
+leaving the Story blocked before implementation.
+
+Fix: `host_run --managedDispatch` now derives and seals the canonical INIT reviewer
+prompt, binds the Story and role to the live provider process, and records the managed
+run ID in signed INIT evidence. INIT_CHECK revalidates the completed receipt before it
+accepts either required reviewer. Caller-supplied role names and unbound environment
+variables fail closed. `story_create`, machine recovery, and `init_preflight` share the
+same managed launch instructions; the explicit acknowledged operator fallback remains
+available when independent reviewers cannot run.
+
+Verification: Lab RED reproduced the missing managed-dispatch contract. GREEN and the
+real fake-Codex E2E cover direct role spoofing, environment spoofing, exact prompt
+delivery, distinct reviewer runs, terminal receipt validation, and substituted run ID
+rejection. Focused legacy smokes, build, and the process-fact contract passed. Codex
+gpt-5.6-sol/high independently reviewed the final committed range and returned PASS.
+Claude quota was unavailable, so this is recorded as the operator-authorized same-vendor
+fallback and is not represented as a different-vendor Lab audit.
+
+Boundary: This enforces authority through the supported CLI and managed provider
+process/receipt model. It does not claim protection against a privileged actor that can
+rewrite the repository's trusted local runtime state or signing material.
+
+Maintenance provenance: codex/lab-managed-init-reviewer-dispatch, repair cfbf00fbf8.
+Verification command: `["node","packages/main/tests/managed-init-reviewer-dispatch.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab reviewer-delivery-handshake - v0.3.373 - 2026-09-15
+
+# Reviewer prompt delivery acknowledgement
+
+Problem: Native Codex reviewer launches could create child tasks while dropping the
+canonical dispatch prompt. Proof-or-Stop retained only an assumed child identifier
+and allowed the owner to wait without evidence that the reviewer had received its
+role. A prompt-less child could then behave as the Story owner, recursively launch
+reviewers, and leave INIT or REVIEW permanently waiting on an empty receiver set.
+
+Fix: Codex launch guidance now treats either the returned agent id or canonical task
+name as the reviewer target and immediately re-delivers the same canonical prompt
+through `followup_task`. Owners must observe the prompt-defined start signal or the
+role-specific start command before waiting. Missing targets or acknowledgements fail
+closed as `delivery_not_acknowledged`; an empty wait remains forbidden. Fresh-context
+launch and the prohibition on reviewer delegation remain unchanged.
+
+Verification: The Lab RED proved the prior public INIT guidance omitted the directed
+second delivery. GREEN covers INIT guards, Story creation, REVIEW and TEST next steps,
+and reviewer-batch output. `reviewer-batch-smoke` and the full process-fact contract
+also passed. Claude audit was attempted and returned HTTP 429 with zero tokens because
+the account session limit was exhausted. Under the operator's explicit fallback,
+Codex gpt-5.6-sol/high independently reviewed the exact patch and returned PASS with
+no actionable findings. This is recorded as a same-vendor fallback and is not claimed
+as a different-vendor Lab audit.
+
+Boundary: Proof-or-Stop cannot repair a host runtime that discards a collaboration
+tool argument. This change makes its native orchestration protocol resilient through
+directed re-delivery and fail-closed acknowledgement; signed lifecycle and reviewer
+evidence gates are unchanged.
+
+Maintenance provenance: codex/lab-reviewer-delivery-handshake, repair d140aff921.
+Verification command: `["node","packages/main/tests/b90d6-init-dispatch-guidance.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab reviewer-fresh-context-boundary - v0.3.372 - 2026-09-15
+
+# Reviewer fresh-context boundary and launch-path convergence
+
+Problem: A PLAN scope reviewer could inherit the Story owner's complete conversation, recursively delegate the same reviewer role, exhaust the host agent-thread limit, lose the actual child identifiers, and leave scope-check.json permanently missing. Several lifecycle surfaces also emitted Claude-only Agent(...) shortcuts or ad-hoc prompts, so the safer launch guidance was not consistently reachable from INIT, PLAN, REVIEW, TEST, and reviewer_batch.
+
+Fix: Proof-or-Stop now centralizes host-neutral reviewer launch guidance. Owner-facing paths first obtain the canonical dispatch prompt, pass it unchanged to one fresh-context reviewer, use Codex fork_turns:none where applicable, describe the equivalent Claude and other-host boundary, retain exact nonempty child identifiers, and require distinct identifiers for parallel reviewers. Reviewer-facing prompts explicitly prohibit spawning or delegating another reviewer. REVIEW and delivery next steps, reviewer_batch, INIT gates, scope-plan recovery, verification-intent, topology, rollout, inventory, and delivery reviewer surfaces use the same boundary. reviewer_batch no longer fabricates a short review prompt, and Codex task names are canonicalized so test-coverage becomes the valid review_test_coverage identifier.
+
+Verification: The Lab RED reproduced missing fresh-context launch guidance. The focused b90d6 regression exercises INIT, PLAN scope review, real buildNextSteps REVIEW and TEST output, and a real linked-worktree session_brief recovery path. reviewer-batch-smoke verifies Codex, Claude, and other-host launch forms, canonical dispatch use, exact child-ID handling, and valid task names. The package build, git diff check, focused regression, reviewer-batch smoke, and full process-fact contract passed. Three gpt-5.6-sol/high review rounds found launch-path, recovery-path, child-ID, and task-name gaps; each was repaired, and the final exact-source review returned PASS with no blocker or major finding. The operator explicitly authorized Sol/high as the independent review after the Anthropic quota was exhausted; this entry does not mislabel it as a different-vendor Lab audit.
+
+Boundary: Native host thread ancestry and actual fork implementation remain host-runtime facts. Proof-or-Stop emits the required invocation contract and preserves its own signed dispatch/evidence gates; it does not fabricate a host attestation or claim it can inspect an external collaboration runtime.
+
+Measured optimization: not applicable; this Lab repairs reviewer lifecycle correctness and reachability.
+
+Maintenance provenance: codex/lab-reviewer-fresh-context-boundary, repair b03672c385.
+Verification command (replayed before integration and on main): `["node","--test","packages/main/tests/b90d6-init-dispatch-guidance.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab init-review-boundary-convergence - v0.3.371 - 2026-09-15
+
+# INIT review boundary and worktree projection convergence
+
+Problem: DeepSWE first-task runs could stop before implementation when INIT reviewers amplified implementation-defined details into high blockers. A separate run implemented the task but stopped at REVIEW because valid controller config and Codex hook projections were classified as dirty material. Codex review also found that later reviewer calls could expand blockers over unchanged inputs, and that deleting or tracking the complete untracked projection could evade a per-path status check.
+
+Fix: INIT blockers now require actor-specific kinds and exact requirement references. Explicit verification-intent IDs and the documented positional IDs such as `CHK-001:happy:0` are both accepted. Each reviewer result carries a signed digest of every blocker-citable authoritative INIT input plus the first verdict baseline for that exact digest. Same-input retries compare with that immutable baseline, so intermediate advisory writes cannot erase a prior PASS or narrower blocker set; a reviewer may still correct an invalid reference already present in the baseline. Caller-supplied `reportedSeverity` and `dispositionReason` fields are discarded so only the handler can author them. Newly submitted kind-less critical/high issues become attributed advisories, while already-signed legacy records retain their prior fail-closed meaning until replaced. Review preflight admits only exact signed controller projections, verifies the complete config and hook set remains untracked, rejects missing, tracked, corrupted, or mismatched projections, and directs normal CLI bootstrap to restore missing exact assets. Ordinary linked worktrees remain outside this controller-projection gate, including when applicability cannot be resolved.
+
+Verification: `verify-product-reviewer.mjs` covers role authority, derived and invalid verification-intent references, reviewer correction, caller machine-field stripping, the PASS-to-advisory-to-blocker bypass, unchanged-input monotonicity, changed scope-boundary and verificationIntent inputs, and independent authority-input-hash tampering. `verify-external-worktree-go-pre-review.mjs` covers ordinary linked worktrees, exact projections, total and single-hook deletion, tracked config/hooks, tampering, bootstrap restoration, and the real `review_run_start` handler. Both focused checks and the full process-fact contract passed before release preparation, and two independent Codex reviewers returned PASS after their findings were repaired. Three Claude Opus audits rejected earlier candidates; every reported finding was repaired before the required repeat audit.
+
+Measured optimization: not applicable; this Lab repairs lifecycle correctness and reachability rather than runtime performance.
+
+Maintenance provenance: codex/lab-init-review-boundary-convergence, repair 33a5b9edb231084173f0405ded9c1978e8aa8ec5.
+Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab controller-projection-auto-commit - v0.3.370 - 2026-09-15
+
+Fixed a Story worktree gate deadlock where routine metadata auto-commits could
+start tracking controller config and runtime projection receipts even though
+their process-fact descriptors require them to remain untracked. Metadata
+auto-commit pathspecs now exclude every descriptor marked `untracked-only`,
+reject either receipt when it is already staged, and keep ordinary Story
+metadata commits narrowly scoped.
+
+The regression test drives two real metadata auto-commits, verifies that both
+projection receipts remain present and untracked after each commit, and reruns
+projection attestation. The focused external-worktree smoke and process-fact
+contract passed, as did independent Codex specification and standards reviews.
+Two broader smoke failures were reproduced unchanged on the release base and
+remain separate pre-existing defects.
+
+Maintenance provenance: codex/lab-controller-projection-auto-commit. This entry
+records Codex-reviewed Lab maintenance under the user's explicit no-Claude
+instruction; it does not assert a different-vendor Lab audit or formal Story
+DONE.
+
+## Lab init-story-metadata-read - v0.3.369 - 2026-09-15
+
+Fixed an INIT lifecycle deadlock introduced when the Story reviewer was routed
+through CLI reads. The reviewer now requests `story_get` with `detail:true` and
+reads `title`, `description`, `type`, `priority`, and `riskSignals` from the
+documented `result.index` projection. Default `story_get` output remains
+unchanged for compatibility.
+
+The regression test covers the canonical template, both managed host mirrors,
+the approved prompt hash, full-suite registration, the detailed runtime
+projection, and the unchanged default projection. Lab RED reproduced the
+missing metadata query and GREEN passed after the repair. The TypeScript build
+and independent Codex specification and standards reviews passed.
+
+Maintenance provenance: codex/lab-init-story-metadata-read. This entry records
+Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction;
+it does not assert a different-vendor Lab audit or formal Story DONE.
+
 ## Lab nested-verification-machine-owner - v0.3.368 - 2026-09-15
 
 Fix the nested verification machine reservation deadlock and close twenty rounds of cross-vendor audit findings on its delegation path.
@@ -28,6 +307,34 @@ Maintenance provenance: codex/lab-nested-verification-machine-owner, repair f985
 Verification command (replayed before integration and on main): `["node","scripts/verify-nested-verification-machine-owner.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## Lab topology-provenance-base - v0.3.368 - 2026-09-15
+
+Fixed topology authority dispatch in repositories whose integration branch is
+not named `main`. Implementation provenance now scans only the immutable Story
+integration commit through `HEAD`; historical Stories without a frozen target
+use the repository merge base. The unscoped recent-50-commit fallback was
+removed, so an implementer-authored commit from an earlier Story cannot be
+attributed to the current Story.
+
+Missing base, range, and current-Story implementer evidence now use stable
+`IMPLEMENTATION_PROVENANCE_*` codes. Optional scope dispatch records the
+structured diagnostic in its process event, while required topology dispatch
+fails closed with the same code. Git stderr is captured rather than printed to
+the user.
+
+Verification passed: Lab RED reproduced the cross-Story attribution and raw
+`main..HEAD` fatal; GREEN covered no-`main`, historical-commit rejection,
+current implementation selection, deleted parent branch portability, and
+unavailable-base refusal. A real handler regression covered optional and
+required diagnostics. The TypeScript build and complete process-fact contract
+passed. U18 retained exact unresolved-row parity with v0.3.367: 60 needs-review,
+17 skipped, 273 existing exceptions, and zero unexpanded commands. Independent
+Codex specification review passed; standards review found no hard violation.
+
+Maintenance provenance: codex/lab-topology-provenance-base. This entry records
+Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction;
+it does not assert a different-vendor Lab audit or formal Story DONE.
+
 ## Lab validation-scan-attribution - v0.3.367 - 2026-09-14
 
 Reduce repeated validation work inside synchronous segments while keeping every execution, completion and publication check fresh.
@@ -50,6 +357,28 @@ Receipted by the Lab tool: the git-segment replay (RED at 3dfda1d0bf, GREEN, syn
 Maintenance provenance: codex/lab-validation-scan-attribution, repair 40e220c2e87faa5fa835093e76911d491a707620.
 Verification command (replayed before integration and on main): `["node","packages/main/tests/git-segment-performance.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab review-base-portability - v0.3.367 - 2026-09-15
+
+Fixed first-review startup in repositories whose integration branch is not
+named `main`. New Stories now bind the reviewer comparison range to the frozen
+`integrationTarget.parentCommitAtCreation` commit captured at Story creation.
+Renaming, deleting, or advancing the parent branch cannot change that review
+base. A declared target that is malformed or whose commit is unavailable fails
+closed; only historical Stories that truly lack the field use repository
+baseline compatibility resolution.
+
+Verification passed: Lab RED reproduced `git diff ... main..HEAD`; GREEN starts
+`review_run_start` after confirming `main`, `master`, and the original `develop`
+ref are all absent; malformed, tampered, and missing-object targets are refused;
+the historical envelope remains bound while live material drift becomes stale;
+the as-of-run compatibility smoke, TypeScript build, and complete process-fact
+contract passed. Independent Codex specification and standards reviews passed.
+The U18 static scan has no candidate-only failing calls relative to v0.3.366.
+
+Maintenance provenance: codex/lab-review-base-portability. This entry records
+Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction;
+it does not assert a different-vendor Lab audit or formal Story DONE.
 
 ## Lab benchmark-lifecycle-recovery - v0.3.366 - 2026-09-15
 

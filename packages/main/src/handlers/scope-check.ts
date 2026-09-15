@@ -10,7 +10,7 @@ import { createHash } from 'crypto';
 import { existsSync, readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import type { HandlerContext } from './context.js';
-import type { ScopeCheckData, ScopeCheckFeature, OpenQuestion, ReviewerReadManifest } from '../core/types.js';
+import type { ScopeCheckData, OpenQuestion } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { normalizeReviewerReadManifest } from '../core/reviewer-read-evidence.js';
@@ -20,14 +20,16 @@ import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { loadConfig } from '../core/config.js';
 import { CONFIG_FILENAMES, stateDirCandidates } from '../core/brand-paths.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import {
+  SCOPE_CHECK_SALT,
+  scopeCheckContentHash,
+  verifyScopeCheckContentSignature,
+  type ScopeCheckSignatureMaterial,
+} from '../core/scope-check-integrity.js';
 
-export const SCOPE_CHECK_SALT = 'proof-or-stop-scope-check-integrity-v1';
-
-export interface ScopeCheckSignatureMaterial {
-  features: ScopeCheckFeature[];
-  summary: ScopeCheckData['summary'];
-  readManifest: ReviewerReadManifest;
-}
+export { SCOPE_CHECK_SALT } from '../core/scope-check-integrity.js';
+export type { ScopeCheckSignatureMaterial } from '../core/scope-check-integrity.js';
 
 function legacyScopeCheckHash(storyId: string, timestamp: string, gaps: number, covered: number, reviewRound: string): string {
   return createHash('sha256')
@@ -41,16 +43,7 @@ function v2ScopeCheckHash(
   reviewRound: string,
   material: ScopeCheckSignatureMaterial,
 ): string {
-  return digestCanonicalJson({
-    version: 2,
-    salt: SCOPE_CHECK_SALT,
-    storyId,
-    timestamp,
-    reviewRound,
-    features: material.features,
-    summary: material.summary,
-    readManifest: normalizeReviewerReadManifest(material.readManifest),
-  });
+  return scopeCheckContentHash(storyId, timestamp, reviewRound, material);
 }
 
 function configuredStoryDirs(root: string): string[] {
@@ -154,25 +147,7 @@ export function signScopeCheck(
 export function verifyScopeCheckSignature(storyId: string, data: ScopeCheckData): boolean {
   if (!data._hash || !data.checkedAt || !data.summary) return false;
   if (data.readManifest !== undefined) {
-    let readManifest: ReviewerReadManifest;
-    try {
-      readManifest = normalizeReviewerReadManifest(data.readManifest);
-    } catch {
-      return false;
-    }
-    const summary = {
-      total: data.summary.total ?? 0,
-      covered: data.summary.covered ?? 0,
-      excluded: data.summary.excluded ?? 0,
-      gaps: data.summary.gaps ?? 0,
-      orphanSuspect: data.summary.orphanSuspect ?? 0,
-      drift: data.summary.drift ?? 0,
-    };
-    return data._hash === signScopeCheck(storyId, data.checkedAt, summary.gaps, summary.covered, data.reviewRound || '', {
-      features: data.features || [],
-      summary,
-      readManifest,
-    });
+    return verifyScopeCheckContentSignature(storyId, data);
   }
   return data._hash === legacyScopeCheckHash(storyId, data.checkedAt, data.summary.gaps, data.summary.covered, data.reviewRound || '');
 }
@@ -206,6 +181,11 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       openQuestions?: OpenQuestion[];
     }): string {
       const authority = resolveAgentMutationAuthority({ command: 'scope_check_save' });
+      const managedInvocation = process.env.LATTICE_MANAGED_INIT_INVOCATION?.trim();
+      const managedActor = authority.entry?.canonicalName ?? authority.actor;
+      if (managedInvocation && managedActor !== 'proof-or-stop-review-scope-plan') {
+        throw new Error('scope_check_save refused: managed dispatch requires proof-or-stop-review-scope-plan authority');
+      }
       const ownerCoverage = signPlanOwnerCoverage(store, root, args.storyId, args.ownerDispositions, authority.source === 'dispatched-env' ? authority.entry?.canonicalName : undefined);
       // Verify story exists and read currentReviewRound
       let reviewRound = '';
@@ -239,13 +219,21 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         orphanSuspect,
         drift,
       };
+      // Validate the complete reviewer payload before consuming its one-shot
+      // managed invocation. A provider may correct a rejected tool call within
+      // the same run; only a payload that is ready to persist earns delivery.
+      const managedDeliveryRunId = managedInvocation
+        ? resolveManagedDispatchInvocation({ root, storyId: args.storyId, agentType: managedActor! })
+        : undefined;
       const _hash = signScopeCheck(args.storyId, timestamp, args.summary.gaps, args.summary.covered, reviewRound, {
         features: args.features,
         summary,
         readManifest,
+        ...(managedDeliveryRunId ? { deliveryRunId: managedDeliveryRunId } : {}),
       });
       const data: ScopeCheckData = {
         storyId: args.storyId,
+        ...(managedDeliveryRunId ? { deliveryRunId: managedDeliveryRunId } : {}),
         ...(ownerCoverage ? {ownerCoverage} : {}),
         checkedAt: timestamp,
         features: args.features,

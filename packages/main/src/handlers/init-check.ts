@@ -16,9 +16,19 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  */
 
 import { execSync } from 'child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
-import { INIT_CHECK_ISSUE_KINDS, type InitCheckData, type InitCheckIssue } from '../core/types.js';
+import {
+  INIT_CHECK_ISSUE_KINDS,
+  PRODUCT_INIT_BLOCKING_ISSUE_KINDS,
+  STORY_INIT_BLOCKING_ISSUE_KINDS,
+  type ChecklistItem,
+  type InitCheckData,
+  type InitCheckIssue,
+  type VerificationLane,
+} from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -43,16 +53,191 @@ import {
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { digestCanonicalJson, digestText } from '../core/digest.js';
+import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
 
 const INIT_CHECK_ISSUE_KIND_SET = new Set<string>(INIT_CHECK_ISSUE_KINDS);
+const PRODUCT_INIT_BLOCKING_KIND_SET = new Set<string>(PRODUCT_INIT_BLOCKING_ISSUE_KINDS);
+const STORY_INIT_BLOCKING_KIND_SET = new Set<string>(STORY_INIT_BLOCKING_ISSUE_KINDS);
 
-function assertValidInitCheckIssue(issue: InitCheckIssue | null | undefined, command: 'init_check_set' | 'init_check_repair'): void {
+function normalizeSubmittedInitCheckIssue(issue: InitCheckIssue | null | undefined, command: 'init_check_set' | 'init_check_repair'): InitCheckIssue {
   if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
     throw new Error(`${command}: each issue.desc must be >= 1 character after trim`);
+  }
+  if (!['critical', 'high', 'medium', 'low'].includes(issue.severity)) {
+    throw new Error(`${command}: unsupported issue.severity ${JSON.stringify(issue.severity)}`);
   }
   if (issue.kind !== undefined && !INIT_CHECK_ISSUE_KIND_SET.has(issue.kind)) {
     throw new Error(`${command}: unsupported issue.kind ${JSON.stringify(issue.kind)}`);
   }
+  if (issue.id !== undefined && typeof issue.id !== 'string') {
+    throw new Error(`${command}: issue.id must be a string when provided`);
+  }
+  if (issue.requirementRef !== undefined && typeof issue.requirementRef !== 'string') {
+    throw new Error(`${command}: issue.requirementRef must be a string when provided`);
+  }
+  const normalized: InitCheckIssue = { severity: issue.severity, desc: issue.desc };
+  if (issue.id !== undefined) normalized.id = issue.id;
+  if (issue.kind !== undefined) normalized.kind = issue.kind;
+  if (issue.requirementRef !== undefined) normalized.requirementRef = issue.requirementRef;
+  return normalized;
+}
+
+function verificationIntentIds(item: Pick<ChecklistItem, 'id' | 'verificationIntent'>): string[] {
+  const intent = item?.verificationIntent;
+  if (!intent || typeof intent !== 'object') return [];
+  const lanes: VerificationLane[] = ['happy', 'edge', 'adversarial'];
+  const checklistId = typeof item.id === 'string' ? item.id.trim() : '';
+  const ids = new Set<string>();
+  for (const lane of lanes) {
+    const entries = Array.isArray(intent[lane]) ? intent[lane] : [];
+    entries.forEach((entry, index) => {
+      const explicitId = typeof entry?.id === 'string' ? entry.id.trim() : '';
+      if (explicitId) ids.add(explicitId);
+      if (checklistId) ids.add(`${checklistId}:${lane}:${index}`);
+    });
+  }
+  return [...ids];
+}
+
+function validInitRequirementRefs(checklistItems: ChecklistItem[]): Set<string> {
+  const refs = new Set([
+    'story:title',
+    'story:description',
+    'story:type',
+    'story:priority',
+    'story:riskSignals',
+    'background:Trigger Event',
+    'background:Key Insights',
+    'background:Solution Tradeoffs',
+    'background:Conversational Texture',
+    'scope-boundary',
+    'execution-boundary',
+    'required-input:background',
+    'required-input:story-metadata',
+    'required-input:checklist',
+    'required-input:repository-guide',
+    'required-input:scope-boundary',
+    'required-input:execution-boundary',
+  ]);
+  for (const item of checklistItems) {
+    if (typeof item?.id === 'string' && item.id.trim()) refs.add(`checklist:${item.id.trim()}`);
+    for (const id of verificationIntentIds(item)) refs.add(`verification-intent:${id}`);
+  }
+  return refs;
+}
+
+function computeInitReviewerAuthorityInputHash(args: {
+  root: string;
+  store: StoryStore;
+  storyId: string;
+  story: ReturnType<StoryStore['readStory']>;
+  backgroundHash: string;
+  checklistItems: ChecklistItem[];
+}): string {
+  const guideDigests = ['AGENTS.md', 'CLAUDE.md'].map(path => {
+    const absolute = join(args.root, path);
+    return { path, digest: existsSync(absolute) ? digestText(readFileSync(absolute, 'utf8')) : 'missing' };
+  });
+  return digestCanonicalJson({
+    story: {
+      title: args.story.title,
+      description: args.story.description,
+      type: args.story.type,
+      priority: args.story.priority,
+      riskSignals: args.story.riskSignals ?? [],
+    },
+    backgroundHash: args.backgroundHash,
+    checklist: args.checklistItems.map(item => ({
+      id: item.id,
+      title: item.title,
+      context: item.context,
+      relatedDocs: item.relatedDocs,
+      userSees: item.userSees,
+      excludes: item.excludes,
+      files: item.files,
+      verificationIntent: item.verificationIntent,
+    })),
+    scopeBoundary: args.store.readScopeBoundary(args.storyId),
+    executionBoundary: args.store.readExecutionBoundary(args.storyId),
+    repositoryGuides: guideDigests,
+  });
+}
+
+function normalizeReviewerBlockingAuthority(
+  issues: InitCheckIssue[],
+  agentId: string,
+  checklistItems: ChecklistItem[],
+): { issues: InitCheckIssue[]; normalizedCount: number } {
+  const allowedKinds = agentId === 'proof-or-stop-product-reviewer'
+    ? PRODUCT_INIT_BLOCKING_KIND_SET
+    : agentId === 'proof-or-stop-review-story-init'
+      ? STORY_INIT_BLOCKING_KIND_SET
+      : new Set<string>();
+  const validRefs = validInitRequirementRefs(checklistItems);
+  let normalizedCount = 0;
+  const normalized = issues.map(issue => {
+    if ((issue.severity !== 'critical' && issue.severity !== 'high') || issue.kind === 'post_implementation_evidence_missing') {
+      return issue;
+    }
+    const reportedSeverity = issue.severity;
+    const kindAllowed = typeof issue.kind === 'string' && allowedKinds.has(issue.kind);
+    const requirementRef = typeof issue.requirementRef === 'string' ? issue.requirementRef.trim() : '';
+    const refAllowed = requirementRef.length > 0 && validRefs.has(requirementRef);
+    if (kindAllowed && refAllowed) return { ...issue, requirementRef };
+    normalizedCount += 1;
+    return {
+      ...issue,
+      severity: 'medium' as const,
+      reportedSeverity,
+      dispositionReason: kindAllowed
+        ? 'missing_or_invalid_requirement_ref' as const
+        : 'outside_init_reviewer_blocking_authority' as const,
+    };
+  });
+  return { issues: normalized, normalizedCount };
+}
+
+function initBlockingIssueKey(issue: InitCheckIssue): string | null {
+  if ((issue.severity !== 'critical' && issue.severity !== 'high') || issue.kind === 'post_implementation_evidence_missing') return null;
+  const kind = typeof issue.kind === 'string' ? issue.kind.trim() : '';
+  const requirementRef = typeof issue.requirementRef === 'string' ? issue.requirementRef.trim() : '';
+  return kind && requirementRef ? `${kind}\u0000${requirementRef}` : null;
+}
+
+function normalizeUnchangedInputBlockerExpansion(
+  issues: InitCheckIssue[],
+  previousIssues: InitCheckIssue[] | undefined,
+): { issues: InitCheckIssue[]; normalizedCount: number } {
+  if (!previousIssues) return { issues, normalizedCount: 0 };
+  const previousKeys = new Set(previousIssues.map(initBlockingIssueKey).filter((key): key is string => key !== null));
+  const previousCorrectableObservations = previousIssues.filter(issue =>
+    (issue.dispositionReason === 'missing_or_invalid_requirement_ref'
+      || issue.dispositionReason === 'outside_init_reviewer_blocking_authority')
+    && (issue.reportedSeverity === 'critical' || issue.reportedSeverity === 'high'),
+  );
+  let normalizedCount = 0;
+  return {
+    issues: issues.map(issue => {
+      const key = initBlockingIssueKey(issue);
+      const correctsPreviouslyReportedObservation = key !== null && previousCorrectableObservations.some(previous => {
+        const previousKind = typeof previous.kind === 'string' ? previous.kind.trim() : '';
+        const currentKind = typeof issue.kind === 'string' ? issue.kind.trim() : '';
+        return previous.desc.trim() === issue.desc.trim()
+          && (!previousKind || previousKind === currentKind)
+          && previous.reportedSeverity === issue.severity;
+      });
+      if (key === null || previousKeys.has(key) || correctsPreviouslyReportedObservation) return issue;
+      normalizedCount += 1;
+      return {
+        ...issue,
+        severity: 'medium' as const,
+        reportedSeverity: issue.reportedSeverity ?? (issue.severity === 'critical' ? 'critical' as const : 'high' as const),
+        dispositionReason: 'unchanged_input_blocker_expansion' as const,
+      };
+    }),
+    normalizedCount,
+  };
 }
 
 // Backward-compatible re-exports: existing importers (core/machine.ts now reads
@@ -115,13 +300,25 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         command: 'init_check_set',
         payloadActors: [args.agent, args.agentId],
       });
+      if (authority.source !== 'dispatched-env') {
+        throw new Error(
+          'init_check_set refused: caller-supplied or omitted reviewer identity cannot create independent INIT evidence. '
+          + 'Use host_run with managedDispatch=true, or the explicit acknowledged init_check_repair fallback. [delivery_not_acknowledged]',
+        );
+      }
+      const deliveryRunId = resolveManagedDispatchInvocation({
+        root,
+        storyId: args.storyId,
+        agentType: normalizeAgentId(authority.actor),
+      });
       return withInitCheckLock(store, args.storyId, () => {
       // 1) story existence check (same approach as scope_check_save)
       let title = '';
       let description = '';
       let reviewRound = '';
+      let story: ReturnType<StoryStore['readStory']>;
       try {
-        const story = store.readStory(args.storyId);
+        story = store.readStory(args.storyId);
         title = story.title;
         description = story.description;
         reviewRound = story.currentReviewRound || '';
@@ -130,26 +327,42 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
 
       // 2) runtime validation of issues (guards against Zod-bypass paths, aligned with the gate-side trim standard)
-      const issues = Array.isArray(args.issues) ? args.issues : [];
-      for (const issue of issues) {
-        assertValidInitCheckIssue(issue, 'init_check_set');
-      }
+      const submittedIssues = (Array.isArray(args.issues) ? args.issues : [])
+        .map(issue => normalizeSubmittedInitCheckIssue(issue, 'init_check_set'));
 
       // 3) compute the three hashes required for the signature
       const backgroundHash = computeBackgroundHash(root, args.storyId);
+      let checklistItems: ChecklistItem[] = [];
       let items: Array<{ title: string; context?: string }> = [];
       try {
         const checklist = store.readChecklist(args.storyId);
-        items = checklist.items.map(i => ({ title: i.title, context: i.context }));
+        checklistItems = checklist.items;
+        items = checklistItems.map(i => ({ title: i.title, context: i.context }));
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         // when checklist.json does not exist, hash is computed against an empty array (consistent with recomputeInitCheckHash behavior)
       }
       const checklistHash = computeChecklistHash(items);
+      const authorityInputHash = computeInitReviewerAuthorityInputHash({
+        root,
+        store,
+        storyId: args.storyId,
+        story,
+        backgroundHash,
+        checklistItems,
+      });
 
       // 4) construct InitCheckData (the verdict is part of the signature domain since
       //    B-8df9 CHK-002, so the record must exist BEFORE it can be signed)
       const checkedAt = new Date().toISOString();
       const agentId = normalizeAgentId(authority.actor);
+      const normalizedIssues = normalizeReviewerBlockingAuthority(submittedIssues, agentId, checklistItems);
+      if (normalizedIssues.normalizedCount > 0) {
+        process.stderr.write(
+          `⚠ init_check_set ${args.storyId}: normalized ${normalizedIssues.normalizedCount} out-of-authority ` +
+          `critical/high issue(s) to advisory; INIT blockers require an actor-allowed kind and an exact requirementRef. ` +
+          `[init_reviewer_blocking_authority]\n`,
+        );
+      }
 
       // B-8df9 CHK-003 — the carry-forward is the LAST laundering path, and it is closed here.
       //
@@ -189,11 +402,30 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         )
         : '';
       const previousTrusted = initCheckHashMatches(previous, expectedPreviousHash);
+      const previousAgentResult = previousTrusted && previous
+        ? initCheckAgentResults(previous).find(result => initCheckAgentMatches(result.agentId, agentId) || result.agentId === agentId)
+        : undefined;
+      const sameAuthorityInputs = previousAgentResult?.authorityInputHash === authorityInputHash;
+      const authorityBaselineIssues = sameAuthorityInputs
+        ? (previousAgentResult.authorityBaselineIssues ?? previousAgentResult.issues)
+        : normalizedIssues.issues;
+      const monotonicIssues = normalizeUnchangedInputBlockerExpansion(
+        normalizedIssues.issues,
+        sameAuthorityInputs ? authorityBaselineIssues : undefined,
+      );
+      const issues = monotonicIssues.issues;
+      if (monotonicIssues.normalizedCount > 0) {
+        process.stderr.write(
+          `⚠ init_check_set ${args.storyId}: normalized ${monotonicIssues.normalizedCount} new critical/high blocker(s) ` +
+          `from an unchanged authoritative INIT input to advisory. Edit the cited INIT requirement before requesting a fresh blocker. ` +
+          `[init_reviewer_unchanged_input_expansion]\n`,
+        );
+      }
       const agentResults = previousTrusted && previous ? initCheckAgentResults(previous).filter(
         result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,
       ) : [];
       const droppedResults = !previousTrusted && previous ? initCheckAgentResults(previous) : [];
-      agentResults.push({ agentId, checkedAt, issues });
+      agentResults.push({ agentId, checkedAt, deliveryRunId, authorityInputHash, authorityBaselineIssues, issues });
 
       // Name the corruption. Silently discarding another reviewer's record would be
       // indistinguishable from that reviewer never having run, which is the confusion this
@@ -254,7 +486,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
       const missing = missingRequiredInitCheckAgents(data);
       const commitHint = autoCommitStoryMetadata(root, args.storyId, 'init_check_set');
-      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${untrustedNotice}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
+      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${normalizedIssues.normalizedCount > 0 ? `; normalized ${normalizedIssues.normalizedCount} out-of-authority blocker(s) to advisory` : ''}${monotonicIssues.normalizedCount > 0 ? `; normalized ${monotonicIssues.normalizedCount} unchanged-input blocker expansion(s) to advisory` : ''}${untrustedNotice}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
       });
     },
 
@@ -316,10 +548,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         ? args.evidenceRefs.map(r => String(r).trim()).filter(r => r.length > 0)
         : [];
       // issues runtime validation mirrors init_check_set (defend the bypass path).
-      const issues = Array.isArray(args.issues) ? args.issues : [];
-      for (const issue of issues) {
-        assertValidInitCheckIssue(issue, 'init_check_repair');
-      }
+      const issues = (Array.isArray(args.issues) ? args.issues : [])
+        .map(issue => normalizeSubmittedInitCheckIssue(issue, 'init_check_repair'));
 
       return withInitCheckLock(store, args.storyId, () => {
         // 1) story existence (preflight already passed; refusal above wrote nothing).

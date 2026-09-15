@@ -60,6 +60,10 @@ import { canonicalAgentDispatchType } from '../core/reviewer-opt-in.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
+import {
+  renderReviewerDispatchLaunch,
+  REVIEWER_CHILD_ID_WAIT_BOUNDARY,
+} from '../core/reviewer-launch-guidance.js';
 
 /**
  * process metrics write.
@@ -274,15 +278,18 @@ export function buildNextSteps(
         activeLine = renderActiveReviewersText(active);
         finalReviewLine = renderFinalReviewRoster(roster, storyId);
         agentLines = roster.requiredReviewers.map(r =>
-          `  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"${r.lane}\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "${r.lane}", prompt: "<owner-produced standard prompt> (${r.reason})" })`,
+          `  ${renderReviewerDispatchLaunch({ storyId, agentType: r.lane })}`,
         ).join('\n');
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
-        agentLines = `  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-concept\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-concept", prompt: "<owner-produced standard prompt>" })
-  Story owner runs proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-quality\\"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-quality", prompt: "<owner-produced standard prompt>" })`;
+        agentLines = [
+          renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-review-concept', taskName: 'review_concept' }),
+          renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-review-quality', taskName: 'review_quality' }),
+        ].map(line => `  ${line}`).join('\n');
       }
       let base = `→ ${activeLine}${finalReviewLine ? `\n${finalReviewLine}` : ''}
-→ Story owner persists each dispatch above, then launches the reviewers in parallel (issue all Agent calls in a single message):
+→ Story owner persists each dispatch above, then launches the reviewers in parallel (issue all host launch calls in a single message):
 ${agentLines}
+→ ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} When launching multiple reviewers, every child id must be nonempty and distinct.
 → reviewer liveness: each reviewer should first output REVIEW_START after starting
 ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
 → After all return, proof-or-stop finding_list to aggregate
@@ -402,7 +409,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
     TEST_CASE_REVIEW: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
     TEST: `→ The routine suite already executed once in REVIEW after PRE_CERT became ADMITTED. TEST consumes that current signed PASS; do not start a second unscoped proof-or-stop validate --story run here. Continue delivery and DONE prerequisites. If evidence is missing or stale, return to DEV to restore PRE_CERT before another REVIEW routine run.
 ⚠ Engineering verification ≠ user acceptance: even if validate is fully pass, run it once on a real machine from the user's perspective (rhythm: treat PLAN outcome as expected → run → treat actual output as actual → diff). Persist that run through proof-or-stop live_smoke_transcript --storyId=${storyId} --capture='<explicit command>' --write so the canonical ${store.storyDirRel()}/${storyId}/evidence/live-smoke-transcript.json artifact records the actual transcript. The "user value acceptance" section in CLAUDE.md has the complete 5-question self-check list.
-⚠ delivery-check hard gate: before DONE you must spawn the proof-or-stop-review-delivery reviewer to write the delivery-check.json signature. The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage. Fallback is compliant only with proof-or-stop-review-delivery provenance / agentId=proof-or-stop-review-delivery; the main agent must not self-sign. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].${renderReviewAssuranceBeforeDoneAdvisory(store, root, storyId)}`,
+⚠ delivery-check hard gate: before DONE, ${renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-review-delivery', taskName: 'review_delivery' })} ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage and writes delivery-check.json. Fallback is compliant only with proof-or-stop-review-delivery provenance / agentId=proof-or-stop-review-delivery; the main agent must not self-sign. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].${renderReviewAssuranceBeforeDoneAdvisory(store, root, storyId)}`,
     DONE: `→ Must execute immediately: tell the user the Story summary paragraph below in your own words (what changed / how to use / real-machine coverage / limitations / pitfalls), then convergence_check to check project convergence state
 ⚠ DONE self-check 5 questions (CLAUDE.md "User value acceptance" section): (1) Is the PLAN outcome a concrete transcript or abstract? (2) During real-machine testing, did you read the user-perspective output or only look at the event log? (3) When the user sees the last line of the actual transcript, would they consider the work done or still wonder what comes next? (4) Are there any engineering logs that are noise/duplicates in the user's eyes? (5) Is there a plain-language summary of the task result? If any question is answered "not done", return to DEV and do not force-push DONE.`,
   };
