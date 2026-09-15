@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab init-review-boundary-convergence - v0.3.371 - 2026-09-15
+
+# INIT review boundary and worktree projection convergence
+
+Problem: DeepSWE first-task runs could stop before implementation when INIT reviewers amplified implementation-defined details into high blockers. A separate run implemented the task but stopped at REVIEW because valid controller config and Codex hook projections were classified as dirty material. Codex review also found that later reviewer calls could expand blockers over unchanged inputs, and that deleting or tracking the complete untracked projection could evade a per-path status check.
+
+Fix: INIT blockers now require actor-specific kinds and exact requirement references. Each reviewer result carries a signed digest of every blocker-citable authoritative INIT input, so a later call cannot add high or critical blockers unless that input set changed. Review preflight admits only exact signed controller projections, verifies the complete config and hook set remains untracked, rejects missing, tracked, corrupted, or mismatched projections, and directs normal CLI bootstrap to restore missing exact assets.
+
+Verification: `verify-product-reviewer.mjs` covers role authority, unchanged-input monotonicity, and changed scope-boundary and verificationIntent inputs. `verify-external-worktree-go-pre-review.mjs` covers exact projections, missing full hook sets, tracked config/hooks, tampering, bootstrap restoration, and the real `review_run_start` handler. Both focused checks passed, the full process-fact contract passed, Lab GREEN passed at `1aaf068f35`, and two independent Codex reviewers returned PASS after their findings were repaired.
+
+Measured optimization: not applicable; this Lab repairs lifecycle correctness and reachability rather than runtime performance.
+
+Maintenance provenance: codex/lab-init-review-boundary-convergence, repair 7f84487af50bf46ce350490b8c9d744c90db93c9.
+Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab controller-projection-auto-commit - v0.3.370 - 2026-09-15
 
 Fixed a Story worktree gate deadlock where routine metadata auto-commits could
