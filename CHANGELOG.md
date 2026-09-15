@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab managed-dispatch-validate-before-consume - v0.3.380 - 2026-09-15
+
+# Managed dispatch validates before consuming reviewer delivery
+
+## Problem
+
+`scope_check_save` consumed the managed reviewer's one-shot invocation attestation before validating owner dispositions and the rest of the scope payload. If the reviewer corrected a rejected tool call in the same provider run, the retry failed as a replay and PLAN remained blocked without `scope-check.json`. The shared error also incorrectly named `init_check_set` for PLAN failures.
+
+## Repair
+
+The handler now completes authority, owner coverage, Story, read-manifest, candidate-binding, and summary validation before consuming the attestation. A valid payload still consumes exactly once immediately before the delivery-bound signature and write. Managed-dispatch errors now use command-neutral wording.
+
+## Verification
+
+The Lab RED reproduced the first invalid payload consuming the attestation and making the corrected retry fail. GREEN runs both calls through one real managed provider invocation and proves that the corrected payload succeeds while retaining replay rejection, deliveryRunId binding, scope signature verification, output sealing, and post-terminal replacement defenses. Related managed scope/INIT tests and the complete process-fact contract passed. Codex Sol/high independently reviewed immutable repair HEAD `33ccc3a93a96e14714ffd728d914c5dcc7f5beaf` and reported PASS with no blocker. This Codex audit is used under the user's explicit exception because Claude quota is unavailable.
+
+Maintenance provenance: codex/lab-managed-dispatch-validate-before-consume, repair 33ccc3a93a96e14714ffd728d914c5dcc7f5beaf.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-scope-reviewer-dispatch - v0.3.379 - 2026-09-15
 
 # Managed PLAN scope reviewer delivery
