@@ -10724,11 +10724,11 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/core/managed-host-run.ts',
-        patterns: ['resolveManagedDispatchInvocation', 'signManagedInitInvocation', 'lattice.managed_init_invocation.v1', 'initInvocationConsumption', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managedDispatchOutputFailureReason', 'managed_dispatch_story_missing', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', 'managed_dispatch_output_invalid', 'initCheckSignatureIsValid', 'row.deliveryRunId === input.runId'],
+        patterns: ['resolveManagedDispatchInvocation', 'signManagedInitInvocation', 'lattice.managed_init_invocation.v1', 'initInvocationConsumption', 'lattice.managed_dispatch_invocation_consumption.v2', 'lattice.managed_dispatch_process_group_consumption.v1', 'managed_dispatch_process_group_invocation_consumed', 'managedDispatchInvocationConsumptionIsValid', 'managedDispatchOutputDigest', 'managed-dispatch-output', 'managed dispatch scope output does not match the completed receipt', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managedDispatchOutputValidation', 'afterManagedDispatchOutputValidated', 'managed_dispatch_output_changed_before_seal', 'managedDispatchOutputFailureReason', 'managed_dispatch_story_missing', 'managed_dispatch_output_missing', 'managed_dispatch_invocation_unconsumed', 'managed_dispatch_output_unreadable', 'managed_dispatch_output_invalid', 'initCheckSignatureIsValid', 'row.deliveryRunId === input.runId', 'verifyScopeCheckContentSignature', 'scopeCheck?.deliveryRunId !== input.runId'],
       },
       {
         relPath: 'packages/main/src/handlers/host-run.ts',
-        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'", 'managed_review_candidate_spec_missing', 'candidate_spec_route'],
+        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'", 'proof-or-stop-review-scope-plan', 'managed_review_candidate_spec_missing', 'candidate_spec_route'],
       },
       {
         relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
@@ -10748,7 +10748,15 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-init-dispatch-required-output.test.mjs',
-        patterns: ['managedDispatch must fail when the provider exits zero without its bound init_check_set output', 'a same-role result from another run must not satisfy managed dispatch output', 'an exact Story, role, and run ID result must satisfy managed dispatch output', 'a tampered INIT result must not satisfy managed dispatch output', 'an unreadable INIT result must remain fail-closed', 'materializeHostRunLaunch', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', "managedDispatchCodexSandboxMode('linux', true)", "managedDispatchCodexSandboxMode('linux', false)", "managedDispatchCodexSandboxMode('darwin', true)"],
+        patterns: ['managedDispatch must fail when the provider exits zero without its bound init_check_set output', 'a same-role result from another run must not satisfy managed dispatch output', 'a direct init-check Store write must not substitute for invocation consumption', 'a tampered INIT result must not satisfy managed dispatch output', 'an unreadable INIT result must remain fail-closed', 'materializeHostRunLaunch', 'managed_dispatch_output_missing', 'managed_dispatch_invocation_unconsumed', 'managed_dispatch_output_unreadable', "managedDispatchCodexSandboxMode('linux', true)", "managedDispatchCodexSandboxMode('linux', false)", "managedDispatchCodexSandboxMode('darwin', true)"],
+      },
+      {
+        relPath: 'packages/main/tests/managed-scope-dispatch-required-output.test.mjs',
+        patterns: ['managed scope dispatch must fail when provider completion lacks scope_check_save output', 'direct Store writes must not substitute for scope_check_save invocation consumption', 'managed_dispatch_invocation_unconsumed', 'story_review must reject a scope artifact whose managed delivery did not complete', 'tampered scope evidence must not satisfy managed dispatch output', 'resolveManagedDispatchInvocation', 'deliveryRunId', 'MANAGED_SCOPE_DISPATCH_REQUIRED_OUTPUT_GREEN'],
+      },
+      {
+        relPath: 'packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs',
+        patterns: ['Review PLAN scope coverage', 'scope_check_save', 'deliveryRunId', 'verifyManagedDispatchDelivery', 'a completed scope run cannot authorize replacement evidence with a recomputed public hash', 'story_review must reject post-terminal replacement of managed scope evidence', 'a real isolated provider cannot replace scope_check_save with a direct public-hash Store write', 'managed_dispatch_invocation_unconsumed', 'validated scope bytes cannot be replaced before terminal sealing', 'managed_dispatch_output_changed_before_seal', 'MANAGED_SCOPE_REVIEWER_DISPATCH_E2E_GREEN'],
       },
     ],
   },
@@ -10859,11 +10867,15 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/scope-check.ts',
-        patterns: ['scope_check_save', 'signScopeCheck'],
+        patterns: ['scope_check_save', 'signScopeCheck', 'resolveManagedDispatchInvocation', 'deliveryRunId'],
+      },
+      {
+        relPath: 'packages/main/src/core/scope-check-integrity.ts',
+        patterns: ['scopeCheckContentHash', 'verifyScopeCheckContentSignature', 'deliveryRunId'],
       },
       {
         relPath: 'packages/main/src/handlers/story-review.ts',
-        patterns: ['verifyScopeCheckSignature', 'scope-check.json', 'scope_check_save'],
+        patterns: ['verifyScopeCheckSignature', 'verifyManagedDispatchDelivery', 'scope_check_delivery_invalid', 'scope-check.json', 'scope_check_save'],
       },
     ],
   },

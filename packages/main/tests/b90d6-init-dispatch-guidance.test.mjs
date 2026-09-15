@@ -399,6 +399,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
       .story_review({ storyId });
     const issue = storyReview.issues.find((entry) => entry.type === 'missing_scope_check');
     assert.ok(issue, 'story_review should report missing_scope_check');
+    assert.match(issue.message, new RegExp(`"storyId":"${storyId}".*"agentType":"proof-or-stop-review-scope-plan".*"managedDispatch":true`));
     assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=proof-or-stop-review-scope-plan`));
     assert.match(issue.message, /spawn_agent/);
     assert.match(issue.message, /fork_turns.*none/);

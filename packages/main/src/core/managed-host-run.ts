@@ -98,6 +98,7 @@ import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
   type ManagedSupervisionCode, type ManagedSupervisionDiagnostic } from './managed-run-progress.js';
 import { StoryStore } from './store.js';
 import { initCheckSignatureIsValid } from './init-check-gate.js';
+import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
 import type { InitCheckData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
@@ -261,6 +262,8 @@ export interface ManagedHostRunTerminal {
   stdoutDigest?: string | null;
   specDigest: string;
   evidenceProposalDigest: string | null;
+  /** Exact scope-check bytes accepted before a managed PLAN reviewer completed. */
+  managedDispatchOutputDigest?: string;
   processCleanup: HostRunProcessCleanup | null;
 }
 
@@ -356,6 +359,8 @@ export interface ManagedHostRunReceipt {
   /** Digest of the complete provider stdout stream, independent of retention. */
   stdoutDigest?: string | null;
   evidenceProposalDigest: string | null;
+  /** Receipt-bound role output; currently required for managed PLAN scope reviewers. */
+  managedDispatchOutputDigest?: string;
   replacementSafe: boolean;
   processCleanup: HostRunProcessCleanup | null;
   terminalAt: string;
@@ -701,6 +706,8 @@ export interface ManagedHostRunWorkerDeps {
   cancelPollMs?: number;
   /** Test seam for the immutable proposal pre-read → write race. */
   afterManagedReviewProposalPreRead?: (args: { root: string; runId: string; hasValidProposal: boolean }) => void;
+  /** Test seam after exact managed-dispatch output bytes validate, before terminal sealing. */
+  afterManagedDispatchOutputValidated?: (args: { root: string; runId: string; outputDigest: string | null }) => void;
   /** Test seam after provider-slot transfer and durable identity persistence, before host-run returns from onSpawn. */
   afterProviderIdentityPersisted?: (identity: HostRunProcessIdentity) => void;
 }
@@ -1741,29 +1748,109 @@ function boundedCleanupDiagnosticError(error: unknown): string {
   return message.slice(0, 2_000);
 }
 
+function managedDispatchInvocationConsumptionIsValid(input: {
+  root: string;
+  storyId: string;
+  agentType: string;
+  runId: string;
+}): boolean {
+  try {
+    const paths = pathsFor(input.root, input.runId);
+    if (!existsSync(paths.initInvocationConsumption)) return false;
+    const record = readJson<{
+      schemaVersion: string;
+      runId: string;
+      storyId: string;
+      providerAgent: string;
+      consumedAt: string;
+      invocationNonce?: string;
+      attestation?: ManagedInitInvocationAttestation;
+      providerIdentity?: HostRunProcessIdentity;
+      caller?: ManagedHostRunProcessGroupRow;
+    }>(paths.initInvocationConsumption);
+    const owner = readManagedHostRunOwner(paths);
+    const spec = readManagedHostRunSpec(paths).value;
+    const common = record.runId === input.runId
+      && record.storyId === input.storyId
+      && record.providerAgent === input.agentType
+      && Number.isFinite(Date.parse(record.consumedAt));
+    if (!common) return false;
+    if (record.schemaVersion === 'lattice.managed_dispatch_process_group_consumption.v1') {
+      const snapshotIdentity = readManagedHostRunSnapshot(paths).providerIdentity;
+      return !!snapshotIdentity
+        && record.providerIdentity !== undefined
+        && canonicalJson(record.providerIdentity) === canonicalJson(snapshotIdentity)
+        && record.caller?.pgid === snapshotIdentity.pgid
+        && record.caller.pid > 0
+        && typeof record.caller.start === 'string'
+        && record.caller.start.length > 0;
+    }
+    if (record.schemaVersion !== 'lattice.managed_dispatch_invocation_consumption.v2'
+      || !record.attestation || !record.invocationNonce) return false;
+    const attestation = record.attestation;
+    const { signature, ...claims } = attestation;
+    return record.invocationNonce === attestation.invocationNonce
+      && attestation.runId === input.runId
+      && attestation.storyId === input.storyId
+      && attestation.providerAgent === input.agentType
+      && attestation.expiresAt === spec.deadlineAt
+      && typeof owner.proposalInvocationPublicKey === 'string'
+      && verifyCanonical(claims, signature, owner.proposalInvocationPublicKey);
+  } catch {
+    return false;
+  }
+}
+
+export function managedDispatchOutputValidation(input: {
+  root: string;
+  storyId: string | null;
+  agentType: string;
+  runId: string;
+}): { failureReason: string | null; outputDigest: string | null } {
+  if (!input.storyId) return { failureReason: 'managed_dispatch_story_missing', outputDigest: null };
+  try {
+    const storyStore = new StoryStore(input.root);
+    if (input.agentType === 'proof-or-stop-review-scope-plan') {
+      const scopePath = storyStore.storyFilePath(input.storyId, 'scope-check.json');
+      if (!existsSync(scopePath)) return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
+      const scopeText = readFileSync(scopePath, 'utf8');
+      const scopeCheck = JSON.parse(scopeText) as import('./types.js').ScopeCheckData;
+      if (scopeCheck && !verifyScopeCheckContentSignature(input.storyId, scopeCheck)) {
+        return { failureReason: 'managed_dispatch_output_invalid', outputDigest: null };
+      }
+      if (scopeCheck?.deliveryRunId !== input.runId) {
+        return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
+      }
+      return managedDispatchInvocationConsumptionIsValid({ ...input, storyId: input.storyId })
+        ? { failureReason: null, outputDigest: sha256(scopeText) }
+        : { failureReason: 'managed_dispatch_invocation_unconsumed', outputDigest: null };
+    }
+    const configuredInitCheckPath = storyStore.storyFilePath(input.storyId, 'init-check.json');
+    const initCheck = existsSync(configuredInitCheckPath)
+      ? JSON.parse(readFileSync(configuredInitCheckPath, 'utf8')) as InitCheckData
+      : null;
+    if (initCheck && !initCheckSignatureIsValid(input.storyId, storyStore, input.root, initCheck)) {
+      return { failureReason: 'managed_dispatch_output_invalid', outputDigest: null };
+    }
+    const outputPresent = Array.isArray(initCheck?.agentResults)
+      && initCheck.agentResults.some(row =>
+        row.agentId === input.agentType && row.deliveryRunId === input.runId);
+    if (!outputPresent) return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
+    return managedDispatchInvocationConsumptionIsValid({ ...input, storyId: input.storyId })
+      ? { failureReason: null, outputDigest: null }
+      : { failureReason: 'managed_dispatch_invocation_unconsumed', outputDigest: null };
+  } catch (error) {
+    return { failureReason: `managed_dispatch_output_unreadable:${boundedCleanupDiagnosticError(error)}`, outputDigest: null };
+  }
+}
+
 export function managedDispatchOutputFailureReason(input: {
   root: string;
   storyId: string | null;
   agentType: string;
   runId: string;
 }): string | null {
-  if (!input.storyId) return 'managed_dispatch_story_missing';
-  try {
-    const storyStore = new StoryStore(input.root);
-    const configuredInitCheckPath = storyStore.storyFilePath(input.storyId, 'init-check.json');
-    const initCheck = existsSync(configuredInitCheckPath)
-      ? JSON.parse(readFileSync(configuredInitCheckPath, 'utf8')) as InitCheckData
-      : null;
-    if (initCheck && !initCheckSignatureIsValid(input.storyId, storyStore, input.root, initCheck)) {
-      return 'managed_dispatch_output_invalid';
-    }
-    const outputPresent = Array.isArray(initCheck?.agentResults)
-      && initCheck.agentResults.some(row =>
-        row.agentId === input.agentType && row.deliveryRunId === input.runId);
-    return outputPresent ? null : 'managed_dispatch_output_missing';
-  } catch (error) {
-    return `managed_dispatch_output_unreadable:${boundedCleanupDiagnosticError(error)}`;
-  }
+  return managedDispatchOutputValidation(input).failureReason;
 }
 
 function readManagedReviewScratchCleanupDiagnostic(
@@ -1965,6 +2052,9 @@ function receiptPayloadFor(paths: ManagedHostRunPaths, terminal: ManagedHostRunT
     liveOutputDigest: terminal.liveOutputDigest,
     ...(terminal.stdoutDigest ? { stdoutDigest: terminal.stdoutDigest } : {}),
     evidenceProposalDigest: terminal.evidenceProposalDigest,
+    ...(terminal.managedDispatchOutputDigest
+      ? { managedDispatchOutputDigest: terminal.managedDispatchOutputDigest }
+      : {}),
     replacementSafe: terminal.replacementSafe,
     processCleanup: terminal.processCleanup,
     terminalAt: terminal.terminalAt,
@@ -2009,6 +2099,15 @@ function assertSealedManagedHostRunArtifacts(paths: ManagedHostRunPaths, termina
   if ((digestFile(paths.events) ?? sha256('')) !== terminal.eventJournalDigest) mismatches.push('events');
   if (digestFile(paths.output) !== terminal.liveOutputDigest) mismatches.push('live-output');
   if (digestFile(paths.evidenceProposal) !== terminal.evidenceProposalDigest) mismatches.push('proposal');
+  if (terminal.managedDispatchOutputDigest) {
+    const spec = readManagedHostRunSpec(paths).value;
+    const currentOutputDigest = spec.profile === 'managed_dispatch'
+      && spec.agentType === 'proof-or-stop-review-scope-plan'
+      && spec.storyId
+      ? digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json'))
+      : null;
+    if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
+  }
   const hasEvidenceBinding = existsSync(paths.evidenceBinding);
   const hasEvidenceBindingSeal = existsSync(paths.evidenceBindingSeal);
   if (!hasEvidenceBinding && hasEvidenceBindingSeal) {
@@ -2325,6 +2424,7 @@ function writeTerminal(
   result: HostRunResult | null,
   now: number,
   cleanupOverride?: HostRunProcessCleanup,
+  managedDispatchOutputDigest?: string | null,
 ): ManagedHostRunTerminal {
   const terminal = withTerminalAuthorityLock(paths, () => {
     recoverPendingSnapshotEventTransitionUnlocked(paths);
@@ -2340,7 +2440,7 @@ function writeTerminal(
     // calculating its receipt digest so every consumer observes the same truth.
     const terminalResult = projectManagedHostRunTerminalResult(state, result);
     if (terminalResult) atomicWrite(paths.result, terminalResult);
-    const { text: specText } = readManagedHostRunSpec(paths);
+    const { text: specText, value: spec } = readManagedHostRunSpec(paths);
     const snapshot = readManagedHostRunSnapshot(paths);
     const terminal: ManagedHostRunTerminal = {
       schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
@@ -2356,6 +2456,9 @@ function writeTerminal(
       stdoutDigest: terminalResult?.stdoutDigest ?? null,
       specDigest: sha256(specText),
       evidenceProposalDigest: digestFile(paths.evidenceProposal),
+      ...(state === 'completed' && managedDispatchOutputDigest
+        ? { managedDispatchOutputDigest }
+        : {}),
       processCleanup: cleanupOverride ?? terminalResult?.processCleanup ?? (
         replacementSafe
           ? { termSent: false, killSent: false, reaped: true, residualProcessGroup: false }
@@ -3407,10 +3510,16 @@ export async function runManagedHostRunWorker(
       }
     }
     if (spec.profile === 'managed_dispatch') {
-      const outputFailure = managedDispatchOutputFailureReason(spec);
-      if (outputFailure) {
-        return writeTerminal(paths, 'failed', outputFailure, result.replacementSafe, result, now());
+      const output = managedDispatchOutputValidation(spec);
+      if (output.failureReason) {
+        return writeTerminal(paths, 'failed', output.failureReason, result.replacementSafe, result, now());
       }
+      deps.afterManagedDispatchOutputValidated?.({ root: spec.root, runId: spec.runId, outputDigest: output.outputDigest });
+      if (output.outputDigest && spec.storyId
+        && digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json')) !== output.outputDigest) {
+        return writeTerminal(paths, 'failed', 'managed_dispatch_output_changed_before_seal', result.replacementSafe, result, now());
+      }
+      return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now(), undefined, output.outputDigest);
     }
     return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());
   } catch (error) {
@@ -3624,12 +3733,13 @@ function consumeManagedInitInvocationAttestation(args: {
     if (!valid) throw new Error('managed INIT invocation attestation is invalid or mismatched');
     const consumedAt = new Date(now).toISOString();
     if (!writeExclusive(paths.initInvocationConsumption, {
-      schemaVersion: 'lattice.managed_init_invocation_consumption.v1',
+      schemaVersion: 'lattice.managed_dispatch_invocation_consumption.v2',
       runId: attestation.runId,
       storyId: attestation.storyId,
       providerAgent: attestation.providerAgent,
       invocationNonce: attestation.invocationNonce,
       consumedAt,
+      attestation,
     })) {
       throw new Error('managed INIT invocation attestation was already consumed');
     }
@@ -3713,7 +3823,50 @@ export function resolveManagedDispatchInvocation(args: {
       + 'Use host_run with managedDispatch=true, or the explicit acknowledged init_check_repair fallback. [delivery_not_acknowledged]',
     );
   }
-  return candidates[0]!;
+  const runId = candidates[0]!;
+  const paths = pathsFor(args.root, runId);
+  return withTerminalAuthorityLock(paths, () => {
+    if (readTerminal(paths)) throw new Error('managed dispatch invocation run is terminal');
+    const spec = readManagedHostRunSpec(paths).value;
+    const snapshot = readManagedHostRunSnapshot(paths);
+    const identity = snapshot.providerIdentity;
+    if (spec.profile !== 'managed_dispatch'
+      || spec.storyId !== args.storyId
+      || spec.agentType !== args.agentType
+      || snapshot.state !== 'running'
+      || !identity?.processGroupIsolated
+      || !identity.pgid
+      || !identity.startFingerprint) {
+      throw new Error('managed dispatch process-group invocation changed before consumption');
+    }
+    const rows = processGroupRows(identity.pgid);
+    const leader = rows?.find(row => row.pid === identity.pid);
+    const caller = rows?.find(row => row.pid === callerPid);
+    if (!leader || !caller || leader.start !== identity.startFingerprint
+      || (process.platform !== 'darwin' && leader.sessionId !== caller.sessionId)) {
+      throw new Error('managed dispatch process-group invocation is no longer live or matched');
+    }
+    const consumedAt = new Date().toISOString();
+    if (!writeExclusive(paths.initInvocationConsumption, {
+      schemaVersion: 'lattice.managed_dispatch_process_group_consumption.v1',
+      runId,
+      storyId: args.storyId,
+      providerAgent: args.agentType,
+      consumedAt,
+      providerIdentity: identity,
+      caller,
+    })) {
+      throw new Error('managed dispatch process-group invocation was already consumed');
+    }
+    appendFileSync(paths.events, `${canonicalJson({
+      schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
+      runId,
+      at: consumedAt,
+      type: 'managed_dispatch_process_group_invocation_consumed',
+      detail: { storyId: args.storyId, providerAgent: args.agentType, callerPid },
+    })}\n`, { encoding: 'utf8', mode: 0o600 });
+    return runId;
+  });
 }
 
 /**
@@ -4642,6 +4795,13 @@ export function verifyManagedDispatchDelivery(args: {
     const receipt = managedHostRunReceipt(args.root, args.runId);
     if (receipt.state !== 'completed' || !receipt.replacementSafe) {
       return { valid: false, reason: 'managed dispatch terminal receipt is not a safe completion' };
+    }
+    if (args.agentType === 'proof-or-stop-review-scope-plan') {
+      const currentDigest = digestFile(new StoryStore(args.root).storyFilePath(args.storyId, 'scope-check.json'));
+      if (!receipt.managedDispatchOutputDigest
+        || currentDigest !== receipt.managedDispatchOutputDigest) {
+        return { valid: false, reason: 'managed dispatch scope output does not match the completed receipt' };
+      }
     }
     return { valid: true };
   } catch (error) {

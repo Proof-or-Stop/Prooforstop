@@ -461,15 +461,20 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (hasPrompt || hasPromptFile) {
           throw new Error('host_run: --managedDispatch derives the exact canonical prompt; do not pass --prompt or --promptFile');
         }
-        if (!storyId || !['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'].includes(agentType)) {
-          throw new Error('host_run: --managedDispatch currently requires storyId and one required INIT reviewer agentType');
+        const managedDispatchPhase = agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
+        if (!storyId || ![
+          'proof-or-stop-review-story-init',
+          'proof-or-stop-product-reviewer',
+          'proof-or-stop-review-scope-plan',
+        ].includes(agentType)) {
+          throw new Error('host_run: --managedDispatch requires storyId and a supported required reviewer agentType');
         }
         if (reviewRunId || lane || normalizeString(args.phase)) {
-          throw new Error('host_run: --managedDispatch derives INIT phase and role binding; do not pass reviewRunId, lane, or phase');
+          throw new Error('host_run: --managedDispatch derives phase and role binding; do not pass reviewRunId, lane, or phase');
         }
         const story = ctx.store.readStory(storyId);
-        if (story.phase !== 'INIT') {
-          throw new Error(`host_run: --managedDispatch INIT reviewer requires Story phase INIT, got ${story.phase}`);
+        if (story.phase !== managedDispatchPhase) {
+          throw new Error(`host_run: --managedDispatch ${agentType} requires Story phase ${managedDispatchPhase}, got ${story.phase}`);
         }
         promptText = createStoryDispatchHandlers(ctx).dispatch({ storyId, agentType }).prompt;
         managedDispatch = true;

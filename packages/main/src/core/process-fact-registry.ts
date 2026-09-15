@@ -1457,7 +1457,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'story_review scope-check gate',
     reviewerLane: 'proof-or-stop-review-scope-plan',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_check_save,
-    rationale: 'PLAN scope reviewer signs scope-check evidence before implementation.',
+    rationale: 'PLAN scope reviewer signs scope-check evidence before implementation. Controller-owned managed dispatch is available when the ordinary reviewer sandbox cannot execute; completion requires an exact signed scope_check_save artifact bound to the managed run.',
   },
   {
     name: 'reviewer-lane:proof-or-stop-review-topology-critic',
@@ -1902,7 +1902,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/scope-check',
     consumerGate: 'story_review scope-check gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_check_save,
-    rationale: 'Scope-check signature is consumed by PLAN review.',
+    rationale: 'Scope-check signature is consumed by PLAN review. Managed scope-review delivery includes the exact deliveryRunId in the signature domain; the completed terminal receipt seals the exact scope-check bytes, and story_review compares the current artifact to that receipt. Missing, replaced, or unconsumed output fails rather than becoming provider_completed.',
   },
   {
     name: 'artifact:candidate-spec-set.json',

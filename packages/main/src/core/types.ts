@@ -2849,6 +2849,8 @@ export interface ScopeCheckFeature {
 export interface ScopeCheckData {
   ownerCoverage?: import('./plan-touchpoint-coverage.js').PlanOwnerCoverage;
   storyId: string;
+  /** Exact controller-owned managed dispatch that delivered this scope verdict. */
+  deliveryRunId?: string;
   checkedAt: string;
   features: ScopeCheckFeature[];
   /** Signed self-reported reviewer read coverage. Missing only on legacy scope checks. */

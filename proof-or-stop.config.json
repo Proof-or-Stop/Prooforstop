@@ -3532,6 +3532,44 @@
       {
         "command": "node",
         "args": [
+          "packages/main/tests/managed-scope-dispatch-required-output.test.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/dist/tasks/managed-host-run-command-smoke.js"
         ],
         "timeoutMs": 600000,

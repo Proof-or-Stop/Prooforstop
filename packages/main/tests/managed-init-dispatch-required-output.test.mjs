@@ -102,10 +102,10 @@ try {
     /managed_dispatch_output_missing/);
 
   const positiveResult = await runWithDelivery(liveRunId => liveRunId);
-  assert.equal(positiveResult.exitCode, 0,
-    'an exact Story, role, and run ID result must satisfy managed dispatch output');
+  assert.equal(positiveResult.exitCode, 1,
+    'a direct init-check Store write must not substitute for invocation consumption');
   assert.equal(readManagedHostRunProjection(root, positiveResult.runId).terminal?.reason,
-    'provider_completed');
+    'managed_dispatch_invocation_unconsumed');
 
   const tampered = store.readInitCheck(storyId);
   assert.ok(tampered);
