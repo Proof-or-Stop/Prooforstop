@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab managed-review-null-candidate-spec - v0.3.378 - 2026-09-15
+
+# Managed review candidate-spec preflight
+
+## Problem
+
+A formal managed REVIEW run could start an expensive external reviewer even when `candidate-spec-set.json` was absent. The generated proposal then carried null candidate and corpus digests, and import collapsed the failure into the generic `managed_review_final_result_malformed` error. Every lane could consume time and tokens while remaining unable to create admissible evidence, leaving the Story blocked in REVIEW without a direct repair instruction.
+
+## Repair
+
+`host_run --managedReview` now reads and requires the candidate-spec artifact before it builds the reviewer prompt or submits any provider run. A missing artifact returns the stable `managed_review_candidate_spec_missing` refusal and directs the owner to `candidate_spec_route`. Final-envelope classification also reports stable field-level reasons for missing candidate-spec and corpus digests, and managed output parsing preserves those reasons. The process-fact registry records the preflight and diagnostic contract.
+
+## Verification
+
+The Lab RED reproduced the prior generic malformed result for realistic null digests. GREEN proves field-level classification, source-order refusal before prompt construction/provider submission, and the exact repair command. The package build, managed-review late-descriptor regression, git diff check, and complete process-fact contract all passed. An independent Codex Sol/high reviewer is reviewing the committed candidate before integration because Claude capacity is unavailable and the user authorized Codex review as the fallback.
+
+Maintenance provenance: codex/lab-managed-review-null-candidate-spec, repair 0062e7c787dc642276729107bbde0dd53bdc2866.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-review-candidate-preflight.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-init-invocation-broker - v0.3.377 - 2026-09-15
 
 # Managed INIT invocation broker repair
