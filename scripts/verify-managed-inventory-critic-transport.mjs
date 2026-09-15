@@ -61,17 +61,20 @@ const verifierSource = readFileSync(new URL('./verify-process-fact-contract.mjs'
 const finalGuard = verifierSource.slice(verifierSource.indexOf('// Managed inventory transport checks must precede the final failure gate.'));
 assert(finalGuard.includes('if (failures.length)'), 'Contract test must include the actual final failure gate');
 const handlerPath = 'packages/main/src/handlers/review-inventory.ts';
-const sourcePaths = [handlerPath,'packages/main/src/core/managed-host-run.ts','packages/main/src/core/managed-review-evidence.ts'];
+const criticParserPaths = ['packages/main/src/core/managed-host-run.ts','packages/main/src/core/managed-review-evidence.ts'];
+const processFactRegistryPath = 'packages/main/src/core/process-fact-registry.ts';
+const sourcePaths = [handlerPath, ...criticParserPaths, 'packages/main/src/core/host-run.ts', processFactRegistryPath];
 const sources = Object.fromEntries(sourcePaths.map(path=>[path,readFileSync(new URL('../'+path,import.meta.url),'utf8')]));
 const mutations = [null,...['export function importManagedInventoryCritic','createManagedReviewEvidenceBinding',
  'verifyManagedReviewLiveBinding','proposalFindingIndex','only proof-or-stop-review-topology-critic may write critic authority'].map(token=>({path:handlerPath,token})),
- ...sourcePaths.slice(1).map(path=>({path,token:'isManagedInventoryCritic'}))];
+ ...criticParserPaths.map(path=>({path,token:'isManagedInventoryCritic'}))];
 for (const mutation of mutations) {
   const candidate = {...sources};
   if(mutation) candidate[mutation.path]=candidate[mutation.path].replaceAll(mutation.token,'');
-  const prelude = `const nodeAssert=require('node:assert/strict');const failures=[];function assert(ok,message){if(!ok)failures.push(message);}const sources=${JSON.stringify(candidate)};function read(path){return sources[path];}\n`;
+  const prelude = `const nodeAssert=require('node:assert/strict');const failures=[];function assert(ok,message){if(!ok)failures.push(message);}const processFactRegistryPath=${JSON.stringify(processFactRegistryPath)};const sources=${JSON.stringify(candidate)};function read(path){return sources[path];}\n`;
   const result = spawnSync(process.execPath, ['-e', 'eval(require("node:fs").readFileSync(0, "utf8"))'], {input:prelude + finalGuard,encoding:'utf8',timeout:10000});
-  assert.equal(result.status, mutation ? 1 : 0, 'Actual guard exit status for '+JSON.stringify(mutation));
+  assert.equal(result.status, mutation ? 1 : 0,
+    'Actual guard exit status for '+JSON.stringify(mutation)+'\nstdout='+result.stdout+'\nstderr='+result.stderr);
   if (mutation) {assert.match(result.stderr,/Process fact contract failed/);assert(!result.stdout.includes('Process-fact contract verification passed'));}
 }
 console.log('MANAGED_INVENTORY_CONTRACT_NEGATIVE_CONTROLS_GREEN');
