@@ -64,7 +64,9 @@ try {
   assert.match(`${envSpoof.stderr}\n${envSpoof.stdout}`, /delivery_not_acknowledged/);
 
   const fakeCodex = join(bin, 'codex');
-  writeFileSync(fakeCodex, `#!/bin/sh\nset -eu\ncat > "${root}/delivered-$PROOF_OR_STOP_AGENT.txt"\ncase "$(cat "${root}/delivered-$PROOF_OR_STOP_AGENT.txt")" in *"Review the initial background + checklist"*|*"Review whether the INIT"*) ;; *) exit 41;; esac\n: > "${root}/ready-$PROOF_OR_STOP_AGENT"\ni=0\nwhile [ ! -f "${root}/ready-proof-or-stop-review-story-init" ] || [ ! -f "${root}/ready-proof-or-stop-product-reviewer" ]; do\n  i=$((i+1))\n  if [ "$i" -gt 500 ]; then echo 'barrier timeout: peer reviewer never became ready' >&2; exit 42; fi\n  sleep 0.02\ndone\n"${process.execPath}" "${cli}" init_check_set "{\\"storyId\\":\\"${storyId}\\",\\"issues\\":[],\\"agentId\\":\\"$PROOF_OR_STOP_AGENT\\"}"\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'\n`);
+  const unifiedExecShim = join(bin, 'unified-exec-shim.mjs');
+  writeFileSync(unifiedExecShim, `import { spawn } from 'node:child_process';\nconst child = spawn(process.execPath, process.argv.slice(2), { detached: true, stdio: 'inherit', env: process.env });\nchild.on('exit', (code, signal) => process.exitCode = signal ? 70 : (code ?? 71));\n`);
+  writeFileSync(fakeCodex, `#!/bin/sh\nset -eu\ncat > "${root}/delivered-$PROOF_OR_STOP_AGENT.txt"\ncase "$(cat "${root}/delivered-$PROOF_OR_STOP_AGENT.txt")" in *"Review the initial background + checklist"*|*"Review whether the INIT"*) ;; *) exit 41;; esac\n: > "${root}/ready-$PROOF_OR_STOP_AGENT"\ni=0\nwhile [ ! -f "${root}/ready-proof-or-stop-review-story-init" ] || [ ! -f "${root}/ready-proof-or-stop-product-reviewer" ]; do\n  i=$((i+1))\n  if [ "$i" -gt 500 ]; then echo 'barrier timeout: peer reviewer never became ready' >&2; exit 42; fi\n  sleep 0.02\ndone\n"${process.execPath}" "${unifiedExecShim}" "${cli}" init_check_set "{\\"storyId\\":\\"${storyId}\\",\\"issues\\":[],\\"agentId\\":\\"$PROOF_OR_STOP_AGENT\\"}"\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'\n`);
   chmodSync(fakeCodex, 0o755);
   process.env.PATH = `${bin}:${oldPath ?? ''}`;
   process.env.PROOF_OR_STOP_PROJECT_ROOT = root;
