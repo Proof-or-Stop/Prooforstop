@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab reviewer-fresh-context-boundary - v0.3.372 - 2026-09-15
+
+# Reviewer fresh-context boundary and launch-path convergence
+
+Problem: A PLAN scope reviewer could inherit the Story owner's complete conversation, recursively delegate the same reviewer role, exhaust the host agent-thread limit, lose the actual child identifiers, and leave scope-check.json permanently missing. Several lifecycle surfaces also emitted Claude-only Agent(...) shortcuts or ad-hoc prompts, so the safer launch guidance was not consistently reachable from INIT, PLAN, REVIEW, TEST, and reviewer_batch.
+
+Fix: Proof-or-Stop now centralizes host-neutral reviewer launch guidance. Owner-facing paths first obtain the canonical dispatch prompt, pass it unchanged to one fresh-context reviewer, use Codex fork_turns:none where applicable, describe the equivalent Claude and other-host boundary, retain exact nonempty child identifiers, and require distinct identifiers for parallel reviewers. Reviewer-facing prompts explicitly prohibit spawning or delegating another reviewer. REVIEW and delivery next steps, reviewer_batch, INIT gates, scope-plan recovery, verification-intent, topology, rollout, inventory, and delivery reviewer surfaces use the same boundary. reviewer_batch no longer fabricates a short review prompt, and Codex task names are canonicalized so test-coverage becomes the valid review_test_coverage identifier.
+
+Verification: The Lab RED reproduced missing fresh-context launch guidance. The focused b90d6 regression exercises INIT, PLAN scope review, real buildNextSteps REVIEW and TEST output, and a real linked-worktree session_brief recovery path. reviewer-batch-smoke verifies Codex, Claude, and other-host launch forms, canonical dispatch use, exact child-ID handling, and valid task names. The package build, git diff check, focused regression, reviewer-batch smoke, and full process-fact contract passed. Three gpt-5.6-sol/high review rounds found launch-path, recovery-path, child-ID, and task-name gaps; each was repaired, and the final exact-source review returned PASS with no blocker or major finding. The operator explicitly authorized Sol/high as the independent review after the Anthropic quota was exhausted; this entry does not mislabel it as a different-vendor Lab audit.
+
+Boundary: Native host thread ancestry and actual fork implementation remain host-runtime facts. Proof-or-Stop emits the required invocation contract and preserves its own signed dispatch/evidence gates; it does not fabricate a host attestation or claim it can inspect an external collaboration runtime.
+
+Measured optimization: not applicable; this Lab repairs reviewer lifecycle correctness and reachability.
+
+Maintenance provenance: codex/lab-reviewer-fresh-context-boundary, repair b03672c385.
+Verification command (replayed before integration and on main): `["node","--test","packages/main/tests/b90d6-init-dispatch-guidance.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab init-review-boundary-convergence - v0.3.371 - 2026-09-15
 
 # INIT review boundary and worktree projection convergence
