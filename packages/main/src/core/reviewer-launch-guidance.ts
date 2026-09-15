@@ -24,3 +24,6 @@ export function renderReviewerDispatchLaunch(args: {
 
 export const REVIEWER_CHILD_ID_WAIT_BOUNDARY =
   'Retain every returned child agent id and wait only on those exact ids; never call wait with an empty target/receiver set.';
+
+export const REVIEWER_NO_DELEGATION_BOUNDARY =
+  'Execute this review directly in the current reviewer task; do not spawn or delegate another reviewer. Collaboration tools, if visible, are outside this role.';

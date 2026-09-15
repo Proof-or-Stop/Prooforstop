@@ -119,6 +119,7 @@ function assertInitCheckGuardGuidance() {
   const storyId = 'B-guidance';
   const root = makeRoot();
   try {
+    initGitRoot(root);
     const store = new StoryStore(root);
     seedStory(store, storyId);
 
@@ -158,6 +159,16 @@ function assertInitCheckGuardGuidance() {
     assert.match(missingInitCheck ?? '', /never call wait with an empty target\/receiver set/i);
     assertIncludesInitPreflight(missingInitCheck, storyId, 'missing init-check guidance');
 
+    const initDispatch = createStoryDispatchHandlers(ctx(root, store));
+    const storyInitPrompt = initDispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-story-init' }).prompt;
+    const productInitPrompt = initDispatch.dispatch({ storyId, agentType: 'proof-or-stop-product-reviewer' }).prompt;
+    assert.match(storyInitPrompt, /fresh context/i);
+    assert.match(storyInitPrompt, /do not carry over the main agent's conclusions/i);
+    assert.match(storyInitPrompt, /do not spawn or delegate another reviewer/i);
+    assert.match(productInitPrompt, /fresh context/i);
+    assert.match(productInitPrompt, /do not carry over the main agent's conclusions/i);
+    assert.match(productInitPrompt, /do not spawn or delegate another reviewer/i);
+
     createInitCheckHandlers(ctx(root, store)).init_check_set({
       storyId,
       issues: [],
@@ -169,6 +180,7 @@ function assertInitCheckGuardGuidance() {
     assert.match(missingInitAgent ?? '', /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
     assert.match(missingInitAgent ?? '', /subagent_type: "proof-or-stop-product-reviewer"/);
     assert.match(missingInitAgent ?? '', /never call wait with an empty target\/receiver set/i);
+    assert.match(missingInitAgent ?? '', /nonempty and distinct/i);
     assert.doesNotMatch(missingInitAgent ?? '', /lattice-review-story-init/);
     assert.doesNotMatch(missingInitAgent ?? '', /subagent_type: "product-reviewer"/);
     assertIncludesInitPreflight(missingInitAgent, storyId, 'missing init-check agent guidance');
@@ -264,6 +276,7 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     assert.match(output, /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
     assert.match(output, /subagent_type: "proof-or-stop-review-story-init"/);
     assert.match(output, /subagent_type: "proof-or-stop-product-reviewer"/);
+    assert.match(output, /agentId exactly proof-or-stop-product-reviewer/);
     assert.match(output, /retain both returned child agent ids/i);
     assert.match(output, /never call wait with an empty target\/receiver set/i);
     assert.doesNotMatch(output, /subagent_type: "lattice-review-story-init"/);
@@ -334,8 +347,10 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(result.prompt, /fork_turns:\s*"none"/);
     assert.match(result.prompt, /Claude owner launch: Agent\(\{ subagent_type: "proof-or-stop-review-scope-plan"/);
     assert.match(result.prompt, /retain (?:the|every) returned child agent id/i);
-    assert.match(result.prompt, /execute this scope review directly in the current reviewer task/i);
-    assert.match(result.prompt, /must not spawn or delegate another reviewer/i);
+    assert.match(result.prompt, /execute this (?:scope )?review directly in the current reviewer task/i);
+    assert.match(result.prompt, /(?:must|do) not spawn or delegate another reviewer/i);
+    assert.match(result.prompt, /fresh context/i);
+    assert.match(result.prompt, /do not carry over the main agent's or Story owner's conclusions/i);
     assert.match(result.prompt, /never call wait with an empty target\/receiver set/i);
     assert.match(result.prompt, /Must read story artifacts/);
     assert.match(result.prompt, /Dispatch output is not gate evidence/);
@@ -351,7 +366,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(issue.message, /fork_turns.*none/);
     assert.match(issue.message, /Agent\(\{ subagent_type: "proof-or-stop-review-scope-plan"/);
     assert.match(issue.message, /returned child agent id/);
-    assert.match(issue.message, /must not spawn or delegate another reviewer/i);
+    assert.match(issue.message, /(?:must|do) not spawn or delegate another reviewer/i);
     assert.match(issue.message, /empty target\/receiver set/i);
     assert.match(issue.message, /dispatch output is not gate evidence/);
     assert.match(issue.message, /proof-or-stop scope_check_save/);

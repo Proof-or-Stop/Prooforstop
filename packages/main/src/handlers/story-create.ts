@@ -1174,7 +1174,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const initReviewHint =
           `\n\n→ Now please spawn two INIT reviewers in parallel:\n` +
           `  · ${renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-review-story-init', taskName: 'review_story_init' })}\n` +
-          `  · ${renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-product-reviewer', taskName: 'product_reviewer' })}\n` +
+          `  · ${renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-product-reviewer', taskName: 'product_reviewer', promptPlaceholder: '<owner-produced standard prompt>; whether pass/fail, call init_check_set with agentId exactly proof-or-stop-product-reviewer' })}\n` +
           `  · ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} Retain both returned child agent ids; both must be nonempty and distinct before waiting.\n` +
           `  · Do not have the main agent self-invoke proof-or-stop init_check_set (the CLI does not mechanically validate agentId, but the reviewer template fresh-context fence + CLAUDE.md behavior rules require invocation by an independent subagent—main agent self-invocation effectively bypasses the reviewer, violating the anti-self-absolution convention)\n` +
           `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +

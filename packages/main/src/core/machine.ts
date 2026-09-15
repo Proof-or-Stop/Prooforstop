@@ -258,6 +258,7 @@ function renderMissingInitReviewerDispatches(storyId: string, missingAgents: str
   });
   return `→ Preferred: have the Story owner separately dispatch only the missing reviewer records:\n${dispatches.join('\n')}\n` +
     `   ${REVIEWER_CHILD_ID_WAIT_BOUNDARY}\n` +
+    `   When launching more than one missing INIT reviewer, all child ids must be nonempty and distinct before waiting.\n` +
     `   Every reviewer independently performs its reviewerWrite by calling init_check_set regardless of pass/fail; review_run_start begins only after the Story enters REVIEW, not during INIT.`;
 }
 

@@ -68,6 +68,7 @@ import {
   renderClaudeFreshReviewerHandoff,
   renderCodexFreshReviewerHandoff,
   REVIEWER_CHILD_ID_WAIT_BOUNDARY,
+  REVIEWER_NO_DELEGATION_BOUNDARY,
 } from '../core/reviewer-launch-guidance.js';
 import type { ReviewInventoryPurposeBinding } from '../core/types.js';
 import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
@@ -442,6 +443,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         `Review the initial background + checklist for story ${args.storyId}.`,
         '',
         'You are the proof-or-stop-review-story-init reviewer; please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        REVIEWER_NO_DELEGATION_BOUNDARY,
         `Must read: ${bgPath}`,
         `Must read: ${checklistPath}`,
         '',
@@ -484,6 +486,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         `Review whether the INIT of story ${args.storyId} is ready to advance, from a user value perspective.`,
         '',
         'You are proof-or-stop-product-reviewer, not proof-or-stop-review-story-init. Please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        REVIEWER_NO_DELEGATION_BOUNDARY,
         `Must read: ${bgPath}`,
         `Required reading: ${checklistPath}`,
         '',
@@ -554,8 +557,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('- Other hosts must launch exactly one equivalent fresh-context reviewer task containing this prompt and no parent conversation history.');
     lines.push('');
     lines.push('Reviewer execution contract:');
-    lines.push('- You are the proof-or-stop-review-scope-plan reviewer. Execute this scope review directly in the current reviewer task and finish by calling scope_check_save.');
-    lines.push('- The reviewer must not spawn or delegate another reviewer. Collaboration tools, if visible, are outside this role.');
+    lines.push('- You are the proof-or-stop-review-scope-plan reviewer. Review in a fresh context and do not carry over the main agent\'s or Story owner\'s conclusions. Finish by calling scope_check_save.');
+    lines.push(`- ${REVIEWER_NO_DELEGATION_BOUNDARY}`);
     lines.push(`Working directory (subagent must cd here): ${root}`);
     lines.push('');
     appendDispatchLivenessGuidance(lines, 'proof-or-stop-review-scope-plan/story-scope');
@@ -608,6 +611,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       renderAgentLivenessGuidance({ label: 'proof-or-stop-review-topology-critic/story', startSignal: 'DISPATCH_START:proof-or-stop-review-topology-critic/story' }),
       '',
       'Use the canonical proof-or-stop-review-topology-critic role. Do not edit implementation or story files.',
+      REVIEWER_NO_DELEGATION_BOUNDARY,
       `Run proof-or-stop acceptance_basis '{"storyId":"${args.storyId}","json":true}' and inspect topology, scope, exclusions, discovery status, and closure.`,
       'A missing, partial, unsupported, stale, or tampered basis cannot receive pass.',
       'Every exclusion must already have a separately attributable proof-or-stop-review-scope-plan approval.',
@@ -636,6 +640,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     ];
     appendDispatchLivenessGuidance(lines, `${entry.canonicalName}/story`);
     lines.push('Role boundary:');
+    lines.push(`- ${REVIEWER_NO_DELEGATION_BOUNDARY}`);
     lines.push('- Review only; do not change code, tests, checklist status, or story metadata.');
     lines.push('- This is a story-level dispatch: review every checklist item and the integrated change, not one selected item.');
     lines.push('');
@@ -666,6 +671,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     store.readStory(args.storyId);
     const lines: string[] = [
       `As ${args.resolved.canonicalType}, perform the delivery review for story ${args.storyId}.`,
+      REVIEWER_NO_DELEGATION_BOUNDARY,
       '',
       `Working directory (subagent must cd here): ${root}`,
       '',
