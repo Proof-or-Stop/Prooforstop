@@ -11896,6 +11896,24 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
 assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
 assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
 {
+ const hostRunSource = read('packages/main/src/core/host-run.ts');
+ const registrySource = read(processFactRegistryPath);
+ const requiredSchemaTokens = [
+   "...(args.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC ? ['inventoryCritic'] : [])",
+   '(parsed.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC && parsed.inventoryCritic === undefined)',
+   'hasOnlyKeys(readManifest, MANAGED_REVIEW_READ_MANIFEST_FIELDS)',
+   'hasOnlyKeys(readLog, MANAGED_REVIEW_READ_LOG_FIELDS)',
+ ];
+ for (const token of requiredSchemaTokens) {
+   assert(hostRunSource.includes(token), `Managed final-proposal schema contract missing enforcement token: ${token}`);
+   nodeAssert(!hostRunSource.replace(token, '').includes(token), `Managed final-proposal negative control must remove enforcement token: ${token}`);
+ }
+ assert(registrySource.includes('the topology-critic lane requires inventoryCritic'),
+   'Managed final-proposal process fact must register critic receipt completeness');
+ assert(registrySource.includes('routing digests share one grammar') && registrySource.includes('unknown nested fields fail closed'),
+   'Managed final-proposal process fact must register schema and terminal-validator consistency');
+}
+{
  const source = read('packages/main/src/handlers/review-inventory.ts');
  const required = ['export function importManagedInventoryCritic', 'createManagedReviewEvidenceBinding',
    'verifyManagedReviewLiveBinding', 'proposalFindingIndex',

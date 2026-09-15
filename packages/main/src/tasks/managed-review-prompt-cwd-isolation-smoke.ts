@@ -96,7 +96,7 @@ function main(): void {
     'readCount', 'tokenCount',
   ], 'prompt schema states every required readLog.summary field');
   assert.equal((finalProposalSchema.properties.readManifest.properties?.candidateSpecSetDigest as { pattern?: string }).pattern,
-    '^[a-f0-9]{64}$', 'prompt schema constrains candidate routing digests to the terminal format');
+    '^(?:sha256:)?[a-f0-9]{64}$', 'prompt schema matches the terminal routing-digest grammar');
   const fullyRead = ['packages/main/src/example.ts'];
   const validProposal = {
     schemaVersion: 'lattice.managed_review_final_proposal.v1',
@@ -122,6 +122,14 @@ function main(): void {
   };
   assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify(validProposal)).kind, 'valid',
     'the minimum shape described by the embedded prompt schema passes the terminal validator');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    readManifest: {
+      ...validProposal.readManifest,
+      candidateSpecSetDigest: `sha256:${'a'.repeat(64)}`,
+      corpusDigest: `sha256:${'b'.repeat(64)}`,
+    },
+  })).kind, 'valid', 'the provider schema and terminal validator both accept explicit sha256 routing digests');
   assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
     ...validProposal,
     readLog: { ...validProposal.readLog, filesReadPartially: [] },

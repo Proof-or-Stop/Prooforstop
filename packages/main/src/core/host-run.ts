@@ -944,7 +944,9 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
   // local envelope parser before any bytes are sealed as evidence.
   const nonBlankString = { type: 'string' };
   const stringArray = { type: 'array', items: { type: 'string' } };
-  const digest = { type: 'string', pattern: '^[a-f0-9]{64}$' };
+  // Match normalizeReviewerReadManifest: existing native and managed evidence
+  // accepts either the canonical raw digest or its explicit sha256: form.
+  const digest = { type: 'string', pattern: '^(?:sha256:)?[a-f0-9]{64}$' };
   const readManifest = {
     type: 'object',
     additionalProperties: false,
