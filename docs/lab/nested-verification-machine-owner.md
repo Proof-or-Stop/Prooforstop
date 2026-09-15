@@ -163,15 +163,35 @@ A grant request from an enrolled descendant whose command carries no
 classification resolves, on the controller, to the tightest enclosing
 declaration (its parent grant's claims, else the owner's declaration) and can
 never widen it; the client accepts such a grant only when its claims stay within
-the owner's declaration carried by the bootstrap. Inside one process a nested
+the owner's declaration carried by the bootstrap. A declared claim outside the
+enclosing grant or declaration is never borrowed at all: one that conflicts
+with the owner's declaration is refused at the inherited entry itself, because
+on the machine queue it could only wait behind the owner's own ticket (the
+queue's ancestor rule cannot see a reparented descendant), while a
+non-conflicting one is acquired on the machine queue exactly as before
+delegation existed and holds its own ticket beside the owner's; the controller
+keeps refusing a raw superset grant request as `resource expansion`. Inside one process a nested
 unclassified request under a declared frame is still refused as expansion,
 because one invocation cannot widen its own claim.
 `verify-nested-reservation-faults.mjs` modes `declared-owner-unclassified` and
-`declared-owner-expansion` prove both across a real process boundary under an
-owner that declares exactly the claims the registered selectors declare; the
-unclassified mode fails against the pre-repair controller with
+`declared-owner-expansion` prove this across a real process boundary under an
+owner that declares exactly the claims the registered selectors declare: the
+expansion mode asserts that a conflicting claim outside the declaration is
+refused at the entry, that a non-conflicting one is admitted with a second
+ticket, and that an exact subset borrows without a ticket of its own; under
+its undeclared owner, where every claim is borrowable and widening a borrowed
+frame is an expansion, the pinned driver's resources group asserts that
+expansion refusal for an unclassified request and for a declared claim outside
+the frame, and the same refusal for widening a borrowed port claim.
+The unclassified mode fails against the pre-repair controller with
 `resource expansion`, which is what every registered selector hit under the
-real executor before this repair.
+real executor before this repair; against the module as it stood before the
+full configured-command comparison of the thirteenth round, which refused every
+claim outside the declaration as `resource expansion`, the conflicting and the
+non-conflicting alike, the expansion mode fails at its first assertion with that
+refusal, and that refusal is what the precert fast set (configured index 6,
+whose `real-port-collision` member declares a fixed port the outer command does
+not) hit in that comparison while passing on main.
 
 ## Retirement and cleanup
 
@@ -344,16 +364,26 @@ check that no signal was attempted cannot fail without an observed identity.
 The controller's own admission observation at controller start
 (`inspectMachineReservationOwner`) is a ticket and kernel observation like every
 other one in the module: it is retried with the registered observation policy,
-and when it stays unavailable the command runs without a controller, exactly as
-on an unsupported platform, because no delegation is offered in that case and
-nothing is weakened; an owner observed with a different identity or declaration
-is still refused. `verify-nested-reservation-faults.mjs` mode
-`controller-inspection-transient` refuses the first inspection and asserts
-that the controller still forms and a registered descendant sees the locator,
-and mode `controller-inspection-unavailable` refuses every inspection and
-asserts that the command still completes while the descendant sees no locator;
-against the pre-repair module both failed the command at once with
-`controller owner/declaration mismatch`. A queued controller request is
+and when it stays unavailable the command is refused at once with the typed
+`controller owner observation unavailable`; an owner observed with a different
+identity or declaration is still refused. A controller-less run in that case
+was tried first and rejected: an owner without a controller leaves its
+delegated leaf commands queued behind its own ticket until their deadline,
+which is the failure delegation exists to remove. The full configured-command
+comparison below recorded, while that fallback was in place and the machine
+pool was shared with another session, a shape consistent with it for the
+fixture suite at index 14 (a 19-minute wait for the pool, then its 20-minute
+budget spent without progress after the first shard), where the same command
+completes in 139.5 seconds in isolation with its controller formed; the cause
+of that stall was not observed directly, and the fallback is gone regardless.
+`verify-nested-reservation-faults.mjs` mode `controller-inspection-transient`
+refuses the first inspection and asserts that the controller still forms and a
+registered descendant sees the locator, and mode
+`controller-inspection-unavailable` refuses every inspection and asserts that
+the command is refused immediately with that reason, never entered, and its
+ticket released; against the module before this round the transient mode failed
+the command with `controller owner/declaration mismatch`, and against the
+rejected fallback the unavailable mode entered the command. A queued controller request is
 dequeued only where it still sits (a request already removed must never remove
 a neighbour, which a splice at index -1 would silently do); the closure is
 defined above the retirement slice the lifecycle unit controls evaluate.
@@ -689,6 +719,43 @@ Lab-changed file that caused each one:
 Inherited main drift on files this Lab did not modify is left visible, not
 refreshed.
 
+### Full configured-command comparison
+
+Every configured command of local main 0.3.367 (indexes 0 to 168; the candidate
+appends its fifty-seven selectors after them) was run through the real compiled
+executor with the machine reservation held, sequentially and in the same order,
+first in the main checkout and then in the candidate worktree, with the same
+harness as the targeted comparison above; the complete table is
+`nested-verification-machine-owner-full-comparison.md` beside this record.
+Of the 169 commands, 166 have the same outcome on both trees
+(136 pass on main and 133 on the candidate; the failures shared
+with main are main's own, listed in the table) and 3 differ:
+2 (main pass, candidate fail (1, validation_failure)), 3 (main pass, candidate fail (2, validation_failure)), 142 (main pass, candidate fail (1, validation_failure)). Aggregate wall clock over the set was 3296.2 seconds on main
+and 3277.4 seconds on the candidate.
+
+The differing rows are attributed as follows. Indexes 2, 3 and 142 fail on the
+candidate only because the candidate is a linked worktree: main 0.3.367's
+runtime-root projection refuses story-scoped commands from any linked worktree
+that is not the story's own (`controller projection refused unsigned or
+unregistered linked worktree for B-cdf6`, and the same for B-fe8f), indexes 2
+and 3 invoke `finding_list --storyId=B-cdf6` and index 142 invokes
+`red_evidence_get` for B-fe8f, the same refusals were reproduced for all three
+commands from a throwaway linked worktree of unmodified main 6d6884c940, and all
+three pass in the main checkout. Index 2 is the identity-lineage delivery smoke,
+whose ninety-three cases pass on main and of which exactly the one that invokes
+that command fails on the candidate; index 3 is its red harness; index 142 is
+the ledger runtime-integrity red harness. A first candidate
+run, stopped after forty-nine commands once its differences were known, had two
+more: the precert fast set (index 6) failed with the `resource expansion`
+refusal repaired in the controlled child API section, and the fixture suite at
+index 14 spent its budget without progress after a nineteen-minute wait for a
+machine pool shared with another session, the shape discussed with the owner
+inspection above; both pass in the complete rerun on the repaired candidate
+recorded here. The commands that reach `runIsolatedFindingFixture` directly,
+through an npm alias or through one script hop (indexes 0, 2, 8, 15, 39, 155
+and 168) have the same outcome on both trees except index 2, whose single
+failing case is the environmental refusal above.
+
 ## Verification boundaries
 
 Fifty-seven direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
@@ -747,9 +814,9 @@ under 3.7 seconds, every 60-second selector under 10.6 seconds), and the
 twelfth-round sweep of all fifty-two in 201.1 seconds (`core` 35.9 seconds,
 every 30-second selector under 3.8 seconds, every 60-second selector under
 10.9 seconds), and the thirteenth-round sweep of all fifty-seven on the
-candidate resynchronized with main 0.3.367 in 224.3 seconds (`core` 38.8
+candidate resynchronized with main 0.3.367 in 200.7 seconds (`core` 37.0
 seconds, every 30-second selector under 4.2 seconds, every 60-second selector
-under 11.5 seconds). Before the `core` selector
+under 9.9 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay

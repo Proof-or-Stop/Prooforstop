@@ -279,8 +279,26 @@ export async function registerValidationReservationChild(pid: number, pendingTok
 export async function withInheritedMachineReservation<T>(resources: ResourceClaim[] | null, deadlineAt: number, signal: AbortSignal | undefined, fn: () => Promise<T> | T): Promise<{ inherited: false } | { inherited: true; value: T }> {
   const current = frames.getStore();
   if (current?.register) {if(!current.active)throw failure('invocation no longer active');return { inherited: false };}
-  if (current && (!current.active || !subset(resources,current.resources) || current.abort.signal.aborted)) throw failure('nested reservation expansion/revocation');
+  if (current && (!current.active || current.abort.signal.aborted)) throw failure('nested reservation revocation');
+  // A declared claim outside the enclosing grant or declaration is never borrowed: the caller acquires
+  // it on the machine queue exactly as before delegation existed, where the queue's own ancestor rule
+  // still refuses a claim that conflicts with a held ancestor ticket. An unclassified request under a
+  // declared frame stays refused, because one invocation cannot widen its own claim. The controller
+  // keeps refusing a raw superset grant request; this entry simply never makes one.
+  // A declared claim outside the enclosing grant that conflicts with the owner's declaration would only
+  // queue behind the owner's own ticket (the queue's ancestor rule cannot see a reparented descendant),
+  // so it is refused here; a non-conflicting one is acquired independently.
+  if (current && !subset(resources, current.resources)) {
+    // Under an undeclared owner every claim is borrowable, so widening a borrowed frame is an expansion.
+    if (resources === null || current.bootstrap.resources === null) throw failure('nested reservation expansion');
+    if (conflict(resources, current.bootstrap.resources)) throw failure('nested reservation conflicts with the enclosing reservation');
+    return { inherited: false };
+  }
   const bootstrap = current?.bootstrap ?? readBootstrap(); if (!bootstrap) return { inherited: false };
+  if (resources !== null && !subset(resources, bootstrap.resources)) {
+    if (conflict(resources, bootstrap.resources)) throw failure('nested reservation conflicts with the enclosing reservation');
+    return { inherited: false };
+  }
   if (current) signal = signal ? AbortSignal.any([signal,current.abort.signal]) : current.abort.signal;
   if (signal?.aborted) throw signal.reason;
   const response = await request(bootstrap, { operation: 'grant', resources, parentGrantId: current?.grantId, deadlineAt: Math.min(deadlineAt, bootstrap.deadlineAt) }, signal);
@@ -351,13 +369,14 @@ function machineCleanupFailure(owner: MachineReservationOwner, registered: Itera
 export async function withMachineReservationController<T>(owner: MachineReservationOwner, isLive: () => boolean, fn: () => Promise<T> | T): Promise<T> {
   if (process.platform !== policy.platform) return await fn();
   // The owner's own admission is a ticket and kernel observation like every other one in this
-  // module: retried with the registered observation policy, and when it stays unavailable the
-  // command runs without a controller exactly as on an unsupported platform (no delegation is
-  // offered, nothing is weakened). An owner observed with a different identity or declaration is
-  // still refused.
+  // module: retried with the registered observation policy and, when it stays unavailable, a typed
+  // refusal that fails the command at once. It is never a controller-less run: an owner without a
+  // controller leaves its delegated leaf commands queued behind its own ticket until their deadline,
+  // the failure delegation exists to remove. An owner observed with a different identity or
+  // declaration is still refused.
   let admitted: NonNullable<ReturnType<typeof inspectMachineReservationOwner>>;
   try { admitted = observeWithRetry(() => { const observed = inspectMachineReservationOwner(owner.ticket, owner.lockId); if (!observed) throw failure('controller owner observation unavailable'); return observed; }); }
-  catch { if (!isLive()) throw failure('controller owner/declaration mismatch'); return await fn(); }
+  catch { throw failure('controller owner observation unavailable'); }
   if(!isLive()||admitted.pid!==process.pid||admitted.start!==owner.start||JSON.stringify(admitted.resources)!==JSON.stringify(owner.resources))throw failure('controller owner/declaration mismatch');
   // A unix socket path is capped at 104 bytes on Darwin; a deep scratch TMPDIR falls back to /tmp.
   const temporaryRoot = Buffer.byteLength(join(tmpdir(), artifacts.temporaryPrefix)) + 6 + 1 + artifacts.socketFile.length + 1 <= 100 ? tmpdir() : '/tmp';

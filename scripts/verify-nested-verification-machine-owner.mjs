@@ -76,13 +76,15 @@ console.log('NESTED_LINEAGE_REVOKED_WITH_CLAIMS_HELD PASS');
 }
 if(group==='resources'){
 await machine(options([{class:'machine-cpu',key:'heavy',access:'exclusive'}]),async()=>{
+ // Under this undeclared owner every claim is borrowable, so an unclassified request or a declared claim outside a borrowed frame is an expansion of that frame, never queued behind the owner's own ticket.
  await assert.rejects(()=>machine(options(),()=>{}),/expansion/);
  await assert.rejects(()=>machine(options([{class:'machine-process',key:'fanout',access:'exclusive'}]),()=>{}),/expansion/);
 });
 const server=createServer();await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const port=server.address().port;
 try {await assert.rejects(()=>machine(options([{class:'fixed-port',key:String(port),access:'exclusive'}]),()=>{throw Error('occupied port callback entered');}),/fixed-port .* unavailable/);
- await machine(options([{class:'fixed-port',key:String(port),access:'shared'}]),async()=>{await assert.rejects(()=>machine(options([{class:'fixed-port',key:String(port),access:'exclusive'}]),()=>{}),/expansion/);});
+ // A port the owner never declared is acquired independently (its own ticket); widening it to exclusive inside the same process is refused by the in-process rule.
+ await machine(options([{class:'fixed-port',key:String(port),access:'shared'}]),async()=>{await assert.rejects(()=>machine(options([{class:'fixed-port',key:String(port),access:'exclusive'}]),()=>{}),/expansion|cannot expand/);});
 }finally{await new Promise(resolve=>server.close(resolve));}
 await machine(options([{class:'fixed-port',key:String(port),access:'exclusive'}]),async()=>{const owned=createServer();await new Promise(resolve=>owned.listen(port,'127.0.0.1',resolve));try{await machine(options([{class:'fixed-port',key:String(port),access:'exclusive'}]),()=>{});}finally{await new Promise(resolve=>owned.close(resolve));}});
 console.log('NESTED_RESOURCE_SUBSET_AND_PORT_REFUSAL PASS');

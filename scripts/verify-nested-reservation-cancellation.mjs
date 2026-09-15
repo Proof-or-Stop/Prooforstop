@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import {spawnSync} from 'node:child_process';
-import {writeFileSync,rmSync,readFileSync} from 'node:fs';
+import {spawnSync,execFileSync} from 'node:child_process';
+import {writeFileSync,rmSync,readFileSync,existsSync} from 'node:fs';
 import {join} from 'node:path';
 import {nestedSourceRuntime} from './support/nested-reservation-source-runtime.mjs';
 
@@ -69,6 +69,11 @@ for(const mode of selected){
  if(${JSON.stringify(mode)}!=='refused-registration-live'){let entered=false;await machine({root:${JSON.stringify(base)},workspaceRoot:${JSON.stringify(base)},command:'post-cancellation actual admission',deadlineAt:Date.now()+3000},()=>{entered=true;});assert.equal(entered,true);}
  console.log('OWNED_NO_SPAWN_CANCELLATION '+${JSON.stringify(mode)}+' PASS');`);
  try{const child=spawnSync(process.execPath,[entry],{env,encoding:'utf8',timeout:12000,maxBuffer:128*1024});process.stdout.write(child.stdout??'');process.stderr.write(child.stderr??'');assert.equal(child.status,0,'ACTUAL_CAPTURE_PRIMARY_ERROR_AND_NO_SPAWN_CLEANUP_REQUIRED '+mode);}
- finally{rmSync(base,{recursive:true,force:true});}
+ finally{
+  // An interrupted entry (its own budget or a signal) cannot run its inner cleanup, so the recorded
+  // SIGTERM-ignoring grandchild is killed here by identity: its program names this run's private base.
+  try{const pidFile=join(base,'grandchild.pid');if(existsSync(pidFile)){const pid=Number(readFileSync(pidFile,'utf8'));if(Number.isSafeInteger(pid)&&pid>1){let args='';try{args=execFileSync('/bin/ps',['-o','args=','-p',String(pid)],{encoding:'utf8',timeout:1000});}catch{}if(args.includes(base)){try{process.kill(pid,'SIGKILL');}catch{}}}}}catch{/* absence is the goal */}
+  rmSync(base,{recursive:true,force:true});
+ }
 }
 console.log('NESTED_RESERVATION_CANCELLATION PASS');
