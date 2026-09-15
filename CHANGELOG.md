@@ -1,5 +1,40 @@
 # Changelog
 
+## Lab reviewer-delivery-handshake - v0.3.373 - 2026-09-15
+
+# Reviewer prompt delivery acknowledgement
+
+Problem: Native Codex reviewer launches could create child tasks while dropping the
+canonical dispatch prompt. Proof-or-Stop retained only an assumed child identifier
+and allowed the owner to wait without evidence that the reviewer had received its
+role. A prompt-less child could then behave as the Story owner, recursively launch
+reviewers, and leave INIT or REVIEW permanently waiting on an empty receiver set.
+
+Fix: Codex launch guidance now treats either the returned agent id or canonical task
+name as the reviewer target and immediately re-delivers the same canonical prompt
+through `followup_task`. Owners must observe the prompt-defined start signal or the
+role-specific start command before waiting. Missing targets or acknowledgements fail
+closed as `delivery_not_acknowledged`; an empty wait remains forbidden. Fresh-context
+launch and the prohibition on reviewer delegation remain unchanged.
+
+Verification: The Lab RED proved the prior public INIT guidance omitted the directed
+second delivery. GREEN covers INIT guards, Story creation, REVIEW and TEST next steps,
+and reviewer-batch output. `reviewer-batch-smoke` and the full process-fact contract
+also passed. Claude audit was attempted and returned HTTP 429 with zero tokens because
+the account session limit was exhausted. Under the operator's explicit fallback,
+Codex gpt-5.6-sol/high independently reviewed the exact patch and returned PASS with
+no actionable findings. This is recorded as a same-vendor fallback and is not claimed
+as a different-vendor Lab audit.
+
+Boundary: Proof-or-Stop cannot repair a host runtime that discards a collaboration
+tool argument. This change makes its native orchestration protocol resilient through
+directed re-delivery and fail-closed acknowledgement; signed lifecycle and reviewer
+evidence gates are unchanged.
+
+Maintenance provenance: codex/lab-reviewer-delivery-handshake, repair d140aff921.
+Verification command: `["node","packages/main/tests/b90d6-init-dispatch-guidance.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab reviewer-fresh-context-boundary - v0.3.372 - 2026-09-15
 
 # Reviewer fresh-context boundary and launch-path convergence
