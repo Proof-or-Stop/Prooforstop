@@ -8,9 +8,13 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { hasValidControllerConfigProjection, inspectControllerConfigProjection } from './controller-config-projection.js';
-import { CONTROLLER_RUNTIME_ASSET_PATHS, inspectControllerRuntimeProjection } from './controller-runtime-projection.js';
+import {
+  CONTROLLER_RUNTIME_ASSET_PATHS,
+  existingControllerRuntimeAssetPaths,
+  inspectControllerRuntimeProjection,
+} from './controller-runtime-projection.js';
 import { CONTROLLER_CONFIG_PROJECTION_ARTIFACT, CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
-import { loadConfig, pickProjectConfigPath } from './config.js';
+import { isManagedGlobalThinRoot, loadConfig, pickProjectConfigPath } from './config.js';
 
 function hasGitMetadata(dir: string): boolean {
   let current = dir;
@@ -96,6 +100,64 @@ export function isByteIdenticalControllerRuntimeAsset(args: {
       storyRoot: join(worktreeRoot, loadConfig(worktreeRoot).storyDir, args.storyId),
     }).valid;
   } catch { return false; }
+}
+
+export interface ExpectedControllerRuntimeProjectionStatus {
+  expected: boolean;
+  valid: boolean;
+  reason: string;
+  expectedPaths: string[];
+  controllerRoot?: string;
+}
+
+/**
+ * Verify the complete controller-owned runtime projection for a Story worktree.
+ *
+ * Per-path dirty classification cannot observe an absent untracked file. Review
+ * admission therefore uses this whole-set check as well: when a global-thin
+ * controller owns hook assets, every expected hook and both signed receipts
+ * must still verify before a reviewer snapshots the candidate.
+ */
+export function inspectExpectedControllerRuntimeProjection(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+}): ExpectedControllerRuntimeProjectionStatus {
+  if (!/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/.test(args.storyId)) {
+    return { expected: false, valid: false, reason: 'invalid-story-id', expectedPaths: [] };
+  }
+  try {
+    const worktreeRoot = realpathSync(args.gitCwd);
+    if (realpathSync(args.projectRoot) !== worktreeRoot) {
+      return { expected: false, valid: false, reason: 'project-root-mismatch', expectedPaths: [] };
+    }
+    const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (controllerRoot === worktreeRoot || !isManagedGlobalThinRoot(controllerRoot)) {
+      return { expected: false, valid: true, reason: 'not-controller-managed-worktree', expectedPaths: [], controllerRoot };
+    }
+    const expectedPaths = existingControllerRuntimeAssetPaths(controllerRoot);
+    if (expectedPaths.length === 0) {
+      return { expected: false, valid: true, reason: 'no-controller-assets', expectedPaths, controllerRoot };
+    }
+    const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], {
+      cwd: worktreeRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    if (branch !== `refs/heads/story/${args.storyId}`) {
+      return { expected: true, valid: false, reason: 'story-branch-mismatch', expectedPaths, controllerRoot };
+    }
+    const inspection = inspectControllerRuntimeProjection({
+      gitCwd: worktreeRoot,
+      storyId: args.storyId,
+      controllerRoot,
+      worktreeRoot,
+      storyRoot: join(worktreeRoot, loadConfig(worktreeRoot).storyDir, args.storyId),
+    });
+    return { expected: true, valid: inspection.valid, reason: inspection.reason, expectedPaths, controllerRoot };
+  } catch {
+    return { expected: true, valid: false, reason: 'workspace-or-receipt-invalid', expectedPaths: [] };
+  }
 }
 
 export interface ControllerProjectionReceiptStatus {

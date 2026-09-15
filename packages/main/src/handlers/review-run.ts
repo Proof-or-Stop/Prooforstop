@@ -40,6 +40,7 @@ import {
 import { reviewIncrementalContext, resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
 import { currentOpenReviewInventory, assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { assertReviewInventoryContextFreshLocked, requireInventoryCriticSubjectLocked } from './review-inventory.js';
+import { inspectExpectedControllerRuntimeProjection } from '../core/runtime-artifact-registry.js';
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
@@ -181,6 +182,18 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             'Commit or revert all code/config changes, then rerun review_run_start.',
           );
         }
+      }
+      const runtimeProjection = inspectExpectedControllerRuntimeProjection({
+        projectRoot: signedWorkspaceRoot,
+        gitCwd: signedWorkspaceRoot,
+        storyId: args.storyId,
+      });
+      if (runtimeProjection.expected && !runtimeProjection.valid) {
+        throw new Error(
+          `review_run_start: controller runtime projection is incomplete or invalid (${runtimeProjection.reason}). ` +
+          `Expected controller-owned paths: ${runtimeProjection.expectedPaths.join(', ') || '<unresolved>'}. ` +
+          'Rerun through the Proof-or-Stop CLI bootstrap to restore exact signed controller assets, then retry review_run_start.',
+        );
       }
       // status.ok === false → fail-open: after this preflight declines to block, proceed to the snapshot.
 

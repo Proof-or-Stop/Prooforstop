@@ -137,6 +137,36 @@ function normalizeReviewerBlockingAuthority(
   return { issues: normalized, normalizedCount };
 }
 
+function initBlockingIssueKey(issue: InitCheckIssue): string | null {
+  if ((issue.severity !== 'critical' && issue.severity !== 'high') || issue.kind === 'post_implementation_evidence_missing') return null;
+  const kind = typeof issue.kind === 'string' ? issue.kind.trim() : '';
+  const requirementRef = typeof issue.requirementRef === 'string' ? issue.requirementRef.trim() : '';
+  return kind && requirementRef ? `${kind}\u0000${requirementRef}` : null;
+}
+
+function normalizeUnchangedInputBlockerExpansion(
+  issues: InitCheckIssue[],
+  previousIssues: InitCheckIssue[] | undefined,
+): { issues: InitCheckIssue[]; normalizedCount: number } {
+  if (!previousIssues) return { issues, normalizedCount: 0 };
+  const previousKeys = new Set(previousIssues.map(initBlockingIssueKey).filter((key): key is string => key !== null));
+  let normalizedCount = 0;
+  return {
+    issues: issues.map(issue => {
+      const key = initBlockingIssueKey(issue);
+      if (key === null || previousKeys.has(key)) return issue;
+      normalizedCount += 1;
+      return {
+        ...issue,
+        severity: 'medium' as const,
+        reportedSeverity: issue.reportedSeverity ?? (issue.severity === 'critical' ? 'critical' as const : 'high' as const),
+        dispositionReason: 'unchanged_input_blocker_expansion' as const,
+      };
+    }),
+    normalizedCount,
+  };
+}
+
 // Backward-compatible re-exports: existing importers (core/machine.ts now reads
 // from core directly; story-create.ts / draft-check.ts still import from here).
 export {
@@ -235,7 +265,6 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       const checkedAt = new Date().toISOString();
       const agentId = normalizeAgentId(authority.actor);
       const normalizedIssues = normalizeReviewerBlockingAuthority(submittedIssues, agentId, checklistItems);
-      const issues = normalizedIssues.issues;
       if (normalizedIssues.normalizedCount > 0) {
         process.stderr.write(
           `⚠ init_check_set ${args.storyId}: normalized ${normalizedIssues.normalizedCount} out-of-authority ` +
@@ -282,6 +311,18 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         )
         : '';
       const previousTrusted = initCheckHashMatches(previous, expectedPreviousHash);
+      const previousAgentResult = previousTrusted && previous
+        ? initCheckAgentResults(previous).find(result => initCheckAgentMatches(result.agentId, agentId) || result.agentId === agentId)
+        : undefined;
+      const monotonicIssues = normalizeUnchangedInputBlockerExpansion(normalizedIssues.issues, previousAgentResult?.issues);
+      const issues = monotonicIssues.issues;
+      if (monotonicIssues.normalizedCount > 0) {
+        process.stderr.write(
+          `⚠ init_check_set ${args.storyId}: normalized ${monotonicIssues.normalizedCount} new critical/high blocker(s) ` +
+          `from an unchanged authoritative INIT input to advisory. Edit the cited INIT requirement before requesting a fresh blocker. ` +
+          `[init_reviewer_unchanged_input_expansion]\n`,
+        );
+      }
       const agentResults = previousTrusted && previous ? initCheckAgentResults(previous).filter(
         result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,
       ) : [];
@@ -347,7 +388,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
       const missing = missingRequiredInitCheckAgents(data);
       const commitHint = autoCommitStoryMetadata(root, args.storyId, 'init_check_set');
-      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${normalizedIssues.normalizedCount > 0 ? `; normalized ${normalizedIssues.normalizedCount} out-of-authority blocker(s) to advisory` : ''}${untrustedNotice}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
+      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${normalizedIssues.normalizedCount > 0 ? `; normalized ${normalizedIssues.normalizedCount} out-of-authority blocker(s) to advisory` : ''}${monotonicIssues.normalizedCount > 0 ? `; normalized ${monotonicIssues.normalizedCount} unchanged-input blocker expansion(s) to advisory` : ''}${untrustedNotice}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
       });
     },
 

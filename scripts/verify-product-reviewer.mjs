@@ -91,6 +91,7 @@ for (const path of agentPaths) {
   assert(text.includes('init_check_set') && text.includes('pass') && text.includes('fail'), `${path} missing INIT review recording requirement`);
   assert(text.includes('agentId":"proof-or-stop-product-reviewer') || text.includes('agentId` must be exactly `proof-or-stop-product-reviewer`'), `${path} missing exact product-reviewer agentId requirement`);
   assert(text.includes('implementation has not started') && text.includes('must not require'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: product reviewer must explicitly allow planned evidence before implementation');
+  assert(text.includes('unchanged facts'), `${path} missing monotonic blocker-set instruction`);
   assert(!text.includes('story_advance DONE') && !text.includes('live-smoke-transcript.json'), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: INIT reviewer must not request post-implementation artifacts');
 }
 
@@ -102,6 +103,7 @@ for (const path of storyInitAgentPaths) {
   const text = readFileSync(path, 'utf8');
   assert(text.includes('five dimensions below are exhaustive'), `${path} missing finite story-init authority boundary`);
   assert(text.includes('implementation-defined') && text.includes('requirementRef'), `${path} missing anti-amplification and source-binding rules`);
+  assert(text.includes('unchanged facts'), `${path} missing monotonic blocker-set instruction`);
   assert(text.includes('initial_checklist_invalid') && text.includes('existing_system_claim_inaccurate'), `${path} missing role-specific blocker kinds`);
 }
 
@@ -149,7 +151,8 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert(storyId, 'failed to parse temp story id');
 
-  const directHandlers = createInitCheckHandlers({ store: new StoryStore(temp), root: temp, scanRoot: join(temp, 'packages/main') });
+  const directStore = new StoryStore(temp);
+  const directHandlers = createInitCheckHandlers({ store: directStore, root: temp, scanRoot: join(temp, 'packages/main') });
   const previousStoryInitAgent = process.env.PROOF_OR_STOP_AGENT;
   process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-story-init';
   try {
@@ -184,6 +187,12 @@ try {
     'outside_init_reviewer_blocking_authority',
     'INIT_REVIEW_AUTHORITY_BOUNDARY: normalized advisory must state why it cannot block',
   );
+
+  const storyAfterAdvisory = directStore.readStory(storyId);
+  directStore.writeStory(storyId, {
+    ...storyAfterAdvisory,
+    description: `${storyAfterAdvisory.description} The authoritative checklist requirement changed before the next review.`,
+  });
 
   process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-story-init';
   try {
@@ -234,6 +243,41 @@ try {
   const unboundProductCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
   const productResult = unboundProductCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
   nodeAssert.equal(productResult?.issues?.[0]?.severity, 'medium', 'INIT_REVIEW_AUTHORITY_BOUNDARY: unbound product-reviewer high issue must be advisory');
+
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [] });
+    directHandlers.init_check_set({
+      storyId,
+      issues: [{
+        kind: 'user_outcome_unspecified',
+        requirementRef: 'story:description',
+        severity: 'high',
+        desc: 'The Story description does not identify an observable user outcome.',
+      }],
+    });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const unchangedExpansionCheck = JSON.parse(readFileSync(join(temp, 'docs', 'story', 'actives', storyId, 'init-check.json'), 'utf8'));
+  const unchangedExpansionResult = unchangedExpansionCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(
+    unchangedExpansionResult?.issues?.[0]?.severity,
+    'medium',
+    'INIT_REVIEW_MONOTONICITY: PASS cannot become a new high blocker when authoritative INIT inputs are unchanged',
+  );
+  nodeAssert.equal(
+    unchangedExpansionResult?.issues?.[0]?.dispositionReason,
+    'unchanged_input_blocker_expansion',
+    'INIT_REVIEW_MONOTONICITY: unchanged-input blocker expansion must preserve a machine-owned disposition',
+  );
+
+  const changedStory = directStore.readStory(storyId);
+  directStore.writeStory(storyId, {
+    ...changedStory,
+    description: `${changedStory.description} The authoritative user outcome changed after the previous review.`,
+  });
 
   process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
   try {

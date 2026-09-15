@@ -2936,7 +2936,7 @@ export interface InitCheckIssue {
   /** Original reviewer severity when the handler narrows an out-of-authority blocker to advisory. */
   reportedSeverity?: 'critical' | 'high';
   /** Machine-owned explanation for a severity normalization at the INIT authority boundary. */
-  dispositionReason?: 'outside_init_reviewer_blocking_authority' | 'missing_or_invalid_requirement_ref';
+  dispositionReason?: 'outside_init_reviewer_blocking_authority' | 'missing_or_invalid_requirement_ref' | 'unchanged_input_blocker_expansion';
   /** Concrete description (runtime validation trim().length >= 1, blank strings forbidden) */
   desc: string;
 }

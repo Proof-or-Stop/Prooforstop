@@ -17,6 +17,7 @@ import { resolveStoryMergeBase } from '../core/story-aware-validation.js';
 import { buildMaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
 import { loadConfig } from '../core/config.js';
+import { inspectExpectedControllerRuntimeProjection } from '../core/runtime-artifact-registry.js';
 import {
   classifierOptionsForCheck,
   classifyGitStatusRows,
@@ -157,6 +158,31 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
     ]) {
       assert.ok(projectedRuntimePaths.includes(hookPath), `${hookPath} is classified as a runtime artifact`);
     }
+
+    const expectedHookPaths = [
+      '.codex/hooks.json',
+      '.codex/hooks/proof-or-stop-evidence-pretool.cjs',
+      '.codex/hooks/proof-or-stop-scope-pretool.cjs',
+    ];
+    for (const expectedHookPath of expectedHookPaths) rmSync(join(worktreeRoot, expectedHookPath));
+    const missingProjection = inspectExpectedControllerRuntimeProjection({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId,
+    });
+    assert.equal(missingProjection.expected, true, 'global-thin Story worktree requires the controller runtime projection');
+    assert.equal(
+      missingProjection.valid,
+      false,
+      'LAB_RED: review preflight must reject an entirely absent untracked controller runtime projection',
+    );
+    project({ controllerRoot, worktreeRoot, storyId });
+    const restoredProjection = inspectExpectedControllerRuntimeProjection({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId,
+    });
+    assert.equal(restoredProjection.valid, true, 'CLI bootstrap restores the exact signed controller runtime projection before review');
 
     const hookPath = '.codex/hooks/proof-or-stop-evidence-pretool.cjs';
     const hookBytes = readFileSync(join(worktreeRoot, hookPath));

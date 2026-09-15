@@ -1634,6 +1634,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/scope-contract.ts',
       'packages/main/src/handlers/context.ts',
       'packages/main/src/handlers/checklist.ts',
+      'packages/main/src/handlers/review-run.ts',
     ],
   },
   'runtime:repository_default_baseline_gate': {
