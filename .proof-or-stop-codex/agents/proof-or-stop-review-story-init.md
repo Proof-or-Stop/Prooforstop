@@ -31,7 +31,7 @@ Your input has two layers:
 1. The repository instruction file for the active host, when present — use `AGENTS.md` for Codex, `CLAUDE.md` for Claude Code, or the repository's documented host-neutral equivalent to establish architecture, phase transitions, and existing concepts. A missing optional host instruction file is not insufficient Story input.
 2. `package-specific framework docs` (if it exists) — internal framework conventions
 3. Run `proof-or-stop background_get '{"storyId":"<storyId>"}'` and read the full background returned by the CLI
-4. Run `proof-or-stop story_get '{"storyId":"<storyId>"}'` and use only the returned `title` / `description` / `type` / `priority` / `riskSignals` fields
+4. Run `proof-or-stop story_get '{"storyId":"<storyId>","detail":true}'` and use only the returned `index.title` / `index.description` / `index.type` / `index.priority` / `index.riskSignals` fields
 5. Run `proof-or-stop checklist_get '{"storyId":"<storyId>"}'` and use only the returned `items[].title` / `items[].context`
 
 **Read as needed** (when verifying facts for dimension 4):
