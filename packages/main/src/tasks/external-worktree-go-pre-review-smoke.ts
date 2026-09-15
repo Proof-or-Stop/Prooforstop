@@ -16,6 +16,13 @@ import { SCOPE_PATH_CANONICALIZER_VERSION } from '../core/scope-path-classifier.
 import { resolveStoryMergeBase } from '../core/story-aware-validation.js';
 import { buildMaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
+import { loadConfig } from '../core/config.js';
+import {
+  classifierOptionsForCheck,
+  classifyGitStatusRows,
+  isBlockingDirty,
+  readGitStatusLines,
+} from '../core/dirty-worktree-gate.js';
 import { renderReproFirstStoryCreatePreflight } from '../handlers/story-create.js';
 import { StoryStore } from '../core/store.js';
 import { captureVerificationFreshness, createCurrentVerificationAssertionReceipt, createVerificationExecutionReceipt } from '../core/verification-execution-evidence.js';
@@ -129,6 +136,40 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
     const localStore = new StoryStore(worktreeRoot);
     const checklist = localStore.readChecklist(storyId);
     assert.equal(checklist.items[0]!.status, 'pending');
+    const projectedStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(projectedStatus.ok, true, 'projected Story worktree git status is readable');
+    const projectedClassification = classifyGitStatusRows(
+      projectedStatus.ok ? projectedStatus.lines : [],
+      classifierOptionsForCheck(loadConfig(worktreeRoot), storyId, localStore, worktreeRoot),
+    );
+    const projectedDirty = isBlockingDirty(projectedClassification);
+    assert.equal(
+      projectedDirty.blocked,
+      false,
+      `LAB_RED: valid signed controller config and hook projections must not block review_run_start: ${projectedDirty.blockingPaths.join(', ')}`,
+    );
+    const projectedRuntimePaths = projectedClassification.groups.runtime_artifact_changes.map(entry => entry.path);
+    assert.ok(projectedRuntimePaths.includes('proof-or-stop.config.json'), 'valid projected controller config is classified as a runtime artifact');
+    for (const hookPath of [
+      '.codex/hooks.json',
+      '.codex/hooks/proof-or-stop-evidence-pretool.cjs',
+      '.codex/hooks/proof-or-stop-scope-pretool.cjs',
+    ]) {
+      assert.ok(projectedRuntimePaths.includes(hookPath), `${hookPath} is classified as a runtime artifact`);
+    }
+
+    const hookPath = '.codex/hooks/proof-or-stop-evidence-pretool.cjs';
+    const hookBytes = readFileSync(join(worktreeRoot, hookPath));
+    writeFileSync(join(worktreeRoot, hookPath), `${hookBytes.toString('utf8')}tampered\n`);
+    const tamperedStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(tamperedStatus.ok, true, 'tampered Story worktree git status is readable');
+    const tamperedDirty = isBlockingDirty(classifyGitStatusRows(
+      tamperedStatus.ok ? tamperedStatus.lines : [],
+      classifierOptionsForCheck(loadConfig(worktreeRoot), storyId, localStore, worktreeRoot),
+    ));
+    assert.equal(tamperedDirty.blocked, true, 'a changed projected hook must return to fail-closed dirty classification');
+    assert.ok(tamperedDirty.blockingPaths.includes(hookPath), 'fail-closed classification identifies the changed projected hook');
+    writeFileSync(join(worktreeRoot, hookPath), hookBytes);
     assert.match(git(worktreeRoot, ['show', '--name-only', '--format=', 'HEAD']), new RegExp(`^\\.proof-or-stop/story/actives/${storyId}/`, 'm'));
     assert.equal(git(controllerRoot, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${storyId}`]).startsWith('??'), true, 'controller Story copy remains read-only and uncommitted');
 
