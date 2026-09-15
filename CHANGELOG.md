@@ -1,5 +1,26 @@
 # Changelog
 
+## Lab controller-projection-auto-commit - v0.3.370 - 2026-09-15
+
+Fixed a Story worktree gate deadlock where routine metadata auto-commits could
+start tracking controller config and runtime projection receipts even though
+their process-fact descriptors require them to remain untracked. Metadata
+auto-commit pathspecs now exclude every descriptor marked `untracked-only`,
+reject either receipt when it is already staged, and keep ordinary Story
+metadata commits narrowly scoped.
+
+The regression test drives two real metadata auto-commits, verifies that both
+projection receipts remain present and untracked after each commit, and reruns
+projection attestation. The focused external-worktree smoke and process-fact
+contract passed, as did independent Codex specification and standards reviews.
+Two broader smoke failures were reproduced unchanged on the release base and
+remain separate pre-existing defects.
+
+Maintenance provenance: codex/lab-controller-projection-auto-commit. This entry
+records Codex-reviewed Lab maintenance under the user's explicit no-Claude
+instruction; it does not assert a different-vendor Lab audit or formal Story
+DONE.
+
 ## Lab init-story-metadata-read - v0.3.369 - 2026-09-15
 
 Fixed an INIT lifecycle deadlock introduced when the Story reviewer was routed
