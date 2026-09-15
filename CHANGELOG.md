@@ -1,5 +1,33 @@
 # Changelog
 
+## Lab topology-provenance-base - v0.3.368 - 2026-09-15
+
+Fixed topology authority dispatch in repositories whose integration branch is
+not named `main`. Implementation provenance now scans only the immutable Story
+integration commit through `HEAD`; historical Stories without a frozen target
+use the repository merge base. The unscoped recent-50-commit fallback was
+removed, so an implementer-authored commit from an earlier Story cannot be
+attributed to the current Story.
+
+Missing base, range, and current-Story implementer evidence now use stable
+`IMPLEMENTATION_PROVENANCE_*` codes. Optional scope dispatch records the
+structured diagnostic in its process event, while required topology dispatch
+fails closed with the same code. Git stderr is captured rather than printed to
+the user.
+
+Verification passed: Lab RED reproduced the cross-Story attribution and raw
+`main..HEAD` fatal; GREEN covered no-`main`, historical-commit rejection,
+current implementation selection, deleted parent branch portability, and
+unavailable-base refusal. A real handler regression covered optional and
+required diagnostics. The TypeScript build and complete process-fact contract
+passed. U18 retained exact unresolved-row parity with v0.3.367: 60 needs-review,
+17 skipped, 273 existing exceptions, and zero unexpanded commands. Independent
+Codex specification review passed; standards review found no hard violation.
+
+Maintenance provenance: codex/lab-topology-provenance-base. This entry records
+Codex-reviewed Lab maintenance under the user's explicit no-Claude instruction;
+it does not assert a different-vendor Lab audit or formal Story DONE.
+
 ## Lab review-base-portability - v0.3.367 - 2026-09-15
 
 Fixed first-review startup in repositories whose integration branch is not
