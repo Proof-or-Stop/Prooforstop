@@ -1990,6 +1990,8 @@ function assertProofStoryProgressiveBoundary() {
       && read('packages/main/src/core/runtime-artifact-registry.ts').includes('Verify the complete controller-owned runtime projection')
       && externalWorktreeSmokeText.includes('review preflight must reject an entirely absent untracked controller runtime projection')
       && externalWorktreeSmokeText.includes('real review_run_start handler rejects an entirely absent controller projection before snapshotting')
+      && externalWorktreeSmokeText.includes('review preflight must reject a single absent untracked controller hook that git status cannot observe')
+      && externalWorktreeSmokeText.includes('real review_run_start handler rejects one absent untracked controller hook before snapshotting')
       && externalWorktreeSmokeText.includes('tracked hook projections remain forbidden')
       && externalWorktreeSmokeText.includes('tracked config projection remains forbidden')
       && externalWorktreeSmokeText.includes('a changed projected hook must return to fail-closed dirty classification')

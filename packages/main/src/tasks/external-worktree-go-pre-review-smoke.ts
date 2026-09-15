@@ -251,6 +251,38 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
     localStore.writeStory(storyId, reviewStory);
     project({ controllerRoot, worktreeRoot, storyId });
 
+    const singleMissingHookPath = '.codex/hooks/proof-or-stop-scope-pretool.cjs';
+    rmSync(join(worktreeRoot, singleMissingHookPath));
+    const singleMissingStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(singleMissingStatus.ok, true, 'single-hook deletion git status remains readable');
+    assert.equal(
+      singleMissingStatus.ok && singleMissingStatus.lines.some(line => line.endsWith(` ${singleMissingHookPath}`)),
+      false,
+      'git status has no row for the absent untracked controller hook',
+    );
+    assert.equal(
+      inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
+      false,
+      'LAB_RED: review preflight must reject a single absent untracked controller hook that git status cannot observe',
+    );
+    localStore.writeStory(storyId, { ...reviewStory, phase: 'REVIEW' });
+    process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-review-quality';
+    process.chdir(worktreeRoot);
+    try {
+      const reviewHandlers = createReviewRunHandlers({ store: localStore, root: worktreeRoot, scanRoot: worktreeRoot });
+      assert.throws(
+        () => reviewHandlers.review_run_start({ storyId }),
+        /uncommitted unexpected_dirty_files|controller runtime projection is incomplete or invalid/,
+        'real review_run_start handler rejects one absent untracked controller hook before snapshotting',
+      );
+    } finally {
+      process.chdir(previousCwd);
+      if (previousReviewerAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousReviewerAgent;
+    }
+    localStore.writeStory(storyId, reviewStory);
+    project({ controllerRoot, worktreeRoot, storyId });
+
     const hookPath = '.codex/hooks/proof-or-stop-evidence-pretool.cjs';
     const hookBytes = readFileSync(join(worktreeRoot, hookPath));
     writeFileSync(join(worktreeRoot, hookPath), `${hookBytes.toString('utf8')}tampered\n`);
