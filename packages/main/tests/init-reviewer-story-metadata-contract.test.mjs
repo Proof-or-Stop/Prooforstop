@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -45,6 +46,17 @@ for (const relativePath of surfaces) {
     `${relativePath} must name the result.index metadata fields returned by story_get detail`,
   );
 }
+
+const canonicalTemplate = readFileSync(join(repoRoot, surfaces[0]), 'utf8');
+const canonicalTemplateHash = createHash('sha256').update(canonicalTemplate).digest('hex');
+assert.match(
+  readFileSync(join(repoRoot, 'scripts/verify-proof-or-stop-prompt-baseline.mjs'), 'utf8'),
+  new RegExp(
+    `role: 'proof-or-stop-review-story-init',[\\s\\S]{0,120}` +
+    `templateHash: '${canonicalTemplateHash}'`,
+  ),
+  'the independently reviewed prompt approval pin must match the canonical INIT template',
+);
 
 const [{ StoryStore }, { createStoryQueryHandlers }] = await Promise.all([
   import('../dist/core/store.js'),
