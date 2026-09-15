@@ -66,6 +66,12 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
   const worktreeRoot = join(controllerRoot, '.worktrees', storyId);
   try {
     initRepository(controllerRoot);
+    mkdirSync(join(controllerRoot, '.proof-or-stop'), { recursive: true });
+    writeFileSync(join(controllerRoot, '.proof-or-stop', 'proof-or-stop.json'), '{"assetMode":"global-thin"}\n');
+    mkdirSync(join(controllerRoot, '.codex', 'hooks'), { recursive: true });
+    writeFileSync(join(controllerRoot, '.codex', 'hooks.json'), '{"hooks":[]}\n');
+    writeFileSync(join(controllerRoot, '.codex', 'hooks', 'proof-or-stop-evidence-pretool.cjs'), 'module.exports = {};\n');
+    writeFileSync(join(controllerRoot, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs'), 'module.exports = {};\n');
     git(controllerRoot, ['branch', `story/${storyId}`]);
     mkdirSync(join(controllerRoot, '.worktrees'), { recursive: true });
     git(controllerRoot, ['worktree', 'add', '-q', worktreeRoot, `story/${storyId}`]);
@@ -101,7 +107,7 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
         `LAB_RED: controller projection receipt must remain untracked after the first real metadata auto-commit: ${receiptPath}`,
       );
     }
-    const secondCliOutput = execFileSync(process.execPath, [cliEntry, '--root', controllerRoot, 'checklist_update', `--storyId=${storyId}`, '--itemId=CHK-001', '--status=done'], {
+    const secondCliOutput = execFileSync(process.execPath, [cliEntry, '--root', controllerRoot, 'checklist_update', `--storyId=${storyId}`, '--itemId=CHK-001', '--status=pending'], {
       cwd: worktreeRoot,
       encoding: 'utf8',
       env: { ...process.env, PROOF_OR_STOP_AGENT: 'main', PROOF_OR_STOP_SESSION_ID: 'lab-owner' },
@@ -122,7 +128,7 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
     assert.equal(readFileSync(join(worktreeRoot, 'proof-or-stop.config.json'), 'utf8'), configBytes, 'controller config bytes are projected exactly');
     const localStore = new StoryStore(worktreeRoot);
     const checklist = localStore.readChecklist(storyId);
-    assert.equal(checklist.items[0]!.status, 'done');
+    assert.equal(checklist.items[0]!.status, 'pending');
     assert.match(git(worktreeRoot, ['show', '--name-only', '--format=', 'HEAD']), new RegExp(`^\\.proof-or-stop/story/actives/${storyId}/`, 'm'));
     assert.equal(git(controllerRoot, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${storyId}`]).startsWith('??'), true, 'controller Story copy remains read-only and uncommitted');
 
@@ -131,7 +137,7 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
       cwd: worktreeRoot, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_AGENT: 'main', PROOF_OR_STOP_SESSION_ID: 'lab-owner' }, stdio: ['ignore', 'pipe', 'pipe'],
     }), /branch-local authoritative Story/, 'a committed branch-local Story cannot be repopulated from the stale controller copy');
     git(worktreeRoot, ['checkout', '--', '.proof-or-stop']);
-    assert.equal(new StoryStore(worktreeRoot).readChecklist(storyId).items[0]!.status, 'done', 'branch-local recovery restores the committed authority');
+    assert.equal(new StoryStore(worktreeRoot).readChecklist(storyId).items[0]!.status, 'pending', 'branch-local recovery restores the committed authority');
 
     rmSync(join(worktreeRoot, '.proof-or-stop'), { recursive: true, force: true });
     const escapeTarget = join(controllerRoot, 'escape-target');

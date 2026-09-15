@@ -8525,6 +8525,7 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
   const processRegistrySource = read(processFactRegistryPath);
   const runtimeProjectionText = read('packages/main/src/core/controller-runtime-projection.ts');
   const configProjectionText = read('packages/main/src/core/controller-config-projection.ts');
+  const autoCommitMetadataText = read('packages/main/src/core/auto-commit-metadata.ts');
   assert(
     lifecycleRegistryText.includes('...CONTROLLER_PROJECTION_ARTIFACTS.map((artifact) => artifact.path)'),
     'controller projection lifecycle paths must derive from the canonical managed artifact descriptors',
@@ -8533,6 +8534,12 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
     processRegistrySource.includes("import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js'")
       && processRegistrySource.includes('...CONTROLLER_PROJECTION_ARTIFACTS,'),
     'process fact artifacts must consume the canonical controller projection descriptors directly',
+  );
+  assert(
+    autoCommitMetadataText.includes("import { CONTROLLER_PROJECTION_ARTIFACTS } from './managed-artifact-descriptors.js'")
+      && autoCommitMetadataText.includes("descriptor.trackedPolicy === 'untracked-only'")
+      && autoCommitMetadataText.includes('...untrackedOnlyPaths.map(path => `:(exclude)${path}`)'),
+    'Story metadata auto-commit must derive untracked-only projection exclusions from the canonical descriptors',
   );
   const controllerDescriptors = parseControllerProjectionDescriptorProcessFacts(managedDescriptorText);
   assert(controllerDescriptors.length === 2, 'exactly two controller projection artifact descriptors must be registered');
