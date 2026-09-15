@@ -1,5 +1,184 @@
 # Changelog
 
+## Integrated main-sync release - v0.3.381 - 2026-09-15
+
+# Two divergent main lines integrated under one identifying version
+
+## Why this version exists
+
+Merge 5c2a53aac3 combined two independently versioned `main` lines: the local Lab
+line at 0.3.368 (96 commits) and the published remote line at 0.3.380 (94 commits).
+The resolution kept the higher version, so the merged tree reported 0.3.380 while its
+runtime already contained the two local Lab repairs that the published 0.3.380 never
+carried.
+
+The compiled-release guard compares the compiled version against the package manifest.
+It does not prove that same-version edits were compiled, as `docs/cli-runtime-sync.md`
+states, so a dist built from the published 0.3.380 still passes that guard against the
+merged source. This entry bumps the patch version through the atomic version workflow
+so the version identifies the merged code. It records an integration; it is not a new
+repair, and it changes no behaviour beyond the version constant.
+
+## What the local line contributed
+
+| Version | Problem before the change | Behaviour after the change |
+|---|---|---|
+| 0.3.367 validation-scan-attribution | Verification producers re-read the loaded implementation, re-resolved Git state and re-ran identical read-only Git commands many times inside one synchronous segment. | Four bounded repairs (four-costs, refresh-subprocess, scan-segment, git-segment) observe the implementation once per synchronous segment and memoise identical read-only Git probes. No PASS, receipt, freshness classification or policy result is cached. |
+| 0.3.368 nested-verification-machine-owner | An official verification command held the machine reservation while its intentionally orphaned isolated Finding worker queued behind that same reservation, so the leaf timed out before it launched. | Each process owns the fence of the spawn call it performs, and a marked fence whose owner dies resolves once its noted PID and whole group are gone. Sixty-seven selector commands are registered through a closed wrapper. |
+
+## What the remote line contributed
+
+| Version | Problem before the change | Behaviour after the change |
+|---|---|---|
+| 0.3.367 review-base-portability | First review startup ran `git diff main..HEAD` and failed in repositories whose integration branch is not named `main`. | The reviewer comparison range binds to the frozen `integrationTarget.parentCommitAtCreation` captured at Story creation. |
+| 0.3.368 topology-provenance-base | Topology authority dispatch failed on non-`main` integration branches, and an unscoped recent-fifty-commit fallback could attribute an earlier Story's implementer commit to the current Story. | Implementation provenance scans only the immutable Story integration commit through HEAD and reports stable `IMPLEMENTATION_PROVENANCE_*` codes. |
+| 0.3.369 init-story-metadata-read | An INIT lifecycle deadlock appeared once the Story reviewer was routed through CLI reads. | The reviewer requests `story_get` with `detail:true` and reads the documented `result.index` projection; the default projection is unchanged. |
+| 0.3.370 controller-projection-auto-commit | Routine metadata auto-commits could start tracking controller config and runtime projection receipts that their descriptors require to stay untracked, deadlocking the Story worktree gate. | Metadata auto-commit pathspecs exclude every `untracked-only` descriptor and reject either receipt when it is already staged. |
+| 0.3.371 init-review-boundary-convergence | Runs stopped before implementation when INIT reviewers amplified implementation-defined details into high blockers, and a separate run implemented the task but stopped at REVIEW. | INIT blockers require actor-specific kinds and exact requirement references, and explicit as well as positional verification-intent IDs are accepted. |
+| 0.3.372 reviewer-fresh-context-boundary | A PLAN scope reviewer could inherit the owner's complete conversation, recursively delegate its own role, exhaust the host agent-thread limit and leave `scope-check.json` pending. | Host-neutral reviewer launch guidance is centralised, so the canonical prompt reaches exactly one fresh-context reviewer. |
+| 0.3.373 reviewer-delivery-handshake | Native reviewer launches could drop the canonical dispatch prompt, so a prompt-less child could behave as the Story owner and leave INIT or REVIEW waiting on an empty receiver set. | The same canonical prompt is re-delivered through `followup_task`, and a missing target or acknowledgement fails closed as `delivery_not_acknowledged`. |
+| 0.3.374 managed-init-reviewer-dispatch | An owner could submit `init_check_set` twice with caller-selected reviewer role names and satisfy the two-reviewer INIT gate without either independent reviewer running. | Managed dispatch seals the canonical prompt, binds Story and role to the live provider process, and INIT_CHECK revalidates the completed receipt. |
+| 0.3.375 managed-review-late-descriptor-reset | A late descriptor-channel close after one complete managed-review proposal surfaced as `EPIPE` or `ECONNRESET`, overwrote the provider result with `child_error` and left REVIEW permanently pending. | Only a peer close after exactly one bounded, nontruncated final candidate counts as a late optional-channel close; every other shape still fails closed. |
+| 0.3.376 managed-init-runtime-output | On container-isolated Linux workers a nested sandbox could fail before an INIT reviewer recorded its result, yet a provider exit code of zero was still treated as success. | `danger-full-access` applies only on Linux with a container marker, and missing bound INIT output fails explicitly instead of being recorded as success. |
+| 0.3.377 managed-init-invocation-broker | Per-command process groups meant a legitimate reviewer call fell outside the outer provider process group and was rejected, producing a deterministic INIT lifecycle deadlock. | A controller-signed, one-use Ed25519 invocation attestation binds the exact run, Story, reviewer role, nonce and deadline. |
+| 0.3.378 managed-review-null-candidate-spec | A managed REVIEW run could start an expensive external reviewer while `candidate-spec-set.json` was absent, then collapse the resulting null digests into a generic malformed result. | The artifact is read and required before the reviewer prompt is built or any provider run is submitted, with the stable `managed_review_candidate_spec_missing` refusal. |
+| 0.3.379 managed-scope-reviewer-dispatch | A required PLAN scope reviewer could receive a nested sandbox configuration that executed no CLI command, while the run was still recorded as `provider_completed` without `scope-check.json`. | `host_run --managedDispatch` admits the scope-plan role in PLAN with the container-aware launch profile and consumes a one-shot managed attestation. |
+| 0.3.380 managed-dispatch-validate-before-consume | `scope_check_save` consumed the one-shot invocation attestation before validating owner dispositions and the rest of the payload, so a corrected retry inside the same provider run failed. | Authority, owner coverage, Story, read-manifest, candidate-binding and summary validation all complete first; a valid payload consumes the attestation exactly once. |
+
+## Recorded measurements before and after the integrated changes
+
+Carried in from the integrated entries. These are their authors' single-pair
+measurements on staged baselines, not a suite-wide speedup, and they were not
+re-measured for this release.
+
+| Local 0.3.367, same shard, cycle 1 versus cycle 4 | Before | After |
+|---|---:|---:|
+| Smoke wall time | 216.5 s | 75.6 s |
+| Implementation scans | 564 | 328 |
+| Scan bytes | 30.66 GB | 17.77 GB |
+| Subprocesses outside scans | 11,195 | 3,339 |
+
+Every other integrated entry is a correctness repair. Several state that a measured
+optimization is not applicable, and 0.3.376 and 0.3.377 report only focused
+regression durations of about one second and under twenty seconds.
+
+## Integration state before and after the merge
+
+Measured on 2026-09-15 with `scripts/verify-validation-static-edges.mjs` and a
+per-entry manifest check that does not stop at the first failure. Each parent was
+measured on an exported snapshot of its own tree; the merged column was measured in
+the working tree.
+
+| Measure | Local parent 0.3.368 | Remote parent 0.3.380 | Merged 0.3.381 |
+|---|---:|---:|---:|
+| Registered validate commands | 236 | 173 | 240 |
+| Static exception entries | 293 | 273 | 293 |
+| Rows needing review | 60 | 170 | 60 |
+| Exception-covered rows | 1613 | 162 | 1613 |
+| Stale exception ids | 32 | 76 | 32 |
+| Per-entry manifest checks failing | 114 | 259 | 114 |
+| Unexpanded commands | 0 | 1 | 1 |
+| Configuration digest drift | no | yes | yes |
+
+No scan row, stale id or per-entry failure in the merged tree is absent from both
+parents, and every call site an exception covered on either parent stays covered.
+
+## Conflict resolution in the merge
+
+Nine files conflicted. Versions took the higher side across the package manifests,
+the lockfiles and `PROOF_OR_STOP_CLI_VERSION`. The changelog keeps every entry from
+both sides ordered by version, with the two 0.3.367 and two 0.3.368 entries side by
+side. `packages/main/package.json` keeps both sides' new test scripts.
+
+The static exception manifest was merged by entry id, because its keys embed
+call-site line numbers. Configuration indexes were remapped onto the merged command
+list after the remote line inserted four commands at indexes 152 to 155 without
+updating the manifest. A digest, excerpt position or call-site key was refreshed only
+where the recorded value matched the local or remote file. The local `configDigest`
+was kept, so the remote line's unreviewed command additions still report drift.
+
+## Verification
+
+`node scripts/ensure-dist.mjs` rebuilt main and utils, and both CLI entries report the
+new version. `tsc --noEmit` passes for `packages/lab`, `packages/graph`,
+`packages/utils` and `packages/main`. `verify-cli-runtime-version.mjs` and
+`verify-lab-version-source-evidence.mjs` pass. The static edge scan reproduces the
+local parent's exact numbers.
+
+## Pre-existing failures carried forward
+
+`verify-validation-static-edge-boundaries.mjs` still stops on entry EX-0061, whose
+recorded `packages/main/src/core/store.ts` digest has been stale since that file
+changed on 2026-09-14; the same value is stale at the merge base and on both parents.
+The static edge scan still reports configuration drift and one unexpanded command from
+the remote line, and the same 114 per-entry checks fail as on the local parent. This
+release resolves none of them and claims no repair.
+
+## Version coverage proof
+
+Every version recorded on either line in the twenty-four hours before this release is
+an ancestor of the released commit, and no changelog heading from either parent is
+missing from the merged file. The evidence is mechanical, not narrative.
+
+Commands, run at the release commit:
+
+```
+git log --full-history --format='%H %cI %an %s' 399862827c..1cbafb83f8 -- package.json
+git log --full-history --format='%H %cI %an %s' 399862827c..2d16f24ebf -- package.json
+git log --all --full-history --since='24 hours ago' -- package.json
+git merge-base --is-ancestor <recording commit> HEAD     # for every row below
+git show 1cbafb83f8:CHANGELOG.md | grep '^## '           # compared against the merged file
+git show 2d16f24ebf:CHANGELOG.md | grep '^## '           # compared against the merged file
+```
+
+Method note, because the obvious command is not sufficient evidence. `git log --all
+-- package.json` without `--full-history` reports zero local-line transitions here:
+the merge is TREESAME to the remote parent for that path, so default history
+simplification follows only the remote parent and hides every local version record.
+`--full-history`, or an explicit range per parent, is required. The first enumeration
+for this release made exactly that mistake and reported fourteen remote versions and
+no local ones.
+
+Result: forty-one version-transition commits fall inside the window, covering fifteen
+distinct version numbers across seventeen version-and-line pairs. Both lines recorded
+0.3.367 and 0.3.368 independently from the same 0.3.366 base, which is why the merged
+changelog holds two entries for each of those two numbers. A version number appears
+several times where a maintainer reverted and re-recorded it while synchronising; the
+last record of each is the effective one.
+
+| Version | Line | First record | Last record | Records | Ancestor of HEAD | Changelog entries |
+|---|---|---|---|---:|---|---:|
+| 0.3.366 | local | f8141a99c8 2026-09-14T22:24+01:00 | 1947ed3d30 2026-09-14T23:53+01:00 | 5 | yes | 1 |
+| 0.3.367 | local | 98a614e156 2026-09-14T22:38+01:00 | f985b55566 2026-09-15T11:16+01:00 | 9 | yes | 2 |
+| 0.3.367 | remote | 8f7b6bb006 2026-09-15T07:17+08:00 | 8f7b6bb006 2026-09-15T07:17+08:00 | 1 | yes | 2 |
+| 0.3.368 | local | d48544095f 2026-09-15T05:01+01:00 | 1cbafb83f8 2026-09-15T11:19+01:00 | 5 | yes | 2 |
+| 0.3.368 | remote | a815c9fb0f 2026-09-15T12:49+08:00 | a815c9fb0f 2026-09-15T12:49+08:00 | 1 | yes | 2 |
+| 0.3.369 | remote | ccff068a5b 2026-09-15T13:38+08:00 | ccff068a5b 2026-09-15T13:38+08:00 | 1 | yes | 1 |
+| 0.3.370 | remote | e47e15febc 2026-09-15T15:15+08:00 | 2c63008d75 2026-09-15T18:01+08:00 | 4 | yes | 1 |
+| 0.3.371 | remote | b1f8bc5ddc 2026-09-15T17:07+08:00 | 33c41c9634 2026-09-15T18:07+08:00 | 4 | yes | 1 |
+| 0.3.372 | remote | 592f7148ca 2026-09-15T20:28+08:00 | 592f7148ca 2026-09-15T20:28+08:00 | 1 | yes | 1 |
+| 0.3.373 | remote | 89606bc54c 2026-09-15T21:47+08:00 | 89606bc54c 2026-09-15T21:47+08:00 | 1 | yes | 1 |
+| 0.3.374 | remote | fb43bb27a1 2026-09-15T23:03+08:00 | fb43bb27a1 2026-09-15T23:03+08:00 | 1 | yes | 1 |
+| 0.3.375 | remote | 56647ef7a0 2026-09-15T23:42+08:00 | e426bf40b6 2026-09-16T01:20+08:00 | 5 | yes | 1 |
+| 0.3.376 | remote | a9263c5a26 2026-09-16T00:36+08:00 | 37a87c67ad 2026-09-16T01:24+08:00 | 5 | yes | 1 |
+| 0.3.377 | remote | 79df9743f8 2026-09-16T02:30+08:00 | 79df9743f8 2026-09-16T02:30+08:00 | 1 | yes | 1 |
+| 0.3.378 | remote | a42f9df606 2026-09-16T02:50+08:00 | a42f9df606 2026-09-16T02:50+08:00 | 1 | yes | 1 |
+| 0.3.379 | remote | 646521b767 2026-09-16T03:41+08:00 | 646521b767 2026-09-16T03:41+08:00 | 1 | yes | 1 |
+| 0.3.380 | remote | 2d16f24ebf 2026-09-16T04:23+08:00 | 2d16f24ebf 2026-09-16T04:23+08:00 | 1 | yes | 1 |
+
+0.3.366 is the merge base, already common to both lines before the merge; it is listed
+because its last local record falls inside the window. The earliest local 0.3.367
+record predates the window by one hour, while its last record is inside it.
+
+Changelog completeness: the local parent carried 205 headings and the remote parent
+234. All of them appear in the merged file, which now holds 245, and the only headings
+this release adds belong to this entry.
+
+Maintenance provenance: main-sync merge 5c2a53aac3 of local 1cbafb83f8 (0.3.368) and
+remote 2d16f24ebf (0.3.380). This entry records an integration release rather than a
+Lab repair, and it does not assert formal Story DONE or signed product-release
+credentials.
+
 ## Lab managed-dispatch-validate-before-consume - v0.3.380 - 2026-09-15
 
 # Managed dispatch validates before consuming reviewer delivery
