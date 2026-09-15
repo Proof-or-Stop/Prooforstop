@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab managed-scope-reviewer-dispatch - v0.3.379 - 2026-09-15
+
+# Managed PLAN scope reviewer delivery
+
+## Problem
+
+A required PLAN scope reviewer launched through an ordinary Codex host could receive a nested bwrap configuration that could not execute any CLI command. The run was still recorded as provider_completed without `scope-check.json`. The controller-owned `managedDispatch` recovery path admitted only INIT roles, leaving PLAN permanently blocked by missing_scope_check.
+
+## Repair
+
+`host_run --managedDispatch` now admits `proof-or-stop-review-scope-plan` only in PLAN, derives its canonical dispatch prompt, and uses the existing container-aware Codex launch profile. `scope_check_save` consumes the exact one-shot managed invocation and stores its deliveryRunId in a new v3 scope-check signature while preserving legacy and v2 verification. The managed worker requires a valid role-specific scope artifact plus a persisted signed-attestation or exact legacy process-group consumption receipt before completion. It parses, validates, and hashes one exact byte read, passes that verified digest into terminal sealing, and rejects replacement before or after sealing. Missing output, wrong run IDs, tampered evidence, direct public-hash Store writes, and unconsumed invocations fail closed. `story_review` independently revalidates a managed delivery receipt before accepting the scope artifact, and its repair guidance now exposes the managed path directly.
+
+## Verification
+
+The Lab RED reproduced the pre-spawn rejection for the PLAN scope role. GREEN covers missing output, direct Store-write bypass, wrong or tampered evidence, signed-attestation consumption, legacy same-PGID consumption, receipt validation, post-terminal replacement, and deterministic replacement between validation and terminal sealing. A real child-process E2E proves canonical prompt delivery and successful scope_check_save, then proves that the same isolated provider cannot substitute a direct public-hash Store write. Existing INIT required-output and dual-reviewer E2E tests, scope signature compatibility smoke, lifecycle guidance regression, TypeScript build, git diff check, and the complete process-fact contract passed. Codex Sol/high performed iterative independent review; every reported high finding was repaired and re-reviewed before integration.
+
+Maintenance provenance: codex/lab-managed-scope-reviewer-dispatch, repair 4faa0e2969d3736e0d956649ecefabdc4e406de0.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-scope-dispatch-required-output.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-review-null-candidate-spec - v0.3.378 - 2026-09-15
 
 # Managed review candidate-spec preflight
