@@ -13,7 +13,10 @@ import {
   resolveManagedReviewerBasePrompt,
   type ManagedReviewCanonicalReportStatus,
 } from '../core/managed-review-evidence.js';
-import { classifyManagedReviewFinalEnvelope } from '../core/host-run.js';
+import {
+  classifyManagedReviewFinalEnvelope,
+  managedReviewFinalProposalJsonSchema,
+} from '../core/host-run.js';
 import type { ReviewRun } from '../core/types.js';
 
 const PRIMARY_WORKTREE = '/Users/qipan/work/repo/Prooforstop/.worktrees/B-137a';
@@ -92,8 +95,10 @@ function main(): void {
   assert.deepEqual(finalProposalSchema.properties.readLog.properties?.summary.required, [
     'readCount', 'tokenCount',
   ], 'prompt schema states every required readLog.summary field');
+  assert.equal((finalProposalSchema.properties.readManifest.properties?.candidateSpecSetDigest as { pattern?: string }).pattern,
+    '^[a-f0-9]{64}$', 'prompt schema constrains candidate routing digests to the terminal format');
   const fullyRead = ['packages/main/src/example.ts'];
-  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+  const validProposal = {
     schemaVersion: 'lattice.managed_review_final_proposal.v1',
     storyId: REVIEW_RUN.storyId,
     providerAgent: REVIEW_RUN.lane,
@@ -114,7 +119,27 @@ function main(): void {
       summary: { readCount: 1, tokenCount: null },
       digest: 'c'.repeat(64),
     },
-  })).kind, 'valid', 'the minimum shape described by the embedded prompt schema passes the terminal validator');
+  };
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify(validProposal)).kind, 'valid',
+    'the minimum shape described by the embedded prompt schema passes the terminal validator');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    readLog: { ...validProposal.readLog, filesReadPartially: [] },
+  })).kind, 'malformed', 'terminal validator rejects nested fields excluded by the shared provider schema');
+  const criticLane = 'proof-or-stop-review-topology-critic';
+  const criticSchema = managedReviewFinalProposalJsonSchema({
+    storyId: REVIEW_RUN.storyId,
+    reviewRunId: REVIEW_RUN.reviewRunId,
+    lane: criticLane,
+    agentType: criticLane,
+  }) as { required: string[] };
+  assert.ok(criticSchema.required.includes('inventoryCritic'),
+    'topology critic provider schema requires the receipt-producing inventory block');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    providerAgent: criticLane,
+    lane: criticLane,
+  })).kind, 'malformed', 'topology critic terminal validation refuses a proposal without inventoryCritic');
   assert.match(
     providerPrompt,
     /do not cd to, run commands from, or write to that canonical path\./,

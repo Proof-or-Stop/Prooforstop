@@ -876,6 +876,12 @@ export class UsageLineScanner {
  */
 export const MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION = 'lattice.managed_review_final_proposal.v1' as const;
 export const MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES = 16 * 1024;
+const MANAGED_REVIEW_TOPOLOGY_CRITIC = 'proof-or-stop-review-topology-critic';
+const MANAGED_REVIEW_READ_MANIFEST_FIELDS = [
+  'filesReadFully', 'filesTriagedByName', 'scanEscalationReason', 'candidateSpecSetDigest', 'corpusDigest',
+] as const;
+const MANAGED_REVIEW_READ_LOG_FIELDS = ['filesReadFully', 'filesTriagedByName', 'summary', 'digest'] as const;
+const MANAGED_REVIEW_READ_LOG_SUMMARY_FIELDS = ['readCount', 'tokenCount'] as const;
 
 export interface ManagedReviewFinalEnvelopeReadManifest extends Record<string, unknown> {
   filesReadFully: string[];
@@ -938,11 +944,11 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
   // local envelope parser before any bytes are sealed as evidence.
   const nonBlankString = { type: 'string' };
   const stringArray = { type: 'array', items: { type: 'string' } };
-  const digest = { type: 'string' };
+  const digest = { type: 'string', pattern: '^[a-f0-9]{64}$' };
   const readManifest = {
     type: 'object',
     additionalProperties: false,
-    required: ['filesReadFully', 'filesTriagedByName', 'scanEscalationReason', 'candidateSpecSetDigest', 'corpusDigest'],
+    required: [...MANAGED_REVIEW_READ_MANIFEST_FIELDS],
     properties: {
       filesReadFully: stringArray,
       filesTriagedByName: stringArray,
@@ -954,14 +960,14 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
   const readLog = {
     type: 'object',
     additionalProperties: false,
-    required: ['filesReadFully', 'filesTriagedByName', 'summary', 'digest'],
+    required: [...MANAGED_REVIEW_READ_LOG_FIELDS],
     properties: {
       filesReadFully: stringArray,
       filesTriagedByName: stringArray,
       summary: {
         type: 'object',
         additionalProperties: false,
-        required: ['readCount', 'tokenCount'],
+        required: [...MANAGED_REVIEW_READ_LOG_SUMMARY_FIELDS],
         properties: {
           // B-137a: state the constraint the gate actually enforces.
           // diagnoseManagedReviewerReadEvidence requires
@@ -980,7 +986,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
           tokenCount: { type: ['integer', 'null'] },
         },
       },
-      digest: { type: 'string', pattern: '^[a-f0-9]{64}$' },
+      digest,
     },
   };
   const finding = {
@@ -999,7 +1005,10 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
   return {
     type: 'object',
     additionalProperties: false,
-    required: ['schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion', 'readManifest', 'readLog'],
+    required: [
+      'schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion', 'readManifest', 'readLog',
+      ...(args.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC ? ['inventoryCritic'] : []),
+    ],
     properties: {
       schemaVersion: { const: MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION },
       storyId: { const: args.storyId },
@@ -1012,7 +1021,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
       // any proposal can reach persistence.
       note: nonBlankString,
       findings: { type: 'array', items: finding },
-      ...(args.lane === 'proof-or-stop-review-topology-critic' ? { inventoryCritic: managedInventoryCriticJsonSchema } : {}),
+      ...(args.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC ? { inventoryCritic: managedInventoryCriticJsonSchema } : {}),
       readManifest,
       readLog,
       readDiagnostics: {
@@ -1062,6 +1071,11 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(item => typeof item === 'string');
+}
+
+function hasOnlyKeys(value: Record<string, unknown>, allowed: readonly string[]): boolean {
+  const allowlist = new Set(allowed);
+  return Object.keys(value).every(key => allowlist.has(key));
 }
 
 /** Shared strict validator consumed at adapter, persistence, and import/gate boundaries. */
@@ -1148,11 +1162,17 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
     return { kind: 'malformed', reason: 'read_manifest_corpus_digest_missing' };
   }
   const validReadManifest = isPlainRecord(readManifest)
+    && hasOnlyKeys(readManifest, MANAGED_REVIEW_READ_MANIFEST_FIELDS)
     && isStringArray(readManifest.filesReadFully)
     && isStringArray(readManifest.filesTriagedByName)
     && (readManifest.scanEscalationReason === null || typeof readManifest.scanEscalationReason === 'string')
     && typeof readManifest.candidateSpecSetDigest === 'string'
     && typeof readManifest.corpusDigest === 'string';
+  const readLog = parsed.readLog;
+  const validReadLogShape = isPlainRecord(readLog)
+    && hasOnlyKeys(readLog, MANAGED_REVIEW_READ_LOG_FIELDS)
+    && isPlainRecord(readLog.summary)
+    && hasOnlyKeys(readLog.summary, MANAGED_REVIEW_READ_LOG_SUMMARY_FIELDS);
   const validDiagnosticNote = typeof parsed.note === 'string' && parsed.note.trim().length >= 10;
   const validConclusionPayload = conclusion === 'pass'
     ? validDiagnosticNote
@@ -1168,8 +1188,10 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
     || typeof parsed.lane !== 'string'
     || typeof parsed.reviewRunId !== 'string'
     || !validReadManifest
+    || !validReadLogShape
     || !hasRequiredManagedReviewReadEvidence(readManifest, parsed.readLog)
     || !validConclusionPayload
+    || (parsed.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC && parsed.inventoryCritic === undefined)
     || (parsed.inventoryCritic !== undefined && !isManagedInventoryCritic(parsed.inventoryCritic, String(parsed.lane), String(parsed.providerAgent), Array.isArray(parsed.findings) ? parsed.findings.length : 0))
     || (parsed.readDiagnostics !== undefined && !Array.isArray(parsed.readDiagnostics))) {
     return { kind: 'malformed' };
