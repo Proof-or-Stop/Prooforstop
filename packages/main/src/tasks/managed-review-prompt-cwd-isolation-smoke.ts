@@ -74,6 +74,23 @@ function main(): void {
     /Execution boundary: remain in the host-configured isolated scratch cwd for this managed provider run\./,
     'managed provider prompt explicitly requires the isolated scratch cwd',
   );
+  const schemaMatch = providerPrompt.match(
+    /--- BEGIN MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---\n([^\n]+)\n--- END MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---/,
+  );
+  assert.ok(schemaMatch, 'managed provider prompt embeds the validator-owned final proposal schema');
+  const finalProposalSchema = JSON.parse(schemaMatch[1]!) as {
+    required: string[];
+    properties: Record<string, { required?: string[]; properties?: Record<string, { required?: string[] }> }>;
+  };
+  assert.deepEqual(finalProposalSchema.properties.readManifest.required, [
+    'filesReadFully', 'filesTriagedByName', 'scanEscalationReason', 'candidateSpecSetDigest', 'corpusDigest',
+  ], 'prompt schema states every required readManifest field');
+  assert.deepEqual(finalProposalSchema.properties.readLog.required, [
+    'filesReadFully', 'filesTriagedByName', 'summary', 'digest',
+  ], 'prompt schema states every required readLog field');
+  assert.deepEqual(finalProposalSchema.properties.readLog.properties?.summary.required, [
+    'readCount', 'tokenCount',
+  ], 'prompt schema states every required readLog.summary field');
   assert.match(
     providerPrompt,
     /do not cd to, run commands from, or write to that canonical path\./,
