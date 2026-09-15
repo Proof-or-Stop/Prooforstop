@@ -1,5 +1,35 @@
 # Changelog
 
+## Lab managed-review-late-descriptor-reset - v0.3.375 - 2026-09-15
+
+# Preserve completed managed review proposals across late descriptor reset
+
+Problem: Codex could emit exactly one complete managed-review final proposal and
+finish its normal turn, then close the compatibility invocation-descriptor channel.
+Darwin reported the late peer close as `EPIPE` or `ECONNRESET`; the host runner
+overwrote the provider result with `child_error`, so the worker discarded the valid
+proposal and left REVIEW permanently pending.
+
+Fix: The host runner now treats only a descriptor-channel `EPIPE` or `ECONNRESET`
+after exactly one bounded, nontruncated final candidate as a late optional-channel
+close. It preserves the provider's later authoritative exit status. An early close,
+provider nonzero exit, missing final, multiple finals, oversized final, malformed
+envelope, or tuple mismatch still fails closed before managed evidence can be sealed.
+
+Verification: Lab RED reproduced the benchmark ordering. GREEN covers both peer-close
+codes plus early close, nonzero provider exit, multiple finals, and oversized-final
+controls. The regression is registered in canonical validation, the build passed, and
+the process-fact contract protects the registration and authority boundary. Codex
+gpt-5.6-sol/high independently reviewed the final committed range and returned PASS.
+DeepSeek was not used for review. Claude quota was unavailable, so this is recorded as
+the operator-authorized Codex fallback and is not represented as a different-vendor
+Lab audit.
+
+Maintenance provenance: codex/lab-managed-review-late-descriptor-reset, repair
+2ffd53f96e, canonical regression e02d7907c5. Verification command:
+`["npm","--prefix","packages/main","run","test:managed-review-late-descriptor-reset"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-init-reviewer-dispatch - v0.3.374 - 2026-09-15
 
 # Receipt-bound managed INIT reviewer delivery
