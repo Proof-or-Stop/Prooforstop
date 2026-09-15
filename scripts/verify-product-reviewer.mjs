@@ -340,6 +340,65 @@ try {
   const changedIntentResult = changedIntentCheck.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
   nodeAssert.equal(changedIntentResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_MONOTONICITY: changed verificationIntent permits a newly discovered source-bound blocker');
 
+  const derivedIntentChecklist = directStore.readChecklist(storyId);
+  directStore.writeChecklist(storyId, {
+    ...derivedIntentChecklist,
+    items: derivedIntentChecklist.items.map((item, index) => index === 0 ? {
+      ...item,
+      verificationIntent: {
+        happy: [{ desc: 'Derived-id verification plan must execute.', type: 'cli', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        edge: [],
+        adversarial: [],
+      },
+    } : item),
+  });
+  const derivedIntentIssue = {
+    kind: 'verification_plan_unexecutable',
+    requirementRef: 'verification-intent:CHK-001:happy:0',
+    severity: 'high',
+    desc: 'The derived-id verification intent cannot be executed as written.',
+  };
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [derivedIntentIssue] });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const derivedIntentCheck = directStore.readInitCheck(storyId);
+  const derivedIntentResult = derivedIntentCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(derivedIntentResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_AUTHORITY_BOUNDARY: positional intent ids documented by VerificationIntentItem must be valid blocker refs');
+  nodeAssert.equal(derivedIntentResult?.issues?.[0]?.dispositionReason, undefined, 'INIT_REVIEW_AUTHORITY_BOUNDARY: a valid derived intent ref must not be normalized');
+  assert(blockingInitCheckIssues(derivedIntentCheck).some(({ issue }) => issue.desc === derivedIntentIssue.desc), 'INIT_REVIEW_AUTHORITY_BOUNDARY: a valid derived intent blocker remains blocking');
+
+  const correctedIntentIssue = {
+    ...derivedIntentIssue,
+    desc: 'The reviewer corrects only the requirement reference for this observation.',
+  };
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [{ ...correctedIntentIssue, requirementRef: 'verification-intent:CHK-001:happy:99' }] });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const invalidIntentRefCheck = directStore.readInitCheck(storyId);
+  const invalidIntentRefResult = invalidIntentRefCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(invalidIntentRefResult?.issues?.[0]?.severity, 'medium', 'INIT_REVIEW_AUTHORITY_BOUNDARY: a nonexistent derived intent ref must remain advisory');
+  nodeAssert.equal(invalidIntentRefResult?.issues?.[0]?.dispositionReason, 'missing_or_invalid_requirement_ref', 'INIT_REVIEW_AUTHORITY_BOUNDARY: invalid derived refs retain the exact normalization reason');
+
+  process.env.PROOF_OR_STOP_AGENT = PRODUCT_REVIEWER_ROLE;
+  try {
+    directHandlers.init_check_set({ storyId, issues: [correctedIntentIssue] });
+  } finally {
+    if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousAgent;
+  }
+  const correctedIntentRefCheck = directStore.readInitCheck(storyId);
+  const correctedIntentRefResult = correctedIntentRefCheck?.agentResults?.find(result => result.agentId === PRODUCT_REVIEWER_ROLE);
+  nodeAssert.equal(correctedIntentRefResult?.issues?.[0]?.severity, 'high', 'INIT_REVIEW_MONOTONICITY: correcting a previously reported invalid ref must restore its blocking severity');
+  nodeAssert.equal(correctedIntentRefResult?.issues?.[0]?.dispositionReason, undefined, 'INIT_REVIEW_MONOTONICITY: a corrected valid ref must not retain the prior normalization');
+
   const changedStory = directStore.readStory(storyId);
   directStore.writeStory(storyId, {
     ...changedStory,
@@ -419,6 +478,9 @@ try {
   const tamperedKind = structuredClone(storedInitCheck);
   tamperedKind.agentResults.find(result => result.agentId === PRODUCT_REVIEWER_ROLE).issues[0].kind = 'user_outcome_unspecified';
   assert(!initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, tamperedKind), 'INIT_PRODUCT_REVIEW_PHASE_CONTRACT: changing issue kind must invalidate the signature');
+  const tamperedAuthorityInputHash = structuredClone(storedInitCheck);
+  tamperedAuthorityInputHash.agentResults.find(result => result.agentId === PRODUCT_REVIEWER_ROLE).authorityInputHash = '0'.repeat(64);
+  assert(!initCheckSignatureIsValid(storyId, new StoryStore(temp), temp, tamperedAuthorityInputHash), 'INIT_REVIEW_AUTHORITY_INPUT_SIGNATURE: changing only authorityInputHash must invalidate the signature');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,

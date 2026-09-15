@@ -68,15 +68,21 @@ function assertValidInitCheckIssue(issue: InitCheckIssue | null | undefined, com
   }
 }
 
-function verificationIntentIds(item: Pick<ChecklistItem, 'verificationIntent'>): string[] {
+function verificationIntentIds(item: Pick<ChecklistItem, 'id' | 'verificationIntent'>): string[] {
   const intent = item?.verificationIntent;
   if (!intent || typeof intent !== 'object') return [];
   const lanes: VerificationLane[] = ['happy', 'edge', 'adversarial'];
-  return lanes.flatMap(lane =>
-    Array.isArray(intent[lane])
-      ? intent[lane].map(entry => typeof entry?.id === 'string' ? entry.id.trim() : '').filter(Boolean)
-      : [],
-  );
+  const checklistId = typeof item.id === 'string' ? item.id.trim() : '';
+  const ids = new Set<string>();
+  for (const lane of lanes) {
+    const entries = Array.isArray(intent[lane]) ? intent[lane] : [];
+    entries.forEach((entry, index) => {
+      const explicitId = typeof entry?.id === 'string' ? entry.id.trim() : '';
+      if (explicitId) ids.add(explicitId);
+      if (checklistId) ids.add(`${checklistId}:${lane}:${index}`);
+    });
+  }
+  return [...ids];
 }
 
 function validInitRequirementRefs(checklistItems: ChecklistItem[]): Set<string> {
@@ -190,11 +196,23 @@ function normalizeUnchangedInputBlockerExpansion(
 ): { issues: InitCheckIssue[]; normalizedCount: number } {
   if (!previousIssues) return { issues, normalizedCount: 0 };
   const previousKeys = new Set(previousIssues.map(initBlockingIssueKey).filter((key): key is string => key !== null));
+  const previousCorrectableObservations = previousIssues.filter(issue =>
+    (issue.dispositionReason === 'missing_or_invalid_requirement_ref'
+      || issue.dispositionReason === 'outside_init_reviewer_blocking_authority')
+    && (issue.reportedSeverity === 'critical' || issue.reportedSeverity === 'high'),
+  );
   let normalizedCount = 0;
   return {
     issues: issues.map(issue => {
       const key = initBlockingIssueKey(issue);
-      if (key === null || previousKeys.has(key)) return issue;
+      const correctsPreviouslyReportedObservation = key !== null && previousCorrectableObservations.some(previous => {
+        const previousKind = typeof previous.kind === 'string' ? previous.kind.trim() : '';
+        const currentKind = typeof issue.kind === 'string' ? issue.kind.trim() : '';
+        return previous.desc.trim() === issue.desc.trim()
+          && (!previousKind || previousKind === currentKind)
+          && previous.reportedSeverity === issue.severity;
+      });
+      if (key === null || previousKeys.has(key) || correctsPreviouslyReportedObservation) return issue;
       normalizedCount += 1;
       return {
         ...issue,

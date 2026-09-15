@@ -126,15 +126,21 @@ export function inspectExpectedControllerRuntimeProjection(args: {
   if (!/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/.test(args.storyId)) {
     return { expected: false, valid: false, reason: 'invalid-story-id', expectedPaths: [] };
   }
+  let worktreeRoot: string;
+  let controllerRoot: string;
   try {
-    const worktreeRoot = realpathSync(args.gitCwd);
+    worktreeRoot = realpathSync(args.gitCwd);
     if (realpathSync(args.projectRoot) !== worktreeRoot) {
       return { expected: false, valid: false, reason: 'project-root-mismatch', expectedPaths: [] };
     }
-    const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
     if (controllerRoot === worktreeRoot || !isManagedGlobalThinRoot(controllerRoot)) {
       return { expected: false, valid: true, reason: 'not-controller-managed-worktree', expectedPaths: [], controllerRoot };
     }
+  } catch {
+    return { expected: false, valid: false, reason: 'controller-applicability-unresolved', expectedPaths: [] };
+  }
+  try {
     const runtimePaths = existingControllerRuntimeAssetPaths(controllerRoot);
     if (runtimePaths.length === 0) {
       return { expected: false, valid: true, reason: 'no-controller-assets', expectedPaths: [], controllerRoot };

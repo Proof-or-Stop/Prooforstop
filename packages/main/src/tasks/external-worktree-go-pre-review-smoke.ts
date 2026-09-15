@@ -57,6 +57,35 @@ function initRepository(root: string): void {
   git(root, ['commit', '-qm', 'fixture']);
 }
 
+function assertOrdinaryLinkedWorktreeHasNoControllerProjectionGate(): void {
+  const primaryRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-ordinary-primary-'));
+  const storyId = 'B-ordinary';
+  const worktreeRoot = join(primaryRoot, '.worktrees', storyId);
+  try {
+    initRepository(primaryRoot);
+    git(primaryRoot, ['branch', `story/${storyId}`]);
+    mkdirSync(join(primaryRoot, '.worktrees'), { recursive: true });
+    git(primaryRoot, ['worktree', 'add', '-q', worktreeRoot, `story/${storyId}`]);
+    const status = inspectExpectedControllerRuntimeProjection({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId,
+    });
+    assert.equal(status.expected, false, 'ordinary linked worktrees must not require controller runtime assets');
+    assert.equal(status.valid, true, 'ordinary linked worktree applicability resolves without a projection failure');
+    assert.equal(status.reason, 'not-controller-managed-worktree');
+    const unresolved = inspectExpectedControllerRuntimeProjection({
+      projectRoot: join(worktreeRoot, 'missing-project-root'),
+      gitCwd: join(worktreeRoot, 'missing-git-root'),
+      storyId,
+    });
+    assert.equal(unresolved.expected, false, 'an applicability resolution error must not invent a controller projection requirement');
+    assert.equal(unresolved.reason, 'controller-applicability-unresolved');
+  } finally {
+    rmSync(primaryRoot, { recursive: true, force: true });
+  }
+}
+
 function story(storyId: string, worktreePath: string): StoryInfo {
   const now = '2026-09-11T00:00:00.000Z';
   return {
@@ -583,6 +612,7 @@ function assertGoCommandProfile(resolveProfile: ResolveProfile, evaluate: Evalua
 
 const project = (runtimeRootModule as unknown as Record<string, unknown>).projectControllerAssetsIntoStoryWorktree;
 assert.equal(typeof project, 'function', 'LAB_RED: external controller assets are not projected into the signed Story worktree');
+assertOrdinaryLinkedWorktreeHasNoControllerProjectionGate();
 assertExternalControllerProjection(project as ProjectControllerAssets);
 assertUntrackedControllerConfigAndMasterBaseline(project as ProjectControllerAssets);
 assertMissingTrackedConfigIsNotRecreated(project as ProjectControllerAssets);

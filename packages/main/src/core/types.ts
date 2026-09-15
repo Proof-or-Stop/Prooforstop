@@ -2887,9 +2887,13 @@ export interface ScopeCheckData {
 // agentId field is reviewer's self-reported id, **for audit traceability only** (EXP-001 disproved mechanical verifiability of agentId, see
 // docs/story/actives/B-e71f/experiments/exp-001.md), and is not a gate decision input on its own; when `agentResults`
 // is absent it is one of the inputs the gate's decision array is synthesized from, and is bound through that value.
-// issues DO gate: blockingInitCheckIssues treats critical / high INIT-applicable
-// issues as blockers. Post-implementation evidence gaps are deferred; legacy
-// kind-less high issues remain fail-closed. Medium / low are advisory.
+// issues DO gate: blockingInitCheckIssues treats persisted critical / high
+// INIT-applicable issues as blockers. New reviewer writes retain that severity
+// only when the actor-specific kind and exact requirementRef are valid;
+// otherwise the handler records a medium advisory with reportedSeverity and a
+// machine-owned dispositionReason. Post-implementation evidence gaps are
+// deferred. Existing signed legacy kind-less high records remain fail-closed
+// until that reviewer lane submits a replacement result.
 
 export const PRODUCT_INIT_BLOCKING_ISSUE_KINDS = [
   'requirements_ambiguous',
@@ -2922,8 +2926,9 @@ export interface InitCheckIssue {
    */
   id?: string;
   /**
-   * Stage applicability of the observation. Legacy records may omit this field
-   * and retain the original fail-closed severity behavior.
+   * Stage applicability of the observation. Existing signed legacy records may
+   * omit this field and remain fail-closed while persisted; newly submitted
+   * kind-less critical/high issues are normalized to medium advisories.
    */
   kind?: InitCheckIssueKind;
   /**
