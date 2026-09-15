@@ -41,3 +41,16 @@ export const REVIEWER_CHILD_ID_WAIT_BOUNDARY =
 
 export const REVIEWER_NO_DELEGATION_BOUNDARY =
   'Execute this review directly in the current reviewer task; do not spawn or delegate another reviewer. Collaboration tools, if visible, are outside this role.';
+
+export function renderManagedInitReviewerDispatches(storyId: string, agentIds: string[]): string {
+  const dispatches = agentIds.map(agentId => {
+    if (agentId !== 'proof-or-stop-review-story-init' && agentId !== 'proof-or-stop-product-reviewer') {
+      throw new Error(`unsupported required INIT reviewer: ${agentId}`);
+    }
+    return `   proof-or-stop host_run '${JSON.stringify({ host: 'codex', storyId, agentType: agentId, managedDispatch: true, detach: true, json: true })}'`;
+  });
+  return `→ Preferred: have the Story owner submit only the missing reviewers through the controller-owned exact delivery path:\n${dispatches.join('\n')}\n` +
+    `   Retain each returned nonempty runId and poll it with host_run_status. Never use a host wait with an empty receiver set.\n` +
+    `   host_run seals the canonical prompt and provider process identity; init_check_set accepts only a matching live managed dispatch.\n` +
+    `   Every reviewer independently writes its verdict with init_check_set regardless of pass/fail; review_run_start begins only after REVIEW.`;
+}

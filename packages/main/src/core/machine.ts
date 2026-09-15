@@ -72,6 +72,7 @@ import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -243,16 +244,7 @@ function initPreflightGuidance(storyId: string): string {
 }
 
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
-  const dispatches = missingAgents.map(agentId => {
-    if (agentId === 'proof-or-stop-review-story-init' || agentId === 'proof-or-stop-product-reviewer') {
-      return `   proof-or-stop host_run '${JSON.stringify({ host: 'codex', storyId, agentType: agentId, managedDispatch: true, detach: true, json: true })}'`;
-    }
-    throw new Error(`unsupported required INIT reviewer: ${agentId}`);
-  });
-  return `→ Preferred: have the Story owner submit only the missing reviewers through the controller-owned exact delivery path:\n${dispatches.join('\n')}\n` +
-    `   Retain each returned nonempty runId and poll it with host_run_status. Never use a host wait with an empty receiver set.\n` +
-    `   host_run seals the canonical prompt and provider process identity; init_check_set accepts only a matching live managed dispatch.\n` +
-    `   Every reviewer independently writes its verdict with init_check_set regardless of pass/fail; review_run_start begins only after REVIEW.`;
+  return renderManagedInitReviewerDispatches(storyId, missingAgents);
 }
 
 function renderScopeFreezeIssue(storyId: string, issue: ScopeFreezeIssue): string {
