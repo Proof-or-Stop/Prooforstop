@@ -65,6 +65,7 @@ import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js'
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 import {
+  renderClaudeFreshReviewerHandoff,
   renderCodexFreshReviewerHandoff,
   REVIEWER_CHILD_ID_WAIT_BOUNDARY,
 } from '../core/reviewer-launch-guidance.js';
@@ -549,6 +550,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('');
     lines.push('Owner launch contract:');
     lines.push(`- Codex owner launch: ${renderCodexFreshReviewerHandoff('review_scope_plan', '<this exact dispatch prompt>')}. ${REVIEWER_CHILD_ID_WAIT_BOUNDARY}`);
+    lines.push(`- Claude owner launch: ${renderClaudeFreshReviewerHandoff('proof-or-stop-review-scope-plan', '<this exact dispatch prompt>')}. Retain the returned child task id and wait only on that id.`);
     lines.push('- Other hosts must launch exactly one equivalent fresh-context reviewer task containing this prompt and no parent conversation history.');
     lines.push('');
     lines.push('Reviewer execution contract:');

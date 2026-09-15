@@ -150,6 +150,12 @@ function assertInitCheckGuardGuidance() {
     assert.match(scopeHandlers(root, store).scope_freeze_check({ storyId }), /PASS/);
     const missingInitCheck = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
     assert.match(missingInitCheck ?? '', /missing_init_check/);
+    assert.match(missingInitCheck ?? '', /spawn_agent\(\{ task_name: "review_story_init", fork_turns: "none"/);
+    assert.match(missingInitCheck ?? '', /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
+    assert.match(missingInitCheck ?? '', /subagent_type: "proof-or-stop-review-story-init"/);
+    assert.match(missingInitCheck ?? '', /subagent_type: "proof-or-stop-product-reviewer"/);
+    assert.match(missingInitCheck ?? '', /nonempty and distinct/i);
+    assert.match(missingInitCheck ?? '', /never call wait with an empty target\/receiver set/i);
     assertIncludesInitPreflight(missingInitCheck, storyId, 'missing init-check guidance');
 
     createInitCheckHandlers(ctx(root, store)).init_check_set({
@@ -160,6 +166,9 @@ function assertInitCheckGuardGuidance() {
     const missingInitAgent = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
     assert.match(missingInitAgent ?? '', /missing_init_check_agent/);
     assert.match(missingInitAgent ?? '', /proof-or-stop-product-reviewer/);
+    assert.match(missingInitAgent ?? '', /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
+    assert.match(missingInitAgent ?? '', /subagent_type: "proof-or-stop-product-reviewer"/);
+    assert.match(missingInitAgent ?? '', /never call wait with an empty target\/receiver set/i);
     assert.doesNotMatch(missingInitAgent ?? '', /lattice-review-story-init/);
     assert.doesNotMatch(missingInitAgent ?? '', /subagent_type: "product-reviewer"/);
     assertIncludesInitPreflight(missingInitAgent, storyId, 'missing init-check agent guidance');
@@ -253,6 +262,8 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     assert.match(output, /proof-or-stop-product-reviewer/);
     assert.match(output, /spawn_agent\(\{ task_name: "review_story_init", fork_turns: "none"/);
     assert.match(output, /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
+    assert.match(output, /subagent_type: "proof-or-stop-review-story-init"/);
+    assert.match(output, /subagent_type: "proof-or-stop-product-reviewer"/);
     assert.match(output, /retain both returned child agent ids/i);
     assert.match(output, /never call wait with an empty target\/receiver set/i);
     assert.doesNotMatch(output, /subagent_type: "lattice-review-story-init"/);
@@ -321,6 +332,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(result.prompt, /Review PLAN scope coverage/);
     assert.match(result.prompt, /Codex owner launch: spawn_agent\(/);
     assert.match(result.prompt, /fork_turns:\s*"none"/);
+    assert.match(result.prompt, /Claude owner launch: Agent\(\{ subagent_type: "proof-or-stop-review-scope-plan"/);
     assert.match(result.prompt, /retain (?:the|every) returned child agent id/i);
     assert.match(result.prompt, /execute this scope review directly in the current reviewer task/i);
     assert.match(result.prompt, /must not spawn or delegate another reviewer/i);
@@ -337,6 +349,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=proof-or-stop-review-scope-plan`));
     assert.match(issue.message, /spawn_agent/);
     assert.match(issue.message, /fork_turns.*none/);
+    assert.match(issue.message, /Agent\(\{ subagent_type: "proof-or-stop-review-scope-plan"/);
     assert.match(issue.message, /returned child agent id/);
     assert.match(issue.message, /must not spawn or delegate another reviewer/i);
     assert.match(issue.message, /empty target\/receiver set/i);

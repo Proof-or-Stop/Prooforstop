@@ -43,6 +43,11 @@ import { tryBuildMaterialClassificationSnapshotForDiagnostics, type MaterialClas
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
+import {
+  renderClaudeFreshReviewerHandoff,
+  renderCodexFreshReviewerHandoff,
+  REVIEWER_CHILD_ID_WAIT_BOUNDARY,
+} from '../core/reviewer-launch-guidance.js';
 
 export { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 
@@ -607,7 +612,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=proof-or-stop-review-scope-plan\`. For Codex, launch exactly one child with \`spawn_agent({ task_name: "review_scope_plan", fork_turns: "none", message: "<the exact returned prompt>" })\`; retain the returned child agent id, wait only on that id, and never wait with an empty target/receiver set. The reviewer must execute the scope review directly and must not spawn or delegate another reviewer; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
+          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=proof-or-stop-review-scope-plan\`. For Codex, launch exactly one child with \`${renderCodexFreshReviewerHandoff('review_scope_plan', '<the exact returned prompt>')}\`; for Claude, launch exactly one child with \`${renderClaudeFreshReviewerHandoff('proof-or-stop-review-scope-plan', '<the exact returned prompt>')}\`. ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} The reviewer must execute the scope review directly and must not spawn or delegate another reviewer; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
         // Verify both legacy and read-manifest-bound signatures without relying on cwd.
