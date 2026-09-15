@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab init-review-boundary-convergence - v0.3.371 - 2026-09-15
+
+# INIT review boundary and worktree projection convergence
+
+Problem: DeepSWE first-task runs could stop before implementation when INIT reviewers amplified implementation-defined details into high blockers. A separate run implemented the task but stopped at REVIEW because valid controller config and Codex hook projections were classified as dirty material. Codex review also found that later reviewer calls could expand blockers over unchanged inputs, and that deleting or tracking the complete untracked projection could evade a per-path status check.
+
+Fix: INIT blockers now require actor-specific kinds and exact requirement references. Explicit verification-intent IDs and the documented positional IDs such as `CHK-001:happy:0` are both accepted. Each reviewer result carries a signed digest of every blocker-citable authoritative INIT input plus the first verdict baseline for that exact digest. Same-input retries compare with that immutable baseline, so intermediate advisory writes cannot erase a prior PASS or narrower blocker set; a reviewer may still correct an invalid reference already present in the baseline. Caller-supplied `reportedSeverity` and `dispositionReason` fields are discarded so only the handler can author them. Newly submitted kind-less critical/high issues become attributed advisories, while already-signed legacy records retain their prior fail-closed meaning until replaced. Review preflight admits only exact signed controller projections, verifies the complete config and hook set remains untracked, rejects missing, tracked, corrupted, or mismatched projections, and directs normal CLI bootstrap to restore missing exact assets. Ordinary linked worktrees remain outside this controller-projection gate, including when applicability cannot be resolved.
+
+Verification: `verify-product-reviewer.mjs` covers role authority, derived and invalid verification-intent references, reviewer correction, caller machine-field stripping, the PASS-to-advisory-to-blocker bypass, unchanged-input monotonicity, changed scope-boundary and verificationIntent inputs, and independent authority-input-hash tampering. `verify-external-worktree-go-pre-review.mjs` covers ordinary linked worktrees, exact projections, total and single-hook deletion, tracked config/hooks, tampering, bootstrap restoration, and the real `review_run_start` handler. Both focused checks and the full process-fact contract passed before release preparation, and two independent Codex reviewers returned PASS after their findings were repaired. Three Claude Opus audits rejected earlier candidates; every reported finding was repaired before the required repeat audit.
+
+Measured optimization: not applicable; this Lab repairs lifecycle correctness and reachability rather than runtime performance.
+
+Maintenance provenance: codex/lab-init-review-boundary-convergence, repair 33a5b9edb231084173f0405ded9c1978e8aa8ec5.
+Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab controller-projection-auto-commit - v0.3.370 - 2026-09-15
 
 Fixed a Story worktree gate deadlock where routine metadata auto-commits could
