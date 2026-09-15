@@ -1,29 +1,5 @@
 # Changelog
 
-## Lab managed-init-runtime-output - v0.3.376 - 2026-09-15
-
-# Managed INIT runtime output repair
-
-## Problem
-
-On Linux benchmark workers already isolated by Docker or OCI, a nested Codex sandbox could fail before an INIT reviewer recorded its result. The managed dispatch controller nevertheless treated a provider exit code of zero as successful even when the exact reviewer run had not written `init_check_set`, leaving the Story permanently blocked in INIT with a misleading completed run.
-
-## Fix
-
-Managed Codex dispatches use `danger-full-access` only on Linux when a Docker or OCI container marker is present, leaving the outer container as the isolation boundary. Other platforms, uncontained Linux hosts, non-Codex providers, and managed review keep their existing launch behavior. Both Codex paths retain the pre-existing canonical noninteractive flags. A managed INIT dispatch can now complete only after a valid signed result for the expected Story, reviewer role, and run ID appears in the configured Story store; absent, unreadable, invalid, and malformed-story cases receive distinct fail-closed terminal reasons.
-
-## Verification
-
-The Lab captured RED when an injected provider exited zero without writing the bound INIT result, then recorded GREEN after the repair. The focused regression covers absent output, a stale same-role run ID, exact bound output success, tampered evidence, unreadable JSON, the platform sandbox matrix, and exact contained/uncontained Codex argv. The existing managed INIT real-process-group E2E, TypeScript build, production validation resource validator, version evidence contract, and `git diff --check` pass. Codex Sol/high reviewed the committed repair and version evidence refresh. Claude identified missing control cases, ambiguous diagnostics, incomplete boundary documentation, an untested materialized argv branch, and an unverified signature boundary across two review rounds; all findings were repaired before the final candidate. DeepSeek was not used for review or review evidence.
-
-## Measured impact
-
-The new focused regression completes in about one second in the Lab replay. No end-to-end benchmark completion-time claim is made; the behavioral result is that missing INIT output fails explicitly instead of being recorded as a successful managed dispatch.
-
-Maintenance provenance: codex/lab-managed-init-runtime-output, repair e83adb0a289f77507254a8a95279b63f72480d94.
-Verification command (replayed before integration and on main): `["npm","--prefix","packages/main","run","test:managed-init-dispatch-required-output"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab managed-review-late-descriptor-reset - v0.3.375 - 2026-09-15
 
 # Preserve completed managed review proposals across late descriptor reset
