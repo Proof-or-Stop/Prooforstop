@@ -55,6 +55,11 @@ try {
 set -eu
 cat > "${root}/delivered-scope-prompt.txt"
 grep -q "Review PLAN scope coverage" "${root}/delivered-scope-prompt.txt"
+if "${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","features":[{"feature":"Invalid retry precursor","covered_by":"CHK-001","status":"covered","excluded_by":null}],"summary":{"total":1,"covered":1,"excluded":0,"gaps":0},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null},"ownerDispositions":[],"openQuestions":[]}' >"${root}/invalid-scope-save.txt" 2>&1; then
+  echo "invalid scope payload unexpectedly succeeded" >&2
+  exit 41
+fi
+grep -q "owner dispositions require selected canonical process facts" "${root}/invalid-scope-save.txt"
 "${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","features":[{"feature":"Managed PLAN evidence","covered_by":"CHK-001","status":"covered","excluded_by":null}],"summary":{"total":1,"covered":1,"excluded":0,"gaps":0},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null},"openQuestions":[]}'
 printf '%s\n' '{"type":"turn.completed","usage":{}}'
 `);
@@ -83,6 +88,9 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
   }), { valid: true });
   assert.match(readFileSync(join(root, 'delivered-scope-prompt.txt'), 'utf8'), /do not spawn or delegate another reviewer/i);
+  assert.match(readFileSync(join(root, 'invalid-scope-save.txt'), 'utf8'),
+    /owner dispositions require selected canonical process facts/,
+  'a rejected payload must not consume the managed scope invocation before a corrected retry');
 
   const replaced = structuredClone(scopeCheck);
   replaced.features = [{ feature: 'Post-terminal replacement', covered_by: null, status: 'gap', excluded_by: null }];
