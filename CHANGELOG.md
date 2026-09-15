@@ -1,5 +1,29 @@
 # Changelog
 
+## Lab managed-init-invocation-broker - v0.3.377 - 2026-09-15
+
+# Managed INIT invocation broker repair
+
+## Problem
+
+Codex tool execution may create a new process group and session for each CLI command. The managed INIT dispatcher previously authorized `init_check_set` only when the command remained in the outer provider process group, so a legitimate reviewer could write its result but PoS could not associate that evidence with the managed run. INIT then remained blocked with `delivery_not_acknowledged`.
+
+## Fix
+
+Managed INIT dispatch now issues a controller-signed, one-use Ed25519 invocation attestation bound to the exact run, Story, reviewer role, nonce, and deadline. The CLI strictly validates its JSON shape and signature, checks the live run binding, and consumes the nonce atomically. The previous same-process-group authorization remains available for older adapters. Documentation records that environment transport is used because tool hosts do not preserve the outer descriptor and that same-UID/root secrecy depends on the existing host or container isolation boundary.
+
+## Verification
+
+The Lab RED reproduced a detached unified-exec command that matched zero managed runs. GREEN proves successful detached delivery for the signed path and successful direct delivery for the legacy PGID path. Negative cases cover Story and role tampering, signature corruption, missing signatures, malformed null input, two concurrently live runs exchanging credentials, repeated use of one credential, terminal replay, and substituted delivery IDs. The main TypeScript build, focused managed INIT suites, complete process-fact contract verifier, and git diff checks pass. A Codex Sol/high read-only review found no blocking issue after all findings from the earlier Claude audit were repaired. Claude could not rerun because its session quota returned HTTP 429.
+
+## Measured impact
+
+The focused E2E completes in under twenty seconds on the local machine. The change removes a deterministic INIT lifecycle deadlock; it makes no claim about full benchmark duration.
+
+Maintenance provenance: codex/lab-managed-init-invocation-broker, repair dd5d6d6760c06e01f074aa0921b7cbf16689e26f.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-init-runtime-output - v0.3.376 - 2026-09-15
 
 # Managed INIT runtime output repair
