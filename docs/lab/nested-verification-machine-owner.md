@@ -262,7 +262,12 @@ alone: a detached child may already exist. `proof-or-stop doctor` lists every
 fencing shape of the release predicate under "Nested reservation fences" through
 the same exported classifier (`classifyMachineReservationResiduals`): live or
 unobservable registered groups, pending fences whose proven target is still
-live, and pending fences without an observed target, with dead-owner counts;
+live, and pending fences without an observed target whose owner is dead; a
+pending fence without a target whose owner is still alive is reported as in
+flight and never as fenced (`fencedMachineTicketProjection`, unit-controlled in
+the lifecycle support), because the owner's command is between preparing and
+registering its spawn and the fence resolves or fences on its own once that
+owner is gone;
 `verify-nested-reservation-owner-loss.mjs` asserts that classification on the
 dead owner's ticket while its orphan lives and after it stops. An unmarked pre-spawn fence (its owner died before ever reaching the spawn
 call) resolves automatically once that owner is proven absent, so the window
@@ -520,12 +525,17 @@ cleanup diagnostic remains appended after the complete artifact, separated by a
 newline, as the seventh round required.
 
 The armed per-command timer is fixed at capture entry, before setup and the
-pre-launch handshakes, exactly as before delegation existed: the configured
-timeout capped by the caller's remaining deadline at entry. Measured from the
-comparison runs below, the setup-to-arming delta was 0 to 14 ms per command on
-main 0.3.363 and 136 to 366 ms (median 151 ms) on the tenth-round candidate,
-which is the cost of the prepare, attempt and note handshakes and their kernel
-observations; that delta no longer reduces any command's budget. A refused
+pre-launch handshakes: the configured timeout capped by the remaining outer
+deadline, whose budget starts before the capacity wait, so a queue wait
+consumes the configured budget and wait plus run never exceed it, exactly as
+before delegation existed. The twelfth round had let the capture derive its
+budget from its own entry, which quietly allowed a command to span its queue
+wait plus its whole configured timeout; the fifteenth round restores the
+pre-delegation cap. Measured from the comparison runs below, the
+setup-to-arming delta was 0 to 14 ms per command on main 0.3.363 and 136 to
+366 ms (median 151 ms) on the tenth-round candidate, which is the cost of the
+prepare, attempt and note handshakes and their kernel observations; that delta
+is part of the budget, like the wait before it. A refused
 registration or note that arrives after the child has already exited sends no
 signal, guarded exactly like the timeout path, so a recycled process group is
 never targeted; mode `refused-registration-cleanup` refuses only after the
@@ -538,9 +548,12 @@ absent from it, and that the folded projection is, byte for byte, the
 untainted command bytes, the registration refusal once and the withdrawal
 diagnostic once; against the pre-repair executor the projection carried the
 registration refusal twice. Mode `armed-timeout` asserts that without a
-caller deadline the armed timer equals the configured budget; the capture
-receives the caller's own deadline, and the bounded deadline the outer stage
-derives governs only the capacity wait and the pre-launch handshakes. Under
+caller deadline the armed timer is the configured budget less only the time
+already spent since the outer stage started, and mode `queue-wait-cap` holds
+a conflicting sibling ticket for three seconds, runs a command with a 4-second
+budget behind it and asserts that the wait consumed at least a second of the
+budget and that wait plus run stayed within it; against the executor before this round the timer
+was armed with the whole configured budget after the wait. Under
 delegation the live grant's deadline is the ceiling at which the grant's
 revocation kills the command, so the armed timer, and with it the reported
 effective timeout, is bounded by that deadline as well
@@ -682,12 +695,17 @@ of the verifier digest equals the committed file, and the verifier output is
 byte-identical before and after the regeneration).
 
 The identity-cutover verifier reports on the candidate exactly the issue list it
-reports on local main 0.3.367 (238 lines there, 233 on the candidate) minus
-five inherited rows that the candidate rebinds because it modified their files
-(the reviewed-source rows of `runtime-fact-registry.ts`,
-`runtime-artifact-registry.ts` and `run-validation-fixture-suite.mjs`, and the
+reports on local main 0.3.367 (238 lines there, 224 on the candidate) minus
+fourteen inherited rows that the candidate rebinds because it modified their
+files (the reviewed-source rows of `runtime-fact-registry.ts`,
+`runtime-artifact-registry.ts` and `run-validation-fixture-suite.mjs`, the
+nine reviewed-fixture rows of `verify-process-fact-contract.mjs`, and the
 negative source integrity pins of `verify-process-fact-contract.mjs` and
 `verify-runtime-fact-contract.mjs`); its self-test fails identically on both.
+The reviewed fixture inventory is checked for Lab-changed files exactly like
+the reviewed source inventory: the release-time audit of the fourteenth
+candidate found the nine contract rows still carrying main's stale digest,
+because the fixed point had only ever walked the source inventory.
 The rule for every identity re-pin in this Lab is checkable: a re-pinned row is
 bound to a file this Lab modified, and no row bound to an unmodified file is
 refreshed. Enumerated from
@@ -699,7 +717,7 @@ Lab-changed file that caused each one:
   reviewed-source row for `.lattice/runtime/host-runs/`, line 367 to 485 with
   its source digest, same line hash and occurrence count.
 - `packages/main/src/core/runtime-fact-registry.ts` (delegation policy and
-  fact): the reviewed-source row for `LATTICE_AGENT`, line 502 to 511 with its
+  fact): the reviewed-source row for `LATTICE_AGENT`, line 502 to 517 with its
   source digest, same line hash and occurrence count.
 - `scripts/run-validation-fixture-suite.mjs` (named stale-build failure and
   namespace import): the reviewed-source row for `env.LATTICE_HEALTH_PATH`,
@@ -712,8 +730,10 @@ Lab-changed file that caused each one:
   `process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD` lines 244 and 352 shifted
   by one) with the source digest.
 - `scripts/verify-process-fact-contract.mjs` (delegation process fact): nine
-  reviewed-fixture rows re-digested at unchanged lines (6536 to 6572, 7301,
-  7393, 7422) and its negative source integrity pin.
+  reviewed-fixture rows re-pinned at their moved lines with the same line
+  hashes and occurrence counts (6536 to 6588, 6538 to 6590, 6545 to 6597,
+  6553 to 6605, 6563 to 6615, 6572 to 6624, 7301 to 7353, 7393 to 7448 and
+  7422 to 7518) and its negative source integrity pin.
 - `scripts/verify-runtime-fact-contract.mjs` (delegation runtime fact): its
   negative source integrity pin.
 - `scripts/lab/u18-static-edges/exceptions.json` (repinned manifest): eight
@@ -771,17 +791,18 @@ failing case is the environmental refusal above.
 
 ## Verification boundaries
 
-Fifty-nine direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Sixty direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
 closed selector wrapper normalizes the repository working directory; selectors
 that need Darwin kernel descriptor or process identity observation print an
-explicit skip on other platforms before loading native controls, while eight of
-the fourteen executor result-contract selectors (`result-prepare-refusal`,
+explicit skip on other platforms before loading native controls, while nine of
+the fifteen executor result-contract selectors (`result-prepare-refusal`,
 `result-cleanup-primary`, `result-cleanup-result`, `result-ordinary-error`,
 `result-armed-timeout`, `result-caller-deadline`,
-`result-refused-registration-cleanup` and `result-refused-registration-short`)
+`result-refused-registration-cleanup`, `result-refused-registration-short` and
+`result-queue-wait-cap`)
 run through the platform-independent
 queue in a private OS-home namespace and are not gated (they were exercised
 only on Darwin in this Lab); `result-post-capture-cleanup` patches the
@@ -832,7 +853,9 @@ candidate resynchronized with main 0.3.367 in 200.7 seconds (`core` 37.0
 seconds, every 30-second selector under 4.2 seconds, every 60-second selector
 under 9.9 seconds), and the fourteenth-round sweep of all fifty-nine in 202.6
 seconds (`core` 36.4 seconds, every 30-second selector under 4.2 seconds,
-every 60-second selector under 9.8 seconds). Before the `core` selector
+every 60-second selector under 9.8 seconds), and the fifteenth-round sweep of all sixty in 210.9 seconds (`core`
+36.8 seconds, every 30-second selector under 6.9 seconds, every
+60-second selector under 10.0 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay

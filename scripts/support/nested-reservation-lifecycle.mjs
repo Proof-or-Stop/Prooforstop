@@ -69,6 +69,25 @@ function resolvedUnit({ownerGone=false,gonePids=[]}={}){return vm.runInNewContex
 }
 console.log('NESTED_PENDING_RESOLUTION_UNIT_CONTROLS PASS');
 
+// Doctor projection unit controls on the exported function, extracted and transpiled like the closures
+// above: a targetless pending fence under a live owner is in flight, never fenced; the same fence under a
+// dead owner is fenced; every other fencing shape still fences; an empty classification does not.
+{
+ const projectionStart='export function fencedMachineTicketProjection(';
+ const projectionEnd='/** Failure-only diagnostics; these observations never release or authorize work. */';
+ assert.equal(retirementSource.split(projectionStart).length,2);assert.equal(retirementSource.split(projectionEnd).length,2);
+ const projectionBody=retirementSource.slice(retirementSource.indexOf(projectionStart)+'export '.length,retirementSource.indexOf(projectionEnd));
+ const extracted=vm.runInNewContext(ts.transpileModule(projectionBody+'\nfencedMachineTicketProjection;',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText,{});
+ // Spread into this realm so strict deep equality is not defeated by the vm realm's own Object prototype.
+ const projection=residuals=>({...extracted(residuals)});
+ const empty={present:true,malformed:false,registeredLive:0,registeredResolved:0,pendingTargetLive:0,pendingTargetResolved:0,pendingTargetless:0,pendingUnattemptedResolved:0,pendingSpawnedLive:0,pendingSpawnedResolved:0,deadOwners:0};
+ assert.deepEqual(projection({...empty,pendingTargetless:1}),{fenced:false,deadOwnerTargetless:0,inFlight:1},'LIVE_OWNER_FENCE_IS_IN_FLIGHT');
+ assert.deepEqual(projection({...empty,pendingTargetless:2,deadOwners:1}),{fenced:true,deadOwnerTargetless:1,inFlight:1},'DEAD_OWNER_FENCE_IS_FENCED');
+ for(const shape of [{registeredLive:1},{pendingTargetLive:1},{pendingSpawnedLive:1},{malformed:true}])assert.equal(projection({...empty,...shape}).fenced,true,JSON.stringify(shape));
+ assert.equal(projection(empty).fenced,false);
+ console.log('NESTED_FENCE_PROJECTION_UNIT_CONTROLS PASS');
+}
+
 // Actual identity-function controls with explicit stubbed ps output, plus a real
 // absent-PID refusal. Observation stubs are unit inputs, never kernel authority.
 const mkdirIdentitySource=readFileSync(new URL('../../packages/main/src/core/mkdir-lock.ts',import.meta.url),'utf8');

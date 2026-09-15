@@ -343,6 +343,12 @@ export function classifyMachineReservationResiduals(ticket: string): { present: 
   }
   return result;
 }
+/** Read-only doctor projection of one ticket's classification: the fencing shapes need attention, while a pending fence without a target whose owner is still alive is in flight (a command between preparing and registering its spawn) and resolves or fences on its own once that owner is gone. */
+export function fencedMachineTicketProjection(residuals: ReturnType<typeof classifyMachineReservationResiduals>): { fenced: boolean; deadOwnerTargetless: number; inFlight: number } {
+  const deadOwnerTargetless = Math.min(residuals.deadOwners, residuals.pendingTargetless);
+  const inFlight = residuals.pendingTargetless - deadOwnerTargetless;
+  return { fenced: residuals.malformed || residuals.registeredLive > 0 || residuals.pendingTargetLive > 0 || residuals.pendingSpawnedLive > 0 || deadOwnerTargetless > 0, deadOwnerTargetless, inFlight };
+}
 /** Failure-only diagnostics; these observations never release or authorize work. */
 function machineCleanupFailure(owner: MachineReservationOwner, registered: Iterable<ProcessIdentity>, pending: Iterable<{pid:number;start:number}>, callbackStarted:boolean, callbackThrew:boolean, callbackError:unknown, callbackResult:unknown): Error {
   let truncated=false, remaining=Math.floor(LIMIT/8);

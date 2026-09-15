@@ -212,7 +212,8 @@
     "test:nested-reservation-fault-controller-inspection-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs fault-controller-inspection-unavailable",
     "test:nested-reservation-isolated-cleanup-unclearable": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-cleanup-unclearable",
     "test:nested-reservation-fault-owner-start-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs fault-owner-start-unavailable",
-    "test:nested-reservation-result-residual-record-unwritable": "node ../../scripts/verify-nested-reservation-registered.mjs result-residual-record-unwritable"
+    "test:nested-reservation-result-residual-record-unwritable": "node ../../scripts/verify-nested-reservation-registered.mjs result-residual-record-unwritable",
+    "test:nested-reservation-result-queue-wait-cap": "node ../../scripts/verify-nested-reservation-registered.mjs result-queue-wait-cap"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

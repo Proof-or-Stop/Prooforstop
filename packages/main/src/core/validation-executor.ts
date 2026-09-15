@@ -1394,9 +1394,10 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
     resources: command.resources?.length ? command.resources : undefined, abortSignal: options.abortSignal, deadlineAt,
       deadlineError: options.deadlineError }, () => {
         enteredCapture = true;
-        // The bounded deadline above governs only the capacity wait; the capture receives the caller's
-        // own deadline (possibly none) and owns the default budget from its entry.
-        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options }, reportedTimeoutMs).then(value => { completedCapture = value; return value; });
+        // The capture receives the bounded deadline derived above, whose budget started before the
+        // capacity wait, so a queue wait consumes the configured budget exactly as before delegation
+        // existed and a command never spans more than its configured timeout after that start.
+        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }, reportedTimeoutMs).then(value => { completedCapture = value; return value; });
       });
   } catch (error) {
     const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || boundedValidationErrorMessage(error) === 'workspace validation capacity wait aborted');
@@ -1478,12 +1479,11 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
-  // The armed timer is fixed here, before setup and the pre-launch handshakes, exactly as before
-  // delegation existed: the configured timeout, capped by the caller's remaining deadline at entry
-  // when the caller supplied one. Under delegation the live grant's deadline is the ceiling at
-  // which its revocation kills the command, so the armed timer, and with it the reported effective
-  // timeout, is bounded by that deadline as well. The bounded deadline below governs only the
-  // pre-launch handshakes.
+  // The armed timer is fixed here, before setup and the pre-launch handshakes: the configured timeout
+  // capped by the remaining outer deadline, whose budget started before the capacity wait, so a queue
+  // wait consumes budget exactly as before delegation existed, and, under delegation, by the live
+  // grant's deadline at which its revocation kills the command; the reported effective timeout is
+  // that armed ceiling. The bounded deadline below governs only the pre-launch handshakes.
   const grantDeadlineAt = currentValidationReservationDeadline();
   const ceilingAt = Math.min(options.deadlineAt ?? Infinity, grantDeadlineAt ?? Infinity);
   const armedTimeoutMs = ceilingAt === Infinity ? configuredTimeoutMs : Math.max(1, Math.min(configuredTimeoutMs, Math.floor(ceilingAt - started)));
