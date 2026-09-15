@@ -268,6 +268,11 @@ function assertAgentLaunchInstruction(instruction: string | null, lane: string):
   assert.ok(value.includes(STORY_ID), `${lane}: launch instruction names the storyId`);
   assert.match(value, /spawn_agent\(\{ task_name:/, `${lane}: Codex launch is present`);
   assert.match(value, /fork_turns: "none"/, `${lane}: Codex launch drops parent history`);
+  assert.match(value, /followup_task\(\{ target: <returned reviewer target>, message: <the same exact prompt> \}\)/,
+    `${lane}: Codex launch redundantly delivers the canonical prompt to the returned target`);
+  assert.match(value, /agent id or canonical task name/, `${lane}: current Codex target forms are accepted`);
+  assert.match(value, /do not wait until the reviewer has acknowledged the assignment/i,
+    `${lane}: the owner waits only after delivery acknowledgement`);
   assert.match(value, /Agent\(\{ subagent_type:/, `${lane}: Claude launch is present`);
   assert.match(value, /Other hosts launch one equivalent fresh-context reviewer task/, `${lane}: other hosts retain the boundary`);
   assert.match(value, /passes the returned prompt unchanged/, `${lane}: launch uses the canonical dispatch prompt`);

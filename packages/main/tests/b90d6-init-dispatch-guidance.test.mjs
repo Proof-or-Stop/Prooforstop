@@ -157,6 +157,9 @@ function assertInitCheckGuardGuidance() {
     assert.match(missingInitCheck ?? '', /missing_init_check/);
     assert.match(missingInitCheck ?? '', /spawn_agent\(\{ task_name: "review_story_init", fork_turns: "none"/);
     assert.match(missingInitCheck ?? '', /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
+    assert.match(missingInitCheck ?? '', /followup_task\(\{ target: <returned reviewer target>, message: <the same exact prompt> \}\)/);
+    assert.match(missingInitCheck ?? '', /do not wait until the reviewer has acknowledged the assignment/i);
+    assert.match(missingInitCheck ?? '', /agent id or canonical task name/i);
     assert.match(missingInitCheck ?? '', /subagent_type: "proof-or-stop-review-story-init"/);
     assert.match(missingInitCheck ?? '', /subagent_type: "proof-or-stop-product-reviewer"/);
     assert.match(missingInitCheck ?? '', /nonempty and distinct/i);
@@ -304,6 +307,8 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     assert.match(output, /proof-or-stop-product-reviewer/);
     assert.match(output, /spawn_agent\(\{ task_name: "review_story_init", fork_turns: "none"/);
     assert.match(output, /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
+    assert.match(output, /followup_task\(\{ target: <returned reviewer target>, message: <the same exact prompt> \}\)/);
+    assert.match(output, /do not wait until the reviewer has acknowledged the assignment/i);
     assert.match(output, /subagent_type: "proof-or-stop-review-story-init"/);
     assert.match(output, /subagent_type: "proof-or-stop-product-reviewer"/);
     assert.match(output, /agentId exactly proof-or-stop-product-reviewer/);
@@ -450,6 +455,9 @@ function assertLifecycleReviewerLaunchGuidance() {
       assert.match(value, /proof-or-stop dispatch/);
       assert.match(value, /spawn_agent\(\{ task_name:/);
       assert.match(value, /fork_turns: "none"/);
+      assert.match(value, /followup_task\(\{ target: <returned reviewer target>, message: <the same exact prompt> \}\)/);
+      assert.match(value, /agent id or canonical task name/i);
+      assert.match(value, /do not wait until the reviewer has acknowledged the assignment/i);
       assert.match(value, /Agent\(\{ subagent_type:/);
       assert.match(value, /Other hosts launch one equivalent fresh-context reviewer task without parent conversation history/);
       assert.match(value, /Retain every returned child agent id/);
