@@ -219,7 +219,8 @@
     "test:nested-reservation-fault-spawned-live-owner": "node ../../scripts/verify-nested-reservation-registered.mjs fault-spawned-live-owner",
     "test:nested-reservation-isolated-observation-go-lost": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-go-lost",
     "test:nested-reservation-isolated-observation-proceed-lost": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-proceed-lost",
-    "test:nested-reservation-result-refused-registration-lingering-group": "node ../../scripts/verify-nested-reservation-registered.mjs result-refused-registration-lingering-group"
+    "test:nested-reservation-result-refused-registration-lingering-group": "node ../../scripts/verify-nested-reservation-registered.mjs result-refused-registration-lingering-group",
+    "test:nested-reservation-doctor-fence-projection": "node ../../scripts/verify-nested-reservation-registered.mjs doctor-fence-projection"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

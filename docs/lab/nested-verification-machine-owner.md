@@ -300,7 +300,22 @@ classification and the projection on a live descendant's noted fence, and the
 lifecycle unit controls cover the projection), while the same fence under a
 dead or unrecorded owner still fences;
 `verify-nested-reservation-owner-loss.mjs` asserts that classification on the
-dead owner's ticket while its orphan lives and after it stops. An unmarked pre-spawn fence (its owner died before ever reaching the spawn
+dead owner's ticket while its orphan lives and after it stops, and the doctor
+surface itself (`scanFencedMachineTickets`, `renderFencedMachineTickets` and
+the `fencedMachineTickets` block of the JSON summary) is controlled by
+`verify-nested-doctor-fence-projection.mjs` (selector `doctor-fence-projection`,
+added in the nineteenth round after the release-time audit of the eighteenth
+candidate found it the one new product surface without a registered control):
+it seeds a private OS-home pool with every residual shape (no pool, a ticket
+without a record, a malformed record, a live registered group, a pending fence
+with a live proven target, a marked fence with a noted spawned PID under a live
+owner, a targetless marked fence under a dead owner, and an unreadable pool)
+using real detached sleeper identities and a reaped PID, asserts the scan
+counts, every rendered line and the error branch, and runs the real doctor
+handler in a hermetic git project to assert that its JSON block is the scan and
+its rendered report carries the section verbatim; three source mutations
+(dropping the in-flight accumulation, swallowing the pool error, dropping the
+JSON field) each fail the control. An unmarked pre-spawn fence (its owner died before ever reaching the spawn
 call) resolves automatically once that owner is proven absent, so the window
 that captureValidationCommand opens before every spawn cannot wedge the
 same-user pool. A marked fence that noted its spawned PID resolves once its
@@ -845,7 +860,7 @@ failing case is the environmental refusal above.
 
 ## Verification boundaries
 
-Sixty-six direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Sixty-seven direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
@@ -916,7 +931,9 @@ every 60-second selector under 9.8 seconds), and the fifteenth-round sweep of al
 (`core` 36.4 seconds, every 30-second selector under 7.0 seconds, every
 60-second selector under 9.9 seconds), and the eighteenth-round sweep of all sixty-six in 234.3 seconds
 (`core` 38.3 seconds, every 30-second selector under 7.1 seconds, every
-60-second selector under 10.1 seconds). Before the `core` selector
+60-second selector under 10.1 seconds), and the nineteenth-round sweep of all sixty-seven in 240.0 seconds
+(`core` 35.6 seconds, every 30-second selector under 7.1 seconds, every
+60-second selector under 9.9 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
