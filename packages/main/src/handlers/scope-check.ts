@@ -186,9 +186,6 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       if (managedInvocation && managedActor !== 'proof-or-stop-review-scope-plan') {
         throw new Error('scope_check_save refused: managed dispatch requires proof-or-stop-review-scope-plan authority');
       }
-      const managedDeliveryRunId = managedInvocation
-        ? resolveManagedDispatchInvocation({ root, storyId: args.storyId, agentType: managedActor! })
-        : undefined;
       const ownerCoverage = signPlanOwnerCoverage(store, root, args.storyId, args.ownerDispositions, authority.source === 'dispatched-env' ? authority.entry?.canonicalName : undefined);
       // Verify story exists and read currentReviewRound
       let reviewRound = '';
@@ -222,6 +219,12 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         orphanSuspect,
         drift,
       };
+      // Validate the complete reviewer payload before consuming its one-shot
+      // managed invocation. A provider may correct a rejected tool call within
+      // the same run; only a payload that is ready to persist earns delivery.
+      const managedDeliveryRunId = managedInvocation
+        ? resolveManagedDispatchInvocation({ root, storyId: args.storyId, agentType: managedActor! })
+        : undefined;
       const _hash = signScopeCheck(args.storyId, timestamp, args.summary.gaps, args.summary.covered, reviewRound, {
         features: args.features,
         summary,

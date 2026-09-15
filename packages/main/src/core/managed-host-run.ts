@@ -3755,7 +3755,7 @@ function consumeManagedInitInvocationAttestation(args: {
 }
 
 /**
- * Resolve the controller-owned INIT reviewer run authorizing this CLI process.
+ * Resolve the controller-owned managed reviewer run authorizing this CLI process.
  * Real provider tool hosts may create a fresh process group/session for each
  * command, so a signed, one-shot controller attestation is authoritative. The
  * environment is transport, not trust: the controller signature binds every
@@ -3784,12 +3784,12 @@ export function resolveManagedDispatchInvocation(args: {
     }
   } catch (error) {
     throw new Error(
-      `init_check_set refused: managed INIT invocation was not accepted (${error instanceof Error ? error.message : String(error)}). `
+      `managed dispatch refused: invocation was not accepted (${error instanceof Error ? error.message : String(error)}). `
       + 'Use a fresh host_run managedDispatch reviewer. [delivery_not_acknowledged]',
     );
   }
   if (process.platform === 'win32') {
-    throw new Error('init_check_set: managed reviewer delivery attestation is unsupported on win32');
+    throw new Error('managed dispatch: reviewer delivery attestation is unsupported on win32');
   }
   const callerPid = args.callerPid ?? process.pid;
   const candidates: string[] = [];
