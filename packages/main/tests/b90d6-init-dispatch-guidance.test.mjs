@@ -315,6 +315,12 @@ function assertScopePlanDispatchAndReviewGuidance() {
     const dispatch = createStoryDispatchHandlers(ctx(root, store));
     const result = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' });
     assert.match(result.prompt, /Review PLAN scope coverage/);
+    assert.match(result.prompt, /Codex owner launch: spawn_agent\(/);
+    assert.match(result.prompt, /fork_turns:\s*"none"/);
+    assert.match(result.prompt, /retain the returned child agent id/);
+    assert.match(result.prompt, /execute this scope review directly in the current reviewer task/i);
+    assert.match(result.prompt, /must not spawn or delegate another reviewer/i);
+    assert.match(result.prompt, /never wait with an empty target\/receiver set/i);
     assert.match(result.prompt, /Must read story artifacts/);
     assert.match(result.prompt, /Dispatch output is not gate evidence/);
     assert.match(result.prompt, /proof-or-stop scope_check_save/);
@@ -325,6 +331,11 @@ function assertScopePlanDispatchAndReviewGuidance() {
     const issue = storyReview.issues.find((entry) => entry.type === 'missing_scope_check');
     assert.ok(issue, 'story_review should report missing_scope_check');
     assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=proof-or-stop-review-scope-plan`));
+    assert.match(issue.message, /spawn_agent/);
+    assert.match(issue.message, /fork_turns.*none/);
+    assert.match(issue.message, /returned child agent id/);
+    assert.match(issue.message, /must not spawn or delegate another reviewer/i);
+    assert.match(issue.message, /empty target\/receiver set/i);
     assert.match(issue.message, /dispatch output is not gate evidence/);
     assert.match(issue.message, /proof-or-stop scope_check_save/);
   } finally {
