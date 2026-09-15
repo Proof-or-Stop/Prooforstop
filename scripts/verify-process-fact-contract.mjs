@@ -1952,6 +1952,8 @@ function assertProofStoryProgressiveBoundary() {
   );
   const preReviewText = read('packages/main/src/core/pre-review-check.ts');
   const acceptanceDiscoveryText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
+  const dirtyWorktreeText = read('packages/main/src/core/dirty-worktree.ts');
+  const externalWorktreeSmokeText = read('packages/main/src/tasks/external-worktree-go-pre-review-smoke.ts');
   const preReviewPolicy = commandPolicyEntries.get('pre_review_check');
   assert(
     catalogText.includes("name: 'pre_review_check'")
@@ -1979,6 +1981,12 @@ function assertProofStoryProgressiveBoundary() {
       && read('packages/main/src/cli/runtime-root.ts').includes('projectControllerAssetsIntoStoryWorktree')
       && read('packages/main/src/core/controller-config-projection.ts').includes('signValidationArtifact')
       && read('packages/main/src/core/controller-config-projection.ts').includes('verifyValidationArtifact')
+      && dirtyWorktreeText.includes('isByteIdenticalControllerConfig')
+      && dirtyWorktreeText.includes('isByteIdenticalControllerRuntimeAsset')
+      && dirtyWorktreeText.includes('trustedRuntimeArtifactMatcher')
+      && dirtyWorktreeText.includes("runtimeArtifactId: 'controller-projection'")
+      && externalWorktreeSmokeText.includes('valid signed controller config and hook projections must not block review_run_start')
+      && externalWorktreeSmokeText.includes('a changed projected hook must return to fail-closed dirty classification')
       && read('packages/main/src/core/material-code-policy.ts').includes('resolveRepositoryBaseline')
       && read('packages/main/src/cli-engine.ts').includes('enforceStoryOwnerLeaseGate(cmd, parsed, controllerStore')
       && processRegistryText.includes('runtime:external_story_worktree_bootstrap_authority_gate')

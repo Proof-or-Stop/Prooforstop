@@ -1,7 +1,11 @@
 import type { ProofOrStopConfig } from './config.js';
 import { CONFIG_FILENAMES } from './brand-paths.js';
 import { isStoryMetadataPath } from './evidence-freshness.js';
-import { findRuntimeArtifactEntry } from './runtime-artifact-registry.js';
+import {
+  findRuntimeArtifactEntry,
+  isByteIdenticalControllerConfig,
+  isByteIdenticalControllerRuntimeAsset,
+} from './runtime-artifact-registry.js';
 import type { StoryStore } from './store.js';
 
 // Task B-6326: central ownership classifier for dirty git porcelain rows.
@@ -38,6 +42,8 @@ export interface DirtyWorktreeClassifierOptions {
   materialSourceFiles?: string[];
   declaredArtifactPaths?: string[];
   declaredArtifactMatcher?: DirtyDeclaredArtifactMatcher;
+  /** Exact signed controller projections admitted for one registered Story worktree. */
+  trustedRuntimeArtifactMatcher?: (path: string) => boolean;
   /** When set, passed to isStoryMetadataPath so configured storyDir is honoured. */
   projectRoot?: string;
 }
@@ -148,6 +154,10 @@ function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeCl
   const runtimeArtifact = paths.map((path) => findRuntimeArtifactEntry(path)).find(Boolean);
   if (runtimeArtifact) {
     return { ...row, category: 'runtime_artifact_changes', runtimeArtifactId: runtimeArtifact.id };
+  }
+
+  if (paths.some(path => options.trustedRuntimeArtifactMatcher?.(path) === true)) {
+    return { ...row, category: 'runtime_artifact_changes', runtimeArtifactId: 'controller-projection' };
   }
 
   if (paths.some((path) => isFixturePath(path, options))) {
@@ -269,6 +279,10 @@ export function dirtyWorktreeClassifierOptionsForStory(
       ...(base.declaredArtifactPaths ?? []),
       ...declared,
     ],
+    trustedRuntimeArtifactMatcher: projectRoot
+      ? path => isByteIdenticalControllerConfig({ projectRoot, gitCwd: projectRoot, storyId, path })
+        || isByteIdenticalControllerRuntimeAsset({ projectRoot, gitCwd: projectRoot, storyId, path })
+      : undefined,
   };
 }
 
