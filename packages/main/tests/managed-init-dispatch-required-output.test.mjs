@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -7,6 +7,7 @@ import { StoryStore } from '../dist/core/store.js';
 import { createHostRunHandlers } from '../dist/handlers/host-run.js';
 import { managedDispatchCodexSandboxMode } from '../dist/core/host-run.js';
 import { readManagedHostRunProjection } from '../dist/core/managed-host-run.js';
+import { validateResourceClaims } from '../dist/core/keyed-scheduler.js';
 
 const root = mkdtempSync(join(tmpdir(), 'managed-init-required-output-'));
 const storyId = 'B-managed-init-required-output';
@@ -71,6 +72,13 @@ try {
     'an uncontained Linux host must retain the ordinary Codex sandbox');
   assert.equal(managedDispatchCodexSandboxMode('darwin', true), null,
     'container marker names cannot disable the native macOS sandbox');
+  const repoConfig = JSON.parse(readFileSync(new URL('../../../proof-or-stop.config.json', import.meta.url), 'utf8'));
+  const catalogEntry = repoConfig.validate.commands.find(entry =>
+    entry.command === 'node'
+    && entry.args?.includes('packages/main/tests/managed-init-dispatch-required-output.test.mjs'));
+  assert.ok(catalogEntry, 'the managed INIT regression must remain in the canonical validation catalog');
+  assert.doesNotThrow(() => validateResourceClaims(catalogEntry.resources ?? [], 'managed INIT canonical test'),
+    'the canonical validation scheduler must accept the managed INIT regression resource claims');
   console.log('MANAGED_INIT_DISPATCH_REQUIRED_OUTPUT_GREEN');
 } finally {
   rmSync(root, { recursive: true, force: true });
