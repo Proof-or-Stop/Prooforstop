@@ -251,6 +251,10 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     assert.match(output, /spawn two INIT reviewers in parallel/);
     assert.match(output, /proof-or-stop-review-story-init/);
     assert.match(output, /proof-or-stop-product-reviewer/);
+    assert.match(output, /spawn_agent\(\{ task_name: "review_story_init", fork_turns: "none"/);
+    assert.match(output, /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
+    assert.match(output, /retain both returned child agent ids/i);
+    assert.match(output, /never call wait with an empty target\/receiver set/i);
     assert.doesNotMatch(output, /subagent_type: "lattice-review-story-init"/);
     assert.doesNotMatch(output, /agentType":"lattice-review-story-init"/);
     assert.doesNotMatch(output, /subagent_type: "product-reviewer"/);
@@ -317,10 +321,10 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(result.prompt, /Review PLAN scope coverage/);
     assert.match(result.prompt, /Codex owner launch: spawn_agent\(/);
     assert.match(result.prompt, /fork_turns:\s*"none"/);
-    assert.match(result.prompt, /retain the returned child agent id/i);
+    assert.match(result.prompt, /retain (?:the|every) returned child agent id/i);
     assert.match(result.prompt, /execute this scope review directly in the current reviewer task/i);
     assert.match(result.prompt, /must not spawn or delegate another reviewer/i);
-    assert.match(result.prompt, /never wait with an empty target\/receiver set/i);
+    assert.match(result.prompt, /never call wait with an empty target\/receiver set/i);
     assert.match(result.prompt, /Must read story artifacts/);
     assert.match(result.prompt, /Dispatch output is not gate evidence/);
     assert.match(result.prompt, /proof-or-stop scope_check_save/);

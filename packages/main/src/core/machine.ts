@@ -72,6 +72,10 @@ import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
+import {
+  renderReviewerDispatchLaunch,
+  REVIEWER_CHILD_ID_WAIT_BOUNDARY,
+} from './reviewer-launch-guidance.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -245,14 +249,15 @@ function initPreflightGuidance(storyId: string): string {
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
   const dispatches = missingAgents.map(agentId => {
     if (agentId === 'proof-or-stop-review-story-init') {
-      return `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "<owner-produced standard prompt>" })`;
+      return `   ${renderReviewerDispatchLaunch({ storyId, agentType: agentId, taskName: 'review_story_init' })}`;
     }
     if (agentId === 'proof-or-stop-product-reviewer') {
-      return `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: "<owner-produced standard prompt>" })`;
+      return `   ${renderReviewerDispatchLaunch({ storyId, agentType: agentId, taskName: 'product_reviewer' })}`;
     }
     throw new Error(`unsupported required INIT reviewer: ${agentId}`);
   });
   return `→ Preferred: have the Story owner separately dispatch only the missing reviewer records:\n${dispatches.join('\n')}\n` +
+    `   ${REVIEWER_CHILD_ID_WAIT_BOUNDARY}\n` +
     `   Every reviewer independently performs its reviewerWrite by calling init_check_set regardless of pass/fail; review_run_start begins only after the Story enters REVIEW, not during INIT.`;
 }
 
@@ -1324,8 +1329,9 @@ export function getGuardFailureReason(
         `${initPreflightGuidance(storyId)}\n` +
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: have the Story owner prepare both independent reviewers\n` +
-        `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "<owner-produced standard prompt>" })\n` +
-        `   Story owner runs proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}', then passes the returned prompt unchanged to Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: "<owner-produced standard prompt>" })\n` +
+        `   ${renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-review-story-init', taskName: 'review_story_init' })}\n` +
+        `   ${renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-product-reviewer', taskName: 'product_reviewer' })}\n` +
+        `   ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} Both INIT child ids must be nonempty and distinct before waiting.\n` +
         `   Each reviewer independently performs its reviewerWrite by calling init_check_set; review_run_start begins only after the Story enters REVIEW, not during INIT.\n` +
         `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +

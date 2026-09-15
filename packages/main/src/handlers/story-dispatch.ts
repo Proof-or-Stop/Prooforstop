@@ -64,6 +64,10 @@ import {
 import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
+import {
+  renderCodexFreshReviewerHandoff,
+  REVIEWER_CHILD_ID_WAIT_BOUNDARY,
+} from '../core/reviewer-launch-guidance.js';
 import type { ReviewInventoryPurposeBinding } from '../core/types.js';
 import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { requireInventoryCriticSubjectLocked } from './review-inventory.js';
@@ -544,7 +548,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`Review PLAN scope coverage for story ${args.storyId}.`);
     lines.push('');
     lines.push('Owner launch contract:');
-    lines.push('- Codex owner launch: spawn_agent({ task_name: "review_scope_plan", fork_turns: "none", message: "<this exact dispatch prompt>" }). Retain the returned child agent id and wait only on that id; never wait with an empty target/receiver set.');
+    lines.push(`- Codex owner launch: ${renderCodexFreshReviewerHandoff('review_scope_plan', '<this exact dispatch prompt>')}. ${REVIEWER_CHILD_ID_WAIT_BOUNDARY}`);
     lines.push('- Other hosts must launch exactly one equivalent fresh-context reviewer task containing this prompt and no parent conversation history.');
     lines.push('');
     lines.push('Reviewer execution contract:');
