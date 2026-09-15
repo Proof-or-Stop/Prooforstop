@@ -90,7 +90,7 @@ function assertCanonicalBusinessAuthorIdentity(): void {
   const canonicalRole = 'proof-or-stop-implementer';
   const canonicalAuthor = `${canonicalRole} <${canonicalRole}@noreply.local>`;
   try {
-    git(authorRoot, ['init', '-b', 'main']);
+    git(authorRoot, ['init', '-b', 'develop']);
     git(authorRoot, ['config', 'user.name', retiredRole]);
     git(authorRoot, ['config', 'user.email', `${retiredRole}@noreply.local`]);
     git(authorRoot, ['commit', '--allow-empty', '-m', 'synthetic retired author fixture']);
@@ -102,7 +102,23 @@ function assertCanonicalBusinessAuthorIdentity(): void {
     const canonical = currentImplementationBusinessCommit(authorRoot);
     assert.equal(canonical.businessCommitAuthor, canonicalAuthor);
     assert.equal(canonical.businessCommit, git(authorRoot, ['rev-parse', 'HEAD']));
-    console.log('topology author identity: retired rejection, raw identity, canonical acceptance PASS');
+    git(authorRoot, ['commit', '--allow-empty', '--author=Integration Owner <integration@noreply.local>', '-m', 'freeze Story integration base']);
+    const frozenBase = git(authorRoot, ['rev-parse', 'HEAD']);
+    git(authorRoot, ['switch', '-c', 'story/B-portable-provenance']);
+    const resolveFromFrozenBase = currentImplementationBusinessCommit as unknown as
+      (gitCwd: string, baseCommit: string) => ReturnType<typeof currentImplementationBusinessCommit>;
+    assert.throws(
+      () => resolveFromFrozenBase(authorRoot, frozenBase),
+      /missing a business commit authored by proof-or-stop-implementer/,
+      'an implementer commit before the frozen Story base cannot become current Story provenance',
+    );
+    git(authorRoot, ['commit', '--allow-empty', `--author=${canonicalAuthor}`, '-m', 'current Story implementation']);
+    const currentStory = resolveFromFrozenBase(authorRoot, frozenBase);
+    assert.equal(currentStory.businessCommit, git(authorRoot, ['rev-parse', 'HEAD']));
+    git(authorRoot, ['branch', '-D', 'develop']);
+    assert.equal(resolveFromFrozenBase(authorRoot, frozenBase).businessCommit, currentStory.businessCommit,
+      'the frozen commit range survives deletion of the original integration branch');
+    console.log('topology author identity: retired rejection, frozen-base isolation, deleted-parent portability PASS');
   } finally {
     rmSync(authorRoot, { recursive: true, force: true });
   }
