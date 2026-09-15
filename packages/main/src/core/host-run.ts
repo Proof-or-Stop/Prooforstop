@@ -2114,10 +2114,11 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
     || managedDispatchSandbox !== null) {
     if (args.host !== 'codex') throw new Error('host_run: protected Codex review profile requires host=codex');
     // The managed-review worker already runs the provider inside the signed
-    // Darwin read-only lane. Asking Codex to install a second seatbelt profile
-    // inside that lane fails with sandbox_apply: Operation not permitted and
-    // prevents even read-only evidence collection. Disable only the nested
-    // provider sandbox; the outer lane remains the enforcement boundary.
+    // Darwin read-only lane, while managed dispatch bypasses nested sandboxing
+    // only inside a Linux Docker/OCI boundary detected from a root-owned marker.
+    // Asking Codex to install another seatbelt/bwrap profile inside either outer
+    // boundary can fail before evidence collection. Uncontained Linux and Darwin
+    // managed dispatches deliberately retain the ordinary Codex sandbox.
     const sandboxMode = args.launchProfile === 'managed_reviewer'
       ? 'danger-full-access'
       : managedDispatchSandbox ?? 'read-only';

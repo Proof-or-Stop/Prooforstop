@@ -3345,12 +3345,24 @@ export async function runManagedHostRunWorker(
     if (spec.profile === 'managed_dispatch') {
       let outputPresent = false;
       try {
-        const initCheck = new StoryStore(spec.root).readInitCheck(spec.storyId!);
+        const storyStore = new StoryStore(spec.root);
+        const configuredInitCheckPath = storyStore.storyFilePath(spec.storyId!, 'init-check.json');
+        if (existsSync(configuredInitCheckPath)) {
+          JSON.parse(readFileSync(configuredInitCheckPath, 'utf8'));
+        }
+        const initCheck = storyStore.readInitCheck(spec.storyId!);
         outputPresent = Array.isArray(initCheck?.agentResults)
           && initCheck.agentResults.some(row =>
             row.agentId === spec.agentType && row.deliveryRunId === spec.runId);
-      } catch {
-        outputPresent = false;
+      } catch (error) {
+        return writeTerminal(
+          paths,
+          'failed',
+          `managed_dispatch_output_unreadable:${boundedCleanupDiagnosticError(error)}`,
+          result.replacementSafe,
+          result,
+          now(),
+        );
       }
       if (!outputPresent) {
         return writeTerminal(paths, 'failed', 'managed_dispatch_output_missing', result.replacementSafe, result, now());

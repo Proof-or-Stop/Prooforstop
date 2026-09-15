@@ -10724,7 +10724,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/core/managed-host-run.ts',
-        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managed_dispatch_output_missing', 'row.deliveryRunId === spec.runId'],
+        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', 'row.deliveryRunId === spec.runId'],
       },
       {
         relPath: 'packages/main/src/handlers/host-run.ts',
@@ -10740,7 +10740,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-init-dispatch-required-output.test.mjs',
-        patterns: ['managedDispatch must fail when the provider exits zero without its bound init_check_set output', 'managed_dispatch_output_missing', "managedDispatchCodexSandboxMode('linux', true)", "managedDispatchCodexSandboxMode('linux', false)", "managedDispatchCodexSandboxMode('darwin', true)"],
+        patterns: ['managedDispatch must fail when the provider exits zero without its bound init_check_set output', 'a same-role result from another run must not satisfy managed dispatch output', 'an exact Story, role, and run ID result must satisfy managed dispatch output', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', "managedDispatchCodexSandboxMode('linux', true)", "managedDispatchCodexSandboxMode('linux', false)", "managedDispatchCodexSandboxMode('darwin', true)"],
       },
     ],
   },

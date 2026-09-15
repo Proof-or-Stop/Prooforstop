@@ -249,7 +249,9 @@ digest 与 provider process identity 封存在 managed run 中。`init_check_set
 
 provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story store 中读到
 与该 Story、role 和 managed run ID 精确绑定的 `agentResults` 记录后才写
-`completed` terminal，否则以 `managed_dispatch_output_missing` 失败。
+`completed` terminal。记录不存在或不匹配时以
+`managed_dispatch_output_missing` 失败；配置路径中的记录无法读取或解析时以
+`managed_dispatch_output_unreadable` 保留受限错误诊断并继续 fail closed。
 
 Linux Docker/OCI 中的 Codex reviewer 已位于外层容器隔离边界。PoS 检测到
 `/.dockerenv` 或 `/run/.containerenv` 时为这个 managedDispatch 子进程关闭

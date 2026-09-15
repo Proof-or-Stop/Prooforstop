@@ -66,6 +66,56 @@ try {
   assert.match(readManagedHostRunProjection(root, result.runId).terminal?.reason ?? '',
     /managed_dispatch_output_missing/);
   assert.equal(store.readInitCheck(storyId), null);
+
+  const successfulRunnerResult = {
+    stdout: JSON.stringify({ type: 'turn.completed', usage: {} }) + '\n',
+    stderr: '', exitCode: 0, timedOut: false, terminalReason: 'completed', replacementSafe: true,
+  };
+  const runWithDelivery = async deliveryRunId => createHostRunHandlers({ root, scanRoot: root, store }, {
+    runner: async plan => {
+      const liveRunId = plan.env.LATTICE_MANAGED_HOST_RUN_ID;
+      assert.ok(liveRunId, 'managed dispatch runner must receive its live run ID');
+      store.writeInitCheck(storyId, {
+        storyId, checkedAt: new Date().toISOString(), reviewRound: '',
+        agentId: 'proof-or-stop-review-story-init', issues: [],
+        agentResults: [{
+          agentId: 'proof-or-stop-review-story-init',
+          deliveryRunId: deliveryRunId(liveRunId),
+        }],
+        _hash: '',
+      });
+      return successfulRunnerResult;
+    },
+  }).host_run({
+    host: 'codex', storyId, agentType: 'proof-or-stop-review-story-init',
+    managedDispatch: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+  });
+
+  const staleResult = await runWithDelivery(liveRunId => `${liveRunId}-stale`);
+  assert.equal(staleResult.exitCode, 1,
+    'a same-role result from another run must not satisfy managed dispatch output');
+  assert.match(readManagedHostRunProjection(root, staleResult.runId).terminal?.reason ?? '',
+    /managed_dispatch_output_missing/);
+
+  const positiveResult = await runWithDelivery(liveRunId => liveRunId);
+  assert.equal(positiveResult.exitCode, 0,
+    'an exact Story, role, and run ID result must satisfy managed dispatch output');
+  assert.equal(readManagedHostRunProjection(root, positiveResult.runId).terminal?.reason,
+    'provider_completed');
+
+  const unreadableResult = await createHostRunHandlers({ root, scanRoot: root, store }, {
+    runner: async () => {
+      writeFileSync(store.storyFilePath(storyId, 'init-check.json'), '{invalid json');
+      return successfulRunnerResult;
+    },
+  }).host_run({
+    host: 'codex', storyId, agentType: 'proof-or-stop-review-story-init',
+    managedDispatch: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+  });
+  assert.equal(unreadableResult.exitCode, 1);
+  assert.match(readManagedHostRunProjection(root, unreadableResult.runId).terminal?.reason ?? '',
+    /^managed_dispatch_output_unreadable:/,
+    'an unreadable INIT result must remain fail-closed with an operator-visible diagnostic');
   assert.equal(managedDispatchCodexSandboxMode('linux', true), 'danger-full-access',
     'a Linux reviewer already inside Docker/OCI must not install a nested bwrap sandbox');
   assert.equal(managedDispatchCodexSandboxMode('linux', false), null,
