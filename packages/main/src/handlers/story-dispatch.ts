@@ -693,6 +693,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     ];
     appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/${args.itemId}`);
     lines.push('Role boundary:');
+    lines.push(`- ${REVIEWER_NO_DELEGATION_BOUNDARY}`);
     lines.push('- Define adversarial acceptance intent only; do not implement, edit code/tests, or change checklist completion.');
     lines.push('- You may write only verificationIntent through checklist_update; do not write status, verificationEvidence, or checklist definition fields.');
     lines.push('');
@@ -1067,6 +1068,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
               `Trusted inventory subject: ${JSON.stringify(inventoryBinding)}`,
               renderAgentLivenessGuidance({ label: 'proof-or-stop-review-topology-critic/inventory', startSignal: 'DISPATCH_START:proof-or-stop-review-topology-critic/inventory' }),
               'Use the canonical critic role with the inventory-only duties. Preserve real Git attribution; never manufacture role-named implementation commits.',
+              REVIEWER_NO_DELEGATION_BOUNDARY,
               'Launch only against the OPEN inventory. After official finalization, consumers verify the sealed launch prompt and signed completed-wave subject; do not reconstruct a new OPEN prompt or rewrite the terminal evidence.',
               'A managed reviewer may start after an OPEN epoch cutoff when ancestry and both content hashes remain bound. Earlier-wave critic evidence is historical, not current authority; an older PASS is omitted from invalid only after its native or managed authority authenticates and a newer valid lane record (PASS or FINDING) exists. It never becomes current authority, and open findings remain blocking. Receipt tampering remains blocking.',
               'Evidence-only retention refuses commits that also flush pending inventory initialization or unrelated process facts; a writer label never grants authority over those additional changes.',

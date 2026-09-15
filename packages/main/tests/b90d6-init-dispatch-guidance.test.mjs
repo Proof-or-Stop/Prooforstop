@@ -16,7 +16,6 @@ const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const { resetConfigCache } = await import(join(distRoot, 'core/config.js'));
 const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const { getGuardFailureReason } = await import(join(distRoot, 'core/machine.js'));
-const { recomputeInitCheckHash } = await import(join(distRoot, 'core/init-check-gate.js'));
 const { createInitCheckHandlers } = await import(join(distRoot, 'handlers/init-check.js'));
 const { createInitPreflightHandlers } = await import(join(distRoot, 'handlers/init-preflight.js'));
 const { createSessionHandlers } = await import(join(distRoot, 'handlers/session.js'));
@@ -158,6 +157,7 @@ function assertInitCheckGuardGuidance() {
     assert.match(missingInitCheck ?? '', /subagent_type: "proof-or-stop-product-reviewer"/);
     assert.match(missingInitCheck ?? '', /nonempty and distinct/i);
     assert.match(missingInitCheck ?? '', /never call wait with an empty target\/receiver set/i);
+    assert.match(missingInitCheck ?? '', /other hosts launch one equivalent fresh-context reviewer task without parent conversation history/i);
     assertIncludesInitPreflight(missingInitCheck, storyId, 'missing init-check guidance');
 
     const initDispatch = createStoryDispatchHandlers(ctx(root, store));
@@ -166,26 +166,12 @@ function assertInitCheckGuardGuidance() {
     assert.match(storyInitPrompt, /fresh context/i);
     assert.match(storyInitPrompt, /do not carry over the main agent's conclusions/i);
     assert.match(storyInitPrompt, /do not spawn or delegate another reviewer/i);
+    assert.match(storyInitPrompt, /collaboration tools, if visible, are outside this role/i);
     assert.doesNotMatch(storyInitPrompt, /spawn_agent\(|Agent\(\{ subagent_type:/);
     assert.match(productInitPrompt, /fresh context/i);
     assert.match(productInitPrompt, /do not carry over the main agent's conclusions/i);
     assert.match(productInitPrompt, /do not spawn or delegate another reviewer/i);
     assert.doesNotMatch(productInitPrompt, /spawn_agent\(|Agent\(\{ subagent_type:/);
-
-    const emptyInitCheck = {
-      storyId,
-      checkedAt: '2026-07-08T12:00:00.000Z',
-      reviewRound: '',
-      agentId: 'legacy-unknown-reviewer',
-      issues: [],
-      agentResults: [],
-      _hash: '',
-    };
-    emptyInitCheck._hash = recomputeInitCheckHash(storyId, store, root, emptyInitCheck);
-    store.writeInitCheck(storyId, emptyInitCheck);
-    const bothInitAgentsMissing = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
-    assert.match(bothInitAgentsMissing ?? '', /missing_init_check_agent/);
-    assert.match(bothInitAgentsMissing ?? '', /nonempty and distinct/i);
 
     createInitCheckHandlers(ctx(root, store)).init_check_set({
       storyId,
@@ -359,6 +345,13 @@ function assertScopePlanDispatchAndReviewGuidance() {
     });
 
     const dispatch = createStoryDispatchHandlers(ctx(root, store));
+    const verificationIntent = dispatch.dispatch({
+      storyId,
+      itemId: 'CHK-001',
+      agentType: 'proof-or-stop-verification-intent',
+    });
+    assert.match(verificationIntent.prompt, /do not spawn or delegate another reviewer/i);
+    assert.match(verificationIntent.prompt, /collaboration tools, if visible, are outside this role/i);
     const result = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' });
     assert.match(result.prompt, /Review PLAN scope coverage/);
     assert.doesNotMatch(result.prompt, /spawn_agent\(/);

@@ -309,6 +309,8 @@ async function inventoryPurposeRecovery(): Promise<void> {
     let dispatch = '';
     assert.doesNotThrow(() => { dispatch = cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, criticEnv); }, 'B-29bc explicit inventory dispatch must admit real non-role Git attribution');
     assert.match(dispatch, /inventory-completeness/);
+    assert.match(dispatch, /do not spawn or delegate another reviewer/i);
+    assert.match(dispatch, /collaboration tools, if visible, are outside this role/i);
     assert.match(dispatch, new RegExp(epoch.epochId));
     const signedEpochData = fixture.store.readReviewInventoryEpochs(storyId);
     fixture.store.writeReviewInventoryEpochs(storyId, { ...signedEpochData, epochs: signedEpochData.epochs.map(row => ({ ...row, _hash: 'forged' })) });
