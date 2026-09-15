@@ -75,6 +75,8 @@ export async function runIsolatedFindingFixture(entry: string): Promise<boolean>
   let launcherWithdrawn = false;
   let workerFenced = false;
   let workerSpawnFailed = false;
+  let launcherGoUnavailable = false;
+  let launcherAckUnavailable = false;
   let launcherSpawned = false;
   let observationDegraded = false;
   let outputWritten = false;
@@ -103,12 +105,18 @@ process.exit(code);`;
   const launcherCode = `import {spawn} from 'node:child_process';
 import {validationReservationChildStdio,validationReservationChildEnvironment,prepareValidationReservationChild,attemptValidationReservationSpawn,noteValidationReservationSpawn,registerValidationReservationChild,cancelValidationReservationChild,unregisteredValidationReservationChildGone} from ${JSON.stringify(new URL('../core/validation-reservation-delegation' + (import.meta.url.endsWith('.ts') ? '.ts' : '.js'),import.meta.url).href)};
 let workerReady = false;
+let proceedTimer;
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-const go = await new Promise(resolve => { process.once('message', resolve); process.once('disconnect', () => resolve(undefined)); });
-if (go?.go !== true) { process.exitCode = 1; if (process.connected) process.disconnect(); process.exit(1); }
+// GO is awaited under the registered worker-registration budget: a message the fixture never delivers ends the
+// launcher by name instead of leaving it waiting on the open channel for the whole command budget; the fixture
+// is told that no worker was spawned, so its cleanup is proven.
+const go = await new Promise(resolve => { const timer = setTimeout(() => resolve(undefined), ${delegationPolicy.workerRegistrationMs}); process.once('message', message => { clearTimeout(timer); resolve(message); }); process.once('disconnect', () => { clearTimeout(timer); resolve(undefined); }); });
+if (go?.go !== true) { console.error('isolated launcher GO unavailable'); process.exitCode = 1; if (process.connected) process.send({goUnavailable:true}, () => process.disconnect()); else process.exit(1); }
+else {
 const token = await prepareValidationReservationChild();
 const withdraw = async () => { try { await cancelValidationReservationChild(token); } catch (error) { console.error(error); } };
 const refuse = async () => {
+  clearTimeout(proceedTimer);
   try { process.kill(-worker.pid, 'SIGTERM'); } catch { try { worker.kill('SIGTERM'); } catch { /* absence below is decisive */ } }
   const until = Date.now() + ${delegationPolicy.cleanupMs};
   while (!unregisteredValidationReservationChildGone(worker.pid) && Date.now() < until) await wait(10);
@@ -122,6 +130,8 @@ worker.once('spawn', async () => {
   // The spawned PID is noted on the fence before the fixture process observes the worker.
   try { await noteValidationReservationSpawn(token, worker.pid); } catch (error) { console.error(error); await refuse(); return; }
   if (process.connected) process.send({pid:worker.pid, fenced:token !== undefined});
+  // The acknowledgement is awaited under the same budget: one the fixture never delivers refuses the worker.
+  proceedTimer = setTimeout(async () => { console.error('isolated registration ACK unavailable'); process.removeAllListeners('message'); if (process.connected) process.send({ackUnavailable:true}); await refuse(); }, ${delegationPolicy.workerRegistrationMs});
 });
 worker.once('error', async error => {
   console.error(error);
@@ -130,12 +140,14 @@ worker.once('error', async error => {
   if (process.connected) process.disconnect();
 });
 process.once('message', async message => {
+  clearTimeout(proceedTimer);
   if (message?.proceed !== true) { await refuse(); return; }
   try { await registerValidationReservationChild(worker.pid, token); } catch (error) { console.error(error); await refuse(); return; }
   if (worker.connected) worker.send({registered:true}); else { process.exitCode = 1; if (process.connected) process.disconnect(); }
 });
-worker.once('exit',()=>{if(!workerReady){process.exitCode=1;if(process.connected)process.disconnect();}});
-worker.once('message', message=>{workerReady=message?.ready===true;if(message?.ready!==true){worker.kill('SIGTERM');process.exitCode=1;}worker.unref();if(process.connected)process.disconnect();});`;
+worker.once('exit',()=>{if(!workerReady){clearTimeout(proceedTimer);process.exitCode=1;if(process.connected)process.disconnect();}});
+worker.once('message', message=>{workerReady=message?.ready===true;if(message?.ready!==true){worker.kill('SIGTERM');process.exitCode=1;}worker.unref();if(process.connected)process.disconnect();});
+}`;
   try {
     launcherPending = await prepareValidationReservationChild();
     // Marked immediately before the spawn call, so a lost launcher spawn leaves an unmarked
@@ -148,14 +160,26 @@ worker.once('message', message=>{workerReady=message?.ready===true;if(message?.r
     });
     launcherSpawned = launcher.pid !== undefined; launcherPid = launcher.pid;
     let registration = Promise.resolve();
+    let launcherFailure: Error | undefined;
+    // A message this process cannot deliver (a broken channel under a live launcher) is a launcher failure
+    // by name, not a log line: the launcher's group is signalled at once while it is still this process's
+    // unreaped child, so the launcher's own bounded wait is not the only thing ending it.
+    const launcherUndeliverable = (message: string, error: Error): void => {
+      launcherFailure ??= new Error(`${message}: ${error.message}`);
+      if (launcher.exitCode === null && launcher.signalCode === null) { try { process.kill(-launcher.pid!, 'SIGTERM'); } catch { try { launcher.kill('SIGTERM'); } catch { /* the exit below is decisive */ } } }
+    };
     const acknowledge = (proceed: boolean) => {
       if (!launcher.connected) return;
-      launcher.send({proceed}, error => { if (error) console.error('isolated registration ACK unavailable', error.message); });
+      launcher.send({proceed}, error => { if (error) launcherUndeliverable('isolated fixture registration ACK undeliverable', error); });
     };
     launcher.on('message', value => {
-      const message = value as {pid?: unknown; fenced?: unknown; spawnFailed?: unknown};
+      const message = value as {pid?: unknown; fenced?: unknown; spawnFailed?: unknown; goUnavailable?: unknown; ackUnavailable?: unknown};
       // A failed spawn call created no worker; the launcher withdrew the fence it owns.
       if (message.spawnFailed === true) { workerSpawnFailed = true; return; }
+      // A launcher whose bounded wait for GO ended spawned no worker; one whose wait for the acknowledgement
+      // ended refused the worker it spawned and withdraws its fence once that worker is proven absent.
+      if (message.goUnavailable === true) { launcherGoUnavailable = true; return; }
+      if (message.ackUnavailable === true) { launcherAckUnavailable = true; return; }
       if (workerPid !== undefined || typeof message.pid !== 'number') return;
       workerPid = message.pid; workerFenced = message.fenced === true;
       registration = Promise.resolve().then(() => {
@@ -179,7 +203,7 @@ worker.once('message', message=>{workerReady=message?.ready===true;if(message?.r
     });
     const launcherExit = new Promise<void>((resolve, reject) => {
       launcher.once('error', reject);
-      launcher.once('exit', code => { void registration.then(() => code === 0 && workerPid ? resolve() : reject(new Error(workerSpawnFailed ? 'isolated fixture worker spawn failed' : 'isolated fixture launcher failed'))); });
+      launcher.once('exit', code => { void registration.then(() => code === 0 && workerPid ? resolve() : reject(launcherFailure ?? new Error(launcherGoUnavailable ? 'isolated fixture launcher GO unavailable' : launcherAckUnavailable ? 'isolated fixture registration ACK unavailable' : workerSpawnFailed ? 'isolated fixture worker spawn failed' : 'isolated fixture launcher failed'))); });
     });
     launcherExit.catch(() => { /* awaited below; an early rejection must not be unhandled */ });
     if (launcher.pid !== undefined) {
@@ -192,7 +216,7 @@ worker.once('message', message=>{workerReady=message?.ready===true;if(message?.r
         try { process.kill(-launcher.pid, 'SIGTERM'); } catch { try { launcher.kill('SIGTERM'); } catch { /* absence below is decisive */ } }
         throw error;
       }
-      if (launcher.connected) launcher.send({go:true}, error => { if (error) console.error('isolated launcher GO unavailable', error.message); });
+      if (launcher.connected) launcher.send({go:true}, error => { if (error) launcherUndeliverable('isolated fixture launcher GO undeliverable', error); });
     }
     await launcherExit;
     // The 58-case routes integration performs real target executions and
@@ -253,10 +277,11 @@ worker.once('message', message=>{workerReady=message?.ready===true;if(message?.r
       if(unregisteredValidationReservationChildGone(launcherPid)){try{await cancelValidationReservationChild(launcherPending);launcherWithdrawn=true;}catch(error){cleanupFailure=error;}}
     }
     closeSync(fd);
-    // A spawn call the launcher reported as failed created no worker, and a launcher refused
-    // before it received GO and then proven absent spawned none either, so nothing remains to
-    // prove absent; an unobserved or still-present worker group keeps the cleanup unproven.
-    if(cleanupFailure||launcherSpawned&&!observationDegraded&&!workerSpawnFailed&&!launcherWithdrawn&&(!workerIdentity||!validationReservationGroupIsAbsent(workerIdentity.pgid))){
+    // A spawn call the launcher reported as failed created no worker, a launcher that reported its
+    // bounded wait for GO ended spawned none, and a launcher refused before it received GO and then
+    // proven absent spawned none either, so nothing remains to prove absent; an unobserved or
+    // still-present worker group keeps the cleanup unproven.
+    if(cleanupFailure||launcherSpawned&&!observationDegraded&&!workerSpawnFailed&&!launcherGoUnavailable&&!launcherWithdrawn&&(!workerIdentity||!validationReservationGroupIsAbsent(workerIdentity.pgid))){
       const primary=fixtureFailure===undefined?'':(fixtureFailure instanceof Error?fixtureFailure.message:String(fixtureFailure))+'; ';
       throw new Error(primary+'isolated Finding fixture cleanup unproven; retained '+scratch+(cleanupFailure?'; '+String(cleanupFailure):''),{cause:fixtureFailure??cleanupFailure});
     }

@@ -241,11 +241,19 @@ fence, terminates a refused worker with its group and withdraws the fence only
 once the worker's PID and whole group are proven absent, so the live controller
 releases cleanly. The executor applies the same rule to every
 validation command: a refused registration signals the spawned group exactly
-as a timeout does, and once the direct child's PID and its whole group are
+as a timeout does, SIGTERM at once and, since the eighteenth round, again
+through the one owned-group rule (`validationReservationOwnedGroupSignalTarget`,
+the leader still observed with the identity recorded at the refusal or absent
+while its group persists) during the cleanup window with SIGKILL at the
+half-budget point, so a group left behind by a child that exited before the
+refusal arrived or that ignored the signal is cleared instead of fencing the
+shared pool (a voided audit of the seventeenth candidate drafted that nothing
+signalled such a group); once the direct child's PID and its whole group are
 proven absent (the exported `unregisteredValidationReservationChildGone`
 predicate, shared with the fixture) the owned pending fence is withdrawn before
-the command result is returned; a live or unobservable group keeps the fence
-for the controller to report, and a refused withdrawal is surfaced with the
+the command result is returned; a group that outlives even that, or an
+unobservable one, keeps the fence for the controller to report, and a refused
+withdrawal is surfaced with the
 bounded result preserved. `verify-nested-reservation-registration-race.mjs`
 modes `retry-recovers` and `retry-exhausted` fail the inner observation itself
 and assert the attempt count, `retry-exhausted-withdrawn` shows a raw API caller
@@ -260,11 +268,17 @@ asserts, and
 `verify-nested-reservation-cancellation.mjs` modes
 `refused-registration-withdrawn` and `refused-registration-live` drive the real
 executor through a refused registration: an exiting workload releases the ticket
-cleanly, while a workload that leaves a same-group grandchild ignoring the signal
-keeps the pending fence (`owned group cleanup unproven`; since the executor
-notes every spawned PID, the doctor classification reports one pending fence
-whose noted spawned PID or group is still present and no targetless fence). Replayed against the pre-repair executor the
-withdrawn mode fails with `owned group cleanup unproven`. A token that still
+cleanly, and since the eighteenth round a workload that leaves a same-group
+grandchild ignoring SIGTERM is force-cleared at the half-budget point under the
+owned-group rule, so its fence is withdrawn and the ticket released as well
+(before that round the fence was kept with `owned group cleanup unproven`);
+result-contract mode `refused-registration-lingering-group` runs the command
+that exited 0 before its refusal arrived and left a SIGTERM-honouring
+same-group descendant, which nothing signalled before the eighteenth round, and
+asserts that the descendant is cleared, the fence withdrawn, the refusal folded
+into the bounded result and the ticket released. Replayed against the
+pre-repair executor the withdrawn mode fails with `owned group cleanup
+unproven`. A token that still
 ends targetless because its owner died between prepare and registration, or
 because every bounded observation failed, cannot be resolved by owner death
 alone: a detached child may already exist. `proof-or-stop doctor` lists every
@@ -276,7 +290,15 @@ pending fence without a target whose owner is still alive is reported as in
 flight and never as fenced (`fencedMachineTicketProjection`, unit-controlled in
 the lifecycle support), because the owner's command is between preparing and
 registering its spawn and the fence resolves or fences on its own once that
-owner is gone;
+owner is gone; a marked fence whose noted spawned PID sits under a live owner
+is in flight the same way (`pendingSpawnedInFlight`, the eighteenth round's
+split of the noted-spawn shape by owner liveness through the same
+`pendingOwnerGone` predicate, after a voided audit of the seventeenth candidate
+drafted that the ordinary note-then-register window of every delegated command
+was being reported as fenced; fault mode `spawned-live-owner` asserts the
+classification and the projection on a live descendant's noted fence, and the
+lifecycle unit controls cover the projection), while the same fence under a
+dead or unrecorded owner still fences;
 `verify-nested-reservation-owner-loss.mjs` asserts that classification on the
 dead owner's ticket while its orphan lives and after it stops. An unmarked pre-spawn fence (its owner died before ever reaching the spawn
 call) resolves automatically once that owner is proven absent, so the window
@@ -322,7 +344,18 @@ an enrolled descendant; the launcher then prepares its own fence, marks it
 immediately before its worker spawn call, and registers the worker once the
 fixture process has observed a matching group leader, or terminates the
 refused worker with its group and withdraws that fence once the worker's PID
-and whole group are proven absent. A spawn call that fails creates no child,
+and whole group are proven absent. Both launcher waits, for GO and for the
+registration acknowledgement, are bounded by the registered worker-registration
+budget since the eighteenth round (a voided audit of the seventeenth candidate
+drafted the unbounded GO wait), so a message the fixture never delivers ends
+the launcher by name (`isolated launcher GO unavailable`, `isolated
+registration ACK unavailable`, reported back to the fixture so its cleanup
+stays proven) instead of leaving it waiting on the open channel for the whole
+command budget, and a message the fixture cannot deliver is a launcher failure
+by name that signals the launcher's group at once while it is still the
+fixture's unreaped child; `verify-nested-isolated-observation.mjs` modes
+`go-lost` and `proceed-lost` withhold each message and assert the bounded,
+named failure with the ticket released. A spawn call that fails creates no child,
 so the launcher withdraws its fence at once and reports the failure; the
 fixture then names the failed spawn (`isolated fixture worker spawn failed`)
 without claiming an unproven cleanup, and a refused launcher registration is
@@ -812,14 +845,14 @@ failing case is the environmental refusal above.
 
 ## Verification boundaries
 
-Sixty-two direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Sixty-six direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
 closed selector wrapper normalizes the repository working directory; selectors
 that need Darwin kernel descriptor or process identity observation print an
 explicit skip on other platforms before loading native controls, while nine of
-the fifteen executor result-contract selectors (`result-prepare-refusal`,
+the sixteen executor result-contract selectors (`result-prepare-refusal`,
 `result-cleanup-primary`, `result-cleanup-result`, `result-ordinary-error`,
 `result-armed-timeout`, `result-caller-deadline`,
 `result-refused-registration-cleanup`, `result-refused-registration-short` and
@@ -829,8 +862,9 @@ queue in a private OS-home namespace and are not gated (they were exercised
 only on Darwin in this Lab); `result-post-capture-cleanup` patches the
 Darwin-only controller cleanup, and `result-descriptor-unavailable`,
 `result-attempt-refusal`, `result-completed-group-residual`,
-`result-nested-grant-deadline` and `result-residual-record-unwritable` need a
-live controller and the Darwin descriptor observation, so the six are gated
+`result-nested-grant-deadline`, `result-residual-record-unwritable` and
+`result-refused-registration-lingering-group` need a
+live controller and the Darwin descriptor observation, so the seven are gated
 like the native controls. The entries declare the existing exclusive machine heavy and
 process-fanout resources so validation serializes them against other heavy
 commands; under the real executor each selector process inherits that declared
@@ -880,7 +914,9 @@ every 60-second selector under 9.8 seconds), and the fifteenth-round sweep of al
 (`core` 38.0 seconds, every 30-second selector under 7.0 seconds, every
 60-second selector under 9.8 seconds), and the seventeenth-round sweep of all sixty-two in 215.1 seconds
 (`core` 36.4 seconds, every 30-second selector under 7.0 seconds, every
-60-second selector under 9.9 seconds). Before the `core` selector
+60-second selector under 9.9 seconds), and the eighteenth-round sweep of all sixty-six in 234.3 seconds
+(`core` 38.3 seconds, every 30-second selector under 7.1 seconds, every
+60-second selector under 10.1 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay

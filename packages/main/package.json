@@ -215,7 +215,11 @@
     "test:nested-reservation-result-residual-record-unwritable": "node ../../scripts/verify-nested-reservation-registered.mjs result-residual-record-unwritable",
     "test:nested-reservation-result-queue-wait-cap": "node ../../scripts/verify-nested-reservation-registered.mjs result-queue-wait-cap",
     "test:nested-reservation-fault-enrollment-observation-transient": "node ../../scripts/verify-nested-reservation-registered.mjs fault-enrollment-observation-transient",
-    "test:nested-reservation-fault-drain-ancestor-observation-transient": "node ../../scripts/verify-nested-reservation-registered.mjs fault-drain-ancestor-observation-transient"
+    "test:nested-reservation-fault-drain-ancestor-observation-transient": "node ../../scripts/verify-nested-reservation-registered.mjs fault-drain-ancestor-observation-transient",
+    "test:nested-reservation-fault-spawned-live-owner": "node ../../scripts/verify-nested-reservation-registered.mjs fault-spawned-live-owner",
+    "test:nested-reservation-isolated-observation-go-lost": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-go-lost",
+    "test:nested-reservation-isolated-observation-proceed-lost": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-proceed-lost",
+    "test:nested-reservation-result-refused-registration-lingering-group": "node ../../scripts/verify-nested-reservation-registered.mjs result-refused-registration-lingering-group"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

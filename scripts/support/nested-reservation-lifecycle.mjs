@@ -70,8 +70,8 @@ function resolvedUnit({ownerGone=false,gonePids=[]}={}){return vm.runInNewContex
 console.log('NESTED_PENDING_RESOLUTION_UNIT_CONTROLS PASS');
 
 // Doctor projection unit controls on the exported function, extracted and transpiled like the closures
-// above: a targetless pending fence under a live owner is in flight, never fenced; the same fence under a
-// dead owner is fenced; every other fencing shape still fences; an empty classification does not.
+// above: a targetless pending fence under a live owner is in flight, never fenced, and so is a marked fence
+// whose noted spawned PID sits under a live owner; the targetless fence under a dead owner is fenced; every other fencing shape still fences; an empty classification does not.
 {
  const projectionStart='export function fencedMachineTicketProjection(';
  const projectionEnd='/** Failure-only diagnostics; these observations never release or authorize work. */';
@@ -80,9 +80,11 @@ console.log('NESTED_PENDING_RESOLUTION_UNIT_CONTROLS PASS');
  const extracted=vm.runInNewContext(ts.transpileModule(projectionBody+'\nfencedMachineTicketProjection;',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText,{});
  // Spread into this realm so strict deep equality is not defeated by the vm realm's own Object prototype.
  const projection=residuals=>({...extracted(residuals)});
- const empty={present:true,malformed:false,registeredLive:0,registeredResolved:0,pendingTargetLive:0,pendingTargetResolved:0,pendingTargetless:0,pendingUnattemptedResolved:0,pendingSpawnedLive:0,pendingSpawnedResolved:0,deadOwners:0};
+ const empty={present:true,malformed:false,registeredLive:0,registeredResolved:0,pendingTargetLive:0,pendingTargetResolved:0,pendingTargetless:0,pendingUnattemptedResolved:0,pendingSpawnedLive:0,pendingSpawnedInFlight:0,pendingSpawnedResolved:0,deadOwners:0};
  assert.deepEqual(projection({...empty,pendingTargetless:1}),{fenced:false,deadOwnerTargetless:0,inFlight:1},'LIVE_OWNER_FENCE_IS_IN_FLIGHT');
  assert.deepEqual(projection({...empty,pendingTargetless:2,deadOwners:1}),{fenced:true,deadOwnerTargetless:1,inFlight:1},'DEAD_OWNER_FENCE_IS_FENCED');
+ assert.deepEqual(projection({...empty,pendingSpawnedInFlight:1}),{fenced:false,deadOwnerTargetless:0,inFlight:1},'LIVE_OWNER_NOTED_SPAWN_IS_IN_FLIGHT');
+ assert.deepEqual(projection({...empty,pendingTargetless:1,pendingSpawnedInFlight:1}),{fenced:false,deadOwnerTargetless:0,inFlight:2},'both live-owner shapes count as in flight');
  for(const shape of [{registeredLive:1},{pendingTargetLive:1},{pendingSpawnedLive:1},{malformed:true}])assert.equal(projection({...empty,...shape}).fenced,true,JSON.stringify(shape));
  assert.equal(projection(empty).fenced,false);
  console.log('NESTED_FENCE_PROJECTION_UNIT_CONTROLS PASS');

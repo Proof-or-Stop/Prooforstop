@@ -326,8 +326,8 @@ export function machineReservationResidualsPresent(ticket: string): boolean {
   }); } catch { return true; }
 }
 /** Read-only classification of one ticket's residual rows with the exact release predicates; a doctor projection that never releases or signals anything. */
-export function classifyMachineReservationResiduals(ticket: string): { present: boolean; malformed: boolean; registeredLive: number; registeredResolved: number; pendingTargetLive: number; pendingTargetResolved: number; pendingTargetless: number; pendingUnattemptedResolved: number; pendingSpawnedLive: number; pendingSpawnedResolved: number; deadOwners: number } {
-  const result = { present: false, malformed: false, registeredLive: 0, registeredResolved: 0, pendingTargetLive: 0, pendingTargetResolved: 0, pendingTargetless: 0, pendingUnattemptedResolved: 0, pendingSpawnedLive: 0, pendingSpawnedResolved: 0, deadOwners: 0 };
+export function classifyMachineReservationResiduals(ticket: string): { present: boolean; malformed: boolean; registeredLive: number; registeredResolved: number; pendingTargetLive: number; pendingTargetResolved: number; pendingTargetless: number; pendingUnattemptedResolved: number; pendingSpawnedLive: number; pendingSpawnedInFlight: number; pendingSpawnedResolved: number; deadOwners: number } {
+  const result = { present: false, malformed: false, registeredLive: 0, registeredResolved: 0, pendingTargetLive: 0, pendingTargetResolved: 0, pendingTargetless: 0, pendingUnattemptedResolved: 0, pendingSpawnedLive: 0, pendingSpawnedInFlight: 0, pendingSpawnedResolved: 0, deadOwners: 0 };
   const path = join(ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); if (!existsSync(path)) return result;
   result.present = true;
   let rows: unknown; try { rows = JSON.parse(readFileSync(path, 'utf8')); } catch { result.malformed = true; return result; }
@@ -339,7 +339,14 @@ export function classifyMachineReservationResiduals(ticket: string): { present: 
       if (!target || target.pid !== target.pgid || !Number.isFinite(target.start)) {
         if (pendingRowResolved(row)) { if (row.spawnAttempted === true) result.pendingSpawnedResolved++; else result.pendingUnattemptedResolved++; continue; }
         // A marked fence with a noted spawned PID resolves on its own once its owner is gone and that PID and group are absent.
-        if (row.spawnAttempted === true && Number.isSafeInteger(row.spawnedPid)) { result.pendingSpawnedLive++; continue; }
+        // Under a live owner it is that owner's command between its note and its applied registration, or its
+        // refused-registration cleanup: in flight, exactly like a targetless fence under a live owner. Under a dead
+        // or unrecorded owner the persisting PID or group fences.
+        if (row.spawnAttempted === true && Number.isSafeInteger(row.spawnedPid)) {
+          const ownerKnown = Number.isSafeInteger(row.pid) && Number.isFinite(row.start);
+          if (!ownerKnown || pendingOwnerGone(row.pid as number, row.start as number)) result.pendingSpawnedLive++; else result.pendingSpawnedInFlight++;
+          continue;
+        }
         result.pendingTargetless++;
         const ownerPid = row.pid;
         if (Number.isSafeInteger(ownerPid) && (ownerPid as number) > 1) { try { process.kill(ownerPid as number, 0); } catch (error) { if ((error as NodeJS.ErrnoException).code === 'ESRCH') result.deadOwners++; } }
@@ -351,7 +358,7 @@ export function classifyMachineReservationResiduals(ticket: string): { present: 
 /** Read-only doctor projection of one ticket's classification: the fencing shapes need attention, while a pending fence without a target whose owner is still alive is in flight (a command between preparing and registering its spawn) and resolves or fences on its own once that owner is gone. */
 export function fencedMachineTicketProjection(residuals: ReturnType<typeof classifyMachineReservationResiduals>): { fenced: boolean; deadOwnerTargetless: number; inFlight: number } {
   const deadOwnerTargetless = Math.min(residuals.deadOwners, residuals.pendingTargetless);
-  const inFlight = residuals.pendingTargetless - deadOwnerTargetless;
+  const inFlight = residuals.pendingTargetless - deadOwnerTargetless + residuals.pendingSpawnedInFlight;
   return { fenced: residuals.malformed || residuals.registeredLive > 0 || residuals.pendingTargetLive > 0 || residuals.pendingSpawnedLive > 0 || deadOwnerTargetless > 0, deadOwnerTargetless, inFlight };
 }
 /** Failure-only diagnostics; these observations never release or authorize work. */

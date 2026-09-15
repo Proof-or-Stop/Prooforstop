@@ -1,4 +1,4 @@
-import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, noteValidationReservationSpawn, unregisteredValidationReservationChildGone, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, currentValidationReservationDeadline, isValidationDelegationError } from './validation-reservation-delegation.js';
+import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, noteValidationReservationSpawn, unregisteredValidationReservationChildGone, validationReservationOwnedGroupSignalTarget, observeValidationReservationChild, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, currentValidationReservationDeadline, isValidationDelegationError } from './validation-reservation-delegation.js';
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
@@ -1553,6 +1553,8 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   }
   let spawned = false;
   let spawnedPid: number | undefined;
+  // The refused child's identity, recorded while it still lived, so the cleanup below can apply the owned-group rule to it.
+  let refusedGroup: ReturnType<typeof observeValidationReservationChild> | undefined;
   let registrationRefused = false;
   let captureFailed = false, captureError: unknown;
   let captured: CapturedValidationCommandResult | undefined;
@@ -1685,7 +1687,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     // the owned pending fence is withdrawn below only once that group is proven absent.
     // A refusal that arrives after the child has already exited sends no signal, exactly like the
     // timeout path; a recycled process group is never targeted.
-    childRegistration.catch(() => { registrationRefused = true; if (settled || child.exitCode !== null || child.signalCode !== null) return; try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ } });
+    childRegistration.catch(() => { registrationRefused = true; if (settled || child.exitCode !== null || child.signalCode !== null) return; try { refusedGroup = observeValidationReservationChild(child.pid!); } catch { /* the leader-absent rule of the cleanup below still applies */ } try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ } });
     runtimeEvents.push('spawn');
 
     emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
@@ -1796,11 +1798,28 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
         throw diagnostic;
       }
     } else if (registrationRefused && spawnedPid !== undefined) {
-      // The refused child was signalled with its group. Once its PID and whole group are
-      // proven absent nothing this spawn started can remain, so the owned pending fence is
-      // withdrawn; a live or unobservable child keeps the fence for the controller to report.
-      const until = Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs;
-      while (!unregisteredValidationReservationChildGone(spawnedPid) && Date.now() < until) await new Promise(resolve => setTimeout(resolve, 10));
+      // The refused child was signalled with its group while it lived; a child that exited before the
+      // refusal arrived, or that ignored the signal, may leave the group its spawn created behind. That
+      // group is signalled through the one owned-group rule shared with the controller teardown and the
+      // isolated fixture (its leader still observed with the recorded identity, or absent while the
+      // recorded group persists): SIGTERM now and SIGKILL at the half-budget point, exactly like a
+      // timeout. Once its PID and whole group are proven absent nothing this spawn started can remain,
+      // so the owned pending fence is withdrawn; a group that outlives even that, or an unobservable
+      // one, keeps the fence for the controller to report.
+      const leader = spawnedPid;
+      const group = refusedGroup ?? {pid: leader, pgid: leader, start: Number.NaN};
+      const signalGroup = (signal: 'SIGTERM' | 'SIGKILL'): void => {
+        if (process.platform === 'win32' || !validationReservationOwnedGroupSignalTarget(group)) return;
+        try { process.kill(-leader, signal); } catch { /* absence below is decisive */ }
+      };
+      const cleanupMs = VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs;
+      const until = Date.now() + cleanupMs;
+      let escalated = false;
+      signalGroup('SIGTERM');
+      while (!unregisteredValidationReservationChildGone(spawnedPid) && Date.now() < until) {
+        if (!escalated && Date.now() >= until - cleanupMs / 2) { escalated = true; signalGroup('SIGKILL'); }
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
       if (unregisteredValidationReservationChildGone(spawnedPid)) {
         try { await cancelValidationReservationChild(pendingSpawn, {deadlineAt: Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs}); }
         catch (cleanupError) {
