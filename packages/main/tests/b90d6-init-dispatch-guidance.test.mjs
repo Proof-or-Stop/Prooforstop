@@ -7,7 +7,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +25,8 @@ const { createStoryCreateHandlers } = await import(join(distRoot, 'handlers/stor
 const { createStoryDispatchHandlers } = await import(join(distRoot, 'handlers/story-dispatch.js'));
 const { createStoryReviewHandlers } = await import(join(distRoot, 'handlers/story-review.js'));
 const { buildNextSteps } = await import(join(distRoot, 'handlers/transition-effects.js'));
+const { getGuardFailureReason: getTransitionGuardFailureReason } = await import(join(distRoot, 'core/guard-utils.js'));
+const { decorateResult } = await import(join(distRoot, 'handlers/hints.js'));
 
 function write(root, path, content) {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -460,6 +462,40 @@ function assertLifecycleReviewerLaunchGuidance() {
   }
 }
 
+function assertReviewerRecoveryGuidance() {
+  const storyId = 'B-review-recovery';
+  const root = makeRoot();
+  try {
+    initGitRoot(root);
+    const store = new StoryStore(root);
+    seedStory(store, storyId, 'REVIEW');
+
+    const blocked = getTransitionGuardFailureReason(storyId, store, 'TEST', root);
+    assert.match(blocked ?? '', /proof-or-stop reviewer_batch/);
+    assert.match(blocked ?? '', /canonical fresh-context launchInstruction/);
+    assert.match(blocked ?? '', /nonempty, mutually distinct child ids/);
+
+    const decorated = decorateResult({
+      cmd: 'dev_finish',
+      args: { storyId },
+      result: 'advanced',
+      store,
+      root,
+      activeStory: { storyId, phase: 'REVIEW' },
+    });
+    assert.match(decorated, /proof-or-stop reviewer_batch/);
+    assert.match(decorated, /canonical dispatch \+ fresh-context launchInstruction/);
+    assert.match(decorated, /非空且并行时互异的 child IDs/);
+
+    const sessionSource = readFileSync(fileURLToPath(new URL('../src/handlers/session.ts', import.meta.url)), 'utf8');
+    assert.match(sessionSource, /retry: `proof-or-stop reviewer_batch/);
+    assert.match(sessionSource, /canonical dispatch prompt unchanged/);
+    assert.match(sessionSource, /nonempty returned child id/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertInitCheckGuardGuidance();
 assertInitPreflightFailureRouting();
 assertSessionAndNextInitGuidance();
@@ -467,4 +503,5 @@ assertStoryCreateAndGlobalHelpInitGuidance();
 assertScopePlanDispatchAndReviewGuidance();
 assertScopePlanDispatchPhaseGate();
 assertLifecycleReviewerLaunchGuidance();
+assertReviewerRecoveryGuidance();
 console.log('b90d6-init-dispatch-guidance: ALL PASS');

@@ -184,7 +184,7 @@ export function getGuardFailureReason(
       try {
         const findings = store.readFindings(storyId);
         if (!findings.findings || findings.findings.length === 0) {
-          return `Cannot enter TEST: reviewer has not run (findings.json is empty)\n→ Launch reviewer per opt-in results (see proof-or-stop reviewer_list)`;
+          return `Cannot enter TEST: reviewer has not run (findings.json is empty)\n→ Run proof-or-stop reviewer_batch --storyId=${storyId}, then follow each canonical fresh-context launchInstruction and retain the exact nonempty, mutually distinct child ids`;
         }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
@@ -246,7 +246,7 @@ export function getGuardFailureReason(
         if (intentIntegrityError instanceof Error && intentIntegrityError.message.startsWith('dynamic finding:')) {
           return `Cannot enter TEST: Dynamic Finding projection unavailable: ${intentIntegrityError.message}`;
         }
-        return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Launch reviewers per opt-in result (see proof-or-stop reviewer_list)`;
+        return `Cannot enter TEST: reviewers did not run (no findings.json)\n→ Run proof-or-stop reviewer_batch --storyId=${storyId}, then follow each canonical fresh-context launchInstruction and retain the exact nonempty, mutually distinct child ids`;
       }
     }
   }

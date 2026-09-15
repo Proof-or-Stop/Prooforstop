@@ -271,6 +271,10 @@ function assertAgentLaunchInstruction(instruction: string | null, lane: string):
   assert.match(value, /Agent\(\{ subagent_type:/, `${lane}: Claude launch is present`);
   assert.match(value, /Other hosts launch one equivalent fresh-context reviewer task/, `${lane}: other hosts retain the boundary`);
   assert.match(value, /passes the returned prompt unchanged/, `${lane}: launch uses the canonical dispatch prompt`);
+  assert.match(value, /Retain every returned child agent id/, `${lane}: exact child ids are retained`);
+  assert.match(value, /never call wait with an empty target\/receiver set/, `${lane}: empty waits are forbidden`);
+  assert.match(value, /child id must be nonempty/, `${lane}: empty child ids are forbidden`);
+  assert.match(value, /multiple lanes.*distinct/, `${lane}: parallel lane child ids must be distinct`);
 }
 
 // ---- Policy / registration assertions -------------------------------------

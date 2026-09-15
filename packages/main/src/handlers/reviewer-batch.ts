@@ -65,7 +65,10 @@ import type { Finding } from '../core/types.js';
 import type { StoryStore } from '../core/store.js';
 import { checkEvidenceFreshnessForGit, classifyEvidenceFreshness } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import { renderReviewerDispatchLaunch } from '../core/reviewer-launch-guidance.js';
+import {
+  renderReviewerDispatchLaunch,
+  REVIEWER_CHILD_ID_WAIT_BOUNDARY,
+} from '../core/reviewer-launch-guidance.js';
 
 interface ReviewerBatchArgs {
   storyId: string;
@@ -191,7 +194,7 @@ function laneLaunchInstruction(storyId: string, lane: string, reason: string): s
     storyId,
     agentType: `proof-or-stop-review-${name}`,
     taskName: `review_${name}`,
-  })} Activation reason: ${why}.`;
+  })} ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} Every launched child id must be nonempty; when the plan launches multiple lanes, their child ids must also be distinct. Activation reason: ${why}.`;
 }
 
 /**

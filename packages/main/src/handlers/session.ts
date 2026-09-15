@@ -1364,8 +1364,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
             stall = renderAntiStall({
               storyId,
               title: `REVIEW waiting for ${pending}`,
-              retry: `proof-or-stop reviewer_list '{"storyId":"${storyId}"}' then run the pending proof-or-stop-review-* reviewers`,
-              fix: `proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"proof-or-stop-review-<name>"}' first, then use the returned reviewRunId in proof-or-stop review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from proof-or-stop review_run_start>","agent":"proof-or-stop-review-<name>","note":"..."}' when a reviewer found no blocker`,
+              retry: `proof-or-stop reviewer_batch '{"storyId":"${storyId}"}' to obtain the pending lanes and their canonical fresh-context launch instructions`,
+              fix: 'Follow each reviewer_batch launchInstruction exactly: use the canonical dispatch prompt unchanged, retain every nonempty returned child id, require distinct ids for parallel lanes, and wait only on those exact ids. The reviewer then records its own review_run_start plus finding_add or review_pass_set result.',
             });
           }
         } else {

@@ -179,7 +179,9 @@ const devStartHint: HintFn = (ctx) => {
 };
 
 const devFinishHint: HintFn = (ctx) => {
-  return `→ Story 已推进到 REVIEW（DEV→REVIEW），worktree 保留未合并。下一步：运行 reviewers（review_run_start / review_pass_set / finding_add），审阅通过后再 story_advance 到 TEST`;
+  const storyId = getStoryId(ctx);
+  const target = storyId ? ` --storyId=${storyId}` : '';
+  return `→ Story 已推进到 REVIEW（DEV→REVIEW），worktree 保留未合并。下一步：运行 proof-or-stop reviewer_batch${target}，逐条遵循 canonical dispatch + fresh-context launchInstruction，保存非空且并行时互异的 child IDs，并只等待这些 IDs；reviewer 自己执行 review_run_start 后写 review_pass_set 或 finding_add，审阅通过后再 story_advance 到 TEST`;
 };
 
 const storyDiscardHint: HintFn = (ctx) => {
