@@ -990,7 +990,7 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
     assertCapacityWaitActive(options);
     callbackResult = await validationLockOwnerStore.run(
       extendedOwnerTokens(lockKey, acquisitionToken),
-      async () => rejectAncestorConflict ? await withMachineReservationController({ ticket: ticketPath, lockId: acquisitionToken, pid: process.pid, start: observedProcessStartTimeMs(process.pid)!, deadlineAt: options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, resources: declaration?.resources ?? null }, () => activeValidationLockTokens.get(lockKey)?.has(acquisitionToken) === true && readMkdirLockHolder(ticketPath)?.lockId === acquisitionToken, fn) : await fn(),
+      async () => rejectAncestorConflict ? await withMachineReservationController({ ticket: ticketPath, lockId: acquisitionToken, pid: process.pid, deadlineAt: options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, resources: declaration?.resources ?? null }, () => activeValidationLockTokens.get(lockKey)?.has(acquisitionToken) === true && readMkdirLockHolder(ticketPath)?.lockId === acquisitionToken, fn) : await fn(),
     );
   } catch (error) {
     callbackFailed = true;

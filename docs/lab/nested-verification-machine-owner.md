@@ -366,7 +366,17 @@ The controller's own admission observation at controller start
 other one in the module: it is retried with the registered observation policy,
 and when it stays unavailable the command is refused at once with the typed
 `controller owner observation unavailable`; an owner observed with a different
-identity or declaration is still refused. A controller-less run in that case
+identity or declaration is still refused. The owner's own start time is
+observed there with the same retried observation, never taken from the lock
+module's single observation at acquisition, so a transient process-table
+failure cannot masquerade as an owner mismatch, and a caller-supplied start
+that disagrees with the observation is a definitive mismatch. Mode
+`owner-start-unavailable` of `verify-nested-reservation-faults.mjs` fails the
+first identity observation and asserts that the controller still forms and a
+registered descendant sees the locator; against the module before the
+fourteenth round, where the lock module handed the controller one unretried
+observation, the same hook leaves that observation empty and the controller
+refuses the healthy owner as a mismatch. A controller-less run in that case
 was tried first and rejected: an owner without a controller leaves its
 delegated leaf commands queued behind its own ticket until their deadline,
 which is the failure delegation exists to remove. The full configured-command
@@ -751,21 +761,24 @@ refusal repaired in the controlled child API section, and the fixture suite at
 index 14 spent its budget without progress after a nineteen-minute wait for a
 machine pool shared with another session, the shape discussed with the owner
 inspection above; both pass in the complete rerun on the repaired candidate
-recorded here. The commands that reach `runIsolatedFindingFixture` directly,
+recorded here. The fourteenth round, made after this comparison, changed two
+refusal paths only (an unavailable owner start observation and an unwritable
+residual record), neither reachable in this run, and the selector sweep and the
+pinned driver were rerun on the final candidate. The commands that reach `runIsolatedFindingFixture` directly,
 through an npm alias or through one script hop (indexes 0, 2, 8, 15, 39, 155
 and 168) have the same outcome on both trees except index 2, whose single
 failing case is the environmental refusal above.
 
 ## Verification boundaries
 
-Fifty-seven direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Fifty-nine direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
 closed selector wrapper normalizes the repository working directory; selectors
 that need Darwin kernel descriptor or process identity observation print an
 explicit skip on other platforms before loading native controls, while eight of
-the thirteen executor result-contract selectors (`result-prepare-refusal`,
+the fourteen executor result-contract selectors (`result-prepare-refusal`,
 `result-cleanup-primary`, `result-cleanup-result`, `result-ordinary-error`,
 `result-armed-timeout`, `result-caller-deadline`,
 `result-refused-registration-cleanup` and `result-refused-registration-short`)
@@ -773,9 +786,10 @@ run through the platform-independent
 queue in a private OS-home namespace and are not gated (they were exercised
 only on Darwin in this Lab); `result-post-capture-cleanup` patches the
 Darwin-only controller cleanup, and `result-descriptor-unavailable`,
-`result-attempt-refusal`, `result-completed-group-residual` and
-`result-nested-grant-deadline` need a live controller and the Darwin descriptor
-observation, so the five are gated like the native controls. The entries declare the existing exclusive machine heavy and
+`result-attempt-refusal`, `result-completed-group-residual`,
+`result-nested-grant-deadline` and `result-residual-record-unwritable` need a
+live controller and the Darwin descriptor observation, so the six are gated
+like the native controls. The entries declare the existing exclusive machine heavy and
 process-fanout resources so validation serializes them against other heavy
 commands; under the real executor each selector process inherits that declared
 reservation and its unclassified leaf commands resolve to the declaration (see
@@ -816,7 +830,9 @@ every 30-second selector under 3.8 seconds, every 60-second selector under
 10.9 seconds), and the thirteenth-round sweep of all fifty-seven on the
 candidate resynchronized with main 0.3.367 in 200.7 seconds (`core` 37.0
 seconds, every 30-second selector under 4.2 seconds, every 60-second selector
-under 9.9 seconds). Before the `core` selector
+under 9.9 seconds), and the fourteenth-round sweep of all fifty-nine in 202.6
+seconds (`core` 36.4 seconds, every 30-second selector under 4.2 seconds,
+every 60-second selector under 9.8 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
@@ -915,7 +931,19 @@ against the registered policy source, so a renamed locator fails loudly instead
 of leaving the driver on the outer reservation. The residual record rewrite
 inside retirement is guarded: a ticket directory removed or made unwritable
 under a live controller leaves the on-disk record at its more conservative
-fenced state instead of crashing the owner from a timer or socket handler.
+fenced state instead of crashing the owner from a timer or socket handler. The
+fence operations themselves (prepare, attempt, note, cancel and register) are
+different: a residual record that cannot be written there refuses the operation
+with the typed `residual record unwritable`, which folds into the command
+result like every other delegation refusal, and a refused prepare rolls its
+fence back, because a fence the record does not carry would be the one state
+that is less conservative on disk than in memory. Mode
+`residual-record-unwritable` of `verify-nested-validation-result-contract.mjs`
+blocks the record's temporary path inside a live owner and asserts the folded
+infrastructure result, the unlaunched leaf and the clean release once the path
+is free again; against the module before the fourteenth round the raw write
+error escaped the executor as an exception, the shape
+`result-descriptor-unavailable` was added to prevent.
 
 ### Worker exit without an outcome
 

@@ -17,6 +17,8 @@ const FD = policy.descriptor, ENV = policy.descriptorEnvironment, LIMIT = policy
 export const VALIDATION_DELEGATION_RESIDUAL_FILE = artifacts.residualFile;
 type ProcessIdentity = { pid: number; start: number; pgid: number };
 export interface MachineReservationOwner { ticket: string; lockId: string; pid: number; start: number; deadlineAt: number; resources: ResourceClaim[] | null }
+/** The controller observes the owner's own start time itself; a caller may supply one only as a cross-check. */
+export type MachineReservationOwnerInput = Omit<MachineReservationOwner, 'start'> & { start?: number };
 type Bootstrap = MachineReservationOwner & { schema: 'validation-reservation-delegation.v1'; rootFd: number; publicKey: string; socket: string };
 type Request = { operation: 'grant' | 'register' | 'confirm' | 'prepare' | 'cancel' | 'attempt' | 'spawned'; pid: number; start: number; nonce: string; deadlineAt: number; resources?: ResourceClaim[] | null; targetPid?: number; spawnedPid?: number; parentGrantId?: string; pendingToken?: string; cleanupCapability?: string };
 type Grant = { reservation: string; subject: ProcessIdentity; nonce: string; operation: Request['operation']; resources: ResourceClaim[] | null; deadlineAt: number; heldPorts?: string[]; grantId: string; pendingToken?: string; cleanupCapability?: string };
@@ -366,8 +368,15 @@ function machineCleanupFailure(owner: MachineReservationOwner, registered: Itera
   const error=new Error('VALIDATION_DELEGATION_REFUSED: owned group cleanup unproven; VALIDATION_RESERVATION_CLEANUP_DIAGNOSTICS '+JSON.stringify(diagnostics),{cause:callbackThrew?callbackError:undefined});
   Object.defineProperty(error,'cleanupDiagnostics',{value:diagnostics,enumerable:true});return error;
 }
-export async function withMachineReservationController<T>(owner: MachineReservationOwner, isLive: () => boolean, fn: () => Promise<T> | T): Promise<T> {
+export async function withMachineReservationController<T>(input: MachineReservationOwnerInput, isLive: () => boolean, fn: () => Promise<T> | T): Promise<T> {
   if (process.platform !== policy.platform) return await fn();
+  // The owner's own identity is observed here with the registered retry policy, never taken from a
+  // single caller observation, so a transient process-table failure cannot masquerade as an owner
+  // mismatch; a caller-supplied start that disagrees with the observation is a definitive mismatch.
+  let self: ProcessIdentity;
+  try { self = observeWithRetry(() => identity(process.pid)); } catch { throw failure('controller owner observation unavailable'); }
+  if (input.start !== undefined && input.start !== self.start) throw failure('controller owner/declaration mismatch');
+  const owner: MachineReservationOwner = { ...input, start: self.start };
   // The owner's own admission is a ticket and kernel observation like every other one in this
   // module: retried with the registered observation policy and, when it stays unavailable, a typed
   // refusal that fails the command at once. It is never a controller-less run: an owner without a
@@ -402,6 +411,12 @@ export async function withMachineReservationController<T>(owner: MachineReservat
   const identityNow = (pid: number): ProcessIdentity | null => { if (!tick.identities.has(pid)) { try { tick.identities.set(pid, observeWithRetry(() => identity(pid))); } catch { tick.identities.set(pid, null); } } return tick.identities.get(pid) ?? null; };
   const sameNow = (value: ProcessIdentity): boolean => { const current = identityNow(value.pid); return current !== null && current.start === value.start && current.pgid === value.pgid; };
   const publish = () => { const path = join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); writeFileSync(path + '.pending', JSON.stringify([...registered.values(),...[...pendingChildren].map(([pending,subject])=>({pending,pid:subject.pid,start:subject.start,parents:subject.parents,...(subject.spawnAttempted?{spawnAttempted:true}:{}),...(subject.spawnedPid!==undefined?{spawnedPid:subject.spawnedPid}:{}),...(subject.target?{target:subject.target}:{})}))]), { mode: 0o600 }); renameSync(path + '.pending', path); };
+  // A residual record that cannot be written refuses the fence operation that needed it as a typed
+  // delegation refusal, which folds into the command result like every other refusal, instead of
+  // escaping as a raw error; the retirement tick keeps its guarded publish because the record then
+  // stays at its more conservative state until the next successful write.
+  const unwritable = (error: unknown) => failure('residual record unwritable: ' + (error instanceof Error ? error.message : String(error)).slice(0, 200));
+  const publishOrRefuse = (): void => { try { publish(); } catch (error) { throw unwritable(error); } };
   const enrollment = (subject: ProcessIdentity, rows: ReturnType<typeof table> = table(), same: (value: ProcessIdentity) => boolean = sameProcess): string[] => {
     if (!same(subject)) throw failure('request process changed');
     for (const pid of [subject.pid,...ancestors(subject.pid, rows)]) { const known=registered.get(pid); if (!known || !same(known)) continue;
@@ -411,14 +426,14 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     throw failure('unenrolled request subject');
   };
   // The local frame observes its own subject with the same bounded retry as every socket request.
-  const prepare = (subject=observeWithRetry(() => identity(process.pid)),parents:string[]=[]):string => {if(!live())throw failure('reservation closed before spawn');const token=randomUUID();pendingChildren.set(token,{pid:subject.pid,start:subject.start,parents,cleanupCapability:randomUUID()});publish();return token;};
-  const cancel=(token:string,subject=observeWithRetry(() => identity(process.pid))):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');pendingChildren.delete(token);publish();};
+  const prepare = (subject=observeWithRetry(() => identity(process.pid)),parents:string[]=[]):string => {if(!live())throw failure('reservation closed before spawn');const token=randomUUID();pendingChildren.set(token,{pid:subject.pid,start:subject.start,parents,cleanupCapability:randomUUID()});try{publishOrRefuse();}catch(error){pendingChildren.delete(token);throw unwritable(error);}return token;};
+  const cancel=(token:string,subject=observeWithRetry(() => identity(process.pid))):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');pendingChildren.delete(token);publishOrRefuse();};
   // Marked immediately before the spawn call, so an unmarked row proves that no child was ever spawned under it.
-  const attempt=(token:string,subject=observeWithRetry(() => identity(process.pid))):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');if(!pending.spawnAttempted){pending.spawnAttempted=true;publish();}};
+  const attempt=(token:string,subject=observeWithRetry(() => identity(process.pid))):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');if(!pending.spawnAttempted){pending.spawnAttempted=true;publishOrRefuse();}};
   // Noted immediately after the spawn call returns: a marked fence whose owner then dies before the
   // registration handshake resolves once the noted PID and its whole group are proven absent, so only
   // the window between the mark and the return of the spawn call is terminal.
-  const spawned=(token:string,pid:number,subject=observeWithRetry(() => identity(process.pid))):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');if(pending.spawnAttempted!==true)throw failure('spawn note requires a marked fence');if(!Number.isSafeInteger(pid)||pid<=1)throw failure('spawn note requires a child pid');if(pending.spawnedPid!==undefined&&pending.spawnedPid!==pid)throw failure('spawn note is immutable');if(pending.spawnedPid!==pid){pending.spawnedPid=pid;publish();}};
+  const spawned=(token:string,pid:number,subject=observeWithRetry(() => identity(process.pid))):void=>{const pending=pendingChildren.get(token);if(!pending||pending.pid!==subject.pid||pending.start!==subject.start)throw failure('pending spawn not owned');if(pending.spawnAttempted!==true)throw failure('spawn note requires a marked fence');if(!Number.isSafeInteger(pid)||pid<=1)throw failure('spawn note requires a child pid');if(pending.spawnedPid!==undefined&&pending.spawnedPid!==pid)throw failure('spawn note is immutable');if(pending.spawnedPid!==pid){pending.spawnedPid=pid;publishOrRefuse();}};
   const register = (pid: number, parent = process.pid, parents: string[] = [], pendingToken?: string, parentStart?: number) => {
     if (!live()) throw failure('registration after release');
     const pending=pendingToken && pendingChildren.get(pendingToken);if(!pending||pending.pid!==parent)throw failure('registration has no owned pre-spawn fence');
@@ -427,19 +442,19 @@ export async function withMachineReservationController<T>(owner: MachineReservat
     // already observed its subject supplies it; the local frame observes itself with
     // the same bounded retry and the same absence fallback as the target observations.
     let ownerStart=parentStart;
-    if(ownerStart===undefined){try{ownerStart=observeWithRetry(()=>identity(parent)).start;}catch(error){if(!registrationTargetGone(pid))throw error;pendingChildren.delete(pendingToken!);publish();return;}}
+    if(ownerStart===undefined){try{ownerStart=observeWithRetry(()=>identity(parent)).start;}catch(error){if(!registrationTargetGone(pid))throw error;pendingChildren.delete(pendingToken!);publishOrRefuse();return;}}
     if(pending.start!==ownerStart)throw failure('registration has no owned pre-spawn fence');
     const inheritedParents=[...new Set([...pending.parents,...parents])];
     if(inheritedParents.some(id=>![...active.values()].some(grant=>grant.grantId===id&&!grant.revoked&&Date.now()<grant.deadlineAt)))throw failure('pending parent invocation released');
     if(pending.target && pending.target.pid!==pid)throw failure('pending target is immutable');
-    if(registrationTargetGone(pid)){pendingChildren.delete(pendingToken!);publish();return;}
+    if(registrationTargetGone(pid)){pendingChildren.delete(pendingToken!);publishOrRefuse();return;}
     if(registered.has(pid))throw failure('child enrollment is immutable');
     let target: ProcessIdentity;
     try { target = observeWithRetry(() => identity(pid)); } catch (error) {
       // Pending ownership, parent invocation and immutable enrollment were
       // checked above. Only fresh absence resolves this one owned fence.
       if (!registrationTargetGone(pid)) throw error;
-      pendingChildren.delete(pendingToken!); publish(); return;
+      pendingChildren.delete(pendingToken!); publishOrRefuse(); return;
     }
     // A live non-leader may have no group at its PID; never treat that as its
     // work being absent, including when ancestry observations fail afterward.
@@ -449,12 +464,12 @@ export async function withMachineReservationController<T>(owner: MachineReservat
       if (!observeWithRetry(() => ancestors(pid)).includes(parent)) throw failure('registration requires observed pre-orphan ancestry');
     } catch (error) {
       if (!registrationTargetGone(pid)) throw error;
-      pendingChildren.delete(pendingToken!); publish(); return;
+      pendingChildren.delete(pendingToken!); publishOrRefuse(); return;
     }
     // Identity and real pre-orphan ancestry are proven before persisting an
     // owned target. An earlier unavailable observation leaves the fence unknown.
-    pending.target=target;publish();
-    registered.set(pid, { ...target, parents:inheritedParents });registeredTokens.set(pid, pendingToken!);consumedPending.set(pendingToken!, {capability: pending.cleanupCapability});pendingChildren.delete(pendingToken!); publish();
+    pending.target=target;publishOrRefuse();
+    registered.set(pid, { ...target, parents:inheritedParents });registeredTokens.set(pid, pendingToken!);consumedPending.set(pendingToken!, {capability: pending.cleanupCapability});pendingChildren.delete(pendingToken!); publishOrRefuse();
   };
   const revokeGrant = (grantId: string) => {
     for (const [socket, grant] of active) if ((grant.grantId === grantId || grant.parents.includes(grantId)) && !grant.revoked) {

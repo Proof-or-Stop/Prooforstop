@@ -210,7 +210,9 @@
     "test:nested-reservation-result-nested-grant-deadline": "node ../../scripts/verify-nested-reservation-registered.mjs result-nested-grant-deadline",
     "test:nested-reservation-fault-controller-inspection-transient": "node ../../scripts/verify-nested-reservation-registered.mjs fault-controller-inspection-transient",
     "test:nested-reservation-fault-controller-inspection-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs fault-controller-inspection-unavailable",
-    "test:nested-reservation-isolated-cleanup-unclearable": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-cleanup-unclearable"
+    "test:nested-reservation-isolated-cleanup-unclearable": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-cleanup-unclearable",
+    "test:nested-reservation-fault-owner-start-unavailable": "node ../../scripts/verify-nested-reservation-registered.mjs fault-owner-start-unavailable",
+    "test:nested-reservation-result-residual-record-unwritable": "node ../../scripts/verify-nested-reservation-registered.mjs result-residual-record-unwritable"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",
