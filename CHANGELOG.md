@@ -1,5 +1,38 @@
 # Changelog
 
+## Lab managed-init-reviewer-dispatch - v0.3.374 - 2026-09-15
+
+# Receipt-bound managed INIT reviewer delivery
+
+Problem: An owner could submit `init_check_set` twice with caller-selected reviewer
+role names and satisfy the two-reviewer INIT gate without either independent reviewer
+running. Native reviewer launch guidance could also lose its prompt or child identity,
+leaving the Story blocked before implementation.
+
+Fix: `host_run --managedDispatch` now derives and seals the canonical INIT reviewer
+prompt, binds the Story and role to the live provider process, and records the managed
+run ID in signed INIT evidence. INIT_CHECK revalidates the completed receipt before it
+accepts either required reviewer. Caller-supplied role names and unbound environment
+variables fail closed. `story_create`, machine recovery, and `init_preflight` share the
+same managed launch instructions; the explicit acknowledged operator fallback remains
+available when independent reviewers cannot run.
+
+Verification: Lab RED reproduced the missing managed-dispatch contract. GREEN and the
+real fake-Codex E2E cover direct role spoofing, environment spoofing, exact prompt
+delivery, distinct reviewer runs, terminal receipt validation, and substituted run ID
+rejection. Focused legacy smokes, build, and the process-fact contract passed. Codex
+gpt-5.6-sol/high independently reviewed the final committed range and returned PASS.
+Claude quota was unavailable, so this is recorded as the operator-authorized same-vendor
+fallback and is not represented as a different-vendor Lab audit.
+
+Boundary: This enforces authority through the supported CLI and managed provider
+process/receipt model. It does not claim protection against a privileged actor that can
+rewrite the repository's trusted local runtime state or signing material.
+
+Maintenance provenance: codex/lab-managed-init-reviewer-dispatch, repair cfbf00fbf8.
+Verification command: `["node","packages/main/tests/managed-init-reviewer-dispatch.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab reviewer-delivery-handshake - v0.3.373 - 2026-09-15
 
 # Reviewer prompt delivery acknowledgement
