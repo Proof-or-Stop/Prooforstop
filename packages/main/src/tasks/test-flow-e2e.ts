@@ -366,7 +366,7 @@ function ensureSandboxReady(
           'scope_boundary_set',
           'execution_boundary_set',
           'scope_freeze_check',
-          'init_check_set',
+          'init_check_repair',
           'story_advance',
           'checklist_update',
           'task_coverage',
@@ -388,8 +388,12 @@ function ensureSandboxReady(
         note: 'E2E sandbox scope and execution boundaries are fixed before INIT_CHECK.',
         actor: 'flow-e2e',
       });
-      handlers.init_check_set({ storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
-      handlers.init_check_set({ storyId, issues: [], agentId: 'proof-or-stop-product-reviewer' });
+      handlers.init_check_repair({
+        storyId,
+        acknowledge: true,
+        fallbackReason: 'This generated flow fixture exercises lifecycle sequencing rather than independent INIT reviewer delivery.',
+        evidenceRefs: ['test-flow-e2e:fixture-setup'],
+      });
     }
   } catch {
     // ignore

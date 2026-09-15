@@ -310,8 +310,12 @@ function assertTerminalStoriesDoNotRedirect(): void {
 }
 
 function recordPassingInitAndScopeGates(root: string, storyId: string): void {
-  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
-  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-product-reviewer', agent: 'proof-or-stop-product-reviewer' });
+  runProofOrStop(root, 'init_check_repair', {
+    storyId,
+    acknowledge: true,
+    fallbackReason: 'This lifecycle fixture does not exercise independent INIT delivery; it manually attests the bounded setup prerequisites.',
+    evidenceRefs: ['worktree-authority-smoke:fixture-setup'],
+  });
   runProofOrStop(root, 'scope_boundary_set', {
     storyId,
     mode: 'custom',
@@ -325,7 +329,7 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
     storyId,
     allowedCommands: [
       'story_create --fromDraft',
-      'init_check_set',
+      'init_check_repair',
       'scope_boundary_set',
       'execution_boundary_set',
       'scope_freeze_check',

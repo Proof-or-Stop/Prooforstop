@@ -112,28 +112,37 @@ try {
   assert.match(missingAll, /unknown or temporarily unavailable/, 'missing-init guard should preserve ambiguous reviewer identity');
   assert.doesNotMatch(missingAll, /no output for 4 minutes.*restart/i, 'missing-init guard must not restart on elapsed silence');
 
-  run(root, 'init_check_set', { storyId, issues: [], agentId: 'proof-or-stop-review-story-init' });
-  const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
-  assert.match(missingProduct, /missing_init_check_agent/);
-  assert.match(missingProduct, /proof-or-stop-product-reviewer/);
-  assert.match(missingProduct, /agentType":"proof-or-stop-product-reviewer"/, 'partial recovery should dispatch the missing product reviewer');
-  assert.doesNotMatch(
-    missingProduct,
-    /(?:subagent_type|agentType)[^\n]*proof-or-stop-review-story-init/,
-    'partial recovery must not duplicate the already-recorded story-init reviewer',
-  );
-  assert.match(missingProduct, /Host-native task liveness policy/, 'partial product recovery should include canonical liveness guidance');
-  assert.match(missingProduct, /unknown or temporarily unavailable/, 'partial product recovery should preserve ambiguous task identity');
+  const unboundStoryInit = run(root, 'init_check_set', {
+    storyId,
+    issues: [],
+    agentId: 'proof-or-stop-review-story-init',
+  }, true);
+  assert.match(unboundStoryInit, /delivery_not_acknowledged/, 'payload role id cannot create independent reviewer evidence');
+  const stillMissingAll = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
+  assert.match(stillMissingAll, /missing_init_check/);
+  assert.match(stillMissingAll, /managedDispatch/);
+  assert.match(stillMissingAll, /proof-or-stop-review-story-init/);
+  assert.match(stillMissingAll, /proof-or-stop-product-reviewer/);
 
-  run(root, 'init_check_set', { storyId, issues: [{ kind: 'user_outcome_unspecified', requirementRef: 'story:description', severity: 'high', desc: 'Product value is not yet clear.' }], agentId: 'proof-or-stop-product-reviewer' });
+  run(root, 'init_check_repair', {
+    storyId,
+    acknowledge: true,
+    fallbackReason: 'This gate fixture manually attests INIT while preserving a real high-severity blocker for gate evaluation.',
+    issues: [{ kind: 'user_outcome_unspecified', requirementRef: 'story:description', severity: 'high', desc: 'Product value is not yet clear.' }],
+  });
   const blockingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(blockingProduct, /init_check_blocking_issues/);
   assert.match(blockingProduct, /Product value is not yet clear/);
 
-  run(root, 'init_check_set', { storyId, issues: [
-    { kind: 'post_implementation_evidence_missing', severity: 'high', desc: 'The implementation transcript is unavailable before development starts.' },
-    { kind: 'user_outcome_unspecified', severity: 'medium', desc: 'Product wording could be clearer but is not blocking.' },
-  ], agent: 'proof-or-stop-product-reviewer' });
+  run(root, 'init_check_repair', {
+    storyId,
+    acknowledge: true,
+    fallbackReason: 'This gate fixture manually re-attests INIT after replacing the blocker with deferred and advisory issues.',
+    issues: [
+      { kind: 'post_implementation_evidence_missing', severity: 'high', desc: 'The implementation transcript is unavailable before development starts.' },
+      { kind: 'user_outcome_unspecified', severity: 'medium', desc: 'Product wording could be clearer but is not blocking.' },
+    ],
+  });
   const advanced = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
   assert.match(advanced, /advanced to INIT_CHECK/);
   assert.match(advanced, /deferred issue/, 'post-implementation evidence gap should remain visible after INIT advances');
@@ -160,24 +169,17 @@ try {
   assert.ok(tamperStoryId, 'story_create should return tamper story id');
   freezeScope(root, tamperStoryId!);
 
-  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'proof-or-stop-product-reviewer' });
-  const missingStoryInit = run(root, 'story_advance', { storyId: tamperStoryId, phase: 'INIT_CHECK' }, true);
-  assert.match(missingStoryInit, /missing_init_check_agent/);
-  assert.match(missingStoryInit, /proof-or-stop-review-story-init/);
-  assert.match(
-    missingStoryInit,
-    /agentType":"proof-or-stop-review-story-init"/,
-    'partial recovery should dispatch the missing story-init reviewer',
-  );
-  assert.doesNotMatch(
-    missingStoryInit,
-    /(?:subagent_type|agentType)\s*:\s*"(?:lattice-review-story-init|product-reviewer)"|agentType":"(?:lattice-review-story-init|product-reviewer)"/i,
-    'partial recovery must not duplicate the already-recorded product reviewer',
-  );
-  assert.match(missingStoryInit, /Host-native task liveness policy/, 'partial story-init recovery should include canonical liveness guidance');
-  assert.match(missingStoryInit, /foreground, running, or background/, 'partial story-init recovery should continue monitoring live tasks');
-
-  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'proof-or-stop-review-story-init' });
+  const unboundProduct = run(root, 'init_check_set', {
+    storyId: tamperStoryId,
+    issues: [],
+    agentId: 'proof-or-stop-product-reviewer',
+  }, true);
+  assert.match(unboundProduct, /delivery_not_acknowledged/, 'payload role id cannot seed the tamper fixture');
+  run(root, 'init_check_repair', {
+    storyId: tamperStoryId,
+    acknowledge: true,
+    fallbackReason: 'This tamper fixture needs a signed INIT record but does not claim independent managed reviewer delivery.',
+  });
   run(root, 'story_update', { storyId: tamperStoryId, title: 'Init tamper gate changed after review' });
   // story_update mutates the title — a freeze-gate input AND an init-check
   // signature input. The freeze gate runs first, so it would report

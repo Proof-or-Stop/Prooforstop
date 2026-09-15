@@ -398,12 +398,16 @@ try {
     root: initRoot,
     scanRoot: join(initRoot, 'packages/main'),
   });
-  const initResult = initHandlers.init_check_set({
-    storyId,
-    issues: [],
-    agent: 'proof-or-stop-review-story-init',
-  });
-  assert.match(initResult, /recorded agents: proof-or-stop-review-story-init/, 'canonical init reviewer reaches init_check_set');
+  assert.throws(
+    () => initHandlers.init_check_set({
+      storyId,
+      issues: [],
+      agent: 'proof-or-stop-review-story-init',
+    }),
+    /delivery_not_acknowledged/,
+    'a canonical role name remains non-authoritative without a live managed dispatch',
+  );
+  assert.equal(store.readInitCheck(storyId), null, 'rejected role payload must not create INIT evidence');
 } finally {
   rmSync(initRoot, { recursive: true, force: true });
 }

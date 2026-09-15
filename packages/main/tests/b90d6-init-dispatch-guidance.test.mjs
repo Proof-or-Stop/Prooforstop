@@ -155,16 +155,14 @@ function assertInitCheckGuardGuidance() {
     assert.match(scopeHandlers(root, store).scope_freeze_check({ storyId }), /PASS/);
     const missingInitCheck = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
     assert.match(missingInitCheck ?? '', /missing_init_check/);
-    assert.match(missingInitCheck ?? '', /spawn_agent\(\{ task_name: "review_story_init", fork_turns: "none"/);
-    assert.match(missingInitCheck ?? '', /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
-    assert.match(missingInitCheck ?? '', /followup_task\(\{ target: <returned reviewer target>, message: <the same exact prompt> \}\)/);
-    assert.match(missingInitCheck ?? '', /do not wait until the reviewer has acknowledged the assignment/i);
-    assert.match(missingInitCheck ?? '', /agent id or canonical task name/i);
-    assert.match(missingInitCheck ?? '', /subagent_type: "proof-or-stop-review-story-init"/);
-    assert.match(missingInitCheck ?? '', /subagent_type: "proof-or-stop-product-reviewer"/);
-    assert.match(missingInitCheck ?? '', /nonempty and distinct/i);
-    assert.match(missingInitCheck ?? '', /never call wait with an empty target\/receiver set/i);
-    assert.match(missingInitCheck ?? '', /other hosts launch one equivalent fresh-context reviewer task without parent conversation history/i);
+    assert.match(missingInitCheck ?? '', /proof-or-stop host_run/);
+    assert.match(missingInitCheck ?? '', /"agentType":"proof-or-stop-review-story-init","managedDispatch":true/);
+    assert.match(missingInitCheck ?? '', /"agentType":"proof-or-stop-product-reviewer","managedDispatch":true/);
+    assert.match(missingInitCheck ?? '', /returned nonempty runId/);
+    assert.match(missingInitCheck ?? '', /host_run_status/);
+    assert.match(missingInitCheck ?? '', /init_check_set accepts only a matching live managed dispatch/);
+    assert.match(missingInitCheck ?? '', /Never use a host wait with an empty receiver set/);
+    assert.doesNotMatch(missingInitCheck ?? '', /spawn_agent\(|followup_task\(/);
     assertIncludesInitPreflight(missingInitCheck, storyId, 'missing init-check guidance');
 
     const initDispatch = createStoryDispatchHandlers(ctx(root, store));
@@ -200,23 +198,25 @@ function assertInitCheckGuardGuidance() {
     const bothInitAgentsMissing = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
     assert.doesNotMatch(bothInitAgentsMissing ?? '', /init_check_tampered/);
     assert.match(bothInitAgentsMissing ?? '', /missing_init_check_agent/);
-    assert.match(bothInitAgentsMissing ?? '', /nonempty and distinct/i);
+    assert.match(bothInitAgentsMissing ?? '', /managedDispatch/);
+    assert.match(bothInitAgentsMissing ?? '', /returned nonempty runId/);
 
-    createInitCheckHandlers(ctx(root, store)).init_check_set({
-      storyId,
-      issues: [],
-      agentId: 'proof-or-stop-review-story-init',
-    });
-    const missingInitAgent = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
-    assert.match(missingInitAgent ?? '', /missing_init_check_agent/);
-    assert.match(missingInitAgent ?? '', /proof-or-stop-product-reviewer/);
-    assert.match(missingInitAgent ?? '', /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
-    assert.match(missingInitAgent ?? '', /subagent_type: "proof-or-stop-product-reviewer"/);
-    assert.match(missingInitAgent ?? '', /never call wait with an empty target\/receiver set/i);
-    assert.doesNotMatch(missingInitAgent ?? '', /nonempty and distinct/i);
-    assert.doesNotMatch(missingInitAgent ?? '', /lattice-review-story-init/);
-    assert.doesNotMatch(missingInitAgent ?? '', /subagent_type: "product-reviewer"/);
-    assertIncludesInitPreflight(missingInitAgent, storyId, 'missing init-check agent guidance');
+    assert.throws(
+      () => createInitCheckHandlers(ctx(root, store)).init_check_set({
+        storyId,
+        issues: [],
+        agentId: 'proof-or-stop-review-story-init',
+      }),
+      /delivery_not_acknowledged/,
+      'a caller-supplied role cannot create partial independent INIT evidence',
+    );
+    const stillMissingBoth = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
+    assert.match(stillMissingBoth ?? '', /missing_init_check_agent/);
+    assert.match(stillMissingBoth ?? '', /proof-or-stop-review-story-init/);
+    assert.match(stillMissingBoth ?? '', /proof-or-stop-product-reviewer/);
+    assert.match(stillMissingBoth ?? '', /managedDispatch/);
+    assert.doesNotMatch(stillMissingBoth ?? '', /spawn_agent\(|followup_task\(/);
+    assertIncludesInitPreflight(stillMissingBoth, storyId, 'missing init-check agent guidance');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -302,18 +302,17 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     });
     const storyId = output.match(/Story (B-[a-f0-9]+) created/)?.[1];
     assert.ok(storyId, 'story_create output should include the created story id');
-    assert.match(output, /spawn two INIT reviewers in parallel/);
+    assert.match(output, /managed INIT reviewers/i);
     assert.match(output, /proof-or-stop-review-story-init/);
     assert.match(output, /proof-or-stop-product-reviewer/);
-    assert.match(output, /spawn_agent\(\{ task_name: "review_story_init", fork_turns: "none"/);
-    assert.match(output, /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
-    assert.match(output, /followup_task\(\{ target: <returned reviewer target>, message: <the same exact prompt> \}\)/);
-    assert.match(output, /do not wait until the reviewer has acknowledged the assignment/i);
-    assert.match(output, /subagent_type: "proof-or-stop-review-story-init"/);
-    assert.match(output, /subagent_type: "proof-or-stop-product-reviewer"/);
-    assert.match(output, /agentId exactly proof-or-stop-product-reviewer/);
-    assert.match(output, /retain both returned child agent ids/i);
-    assert.match(output, /never call wait with an empty target\/receiver set/i);
+    assert.match(output, /proof-or-stop host_run/);
+    assert.match(output, /"agentType":"proof-or-stop-review-story-init","managedDispatch":true/);
+    assert.match(output, /"agentType":"proof-or-stop-product-reviewer","managedDispatch":true/);
+    assert.match(output, /nonempty runId/);
+    assert.match(output, /host_run_status/);
+    assert.match(output, /init_check_set accepts only a matching live managed dispatch/);
+    assert.match(output, /empty receiver set/i);
+    assert.doesNotMatch(output, /spawn_agent\(|followup_task\(/);
     assert.doesNotMatch(output, /subagent_type: "lattice-review-story-init"/);
     assert.doesNotMatch(output, /agentType":"lattice-review-story-init"/);
     assert.doesNotMatch(output, /subagent_type: "product-reviewer"/);
