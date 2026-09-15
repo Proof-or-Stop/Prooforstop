@@ -421,6 +421,10 @@ export async function withMachineReservationController<T>(input: MachineReservat
   const rowsNow = (): ReturnType<typeof table> => tick.rows ??= observeWithRetry(() => table());
   const identityNow = (pid: number): ProcessIdentity | null => { if (!tick.identities.has(pid)) { try { tick.identities.set(pid, observeWithRetry(() => identity(pid))); } catch { tick.identities.set(pid, null); } } return tick.identities.get(pid) ?? null; };
   const sameNow = (value: ProcessIdentity): boolean => { const current = identityNow(value.pid); return current !== null && current.start === value.start && current.pgid === value.pgid; };
+  // The enrollment walk of a queued request distinguishes an unavailable observation from a mismatch: an
+  // ancestor the tick could not observe leaves the request queued for the next tick, a mismatch skips it.
+  const sameNowState = (value: ProcessIdentity): boolean | undefined => { const current = identityNow(value.pid); return current === null ? undefined : current.start === value.start && current.pgid === value.pgid; };
+  const ENROLLMENT_OBSERVATION_UNAVAILABLE = 'enrollment observation unavailable';
   const publish = () => { const path = join(owner.ticket, VALIDATION_DELEGATION_RESIDUAL_FILE); writeFileSync(path + '.pending', JSON.stringify([...registered.values(),...[...pendingChildren].map(([pending,subject])=>({pending,pid:subject.pid,start:subject.start,parents:subject.parents,...(subject.spawnAttempted?{spawnAttempted:true}:{}),...(subject.spawnedPid!==undefined?{spawnedPid:subject.spawnedPid}:{}),...(subject.target?{target:subject.target}:{})}))]), { mode: 0o600 }); renameSync(path + '.pending', path); };
   // A residual record that cannot be written refuses the fence operation that needed it as a typed
   // delegation refusal, which folds into the command result like every other refusal, instead of
@@ -428,9 +432,10 @@ export async function withMachineReservationController<T>(input: MachineReservat
   // stays at its more conservative state until the next successful write.
   const unwritable = (error: unknown) => failure('residual record unwritable: ' + (error instanceof Error ? error.message : String(error)).slice(0, 200));
   const publishOrRefuse = (): void => { try { publish(); } catch (error) { throw unwritable(error); } };
-  const enrollment = (subject: ProcessIdentity, rows: ReturnType<typeof table> = table(), same: (value: ProcessIdentity) => boolean = sameProcessObserved): string[] => {
-    if (!same(subject)) throw failure('request process changed');
-    for (const pid of [subject.pid,...ancestors(subject.pid, rows)]) { const known=registered.get(pid); if (!known || !same(known)) continue;
+  const enrollment = (subject: ProcessIdentity, rows: ReturnType<typeof table> = table(), same: (value: ProcessIdentity) => boolean | undefined = sameProcessObserved): string[] => {
+    const own = same(subject); if (own === undefined) throw failure(ENROLLMENT_OBSERVATION_UNAVAILABLE);
+    if (!own) throw failure('request process changed');
+    for (const pid of [subject.pid,...ancestors(subject.pid, rows)]) { const known=registered.get(pid); if (!known) continue; const state = same(known); if (state === undefined) throw failure(ENROLLMENT_OBSERVATION_UNAVAILABLE); if (!state) continue;
       if (known.parents.some(id=>![...active.values()].some(grant=>grant.grantId===id && !grant.revoked && Date.now()<grant.deadlineAt))) throw failure('parent invocation released');
       return [...known.parents];
     }
@@ -550,7 +555,7 @@ export async function withMachineReservationController<T>(input: MachineReservat
         const subject = identityNow(input.pid); if (!subject) continue;
         if (subject.start !== input.start) throw failure('request subject changed');
         let rows: ReturnType<typeof table>; try { rows = rowsNow(); } catch { continue; }
-        const parents=enrollment(subject, rows, sameNow);
+        const parents=enrollment(subject, rows, sameNowState);
         const parent = input.parentGrantId ? [...active.values()].find(row=>row.grantId===input.parentGrantId&&!row.revoked&&Date.now()<row.deadlineAt&&row.subject.pid===subject.pid&&row.subject.start===subject.start) : undefined;
         if (input.parentGrantId && !parent) throw failure('parent grant/claim mismatch');
         const requested = input.resources ?? null;
@@ -568,7 +573,12 @@ export async function withMachineReservationController<T>(input: MachineReservat
         grantTimers.set(socket,setTimeout(()=>{revokeGrant(grant.grantId);drainNow();},Math.max(1,grant.deadlineAt-Date.now())));
         socket.write(JSON.stringify({ grant, signature: signCanonical(grant, keys.privateKey) }) + '\n');
         changed = true;
-      } catch (error) { dequeue(item); socket.end(JSON.stringify({ error: String(error) }) + '\n'); }
+      } catch (error) {
+        // An ancestor the tick could not observe keeps the request queued until its own deadline, exactly
+        // like an unobservable subject; only a genuine refusal or that deadline removes it.
+        if (error instanceof ValidationDelegationError && error.message.endsWith(ENROLLMENT_OBSERVATION_UNAVAILABLE)) continue;
+        dequeue(item); socket.end(JSON.stringify({ error: String(error) }) + '\n');
+      }
     }
     return changed || pending.length !== waiting;
   };
