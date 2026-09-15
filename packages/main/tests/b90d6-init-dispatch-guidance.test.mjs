@@ -16,6 +16,7 @@ const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const { resetConfigCache } = await import(join(distRoot, 'core/config.js'));
 const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const { getGuardFailureReason } = await import(join(distRoot, 'core/machine.js'));
+const { recomputeInitCheckHash } = await import(join(distRoot, 'core/init-check-gate.js'));
 const { createInitCheckHandlers } = await import(join(distRoot, 'handlers/init-check.js'));
 const { createInitPreflightHandlers } = await import(join(distRoot, 'handlers/init-preflight.js'));
 const { createSessionHandlers } = await import(join(distRoot, 'handlers/session.js'));
@@ -165,9 +166,26 @@ function assertInitCheckGuardGuidance() {
     assert.match(storyInitPrompt, /fresh context/i);
     assert.match(storyInitPrompt, /do not carry over the main agent's conclusions/i);
     assert.match(storyInitPrompt, /do not spawn or delegate another reviewer/i);
+    assert.doesNotMatch(storyInitPrompt, /spawn_agent\(|Agent\(\{ subagent_type:/);
     assert.match(productInitPrompt, /fresh context/i);
     assert.match(productInitPrompt, /do not carry over the main agent's conclusions/i);
     assert.match(productInitPrompt, /do not spawn or delegate another reviewer/i);
+    assert.doesNotMatch(productInitPrompt, /spawn_agent\(|Agent\(\{ subagent_type:/);
+
+    const emptyInitCheck = {
+      storyId,
+      checkedAt: '2026-07-08T12:00:00.000Z',
+      reviewRound: '',
+      agentId: 'legacy-unknown-reviewer',
+      issues: [],
+      agentResults: [],
+      _hash: '',
+    };
+    emptyInitCheck._hash = recomputeInitCheckHash(storyId, store, root, emptyInitCheck);
+    store.writeInitCheck(storyId, emptyInitCheck);
+    const bothInitAgentsMissing = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
+    assert.match(bothInitAgentsMissing ?? '', /missing_init_check_agent/);
+    assert.match(bothInitAgentsMissing ?? '', /nonempty and distinct/i);
 
     createInitCheckHandlers(ctx(root, store)).init_check_set({
       storyId,
@@ -180,7 +198,7 @@ function assertInitCheckGuardGuidance() {
     assert.match(missingInitAgent ?? '', /spawn_agent\(\{ task_name: "product_reviewer", fork_turns: "none"/);
     assert.match(missingInitAgent ?? '', /subagent_type: "proof-or-stop-product-reviewer"/);
     assert.match(missingInitAgent ?? '', /never call wait with an empty target\/receiver set/i);
-    assert.match(missingInitAgent ?? '', /nonempty and distinct/i);
+    assert.doesNotMatch(missingInitAgent ?? '', /nonempty and distinct/i);
     assert.doesNotMatch(missingInitAgent ?? '', /lattice-review-story-init/);
     assert.doesNotMatch(missingInitAgent ?? '', /subagent_type: "product-reviewer"/);
     assertIncludesInitPreflight(missingInitAgent, storyId, 'missing init-check agent guidance');
@@ -343,15 +361,12 @@ function assertScopePlanDispatchAndReviewGuidance() {
     const dispatch = createStoryDispatchHandlers(ctx(root, store));
     const result = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' });
     assert.match(result.prompt, /Review PLAN scope coverage/);
-    assert.match(result.prompt, /Codex owner launch: spawn_agent\(/);
-    assert.match(result.prompt, /fork_turns:\s*"none"/);
-    assert.match(result.prompt, /Claude owner launch: Agent\(\{ subagent_type: "proof-or-stop-review-scope-plan"/);
-    assert.match(result.prompt, /retain (?:the|every) returned child agent id/i);
+    assert.doesNotMatch(result.prompt, /spawn_agent\(/);
+    assert.doesNotMatch(result.prompt, /Agent\(\{ subagent_type:/);
     assert.match(result.prompt, /execute this (?:scope )?review directly in the current reviewer task/i);
     assert.match(result.prompt, /(?:must|do) not spawn or delegate another reviewer/i);
     assert.match(result.prompt, /fresh context/i);
     assert.match(result.prompt, /do not carry over the main agent's or Story owner's conclusions/i);
-    assert.match(result.prompt, /never call wait with an empty target\/receiver set/i);
     assert.match(result.prompt, /Must read story artifacts/);
     assert.match(result.prompt, /Dispatch output is not gate evidence/);
     assert.match(result.prompt, /proof-or-stop scope_check_save/);

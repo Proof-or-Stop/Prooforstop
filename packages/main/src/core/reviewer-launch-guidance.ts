@@ -2,14 +2,14 @@ export function renderCodexFreshReviewerHandoff(
   taskName: string,
   promptPlaceholder: string,
 ): string {
-  return `spawn_agent({ task_name: "${taskName}", fork_turns: "none", message: "${promptPlaceholder}" })`;
+  return `spawn_agent({ task_name: ${JSON.stringify(taskName)}, fork_turns: "none", message: ${JSON.stringify(promptPlaceholder)} })`;
 }
 
 export function renderClaudeFreshReviewerHandoff(
   agentType: string,
   promptPlaceholder: string,
 ): string {
-  return `Agent({ subagent_type: "${agentType}", prompt: "${promptPlaceholder}" })`;
+  return `Agent({ subagent_type: ${JSON.stringify(agentType)}, prompt: ${JSON.stringify(promptPlaceholder)} })`;
 }
 
 export function renderReviewerDispatchLaunch(args: {
@@ -19,7 +19,8 @@ export function renderReviewerDispatchLaunch(args: {
   promptPlaceholder?: string;
 }): string {
   const prompt = args.promptPlaceholder ?? '<owner-produced standard prompt>';
-  return `Story owner runs proof-or-stop dispatch '{"storyId":"${args.storyId}","agentType":"${args.agentType}"}', then passes the returned prompt unchanged: on Codex use ${renderCodexFreshReviewerHandoff(args.taskName, prompt)}; on Claude use ${renderClaudeFreshReviewerHandoff(args.agentType, prompt)}. Other hosts launch one equivalent fresh-context reviewer task without parent conversation history.`;
+  const dispatchArgs = JSON.stringify({ storyId: args.storyId, agentType: args.agentType });
+  return `Story owner runs proof-or-stop dispatch '${dispatchArgs}', then passes the returned prompt unchanged: on Codex use ${renderCodexFreshReviewerHandoff(args.taskName, prompt)}; on Claude use ${renderClaudeFreshReviewerHandoff(args.agentType, prompt)}. Other hosts launch one equivalent fresh-context reviewer task without parent conversation history.`;
 }
 
 export const REVIEWER_CHILD_ID_WAIT_BOUNDARY =
