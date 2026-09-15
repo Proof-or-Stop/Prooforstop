@@ -13,6 +13,26 @@ const surfaces = [
 const metadataQuery = `proof-or-stop story_get '{"storyId":"<storyId>","detail":true}'`;
 const metadataFields =
   '`index.title` / `index.description` / `index.type` / `index.priority` / `index.riskSignals`';
+const testName = 'test:init-reviewer-story-metadata-contract';
+
+const packageJson = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
+assert.equal(
+  packageJson.scripts[testName],
+  'node packages/main/tests/init-reviewer-story-metadata-contract.test.mjs',
+  'the focused contract must have an exact root test command',
+);
+assert.equal(
+  packageJson.scripts['test:serial-reference']
+    .split(' && ')
+    .filter((command) => command === `npm run ${testName}`).length,
+  1,
+  'the focused contract must run exactly once in the canonical serial suite',
+);
+assert.match(
+  readFileSync(join(repoRoot, 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8'),
+  /repoRead\('test:init-reviewer-story-metadata-contract'\)/,
+  'the focused contract must have a bounded full-suite resource policy',
+);
 
 for (const relativePath of surfaces) {
   const content = readFileSync(join(repoRoot, relativePath), 'utf8');

@@ -177,6 +177,7 @@ export const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntrie
   repoRead('test:identity-state-migrate-atomicity'),
   repoRead('test:migration-contract'),
   repoRead('test:proof-or-stop-prompt-baseline'),
+  repoRead('test:init-reviewer-story-metadata-contract'),
   // B-cdf6: both added to test:serial-reference by this story. Membership authority is
   // test:serial-reference and a member without a policy fails closed before execution,
   // so the policy entry is mandatory, not optional. Both only read the repo and hold no
