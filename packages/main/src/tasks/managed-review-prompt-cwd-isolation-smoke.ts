@@ -13,6 +13,7 @@ import {
   resolveManagedReviewerBasePrompt,
   type ManagedReviewCanonicalReportStatus,
 } from '../core/managed-review-evidence.js';
+import { classifyManagedReviewFinalEnvelope } from '../core/host-run.js';
 import type { ReviewRun } from '../core/types.js';
 
 const PRIMARY_WORKTREE = '/Users/qipan/work/repo/Prooforstop/.worktrees/B-137a';
@@ -91,6 +92,29 @@ function main(): void {
   assert.deepEqual(finalProposalSchema.properties.readLog.properties?.summary.required, [
     'readCount', 'tokenCount',
   ], 'prompt schema states every required readLog.summary field');
+  const fullyRead = ['packages/main/src/example.ts'];
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    schemaVersion: 'lattice.managed_review_final_proposal.v1',
+    storyId: REVIEW_RUN.storyId,
+    providerAgent: REVIEW_RUN.lane,
+    lane: REVIEW_RUN.lane,
+    reviewRunId: REVIEW_RUN.reviewRunId,
+    conclusion: 'pass',
+    note: 'The bounded review found no blocking issue.',
+    readManifest: {
+      filesReadFully: fullyRead,
+      filesTriagedByName: [],
+      scanEscalationReason: null,
+      candidateSpecSetDigest: 'a'.repeat(64),
+      corpusDigest: 'b'.repeat(64),
+    },
+    readLog: {
+      filesReadFully: fullyRead,
+      filesTriagedByName: [],
+      summary: { readCount: 1, tokenCount: null },
+      digest: 'c'.repeat(64),
+    },
+  })).kind, 'valid', 'the minimum shape described by the embedded prompt schema passes the terminal validator');
   assert.match(
     providerPrompt,
     /do not cd to, run commands from, or write to that canonical path\./,

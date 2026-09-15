@@ -913,9 +913,24 @@ export interface ManagedReviewFinalEnvelopeRecord extends Record<string, unknown
  * bounded and non-secret: it contains only the already-auditable managed review
  * tuple plus public vocabulary, never prompt bytes, capabilities, or verdicts.
  */
-export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
+export interface ManagedReviewFinalProposalSchemaBinding {
+  storyId?: string | null;
+  reviewRunId?: string | null;
+  lane?: string | null;
+  agentType: string;
+}
+
+/**
+ * One provider-facing schema source for every managed-review transport.
+ *
+ * Codex receives this object verbatim in its prompt and Claude receives the
+ * encoded form through Structured Outputs. Keeping the required field lists in
+ * one function prevents a prompt from accepting a shape that the terminal
+ * validator will later reject after the review has already run.
+ */
+export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalProposalSchemaBinding): Record<string, unknown> {
   if (!args.storyId || !args.reviewRunId || !args.lane || args.agentType !== args.lane) {
-    throw new Error('host_run: managed Claude JSON Schema requires exact storyId/reviewRunId/lane/agentType binding');
+    throw new Error('host_run: managed review JSON Schema requires exact storyId/reviewRunId/lane/agentType binding');
   }
   // Keep the provider schema inside Claude Structured Outputs' supported core
   // subset. Richer semantic constraints (non-blank text, digests, non-empty
@@ -981,7 +996,7 @@ export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
       uncertaintyReason: nonBlankString,
     },
   };
-  const schema = {
+  return {
     type: 'object',
     additionalProperties: false,
     required: ['schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion', 'readManifest', 'readLog'],
@@ -1026,7 +1041,10 @@ export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
     // flat; the unchanged local parser remains authoritative for conclusion-
     // specific note/findings presence, exclusivity, and non-empty semantics.
   };
-  const encoded = JSON.stringify(schema);
+}
+
+export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
+  const encoded = JSON.stringify(managedReviewFinalProposalJsonSchema(args));
   if (Buffer.byteLength(encoded, 'utf8') > MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES) {
     throw new Error(`host_run: managed Claude JSON Schema exceeds ${MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES} bytes`);
   }

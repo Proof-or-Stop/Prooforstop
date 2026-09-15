@@ -20,7 +20,10 @@ import {
   type ManagedHostRunReceipt,
   type ManagedReviewEvidenceProposal,
 } from './managed-host-run.js';
-import { isStrictManagedReviewFindingProposal } from './host-run.js';
+import {
+  isStrictManagedReviewFindingProposal,
+  managedReviewFinalProposalJsonSchema,
+} from './host-run.js';
 import { matchesRuntimeCommitSubject } from './auto-commit-metadata.js';
 import {
   buildProofAdmissibilityDiagnostic,
@@ -475,6 +478,12 @@ export function buildManagedReviewerPrompt(
     lane: run.lane,
     reviewRunId: run.reviewRunId,
   });
+  const finalProposalSchema = JSON.stringify(managedReviewFinalProposalJsonSchema({
+    storyId: run.storyId,
+    lane: run.lane,
+    reviewRunId: run.reviewRunId,
+    agentType: run.lane,
+  }));
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,
@@ -492,6 +501,10 @@ export function buildManagedReviewerPrompt(
     // process-fact contract and the counting gate is unchanged.
     'Emit that final proposal EXACTLY ONCE. Do not re-submit, repeat, or "confirm" it a second time, even with identical content: a second submission is rejected as managed_review_final_result_multiple and discards your entire review.',
     'Use schemaVersion="lattice.managed_review_final_proposal.v1" and the exact bound fields above. For a pass add conclusion="pass", note, and truthful readManifest/readLog. For findings add conclusion="findings", exact findings, and truthful read evidence.',
+    '--- BEGIN MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
+    finalProposalSchema,
+    '--- END MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
+    'The JSON Schema above is the validator-owned provider contract. Include every required field even when its value is [] or null. Use repository-relative paths only. readManifest.filesReadFully MUST equal readLog.filesReadFully, and readManifest.filesTriagedByName MUST equal readLog.filesTriagedByName. readLog.digest MUST be the lowercase 64-hex digest of the read log; readLog.summary.tokenCount is required and may be null.',
     // B-137a: bind the two routing digests the gate compares byte-for-byte, the
     // same way the full-scan binding above already pins scanEscalationReason.
     // candidateReadBindingErrors requires readManifest.candidateSpecSetDigest
