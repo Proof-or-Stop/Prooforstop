@@ -432,6 +432,12 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (!storyFilesHash) throw new Error('host_run: --managedReview requires a ReviewRun with storyFilesHash binding');
         const canonicalReportStatuses = collectManagedReviewCanonicalReportStatuses(ctx, storyId);
         const candidateArtifact = ctx.store.readCandidateSpecSet(storyId);
+        if (!candidateArtifact) {
+          throw new Error(
+            'host_run: managed_review_candidate_spec_missing: candidate-spec-set.json is required before managed review; '
+            + `run candidate_spec_route for Story ${storyId} and then start a fresh ReviewRun`,
+          );
+        }
         const fullScanBinding: ManagedReviewFullScanBinding | undefined = candidateArtifact?.fullScan === true
           ? (() => {
             if (typeof candidateArtifact.scanEscalationReason !== 'string' || candidateArtifact.scanEscalationReason.length === 0) {

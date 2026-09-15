@@ -10728,7 +10728,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/host-run.ts',
-        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'"],
+        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'", 'managed_review_candidate_spec_missing', 'candidate_spec_route'],
       },
       {
         relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
@@ -10736,7 +10736,11 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/core/host-run.ts',
-        patterns: ['CANONICAL_CODEX_NONINTERACTIVE_FLAGS', 'managedDispatchCodexSandboxMode', 'materializeHostRunLaunch', "existsSync('/.dockerenv')", "existsSync('/run/.containerenv')", "launchProfile === 'managed_dispatch'", "'danger-full-access'"],
+        patterns: ['CANONICAL_CODEX_NONINTERACTIVE_FLAGS', 'managedDispatchCodexSandboxMode', 'materializeHostRunLaunch', "existsSync('/.dockerenv')", "existsSync('/run/.containerenv')", "launchProfile === 'managed_dispatch'", "'danger-full-access'", 'read_manifest_candidate_spec_digest_missing'],
+      },
+      {
+        relPath: 'packages/main/tests/managed-review-candidate-preflight.test.mjs',
+        patterns: ['read_manifest_candidate_spec_digest_missing', 'managed_review_candidate_spec_missing', 'missing candidate routing must not launch the provider', 'MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN'],
       },
       {
         relPath: 'packages/main/src/core/host-execution-readiness.ts',

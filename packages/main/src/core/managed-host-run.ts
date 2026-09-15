@@ -4337,7 +4337,9 @@ function parseManagedReviewFinalProposal(result: HostRunResult): ManagedReviewFi
     throw new Error('managed_review_final_result_missing');
   }
   const classification = classifyManagedReviewFinalEnvelope(result.finalAssistantResult);
-  if (classification.kind !== 'valid') throw new Error('managed_review_final_result_malformed');
+  if (classification.kind !== 'valid') {
+    throw new Error(`managed_review_final_result_malformed${classification.kind === 'malformed' && classification.reason ? `:${classification.reason}` : ''}`);
+  }
   const envelope = classification.envelope;
   const conclusion = envelope.conclusion;
   return {

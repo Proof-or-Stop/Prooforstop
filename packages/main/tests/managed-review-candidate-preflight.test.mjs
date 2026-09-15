@@ -38,7 +38,7 @@ const missingRefusal = handler.indexOf('managed_review_candidate_spec_missing');
 const promptBuild = handler.indexOf('promptText = buildManagedReviewerPrompt', artifactRead);
 const managedSubmit = handler.indexOf('submitManagedHostRun', promptBuild);
 assert.ok(artifactRead >= 0 && missingRefusal > artifactRead && missingRefusal < promptBuild,
-  'managedReview must refuse a missing candidate artifact before building or launching the reviewer prompt');
+  'missing candidate routing must not launch the provider');
 assert.ok(managedSubmit > promptBuild,
   'the source-order assertion must cover the real managed host submission path');
 assert.match(handler.slice(missingRefusal, promptBuild), /candidate_spec_route/,

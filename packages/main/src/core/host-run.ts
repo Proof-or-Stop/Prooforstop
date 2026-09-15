@@ -1035,7 +1035,7 @@ export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
 
 export type ManagedReviewFinalEnvelopeClassification =
   | { kind: 'ordinary' }
-  | { kind: 'malformed' }
+  | { kind: 'malformed'; reason?: string }
   | { kind: 'valid'; envelope: ManagedReviewFinalEnvelopeRecord };
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
@@ -1121,6 +1121,14 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
     'readManifest', 'readLog', 'readDiagnostics', 'note', 'findings', 'inventoryCritic',
   ]);
   const readManifest = parsed.readManifest;
+  if (isPlainRecord(readManifest)
+    && typeof readManifest.candidateSpecSetDigest !== 'string') {
+    return { kind: 'malformed', reason: 'read_manifest_candidate_spec_digest_missing' };
+  }
+  if (isPlainRecord(readManifest)
+    && typeof readManifest.corpusDigest !== 'string') {
+    return { kind: 'malformed', reason: 'read_manifest_corpus_digest_missing' };
+  }
   const validReadManifest = isPlainRecord(readManifest)
     && isStringArray(readManifest.filesReadFully)
     && isStringArray(readManifest.filesTriagedByName)
