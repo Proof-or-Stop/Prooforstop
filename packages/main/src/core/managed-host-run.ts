@@ -1719,6 +1719,31 @@ function boundedCleanupDiagnosticError(error: unknown): string {
   return message.slice(0, 2_000);
 }
 
+export function managedDispatchOutputFailureReason(input: {
+  root: string;
+  storyId: string | null;
+  agentType: string;
+  runId: string;
+}): string | null {
+  if (!input.storyId) return 'managed_dispatch_story_missing';
+  try {
+    const storyStore = new StoryStore(input.root);
+    const configuredInitCheckPath = storyStore.storyFilePath(input.storyId, 'init-check.json');
+    const initCheck = existsSync(configuredInitCheckPath)
+      ? JSON.parse(readFileSync(configuredInitCheckPath, 'utf8')) as InitCheckData
+      : null;
+    if (initCheck && !initCheckSignatureIsValid(input.storyId, storyStore, input.root, initCheck)) {
+      return 'managed_dispatch_output_invalid';
+    }
+    const outputPresent = Array.isArray(initCheck?.agentResults)
+      && initCheck.agentResults.some(row =>
+        row.agentId === input.agentType && row.deliveryRunId === input.runId);
+    return outputPresent ? null : 'managed_dispatch_output_missing';
+  } catch (error) {
+    return `managed_dispatch_output_unreadable:${boundedCleanupDiagnosticError(error)}`;
+  }
+}
+
 function readManagedReviewScratchCleanupDiagnostic(
   paths: ManagedHostRunPaths,
 ): ManagedReviewScratchCleanupDiagnostic | null {
@@ -3345,34 +3370,9 @@ export async function runManagedHostRunWorker(
       }
     }
     if (spec.profile === 'managed_dispatch') {
-      if (!spec.storyId) {
-        return writeTerminal(paths, 'failed', 'managed_dispatch_story_missing', result.replacementSafe, result, now());
-      }
-      let outputPresent = false;
-      try {
-        const storyStore = new StoryStore(spec.root);
-        const configuredInitCheckPath = storyStore.storyFilePath(spec.storyId, 'init-check.json');
-        const initCheck = existsSync(configuredInitCheckPath)
-          ? JSON.parse(readFileSync(configuredInitCheckPath, 'utf8')) as InitCheckData
-          : null;
-        if (initCheck && !initCheckSignatureIsValid(spec.storyId, storyStore, spec.root, initCheck)) {
-          return writeTerminal(paths, 'failed', 'managed_dispatch_output_invalid', result.replacementSafe, result, now());
-        }
-        outputPresent = Array.isArray(initCheck?.agentResults)
-          && initCheck.agentResults.some(row =>
-            row.agentId === spec.agentType && row.deliveryRunId === spec.runId);
-      } catch (error) {
-        return writeTerminal(
-          paths,
-          'failed',
-          `managed_dispatch_output_unreadable:${boundedCleanupDiagnosticError(error)}`,
-          result.replacementSafe,
-          result,
-          now(),
-        );
-      }
-      if (!outputPresent) {
-        return writeTerminal(paths, 'failed', 'managed_dispatch_output_missing', result.replacementSafe, result, now());
+      const outputFailure = managedDispatchOutputFailureReason(spec);
+      if (outputFailure) {
+        return writeTerminal(paths, 'failed', outputFailure, result.replacementSafe, result, now());
       }
     }
     return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());

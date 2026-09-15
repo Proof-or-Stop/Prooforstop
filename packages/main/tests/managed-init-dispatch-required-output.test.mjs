@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { StoryStore } from '../dist/core/store.js';
 import { createHostRunHandlers } from '../dist/handlers/host-run.js';
 import { managedDispatchCodexSandboxMode, materializeHostRunLaunch } from '../dist/core/host-run.js';
-import { readManagedHostRunProjection } from '../dist/core/managed-host-run.js';
+import { managedDispatchOutputFailureReason, readManagedHostRunProjection } from '../dist/core/managed-host-run.js';
 import { validateResourceClaims } from '../dist/core/keyed-scheduler.js';
 import { recomputeInitCheckHash } from '../dist/core/init-check-gate.js';
 import { CANONICAL_CODEX_NONINTERACTIVE_FLAGS } from '../dist/core/host-execution-readiness.js';
@@ -165,6 +165,10 @@ try {
     'an uncontained Linux host must retain the ordinary Codex sandbox');
   assert.equal(managedDispatchCodexSandboxMode('darwin', true), null,
     'container marker names cannot disable the native macOS sandbox');
+  assert.equal(managedDispatchOutputFailureReason({
+    root, storyId: null, agentType: 'proof-or-stop-review-story-init', runId: 'missing-story',
+  }), 'managed_dispatch_story_missing',
+  'a malformed managed dispatch spec must retain its own fail-closed terminal reason');
   const repoConfig = JSON.parse(readFileSync(new URL('../../../proof-or-stop.config.json', import.meta.url), 'utf8'));
   const catalogEntry = repoConfig.validate.commands.find(entry =>
     entry.command === 'node'

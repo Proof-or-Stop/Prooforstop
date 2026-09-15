@@ -10724,7 +10724,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/core/managed-host-run.ts',
-        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managed_dispatch_story_missing', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', 'managed_dispatch_output_invalid', 'initCheckSignatureIsValid', 'row.deliveryRunId === spec.runId'],
+        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managedDispatchOutputFailureReason', 'managed_dispatch_story_missing', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', 'managed_dispatch_output_invalid', 'initCheckSignatureIsValid', 'row.deliveryRunId === input.runId'],
       },
       {
         relPath: 'packages/main/src/handlers/host-run.ts',
@@ -10732,7 +10732,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
-        patterns: ['caller-supplied required reviewer role must fail closed', 'Promise.all(agentTypes.map', 'product-review-recorded', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
+        patterns: ['caller-supplied required reviewer role must fail closed', 'Promise.all(agentTypes.map', 'barrier timeout: peer reviewer never became ready', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
       },
       {
         relPath: 'packages/main/src/core/host-run.ts',
