@@ -155,7 +155,8 @@
     "test:dynamic-validation-operations-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations",
     "test:story-create-direct-lifecycle": "node tests/red/red-story-create-direct-done-bypass.mjs",
     "test:managed-init-reviewer-dispatch": "node tests/managed-init-reviewer-dispatch.test.mjs && node tests/managed-init-reviewer-dispatch-e2e.test.mjs",
-    "test:managed-review-late-descriptor-reset": "node tests/managed-review-late-descriptor-reset.test.mjs"
+    "test:managed-review-late-descriptor-reset": "node tests/managed-review-late-descriptor-reset.test.mjs",
+    "test:managed-init-dispatch-required-output": "node tests/managed-init-dispatch-required-output.test.mjs"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",
