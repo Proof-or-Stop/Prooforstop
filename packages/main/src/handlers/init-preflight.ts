@@ -9,6 +9,7 @@ import {
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
 import type { InitCheckData } from '../core/types.js';
+import { renderManagedInitReviewerDispatches } from '../core/reviewer-launch-guidance.js';
 
 interface InitPreflightArgs {
   storyId: string;
@@ -126,8 +127,9 @@ function initCheckRow(
 ): PrerequisiteRow {
   const id = 'init-check';
   const fix =
-    `run the two INIT reviewers (proof-or-stop-review-story-init + proof-or-stop-product-reviewer) then ` +
-    `proof-or-stop init_check_set --storyId=${storyId}`;
+    `${renderManagedInitReviewerDispatches(storyId, ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'])}\n` +
+    `If a managed reviewer cannot be launched, use the explicit operator fallback: proof-or-stop init_check_repair ` +
+    `'${JSON.stringify({ storyId, acknowledge: true, fallbackReason: '<why both independent INIT reviewers are unavailable and what was checked instead>' })}'`;
   if (!initCheck) {
     return { id, status: 'MISSING', fix, detail: 'init-check.json is missing (no INIT reviewer has persisted yet)' };
   }
