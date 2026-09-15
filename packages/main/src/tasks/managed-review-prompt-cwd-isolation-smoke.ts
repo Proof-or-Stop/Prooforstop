@@ -81,7 +81,7 @@ function main(): void {
   const schemaMatch = providerPrompt.match(
     /--- BEGIN MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---\n([^\n]+)\n--- END MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---/,
   );
-  assert.ok(schemaMatch, 'managed provider prompt embeds the validator-owned final proposal schema');
+  assert.ok(schemaMatch, 'managed provider prompt embeds the shared final proposal shape schema');
   const finalProposalSchema = JSON.parse(schemaMatch[1]!) as {
     required: string[];
     properties: Record<string, { required?: string[]; properties?: Record<string, { required?: string[] }> }>;

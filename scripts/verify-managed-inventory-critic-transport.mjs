@@ -30,7 +30,8 @@ const proposal = {
   readLog: {filesReadFully: files, filesTriagedByName: [], summary: {readCount: 1, tokenCount: null}, digest: 'c'.repeat(64)},
 };
 const classify = value => classifyManagedReviewFinalEnvelope(JSON.stringify(value)).kind;
-assert.equal(classify(proposal), 'valid', 'Existing managed review transport must remain valid');
+assert.equal(classify(proposal), 'malformed',
+  'Topology critic transport without inventoryCritic must fail before it can omit the critic receipt');
 const inventory = {...proposal, inventoryCritic: {
   epochId: 'B-fixture:RI-001', wave: 1,
   findingDispositions: [{finding: {findingId: 'B-fixture:F-001'}, disposition: 'verified_family',
