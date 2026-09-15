@@ -7464,6 +7464,13 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['finalAssistantResult', 'finalAssistantResultCount', 'finalAssistantResultTruncated', 'parseManagedReviewFinalProposal', 'managed_review_final_result_missing', 'assertSealedManagedHostRunArtifacts', 'isRecoverableManagedReviewImportBinding', 'withTerminalAuthorityLock', 'liveOutputDigest', "mismatches.push('live-output')", 'providerLaunchState', 'evidenceBindingSeal', 'cleanupManagedCrossHostReviewWorktree', 'cleanupManagedClaudePromptForTerminal', 'managedClaudePromptDirectoryForRun', 'reapManagedHostRunProviderProcess', 'AMBIGUOUS_PROCESS_CLEANUP', "launchProfile: 'managed_reviewer'", 'delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD', "descriptor.once('finish'", 'worker capability descriptor closed before write completion', 'classifyManagedHostRunCancellation', "reason === 'absolute_deadline_exceeded'", "state: 'timed_out'"]) {
     assert(managedHostRunText.includes(token), `packages/main/src/core/managed-host-run.ts: required final-result/seal authority token missing: ${token}`);
   }
+  const lowLevelHostRunText = read('packages/main/src/core/host-run.ts');
+  for (const token of ['descriptorPeerClosedAfterFinal', "error.code === 'EPIPE'", "error.code === 'ECONNRESET'", 'finalResult.count === 1', 'finalResult.truncated === false']) {
+    assert(lowLevelHostRunText.includes(token), `packages/main/src/core/host-run.ts: required late descriptor-close authority boundary missing: ${token}`);
+  }
+  assert(read('packages/main/package.json').includes('test:managed-review-late-descriptor-reset')
+    && read('packages/main/tests/managed-review-late-descriptor-reset.test.mjs').includes('descriptor reset before any final proposal remains fail closed'),
+  'late descriptor-close tolerance requires executable positive and early-failure controls');
   for (const token of [
     'delete submissionArgs.model',
     'delete submissionArgs.reasoningEffort',

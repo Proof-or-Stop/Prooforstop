@@ -1840,6 +1840,25 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       error: NodeJS.ErrnoException,
     ): void => {
       if (settled) return;
+      // The descriptor authorizes the legacy in-run callback. A provider that
+      // has already emitted exactly one bounded final-result candidate no
+      // longer needs that callback channel: the managed worker will validate
+      // the candidate's schema and exact Story/reviewer tuple before it can
+      // seal evidence. Codex can close fd 3 while its normal JSON stream is
+      // still draining, which Darwin may report as a late EPIPE/ECONNRESET.
+      // Do not let that peer-close overwrite the provider's later authoritative
+      // exit status. Missing, multiple, oversized or malformed candidates still
+      // fail closed in the managed final-result parser; an early descriptor
+      // failure with no candidate keeps the existing kill-and-fail behavior.
+      const descriptorPeerClosedAfterFinal = channel === 'review invocation descriptor'
+        && (error.code === 'EPIPE' || error.code === 'ECONNRESET')
+        && (() => {
+          const finalResult = finalResultScanner.snapshot();
+          return finalResult.count === 1
+            && finalResult.truncated === false
+            && finalResult.result !== null;
+        })();
+      if (descriptorPeerClosedAfterFinal) return;
       terminalReason = 'child_error';
       failureKind = preferredHostFailure(failureKind, 'unknown');
       const detail = error.code ?? error.message ?? 'unknown';

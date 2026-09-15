@@ -67,10 +67,40 @@ child.emit('close', 0, null);
 
 const result = await pending;
 assert.equal(result.exitCode, 0, 'a complete provider-authored final proposal survives a late descriptor reset');
-assert.equal(result.terminalReason, 'child_close');
+assert.equal(result.terminalReason, 'completed');
 assert.equal(result.finalAssistantResult, envelope);
 assert.equal(result.finalAssistantResultCount, 1);
 assert.equal(result.finalAssistantResultTruncated, false);
 assert.equal(killCount, 0, 'late optional descriptor reset must not kill an already-complete provider turn');
+
+const earlyChild = new EventEmitter();
+earlyChild.pid = 424243;
+earlyChild.stdin = new PassThrough();
+earlyChild.stdout = new PassThrough();
+earlyChild.stderr = new PassThrough();
+const earlyDescriptor = new PassThrough();
+earlyChild.stdio = [earlyChild.stdin, earlyChild.stdout, earlyChild.stderr, earlyDescriptor];
+let earlyKillCount = 0;
+earlyChild.kill = () => { earlyKillCount += 1; return true; };
+const earlyPending = defaultHostRunRunner({
+  command: 'fixture-codex', argv: [], env: {}, cwd: tmpdir(), host: 'codex',
+  stdinText: 'managed review prompt',
+  reviewInvocationPayload: () => 'one-shot callback capability',
+  onChunk: () => {},
+}, {
+  spawnChild: () => earlyChild,
+  readProcessStartFingerprint: () => null,
+});
+await new Promise(resolve => setImmediate(resolve));
+const earlyReset = new Error('socket hang up');
+earlyReset.code = 'ECONNRESET';
+earlyDescriptor.emit('error', earlyReset);
+earlyChild.stdout.end();
+earlyChild.stderr.end();
+earlyChild.emit('close', 0, null);
+const earlyResult = await earlyPending;
+assert.equal(earlyResult.exitCode, 1, 'descriptor reset before any final proposal remains fail closed');
+assert.equal(earlyResult.terminalReason, 'child_error');
+assert.equal(earlyKillCount, 1, 'early descriptor failure still terminates the provider');
 
 console.log('MANAGED_REVIEW_LATE_DESCRIPTOR_RESET_GREEN');
