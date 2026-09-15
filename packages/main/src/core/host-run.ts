@@ -60,6 +60,7 @@ import { StringDecoder } from 'node:string_decoder';
 import { fileURLToPath } from 'node:url';
 
 import {
+  CANONICAL_CODEX_NONINTERACTIVE_FLAGS,
   canonicalReviewHostLauncherSpec,
   classifyHostExecutionDiagnosticText,
   classifyHostExecutionFailure,
@@ -2121,7 +2122,7 @@ export function materializeHostRunLaunch(
     if (args.host !== 'codex') throw new Error('host_run: protected Codex review profile requires host=codex');
     // The managed-review worker already runs the provider inside the signed
     // Darwin read-only lane, while managed dispatch bypasses nested sandboxing
-    // only inside a Linux Docker/OCI boundary detected from a root-owned marker.
+    // only when a Linux Docker/OCI marker path is present.
     // Asking Codex to install another seatbelt/bwrap profile inside either outer
     // boundary can fail before evidence collection. Uncontained Linux and Darwin
     // managed dispatches deliberately retain the ordinary Codex sandbox.
@@ -2136,7 +2137,7 @@ export function materializeHostRunLaunch(
       argv: [
         'exec', '--json',
         ...(args.launchProfile === 'managed_dispatch'
-          ? ['--skip-git-repo-check', '--ephemeral', '--ignore-rules']
+          ? [...CANONICAL_CODEX_NONINTERACTIVE_FLAGS]
           : []),
         ...(selection.model ? ['--model', selection.model] : []),
         ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),

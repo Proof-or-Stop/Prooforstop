@@ -10732,11 +10732,15 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
-        patterns: ['caller-supplied required reviewer role must fail closed', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
+        patterns: ['caller-supplied required reviewer role must fail closed', 'Promise.all(agentTypes.map', 'product-review-recorded', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
       },
       {
         relPath: 'packages/main/src/core/host-run.ts',
-        patterns: ['managedDispatchCodexSandboxMode', 'materializeHostRunLaunch', "existsSync('/.dockerenv')", "existsSync('/run/.containerenv')", "launchProfile === 'managed_dispatch'", "'--ephemeral'", "'--ignore-rules'", "'danger-full-access'"],
+        patterns: ['CANONICAL_CODEX_NONINTERACTIVE_FLAGS', 'managedDispatchCodexSandboxMode', 'materializeHostRunLaunch', "existsSync('/.dockerenv')", "existsSync('/run/.containerenv')", "launchProfile === 'managed_dispatch'", "'danger-full-access'"],
+      },
+      {
+        relPath: 'packages/main/src/core/host-execution-readiness.ts',
+        patterns: ['CANONICAL_CODEX_NONINTERACTIVE_FLAGS', "'--skip-git-repo-check'", "'--ephemeral'", "'--ignore-rules'"],
       },
       {
         relPath: 'packages/main/tests/managed-init-dispatch-required-output.test.mjs',

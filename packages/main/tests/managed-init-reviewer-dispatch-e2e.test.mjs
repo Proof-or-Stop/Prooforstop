@@ -64,7 +64,7 @@ try {
   assert.match(`${envSpoof.stderr}\n${envSpoof.stdout}`, /delivery_not_acknowledged/);
 
   const fakeCodex = join(bin, 'codex');
-  writeFileSync(fakeCodex, `#!/bin/sh\nset -eu\ncat > "${root}/delivered-$PROOF_OR_STOP_AGENT.txt"\ncase "$(cat "${root}/delivered-$PROOF_OR_STOP_AGENT.txt")" in *"Review the initial background + checklist"*|*"Review whether the INIT"*) ;; *) exit 41;; esac\n"${process.execPath}" "${cli}" init_check_set "{\\"storyId\\":\\"${storyId}\\",\\"issues\\":[],\\"agentId\\":\\"$PROOF_OR_STOP_AGENT\\"}"\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'\n`);
+  writeFileSync(fakeCodex, `#!/bin/sh\nset -eu\ncat > "${root}/delivered-$PROOF_OR_STOP_AGENT.txt"\ncase "$(cat "${root}/delivered-$PROOF_OR_STOP_AGENT.txt")" in *"Review the initial background + checklist"*|*"Review whether the INIT"*) ;; *) exit 41;; esac\n"${process.execPath}" "${cli}" init_check_set "{\\"storyId\\":\\"${storyId}\\",\\"issues\\":[],\\"agentId\\":\\"$PROOF_OR_STOP_AGENT\\"}"\nif [ "$PROOF_OR_STOP_AGENT" = "proof-or-stop-product-reviewer" ]; then\n  : > "${root}/product-review-recorded"\n  sleep 0.2\nelse\n  while [ ! -f "${root}/product-review-recorded" ]; do sleep 0.02; done\nfi\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'\n`);
   chmodSync(fakeCodex, 0o755);
   process.env.PATH = `${bin}:${oldPath ?? ''}`;
   process.env.PROOF_OR_STOP_PROJECT_ROOT = root;
@@ -75,16 +75,17 @@ try {
       return { pid: process.pid };
     },
   });
-  const runIds = [];
-  for (const agentType of ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer']) {
+  const agentTypes = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'];
+  const results = await Promise.all(agentTypes.map(async agentType => {
     const result = await handlers.host_run({
       host: 'codex', storyId, agentType,
       managedDispatch: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
     });
     assert.equal(result.exitCode, 0, JSON.stringify(result));
-    runIds.push(result.runId);
     assert.match(readFileSync(join(root, `delivered-${agentType}.txt`), 'utf8'), /do not spawn or delegate another reviewer/i);
-  }
+    return result;
+  }));
+  const runIds = results.map(result => result.runId);
   const evidence = store.readInitCheck(storyId);
   assert.deepEqual(evidence?.agentResults?.map(row => row.agentId).sort(),
     ['proof-or-stop-product-reviewer', 'proof-or-stop-review-story-init']);

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -9,6 +9,7 @@ import { managedDispatchCodexSandboxMode, materializeHostRunLaunch } from '../di
 import { readManagedHostRunProjection } from '../dist/core/managed-host-run.js';
 import { validateResourceClaims } from '../dist/core/keyed-scheduler.js';
 import { recomputeInitCheckHash } from '../dist/core/init-check-gate.js';
+import { CANONICAL_CODEX_NONINTERACTIVE_FLAGS } from '../dist/core/host-execution-readiness.js';
 
 const root = mkdtempSync(join(tmpdir(), 'managed-init-required-output-'));
 const storyId = 'B-managed-init-required-output';
@@ -144,15 +145,20 @@ try {
     { platform: 'linux', containerBoundaryPresent: true });
   assert.equal(containedLaunch.command, 'codex');
   assert.deepEqual(containedLaunch.argv, [
-    'exec', '--json', '--skip-git-repo-check', '--ephemeral', '--ignore-rules',
+    'exec', '--json', ...CANONICAL_CODEX_NONINTERACTIVE_FLAGS,
     '-s', 'danger-full-access', '-C', root, '-',
   ]);
   const ordinaryLaunch = materializeHostRunLaunch(launchArgs,
     { platform: 'linux', containerBoundaryPresent: false });
   assert.equal(ordinaryLaunch.command, 'codex');
   assert.deepEqual(ordinaryLaunch.argv, [
-    'exec', '--json', '--skip-git-repo-check', '--ephemeral', '--ignore-rules', '-',
+    'exec', '--json', ...CANONICAL_CODEX_NONINTERACTIVE_FLAGS, '-',
   ]);
+  assert.equal(managedDispatchCodexSandboxMode(),
+    process.platform === 'linux' && (existsSync('/.dockerenv') || existsSync('/run/.containerenv'))
+      ? 'danger-full-access'
+      : null,
+    'the production default must use the current platform and Docker/OCI marker presence');
   assert.equal(managedDispatchCodexSandboxMode('linux', true), 'danger-full-access',
     'a Linux reviewer already inside Docker/OCI must not install a nested bwrap sandbox');
   assert.equal(managedDispatchCodexSandboxMode('linux', false), null,
