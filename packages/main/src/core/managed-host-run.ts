@@ -96,6 +96,7 @@ import { currentMaterialHash } from './evidence-freshness.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
   type ManagedSupervisionCode, type ManagedSupervisionDiagnostic } from './managed-run-progress.js';
+import { StoryStore } from './store.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
 export const MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS = 30_000;
@@ -3085,6 +3086,8 @@ export async function runManagedHostRunWorker(
           ? { launchProfile: 'cross_host_review_codex' as const }
           : isIsolatedReviewerProfile(spec.profile)
             ? { launchProfile: 'managed_reviewer' as const }
+            : spec.profile === 'managed_dispatch'
+              ? { launchProfile: 'managed_dispatch' as const }
             : {}),
         ...(readonlyLane ? {managedReadonlyLayout: readonlyLane.layout} : {}),
         cwd: spec.cwd,
@@ -3337,6 +3340,20 @@ export async function runManagedHostRunWorker(
       }
       if (!readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
         return writeTerminal(paths, 'failed', 'managed_review_final_result_missing', result.replacementSafe, result, now());
+      }
+    }
+    if (spec.profile === 'managed_dispatch') {
+      let outputPresent = false;
+      try {
+        const initCheck = new StoryStore(spec.root).readInitCheck(spec.storyId!);
+        outputPresent = Array.isArray(initCheck?.agentResults)
+          && initCheck.agentResults.some(row =>
+            row.agentId === spec.agentType && row.deliveryRunId === spec.runId);
+      } catch {
+        outputPresent = false;
+      }
+      if (!outputPresent) {
+        return writeTerminal(paths, 'failed', 'managed_dispatch_output_missing', result.replacementSafe, result, now());
       }
     }
     return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());

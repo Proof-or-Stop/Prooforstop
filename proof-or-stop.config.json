@@ -3513,6 +3513,25 @@
       {
         "command": "node",
         "args": [
+          "packages/main/tests/managed-init-dispatch-required-output.test.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-process",
+            "key": "managed-host-provider",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/dist/tasks/managed-host-run-command-smoke.js"
         ],
         "timeoutMs": 600000,

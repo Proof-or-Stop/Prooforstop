@@ -10724,7 +10724,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/core/managed-host-run.ts',
-        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest'],
+        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managed_dispatch_output_missing', 'row.deliveryRunId === spec.runId'],
       },
       {
         relPath: 'packages/main/src/handlers/host-run.ts',
@@ -10733,6 +10733,14 @@ const inventory = [
       {
         relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
         patterns: ['caller-supplied required reviewer role must fail closed', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],
+      },
+      {
+        relPath: 'packages/main/src/core/host-run.ts',
+        patterns: ['managedDispatchCodexSandboxMode', "existsSync('/.dockerenv')", "existsSync('/run/.containerenv')", "launchProfile === 'managed_dispatch'", "'danger-full-access'"],
+      },
+      {
+        relPath: 'packages/main/tests/managed-init-dispatch-required-output.test.mjs',
+        patterns: ['managedDispatch must fail when the provider exits zero without its bound init_check_set output', 'managed_dispatch_output_missing', "managedDispatchCodexSandboxMode('linux', true)", "managedDispatchCodexSandboxMode('linux', false)", "managedDispatchCodexSandboxMode('darwin', true)"],
       },
     ],
   },

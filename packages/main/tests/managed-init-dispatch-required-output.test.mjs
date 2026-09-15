@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { StoryStore } from '../dist/core/store.js';
 import { createHostRunHandlers } from '../dist/handlers/host-run.js';
+import { managedDispatchCodexSandboxMode } from '../dist/core/host-run.js';
+import { readManagedHostRunProjection } from '../dist/core/managed-host-run.js';
 
 const root = mkdtempSync(join(tmpdir(), 'managed-init-required-output-'));
 const storyId = 'B-managed-init-required-output';
@@ -60,9 +62,15 @@ try {
   });
   assert.equal(result.exitCode, 1,
     'managedDispatch must fail when the provider exits zero without its bound init_check_set output');
-  assert.equal(result.state, 'failed');
-  assert.match(result.reason ?? '', /managed_dispatch_output_missing/);
+  assert.match(readManagedHostRunProjection(root, result.runId).terminal?.reason ?? '',
+    /managed_dispatch_output_missing/);
   assert.equal(store.readInitCheck(storyId), null);
+  assert.equal(managedDispatchCodexSandboxMode('linux', true), 'danger-full-access',
+    'a Linux reviewer already inside Docker/OCI must not install a nested bwrap sandbox');
+  assert.equal(managedDispatchCodexSandboxMode('linux', false), null,
+    'an uncontained Linux host must retain the ordinary Codex sandbox');
+  assert.equal(managedDispatchCodexSandboxMode('darwin', true), null,
+    'container marker names cannot disable the native macOS sandbox');
   console.log('MANAGED_INIT_DISPATCH_REQUIRED_OUTPUT_GREEN');
 } finally {
   rmSync(root, { recursive: true, force: true });

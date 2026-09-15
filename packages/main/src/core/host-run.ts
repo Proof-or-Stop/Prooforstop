@@ -382,7 +382,7 @@ export interface HostRunArgs {
   /** Optional caller cancellation. */
   signal?: AbortSignal;
   /** Exact protected launcher profile owned by cross_host_review or the managed-review worker. */
-  launchProfile?: 'cross_host_review_codex' | 'managed_reviewer';
+  launchProfile?: 'cross_host_review_codex' | 'managed_reviewer' | 'managed_dispatch';
   finalResultSchema?: typeof ACCEPTANCE_REVIEW_FINAL_SCHEMA;
   /**
    * Internal durable-run identity for the managed Claude prompt custody path.
@@ -2097,10 +2097,21 @@ export function managedClaudePromptDirectoryForRun(cwd: string, runId: string): 
   return join(cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts', runId);
 }
 
+export function managedDispatchCodexSandboxMode(
+  platform: NodeJS.Platform = process.platform,
+  containerBoundaryPresent = existsSync('/.dockerenv') || existsSync('/run/.containerenv'),
+): 'danger-full-access' | null {
+  return platform === 'linux' && containerBoundaryPresent ? 'danger-full-access' : null;
+}
+
 function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
   const selection = normalizeHostRunModelSelection(args);
+  const managedDispatchSandbox = args.launchProfile === 'managed_dispatch' && args.host === 'codex'
+    ? managedDispatchCodexSandboxMode()
+    : null;
   if (args.launchProfile === 'cross_host_review_codex'
-    || (args.launchProfile === 'managed_reviewer' && args.host === 'codex')) {
+    || (args.launchProfile === 'managed_reviewer' && args.host === 'codex')
+    || managedDispatchSandbox !== null) {
     if (args.host !== 'codex') throw new Error('host_run: protected Codex review profile requires host=codex');
     // The managed-review worker already runs the provider inside the signed
     // Darwin read-only lane. Asking Codex to install a second seatbelt profile
@@ -2109,7 +2120,7 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
     // provider sandbox; the outer lane remains the enforcement boundary.
     const sandboxMode = args.launchProfile === 'managed_reviewer'
       ? 'danger-full-access'
-      : 'read-only';
+      : managedDispatchSandbox ?? 'read-only';
     return {
       command: 'codex',
       // Formal managed review consumes Codex's observable JSON event stream:
@@ -2117,6 +2128,9 @@ function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
       // not ordinary rendered final prose.
       argv: [
         'exec', '--json',
+        ...(args.launchProfile === 'managed_dispatch'
+          ? ['--skip-git-repo-check', '--ephemeral', '--ignore-rules']
+          : []),
         ...(selection.model ? ['--model', selection.model] : []),
         ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
         '-s', sandboxMode, '-C', args.cwd, '-',

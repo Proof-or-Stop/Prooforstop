@@ -247,6 +247,15 @@ INIT reviewer 使用独立的 `managedDispatch` 模式。它不接受调用方 p
 digest 与 provider process identity 封存在 managed run 中。`init_check_set`
 只接受该 live process group 的调用；INIT gate 还会验证其完成态 receipt。
 
+provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story store 中读到
+与该 Story、role 和 managed run ID 精确绑定的 `agentResults` 记录后才写
+`completed` terminal，否则以 `managed_dispatch_output_missing` 失败。
+
+Linux Docker/OCI 中的 Codex reviewer 已位于外层容器隔离边界。PoS 检测到
+`/.dockerenv` 或 `/run/.containerenv` 时为这个 managedDispatch 子进程关闭
+不可用的嵌套 bwrap；未容器化 Linux 与 Darwin 不采用该旁路，仍使用 Codex
+正常 sandbox。
+
 ```bash
 proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'
 proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-product-reviewer","managedDispatch":true,"detach":true,"json":true}'
