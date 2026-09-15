@@ -6,6 +6,7 @@ const root = fileURLToPath(new URL('../../..', import.meta.url));
 const hostRun = readFileSync(`${root}/packages/main/src/handlers/host-run.ts`, 'utf8');
 const catalog = readFileSync(`${root}/packages/main/src/cli/command-catalog.ts`, 'utf8');
 const machine = readFileSync(`${root}/packages/main/src/core/machine.ts`, 'utf8');
+const reviewerLaunchGuidance = readFileSync(`${root}/packages/main/src/core/reviewer-launch-guidance.ts`, 'utf8');
 const initCheck = readFileSync(`${root}/packages/main/src/handlers/init-check.ts`, 'utf8');
 const managedHostRun = readFileSync(`${root}/packages/main/src/core/managed-host-run.ts`, 'utf8');
 
@@ -25,8 +26,10 @@ assert.match(initCheck, /authority\.source.*dispatched-env|dispatched-env.*autho
   'caller-supplied reviewer role ids must not count as independent evidence');
 assert.match(catalog, /managedDispatch:/,
   'the public CLI schema must expose managedDispatch');
-assert.match(machine, /managedDispatch: true/,
-  'INIT recovery guidance must use the controller-owned delivery path');
+assert.match(machine, /renderManagedInitReviewerDispatches\(storyId, missingAgents\)/,
+  'INIT recovery guidance must use the shared controller-owned delivery renderer');
+assert.match(reviewerLaunchGuidance, /managedDispatch: true/,
+  'the shared INIT reviewer renderer must use the controller-owned delivery path');
 assert.doesNotMatch(machine, /renderReviewerDispatchLaunch\(\{ storyId, agentType: 'proof-or-stop-review-story-init'/,
   'INIT recovery guidance must not depend on host spawn_agent/followup_task behavior');
 
