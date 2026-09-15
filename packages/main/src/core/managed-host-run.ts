@@ -97,6 +97,8 @@ import { isMaterialExcludedPath } from './material-path-policy.js';
 import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
   type ManagedSupervisionCode, type ManagedSupervisionDiagnostic } from './managed-run-progress.js';
 import { StoryStore } from './store.js';
+import { initCheckSignatureIsValid } from './init-check-gate.js';
+import type { InitCheckData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
 export const MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS = 30_000;
@@ -3343,14 +3345,19 @@ export async function runManagedHostRunWorker(
       }
     }
     if (spec.profile === 'managed_dispatch') {
+      if (!spec.storyId) {
+        return writeTerminal(paths, 'failed', 'managed_dispatch_story_missing', result.replacementSafe, result, now());
+      }
       let outputPresent = false;
       try {
         const storyStore = new StoryStore(spec.root);
-        const configuredInitCheckPath = storyStore.storyFilePath(spec.storyId!, 'init-check.json');
-        if (existsSync(configuredInitCheckPath)) {
-          JSON.parse(readFileSync(configuredInitCheckPath, 'utf8'));
+        const configuredInitCheckPath = storyStore.storyFilePath(spec.storyId, 'init-check.json');
+        const initCheck = existsSync(configuredInitCheckPath)
+          ? JSON.parse(readFileSync(configuredInitCheckPath, 'utf8')) as InitCheckData
+          : null;
+        if (initCheck && !initCheckSignatureIsValid(spec.storyId, storyStore, spec.root, initCheck)) {
+          return writeTerminal(paths, 'failed', 'managed_dispatch_output_invalid', result.replacementSafe, result, now());
         }
-        const initCheck = storyStore.readInitCheck(spec.storyId!);
         outputPresent = Array.isArray(initCheck?.agentResults)
           && initCheck.agentResults.some(row =>
             row.agentId === spec.agentType && row.deliveryRunId === spec.runId);

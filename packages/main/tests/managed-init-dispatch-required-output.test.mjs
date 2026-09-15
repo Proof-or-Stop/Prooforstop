@@ -5,9 +5,10 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { StoryStore } from '../dist/core/store.js';
 import { createHostRunHandlers } from '../dist/handlers/host-run.js';
-import { managedDispatchCodexSandboxMode } from '../dist/core/host-run.js';
+import { managedDispatchCodexSandboxMode, materializeHostRunLaunch } from '../dist/core/host-run.js';
 import { readManagedHostRunProjection } from '../dist/core/managed-host-run.js';
 import { validateResourceClaims } from '../dist/core/keyed-scheduler.js';
+import { recomputeInitCheckHash } from '../dist/core/init-check-gate.js';
 
 const root = mkdtempSync(join(tmpdir(), 'managed-init-required-output-'));
 const storyId = 'B-managed-init-required-output';
@@ -75,7 +76,7 @@ try {
     runner: async plan => {
       const liveRunId = plan.env.LATTICE_MANAGED_HOST_RUN_ID;
       assert.ok(liveRunId, 'managed dispatch runner must receive its live run ID');
-      store.writeInitCheck(storyId, {
+      const initCheck = {
         storyId, checkedAt: new Date().toISOString(), reviewRound: '',
         agentId: 'proof-or-stop-review-story-init', issues: [],
         agentResults: [{
@@ -83,7 +84,9 @@ try {
           deliveryRunId: deliveryRunId(liveRunId),
         }],
         _hash: '',
-      });
+      };
+      initCheck._hash = recomputeInitCheckHash(storyId, store, root, initCheck);
+      store.writeInitCheck(storyId, initCheck);
       return successfulRunnerResult;
     },
   }).host_run({
@@ -103,6 +106,21 @@ try {
   assert.equal(readManagedHostRunProjection(root, positiveResult.runId).terminal?.reason,
     'provider_completed');
 
+  const tampered = store.readInitCheck(storyId);
+  assert.ok(tampered);
+  tampered._hash = 'tampered';
+  store.writeInitCheck(storyId, tampered);
+  const invalidResult = await createHostRunHandlers({ root, scanRoot: root, store }, {
+    runner: async () => successfulRunnerResult,
+  }).host_run({
+    host: 'codex', storyId, agentType: 'proof-or-stop-review-story-init',
+    managedDispatch: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+  });
+  assert.equal(invalidResult.exitCode, 1);
+  assert.equal(readManagedHostRunProjection(root, invalidResult.runId).terminal?.reason,
+    'managed_dispatch_output_invalid',
+    'a tampered INIT result must not satisfy managed dispatch output');
+
   const unreadableResult = await createHostRunHandlers({ root, scanRoot: root, store }, {
     runner: async () => {
       writeFileSync(store.storyFilePath(storyId, 'init-check.json'), '{invalid json');
@@ -116,6 +134,25 @@ try {
   assert.match(readManagedHostRunProjection(root, unreadableResult.runId).terminal?.reason ?? '',
     /^managed_dispatch_output_unreadable:/,
     'an unreadable INIT result must remain fail-closed with an operator-visible diagnostic');
+
+  const launchArgs = {
+    host: 'codex', storyId, agentType: 'proof-or-stop-review-story-init', phase: 'INIT',
+    promptText: 'Review INIT.', env: {}, cwd: root, root,
+    recordedAt: new Date().toISOString(), projectRootHash: 'fixture', launchProfile: 'managed_dispatch',
+  };
+  const containedLaunch = materializeHostRunLaunch(launchArgs,
+    { platform: 'linux', containerBoundaryPresent: true });
+  assert.equal(containedLaunch.command, 'codex');
+  assert.deepEqual(containedLaunch.argv, [
+    'exec', '--json', '--skip-git-repo-check', '--ephemeral', '--ignore-rules',
+    '-s', 'danger-full-access', '-C', root, '-',
+  ]);
+  const ordinaryLaunch = materializeHostRunLaunch(launchArgs,
+    { platform: 'linux', containerBoundaryPresent: false });
+  assert.equal(ordinaryLaunch.command, 'codex');
+  assert.deepEqual(ordinaryLaunch.argv, [
+    'exec', '--json', '--skip-git-repo-check', '--ephemeral', '--ignore-rules', '-',
+  ]);
   assert.equal(managedDispatchCodexSandboxMode('linux', true), 'danger-full-access',
     'a Linux reviewer already inside Docker/OCI must not install a nested bwrap sandbox');
   assert.equal(managedDispatchCodexSandboxMode('linux', false), null,

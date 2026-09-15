@@ -10724,7 +10724,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/core/managed-host-run.ts',
-        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', 'row.deliveryRunId === spec.runId'],
+        patterns: ['resolveManagedDispatchInvocation', "spec.profile !== 'managed_dispatch'", 'verifyManagedDispatchDelivery', 'bindingProjectionDigest', 'managed_dispatch_story_missing', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', 'managed_dispatch_output_invalid', 'initCheckSignatureIsValid', 'row.deliveryRunId === spec.runId'],
       },
       {
         relPath: 'packages/main/src/handlers/host-run.ts',
@@ -10736,11 +10736,11 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/core/host-run.ts',
-        patterns: ['managedDispatchCodexSandboxMode', "existsSync('/.dockerenv')", "existsSync('/run/.containerenv')", "launchProfile === 'managed_dispatch'", "'danger-full-access'"],
+        patterns: ['managedDispatchCodexSandboxMode', 'materializeHostRunLaunch', "existsSync('/.dockerenv')", "existsSync('/run/.containerenv')", "launchProfile === 'managed_dispatch'", "'--ephemeral'", "'--ignore-rules'", "'danger-full-access'"],
       },
       {
         relPath: 'packages/main/tests/managed-init-dispatch-required-output.test.mjs',
-        patterns: ['managedDispatch must fail when the provider exits zero without its bound init_check_set output', 'a same-role result from another run must not satisfy managed dispatch output', 'an exact Story, role, and run ID result must satisfy managed dispatch output', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', "managedDispatchCodexSandboxMode('linux', true)", "managedDispatchCodexSandboxMode('linux', false)", "managedDispatchCodexSandboxMode('darwin', true)"],
+        patterns: ['managedDispatch must fail when the provider exits zero without its bound init_check_set output', 'a same-role result from another run must not satisfy managed dispatch output', 'an exact Story, role, and run ID result must satisfy managed dispatch output', 'a tampered INIT result must not satisfy managed dispatch output', 'an unreadable INIT result must remain fail-closed', 'materializeHostRunLaunch', 'managed_dispatch_output_missing', 'managed_dispatch_output_unreadable', "managedDispatchCodexSandboxMode('linux', true)", "managedDispatchCodexSandboxMode('linux', false)", "managedDispatchCodexSandboxMode('darwin', true)"],
       },
     ],
   },

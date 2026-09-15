@@ -251,12 +251,14 @@ provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story 
 与该 Story、role 和 managed run ID 精确绑定的 `agentResults` 记录后才写
 `completed` terminal。记录不存在或不匹配时以
 `managed_dispatch_output_missing` 失败；配置路径中的记录无法读取或解析时以
-`managed_dispatch_output_unreadable` 保留受限错误诊断并继续 fail closed。
+`managed_dispatch_output_unreadable` 保留受限错误诊断并继续 fail closed；签名
+或当前 Story 内容绑定失效时以 `managed_dispatch_output_invalid` 失败。
 
 Linux Docker/OCI 中的 Codex reviewer 已位于外层容器隔离边界。PoS 检测到
 `/.dockerenv` 或 `/run/.containerenv` 时为这个 managedDispatch 子进程关闭
 不可用的嵌套 bwrap；未容器化 Linux 与 Darwin 不采用该旁路，仍使用 Codex
-正常 sandbox。
+正常 sandbox。两条路径都保留既有 canonical Codex 非交互参数
+`--skip-git-repo-check --ephemeral --ignore-rules`；容器检测只决定 sandbox mode。
 
 ```bash
 proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'

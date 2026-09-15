@@ -2104,10 +2104,16 @@ export function managedDispatchCodexSandboxMode(
   return platform === 'linux' && containerBoundaryPresent ? 'danger-full-access' : null;
 }
 
-function materializeLaunch(args: HostRunArgs): MaterializedLaunch {
+export function materializeHostRunLaunch(
+  args: HostRunArgs,
+  managedDispatchEnvironment?: { platform: NodeJS.Platform; containerBoundaryPresent: boolean },
+): MaterializedLaunch {
   const selection = normalizeHostRunModelSelection(args);
   const managedDispatchSandbox = args.launchProfile === 'managed_dispatch' && args.host === 'codex'
-    ? managedDispatchCodexSandboxMode()
+    ? managedDispatchCodexSandboxMode(
+      managedDispatchEnvironment?.platform,
+      managedDispatchEnvironment?.containerBoundaryPresent,
+    )
     : null;
   if (args.launchProfile === 'cross_host_review_codex'
     || (args.launchProfile === 'managed_reviewer' && args.host === 'codex')
@@ -2457,7 +2463,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     }
     let spawn: HostRunSpawnResult;
     try {
-      spawn = await invokeRunner(materializeLaunch(args), admission);
+      spawn = await invokeRunner(materializeHostRunLaunch(args), admission);
     } catch (error) {
       if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
       throw error;
@@ -2627,7 +2633,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
 
   let spawn: HostRunSpawnResult;
   try {
-    spawn = await invokeRunner(materializeLaunch(args), admission);
+    spawn = await invokeRunner(materializeHostRunLaunch(args), admission);
   } catch (error) {
     if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
     throw error;
