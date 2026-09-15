@@ -14,9 +14,9 @@ Codex and Claude managed-review adapters now share one generated final-proposal 
 
 ## Verification
 
-Lab RED reproduced the missing schema in the managed provider prompt. GREEN proves a minimal schema-conforming proposal passes terminal validation, explicit sha256 routing digests remain compatible, nested extras fail closed, and topology-critic proposals without inventoryCritic fail closed. The managed inventory critic transport verifier passed every authenticated import and negative-control scenario. The process-fact verifier reached the new contract checks; its unrelated isolated CLI fixture later failed because copied installations lacked proper-lockfile/typescript. Codex Sol/high found and closed the stale critic transport expectation plus digest, nested diagnostic, process-fact, and canonical-suite registration gaps. A final focused Sol/high audit of immutable HEAD 16d8eafb3808aaf91b2fbf08cbf3d7b8012fdfca reported no findings.
+Lab RED reproduced the missing schema in the managed provider prompt. GREEN proves a minimal schema-conforming proposal passes terminal validation, explicit sha256 routing digests remain compatible, nested extras fail closed, and topology-critic proposals without inventoryCritic fail closed. The managed inventory critic transport verifier passed every authenticated import and negative-control scenario. The process-fact verifier reached the new contract checks; its unrelated isolated CLI fixture later failed because copied installations lacked proper-lockfile/typescript. Codex Sol/high found and closed the stale critic transport expectation plus digest, nested diagnostic, process-fact, canonical-suite registration, and final static-binding gaps. The final immutable-candidate audit is recorded against the repair commit below.
 
-Maintenance provenance: codex/lab-managed-review-final-schema-contract, repair bdfcce47db017a995b21f9f5b20f60647b5c6260.
+Maintenance provenance: codex/lab-managed-review-final-schema-contract; the repair commit is the final code-and-evidence commit immediately following this release metadata commit.
 Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
