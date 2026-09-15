@@ -72,6 +72,11 @@ function ancestors(pid: number, rows: ReturnType<typeof table> = table()): numbe
 function sameProcess(value: ProcessIdentity): boolean {
   try {const current=identity(value.pid);return current.start===value.start&&current.pgid===value.pgid;}catch{return false;}
 }
+/** The enrollment predicate of every socket operation: the same identity comparison, observed with the registered retry, so one transient process-table failure is retried and only an exhausted observation is refused, as a typed refusal. */
+function sameProcessObserved(value: ProcessIdentity): boolean {
+  const current = observeWithRetry(() => identity(value.pid));
+  return current.start === value.start && current.pgid === value.pgid;
+}
 /** Read-only observations for the cooperating isolation helper, never enrollment authority. */
 export function observeValidationReservationChild(pid:number): ProcessIdentity {return identity(pid);}
 export function validationReservationChildIdentityMatches(value:ProcessIdentity):boolean{return sameProcess(value);}
@@ -423,7 +428,7 @@ export async function withMachineReservationController<T>(input: MachineReservat
   // stays at its more conservative state until the next successful write.
   const unwritable = (error: unknown) => failure('residual record unwritable: ' + (error instanceof Error ? error.message : String(error)).slice(0, 200));
   const publishOrRefuse = (): void => { try { publish(); } catch (error) { throw unwritable(error); } };
-  const enrollment = (subject: ProcessIdentity, rows: ReturnType<typeof table> = table(), same: (value: ProcessIdentity) => boolean = sameProcess): string[] => {
+  const enrollment = (subject: ProcessIdentity, rows: ReturnType<typeof table> = table(), same: (value: ProcessIdentity) => boolean = sameProcessObserved): string[] => {
     if (!same(subject)) throw failure('request process changed');
     for (const pid of [subject.pid,...ancestors(subject.pid, rows)]) { const known=registered.get(pid); if (!known || !same(known)) continue;
       if (known.parents.some(id=>![...active.values()].some(grant=>grant.grantId===id && !grant.revoked && Date.now()<grant.deadlineAt))) throw failure('parent invocation released');
@@ -609,7 +614,7 @@ export async function withMachineReservationController<T>(input: MachineReservat
           const grant: Grant = {reservation:owner.lockId,subject,nonce:input.nonce,operation:'cancel',resources:null,deadlineAt:input.deadlineAt,grantId:randomUUID()};
           socket.write(JSON.stringify({grant,signature:signCanonical(grant,keys.privateKey)})+'\n');return;
         }
-        const parents=enrollment(subject, observeWithRetry(() => table()));
+        const parents=enrollment(subject, observeWithRetry(() => table()), sameProcessObserved);
         if (input.operation === 'attempt') {
           const ownedPending=input.pendingToken && pendingChildren.get(input.pendingToken);
           if(!ownedPending || typeof input.cleanupCapability!=='string' || input.cleanupCapability!==ownedPending.cleanupCapability)throw failure('pending mutation capability not owned');

@@ -403,6 +403,18 @@ dequeued only where it still sits (a request already removed must never remove
 a neighbour, which a splice at index -1 would silently do); the closure is
 defined above the retirement slice the lifecycle unit controls evaluate.
 
+The enrollment check that admits every socket operation (register, attempt,
+note, confirm and cancel) observes the request subject with the same retried
+observation as every other kernel observation on that path, so one failing
+process-table observation is retried and only an exhausted observation is
+refused; before the sixteenth round that one predicate observed once and
+swallowed the failure into a definitive refusal, which the executor folded
+into a spurious infrastructure failure. `verify-nested-reservation-faults.mjs`
+mode `enrollment-observation-transient` fails the owner's first observation of
+a descendant's request subject and asserts that the request is still admitted;
+against the module before this round the same failure refused it as
+`request process changed`.
+
 Kernel process-table (`ps`) and descriptor (`lsof`) observation failures are
 typed delegation refusals like every other kernel observation: the descriptor
 observation inside the bootstrap reader retries with the registered policy and
@@ -791,7 +803,7 @@ failing case is the environmental refusal above.
 
 ## Verification boundaries
 
-Sixty direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
+Sixty-one direct `node scripts/verify-nested-reservation-registered.mjs <selector>`
 commands are registered in `proof-or-stop.config.json`; the matching
 `test:nested-reservation-*` entries in `packages/main/package.json` are
 convenience aliases for manual runs and are not validation gate inputs. The
@@ -855,7 +867,9 @@ under 9.9 seconds), and the fourteenth-round sweep of all fifty-nine in 202.6
 seconds (`core` 36.4 seconds, every 30-second selector under 4.2 seconds,
 every 60-second selector under 9.8 seconds), and the fifteenth-round sweep of all sixty in 210.9 seconds (`core`
 36.8 seconds, every 30-second selector under 6.9 seconds, every
-60-second selector under 10.0 seconds). Before the `core` selector
+60-second selector under 10.0 seconds), and the sixteenth-round sweep of all sixty-one in 218.2 seconds
+(`core` 38.0 seconds, every 30-second selector under 7.0 seconds, every
+60-second selector under 9.8 seconds). Before the `core` selector
 moved into a private namespace it exercised the real machine pool and failed
 once in a sequential sweep with NESTED_FIXTURE_STARTED_REQUIRED while an
 identity verifier self-test in another checkout held that pool; the Lab replay
