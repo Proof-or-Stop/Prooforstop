@@ -1,5 +1,72 @@
 # Changelog
 
+## Lab benchmark-suite-registration - v0.3.395 - 2026-09-16
+
+# Bounded benchmark suite registration repair
+
+B-0980 full validation CW-005 reported canonical inventory failures naming
+`unknownPolicy=[test:benchmark-framework-hardening]` and
+`stalePolicy=[test:managed-review-final-schema]`. The configuration responsibility
+Story still contains only its original 13 added lines. This Lab repairs the
+repository test entry that directly prevents benchmark prerequisite closure.
+It does not implement the benchmark product or certify Story DONE.
+
+## Scope and behavior
+
+- Register the existing benchmark framework hardening member in RESOURCE_POLICY.
+- Restore the managed final-schema command and serial membership originally
+  introduced by 16d8eafb3808aaf91b2fbf08cbf3d7b8012fdfca. The policy row was
+  retained while the command/membership was omitted by later integration.
+- Keep every prior canonical member and both hardening/recovery children.
+- Use an explicit `--prebuilt` mode for the canonical hardening alias so its
+  shared repository-read entry verifies build identity instead of rebuilding
+  inputs while peers execute. The direct script without that option retains
+  its build-first behavior. Missing/stale build bindings refuse before children.
+- Existing full-suite smoke gains a focused registration selector, exact
+  missing-policy/missing-script/missing-member/duplicate controls, and a private
+  wrapper fixture proving prebuilt execution, stale/missing refusal, restoration,
+  unknown-option refusal and propagation of the first child's nonzero exit.
+- Static exception updates rebind reviewed unchanged calls and dependency bytes;
+  they neither remove existing exceptions nor suppress unclassified commands.
+
+## Evidence
+
+The initial focused fixture commit f8e78462e8 preceded the fix. The official Lab
+RED command retained the exact inventory mismatch and BENCHMARK_SUITE_REGISTRATION_RED.
+The focused repaired regression and static scanner passed. Full runner regression
+and both actual member executions are being recorded before GREEN/finish. Final
+claims must follow their retained logs, not this preparation note.
+
+Preparation used private dependency installations and build outputs. An initial
+utils build ran before core declarations existed and failed; core was built first
+and the utils build then passed. That preparation failure is not the target RED.
+No remote push, production Story JSON edit, skipped validation gate or fabricated
+usage/evidence is part of this repair.
+
+## Completed verification before release preparation
+
+- Full runner regression: PASS, 219 assertions, including actual process
+  cancellation/cleanup and the new wrapper/inventory controls.
+- Actual benchmark hardening npm member: PASS, including RECOVERY_SCAN_GREEN.
+  Its existing exact npm command assertion was updated to require the reviewed
+  prebuilt alias; the first execution exposed that stale assertion and failed.
+  The failure log is retained; it was not treated as a successful run.
+- Actual managed review final-schema npm member: PASS.
+- Static edge verifier: U18_STATIC_PASS with no needs-review, nested or
+  unexpanded command rows. Existing exception IDs remain intact.
+- Default direct wrapper mode is covered by an actual disposable npm build
+  command followed by both fixture children; no real compiler result is claimed
+  from that fixture. The product member executions above use the real children.
+
+Logs: /tmp/benchmark-suite-registration-runner-final.log,
+/tmp/benchmark-suite-registration-benchmark-member-corrected.log,
+/tmp/benchmark-suite-registration-schema-member.log,
+/tmp/benchmark-suite-registration-static-last.log.
+
+Maintenance provenance: codex/lab-benchmark-suite-registration, repair c786cece59db548479aae66257027423e8a18315.
+Verification command (replayed before integration and on main): `["node","--import","./packages/main/dist/index.js","packages/main/dist/tasks/full-suite-runner-smoke.js","--benchmark-registration"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-review-supersession - v0.3.394 - 2026-09-16
 
 # Bounded managed review supersession repair
