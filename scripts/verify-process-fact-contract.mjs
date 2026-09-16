@@ -11909,12 +11909,25 @@ assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isMan
    assert(hostRunSource.includes(token), `Managed final-proposal schema contract missing enforcement token: ${token}`);
    nodeAssert(!hostRunSource.replace(token, '').includes(token), `Managed final-proposal negative control must remove enforcement token: ${token}`);
  }
- for (const [path, source] of [
-   ['packages/main/src/core/managed-host-run.ts', read('packages/main/src/core/managed-host-run.ts')],
-   ['packages/main/src/core/managed-review-evidence.ts', read('packages/main/src/core/managed-review-evidence.ts')],
- ]) {
-   assert(source.includes('isManagedInventoryCriticEnvelopeValid('),
-     `Managed topology critic compatibility ingress is missing the shared required-envelope guard: ${path}`);
+ const compatibilityGuardSources = {
+   managedHostRun: read('packages/main/src/core/managed-host-run.ts'),
+   managedReviewEvidence: read('packages/main/src/core/managed-review-evidence.ts'),
+ };
+ const compatibilityGuards = [
+   [compatibilityGuardSources.managedHostRun,
+     'if (!isManagedInventoryCriticEnvelopeValid(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0)) return null;',
+     'persisted-proposal read'],
+   [compatibilityGuardSources.managedHostRun,
+     'if (!isManagedInventoryCriticEnvelopeValid(args.proposal.inventoryCritic, spec.lane, spec.agentType, args.proposal.findings?.length ?? 0)) {',
+     'compatibility proposal write'],
+   [compatibilityGuardSources.managedReviewEvidence,
+     '&& isManagedInventoryCriticEnvelopeValid(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0)',
+     'managed evidence import'],
+ ];
+ for (const [source, token, label] of compatibilityGuards) {
+   assert(source.includes(token), `Managed topology critic ${label} is missing its shared required-envelope guard`);
+   nodeAssert(!source.replace(token, '').includes(token),
+     `Managed topology critic ${label} negative control must independently remove its guard`);
  }
  assert(registrySource.includes('the topology-critic lane requires inventoryCritic across terminal and compatibility ingress'),
    'Managed final-proposal process fact must register critic receipt completeness');
