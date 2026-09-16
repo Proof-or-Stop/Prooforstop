@@ -116,8 +116,8 @@ function assertBenchmarkPrebuiltGuard(): void {
     const bind = () => execFileSync(process.execPath, ['--input-type=module', '-e',
       `import{writeBuildBinding}from${JSON.stringify(pathToFileURL(join(root, 'scripts/full-suite-build-binding.mjs')).href)};writeBuildBinding(${JSON.stringify(root)});`],
     { cwd: root, timeout: 10000, stdio: 'pipe' });
-    const run = (args: string[]) => spawnSync(process.execPath, [join(root, 'scripts/verify-benchmark-framework-hardening.mjs'), ...args],
-      { cwd: root, encoding: 'utf8', timeout: 10000, maxBuffer: 1024 * 1024 });
+    const run = (args: string[], timeoutMs = 10000) => spawnSync(process.execPath, [join(root, 'scripts/verify-benchmark-framework-hardening.mjs'), ...args],
+      { cwd: root, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1024 * 1024 });
     bind();
     assert(run(['--prebuilt']).status === 0, 'prebuilt guard executes both fixture verification children');
     const observed = readFileSync(seen, 'utf8');
@@ -141,7 +141,9 @@ function assertBenchmarkPrebuiltGuard(): void {
     writeFileSync(smoke, `require('node:fs').appendFileSync(${JSON.stringify(seen)},'smoke\\n');`);
     writeFileSync(join(root, 'packages/main/package.json'), JSON.stringify({ scripts: { build: 'node ../../scripts/fixture-build.cjs' } }));
     writeFileSync(join(root, 'scripts/fixture-build.cjs'), `require('node:fs').appendFileSync(${JSON.stringify(seen)},'build\\n');`);
-    assert(run([]).status === 0, 'direct default invocation retains its build-first path');
+    const defaultRun = run([], 60000);
+    assert(defaultRun.signal === null, 'default fixture npm build must finish without a timeout signal');
+    assert(defaultRun.status === 0, 'direct default invocation retains its build-first path');
     assert(readFileSync(seen, 'utf8') === restored + 'build\nsmoke\nrecovery\n',
       'default mode executes its build command before both verification children');
   } finally { rmSync(root, { recursive: true, force: true }); }
@@ -168,6 +170,19 @@ function assertBenchmarkSuiteRegistration(): void {
     'canonical benchmark hardening consumes verified prebuilt output without an in-suite rebuild');
   assert(pkg.scripts['test:managed-review-final-schema'] === 'node packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js',
     'restored managed schema member executes its original reviewed regression');
+  const scriptTargetExists = (script: string): boolean => {
+    const words = script.trim().split(/\s+/);
+    if (words[0] !== 'node' || !words[1]) return false;
+    const target = resolve(process.cwd(), words[1]);
+    return existsSync(target) && lstatSync(target).isFile();
+  };
+  for (const name of ['test:benchmark-framework-hardening', 'test:managed-review-final-schema']) {
+    assert(scriptTargetExists(pkg.scripts[name]!), `restored ${name} target is an existing regular file`);
+    const scratchScripts = { ...pkg.scripts, [name]: 'node scripts/benchmark-registration-missing-target.mjs' };
+    assert(!existsSync(resolve(process.cwd(), 'scripts/benchmark-registration-missing-target.mjs')), 'negative target is absent');
+    assert(!scriptTargetExists(scratchScripts[name]!), `missing-target mutation rejects ${name}`);
+    assert(scriptTargetExists(pkg.scripts[name]!), `restoration retains the real ${name} target`);
+  }
   const removedPolicy = { ...policy }; delete removedPolicy['test:benchmark-framework-hardening'];
   rejects(() => entriesFromSerialReference(chain, pkg.scripts, removedPolicy), 'unknownPolicy=[test:benchmark-framework-hardening]');
   const removedScript = { ...pkg.scripts }; delete removedScript['test:managed-review-final-schema'];
