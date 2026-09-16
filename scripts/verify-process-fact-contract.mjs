@@ -2247,6 +2247,16 @@ function assertProofStoryProgressiveBoundary() {
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('!isStoryMetadataPath(path, ctx.root)'), 'candidate routing: its own story metadata writes must not stale storyInputDigest');
   assert(read('packages/main/src/handlers/story-dispatch.ts').includes('STOP — candidate routing escalation is unresolved'), 'candidate routing: PLAN/REVIEW dispatch must render unresolved escalation and resolution action');
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('BLOCKED_PENDING_ESCALATION'), 'candidate routing: CLI text must prominently render pending escalation');
+  {
+    const managedImportSource = read('packages/main/src/handlers/managed-review-evidence.ts');
+    const sealedProposalRead = managedImportSource.indexOf('const sealedProposal = readManagedReviewEvidenceProposal');
+    const staleCandidatePreflight = managedImportSource.indexOf('assertCurrentCandidateReadBinding(sealedProposal)', sealedProposalRead);
+    const receiptIntake = managedImportSource.indexOf('const intake = createManagedReviewEvidenceBinding', sealedProposalRead);
+    assert(sealedProposalRead >= 0 && staleCandidatePreflight > sealedProposalRead && staleCandidatePreflight < receiptIntake,
+      'managed review import: stale sealed candidate binding must fail before expensive receipt/proposal intake');
+    assert(read('packages/main/src/core/process-fact-registry.ts').includes('rejects a stale sealed candidate read binding before expensive receipt and proposal intake'),
+      'process-fact registry: managed candidate stale fast-failure ordering must remain registered');
+  }
   assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: ProofStory must not be wired through the thin story_advance handler');
   assert(machineText.includes('proofStoryDevGateFailure') && machineText.includes('devGateMode'), 'machine.ts: ProofStory DEV admission must go through the existing story machine guard and explicit policy mode');
   assert(machineText.includes('if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;'), 'machine.ts: REVIEW/TEST to DEV re-entry must enforce ProofStory devGateMode=enforce');
