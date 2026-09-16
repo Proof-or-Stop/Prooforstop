@@ -826,8 +826,7 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
           assert.equal(divergent.materialHash, epoch.cutoff.materialHash);
           assert.equal(divergent.storyFilesHash, epoch.cutoff.storyFilesHash);
           assert.throws(() => git(fixture.root, ['merge-base', '--is-ancestor', epoch.cutoff.headHash, divergentHead]));
-          fixture.store.writeReviewRuns(storyId, { ...divergentRuns, runs: divergentRuns.runs.filter(row =>
-            row.lane !== critic || row.inventoryBinding?.wave !== 2 || row.reviewRunId === divergentId) });
+          // Keep the prior valid same-wave critic: it must not rescue a divergent current workspace.
           assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
             'DIVERGENT_EQUAL_TREE_CRITIC_REFUSED');
           negativeControls++;
