@@ -97,7 +97,38 @@ function evaluateRealInventory(input: RealInventoryInput): { mainChain: string; 
   return { mainChain, composedChain, prefixMembers };
 }
 
+function assertBenchmarkSuiteRegistration(): void {
+  const pkg = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as { scripts: Record<string, string> };
+  const policy = Object.fromEntries(FULL_SUITE_ENTRIES.map(item => [item.name, item]));
+  const chain = [pkg.scripts['test:serial-reference-prefix'], pkg.scripts['test:serial-reference']].join(' && ');
+  let entries: FullSuiteEntry[];
+  try { entries = entriesFromSerialReference(chain, pkg.scripts, policy); }
+  catch (error) { throw new Error(`BENCHMARK_SUITE_REGISTRATION_RED: ${error instanceof Error ? error.message : String(error)}`); }
+  validateInventory(entries, chain, pkg.scripts);
+  for (const name of ['test:benchmark-framework-hardening', 'test:managed-review-final-schema']) {
+    assert(entries.filter(row => row.name === name).length === 1, `exactly one registered ${name}`);
+    assert(typeof pkg.scripts[name] === 'string' && pkg.scripts[name].length > 0, `executable script retained for ${name}`);
+  }
+  const rejects = (action: () => unknown, fragment: string) => {
+    let reason = '';
+    try { action(); } catch (error) { reason = error instanceof Error ? error.message : String(error); }
+    assert(reason.includes(fragment), `registration mutation must fail with ${fragment}; observed ${reason}`);
+  };
+  const removedPolicy = { ...policy }; delete removedPolicy['test:benchmark-framework-hardening'];
+  rejects(() => entriesFromSerialReference(chain, pkg.scripts, removedPolicy), 'unknownPolicy=[test:benchmark-framework-hardening]');
+  const removedScript = { ...pkg.scripts }; delete removedScript['test:managed-review-final-schema'];
+  rejects(() => entriesFromSerialReference(chain, removedScript, policy), 'missingScripts=[test:managed-review-final-schema]');
+  const removedMember = chain.split(' && ').filter(step => step !== 'npm run test:managed-review-final-schema').join(' && ');
+  rejects(() => entriesFromSerialReference(removedMember, pkg.scripts, policy), 'stalePolicy=[test:managed-review-final-schema]');
+  rejects(() => entriesFromSerialReference(chain + ' && npm run test:benchmark-framework-hardening', pkg.scripts, policy), 'duplicate canonical members');
+  // Every negative uses copies; the unchanged actual inventory must still validate.
+  validateInventory(entriesFromSerialReference(chain, pkg.scripts, policy), chain, pkg.scripts);
+  process.stdout.write('BENCHMARK_SUITE_REGISTRATION_PASS\n');
+}
+
 async function main(): Promise<void> {
+  assertBenchmarkSuiteRegistration();
+  if (process.argv.includes('--benchmark-registration')) return;
   const observations = {
     aliasCollisions: 0, failClosedThrows: 0, completedMembers: 0,
     schedulerIsolation: false, cancellationPolicies: { cancelOnFirstFailure: false, runAll: false },
