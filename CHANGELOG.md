@@ -1,21 +1,5 @@
 # Changelog
 
-## Lab benchmark-critic-metadata-head - v0.3.386 - 2026-09-16
-
-# Preserve inventory critic admission across metadata-only commits
-
-B-0980 exposed a mismatch between inventory freshness and managed reviewer batch admission. An owner availability-probe metadata commit advanced Git HEAD without changing the signed material, Story-file, scope, roster, or candidate subject. The OPEN inventory and completed wave remained valid, but a newly started inventory-completeness critic was excluded from the admitted roster because its signed run HEAD differed from the original cutoff HEAD.
-
-The bounded repair aligns critic inclusion with the existing inventory receipt contract. It retains the signed current OPEN epoch, current round, exact purpose/epoch/wave/cutoff binding, run signature, material and Story-file hashes, scope and roster, candidate and corpus checks. Only the redundant equality between the run HEAD and historical cutoff HEAD is removed; the original cutoff and completed review evidence are preserved. Prompt instructions and the process-fact registry document these unchanged substantive freshness requirements.
-
-Verification uses a disposable real-handler two-wave inventory. Required lanes complete, a metadata commit advances HEAD, a genuine purpose-bound critic starts, and its managed assignment must be accepted. A subsequent empty commit must preserve the subject. Negative controls reject mismatched requests and corrupted signatures or bindings. The test uses the repository's existing provider-neutral fixture harness because simulated reviewer identities must not inherit the developer's host ancestry. It cannot issue real Story evidence. Initial setup failures were explicitly refused as RED; only the exact target assertion may establish the recorded RED. GREEN and local integration must replay the identical pinned command. No performance improvement is claimed by this maintenance repair. The benchmark runner remains separate product work.
-
-This local Lab repair is not a formal Story DONE credential or product release approval. Integration is local only; no remote push is requested.
-
-Maintenance provenance: codex/lab-benchmark-critic-metadata-head, repair b02f8e01662215280d4c82973719e604b4409644.
-Verification command (replayed before integration and on main): `["node","scripts/verify-inventory-critic-metadata-head.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Integrated concurrent-fix release - v0.3.385 - 2026-09-16
 
 ### Why this release exists
