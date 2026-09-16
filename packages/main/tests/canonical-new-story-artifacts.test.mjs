@@ -4492,6 +4492,10 @@ const ACTIVE_STORY_IDENTITY_PATHS = Object.freeze([
   Object.freeze({ artifact: 'init-check.json', path: 'agentResults.*.agentId', kind: 'agent' }),
   Object.freeze({ artifact: 'index.json', path: 'events.*.agent', kind: 'agent' }),
   Object.freeze({ artifact: 'owner-lease.json', path: 'command', kind: 'command' }),
+  // A managed INIT dispatch persists the reviewer prompt envelopes it delivered, so the
+  // fresh Story fixture now carries this artifact; its schema identities stay bound by the
+  // canonical-value assertion below like every other registered path.
+  Object.freeze({ artifact: 'prompt-envelopes.json', path: 'envelopes.*.schemaVersion', kind: 'schema' }),
 ]);
 
 function valuesAtPath(value, path) {
