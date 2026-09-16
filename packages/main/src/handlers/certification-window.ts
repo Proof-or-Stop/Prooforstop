@@ -378,8 +378,10 @@ function hasVerifiedInventoryMetadataHeadContinuity(args: {
     const pathsText = gitText(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit]);
     if (!parents || parents.split(/\s+/).filter(Boolean).length !== 1 || !subject || pathsText === null) return false;
     const reviewEpochBatch = matchesRuntimeCommitSubject(subject, `record ${storyId} review epoch metadata`);
-    // The strict classifier owns the epoch artifact allowlist and signatures.
-    if (reviewEpochBatch || matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_add metadata`)) {
+    // The strict classifier owns artifact allowlists and signatures, including
+    // diagnostic-only refused admission and signed cheap-check publications.
+    if (reviewEpochBatch || ['verification_evidence_add', 'certification_window_begin', 'validate'].some(command =>
+      matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) {
       if (!isVerifiedReviewMaintenanceCommit({ gitCwd, metadataRoot: args.metadataRoot, storyId, commit, reviewedHeadHash: receiptHead })) return false;
       continue;
     }

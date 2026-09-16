@@ -143,8 +143,21 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         if (digestCanonicalJson(after.windows.slice(0,before.windows.length)) !== digestCanonicalJson(before.windows)
           || digestCanonicalJson(after.receipts.slice(0,before.receipts.length)) !== digestCanonicalJson(before.receipts)) return false;
         if (writer === 'certification_window_begin') {
-          if (after.windows.length !== before.windows.length + 1 || after.windows.at(-1)?.state !== 'ADMITTED') return false;
+          if (after.windows.length !== before.windows.length + 1) return false;
           const window = after.windows.at(-1)!;
+          if (window.state === 'BLOCKED') {
+            // A refused begin publishes diagnostics, not admission. Preserve the
+            // review lineage so its prescribed cheap-check retry can use the
+            // same finalized inventory. Never accept heavy authority here.
+            const diagnosticKeys = new Set(['schemaVersion', 'windowId', 'storyId', 'state',
+              'createdAt', 'updatedAt', 'blockerCode', 'blockerDetail', 'inventory', '_hash']);
+            if (Object.keys(window).some(key => !diagnosticKeys.has(key))
+              || !window.blockerCode?.trim() || !window.blockerDetail?.trim()
+              || after.receipts.slice(before.receipts.length).some(row => row.schemaVersion === PRECERT_RECEIPT_SCHEMA)
+              || substantive.some(path => path !== CERTIFICATION_WINDOW_FILE)) return false;
+            continue;
+          }
+          if (window.state !== 'ADMITTED') return false;
           const receipt = after.receipts.find(row => row.receiptId === window.receiptId);
           if (!receipt || receipt.schemaVersion !== PRECERT_RECEIPT_SCHEMA || receipt.windowId !== window.windowId
             || digestCanonicalJson(receipt.frozen) !== digestCanonicalJson(window.frozen)) return false;

@@ -16,6 +16,7 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // Exercise the real verdict consumer, including raw-stream digest and refusal guards.
 execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
 execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
 // Exercise managed delivery through an actual synthetic provider process and real CLI.
 execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
 // --quiet suppresses only the verbose listings (registry entries, inventory

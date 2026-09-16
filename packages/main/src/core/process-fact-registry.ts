@@ -814,7 +814,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow',
     producerCommand: 'certification_window_status --refresh=true (default status is read-only)',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance; PRE_CERT retains finalized inventory lineage across strictly verified diagnostic-only BLOCKED begin and cheap-check publications, without granting heavy authority',
   },
   certification_window_cancel: {
     name: 'certification-window.json',
@@ -822,7 +822,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signCertificationWindow/verifyCertificationWindow with CANCELLED state',
     producerCommand: 'certification_window_cancel',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance; PRE_CERT retains finalized inventory lineage across strictly verified diagnostic-only BLOCKED begin and cheap-check publications, without granting heavy authority',
   },
   review_inventory_begin: {
     name: 'review-inventory-epochs.json',
@@ -2294,7 +2294,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/certification-window',
-    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate / unscoped validate --story / runValidateGate / certification_window_begin; DONE-required checks admission inside validation ownership after queued policy drift checks, without consuming routine allocation; done_prepare accepts only signed authorized ADMITTED to RUNNING deltas through isCertificationRunningOnlyAdvance; PRE_CERT retains finalized inventory lineage across strictly verified diagnostic-only BLOCKED begin and cheap-check publications, without granting heavy authority',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.certification_window_begin,
     rationale: 'Signed CertificationWindow and PRE_CERT receipt bind frozen head/main/storyFiles identity. Exact canonical artifact-releases.jsonl and capability-releases.jsonl paths are review-subject causal inputs bound to actual Git blobs/tombstones, with integration/test dependency invalidation; release provenance is never gate evidence and unknown paths fail closed. Inventory completeness receipts never authorize certification.',
   },

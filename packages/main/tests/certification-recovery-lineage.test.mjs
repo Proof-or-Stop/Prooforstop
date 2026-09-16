@@ -62,6 +62,10 @@ try {
   withCheap.receipts=[accepted.receipts.find(row=>row.schemaVersion!==PRECERT_RECEIPT_SCHEMA)];
   assert.ok(withCheap.receipts[0]);
   assert.equal(publish(withCheap),true,'BLOCKED publication may carry a signed cheap receipt');
+  const invalidCheap=structuredClone(withCheap);invalidCheap.receipts[0]._hash='tampered';
+  assert.equal(publish(invalidCheap),false,'Invalid cheap receipt signature');
+  const extraWindow=structuredClone(blocked);extraWindow.windows.push(blocked.windows[0]);
+  assert.equal(publish(extraWindow),false,'Diagnostic publisher cannot append multiple windows');
   const badSignature=structuredClone(blocked);badSignature.windows[0]._hash='tampered';
   assert.equal(publish(badSignature),false,'Invalid diagnostic signature');
   const mixed=structuredClone(blocked);mixed.receipts.push(accepted.receipts.find(row=>row.schemaVersion===PRECERT_RECEIPT_SCHEMA));
@@ -77,5 +81,10 @@ try {
   store.writeCertificationWindows(storyId,priorMutation);git('add','.');git('commit','-qm',`proof-or-stop: record ${storyId} certification_window_begin metadata`);
   assert.equal(isVerifiedReviewMaintenanceCommit({...binding,commit:git('rev-parse','HEAD')}),false,'Prior signed diagnostics cannot be rewritten');
   assert.equal(publish(blocked),true,'Restored exact diagnostic remains accepted');
+  store.writeCertificationWindows(storyId,withCheap);git('add','.');git('commit','-qm',`proof-or-stop: record ${storyId} validate metadata`);
+  assert.equal(isVerifiedReviewMaintenanceCommit({...binding,commit:git('rev-parse','HEAD')}),true,'Separate signed cheap-check publication preserves review');
+  const rewrittenReceipt=structuredClone(withCheap);rewrittenReceipt.receipts[0]._hash='tampered';
+  store.writeCertificationWindows(storyId,rewrittenReceipt);git('add','.');git('commit','-qm',`proof-or-stop: record ${storyId} validate metadata`);
+  assert.equal(isVerifiedReviewMaintenanceCommit({...binding,commit:git('rev-parse','HEAD')}),false,'Prior receipt history cannot be replaced');
   console.log('CERTIFICATION_RECOVERY_LINEAGE_GREEN');
 } finally {setReviewInventoryAdmitApisForTest(undefined);rmSync(root,{recursive:true,force:true});}

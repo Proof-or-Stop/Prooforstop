@@ -1304,3 +1304,20 @@ cancellation. Finalize and cancel share a publication subject; admission still
 requires the latest signed FINALIZED epoch and its valid unconsumed receipt.
 The four-case version measured 76 seconds; the expanded six-case verifier has a
 bounded 240-second fixture budget for host contention. Production budgets are unchanged.
+
+### Retry after a refused certification begin
+
+A refused `certification_window_begin` may publish a signed BLOCKED diagnostic.
+Follow its fast-check remedy and retry begin with the same finalized inventory;
+do not recreate review merely because that official metadata commit changed HEAD.
+The shared strict lineage reader accepts an append-only BLOCKED diagnostic and
+valid cheap-check receipts under their canonical writer subjects. It rejects
+rewritten history, other Story or source paths, invalid signatures, inventory
+consumption and heavy-authority fields or receipts in a diagnostic publication.
+This preserves review only. Current inventory, cheap-check identity, coverage,
+findings, clean-tree and main checks still decide admission, and only the signed
+admitted window plus its PRE_CERT receipt authorizes heavy certification.
+
+`packages/main/tests/certification-recovery-lineage.test.mjs` exercises the actual
+refused handler publication and retry on a disposable Story branch with a frozen
+synthetic inventory cutoff, plus negative lineage and authority controls.
