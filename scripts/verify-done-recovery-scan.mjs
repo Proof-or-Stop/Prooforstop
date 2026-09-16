@@ -105,6 +105,9 @@ try {
   git(fallback.root, ['tag', 'story/B-fallback', 'refs/heads/story/B-fallback']);
   check(observe(fallback).rows.some(x => x.storyId === 'B-fallback'),
     'RECOVERY_REF_AMBIGUITY_RED: same-name tag must not hide a stored partial-DONE branch');
+  git(fallback.root, ['tag', '-f', 'story/B-fallback', 'main']);
+  check(observe(fallback).rows.some(x => x.storyId === 'B-fallback'),
+    'tag pointing at main must not replace branch metadata or ancestry');
   git(fallback.root, ['tag', '-d', 'story/B-fallback']);
   const bin = join(sandbox, 'bin');mkdirSync(bin);
   writeFileSync(join(bin, 'git'), '#!/bin/sh\nif [ "$1" = "for-each-ref" ]; then exit 71; fi\nexec '+JSON.stringify(realGit)+' "$@"\n');chmodSync(join(bin, 'git'), 0o755);
@@ -121,6 +124,17 @@ try {
       samples.push({archived,repetition,...x,rows:undefined});
     }
   }
+  const packageScripts = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).scripts;
+  check(packageScripts['test:done-recovery-scan'] === 'node scripts/verify-done-recovery-scan.mjs', 'dedicated npm regression entry remains registered');
+  const parentDriver = readFileSync(new URL('./verify-benchmark-framework-hardening.mjs', import.meta.url), 'utf8');
+  const driverTree = ts.createSourceFile('driver.mjs', parentDriver, ts.ScriptTarget.Latest, true);
+  const wired = driverTree.statements.some(statement => ts.isVariableStatement(statement) && statement.declarationList.declarations.some(declaration => {
+    const call = declaration.initializer;
+    return call && ts.isCallExpression(call) && call.expression.getText(driverTree) === 'spawnSync'
+      && call.arguments[1] && ts.isArrayLiteralExpression(call.arguments[1])
+      && call.arguments[1].elements.some(element => ts.isStringLiteral(element) && element.text === 'scripts/verify-done-recovery-scan.mjs');
+  }));
+  check(wired && packageScripts['test:serial-reference'].split(' && ').includes('npm run test:benchmark-framework-hardening'), 'existing full-suite driver must execute recovery guard');
   console.log('RECOVERY_SCAN_DATA '+JSON.stringify({node:process.version,sourceRef,repeats,checks,samples}));
   if(!measureOnly) assert(samples.every(x=>x.showRefCalls<=1), 'RECOVERY_SCAN_RED: archived Stories trigger redundant show-ref processes after branch enumeration');
   console.log(measureOnly ? 'RECOVERY_SCAN_MEASURED observation only; operation budget not asserted' : 'RECOVERY_SCAN_GREEN behavior controls and live Git process budget passed');

@@ -14,4 +14,9 @@ if (build.status !== 0) {
 const smoke = spawnSync(process.execPath, ['packages/main/dist/tasks/benchmark-framework-hardening-smoke.js'], { cwd: root, encoding: 'utf8' });
 process.stdout.write(smoke.stdout || '');
 process.stderr.write(smoke.stderr || '');
-process.exit(smoke.status ?? 1);
+if (smoke.status !== 0) process.exit(smoke.status ?? 1);
+// Keep the recovery operation budget in the existing full-suite member.
+const recovery = spawnSync(process.execPath, ['scripts/verify-done-recovery-scan.mjs'], { cwd: root, encoding: 'utf8' });
+process.stdout.write(recovery.stdout || '');
+process.stderr.write(recovery.stderr || '');
+process.exit(recovery.status ?? 1);
