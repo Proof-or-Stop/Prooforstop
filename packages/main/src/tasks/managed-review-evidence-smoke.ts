@@ -1185,6 +1185,94 @@ async function assertManagedImportEnforcesCandidateReadBinding(brokerPublicKey: 
 }
 }
 
+
+/** Regression for B-0980: real sealed fixture imports, not live Story credentials. */
+async function managedSupersessionRegression(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'managed-review-supersession-'));
+  const beforeCwd = process.cwd();
+  try {
+    process.chdir(root);
+    const { publicKey } = generateEd25519KeyPair();
+    const { store, run } = seedReviewStory(root, publicKey);
+    const context = { store, root, scanRoot: join(root, 'packages/main') };
+    const importer = createManagedReviewEvidenceHandlers(context);
+    const importResult = async (review: ReviewRun, conclusion: 'pass' | 'findings' = 'pass') => {
+      const launched = await createHostRunHandlers(context, {
+        runner: async () => ({ stdout: '', stderr: '', exitCode: 0, timedOut: false,
+          terminalReason: 'completed', finalAssistantResultCount: 1, finalAssistantResultTruncated: false,
+          finalAssistantResult: JSON.stringify({ schemaVersion: 'lattice.managed_review_final_proposal.v1',
+            storyId: STORY_ID, providerAgent: review.agent, lane: review.lane,
+            reviewRunId: review.reviewRunId, conclusion,
+            ...(conclusion === 'pass' ? { note: 'The exact fixture candidate has no blocking quality defect.' }
+              : { findings: [{ desc: 'The fixture records an open defect that a later pass must not hide.', severity: 'high', category: 'missing' }] }),
+            ...managedReadEvidence(root),
+          }),
+        }),
+      }).host_run({ host: 'codex', storyId: STORY_ID, agentType: review.agent,
+        reviewRunId: review.reviewRunId, lane: review.lane, managedReview: true,
+        detach: true, deadlineMs: MANAGED_REVIEW_FIXTURE_DEADLINE_MS, json: true }) as HostRunDetachResult;
+      await eventually(async () => (await getManagedHostRunStatus({ root, runId: launched.run.runId })).run.terminal !== null,
+        'supersession fixture must reach a sealed terminal');
+      const status = await getManagedHostRunStatus({ root, runId: launched.run.runId });
+      assert.equal(status.run.state, 'completed', 'supersession fixture provider must complete');
+      const receipt = managedHostRunReceipt(root, launched.run.runId);
+      assert.match(importer.managed_review_evidence_import({ runId: launched.run.runId, receiptId: receipt.receiptId }),
+        /Managed review evidence imported/);
+    };
+    await importResult(run);
+    const oldPass = structuredClone(store.readReviewPasses(STORY_ID).passes[0]!);
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).valid.some(e => e.id === oldPass.id),
+      'control: the original imported managed pass is authentic and current');
+    const findingsRun = addCurrentReviewRun(root, store, LANE, `${STORY_ID}:RR-002`);
+    await importResult(findingsRun, 'findings');
+    const openFindings = structuredClone(store.readFindings(STORY_ID));
+    assert.equal(openFindings.findings.length, 1, 'control: the open finding must be genuinely imported');
+    // Keep the independent finding control out of the positive PASS-only assertion.
+    store.writeFindings(STORY_ID, { findings: [] });
+    write(root, 'packages/main/src/example.ts', 'export const example = false;\n');
+    git(root, ['add', 'packages/main/src/example.ts']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'change reviewed fixture material']);
+    resetConfigCache();
+    refreshCandidateArtifact(root, store, 'shadow');
+    const latestRun = addCurrentReviewRun(root, store, LANE, `${STORY_ID}:RR-003`);
+    await importResult(latestRun);
+    const allPasses = structuredClone(store.readReviewPasses(STORY_ID));
+    const newPass = allPasses.passes.find(p => p.id !== oldPass.id)!;
+    assert.ok(newPass && Date.parse(newPass.createdAt) > Date.parse(oldPass.createdAt));
+    const positive = collectReviewerEvidenceState(store, STORY_ID, root);
+    assert.ok(positive.valid.some(e => e.id === newPass.id), 'control: the replacement is a fully valid current same-lane pass');
+    assert.ok(!positive.valid.some(e => e.id === oldPass.id), 'historical PASS must never regain current authority');
+    assert.ok(!positive.invalid.some(e => e.evidenceId === oldPass.id),
+      'MANAGED_SUPERSESSION_RED: an authenticated material-stale PASS must be superseded by a newer valid same-lane PASS');
+    assert.deepEqual(store.readReviewPasses(STORY_ID), allPasses, 'projection preserves both signed historical records');
+    store.writeReviewPasses(STORY_ID, { passes: [oldPass] });
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === oldPass.id),
+      'without a valid replacement the old PASS still blocks');
+    store.writeReviewPasses(STORY_ID, allPasses);
+    store.writeFindings(STORY_ID, openFindings);
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.kind === 'finding'),
+      'a newer PASS cannot hide the genuinely imported open finding');
+    store.writeFindings(STORY_ID, { findings: [] });
+    // An authentic outer signature is insufficient if the sealed managed artifact was modified.
+    const receiptDirectory = managedHostRunDirectory(root, oldPass.managedEvidenceBinding!.runId);
+    const terminalPath = join(receiptDirectory, 'terminal.json');
+    const terminalBytes = readFileSync(terminalPath);
+    try {
+      writeFileSync(terminalPath, Buffer.concat([terminalBytes, Buffer.from(' ')]));
+      assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e =>
+        e.evidenceId === oldPass.id && e.code === 'managed_receipt_invalid'),
+      'tampered managed terminal must not be forgiven as ordinary stale evidence');
+    } finally { writeFileSync(terminalPath, terminalBytes); }
+    assert.ok(!collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === oldPass.id),
+      'restoring the exact sealed terminal restores historical supersession only');
+    console.log('MANAGED_SUPERSESSION_PASS');
+  } finally {
+    process.chdir(beforeCwd);
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function main(): Promise<void> {
   assert.deepEqual(
     normalizeHostRunModelSelection({ host: 'codex' }),
@@ -3976,7 +4064,9 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
   }
 }
 
-if (process.argv[2] === '--proposal-worker') {
+if (process.argv[2] === '--supersession-regression') {
+  managedSupersessionRegression().catch(error => { console.error(error); process.exitCode = 1; });
+} else if (process.argv[2] === '--proposal-worker') {
   proposalWorkerMain(
     process.argv[3] ?? '', process.argv[4] ?? '', process.argv[5] ?? '',
     process.argv[6] ?? '', process.argv[7] ?? '',
