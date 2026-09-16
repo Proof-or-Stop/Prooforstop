@@ -4,6 +4,14 @@ import { runProviderNeutralFixture } from './helpers/provider-neutral-fixture.mj
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createFixtureMachineEnvironment, inspectFixtureCompileCache } from '../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
+import * as runtimeFacts from '../packages/main/dist/core/runtime-fact-registry.js';
+// The delegation policy is a build product: a dist compiled from source that predates it must fail
+// with a named cause rather than an anonymous missing-export link error. The content-bound build
+// binding (scripts/ensure-dist.mjs) rebuilds such a dist before the suite runs.
+const VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY = runtimeFacts.VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY;
+if (typeof VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY?.descriptorEnvironment !== 'string') {
+  throw new Error('run-validation-fixture-suite requires packages/main/dist built from the current source (missing VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY); run node scripts/ensure-dist.mjs');
+}
 
 export const FIXTURE_ENTRIES = new Set([
   'packages/main/dist/tasks/withdrawn-disposition-smoke.js',
@@ -35,6 +43,10 @@ assert.deepEqual(rest, (entry.endsWith('/red-w2d-command-readonly.mjs') || entry
 const fixture = createFixtureMachineEnvironment();
 const env = { ...fixture.env, PROOF_OR_STOP_HEALTH_PATH: join(fixture.root, 'health.jsonl') };
 delete env.LATTICE_HEALTH_PATH;
+// Fixtures run in their own machine environment. The outer command's machine
+// reservation is not forwarded into that namespace, and its locator is removed so
+// fixture children never see a dangling delegation locator.
+delete env[VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.descriptorEnvironment];
 // Each heartbeat run starts cold and removes this compilation cache with its fixture.
 if (entry.endsWith('/validate-progress-heartbeat-smoke.js')) {
   env.NODE_COMPILE_CACHE = join(fixture.root, 'node-compile-cache');

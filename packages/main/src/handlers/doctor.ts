@@ -38,6 +38,8 @@ import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/part
 import { renderMainWriteLockScan, scanMainWriteLock } from '../core/main-write-lock-doctor.js';
 import { renderStoryOwnerLeaseScan, scanStoryOwnerLeases } from '../core/story-owner-lease-doctor.js';
 import { renderGuardSessionDoctorSection, scanGuardSessions } from '../core/guard-session-doctor.js';
+import { canonicalMachineCapacityRoot } from '../core/validation-execution-lock.js';
+import { classifyMachineReservationResiduals, fencedMachineTicketProjection } from '../core/validation-reservation-delegation.js';
 import {
   renderAuxiliaryClassification,
   repairAuxiliaryWorktreeResidues,
@@ -75,6 +77,55 @@ import {
 } from '../core/managed-host-run.js';
 
 /** Public rendering seam: diagnostics and pinned docs evidence consume the same operator projection. */
+
+interface FencedMachineTicket { ticket: string; registeredLive: number; pendingTargetLive: number; pendingSpawnedLive: number; pendingTargetless: number; deadOwners: number; malformed: boolean }
+interface FencedMachineTicketScan { pool: string; fenced: FencedMachineTicket[]; inFlight: number; error?: string }
+
+/** Read-only projection of machine tickets whose pending fences cannot resolve by owner death alone. */
+function scanFencedMachineTickets(): FencedMachineTicketScan {
+  const pool = canonicalMachineCapacityRoot();
+  const fenced: FencedMachineTicket[] = [];
+  let inFlight = 0;
+  try {
+    for (const name of readdirSync(pool)) {
+      if (!name.endsWith('.ticket')) continue;
+      const ticket = join(pool, name);
+      // Every fencing shape of the release predicate is reported: a live or
+      // unobservable registered group, a pending fence whose proven target is
+      // still live, a pending fence whose noted spawned PID or group is still present, and a
+      // pending fence that never recorded a target or a note.
+      const residuals = classifyMachineReservationResiduals(ticket);
+      if (!residuals.present) continue;
+      // A pending fence without a target whose owner is still alive is in flight, never fenced: the
+      // owner's command is between preparing and registering its spawn, and the fence resolves or
+      // fences on its own once that owner is gone.
+      const projection = fencedMachineTicketProjection(residuals);
+      inFlight += projection.inFlight;
+      if (projection.fenced) {
+        fenced.push({ ticket, registeredLive: residuals.registeredLive, pendingTargetLive: residuals.pendingTargetLive, pendingSpawnedLive: residuals.pendingSpawnedLive, pendingTargetless: projection.deadOwnerTargetless, deadOwners: residuals.deadOwners, malformed: residuals.malformed });
+      }
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return { pool, fenced, inFlight, error: (error as Error).message };
+  }
+  return { pool, fenced, inFlight };
+}
+
+function renderFencedMachineTickets(scan: FencedMachineTicketScan): string[] {
+  const lines = ['Nested reservation fences (machine tickets):'];
+  if (scan.error) { lines.push(`  ⚠ unavailable: ${scan.error}`); return lines; }
+  const inFlight = scan.inFlight > 0 ? [`  ℹ ${scan.inFlight} pending fence(s) in flight under a live owner (a command between preparing and registering its spawn); not fenced`] : [];
+  if (!scan.fenced.length) { lines.push('  none: every machine ticket residual row is provably resolved, absent or in flight under a live owner', ...inFlight); return lines; }
+  for (const row of scan.fenced) {
+    lines.push(row.malformed
+      ? `  ⚠ ${row.ticket}: malformed residual record; the ticket stays fenced`
+      : `  ⚠ ${row.ticket}: ${row.registeredLive} live or unobservable registered group(s), ${row.pendingTargetLive} pending fence(s) with a live target, ${row.pendingSpawnedLive} pending fence(s) whose noted spawned PID or group is still present, ${row.pendingTargetless} pending fence(s) without an observed target whose owner is dead`);
+  }
+  lines.push(...inFlight);
+  lines.push('  → Live registered groups, live targets and noted spawned PIDs resolve on their own once absent. Unknown detached work stays fenced by design: a different kernel boot session (reboot) releases the ticket through its boot witness; otherwise remove the ticket only after independently confirming no detached child remains.');
+  return lines;
+}
+
 export function renderManagedHostRunDoctorSection(
   managedHostRuns: ManagedHostRunRuntimeScan,
   managedHostRunGc: ManagedHostRunGcResult | null = null,
@@ -191,6 +242,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // Guard session scan: report prewrite scope guard status for active stories
       // and check whether the Claude Code PreToolUse hook is installed.
       const guardSessionScan = scanGuardSessions(store, root);
+      // Nested reservation fences: a machine ticket whose pending pre-spawn rows never
+      // recorded a proven target stays fenced by design. Doctor only surfaces it; it
+      // never releases capacity or signals foreign processes.
+      const fencedMachineTickets = scanFencedMachineTickets();
       // B-c054 (W2a): non-gating red-evidence policy health line. Resolves the
       // optional redEvidence block and renders exactly ONE advisory line (the
       // resolved policyDigest when a valid block is present, else the fail-closed
@@ -324,6 +379,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           runtimeMode: runtime.runtimeMode,
           healthPath: getHealthPath(),
           hostBurnScan: { ...hostBurnScan, scanWindowHours: burnThresholds.recentHours, disabled: burnDisabled },
+          fencedMachineTickets,
           ...summary,
           worktrees: {
             registered: orphanScan.registered,
@@ -592,6 +648,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       lines.push('');
       for (const line of renderStoryOwnerLeaseScan(storyOwnerLeases)) lines.push(line);
+
+      lines.push('');
+      for (const line of renderFencedMachineTickets(fencedMachineTickets)) lines.push(line);
 
       lines.push('');
       lines.push('Owner session identity:');

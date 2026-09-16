@@ -1,6 +1,7 @@
+import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, noteValidationReservationSpawn, unregisteredValidationReservationChildGone, validationReservationOwnedGroupSignalTarget, observeValidationReservationChild, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, currentValidationReservationDeadline, isValidationDelegationError } from './validation-reservation-delegation.js';
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
-import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js';
+import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { execFileSync, execSync, spawn } from 'node:child_process';
@@ -1387,39 +1388,106 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
   const reportedTimeoutMs = Math.min(configured, options.deadlineAt === undefined ? Infinity : Math.max(1, options.deadlineAt - started));
   const deadlineAt = Math.min(options.deadlineAt ?? Infinity, started + configured);
   let enteredCapture = false;
+  let completedCapture: CapturedValidationCommandResult | undefined;
   try {
     return await withMachineValidationResources({ root: projectRoot, workspaceRoot: projectRoot, command: command.label,
     resources: command.resources?.length ? command.resources : undefined, abortSignal: options.abortSignal, deadlineAt,
       deadlineError: options.deadlineError }, () => {
         enteredCapture = true;
-        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }, reportedTimeoutMs);
+        // The capture receives the bounded deadline derived above, whose budget started before the
+        // capacity wait, so a queue wait consumes the configured budget exactly as before delegation
+        // existed and a command never spans more than its configured timeout after that start.
+        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }, reportedTimeoutMs).then(value => { completedCapture = value; return value; });
       });
   } catch (error) {
-    const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || (error instanceof Error && error.message === 'workspace validation capacity wait aborted'));
-    const expired = !options.deadlineError && error instanceof Error && error.message === 'workspace validation capacity wait deadline exceeded';
-    if (enteredCapture || (!aborted && !expired)) throw error;
+    const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || boundedValidationErrorMessage(error) === 'workspace validation capacity wait aborted');
+    const expired = !options.deadlineError && boundedValidationErrorMessage(error) === 'workspace validation capacity wait deadline exceeded';
+    const delegationRefused = isValidationDelegationError(error);
+    if (completedCapture) {
+      // The complete authenticated artifact is preserved verbatim with the cleanup diagnostic
+      // appended; only the bounded projection is trimmed.
+      const diagnostic = boundedValidationErrorMessage(error);
+      const output = `${completedCapture.result.output.slice(0, 2000)}\n${diagnostic}`;
+      return { completeOutput: `${completedCapture.completeOutput}\n${diagnostic}`, result: { ...completedCapture.result,
+        code: completedCapture.result.code === 0 ? 1 : completedCapture.result.code,
+        failureKind: 'infra_failure', output,
+      } };
+    }
+    if (!delegationRefused && (enteredCapture || (!aborted && !expired))) throw error;
     // Preserve the command-result API without launching a child merely to abort
     // it. A caller-supplied deadline error remains an exception above.
-    const output = `${aborted ? 'aborted' : 'deadline exceeded'} before child launch`;
+    const completed = completedValidationCleanupCapture(error);
+    const diagnostic = delegationRefused ? boundedValidationErrorMessage(error) : `${aborted ? 'aborted' : 'deadline exceeded'} before child launch`;
+    if (completed) {
+      // A command that completed before its cleanup was refused keeps its complete
+      // authenticated artifact verbatim with the diagnostic appended; only the bounded
+      // projection is trimmed, exactly as on the post-capture cleanup path.
+      // The projection is rebuilt from the untainted command bytes, so each diagnostic appears exactly once.
+      const output = `${completed.completeOutput.slice(0, 2000)}${completed.result.delegationDiagnostic === undefined ? '' : `\n${completed.result.delegationDiagnostic}`}\n${diagnostic}`;
+      return { completeOutput: `${completed.completeOutput}\n${diagnostic}`, result: {
+        ...completed.result, code: completed.result.code === 0 ? 1 : completed.result.code,
+        failureKind: 'infra_failure', output,
+      } };
+    }
+    const output = diagnostic;
     return { completeOutput: output, result: {
       label: command.label, command: command.command, args: command.args,
       ...(command.optional ? { optional: true } : {}),
-      code: 124, timedOut: true, failureKind: 'infra_failure', output,
+      code: delegationRefused ? 1 : 124, ...(delegationRefused ? {} : { timedOut: true }), failureKind: 'infra_failure', output,
       timeoutMs: reportedTimeoutMs, effectiveTimeoutMs: 0, durationMs: Date.now() - started,
     } };
   }
 }
 
-function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions, reportedTimeoutMs: number): Promise<CapturedValidationCommandResult> {
+class ValidationNoSpawnCleanupError extends Error {
+  readonly completed?: ValidationCommandResult;
+  /** The completed command's complete authenticated artifact, carried verbatim past the refused cleanup. */
+  readonly completeOutput?: string;
+  constructor(message: string, cause: unknown, completed?: ValidationCommandResult, completeOutput?: string) {
+    super(message, { cause });
+    this.completed = completed;
+    this.completeOutput = completeOutput;
+  }
+}
+function completedValidationCleanupCapture(error: unknown): CapturedValidationCommandResult | undefined {
+  try {
+    for (let depth = 0; error && typeof error === 'object' && depth < 8; depth++) {
+      if (error instanceof ValidationNoSpawnCleanupError) {
+        return error.completed ? { result: error.completed, completeOutput: error.completeOutput ?? error.completed.output } : undefined;
+      }
+      const cause = Object.getOwnPropertyDescriptor(error, 'cause');
+      error = cause && 'value' in cause ? cause.value : undefined;
+    }
+  } catch { /* Diagnostic access cannot replace the original failure. */ }
+  return undefined;
+}
+
+function boundedValidationErrorMessage(error: unknown): string {
+  if (typeof error === 'string') return error.slice(0, 2000);
+  if (error && typeof error === 'object') {
+    try {
+      const descriptor = Object.getOwnPropertyDescriptor(error, 'message');
+      if (descriptor && 'value' in descriptor && typeof descriptor.value === 'string') return descriptor.value.slice(0, 2000);
+    } catch { /* Unavailable detail must not obscure the primary cause. */ }
+  }
+  return 'unavailable error detail';
+}
+
+async function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions, reportedTimeoutMs: number): Promise<CapturedValidationCommandResult> {
+  const delegationSignal = currentValidationReservationAbortSignal();
+  if (delegationSignal) options = { ...options, abortSignal: options.abortSignal ? AbortSignal.any([options.abortSignal, delegationSignal]) : delegationSignal };
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
-  const deadlineRemainingMs = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt)
-    ? Math.max(1, Math.floor(options.deadlineAt - Date.now()))
-    : undefined;
-  const timeoutMs = deadlineRemainingMs === undefined
-    ? configuredTimeoutMs
-    : Math.min(configuredTimeoutMs, deadlineRemainingMs);
+  // The armed timer is fixed here, before setup and the pre-launch handshakes: the configured timeout
+  // capped by the remaining outer deadline, whose budget started before the capacity wait, so a queue
+  // wait consumes budget exactly as before delegation existed, and, under delegation, by the live
+  // grant's deadline at which its revocation kills the command; the reported effective timeout is
+  // that armed ceiling. The bounded deadline below governs only the pre-launch handshakes.
+  const grantDeadlineAt = currentValidationReservationDeadline();
+  const ceilingAt = Math.min(options.deadlineAt ?? Infinity, grantDeadlineAt ?? Infinity);
+  const armedTimeoutMs = ceilingAt === Infinity ? configuredTimeoutMs : Math.max(1, Math.min(configuredTimeoutMs, Math.floor(ceilingAt - started)));
+  options = { ...options, deadlineAt: Math.min(ceilingAt, started + configuredTimeoutMs) };
   // A policy-owned reuse capsule supplies its already-closed environment. Do not
   // merge ambient variables back into that boundary while retaining the normal
   // validation environment construction for every ordinary command.
@@ -1457,20 +1525,60 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
     spawnEnv.NODE_OPTIONS = `${spawnEnv.NODE_OPTIONS || ''} --require ${tracer}`.trim();
   }
 
-  return new Promise((resolveResult) => {
+  // The caller's own abort, or a caller-supplied deadline error, is decided before any pending
+  // fence is prepared and again ahead of a delegation refusal, so it keeps its exception
+  // behaviour instead of folding into a delegation result. A default deadline that expires
+  // during preparation still folds into the bounded command result, as it always has.
+  const callerStop = (): Error | undefined => {
+    if (options.abortSignal?.aborted) return options.abortSignal.reason ?? new Error('shared validation aborted');
+    if (options.deadlineError && options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) return options.deadlineError();
+    return undefined;
+  };
+  { const stop = callerStop(); if (stop) throw stop; }
+  let pendingSpawn: string | undefined;
+  try { pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
+  catch (error) { const stop = callerStop(); throw stop ?? error; }
+  // Marked before the spawn call: an unmarked pending fence proves that no child was ever spawned
+  // under it, so owner loss before this point can be recovered without a detached-child risk. A
+  // refused mark is withdrawn at once, because no spawn call was made under the fence; a refused
+  // withdrawal is reported together with the refusal, never in place of it.
+  try { await attemptValidationReservationSpawn(pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
+  catch (error) {
+    try { await cancelValidationReservationChild(pendingSpawn, {deadlineAt: Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs}); }
+    catch (cleanupError) {
+      const stop = callerStop(); if (stop) throw stop;
+      throw new ValidationNoSpawnCleanupError(`${boundedValidationErrorMessage(error)}; validation no-spawn cleanup refused: ${boundedValidationErrorMessage(cleanupError)}`, error);
+    }
+    const stop = callerStop(); throw stop ?? error;
+  }
+  let spawned = false;
+  let spawnedPid: number | undefined;
+  // The refused child's identity, recorded while it still lived, so the cleanup below can apply the owned-group rule to it.
+  let refusedGroup: ReturnType<typeof observeValidationReservationChild> | undefined;
+  let registrationRefused = false;
+  let captureFailed = false, captureError: unknown;
+  let captured: CapturedValidationCommandResult | undefined;
+  try { captured = await new Promise<CapturedValidationCommandResult>((resolveResult) => {
     const isWindows = process.platform === 'win32';
     let output = '';
     let timedOut = false;
     let runnerFailure = false;
     let settled = false;
+    let effectiveTimeoutMs = 0;
     let timer: NodeJS.Timeout | undefined;
     let killTimer: NodeJS.Timeout | undefined;
     let heartbeatTimer: NodeJS.Timeout | undefined;
     const runtimeEvents: string[] = ['spawn-request'];
 
-    const finish = (rawCode: number | null) => {
+    let childRegistration: Promise<void> = Promise.resolve();
+    const finish = async (rawCode: number | null) => {
       if (settled) return;
       settled = true;
+      // A refused registration fails the command closed without touching the command's own output
+      // artifact: the refusal is carried as a separate diagnostic and appended only to the bounded
+      // projection, and the child's own exit status is kept alongside the fail-closed code.
+      let delegationDiagnostic: string | undefined; let observedExitCode: number | null | undefined;
+      try { await childRegistration; } catch (error) { runnerFailure = true; delegationDiagnostic = boundedValidationErrorMessage(error); observedExitCode = rawCode; rawCode = 1; }
       if (timer) clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
@@ -1503,11 +1611,12 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
         ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
         code,
-        output: trimOutput(completeOutput, code !== 0),
+        output: delegationDiagnostic === undefined ? trimOutput(completeOutput, code !== 0) : `${trimOutput(completeOutput, true)}\n${delegationDiagnostic}`,
+        ...(delegationDiagnostic === undefined ? {} : { delegationDiagnostic, observedExitCode }),
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
         timeoutMs: reportedTimeoutMs,
-        effectiveTimeoutMs: timeoutMs,
+        effectiveTimeoutMs,
         ...(failureKind ? { failureKind } : {}),
         durationMs: Date.now() - started,
         runtimeTrace: {
@@ -1558,9 +1667,9 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
     }
     const child = spawn(command.command, command.args, {
       cwd,
-      env: spawnEnv,
+      env: options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv),
       shell: command.shell || isWindows,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
       // POSIX: give the child its own process group (it becomes group leader) so the
       // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
       // grandchildren that survive a direct child.kill() and keep the stdout/stderr pipe
@@ -1568,6 +1677,17 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       // re-introducing the exact hang this guards against. Not unref'd: we still await it.
       ...(isWindows ? {} : { detached: true }),
     });
+    spawned = child.pid !== undefined;
+    spawnedPid = child.pid;
+    // The spawned PID is noted on the fence before the registration handshake, so an owner lost
+    // between this spawn call and the applied registration leaves a fence that resolves once the
+    // child and its whole group are proven absent instead of a terminal one.
+    childRegistration = child.pid ? noteValidationReservationSpawn(pendingSpawn, child.pid, {deadlineAt: options.deadlineAt, signal: options.abortSignal}).then(() => registerValidationReservationChild(child.pid!, pendingSpawn, {deadlineAt: options.deadlineAt, signal: options.abortSignal})) : Promise.resolve();
+    // A refused registration terminates the whole spawned group, exactly like a timeout;
+    // the owned pending fence is withdrawn below only once that group is proven absent.
+    // A refusal that arrives after the child has already exited sends no signal, exactly like the
+    // timeout path; a recycled process group is never targeted.
+    childRegistration.catch(() => { registrationRefused = true; if (settled || child.exitCode !== null || child.signalCode !== null) return; try { refusedGroup = observeValidationReservationChild(child.pid!); } catch { /* the leader-absent rule of the cleanup below still applies */ } try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ } });
     runtimeEvents.push('spawn');
 
     emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
@@ -1642,9 +1762,10 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
     // hung command is then killed (whole group) + attributed (exit 124) here, instead of
     // the global idle watchdog silently force-exiting the whole validate. unref() so a
     // stray timer never keeps the event loop alive on its own (the awaited child does).
+    effectiveTimeoutMs = armedTimeoutMs;
     timer = setTimeout(() => {
       timeOutCommand(1000);
-    }, timeoutMs);
+    }, effectiveTimeoutMs);
     timer.unref?.();
 
     child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
@@ -1656,7 +1777,69 @@ function captureValidationCommand(command: ValidationCommand, projectRoot: strin
       output += output ? `\n${e.message}` : e.message;
       finish(null);
     });
-  });
+  }); return captured;
+  } catch (error) { captureFailed = true; captureError = error; throw error;
+  } finally {
+    if (!spawned) {
+      try { await cancelValidationReservationChild(pendingSpawn, {deadlineAt: Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs}); }
+      catch (cleanupError) {
+        // Cleanup refusal stays fail-closed, but must not replace the caller's
+        // original abort/deadline or erase a completed command's bounded result.
+        const diagnostic = new ValidationNoSpawnCleanupError(
+          `${captureFailed ? boundedValidationErrorMessage(captureError) + '; ' : ''}validation no-spawn cleanup refused: ${boundedValidationErrorMessage(cleanupError)}`,
+          captureFailed ? captureError : cleanupError, captured?.result, captured?.completeOutput,
+        );
+        Object.defineProperty(diagnostic, 'cleanupFailure', {value: boundedValidationErrorMessage(cleanupError)});
+        if (captured) Object.defineProperty(diagnostic, 'result', {value: {
+          code: captured.result.code, timedOut: captured.result.timedOut,
+          failureKind: captured.result.failureKind, output: captured.result.output.slice(0, 2000),
+          effectiveTimeoutMs: captured.result.effectiveTimeoutMs,
+        }});
+        throw diagnostic;
+      }
+    } else if (registrationRefused && spawnedPid !== undefined) {
+      // The refused child was signalled with its group while it lived; a child that exited before the
+      // refusal arrived, or that ignored the signal, may leave the group its spawn created behind. That
+      // group is signalled through the one owned-group rule shared with the controller teardown and the
+      // isolated fixture (its leader still observed with the recorded identity, or absent while the
+      // recorded group persists): SIGTERM now and SIGKILL at the half-budget point, exactly like a
+      // timeout. Once its PID and whole group are proven absent nothing this spawn started can remain,
+      // so the owned pending fence is withdrawn; a group that outlives even that, or an unobservable
+      // one, keeps the fence for the controller to report.
+      const leader = spawnedPid;
+      const group = refusedGroup ?? {pid: leader, pgid: leader, start: Number.NaN};
+      const signalGroup = (signal: 'SIGTERM' | 'SIGKILL'): void => {
+        if (process.platform === 'win32' || !validationReservationOwnedGroupSignalTarget(group)) return;
+        try { process.kill(-leader, signal); } catch { /* absence below is decisive */ }
+      };
+      const cleanupMs = VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs;
+      const until = Date.now() + cleanupMs;
+      let escalated = false;
+      signalGroup('SIGTERM');
+      while (!unregisteredValidationReservationChildGone(spawnedPid) && Date.now() < until) {
+        if (!escalated && Date.now() >= until - cleanupMs / 2) { escalated = true; signalGroup('SIGKILL'); }
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      if (unregisteredValidationReservationChildGone(spawnedPid)) {
+        try { await cancelValidationReservationChild(pendingSpawn, {deadlineAt: Date.now() + VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.cleanupMs}); }
+        catch (cleanupError) {
+          // Withdrawal refusal stays fail-closed without replacing the caller's original
+          // error or erasing the completed command's bounded result.
+          const diagnostic = new ValidationNoSpawnCleanupError(
+            `${captureFailed ? boundedValidationErrorMessage(captureError) + '; ' : ''}validation refused-registration cleanup refused: ${boundedValidationErrorMessage(cleanupError)}`,
+            captureFailed ? captureError : cleanupError, captured?.result, captured?.completeOutput,
+          );
+          Object.defineProperty(diagnostic, 'cleanupFailure', {value: boundedValidationErrorMessage(cleanupError)});
+          if (captured) Object.defineProperty(diagnostic, 'result', {value: {
+            code: captured.result.code, timedOut: captured.result.timedOut,
+            failureKind: captured.result.failureKind, output: captured.result.output.slice(0, 2000),
+            effectiveTimeoutMs: captured.result.effectiveTimeoutMs,
+          }});
+          throw diagnostic;
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -1808,6 +1991,9 @@ export interface SingleCommandExecutionResult {
   args: string[];
   code: number;
   output: string;
+  /** A refused delegation registration, kept apart from the complete output. */
+  delegationDiagnostic?: string;
+  observedExitCode?: number | null;
   timedOut: boolean;
   durationMs: number;
   /**
@@ -1905,6 +2091,8 @@ export async function runSingleAllowlistedCommand(
     args,
     code: result.code,
     output: completeOutput,
+    // A refused registration travels as its own field; the complete output stays the command's bytes.
+    ...(result.delegationDiagnostic === undefined ? {} : { delegationDiagnostic: result.delegationDiagnostic, observedExitCode: result.observedExitCode ?? null }),
     timedOut: Boolean(result.timedOut),
     durationMs: result.durationMs,
     // runValidationCommand always stamps the effective (clamped, deadline-capped) ceiling,

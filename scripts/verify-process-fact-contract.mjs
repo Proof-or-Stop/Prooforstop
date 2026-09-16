@@ -11862,6 +11862,15 @@ const managedCriticArtifact = parseRegistryArrayEntriesFromSource(read(processFa
 assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.managed_review_evidence_import'
   && managedCriticArtifact.kind === 'signed-artifact', 'Managed importer must explicitly register its second signed critic artifact');
 
+// The declaration, not a matching comment, must retain admission authority facts.
+{
+ const source=read(processFactRegistryPath), name='runtime:validation_machine_reservation_delegation';
+ const valid=text=>{const row=parseRegistryArrayEntriesFromSource(text,'PROCESS_FACT_VALIDATION_EXECUTION').find(entry=>entry.name===name);return Boolean(row&&row.level==='L4'&&row.kind==='runtime-behavior'&&['runtime-behavior','verification-policy','workspace-binding'].every(value=>row.semantics.includes(value))&&['packages/main/src/core/validation-reservation-delegation.ts','packages/main/src/core/validation-execution-lock.ts','packages/main/src/core/validation-executor.ts'].every(value=>(parseStringArrayProperty(row.block,'producerSourceRefs')??[]).includes(value)));};
+ nodeAssert(valid(source),'Controlled machine delegation must retain its structural process-fact declaration');
+ const row=parseRegistryArrayEntriesFromSource(source,'PROCESS_FACT_VALIDATION_EXECUTION').find(entry=>entry.name===name);
+ for(const block of [row.block.replace(name,'removed-delegation-fact'),row.block.replace("level: 'L4'","level: 'L1'"),row.block.replace("'verification-policy'", "'runtime-behavior'"),row.block.replace("'packages/main/src/core/validation-executor.ts'","'removed-executor.ts'")])nodeAssert(!valid(source.replace(row.block,block)),'Changed delegation declaration must be refused');
+}
+
 // A Story with no initial checklist items must still create the canonical L4
 // artifact. Keep both producer paths registered and bind the creation write to
 // the same preflight value that is committed with the new Story metadata.

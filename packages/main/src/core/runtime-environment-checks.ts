@@ -358,11 +358,11 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/executable-digest-observation.ts': 'efaa0e0be32dd9e8833d6de120081b32f9c56c27b4d749b7eb2fa309445e0c4d',
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
-  'packages/main/src/core/git-tree-observation.ts': '057d07a7c61716f212bf51ab1e6db6f766c6d8df8655b9178e8d0a5d03086669',
-  'packages/main/src/core/evidence-freshness.ts': '6eca17a48ac39083a7a601c52b49eb24300fad0ac5a7628efb12f8096d644df7',
+  'packages/main/src/core/git-tree-observation.ts': 'e3310d811d2c0e7f78a41e14ee6995593c23cb6a0e5d8c7686be5d5a7cbfe3f9',
+  'packages/main/src/core/evidence-freshness.ts': 'd3120733e853509d3cc1a5643fe1316e1a820f68b20f27affd0254699f99257c',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
-  'packages/main/src/core/verification-execution-evidence.ts': '2f9f9fa37e64b41c1a164fb064da3df080b999a4a1e5689b83e927c8a39447bc',
-  'packages/main/src/handlers/checklist.ts': '270df69b09473178629c84322db23473e82765b81b5dbe0d06beb7b9de7df4b9',
+  'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
+  'packages/main/src/handlers/checklist.ts': '61a612f00cc5df6846b39e334941ff1f98b7ee5417343cdc82a5f225650edb0e',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

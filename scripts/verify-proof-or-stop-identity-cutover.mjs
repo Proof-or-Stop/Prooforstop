@@ -3275,7 +3275,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "709c48ad2f2f95119e09e6dadef398a62971aab2003ede8d3bcf255fb210a9be"
+    "sha256": "59827f5f4bf81c6da9a575ac6975240892275679f1a98063f2fdb7bdc8dbec63"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -3287,7 +3287,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [{ path: 'packages/main/tests/global-
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "a09a1249fe9e0f965c0ec9eb4b68211b5341c591fbcd6147dd61bcfd1dbe5a86"
+    "sha256": "84e037a10cd02cfda3a1ff888f1946b2d9ac12b69c4a635361b479041fdc2657"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
@@ -5522,7 +5522,7 @@ const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
   },{path:"scripts/verify-review-epoch-certification-continuity.mjs",token:retiredToken("lat","tice.managed_review_final_proposal.v1"),count:1,contextSha256:"85bbf1a3e793dbe83d6c7bd9c06c1ab7d4246445140a1e76295bff681c502165"}
 ,
   {path:"scripts/lab/u18-static-edges/exceptions.json", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:4, contextSha256:"2374712c57a5869a63b5961ec358c3c4222002f5384a9d2cd75f4f7dc483b730"},
-  {path:"scripts/lab/u18-static-edges/exceptions.json", token:retiredToken("lat", "tice.native_review_invocation_attestation.v1"), count:4, contextSha256:"b58fd0fb142fab599374852a9173b7e09a093cd41c0ae56b1705eb2910834214"},
+  {path:"scripts/lab/u18-static-edges/exceptions.json", token:retiredToken("lat", "tice.native_review_invocation_attestation.v1"), count:4, contextSha256:"0e62c8752a7f7840794d21f483760e0fb0672081fdeaf7cd3f31e3ad12f49bc7"},
   {path:"scripts/verify-managed-inventory-critic-import.mjs", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:1, contextSha256:"c52c6b5bca96f206a923327d512bbce1bcf9849dfd6ed570266ccc607418cb49"},
   {path:"scripts/verify-managed-inventory-critic-transport.mjs", token:retiredToken("lat", "tice.managed_review_final_proposal.v1"), count:1, contextSha256:"5ac97185d6fc7902811a5ffa71b75225592142b5eb26a50980244a9815c42028"}
 ];
@@ -7420,14 +7420,14 @@ function verifySchemaInventory(root, schemas) {
 }
 
 const REVIEWED_CONTEXT_READERS = [
-{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "f934a950be23a44932b7b949120086f1197484841d806cdf6cbab8bc86254792"},
+{"path": "scripts/identity-reviewed-source-contexts.mjs", "sha256": "a12c3be5d01268a9e99fa81e3d3b4c3202efd9551ab83a1312e9ba457116382c"},
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "1903c84846b15e2f3160ef358bcb74603302d17f112f26e986ad17d0914d9d9a"
+    "sha256": "78d04784a533f5fce0edc443518238a94587eec23c27f804da6270392e3afbab"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "bde0defaf77145afc753652a1b2742d81cda15cfba03ed9c5dd2a4168c8af11f"
+    "sha256": "797848e6466e3b90f26cb361db4cb56aededc1d1dc57838a1a8f48d5fedce98f"
   }
 ];
 function verifyReviewedContextReaders(root) {

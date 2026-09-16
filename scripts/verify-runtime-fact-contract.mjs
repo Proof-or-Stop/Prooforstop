@@ -23,12 +23,19 @@ const requiredFacts = [
 
 const requiredEvidenceFacts = [
   'identity-canonical-digest-memo',
+  'validation-machine-reservation-delegation',
   'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
   'verification-receipt-authenticity',
   'verification-input-scoped-reuse',
   'verification-planning-observation',
+  'verification-refresh-observation',
+  'publication-recovery-plan-observation',
+  'implementation-scan-single-read',
+  'refresh-git-state-observation',
+  'synchronous-segment-implementation-observation',
+  'synchronous-segment-git-observation',
   'verification-reuse-capsule-authority',
   'verification-execution-producer-lock',
   'verification-lifecycle-admissibility',
@@ -74,11 +81,19 @@ async function main() {
   const root = findRepoRoot(process.cwd());
   check(read(root, 'packages/main/src/core/runtime-fact-registry.ts').includes('MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY'), 'Managed critic fixture runtime policy must be registered');
   check(read(root, 'packages/main/src/tasks/isolated-finding-fixture.ts').includes('managedCriticFixtureBudgetMs(process.env,budgetStartedAt)'), 'Isolated fixture must consume the managed critic budget');
+  const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  // Controlled machine delegation is checked before the build-share step and before any subprocess
+  // step, so these assertions are evaluated even when a later control aborts the run.
+  check(registrySource.includes("id: 'validation-machine-reservation-delegation'"), 'Controlled machine delegation runtime fact must be registered');
+  const delegationSource = read(root, 'packages/main/src/core/validation-reservation-delegation.ts');
+  check(delegationSource.includes("import { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY as policy } from './runtime-fact-registry.js';"), 'Controlled machine delegation must import its registered runtime policy');
+  for (const site of ["policy.descriptor","policy.descriptorEnvironment","policy.maxMessageBytes","policy.cleanupMs","policy.observationRetries","policy.observationBackoffMs","policy.platform","policy.retirementPollMs","policy.retirementPollMaxMs","policy.workerRegistrationMs"]) {
+    check(delegationSource.includes(site), `Controlled machine delegation must bind ${site}`);
+  }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
-  const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
   check(registrySource.includes('memory-query-latency-boundary'), 'Memory query timing runtime fact is registered');
   execFileSync(process.execPath, [join(root, 'scripts/verify-memory-query-timing.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 60_000 });

@@ -1,10 +1,15 @@
-import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { withInheritedMachineReservation, withMachineReservationController, machineReservationResidualsPresent, inheritedValidationReservationPortAlreadyHeld, currentValidationReservationAbortSignal } from './validation-reservation-delegation.js';
+import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import {
   existsSync,
+  openSync,
+  closeSync,
+  fstatSync,
+  constants as fsConstants,
   lstatSync,
   mkdirSync,
   readFileSync,
@@ -18,7 +23,7 @@ import {
 } from 'node:fs';
 import { hostname, networkInterfaces, userInfo } from 'node:os';
 import { createServer } from 'node:net';
-import { MACHINE_FIXED_PORT_ARTIFACT } from './runtime-artifact-registry.js';
+import { MACHINE_FIXED_PORT_ARTIFACT, VALIDATION_RESERVATION_DELEGATION_ARTIFACT } from './runtime-artifact-registry.js';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import {
   acquireMkdirLock,
@@ -638,6 +643,54 @@ async function releaseValidationCapacityTicket(ticketPath: string, holder: Mkdir
   );
 }
 
+// Boot identity is kernel-observed, never inferred from wall clock or owner death.
+// This witness shares the existing private-owned ticket filesystem trust; it is
+// not cryptographic authentication against an attacker rewriting that directory.
+function machineBootIdentity(): string | undefined {
+  if (process.platform !== 'darwin') return undefined;
+  try {
+    const value = execFileSync('/usr/sbin/sysctl', ['-n', 'kern.bootsessionuuid'], {
+      encoding: 'utf8', timeout: VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.kernelObservationMs,
+      maxBuffer: VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.maxMessageBytes,
+    }).trim().toLowerCase();
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value) ? value : undefined;
+  } catch { return undefined; }
+}
+export function canonicalMachineCapacityRoot(): string {
+  return join(userInfo().homedir, PROOF_OR_STOP_DIR, 'locks', MACHINE_FIXED_PORT_ARTIFACT.directoryName);
+}
+/** Read-only prior-boot proof. Only an already-stale canonical ticket may use it. */
+export function machineTicketPreviousBootIsProven(ticket: string, holder: MkdirLockHolderInfo | null): boolean {
+  if (dirname(ticket) !== canonicalMachineCapacityRoot() || !holder?.lockId
+    || !basename(ticket).endsWith('-' + holder.lockId + '.ticket')
+    || holder.hostname !== hostname() || !Number.isSafeInteger(holder.pid) || holder.pid <= 1
+    || !Number.isFinite(holder.processStartTimeMs)) return false;
+  let fd: number | undefined;
+  try {
+    const directory = lstatSync(ticket);
+    if (!directory.isDirectory() || directory.isSymbolicLink() || directory.uid !== userInfo().uid || (directory.mode & 0o077) !== 0) return false;
+    // A currently live or unobservable owner always wins over contradictory metadata.
+    try { process.kill(holder.pid, 0); return false; }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') return false; }
+    const path = join(ticket, VALIDATION_RESERVATION_DELEGATION_ARTIFACT.bootFile);
+    const prior = lstatSync(path);
+    if (!prior.isFile() || prior.isSymbolicLink()) return false;
+    fd = openSync(path, fsConstants.O_RDONLY | fsConstants.O_NOFOLLOW);
+    const stat = fstatSync(fd);
+    if (!stat.isFile() || stat.uid !== userInfo().uid || (stat.mode & 0o077) !== 0
+      || stat.size <= 0 || stat.size > VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.maxMessageBytes
+      || stat.dev !== prior.dev || stat.ino !== prior.ino) return false;
+    const witness = JSON.parse(readFileSync(fd, 'utf8'));
+    if (witness.schema !== 'machine-ticket-boot.v1' || witness.platform !== 'darwin'
+      || witness.uid !== userInfo().uid || witness.lockId !== holder.lockId || witness.pid !== holder.pid
+      || witness.hostname !== holder.hostname || witness.processStartTimeMs !== holder.processStartTimeMs
+      || typeof witness.bootId !== 'string'
+      || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(witness.bootId)) return false;
+    const current = machineBootIdentity();
+    return current !== undefined && current !== witness.bootId;
+  } catch { return false; } finally { if (fd !== undefined) closeSync(fd); }
+}
+
 function activeCapacityCandidates(
   lockRoot: string,
   suffix: '.choosing' | '.ticket',
@@ -652,7 +705,7 @@ function activeCapacityCandidates(
       staleMs,
       nowMs: Date.now(),
     });
-    if (classification !== 'stale') {
+    if (classification !== 'stale' || lockRoot === canonicalMachineCapacityRoot() && machineReservationResidualsPresent(candidate.path) && !machineTicketPreviousBootIsProven(candidate.path, candidate.holder)) {
       active.push(candidate);
       continue;
     }
@@ -725,10 +778,21 @@ function createValidationCapacityCandidate(path: string, holder: MkdirLockHolder
   // identity is complete. A process killed while preparing leaves only an
   // ignored, never-reused private path; the atomic rename is the publication.
   const preparingPath = `${path}.${process.pid}-${randomUUID()}.preparing`;
-  mkdirSync(preparingPath);
+  // Only a canonical machine ticket is read by the boot-recovery reader, which requires the
+  // private mode; workspace capacity tickets keep the process default.
+  mkdirSync(preparingPath, dirname(path) === canonicalMachineCapacityRoot() ? { mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode } : undefined);
   try {
     writeFileSync(join(preparingPath, 'holder.json'), JSON.stringify(holder, null, 2) + '\n', 'utf8');
     if (declaration) writeFileSync(join(preparingPath, 'resources.json'), JSON.stringify(declaration) + '\n', 'utf8');
+    if (dirname(path) === canonicalMachineCapacityRoot()) {
+      const bootId = machineBootIdentity();
+      if (bootId !== undefined && holder.lockId && Number.isFinite(holder.processStartTimeMs)) {
+        writeFileSync(join(preparingPath, VALIDATION_RESERVATION_DELEGATION_ARTIFACT.bootFile), JSON.stringify({
+          schema: 'machine-ticket-boot.v1', platform: 'darwin', bootId, uid: userInfo().uid,
+          lockId: holder.lockId, pid: holder.pid, hostname: holder.hostname, processStartTimeMs: holder.processStartTimeMs,
+        }) + '\n', { mode: 0o600 });
+      }
+    }
     writeValidationHeartbeat(preparingPath, holder);
     renameSync(preparingPath, path);
   } catch (error) {
@@ -773,6 +837,12 @@ export async function withMachineValidationResources<T>(options: ValidationCapac
   const claims = declared ? canonicalizeEntries([{ name: options.command, resources: [
     { class: 'machine-validation', key: MACHINE_FIXED_PORT_RUNTIME_POLICY.barrierKey, access: 'shared' }, ...machineResources,
   ] }], options.workspaceRoot)[0]!.resources : undefined;
+  const inherited = await withInheritedMachineReservation(claims ?? null, options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, options.abortSignal, async () => {
+    for (const claim of (claims ?? []).filter(claim => claim.class === 'fixed-port' && claim.access === 'exclusive')) if(!inheritedValidationReservationPortAlreadyHeld(claim.key)) await probeMachineFixedPort(Number(claim.key));
+    currentValidationReservationAbortSignal()?.throwIfAborted();
+    assertCapacityWaitActive(options); return await fn();
+  });
+  if (inherited.inherited) return inherited.value;
   const nested = currentContextOwns(lockKey);
   const held = nested ? activeCapacityDeclarations.get(validationLockOwnerStore.getStore()!.get(lockKey)!) : undefined;
   return withValidationCapacityQueue({ ...options, resources: claims, maxConcurrent: MAX_JOBS,
@@ -920,7 +990,7 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
     assertCapacityWaitActive(options);
     callbackResult = await validationLockOwnerStore.run(
       extendedOwnerTokens(lockKey, acquisitionToken),
-      async () => await fn(),
+      async () => rejectAncestorConflict ? await withMachineReservationController({ ticket: ticketPath, lockId: acquisitionToken, pid: process.pid, deadlineAt: options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, resources: declaration?.resources ?? null }, () => activeValidationLockTokens.get(lockKey)?.has(acquisitionToken) === true && readMkdirLockHolder(ticketPath)?.lockId === acquisitionToken, fn) : await fn(),
     );
   } catch (error) {
     callbackFailed = true;
@@ -931,6 +1001,7 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
   activeCapacityDeclarations.delete(acquisitionToken);
   let releaseError: unknown;
   try {
+    if (rejectAncestorConflict && machineReservationResidualsPresent(ticketPath)) throw new Error('VALIDATION_DELEGATION_CLEANUP_UNPROVEN');
     await releaseValidationCapacityTicket(ticketPath, holderInfo);
   } catch (error) {
     releaseError = error;
@@ -1232,4 +1303,16 @@ export function declaredValidationCapacity(
   // Preserve access, ownership and resolved cwd; validate every input before dedup.
   const distinctResources = [...new Map(resources.map(claim => [JSON.stringify(claim), claim])).values()];
   return { resources: distinctResources, maxConcurrent: VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.declaredInvocationCapacity };
+}
+
+/** Read-only resolution from the canonical machine queue, never a bootstrap-selected root. */
+export function inspectMachineReservationOwner(ticket: string, lockId: string): {pid:number;start:number;resources:ResourceClaim[]|null} | null {
+  const root = join(userInfo().homedir, PROOF_OR_STOP_DIR, 'locks', MACHINE_FIXED_PORT_ARTIFACT.directoryName);
+  if (dirname(ticket) !== root || !basename(ticket).endsWith('-' + lockId + '.ticket')) return null;
+  const candidates = capacityCandidates(root, '.ticket').filter(candidate => classifyValidationCapacityLock({lockDir:candidate.path,holder:candidate.holder,ageMs:candidate.ageMs,staleMs:VALIDATION_EXECUTION_LOCK_STALE_MS,nowMs:Date.now()}) !== 'stale' || machineReservationResidualsPresent(candidate.path) && !machineTicketPreviousBootIsProven(candidate.path, candidate.holder)).sort((a,b)=>a.name.localeCompare(b.name));
+  const candidate = candidates.find(row=>row.path===ticket), holder = candidate?.holder;
+  if (!holder || holder.lockId !== lockId || holder.hostname !== hostname() || !capacityTicketAdmitted(candidates,ticket)) return null;
+  const start=observedProcessStartTimeMs(holder.pid);
+  if (start === undefined || holder.processStartTimeMs === undefined || Math.abs(start-holder.processStartTimeMs)>2000) return null;
+  return {pid:holder.pid,start,resources:readCapacityDeclaration(ticket)?.resources??null};
 }

@@ -103,6 +103,10 @@ export interface ValidationCommandResult {
   effectiveTimeoutMs?: number;
   timeoutMs?: number;
   failureKind?: ValidationFailureKind;
+  /** Infrastructure diagnostic (a refused delegation registration) kept apart from the command's own output artifact. */
+  delegationDiagnostic?: string;
+  /** The child's own exit status when an infrastructure refusal fails the command after the child ran. */
+  observedExitCode?: number | null;
   durationMs: number;
   /** Real command-boundary observations captured by the executor spawn seam. */
   runtimeTrace?: {

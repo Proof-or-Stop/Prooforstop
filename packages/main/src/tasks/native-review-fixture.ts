@@ -1,3 +1,4 @@
+import { validationReservationChildEnvironment, validationReservationChildStdio } from '../core/validation-reservation-delegation.js';
 import { randomUUID } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { closeSync, openSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -188,12 +189,12 @@ export async function runBrokeredNativeReviewCli(args: {
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [CLI, args.command, JSON.stringify(args.payload)], {
       cwd: args.root,
-      env: {
+      env: validationReservationChildEnvironment({
         ...sanitizedFixtureChildEnvironment({ ...process.env, ...args.env }),
         ...invocation.env,
         LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '3',
-      },
-      stdio: ['ignore', 'pipe', 'pipe', 'pipe'],
+      }),
+      stdio: validationReservationChildStdio(['ignore', 'pipe', 'pipe', 'pipe']),
     });
     let stdout = '';
     let stderr = '';

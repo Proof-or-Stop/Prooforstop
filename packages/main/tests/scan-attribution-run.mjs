@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';import path from 'node:path';import {spawnSync} from 'node:child_process';
+import {createFixtureMachineEnvironment} from '../dist/tasks/helpers/fixture-machine-environment.js';
+import {verifyBuildBinding,verifyUtilsBuildBinding} from '../../../scripts/full-suite-build-binding.mjs';
+const root=process.cwd(),directory=path.resolve(process.argv[2]??'');
+assert.ok(process.argv[2],'absolute output directory required');fs.mkdirSync(directory,{recursive:true});
+assert.equal(fs.readdirSync(directory).length,0,'new empty attribution directory required');
+verifyBuildBinding(root);verifyUtilsBuildBinding(root);
+const fixture=createFixtureMachineEnvironment();
+const args=['packages/main/dist/tasks/verification-run-and-guard-smoke.js','--baa5f-verification-fanout-shard'];
+const env={...fixture.env,SCAN_ATTRIBUTION_DIR:directory,NODE_OPTIONS:[fixture.env.NODE_OPTIONS,'--import='+path.join(root,'packages/main/tests',{'--four-costs':'four-costs-profile.mjs','--refresh-subprocess':'refresh-subprocess-profile.mjs','--git-segment':'git-segment-profile.mjs'}[process.argv[4]]??'scan-attribution-profile.mjs')].filter(Boolean).join(' ')};
+const start=performance.now();let native;
+try{native=spawnSync(process.execPath,args,{cwd:root,env,encoding:'utf8',timeout:1200000,maxBuffer:96*1024*1024});}finally{fixture.cleanup();}
+const wallMs=performance.now()-start;
+fs.writeFileSync(path.join(directory,'stdout.log'),native.stdout??'');fs.writeFileSync(path.join(directory,'stderr.log'),native.stderr??'');
+const rows=fs.readdirSync(directory).filter(n=>n.endsWith('.jsonl')).flatMap(n=>fs.readFileSync(path.join(directory,n),'utf8').trim().split('\n').filter(Boolean).map(JSON.parse));
+const scans=rows.filter(r=>r.kind==='scan'),plans=rows.filter(r=>r.kind==='planning'),refresh=rows.filter(r=>r.kind==='refresh');
+const summary={command:[process.execPath,...args],wallMs,nativeExit:native.status,nativeSignal:native.signal,scanCalls:scans.length,scanMs:scans.reduce((s,r)=>s+r.elapsedMs,0),readBytes:scans.reduce((s,r)=>s+r.bytes,0),executableBytes:scans.reduce((s,r)=>s+r.executableBytes,0),plans,refresh,instrumentation:'Call stacks, async callback epochs and read attribution add overhead. Same epoch/digest is a candidate for investigation, not proof that reuse is safe.'};
+fs.writeFileSync(path.join(directory,'summary.json'),JSON.stringify(summary,null,2)+'\n');
+console.log(JSON.stringify(summary));process.stdout.write(native.stdout??'');process.stderr.write(native.stderr??'');
+assert.equal(native.status,0,'Native fanout must pass');assert.equal(native.signal,null);
+assert.match(native.stdout,/BAA5F_VERIFICATION_FANOUT_SHARD_RECEIPT=/);
+assert.ok(scans.length>0);assert.ok(plans.length>0);assert.ok(plans.every(p=>p.calls===1));
+assert.ok(scans.every(r=>r.stack.length>0&&r.digest&&r.bytes>0),'Every scan has attributable success data');
+console.log('SCAN_ATTRIBUTION_NATIVE_PASS');
+if(process.argv[3]==='--refresh-single-scan'){
+  for(const label of ['coverage','groups','write'])assert.ok(refresh.some(r=>r.label===label&&r.rows>=71),'Missing actual 71-row refresh scope: '+label);
+  assert.ok(refresh.every(r=>r.calls<=1),'REFRESH_SCAN_RED: synchronous refresh scope repeats implementation scans');
+  console.log('REFRESH_SCAN_GREEN');
+}

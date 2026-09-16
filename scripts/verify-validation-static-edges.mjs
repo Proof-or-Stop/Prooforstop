@@ -10,7 +10,34 @@ const identityContract=JSON.parse(fs.readFileSync(path.join(here,'identity-child
 const rows=[],coverage=[],observed=new Set(),packageScripts=[],exceptionUses=[];
 // Exact imported verifier helpers introduced by the Graph ownership/refusal split.
 // This inventory adds traversal, never grants a child-process exception.
+// This fixed native test route must bind its real resource policy and URL-loaded APIs.
+// It adds required coverage; it grants no subprocess or authority exemption.
+const NESTED_RESERVATION_REQUIRED_DEPENDENCIES = [
+  "proof-or-stop.config.json",
+  "packages/main/src/core/runtime-fact-registry.ts",
+  "packages/main/src/core/validation-reservation-delegation.ts",
+  "packages/main/src/core/validation-execution-lock.ts",
+  "packages/main/src/core/validation-executor.ts",
+  "packages/main/src/tasks/isolated-finding-fixture.ts",
+  "scripts/support/nested-reservation-source-runtime.mjs",
+  "scripts/support/nested-reservation-lifecycle.mjs"
+];
 const REVIEWED_VERIFIER_HELPER_IMPORTS = new Map([
+ ["scripts/verify-nested-reservation-cancellation.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-handshake-deadline.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-wrapper-transport.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-isolated-observation.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-doctor-fence-projection.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-boot-recovery.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-validation-result-contract.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-isolated-worker-exit.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-isolated-cleanup.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-cleanup-diagnostics.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-registration-race.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-owner-loss.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-reservation-faults.mjs", ["./support/nested-reservation-source-runtime.mjs"]],
+ ["scripts/verify-nested-verification-machine-owner.mjs", ["./support/nested-reservation-lifecycle.mjs", "./lab-source-loader.mjs", "../packages/main/src/core/validation-executor.ts"]],
+ ["scripts/verify-nested-reservation-registered.mjs", ["./verify-nested-isolated-cleanup.mjs", "./verify-nested-isolated-worker-exit.mjs", "./verify-nested-reservation-cleanup-diagnostics.mjs", "./verify-nested-reservation-faults.mjs", "./verify-nested-reservation-handshake-deadline.mjs", "./verify-nested-reservation-owner-loss.mjs", "./verify-nested-reservation-registration-race.mjs", "./verify-nested-source-loader-semantics.mjs", "./verify-nested-verification-machine-owner.mjs", "./verify-nested-validation-result-contract.mjs", "./verify-nested-reservation-cancellation.mjs", "./verify-nested-reservation-boot-recovery.mjs", "./verify-nested-reservation-wrapper-transport.mjs", "./verify-nested-isolated-observation.mjs", "./verify-nested-doctor-fence-projection.mjs"]],
  ['scripts/verify-proof-or-stop-identity-cutover.mjs', ['./identity-reviewed-json-contexts.mjs','./identity-reviewed-fixture-contexts.mjs','./identity-reviewed-source-contexts.mjs','./identity-maintenance-boundaries.mjs']],
  ['packages/graph/scripts/verify-json-no-listener.mjs', ['./graph-process.mjs']],
  ['packages/graph/scripts/verify-serves.mjs', ['./graph-process.mjs']],
@@ -47,12 +74,20 @@ function parseStaticSource(file, text) {
  parsedSourceCache.set(file, { text, ast });
  return ast;
 }
+// Every literal specifier a route script can load, read from its parsed syntax tree rather than a text
+// pattern: import declarations (including the bare side-effect form `import './support/x.mjs';`),
+// re-exports and import() calls whose specifier starts with ./support/.
+function routeLoadsSupportHelper(file,text){const ast=ts.createSourceFile(file,text,ts.ScriptTarget.Latest,true);let found=false;const visit=n=>{if(found)return;if((ts.isImportDeclaration(n)||ts.isExportDeclaration(n))&&n.moduleSpecifier&&ts.isStringLiteralLike(n.moduleSpecifier)&&n.moduleSpecifier.text.startsWith('./support/'))found=true;else if(ts.isCallExpression(n)&&n.expression.kind===ts.SyntaxKind.ImportKeyword&&n.arguments[0]&&ts.isStringLiteralLike(n.arguments[0])&&n.arguments[0].text.startsWith('./support/'))found=true;else ts.forEachChild(n,visit);};visit(ast);return found;}
 function scan(file,index,entry,argv,seen,depth=0){const invocationKey=JSON.stringify([file,entry,argv]);if(seen.has(invocationKey))return;seen.add(invocationKey);if(depth>3 && !(entry==='packages/main/dist/tasks/quorum-submit-smoke.js' && QUORUM_NATIVE_HELPER_DEPTHS.get(file)?.includes(depth))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'helper depth exceeds declared bound'});return;}if(!fs.existsSync(path.join(root,file))){coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source missing'});return;}
  const sourceBytes=fs.readFileSync(path.join(root,file)),text=sourceBytes.toString('utf8'),ast=parseStaticSource(file,text),decls=new Map(),cpNames=new Map(),spaces=new Set(),helpers=[],fileTargets=new Set(),mutable=new Set(),aliases=[],pureNames=new Map(),pureSpaces=new Map(),bindings=[];
  if(ast.parseDiagnostics?.length)coverage.push({index,file,state:'NEEDS_REVIEW',reason:'source parse diagnostics'});
  const moduleFile=path.join(root,runtime(file));
  const identityPlan=identityChildClosure({ts,file,text,ast,entry,argv,contract:identityContract});
  const graphImports = REVIEWED_VERIFIER_HELPER_IMPORTS.get(file);
+ // Every script reachable from the closed nested reservation wrapper that loads a
+ // ./support/ helper must carry its own reviewed helper-import row; otherwise its
+ // helper would silently escape traversal for that configured command.
+ if(file==='scripts/verify-nested-reservation-registered.mjs')for(const spec of graphImports??[]){const routeScript=path.posix.normalize(path.posix.join(path.posix.dirname(file),spec));let routeText='';try{routeText=fs.readFileSync(path.join(root,routeScript),'utf8');}catch{continue;}if(routeLoadsSupportHelper(routeScript,routeText)&&!REVIEWED_VERIFIER_HELPER_IMPORTS.has(routeScript))coverage.push({index,file:routeScript,state:'NEEDS_REVIEW',reason:'nested route script imports ./support/ without a reviewed helper-import row'});}
  const seenGraphImports = new Set();
  function observeGraphImport(node, specifier) {
   if (!graphImports) return;
@@ -116,7 +151,7 @@ if(ts.isFunctionDeclaration(n)&&n.name)mutable.add(n.name.text);if(ts.isVariable
 function expandNpm(dir,name,index,seen){const key=dir+':'+name;if(seen.has(key)){coverage.push({index,state:'NEEDS_REVIEW',reason:'npm script cycle',key});return;}seen=new Set([...seen,key]);const pkg=path.join(root,dir,'package.json');let scripts;try{scripts=JSON.parse(fs.readFileSync(pkg,'utf8')).scripts;}catch{coverage.push({index,state:'NEEDS_REVIEW',reason:'npm package unreadable',key});return;}const text=scripts?.[name];packageScripts.push({index,file:path.join(dir,'package.json'),name,text,digest:hash(fs.readFileSync(pkg))});if(typeof text!=='string'||/[|;<>`$\n]/.test(text)||/&/.test(text.replaceAll('&&',''))){coverage.push({index,state:'NEEDS_REVIEW',reason:'unsupported npm shell syntax',key,text});return;}for(const lifecycle of ['pre'+name,'post'+name])if(scripts[lifecycle])expandNpm(dir,lifecycle,index,seen);for(const part of text.split('&&')){const a=part.trim().split(/\s+/);if(a[0]==='npm'&&a[1]==='run'&&a.length===3)expandNpm(dir,a[2],index,seen);else if(a[0]==='node'&&/\.(?:js|mjs|cjs)$/.test(a[1]??'')){const entry=path.posix.normalize(path.posix.join(dir,a[1]));scan(source(entry),index,entry,a.slice(2),new Set());}else if(a[0]==='tsc'&&a.slice(1).every(x=>x==='--noEmit'))coverage.push({index,file:path.join(dir,'package.json'),state:'SCANNED_COMPILER_SCRIPT',script:part.trim(),reason:'literal TypeScript compiler invocation; executable package identity remains runtime concern'});else coverage.push({index,state:'NEEDS_REVIEW',reason:'unsupported npm script segment',key,segment:part});}}
 commands.forEach((c,index)=>{if(['node','bun'].includes(c.command)){const i=(c.args??[]).findIndex(x=>/\.(?:mjs|cjs|js)$/.test(x));if(i>=0){scan(source(c.args[i]),index,c.args[i],c.args.slice(i+1),new Set());if(path.basename(c.args[i])==='run-validation-fixture-suite.mjs'){const j=c.args.findIndex((x,k)=>k>i&&/\.(?:mjs|cjs|js)$/.test(x));if(j>=0&&c.args[j]!=='packages/main/dist/tasks/quorum-submit-smoke.js')scan(source(c.args[j]),index,c.args[j],c.args.slice(j+1),new Set());}}else coverage.push({index,state:'NEEDS_REVIEW',reason:'node command has no literal entry'});}else if(c.command==='npm'&&c.args?.[0]==='--prefix'&&c.args?.[2]==='run')expandNpm(c.args[1],c.args[3],index,new Set());else coverage.push({index,state:'NEEDS_REVIEW',reason:'non-node configured command requires explicit npm/shell script expansion',command:c.command,args:c.args});});
 // Validate coverage only after traversal: helpers and npm scripts may be discovered after an exception call.
-for(const {ex,index,key} of exceptionUses){const required=new Set([...coverage.filter(x=>x.index===index&&x.file).map(x=>x.file),...packageScripts.filter(x=>x.index===index).map(x=>x.file)]);const deps=ex.dependencyDigests;if(!deps||typeof deps!=='object'||Array.isArray(deps)||[...required].some(file=>typeof deps[file]!=='string'||!fs.existsSync(path.join(root,file))||hash(fs.readFileSync(path.join(root,file)))!==deps[file])){for(const row of rows)if(row.index===index&&row.key===key){row.state='NEEDS_REVIEW';row.reason='exception dependency coverage missing or changed';}}}
+for(const {ex,index,key} of exceptionUses){const required=new Set([...coverage.filter(x=>x.index===index&&x.file).map(x=>x.file),...packageScripts.filter(x=>x.index===index).map(x=>x.file),...(commands[index]?.command==='node'&&commands[index]?.args?.[0]==='scripts/verify-nested-reservation-registered.mjs'?NESTED_RESERVATION_REQUIRED_DEPENDENCIES:[])]);const deps=ex.dependencyDigests;if(!deps||typeof deps!=='object'||Array.isArray(deps)||[...required].some(file=>typeof deps[file]!=='string'||!fs.existsSync(path.join(root,file))||hash(fs.readFileSync(path.join(root,file)))!==deps[file])){for(const row of rows)if(row.index===index&&row.key===key){row.state='NEEDS_REVIEW';row.reason='exception dependency coverage missing or changed';}}}
 const currentConfigDigest=hash(JSON.stringify(commands)),stale=manifest.entries.filter(e=>!observed.has(e.id)).map(e=>e.id),configDrift=manifest.configDigest!==currentConfigDigest;
 const report={schema:'u18-static-edges.v1',commandCount:commands.length,registeredCount:registered.length,currentConfigDigest,configDrift,staleExceptions:stale,packageScripts,coverage,rows,summary:{needsReview:rows.filter(r=>r.state==='NEEDS_REVIEW').length,nested:rows.filter(r=>r.state==='NESTED_REGISTERED').length,skipped:rows.filter(r=>r.state==='CONFIG_BRANCH_SKIPPED').length,exceptions:rows.filter(r=>r.state==='EXCEPTION').length,unexpandedCommands:coverage.filter(r=>r.state==='NEEDS_REVIEW').length}};
 if(process.env.U18_STATIC_REPORT_PATH)fs.writeFileSync(process.env.U18_STATIC_REPORT_PATH,JSON.stringify(report,null,2));console.log(JSON.stringify(report.summary));console.log('U18_STATIC_'+(configDrift||stale.length||report.summary.needsReview||report.summary.nested||report.summary.unexpandedCommands?'NEEDS_REVIEW':'PASS'));process.exitCode=configDrift||stale.length||report.summary.needsReview||report.summary.nested||report.summary.unexpandedCommands?1:0;

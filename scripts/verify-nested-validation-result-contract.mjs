@@ -1,0 +1,174 @@
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {writeFileSync,rmSync} from 'node:fs';
+import {join} from 'node:path';
+import {nestedSourceRuntime} from './support/nested-reservation-source-runtime.mjs';
+// Source hooks inject failures at actual helper boundaries and observe the actual
+// timer expression. They create no authority, receipts, tickets or fake children.
+// descriptor-unavailable runs a real controller and a registered child whose own nested
+// executor meets a failing kernel descriptor observation; refused-registration-cleanup
+// completes a real command before its registration is refused and its withdrawal refused.
+// attempt-refusal refuses the spawn-attempt mark inside a live owner: the fence prepared for the
+// command is withdrawn at once and the owner's ticket still releases.
+// refused-registration-short repeats the refused-registration-cleanup hooks with a short command in its own
+// process, because the first refused command deliberately leaves its ticket fenced in that process.
+// completed-group-residual runs a command that exits 0 while leaving a live same-group descendant under the
+// owner's own controller: the teardown signals the recorded group although its leader has exited, and the
+// result stays the command's own pass. nested-grant-deadline runs a registered child's nested command whose
+// configured budget exceeds its owner's remaining deadline and asserts that the reported effective timeout is
+// the grant ceiling that actually killed it. residual-record-unwritable blocks the residual record's temporary
+// path inside a live owner and asserts that the refused fence operation folds into a typed result instead of
+// escaping as a raw write error. queue-wait-cap holds a conflicting sibling ticket and asserts that a command's
+// wait on the machine queue consumes its configured budget, so wait plus run never exceed it.
+const modes=['prepare-refusal','cleanup-primary','cleanup-result','post-capture-cleanup','ordinary-error','armed-timeout','caller-deadline-before-prepare','descriptor-unavailable','refused-registration-cleanup','attempt-refusal','refused-registration-short','completed-group-residual','nested-grant-deadline','residual-record-unwritable','queue-wait-cap','refused-registration-lingering-group'];
+for(const mode of process.argv[2]?[process.argv[2]]:modes){
+ assert.ok(modes.includes(mode));const runtime=nestedSourceRuntime(process.cwd()),{base,delegation,lock,executor,env}=runtime;
+ const register='export async function registerValidationReservationChild(pid: number, pendingToken?: string, options: ValidationReservationHandshakeOptions = {}): Promise<void> {';
+ const lsof="execFileSync('/usr/sbin/lsof',";
+ const attempt='export async function attemptValidationReservationSpawn(token: string | undefined, options: ValidationReservationHandshakeOptions = {}): Promise<void> {';
+ // The registration refusal waits until the completed command has flushed its whole payload and exited on its own, so the refused-registration withdrawal always follows a complete artifact and an observed child exit status.
+ const flushed=join(base,'payload-flushed');
+ const refusedRegistration="await new Promise(resolve=>{const until=Date.now()+5000;const poll=()=>{let gone=false;try{process.kill(pid,0);}catch(error){gone=(error&&error.code)==='ESRCH';}if((existsSync("+JSON.stringify(flushed)+")&&gone)||Date.now()>until)resolve();else setTimeout(poll,10);};poll();});throw failure('CONTROLLED_REGISTRATION_REFUSAL');";
+ const prepare='export async function prepareValidationReservationChild(options: ValidationReservationHandshakeOptions = {}): Promise<string | undefined> {';
+ const cancel='export async function cancelValidationReservationChild(token:string | undefined, options: ValidationReservationHandshakeOptions = {}): Promise<void> {';
+ const capture='  try { pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal}); }';
+ const captureAfter='  catch (error) { const stop = callerStop(); throw stop ?? error; }';
+ const callerGuard='  { const stop = callerStop(); if (stop) throw stop; }';
+ // Pre-repair executors prepared the fence before any caller guard; the mode expires the caller deadline ahead of whichever comes first.
+ const legacyPrepare='const pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal});';
+ runtime.writeLoader(`function patch(url,source){const mode=${JSON.stringify(mode)};function replace(a,b){if(source.split(a).length!==2)throw Error('result-contract hook moved: '+a);source=source.replace(a,b);}if(url===${JSON.stringify(delegation)}){if(mode==='post-capture-cleanup')replace('if (machineReservationResidualsPresent(owner.ticket)) throw machineCleanupFailure(', 'if (true) throw machineCleanupFailure(');if(mode==='prepare-refusal')replace(${JSON.stringify(prepare)},${JSON.stringify(prepare)}+"throw failure('CONTROLLED_PREPARE_REFUSAL');");if(mode==='cleanup-primary'||mode==='cleanup-result'||mode==='refused-registration-cleanup'||mode==='refused-registration-short')replace(${JSON.stringify(cancel)},${JSON.stringify(cancel)}+"throw failure('CONTROLLED_CLEANUP_REFUSAL');");if(mode==='refused-registration-cleanup'||mode==='refused-registration-short'||mode==='refused-registration-lingering-group')replace(${JSON.stringify(register)},${JSON.stringify(register)}+${JSON.stringify(refusedRegistration)});if(mode==='attempt-refusal')replace(${JSON.stringify(attempt)},${JSON.stringify(attempt)}+"if(process.env.CONTROLLED_ATTEMPT_REFUSAL==='1')throw failure('CONTROLLED_ATTEMPT_REFUSAL');");if(mode==='descriptor-unavailable')replace(${JSON.stringify(lsof)},"(process.env.CONTROLLED_LSOF_FAILURE==='1'?(()=>{throw new Error('CONTROLLED_LSOF_FAILURE');}):execFileSync)('/usr/sbin/lsof',");}if(url===${JSON.stringify(executor)}){if(mode==='post-capture-cleanup'||mode==='refused-registration-cleanup'||mode==='refused-registration-short')replace('function runValidationCommandWithCompleteOutput(','export function runValidationCommandWithCompleteOutput(');if(mode==='refused-registration-cleanup'||mode==='refused-registration-short')replace("try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ }","globalThis.__refusalSignals=(globalThis.__refusalSignals??0)+1;try { killTree('SIGTERM'); } catch { /* finish reports registration failure. */ }");if(mode==='ordinary-error')replace(${JSON.stringify(capture)},"throw globalThis.__hostileError??new Error('ORDINARY_CAPTURE_ERROR');"+${JSON.stringify(capture)});if(mode==='cleanup-primary')replace(${JSON.stringify(captureAfter)},${JSON.stringify(captureAfter)}+'\\n options={...options,deadlineAt:Date.now()-1};');if(mode==='caller-deadline-before-prepare'){const guard=source.includes(${JSON.stringify(callerGuard)})?${JSON.stringify(callerGuard)}:${JSON.stringify(legacyPrepare)};replace(guard,'options={...options,deadlineAt:Date.now()-1};\\n'+guard);}if(mode==='armed-timeout'){const a='}, Math.max(1, options.deadlineAt! - Date.now()));';const b='}, effectiveTimeoutMs);';if(source.includes(a))replace(a,'}, (globalThis.__armedValidationTimeout=Math.max(1, options.deadlineAt! - Date.now())));');else replace(b,'}, (globalThis.__armedValidationTimeout=effectiveTimeoutMs));');}}return source;}`);
+ const lingering=join(base,'lingering-group.mjs'),sleeperPid=join(base,'sleeper.pid');
+ writeFileSync(lingering,`import {spawn} from 'node:child_process';import {writeFileSync} from 'node:fs';const sleeper=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});writeFileSync(${JSON.stringify(sleeperPid)},String(sleeper.pid));sleeper.unref();process.stdout.write('lingering\\n',()=>writeFileSync(${JSON.stringify(flushed)},'1'));`);
+ const entry=join(base,'result.mjs');writeFileSync(entry,`import assert from'node:assert/strict';const {runValidationCommand:run}=await import(${JSON.stringify(executor)});const original=new Error('ORIGINAL_RESULT_DEADLINE');const command={label:'actual result contract',command:${JSON.stringify(mode)}==='cleanup-result'?'/definitely-absent-validation-command':process.execPath,args:['-e','console.log(12345)'],timeoutMs:3000};let result,error;if(!['descriptor-unavailable','refused-registration-cleanup','refused-registration-short','attempt-refusal','completed-group-residual','nested-grant-deadline','residual-record-unwritable','queue-wait-cap','refused-registration-lingering-group'].includes(${JSON.stringify(mode)})){try{result=await run(command,${JSON.stringify(base)},3000,['cleanup-primary','caller-deadline-before-prepare'].includes(${JSON.stringify(mode)})?{deadlineError:()=>original}:{});}catch(e){error=e;}}
+ if(${JSON.stringify(mode)}==='attempt-refusal'){
+  // The live owner's own executor meets a refused spawn-attempt mark: the fence prepared for the command is withdrawn at once because no spawn call was made under it, the refusal folds into a bounded infra_failure result, and the controller releases its ticket cleanly.
+  const {existsSync,readdirSync}=await import('node:fs');const {join}=await import('node:path');const {withMachineValidationResources:machine}=await import(${JSON.stringify(lock)});
+  const tickets=()=>{const pool=join(${JSON.stringify(base)},'home','.proof-or-stop','locks','machine-fixed-port-capacity');return existsSync(pool)?readdirSync(pool).filter(name=>name.endsWith('.ticket')):[];};
+  let folded,release;
+  try{await machine({root:${JSON.stringify(base)},workspaceRoot:${JSON.stringify(base)},command:'attempt refusal control',deadlineAt:Date.now()+8000},async()=>{process.env.CONTROLLED_ATTEMPT_REFUSAL='1';try{folded=await run(command,${JSON.stringify(base)},3000,{});}finally{delete process.env.CONTROLLED_ATTEMPT_REFUSAL;}});}catch(e){release=e;}
+  assert.equal(release,undefined,'a refused attempt mark must leave no fence behind: '+String(release));
+  assert.ok(folded,'the refusal must fold into a result');assert.notEqual(folded.code,0);assert.equal(folded.failureKind,'infra_failure');assert.match(folded.output,/CONTROLLED_ATTEMPT_REFUSAL/);assert.doesNotMatch(folded.output,/cleanup refused/,'the withdrawal must succeed');assert.equal(folded.effectiveTimeoutMs,0);assert.doesNotMatch(folded.output,/12345/,'the leaf must never launch');
+  assert.equal(tickets().length,0,'released ticket must be gone');
+  console.log('ATTEMPT_REFUSAL_WITHDRAWN_AND_FOLDED '+JSON.stringify({code:folded.code,failureKind:folded.failureKind}));
+ }else if(${JSON.stringify(mode)}==='refused-registration-lingering-group'){
+  // The command exits 0 on its own before its registration is refused, leaving a same-group descendant
+  // behind: the refused-registration cleanup signals that persisting group under the owned-group rule, the
+  // descendant is cleared, the fence is withdrawn once the PID and whole group are proven absent, the
+  // refusal folds into the bounded result, and the live controller releases its ticket cleanly. Against the
+  // executor before this round nothing signalled the group: the fence stayed, the controller's teardown
+  // failed with 'owned group cleanup unproven' and the shared pool stayed fenced while the descendant lived.
+  const {existsSync,readdirSync,readFileSync}=await import('node:fs');const {join}=await import('node:path');const {withMachineValidationResources:machine}=await import(${JSON.stringify(lock)});
+  const tickets=()=>{const pool=join(${JSON.stringify(base)},'home','.proof-or-stop','locks','machine-fixed-port-capacity');return existsSync(pool)?readdirSync(pool).filter(name=>name.endsWith('.ticket')):[];};
+  let folded,release;
+  try{await machine({root:${JSON.stringify(base)},workspaceRoot:${JSON.stringify(base)},command:'refused registration lingering group control',deadlineAt:Date.now()+12000},async()=>{folded=await run({...command,args:[${JSON.stringify(lingering)}]},${JSON.stringify(base)},3000,{});});}catch(e){release=e;}
+  const sleeper=Number(readFileSync(${JSON.stringify(sleeperPid)},'utf8'));let absent=false;try{process.kill(sleeper,0);}catch(error){absent=error.code==='ESRCH';}
+  try{
+   assert.equal(release,undefined,'the cleared group must let the live controller release cleanly: '+String(release));
+   assert.ok(folded,'the refusal must fold into a result');assert.notEqual(folded.code,0);assert.equal(folded.failureKind,'infra_failure');assert.equal(folded.delegationDiagnostic,'VALIDATION_DELEGATION_REFUSED: CONTROLLED_REGISTRATION_REFUSAL');assert.equal(folded.observedExitCode,0,'the child exited 0 on its own before the refusal');assert.doesNotMatch(folded.output,/cleanup refused/,'the withdrawal must succeed');
+   assert.equal(absent,true,'the same-group descendant must have been cleared by the refused-registration cleanup');
+   assert.equal(tickets().length,0,'released ticket must be gone');
+  }finally{try{process.kill(sleeper,'SIGKILL');}catch{}}
+  console.log('REFUSED_REGISTRATION_LINGERING_GROUP_CLEARED '+JSON.stringify({code:folded.code,failureKind:folded.failureKind}));
+ }else if(${JSON.stringify(mode)}==='refused-registration-short'){
+  // The same refused registration and refused withdrawal with a short output: the projection is not truncated, so each diagnostic must appear exactly once, the artifact stays the command bytes, and no signal is sent to the exited child.
+  const {runValidationCommandWithCompleteOutput:complete}=await import(${JSON.stringify(executor)});
+  const short=await complete({...command,args:['-e',"process.stdout.write("+JSON.stringify('short\\n')+",()=>require('node:fs').writeFileSync("+JSON.stringify(${JSON.stringify(flushed)})+",'1'))"]},${JSON.stringify(base)},3000,{});
+  assert.notEqual(short.result.code,0);assert.equal(short.result.failureKind,'infra_failure');const bytes='short\\n';assert.ok(short.completeOutput.startsWith(bytes+'\\n'),'the artifact is the command bytes followed by the newline-separated cleanup diagnostic: '+JSON.stringify(short.completeOutput.slice(0,160)));
+  const cleanupDiagnostic=short.completeOutput.slice(bytes.length+1);assert.match(cleanupDiagnostic,/^VALIDATION_DELEGATION_REFUSED: /,'the appended diagnostic is the refused withdrawal');assert.equal((cleanupDiagnostic.match(/CONTROLLED_CLEANUP_REFUSAL/g)||[]).length,1,'the artifact carries the cleanup refusal once: '+cleanupDiagnostic);assert.doesNotMatch(cleanupDiagnostic,/CONTROLLED_REGISTRATION_REFUSAL/,'the registration refusal never enters the artifact');
+  assert.equal(short.result.delegationDiagnostic,'VALIDATION_DELEGATION_REFUSED: CONTROLLED_REGISTRATION_REFUSAL');assert.equal(short.result.output,bytes+'\\n'+short.result.delegationDiagnostic+'\\n'+cleanupDiagnostic,'the projection is the untainted command bytes, the registration refusal once and the cleanup diagnostic once');
+  assert.equal((short.result.output.match(/CONTROLLED_REGISTRATION_REFUSAL/g)||[]).length,1,'the registration refusal must appear exactly once in the projection: '+short.result.output);assert.equal((short.result.output.match(/CONTROLLED_CLEANUP_REFUSAL/g)||[]).length,1,'the cleanup refusal must appear exactly once in the projection: '+short.result.output);
+  assert.equal(short.result.observedExitCode,0);assert.equal(globalThis.__refusalSignals,undefined,'a refusal that arrives after the child exited must send no signal');
+  console.log('REFUSED_REGISTRATION_SHORT_PROJECTION_ONCE '+JSON.stringify({code:short.result.code,bounded:short.result.output.length}));
+ }else if(${JSON.stringify(mode)}==='refused-registration-cleanup'){
+  // A command that completed before its registration was refused and its withdrawal refused keeps its complete artifact verbatim; only the bounded projection is trimmed.
+  const {runValidationCommandWithCompleteOutput:complete}=await import(${JSON.stringify(executor)});const payload='y'.repeat(5000);
+  const wrapped=await complete({...command,args:['-e',"process.stdout.write("+JSON.stringify(payload+'\\n12345\\n')+",()=>require('node:fs').writeFileSync("+JSON.stringify(${JSON.stringify(flushed)})+",'1'))"]},${JSON.stringify(base)},3000,{});
+  assert.notEqual(wrapped.result.code,0,'a refused registration must not report success');assert.equal(wrapped.result.failureKind,'infra_failure');
+  assert.ok(wrapped.completeOutput.includes(payload),'COMPLETE_OUTPUT_MUST_NOT_BE_TRUNCATED '+wrapped.completeOutput.length);
+  assert.doesNotMatch(wrapped.completeOutput,/CONTROLLED_REGISTRATION_REFUSAL/,'the refusal must not enter the authenticated artifact');assert.equal(wrapped.result.delegationDiagnostic,'VALIDATION_DELEGATION_REFUSED: CONTROLLED_REGISTRATION_REFUSAL');assert.equal(wrapped.result.observedExitCode,0,'the child exited 0 on its own before the refusal');assert.match(wrapped.result.output,/CONTROLLED_REGISTRATION_REFUSAL/);assert.match(wrapped.completeOutput,/CONTROLLED_CLEANUP_REFUSAL/);assert.match(wrapped.result.output,/CONTROLLED_CLEANUP_REFUSAL/);
+  assert.ok(wrapped.result.output.length<wrapped.completeOutput.length,'bounded projection stays bounded '+wrapped.result.output.length);assert.equal(wrapped.result.output.slice(0,2000),wrapped.completeOutput.slice(0,2000),'the projection prefix is the artifact prefix');assert.ok(!wrapped.result.output.includes(payload),'the projection must not carry the whole payload');
+  assert.equal(globalThis.__refusalSignals,undefined,'a refusal that arrives after the child exited must send no signal');
+  console.log('REFUSED_REGISTRATION_CLEANUP_COMPLETE_OUTPUT '+JSON.stringify({code:wrapped.result.code,failureKind:wrapped.result.failureKind,complete:wrapped.completeOutput.length,bounded:wrapped.result.output.length,refusalSignals:globalThis.__refusalSignals??0}));
+ }else if(${JSON.stringify(mode)}==='completed-group-residual'){
+  // A command that exits 0 while leaving a live same-group descendant: the owner's teardown signals the recorded group although its leader has exited, the descendant is gone before the ticket is released, and the result stays the command's own pass instead of a cleanup refusal.
+  const {existsSync,readdirSync,readFileSync}=await import('node:fs');const {join}=await import('node:path');const {execFileSync}=await import('node:child_process');
+  const tickets=()=>{const pool=join(${JSON.stringify(base)},'home','.proof-or-stop','locks','machine-fixed-port-capacity');return existsSync(pool)?readdirSync(pool).filter(name=>name.endsWith('.ticket')):[];};
+  const startOf=pid=>{try{return execFileSync('/bin/ps',['-p',String(pid),'-o','lstart='],{encoding:'utf8',timeout:1000}).trim()||null;}catch{return null;}};
+  const pidFile=${JSON.stringify(join(base,'residual-grandchild.pid'))};
+  const program="const {spawn}=require('node:child_process');const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore',detached:false});child.once('spawn',()=>{require('node:fs').writeFileSync("+JSON.stringify(pidFile)+",String(child.pid));child.unref();process.exit(0);});";
+  const completed=await run({label:'completed group residual',command:process.execPath,args:['-e',program],timeoutMs:5000},${JSON.stringify(base)},5000,{});
+  assert.ok(existsSync(pidFile),'the command must have left its same-group descendant: '+completed.output);const grandchild=Number(readFileSync(pidFile,'utf8'));const survivor=startOf(grandchild);
+  try{
+   assert.equal(completed.code,0,'COMPLETED_COMMAND_MUST_NOT_BE_DOWNGRADED '+completed.output);assert.notEqual(completed.failureKind,'infra_failure');assert.doesNotMatch(completed.output,/cleanup unproven/);
+   assert.equal(survivor,null,'the lingering same-group descendant must be gone once the command result is returned');
+   assert.equal(tickets().length,0,'the machine ticket must be released');
+  }finally{if(survivor!==null&&startOf(grandchild)===survivor){try{process.kill(grandchild,'SIGKILL');}catch{/* absence is the goal */}}}
+  console.log('COMPLETED_GROUP_RESIDUAL_CLEARED '+JSON.stringify({code:completed.code,failureKind:completed.failureKind??null,tickets:tickets().length}));
+ }else if(${JSON.stringify(mode)}==='nested-grant-deadline'){
+  // A registered child's nested command declares a budget beyond its owner's remaining deadline: the grant it runs under expires first, that revocation kills the command, and the reported effective timeout is the ceiling actually enforced, not the larger configured budget.
+  const {spawn}=await import('node:child_process');const {writeFileSync}=await import('node:fs');const api=await import(${JSON.stringify(delegation)});const {withMachineValidationResources:machine}=await import(${JSON.stringify(lock)});
+  const nested=${JSON.stringify(join(base,'nested-deadline.mjs'))};
+  writeFileSync(nested,"const api=await import("+JSON.stringify(${JSON.stringify(delegation)})+");await new Promise(resolve=>process.once('message',resolve));await api.confirmValidationReservationRegistration();const {runValidationCommand:run}=await import("+JSON.stringify(${JSON.stringify(executor)})+");const started=Date.now();let result,error;try{result=await run({label:'nested deadline control',command:process.execPath,args:['-e','setInterval(()=>{},1000)'],timeoutMs:8000},"+JSON.stringify(${JSON.stringify(base)})+",8000,{});}catch(e){error=e;}console.log('NESTED_DEADLINE_RESULT '+JSON.stringify({elapsedMs:Date.now()-started,result:result&&{code:result.code,timedOut:result.timedOut,failureKind:result.failureKind,effectiveTimeoutMs:result.effectiveTimeoutMs,timeoutMs:result.timeoutMs,durationMs:result.durationMs},error:error&&String(error)}));process.exit(0);");
+  let output='',errors='';const ownerBudgetMs=3000;
+  await machine({root:${JSON.stringify(base)},workspaceRoot:${JSON.stringify(base)},command:'nested deadline control',deadlineAt:Date.now()+ownerBudgetMs},async()=>{
+   const token=await api.prepareValidationReservationChild();await api.attemptValidationReservationSpawn(token);
+   const child=spawn(process.execPath,[nested],{env:api.validationReservationChildEnvironment(process.env),stdio:api.validationReservationChildStdio(['ignore','pipe','pipe','ipc']),detached:true});
+   child.stdout.on('data',x=>output+=x);child.stderr.on('data',x=>errors+=x);const closed=new Promise(resolve=>child.once('close',resolve));
+   await api.registerValidationReservationChild(child.pid,token);child.send({go:true});assert.equal(await closed,0,output+errors);
+  });
+  const match=output.match(/NESTED_DEADLINE_RESULT (\\{[^\\n]+\\})/);assert.ok(match,'nested result line required: '+output+errors);const observed=JSON.parse(match[1]);
+  assert.equal(observed.error,undefined,'the expired grant must fold into a result: '+String(observed.error));assert.ok(observed.result,'result required');
+  assert.equal(observed.result.timedOut,true,'the nested command must be killed at the grant ceiling: '+JSON.stringify(observed));assert.notEqual(observed.result.code,0);
+  assert.ok(observed.result.effectiveTimeoutMs<=ownerBudgetMs,'EFFECTIVE_TIMEOUT_MUST_BE_THE_ENFORCED_GRANT_CEILING '+JSON.stringify(observed));
+  assert.ok(Math.abs(observed.result.durationMs-observed.result.effectiveTimeoutMs)<=1000,'the reported ceiling must match the observed kill time '+JSON.stringify(observed));
+  console.log('NESTED_GRANT_DEADLINE_CEILING_REPORTED '+JSON.stringify(observed.result));
+ }else if(${JSON.stringify(mode)}==='queue-wait-cap'){
+  // A command that waits on the machine queue behind a conflicting sibling ticket has its armed timer reduced by the wait, so wait plus run never exceed the configured budget, exactly as before delegation existed; the holder is a sibling, not an ancestor, so the queue's ancestor rule does not apply. The holder keeps the ticket for three seconds so the waiter, which needs most of a second to start, still waits well over a second.
+  const {spawn}=await import('node:child_process');const {writeFileSync}=await import('node:fs');
+  const holder=${JSON.stringify(join(base,'queue-holder.mjs'))},waiter=${JSON.stringify(join(base,'queue-waiter.mjs'))};
+  writeFileSync(holder,"const {withMachineValidationResources:machine}=await import("+JSON.stringify(${JSON.stringify(lock)})+");await machine({root:"+JSON.stringify(${JSON.stringify(base)})+",workspaceRoot:"+JSON.stringify(${JSON.stringify(base)})+",command:'queue holder',deadlineAt:Date.now()+8000,resources:[{class:'machine-cpu',key:'heavy',access:'exclusive'}]},async()=>{process.send({held:true});await new Promise(r=>setTimeout(r,3000));});process.exit(0);");
+  writeFileSync(waiter,"const {runValidationCommand:run}=await import("+JSON.stringify(${JSON.stringify(executor)})+");const started=Date.now();const result=await run({label:'queue waiter',command:process.execPath,args:['-e','setInterval(()=>{},1000)'],timeoutMs:4000,resources:[{class:'machine-cpu',key:'heavy',access:'exclusive'}]},"+JSON.stringify(${JSON.stringify(base)})+",4000,{});console.log('QUEUE_WAIT_RESULT '+JSON.stringify({totalMs:Date.now()-started,timedOut:result.timedOut,code:result.code,timeoutMs:result.timeoutMs,effectiveTimeoutMs:result.effectiveTimeoutMs,durationMs:result.durationMs}));process.exit(0);");
+  const a=spawn(process.execPath,[holder],{stdio:['ignore','inherit','inherit','ipc']});await new Promise((resolve,reject)=>{a.once('message',m=>m&&m.held?resolve():reject(new Error('holder message')));a.once('exit',c=>reject(new Error('holder exited early '+c)));});
+  let output='';const b=spawn(process.execPath,[waiter],{stdio:['ignore','pipe','inherit']});b.stdout.on('data',x=>output+=x);const bClosed=new Promise(resolve=>b.once('close',resolve));const aClosed=new Promise(resolve=>a.once('close',resolve));
+  assert.equal(await bClosed,0,'waiter must exit 0: '+output);await aClosed;
+  const match=output.match(/QUEUE_WAIT_RESULT (\\{[^\\n]+\\})/);assert.ok(match,'waiter result required: '+output);const observed=JSON.parse(match[1]);
+  assert.equal(observed.timedOut,true,'the hanging leaf must be killed by the armed timer: '+JSON.stringify(observed));assert.equal(observed.timeoutMs,4000);
+  assert.ok(observed.effectiveTimeoutMs<=3000,'QUEUE_WAIT_MUST_CONSUME_THE_CONFIGURED_BUDGET '+JSON.stringify(observed));
+  assert.ok(observed.totalMs<=4800,'wait plus run must stay within the configured budget: '+JSON.stringify(observed));
+  console.log('QUEUE_WAIT_CAP_PRESERVED '+JSON.stringify(observed));
+ }else if(${JSON.stringify(mode)}==='residual-record-unwritable'){
+  // The live owner's own executor cannot publish the residual record (a directory blocks the record's temporary path): the fence operation is refused with a typed reason that folds into a bounded infra_failure result, the leaf never launches, and once the path is free again the owner releases its ticket cleanly.
+  const {existsSync,readdirSync,mkdirSync,rmSync}=await import('node:fs');const {join}=await import('node:path');const {withMachineValidationResources:machine}=await import(${JSON.stringify(lock)});
+  const pool=join(${JSON.stringify(base)},'home','.proof-or-stop','locks','machine-fixed-port-capacity');const tickets=()=>existsSync(pool)?readdirSync(pool).filter(name=>name.endsWith('.ticket')):[];
+  let folded,escaped;
+  await machine({root:${JSON.stringify(base)},workspaceRoot:${JSON.stringify(base)},command:'residual record control',deadlineAt:Date.now()+8000},async()=>{
+   const blocker=join(pool,tickets()[0],'delegated-processes.json.pending');mkdirSync(blocker);
+   try{folded=await run(command,${JSON.stringify(base)},3000,{});}catch(e){escaped=e;}finally{rmSync(blocker,{recursive:true,force:true});}
+  });
+  assert.equal(escaped,undefined,'RESIDUAL_RECORD_WRITE_FAILURE_MUST_FOLD_INTO_RESULT '+String(escaped));assert.ok(folded,'the refusal must fold into a result');
+  assert.notEqual(folded.code,0);assert.equal(folded.failureKind,'infra_failure');assert.match(folded.output,/residual record unwritable/);assert.doesNotMatch(folded.output,/12345/,'the leaf must never launch');
+  assert.equal(tickets().length,0,'released ticket must be gone');
+  console.log('RESIDUAL_RECORD_UNWRITABLE_FOLDED '+JSON.stringify({code:folded.code,failureKind:folded.failureKind}));
+ }else if(${JSON.stringify(mode)}==='descriptor-unavailable'){
+  // A registered child's own nested executor meets a failing kernel descriptor observation while reading its inherited bootstrap; the refusal is typed and folds into a bounded infra_failure result instead of escaping as an exception.
+  const {spawn}=await import('node:child_process');const {writeFileSync}=await import('node:fs');const api=await import(${JSON.stringify(delegation)});const {withMachineValidationResources:machine}=await import(${JSON.stringify(lock)});
+  const nested=${JSON.stringify(join(base,'nested-descriptor.mjs'))};
+  writeFileSync(nested,"const api=await import("+JSON.stringify(${JSON.stringify(delegation)})+");await new Promise(resolve=>process.once('message',resolve));await api.confirmValidationReservationRegistration();process.env.CONTROLLED_LSOF_FAILURE='1';const {runValidationCommand:run}=await import("+JSON.stringify(${JSON.stringify(executor)})+");let result,error;try{result=await run({label:'nested descriptor control',command:process.execPath,args:['-e','console.log(777)'],timeoutMs:3000},"+JSON.stringify(${JSON.stringify(base)})+",3000,{});}catch(e){error=e;}console.log('NESTED_DESCRIPTOR_RESULT '+JSON.stringify({result:result&&{code:result.code,failureKind:result.failureKind,output:result.output},error:error===undefined?undefined:String(error&&error.message||error)}));process.disconnect();");
+  let output='',errors='';
+  await machine({root:${JSON.stringify(base)},workspaceRoot:${JSON.stringify(base)},command:'descriptor observation control',deadlineAt:Date.now()+9000},async()=>{
+   const token=await api.prepareValidationReservationChild();await api.attemptValidationReservationSpawn(token);
+   const child=spawn(process.execPath,[nested],{env:api.validationReservationChildEnvironment(process.env),stdio:api.validationReservationChildStdio(['ignore','pipe','pipe','ipc']),detached:true});
+   child.stdout.on('data',x=>output+=x);child.stderr.on('data',x=>errors+=x);const closed=new Promise(resolve=>child.once('close',resolve));
+   await api.registerValidationReservationChild(child.pid,token);child.send({go:true});assert.equal(await closed,0,output+errors);
+  });
+  const match=output.match(/NESTED_DESCRIPTOR_RESULT (\\{[^\\n]+\\})/);assert.ok(match,'nested result line required: '+output+errors);const observed=JSON.parse(match[1]);
+  assert.equal(observed.error,undefined,'DESCRIPTOR_OBSERVATION_FAILURE_MUST_FOLD_INTO_RESULT '+String(observed.error));assert.ok(observed.result,'result required');
+  assert.notEqual(observed.result.code,0);assert.equal(observed.result.failureKind,'infra_failure');assert.match(observed.result.output,/kernel descriptor observation unavailable/);assert.doesNotMatch(observed.result.output,/777/,'the leaf must never launch');
+  console.log('DESCRIPTOR_OBSERVATION_UNAVAILABLE_FOLDED '+JSON.stringify(observed.result));
+ }else if(${JSON.stringify(mode)}==='caller-deadline-before-prepare'){assert.equal(error,original,'CALLER_DEADLINE_MUST_PRECEDE_DELEGATION_PREPARE '+String(error));assert.equal(result,undefined);}else if(${JSON.stringify(mode)}==='ordinary-error'){assert.match(String(error),/ORDINARY_CAPTURE_ERROR/);assert.equal(result,undefined);const hostile=new Proxy({}, {getPrototypeOf(){throw Error('HOSTILE_PROTOTYPE');},getOwnPropertyDescriptor(){throw Error('HOSTILE_DESCRIPTOR');}});globalThis.__hostileError=hostile;const {isValidationDelegationError}=await import(${JSON.stringify(delegation)});assert.equal(isValidationDelegationError(hostile),false);let second;try{await run(command,${JSON.stringify(base)},3000);}catch(e){second=e;}assert.equal(second,hostile,'HOSTILE_DIAGNOSTIC_MUST_NOT_REPLACE_ORIGINAL');}else if(${JSON.stringify(mode)}==='cleanup-primary'){let cursor=error,found=false;const messages=[];for(let i=0;cursor&&i<8;i++){if(cursor===original)found=true;const d=Object.getOwnPropertyDescriptor(cursor,'message');if(d&&'value'in d)messages.push(String(d.value));cursor=Object.getOwnPropertyDescriptor(cursor,'cause')?.value;}assert.equal(found,true,'PRIMARY_ERROR_MUST_SURVIVE_CLEANUP_REFUSAL '+messages.join(' | '));assert.match(messages.join(' | '),/CONTROLLED_CLEANUP_REFUSAL/);}else{assert.equal(error,undefined,'DELEGATION_REFUSAL_MUST_RETURN_RESULT '+String(error));if(${JSON.stringify(mode)}==='post-capture-cleanup'){assert.notEqual(result.code,0);assert.equal(result.failureKind,'infra_failure');assert.match(result.output,/12345/);assert.match(result.output,/owned group cleanup unproven/);assert.ok(result.effectiveTimeoutMs>0);
+  // The complete authenticated artifact must survive the cleanup failure verbatim; only the bounded projection is trimmed.
+  const {runValidationCommandWithCompleteOutput:complete}=await import(${JSON.stringify(executor)});const payload='x'.repeat(5000);const wrapped=await complete({...command,args:['-e','console.log('+JSON.stringify(payload)+');console.log(12345)']},${JSON.stringify(base)},3000,{});assert.ok(wrapped.completeOutput.includes(payload),'COMPLETE_OUTPUT_MUST_NOT_BE_TRUNCATED '+wrapped.completeOutput.length);assert.match(wrapped.completeOutput,/owned group cleanup unproven/);assert.ok(wrapped.result.output.length<payload.length,'bounded projection stays bounded');}else if(${JSON.stringify(mode)}==='cleanup-result'){assert.notEqual(result.code,0);assert.equal(result.failureKind,'infra_failure');assert.match(result.output,/ENOENT/);assert.match(result.output,/CONTROLLED_CLEANUP_REFUSAL/);}else if(${JSON.stringify(mode)}==='prepare-refusal'){assert.notEqual(result.code,0);assert.equal(result.failureKind,'infra_failure');assert.match(result.output,/CONTROLLED_PREPARE_REFUSAL/);assert.equal(result.effectiveTimeoutMs,0);}else{assert.equal(result.code,0,result.output);assert.match(result.output,/12345/);assert.equal(result.effectiveTimeoutMs,globalThis.__armedValidationTimeout,'EFFECTIVE_TIMEOUT_MUST_EQUAL_ARMED_TIMER');assert.ok(result.effectiveTimeoutMs<=result.timeoutMs);assert.ok(result.effectiveTimeoutMs<=result.timeoutMs&&result.timeoutMs-result.effectiveTimeoutMs<1000,'ARMED_TIMER_MUST_BE_THE_CONFIGURED_BUDGET_LESS_ONLY_THE_TIME_ALREADY_SPENT '+JSON.stringify({effective:result.effectiveTimeoutMs,configured:result.timeoutMs}));}}
+ console.log('VALIDATION_RESULT_CONTRACT '+${JSON.stringify(mode)}+' PASS');`);
+ try{const child=spawnSync(process.execPath,[entry],{env,encoding:'utf8',timeout:12000,maxBuffer:128*1024});process.stdout.write(child.stdout??'');process.stderr.write(child.stderr??'');assert.equal(child.status,0,'VALIDATION_RESULT_CONTRACT '+mode);}finally{rmSync(base,{recursive:true,force:true});}
+}
+console.log('NESTED_VALIDATION_RESULT_CONTRACT PASS');
