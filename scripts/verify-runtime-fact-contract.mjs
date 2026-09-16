@@ -139,9 +139,9 @@ async function main() {
     { cwd: root, stdio: 'inherit', timeout: 60_000 });
   check(registrySource.includes('static-scanner-source-ast-reuse'), 'Static AST runtime fact is registered');
   // Outer 180s exceeds two 60s scanner arms plus setup and failure reporting.
-  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN']]) {
+  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN'], ['../packages/main/tests/validation-capacity-resource-keys.test.mjs', 'VALIDATION_CAPACITY_RESOURCE_KEYS_PASS']]) {
     const output = execFileSync(process.execPath, [join(root, 'scripts', test)], { cwd: root, encoding: 'utf8', timeout: 180_000 });
-    check(output.includes(marker), 'Executed static AST control: ' + test);
+    check(output.includes(marker), 'Executed runtime control: ' + test);
   }
   check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')
     && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),
@@ -234,11 +234,6 @@ async function main() {
     console.log('REVIEW_EPOCH_BUDGET_TRANSPORT_PASS');
   } finally {rmSync(budgetScratch,{recursive:true,force:true});}
   check(registrySource.includes('MACHINE_HEAVY_RESOURCE_POLICY') && read(root,'packages/main/src/core/keyed-scheduler.ts').includes('MACHINE_HEAVY_RESOURCE_POLICY.cpuKey'), 'machine CPU/process claims must share the runtime policy');
-  const capacityResourceKeys = execFileSync(process.execPath,
-    [join(root, 'packages/main/tests/validation-capacity-resource-keys.test.mjs')],
-    {cwd: root, encoding: 'utf8', timeout: 180000});
-  check(capacityResourceKeys.includes('VALIDATION_CAPACITY_RESOURCE_KEYS_PASS'),
-    'whole-invocation and live command-stage capacity must preserve literal machine resource keys');
   check(registrySource.includes('MACHINE_FIXED_PORT_RUNTIME_POLICY') && portLock.includes('MACHINE_FIXED_PORT_ARTIFACT.directoryName')
     && portLock.includes('userInfo().homedir') && portLock.includes('probeMachineFixedPort') && portLock.includes('machinePortAncestorPids'),
     'machine port coordination must bind OS-user location, real preflight and ancestor refusal');

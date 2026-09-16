@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {mkdtempSync, mkdirSync, rmSync} from 'node:fs';
+import {mkdtempSync, mkdirSync, rmSync, readdirSync, readFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {declaredValidationCapacity, withOfficialValidationExecution, withValidationCommandStage} from '../dist/core/validation-execution-lock.js';
+import {declaredValidationCapacity, withOfficialValidationExecution, withValidationCommandStage, validationCapacityLockPath} from '../dist/core/validation-execution-lock.js';
 import {canonicalizeEntries, validateResourceClaims} from '../dist/core/keyed-scheduler.js';
 
 const root = mkdtempSync(join(tmpdir(), 'pos-resource-keys-'));
@@ -50,8 +50,21 @@ try {
     const result = await withOfficialValidationExecution({root, workspaceRoot: root,
       command: 'resource-key witness', commandStages: true, deadlineAt: Date.now() + 60000},
     () => withValidationCommandStage({label: `live ${claim.class}`,
-      resources: [claim, {class: 'fixed-path', key: root, access: 'shared'}]}, async () => {entered++; return claim.key;}));
-    assert.equal(result, claim.key, `command stage must retain ${claim.class}`);
+      resources: [claim, {class: 'fixed-path', key: root, access: 'shared'}]}, async () => {
+        entered++;
+        const directory = validationCapacityLockPath(root);
+        const tickets = readdirSync(directory).filter(name => name.endsWith('.ticket')).map(name => {
+          const ticket = join(directory, name);
+          assert.equal(JSON.parse(readFileSync(join(ticket, 'holder.json'), 'utf8')).pid, process.pid);
+          return JSON.parse(readFileSync(join(ticket, 'resources.json'), 'utf8'));
+        });
+        assert.equal(tickets.length, 1, 'fixture has exactly its current admitted command ticket');
+        const actual = tickets[0].resources.find(resource => resource.class === claim.class);
+        assert.deepEqual(actual, {...claim, canonicalKey: `${claim.class}:${claim.key}`},
+          'published stage ticket must retain the literal key, access and canonical identity');
+        return true;
+      }));
+    assert.equal(result, true, 'admitted callback result is returned');
     assert.equal(entered, 1, 'valid normalized capacity must admit the callback exactly once');
   }
   console.log('VALIDATION_CAPACITY_RESOURCE_KEYS_PASS');
