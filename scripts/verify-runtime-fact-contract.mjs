@@ -119,6 +119,10 @@ async function main() {
     'Cross-host provider argv must remain behind the actual outer-lane consumer');
 
   console.log('CROSSHOST_SANDBOX_RUNTIME_CONTRACT_GREEN');
+  const { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES: historyBytes } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  assert.equal(historyBytes, 64 * 1024 * 1024);
+  assert.equal((read(root, 'packages/main/src/core/review-maintenance-lineage.ts').match(/maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES/g) ?? []).length, 2);
+  assert(read(root, 'scripts/verify-process-fact-contract.mjs').includes("['packages/main/tests/review-history-buffer.test.mjs']"));
   const trackedBootstrap = execFileSync(process.execPath, [join(root, 'scripts/verify-tracked-controller-bootstrap.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
   check(trackedBootstrap.includes('TRACKED_CONFIG_BOOTSTRAP_GREEN'), 'Executed tracked controller bootstrap control');
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
