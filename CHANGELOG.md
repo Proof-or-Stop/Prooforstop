@@ -1,36 +1,5 @@
 # Changelog
 
-## Lab benchmark-critic-metadata-head - v0.3.386 - 2026-09-16
-
-# Preserve inventory critic admission across metadata-only commits
-
-B-0980 exposed a mismatch between inventory freshness and managed reviewer batch admission. An owner availability-probe metadata commit advanced Git HEAD without changing the signed material, Story-file, scope, roster, or candidate subject. The OPEN inventory and completed wave remained valid, but a newly started inventory-completeness critic was excluded from the admitted roster because its signed run HEAD differed from the original cutoff HEAD.
-
-The bounded repair aligns critic inclusion with the existing inventory receipt contract. It retains the signed current OPEN epoch, current round, exact purpose/epoch/wave/cutoff binding, run signature, material and Story-file hashes, scope and roster, candidate and corpus checks. Only the redundant equality between the run HEAD and historical cutoff HEAD is removed; the original cutoff and completed review evidence are preserved. Prompt instructions and the process-fact registry document these unchanged substantive freshness requirements.
-
-Verification uses a disposable real-handler two-wave inventory. Required lanes complete, a metadata commit advances HEAD, a genuine purpose-bound critic starts, and its managed assignment must be accepted. A subsequent empty commit must preserve the subject. Negative controls reject mismatched requests and corrupted signatures or bindings. The test uses the repository's existing provider-neutral fixture harness because simulated reviewer identities must not inherit the developer's host ancestry. It cannot issue real Story evidence. Initial setup failures were explicitly refused as RED; only the exact target assertion may establish the recorded RED. GREEN and local integration must replay the identical pinned command. No performance improvement is claimed by this maintenance repair. The benchmark runner remains separate product work.
-
-This local Lab repair is not a formal Story DONE credential or product release approval. Integration is local only; no remote push is requested.
-
-## Independent audit follow-up
-
-Claude audit 91eada2e-48fe-40ba-bfd5-a29b96f85564 rejected the first prepared candidate while confirming the production predicate repair was correct. All four observations were retained. The verifier now requires a create-only per-invocation receipt with an unpredictable nonce, the exact target selector, fourteen executed negative controls, two completed waves, two critic receipts and FINALIZED state. An unrelated successful suite cannot substitute for that receipt. Wrong selector, stale nonce, missing controls and incomplete state are rejected against the actual live receipt with restored controls. The unused lifecycle flag was removed. The default handler-smoke path invokes the new scenario, and the existing registered process-fact-contract driver executes the standalone verifier. No new canonical suite inventory entry or dependency-policy exception is introduced. The fragile negative source-substring assertion was removed in favor of this executable registered behavior. The independent prior rejection is not overwritten or relabeled as a pass.
-
-## Executed verification after audit repairs
-
-On repair HEAD 3920b93504fddf5c7d7d7102ad568bc38c84ed2c:
-
-- `node scripts/verify-inventory-critic-metadata-head.mjs`: PASS through the pinned Lab GREEN command; exact receipt selector and fourteen negative controls checked.
-- `npm run test:process-fact-contract`: PASS, exit 0, final `Process-fact contract verification passed`. Its output includes `METADATA_HEAD_CRITIC_ADMISSION_PASS` and `INVENTORY_CRITIC_METADATA_HEAD_GREEN`, proving the registered driver actually executed the new scenario. Log: /tmp/benchmark-critic-process-fact-check2.log.
-- `node packages/main/dist/tasks/reviewer-batch-smoke.js`: PASS, exit 0, `reviewer_batch smoke passed`, including FIRST_FINDING_STORY_DRIFT_REVIEW_REQUIRED and FIRST_FINDING_MAIN_DRIFT_REVIEW_REQUIRED. Log: /tmp/benchmark-critic-reviewer-batch.log.
-- `npm run test:review-inventory-epoch`: FAIL, exit 1, on BOTH this candidate and freshly build-verified unmodified main 189ee7792aceb978b2f5731fd655364f1bce16bb. The identical sole named failure is `[CHK-007 RED] F063: canonical inventory mismatch unknownPolicy=[test:benchmark-framework-hardening] stalePolicy=[test:managed-review-final-schema] missingScripts=[]`. Both executions pass the signed PASS/read-field, purpose-bound critic aggregate, and tamper/disposition controls, with zero stale-pass acceptance, high/critical escape, and manufactured-budget-pass counters. Logs: /tmp/benchmark-critic-inventory-epoch.log and /tmp/benchmark-critic-inventory-epoch-main.log; comparison: /tmp/benchmark-critic-inventory-baseline-comparison.json. This existing global inventory policy mismatch is not changed by this bounded Lab. No claim is made that this suite or the entire repository is green.
-
-The repository's bounded-defect rule prohibits expanding this repair solely to make unrelated baseline health globally green. The baseline failure above is disclosed rather than suppressed; all changed critic admission behavior and the edited registered contract driver pass. Candidate preparation and post-merge GREEN continue to replay the exact target verifier.
-
-Maintenance provenance: codex/lab-benchmark-critic-metadata-head, repair 3920b93504fddf5c7d7d7102ad568bc38c84ed2c.
-Verification command (replayed before integration and on main): `["node","scripts/verify-inventory-critic-metadata-head.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Integrated concurrent-fix release - v0.3.385 - 2026-09-16
 
 ### Why this release exists
