@@ -77,6 +77,18 @@ try {
       return { pid: process.pid };
     },
   });
+  const qualificationHandlers = createHostRunHandlers({ root, scanRoot: root, store }, {
+    launchWorker: async () => ({ pid: process.pid }),
+  });
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
+      agentType: 'proof-or-stop-review-story-init', managedDispatch: true,
+      detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /managed reviewer model.*not qualified/i,
+    'a managed INIT reviewer must not use an implementation-only model through the Codex host',
+  );
   const agentTypes = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'];
   const results = await Promise.all(agentTypes.map(async agentType => {
     const result = await handlers.host_run({
@@ -84,6 +96,8 @@ try {
       managedDispatch: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
     });
     assert.equal(result.exitCode, 0, JSON.stringify(result));
+    assert.equal(result.model, 'gpt-5.6-sol', 'model-less managed dispatch must resolve a qualified reviewer model before spawn');
+    assert.equal(result.reasoningEffort, 'high', 'model-less managed dispatch must resolve qualified reviewer effort before spawn');
     assert.match(readFileSync(join(root, `delivered-${agentType}.txt`), 'utf8'), /do not spawn or delegate another reviewer/i);
     return result;
   }));
