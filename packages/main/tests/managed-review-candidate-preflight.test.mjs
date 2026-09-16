@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const { classifyManagedReviewFinalEnvelope } = await import('../dist/core/host-run.js');
-const { runManagedReviewCandidatePreflight } = await import('../dist/handlers/managed-review-evidence.js');
+const {
+  hasPersistedManagedReceiptEvidence,
+  runManagedReviewCandidatePreflight,
+} = await import('../dist/handlers/managed-review-evidence.js');
 
 const missingCandidateDigests = JSON.stringify({
   schemaVersion: 'lattice.managed_review_final_proposal.v1',
@@ -47,6 +50,26 @@ assert.match(handler.slice(missingRefusal, promptBuild), /candidate_spec_route/,
 
 assert.equal(typeof runManagedReviewCandidatePreflight, 'function',
   'managed import must expose its executable candidate-preflight seam');
+assert.equal(typeof hasPersistedManagedReceiptEvidence, 'function',
+  'managed import must expose the production persisted-receipt lookup used by crash recovery');
+
+const receiptId = `sha256:${'1'.repeat(64)}`;
+const evidenceStore = (passes, findings) => ({
+  readReviewPasses: () => ({ passes }),
+  readFindings: () => ({ findings }),
+});
+assert.equal(hasPersistedManagedReceiptEvidence(evidenceStore([
+  { managedEvidenceBinding: { receiptId } },
+], []), 'B-candidate-preflight', receiptId), true,
+'a persisted ReviewPass for the exact receipt selects authenticated recovery');
+assert.equal(hasPersistedManagedReceiptEvidence(evidenceStore([], [
+  { managedEvidenceBinding: { receiptId } },
+]), 'B-candidate-preflight', receiptId), true,
+'a persisted Finding for the exact receipt selects authenticated recovery');
+assert.equal(hasPersistedManagedReceiptEvidence(evidenceStore([
+  { managedEvidenceBinding: { receiptId: `sha256:${'2'.repeat(64)}` } },
+], []), 'B-candidate-preflight', receiptId), false,
+'foreign receipt evidence cannot bypass the fresh candidate preflight');
 
 const proposal = { storyId: 'B-candidate-preflight' };
 let candidateChecks = 0;
@@ -90,6 +113,8 @@ assert.equal(intakeCalls, 2);
 const importer = readFileSync(new URL('../src/handlers/managed-review-evidence.ts', import.meta.url), 'utf8');
 assert.match(importer, /const intake = runManagedReviewCandidatePreflight\(\{/,
   'production importer must execute the tested preflight seam');
+assert.match(importer, /hasPersistedManagedReceiptEvidence\(ctx\.store, managedRun\.storyId, receiptId\)/,
+  'production importer must use the tested exact-receipt lookup');
 assert.match(importer, /assertCurrentCandidateReadBinding\(proposal\);/,
   'production importer must retain the lock-held second candidate validation');
 
