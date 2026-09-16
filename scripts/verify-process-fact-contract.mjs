@@ -2250,8 +2250,9 @@ function assertProofStoryProgressiveBoundary() {
   {
     const managedImportSource = read('packages/main/src/handlers/managed-review-evidence.ts');
     assert(managedImportSource.includes('export function runManagedReviewCandidatePreflight')
+      && managedImportSource.includes('export function hasPersistedManagedReceiptEvidence')
       && managedImportSource.includes('const intake = runManagedReviewCandidatePreflight({')
-      && managedImportSource.includes('hasPersistedReceiptEvidence')
+      && managedImportSource.includes('hasPersistedManagedReceiptEvidence(ctx.store, managedRun.storyId, receiptId)')
       && managedImportSource.includes('assertCurrentCandidateReadBinding(proposal);'),
     'managed review import: executable stale-candidate preflight, crash-recovery bypass and lock-held recheck must remain wired');
     assert(read('packages/main/src/core/process-fact-registry.ts').includes('A fresh intake rejects a stale sealed candidate read binding before expensive receipt and proposal intake'),

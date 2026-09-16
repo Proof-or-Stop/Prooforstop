@@ -76,6 +76,15 @@ export function runManagedReviewCandidatePreflight<TProposal, TResult>(args: {
   return args.intake();
 }
 
+export function hasPersistedManagedReceiptEvidence(
+  store: Pick<HandlerContext['store'], 'readReviewPasses' | 'readFindings'>,
+  storyId: string,
+  receiptId: string,
+): boolean {
+  return store.readReviewPasses(storyId).passes.some(pass => pass.managedEvidenceBinding?.receiptId === receiptId)
+    || store.readFindings(storyId).findings.some(finding => finding.managedEvidenceBinding?.receiptId === receiptId);
+}
+
 export function createManagedReviewEvidenceHandlers(
   ctx: HandlerContext,
   options: {
@@ -244,9 +253,7 @@ export function createManagedReviewEvidenceHandlers(
         });
       };
       const sealedProposal = readManagedReviewEvidenceProposal(ctx.root, runId);
-      const hasPersistedReceiptEvidence =
-        ctx.store.readReviewPasses(managedRun.storyId).passes.some(pass => pass.managedEvidenceBinding?.receiptId === receiptId)
-        || ctx.store.readFindings(managedRun.storyId).findings.some(finding => finding.managedEvidenceBinding?.receiptId === receiptId);
+      const hasPersistedReceiptEvidence = hasPersistedManagedReceiptEvidence(ctx.store, managedRun.storyId, receiptId);
       // The sealed provider proposal already contains the candidate read
       // manifest. Reject an obviously stale route before the more expensive
       // receipt/proposal intake for fresh imports. Existing receipt evidence
