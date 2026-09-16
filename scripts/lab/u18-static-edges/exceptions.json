@@ -14335,6 +14335,113 @@
           ]
         }
       ]
+    },
+    {
+      "id": "EX-0140",
+      "key": "packages/main/tests/milestone-status.test.mjs:3096:execFileSync",
+      "callDigest": "dd335d650e433b9f1956246a9f19c5dd9bce81c5bcb8a890b12d9c89f4d680f4",
+      "sourceDigest": "c8c6afff6b89ab16f12c388cf6860eb38f48b281614ee2fedfd87d0a82f59fb6",
+      "configIndexes": [
+        7
+      ],
+      "kind": "REVIEWED_FIXTURE_CLI",
+      "reason": "Fixed packages/main/dist/cli.js (distRoot line16/cliPath17), fixture --root. This exact call exercises milestone_status/closeout reporting or explicit checklist/ledger/planning mutations; no registered test script passed as executable.",
+      "requiredEvidence": [
+        {
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "startLine": 13,
+          "endLine": 19,
+          "sourceDigest": "c8c6afff6b89ab16f12c388cf6860eb38f48b281614ee2fedfd87d0a82f59fb6",
+          "excerpt": "import { join } from 'node:path';\nimport { fileURLToPath } from 'node:url';\n\nconst distRoot = fileURLToPath(new URL('../dist/', import.meta.url));\nconst cliPath = join(distRoot, 'cli.js');\nconst {\n  buildMilestoneCloseoutSnapshot,"
+        },
+        {
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "startLine": 3055,
+          "endLine": 3078,
+          "sourceDigest": "c8c6afff6b89ab16f12c388cf6860eb38f48b281614ee2fedfd87d0a82f59fb6",
+          "excerpt": "    assert.match(stdout, /Remaining/);\n    assert.match(stdout, /\\| M-cli \\| CLI report milestone \\|/);\n\n    const missingCloseout = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n    ], { cwd: root, encoding: 'utf8' });\n    assertCloseoutTextContract(missingCloseout);\n    assert.match(missingCloseout, /Snapshot: missing/);\n    assert.match(missingCloseout, /No milestone-closeout\\.json snapshot exists for B-cli-ms/);\n    assert.match(missingCloseout, /Next action:/);\n\n    const missingCloseoutJson = JSON.parse(execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n      '--json',"
+        },
+        "Historical dated review provenance (not a current source binding): 2026-09-10 repair review: current caller packages/main/tests/milestone-status.test.mjs SHA256 4157e36f49182c7bf6df7f677f2bd931fcbb92b36d6a220fd0c47c763a9b06a3; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
+        {
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "startLine": 3094,
+          "endLine": 3104,
+          "sourceDigest": "c8c6afff6b89ab16f12c388cf6860eb38f48b281614ee2fedfd87d0a82f59fb6",
+          "excerpt": "    writeJson(join(storyDir, 'milestone-closeout.json'), cliSnapshot);\n\n    const closeoutText = execFileSync(process.execPath, [\n      cliPath,\n      'milestone_closeout',\n      '--root',\n      root,\n      '--storyId',\n      storyId,\n    ], { cwd: root, encoding: 'utf8' });\n    assertCloseoutTextContract(closeoutText);"
+        }
+      ],
+      "dependencyDigests": {
+        "packages/main/tests/milestone-status.test.mjs": "c8c6afff6b89ab16f12c388cf6860eb38f48b281614ee2fedfd87d0a82f59fb6"
+      },
+      "invocations": [
+        {
+          "entry": "packages/main/tests/milestone-status.test.mjs",
+          "argv": []
+        }
+      ]
+    },
+    {
+      "id": "EX-0034",
+      "key": "packages/main/src/tasks/command-catalog-smoke.ts:59:execFileSync",
+      "callDigest": "a54cf8a7594ee10fec801a9d5ac9efdd3477264da5cde81d98578a835a29dc82",
+      "sourceDigest": "65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78",
+      "configIndexes": [
+        11
+      ],
+      "kind": "ordinary-cli",
+      "reason": "First Node script is bound to production cli.js (or explicit bin/proof-or-stop.js fallback); remaining args invoke fixed CLI capability/help/Story/review/host commands. Dynamic payloads and temporary roots do not change the script entry. No registered suite replay at this call.",
+      "requiredEvidence": [
+        "cliPath/CLI/distCli or cliBin definition in same pinned source",
+        "actual pinned argv and finite local callers inspected",
+        {
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "startLine": 57,
+          "endLine": 67,
+          "sourceDigest": "65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78",
+          "excerpt": "function runDistCli(args: string[]): string {\n  const distCli = join(pkgRoot, 'dist', 'cli.js');\n  return execFileSync('node', [distCli, ...args], {\n    cwd: repoRoot,\n    encoding: 'utf8',\n    stdio: ['ignore', 'pipe', 'pipe'],\n    env: {\n      ...process.env,\n      PROOF_OR_STOP_NO_HOOKS: '1',\n    },\n  });"
+        }
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/command-catalog-smoke.ts": "65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"
+      },
+      "invocations": [
+        {
+          "entry": "packages/main/dist/tasks/command-catalog-smoke.js",
+          "argv": []
+        }
+      ]
+    },
+    {
+      "id": "EX-0090",
+      "key": "packages/main/src/tasks/host-run-usage-smoke.ts:2204:spawn",
+      "callDigest": "b6def1d88bf04e95f23e95604aa8f02c7dd4d93ec09e19ba94cb770f62448bf8",
+      "sourceDigest": "95b8618b02bcda03c4e0273b7e27ae64588dc728353881c0bf27a5991a12ee97",
+      "configIndexes": [
+        151
+      ],
+      "kind": "GENERATED_BEHAVIOR_DRIVER",
+      "reason": "Fresh f020/f023/f024 driver executes createHostRunHandlers with injected streaming runner; parent closes stderr/stdout to test actual EPIPE containment and slot release. No registered suite argv, production modules imported directly.",
+      "requiredEvidence": [
+        "host-run-usage-smoke.ts:2056-2118",
+        {
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "startLine": 2202,
+          "endLine": 2212,
+          "sourceDigest": "95b8618b02bcda03c4e0273b7e27ae64588dc728353881c0bf27a5991a12ee97",
+          "excerpt": "    // that final usage line the write that hits the already-closed pipe (EPIPE).\n    const exitCode = await new Promise<number | null>((resolve) => {\n      const child = spawn(process.execPath, [driverFile], { env: childEnv, stdio: ['ignore', 'ignore', 'pipe'] });\n      child.once('spawn', () => child.stderr?.destroy());\n      child.on('close', (code) => resolve(code));\n    });\n\n    assert.equal(exitCode, 0, 'the driver exited 0 \u2014 the post-finally async EPIPE was CONTAINED (the OLD handler crashes nonzero here)');\n    assert.ok(existsSync(resultFile), 'the driver wrote its result AFTER host_run returned (it never crashed mid/after run)');\n    const res = JSON.parse(readFileSync(resultFile, 'utf8')) as { completed: unknown; leftover: unknown; reAcquired: unknown };\n    assert.equal(res.completed, true, 'host_run returned normally in text mode (empty string) \u2014 no crash');"
+        }
+      ],
+      "dependencyDigests": {
+        "packages/main/src/tasks/host-run-usage-smoke.ts": "95b8618b02bcda03c4e0273b7e27ae64588dc728353881c0bf27a5991a12ee97"
+      },
+      "invocations": [
+        {
+          "entry": "packages/main/dist/tasks/host-run-usage-smoke.js",
+          "argv": [
+            "--canonical-core"
+          ]
+        }
+      ]
     }
   ]
 }
