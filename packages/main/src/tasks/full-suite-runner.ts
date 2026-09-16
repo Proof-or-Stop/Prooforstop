@@ -140,6 +140,8 @@ export const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntrie
     { class: 'runtime-lock', key: stateDirKey('runtime', 'full-suite-runtime-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
     { class: 'main-write-lock', key: stateDirKey('locks', 'full-suite-main-write-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
   ]),
+  // Canonical invocation verifies its prebuilt runtime; all test mutations use private fixtures.
+  repoRead('test:benchmark-framework-hardening'),
   repoRead('test:main-write-lock-coverage'),
   // Exact parser regression reads this build and uses only private Git fixtures.
   repoRead('test:scope-diff-pack'),
