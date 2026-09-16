@@ -46,7 +46,7 @@ import { assembleFullPromptEnvelope, buildFullTaskContext } from '../core/prompt
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { reviewerDispatchBindingDigest, reviewerDispatchPromptDigest } from '../core/prompt-contracts.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
-import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { signFinding, signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import { isFindingBlocking } from '../core/advisory.js';
 import { generateEd25519KeyPair } from '../core/authority-signing.js';
 import {
@@ -1281,14 +1281,26 @@ async function managedSupersessionRegression(): Promise<void> {
     assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === oldPass.id),
       'stale unbound PASS still blocks without valid newer evidence');
     const conflicting = structuredClone(oldPass);
-    // Deliberately invalid dual transport: only its presence and refusal are tested.
+    // verifyReviewPass rejects dual bindings before computing any digest. No
+    // caller-authored hash can make this record reach the later authority guard.
+    // Pin the actual consumer boundary; do not claim coverage of an unreachable
+    // valid-signature dual-PASS branch.
     conflicting.nativeEvidenceBinding = { invocationNonce: 'conflicting-fixture' } as NonNullable<typeof conflicting.nativeEvidenceBinding>;
     assert.throws(() => resignPass(conflicting), /managed and native evidence bindings are mutually exclusive/,
       'the public signer refuses to mint a conflicting authority record');
+    assert.equal(verifyReviewPass(STORY_ID, conflicting), false,
+      'dual binding is refused independently of any caller-computed outer digest');
     store.writeReviewPasses(STORY_ID, { passes: [conflicting, newPass] });
     assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e =>
-      e.evidenceId === oldPass.id && e.code !== 'stale_run_hash'),
-      'persisting an unmintable conflicting binding remains an integrity failure despite a valid replacement');
+      e.evidenceId === oldPass.id && e.code === 'invalid_evidence_signature'),
+      'stale dual PASS is rejected at the exact outer consumer boundary despite valid replacement');
+    const freshConflict = structuredClone(newPass);
+    freshConflict.nativeEvidenceBinding = conflicting.nativeEvidenceBinding;
+    assert.equal(verifyReviewPass(STORY_ID, freshConflict), false);
+    store.writeReviewPasses(STORY_ID, { passes: [freshConflict] });
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e =>
+      e.evidenceId === newPass.id && e.code === 'invalid_evidence_signature'),
+      'fresh dual PASS is rejected at the same outer boundary');
     store.writeReviewPasses(STORY_ID, allPasses);
     const badReplacement = structuredClone(newPass);
     badReplacement._hash = '0'.repeat(64);
@@ -1325,6 +1337,35 @@ async function managedSupersessionRegression(): Promise<void> {
       'control: the replacement binds the new lineage');
     assert.ok(!lineage.invalid.some(e => e.evidenceId === oldPass.id || e.evidenceId === newPass.id),
       'authenticated material and lineage staleness are superseded only by current same-lane evidence');
+    // Keep this finding on the latest lane run, so the test reaches managed
+    // authentication rather than the older F-019 stale_run short circuit.
+    const terminalRun = addCurrentReviewRun(root, store, LANE, `${STORY_ID}:RR-006`);
+    await importResult(terminalRun, 'findings');
+    const terminalFinding = store.readFindings(STORY_ID).findings[0]!;
+    withHostOwnedMutationEnv(() => createFindingHandlers(context).finding_resolve({
+      storyId: STORY_ID, findingId: terminalFinding.id,
+      resolution: 'Disposable regression resolution through the official handler; this is not a real Story finding.',
+    }));
+    const resolvedFindings = structuredClone(store.readFindings(STORY_ID));
+    assert.equal(resolvedFindings.findings[0]!.status, 'resolved');
+    write(root, 'packages/main/src/example.ts', 'export const example = null;\n');
+    git(root, ['add', 'packages/main/src/example.ts']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'terminal finding material drift']);
+    store.writeReviewPasses(STORY_ID, { passes: [] });
+    const resolvedId = resolvedFindings.findings[0]!.id;
+    assert.ok(!collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === resolvedId),
+      'authenticated resolved managed finding follows F-019 without a replacement on its lane');
+    const findingTerminal = join(managedHostRunDirectory(root,
+      resolvedFindings.findings[0]!.managedEvidenceBinding!.runId), 'terminal.json');
+    const findingTerminalBytes = readFileSync(findingTerminal);
+    try {
+      writeFileSync(findingTerminal, Buffer.concat([findingTerminalBytes, Buffer.from(' ')]));
+      assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e =>
+        e.evidenceId === resolvedId && e.code === 'managed_receipt_invalid'),
+      'F-019 must not forgive a resolved managed finding with a tampered terminal');
+    } finally { writeFileSync(findingTerminal, findingTerminalBytes); }
+    assert.ok(!collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === resolvedId),
+      'exact terminal restoration restores resolved-finding forgiveness');
     console.log('MANAGED_SUPERSESSION_PASS');
   } finally {
     process.chdir(beforeCwd);

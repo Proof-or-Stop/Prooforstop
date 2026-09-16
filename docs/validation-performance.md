@@ -1333,3 +1333,19 @@ refused handler publication and retry on a disposable Story branch with a frozen
 synthetic inventory cutoff, plus negative lineage and authority controls.
 
 Managed review supersession authenticates an unambiguous managed transport before classifying live freshness. Unbound and conflicting records retain their prior freshness, scope and retention ordering. An observed material-hash mismatch or changed head lineage follows the existing stale-run policy: a newer valid record on the same lane may supersede the old PASS, without promoting or deleting it. Unavailable identity and invalid managed seals remain blocking. Open findings still require their own disposition; a newer PASS cannot hide them. The focused `managed-review-evidence-smoke --supersession-regression` fixture exercises imported signed passes and an open finding, material movement, missing replacement, and terminal-byte tampering. Reviewers should retain historical records and inspect the current collector result rather than request duplicate reviews to replace already valid evidence.
+
+Authenticated resolved or dismissed managed findings with ordinary material or
+lineage drift follow the existing F-019 terminal-finding forgiveness rule without
+a newer lane replacement. For a latest-lane finding reaching this authentication
+path, invalid managed terminal seals remain blocking. The earlier non-latest
+`stale_run` handling is unchanged by this repair. The regression imports a real
+latest-lane managed finding, resolves it through `finding_resolve`,
+and checks material drift, terminal tampering and exact restoration.
+
+Dual-binding PASS controls deliberately assert `invalid_evidence_signature` for
+both fresh and stale runs. `verifyReviewPass` in `core/finding-verify.ts` explicitly
+returns false when both bindings are present before computing any digest, and
+`signReviewPass` rejects that input too. Thus a caller-computed outer hash cannot
+reach the later conflicting-authority branch through the real PASS collector.
+These controls prove that outer rejection, not execution of the downstream
+defense. The unchanged late guard ordering is checked by the process contract.
