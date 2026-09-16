@@ -1,5 +1,14 @@
 # Changelog
 
+## Lab scope-check-zero-owner-dispositions - v0.3.382 - 2026-09-16
+
+Managed scope review could deadlock in PLAN when no canonical process-fact owners were selected because an explicit empty ownerDispositions array was rejected. The repair treats omission and an empty array as the same valid zero-owner representation while continuing to reject non-empty or malformed dispositions. The managed-review end-to-end regression proves that a rejected non-empty payload does not consume the one-shot invocation and that the same invocation can retry successfully with an empty array. Focused owner coverage, process-fact marker alignment, static bindings, and independent Codex Sol/high review passed.
+
+Maintenance provenance: codex/lab-scope-check-zero-owner-dispositions, repair aaf4d107c0.
+Verification command: `node packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs`.
+Independent review: Codex Sol/high Standards and Spec axes, no findings.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-review-final-schema-contract - v0.3.381 - 2026-09-16
 
 # Managed reviewer final proposal schema contract
