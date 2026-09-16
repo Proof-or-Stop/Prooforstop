@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab benchmark-resource-key - v0.3.393 - 2026-09-16
+
+# Bounded validation resource-key repair
+
+The B-0980 routine attempt on local main 0.3.392 aborted with `invalid exclusive machine resource for validate: machine-process`. The same defect was reproduced directly on built main: `declaredValidationCapacity` converted the literal machine-process key `fanout` into an absolute repository path, which the existing strict reader correctly refused. B-0980 remains limited to thirteen added configuration lines registering six benchmark M0 paths.
+
+The repair preserves literal fixed-port and machine CPU/process/validation keys in the existing normalization helper. Whole-invocation declarations reuse that helper. Filesystem claims still resolve against command cwd, original claims are validated before normalization, input ownership/access is preserved, and no limits, admission pools or lifecycle policies are relaxed.
+
+The pinned regression first failed at MACHINE_CAPACITY_LITERAL_KEY_MUST_SURVIVE_NORMALIZATION on unmodified main. After repair it verifies every literal class, filesystem resolution and ownership, unchanged input declarations, deduplication, canonical machine identity, malformed-claim rejection, and actual capacity-stage callback admission through withOfficialValidationExecution / withValidationCommandStage. It does not claim descendant execution or provider admission. Build and official GREEN passed. The runtime fact contract registers this executable regression.
+
+Limits and preserved failures: an exploratory real child launch was refused with VALIDATION_DELEGATION_REFUSED: controller owner observation unavailable, both attempts retained in external logs. The regression was bounded to the resource-normalization and real capacity-stage API contract; delegation is not changed or claimed proved. The broad runtime fact suite fails on both built main and candidate at STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT (2 !== 1) in scripts/verify-static-ast-reuse.mjs, before reaching the newly registered test. These baseline/adjacent failures are not repaired in this Lab. The full B-0980 attempt returned no structured validation evidence and is not a PASS: 133 completed command rows were observed, 22 nonzero, before cleanup ended. No conclusion about all 240 commands is made.
+
+The independent Claude CLI audit and exact-candidate release audit are tool-owned. Local Lab RED/GREEN and integration are maintenance records, not Story DONE or a scored benchmark. No remote push. No unrelated task was contacted or interrupted. The repair is functional recovery only; no measured performance or token-saving improvement is claimed.
+
+Maintenance provenance: codex/lab-benchmark-resource-key, repair 53b7d57727f6c7d04796da3cd062799e1b1c7451.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-capacity-resource-keys.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-certification-recovery - v0.3.392 - 2026-09-16
 
 # Certification retry recovery — bounded Lab repair
