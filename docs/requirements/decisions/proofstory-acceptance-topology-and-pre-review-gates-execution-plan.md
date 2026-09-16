@@ -1092,6 +1092,16 @@ Story writes and metadata commits use that worktree copy; the controller copy
 is not mutated. A foreign lease, nested repository, symlink, mismatched config,
 or oversized snapshot is rejected before projection.
 
+An existing Story in a repository that commits its configuration and all three
+native hook assets uses the branch-local files as ordinary material. When each
+file is a regular file in both checkouts, both HEAD trees and both indexes, CLI
+bootstrap and reviewer preflight do not demand external-controller projection
+receipts. Legitimate branch configuration differences remain intact and still
+require ordinary scope and review evidence. This classification grants no
+runtime-artifact exemption. Partial tracking, index-only additions, missing
+files, and symlinks do not qualify; controller-only assets retain the signed
+projection checks above.
+
 The controller config may be intentionally untracked, so an existing
 branch-local Story directory does not imply that the target config already
 exists. Bootstrap installs a missing target config without dereferencing the

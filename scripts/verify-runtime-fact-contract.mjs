@@ -22,6 +22,7 @@ const requiredFacts = [
 ];
 
 const requiredEvidenceFacts = [
+  'global-thin-native-hook-projection',
   'identity-canonical-digest-memo',
   'validation-machine-reservation-delegation',
   'command-observation-boundaries',

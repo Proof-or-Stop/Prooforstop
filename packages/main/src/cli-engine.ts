@@ -26,7 +26,8 @@ import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
-import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile, isManagedGlobalThinRoot, isRuntimeActivityRoot } from './core/config.js';
+import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile, isManagedGlobalThinRoot, isRuntimeActivityRoot, pickProjectConfigPath } from './core/config.js';
+import { hasRepositoryOwnedControllerAssets } from './core/controller-runtime-projection.js';
 import { commandRequiresAuthoritativeRuntime, formatCommandLifecycleHint, getCommandPolicy, isMemoryRetrievalCommand } from './core/command-policy.js';
 import { resolveExperimentArm } from './core/experiment-arm.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
@@ -1053,10 +1054,14 @@ export async function runCli(opts?: {
     const missingProjectionReceipt = CONTROLLER_PROJECTION_ARTIFACTS.some(descriptor =>
       !existsSync(join(localStoryRoot, descriptor.path)),
     );
+    const controllerConfigPath = pickProjectConfigPath(controllerRoot)?.filename;
     if (missingProjectionReceipt
       && bootstrapMainRoot !== null
       && realpathSync(bootstrapMainRoot) === realpathSync(controllerRoot)
-      && isManagedGlobalThinRoot(controllerRoot)) {
+      && isManagedGlobalThinRoot(controllerRoot)
+      && !(controllerConfigPath !== undefined
+        && pickProjectConfigPath(process.cwd())?.filename === controllerConfigPath
+        && hasRepositoryOwnedControllerAssets({ controllerRoot, worktreeRoot: process.cwd(), configPath: controllerConfigPath }))) {
       // A Story receipt is a redundant controller-owned projection of an
       // already signed common receipt. Reconstruct only through the same exact
       // registered-worktree bootstrap, which rechecks branch/common-dir,

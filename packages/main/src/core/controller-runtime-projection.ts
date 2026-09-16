@@ -39,6 +39,28 @@ function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 }
 
+/** Repository-owned files remain material; this never grants a projection exemption. */
+export function hasRepositoryOwnedControllerAssets(args: {
+  controllerRoot: string; worktreeRoot: string; configPath: string;
+}): boolean {
+  try {
+    for (const root of [args.controllerRoot, args.worktreeRoot]) {
+      for (const path of [args.configPath, ...CONTROLLER_RUNTIME_ASSET_PATHS]) {
+        const head = git(root, ['ls-tree', 'HEAD', '--', path]);
+        const index = git(root, ['ls-files', '--stage', '--', path]);
+        // Both committed ownership and the current index must agree on regular-file
+        // ownership. Staging a projected file or deleting it cannot bypass receipts.
+        if (!/^100(?:644|755) blob [a-f0-9]+\t/.test(head)
+          || !/^100(?:644|755) [a-f0-9]+ 0\t/.test(index)
+          || head.split('\n').length !== 1 || index.split('\n').length !== 1) return false;
+        if (!lstatSync(join(root, path)).isFile()) return false;
+        safeRegularFile(root, join(root, path));
+      }
+    }
+    return true;
+  } catch { return false; }
+}
+
 function commonRoot(cwd: string): string {
   const raw = git(cwd, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
   return realpathSync(isAbsolute(raw) ? raw : resolve(cwd, raw));
