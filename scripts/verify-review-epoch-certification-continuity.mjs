@@ -525,31 +525,6 @@ const publishPaths=git(fixture.root,['diff-tree','--no-commit-id','--name-only',
 // the same authenticated snapshot without spawning Git for each repeated case.
 assert.match(publishedHead,/^[a-f0-9]{40}$/);
 const publishedFiles=new Map(publishPaths.map(path=>[path,execFileSync('git',['show',publishedHead+':'+path],{cwd:fixture.root})]));
-// Historical artifacts can exceed Node's default 1 MiB child-process buffer.
-// Whitespace increases transport size without changing any signed JSON facts.
-{
- const runsPath=storyPrefix+'review-runs.json';
- const padding=' '.repeat(2*1024*1024);
- git(fixture.root,['reset','--hard',publishedHead+'^']);
- const before=readFileSync(join(fixture.root,runsPath),'utf8');
- writeFileSync(join(fixture.root,runsPath),before+padding);
- git(fixture.root,['add',runsPath]);git(fixture.root,['commit','-qm','fixture large historical review transport']);
- for(const path of publishPaths){mkdirSync(join(fixture.root,path,'..'),{recursive:true});writeFileSync(join(fixture.root,path),publishedFiles.get(path));}
- const after=readFileSync(join(fixture.root,runsPath),'utf8');
- writeFileSync(join(fixture.root,runsPath),after+padding);
- git(fixture.root,['add','.']);git(fixture.root,['commit','-qm',`record ${storyId} review epoch metadata`]);
- const largeCommit=git(fixture.root,['rev-parse','HEAD']);
- assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:largeCommit}),true,'LARGE_REVIEW_HISTORY_READ: valid signed publication above 1 MiB must remain readable');
- const corrupted=JSON.parse(after);assert(corrupted.runs.length>0);
- corrupted.runs[0].agent='tampered-history';
- writeFileSync(join(fixture.root,runsPath),JSON.stringify(corrupted)+padding);
- git(fixture.root,['add',runsPath]);git(fixture.root,['commit','--amend','--no-edit','-q']);
- assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:git(fixture.root,['rev-parse','HEAD'])}),false,'Large history still rejects a changed prior review row');
- git(fixture.root,['reset','--hard',largeCommit]);
- assert.equal(isVerifiedReviewMaintenanceCommit({...publicationBinding,commit:largeCommit,reviewedMaterialHash:'0'.repeat(64)}),false,'Large history cannot weaken material binding');
- console.log('LARGE_REVIEW_HISTORY_GREEN');
- git(fixture.root,['reset','--hard',publishedHead]);
-}
 // Reconstruct a genuine publication INCLUDING its epochs file so the artifact
 // allowlist, rather than the missing-epochs guard, decides each sibling case.
 for(const mode of ['canonical-body','outside-artifact','near-miss-body','extra-epoch','extra-receipt']) {

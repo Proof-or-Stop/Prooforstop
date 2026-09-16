@@ -1,0 +1,53 @@
+/** Synthetic Git reader regression; never an independent Story credential. */
+import assert from 'node:assert/strict';
+import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {execFileSync} from 'node:child_process';
+import {StoryStore} from '../dist/core/store.js';
+import {isVerifiedReviewMaintenanceCommit} from '../dist/core/review-maintenance-lineage.js';
+import {signReviewInventoryEpoch,signReviewInventoryReceipt,emptyReviewInventoryEpochData} from '../dist/core/review-inventory-epoch.js';
+const root=mkdtempSync(join(tmpdir(),'review-history-buffer-'));
+const storyId='B-history-fixture';
+const git=(...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
+try {
+  git('init','-q','-b','main');git('config','user.name','Reader fixture');git('config','user.email','reader@example.invalid');
+  const store=new StoryStore(root);
+  store.writeStory(storyId,{storyId,name:'history-fixture',phase:'REVIEW',type:'bug',priority:'medium',description:'Synthetic reader fixture',events:[]});
+  store.writeReviewRuns(storyId,{runs:[{id:'prior-observation',agent:'retained'}]});
+  const path=store.storyFilePath(storyId,'review-runs.json');
+  const pad=' '.repeat(2*1024*1024);
+  writeFileSync(path,readFileSync(path,'utf8')+pad);
+  git('add','.');git('commit','-qm','fixture cutoff');
+  const cutoff={headHash:git('rev-parse','HEAD'),materialHash:'a'.repeat(64),storyFilesHash:'b'.repeat(64)};
+  const at=new Date().toISOString();
+  const epoch={schemaVersion:'proof-or-stop.review_inventory_epoch.v1',epochId:'RI-fixture',storyId,reviewRound:at,state:'OPEN',begunAt:at,updatedAt:at,cutoff,scopeDigest:'c'.repeat(64),requiredLanes:['proof-or-stop-review-concept'],initialRunSequenceBoundary:0,maxWaves:2,waves:[]};
+  epoch._hash=signReviewInventoryEpoch(epoch);
+  store.writeReviewInventoryEpochs(storyId,{...emptyReviewInventoryEpochData(),epochs:[epoch]});
+  git('add','.');git('commit','-qm','fixture open epoch');
+  const parent=git('rev-parse','HEAD');
+  const receipt={schemaVersion:'proof-or-stop.review_inventory_receipt.v1',receiptId:'RCP-fixture',epochId:epoch.epochId,storyId,reviewRound:at,cutoff,scopeDigest:epoch.scopeDigest,requiredLanes:epoch.requiredLanes,waveCount:2,findingSetDigest:'d'.repeat(64),coverageDigest:'e'.repeat(64),saturationResult:'ZERO_NEW_VERIFIED_FINDINGS',authority:'inventory-completeness-only',authorizesTest:false,issuedAt:at};
+  receipt._hash=signReviewInventoryReceipt(receipt);
+  const {_hash,...unsigned}=epoch;
+  const finalized={...unsigned,state:'FINALIZED',receiptId:receipt.receiptId};
+  finalized._hash=signReviewInventoryEpoch(finalized);
+  const publication={...emptyReviewInventoryEpochData(),epochs:[finalized],receipts:[receipt]};
+  const runs={runs:[{id:'prior-observation',agent:'retained'},{id:'new-observation',agent:'retained'}]};
+  const publish=(currentRuns,currentPublication=publication)=>{
+    store.writeReviewRuns(storyId,currentRuns);writeFileSync(path,readFileSync(path,'utf8')+pad);
+    store.writeReviewInventoryEpochs(storyId,currentPublication);
+    git('add','.');git('commit','-qm',`record ${storyId} review epoch metadata`);
+    return git('rev-parse','HEAD');
+  };
+  const binding={gitCwd:root,metadataRoot:root,storyId,reviewedHeadHash:cutoff.headHash,reviewedMaterialHash:cutoff.materialHash,reviewedStoryFilesHash:cutoff.storyFilesHash};
+  const commit=publish(runs);
+  assert.equal(isVerifiedReviewMaintenanceCommit({...binding,commit}),true,'LARGE_REVIEW_HISTORY_READ: signed publication over 1 MiB must remain readable');
+  assert.equal(isVerifiedReviewMaintenanceCommit({...binding,commit,reviewedMaterialHash:'0'.repeat(64)}),false);
+  git('reset','--hard',parent);
+  const tampered=structuredClone(runs);tampered.runs[0].agent='rewritten';
+  assert.equal(isVerifiedReviewMaintenanceCommit({...binding,commit:publish(tampered)}),false,'Oversized history still rejects rewritten prior rows');
+  git('reset','--hard',parent);
+  const badSignature=structuredClone(publication);badSignature.epochs[0]._hash='0'.repeat(64);
+  assert.equal(isVerifiedReviewMaintenanceCommit({...binding,commit:publish(runs,badSignature)}),false,'Oversized history still rejects invalid signatures');
+  console.log('LARGE_REVIEW_HISTORY_GREEN');
+} finally {rmSync(root,{recursive:true,force:true});}
