@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,7 @@ const repository = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 execFileSync(process.execPath, [join(repository, 'scripts/ensure-dist.mjs')], { cwd: repository, stdio: 'inherit', timeout: 240000 });
 const { inspectExpectedControllerRuntimeProjection, isByteIdenticalControllerRuntimeAsset } = await import('../packages/main/dist/core/runtime-artifact-registry.js');
 const { CONTROLLER_RUNTIME_ASSET_PATHS } = await import('../packages/main/dist/core/controller-runtime-projection.js');
+const { classifyScopePath } = await import('../packages/main/dist/core/scope-path-classifier.js');
 const root = mkdtempSync(join(tmpdir(), 'pos-tracked-bootstrap-'));
 const storyId = 'B-tracked-config';
 const worktree = join(root, '.worktrees', storyId);
@@ -24,7 +25,8 @@ try {
   write(root, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ assetMode: 'global-thin' }));
   const config = { storyDir: '.proof-or-stop/story/actives', scanRoot: '.', rootDir: 'src', outDir: 'dist', testsDir: 'tests', fixturesDir: 'tests/fixtures' };
   write(root, 'proof-or-stop.config.json', JSON.stringify(config));
-  write(root, `.proof-or-stop/story/actives/${storyId}/index.json`, JSON.stringify({ storyId, name: 'Tracked configuration regression', phase: 'REVIEW', currentReviewRound: '2026-09-16T00:00:00.000Z' }));
+  write(root, `.proof-or-stop/story/actives/${storyId}/index.json`, JSON.stringify({ storyId, name: 'tracked-configuration-regression', title: 'Tracked configuration regression', description: 'Fixture for repository-owned config and native hook bootstrap admission.', type: 'bug', priority: 'medium', phase: 'REVIEW', createdAt: '2026-09-16T00:00:00.000Z', startedAt: '2026-09-16T00:00:00.000Z', endedAt: null, currentReviewRound: '2026-09-16T00:00:00.000Z', worktree: { path: worktree, branch: `story/${storyId}`, createdAt: '2026-09-16T00:00:00.000Z' } }));
+  write(root, `.proof-or-stop/story/actives/${storyId}/checklist.json`, JSON.stringify({ items: [] }));
   for (const path of CONTROLLER_RUNTIME_ASSET_PATHS) write(root, path, path.endsWith('.json') ? '{"hooks":[]}\n' : 'module.exports = {};\n');
   git(root, ['add', '.']); git(root, ['commit', '-qm', 'tracked repository baseline']);
   git(root, ['worktree', 'add', '-qb', `story/${storyId}`, worktree]);
@@ -58,11 +60,15 @@ try {
   git(worktree, ['add', hook]);
   write(worktree, hook, '{"hooks":[],"changed":true}\n');
   assert.equal(isByteIdenticalControllerRuntimeAsset({ projectRoot: worktree, gitCwd: worktree, storyId, path: hook }), false, 'changed tracked hooks remain material');
+  const contract = { storyId, mode: 'enforce', allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: '2026-09-16T00:00:00.000Z', updatedAt: '2026-09-16T00:00:00.000Z' };
+  assert.equal(classifyScopePath(contract, hook, { projectRoot: worktree, gitCwd: worktree }).allowed, false, 'ordinary scope enforcement still rejects undeclared tracked hook changes');
+  rmSync(join(worktree, hook));
+  assert.equal(inspect().valid, false, 'a missing tracked hook cannot qualify');
+  symlinkSync(join(root, hook), join(worktree, hook));
+  assert.equal(inspect().valid, false, 'a tracked path replaced by a symlink cannot qualify');
   console.log('TRACKED_CONFIG_BOOTSTRAP_GREEN: CLI preservation, projection admission and ownership negative controls passed');
 } finally { rmSync(root, { recursive: true, force: true }); }
 for (const path of [
   'packages/main/dist/tasks/benchmark-framework-hardening-smoke.js',
   'packages/main/dist/tasks/external-worktree-go-pre-review-smoke.js',
-  'scripts/verify-runtime-fact-contract.mjs',
-  'scripts/verify-process-fact-contract.mjs',
 ]) execFileSync(process.execPath, [path], { cwd: repository, stdio: 'inherit', timeout: 240000 });

@@ -83,6 +83,10 @@ async function main() {
   check(read(root, 'packages/main/src/core/runtime-fact-registry.ts').includes('MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY'), 'Managed critic fixture runtime policy must be registered');
   check(read(root, 'packages/main/src/tasks/isolated-finding-fixture.ts').includes('managedCriticFixtureBudgetMs(process.env,budgetStartedAt)'), 'Isolated fixture must consume the managed critic budget');
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('complete native hook set in both HEAD trees and indexes'), 'Repository-owned bootstrap assets must retain their material ownership contract');
+  for (const file of ['packages/main/src/cli-engine.ts', 'packages/main/src/core/runtime-artifact-registry.ts']) {
+    check(read(root, file).includes('hasRepositoryOwnedControllerAssets'), `${file} must share the repository-owned asset predicate`);
+  }
   // Controlled machine delegation is checked before the build-share step and before any subprocess
   // step, so these assertions are evaluated even when a later control aborts the run.
   check(registrySource.includes("id: 'validation-machine-reservation-delegation'"), 'Controlled machine delegation runtime fact must be registered');
