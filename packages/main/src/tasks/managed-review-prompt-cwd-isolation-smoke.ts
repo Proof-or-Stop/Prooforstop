@@ -13,6 +13,11 @@ import {
   resolveManagedReviewerBasePrompt,
   type ManagedReviewCanonicalReportStatus,
 } from '../core/managed-review-evidence.js';
+import {
+  classifyManagedReviewFinalEnvelope,
+  managedReviewFinalProposalJsonSchema,
+} from '../core/host-run.js';
+import { isManagedInventoryCriticEnvelopeValid } from '../core/managed-inventory-critic.js';
 import type { ReviewRun } from '../core/types.js';
 
 const PRIMARY_WORKTREE = '/Users/qipan/work/repo/Prooforstop/.worktrees/B-137a';
@@ -74,6 +79,95 @@ function main(): void {
     /Execution boundary: remain in the host-configured isolated scratch cwd for this managed provider run\./,
     'managed provider prompt explicitly requires the isolated scratch cwd',
   );
+  const schemaMatch = providerPrompt.match(
+    /--- BEGIN MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---\n([^\n]+)\n--- END MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---/,
+  );
+  assert.ok(schemaMatch, 'managed provider prompt embeds the shared final proposal shape schema');
+  const finalProposalSchema = JSON.parse(schemaMatch[1]!) as {
+    required: string[];
+    properties: Record<string, { required?: string[]; properties?: Record<string, { required?: string[] }> }>;
+  };
+  assert.deepEqual(finalProposalSchema.properties.readManifest.required, [
+    'filesReadFully', 'filesTriagedByName', 'scanEscalationReason', 'candidateSpecSetDigest', 'corpusDigest',
+  ], 'prompt schema states every required readManifest field');
+  assert.deepEqual(finalProposalSchema.properties.readLog.required, [
+    'filesReadFully', 'filesTriagedByName', 'summary', 'digest',
+  ], 'prompt schema states every required readLog field');
+  assert.deepEqual(finalProposalSchema.properties.readLog.properties?.summary.required, [
+    'readCount', 'tokenCount',
+  ], 'prompt schema states every required readLog.summary field');
+  assert.equal((finalProposalSchema.properties.readManifest.properties?.candidateSpecSetDigest as { pattern?: string }).pattern,
+    '^(?:sha256:)?[a-f0-9]{64}$', 'prompt schema matches the terminal routing-digest grammar');
+  assert.equal((finalProposalSchema.properties.readLog.properties?.digest as { pattern?: string }).pattern,
+    '^[a-f0-9]{64}$', 'prompt schema matches the stricter terminal read-log digest grammar');
+  const fullyRead = ['packages/main/src/example.ts'];
+  const validProposal = {
+    schemaVersion: 'lattice.managed_review_final_proposal.v1',
+    storyId: REVIEW_RUN.storyId,
+    providerAgent: REVIEW_RUN.lane,
+    lane: REVIEW_RUN.lane,
+    reviewRunId: REVIEW_RUN.reviewRunId,
+    conclusion: 'pass',
+    note: 'The bounded review found no blocking issue.',
+    readManifest: {
+      filesReadFully: fullyRead,
+      filesTriagedByName: [],
+      scanEscalationReason: null,
+      candidateSpecSetDigest: 'a'.repeat(64),
+      corpusDigest: 'b'.repeat(64),
+    },
+    readLog: {
+      filesReadFully: fullyRead,
+      filesTriagedByName: [],
+      summary: { readCount: 1, tokenCount: null },
+      digest: 'c'.repeat(64),
+    },
+  };
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify(validProposal)).kind, 'valid',
+    'the minimum shape described by the embedded prompt schema passes the terminal validator');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    readManifest: {
+      ...validProposal.readManifest,
+      candidateSpecSetDigest: `sha256:${'a'.repeat(64)}`,
+      corpusDigest: `sha256:${'b'.repeat(64)}`,
+    },
+  })).kind, 'valid', 'the provider schema and terminal validator both accept explicit sha256 routing digests');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    readLog: { ...validProposal.readLog, digest: `sha256:${'c'.repeat(64)}` },
+  })).kind, 'malformed', 'readLog digest remains canonical raw hex at the provider and terminal boundaries');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    readLog: { ...validProposal.readLog, filesReadPartially: [] },
+  })).kind, 'malformed', 'terminal validator rejects nested fields excluded by the shared provider schema');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    readDiagnostics: [{
+      code: 'read_manifest_missing_full_read',
+      severity: 'finding',
+      message: 'The required file was not read.',
+      extraAuthority: true,
+    }],
+  })).kind, 'malformed', 'terminal validator rejects diagnostic fields excluded by the shared provider schema');
+  const criticLane = 'proof-or-stop-review-topology-critic';
+  const criticSchema = managedReviewFinalProposalJsonSchema({
+    storyId: REVIEW_RUN.storyId,
+    reviewRunId: REVIEW_RUN.reviewRunId,
+    lane: criticLane,
+    agentType: criticLane,
+  }) as { required: string[] };
+  assert.ok(criticSchema.required.includes('inventoryCritic'),
+    'topology critic provider schema requires the receipt-producing inventory block');
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+    ...validProposal,
+    providerAgent: criticLane,
+    lane: criticLane,
+  })).kind, 'malformed', 'topology critic terminal validation refuses a proposal without inventoryCritic');
+  assert.equal(isManagedInventoryCriticEnvelopeValid(undefined, criticLane, criticLane, 0), false,
+    'legacy compatibility ingress also refuses a topology critic proposal without inventoryCritic');
+  assert.equal(isManagedInventoryCriticEnvelopeValid(undefined, validProposal.lane, validProposal.providerAgent, 0), true,
+    'ordinary managed reviewer compatibility proposals remain valid without inventoryCritic');
   assert.match(
     providerPrompt,
     /do not cd to, run commands from, or write to that canonical path\./,

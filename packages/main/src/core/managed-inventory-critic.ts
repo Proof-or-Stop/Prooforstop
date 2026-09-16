@@ -17,7 +17,7 @@ export interface ManagedInventoryCritic {
   wave: number;
   findingDispositions: ManagedInventoryDisposition[];
 }
-const critic = 'proof-or-stop-review-topology-critic';
+export const MANAGED_INVENTORY_CRITIC_LANE = 'proof-or-stop-review-topology-critic';
 // Provider schema stays flat; the authoritative local parser enforces exact-one-reference.
 const referenceSchema = {type: 'object', additionalProperties: false,
   properties: {findingId: {type: 'string'}, proposalFindingIndex: {type: 'integer'}}};
@@ -42,7 +42,7 @@ function ref(v: unknown, count: number): v is ManagedInventoryFindingRef {
     && (v.proposalFindingIndex as number) >= 0 && (v.proposalFindingIndex as number) < count;
 }
 export function isManagedInventoryCritic(value: unknown, lane: string, agent: string, findingCount: number): value is ManagedInventoryCritic {
-  if (lane !== critic || agent !== critic || !record(value)
+  if (lane !== MANAGED_INVENTORY_CRITIC_LANE || agent !== MANAGED_INVENTORY_CRITIC_LANE || !record(value)
     || !keys(value, ['epochId', 'wave', 'findingDispositions']) || !text(value.epochId)
     || !Number.isSafeInteger(value.wave) || (value.wave as number) < 1 || !Array.isArray(value.findingDispositions)) return false;
   const seen = new Set<string>();
@@ -56,4 +56,16 @@ export function isManagedInventoryCritic(value: unknown, lane: string, agent: st
     if (row.disposition === 'duplicate') return text(row.familyKey) && ref(row.canonicalFinding, findingCount);
     return row.disposition === 'not_verified' && row.familyKey === undefined && row.canonicalFinding === undefined;
   });
+}
+
+/** Exact lane contract shared by terminal and legacy managed-review ingress. */
+export function isManagedInventoryCriticEnvelopeValid(
+  value: unknown,
+  lane: string,
+  agent: string,
+  findingCount: number,
+): value is ManagedInventoryCritic | undefined {
+  return lane === MANAGED_INVENTORY_CRITIC_LANE
+    ? isManagedInventoryCritic(value, lane, agent, findingCount)
+    : value === undefined;
 }

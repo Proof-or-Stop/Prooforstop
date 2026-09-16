@@ -10762,7 +10762,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs',
-        patterns: ['Review PLAN scope coverage', 'scope_check_save', 'deliveryRunId', 'verifyManagedDispatchDelivery', 'a rejected payload must not consume the managed scope invocation before a corrected retry', 'a completed scope run cannot authorize replacement evidence with a recomputed public hash', 'story_review must reject post-terminal replacement of managed scope evidence', 'a real isolated provider cannot replace scope_check_save with a direct public-hash Store write', 'managed_dispatch_invocation_unconsumed', 'validated scope bytes cannot be replaced before terminal sealing', 'managed_dispatch_output_changed_before_seal', 'MANAGED_SCOPE_REVIEWER_DISPATCH_E2E_GREEN'],
+        patterns: ['Review PLAN scope coverage', 'scope_check_save', 'deliveryRunId', 'verifyManagedDispatchDelivery', 'a rejected non-empty owner payload must not consume the managed scope invocation before a corrected zero-owner retry', 'a completed scope run cannot authorize replacement evidence with a recomputed public hash', 'story_review must reject post-terminal replacement of managed scope evidence', 'a real isolated provider cannot replace scope_check_save with a direct public-hash Store write', 'managed_dispatch_invocation_unconsumed', 'validated scope bytes cannot be replaced before terminal sealing', 'managed_dispatch_output_changed_before_seal', 'MANAGED_SCOPE_REVIEWER_DISPATCH_E2E_GREEN'],
       },
     ],
   },
@@ -11469,6 +11469,13 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
     'P0m component-filtered process mapping must be explicit and non-empty');
   assert(sourceResult.refusal === 'registry-component-mapping-unavailable',
     'process registry missing mapping must use the typed unavailable diagnostic');
+  const ownerCoverageSource = read('packages/main/src/core/plan-touchpoint-coverage.ts');
+  assert(ownerCoverageSource.includes("input !== undefined && (!Array.isArray(input) || input.length !== 0)"),
+    'zero mapped owners must accept omitted or empty owner dispositions while rejecting non-empty input');
+  assert(read('packages/main/src/handlers/story-dispatch.ts').includes('omit ownerDispositions or submit an empty array'),
+    'scope reviewer prompt must explain the zero-owner disposition contract');
+  assert(read('packages/main/src/cli/command-catalog.ts').includes('omit or use [] when the mapped-owner count is zero'),
+    'scope_check_save command schema must explain the zero-owner disposition contract');
 }
 // Dynamic Finding proof and rollout contracts: prompt guidance plus mechanical
 // entry/read/CAS guards. Each source guard has a deliberate bypass mutation.
@@ -11910,6 +11917,45 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
 // Managed inventory transport checks must precede the final failure gate.
 assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
 assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
+{
+ const hostRunSource = read('packages/main/src/core/host-run.ts');
+ const registrySource = read(processFactRegistryPath);
+ const requiredSchemaTokens = [
+   "...(args.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC ? ['inventoryCritic'] : [])",
+   '(parsed.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC && parsed.inventoryCritic === undefined)',
+   'hasOnlyKeys(readManifest, MANAGED_REVIEW_READ_MANIFEST_FIELDS)',
+   'hasOnlyKeys(readLog, MANAGED_REVIEW_READ_LOG_FIELDS)',
+   'parsed.readDiagnostics.every(isStrictManagedReviewReadDiagnostic)',
+ ];
+ for (const token of requiredSchemaTokens) {
+   assert(hostRunSource.includes(token), `Managed final-proposal schema contract missing enforcement token: ${token}`);
+   nodeAssert(!hostRunSource.replace(token, '').includes(token), `Managed final-proposal negative control must remove enforcement token: ${token}`);
+ }
+ const compatibilityGuardSources = {
+   managedHostRun: read('packages/main/src/core/managed-host-run.ts'),
+   managedReviewEvidence: read('packages/main/src/core/managed-review-evidence.ts'),
+ };
+ const compatibilityGuards = [
+   [compatibilityGuardSources.managedHostRun,
+     'if (!isManagedInventoryCriticEnvelopeValid(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0)) return null;',
+     'persisted-proposal read'],
+   [compatibilityGuardSources.managedHostRun,
+     'if (!isManagedInventoryCriticEnvelopeValid(args.proposal.inventoryCritic, spec.lane, spec.agentType, args.proposal.findings?.length ?? 0)) {',
+     'compatibility proposal write'],
+   [compatibilityGuardSources.managedReviewEvidence,
+     '&& isManagedInventoryCriticEnvelopeValid(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0)',
+     'managed evidence import'],
+ ];
+ for (const [source, token, label] of compatibilityGuards) {
+   assert(source.includes(token), `Managed topology critic ${label} is missing its shared required-envelope guard`);
+   nodeAssert(!source.replace(token, '').includes(token),
+     `Managed topology critic ${label} negative control must independently remove its guard`);
+ }
+ assert(registrySource.includes('the topology-critic lane requires inventoryCritic across terminal and compatibility ingress'),
+   'Managed final-proposal process fact must register critic receipt completeness');
+ assert(registrySource.includes('routing digests share one grammar') && registrySource.includes('unknown nested fields fail closed'),
+   'Managed final-proposal process fact must register schema and terminal-validator consistency');
+}
 {
  const source = read('packages/main/src/handlers/review-inventory.ts');
  const required = ['export function importManagedInventoryCritic', 'createManagedReviewEvidenceBinding',

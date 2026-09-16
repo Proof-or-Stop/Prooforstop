@@ -130,6 +130,35 @@ Maintenance provenance: codex/lab-canonical-init-managed-dispatch-fixture, repai
 Verification command (replayed before integration and on main): `["node","packages/main/tests/canonical-new-story-artifacts.test.mjs","--group=init"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## Lab scope-check-zero-owner-dispositions - v0.3.382 - 2026-09-16
+
+Managed scope review could deadlock in PLAN when no canonical process-fact owners were selected because an explicit empty ownerDispositions array was rejected. The repair treats omission and an empty array as the same valid zero-owner representation while continuing to reject non-empty or malformed dispositions. The managed-review end-to-end regression proves that a rejected non-empty payload does not consume the one-shot invocation and that the same invocation can retry successfully with an empty array. Focused owner coverage, process-fact marker alignment, static bindings, and independent Codex Sol/high review passed.
+
+Maintenance provenance: codex/lab-scope-check-zero-owner-dispositions, repair aaf4d107c0.
+Verification command: `node packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs`.
+Independent review: Codex Sol/high Standards and Spec axes, no findings.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-review-final-schema-contract - v0.3.381 - 2026-09-16
+
+# Managed reviewer final proposal schema contract
+
+## Problem
+
+Managed reviewers were instructed only to return a truthful read manifest and read log, while terminal intake required a stricter shape. Valid reviews therefore ended as managed_review_final_result_malformed and could not produce REVIEW evidence. The topology critic could also omit inventoryCritic, preventing its required critic receipt.
+
+## Repair
+
+Codex and Claude managed-review adapters now share one generated final-proposal JSON schema. The schema declares all required readManifest, readLog and summary fields, uses the same routing-digest grammar as terminal normalization, and requires inventoryCritic for the topology-critic lane. Terminal and legacy compatibility intake both reject unknown or incomplete critic proposals, so an older callback artifact cannot bypass the required critic receipt. The process-fact registry and verifier now record and protect these constraints.
+
+## Verification
+
+Lab RED reproduced the missing schema in the managed provider prompt. GREEN proves a minimal schema-conforming proposal passes terminal validation, explicit sha256 routing digests remain compatible, nested extras fail closed, and topology-critic proposals without inventoryCritic fail closed at terminal and compatibility ingress. The managed inventory critic transport verifier passed every authenticated import and negative-control scenario. The process-fact verifier reached the new contract checks; its unrelated isolated CLI fixture later failed because copied installations lacked proper-lockfile/typescript. Codex Sol/high found and closed the stale critic transport expectation plus digest, nested diagnostic, process-fact, canonical-suite registration, compatibility-ingress, and final static-binding gaps. The final immutable-candidate audit is recorded against the repair commit below.
+
+Maintenance provenance: codex/lab-managed-review-final-schema-contract; the repair commit is the final code-and-evidence commit immediately following this release metadata commit.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Integrated main-sync release - v0.3.381 - 2026-09-15
 
 # Two divergent main lines integrated under one identifying version

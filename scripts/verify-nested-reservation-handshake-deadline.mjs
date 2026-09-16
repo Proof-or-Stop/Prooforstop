@@ -29,7 +29,7 @@ try {
    // contract as a non-success infrastructure result; it must not surface as an
    // exception, must carry the refusal diagnostic, and must never launch the leaf.
    assert.doesNotMatch(output,/FAULT_REFUSED /,output);const match=output.match(/FAULT_RESULT (\{[^\n]+\})/);assert.ok(match,output);const observed=JSON.parse(match[1]);const result=observed.result;console.log('OBSERVED '+JSON.stringify({mode,observed,closed,seconds:(performance.now()-start)/1000}));assert.notEqual(result.code,0,JSON.stringify(result));assert.match(result.output,/deadline|expired|live reservation revoked/);assert.ok(observed.ms< (mode==='short-outer'?1300:1900),JSON.stringify(observed));assert.equal(existsSync(leaf),false);
-   
+
   }finally{clearTimeout(resume);if(child?.exitCode===null){child.kill('SIGCONT');child.kill('SIGTERM');}
    // The detached worker is signalled by recorded identity on every path, so a failing assertion leaves no worker behind.
    if(workerPid&&workerStart&&startOf(workerPid)===workerStart){try{process.kill(-workerPid,'SIGTERM');}catch{/* already gone */}} }

@@ -204,4 +204,3 @@ try {
  assert.ok(![...observed].some(([pid,start])=>startOf(pid)===start),'own diagnostic child cleanup unproven; private artifacts retained');
  rmSync(base,{recursive:true,force:true});
 }
-
