@@ -1,5 +1,63 @@
 # Changelog
 
+## Lab benchmark-validation-fixture-host - v0.3.396 - 2026-09-16
+
+# Validation fixture host isolation repair
+
+B-0980 CW-005 could not complete its configured process-contract and controller
+bootstrap checks because synthetic test fixtures inherited the interactive
+agent host identity. Official validation deliberately strips that transport
+environment. A direct comparison reproduced managed delivery PASS with the
+ambient environment and refusal under effectiveValidationCommandEnvironment.
+
+## Bounded change
+
+The managed-delivery test clears inherited host transport, supplies an explicit
+synthetic owner and Codex rendering provider only inside its temporary project,
+and restores environment and session cache in finally. Its existing fake
+provider transport, genuine handler execution and negative controls remain.
+The tracked-controller bootstrap fixture also removes ambient transport and
+supplies its own fixture provider alongside its pre-existing synthetic session.
+No production identity filter, ownership lease, gate, provider admission or Story
+artifact writer changes. These fixture identities are not real agent receipts.
+
+The static exception retains its identity and existing purpose; the excerpt and
+dependency digests are rebound to the exact changed bootstrap fixture, including
+its new environment-classification helper dependency. No exception is added or
+removed and no scanner rule is weakened.
+
+## Verification and limits
+
+Regression commit ea93abe42d539b6ac400b49ff757d31da10623a2 preceded the repair.
+Official RED failed with the exact missing supported host render identity marker.
+Repair a845719e08e149c92e379389847a70db328094cf passed the same two executable
+fixtures through official GREEN in 28,920 ms. They emitted
+MANAGED_DELIVERY_DISPATCH_GREEN, TRACKED_CONFIG_BOOTSTRAP_GREEN and
+VALIDATION_FIXTURE_HOST_PASS. Static checking emitted U18_STATIC_PASS.
+
+A broader diagnostic reran the process fact contract under the actual official
+sanitation helper. It advanced past the original host refusal but failed when
+the existing runtime-admission ordering witness exceeded its 60-second nested
+deadline. A separate execution of that witness also failed its diagnostic budget.
+Neither is claimed PASS. This Lab does not change that unrelated verifier's
+logic or deadline. Logs remain at /tmp/benchmark-fixture-host-canonical-contract.log
+and /tmp/benchmark-fixture-host-admission-isolated.log.
+
+This is local maintenance evidence, not Story DONE, full repository validation,
+independent Story review or a scored benchmark. B-0980 remains REVIEW and its
+business patch remains the original 13 added configuration lines.
+
+A diagnostic of the same actual mutated child with an external 180-second
+observation bound completed with status 1, no signal, and the intended assertion
+that admission must consume the actual Story-write capability predicate. It
+passed the managed delivery fixture first. The production 60-second witness
+budget was not changed; this longer observation is not its passing evidence.
+Log: /tmp/benchmark-fixture-host-admission-child-diagnostic.log.
+
+Maintenance provenance: codex/lab-benchmark-validation-fixture-host, repair 92a192b4fe1197683f47df9598b7a6375faabe41.
+Verification command (replayed before integration and on main): `["node","--input-type=module","-e","import assert from 'node:assert/strict';import {spawnSync} from 'node:child_process';for(const file of ['packages/main/tests/managed-delivery-dispatch.test.mjs','scripts/verify-tracked-controller-bootstrap.mjs']){const result=spawnSync(process.execPath,[file],{cwd:process.cwd(),encoding:'utf8',timeout:180000,maxBuffer:8388608});process.stdout.write(result.stdout??'');process.stderr.write(result.stderr??'');assert.equal(result.status,0,'Fixture host verification failed: '+file);}console.log('VALIDATION_FIXTURE_HOST_PASS');"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-suite-registration - v0.3.395 - 2026-09-16
 
 # Bounded benchmark suite registration repair
