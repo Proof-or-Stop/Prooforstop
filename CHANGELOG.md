@@ -1,5 +1,29 @@
 # Changelog
 
+## Lab benchmark-certification-recovery - v0.3.392 - 2026-09-16
+
+# Certification retry recovery — bounded Lab repair
+
+B-0980 completed RI-022 review, then a correctly refused certification attempt published BLOCKED metadata. After all 16 fast checks passed, retry incorrectly rejected the original finalized inventory because the official diagnostic publication changed HEAD. Original attempts, reviews and receipts remain retained.
+
+The repair admits only canonical same-Story certification_window_begin publications through the strict review-maintenance reader. Exactly one append-only signed BLOCKED diagnostic may preserve review lineage, including valid cheap-check receipts carried by that publication. It may not add heavy-authority receipts or admission fields, rewrite history, consume inventory, modify other substantive artifacts or touch another Story/source path. Every existing signature, material, scope, clean-tree, main and findings check remains in place.
+
+Fast-check receipts still bind the exact current HEAD. Run the fast check again after any later commit before attempting admission. The actual focused producer persists its receipt without a validate metadata auto-commit; this patch grants no new inventory continuity to a validate-subject commit and introduces no relaxed cheap-check authority.
+
+The disposable regression holds one synthetic finalized inventory cutoff constant while exercising the real refused handler, auto-commit writer, strict reader and successful retry with one consumption. It also rejects a validate publication, restores the original blocked HEAD and its current unpublished cheap receipt, and admits against the same inventory. Negatives cover invalid signatures, mixed heavy authority, signed admission fields, multiple windows, foreign writers, source changes, inventory mutations and rewritten history. The history controls re-sign the modified prior record and append the required new record, isolating the prefix check.
+
+Three child-process module mutations remove the BLOCKED bridge, old-window prefix check and old-receipt prefix check separately. Each must actually load its mutation and fail its named consumer assertion; a setup failure cannot pass. Mutations stay in memory, never edit production source/dist, and synthetic fixtures are never Story credentials.
+
+Verification: target baseline RED and current official GREEN, full build, focused controls and static validation edges PASS. All existing 295 exception entries and policy fields remain intact; only exact source/dependency bindings move. Both the original repaired candidate and final candidate passed the full process contract; final execution exited 0 with Process-fact contract verification passed. The larger certification-window smoke fails identically on unchanged built main 0.3.391 and the Lab because its expected gateConsumer string omits the existing Durable ADMITTING prefix. That baseline check is not claimed PASS or repaired here.
+
+Actual Claude audit 7c5612ba-2db1-4ca3-9abd-ed7ff65cabfd rejected candidate 2ab3c50e0073246ea4360aadae7d9fd643e79ed3 for two test gaps. The proposed validate inventory bridge was removed to preserve the existing exact-HEAD contract; signed prefix controls and mutation proofs were strengthened in 1cd9f2e36bd18d77fc859df5bbdffb35793bdc7e. Independent Claude follow-up audit ac183408-1e73-4e47-8ee2-0a48ba0bf925 passed the exact final candidate in 188327 ms. Failed audit evidence is archived and included in partial development consumption.
+
+Read-only repaired-reader checks accept both real B-0980 failed-publication commits feeaaf34 and f67b6e8b; these are diagnostics, not gate evidence. This Lab is local maintenance, not formal Story DONE or benchmark completion. No remote push.
+
+Maintenance provenance: codex/lab-benchmark-certification-recovery, repair 1cd9f2e36bd18d77fc859df5bbdffb35793bdc7e.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/certification-recovery-lineage.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-review-history-buffer - v0.3.391 - 2026-09-16
 
 # Bounded review history reader repair
