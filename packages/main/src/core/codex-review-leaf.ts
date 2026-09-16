@@ -184,6 +184,7 @@ export function buildCodexReviewPrompt(opts: BuildCodexReviewPromptOptions): str
     'The JSON verdict MUST be the VERY LAST content you emit. Do NOT write anything after it —',
     'no prose, no disclaimer, no correction, no second JSON object, no trailing sentence. Any',
     'text emitted after the JSON verdict causes the review to fail closed and be discarded.',
+    'Do not repeat a verdict in progress messages or emit transport events yourself. The CLI may wrap your final object in an agent_message event and append its own turn.completed usage; those transport records are not additional reviewer verdicts.',
   ].filter(line => line !== undefined).join('\n');
 }
 
@@ -326,9 +327,61 @@ function digest(value: string): string {
  *      unless it is known-harmless harness noise" — the root fix for terse
  *      trailers the old heuristic let through.)
  *
+ * Managed --json output instead requires one completed turn with exactly one
+ * whole schema-valid agent_message verdict, followed only by turn.completed.
+ * Tool output never supplies a verdict. Failed, mixed, malformed or unknown
+ * event streams and any assistant/tool activity after the verdict are refused.
  * Returns undefined when there is no admissible trailing verdict.
  */
 export function extractCodexReviewVerdict(stdout: string): CodexReviewVerdict | undefined {
+  const lines = stdout.split(/\r?\n/u).filter(line => line.trim().length > 0);
+  const records = lines.map(line => {
+    try { return JSON.parse(line) as unknown; } catch { return null; }
+  });
+  // The managed launcher uses --json. Never scan an event's embedded tool text
+  // as a verdict or mistake the trailing turn.completed usage for model output.
+  const isEvent = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null && !Array.isArray(value);
+  if (records.some(record => isEvent(record) && typeof record.type === 'string'
+    && /^(?:thread\.|turn\.|item\.|error$)/u.test(record.type))) {
+    let started = false;
+    let completed = false;
+    let threadSeen = false;
+    let verdict: CodexReviewVerdict | undefined;
+    for (const record of records) {
+      if (!isEvent(record) || completed) return undefined;
+      if (record.type === 'thread.started') {
+        if (threadSeen || started || typeof record.thread_id !== 'string' || !record.thread_id) return undefined;
+        threadSeen = true;
+      } else if (record.type === 'turn.started') {
+        if (started) return undefined;
+        started = true;
+      } else if (record.type === 'turn.completed') {
+        if (!started || !verdict) return undefined;
+        completed = true;
+      } else if (['item.started', 'item.updated', 'item.completed'].includes(String(record.type))) {
+        if (!started || verdict || !isEvent(record.item) || typeof record.item.type !== 'string') return undefined;
+        if (record.type !== 'item.completed' || record.item.type !== 'agent_message') continue;
+        if (typeof record.item.text !== 'string') return undefined;
+        const text = record.item.text.trim();
+        const candidate = parseVerdict(text);
+        if (candidate) verdict = candidate;
+        else if (text.includes(CODEX_REVIEW_VERDICT_SCHEMA)) return undefined;
+        // Ordinary pre-verdict assistant progress is not evidence. A later
+        // assistant/tool item after any verdict is rejected above, even if a
+        // second verdict would agree with the first.
+      } else {
+        // Error/failed turns, unknown event types, mixed raw/event transcripts,
+        // and extra turns cannot be converted into a successful final result.
+        return undefined;
+      }
+    }
+    return completed ? verdict : undefined;
+  }
+  return extractPlainCodexReviewVerdict(stdout);
+}
+
+function extractPlainCodexReviewVerdict(stdout: string): CodexReviewVerdict | undefined {
   // (3a) Strip trailing whitespace before locating the final structured object.
   const trimmed = stdout.replace(/\s+$/u, '');
   const objects = scanBalancedObjects(trimmed);

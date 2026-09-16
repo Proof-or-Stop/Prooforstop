@@ -1580,6 +1580,10 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
   producerSourceRefs: readonly string[];
   consumerSourceRefs: readonly string[];
 }> = {
+  'cross_host_review': {
+    producerSourceRefs: ['packages/main/src/core/host-run.ts', 'packages/main/src/core/codex-review-leaf.ts'],
+    consumerSourceRefs: ['packages/main/src/handlers/cross-host-review.ts', 'packages/main/src/core/codex-review-leaf.ts', 'packages/main/tests/codex-review-jsonl.test.mjs'],
+  },
   'verification_pin_narrow': {
     producerSourceRefs: [
       'packages/main/src/core/verification-execution-evidence.ts',

@@ -142,3 +142,20 @@ admission inspection writes no state and performs no probes.
 These checks establish local admission, isolation and launch behavior. Native
 fixture readiness is not evidence of a real external login, review PASS, or
 population-wide performance and reliability targets.
+
+## Cross-host verdict transport
+
+Managed Codex execution retains JSONL events for telemetry. The cross-host verdict
+consumer accepts one schema-valid JSON object from the final `agent_message` in
+one completed turn, followed only by the CLI's `turn.completed` record. Earlier
+ordinary progress is not a verdict, and command output cannot supply one.
+Duplicate or conflicting verdicts, later assistant/tool activity, failed turns,
+unknown or malformed events, mixed raw/event streams and incomplete turns are
+rejected. Legacy plain-text extraction keeps its existing strict trailing-content
+checks. Process exit, cleanup, truncation and material-hash checks still apply;
+the stdout digest continues to bind the original stream rather than extracted
+text. A local cross-host result remains subject to its existing assurance limits.
+
+`node packages/main/tests/codex-review-jsonl.test.mjs` exercises synthetic protocol
+controls through the actual parser and review leaf. It does not create an
+independent provider credential.

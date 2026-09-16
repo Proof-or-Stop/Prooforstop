@@ -13,6 +13,8 @@ import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../p
 const root = process.cwd();
 try { prepareVerification(root, { shareBuild: true }); }
 catch (error) { console.error(verificationFailureMessage('process contract prerequisite', error)); process.exit(1); }
+// Exercise the real verdict consumer, including raw-stream digest and refusal guards.
+execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
 // --quiet suppresses only the verbose listings (registry entries, inventory
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
