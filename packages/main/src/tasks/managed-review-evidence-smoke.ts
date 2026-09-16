@@ -1265,6 +1265,31 @@ async function managedSupersessionRegression(): Promise<void> {
     } finally { writeFileSync(terminalPath, terminalBytes); }
     assert.ok(!collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === oldPass.id),
       'restoring the exact sealed terminal restores historical supersession only');
+    const resignPass = (pass: typeof oldPass) => {
+      pass._hash = signReviewPass(STORY_ID, pass.id, pass.agent, pass.note, pass.createdAt,
+        pass.reviewRound ?? '', pass.reviewRunId ?? '', pass.readManifest, pass.readLog,
+        pass.readDiagnostics, { writerSessionId: pass.writerSessionId!, sessionSource: pass.sessionSource! },
+        pass.envelopeId, pass.managedEvidenceBinding, pass.nativeEvidenceBinding);
+      return pass;
+    };
+    const unbound = structuredClone(oldPass);
+    delete unbound.managedEvidenceBinding;
+    store.writeReviewPasses(STORY_ID, { passes: [resignPass(unbound), newPass] });
+    assert.ok(!collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === oldPass.id),
+      'legacy stale unbound PASS keeps its existing supersession behavior');
+    store.writeReviewPasses(STORY_ID, { passes: [unbound] });
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === oldPass.id),
+      'stale unbound PASS still blocks without valid newer evidence');
+    const conflicting = structuredClone(oldPass);
+    // Deliberately invalid dual transport: only its presence and refusal are tested.
+    conflicting.nativeEvidenceBinding = { invocationNonce: 'conflicting-fixture' } as NonNullable<typeof conflicting.nativeEvidenceBinding>;
+    assert.throws(() => resignPass(conflicting), /managed and native evidence bindings are mutually exclusive/,
+      'the public signer refuses to mint a conflicting authority record');
+    store.writeReviewPasses(STORY_ID, { passes: [conflicting, newPass] });
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e =>
+      e.evidenceId === oldPass.id && e.code !== 'stale_run_hash'),
+      'persisting an unmintable conflicting binding remains an integrity failure despite a valid replacement');
+    store.writeReviewPasses(STORY_ID, allPasses);
     const badReplacement = structuredClone(newPass);
     badReplacement._hash = '0'.repeat(64);
     store.writeReviewPasses(STORY_ID, { passes: [oldPass, badReplacement] });

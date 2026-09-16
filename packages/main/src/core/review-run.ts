@@ -1615,32 +1615,14 @@ function validateEvidenceRunBinding(
   }
   // Authenticate managed transport before classifying live drift as supersedable.
   // A newer lane record may replace stale evidence, never an invalid sealed receipt.
-  if (!managedBinding && !nativeBinding) {
-    return {
-      code: 'review_execution_authority_missing',
-      kind: evidence.kind,
-      evidenceId: evidence.id,
-      agent: evidence.agent,
-      reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} has neither a managed receipt nor a registered-broker native invocation attestation`,
-    };
-  }
-  if (managedBinding && nativeBinding) {
-    return {
-      code: 'review_execution_authority_missing',
-      kind: evidence.kind,
-      evidenceId: evidence.id,
-      agent: evidence.agent,
-      reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} has conflicting managed and native execution authority bindings`,
-    };
-  }
+  // Unbound and conflicting records retain their original checks after freshness,
+  // scope and retention; only unambiguous managed transport is authenticated early.
   const authority = classifyReviewerExecutionAuthority({
     executionMode: managedBinding ? 'cross-provider-cli' : 'native-host',
     assuranceLevel: 'ordinary-review',
     hasManagedEvidenceBinding: managedBinding !== undefined,
   });
-  if (authority.reviewGatePath === 'managed-receipt' && managedBinding) {
+  if (authority.reviewGatePath === 'managed-receipt' && managedBinding && !nativeBinding) {
     // Consumption authenticates the sealed launch; it never rebuilds an OPEN-only prompt.
     const managed = verifyManagedReviewEvidence({
       root: projectRoot,
@@ -1698,8 +1680,8 @@ function validateEvidenceRunBinding(
       // Only an observed hash mismatch or head-lineage movement is ordinary
       // freshness. Unavailable Git/material identity and unknown errors remain
       // non-supersedable. The sealed transport was authenticated above.
-      const knownDrift = /^managed_review_live_material_stale:reviewed=[a-f0-9]{64}:live=[a-f0-9]{64}$/.test(live.reason)
-        || /^managed_review_live_head_lineage_invalid:reviewed=(?:[a-f0-9]{40}|[a-f0-9]{64}):live=(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(live.reason);
+      const knownDrift = !nativeBinding && (/^managed_review_live_material_stale:reviewed=[a-f0-9]{64}:live=[a-f0-9]{64}$/.test(live.reason)
+        || /^managed_review_live_head_lineage_invalid:reviewed=(?:[a-f0-9]{40}|[a-f0-9]{64}):live=(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(live.reason));
       return {
         code: knownDrift ? 'stale_run_hash' : 'managed_receipt_invalid',
         kind: evidence.kind,
@@ -1772,6 +1754,26 @@ function validateEvidenceRunBinding(
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
       message: `${evidence.kind} ${evidence.id} failed closeout metadata retention: ${retention.reasons.join('; ')}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
+    };
+  }
+  if (!managedBinding && !nativeBinding) {
+    return {
+      code: 'review_execution_authority_missing',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has neither a managed receipt nor a registered-broker native invocation attestation`,
+    };
+  }
+  if (managedBinding && nativeBinding) {
+    return {
+      code: 'review_execution_authority_missing',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} has conflicting managed and native execution authority bindings`,
     };
   }
   if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding) {
