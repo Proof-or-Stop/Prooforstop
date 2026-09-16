@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';import fs from 'node:fs';import os from 
 const repo=fs.realpathSync(process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : fileURLToPath(new URL('..',import.meta.url))),base=fs.realpathSync(fs.mkdtempSync(join(os.tmpdir(),'u08-real-worker-'))),root=join(base,'project'),bin=join(base,'bin');fs.mkdirSync(root);fs.mkdirSync(bin);const fixtureCodexHome=join(base,'codex-home');fs.mkdirSync(fixtureCodexHome);fs.writeFileSync(join(fixtureCodexHome,'auth.json'),JSON.stringify({auth_mode:'apikey',OPENAI_API_KEY:'fixture-not-a-real-key'}),{mode:0o600});
 const originalUserInfo=os.userInfo;os.userInfo=(...args)=>({...originalUserInfo(...args),homedir:base});syncBuiltinESMExports();
 const load=p=>import(pathToFileURL(join(repo,'packages/main/dist',p)).href);
+const {prepareManagedSingletonAdmission,bindManagedSingletonSubmission}=await load('core/managed-launch-admission.js');
 const {materializeHostRunLaunch}=await load('core/host-run.js');
 const unconfinedLaunch=materializeHostRunLaunch({host:'codex',launchProfile:'cross_host_review_codex',cwd:root,root,promptText:'Unconfined profile must retain provider read-only mode.',env:{},storyId:null,agentType:'fixture',recordedAt:new Date().toISOString(),projectRootHash:'fixture'});
 assert.equal(unconfinedLaunch.argv[unconfinedLaunch.argv.indexOf('-s')+1],'read-only','Unconfined cross-host calls retain the provider sandbox');
@@ -24,10 +25,32 @@ try {
  fs.writeFileSync(join(root,'packages/main/src/tasks/runtime.cjs'),'module.exports = 18;\n');
  fs.writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'packages/main',rootDir:'src',outDir:'packages/main/dist',managedReviewIsolation:{mode:'readonly-build',adapter:'prooforstop-main-v1'}}));
 
- const shim=join(bin,'codex');fs.writeFileSync(shim,`#!${process.execPath}\nconst fs=require('node:fs'),p=require('node:path');const argv=process.argv.slice(2),innerSandbox=argv[argv.indexOf('-s')+1];let sourceReadable=false;try{sourceReadable=fs.readFileSync(p.join(process.cwd(),'packages/main/src/cli.ts'),'utf8').includes('actualCompilerInput');}catch{}let denied=false;try{const file=p.join(process.cwd(),'packages/main/src/cli.ts'),bytes=fs.readFileSync(file);fs.writeFileSync(file,bytes);}catch(e){denied=['EPERM','EACCES'].includes(e.code);}let outputWritable=false;const output=process.env.PROOF_OR_STOP_REVIEW_BUILD_OUTPUT;if(output){const probe=p.join(output,'owned-probe');fs.writeFileSync(probe,'ok');if(!${process.argv.includes('--output-tamper')})fs.unlinkSync(probe);outputWritable=true;}console.log(JSON.stringify({type:'item.completed',item:{type:'agent_message',text:'U08_CROSSHOST '+JSON.stringify({denied,sourceReadable,innerSandbox,outputWritable,cwd:process.cwd()})}}));process.exitCode=1;\n`,{mode:0o755});
+ const shim=join(bin,'codex'),witness=join(bin,'readonly-witness.cjs');fs.writeFileSync(witness,`#!${process.execPath}\nconst fs=require('node:fs'),p=require('node:path');const argv=process.argv.slice(2),innerSandbox=argv[argv.indexOf('-s')+1];let sourceReadable=false;try{sourceReadable=fs.readFileSync(p.join(process.cwd(),'packages/main/src/cli.ts'),'utf8').includes('actualCompilerInput');}catch{}let denied=false;try{const file=p.join(process.cwd(),'packages/main/src/cli.ts'),bytes=fs.readFileSync(file);fs.writeFileSync(file,bytes);}catch(e){denied=['EPERM','EACCES'].includes(e.code);}let outputWritable=false;const output=process.env.PROOF_OR_STOP_REVIEW_BUILD_OUTPUT;if(output){const probe=p.join(output,'owned-probe');fs.writeFileSync(probe,'ok');if(!${process.argv.includes('--output-tamper')})fs.unlinkSync(probe);outputWritable=true;}console.log(JSON.stringify({type:'item.completed',item:{type:'agent_message',text:'U08_CROSSHOST '+JSON.stringify({denied,sourceReadable,innerSandbox,outputWritable,cwd:process.cwd()})}}));process.exitCode=1;\n`,{mode:0o755});
+ // The production admission requires a native executable, not a shebang shim.
+ // This disposable native fixture distinguishes the actual supervised readiness
+ // probe from the worker witness; neither output is a real reviewer verdict.
+ const nativeSource=join(bin,'provider.c');
+ fs.writeFileSync(nativeSource,`#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+int main(int argc,char **argv){
+ if(argc>1 && strcmp(argv[1],"--version")==0){puts("codex-cli readonly-fixture 1.0.0");return 0;}
+ char prompt[131072];size_t used=0;int ch;while((ch=getchar())!=EOF){if(used+1>=sizeof(prompt))return 74;prompt[used++]=(char)ch;}prompt[used]=0;
+ if(strstr(prompt,"Actual local cross-host readonly isolation witness")){
+  char **child=calloc((size_t)argc+2,sizeof(char*));if(!child)return 75;
+  child[0]=${JSON.stringify(process.execPath)};child[1]=${JSON.stringify(witness)};for(int i=1;i<argc;i++)child[i+1]=argv[i];execv(child[0],child);perror("fixture exec");return 76;
+ }
+ puts("READY");return 0;
+}
+`);
+ execFileSync('cc',[nativeSource,'-o',shim],{stdio:'pipe'});
  git(['init','-b','main']);git(['config','user.name','U08 Test']);git(['config','user.email','u08@example.test']);git(['add','.']);git(['commit','-m','isolated crosshost input']);
  const headHash=git(['rev-parse','HEAD']);snapshotParent=fs.realpathSync(fs.mkdtempSync(join(os.tmpdir(),'proof-or-stop-xhr-review-')));snapshot=join(snapshotParent,'worktree');git(['worktree','add','--detach',snapshot,headHash]);
- const submitted=await submitManagedHostRun({root,cwd:snapshot,host:'codex',storyId:'B-u08-crosshost',phase:'REVIEW',agentType:'cross-host-review:codex',profile:'cross_host_review_codex',promptText:'Actual local cross-host readonly isolation witness; return nonzero, never claim a review verdict.',timeoutMs:10000,deadlineMs:300000,projectRootHash:'sha256:fixture',environment:{CODEX_HOME:fixtureCodexHome,PATH:bin+':'+process.env.PATH,PROOF_OR_STOP_USAGE_LEDGER:'0'}},{claimTimeoutMs:2000,launchWorker:async request=>{workerStarts++;worker=runManagedHostRunWorker(request,{env:process.env});return {pid:process.pid};}});
+ const environment={CODEX_HOME:fixtureCodexHome,PATH:bin+':'+process.env.PATH,PROOF_OR_STOP_USAGE_LEDGER:'0'};
+ const deriveSubjectIdentity=()=>git(['rev-parse','HEAD']);
+ const admission=await prepareManagedSingletonAdmission({root,storyId:'B-u08-crosshost',profile:'cross_host_review_codex',lane:'cross-host-review:codex',host:'codex',subjectIdentity:deriveSubjectIdentity(),deriveSubjectIdentity,effectiveBaseEnvironment:{...process.env,...environment}});
+ const submitted=await submitManagedHostRun(bindManagedSingletonSubmission({root,cwd:snapshot,host:'codex',storyId:'B-u08-crosshost',phase:'REVIEW',agentType:'cross-host-review:codex',profile:'cross_host_review_codex',promptText:'Actual local cross-host readonly isolation witness; return nonzero, never claim a review verdict.',timeoutMs:10000,deadlineMs:300000,projectRootHash:'sha256:fixture',environment},admission),{claimTimeoutMs:2000,launchWorker:async request=>{workerStarts++;worker=runManagedHostRunWorker(request,{env:process.env});return {pid:process.pid};}});
  const terminal=await worker,dir=managedHostRunDirectory(root,submitted.runId);
  const live=fs.readFileSync(join(dir,'live-output.jsonl'),'utf8');const text=live.trim().split('\n').map(line=>JSON.parse(line).text??'').join('');
  const observations=text.trim().split('\n').map(line=>{try{return JSON.parse(line).item?.text;}catch{return undefined;}}).filter(Boolean);
