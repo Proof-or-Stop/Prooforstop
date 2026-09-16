@@ -19,7 +19,7 @@ const verify = receipt => {
   assert.equal(receipt.schemaVersion, 'inventory-critic-metadata-fixture.v1');
   assert.equal(receipt.nonce, nonce);
   assert.equal(receipt.selector, 'METADATA_HEAD_CRITIC_ADMISSION_PASS', 'target fixture selector is required');
-  assert.equal(receipt.negativeControls, 15);
+  assert.equal(receipt.negativeControls, 20);
   assert.equal(receipt.waves, 2);
   assert.equal(receipt.criticReceipts, 2);
   assert.equal(receipt.state, 'FINALIZED');

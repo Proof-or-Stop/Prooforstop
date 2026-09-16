@@ -761,6 +761,11 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
       const started = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
       let reviewRunId = started.match(/Review run (\S+) started/)?.[1];
       assert.ok(reviewRunId);
+      if (wave === 1) {
+        assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), epoch.cutoff.headHash);
+        assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+          'EXACT_CUTOFF_HEAD_CRITIC_ADMISSION');
+      }
       if (wave === 2) {
         const run = fixture.store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === reviewRunId)!;
         assert.notEqual(run.headHash, epoch.cutoff.headHash);
@@ -834,6 +839,69 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
           fixture.store.writeReviewRuns(storyId, divergentRuns);
           git(fixture.root, ['checkout', originalBranch]);
         }
+        const onlyDivergent = { ...divergentRuns, runs: divergentRuns.runs.filter(row =>
+          row.lane !== critic || row.headHash === divergentHead || row.inventoryBinding?.wave !== 2) };
+        try {
+          fixture.store.writeReviewRuns(storyId, onlyDivergent);
+          assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+            'DIVERGENT_RUN_ON_VALID_CURRENT_HEAD_REFUSED');
+          negativeControls++;
+          git(fixture.root, ['replace', '--graft', divergentHead, epoch.cutoff.headHash]);
+          try {
+            git(fixture.root, ['merge-base', '--is-ancestor', epoch.cutoff.headHash, divergentHead]);
+            assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+              'REPLACE_GRAFT_CANNOT_LAUNDER_CRITIC_LINEAGE');
+            negativeControls++;
+          } finally { git(fixture.root, ['replace', '-d', divergentHead]); }
+          const grafts = join(fixture.root, '.git', 'info', 'grafts');
+          assert.equal(existsSync(grafts), false);
+          writeFileSync(grafts, `${divergentHead} ${epoch.cutoff.headHash}\n`, { flag: 'wx' });
+          try {
+            git(fixture.root, ['merge-base', '--is-ancestor', epoch.cutoff.headHash, divergentHead]);
+            assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+              'LEGACY_GRAFT_CANNOT_LAUNDER_CRITIC_LINEAGE');
+            negativeControls++;
+          } finally { unlinkSync(grafts); }
+        } finally { fixture.store.writeReviewRuns(storyId, divergentRuns); }
+        // Force only the ancestry subprocess to fail; all snapshot commands keep
+        // using the real Git binary, proving failure is not a semantic rejection.
+        const shimRoot = mkdtempSync(join(tmpdir(), 'critic-git-query-'));
+        const realGit = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
+        const oldPath = process.env.PATH;
+        const oldGitDir = process.env.GIT_DIR;
+        const oldFailure = process.env.CRITIC_FIXTURE_GIT_FAILURE;
+        writeFileSync(join(shimRoot, 'git'), `#!${process.execPath}
+const {spawnSync}=require('node:child_process');
+const args=process.argv.slice(2);
+if(args.includes('merge-base')) {
+  if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='error'){console.error('FIXTURE_GIT_OBJECT_UNAVAILABLE');process.exit(128);}
+  if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='timeout'){Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10000);}
+  if(process.env.GIT_DIR){console.error('FIXTURE_GIT_REDIRECTION_LEAK');process.exit(128);}
+}
+const r=spawnSync(${JSON.stringify(realGit)},args,{stdio:'inherit'});process.exit(r.status??2);
+`, { mode: 0o755 });
+        try {
+          process.env.PATH = `${shimRoot}:${oldPath ?? ''}`;
+          for (const failure of ['error', 'timeout']) {
+            process.env.CRITIC_FIXTURE_GIT_FAILURE = failure;
+            assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }),
+              error => error instanceof Error && /BATCH_SUBJECT_LINEAGE_UNVERIFIABLE/.test(error.message)
+                && /timeoutMs=5000/.test(error.message) && /elapsedMs=/.test(error.message)
+                && (failure === 'timeout' ? /ETIMEDOUT/.test(error.message) : /FIXTURE_GIT_OBJECT_UNAVAILABLE/.test(error.message)),
+              `LINEAGE_INFRASTRUCTURE_FAILURE_IS_EXPLICIT:${failure}`);
+            negativeControls++;
+            delete process.env.CRITIC_FIXTURE_GIT_FAILURE;
+            assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic));
+          }
+          process.env.GIT_DIR = join(fixture.root, '.git');
+          assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+            'ANCESTRY_QUERY_STRIPS_GIT_REDIRECTION');
+        } finally {
+          if (oldPath === undefined) delete process.env.PATH; else process.env.PATH = oldPath;
+          if (oldGitDir === undefined) delete process.env.GIT_DIR; else process.env.GIT_DIR = oldGitDir;
+          if (oldFailure === undefined) delete process.env.CRITIC_FIXTURE_GIT_FAILURE; else process.env.CRITIC_FIXTURE_GIT_FAILURE = oldFailure;
+          rmSync(shimRoot, { recursive: true, force: true });
+        }
         cli(fixture.root, 'dispatch', { storyId, agentType: critic, ...purpose }, env);
         const restored = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
         reviewRunId = restored.match(/Review run (\S+) started/)?.[1];
@@ -855,7 +923,7 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
     assert.equal(complete.epochs[0].waves.length, 2);
     assert.deepEqual(complete.epochs[0].cutoff, epoch.cutoff);
     assert.equal(complete.criticReceipts.length, 2);
-    assert.equal(negativeControls, 15);
+    assert.equal(negativeControls, 20);
     if (receipt) writeFileSync(receipt.path, JSON.stringify({
       schemaVersion: 'inventory-critic-metadata-fixture.v1', nonce: receipt.nonce,
       selector: 'METADATA_HEAD_CRITIC_ADMISSION_PASS', negativeControls,
