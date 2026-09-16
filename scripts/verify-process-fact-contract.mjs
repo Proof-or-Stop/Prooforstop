@@ -16,6 +16,8 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // Exercise the real verdict consumer, including raw-stream digest and refusal guards.
 execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
 execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+// Match CLI module initialization before the actual sealed managed-review fixture.
+execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
 execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
 // Exercise managed delivery through an actual synthetic provider process and real CLI.
 execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
@@ -7358,6 +7360,11 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   const managedOffset = subjectReader.indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding)");
   assert(subjectOffset >= 0 && managedOffset >= 0 && subjectOffset < managedOffset,
     'inventory subject classification must precede both execution authority paths');
+  const liveOffset = subjectReader.indexOf('const live = verifyManagedReviewLiveBinding({', subjectOffset);
+  assert(managedOffset >= 0 && liveOffset > managedOffset,
+    'managed transport authentication must precede supersedable live freshness classification');
+  assert(subjectReader.includes("code: knownDrift ? 'stale_run_hash' : 'managed_receipt_invalid'"),
+    'only recognized observable managed freshness drift is supersedable; unknown identity stays refused');
   const nativeOffset=subjectReader.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)");
   const supersededOffset=subjectReader.indexOf("if (inventorySubject === 'superseded') return {");
   assert(nativeOffset>=0 && supersededOffset>managedOffset && supersededOffset>nativeOffset,

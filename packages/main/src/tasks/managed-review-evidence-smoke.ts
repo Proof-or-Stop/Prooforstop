@@ -1265,6 +1265,41 @@ async function managedSupersessionRegression(): Promise<void> {
     } finally { writeFileSync(terminalPath, terminalBytes); }
     assert.ok(!collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e => e.evidenceId === oldPass.id),
       'restoring the exact sealed terminal restores historical supersession only');
+    const badReplacement = structuredClone(newPass);
+    badReplacement._hash = '0'.repeat(64);
+    store.writeReviewPasses(STORY_ID, { passes: [oldPass, badReplacement] });
+    const invalidReplacement = collectReviewerEvidenceState(store, STORY_ID, root);
+    assert.ok(invalidReplacement.invalid.some(e => e.evidenceId === oldPass.id),
+      'an invalid newer replacement cannot forgive the stale PASS');
+    store.writeReviewPasses(STORY_ID, allPasses);
+    const otherLane = addCurrentReviewRun(root, store, CONCEPT_LANE, `${STORY_ID}:RR-004`);
+    await importResult(otherLane);
+    const withOtherLane = structuredClone(store.readReviewPasses(STORY_ID));
+    const otherPass = withOtherLane.passes.find(p => p.agent === CONCEPT_LANE)!;
+    assert.ok(otherPass, 'control: the other lane has a genuine imported PASS');
+    store.writeReviewPasses(STORY_ID, { passes: [oldPass, otherPass] });
+    const wrongLane = collectReviewerEvidenceState(store, STORY_ID, root);
+    assert.ok(wrongLane.valid.some(e => e.id === otherPass.id), 'control: different-lane replacement is valid');
+    assert.ok(wrongLane.invalid.some(e => e.evidenceId === oldPass.id),
+      'a valid record from another lane cannot forgive the old PASS');
+    store.writeReviewPasses(STORY_ID, withOtherLane);
+    const materialBefore = currentMaterialHash(root);
+    const metadataPath = `${PROOF_OR_STOP_STORY_DIR}/${STORY_ID}/summary.md`;
+    write(root, metadataPath, 'Fixture-only unrecognized metadata commit.\n');
+    git(root, ['add', metadataPath]);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'fixture non-importer metadata movement']);
+    assert.equal(currentMaterialHash(root), materialBefore, 'lineage control must preserve material identity');
+    const beforeReplacement = collectReviewerEvidenceState(store, STORY_ID, root);
+    assert.ok(beforeReplacement.invalid.some(e => e.evidenceId === newPass.id
+      && e.message.includes('managed_review_live_head_lineage_invalid')),
+      'control: same-material non-importer movement invalidates the old live lineage');
+    const latestLineage = addCurrentReviewRun(root, store, LANE, `${STORY_ID}:RR-005`);
+    await importResult(latestLineage);
+    const lineage = collectReviewerEvidenceState(store, STORY_ID, root);
+    assert.ok(lineage.valid.some(e => e.reviewRunId === latestLineage.reviewRunId),
+      'control: the replacement binds the new lineage');
+    assert.ok(!lineage.invalid.some(e => e.evidenceId === oldPass.id || e.evidenceId === newPass.id),
+      'authenticated material and lineage staleness are superseded only by current same-lane evidence');
     console.log('MANAGED_SUPERSESSION_PASS');
   } finally {
     process.chdir(beforeCwd);

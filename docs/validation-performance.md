@@ -1331,3 +1331,5 @@ admitted window plus its PRE_CERT receipt authorizes heavy certification.
 `packages/main/tests/certification-recovery-lineage.test.mjs` exercises the actual
 refused handler publication and retry on a disposable Story branch with a frozen
 synthetic inventory cutoff, plus negative lineage and authority controls.
+
+Managed review supersession authenticates the sealed transport before classifying live freshness. An observed material-hash mismatch or changed head lineage follows the existing stale-run policy: a newer valid record on the same lane may supersede the old PASS, without promoting or deleting it. Unavailable identity and invalid managed seals remain blocking. Open findings still require their own disposition; a newer PASS cannot hide them. The focused `managed-review-evidence-smoke --supersession-regression` fixture exercises imported signed passes and an open finding, material movement, missing replacement, and terminal-byte tampering. Reviewers should retain historical records and inspect the current collector result rather than request duplicate reviews to replace already valid evidence.
