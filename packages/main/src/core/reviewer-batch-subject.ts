@@ -1,4 +1,5 @@
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
+import { devNull } from 'node:os';
 import { realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { StoryStore } from './store.js';
@@ -11,16 +12,25 @@ import type { ReviewerBatchAssignment } from './reviewer-batch-admission.js';
 
 const INVENTORY_CRITIC_LANE = 'proof-or-stop-review-topology-critic';
 
-/** Equal content is insufficient: a critic must retain the frozen Git lineage. */
-function criticHeadDescendsCutoff(root: string, cutoffHead: string, runHead: string): boolean {
+/** Equal content is insufficient: preserve the signed root's real Git lineage. */
+function criticHeadLineage(root: string, cutoffHead: string, runHead: string):
+  { state: 'descendant' | 'divergent' } | { state: 'unverifiable'; diagnostic: string } {
+  const timeoutMs = 5000;
+  const started = Date.now();
+  const unavailable = (reason: string) => ({ state: 'unverifiable' as const,
+    diagnostic: `timeoutMs=${timeoutMs}; elapsedMs=${Date.now() - started}; ${reason}` });
   const oid = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/;
-  if (!oid.test(cutoffHead) || !oid.test(runHead)) return false;
-  try {
-    execFileSync('git', ['merge-base', '--is-ancestor', cutoffHead, runHead], {
-      cwd: root, timeout: 5000, stdio: 'ignore',
-    });
-    return true;
-  } catch { return false; }
+  if (!oid.test(cutoffHead) || !oid.test(runHead)) return unavailable('malformed commit identity');
+  // Do not let ambient Git redirection or replacement history override signedRoot.
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+  env.GIT_NO_REPLACE_OBJECTS = '1';
+  env.GIT_GRAFT_FILE = devNull;
+  const result = spawnSync('git', ['--no-replace-objects', 'merge-base', '--is-ancestor', cutoffHead, runHead], {
+    cwd: root, env, timeout: timeoutMs, encoding: 'utf8', maxBuffer: 64 * 1024,
+  });
+  if (!result.error && !result.signal && result.status === 0) return { state: 'descendant' };
+  if (!result.error && !result.signal && result.status === 1) return { state: 'divergent' };
+  return unavailable(`code=${(result.error as NodeJS.ErrnoException | undefined)?.code ?? 'none'}; status=${result.status}; signal=${result.signal}; stderr=${(result.stderr ?? '').trim().slice(0, 2000)}`);
 }
 
 export function reviewerBatchAdmissionLanes(requiredLanes: readonly string[], includeInventoryCritic: boolean): string[] {
@@ -56,8 +66,7 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
   // The purpose binding retains the exact original cutoff (including HEAD).
   // A valid new run may start after a metadata-only descendant commit. Keep
   // ancestry as well as material identity; a divergent equal tree is refused.
-  const currentHeadRetainsCutoff = criticHeadDescendsCutoff(signedRoot!, epoch.cutoff.headHash, snapshot.headHash);
-  const includeInventoryCritic = currentHeadRetainsCutoff && store.readReviewRuns(args.storyId).runs.some(run =>
+  const candidates = store.readReviewRuns(args.storyId).runs.filter(run =>
     verifyReviewRun(run, store)
     && run.lane === INVENTORY_CRITIC_LANE
     && run.agent === INVENTORY_CRITIC_LANE
@@ -65,9 +74,18 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
     && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
     && run.reviewRound === epoch.reviewRound
     && run.materialHash === epoch.cutoff.materialHash
-    && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
-    && criticHeadDescendsCutoff(signedRoot!, epoch.cutoff.headHash, run.headHash),
+    && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? ''),
   );
+  const retainsCutoff = (head: string): boolean => {
+    const lineage = criticHeadLineage(signedRoot!, epoch.cutoff.headHash, head);
+    if (lineage.state === 'unverifiable') {
+      throw new Error(`BATCH_SUBJECT_LINEAGE_UNVERIFIABLE; ${lineage.diagnostic}; Repair the Git query environment and retry the same inventory; do not classify this failure as divergence or restart the epoch.`);
+    }
+    return lineage.state === 'descendant';
+  };
+  // Ordinary roster derivation needs no Git query when no eligible critic exists.
+  const includeInventoryCritic = candidates.length > 0 && retainsCutoff(snapshot.headHash)
+    && candidates.some(run => retainsCutoff(run.headHash));
   const requiredLanes = reviewerBatchAdmissionLanes(epoch.requiredLanes, includeInventoryCritic);
   const subject = { schema: 'reviewer-batch-subject.v1', worktreeRoot: realpathSync(signedRoot!), metadataRoot: realpathSync(metadataRoot), binding,
     candidateSpecSetDigest: scope.candidateSpecSetDigest ?? '', corpusDigest: scope.corpusDigest ?? '',
