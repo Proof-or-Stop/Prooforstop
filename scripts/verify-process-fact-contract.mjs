@@ -13,14 +13,6 @@ import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../p
 const root = process.cwd();
 try { prepareVerification(root, { shareBuild: true }); }
 catch (error) { console.error(verificationFailureMessage('process contract prerequisite', error)); process.exit(1); }
-// Exercise the real verdict consumer, including raw-stream digest and refusal guards.
-execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-// Match CLI module initialization before the actual sealed managed-review fixture.
-execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
-execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
-// Exercise managed delivery through an actual synthetic provider process and real CLI.
-execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
 // --quiet suppresses only the verbose listings (registry entries, inventory
 // file paths). Verification logic and asserted literals are unchanged; the
 // default (no flag) output stays byte-identical.
@@ -5556,6 +5548,16 @@ if (failures.length) {
   for (const message of failures.sort()) console.error(`- ${message}`);
   process.exit(1);
 }
+
+// A rejected admission must not pay for these independent positive fixture checks.
+// Exercise the real verdict consumer, including raw-stream digest and refusal guards.
+execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+// Match CLI module initialization before the actual sealed managed-review fixture.
+execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
+execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
+// Exercise managed delivery through an actual synthetic provider process and real CLI.
+execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
 
 // Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
 for (const [file, marker, timeout] of [

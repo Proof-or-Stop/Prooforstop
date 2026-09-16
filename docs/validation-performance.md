@@ -1363,3 +1363,19 @@ The registered full-suite smoke exercises real inventory mutations and a private
 prebuilt wrapper fixture covering stale/missing bindings, restoration, unknown
 options and propagation of a child failure. Those fixture markers are test
 observations, not benchmark scores or Story completion evidence.
+
+## Process-contract refusal ordering
+
+The process-contract verifier evaluates its actual Story-writer runtime admission
+contract and terminating failure barrier before the independent JSONL, review
+history, managed supersession, certification recovery and managed delivery
+fixtures. A positive run still executes every fixture with its original argv and
+deadline. This prevents the runtime-admission negative witness from paying for
+those unrelated positive fixtures before it can report the intended rejection.
+
+`verify-process-runtime-admission-order.mjs` requires exactly one retained call
+for each fixture after the real barrier and before the existing acceptance proof
+loop. Its subprocess observer forwards actual execution and observes all five
+fixtures and the three acceptance proofs; the mutated admission must reject
+with zero observed positive launches. No validation budget or production
+permission rule changes. This local regression is not benchmark scoring.
