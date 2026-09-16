@@ -728,6 +728,8 @@ if (!process.argv.includes('--lifecycle-only') && !process.argv.includes('--rost
 
 const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
 const first = setup(undefined, true);
+const metadataCriticFixtureCwd = process.cwd();
+if (process.argv.includes('--metadata-critic-admission-only')) process.chdir(first.root);
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
 const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
@@ -1010,6 +1012,11 @@ for (const mutation of [
   } finally { reloaded.writeReviewRuns(storyId, validMetadataRuns); }
 }
 console.log('METADATA_HEAD_CRITIC_ADMISSION_PASS current wave and exact signed bindings retained');
+if (process.argv.includes('--metadata-critic-admission-only')) {
+  process.chdir(metadataCriticFixtureCwd);
+  for (const fixtureRoot of isolatedFixtureRoots) rmSync(fixtureRoot, { recursive: true, force: true });
+  process.exit(0);
+}
 
 const secondCriticEnvelope = reloaded.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === secondCriticRun.envelopeId)!;
 assert.ok(secondCriticEnvelope.priorPassRef, 'wave two must consume a genuine signed prior critic PASS');

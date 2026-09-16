@@ -8,7 +8,7 @@ import { runProviderNeutralFixture } from './helpers/provider-neutral-fixture.mj
 execFileSync(process.execPath, ['scripts/ensure-dist.mjs'], { stdio: 'inherit' });
 const result = await runProviderNeutralFixture(
   'packages/main/dist/tasks/review-inventory-handler-smoke.js',
-  ['--lifecycle-only'], process.env, { timeoutMs: 840000 },
+  ['--lifecycle-only', '--metadata-critic-admission-only'], process.env, { timeoutMs: 840000 },
 );
 assert.equal(result.signal, null, 'inventory fixture must not terminate by signal');
 assert.equal(result.status, 0, 'inventory critic metadata HEAD regression failed; inspect the actual assertion above');
