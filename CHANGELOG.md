@@ -1,5 +1,173 @@
 # Changelog
 
+## Lab nested-reservation - v0.3.386 - 2026-09-16
+
+# Lab nested-reservation: isolate the acceptance-closure fixture machine registry
+
+## Problem
+
+Since 2026-09-13 no pinned verification command whose chain reaches
+`scripts/verify-process-fact-contract.mjs` could earn a receipt through the official
+evidence path. `proof-or-stop verification_evidence_batch_add` executes the pinned
+command inside `withMachineValidationResources`, and the chain
+
+    pinned command
+      -> scripts/verify-process-fact-contract.mjs --quiet
+        -> experiments/acceptance-closure/publication-lifecycle.mjs
+          -> packages/main/dist/cli.js validate   (isolated temporary project)
+
+ended in
+
+    nested machine resource acquisition conflicts with an ancestor;
+    declare machine resources on their actual leaf command only
+
+thrown by the ancestor rule in `packages/main/src/core/validation-execution-lock.ts`.
+
+The same refusal appeared on the ordinary `proof-or-stop validate` path, because
+`scripts/verify-process-fact-contract.mjs --quiet` is itself a configured validation
+command. Both ancestor shapes were reproduced and are now covered by the regression.
+
+## Root cause
+
+`experiments/acceptance-closure/publication-lifecycle.mjs` creates a throwaway project
+in the OS temporary directory and launches a real nested `validate` inside it. That
+nested `validate` is a machine-admission owner in its own right. The fixture spawned it
+with `env: {...process.env}`, so the child resolved the same machine admission registry
+as its ancestor: the registry root is derived from `os.userInfo().homedir`.
+
+Inside one registry the nested owner is undeclared, therefore globally exclusive, and it
+queues behind the reservation its own ancestor is holding. That is a genuine deadlock,
+and the ancestor rule correctly refuses it instead of hanging until the deadline.
+
+The refusal is not the defect. `scripts/verify-machine-unknown-nested.mjs` already pins
+that exact behaviour, including the both-undeclared case, and requires the refusal to be
+fast and to spawn nothing. Relaxing the rule would have weakened a pinned contract.
+
+The defect is the missing fixture isolation. `createFixtureMachineEnvironment()` exists
+precisely for this situation and was added on 2026-09-10 by ca5f9be253 ("serialize
+unknown machine workloads and isolate fixture schedulers"). Every other isolated-project
+fixture already uses it: `scripts/run-validation-fixture-suite.mjs`,
+`packages/main/src/tasks/verifier-causal-preflight-smoke.ts`,
+`packages/main/tests/scan-attribution-run.mjs`,
+`packages/main/tests/planning-performance.mjs`. `publication-lifecycle.mjs`, added three
+days later by 90841441a2, never adopted it.
+
+## Change
+
+`experiments/acceptance-closure/publication-lifecycle.mjs`
+
+- Creates a fixture machine environment and launches its nested `validate` with that
+  environment, so the inner owner administers its own private registry instead of the
+  registry holding its ancestor's reservation.
+- Removes the validation reservation descriptor locator from the child environment, the
+  same way `scripts/run-validation-fixture-suite.mjs` does, so a fixture child never sees
+  a dangling delegation locator. The locator name is read from the registered runtime
+  policy and a dist that predates that policy fails with a named cause rather than
+  silently deleting an `undefined` environment key.
+- Cleans the fixture registry up on success and retains it with a diagnostic path on
+  failure, matching `verifier-causal-preflight-smoke`. The helper's own cleanup assertion
+  still refuses to remove a registry that retained admission records.
+
+`scripts/lab/u18-static-edges/exceptions.json`
+
+- Re-pins the static-edge manifest for the changed fixture: the reviewed source evidence
+  entry (line bounds, source digest, excerpt, regenerated with
+  `createStaticSourceEvidence`) and the two dependency digests that referenced the old
+  content.
+
+No change to `validation-execution-lock.ts`, to the ancestor rule, to
+`withMachineValidationResources`, to `declaredValidationCapacity`, to the reservation
+delegation protocol, or to any command's declared resources.
+
+## Verification
+
+Regression witness: `packages/main/tests/red/red-lab-nested-fixture-machine-isolation.mjs`
+
+Two target cases and two negative controls:
+
+1. `publication-lifecycle` under an undeclared ancestor reservation, the shape an
+   evidence executor uses for a pinned verification command with no declared footprint.
+   Must exit 0 and emit `PUBLICATION_LIFECYCLE_GREEN`.
+2. The same under a declared ancestor holding the configured resources of
+   `scripts/verify-process-fact-contract.mjs` (`git-common-dir . shared`), the ordinary
+   `validate` path.
+3. Negative control, shared registry: an undeclared descendant of an undeclared owner in
+   the real machine registry must still be refused with the ancestor diagnostic, quickly,
+   and must never spawn its leaf command.
+4. Negative control, isolated registry: the same undeclared owner/descendant pair placed
+   inside one isolated fixture registry must be refused identically. This proves an
+   isolated namespace is a separate registry and not a bypass of the ancestor rule.
+
+RED on the unmodified base (Lab base 189ee7792aceb978b2f5731fd655364f1bce16bb):
+
+    NESTED_FIXTURE_MACHINE_ISOLATION_RED publication-lifecycle under undeclared-ancestor:
+      exit=1 elapsed=2.6s refused: nested machine resource acquisition conflicts with an
+      ancestor; declare machine resources on their actual leaf command only
+    NESTED_FIXTURE_MACHINE_ISOLATION_RED publication-lifecycle under declared-ancestor:
+      exit=1 elapsed=2.7s refused: nested machine resource acquisition conflicts with an
+      ancestor; declare machine resources on their actual leaf command only
+    PASS control-shared-registry: genuine ancestor deadlock still refused without spawning
+    PASS control-isolated-registry: genuine ancestor deadlock still refused without spawning
+
+Both controls already passed on the base, so they are a real before/after invariant and
+not a side effect of the repair.
+
+GREEN, replaying the identical pinned command after the repair:
+
+    PASS publication-lifecycle under undeclared-ancestor (17.4s)
+    PASS publication-lifecycle under declared-ancestor (17.5s)
+    PASS control-shared-registry: genuine ancestor deadlock still refused without spawning (461ms)
+    PASS control-isolated-registry: genuine ancestor deadlock still refused without spawning (447ms)
+    NESTED_FIXTURE_MACHINE_ISOLATION_PASS isolated fixture admitted under both ancestors;
+    ancestor rule unchanged
+
+Chain verification: `scripts/verify-process-fact-contract.mjs --quiet` was executed
+inside a real ancestor machine reservation acquired through
+`withMachineValidationResources`, exactly as an evidence executor acquires it for a
+pinned verification command. It completed with exit status 0 in 119.5 seconds and no
+refusal line, ending in `Process-fact contract verification passed`. On the unmodified
+base the same chain refused after about 2.6 seconds at its
+`experiments/acceptance-closure/publication-lifecycle.mjs` link without producing
+evidence.
+
+Manifest integrity: all 294 entries of `scripts/lab/u18-static-edges/exceptions.json`
+were re-checked with the same rules `scripts/verify-validation-static-edge-boundaries.mjs`
+applies (entry source digest, every dependency digest, and
+`staticSourceEvidenceError` over `requiredEvidence`). Zero entries fail.
+
+Static-edge scanner: the summary is byte-identical before and after the change,
+`{"needsReview":0,"nested":0,"skipped":17,"exceptions":1674,"unexpandedCommands":1}`.
+The single `unexpandedCommands` finding is a pre-existing failure on the Lab base and is
+inherited, not introduced here; the repin ensures the change adds nothing to it.
+
+## Performance
+
+No optimization is claimed. The fixture's own runtime is unchanged; it now completes in
+about 17 seconds under an ancestor reservation where it previously refused after about
+2.6 seconds without producing evidence.
+
+## Deliberately not changed
+
+- The ancestor rule in `validation-execution-lock.ts`. It refuses a genuine deadlock, and
+  `scripts/verify-machine-unknown-nested.mjs` pins the both-undeclared case.
+- The globally exclusive meaning of an undeclared machine footprint.
+- The declared resources of any configured validation command, including the pinned
+  evidence executor's `resources: command.resources?.length ? ... : undefined`.
+- The reservation delegation protocol. Propagating a reservation descriptor implicitly
+  through plain `spawnSync` grandchildren would turn an explicit cooperating spawn
+  boundary into an implicit capability hand-off.
+- `createFixtureMachineEnvironment()` itself. Stripping the descriptor locator centrally
+  would benefit its other four callers, but none of them currently forwards a live
+  descriptor, so that is a separate, non-blocking improvement rather than part of this
+  repair.
+- `docs/story/drafts/full-suite-nested-machine-resource-owner/`, which owns the related
+  2026-09-12 `full-suite-runner-smoke` occurrence of this diagnostic. That report predates
+  `publication-lifecycle.mjs` and is a separate reproduction.
+
+Maintenance provenance: codex/lab-nested-reservation, repair 6ed1f82357f571cdac63d1b4f9b215fee5bb9d03.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-lab-nested-fixture-machine-isolation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Integrated concurrent-fix release - v0.3.385 - 2026-09-16
 
 ### Why this release exists
