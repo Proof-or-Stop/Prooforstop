@@ -10756,7 +10756,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs',
-        patterns: ['Review PLAN scope coverage', 'scope_check_save', 'deliveryRunId', 'verifyManagedDispatchDelivery', 'a rejected payload must not consume the managed scope invocation before a corrected retry', 'a completed scope run cannot authorize replacement evidence with a recomputed public hash', 'story_review must reject post-terminal replacement of managed scope evidence', 'a real isolated provider cannot replace scope_check_save with a direct public-hash Store write', 'managed_dispatch_invocation_unconsumed', 'validated scope bytes cannot be replaced before terminal sealing', 'managed_dispatch_output_changed_before_seal', 'MANAGED_SCOPE_REVIEWER_DISPATCH_E2E_GREEN'],
+        patterns: ['Review PLAN scope coverage', 'scope_check_save', 'deliveryRunId', 'verifyManagedDispatchDelivery', 'a rejected non-empty owner payload must not consume the managed scope invocation before a corrected zero-owner retry', 'a completed scope run cannot authorize replacement evidence with a recomputed public hash', 'story_review must reject post-terminal replacement of managed scope evidence', 'a real isolated provider cannot replace scope_check_save with a direct public-hash Store write', 'managed_dispatch_invocation_unconsumed', 'validated scope bytes cannot be replaced before terminal sealing', 'managed_dispatch_output_changed_before_seal', 'MANAGED_SCOPE_REVIEWER_DISPATCH_E2E_GREEN'],
       },
     ],
   },
