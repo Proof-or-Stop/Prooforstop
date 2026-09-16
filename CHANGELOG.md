@@ -1,41 +1,5 @@
 # Changelog
 
-## Lab benchmark-critic-metadata-head - v0.3.387 - 2026-09-16
-
-# Inventory critic continuity after metadata commits
-
-A legitimate B-0980 owner availability probe committed only Story metadata while an OPEN inventory retained its signed cutoff and completed waves. A newly started inventory critic was excluded from reviewer admission solely because its run HEAD differed from the original cutoff. This bounded maintenance repair allows that metadata continuation while preserving the original signed cutoff, purpose, wave, round, material and Story-file bindings, roster and candidate/corpus safeguards.
-
-Both the eligible critic run HEAD and the current workspace HEAD must equal or descend from the cutoff. Git ancestry checks fail closed. An old valid same-wave critic cannot rescue a divergent current workspace. Prompt guidance and the process-fact registry describe the same mechanical contract. Ordinary reviewer roster behavior is unchanged.
-
-## Executed verification
-
-Repair HEAD: 0e50e76abd3bd3431f91931932cddd9f9e71e962. Baseline main: 66c2e684d6c8faf586893b81546a4c2cda90e1e8 (0.3.386).
-
-The original target RED failed at METADATA_HEAD_CRITIC_ADMISSION after a metadata commit. A second actual target RED, DIVERGENT_EQUAL_TREE_CRITIC_REFUSED, exposed the old-valid-critic loophole with a genuinely signed equal-tree divergent run. Both failures are preserved in Lab history. The pinned regression command is node scripts/verify-inventory-critic-metadata-head.mjs. Latest GREEN passed with 15 negative controls, two completed waves, two critic receipts and FINALIZED inventory. Setup failures before the original reproduction were not accepted as target RED.
-
-The focused fixture covers run corruption, correctly re-signed epoch drift and actual Git divergence while retaining the prior valid same-wave critic. After its final assertions it writes a create-only nonce-bound receipt. The driver validates its exact selector, counters and terminal state, and rejects mutated receipt fields. It uses shared canonical build preparation, absolute paths, provider-neutral fixture execution, finite timeouts and failure diagnostics. Running the driver from /tmp also passed.
-
-The registered process-fact contract invokes this driver, captures output and requires its exact GREEN selector. assertStory3ProcessFactContract is actually called at scripts/verify-process-fact-contract.mjs:9884; its definition is later in the file. npm run test:process-fact-contract completed successfully at the repair HEAD. The default inventory smoke path has no added invocation; the registered driver executes the new focused scenario.
-
-node packages/main/dist/tasks/reviewer-batch-smoke.js printed reviewer_batch smoke passed. node scripts/run-dynamic-validation-audit.mjs change-manifest printed change manifest PASS. The final process-fact log ended with Process-fact contract verification passed. Logs are /tmp/benchmark-critic-process-fact-final.log, /tmp/benchmark-critic-reviewer-batch-final.log, /tmp/benchmark-critic-change-manifest-final.log and /tmp/benchmark-critic-external-cwd-final.log.
-
-Static edge records were refreshed only for unique unchanged callDigest relocations and the changed-source dependency bindings, with unchanged excerpts retained. One exact new edge documents the registered fixture child and its direct helpers. Candidate scanning reports zero needsReview edges, 1675 exceptions, 17 skipped and one unexpanded command; current main has the same results except 1674 exceptions. These proposed static records are part of this independent audit, not fabricated Story evidence.
-
-## Baseline limitations preserved
-
-This is not a claim that every repository suite is green. On both main 0.3.386 and the candidate, test:review-inventory-epoch fails F063 canonical inventory mismatch unknownPolicy=[test:benchmark-framework-hardening] stalePolicy=[test:managed-review-final-schema] missingScripts=[]. The default review-inventory-handler-smoke fails the existing cross-provider fixture check (environment host=claude, nearest provider=codex) on both main and candidate. The static scanner retains the same unexpanded packages/main/tests/brand-role-migration.test.mjs baseline node, so its overall marker remains U18_STATIC_NEEDS_REVIEW. None was suppressed or expanded into unrelated repairs.
-
-## Prior independent audits
-
-Actual Claude audits 91eada2e-48fe-40ba-bfd5-a29b96f85564 and ae1522c4-1220-4e4c-b520-4d753cbdf231 rejected earlier candidates and remain preserved. Their actionable follow-ups were implemented: registered live execution, exact child and parent success checks, removal of brittle literal matching, absolute/shared-build preparation, bounded failure diagnostics, explicit ancestry controls with a real RED/GREEN witness, scoped static-edge refresh, and removal of the unverified extra default-path invocation. This is a changed candidate, not a retry of an unchanged rejected audit.
-
-Local maintenance integration only; no remote publication. Lab records are not formal Story DONE or product-release evidence. The benchmark runner itself remains unimplemented and will continue through its existing Stories after this bounded blocker repair.
-
-Maintenance provenance: codex/lab-benchmark-critic-metadata-head, repair 0e50e76abd3bd3431f91931932cddd9f9e71e962.
-Verification command (replayed before integration and on main): `["node","scripts/verify-inventory-critic-metadata-head.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab nested-reservation - v0.3.386 - 2026-09-16
 
 # Lab nested-reservation: isolate the acceptance-closure fixture machine registry
