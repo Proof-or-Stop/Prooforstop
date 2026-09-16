@@ -1,5 +1,79 @@
 # Changelog
 
+## Lab benchmark-review-supersession - v0.3.394 - 2026-09-16
+
+# Bounded managed review supersession repair
+
+B-0980 remains a 13-line configuration registration Story. Its real TEST transition refused historical managed passes RP-021 through RP-025 despite a newer completed RI-026. The shared collector already supersedes authenticated stale PASS records with newer valid same-lane evidence, but managed live freshness was returned as non-supersedable managed_receipt_invalid before the sealed authority check.
+
+## Repair boundary
+
+Authenticate only unambiguous managed transport before classifying live freshness; keep missing/conflicting-authority checks at their original location. Only a fully observed material-hash mismatch or head-lineage change receives the existing stale_run_hash classification. Unknown or unavailable identity and invalid managed receipts remain hard failures. Existing replacement ordering, lane equality, open-finding protection and historical storage are unchanged. No Story state is edited by this repair, and no Story DONE is claimed.
+
+## Verification
+
+The isolated regression creates provider test outputs through real managed supervision, signed terminal receipts and the official importer, then exercises the real collector. It does not use a real external model provider and is not formal review evidence.
+
+The unmodified implementation produced MANAGED_SUPERSESSION_RED after the original and replacement PASS controls succeeded. The minimal repair passed MANAGED_SUPERSESSION_PASS, including missing/invalid/different-lane replacement controls, a genuinely imported open Finding, old terminal-byte tampering with exact restoration, and same-material non-importer head movement.
+
+Static validation passes after rebinding unchanged call sites and adding one exact bounded fixture regression with source/dependency evidence. All 295 original exception IDs and kinds are retained. The process-fact verifier executes the fixed test command and checks authentication-before-freshness order. The complete process-fact verifier exited 0 and reported Process-fact contract verification passed. Its output is retained in /tmp/benchmark-review-supersession-process-contract.log. The independent Claude CLI audit is performed by the official finish command against the exact release candidate; its verdict is not authored by this note.
+
+## Environment preparation
+
+The Lab uses its own root and packages/main dependency installs and private main/utils/Lab builds. An initial root build also exposed missing graph-local dependencies; that was environment preparation, not target RED. No graph code, dependency manifests, validation limits, global installation or remote branch is changed.
+
+## Independent audit correction
+
+Claude audit 98746235-946d-4ba1-95f6-4912702ea6ac rejected the first release candidate because the common missing/conflicting-authority checks had moved earlier than legacy freshness/scope/retention. The release preparation was officially reopened. Those checks are restored to their original location; only unambiguous managed transport authenticates early. New controls cover stale unbound PASS with and without replacement, public signer rejection of dual bindings and collector rejection of a persisted conflicting mutation. The existing F-019 function body runs unchanged through a bounded test selector and reports TERMINAL_FINDING_FORGIVENESS_PASS. These are fixture controls, not live Story evidence. The original failed audit remains retained.
+
+## Second audit response and precise test boundaries
+
+Candidate 9fd6147138fad50a9a51aa8ab53ac9298c0cd1ad was rejected by actual
+Claude run 4ed9da24-e83f-40ee-b2ec-26812905c057. Its production logic was
+accepted; the test coverage and wording required correction. The release was
+reopened through the official command, retaining both failed audit histories.
+
+The requested valid-signature dual PASS is impossible through the actual
+collector: `verifyReviewPass` in `packages/main/src/core/finding-verify.ts`
+returns false when both bindings are defined, before digest computation; the
+public signer also throws for the same combination. A manually computed digest
+cannot change this predicate. The corrected test invokes that real verifier
+and pins `invalid_evidence_signature` for fresh and stale dual PASS records.
+It no longer claims to exercise the unreachable downstream conflict guard.
+No production signature policy was altered to satisfy a fixture.
+
+A newly imported managed finding on the latest lane run is resolved through
+the official finding handler. Actual committed material drift follows, with
+no replacement PASS. The F-019 consumer forgives its authenticated stale binding,
+but rejects altered terminal bytes as `managed_receipt_invalid`; exact byte
+restoration restores forgiveness. The latest-lane setup is deliberate: it
+avoids the older non-latest `stale_run` short circuit, which remains unchanged.
+The expanded regression printed MANAGED_SUPERSESSION_PASS.
+
+## Finite live-failure classification controls
+
+Claude run 1ba9c8d8-1464-41ef-b571-243d24f43fcc accepted the production
+reasoning but rejected absent negative classifier coverage. The same finite
+classification now resides in exported `classifyManagedLiveBindingFailure`,
+called directly by the collector. The existing supersession regression executes
+known material and all 40/64-character lineage variants, plus empty, unknown,
+unavailable, uppercase, short/long, prefix, suffix, newline and dual-binding
+negative inputs. The real pre-replacement material-drift collector must return
+`stale_run_hash` with the material-stale reason, establishing the selected branch.
+The process contract checks the real helper call and executes these controls.
+No synthetic unavailable-Git collector result is claimed: the helper negatives
+are unit controls, while the retained valid/invalid replacement controls exercise
+the real collector.
+
+A source edit overlapped an initial private compilation. That diagnostic build
+was discarded by removing only its generated build manifest and requesting a
+clean private build. Subsequent verification uses the frozen source and rebuilt
+output; the earlier helper test is not claimed as fresh final-candidate proof.
+
+Maintenance provenance: codex/lab-benchmark-review-supersession, repair 6604ff74cb914f2d63806aa5a53a4cf7357cfe05.
+Verification command (replayed before integration and on main): `["node","--import","./packages/main/dist/index.js","packages/main/dist/tasks/managed-review-evidence-smoke.js","--supersession-regression"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-resource-key - v0.3.393 - 2026-09-16
 
 # Bounded validation resource-key repair
