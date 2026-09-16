@@ -16,6 +16,8 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 // Exercise the real verdict consumer, including raw-stream digest and refusal guards.
 execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
 execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+// Match CLI module initialization before the actual sealed managed-review fixture.
+execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
 execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
 // Exercise managed delivery through an actual synthetic provider process and real CLI.
 execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
@@ -7355,9 +7357,20 @@ function assertDeliveryPromiseOutcomeContract(registry, levelRegistry) {
 function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   const subjectReader = read('packages/main/src/core/review-run.ts');
   const subjectOffset = subjectReader.indexOf('const inventorySubject = managedInventorySubjectState(store, run,');
-  const managedOffset = subjectReader.indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding)");
+  const managedOffset = subjectReader.indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding && !nativeBinding)");
   assert(subjectOffset >= 0 && managedOffset >= 0 && subjectOffset < managedOffset,
     'inventory subject classification must precede both execution authority paths');
+  const liveOffset = subjectReader.indexOf('const live = verifyManagedReviewLiveBinding({', subjectOffset);
+  assert(managedOffset >= 0 && liveOffset > managedOffset,
+    'managed transport authentication must precede supersedable live freshness classification');
+  assert(subjectReader.includes("code: classifyManagedLiveBindingFailure(live.reason, nativeBinding !== undefined)")
+    && subjectReader.includes("export function classifyManagedLiveBindingFailure(")
+    && subjectReader.includes("return knownDrift ? 'stale_run_hash' : 'managed_receipt_invalid'"),
+    'only recognized observable managed freshness drift is supersedable; unknown identity stays refused');
+  const retentionOffset = subjectReader.indexOf('const retention = evaluateReviewRunMetadataRetention');
+  assert(subjectReader.indexOf('if (!managedBinding && !nativeBinding) {', subjectOffset) > retentionOffset
+    && subjectReader.indexOf('if (managedBinding && nativeBinding) {', subjectOffset) > retentionOffset,
+    'unbound and conflicting evidence must retain their existing freshness/scope/retention ordering');
   const nativeOffset=subjectReader.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)");
   const supersededOffset=subjectReader.indexOf("if (inventorySubject === 'superseded') return {");
   assert(nativeOffset>=0 && supersededOffset>managedOffset && supersededOffset>nativeOffset,

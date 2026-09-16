@@ -5435,6 +5435,13 @@ if (process.argv.includes('--acceptance-basis-fixture')) {
   process.exit(0);
 }
 
+// Run the existing F-019 body unchanged when auditing reviewer-supersession compatibility.
+if (process.argv.includes('--terminal-finding-forgiveness')) {
+  assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence();
+  console.log('TERMINAL_FINDING_FORGIVENESS_PASS');
+  process.exit(0);
+}
+
 assertProductionHelperPassesProjectRootToClassifier();
 assertCustomStoryDirDirtyWorktreeClassification();
 assertDonePrepareOnePassConvergenceContract();
