@@ -56,7 +56,8 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
   // The purpose binding retains the exact original cutoff (including HEAD).
   // A valid new run may start after a metadata-only descendant commit. Keep
   // ancestry as well as material identity; a divergent equal tree is refused.
-  const includeInventoryCritic = store.readReviewRuns(args.storyId).runs.some(run =>
+  const currentHeadRetainsCutoff = criticHeadDescendsCutoff(signedRoot!, epoch.cutoff.headHash, snapshot.headHash);
+  const includeInventoryCritic = currentHeadRetainsCutoff && store.readReviewRuns(args.storyId).runs.some(run =>
     verifyReviewRun(run, store)
     && run.lane === INVENTORY_CRITIC_LANE
     && run.agent === INVENTORY_CRITIC_LANE
