@@ -234,6 +234,11 @@ async function main() {
     console.log('REVIEW_EPOCH_BUDGET_TRANSPORT_PASS');
   } finally {rmSync(budgetScratch,{recursive:true,force:true});}
   check(registrySource.includes('MACHINE_HEAVY_RESOURCE_POLICY') && read(root,'packages/main/src/core/keyed-scheduler.ts').includes('MACHINE_HEAVY_RESOURCE_POLICY.cpuKey'), 'machine CPU/process claims must share the runtime policy');
+  const capacityResourceKeys = execFileSync(process.execPath,
+    [join(root, 'packages/main/tests/validation-capacity-resource-keys.test.mjs')],
+    {cwd: root, encoding: 'utf8', timeout: 180000});
+  check(capacityResourceKeys.includes('VALIDATION_CAPACITY_RESOURCE_KEYS_PASS'),
+    'whole-invocation and live command-stage capacity must preserve literal machine resource keys');
   check(registrySource.includes('MACHINE_FIXED_PORT_RUNTIME_POLICY') && portLock.includes('MACHINE_FIXED_PORT_ARTIFACT.directoryName')
     && portLock.includes('userInfo().homedir') && portLock.includes('probeMachineFixedPort') && portLock.includes('machinePortAncestorPids'),
     'machine port coordination must bind OS-user location, real preflight and ancestor refusal');

@@ -3,8 +3,7 @@ import {execFileSync} from 'node:child_process';
 import {mkdtempSync, mkdirSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {declaredValidationCapacity, withOfficialValidationExecution} from '../dist/core/validation-execution-lock.js';
-import {runValidationCommand} from '../dist/core/validation-executor.js';
+import {declaredValidationCapacity, withOfficialValidationExecution, withValidationCommandStage} from '../dist/core/validation-execution-lock.js';
 import {canonicalizeEntries, validateResourceClaims} from '../dist/core/keyed-scheduler.js';
 
 const root = mkdtempSync(join(tmpdir(), 'pos-resource-keys-'));
@@ -43,18 +42,17 @@ try {
   ]) assert.throws(() => declaredValidationCapacity([{label: 'invalid', resources: [bad]}], root),
     /invalid|unknown/, 'invalid machine claims stay refused');
 
-  // Exercise the private command-stage normalization through its real public
-  // execution boundary. Each callback launches an actual bounded child in an
-  // isolated Git fixture, using the normal machine queue and cleanup.
+  // Exercise private stage normalization and real capacity acquisition directly.
+  // This test proves capacity-entry keys, not descendant delegation or provider
+  // execution. Those retain their independent existing contracts.
   for (const claim of literals.filter(row => row.class !== 'fixed-port')) {
+    let entered = 0;
     const result = await withOfficialValidationExecution({root, workspaceRoot: root,
       command: 'resource-key witness', commandStages: true, deadlineAt: Date.now() + 60000},
-    () => runValidationCommand({label: `live ${claim.class}`, command: process.execPath,
-      args: ['-e', 'console.log("RESOURCE_KEY_REAL_CHILD")'], timeoutMs: 10000,
-      resources: [claim, {class: 'fixed-path', key: root, access: 'shared'}]}, root));
-    assert.equal(result.code, 0, `command stage must retain ${claim.class}: ${result.output}`);
-    assert.match(result.output, /RESOURCE_KEY_REAL_CHILD/);
-    assert.equal(result.timedOut, false);
+    () => withValidationCommandStage({label: `live ${claim.class}`,
+      resources: [claim, {class: 'fixed-path', key: root, access: 'shared'}]}, async () => {entered++; return claim.key;}));
+    assert.equal(result, claim.key, `command stage must retain ${claim.class}`);
+    assert.equal(entered, 1, 'valid normalized capacity must admit the callback exactly once');
   }
   console.log('VALIDATION_CAPACITY_RESOURCE_KEYS_PASS');
 } finally {

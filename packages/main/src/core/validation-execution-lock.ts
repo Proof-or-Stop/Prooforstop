@@ -1,5 +1,5 @@
 import { withInheritedMachineReservation, withMachineReservationController, machineReservationResidualsPresent, inheritedValidationReservationPortAlreadyHeld, currentValidationReservationAbortSignal } from './validation-reservation-delegation.js';
-import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, VALIDATION_RESOURCE_KEY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
@@ -1278,7 +1278,8 @@ function normalizedCommandResources(
   validateResourceClaims(command.resources!, command.label);
   const cwd = resolve(workspaceRoot, command.cwd ?? '.');
   const resources = command.resources!.map(claim => ({
-    class: claim.class, key: claim.class === 'fixed-port' ? claim.key : resolve(cwd, claim.key),
+    class: claim.class, key: VALIDATION_RESOURCE_KEY_RUNTIME_POLICY.literalClasses.some(value => value === claim.class)
+      ? claim.key : resolve(cwd, claim.key),
     access: claim.access, ...(claim.ownership ? { ownership: claim.ownership } : {}),
   }));
   return [...new Map(resources.map(claim => [JSON.stringify(claim), claim])).values()];
@@ -1292,12 +1293,7 @@ export function declaredValidationCapacity(
   if (!commands.length || commands.some(command => !command.resources?.length)) return {};
   const resources: ResourceClaim[] = [{ class: 'fixed-path', key: resolve(workspaceRoot), access: 'exclusive' }];
   for (const command of commands) {
-    const cwd = resolve(workspaceRoot, command.cwd ?? '.');
-    validateResourceClaims(command.resources!, command.label);
-    for (const claim of command.resources!) resources.push({
-      class: claim.class, key: claim.class === 'fixed-port' ? claim.key : resolve(cwd, claim.key),
-      access: claim.access, ...(claim.ownership ? { ownership: claim.ownership } : {}),
-    });
+    resources.push(...normalizedCommandResources(command, workspaceRoot));
   }
   // Duplicate normalized claims carry no additional permission or capacity.
   // Preserve access, ownership and resolved cwd; validate every input before dedup.

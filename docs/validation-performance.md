@@ -1,5 +1,12 @@
 # Production validation execution and repair entry
 
+Validation capacity preserves the literal keys of machine CPU, process,
+validation-barrier and fixed-port claims. Filesystem claims are resolved against
+the command working directory. Whole-invocation declarations and per-command
+stages use the same normalization after validating the original claims; malformed
+keys, access modes and ownership remain errors. This preserves existing machine
+admission identities and limits across worktrees.
+
 Official `validate` and `done_required_validate` retain independent acceptance,
 freshness, resource, owner and build-proof checks. These changes optimize the
 execution mechanisms; they do not turn Lab records into Story evidence.
