@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab managed-import-stale-preflight - v0.3.383 - 2026-09-16
+
+Managed review evidence import performed expensive receipt and proposal verification before rejecting a stale candidate-routing read binding, so deterministic stale imports could consume tens of seconds. Fresh sealed proposals now fail the cheap candidate-binding preflight before receipt intake and repeat it under the persistence locks for TOCTOU safety. Exact persisted receipt-bound ReviewPass or Finding evidence bypasses only the early current-route check, preserving authenticated crash recovery and idempotent replay against its historical routing input.
+
+The Lab regression covers fresh stale intake, exact and foreign receipt lookup, legacy null-proposal compatibility, and a real handler sequence that persists a receipt-bound Finding, crashes, changes only candidate routing, and successfully resumes through authenticated existing-evidence recovery. Package build, managed inventory import regression, contract checks, and independent Codex Sol/high Standards and Spec review passed with no findings.
+
+Maintenance provenance: codex/lab-managed-import-stale-preflight, repair a082bc73e5.
+Verification commands: `node packages/main/tests/managed-review-candidate-preflight.test.mjs`; `node scripts/verify-managed-inventory-critic-import.mjs --case=crash`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab scope-check-zero-owner-dispositions - v0.3.382 - 2026-09-16
 
 Managed scope review could deadlock in PLAN when no canonical process-fact owners were selected because an explicit empty ownerDispositions array was rejected. The repair treats omission and an empty array as the same valid zero-owner representation while continuing to reject non-empty or malformed dispositions. The managed-review end-to-end regression proves that a rejected non-empty payload does not consume the one-shot invocation and that the same invocation can retry successfully with an empty array. Focused owner coverage, process-fact marker alignment, static bindings, and independent Codex Sol/high review passed.
