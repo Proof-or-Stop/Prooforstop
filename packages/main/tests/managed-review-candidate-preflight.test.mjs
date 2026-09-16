@@ -44,4 +44,15 @@ assert.ok(managedSubmit > promptBuild,
 assert.match(handler.slice(missingRefusal, promptBuild), /candidate_spec_route/,
   'the refusal must give the owner the exact repair command');
 
+const importer = readFileSync(new URL('../src/handlers/managed-review-evidence.ts', import.meta.url), 'utf8');
+const sealedProposalRead = importer.indexOf('const sealedProposal = readManagedReviewEvidenceProposal');
+const receiptIntake = importer.indexOf('const intake = createManagedReviewEvidenceBinding', sealedProposalRead);
+const staleCandidatePreflight = importer.indexOf('assertCurrentCandidateReadBinding(sealedProposal)', sealedProposalRead);
+assert.ok(
+  sealedProposalRead >= 0
+    && staleCandidatePreflight > sealedProposalRead
+    && staleCandidatePreflight < receiptIntake,
+  'a sealed managed proposal must reject a stale candidate before expensive receipt/proposal intake',
+);
+
 console.log('MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN');
