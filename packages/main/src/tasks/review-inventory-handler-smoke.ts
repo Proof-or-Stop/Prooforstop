@@ -839,6 +839,8 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
           fixture.store.writeReviewRuns(storyId, divergentRuns);
           git(fixture.root, ['checkout', originalBranch]);
         }
+        assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+          'MIXED_RUNS_RETAIN_A_VALID_CRITIC_WITNESS_ON_VALID_CURRENT_HEAD');
         const onlyDivergent = { ...divergentRuns, runs: divergentRuns.runs.filter(row =>
           row.lane !== critic || row.headHash === divergentHead || row.inventoryBinding?.wave !== 2) };
         try {
