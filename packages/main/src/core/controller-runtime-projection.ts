@@ -4,6 +4,7 @@ import { closeSync, constants, existsSync, linkSync, lstatSync, mkdirSync, openS
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 import { CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
+import { CONFIG_FILENAMES } from './brand-paths.js';
 
 export const CONTROLLER_RUNTIME_ASSET_PATHS = [
   '.codex/hooks.json',
@@ -43,6 +44,7 @@ function git(cwd: string, args: string[]): string {
 export function hasRepositoryOwnedControllerAssets(args: {
   controllerRoot: string; worktreeRoot: string; configPath: string;
 }): boolean {
+  if (!CONFIG_FILENAMES.includes(args.configPath)) return false;
   try {
     for (const root of [args.controllerRoot, args.worktreeRoot]) {
       for (const path of [args.configPath, ...CONTROLLER_RUNTIME_ASSET_PATHS]) {

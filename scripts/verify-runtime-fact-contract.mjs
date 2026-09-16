@@ -97,6 +97,8 @@ async function main() {
   }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
+  const trackedBootstrap = execFileSync(process.execPath, [join(root, 'scripts/verify-tracked-controller-bootstrap.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
+  check(trackedBootstrap.includes('TRACKED_CONFIG_BOOTSTRAP_GREEN'), 'Executed tracked controller bootstrap control');
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
   check(registrySource.includes('memory-query-latency-boundary'), 'Memory query timing runtime fact is registered');

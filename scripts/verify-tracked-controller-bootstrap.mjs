@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { prepareVerification } from './verification-subprocess-budget.mjs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-execFileSync(process.execPath, [join(repository, 'scripts/ensure-dist.mjs')], { cwd: repository, stdio: 'inherit', timeout: 240000 });
+const spawnSync = prepareVerification(repository, { shareBuild: true });
 const { inspectExpectedControllerRuntimeProjection, isByteIdenticalControllerRuntimeAsset } = await import('../packages/main/dist/core/runtime-artifact-registry.js');
-const { CONTROLLER_RUNTIME_ASSET_PATHS } = await import('../packages/main/dist/core/controller-runtime-projection.js');
+const { CONTROLLER_RUNTIME_ASSET_PATHS, CONTROLLER_RUNTIME_PROJECTION_STORY_RECEIPT, hasRepositoryOwnedControllerAssets } = await import('../packages/main/dist/core/controller-runtime-projection.js');
 const { classifyScopePath } = await import('../packages/main/dist/core/scope-path-classifier.js');
 const root = mkdtempSync(join(tmpdir(), 'pos-tracked-bootstrap-'));
 const storyId = 'B-tracked-config';
@@ -39,6 +40,9 @@ try {
   const result = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'aux_doc_list'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
   assert.equal(result.status, 0, `TRACKED_CONFIG_BOOTSTRAP_RED: normal CLI must preserve tracked branch config instead of projecting the controller copy\n${result.stderr}`);
   assert.equal(readFileSync(join(worktree, 'proof-or-stop.config.json'), 'utf8'), branchConfig);
+  for (const configPath of ['README.md', '../proof-or-stop.config.json', ':(glob)*', '.codex/hooks.json']) {
+    assert.equal(hasRepositoryOwnedControllerAssets({ controllerRoot: root, worktreeRoot: worktree, configPath }), false, `noncanonical config rejected: ${configPath}`);
+  }
   assert.deepEqual([inspect().expected, inspect().valid], [false, true], 'repository-owned hooks require ordinary material review, not projection receipts');
   const dispatch = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'dispatch', `--storyId=${storyId}`, '--agentType=proof-or-stop-review-quality'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
   assert.equal(dispatch.status, 0, `the fixture must acquire a real owner dispatch\n${dispatch.stderr}`);
@@ -54,7 +58,7 @@ try {
   git(root, ['add', hook]);
   assert.equal(inspect().valid, false, 'index-only tracking is not a committed ownership baseline');
   git(root, ['commit', '-qm', 'restore tracked controller baseline']);
-  assert.equal(inspect().expected, false);
+  assert.equal(inspect().expected, false, 'restored committed ownership removes the projection requirement');
   git(worktree, ['rm', '--cached', hook]);
   assert.equal(inspect().valid, false, 'index deletion must not inherit HEAD ownership');
   git(worktree, ['add', hook]);
@@ -66,9 +70,46 @@ try {
   assert.equal(inspect().valid, false, 'a missing tracked hook cannot qualify');
   symlinkSync(join(root, hook), join(worktree, hook));
   assert.equal(inspect().valid, false, 'a tracked path replaced by a symlink cannot qualify');
+
+  // Exercise the second CLI bootstrap branch: the controller creates its Story
+  // after the linked branch exists, while that branch owns a different config.
+  const lateId = 'B-tracked-late';
+  const lateTree = join(root, '.worktrees', lateId);
+  git(root, ['worktree', 'add', '-qb', `story/${lateId}`, lateTree]);
+  write(lateTree, 'proof-or-stop.config.json', branchConfig);
+  git(lateTree, ['add', 'proof-or-stop.config.json']); git(lateTree, ['commit', '-qm', 'late Story config']);
+  const originalStory = JSON.parse(readFileSync(join(root, `.proof-or-stop/story/actives/${storyId}/index.json`), 'utf8'));
+  const lateStory = { ...originalStory, storyId: lateId, worktree: { ...originalStory.worktree, path: lateTree, branch: `story/${lateId}` } };
+  write(root, `.proof-or-stop/story/actives/${lateId}/index.json`, JSON.stringify(lateStory));
+  write(root, `.proof-or-stop/story/actives/${lateId}/checklist.json`, '{"items":[]}');
+  const lateDispatch = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'dispatch', `--storyId=${lateId}`, '--agentType=proof-or-stop-review-quality'], { cwd: lateTree, env, encoding: 'utf8', timeout: 60000 });
+  assert.equal(lateDispatch.status, 0, `late Story bootstrap preserves tracked material\n${lateDispatch.stderr}`);
+  assert.equal(readFileSync(join(lateTree, 'proof-or-stop.config.json'), 'utf8'), branchConfig, 'second bootstrap branch preserves branch config');
+  assert.equal(JSON.parse(readFileSync(join(lateTree, `.proof-or-stop/story/actives/${lateId}/index.json`), 'utf8')).storyId, lateId, 'missing Story is actually projected to the registered branch');
+
+  // Pin the opposite CLI branch with genuine untracked controller assets.
+  git(root, ['rm', '--cached', 'proof-or-stop.config.json', ...CONTROLLER_RUNTIME_ASSET_PATHS]);
+  git(root, ['commit', '-qm', 'external controller baseline']);
+  const externalId = 'B-controller-only';
+  const externalTree = join(root, '.worktrees', externalId);
+  git(root, ['worktree', 'add', '-qb', `story/${externalId}`, externalTree]);
+  write(root, `.proof-or-stop/story/actives/${externalId}/index.json`, JSON.stringify({ ...originalStory, storyId: externalId, worktree: { ...originalStory.worktree, path: externalTree, branch: `story/${externalId}` } }));
+  write(root, `.proof-or-stop/story/actives/${externalId}/checklist.json`, '{"items":[]}');
+  const externalDispatch = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'dispatch', `--storyId=${externalId}`, '--agentType=proof-or-stop-review-quality'], { cwd: externalTree, env, encoding: 'utf8', timeout: 60000 });
+  assert.equal(externalDispatch.status, 0, `external controller bootstrap still projects assets\n${externalDispatch.stderr}`);
+  const externalReceipt = join(externalTree, `.proof-or-stop/story/actives/${externalId}`, CONTROLLER_RUNTIME_PROJECTION_STORY_RECEIPT);
+  assert.equal(existsSync(externalReceipt), true, 'untracked native hooks receive signed projection evidence');
+  rmSync(externalReceipt);
+  const recovered = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'aux_doc_list'], { cwd: externalTree, env, encoding: 'utf8', timeout: 60000 });
+  assert.equal(recovered.status, 0, `existing external Story still repairs a missing redundant receipt\n${recovered.stderr}`);
+  assert.equal(existsSync(externalReceipt), true, 'the same CLI read restores only the redundant projection receipt');
+  assert.equal(inspectExpectedControllerRuntimeProjection({ projectRoot: externalTree, gitCwd: externalTree, storyId: externalId }).valid, true, 'external projection retains complete signed verification');
   console.log('TRACKED_CONFIG_BOOTSTRAP_GREEN: CLI preservation, projection admission and ownership negative controls passed');
 } finally { rmSync(root, { recursive: true, force: true }); }
 for (const path of [
   'packages/main/dist/tasks/benchmark-framework-hardening-smoke.js',
   'packages/main/dist/tasks/external-worktree-go-pre-review-smoke.js',
-]) execFileSync(process.execPath, [path], { cwd: repository, stdio: 'inherit', timeout: 240000 });
+]) {
+  const result = spawnSync(process.execPath, [path], { cwd: repository, stdio: 'inherit', timeout: 240000 });
+  assert.equal(result.status, 0, `existing projection regression: ${path}`);
+}
