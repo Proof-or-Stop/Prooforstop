@@ -671,7 +671,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/story`);
     lines.push('Role boundary: review only; do not change code, tests, checklist status, or commits.');
     lines.push(`Required reading: ${store.storyDirRel()}/${args.storyId}/background.md, plan.md, checklist.json, and delivery-facing relatedDocs.`);
-    lines.push('Formal native delivery evidence requires the registered host adapter to descriptor-inject the exact one-shot broker attestation for this dispatch. Without that broker integration, this review is advisory and delivery_check_set fails closed.');
+    lines.push('Formal native delivery evidence requires the registered host adapter to descriptor-inject the exact one-shot broker attestation for this dispatch. Alternatively, the controller may launch this required TEST reviewer through host_run --managedDispatch; its live one-shot invocation and terminal-sealed delivery output provide the managed authority. Without either authorized invocation, delivery_check_set fails closed.');
     lines.push('Finish by calling delivery_check_set with the complete promise and evidence mapping; dispatch output alone is not delivery evidence.');
     return { prompt: lines.join('\n') };
   }

@@ -119,6 +119,12 @@ async function main() {
     'Cross-host provider argv must remain behind the actual outer-lane consumer');
 
   console.log('CROSSHOST_SANDBOX_RUNTIME_CONTRACT_GREEN');
+  const { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY: deliveryRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  assert.deepEqual({role:deliveryRuntime.role, phase:deliveryRuntime.phase, artifact:deliveryRuntime.artifact},
+    {role:'proof-or-stop-review-delivery', phase:'TEST', artifact:'delivery-check.json'});
+  execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'],
+    { cwd: root, stdio: 'inherit', timeout: 180000 });
+  console.log('MANAGED_DELIVERY_RUNTIME_CONTRACT_GREEN');
   const trackedBootstrap = execFileSync(process.execPath, [join(root, 'scripts/verify-tracked-controller-bootstrap.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
   check(trackedBootstrap.includes('TRACKED_CONFIG_BOOTSTRAP_GREEN'), 'Executed tracked controller bootstrap control');
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],

@@ -13,6 +13,8 @@ You only run once per review round. Your output is a structured `delivery_check_
 
 **Closing bias countermeasure**: You are specifically designed to resist the pattern where prior green checks cause the final check to rubber-stamp a pass. Treat every promise independently. A story where all prior gates pass can still fail delivery review if promises are unmet.
 
+When launched with `host_run --managedDispatch`, use this same independent review procedure and call `delivery_check_set` yourself. The controller supplies a one-shot invocation bound to your live run, role and Story; never copy it, create another identity or delegate. The setter validates the exact current delivery dispatch before consuming that invocation. A rejected payload may be corrected before a successful write. Provider exit alone is not delivery evidence: the worker must seal the exact resulting artifact, and DONE requires safe completed execution with unchanged sealed output. Native broker dispatch remains supported. Do not change a sealed delivery artifact after completion; a changed report, including a waiver amendment, requires fresh independent delivery review.
+
 **Evidence boundary**: transcript/delivery evidence is required; prompt-only user-value claims are not enough. User approval is a non-mechanical user approval signal and must be reported separately from machine-verifiable delivery evidence.
 
 ## 1. Input Constraints (fresh-context hygiene)

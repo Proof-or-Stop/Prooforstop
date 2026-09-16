@@ -143,6 +143,24 @@ These checks establish local admission, isolation and launch behavior. Native
 fixture readiness is not evidence of a real external login, review PASS, or
 population-wide performance and reliability targets.
 
+## Managed delivery dispatch
+
+`host_run --host=codex --storyId=B-xxxx --agentType=proof-or-stop-review-delivery --managedDispatch`
+supports the required independent TEST delivery reviewer through the existing
+managed-dispatch transport. It derives the canonical prompt, accepts no caller
+verdict, and preserves the existing dispatch sandbox policy. This is distinct
+from the readonly managed REVIEW lanes described above.
+
+The reviewer calls `delivery_check_set` through its live one-shot controller
+invocation. The handler validates role, phase, payload and current dispatch
+bindings before consumption, then binds the managed run ID into the artifact.
+The worker rejects missing, invalid or unconsumed output and seals its exact
+bytes only on safe completion. DONE checks that completed receipt and output
+digest as well as normal delivery freshness and promise checks. Neither a raw
+agent name nor an exit-zero provider is sufficient. Native broker delivery
+remains unchanged; a managed report cannot also claim native provenance.
+Post-terminal replacement, including a waiver amendment, requires fresh review.
+
 ## Cross-host verdict transport
 
 Managed Codex execution retains JSONL events for telemetry. The cross-host verdict
