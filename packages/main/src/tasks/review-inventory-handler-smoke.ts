@@ -711,6 +711,125 @@ async function criticDiscoveryRecovery(): Promise<void> {
   } finally { rmSync(fixture.root, { recursive: true, force: true }); }
 }
 
+// Disposable real CLI regression: an unchanged-material metadata commit must
+// preserve a complete wave and admit the next wave's purpose-bound critic.
+async function criticMetadataHeadRecovery(): Promise<void> {
+  const fixture = setup(undefined, true);
+  const cwd = process.cwd();
+  const critic = 'proof-or-stop-review-topology-critic';
+  const reads = {
+    readManifest: { filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], scanEscalationReason: null },
+    readEvents: [{ path: 'packages/main/src/subject.ts', mode: 'full', action: 'Read', tokenCount: 8 }],
+  };
+  try {
+    process.chdir(fixture.root);
+    cli(fixture.root, 'review_inventory_begin', { storyId, maxWaves: 2 });
+    const epoch = fixture.store.readReviewInventoryEpochs(storyId).epochs[0];
+    let findingId = '';
+    for (const wave of [1, 2]) {
+      for (const [index, lane] of epoch.requiredLanes.entries()) {
+        const env = { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: `metadata-wave-${wave}-${lane}` };
+        cli(fixture.root, 'dispatch', { storyId, agentType: lane }, env);
+        const started = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, env);
+        const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+        assert.ok(reviewRunId);
+        if (wave === 1 && index === 0) {
+          const out = await fixtureReviewCli(fixture, 'finding_add', {
+            storyId, agent: lane, reviewRunId, desc: 'Disposable verified family requires a second inventory wave.',
+            severity: 'medium', category: 'missing', evidenceState: 'verified',
+            files: ['packages/main/src/subject.ts'], ...reads,
+          });
+          findingId = out.match(/(B-inventory-handler:F-\d+)/)?.[1] ?? '';
+          assert.ok(findingId);
+        } else {
+          await fixtureReviewCli(fixture, 'review_pass_set', {
+            storyId, agent: lane, reviewRunId, note: 'Disposable lane completed the current signed wave.', ...reads,
+          });
+        }
+      }
+      const inventoryBefore = fixture.store.readReviewInventoryEpochs(storyId);
+      const passesBefore = fixture.store.readReviewPasses(storyId);
+      if (wave === 2) {
+        git(fixture.root, ['add', fixture.store.storyDirPath(storyId)]);
+        git(fixture.root, ['commit', '-m', 'publish unchanged-material review metadata']);
+        assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), epoch.cutoff.headHash);
+      }
+      const env = { PROOF_OR_STOP_AGENT: critic, PROOF_OR_STOP_SESSION_ID: `metadata-wave-${wave}-critic` };
+      const purpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId };
+      cli(fixture.root, 'dispatch', { storyId, agentType: critic, ...purpose }, env);
+      const started = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
+      const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+      assert.ok(reviewRunId);
+      if (wave === 2) {
+        const run = fixture.store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === reviewRunId)!;
+        assert.notEqual(run.headHash, epoch.cutoff.headHash);
+        const subject = deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId });
+        assert.ok(subject.requiredLanes.includes(critic),
+          'METADATA_HEAD_CRITIC_ADMISSION: valid wave-two critic survives a metadata-only HEAD change');
+        validateReviewerBatchAssignments(subject.requiredLanes,
+          subject.requiredLanes.map(lane => ({ lane, kind: 'managed', host: 'codex' })));
+        assert.deepEqual(fixture.store.readReviewInventoryEpochs(storyId), inventoryBefore);
+        assert.deepEqual(fixture.store.readReviewPasses(storyId), passesBefore);
+        git(fixture.root, ['commit', '--allow-empty', '-m', 'another metadata-only HEAD tick']);
+        assert.equal(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).subjectIdentity, subject.subjectIdentity);
+        assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId, wave: 1 }), /BATCH_SUBJECT_REQUEST_MISMATCH/);
+        assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId, epochId: 'wrong-epoch' }), /BATCH_SUBJECT_REQUEST_MISMATCH/);
+        const validRuns = fixture.store.readReviewRuns(storyId);
+        for (const mutation of [
+          { _hash: 'tampered' }, { storyId: 'B-wrong-story' }, { reviewRound: 'wrong-round' },
+          { reviewPurpose: 'topology' }, { materialHash: 'wrong-material' }, { storyFilesHash: 'wrong-files' },
+          { inventoryBinding: { ...run.inventoryBinding, wave: 1 } },
+          { inventoryBinding: { ...run.inventoryBinding, epochId: 'wrong-epoch' } },
+        ]) {
+          try {
+            fixture.store.writeReviewRuns(storyId, { ...validRuns, runs: validRuns.runs.map(row =>
+              row.reviewRunId === reviewRunId ? { ...row, ...mutation } : row) } as typeof validRuns);
+            assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+              `invalid current critic cannot borrow prior-wave authority: ${JSON.stringify(mutation)}`);
+          } finally { fixture.store.writeReviewRuns(storyId, validRuns); }
+        }
+        const current = inventoryBefore.epochs.at(-1)!;
+        for (const mutation of [
+          { cutoff: { ...current.cutoff, materialHash: 'wrong-material' } },
+          { cutoff: { ...current.cutoff, storyFilesHash: 'wrong-files' } },
+          { scopeDigest: 'wrong-scope' }, { requiredLanes: [] },
+          { candidateSpecSetDigest: 'wrong-candidate' }, { corpusDigest: 'wrong-corpus' },
+        ]) {
+          const { _hash, ...unsigned } = { ...current, ...mutation };
+          try {
+            fixture.store.writeReviewInventoryEpochs(storyId, { ...inventoryBefore,
+              epochs: [{ ...unsigned, _hash: signReviewInventoryEpoch(unsigned) }] });
+            assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }),
+              /BATCH_SUBJECT_(CUTOFF_DRIFT|SCOPE_OR_ROSTER_DRIFT|CANDIDATE_DRIFT)/);
+          } finally { fixture.store.writeReviewInventoryEpochs(storyId, inventoryBefore); }
+        }
+      }
+      await fixtureReviewCli(fixture, 'review_pass_set', {
+        storyId, agent: critic, reviewRunId, note: 'Disposable independent critic inspected the current complete wave.', ...reads,
+      });
+      cli(fixture.root, 'review_inventory_critic_set', {
+        storyId, epochId: epoch.epochId, reviewRunId, agent: critic,
+        findingDispositions: wave === 1 ? [{ findingId, disposition: 'verified_family', familyKey: `finding:${findingId}`,
+          reason: 'Retain the verified disposable first-wave family.' }] : [],
+      }, env);
+      if (wave === 1) assert.match(cli(fixture.root, 'review_inventory_wave_advance', { storyId }), /Current wave: 2\/2/);
+    }
+    assert.match(cli(fixture.root, 'review_inventory_finalize', { storyId }), /State: FINALIZED/);
+    const complete = fixture.store.readReviewInventoryEpochs(storyId);
+    assert.equal(complete.epochs[0].waves.length, 2);
+    assert.deepEqual(complete.epochs[0].cutoff, epoch.cutoff);
+    assert.equal(complete.criticReceipts.length, 2);
+    console.log('METADATA_HEAD_CRITIC_ADMISSION_PASS both waves and exact signed cutoff preserved through finalization');
+  } finally {
+    process.chdir(cwd);
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+if (process.argv.includes('--metadata-critic-admission-only')) {
+  await criticMetadataHeadRecovery();
+  process.exit(0);
+}
+
 if (process.argv.includes('--discovery-only')) {
   await criticDiscoveryRecovery();
   process.exit(0);
@@ -728,8 +847,6 @@ if (!process.argv.includes('--lifecycle-only') && !process.argv.includes('--rost
 
 const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
 const first = setup(undefined, true);
-const metadataCriticFixtureCwd = process.cwd();
-if (process.argv.includes('--metadata-critic-admission-only')) process.chdir(first.root);
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
 const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
@@ -963,13 +1080,6 @@ for (const lane of epoch.requiredLanes) {
     readManifest, readEvents,
   });
 }
-// An owner metadata publication can advance HEAD while preserving the signed
-// inventory cutoff, completed wave and current lane terminals.
-const metadataCheckpointInventory = reloaded.readReviewInventoryEpochs(storyId);
-const metadataCheckpointPasses = reloaded.readReviewPasses(storyId);
-git(first.root, ['add', reloaded.storyDirPath(storyId)]);
-git(first.root, ['commit', '-m', 'publish unchanged-material review metadata']);
-assert.notEqual(git(first.root, ['rev-parse', 'HEAD']), epoch.cutoff.headHash);
 cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
   PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-wave2-critic',
 });
@@ -980,44 +1090,6 @@ const secondCriticReviewRunId = secondCriticStarted.match(/Review run (\S+) star
 assert.ok(secondCriticReviewRunId);
 const selectedInventoryRole = promptRoleContract(criticArgs.agentType, 'inventory-completeness');
 const secondCriticRun = reloaded.readReviewRuns(storyId).runs.find(row => row.reviewRunId === secondCriticReviewRunId)!;
-assert.notEqual(secondCriticRun.headHash, epoch.cutoff.headHash);
-const metadataCriticSubject = deriveReviewerBatchSubject(reloaded, first.root, { storyId });
-assert.ok(metadataCriticSubject.requiredLanes.includes(criticArgs.agentType),
-  'METADATA_HEAD_CRITIC_ADMISSION: valid wave-two critic survives a metadata-only HEAD change');
-validateReviewerBatchAssignments(metadataCriticSubject.requiredLanes,
-  metadataCriticSubject.requiredLanes.map(lane => ({ lane, kind: 'managed', host: 'codex' })));
-assert.deepEqual(reloaded.readReviewInventoryEpochs(storyId), metadataCheckpointInventory,
-  'batch admission preserves the original cutoff and completed wave');
-assert.deepEqual(reloaded.readReviewPasses(storyId), metadataCheckpointPasses,
-  'batch admission preserves all completed lane terminals');
-git(first.root, ['commit', '--allow-empty', '-m', 'another metadata-only HEAD tick']);
-assert.equal(deriveReviewerBatchSubject(reloaded, first.root, { storyId }).subjectIdentity,
-  metadataCriticSubject.subjectIdentity, 'a later harmless HEAD tick does not revoke critic admission');
-assert.throws(() => deriveReviewerBatchSubject(reloaded, first.root, { storyId, wave: 1 }), /BATCH_SUBJECT_REQUEST_MISMATCH/);
-assert.throws(() => deriveReviewerBatchSubject(reloaded, first.root, { storyId, epochId: 'wrong-epoch' }), /BATCH_SUBJECT_REQUEST_MISMATCH/);
-// Corrupt only isolated fixture records. A valid old-wave critic must not rescue
-// a current run whose signature, purpose or exact inventory binding is invalid.
-const validMetadataRuns = reloaded.readReviewRuns(storyId);
-for (const mutation of [
-  { _hash: 'tampered' }, { storyId: 'B-wrong-story' }, { reviewRound: 'wrong-round' },
-  { reviewPurpose: 'topology' }, { materialHash: 'wrong-material' }, { storyFilesHash: 'wrong-story-files' },
-  { inventoryBinding: { ...secondCriticRun.inventoryBinding, wave: 1 } },
-  { inventoryBinding: { ...secondCriticRun.inventoryBinding, epochId: 'wrong-epoch' } },
-]) {
-  try {
-    reloaded.writeReviewRuns(storyId, { ...validMetadataRuns, runs: validMetadataRuns.runs.map(run =>
-      run.reviewRunId === secondCriticReviewRunId ? { ...run, ...mutation } : run) } as typeof validMetadataRuns);
-    assert.ok(!deriveReviewerBatchSubject(reloaded, first.root, { storyId }).requiredLanes.includes(criticArgs.agentType),
-      `metadata tolerance must not admit an invalid critic: ${JSON.stringify(mutation)}`);
-  } finally { reloaded.writeReviewRuns(storyId, validMetadataRuns); }
-}
-console.log('METADATA_HEAD_CRITIC_ADMISSION_PASS current wave and exact signed bindings retained');
-if (process.argv.includes('--metadata-critic-admission-only')) {
-  process.chdir(metadataCriticFixtureCwd);
-  for (const fixtureRoot of isolatedFixtureRoots) rmSync(fixtureRoot, { recursive: true, force: true });
-  process.exit(0);
-}
-
 const secondCriticEnvelope = reloaded.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === secondCriticRun.envelopeId)!;
 assert.ok(secondCriticEnvelope.priorPassRef, 'wave two must consume a genuine signed prior critic PASS');
 assert.equal(secondCriticEnvelope.eligibilityRoleSemanticDigest, selectedInventoryRole.semanticDigest);
