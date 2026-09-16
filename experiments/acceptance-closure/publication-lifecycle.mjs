@@ -7,7 +7,18 @@ import {pathToFileURL,fileURLToPath} from 'node:url';
 import {StoryStore} from '../../packages/main/dist/core/store.js';
 import {persistSyntheticAdmittedWindowForTest} from '../../packages/main/dist/core/certification-window.js';
 import {deriveCertificationDomainInputHashes} from '../../packages/main/dist/handlers/certification-window.js';
+import {createFixtureMachineEnvironment} from '../../packages/main/dist/tasks/helpers/fixture-machine-environment.js';
+import * as runtimeFacts from '../../packages/main/dist/core/runtime-fact-registry.js';
+// The delegation policy is a build product: a dist compiled from source that predates it must fail
+// with a named cause rather than silently deleting an "undefined" environment key.
+const descriptorEnvironment=runtimeFacts.VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY?.descriptorEnvironment;
+if(typeof descriptorEnvironment!=='string')throw new Error('publication-lifecycle requires packages/main/dist built from the current source (missing VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY); run node scripts/ensure-dist.mjs');
 const lab=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'), temp=fs.mkdtempSync(path.join(os.tmpdir(),'lab-publication-lifecycle-')),root=path.join(temp,'project'),id='B-lab-publication';
+// The nested CLI validate below is a machine-admission owner of its own. It must not
+// join the registry that already holds the reservation of whichever official command
+// runs this file: an undeclared nested owner there queues behind its own ancestor and
+// is refused. Its locator is removed too, so the child never sees a dangling one.
+const fixtureMachine=createFixtureMachineEnvironment();let completed=false;
 fs.mkdirSync(root);const switchFile=path.join(temp,'mode'),counter=path.join(temp,'counter'),hook=path.join(temp,'hook.mjs');
 const git=(...args)=>cp.execFileSync('git',args,{cwd:root,encoding:'utf8',env:{...process.env,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_SYSTEM:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_COUNT:'0',GIT_AUTHOR_NAME:'Lab',GIT_AUTHOR_EMAIL:'lab@example.test',GIT_COMMITTER_NAME:'Lab',GIT_COMMITTER_EMAIL:'lab@example.test'}}).trim();
 const store=new StoryStore(root);
@@ -34,7 +45,9 @@ try{
  const prep=StoryStore.prototype.prepareTestEvidence,write=StoryStore.prototype.writePreparedTestEvidence;
  StoryStore.prototype.prepareTestEvidence=function(id,data){if(mode()==='reject')data.output+='x'.repeat(60*1024*1024);const t=prep.call(this,id,data);originals.set(t,data);return t;};StoryStore.prototype.writePreparedTestEvidence=function(id,t){if(mode()==='late')originals.get(t).output+='x'.repeat(60*1024*1024);return write.call(this,id,t);};
  `);
- const run=mode=>{fs.writeFileSync(switchFile,mode);const r=cp.spawnSync(process.execPath,['--import',hook,path.join(lab,'packages/main/dist/cli.js'),'validate',`--story=${id}`,'--json'],{cwd:root,encoding:'utf8',timeout:120000,maxBuffer:10e6,env:{...process.env,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_SYSTEM:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_COUNT:'0',PROOF_OR_STOP_PROJECT_ROOT:root,PROOF_OR_STOP_SESSION_ID:'lab-publication-lifecycle'}});console.log(JSON.stringify({mode,status:r.status,stdout:r.stdout,stderr:r.stderr}));return r;};
+ const childEnv={...fixtureMachine.env,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_SYSTEM:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_COUNT:'0',PROOF_OR_STOP_PROJECT_ROOT:root,PROOF_OR_STOP_SESSION_ID:'lab-publication-lifecycle'};
+ delete childEnv[descriptorEnvironment];
+ const run=mode=>{fs.writeFileSync(switchFile,mode);const r=cp.spawnSync(process.execPath,['--import',hook,path.join(lab,'packages/main/dist/cli.js'),'validate',`--story=${id}`,'--json'],{cwd:root,encoding:'utf8',timeout:120000,maxBuffer:10e6,env:childEnv});console.log(JSON.stringify({mode,status:r.status,stdout:r.stdout,stderr:r.stderr}));return r;};
  const baseline=run('late');assert.equal(baseline.status,0);const state=store.readStory(id), file=path.join(store.storyDirPath(id),'test-evidence.json');
  const firstBytes=fs.readFileSync(file);const late=run('late');assert.equal(late.status,0,'late mutation must not consume a new execution or force recovery');
  assert.notDeepEqual(fs.readFileSync(file),firstBytes,'new canonical reuse evidence must actually publish');
@@ -51,5 +64,6 @@ try{
  const freshRetry=run('off');assert.equal(freshRetry.status,0);assert.notDeepEqual(fs.readFileSync(file),beforeFreshReject);
  const final=store.readStory(id);assert.equal(final.phase,state.phase);assert.equal(final.currentReviewRound,state.currentReviewRound);assert.deepEqual(final.events,state.events);
  assert.deepEqual(fs.readFileSync(counter,'utf8').trim().split(/\r?\n/),['run','run','run'],'initial execution, forced executed refusal and its retry');
+ completed=true;
  console.log('PUBLICATION_LIFECYCLE_GREEN phaseUnchanged=true reviewRoundUnchanged=true projectExecutions=3 executedAndReuseRefusalNotPass=true retry=PASS');
-}finally{fs.rmSync(temp,{recursive:true,force:true});}
+}finally{fs.rmSync(temp,{recursive:true,force:true});if(completed)fixtureMachine.cleanup();else console.error(`fixture machine retained for diagnosis: ${fixtureMachine.root}`);}
