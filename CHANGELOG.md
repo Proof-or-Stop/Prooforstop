@@ -1,5 +1,78 @@
 # Changelog
 
+## Integrated concurrent-fix release - v0.3.385 - 2026-09-16
+
+### Why this release exists
+
+Two independently advancing `main` histories shared the 0.3.382 version number but
+contained different repairs. The local line later reached 0.3.384, while the published
+line retained two additional managed-review fixes. Publishing either parent alone would
+therefore omit reviewed behavior from the other parent. Merge `191d6d9a05` combines both
+parents, and this patch bump gives the combined source and rebuilt CLI a unique version.
+
+### Problems resolved
+
+- Managed reviewer prompts now declare the complete terminal proposal schema, including
+  authenticated read records, summary fields, routing-digest syntax, and the mandatory
+  inventory-critic payload for the topology lane. Terminal and compatibility ingestion
+  reject incomplete or unknown shapes consistently.
+- Managed scope review no longer deadlocks when the canonical owner set is empty. Omitted
+  and explicitly empty owner dispositions are accepted as the same zero-owner state;
+  malformed or non-empty dispositions remain rejected, and a rejected attempt does not
+  consume the one-shot invocation.
+- Canonical INIT fixture reviews now travel through the real acknowledged managed-dispatch
+  path instead of calling the protected verdict command directly. The controller still
+  signs, binds, and atomically consumes each invocation.
+- Tracked controller configuration and hooks can bootstrap legitimate repository-owned
+  Story worktrees without being misclassified as external projections. Dirty, undeclared,
+  unsafe, index-only, or untracked material remains refused.
+- Partial-DONE recovery discovery avoids per-Story branch probes after one successful
+  branch enumeration, while retaining fallback behavior and explicit full-ref checks that
+  cannot be shadowed by same-name tags.
+
+### Before and after
+
+| Area | Before | After |
+| --- | --- | --- |
+| Combined release identity | Different repair sets could report overlapping 0.3.382-era versions | The merged tree and rebuilt CLI report 0.3.385 |
+| Managed final proposal | Provider guidance could produce a shape rejected by terminal intake | One generated schema is shared by guidance, terminal validation, and compatibility intake |
+| Zero-owner scope review | An explicit empty disposition array was rejected and could stall PLAN | Omitted and empty arrays are equivalent; malformed or non-empty values still fail closed |
+| Canonical INIT fixture | Direct protected-command calls failed delivery acknowledgement | Fixtures deliver independent verdicts through live signed dispatches |
+| Tracked controller bootstrap | Legitimate tracked config or hook differences could be mistaken for external projection | Repository-owned tracked material is preserved while unsafe and untracked cases remain blocked |
+| DONE recovery scan | Git process starts grew with archived Story count and ambiguous ref names could shadow branches | One full branch enumeration filters candidates; explicit `refs/heads/...` operands prevent tag shadowing |
+| Static review bindings | Choosing either parent manifest produced large false drift after the merge | Every retained reviewed call is rebound to the merged source: 0 pending call rows and 0 stale exceptions |
+
+### Verification evidence
+
+- `npm run build` completed for the main, utility, and graph packages; the full-suite build
+  binding was verified.
+- `node packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs` passed the
+  zero-owner retry and invocation-consumption controls.
+- `node packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js` passed the
+  final-proposal prompt and working-directory isolation controls.
+- `node scripts/verify-managed-inventory-critic-transport.mjs` passed authenticated import,
+  replay, cancellation, collision, drift, and negative-control scenarios.
+- `node scripts/verify-done-recovery-scan.mjs` passed 22 behavior and live Git-process
+  controls with one branch enumeration and one show-ref call at 0, 40, and 200 archived
+  Stories.
+- `node scripts/verify-tracked-controller-bootstrap.mjs` passed preservation, projection,
+  ownership, path, and removal controls.
+- `node packages/main/tests/canonical-new-story-artifacts.test.mjs --group=init` passed all
+  13 canonical INIT contracts.
+- `npm run test:process-fact-contract` completed successfully and verified the combined
+  registry, runtime admission, evidence, prompt, and lifecycle contracts.
+- The static-edge report for the merged 0.3.385 release source contained 0 `needsReview` rows,
+  0 stale exceptions, 1,674 reviewed exceptions, 17 configured skips, and the inherited
+  single unexpanded command. The latter remains visible and is not relabeled as a pass.
+
+### Scope and provenance
+
+This is an integration release, not a claim that every repository-wide suite was rerun.
+It preserves the complete ancestry of local parent `23134e9bd5` and published parent
+`c33a8204ab`. The merge resolution kept both change sets, retained the higher pre-release
+version, combined the changelog histories, and mechanically refreshed source, evidence,
+dependency, and configuration digests without weakening exception rationales.
+
 ## Lab done-recovery-scan - v0.3.384 - 2026-09-16
 
 Reduce redundant Git subprocesses in partial-DONE recovery discovery. A successful per-call branch enumeration now filters stored Stories without live branches before show-ref, while live candidate probes and the stored-ID fallback on enumeration failure remain intact. This does not change DONE semantics or implement recovery transactions.
