@@ -16,6 +16,7 @@ import {
   writeManagedHostRunEvidenceBinding,
   writeManagedReviewEvidenceProposal,
   type ManagedReviewEvidenceFindingProposal,
+  type ManagedReviewEvidenceProposal,
 } from '../core/managed-host-run.js';
 import {
   createManagedReviewEvidenceBinding,
@@ -211,6 +212,28 @@ export function createManagedReviewEvidenceHandlers(
       // the remaining TOCTOU window.
       assertLiveReviewBinding();
       const sealedProposal = readManagedReviewEvidenceProposal(ctx.root, runId);
+      const assertCurrentCandidateReadBinding = (candidateProposal: ManagedReviewEvidenceProposal): void => {
+        const routingMode = loadConfig(ctx.root).candidateSpecRouting?.mode ?? 'shadow';
+        const currentStory = ctx.store.readStory(candidateProposal.storyId);
+        const snapshot = captureReviewRunSnapshot(ctx.root, {
+          storyId: candidateProposal.storyId,
+          storyPhase: currentStory.phase,
+        });
+        assertCandidateReadBinding({
+          manifest: candidateProposal.readManifest,
+          artifact: ctx.store.readCandidateSpecSet(candidateProposal.storyId),
+          mode: routingMode,
+          strict: true,
+          currentMaterialHash: snapshot.materialHash,
+          currentStoryFilesHash: snapshot.storyFilesHash,
+          currentStoryInputDigest: digestCandidateRoutingValue(currentStoryRoutingInput(ctx, candidateProposal.storyId)),
+        });
+      };
+      // The sealed provider proposal already contains the candidate read
+      // manifest. Reject an obviously stale route before the more expensive
+      // receipt/proposal intake, then repeat the same check under the canonical
+      // persistence locks below to close the TOCTOU window.
+      if (sealedProposal) assertCurrentCandidateReadBinding(sealedProposal);
       const intake = createManagedReviewEvidenceBinding({
         root: ctx.root,
         storyId: managedRun.storyId,
@@ -249,23 +272,6 @@ export function createManagedReviewEvidenceHandlers(
       const storyMetadataLockDir = proposal.conclusion === 'pass'
         ? ctx.store.runtimeLockDirPath(proposal.storyId, 'finding', 'review-passes')
         : ctx.store.storyFilePath(proposal.storyId, 'findings.lock');
-      const assertCurrentCandidateReadBinding = (): void => {
-        const routingMode = loadConfig(ctx.root).candidateSpecRouting?.mode ?? 'shadow';
-        const currentStory = ctx.store.readStory(proposal.storyId);
-        const snapshot = captureReviewRunSnapshot(ctx.root, {
-          storyId: proposal.storyId,
-          storyPhase: currentStory.phase,
-        });
-        assertCandidateReadBinding({
-          manifest: proposal.readManifest,
-          artifact: ctx.store.readCandidateSpecSet(proposal.storyId),
-          mode: routingMode,
-          strict: true,
-          currentMaterialHash: snapshot.materialHash,
-          currentStoryFilesHash: snapshot.storyFilesHash,
-          currentStoryInputDigest: digestCandidateRoutingValue(currentStoryRoutingInput(ctx, proposal.storyId)),
-        });
-      };
       const writeImportBinding = (importedIds: string[], importedAt: string): void => {
         writeManagedHostRunEvidenceBinding(ctx.root, runId, {
           schemaVersion: 'lattice.managed_review_evidence_import.v1',
@@ -352,7 +358,7 @@ export function createManagedReviewEvidenceHandlers(
         // required full reads. Existing receipt retries remain idempotent:
         // they revalidate their exact persisted evidence above rather than
         // retroactively changing its historic routing input.
-        assertCurrentCandidateReadBinding();
+        assertCurrentCandidateReadBinding(proposal);
 
         const importedAt = intake.binding.importedAt;
         const binding = intake.binding;
