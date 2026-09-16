@@ -1,5 +1,47 @@
 # Changelog
 
+## Lab benchmark-critic-metadata-head - v0.3.387 - 2026-09-16
+
+# Preserve inventory critic admission across metadata commits
+
+The B-0980 owner availability probe committed only Story metadata while an OPEN inventory retained its signed cutoff and completed waves. A new inventory critic was excluded from admission solely because its run HEAD differed from that cutoff. This bounded repair retains the exact signed OPEN epoch, purpose, wave, round, cutoff, material/Story-file identity, scope, roster and candidate/corpus safeguards while allowing descendant metadata commits.
+
+Both the current workspace and a signed critic witness must retain the original Git lineage. An old valid critic cannot rescue a divergent current workspace. Admission establishes the existence of a valid critic witness, not authorization of every stored run; host_run separately calls assertCurrentReviewRunForEvidence for the exact requested run, and the evidence consumers retain their own validation. A mixed valid/divergent-record control explicitly proves this roster contract; another control removes valid wave-two fixture witnesses to independently exercise the divergent-run guard on a valid current workspace.
+
+Git queries are bound to signedRoot, strip inherited GIT_* variables, and disable replacement refs and legacy grafts with --no-replace-objects, GIT_NO_REPLACE_OBJECTS=1 and GIT_GRAFT_FILE set to the platform null device. Commit presence is probed using successful cat-file batch protocol results before ancestry: missing/non-commit historical records are non-witnesses, while a missing cutoff raises BATCH_SUBJECT_CUTOFF_OBJECT_MISSING before snapshot capture. Its explicit recovery preserves records, cancels the unusable epoch, and begins a new epoch with fresh evidence. A missing earlier historical candidate cannot mask a later valid witness. Errors, signals, nonzero presence-query statuses and unexpected protocol output remain unverifiable. For merge-base, exit 0 proves descent and exit 1 proves non-descent; other statuses are unverifiable. Lazy fetching and interactive Git prompts are disabled. A necessary query returning unverifiable raises BATCH_SUBJECT_LINEAGE_UNVERIFIABLE with bounded stderr, status/error, the 5000ms budget and elapsed time. It never silently treats infrastructure failure as divergence. Ordinary roster derivation without an eligible critic makes no ancestry query. Infrastructure failure alone authorizes neither divergence classification nor an epoch restart. The prompt and mechanical process registry distinguish missing historical objects, missing cutoff objects and infrastructure faults.
+
+## Executed target verification
+
+Four actual target REDs remain in Lab history: the original metadata-only rejection (METADATA_HEAD_CRITIC_ADMISSION), the divergent-current-workspace loophole despite an older valid critic (DIVERGENT_EQUAL_TREE_CRITIC_REFUSED), replacement-ref laundering (REPLACE_GRAFT_CANNOT_LAUNDER_CRITIC_LINEAGE), and absent historical commits incorrectly blocking ordinary admission (ABSENT_CRITIC_RUN_IS_NON_WITNESS). The pinned command remains node scripts/verify-inventory-critic-metadata-head.mjs. Setup failures and the initial overbroad Git failure shim were retained as failed attempts, not accepted as target RED or GREEN.
+
+The focused real-CLI fixture runs two inventory waves through FINALIZED with the original cutoff preserved. Twenty-two negative controls cover eight run mutations, six signed epoch drifts, divergent current workspace, independently divergent run, actual replacement-ref and legacy-graft laundering, real Git exit 128, an actual five-second subprocess timeout, an actually removed historical commit object, and an actually removed cutoff object. These last controls temporarily move only their own disposable loose objects out of the fixture repository and restore them in finally; they use real Git, not a simulated stderr string. Missing-first/valid-later witness ordering has an explicit positive assertion. Equal-cutoff admission, descendant continuation, mixed witnesses and stripped GIT_DIR have explicit positive controls. Fault injection targets only the ancestry query; snapshot Git calls delegate to the real executable. Controls restore their fixture state before continuation.
+
+The fixture writes a create-only nonce-bound receipt only after all final assertions. Its driver checks exact selector, nonce, count, wave/critic-receipt counts and FINALIZED state, plus four receipt mutation/restoration controls. It uses absolute paths, shared canonical build preparation and a finite provider-neutral fixture timeout. The registered process-fact driver executes it, captures output and requires INVENTORY_CRITIC_METADATA_HEAD_GREEN. assertStory3ProcessFactContract is called at scripts/verify-process-fact-contract.mjs:9884. No new call was added to the default shared inventory smoke path.
+
+Final candidate verification is recorded below after completion. The new exact fixture edge and narrow changed-source digest refreshes are part of this independent audit; they are not Story authority. No production Story state was edited directly.
+
+## Limits and supplementary check outcomes
+
+The latest supplementary node scripts/run-dynamic-validation-audit.mjs change-manifest did not complete within the owner's ten-minute diagnostic budget. Its identity-checked mutation-smoke child was terminated with SIGTERM; the adapter exited 1 with child status null. Preserve /tmp/benchmark-critic-audit3-change-manifest.log and /tmp/benchmark-critic-audit3-change-manifest-interruption.json. This is incomplete verification, not PASS, not a reproduced product regression, and not a demonstrated baseline-equivalence claim. An earlier candidate 0e50e76 completed this check successfully, but that older result is not relabelled as fresh evidence for this candidate.
+
+Known independently observed main-0.3.386 and prior-candidate baseline failures remain disclosed: test:review-inventory-epoch fails F063 canonical inventory mismatch unknownPolicy=[test:benchmark-framework-hardening] stalePolicy=[test:managed-review-final-schema] missingScripts=[]; default review-inventory-handler-smoke fails the existing cross-provider fixture host mismatch. Static scanning retains the same unexpanded packages/main/tests/brand-role-migration.test.mjs node, so its overall marker is U18_STATIC_NEEDS_REVIEW. None is suppressed, relabelled PASS, or expanded into unrelated repairs. The external-cwd driver verification passed at 0e50e76; this is historical validation of unchanged path-resolution logic, not a fresh execution claim.
+
+## Independent audit history and authority
+
+Claude audits 91eada2e-48fe-40ba-bfd5-a29b96f85564, ae1522c4-1220-4e4c-b520-4d753cbdf231 79bacab8-de8f-49a9-82fe-df2f768caa81 and 2f610f13-4bce-4ea2-ac36-902b12773712 rejected earlier candidates and remain preserved. The fourth review identified only the missing-object versus infrastructure distinction; its requested real-object negative and ordering controls now pass. Their bounded implementation, executable-coverage, static-edge and diagnostic follow-ups produced actual changed candidates and recorded RED/GREEN controls. Current-task read-only advisory review also clarified witness existence versus exact-run authorization; it is not a substitute for this Claude audit.
+
+Local maintenance integration only, without remote publication. Lab records are not formal Story DONE or signed product-release evidence. B-0980 remains REVIEW, B-65ca PLAN, and the requested benchmark runner remains unimplemented. Work continues through those Stories after this blocker repair.
+
+## Final frozen candidate checks
+
+At 2948dfa57983aee8c3caa83fd6b2e100d71a3191, the pinned Lab GREEN exited 0 with both METADATA_HEAD_CRITIC_ADMISSION_PASS and INVENTORY_CRITIC_METADATA_HEAD_GREEN (/tmp/benchmark-critic-absence-green.log). The real CLI fixture exercised 22 negative controls, the positive and restoration controls, and two-wave finalization. The new target RED is preserved in /tmp/benchmark-critic-absence-red.log.
+
+The full npm run test:process-fact-contract exited 0 (/tmp/benchmark-critic-absence-process.log), including its real invocation of the focused driver. Current reviewer-batch smoke exited 0 with reviewer_batch smoke passed (/tmp/benchmark-critic-absence-reviewer.log). Current static scanning exited 1 solely with the disclosed baseline unexpanded node: needsReview=0, nested=0, skipped=17, exceptions=1675, unexpandedCommands=1 (/tmp/benchmark-critic-absence-static.json). This overall static result is not labelled PASS. No tracked changes remain; generated AGENTS.override.md remains untracked as required. The earlier supplementary change-manifest interruption remains explicitly incomplete.
+
+Maintenance provenance: codex/lab-benchmark-critic-metadata-head, repair 2948dfa57983aee8c3caa83fd6b2e100d71a3191.
+Verification command (replayed before integration and on main): `["node","scripts/verify-inventory-critic-metadata-head.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab nested-reservation - v0.3.386 - 2026-09-16
 
 # Lab nested-reservation: isolate the acceptance-closure fixture machine registry
