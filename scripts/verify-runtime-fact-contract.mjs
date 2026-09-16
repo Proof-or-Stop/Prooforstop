@@ -22,6 +22,7 @@ const requiredFacts = [
 ];
 
 const requiredEvidenceFacts = [
+  'global-thin-native-hook-projection',
   'identity-canonical-digest-memo',
   'validation-machine-reservation-delegation',
   'command-observation-boundaries',
@@ -82,6 +83,10 @@ async function main() {
   check(read(root, 'packages/main/src/core/runtime-fact-registry.ts').includes('MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY'), 'Managed critic fixture runtime policy must be registered');
   check(read(root, 'packages/main/src/tasks/isolated-finding-fixture.ts').includes('managedCriticFixtureBudgetMs(process.env,budgetStartedAt)'), 'Isolated fixture must consume the managed critic budget');
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('Controller HEAD and index own the selected regular config'), 'Repository-owned bootstrap assets must retain their material ownership contract');
+  for (const file of ['packages/main/src/cli-engine.ts', 'packages/main/src/cli/runtime-root.ts', 'packages/main/src/core/runtime-artifact-registry.ts']) {
+    check(read(root, file).includes('hasRepositoryOwnedControllerAssets'), `${file} must share the repository-owned asset predicate`);
+  }
   // Controlled machine delegation is checked before the build-share step and before any subprocess
   // step, so these assertions are evaluated even when a later control aborts the run.
   check(registrySource.includes("id: 'validation-machine-reservation-delegation'"), 'Controlled machine delegation runtime fact must be registered');
@@ -92,6 +97,8 @@ async function main() {
   }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
+  const trackedBootstrap = execFileSync(process.execPath, [join(root, 'scripts/verify-tracked-controller-bootstrap.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
+  check(trackedBootstrap.includes('TRACKED_CONFIG_BOOTSTRAP_GREEN'), 'Executed tracked controller bootstrap control');
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
     { cwd: root, stdio: 'inherit', timeout: 30_000 });
   check(registrySource.includes('memory-query-latency-boundary'), 'Memory query timing runtime fact is registered');

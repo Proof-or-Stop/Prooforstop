@@ -21,6 +21,7 @@ import { identityCutoverReviewedContexts } from '../../../scripts/verify-proof-o
 import { prepareOfflineDependencyOverrides, sourceManifests } from '../../../scripts/verify-proof-or-stop-pack-boundary.mjs';
 import ts from 'typescript';
 import { assertActiveIdentityOperationOwnership } from './support/active-identity-operation-ownership.mjs';
+import { deliverInitReviewerVerdict, deliverInitReviewerVerdicts } from './support/managed-init-reviewer-delivery.mjs';
 import { createFixtureImplementationCommit } from '../dist/tasks/current-implementation-fixture.js';
 
 const { base: journalFixtureBase, delta: journalFixtureDelta } = await import('../../../scripts/verify-acceptance-amendment-delta.mjs');
@@ -181,7 +182,7 @@ await check(['scope'], 'CHK-001 fresh writer emits exact proof-or-stop scope sch
   assert.equal(scopeBoundaryHashIsFresh(canonicalBoundary), true);
 });
 
-await check(['scope', 'init', 'runtime', 'inventory', 'identity-cutover'], 'CHK-001/002 public CLI creates fresh canonical scope and INIT evidence', () => {
+await check(['scope', 'init', 'runtime', 'inventory', 'identity-cutover'], 'CHK-001/002 public CLI creates fresh canonical scope and INIT evidence', async () => {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-b49df-fresh-'));
   fixtureRoots.push(root);
   initRepo(root, false);
@@ -208,10 +209,16 @@ await check(['scope', 'init', 'runtime', 'inventory', 'identity-cutover'], 'CHK-
   assert.ok(storyId, `story_create did not return a Story id: ${created.stdout}`);
   const frozen = runCli(root, 'scope_freeze_check', { storyId });
   assert.equal(frozen.status, 0, `${frozen.stdout}${frozen.stderr}`);
-  for (const actor of ['proof-or-stop-product-reviewer', 'proof-or-stop-review-story-init', 'proof-or-stop-review-story-init']) {
-    const reviewed = runCli(root, 'init_check_set', { storyId, issues: [], agentId: actor }, { PROOF_OR_STOP_AGENT: actor });
-    assert.equal(reviewed.status, 0, `${reviewed.stdout}${reviewed.stderr}`);
-  }
+  // INIT evidence is only admissible from inside a live managed dispatch, so the
+  // reviewer verdicts are delivered through the real acknowledged path (one
+  // single-use dispatch per verdict) instead of a bare public-CLI init_check_set.
+  const deliveries = await deliverInitReviewerVerdicts({
+    root,
+    storyId,
+    reviewers: ['proof-or-stop-product-reviewer', 'proof-or-stop-review-story-init', 'proof-or-stop-review-story-init'],
+  });
+  assert.equal(new Set(deliveries.map((delivery) => delivery.runId)).size, 3,
+    'each delivered reviewer verdict must come from its own managed dispatch run');
   const storyDir = join(root, '.proof-or-stop', 'story', 'actives', storyId);
   const generatedJsonArtifacts = Object.fromEntries(
     readdirSync(storyDir)
@@ -223,7 +230,14 @@ await check(['scope', 'init', 'runtime', 'inventory', 'identity-cutover'], 'CHK-
   const init = generatedJsonArtifacts['init-check.json'];
   assert.equal(scope.schemaVersion, 'proof-or-stop.scope_boundary.v1.1');
   assert.deepEqual(init.agentResults.map((row) => row.agentId).sort(), ['proof-or-stop-product-reviewer', 'proof-or-stop-review-story-init']);
-  freshFixture = { root, storyId, storyDir, artifacts: generatedJsonArtifacts };
+  // Every persisted reviewer row must name the managed dispatch that produced it,
+  // and a re-delivered lane must rebind to its latest run rather than keep a spent one.
+  const latestRunIdByAgent = new Map(deliveries.map((delivery) => [delivery.agentType, delivery.runId]));
+  assert.deepEqual(
+    Object.fromEntries(init.agentResults.map((row) => [row.agentId, row.deliveryRunId])),
+    Object.fromEntries(latestRunIdByAgent),
+  );
+  freshFixture = { root, storyId, storyDir, artifacts: generatedJsonArtifacts, deliveries };
 });
 
 await check(['scope'], 'CHK-001:happy:0 public CLI artifact has exact canonical schema and valid hash', () => {
@@ -477,7 +491,7 @@ await check(['init'], 'CHK-002:happy:0 canonical reviewer set is signed and INIT
   assert.equal(getGuardFailureReason(freshFixture.storyId, store, 'INIT_CHECK', freshFixture.root), null);
 });
 
-await check(['init'], 'CHK-002:edge:0 signed historical INIT evidence stays inspectable and byte-stable', () => {
+await check(['init'], 'CHK-002:edge:0 signed historical INIT evidence stays inspectable and byte-stable', async () => {
   assert.ok(freshFixture, 'public CLI fixture must exist');
   const store = new StoryStore(freshFixture.root);
   const initPath = join(freshFixture.storyDir, 'init-check.json');
@@ -498,13 +512,17 @@ await check(['init'], 'CHK-002:edge:0 signed historical INIT evidence stays insp
   } finally {
     writeFileSync(initPath, canonicalBytes);
   }
-  const refreshed = runCli(
-    freshFixture.root,
-    'init_check_set',
-    { storyId: freshFixture.storyId, issues: [], agentId: 'proof-or-stop-review-story-init' },
-    { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-story-init' },
+  const refreshed = await deliverInitReviewerVerdict({
+    root: freshFixture.root,
+    storyId: freshFixture.storyId,
+    agentType: 'proof-or-stop-review-story-init',
+  });
+  const refreshedInit = store.readInitCheck(freshFixture.storyId);
+  assert.equal(
+    refreshedInit.agentResults.find((row) => row.agentId === 'proof-or-stop-review-story-init')?.deliveryRunId,
+    refreshed.runId,
+    'a re-delivered reviewer row must carry the fresh managed delivery run id',
   );
-  assert.equal(refreshed.status, 0, `${refreshed.stdout}${refreshed.stderr}`);
   assert.doesNotMatch(readFileSync(initPath, 'utf8'), new RegExp(retiredInitActor, 'i'));
 });
 
@@ -578,34 +596,46 @@ await check(['init'], 'F-003 current contract prose names canonical INIT reviewe
   assert.match(initGateSource, /exact `@fallback`|byte-exact.*fallback/i);
 });
 
-await check(['init'], 'RI-003 CLAUDE INIT examples execute as canonical signed reviewer evidence', () => {
+await check(['init'], 'RI-003 CLAUDE INIT examples execute as canonical signed reviewer evidence', async () => {
   assert.ok(freshFixture, 'public CLI fixture must exist');
   const guide = readFileSync(join(repoRoot, 'CLAUDE.md'), 'utf8');
-  const examples = [...guide.matchAll(/^proof-or-stop init_check_set '(\{[^\n]+\})'$/gm)]
-    .map((match) => JSON.parse(match[1]));
+  // The executable INIT templates are managed dispatch launches: a bare
+  // init_check_set is refused with [delivery_not_acknowledged], so the guide
+  // documents `host_run ... managedDispatch:true` instead. Execute those
+  // templates verbatim with only the documented Story placeholder substituted.
+  const examples = [...guide.matchAll(/^proof-or-stop host_run '(\{[^\n]+\})'$/gm)]
+    .map((match) => JSON.parse(match[1]))
+    .filter((example) => example.managedDispatch === true);
   assert.equal(examples.length, 2, 'CLAUDE.md must provide both executable INIT reviewer templates');
   const store = new StoryStore(freshFixture.root);
+  // The operator template carries no verdict (the reviewer authors it inside the
+  // dispatch), so the round-trip is proven on a reported verdict. medium stays
+  // advisory, which keeps INIT_CHECK admissibility provable below.
+  const reportedIssues = [{ severity: 'medium', desc: 'documented INIT reviewer verdict round-trip' }];
   for (const example of examples) {
     assert.equal(example.storyId, 'B-xxx', 'only the documented Story placeholder may be substituted');
-    const reviewed = runCli(
-      freshFixture.root,
-      'init_check_set',
-      { ...example, storyId: freshFixture.storyId },
-      { PROOF_OR_STOP_AGENT: example.agentId },
-    );
-    assert.equal(reviewed.status, 0, `CLAUDE.md ${example.agentId} example failed: ${reviewed.stdout}${reviewed.stderr}`);
+    assert.equal(example.host, 'codex', 'the documented INIT template names its provider host');
+    assert.equal(example.detach, true, 'the documented INIT template launches detached');
+    const delivered = await deliverInitReviewerVerdict({
+      root: freshFixture.root,
+      storyId: freshFixture.storyId,
+      issues: reportedIssues,
+      hostRun: example,
+    });
     const init = store.readInitCheck(freshFixture.storyId);
-    const recorded = init.agentResults.find((row) => row.agentId === example.agentId);
+    const recorded = init.agentResults.find((row) => row.agentId === example.agentType);
     assert.ok(recorded, 'the CLI must persist the exact documented reviewer identity');
-    assert.deepEqual(recorded.issues.map(({ severity, desc }) => ({ severity, desc })), example.issues);
+    assert.deepEqual(recorded.issues.map(({ severity, desc }) => ({ severity, desc })), reportedIssues);
+    assert.equal(recorded.deliveryRunId, delivered.runId,
+      'the persisted row must name the managed delivery run that produced it');
     assert.equal(initCheckSignatureIsValid(freshFixture.storyId, store, freshFixture.root, init), true);
   }
-  assert.deepEqual(examples.map((example) => example.agentId).sort(), [...REQUIRED_INIT_CHECK_AGENTS].sort());
+  assert.deepEqual(examples.map((example) => example.agentType).sort(), [...REQUIRED_INIT_CHECK_AGENTS].sort());
   assert.equal(getGuardFailureReason(freshFixture.storyId, store, 'INIT_CHECK', freshFixture.root), null);
-  const admission = guide.split('\n').find((line) => line.includes('byte-exact canonical admission'));
-  assert.ok(admission, 'CLAUDE.md must describe exact INIT reviewer admission');
-  for (const actor of REQUIRED_INIT_CHECK_AGENTS) assert.ok(admission.includes(`\`${actor}\``), actor);
-  assert.equal(admission.includes('`product-reviewer`'), false, 'the admission statement must not advertise the obsolete role');
+  const admission = guide.split('\n').filter((line) => line.includes('live `managed_dispatch` provider group'));
+  assert.equal(admission.length, 1, 'CLAUDE.md must describe exact INIT reviewer admission exactly once');
+  assert.match(admission[0], /`init_check_set`/, 'the admission statement must name the gated writer');
+  assert.equal(guide.includes('`product-reviewer`'), false, 'the guide must not advertise the obsolete role');
 });
 
 await check(['init'], 'RI-003 obsolete product-reviewer is rejected without INIT artifact or ref changes', () => {
@@ -4462,6 +4492,10 @@ const ACTIVE_STORY_IDENTITY_PATHS = Object.freeze([
   Object.freeze({ artifact: 'init-check.json', path: 'agentResults.*.agentId', kind: 'agent' }),
   Object.freeze({ artifact: 'index.json', path: 'events.*.agent', kind: 'agent' }),
   Object.freeze({ artifact: 'owner-lease.json', path: 'command', kind: 'command' }),
+  // A managed INIT dispatch persists the reviewer prompt envelopes it delivered, so the
+  // fresh Story fixture now carries this artifact; its schema identities stay bound by the
+  // canonical-value assertion below like every other registered path.
+  Object.freeze({ artifact: 'prompt-envelopes.json', path: 'envelopes.*.schemaVersion', kind: 'schema' }),
 ]);
 
 function valuesAtPath(value, path) {

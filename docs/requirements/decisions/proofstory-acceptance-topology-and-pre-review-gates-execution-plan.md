@@ -1092,6 +1092,24 @@ Story writes and metadata commits use that worktree copy; the controller copy
 is not mutated. A foreign lease, nested repository, symlink, mismatched config,
 or oversized snapshot is rejected before projection.
 
+When the controller commits its selected configuration and every present native
+hook in both HEAD and index, those files are repository material. The branch
+must retain its tracked regular configuration, but may edit, remove or rename
+hooks through ordinary scope, cleanliness and review checks. Such changes do
+not become external projections and receive no runtime-artifact exemption.
+A hook removed from controller disk, HEAD and index remains absent after
+integration; a missing file that the controller still tracks does not qualify.
+Canonical root aliases are resolved before checking contained regular files.
+
+If the controller creates the Story after its linked branch, bootstrap copies
+only the missing Story directory and preserves repository-owned assets.
+Differing configured Story directories are refused before either destination
+is created. New untracked controller hooks, partial controller ownership,
+index-only controller additions and unsafe controller/config paths do not
+qualify for material admission: they retain the external projection refusal
+unless their complete signed projection contract is satisfied. A tracked
+worktree replacement of an untracked controller asset remains refused.
+
 The controller config may be intentionally untracked, so an existing
 branch-local Story directory does not imply that the target config already
 exists. Bootstrap installs a missing target config without dereferencing the

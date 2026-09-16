@@ -7,7 +7,7 @@ import { gitProbe } from '../core/git-probe.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { StoryStore } from '../core/store.js';
 import { attestControllerConfigProjection } from '../core/controller-config-projection.js';
-import { attestControllerRuntimeProjection, existingControllerRuntimeAssetPaths } from '../core/controller-runtime-projection.js';
+import { attestControllerRuntimeProjection, existingControllerRuntimeAssetPaths, hasRepositoryOwnedControllerAssets } from '../core/controller-runtime-projection.js';
 
 export function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
@@ -211,6 +211,11 @@ export function projectControllerAssetsIntoStoryWorktree(input: {
   if (!inside(worktreeRoot, targetStoryRoot)) throw new Error('controller projection refused escaping Story destination');
   assertNoSymlinkPath(worktreeRoot, targetStoryRoot, true);
   const targetConfig = join(worktreeRoot, configRef.filename);
+  const repositoryOwnedAssets = pickProjectConfigPath(worktreeRoot)?.filename === configRef.filename
+    && hasRepositoryOwnedControllerAssets({ controllerRoot, worktreeRoot, configPath: configRef.filename });
+  if (repositoryOwnedAssets && loadConfig(worktreeRoot).storyDir !== config.storyDir) {
+    throw new Error('controller projection refused differing repository-owned Story directories');
+  }
 
   const attestUntrackedConfig = (): void => {
     if (pathIsTracked(controllerRoot, configRef.filename) || pathIsTracked(worktreeRoot, configRef.filename)) return;
@@ -225,11 +230,19 @@ export function projectControllerAssetsIntoStoryWorktree(input: {
     });
   };
 
+  const prepareAssets = (): Buffer => {
+    // A harness may create its Story only after creating the linked branch.
+    // Copy that missing Story without replacing repository-owned material.
+    if (repositoryOwnedAssets) return readRegularNoFollow(targetConfig);
+    attestUntrackedConfig();
+    const installed = installConfigNoClobber(worktreeRoot, targetConfig, configBytes);
+    projectGlobalThinRuntimeAssets(controllerRoot, worktreeRoot, input.storyId, targetStoryRoot);
+    return installed;
+  };
+
   if (existsSync(targetStoryRoot)) {
     if (!lstatSync(targetStoryRoot).isDirectory() || lstatSync(targetStoryRoot).isSymbolicLink()) throw new Error('controller projection refused unsafe existing Story destination');
-    attestUntrackedConfig();
-    const existingConfig = installConfigNoClobber(worktreeRoot, targetConfig, configBytes);
-    projectGlobalThinRuntimeAssets(controllerRoot, worktreeRoot, input.storyId, targetStoryRoot);
+    const existingConfig = prepareAssets();
     return { storyRoot: targetStoryRoot, configDigest: createHash('sha256').update(existingConfig).digest('hex') };
   }
   if (pathExistsAtHead(worktreeRoot, storyRelative)) {
@@ -240,13 +253,11 @@ export function projectControllerAssetsIntoStoryWorktree(input: {
     mkdirSync(dirname(targetStoryRoot), { recursive: true });
     copyTreeNoFollow(sourceStoryRoot, tempStoryRoot);
     renameSync(tempStoryRoot, targetStoryRoot);
-    attestUntrackedConfig();
-    installConfigNoClobber(worktreeRoot, targetConfig, configBytes);
-    projectGlobalThinRuntimeAssets(controllerRoot, worktreeRoot, input.storyId, targetStoryRoot);
+    const installedConfig = prepareAssets();
+    return { storyRoot: targetStoryRoot, configDigest: createHash('sha256').update(installedConfig).digest('hex') };
   } catch (error) {
     rmSync(tempStoryRoot, { recursive: true, force: true });
     rmSync(targetStoryRoot, { recursive: true, force: true });
     throw error;
   }
-  return { storyRoot: targetStoryRoot, configDigest: createHash('sha256').update(configBytes).digest('hex') };
 }

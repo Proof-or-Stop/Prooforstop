@@ -12,6 +12,7 @@ import { hasValidControllerConfigProjection, inspectControllerConfigProjection }
 import {
   CONTROLLER_RUNTIME_ASSET_PATHS,
   existingControllerRuntimeAssetPaths,
+  hasRepositoryOwnedControllerAssets,
   inspectControllerRuntimeProjection,
 } from './controller-runtime-projection.js';
 import { CONTROLLER_CONFIG_PROJECTION_ARTIFACT, CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
@@ -161,6 +162,10 @@ export function inspectExpectedControllerRuntimeProjection(args: {
     }).trim();
     if (branch !== `refs/heads/story/${args.storyId}`) {
       return { expected: true, valid: false, reason: 'story-branch-mismatch', expectedPaths, controllerRoot };
+    }
+    if (configRef && pickProjectConfigPath(worktreeRoot)?.filename === configRef.filename
+      && hasRepositoryOwnedControllerAssets({ controllerRoot, worktreeRoot, configPath: configRef.filename })) {
+      return { expected: false, valid: true, reason: 'repository-owned-material-assets', expectedPaths: [], controllerRoot };
     }
     for (const path of runtimePaths) {
       for (const cwd of [controllerRoot, worktreeRoot]) {

@@ -4,6 +4,7 @@ import { closeSync, constants, existsSync, linkSync, lstatSync, mkdirSync, openS
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 import { CONTROLLER_RUNTIME_PROJECTION_ARTIFACT } from './managed-artifact-descriptors.js';
+import { CONFIG_FILENAMES } from './brand-paths.js';
 
 export const CONTROLLER_RUNTIME_ASSET_PATHS = [
   '.codex/hooks.json',
@@ -37,6 +38,43 @@ export function existingControllerRuntimeAssetPaths(controllerRoot: string): str
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+}
+
+/** Repository-owned files remain material; this never grants a projection exemption. */
+export function hasRepositoryOwnedControllerAssets(args: {
+  controllerRoot: string; worktreeRoot: string; configPath: string;
+}): boolean {
+  if (!CONFIG_FILENAMES.includes(args.configPath)) return false;
+  try {
+    const controllerRoot = realpathSync(args.controllerRoot);
+    const worktreeRoot = realpathSync(args.worktreeRoot);
+    // The controller's committed ownership decides whether hooks are material.
+    // A Story may change or delete that material; ordinary dirty/scope/review
+    // gates retain authority over those changes instead of requiring projections.
+    for (const [root, paths] of [
+      [controllerRoot, [args.configPath, ...CONTROLLER_RUNTIME_ASSET_PATHS]],
+      [worktreeRoot, [args.configPath]],
+    ] as const) {
+      for (const path of paths) {
+        const head = git(root, ['ls-tree', 'HEAD', '--', path]);
+        const index = git(root, ['ls-files', '--stage', '--', path]);
+        let stat;
+        try { stat = lstatSync(join(root, path)); }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+        // A committed controller-side removal remains material ownership after
+        // integration. An absent file that is still tracked is not equivalent.
+        if (path !== args.configPath && !head && !index && !stat) continue;
+        // Index-only controller additions cannot confer material ownership.
+        // A missing branch config still requires explicit recovery, never copying.
+        if (!/^100(?:644|755) blob [a-f0-9]+\t/.test(head)
+          || !/^100(?:644|755) [a-f0-9]+ 0\t/.test(index)
+          || head.split('\n').length !== 1 || index.split('\n').length !== 1) return false;
+        if (!stat?.isFile()) return false;
+        safeRegularFile(root, join(root, path));
+      }
+    }
+    return true;
+  } catch { return false; }
 }
 
 function commonRoot(cwd: string): string {
