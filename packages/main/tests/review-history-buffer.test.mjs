@@ -36,7 +36,7 @@ try {
   const publish=(currentRuns,currentPublication=publication)=>{
     store.writeReviewRuns(storyId,currentRuns);writeFileSync(path,readFileSync(path,'utf8')+pad);
     store.writeReviewInventoryEpochs(storyId,currentPublication);
-    git('add','.');git('commit','-qm',`record ${storyId} review epoch metadata`);
+    git('add','.');git('commit','-qm',`proof-or-stop: record ${storyId} review epoch metadata`);
     return git('rev-parse','HEAD');
   };
   const binding={gitCwd:root,metadataRoot:root,storyId,reviewedHeadHash:cutoff.headHash,reviewedMaterialHash:cutoff.materialHash,reviewedStoryFilesHash:cutoff.storyFilesHash};
