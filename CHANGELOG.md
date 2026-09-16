@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab benchmark-crosshost-readonly-launch - v0.3.388 - 2026-09-16
+
+# Bounded cross-host reviewer launch repair
+
+B-0980 actual independent-host assurance run 2f7d57e0-9e78-41e4-86f9-f138a854ae99 failed because the cross-host Codex process attempted a nested macOS sandbox: sandbox-exec reported sandbox_apply: Operation not permitted. The actual Claude audit passed with three retained minor observations; the blocked Codex result is not a passing assurance round.
+
+The repair selects the inner provider sandbox from the runtime registry. A cross-host launch with a prepared outer managed readonly layout uses the provider full-access profile inside that outer confinement. Without that layout the provider retains read-only. The real launch still goes through prepareManagedReadonlyLaunch; selecting argv alone grants no launch authority. Source write protection and sealed compiled-output checks remain enabled. Documentation explains this boundary.
+
+The regression uses a synthetic native provider and genuine supervised singleton admission, then the actual submit, worker and default outer sandbox. It verifies source readability, denied source mutation, private output writability and the observed inner profile. This fixture deliberately terminates nonzero and does not create an independent provider review credential. A separate output-tamper control confirms rejection of modified sealed compiled output. Unconfined argv and invalid-layout refusal controls are included.
+
+Recorded target RED failed at CROSSHOST_NESTED_SANDBOX after exercising outer confinement; the initial admission failure was not accepted as RED. Current committed GREEN passed the exact pinned command node scripts/verify-crosshost-readonly-lane.mjs. The --output-tamper control passed. The build, full process-fact contract and static validation edges check passed. Static validation reported zero needsReview and zero unexpandedCommands. All 295 existing static exception rows were preserved; only exact affected callsite bindings and source evidence locations were refreshed, with no new exemption or weakened policy.
+
+The runtime contract executed CROSSHOST_SANDBOX_RUNTIME_CONTRACT_GREEN, then failed at the existing STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT assertion (actual 2, expected 1). The same failing assertion was reproduced on unchanged main 725be8666030616001591b3814d4aa89e8cafaaa by node scripts/verify-static-ast-reuse.mjs. That unrelated implementation and assertion are unchanged. The full runtime contract is not represented as PASS. No elapsed-time performance claim or full benchmark product completion is made.
+
+Evidence logs are retained under /tmp/benchmark-crosshost-lab-*.log and the official local Lab record. Actual Story assurance output is archived in b0980-independent-assurance-r1 beside this note. This authorized local maintenance integration repairs a blocker for continuing B-0980; it does not mark B-0980 or the benchmark runner complete and does not authorize a remote push.
+
+Maintenance provenance: codex/lab-benchmark-crosshost-readonly-launch, repair 57fc246da8ed8c6d24ef0c4cd3d3ab0bb34a6790.
+Verification command (replayed before integration and on main): `["node","scripts/verify-crosshost-readonly-lane.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-critic-metadata-head - v0.3.387 - 2026-09-16
 
 # Preserve inventory critic admission across metadata commits
