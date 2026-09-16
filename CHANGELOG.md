@@ -1,5 +1,67 @@
 # Changelog
 
+## Lab benchmark-process-refusal-order - v0.3.397 - 2026-09-16
+
+# Process-contract refusal ordering repair
+
+B-0980 on main 0.3.396 reached its real runtime-admission ordering witness
+after the audited fixture host repair. That witness exceeded its unchanged
+60-second child bound, while an external longer diagnostic of the same mutated
+child reached the intended admission refusal. The source ran five independent
+positive fixtures before testing a deliberately invalid admission contract.
+The full B-0980 diagnostic failed after 159,770 ms; no PASS is claimed for it.
+
+## Scope
+
+Move only those five existing top-level execFileSync calls after the existing
+actual admission assertion and terminating failure barrier, before the existing
+acceptance proof loop. Their complete argv, executable, cwd, stdio and deadlines
+are unchanged. Normal positive verification retains all five executions. No
+production permission rule, Story gate or validation deadline changes.
+
+The existing ordering regression now requires exactly one real call for each
+of the five targets, checks their position relative to the actual oracle and
+barrier, and observes all five calls plus the three acceptance proofs in its
+real mutated subprocess. Its observer forwards execution with Reflect.apply;
+it does not replace provider handlers or manufacture results. The negative child
+must supply the intended refusal with zero observed positive launches.
+
+Static exceptions retain every original ID and kind. Source digests, moved call
+locations, exact excerpts and dependency digests are rebound. The ordering
+excerpt now includes the five preserved calls, and the complete changed ordering
+regression is retained as evidence. No scanner predicate changes.
+
+## Verification
+
+Regression commit 403c23352a precedes repair 178751745c. Official RED failed
+with PROCESS_REFUSAL_ORDER_RED on the first incorrectly ordered fixture.
+The exact pinned regression then passed through official GREEN, reporting
+ORDER_ACTUAL_MUTATION_REFUSED positiveProofLaunches=0. Static scanning reported
+U18_STATIC_PASS with zero needs-review, nested and unexpanded rows.
+Logs are /tmp/benchmark-process-refusal-order-prepare/red.log,
+/tmp/benchmark-process-refusal-order-green.log and
+/tmp/benchmark-process-refusal-order-static-after.log.
+
+The full positive process contract is being checked separately under the actual
+effectiveValidationCommandEnvironment and unchanged 180-second configured bound.
+Its outcome will be appended before release. Timing observations are local
+development diagnostics, not a controlled paired benchmark or full token account.
+B-0980 is not DONE and this Lab introduces no benchmark product feature.
+
+The complete positive diagnostic exceeded its unchanged 180-second bound
+(180,097 ms, SIGTERM). It passed all five preserved fixtures and moved beyond
+the formerly failing ordering witness; the last observed nested workload was
+verify-inventory-critic-metadata-head.mjs. This is still a full-contract FAIL,
+not Story evidence. No configured timeout was raised. The scoped ordering
+regression and static scan remain the passing Lab verification.
+The diagnostic's detached fixture is cleaned with its existing authenticated
+terminateOwnedFixture helper, using the captured owner identity; retained
+fixture evidence is not deleted and no unrelated process is targeted.
+
+Maintenance provenance: codex/lab-benchmark-process-refusal-order, repair 178751745caee5dcf2b7a3234c0287f7c20573d4.
+Verification command (replayed before integration and on main): `["node","scripts/verify-process-runtime-admission-order.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-validation-fixture-host - v0.3.396 - 2026-09-16
 
 # Validation fixture host isolation repair
