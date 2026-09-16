@@ -36,6 +36,12 @@ assert.match(machine, /renderManagedInitReviewerDispatches\(storyId, missingAgen
   'INIT recovery guidance must use the shared controller-owned delivery renderer');
 assert.match(reviewerLaunchGuidance, /managedDispatch: true/,
   'the shared INIT reviewer renderer must use the controller-owned delivery path');
+assert.match(reviewerLaunchGuidance, /model: 'gpt-5\.6-sol'.*reasoningEffort: 'high'/s,
+  'managed INIT reviewer guidance must pin the qualified Codex reviewer default');
+assert.match(hostRun, /resolveQualifiedManagedReviewerSelection/,
+  'formal managed dispatch must resolve and validate reviewer qualification before submission');
+assert.match(catalog, /reject unqualified model families/,
+  'public host_run help must disclose the formal reviewer qualification boundary');
 assert.doesNotMatch(machine, /renderReviewerDispatchLaunch\(\{ storyId, agentType: 'proof-or-stop-review-story-init'/,
   'INIT recovery guidance must not depend on host spawn_agent/followup_task behavior');
 

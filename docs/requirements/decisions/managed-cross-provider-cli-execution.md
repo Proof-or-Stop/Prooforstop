@@ -179,7 +179,11 @@ ReviewPass/Finding flow. A cross-provider CLI reviewer uses a two-phase flow:
 1. The controller creates the signed ReviewRun.
 2. `host_run --managedReview` derives the exact assembled prompt and seals
    story, provider, lane, ReviewRun, head, material, story-files and prompt
-   bindings.
+   bindings. Before the immutable run spec is created, formal managed review and
+   required-reviewer dispatch resolve omitted selectors to Codex
+   `gpt-5.6-sol/high` or Claude `opus/high`. Explicit selections must remain
+   in the GPT or Opus reviewer family at `high` or greater effort. This keeps
+   a reviewer from silently inheriting the implementation agent's model.
 3. The managed prompt requires the provider's final assistant result to be one
    bounded `lattice.managed_review_final_proposal.v1` JSON envelope with
    pass-or-findings and truthful read evidence. It cannot write final

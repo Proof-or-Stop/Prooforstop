@@ -47,7 +47,7 @@ export function renderManagedInitReviewerDispatches(storyId: string, agentIds: s
     if (agentId !== 'proof-or-stop-review-story-init' && agentId !== 'proof-or-stop-product-reviewer') {
       throw new Error(`unsupported required INIT reviewer: ${agentId}`);
     }
-    return `   proof-or-stop host_run '${JSON.stringify({ host: 'codex', storyId, agentType: agentId, managedDispatch: true, detach: true, json: true })}'`;
+    return `   proof-or-stop host_run '${JSON.stringify({ host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high', storyId, agentType: agentId, managedDispatch: true, detach: true, json: true })}'`;
   });
   return `→ Preferred: have the Story owner submit only the missing reviewers through the controller-owned exact delivery path:\n${dispatches.join('\n')}\n` +
     `   Retain each returned nonempty runId and poll it with host_run_status. Never use a host wait with an empty receiver set.\n` +

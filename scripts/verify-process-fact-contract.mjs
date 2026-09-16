@@ -7521,6 +7521,10 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   }
   for (const token of [
     'normalizeHostRunModelSelection',
+    'resolveQualifiedManagedReviewerSelection',
+    'QUALIFIED_MANAGED_REVIEWER_DEFAULTS',
+    'managed reviewer model',
+    'managed reviewer reasoningEffort',
     "'--model', selection.model",
     'model_reasoning_effort=',
     "'--effort', selection.reasoningEffort",

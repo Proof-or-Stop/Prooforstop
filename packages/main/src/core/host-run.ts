@@ -108,6 +108,40 @@ export const HOST_RUN_REASONING_EFFORTS = [
 ] as const;
 export type HostRunReasoningEffort = typeof HOST_RUN_REASONING_EFFORTS[number];
 
+export const QUALIFIED_MANAGED_REVIEWER_DEFAULTS = {
+  codex: { model: 'gpt-5.6-sol', reasoningEffort: 'high' },
+  claude: { model: 'opus', reasoningEffort: 'high' },
+} as const satisfies Record<Exclude<HostRunHost, 'agy'>, { model: string; reasoningEffort: HostRunReasoningEffort }>;
+
+/**
+ * Formal review must never inherit the implementation agent's ambient model.
+ * Resolve omitted selectors before the immutable run spec is created, and keep
+ * the deliberately narrow qualification boundary visible at the controller.
+ */
+export function resolveQualifiedManagedReviewerSelection(args: {
+  host: HostRunHost;
+  model: string | null;
+  reasoningEffort: HostRunReasoningEffort | null;
+}): { model: string; reasoningEffort: HostRunReasoningEffort } {
+  if (args.host === 'agy') {
+    throw new Error('host_run: managed reviewer host "agy" is not qualified; expected codex or claude');
+  }
+  const defaults = QUALIFIED_MANAGED_REVIEWER_DEFAULTS[args.host];
+  const model = args.model ?? defaults.model;
+  const reasoningEffort = args.reasoningEffort ?? defaults.reasoningEffort;
+  const qualifiedModel = args.host === 'codex'
+    ? /^gpt-[a-z0-9][a-z0-9._-]*$/i.test(model)
+    : /^(?:opus|claude-opus(?:[-.][a-z0-9][a-z0-9._-]*)?)$/i.test(model);
+  if (!qualifiedModel) {
+    throw new Error(`host_run: managed reviewer model ${JSON.stringify(model)} is not qualified for host ${args.host}`);
+  }
+  if (!['high', 'xhigh', 'max', 'ultra'].includes(reasoningEffort)
+    || (args.host === 'claude' && reasoningEffort === 'ultra')) {
+    throw new Error(`host_run: managed reviewer reasoningEffort ${JSON.stringify(reasoningEffort)} is not qualified for host ${args.host}; expected high, xhigh, or max${args.host === 'codex' ? ', or ultra' : ''}`);
+  }
+  return { model, reasoningEffort };
+}
+
 export function normalizeHostRunModelSelection(args: {
   host: HostRunHost;
   model?: unknown;

@@ -9,6 +9,7 @@ const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
+const { resolveQualifiedManagedReviewerSelection } = await import('../dist/core/host-run.js');
 const { runManagedHostRunWorker } = await import('../dist/core/managed-host-run.js');
 const { invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } = await import('../dist/core/init-check-gate.js');
 
@@ -88,6 +89,16 @@ try {
     }),
     /managed reviewer model.*not qualified/i,
     'a managed INIT reviewer must not use an implementation-only model through the Codex host',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'claude', model: 'fable', reasoningEffort: 'high' }),
+    /managed reviewer model.*not qualified/i,
+    'a formal Claude reviewer must reject the unqualified Fable model',
+  );
+  assert.deepEqual(
+    resolveQualifiedManagedReviewerSelection({ host: 'claude', model: null, reasoningEffort: null }),
+    { model: 'opus', reasoningEffort: 'high' },
+    'model-less formal Claude review must resolve Opus/high before immutable submission',
   );
   const agentTypes = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'];
   const results = await Promise.all(agentTypes.map(async agentType => {
