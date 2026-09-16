@@ -16,6 +16,7 @@ import {
   writeManagedHostRunEvidenceBinding,
   writeManagedReviewEvidenceProposal,
   type ManagedReviewEvidenceFindingProposal,
+  type ManagedReviewEvidenceProposal,
 } from '../core/managed-host-run.js';
 import {
   createManagedReviewEvidenceBinding,
@@ -58,6 +59,30 @@ function assertManagedReviewImportStagingClean(ctx: HandlerContext, storyId: str
   if (staged) {
     throw new Error('managed_review_evidence_import: story metadata has staged changes; refuse an importer transaction that could commit adjacent artifacts');
   }
+}
+
+export function runManagedReviewCandidatePreflight<TProposal, TResult>(args: {
+  sealedProposal: TProposal | null;
+  hasPersistedReceiptEvidence: boolean;
+  assertCurrentCandidateReadBinding: (proposal: TProposal) => void;
+  intake: () => TResult;
+}): TResult {
+  // A persisted ReviewPass/Finding belongs to the authenticated crash-recovery
+  // path below. Its historical routing input is verified from the exact receipt
+  // evidence and must not be reinterpreted against a later candidate reroute.
+  if (args.sealedProposal && !args.hasPersistedReceiptEvidence) {
+    args.assertCurrentCandidateReadBinding(args.sealedProposal);
+  }
+  return args.intake();
+}
+
+export function hasPersistedManagedReceiptEvidence(
+  store: Pick<HandlerContext['store'], 'readReviewPasses' | 'readFindings'>,
+  storyId: string,
+  receiptId: string,
+): boolean {
+  return store.readReviewPasses(storyId).passes.some(pass => pass.managedEvidenceBinding?.receiptId === receiptId)
+    || store.readFindings(storyId).findings.some(finding => finding.managedEvidenceBinding?.receiptId === receiptId);
 }
 
 export function createManagedReviewEvidenceHandlers(
@@ -210,21 +235,50 @@ export function createManagedReviewEvidenceHandlers(
       // decision observable for every import path; the in-lock checks close
       // the remaining TOCTOU window.
       assertLiveReviewBinding();
+      const assertCurrentCandidateReadBinding = (candidateProposal: ManagedReviewEvidenceProposal): void => {
+        const routingMode = loadConfig(ctx.root).candidateSpecRouting?.mode ?? 'shadow';
+        const currentStory = ctx.store.readStory(candidateProposal.storyId);
+        const snapshot = captureReviewRunSnapshot(ctx.root, {
+          storyId: candidateProposal.storyId,
+          storyPhase: currentStory.phase,
+        });
+        assertCandidateReadBinding({
+          manifest: candidateProposal.readManifest,
+          artifact: ctx.store.readCandidateSpecSet(candidateProposal.storyId),
+          mode: routingMode,
+          strict: true,
+          currentMaterialHash: snapshot.materialHash,
+          currentStoryFilesHash: snapshot.storyFilesHash,
+          currentStoryInputDigest: digestCandidateRoutingValue(currentStoryRoutingInput(ctx, candidateProposal.storyId)),
+        });
+      };
       const sealedProposal = readManagedReviewEvidenceProposal(ctx.root, runId);
-      const intake = createManagedReviewEvidenceBinding({
-        root: ctx.root,
-        storyId: managedRun.storyId,
-        providerAgent: managedRun.agentType,
-        lane: managedRun.lane,
-        reviewRunId: managedRun.reviewRunId,
-        runId,
-        receiptId,
-        expected,
-        // The import transaction identity must survive a crash after sealing
-        // evidence-binding.json but before story metadata persistence. Bind its
-        // timestamp to the immutable provider proposal rather than a retry-local
-        // wall clock so the same receipt reconstructs byte-identical evidence.
-        importedAt: sealedProposal?.authoredAt,
+      const hasPersistedReceiptEvidence = hasPersistedManagedReceiptEvidence(ctx.store, managedRun.storyId, receiptId);
+      // The sealed provider proposal already contains the candidate read
+      // manifest. Reject an obviously stale route before the more expensive
+      // receipt/proposal intake for fresh imports. Existing receipt evidence
+      // remains eligible for authenticated crash recovery. Repeat the same
+      // check under the canonical persistence locks below to close the TOCTOU
+      // window for newly admitted evidence.
+      const intake = runManagedReviewCandidatePreflight({
+        sealedProposal,
+        hasPersistedReceiptEvidence,
+        assertCurrentCandidateReadBinding,
+        intake: () => createManagedReviewEvidenceBinding({
+          root: ctx.root,
+          storyId: managedRun.storyId!,
+          providerAgent: managedRun.agentType,
+          lane: managedRun.lane!,
+          reviewRunId: managedRun.reviewRunId!,
+          runId,
+          receiptId,
+          expected,
+          // The import transaction identity must survive a crash after sealing
+          // evidence-binding.json but before story metadata persistence. Bind its
+          // timestamp to the immutable provider proposal rather than a retry-local
+          // wall clock so the same receipt reconstructs byte-identical evidence.
+          importedAt: sealedProposal?.authoredAt,
+        }),
       });
       const proposal = intake.verification.proposal ?? sealedProposal;
       if (!proposal) throw new Error('managed_review_evidence_import: shared Proof Admissibility accepted no provider proposal');
@@ -249,23 +303,6 @@ export function createManagedReviewEvidenceHandlers(
       const storyMetadataLockDir = proposal.conclusion === 'pass'
         ? ctx.store.runtimeLockDirPath(proposal.storyId, 'finding', 'review-passes')
         : ctx.store.storyFilePath(proposal.storyId, 'findings.lock');
-      const assertCurrentCandidateReadBinding = (): void => {
-        const routingMode = loadConfig(ctx.root).candidateSpecRouting?.mode ?? 'shadow';
-        const currentStory = ctx.store.readStory(proposal.storyId);
-        const snapshot = captureReviewRunSnapshot(ctx.root, {
-          storyId: proposal.storyId,
-          storyPhase: currentStory.phase,
-        });
-        assertCandidateReadBinding({
-          manifest: proposal.readManifest,
-          artifact: ctx.store.readCandidateSpecSet(proposal.storyId),
-          mode: routingMode,
-          strict: true,
-          currentMaterialHash: snapshot.materialHash,
-          currentStoryFilesHash: snapshot.storyFilesHash,
-          currentStoryInputDigest: digestCandidateRoutingValue(currentStoryRoutingInput(ctx, proposal.storyId)),
-        });
-      };
       const writeImportBinding = (importedIds: string[], importedAt: string): void => {
         writeManagedHostRunEvidenceBinding(ctx.root, runId, {
           schemaVersion: 'lattice.managed_review_evidence_import.v1',
@@ -352,7 +389,7 @@ export function createManagedReviewEvidenceHandlers(
         // required full reads. Existing receipt retries remain idempotent:
         // they revalidate their exact persisted evidence above rather than
         // retroactively changing its historic routing input.
-        assertCurrentCandidateReadBinding();
+        assertCurrentCandidateReadBinding(proposal);
 
         const importedAt = intake.binding.importedAt;
         const binding = intake.binding;

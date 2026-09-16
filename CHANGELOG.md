@@ -208,6 +208,16 @@ about 17 seconds under an ancestor reservation where it previously refused after
 
 Maintenance provenance: codex/lab-nested-reservation, repair 6ed1f82357f571cdac63d1b4f9b215fee5bb9d03.
 Verification command (replayed before integration and on main): `["node","packages/main/tests/red/red-lab-nested-fixture-machine-isolation.mjs"]`.
+## Lab managed-import-stale-preflight - v0.3.386 - 2026-09-16
+
+Managed review evidence import performed expensive receipt and proposal verification before rejecting a stale candidate-routing read binding, so deterministic stale imports could consume tens of seconds. Fresh sealed proposals now fail the cheap candidate-binding preflight before receipt intake and repeat it under the persistence locks for TOCTOU safety. Exact persisted receipt-bound ReviewPass or Finding evidence bypasses only the early current-route check, preserving authenticated crash recovery and idempotent replay against its historical routing input.
+
+The Lab regression covers fresh stale intake, exact and foreign receipt lookup, legacy null-proposal compatibility, and a real handler sequence that persists a receipt-bound Finding, crashes, changes only candidate routing, and successfully resumes through authenticated existing-evidence recovery. Package build, managed inventory import regression, contract checks, and independent Codex Sol/high Standards and Spec review passed with no findings.
+
+After merging the concurrent 0.3.385 release, the retained reviewed subprocess calls were rebound to the merged source and dependency bytes. The previously stale `brand-role-migration` nested-witness pin was reviewed against its unchanged exact launch and refreshed together with the resulting dependency closure. The canonical static report now has 0 pending call rows, 0 stale exceptions, and 0 unexpanded commands.
+
+Maintenance provenance: codex/lab-managed-import-stale-preflight, repair a082bc73e5.
+Verification commands: `node packages/main/tests/managed-review-candidate-preflight.test.mjs`; `node scripts/verify-managed-inventory-critic-import.mjs --case=crash`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## Integrated concurrent-fix release - v0.3.385 - 2026-09-16

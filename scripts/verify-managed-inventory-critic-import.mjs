@@ -13,6 +13,7 @@ import {nativeReviewFixtureBrokers,runBrokeredNativeReviewCli} from '../packages
 import {createHostRunHandlers} from '../packages/main/dist/handlers/host-run.js';
 import {createManagedReviewEvidenceHandlers} from '../packages/main/dist/handlers/managed-review-evidence.js';
 import {getManagedHostRunStatus,managedHostRunReceipt} from '../packages/main/dist/core/managed-host-run.js';
+import {digestCandidateRoutingValue} from '../packages/main/dist/core/candidate-spec-routing.js';
 const storyId = 'B-inventory-handler';
 const reviewRound = '2020-01-01T00:00:00.000Z';
 const cliPath = fileURLToPath(new URL('../bin/proof-or-stop.js', import.meta.url));
@@ -259,6 +260,23 @@ if(scenario==='crash') {
  assert.equal(fixture.store.readFindings(storyId).findings.length,1,'Drift retry preserves existing terminal evidence');
  assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length,0,'Drift retry cannot publish critic receipt');
  writeFileSync(subjectPath,originalSubject);
+ const originalCandidateArtifact=fixture.store.readCandidateSpecSet(storyId);
+ const {artifactDigest:_originalCandidateDigest,...reroutedCandidateBase}=originalCandidateArtifact;
+ const reroutedCandidate={...reroutedCandidateBase,
+  promptDigests:[...reroutedCandidateBase.promptDigests,'f'.repeat(64)].sort()};
+ fixture.store.writeCandidateSpecSet(storyId,{...reroutedCandidate,
+  artifactDigest:digestCandidateRoutingValue(reroutedCandidate)});
+ try {
+  const recovered=importer.managed_review_evidence_import({runId:launched.run.runId,receiptId:receipt.receiptId});
+  assert.match(recovered,/Managed review evidence already imported/,
+   'Exact persisted receipt evidence must reach authenticated recovery even after candidate routing changes');
+  assert.match(recovered,/Completeness critic: complete/,
+   'Authenticated recovery must finish its exact critic receipt without reinterpreting historic routing');
+ } finally {
+  fixture.store.writeCandidateSpecSet(storyId,originalCandidateArtifact);
+ }
+ assert.equal(fixture.store.readFindings(storyId).findings.length,1,
+  'Candidate reroute recovery probe preserves the exact persisted finding');
 }
 if(scenario==='pass') {
  const childProcess=(await import('node:child_process')).default;
