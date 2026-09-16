@@ -1,5 +1,55 @@
 # Changelog
 
+## Lab tracked-config-projection - v0.3.382 - 2026-09-16
+
+# Tracked controller bootstrap compatibility repair
+
+## Trigger
+
+Resuming B-0980 on main 0.3.381 reproduced a deadlock: its authorized tracked configuration change caused root CLI bootstrap to reject mismatched controller bytes, while reviewer admission demanded projection receipts for the three tracked native hook assets. The same refusal occurs in a disposable linked Story repository.
+
+## Change
+
+A shared ownership predicate identifies a complete selected config and native hook set that are regular files in both repository HEAD trees and indexes. For an existing branch-local Story, CLI bootstrap keeps those material files intact, and reviewer preflight does not demand external projection receipts. These files never receive runtime scope exemptions. Partial tracking, staged-only additions, missing files, symlinks and controller-only assets retain the existing strict projection path. No direct Story evidence or lifecycle state edits are involved.
+
+## Verification
+
+The official Lab RED command is `node scripts/verify-tracked-controller-bootstrap.mjs`. It builds current sources, reproduces the real CLI refusal in a disposable repository, checks scope-exemption refusal and mixed/index-only ownership controls, and runs the existing benchmark-framework-hardening and external-worktree Go pre-review regressions. The broad process-fact contract is executed separately and its result is retained. The initial dependency-only failure was rejected as RED; installing packages/main dependencies from its existing lockfile allowed the target assertion to fail and be recorded.
+
+GREEN, actual different-vendor audit and post-integration status must be read from the official Lab record. This note does not claim those steps have already passed. Existing B-0980 findings and previous failed review attempts remain preserved. No remote push is authorized.
+
+## Repository-health limitation
+
+The full runtime-fact command failed on both the candidate and unmodified main b3aedf65d67c5eaf9d86966dd2f94f71a9494059 with STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT, before completing all checks. This is retained as a baseline failure, not claimed as suite parity or PASS. It is excluded from the focused GREEN command; the repair keeps the required runtime registry and contract assertions updated. See tracked-config-projection-runtime-baseline.json. The Go toolchain was installed to run the existing external-project regression without weakening it.
+
+The separately executed process-fact contract exited 0 and reported `Process-fact contract verification passed` (log: /tmp/tracked-config-projection-process-contract.log). The focused regression also exercises actual CLI dispatch/review_run_start, undeclared tracked-hook scope rejection, and missing/symlink hook negatives.
+
+## Independent audit response
+
+Claude audit a7b0772b-ea4b-4f3a-b435-83699fdb0c06 rejected the first candidate after 391928 ms. Its findings and source evidence are retained.
+
+- The shared low-level bootstrap now preserves repository-owned config/hooks when projecting a missing Story, rather than skipping that necessary Story copy. A second real CLI fixture creates the Story after its tracked linked branch and proves dispatch plus config preservation. Existing missing-tracked-Story refusal remains intact. Differing configured Story directories fail closed.
+- The regression is registered in root and packages/main npm scripts and is actually invoked by the runtime contract before its unrelated scanner baseline failure. It uses prepareVerification and its shared body deadline. Existing framework-hardening and external-worktree regressions remain part of the targeted command because they directly cover the external projection boundaries.
+- CONFIG_FILENAMES membership is checked inside the shared predicate. Direct negative cases include ordinary unrelated files, traversal and Git pathspec magic.
+- A genuine untracked external-controller fixture proves both initial projection and redundant Story-receipt recovery through the same CLI read branch; signed complete-projection inspection must still pass.
+- Versioning is owned by the official Lab finish operation, per docs/lab-maintenance.md: it prepares the atomic patch release, rebuilds and checks its CLI version, then audits that prepared candidate before merging. The first audit was a pre-release audit; no manually fabricated release record is being used.
+
+The second candidate's GREEN and prepared-candidate audit results must be taken from the official Lab record.
+
+Second repair commit 87b2125b7a passed official focused GREEN and the separately rerun process-fact contract (log /tmp/tracked-config-projection-process-contract2.log). The final independent audit must inspect the release candidate that finish prepares from this repair.
+
+## Static dependency proof maintenance
+
+The first finish attempt refused stale package dependency digests after additive npm test registration. No version bump or integration occurred. The two package objects were compared with b3aedf65 and differed only by the intended new test script. Their dependency records and unchanged caller/excerpt locations affected by the reviewed source additions were rebound; all existing rationales remain unchanged. One exact new isolated CLI regression invocation received a source-bound record. Its source/dependencies constrain it to disposable fixtures and fixed CLI operations; it does not authorize validation re-entry.
+
+The targeted regression now runs only its own cases, as requested by the first auditor, and uses a shared subprocess body budget. The original framework-hardening and external-worktree Go suites passed separately on the repaired implementation and retain their existing registrations. They are not duplicated by the new runtime-contract child.
+
+Static comparison retained exactly the same 60 pre-existing pending invocation identities and 32 stale exception IDs as unmodified main, with no new nested or unexpanded commands. This is baseline parity, not a globally green static scan. Two already-invalid managed-critic excerpts were deliberately retained. Details: tracked-config-projection-static-parity.json. The original broad runtime AST-observer failure also remains a recorded baseline limitation.
+
+Maintenance provenance: codex/lab-tracked-config-projection, repair cca7053eb0dd5ab98dd322de830b1b9068600b24.
+Verification command (replayed before integration and on main): `["node","scripts/verify-tracked-controller-bootstrap.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Integrated main-sync release - v0.3.381 - 2026-09-15
 
 # Two divergent main lines integrated under one identifying version
