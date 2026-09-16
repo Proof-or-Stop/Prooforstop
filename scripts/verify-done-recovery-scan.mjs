@@ -102,6 +102,10 @@ try {
   git(fallback.root, ['commit', '--allow-empty', '-qm', 'main advances']);
   git(fallback.root, ['checkout', '-q', 'story/B-fallback']);
   writeFileSync(join(fallback.root, 'payload.txt'), 'unmerged'); git(fallback.root, ['add', '.']);git(fallback.root, ['commit', '-qm', 'candidate diverges']);git(fallback.root, ['checkout', '-q', 'main']);
+  git(fallback.root, ['tag', 'story/B-fallback', 'refs/heads/story/B-fallback']);
+  check(observe(fallback).rows.some(x => x.storyId === 'B-fallback'),
+    'RECOVERY_REF_AMBIGUITY_RED: same-name tag must not hide a stored partial-DONE branch');
+  git(fallback.root, ['tag', '-d', 'story/B-fallback']);
   const bin = join(sandbox, 'bin');mkdirSync(bin);
   writeFileSync(join(bin, 'git'), '#!/bin/sh\nif [ "$1" = "for-each-ref" ]; then exit 71; fi\nexec '+JSON.stringify(realGit)+' "$@"\n');chmodSync(join(bin, 'git'), 0o755);
   const oldPath = process.env.PATH;process.env.PATH=bin+':'+oldPath;
