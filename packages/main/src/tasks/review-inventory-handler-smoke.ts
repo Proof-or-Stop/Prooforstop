@@ -873,7 +873,7 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
         writeFileSync(join(shimRoot, 'git'), `#!${process.execPath}
 const {spawnSync}=require('node:child_process');
 const args=process.argv.slice(2);
-if(args.includes('merge-base')) {
+if(args[0]==='--no-replace-objects' && args[1]==='merge-base') {
   if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='error'){console.error('FIXTURE_GIT_OBJECT_UNAVAILABLE');process.exit(128);}
   if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='timeout'){Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10000);}
   if(process.env.GIT_DIR){console.error('FIXTURE_GIT_REDIRECTION_LEAK');process.exit(128);}
