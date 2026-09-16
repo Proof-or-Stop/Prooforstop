@@ -109,6 +109,10 @@ try {
   check(observe(fallback).rows.some(x => x.storyId === 'B-fallback'),
     'tag pointing at main must not replace branch metadata or ancestry');
   git(fallback.root, ['tag', '-d', 'story/B-fallback']);
+  git(fallback.root, ['tag', 'main', 'refs/heads/story/B-fallback']);
+  check(observe(fallback).rows.some(x => x.storyId === 'B-fallback'),
+    'RECOVERY_TARGET_AMBIGUITY_RED: integration tag must not hide an unmerged Story');
+  git(fallback.root, ['tag', '-d', 'main']);
   const bin = join(sandbox, 'bin');mkdirSync(bin);
   writeFileSync(join(bin, 'git'), '#!/bin/sh\nif [ "$1" = "for-each-ref" ]; then exit 71; fi\nexec '+JSON.stringify(realGit)+' "$@"\n');chmodSync(join(bin, 'git'), 0o755);
   const oldPath = process.env.PATH;process.env.PATH=bin+':'+oldPath;
