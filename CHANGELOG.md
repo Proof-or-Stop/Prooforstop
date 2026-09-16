@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab benchmark-crosshost-jsonl-verdict - v0.3.389 - 2026-09-16
+
+# Cross-host managed JSONL verdict compatibility repair
+
+Actual B-0980 managed run ae48b7ec-8938-4994-b9aa-eb4f27d40cc5 completed with a schema-valid PASS in its final Codex agent_message. Its canonical consumer recorded codex_review_no_parseable_verdict because it applied the legacy plain-text parser to the complete JSONL event stream, whose last object was turn.completed usage metadata. The original blocked record is retained and is not converted into approval.
+
+The bounded repair recognizes the managed event transport, requires one completed turn and one whole schema-valid assistant verdict, and ignores pre-verdict tool output as evidence. Ordinary assistant progress before the verdict remains permitted. Malformed or mixed transport, unknown events, errors, failed or incomplete turns, extra turns, duplicate/conflicting verdicts, and later assistant or tool activity fail closed. The legacy plain-text parser remains intact. Process failure, timeout, output truncation, cleanup and material binding remain enforced, and the stdout digest still covers the original stream. Prompt guidance and process-fact source/rationale registration describe these same boundaries.
+
+The pinned regression reproduces target RED at CROSSHOST_JSONL_VERDICT, then passes with 18 negative transport controls and the actual review leaf's exit/timeout/truncation/material checks. These are synthetic transport fixtures, not independent provider credentials. The original cross_host_review smoke also passed all 31 checks, including six managed CLI extension checks.
+
+A separate diagnostic replay reconstructed all original stdout frames and matched the canonical recorded SHA-256 ca4a4803d90b5da4f4a084d56ce2e6cb3a8756d63f49f23d40aad3a21d1fa88b (151512 bytes). The unchanged main parser returned undefined; the repaired parser extracted the exact original verdict and material binding. This replay is not a fresh provider run and changes no Story record.
+
+Static validation binding maintenance preserves all 295 prior entries, including repeated historical ids, their call digests, reasons, kinds, invocation declarations and config indexes. It refreshes only existing exact source/dependency locations affected by the registry and contract verifier; it adds no exemptions. Static validation after refresh reported zero needsReview and zero unexpanded commands. The full process-fact contract passed with execution_assertion_reuse_contract=PASS. It ran the repair implementation and new target regression; the later commit only publishes the already checked static manifest binding refresh. The final prepared release is independently audited by Claude CLI and the pinned regression is rerun by official Lab finish on the candidate and merged main.
+
+This local maintenance repair unblocks a benchmark prerequisite; it is neither formal Story DONE nor benchmark product completion. No remote push is requested. Real two-host assurance must be rerun after integration; the previous blocked round stays retained.
+
+Maintenance provenance: codex/lab-benchmark-crosshost-jsonl-verdict, repair d76b408a8679fffaf5130e4020f2e4f3c8978dda.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/codex-review-jsonl.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-crosshost-readonly-launch - v0.3.388 - 2026-09-16
 
 # Bounded cross-host reviewer launch repair
