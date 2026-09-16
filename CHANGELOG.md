@@ -1,5 +1,25 @@
 # Changelog
 
+## Lab benchmark-review-history-buffer - v0.3.391 - 2026-09-16
+
+# Bounded review history reader repair
+
+B-0980 RI-021 finalized genuine reviewer evidence but TEST refused the official metadata publication. The diagnostic health reader recorded spawnSync git ENOBUFS. Historical review-runs.json and prompt-envelopes.json had grown to approximately 1.6 and 1.4 MB, exceeding the implicit child-process 1 MiB output buffer.
+
+The shared review-maintenance reader now uses a registered finite 64 MiB Git transport buffer for both parsed artifacts and raw closeout receipts, consistent with the nearby receipt reader. Larger output and parse errors still refuse and remain observable. All existing canonical publisher, exact path, single-parent, ancestry, live signature, cutoff, prefix preservation and consumer binding checks remain unchanged. This fixes a transport limit, not evidence authority.
+
+Regression history is retained honestly. The first broad fixture could not reach the target because an unrelated synthetic critic returned malformed output. An isolated fixture initially used an incorrect publisher subject; its early failing run is not claimed as the root-cause witness. The subject was corrected, the source fix was held outside the tree, baseline rebuilt, and the corrected test reproduced target RED. The restored repair passed the same test. Its greater-than-1-MiB signed synthetic publication succeeds, while prior-row rewriting, invalid signatures and wrong material bindings refuse. Synthetic fixture records never count as independent Story evidence.
+
+Current candidate bb5457c45b63ab764fc9cd0e526f1aae472994a3 passed the actual independent Claude CLI audit, complete build, target test, official GREEN, and exact static-edge scan. The complete process-fact contract passed. The runtime contract checks the registered buffer and both consuming readers, then reaches the pre-existing STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT failure (actual 2, expected 1), as on main. The 295 static exception rows were retained with exact source bindings only. No full-runtime-contract or overall benchmark completion claim is made.
+
+After integrating audited main 0.3.390, conflicts in the two contract registries were resolved by preserving both new tests and both runtime checks. The merged candidate 95ef66fd98 passed a fresh build, official GREEN, the managed delivery provider/CLI regression, JavaScript syntax checks and a fresh static-edge scan. Full process-contract PASS above refers to the pre-merge history candidate; the independently integrated delivery candidate also passed that contract. Finish must audit its exact prepared release before integration.
+
+This is authorized local maintenance only, without remote push, formal Story DONE or new benchmark scoring claims.
+
+Maintenance provenance: codex/lab-benchmark-review-history-buffer, repair 95ef66fd98a2bc28c7401144898831d22c744020.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/review-history-buffer.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-managed-delivery - v0.3.390 - 2026-09-16
 
 # Managed delivery compatibility repair
