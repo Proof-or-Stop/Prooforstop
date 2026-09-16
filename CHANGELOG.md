@@ -1,5 +1,73 @@
 # Changelog
 
+## Lab canonical-init-managed-dispatch-fixture - v0.3.382 - 2026-09-16
+
+Deliver canonical INIT reviewer evidence through the real acknowledged managed dispatch.
+
+Problem
+
+Local main requires that `init_check_set` is accepted only from inside a live
+controller-owned managed dispatch whose provider process group contains the
+caller; a bare call is refused with `[delivery_not_acknowledged]`. Main migrated
+some fixtures to the acknowledged `init_check_repair` fallback but left the
+canonical new-story artifact test calling the public CLI directly, so on local
+main that test's INIT group fails eight focused contracts, and because the group
+builds the fresh Story fixture the other groups that consume it (scope, runtime,
+inventory, identity-cutover) fail with "public CLI fixture must exist".
+
+Fix
+
+A reusable test capability delivers required INIT reviewer verdicts over the
+real path, reproducing the shape already proven by
+packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs: a fake provider
+on PATH, host-run handlers built with the in-process launchWorker test seam, and
+the documented operator flow (`host_run` with managedDispatch and detach, then a
+bounded status wait). The provider receives the canonical dispatch prompt on
+stdin and calls `init_check_set` from inside that dispatch's own signed
+invocation, which is what the controller acknowledges. The fallback path is not
+used, because it records mechanically distinct `<required>@fallback` identities
+and those checks exist to prove independent reviewer coverage. Nothing is
+relaxed: the controller still signs the invocation, the CLI still verifies and
+atomically consumes it, and one dispatch still authorizes exactly one verdict.
+
+The canonical checks that write INIT evidence now use that capability, and three
+assertions changed, each at least as strict as before: the fixture builder
+additionally proves the three verdicts come from three distinct dispatch runs
+and that every persisted reviewer row carries its lane's latest delivery run id;
+the historical-evidence check additionally proves a re-delivered row rebinds to
+the fresh run instead of keeping a spent one; the guide-template check binds to
+the currently documented managed dispatch templates, because main replaced the
+single-line `init_check_set` examples that check was still matching.
+
+A real dispatch also persists the reviewer prompt envelopes, so the fresh Story
+fixture now carries that artifact. Its schema identities are registered in the
+bounded active-identity path registry, which subjects them to the same
+canonical-value assertion as every other registered path. The pins that bind the
+changed test follow it: the static-edge manifest's dependency digests and
+re-windowed evidence, the identity verifier's whole-file witness, reviewed
+fixture row and retired-line self-inventory, and the fixture inventory reader.
+
+Verification
+
+RED was recorded on the unmodified base: the init group fails eight contracts
+and the output carries `delivery_not_acknowledged`. GREEN replays that exact
+command and the group passes, thirteen contracts, no failure. The managed INIT
+reviewer dispatch end-to-end test still passes. The inventory group drops from
+ten failing checks to three, all pre-existing on main: the F-018 guidance
+regular expression, the fixture worktree registration refusal and the
+independently red identity-cutover verifier. The static-edge scan and the
+identity-cutover verifier report exactly what local main 0.3.381 reports, with
+no Lab-only row. The independent different-vendor audit passed.
+
+Measured optimization
+
+Not applicable. This repair restores an existing contract's ability to execute
+its own subject; no workload budget changed.
+
+Maintenance provenance: codex/lab-canonical-init-managed-dispatch-fixture, repair 6b7f250b5f687b2f4442d0944c044644458df891.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/canonical-new-story-artifacts.test.mjs","--group=init"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Integrated main-sync release - v0.3.381 - 2026-09-15
 
 # Two divergent main lines integrated under one identifying version
