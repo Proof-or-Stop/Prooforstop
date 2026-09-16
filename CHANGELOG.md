@@ -1,21 +1,5 @@
 # Changelog
 
-## Lab done-recovery-scan - v0.3.384 - 2026-09-16
-
-Reduce redundant Git subprocesses in partial-DONE recovery discovery. A successful per-call branch enumeration now filters stored Stories without live branches before show-ref, while live candidate probes and the stored-ID fallback on enumeration failure remain intact. This does not change DONE semantics or implement recovery transactions.
-
-The frozen RED command failed the redundant show-ref operation budget; the same command passed after the repair with 14 behavior/result checks. Five alternating baseline/candidate pairs, after installing root and main-package lockfile dependencies, measured scan medians of 575.95 to 118.58 ms at 40 archived Stories and 2775.44 to 121.49 ms at 200; Git starts fell from 48/208 to 8. At zero archived Stories the observed median worsened from 90.78 to 110.10 ms; no universal latency non-regression or whole-Story speedup is claimed. Shared-host warm-cache samples are exploratory, not population guarantees.
-
-Normal main-package compilation and benchmark-framework-hardening-smoke passed. The complete repository npm test was not run. Original RED, GREEN, raw paired logs, environment and limitations are retained in /Users/jek/Documents/GitHub/proof-or-stop-doc/lab-done-recovery-scan-2026-09-16/. An initial build failed for missing package-local dependencies; installing the already-declared packages/main dependencies resolved it without code or policy changes. Local maintenance evidence is not formal Story DONE.
-
-Finish audit repair: the first candidate was rejected and officially reopened. A new real RED reproduced a same-name tag hiding a recovery branch. Enumeration now uses full refs/heads/story/* names; liveness, metadata, ancestry and merge-tree queries consistently use the explicit branch ref. New controls cover tags pointing both at the Story commit and at main. The guard now executes from the already-registered benchmark-framework-hardening driver, which is a member of test:serial-reference-prefix; no redundant npm alias or full-suite resource-policy change was needed. The normal driver actually ran its existing smoke and the new guard successfully, and the final standalone GREEN passes 18 controls. The performance table above remains historical measurements of the initial repair, not a newly measured latency claim for this audit revision.
-
-Additional audit-requested diagnostics were not relabeled PASS: test:reviewed-source-bindings fails at its unchanged causal-origin assertion (line 56) on both untouched main and this Lab. verify-validation-static-edges reports the same 60 needsReview rows, zero nested edges, 17 skipped rows, 1614 exceptions and one unexpanded command on both; exact blocking rows, coverage, stale exceptions and config-drift flags were compared, not only totals. These pre-existing repository-health issues are outside this bounded repair. Their raw logs and parity evidence are retained in the delivery directory. No source-binding exception was weakened to make them green. The brief addition of a redundant npm alias caused additional dependency-digest failures during development; removing that alias restored exact main-baseline parity while retaining execution through the existing registered driver.
-
-Maintenance provenance: codex/lab-done-recovery-scan, repair 2a2ed1ac7d2998f0bdb9d0213b2722f566997672.
-Verification command (replayed before integration and on main): `["node","scripts/verify-done-recovery-scan.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab tracked-config-projection - v0.3.383 - 2026-09-16
 
 # Tracked controller bootstrap compatibility repair
