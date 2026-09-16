@@ -1,3 +1,4 @@
+import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCriticEnvelopeValid, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { MANAGED_RUN_DASHBOARD_POLICY } from './runtime-fact-registry.js';
 import { normalizeExecutionBatchEnvironment, revokeExecutionBatchBinding } from './reviewer-batch-producer.js';
@@ -99,6 +100,7 @@ import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
 import { StoryStore } from './store.js';
 import { initCheckSignatureIsValid } from './init-check-gate.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
+import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import type { InitCheckData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
@@ -1810,6 +1812,19 @@ export function managedDispatchOutputValidation(input: {
   if (!input.storyId) return { failureReason: 'managed_dispatch_story_missing', outputDigest: null };
   try {
     const storyStore = new StoryStore(input.root);
+    if (input.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+      const data = storyStore.readDeliveryCheck(input.storyId);
+      if (!data || data.managedDeliveryRunId !== input.runId) {
+        return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
+      }
+      if (data.storyId !== input.storyId || data.nativeEvidenceBinding
+        || data._hash !== recomputeDeliveryCheckHash(input.storyId, storyStore)) {
+        return { failureReason: 'managed_dispatch_output_invalid', outputDigest: null };
+      }
+      return managedDispatchInvocationConsumptionIsValid({ ...input, storyId: input.storyId })
+        ? { failureReason: null, outputDigest: digestFile(storyStore.storyFilePath(input.storyId, MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact)) }
+        : { failureReason: 'managed_dispatch_invocation_unconsumed', outputDigest: null };
+    }
     if (input.agentType === 'proof-or-stop-review-scope-plan') {
       const scopePath = storyStore.storyFilePath(input.storyId, 'scope-check.json');
       if (!existsSync(scopePath)) return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
@@ -2101,12 +2116,15 @@ function assertSealedManagedHostRunArtifacts(paths: ManagedHostRunPaths, termina
   if (digestFile(paths.evidenceProposal) !== terminal.evidenceProposalDigest) mismatches.push('proposal');
   if (terminal.managedDispatchOutputDigest) {
     const spec = readManagedHostRunSpec(paths).value;
-    const currentOutputDigest = spec.profile === 'managed_dispatch'
-      && spec.agentType === 'proof-or-stop-review-scope-plan'
-      && spec.storyId
-      ? digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json'))
-      : null;
-    if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
+    // Delivery receipts describe a historical run. A later delivery review may
+    // replace the live Story report; only its evidence consumer compares that
+    // live file with this sealed digest. Preserve the existing scope contract.
+    if (spec.agentType !== MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+      const currentOutputDigest = spec.profile === 'managed_dispatch'
+        && spec.agentType === 'proof-or-stop-review-scope-plan' && spec.storyId
+        ? digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json')) : null;
+      if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
+    }
   }
   const hasEvidenceBinding = existsSync(paths.evidenceBinding);
   const hasEvidenceBindingSeal = existsSync(paths.evidenceBindingSeal);
@@ -3516,7 +3534,8 @@ export async function runManagedHostRunWorker(
       }
       deps.afterManagedDispatchOutputValidated?.({ root: spec.root, runId: spec.runId, outputDigest: output.outputDigest });
       if (output.outputDigest && spec.storyId
-        && digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json')) !== output.outputDigest) {
+        && digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId,
+          spec.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact : 'scope-check.json')) !== output.outputDigest) {
         return writeTerminal(paths, 'failed', 'managed_dispatch_output_changed_before_seal', result.replacementSafe, result, now());
       }
       return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now(), undefined, output.outputDigest);
@@ -4801,6 +4820,12 @@ export function verifyManagedDispatchDelivery(args: {
       if (!receipt.managedDispatchOutputDigest
         || currentDigest !== receipt.managedDispatchOutputDigest) {
         return { valid: false, reason: 'managed dispatch scope output does not match the completed receipt' };
+      }
+    }
+    if (args.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+      const currentDigest = digestFile(new StoryStore(args.root).storyFilePath(args.storyId, MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact));
+      if (!receipt.managedDispatchOutputDigest || currentDigest !== receipt.managedDispatchOutputDigest) {
+        return { valid: false, reason: 'managed dispatch delivery output does not match the completed receipt' };
       }
     }
     return { valid: true };

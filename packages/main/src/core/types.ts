@@ -3344,6 +3344,8 @@ export interface ClosingSelfCheck {
 
 export interface DeliveryCheckData {
   storyId: string;
+  /** Exact one-shot managed delivery invocation, sealed into its completed output. */
+  managedDeliveryRunId?: string;
   /** ISO 8601 write timestamp */
   checkedAt: string;
   /** Git HEAD at delivery review time, retained for audit/debug only. */

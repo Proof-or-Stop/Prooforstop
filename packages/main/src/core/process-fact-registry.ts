@@ -1270,7 +1270,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'delivery-check.json',
     path: 'delivery-check.json',
     signed: true,
-    signature: 'signDeliveryCheck/recomputeDeliveryCheckHash; native delivery broker binding is folded into the signed domain and reverified by DONE readers using canonical role identity for public and legacy dispatch aliases',
+    signature: 'signDeliveryCheck/recomputeDeliveryCheckHash; native delivery broker binding or managedDeliveryRunId is folded into the signed domain and reverified by DONE readers using canonical role identity for public and legacy dispatch aliases',
     producerCommand: 'delivery_check_set',
     consumerGate: 'storyMachine.canFinish DONE gate',
     reviewerLane: 'proof-or-stop-review-delivery',
@@ -1513,7 +1513,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'storyMachine.canFinish DONE gate',
     reviewerLane: 'proof-or-stop-review-delivery',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.delivery_check_set,
-    rationale: 'Delivery reviewer signs delivery-check evidence before DONE only through an exact broker-attested native dispatch; raw asserted reviewer identity is advisory-only.',
+    rationale: 'Delivery reviewer signs delivery-check evidence before DONE through an exact broker-attested native dispatch or a live managed delivery invocation with safe terminal-sealed output; raw asserted reviewer identity is advisory-only. Managed waiver writes refuse before mutation. Historical managed delivery receipts remain readable after a new review, while the DONE consumer requires the current report bytes to match its referenced terminal seal.',
   },
 ] as const;
 
@@ -2105,7 +2105,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/delivery-check',
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.delivery_check_set,
-    rationale: 'Delivery-check signature is consumed by DONE only after the registered host-adapter broker one-shot attestation binds the exact delivery dispatch, writer session, host identity, and current story material; the persisted nativeEvidenceBinding is itself folded into the signed artifact and DONE re-verifies its registered-broker signature plus matching delivery dispatch event, so raw asserted reviewer identity is not authority. Its docsPromises use the shared total delivery-promise outcome normalizer: contradictions fail closed, explicit unverified stays unresolved, and only missing-status legacy rows use bounded inference. The signature folds in storyFilesHash: whole-tree materialHash drift with a matching signed storyFilesHash downgrades to a mandatory re-attestation advisory (delivery_check_drift_advisory), while a story-owned change or missing storyFilesHash stays strict stale.',
+    rationale: 'Delivery-check signature is consumed by DONE only after the registered host-adapter broker one-shot attestation binds the exact delivery dispatch, writer session, host identity, and current story material; the persisted nativeEvidenceBinding is itself folded into the signed artifact and DONE re-verifies its registered-broker signature plus matching delivery dispatch event, so raw asserted reviewer identity is not authority. Its docsPromises use the shared total delivery-promise outcome normalizer: contradictions fail closed, explicit unverified stays unresolved, and only missing-status legacy rows use bounded inference. Managed delivery also requires verifyManagedDispatchDelivery with exact terminal-sealed output; a provider exit or recomputed public hash never suffices. The signature folds in storyFilesHash: whole-tree materialHash drift with a matching signed storyFilesHash downgrades to a mandatory re-attestation advisory (delivery_check_drift_advisory), while a story-owned change or missing storyFilesHash stays strict stale.',
   },
   {
     name: 'artifact:prompt-envelopes.json',

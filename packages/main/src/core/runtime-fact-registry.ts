@@ -617,3 +617,10 @@ export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
 } as const;
+
+/** Existing managed-dispatch authority also carries independent TEST delivery output. */
+export const MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY = {
+  role: 'proof-or-stop-review-delivery', phase: 'TEST', profile: 'managed_dispatch',
+  artifact: 'delivery-check.json',
+  authority: 'live-one-shot-invocation-and-safe-terminal-sealed-output',
+} as const;

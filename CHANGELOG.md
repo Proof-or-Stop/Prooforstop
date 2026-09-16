@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab benchmark-managed-delivery - v0.3.390 - 2026-09-16
+
+# Managed delivery compatibility repair
+
+B-0980 could not launch the required TEST delivery reviewer through managedDispatch: host_run accepted INIT and scope reviewers only, while native delivery required an unavailable registered broker. This bounded repair reuses actual managed one-shot invocation authority for the canonical delivery role in TEST. It does not grant caller-authored review authority.
+
+The handler validates current dispatch and payload before consuming the invocation. The worker requires consumed authority and seals exact output bytes on safe completion. DONE checks the current report against the referenced terminal seal. Native authority remains supported and mixed authority is rejected. Waiver mutation refuses before writing a managed report; a fresh review is required. A later review does not make historical receipts unreadable. The same provider/CLI regression runs once in the process contract instead of redundantly in both contracts.
+
+The initial independent Claude audit rejected waiver mutation, historical receipt behavior and missing negative coverage. Those findings were repaired and the subsequent actual Claude audit passed candidate 89ecee5afb7c2216216400a369faee2f3dd51951. Preserve both audit records. The synthetic provider is regression transport only, never independent Story review evidence.
+
+Verification: official RED and GREEN, complete candidate build, real synthetic provider/CLI regression (invalid payload, phase, role, duplicate invocation, waiver immutability, mixed authority, public rehash, forged Store output, later review and pre-seal race), native delivery and existing scope compatibility, process-fact contract, and exact static-edge scan. Existing 295 static exception entries remain, with only exact source bindings refreshed. Runtime contract reaches the new delivery checks but fails the pre-existing STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT assertion (actual 2, expected 1), previously reproduced on main 0.3.389. No claim of full runtime-contract PASS.
+
+This integration is local Lab maintenance only, not B-0980 DONE, benchmark completion or remote publication. No quantitative product performance claim is made.
+
+Maintenance provenance: codex/lab-benchmark-managed-delivery, repair 89ecee5afb7c2216216400a369faee2f3dd51951.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-delivery-dispatch.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-crosshost-jsonl-verdict - v0.3.389 - 2026-09-16
 
 # Cross-host managed JSONL verdict compatibility repair

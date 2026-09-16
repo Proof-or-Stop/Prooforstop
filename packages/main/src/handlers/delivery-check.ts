@@ -25,7 +25,8 @@ import {
   DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
   normalizeDeliveryPromiseOutcome,
 } from '../core/delivery-promise-outcome.js';
-import { authorizeNativeDeliveryReview } from '../core/delivery-review-authority.js';
+import { authorizeNativeDeliveryReview, verifyCurrentDeliveryReviewDispatch } from '../core/delivery-review-authority.js';
+import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
@@ -43,7 +44,7 @@ import { authorizeNativeDeliveryReview } from '../core/delivery-review-authority
 export function createDeliveryCheckHandlers(
   ctx: HandlerContext,
   options: {
-    /** Test seams may skip native broker issuance; production never does. */
+    /** Test-only native seam. Production requires native or managed invocation authority. */
     authorizeNativeInvocation?: (args: Parameters<typeof authorizeNativeDeliveryReview>[0]) => ReturnType<typeof authorizeNativeDeliveryReview> | void;
   } = {},
 ): Record<string, (...args: any[]) => any> {
@@ -64,6 +65,9 @@ export function createDeliveryCheckHandlers(
       if (!data) {
         throw new Error('delivery-check.json not found, run delivery reviewer first');
       }
+      if (data.managedDeliveryRunId) {
+        throw new Error('Managed delivery-check is terminal-sealed; waivers require a fresh host_run --managedDispatch delivery review. Existing evidence was not changed.');
+      }
 
       // 3) Find matching promise by docPath
       const promise = data.docsPromises.find(p => p.docPath === args.promiseId);
@@ -81,6 +85,7 @@ export function createDeliveryCheckHandlers(
         data.materialHash,
         data.storyFilesHash,
         data.nativeEvidenceBinding,
+        data.managedDeliveryRunId,
       );
       if (data._hash !== currentExpected) {
         throw new Error('delivery-check.json _hash is invalid (file may have been tampered with), please re-run the proof-or-stop-review-delivery reviewer');
@@ -112,6 +117,7 @@ export function createDeliveryCheckHandlers(
         data.materialHash,
         data.storyFilesHash,
         data.nativeEvidenceBinding,
+        data.managedDeliveryRunId,
       );
 
       // 6) Write back
@@ -208,11 +214,23 @@ export function createDeliveryCheckHandlers(
       const storyFilesHash =
         rawStoryFilesHash && rawStoryFilesHash !== EMPTY_STORY_FILES_HASH ? rawStoryFilesHash : undefined;
 
-      // Consume the one-shot native broker capability before the persisted
-      // artifact is assembled, then carry the exact binding into its signature.
-      // The injected test seam may intentionally return void; production always
-      // returns the registered broker binding.
-      const nativeAuthorization = (options.authorizeNativeInvocation ?? authorizeNativeDeliveryReview)({
+      // Validate the full payload and current dispatch before consuming either
+      // one-shot authority. Managed output becomes evidence only after the
+      // worker seals its bytes into a safe completed terminal receipt.
+      const managedInvocation = process.env.LATTICE_MANAGED_INIT_INVOCATION?.trim();
+      let managedDeliveryRunId: string | undefined;
+      if (managedInvocation) {
+        if (authority.entry?.canonicalName !== 'proof-or-stop-review-delivery'
+          || store.readStory(args.storyId).phase !== 'TEST') {
+          throw new Error('managed delivery requires the independent delivery role in TEST');
+        }
+        const dispatch = verifyCurrentDeliveryReviewDispatch({ store, storyId: args.storyId, projectRoot: root });
+        if (!dispatch.ok) throw new Error(`managed delivery dispatch invalid: ${dispatch.reason}`);
+        managedDeliveryRunId = resolveManagedDispatchInvocation({ root, storyId: args.storyId,
+          agentType: 'proof-or-stop-review-delivery' });
+      }
+      const nativeAuthorization = managedDeliveryRunId ? undefined
+        : (options.authorizeNativeInvocation ?? authorizeNativeDeliveryReview)({
         store,
         storyId: args.storyId,
         projectRoot: root,
@@ -227,6 +245,7 @@ export function createDeliveryCheckHandlers(
         materialHash,
         storyFilesHash,
         nativeEvidenceBinding,
+        managedDeliveryRunId,
       );
 
       // 4) construct DeliveryCheckData and persist to disk
@@ -242,6 +261,7 @@ export function createDeliveryCheckHandlers(
         realMachineTests,
         closingSelfCheck,
         ...(nativeEvidenceBinding ? { nativeEvidenceBinding } : {}),
+        ...(managedDeliveryRunId ? { managedDeliveryRunId } : {}),
         _hash,
       };
       store.writeDeliveryCheck(args.storyId, data);
