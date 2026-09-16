@@ -1513,7 +1513,7 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     consumerGate: 'storyMachine.canFinish DONE gate',
     reviewerLane: 'proof-or-stop-review-delivery',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.delivery_check_set,
-    rationale: 'Delivery reviewer signs delivery-check evidence before DONE through an exact broker-attested native dispatch or a live managed delivery invocation with safe terminal-sealed output; raw asserted reviewer identity is advisory-only.',
+    rationale: 'Delivery reviewer signs delivery-check evidence before DONE through an exact broker-attested native dispatch or a live managed delivery invocation with safe terminal-sealed output; raw asserted reviewer identity is advisory-only. Managed waiver writes refuse before mutation. Historical managed delivery receipts remain readable after a new review, while the DONE consumer requires the current report bytes to match its referenced terminal seal.',
   },
 ] as const;
 

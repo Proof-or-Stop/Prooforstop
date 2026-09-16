@@ -122,8 +122,9 @@ async function main() {
   const { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY: deliveryRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert.deepEqual({role:deliveryRuntime.role, phase:deliveryRuntime.phase, artifact:deliveryRuntime.artifact},
     {role:'proof-or-stop-review-delivery', phase:'TEST', artifact:'delivery-check.json'});
-  execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'],
-    { cwd: root, stdio: 'inherit', timeout: 180000 });
+  // The process contract executes the actual provider/CLI regression once.
+  assert(read(root, 'scripts/verify-process-fact-contract.mjs')
+    .includes("['packages/main/tests/managed-delivery-dispatch.test.mjs']"));
   console.log('MANAGED_DELIVERY_RUNTIME_CONTRACT_GREEN');
   const trackedBootstrap = execFileSync(process.execPath, [join(root, 'scripts/verify-tracked-controller-bootstrap.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
   check(trackedBootstrap.includes('TRACKED_CONFIG_BOOTSTRAP_GREEN'), 'Executed tracked controller bootstrap control');

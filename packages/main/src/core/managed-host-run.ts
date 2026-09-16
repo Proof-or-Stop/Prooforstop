@@ -2116,13 +2116,15 @@ function assertSealedManagedHostRunArtifacts(paths: ManagedHostRunPaths, termina
   if (digestFile(paths.evidenceProposal) !== terminal.evidenceProposalDigest) mismatches.push('proposal');
   if (terminal.managedDispatchOutputDigest) {
     const spec = readManagedHostRunSpec(paths).value;
-    const currentOutputDigest = spec.profile === 'managed_dispatch'
-      && (spec.agentType === 'proof-or-stop-review-scope-plan' || spec.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role)
-      && spec.storyId
-      ? digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId,
-        spec.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact : 'scope-check.json'))
-      : null;
-    if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
+    // Delivery receipts describe a historical run. A later delivery review may
+    // replace the live Story report; only its evidence consumer compares that
+    // live file with this sealed digest. Preserve the existing scope contract.
+    if (spec.agentType !== MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+      const currentOutputDigest = spec.profile === 'managed_dispatch'
+        && spec.agentType === 'proof-or-stop-review-scope-plan' && spec.storyId
+        ? digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json')) : null;
+      if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
+    }
   }
   const hasEvidenceBinding = existsSync(paths.evidenceBinding);
   const hasEvidenceBindingSeal = existsSync(paths.evidenceBindingSeal);

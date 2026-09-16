@@ -160,6 +160,10 @@ digest as well as normal delivery freshness and promise checks. Neither a raw
 agent name nor an exit-zero provider is sufficient. Native broker delivery
 remains unchanged; a managed report cannot also claim native provenance.
 Post-terminal replacement, including a waiver amendment, requires fresh review.
+`delivery_waiver_add` refuses managed reports before writing, preserving existing
+evidence. A new delivery review can replace the live report. Earlier run receipts
+remain readable and archivable; the DONE consumer still rejects any live report
+whose bytes differ from the referenced run's terminal seal.
 
 ## Cross-host verdict transport
 

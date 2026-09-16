@@ -65,6 +65,9 @@ export function createDeliveryCheckHandlers(
       if (!data) {
         throw new Error('delivery-check.json not found, run delivery reviewer first');
       }
+      if (data.managedDeliveryRunId) {
+        throw new Error('Managed delivery-check is terminal-sealed; waivers require a fresh host_run --managedDispatch delivery review. Existing evidence was not changed.');
+      }
 
       // 3) Find matching promise by docPath
       const promise = data.docsPromises.find(p => p.docPath === args.promiseId);
