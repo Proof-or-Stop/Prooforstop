@@ -1585,7 +1585,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -1797,7 +1797,7 @@
         "packages/main/src/tasks/done-required-validation-smoke.ts": "925755923f3fc8b4df5626ce59e8cd964bc75ff581cb087b3ebe5c0b23b35837",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
         "packages/main/src/tasks/flow-stability-smoke.ts": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
-        "packages/main/src/tasks/full-suite-runner.ts": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+        "packages/main/src/tasks/full-suite-runner.ts": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "4bc415ce4d81693420770399b4f57669fac756f72cd3923b4b1ac33af5bc9b62",
         "packages/main/src/tasks/narrowing-repin-smoke.ts": "25652fdafb05abb43a5e622b259634c2630aaed73d691322096d83560f834378",
         "packages/main/src/tasks/native-review-fixture.ts": "f06b88723970958543a418adf4c7ee385de50f08e837a7abc4787484b01ac05f",
@@ -4680,9 +4680,9 @@
     },
     {
       "id": "EX-0178",
-      "key": "packages/main/src/tasks/full-suite-runner.ts:694:spawn",
+      "key": "packages/main/src/tasks/full-suite-runner.ts:696:spawn",
       "callDigest": "4b4294720fe303e021cfe2555db95d73700f3dfb4987989b253562f24109f1d2",
-      "sourceDigest": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+      "sourceDigest": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
       "configIndexes": [
         144,
         145,
@@ -4700,9 +4700,9 @@
         "Historical dated review provenance (not a current source binding): 2026-09-10 repair review: current caller packages/main/src/tasks/full-suite-runner.ts SHA256 8ed53ae3cc57547067c2befb873eafd037996cc002cffedfb870d784425cf16d; fixture prerequisites and identities changed, executable target and worker branch retained. Complete configured dependency closure is bound below.",
         {
           "file": "packages/main/src/tasks/full-suite-runner.ts",
-          "startLine": 692,
-          "endLine": 702,
-          "sourceDigest": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+          "startLine": 694,
+          "endLine": 704,
+          "sourceDigest": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
           "excerpt": "    const timingPath = join(tempRoot, 'cpu.time');\n    const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];\n    const child = spawn(command, commandArgs, {\n      cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],\n      env: { ...process.env, [REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY.environmentKey]: JSON.stringify({entry:entry.name,timeoutMs:entry.timeoutMs ?? DEFAULT_TIMEOUT_MS,deadlineAt:outerDeadlineAt}), PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },\n    });\n    // B-137a: capture the child's kernel start identity BEFORE any cleanup can\n    // run, so a later group signal can be authorized against it.\n    state.activeChildIdentities.set(child, captureFullSuiteProcessIdentity(child.pid));\n    onSpawn?.(); state.activeChildren.add(child);\n    let output = '';"
         }
       ],
@@ -4712,7 +4712,7 @@
         "packages/main/src/handlers/story-aware-validation.ts": "9dd397de512ca1237b156280fa3ecc581d762db03c63e64939ee7075cd1b4d86",
         "packages/main/src/handlers/validation-pass-admissibility.ts": "e36f651792fef520cd5bb42b8cab7dea6e030ba5d3a6e5384ef50552f81e712c",
         "packages/main/src/handlers/validation-plan.ts": "7656d10c7996616d98de8548d8577d8f33872b2009186623812501cfa34b36e0",
-        "packages/main/src/tasks/full-suite-runner.ts": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+        "packages/main/src/tasks/full-suite-runner.ts": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "4bc415ce4d81693420770399b4f57669fac756f72cd3923b4b1ac33af5bc9b62",
         "packages/main/src/tasks/review-inventory-epoch-smoke.ts": "62322ea011ecba104c963c88f4a41bb7ac01c506510025e48af70a09d121c4d4",
         "packages/main/src/tasks/single-owner-extraction-smoke.ts": "ed42d13d05b26bcdb9bc0d1db186f1c431273721f25e2625e89afa2a78b1241b",
@@ -4938,7 +4938,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -4996,7 +4996,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5063,7 +5063,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5138,7 +5138,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5204,7 +5204,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5274,7 +5274,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5344,7 +5344,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5414,7 +5414,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5478,7 +5478,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5542,7 +5542,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5606,7 +5606,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5670,7 +5670,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5734,7 +5734,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5796,7 +5796,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5862,7 +5862,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5929,7 +5929,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -5996,7 +5996,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6063,7 +6063,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6130,7 +6130,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6197,7 +6197,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6264,7 +6264,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6336,7 +6336,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6399,7 +6399,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6462,7 +6462,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6525,7 +6525,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6590,7 +6590,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6653,7 +6653,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6719,7 +6719,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6790,7 +6790,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6862,7 +6862,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6927,7 +6927,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -6992,7 +6992,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -7058,7 +7058,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -7123,7 +7123,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -7188,7 +7188,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -7254,7 +7254,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/lab/package-lock.json": "4ab8ae514c57798630b92f3578b82a65607395e0bdeeb512342870161f5a03ee",
         "packages/lab/package.json": "4c2327ef4f90f5c6d3cc39442b745c065be2e87326f8530091a63f4a1c632486",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
@@ -7314,7 +7314,7 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "b47702bc658ccb4fcfa16aeddd388a49e7bb48de9853f82f80835f406a185013",
-        "packages/main/src/tasks/full-suite-runner.ts": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+        "packages/main/src/tasks/full-suite-runner.ts": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "4bc415ce4d81693420770399b4f57669fac756f72cd3923b4b1ac33af5bc9b62",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
         "scripts/extra-modes.mjs": "39a5b63bb88b84f1a24184fff6f9e347a540b00d37e33ffd2811555662b1360d",
@@ -7354,7 +7354,7 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "b47702bc658ccb4fcfa16aeddd388a49e7bb48de9853f82f80835f406a185013",
-        "packages/main/src/tasks/full-suite-runner.ts": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+        "packages/main/src/tasks/full-suite-runner.ts": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "4bc415ce4d81693420770399b4f57669fac756f72cd3923b4b1ac33af5bc9b62",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
         "scripts/extra-modes.mjs": "39a5b63bb88b84f1a24184fff6f9e347a540b00d37e33ffd2811555662b1360d",
@@ -7394,7 +7394,7 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "b47702bc658ccb4fcfa16aeddd388a49e7bb48de9853f82f80835f406a185013",
-        "packages/main/src/tasks/full-suite-runner.ts": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+        "packages/main/src/tasks/full-suite-runner.ts": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "4bc415ce4d81693420770399b4f57669fac756f72cd3923b4b1ac33af5bc9b62",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
         "scripts/extra-modes.mjs": "39a5b63bb88b84f1a24184fff6f9e347a540b00d37e33ffd2811555662b1360d",
@@ -7434,7 +7434,7 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "b47702bc658ccb4fcfa16aeddd388a49e7bb48de9853f82f80835f406a185013",
-        "packages/main/src/tasks/full-suite-runner.ts": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+        "packages/main/src/tasks/full-suite-runner.ts": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "4bc415ce4d81693420770399b4f57669fac756f72cd3923b4b1ac33af5bc9b62",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
         "scripts/extra-modes.mjs": "39a5b63bb88b84f1a24184fff6f9e347a540b00d37e33ffd2811555662b1360d",
@@ -10987,7 +10987,7 @@
         "Entry-local resource-policy dependency: the complete configuration file is hashed above. The scanner also independently hashes all validate.commands including resources at its top-level configDigest; these are separate checks, not a claim that raw resource drift previously bypassed the scanner."
       ],
       "dependencyDigests": {
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/main/package-lock.json": "cf1ba3f7177f968a68b78c48659f62d9890d450f63848f58d3972e4ad477a9d6",
         "packages/main/package.json": "09ad9364d84500c711d7cb79736610ceaa7fc081b0030907c3f1c760d85e63cf",
         "packages/main/tsconfig.json": "a8a98c56a83af79c199c671f6face94690bf94f95bbe1fc16cf1b7cf11f712ed",
@@ -11036,7 +11036,7 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "b47702bc658ccb4fcfa16aeddd388a49e7bb48de9853f82f80835f406a185013",
-        "packages/main/src/tasks/full-suite-runner.ts": "b97a6f464928ede7084e9d13a944478a937a6204ef88d0a3ff38df777ffb8364",
+        "packages/main/src/tasks/full-suite-runner.ts": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "4bc415ce4d81693420770399b4f57669fac756f72cd3923b4b1ac33af5bc9b62",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
         "packages/main/tests/validation-input-contract.mjs": "491c2497ec8ca045b045cc54cac72b3fb6f63143804619b9101d184bf4e9ff58",
@@ -11632,7 +11632,7 @@
       ],
       "dependencyDigests": {
         "package-lock.json": "38e9fe73b5e289cf7f70eff44b5cc5a0e9745fbb65459d7205b6536a009bc9de",
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/main/src/core/playbook-runtime-baseline.ts": "c3e6a9f96d8a8b28faeea78b18787f6fb9204edb9b7837982e380392a9568901",
         "packages/main/src/core/playbook-runtime-memory.ts": "37d44b6063a0ca8c5556ae093cdd345632fb89c50159092c926daaa975c77f73",
         "scripts/verify-memory-query-timing.mjs": "08313b121aa4b940c2314b571d7b7ae5a8a8e56bf160a5d69de837426a39fa96",
@@ -14283,7 +14283,7 @@
         }
       ],
       "dependencyDigests": {
-        "package.json": "e10b429dbfcd3eb908a8c781b773d05c693a4d3b9c61e4ee0398e573bf4e75ba",
+        "package.json": "993070d04910a9e3efc0472e5920707fe59d4d8ff8bd6c190887eea23bc0ad37",
         "packages/main/package.json": "09ad9364d84500c711d7cb79736610ceaa7fc081b0030907c3f1c760d85e63cf",
         "packages/main/src/cli-engine.ts": "6bd4879a208cc3de63964002a53a1e8f6174fd9f919950675c55b9d38fee97d0",
         "packages/main/src/cli/runtime-root.ts": "f9f0f13ba95cf58f5c25e8771d9dffc0b996ea0817c9d4f62ed6c8de019dd433",

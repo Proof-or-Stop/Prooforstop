@@ -1349,3 +1349,17 @@ returns false when both bindings are present before computing any digest, and
 reach the later conflicting-authority branch through the real PASS collector.
 These controls prove that outer rejection, not execution of the downstream
 defense. The unchanged late guard ordering is checked by the process contract.
+
+## Canonical benchmark regression membership
+
+The serial reference and resource policy both include the benchmark framework
+hardening regression. The managed review final-schema regression retains its
+original command and membership. The canonical benchmark hardening npm alias
+uses `--prebuilt`: it verifies the current build binding before either child and
+refuses missing or stale output instead of rebuilding while peer tests read it.
+Direct invocation of the verifier without that option retains its build-first
+behavior. Both the hardening smoke and recovery scan remain required children.
+The registered full-suite smoke exercises real inventory mutations and a private
+prebuilt wrapper fixture covering stale/missing bindings, restoration, unknown
+options and propagation of a child failure. Those fixture markers are test
+observations, not benchmark scores or Story completion evidence.

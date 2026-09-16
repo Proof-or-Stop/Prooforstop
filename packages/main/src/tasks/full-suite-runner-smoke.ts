@@ -138,6 +138,12 @@ function assertBenchmarkPrebuiltGuard(): void {
     writeFileSync(smoke, 'process.exit(7);'); bind();
     assert(run(['--prebuilt']).status === 7, 'actual child failure propagates with its exit code');
     assert(readFileSync(seen, 'utf8') === restored, 'failed smoke prevents the recovery child');
+    writeFileSync(smoke, `require('node:fs').appendFileSync(${JSON.stringify(seen)},'smoke\\n');`);
+    writeFileSync(join(root, 'packages/main/package.json'), JSON.stringify({ scripts: { build: 'node ../../scripts/fixture-build.cjs' } }));
+    writeFileSync(join(root, 'scripts/fixture-build.cjs'), `require('node:fs').appendFileSync(${JSON.stringify(seen)},'build\\n');`);
+    assert(run([]).status === 0, 'direct default invocation retains its build-first path');
+    assert(readFileSync(seen, 'utf8') === restored + 'build\nsmoke\nrecovery\n',
+      'default mode executes its build command before both verification children');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
