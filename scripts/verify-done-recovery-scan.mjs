@@ -125,7 +125,7 @@ try {
     }
   }
   const packageScripts = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).scripts;
-  check(packageScripts['test:done-recovery-scan'] === 'node scripts/verify-done-recovery-scan.mjs', 'dedicated npm regression entry remains registered');
+  check(packageScripts['test:benchmark-framework-hardening'] === 'node scripts/verify-benchmark-framework-hardening.mjs', 'existing npm regression entry remains registered');
   const parentDriver = readFileSync(new URL('./verify-benchmark-framework-hardening.mjs', import.meta.url), 'utf8');
   const driverTree = ts.createSourceFile('driver.mjs', parentDriver, ts.ScriptTarget.Latest, true);
   const wired = driverTree.statements.some(statement => ts.isVariableStatement(statement) && statement.declarationList.declarations.some(declaration => {
