@@ -6,7 +6,7 @@ import type { StoryInfo } from './types.js';
 import { loadConfig } from './config.js';
 import { isVolatileRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { resolveRepositoryBaseline } from './git-baseline.js';
-import { resolveStoryIntegrationTarget } from './story-integration-target.js';
+import { localIntegrationBranchNameForRef, resolveStoryIntegrationTarget } from './story-integration-target.js';
 
 export interface PartialDoneStory {
   storyId: string;
@@ -156,13 +156,17 @@ export function detectPartialDoneStories(root: string, store: StoryStore): Parti
     if (branchStory?.phase !== 'DONE') continue;
     const doneStory = branchStory;
     const integrationTarget = resolveStoryIntegrationTarget(mainRepoRoot, doneStory);
-    const integrationBranch = integrationTarget?.parentBranch;
+    const integrationBranch = integrationTarget
+      ? localIntegrationBranchNameForRef(integrationTarget.parentBranch) : undefined;
+    const integrationRef = integrationBranch ? `refs/heads/${integrationBranch}` : null;
     const worktreePath = findStoryWorktreePath(mainRepoRoot, storyId, branch);
     const registered = listRegisteredWorktrees(mainRepoRoot).some(entry =>
       entry.branch === branch || (worktreePath ? normalizePath(entry.path) === normalizePath(worktreePath) : false),
     );
     const worktreeExists = worktreePath ? existsSync(worktreePath) : false;
-    if (!integrationBranch) {
+    // Delivery targets are local integration branches. Never let a tag win
+    // Git's short-name precedence, and never fall back to the ambiguous name.
+    if (!integrationRef || !gitSucceeds(mainRepoRoot, ['rev-parse', '--verify', `${integrationRef}^{commit}`])) {
       partial.push({
         storyId,
         title: doneStory.title,
@@ -178,9 +182,9 @@ export function detectPartialDoneStories(root: string, store: StoryStore): Parti
       });
       continue;
     }
-    const branchMergedToMain = gitSucceeds(mainRepoRoot, ['merge-base', '--is-ancestor', branchRef, integrationBranch]);
+    const branchMergedToMain = gitSucceeds(mainRepoRoot, ['merge-base', '--is-ancestor', branchRef, integrationRef]);
     if (branchMergedToMain) continue;
-    const mergeTreeClean = gitSucceeds(mainRepoRoot, ['merge-tree', '--write-tree', integrationBranch, branchRef]);
+    const mergeTreeClean = gitSucceeds(mainRepoRoot, ['merge-tree', '--write-tree', integrationRef, branchRef]);
     partial.push({
       storyId,
       title: doneStory.title,

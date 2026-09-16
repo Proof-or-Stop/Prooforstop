@@ -53,9 +53,10 @@ function init(name, archived = 0, branch = 'main') {
   git(root, ['add', '.']); git(root, ['commit', '-qm', 'seed isolated fixture']);
   return { root, store };
 }
-function branchStory(f, id, phase = 'DONE', conflict = false) {
+function branchStory(f, id, phase = 'DONE', conflict = false, parentBranch = 'main') {
   git(f.root, ['checkout', '-qb', `story/${id}`, 'main']);
-  f.store.writeStory(id, story(id, phase));
+  const metadata = story(id, phase); metadata.integrationTarget.parentBranch = parentBranch;
+  f.store.writeStory(id, metadata);
   if (conflict) writeFileSync(join(f.root, 'conflict.txt'), 'story\n');
   git(f.root, ['add', '.']); git(f.root, ['commit', '-qm', `fixture ${id}`]);
   git(f.root, ['checkout', '-q', 'main']);
@@ -118,6 +119,15 @@ try {
   const oldPath = process.env.PATH;process.env.PATH=bin+':'+oldPath;
   try { check(observe(fallback).rows.some(x => x.storyId === 'B-fallback'), 'enumeration failure does not silently lose known partial-DONE'); }
   finally { process.env.PATH=oldPath; }
+  const formats = init('target-formats');
+  branchStory(formats, 'B-qualified', 'DONE', false, 'refs/heads/main');
+  branchStory(formats, 'B-remote-qualified', 'DONE', false, 'refs/remotes/origin/main');
+  branchStory(formats, 'B-missing-parent', 'DONE', false, 'missing-parent');
+  git(formats.root, ['tag', 'missing-parent', 'refs/heads/story/B-missing-parent']);
+  const formatRows = observe(formats).rows;
+  check(formatRows.find(x => x.storyId === 'B-qualified')?.mergeTreeClean === true, 'qualified local target resolves without double prefix');
+  check(formatRows.find(x => x.storyId === 'B-remote-qualified')?.mergeTreeClean === true, 'repository ref normalization selects the local integration branch');
+  check(formatRows.find(x => x.storyId === 'B-missing-parent')?.reason.includes('cannot be resolved'), 'tag-only target is not a local integration branch');
   const samples=[];
   for(const archived of [0,40,200]) {
     const fixture=init('measure-'+archived,archived);branchStory(fixture,'B-target');
