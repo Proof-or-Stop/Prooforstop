@@ -50,7 +50,7 @@ import { computeFinalReviewRoster, projectFinalReviewRoster, renderFinalReviewRo
 import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import { getSessionId } from '../core/owner-session.js';
-import { deriveReviewerBatchSubject } from '../core/reviewer-batch-subject.js';
+import { deriveReviewerBatchSubject, validateReviewerBatchAssignments } from '../core/reviewer-batch-subject.js';
 
 const storyId = 'B-inventory-handler';
 const reviewRound = '2020-01-01T00:00:00.000Z';
@@ -961,6 +961,13 @@ for (const lane of epoch.requiredLanes) {
     readManifest, readEvents,
   });
 }
+// An owner metadata publication can advance HEAD while preserving the signed
+// inventory cutoff, completed wave and current lane terminals.
+const metadataCheckpointInventory = reloaded.readReviewInventoryEpochs(storyId);
+const metadataCheckpointPasses = reloaded.readReviewPasses(storyId);
+git(first.root, ['add', reloaded.storyDirPath(storyId)]);
+git(first.root, ['commit', '-m', 'publish unchanged-material review metadata']);
+assert.notEqual(git(first.root, ['rev-parse', 'HEAD']), epoch.cutoff.headHash);
 cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
   PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-wave2-critic',
 });
@@ -971,6 +978,39 @@ const secondCriticReviewRunId = secondCriticStarted.match(/Review run (\S+) star
 assert.ok(secondCriticReviewRunId);
 const selectedInventoryRole = promptRoleContract(criticArgs.agentType, 'inventory-completeness');
 const secondCriticRun = reloaded.readReviewRuns(storyId).runs.find(row => row.reviewRunId === secondCriticReviewRunId)!;
+assert.notEqual(secondCriticRun.headHash, epoch.cutoff.headHash);
+const metadataCriticSubject = deriveReviewerBatchSubject(reloaded, first.root, { storyId });
+assert.ok(metadataCriticSubject.requiredLanes.includes(criticArgs.agentType),
+  'METADATA_HEAD_CRITIC_ADMISSION: valid wave-two critic survives a metadata-only HEAD change');
+validateReviewerBatchAssignments(metadataCriticSubject.requiredLanes,
+  metadataCriticSubject.requiredLanes.map(lane => ({ lane, kind: 'managed', host: 'codex' })));
+assert.deepEqual(reloaded.readReviewInventoryEpochs(storyId), metadataCheckpointInventory,
+  'batch admission preserves the original cutoff and completed wave');
+assert.deepEqual(reloaded.readReviewPasses(storyId), metadataCheckpointPasses,
+  'batch admission preserves all completed lane terminals');
+git(first.root, ['commit', '--allow-empty', '-m', 'another metadata-only HEAD tick']);
+assert.equal(deriveReviewerBatchSubject(reloaded, first.root, { storyId }).subjectIdentity,
+  metadataCriticSubject.subjectIdentity, 'a later harmless HEAD tick does not revoke critic admission');
+assert.throws(() => deriveReviewerBatchSubject(reloaded, first.root, { storyId, wave: 1 }), /BATCH_SUBJECT_REQUEST_MISMATCH/);
+assert.throws(() => deriveReviewerBatchSubject(reloaded, first.root, { storyId, epochId: 'wrong-epoch' }), /BATCH_SUBJECT_REQUEST_MISMATCH/);
+// Corrupt only isolated fixture records. A valid old-wave critic must not rescue
+// a current run whose signature, purpose or exact inventory binding is invalid.
+const validMetadataRuns = reloaded.readReviewRuns(storyId);
+for (const mutation of [
+  { _hash: 'tampered' }, { storyId: 'B-wrong-story' }, { reviewRound: 'wrong-round' },
+  { reviewPurpose: 'topology' }, { materialHash: 'wrong-material' }, { storyFilesHash: 'wrong-story-files' },
+  { inventoryBinding: { ...secondCriticRun.inventoryBinding, wave: 1 } },
+  { inventoryBinding: { ...secondCriticRun.inventoryBinding, epochId: 'wrong-epoch' } },
+]) {
+  try {
+    reloaded.writeReviewRuns(storyId, { ...validMetadataRuns, runs: validMetadataRuns.runs.map(run =>
+      run.reviewRunId === secondCriticReviewRunId ? { ...run, ...mutation } : run) } as typeof validMetadataRuns);
+    assert.ok(!deriveReviewerBatchSubject(reloaded, first.root, { storyId }).requiredLanes.includes(criticArgs.agentType),
+      `metadata tolerance must not admit an invalid critic: ${JSON.stringify(mutation)}`);
+  } finally { reloaded.writeReviewRuns(storyId, validMetadataRuns); }
+}
+console.log('METADATA_HEAD_CRITIC_ADMISSION_PASS current wave and exact signed bindings retained');
+
 const secondCriticEnvelope = reloaded.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === secondCriticRun.envelopeId)!;
 assert.ok(secondCriticEnvelope.priorPassRef, 'wave two must consume a genuine signed prior critic PASS');
 assert.equal(secondCriticEnvelope.eligibilityRoleSemanticDigest, selectedInventoryRole.semanticDigest);
