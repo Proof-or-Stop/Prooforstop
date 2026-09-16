@@ -11463,6 +11463,13 @@ process.stdout.write(JSON.stringify({ ownerCoverage: projection.find(entry => en
     'P0m component-filtered process mapping must be explicit and non-empty');
   assert(sourceResult.refusal === 'registry-component-mapping-unavailable',
     'process registry missing mapping must use the typed unavailable diagnostic');
+  const ownerCoverageSource = read('packages/main/src/core/plan-touchpoint-coverage.ts');
+  assert(ownerCoverageSource.includes("input !== undefined && (!Array.isArray(input) || input.length !== 0)"),
+    'zero mapped owners must accept omitted or empty owner dispositions while rejecting non-empty input');
+  assert(read('packages/main/src/handlers/story-dispatch.ts').includes('omit ownerDispositions or submit an empty array'),
+    'scope reviewer prompt must explain the zero-owner disposition contract');
+  assert(read('packages/main/src/cli/command-catalog.ts').includes('omit or use [] when the mapped-owner count is zero'),
+    'scope_check_save command schema must explain the zero-owner disposition contract');
 }
 // Dynamic Finding proof and rollout contracts: prompt guidance plus mechanical
 // entry/read/CAS guards. Each source guard has a deliberate bypass mutation.

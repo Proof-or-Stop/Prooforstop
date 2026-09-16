@@ -145,7 +145,9 @@ function validateOwnerDispositions(current: NonNullable<ReturnType<typeof curren
 export function signPlanOwnerCoverage(store: StoryStore, root: string, storyId: string, input: unknown, actor: string | undefined): PlanOwnerCoverage | undefined {
   const current = currentPlanOwnerBinding(store, root, storyId);
   if (!current) {
-    if (input !== undefined) throw new Error('owner dispositions require selected canonical process facts');
+    if (input !== undefined && (!Array.isArray(input) || input.length !== 0)) {
+      throw new Error('owner dispositions require selected canonical process facts');
+    }
     return undefined;
   }
   if (actor !== SCOPE_ROLE) throw new Error('selected owner coverage requires the registered scope reviewer');

@@ -2752,7 +2752,7 @@ Behavior:
       drift: z.number().optional(),
     }).describe('Summary.'),
     readManifest: reviewerReadManifestSchema.describe('Required signed scope reviewer read coverage.'),
-    ownerDispositions: z.array(z.object({path:z.string(),disposition:z.enum(['modify','test','unchanged']),reason:z.string().min(40)}).strict()).optional().describe('Required for canonical process-fact topology: exactly one substantive disposition for every mapped owner; unchanged is reviewed, not a scope expansion.'),
+    ownerDispositions: z.array(z.object({path:z.string(),disposition:z.enum(['modify','test','unchanged']),reason:z.string().min(40)}).strict()).optional().describe('Required for canonical process-fact topology: exactly one substantive disposition for every mapped owner; omit or use [] when the mapped-owner count is zero; unchanged is reviewed, not a scope expansion.'),
     // B-ed3e CHK-003: sixth channel Open Questions (optional). Reviewer writes only receive type validation,
     // business completeness is not validated; main agent later resolves it in writing with scope_question_resolve.
     openQuestions: z.array(z.object({
