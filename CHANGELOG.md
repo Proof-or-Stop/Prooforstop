@@ -6,6 +6,8 @@ Managed review evidence import performed expensive receipt and proposal verifica
 
 The Lab regression covers fresh stale intake, exact and foreign receipt lookup, legacy null-proposal compatibility, and a real handler sequence that persists a receipt-bound Finding, crashes, changes only candidate routing, and successfully resumes through authenticated existing-evidence recovery. Package build, managed inventory import regression, contract checks, and independent Codex Sol/high Standards and Spec review passed with no findings.
 
+After merging the concurrent 0.3.385 release, the retained reviewed subprocess calls were rebound to the merged source and dependency bytes. The previously stale `brand-role-migration` nested-witness pin was reviewed against its unchanged exact launch and refreshed together with the resulting dependency closure. The canonical static report now has 0 pending call rows, 0 stale exceptions, and 0 unexpanded commands.
+
 Maintenance provenance: codex/lab-managed-import-stale-preflight, repair a082bc73e5.
 Verification commands: `node packages/main/tests/managed-review-candidate-preflight.test.mjs`; `node scripts/verify-managed-inventory-critic-import.mjs --case=crash`.
 This entry does not assert formal Story DONE or signed product-release credentials.
