@@ -40,6 +40,10 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
   const after = currentOpenReviewInventory(store, args.storyId);
   const afterStory = store.readStory(args.storyId);
   if (!after || after._hash !== epoch._hash || afterStory.phase !== 'REVIEW' || afterStory.currentReviewRound !== story.currentReviewRound) fail('BATCH_SUBJECT_CHANGED_DURING_CAPTURE');
+  // The purpose binding retains the exact original cutoff (including HEAD).
+  // A valid new run may start after a metadata-only commit, as permitted by
+  // inventory freshness and critic receipt validation. Material identity,
+  // not equality of those two historical commit IDs, controls this admission.
   const includeInventoryCritic = store.readReviewRuns(args.storyId).runs.some(run =>
     verifyReviewRun(run, store)
     && run.lane === INVENTORY_CRITIC_LANE
@@ -47,7 +51,6 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
     && run.reviewPurpose === 'inventory-completeness'
     && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
     && run.reviewRound === epoch.reviewRound
-    && run.headHash === epoch.cutoff.headHash
     && run.materialHash === epoch.cutoff.materialHash
     && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? ''),
   );
