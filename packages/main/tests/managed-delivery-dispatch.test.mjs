@@ -21,6 +21,9 @@ const transportKeys = new Set([...Object.keys(process.env).filter(key => isValid
 const priorTransport = new Map([...transportKeys].map(key => [key, process.env[key]]));
 try {
   for (const key of transportKeys) delete process.env[key];
+  // Synthetic owner for this temporary project and fake provider only.
+  process.env.PROOF_OR_STOP_SESSION_ID = `managed-delivery-fixture-${process.pid}`;
+  process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
   resetSessionIdForTest();
 
   writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'.',rootDir:'src',outDir:'dist',testsDir:'tests',fixturesDir:'tests/fixtures',storyDir:'.proof-or-stop/story/actives',requirementsDir:'docs/requirements'}));
@@ -121,4 +124,13 @@ try {
   assert.equal(readManagedHostRunProjection(root,raced.runId).terminal?.reason,'managed_dispatch_output_changed_before_seal');
   assert.equal(evaluateDeliveryCheckFreshness(storyId,store,root).ok,false);
   console.log('MANAGED_DELIVERY_DISPATCH_GREEN');
-} finally { if(priorPath===undefined)delete process.env.PATH;else process.env.PATH=priorPath;if(priorRoot===undefined)delete process.env.PROOF_OR_STOP_PROJECT_ROOT;else process.env.PROOF_OR_STOP_PROJECT_ROOT=priorRoot;rmSync(root,{recursive:true,force:true});for(const [key,value] of priorTransport){if(value===undefined)delete process.env[key];else process.env[key]=value;}resetSessionIdForTest();}
+} finally {
+  try {
+    if(priorPath===undefined)delete process.env.PATH;else process.env.PATH=priorPath;
+    if(priorRoot===undefined)delete process.env.PROOF_OR_STOP_PROJECT_ROOT;else process.env.PROOF_OR_STOP_PROJECT_ROOT=priorRoot;
+    rmSync(root,{recursive:true,force:true});
+  } finally {
+    for(const [key,value] of priorTransport){if(value===undefined)delete process.env[key];else process.env[key]=value;}
+    resetSessionIdForTest();
+  }
+}

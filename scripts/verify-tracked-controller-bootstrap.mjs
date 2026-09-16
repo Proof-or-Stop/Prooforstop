@@ -38,6 +38,7 @@ try {
   const env = { ...process.env };
   for (const key of Object.keys(env)) if (/^(PROOF_OR_STOP|PROOFBOUND|LATTICE)_/.test(key) || isValidationTransportEnvKey(key)) delete env[key];
   env.PROOF_OR_STOP_SESSION_ID = 'tracked-bootstrap-regression';
+  env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER = 'codex'; // Temporary fixture owner; no provider process is launched.
   const result = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'aux_doc_list'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
   assert.equal(result.status, 0, `TRACKED_CONFIG_BOOTSTRAP_RED: normal CLI must preserve tracked branch config instead of projecting the controller copy\n${result.stderr}`);
   assert.equal(readFileSync(join(worktree, 'proof-or-stop.config.json'), 'utf8'), branchConfig);
