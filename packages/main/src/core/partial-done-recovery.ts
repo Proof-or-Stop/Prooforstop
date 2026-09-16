@@ -137,10 +137,18 @@ export function isSafeStoryWorktreePath(root: string, storyId: string, target: s
 export function detectPartialDoneStories(root: string, store: StoryStore): PartialDoneStory[] {
   const mainRepoRoot = resolveMainRepoRoot(root);
   const partial: PartialDoneStory[] = [];
-  const branchStoryIds = listStoryBranches(mainRepoRoot).map(branch => branch.slice('story/'.length));
+  const storyBranches = listStoryBranches(mainRepoRoot);
+  const existingBranches = storyBranches === null ? null : new Set(storyBranches);
+  const branchStoryIds = (storyBranches ?? []).map(branch => branch.slice('story/'.length));
   const storyIds = [...new Set([...store.listStoryIds(), ...branchStoryIds])].sort();
   for (const storyId of storyIds) {
     const branch = `story/${storyId}`;
+    // Enumeration already proves absent refs need no per-Story Git process.
+    // Keep a live check for candidates that existed at this scan's snapshot;
+    // newly created refs are discovered by the next scan, never a cached list.
+    // If enumeration failed, preserve the stored-ID fallback instead of
+    // interpreting unavailable branch information as an empty repository.
+    if (existingBranches !== null && !existingBranches.has(branch)) continue;
     const branchExists = gitSucceeds(mainRepoRoot, ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`]);
     if (!branchExists) continue;
     const branchStory = readStoryFromBranch(mainRepoRoot, store.storyDirRel(), branch, storyId);
@@ -189,12 +197,12 @@ export function detectPartialDoneStories(root: string, store: StoryStore): Parti
   return partial.sort((a, b) => a.storyId.localeCompare(b.storyId));
 }
 
-function listStoryBranches(root: string): string[] {
+function listStoryBranches(root: string): string[] | null {
   let raw = '';
   try {
     raw = git(root, ['for-each-ref', '--format=%(refname:short)', 'refs/heads/story']);
   } catch {
-    return [];
+    return null;
   }
   return raw.split(/\r?\n/).map(line => line.trim()).filter(line => line.startsWith('story/'));
 }
