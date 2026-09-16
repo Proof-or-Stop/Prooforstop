@@ -55,12 +55,12 @@ try {
 set -eu
 cat > "${root}/delivered-scope-prompt.txt"
 grep -q "Review PLAN scope coverage" "${root}/delivered-scope-prompt.txt"
-if "${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","features":[{"feature":"Invalid retry precursor","covered_by":"CHK-001","status":"covered","excluded_by":null}],"summary":{"total":1,"covered":1,"excluded":0,"gaps":0},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null},"ownerDispositions":[],"openQuestions":[]}' >"${root}/invalid-scope-save.txt" 2>&1; then
+if "${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","features":[{"feature":"Invalid retry precursor","covered_by":"CHK-001","status":"covered","excluded_by":null}],"summary":{"total":1,"covered":1,"excluded":0,"gaps":0},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null},"ownerDispositions":[{"path":"src/subject.ts","disposition":"unchanged","reason":"This deliberately invalid owner row proves zero selected facts reject non-empty dispositions."}],"openQuestions":[]}' >"${root}/invalid-scope-save.txt" 2>&1; then
   echo "invalid scope payload unexpectedly succeeded" >&2
   exit 41
 fi
 grep -q "owner dispositions require selected canonical process facts" "${root}/invalid-scope-save.txt"
-"${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","features":[{"feature":"Managed PLAN evidence","covered_by":"CHK-001","status":"covered","excluded_by":null}],"summary":{"total":1,"covered":1,"excluded":0,"gaps":0},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null},"openQuestions":[]}'
+"${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","features":[{"feature":"Managed PLAN evidence","covered_by":"CHK-001","status":"covered","excluded_by":null}],"summary":{"total":1,"covered":1,"excluded":0,"gaps":0},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null},"ownerDispositions":[],"openQuestions":[]}'
 printf '%s\n' '{"type":"turn.completed","usage":{}}'
 `);
   chmodSync(fakeCodex, 0o755);
@@ -90,7 +90,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   assert.match(readFileSync(join(root, 'delivered-scope-prompt.txt'), 'utf8'), /do not spawn or delegate another reviewer/i);
   assert.match(readFileSync(join(root, 'invalid-scope-save.txt'), 'utf8'),
     /owner dispositions require selected canonical process facts/,
-  'a rejected payload must not consume the managed scope invocation before a corrected retry');
+  'a rejected non-empty owner payload must not consume the managed scope invocation before a corrected zero-owner retry');
 
   const replaced = structuredClone(scopeCheck);
   replaced.features = [{ feature: 'Post-terminal replacement', covered_by: null, status: 'gap', excluded_by: null }];
