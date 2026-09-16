@@ -1,4 +1,4 @@
-import { isManagedInventoryCritic } from './managed-inventory-critic.js';
+import { isManagedInventoryCriticEnvelopeValid } from './managed-inventory-critic.js';
 import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
 import { reportHealthIssue } from './health.js';
 import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
@@ -673,7 +673,8 @@ export function verifyManagedReviewEvidence(args: {
       || (Array.isArray(proposal.findings)
         && proposal.findings.length > 0
         && proposal.findings.every(isStrictManagedReviewFindingProposal)))
-    && (proposal?.inventoryCritic === undefined || isManagedInventoryCritic(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0))
+    && proposal !== null
+    && isManagedInventoryCriticEnvelopeValid(proposal.inventoryCritic, proposal.lane, proposal.providerAgent, proposal.findings?.length ?? 0)
     && Number.isFinite(Date.parse(args.binding.importedAt))
     && args.binding.providerHost === args.expected.providerHost;
   let result: ReturnType<typeof readManagedHostRunResult> = null;

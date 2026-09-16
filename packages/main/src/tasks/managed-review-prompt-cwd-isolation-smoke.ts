@@ -17,6 +17,7 @@ import {
   classifyManagedReviewFinalEnvelope,
   managedReviewFinalProposalJsonSchema,
 } from '../core/host-run.js';
+import { isManagedInventoryCriticEnvelopeValid } from '../core/managed-inventory-critic.js';
 import type { ReviewRun } from '../core/types.js';
 
 const PRIMARY_WORKTREE = '/Users/qipan/work/repo/Prooforstop/.worktrees/B-137a';
@@ -163,6 +164,10 @@ function main(): void {
     providerAgent: criticLane,
     lane: criticLane,
   })).kind, 'malformed', 'topology critic terminal validation refuses a proposal without inventoryCritic');
+  assert.equal(isManagedInventoryCriticEnvelopeValid(undefined, criticLane, criticLane, 0), false,
+    'legacy compatibility ingress also refuses a topology critic proposal without inventoryCritic');
+  assert.equal(isManagedInventoryCriticEnvelopeValid(undefined, validProposal.lane, validProposal.providerAgent, 0), true,
+    'ordinary managed reviewer compatibility proposals remain valid without inventoryCritic');
   assert.match(
     providerPrompt,
     /do not cd to, run commands from, or write to that canonical path\./,

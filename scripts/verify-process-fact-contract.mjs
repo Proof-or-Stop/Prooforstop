@@ -11909,7 +11909,14 @@ assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isMan
    assert(hostRunSource.includes(token), `Managed final-proposal schema contract missing enforcement token: ${token}`);
    nodeAssert(!hostRunSource.replace(token, '').includes(token), `Managed final-proposal negative control must remove enforcement token: ${token}`);
  }
- assert(registrySource.includes('the topology-critic lane requires inventoryCritic'),
+ for (const [path, source] of [
+   ['packages/main/src/core/managed-host-run.ts', read('packages/main/src/core/managed-host-run.ts')],
+   ['packages/main/src/core/managed-review-evidence.ts', read('packages/main/src/core/managed-review-evidence.ts')],
+ ]) {
+   assert(source.includes('isManagedInventoryCriticEnvelopeValid('),
+     `Managed topology critic compatibility ingress is missing the shared required-envelope guard: ${path}`);
+ }
+ assert(registrySource.includes('the topology-critic lane requires inventoryCritic across terminal and compatibility ingress'),
    'Managed final-proposal process fact must register critic receipt completeness');
  assert(registrySource.includes('routing digests share one grammar') && registrySource.includes('unknown nested fields fail closed'),
    'Managed final-proposal process fact must register schema and terminal-validator consistency');
