@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { collectReviewerEvidenceState } from '../core/review-run.js';
+import { collectReviewerEvidenceState, verifyReviewRun } from '../core/review-run.js';
 import { buildManagedReviewerPrompt, resolveManagedReviewerBasePrompt } from '../core/managed-review-evidence.js';
 import { runManagedBurnFixture } from './managed-burn-fixture.js';
 import { assessConvergenceProgressGate } from '../core/convergence-progress-gate.js';
@@ -732,7 +732,7 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
         const env = { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: `metadata-wave-${wave}-${lane}` };
         cli(fixture.root, 'dispatch', { storyId, agentType: lane }, env);
         const started = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, env);
-        const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+        let reviewRunId = started.match(/Review run (\S+) started/)?.[1];
         assert.ok(reviewRunId);
         if (wave === 1 && index === 0) {
           const out = await fixtureReviewCli(fixture, 'finding_add', {
@@ -759,7 +759,7 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
       const purpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId };
       cli(fixture.root, 'dispatch', { storyId, agentType: critic, ...purpose }, env);
       const started = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
-      const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+      let reviewRunId = started.match(/Review run (\S+) started/)?.[1];
       assert.ok(reviewRunId);
       if (wave === 2) {
         const run = fixture.store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === reviewRunId)!;
@@ -806,6 +806,40 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
             negativeControls++;
           } finally { fixture.store.writeReviewInventoryEpochs(storyId, inventoryBefore); }
         }
+        // A real signed run from a divergent equal tree must not borrow the
+        // cutoff's authority. All material/scope guards still match here.
+        const originalBranch = git(fixture.root, ['branch', '--show-current']);
+        const originalHead = git(fixture.root, ['rev-parse', 'HEAD']);
+        const divergentHead = git(fixture.root, ['commit-tree', `${originalHead}^{tree}`,
+          '-p', `${epoch.cutoff.headHash}^`, '-m', 'disposable divergent equal-tree witness']);
+        let divergentRuns = fixture.store.readReviewRuns(storyId);
+        try {
+          git(fixture.root, ['checkout', '--detach', divergentHead]);
+          cli(fixture.root, 'dispatch', { storyId, agentType: critic, ...purpose }, env);
+          const divergentStarted = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
+          const divergentId = divergentStarted.match(/Review run (\S+) started/)?.[1];
+          assert.ok(divergentId);
+          divergentRuns = fixture.store.readReviewRuns(storyId);
+          const divergent = divergentRuns.runs.find(row => row.reviewRunId === divergentId)!;
+          assert.equal(verifyReviewRun(divergent, fixture.store), true);
+          assert.equal(divergent.headHash, divergentHead);
+          assert.equal(divergent.materialHash, epoch.cutoff.materialHash);
+          assert.equal(divergent.storyFilesHash, epoch.cutoff.storyFilesHash);
+          assert.throws(() => git(fixture.root, ['merge-base', '--is-ancestor', epoch.cutoff.headHash, divergentHead]));
+          fixture.store.writeReviewRuns(storyId, { ...divergentRuns, runs: divergentRuns.runs.filter(row =>
+            row.lane !== critic || row.inventoryBinding?.wave !== 2 || row.reviewRunId === divergentId) });
+          assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+            'DIVERGENT_EQUAL_TREE_CRITIC_REFUSED');
+          negativeControls++;
+        } finally {
+          fixture.store.writeReviewRuns(storyId, divergentRuns);
+          git(fixture.root, ['checkout', originalBranch]);
+        }
+        cli(fixture.root, 'dispatch', { storyId, agentType: critic, ...purpose }, env);
+        const restored = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
+        reviewRunId = restored.match(/Review run (\S+) started/)?.[1];
+        assert.ok(reviewRunId);
+        assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic));
       }
       await fixtureReviewCli(fixture, 'review_pass_set', {
         storyId, agent: critic, reviewRunId, note: 'Disposable independent critic inspected the current complete wave.', ...reads,
@@ -822,7 +856,7 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
     assert.equal(complete.epochs[0].waves.length, 2);
     assert.deepEqual(complete.epochs[0].cutoff, epoch.cutoff);
     assert.equal(complete.criticReceipts.length, 2);
-    assert.equal(negativeControls, 14);
+    assert.equal(negativeControls, 15);
     if (receipt) writeFileSync(receipt.path, JSON.stringify({
       schemaVersion: 'inventory-critic-metadata-fixture.v1', nonce: receipt.nonce,
       selector: 'METADATA_HEAD_CRITIC_ADMISSION_PASS', negativeControls,
@@ -857,7 +891,6 @@ if (!process.argv.includes('--lifecycle-only') && !process.argv.includes('--rost
   }
   await criticDiscoveryRecovery();
   if (process.argv.includes('--purpose-only')) process.exit(0);
-  await criticMetadataHeadRecovery();
 }
 
 const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };

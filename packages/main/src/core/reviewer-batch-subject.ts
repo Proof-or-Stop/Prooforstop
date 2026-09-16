@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { StoryStore } from './store.js';
@@ -9,6 +10,18 @@ import { captureReviewInventoryScope } from '../handlers/review-inventory.js';
 import type { ReviewerBatchAssignment } from './reviewer-batch-admission.js';
 
 const INVENTORY_CRITIC_LANE = 'proof-or-stop-review-topology-critic';
+
+/** Equal content is insufficient: a critic must retain the frozen Git lineage. */
+function criticHeadDescendsCutoff(root: string, cutoffHead: string, runHead: string): boolean {
+  const oid = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/;
+  if (!oid.test(cutoffHead) || !oid.test(runHead)) return false;
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', cutoffHead, runHead], {
+      cwd: root, timeout: 5000, stdio: 'ignore',
+    });
+    return true;
+  } catch { return false; }
+}
 
 export function reviewerBatchAdmissionLanes(requiredLanes: readonly string[], includeInventoryCritic: boolean): string[] {
   const lanes = [...requiredLanes];
@@ -41,9 +54,8 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
   const afterStory = store.readStory(args.storyId);
   if (!after || after._hash !== epoch._hash || afterStory.phase !== 'REVIEW' || afterStory.currentReviewRound !== story.currentReviewRound) fail('BATCH_SUBJECT_CHANGED_DURING_CAPTURE');
   // The purpose binding retains the exact original cutoff (including HEAD).
-  // A valid new run may start after a metadata-only commit, as permitted by
-  // inventory freshness and critic receipt validation. Material identity,
-  // not equality of those two historical commit IDs, controls this admission.
+  // A valid new run may start after a metadata-only descendant commit. Keep
+  // ancestry as well as material identity; a divergent equal tree is refused.
   const includeInventoryCritic = store.readReviewRuns(args.storyId).runs.some(run =>
     verifyReviewRun(run, store)
     && run.lane === INVENTORY_CRITIC_LANE
@@ -52,7 +64,8 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
     && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
     && run.reviewRound === epoch.reviewRound
     && run.materialHash === epoch.cutoff.materialHash
-    && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? ''),
+    && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
+    && criticHeadDescendsCutoff(signedRoot!, epoch.cutoff.headHash, run.headHash),
   );
   const requiredLanes = reviewerBatchAdmissionLanes(epoch.requiredLanes, includeInventoryCritic);
   const subject = { schema: 'reviewer-batch-subject.v1', worktreeRoot: realpathSync(signedRoot!), metadataRoot: realpathSync(metadataRoot), binding,

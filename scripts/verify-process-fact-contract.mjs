@@ -10198,9 +10198,15 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     'metadata-only critic admission requires matching prompt and registry contracts');
   // Execute the real behavior from this registered serial-reference driver.
   // Formatting or operand swaps cannot substitute for a two-wave witness.
-  execFileSync(process.execPath, ['scripts/verify-inventory-critic-metadata-head.mjs'], {
-    cwd: root, stdio: 'inherit', timeout: 900000,
-  });
+  try {
+    const output = execFileSync(process.execPath, [join(root, 'scripts/verify-inventory-critic-metadata-head.mjs')], {
+      cwd: root, encoding: 'utf8', timeout: 900000, maxBuffer: 8 * 1024 * 1024,
+    });
+    process.stdout.write(output);
+    assert(output.includes('INVENTORY_CRITIC_METADATA_HEAD_GREEN'), 'registered critic proof requires its exact selector');
+  } catch (error) {
+    throw new Error(verificationFailureMessage('inventory critic metadata HEAD', error));
+  }
   assert(read('packages/main/src/tasks/inventory-critic-live-metadata-projection-smoke.ts').includes('managed inventory critic receives current signed uncommitted inventory metadata in its sealed prompt'), 'managed inventory critic live metadata projection requires focused RED/GREEN coverage');
   assert(read('packages/main/src/core/managed-execution-input-identity.ts').includes('fingerprintCapturedManagedProviderState'), 'execution identity must bind captured provider inputs');
   assert(read('scripts/verify-u08-execution-identity.mjs').includes('fixture-env-secret'), 'input identity requires actual secret/environment drift regression');
