@@ -9,11 +9,20 @@ import { createHostRunHandlers } from '../dist/handlers/host-run.js';
 import { createDeliveryCheckHandlers } from '../dist/handlers/delivery-check.js';
 import { runManagedHostRunWorker, verifyManagedDispatchDelivery, readManagedHostRunProjection, managedHostRunReceipt, managedDispatchOutputValidation } from '../dist/core/managed-host-run.js';
 import { evaluateDeliveryCheckFreshness, signDeliveryCheck } from '../dist/core/delivery-check-hash.js';
+import { isValidationTransportEnvKey } from '../dist/core/validation-command-environment.js';
+import { resetSessionIdForTest } from '../dist/core/owner-session.js';
 const cli=new URL('../dist/cli.js',import.meta.url).pathname;
 const priorPath=process.env.PATH, priorRoot=process.env.PROOF_OR_STOP_PROJECT_ROOT;
 const root=mkdtempSync(join(tmpdir(),'managed-delivery-regression-'));
 const storyId='B-managed-delivery';
+// The fixture must work in the same host-neutral environment as official validation.
+const transportKeys = new Set([...Object.keys(process.env).filter(key => isValidationTransportEnvKey(key)),
+  'PROOF_OR_STOP_SESSION_ID', 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER']);
+const priorTransport = new Map([...transportKeys].map(key => [key, process.env[key]]));
 try {
+  for (const key of transportKeys) delete process.env[key];
+  resetSessionIdForTest();
+
   writeFileSync(join(root,'proof-or-stop.config.json'),JSON.stringify({scanRoot:'.',rootDir:'src',outDir:'dist',testsDir:'tests',fixturesDir:'tests/fixtures',storyDir:'.proof-or-stop/story/actives',requirementsDir:'docs/requirements'}));
   mkdirSync(join(root,'src'));writeFileSync(join(root,'src/subject.ts'),'export const value=true;\n');
   const git=(...a)=>execFileSync('git',a,{cwd:root,stdio:'pipe'});
@@ -112,4 +121,4 @@ try {
   assert.equal(readManagedHostRunProjection(root,raced.runId).terminal?.reason,'managed_dispatch_output_changed_before_seal');
   assert.equal(evaluateDeliveryCheckFreshness(storyId,store,root).ok,false);
   console.log('MANAGED_DELIVERY_DISPATCH_GREEN');
-} finally { if(priorPath===undefined)delete process.env.PATH;else process.env.PATH=priorPath;if(priorRoot===undefined)delete process.env.PROOF_OR_STOP_PROJECT_ROOT;else process.env.PROOF_OR_STOP_PROJECT_ROOT=priorRoot;rmSync(root,{recursive:true,force:true});}
+} finally { if(priorPath===undefined)delete process.env.PATH;else process.env.PATH=priorPath;if(priorRoot===undefined)delete process.env.PROOF_OR_STOP_PROJECT_ROOT;else process.env.PROOF_OR_STOP_PROJECT_ROOT=priorRoot;rmSync(root,{recursive:true,force:true});for(const [key,value] of priorTransport){if(value===undefined)delete process.env[key];else process.env[key]=value;}resetSessionIdForTest();}

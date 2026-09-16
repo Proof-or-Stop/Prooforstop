@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const spawnSync = prepareVerification(repository, { shareBuild: true });
+const { isValidationTransportEnvKey } = await import('../packages/main/dist/core/validation-command-environment.js');
 const { inspectExpectedControllerRuntimeProjection, isByteIdenticalControllerRuntimeAsset } = await import('../packages/main/dist/core/runtime-artifact-registry.js');
 const { CONTROLLER_RUNTIME_ASSET_PATHS, CONTROLLER_RUNTIME_PROJECTION_STORY_RECEIPT, hasRepositoryOwnedControllerAssets } = await import('../packages/main/dist/core/controller-runtime-projection.js');
 const { classifyScopePath } = await import('../packages/main/dist/core/scope-path-classifier.js');
@@ -35,7 +36,7 @@ try {
   write(worktree, 'proof-or-stop.config.json', branchConfig);
   git(worktree, ['add', 'proof-or-stop.config.json']); git(worktree, ['commit', '-qm', 'scoped config change']);
   const env = { ...process.env };
-  for (const key of Object.keys(env)) if (/^(PROOF_OR_STOP|PROOFBOUND|LATTICE)_/.test(key)) delete env[key];
+  for (const key of Object.keys(env)) if (/^(PROOF_OR_STOP|PROOFBOUND|LATTICE)_/.test(key) || isValidationTransportEnvKey(key)) delete env[key];
   env.PROOF_OR_STOP_SESSION_ID = 'tracked-bootstrap-regression';
   const result = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'aux_doc_list'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
   assert.equal(result.status, 0, `TRACKED_CONFIG_BOOTSTRAP_RED: normal CLI must preserve tracked branch config instead of projecting the controller copy\n${result.stderr}`);
