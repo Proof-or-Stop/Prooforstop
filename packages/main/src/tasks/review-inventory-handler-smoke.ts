@@ -9,7 +9,7 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
 import { readConvergenceProgress, recordConvergenceProgress, acknowledgeConvergenceProgress } from '../core/convergence-progress-journal.js';
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -865,6 +865,49 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
             negativeControls++;
           } finally { unlinkSync(grafts); }
         } finally { fixture.store.writeReviewRuns(storyId, divergentRuns); }
+        // Real object loss, not a PATH shim: a pruned old run is a non-witness,
+        // and cannot hide a later valid candidate. Losing the cutoff itself is
+        // a different recovery condition, checked before ancestry traversal.
+        const objectBackup = mkdtempSync(join(tmpdir(), 'critic-pruned-object-'));
+        const removeObject = (oid: string, action: () => void) => {
+          const object = join(fixture.root, '.git', 'objects', oid.slice(0, 2), oid.slice(2));
+          const backup = join(objectBackup, oid);
+          assert.ok(existsSync(object), 'disposable commit must have its own loose object');
+          renameSync(object, backup);
+          try {
+            assert.throws(() => git(fixture.root, ['cat-file', '-e', `${oid}^{commit}`]));
+            action();
+          } finally { renameSync(backup, object); }
+        };
+        try {
+          removeObject(divergentHead, () => {
+            fixture.store.writeReviewRuns(storyId, onlyDivergent);
+            assert.doesNotThrow(() => {
+              const missing = deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId });
+              assert.ok(!missing.requiredLanes.includes(critic));
+              assert.deepEqual(missing.requiredLanes, epoch.requiredLanes);
+            }, 'ABSENT_CRITIC_RUN_IS_NON_WITNESS');
+            negativeControls++;
+            fixture.store.writeReviewRuns(storyId, { ...divergentRuns, runs: [
+              ...divergentRuns.runs.filter(row => row.headHash === divergentHead),
+              ...divergentRuns.runs.filter(row => row.headHash !== divergentHead),
+            ] });
+            assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+              'ABSENT_EARLIER_RUN_DOES_NOT_HIDE_LATER_VALID_WITNESS');
+          });
+          fixture.store.writeReviewRuns(storyId, divergentRuns);
+          assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic));
+          removeObject(epoch.cutoff.headHash, () => {
+            assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }),
+              /BATCH_SUBJECT_CUTOFF_OBJECT_MISSING.*review_inventory_cancel.*review_inventory_begin/,
+              'MISSING_CUTOFF_HAS_ACTIONABLE_INVENTORY_RECOVERY');
+            negativeControls++;
+          });
+          assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic));
+        } finally {
+          fixture.store.writeReviewRuns(storyId, divergentRuns);
+          rmSync(objectBackup, { recursive: true, force: true });
+        }
         // Force only the ancestry subprocess to fail; all snapshot commands keep
         // using the real Git binary, proving failure is not a semantic rejection.
         const shimRoot = mkdtempSync(join(tmpdir(), 'critic-git-query-'));
@@ -876,7 +919,7 @@ async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: strin
 const {spawnSync}=require('node:child_process');
 const args=process.argv.slice(2);
 if(args[0]==='--no-replace-objects' && args[1]==='merge-base') {
-  if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='error'){console.error('FIXTURE_GIT_OBJECT_UNAVAILABLE');process.exit(128);}
+  if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='error'){console.error('FIXTURE_GIT_IO_FAILURE');process.exit(128);}
   if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='timeout'){Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10000);}
   if(process.env.GIT_DIR){console.error('FIXTURE_GIT_REDIRECTION_LEAK');process.exit(128);}
 }
@@ -889,7 +932,7 @@ const r=spawnSync(${JSON.stringify(realGit)},args,{stdio:'inherit'});process.exi
             assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }),
               error => error instanceof Error && /BATCH_SUBJECT_LINEAGE_UNVERIFIABLE/.test(error.message)
                 && /timeoutMs=5000/.test(error.message) && /elapsedMs=/.test(error.message)
-                && (failure === 'timeout' ? /ETIMEDOUT/.test(error.message) : /FIXTURE_GIT_OBJECT_UNAVAILABLE/.test(error.message)),
+                && (failure === 'timeout' ? /ETIMEDOUT/.test(error.message) : /FIXTURE_GIT_IO_FAILURE/.test(error.message)),
               `LINEAGE_INFRASTRUCTURE_FAILURE_IS_EXPLICIT:${failure}`);
             negativeControls++;
             delete process.env.CRITIC_FIXTURE_GIT_FAILURE;
@@ -925,7 +968,7 @@ const r=spawnSync(${JSON.stringify(realGit)},args,{stdio:'inherit'});process.exi
     assert.equal(complete.epochs[0].waves.length, 2);
     assert.deepEqual(complete.epochs[0].cutoff, epoch.cutoff);
     assert.equal(complete.criticReceipts.length, 2);
-    assert.equal(negativeControls, 20);
+    assert.equal(negativeControls, 22);
     if (receipt) writeFileSync(receipt.path, JSON.stringify({
       schemaVersion: 'inventory-critic-metadata-fixture.v1', nonce: receipt.nonce,
       selector: 'METADATA_HEAD_CRITIC_ADMISSION_PASS', negativeControls,
