@@ -134,7 +134,7 @@ try {
       && call.arguments[1] && ts.isArrayLiteralExpression(call.arguments[1])
       && call.arguments[1].elements.some(element => ts.isStringLiteral(element) && element.text === 'scripts/verify-done-recovery-scan.mjs');
   }));
-  check(wired && packageScripts['test:serial-reference'].split(' && ').includes('npm run test:benchmark-framework-hardening'), 'existing full-suite driver must execute recovery guard');
+  check(wired && ['test:serial-reference-prefix', 'test:serial-reference'].some(key => packageScripts[key].split(' && ').includes('npm run test:benchmark-framework-hardening')), 'existing full-suite driver must execute recovery guard');
   console.log('RECOVERY_SCAN_DATA '+JSON.stringify({node:process.version,sourceRef,repeats,checks,samples}));
   if(!measureOnly) assert(samples.every(x=>x.showRefCalls<=1), 'RECOVERY_SCAN_RED: archived Stories trigger redundant show-ref processes after branch enumeration');
   console.log(measureOnly ? 'RECOVERY_SCAN_MEASURED observation only; operation budget not asserted' : 'RECOVERY_SCAN_GREEN behavior controls and live Git process budget passed');
