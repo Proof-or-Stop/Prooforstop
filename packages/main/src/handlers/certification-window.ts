@@ -379,8 +379,8 @@ function hasVerifiedInventoryMetadataHeadContinuity(args: {
     if (!parents || parents.split(/\s+/).filter(Boolean).length !== 1 || !subject || pathsText === null) return false;
     const reviewEpochBatch = matchesRuntimeCommitSubject(subject, `record ${storyId} review epoch metadata`);
     // The strict classifier owns artifact allowlists and signatures, including
-    // diagnostic-only refused admission and signed cheap-check publications.
-    if (reviewEpochBatch || ['verification_evidence_add', 'certification_window_begin', 'validate'].some(command =>
+    // diagnostic-only refused admission publications. Fast receipts remain HEAD-exact.
+    if (reviewEpochBatch || ['verification_evidence_add', 'certification_window_begin'].some(command =>
       matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) {
       if (!isVerifiedReviewMaintenanceCommit({ gitCwd, metadataRoot: args.metadataRoot, storyId, commit, reviewedHeadHash: receiptHead })) return false;
       continue;

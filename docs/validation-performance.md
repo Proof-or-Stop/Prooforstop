@@ -1311,7 +1311,10 @@ A refused `certification_window_begin` may publish a signed BLOCKED diagnostic.
 Follow its fast-check remedy and retry begin with the same finalized inventory;
 do not recreate review merely because that official metadata commit changed HEAD.
 The shared strict lineage reader accepts an append-only BLOCKED diagnostic and
-valid cheap-check receipts under their canonical writer subjects. It rejects
+valid cheap-check receipts carried by that diagnostic publication. Fast receipts
+still bind the exact current HEAD: after any later commit, run the fast check
+again before retrying admission. This change grants no new inventory continuity
+for a `validate` metadata commit. It rejects
 rewritten history, other Story or source paths, invalid signatures, inventory
 consumption and heavy-authority fields or receipts in a diagnostic publication.
 This preserves review only. Current inventory, cheap-check identity, coverage,
