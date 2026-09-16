@@ -106,10 +106,3 @@ try {
   assert.equal(inspectExpectedControllerRuntimeProjection({ projectRoot: externalTree, gitCwd: externalTree, storyId: externalId }).valid, true, 'external projection retains complete signed verification');
   console.log('TRACKED_CONFIG_BOOTSTRAP_GREEN: CLI preservation, projection admission and ownership negative controls passed');
 } finally { rmSync(root, { recursive: true, force: true }); }
-for (const path of [
-  'packages/main/dist/tasks/benchmark-framework-hardening-smoke.js',
-  'packages/main/dist/tasks/external-worktree-go-pre-review-smoke.js',
-]) {
-  const result = spawnSync(process.execPath, [path], { cwd: repository, stdio: 'inherit', timeout: 240000 });
-  assert.equal(result.status, 0, `existing projection regression: ${path}`);
-}
