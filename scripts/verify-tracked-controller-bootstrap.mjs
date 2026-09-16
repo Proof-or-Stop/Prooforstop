@@ -38,6 +38,8 @@ try {
   assert.equal(result.status, 0, `TRACKED_CONFIG_BOOTSTRAP_RED: normal CLI must preserve tracked branch config instead of projecting the controller copy\n${result.stderr}`);
   assert.equal(readFileSync(join(worktree, 'proof-or-stop.config.json'), 'utf8'), branchConfig);
   assert.deepEqual([inspect().expected, inspect().valid], [false, true], 'repository-owned hooks require ordinary material review, not projection receipts');
+  const dispatch = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'dispatch', `--storyId=${storyId}`, '--agentType=proof-or-stop-review-quality'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
+  assert.equal(dispatch.status, 0, `the fixture must acquire a real owner dispatch\n${dispatch.stderr}`);
   const review = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'review_run_start', `--storyId=${storyId}`, '--agent=proof-or-stop-review-quality'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
   assert.equal(review.status, 0, `the actual reviewer-run producer must remain reachable with tracked assets\n${review.stdout}\n${review.stderr}`);
   assert.match(review.stdout, /Review run .* started/);
