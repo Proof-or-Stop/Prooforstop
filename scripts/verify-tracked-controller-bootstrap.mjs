@@ -43,6 +43,11 @@ try {
   for (const configPath of ['README.md', '../proof-or-stop.config.json', ':(glob)*', '.codex/hooks.json']) {
     assert.equal(hasRepositoryOwnedControllerAssets({ controllerRoot: root, worktreeRoot: worktree, configPath }), false, `noncanonical config rejected: ${configPath}`);
   }
+  const controllerAlias = join(root, 'controller-alias');
+  const worktreeAlias = join(root, 'worktree-alias');
+  symlinkSync(root, controllerAlias); symlinkSync(worktree, worktreeAlias);
+  assert.equal(hasRepositoryOwnedControllerAssets({ controllerRoot: controllerAlias, worktreeRoot: worktreeAlias, configPath: 'proof-or-stop.config.json' }), true, 'canonical root aliases preserve repository ownership');
+  assert.equal(hasRepositoryOwnedControllerAssets({ controllerRoot: root, worktreeRoot: join(root, 'absent'), configPath: 'proof-or-stop.config.json' }), false, 'unresolvable roots fail closed');
   assert.deepEqual([inspect().expected, inspect().valid], [false, true], 'repository-owned hooks require ordinary material review, not projection receipts');
   const dispatch = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'dispatch', `--storyId=${storyId}`, '--agentType=proof-or-stop-review-quality'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
   assert.equal(dispatch.status, 0, `the fixture must acquire a real owner dispatch\n${dispatch.stderr}`);
@@ -53,6 +58,10 @@ try {
 
   // A worktree-only staged/committed conversion cannot confer repository ownership.
   const hook = CONTROLLER_RUNTIME_ASSET_PATHS[0];
+  const controllerHookBytes = readFileSync(join(root, hook));
+  rmSync(join(root, hook));
+  assert.equal(hasRepositoryOwnedControllerAssets({ controllerRoot: root, worktreeRoot: worktree, configPath: 'proof-or-stop.config.json' }), false, 'an uncommitted controller deletion is not an integrated absence');
+  write(root, hook, controllerHookBytes);
   git(root, ['rm', '--cached', hook]); git(root, ['commit', '-qm', 'controller-only hook']);
   assert.equal(inspect().valid, false, 'mixed controller ownership retains the strict projection gate');
   git(root, ['add', hook]);
@@ -60,16 +69,29 @@ try {
   git(root, ['commit', '-qm', 'restore tracked controller baseline']);
   assert.equal(inspect().expected, false, 'restored committed ownership removes the projection requirement');
   git(worktree, ['rm', '--cached', hook]);
-  assert.equal(inspect().valid, false, 'index deletion must not inherit HEAD ownership');
+  assert.equal(inspect().expected, false, 'candidate index deletion remains ordinary repository material');
+  const dirtyReview = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'review_run_start', `--storyId=${storyId}`, '--agent=proof-or-stop-review-quality'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
+  assert.notEqual(dirtyReview.status, 0, 'uncommitted asset removal must still block review');
+  assert.match(dirtyReview.stderr, /uncommitted|unexpected_dirty_files/, 'the ordinary cleanliness gate rejects dirty material');
   git(worktree, ['add', hook]);
   write(worktree, hook, '{"hooks":[],"changed":true}\n');
   assert.equal(isByteIdenticalControllerRuntimeAsset({ projectRoot: worktree, gitCwd: worktree, storyId, path: hook }), false, 'changed tracked hooks remain material');
   const contract = { storyId, mode: 'enforce', allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: '2026-09-16T00:00:00.000Z', updatedAt: '2026-09-16T00:00:00.000Z' };
   assert.equal(classifyScopePath(contract, hook, { projectRoot: worktree, gitCwd: worktree }).allowed, false, 'ordinary scope enforcement still rejects undeclared tracked hook changes');
   rmSync(join(worktree, hook));
-  assert.equal(inspect().valid, false, 'a missing tracked hook cannot qualify');
+  assert.equal(inspect().expected, false, 'missing candidate material does not become an external projection');
+  assert.equal(classifyScopePath(contract, hook, { projectRoot: worktree, gitCwd: worktree }).allowed, false, 'undeclared deletion is still outside scope');
   symlinkSync(join(root, hook), join(worktree, hook));
-  assert.equal(inspect().valid, false, 'a tracked path replaced by a symlink cannot qualify');
+  assert.equal(isByteIdenticalControllerRuntimeAsset({ projectRoot: worktree, gitCwd: worktree, storyId, path: hook }), false, 'candidate symlink receives no runtime exemption');
+  assert.equal(classifyScopePath(contract, hook, { projectRoot: worktree, gitCwd: worktree }).allowed, false, 'escaping candidate symlink is refused by scope enforcement');
+  rmSync(join(worktree, hook));
+  git(worktree, ['rm', '--', hook]); git(worktree, ['commit', '-qm', 'legitimate material hook deletion']);
+  assert.deepEqual([inspect().expected, inspect().valid], [false, true], 'committed hook deletion avoids the projection deadlock');
+  assert.equal(classifyScopePath({ ...contract, allowedModify: [hook] }, hook, { projectRoot: worktree, gitCwd: worktree }).allowed, true, 'declared material deletion retains ordinary scope admission');
+  const deletionDispatch = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'dispatch', `--storyId=${storyId}`, '--agentType=proof-or-stop-review-quality'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
+  assert.equal(deletionDispatch.status, 0, `fresh deletion dispatch\n${deletionDispatch.stderr}`);
+  const deletionReview = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'review_run_start', `--storyId=${storyId}`, '--agent=proof-or-stop-review-quality'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
+  assert.equal(deletionReview.status, 0, `committed material deletion reaches the real reviewer producer\n${deletionReview.stderr}`);
 
   // Exercise the second CLI bootstrap branch: the controller creates its Story
   // after the linked branch exists, while that branch owns a different config.
@@ -87,8 +109,27 @@ try {
   assert.equal(readFileSync(join(lateTree, 'proof-or-stop.config.json'), 'utf8'), branchConfig, 'second bootstrap branch preserves branch config');
   assert.equal(JSON.parse(readFileSync(join(lateTree, `.proof-or-stop/story/actives/${lateId}/index.json`), 'utf8')).storyId, lateId, 'missing Story is actually projected to the registered branch');
 
+  const mismatchId = 'B-different-story-dir';
+  const mismatchTree = join(root, '.worktrees', mismatchId);
+  git(root, ['worktree', 'add', '-qb', `story/${mismatchId}`, mismatchTree]);
+  write(mismatchTree, 'proof-or-stop.config.json', JSON.stringify({ ...config, storyDir: '.alternate/stories' }));
+  git(mismatchTree, ['add', 'proof-or-stop.config.json']); git(mismatchTree, ['commit', '-qm', 'different Story destination']);
+  write(root, `.proof-or-stop/story/actives/${mismatchId}/index.json`, JSON.stringify({ ...originalStory, storyId: mismatchId, worktree: { ...originalStory.worktree, path: mismatchTree, branch: `story/${mismatchId}` } }));
+  write(root, `.proof-or-stop/story/actives/${mismatchId}/checklist.json`, '{"items":[]}');
+  const mismatch = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'dispatch', `--storyId=${mismatchId}`, '--agentType=proof-or-stop-review-quality'], { cwd: mismatchTree, env, encoding: 'utf8', timeout: 60000 });
+  assert.notEqual(mismatch.status, 0, 'different configured Story directories must refuse copying');
+  assert.match(mismatch.stderr, /differing repository-owned Story directories/);
+  for (const dir of [config.storyDir, '.alternate/stories']) assert.equal(existsSync(join(mismatchTree, dir, mismatchId)), false, 'no Story copy is created on a mismatched destination');
+
+  git(root, ['rm', '--', hook]); git(root, ['commit', '-qm', 'integrated material hook removal']);
+  assert.equal(hasRepositoryOwnedControllerAssets({ controllerRoot: root, worktreeRoot: worktree, configPath: 'proof-or-stop.config.json' }), true, 'committed controller removal does not reintroduce a later-Story deadlock');
+  const afterRemoval = spawnSync(process.execPath, [join(repository, 'packages/main/dist/cli.js'), 'aux_doc_list'], { cwd: worktree, env, encoding: 'utf8', timeout: 60000 });
+  assert.equal(afterRemoval.status, 0, `CLI remains usable after the deletion reaches the controller\n${afterRemoval.stderr}`);
+  write(root, hook, '{"hooks":[]}\n');
+  assert.equal(hasRepositoryOwnedControllerAssets({ controllerRoot: root, worktreeRoot: worktree, configPath: 'proof-or-stop.config.json' }), false, 'new untracked controller hook cannot borrow material ownership');
+
   // Pin the opposite CLI branch with genuine untracked controller assets.
-  git(root, ['rm', '--cached', 'proof-or-stop.config.json', ...CONTROLLER_RUNTIME_ASSET_PATHS]);
+  git(root, ['rm', '--cached', '--ignore-unmatch', 'proof-or-stop.config.json', ...CONTROLLER_RUNTIME_ASSET_PATHS]);
   git(root, ['commit', '-qm', 'external controller baseline']);
   const externalId = 'B-controller-only';
   const externalTree = join(root, '.worktrees', externalId);

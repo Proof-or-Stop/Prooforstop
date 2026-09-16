@@ -46,16 +46,30 @@ export function hasRepositoryOwnedControllerAssets(args: {
 }): boolean {
   if (!CONFIG_FILENAMES.includes(args.configPath)) return false;
   try {
-    for (const root of [args.controllerRoot, args.worktreeRoot]) {
-      for (const path of [args.configPath, ...CONTROLLER_RUNTIME_ASSET_PATHS]) {
+    const controllerRoot = realpathSync(args.controllerRoot);
+    const worktreeRoot = realpathSync(args.worktreeRoot);
+    // The controller's committed ownership decides whether hooks are material.
+    // A Story may change or delete that material; ordinary dirty/scope/review
+    // gates retain authority over those changes instead of requiring projections.
+    for (const [root, paths] of [
+      [controllerRoot, [args.configPath, ...CONTROLLER_RUNTIME_ASSET_PATHS]],
+      [worktreeRoot, [args.configPath]],
+    ] as const) {
+      for (const path of paths) {
         const head = git(root, ['ls-tree', 'HEAD', '--', path]);
         const index = git(root, ['ls-files', '--stage', '--', path]);
-        // Both committed ownership and the current index must agree on regular-file
-        // ownership. Staging a projected file or deleting it cannot bypass receipts.
+        let stat;
+        try { stat = lstatSync(join(root, path)); }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+        // A committed controller-side removal remains material ownership after
+        // integration. An absent file that is still tracked is not equivalent.
+        if (path !== args.configPath && !head && !index && !stat) continue;
+        // Index-only controller additions cannot confer material ownership.
+        // A missing branch config still requires explicit recovery, never copying.
         if (!/^100(?:644|755) blob [a-f0-9]+\t/.test(head)
           || !/^100(?:644|755) [a-f0-9]+ 0\t/.test(index)
           || head.split('\n').length !== 1 || index.split('\n').length !== 1) return false;
-        if (!lstatSync(join(root, path)).isFile()) return false;
+        if (!stat?.isFile()) return false;
         safeRegularFile(root, join(root, path));
       }
     }

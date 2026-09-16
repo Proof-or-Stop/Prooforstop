@@ -1092,18 +1092,23 @@ Story writes and metadata commits use that worktree copy; the controller copy
 is not mutated. A foreign lease, nested repository, symlink, mismatched config,
 or oversized snapshot is rejected before projection.
 
-A Story in a repository that commits its configuration and all three
-native hook assets uses the branch-local files as ordinary material. When each
-file is a regular file in both checkouts, both HEAD trees and both indexes, CLI
-bootstrap and reviewer preflight do not demand external-controller projection
-receipts. Legitimate branch configuration differences remain intact and still
-require ordinary scope and review evidence. If the controller creates the Story
-after the linked branch, bootstrap copies only the missing Story directory and
-preserves those tracked assets; differing configured Story directories are
-refused. This classification grants no
-runtime-artifact exemption. Partial tracking, index-only additions, missing
-files, and symlinks do not qualify; controller-only assets retain the signed
-projection checks above.
+When the controller commits its selected configuration and every present native
+hook in both HEAD and index, those files are repository material. The branch
+must retain its tracked regular configuration, but may edit, remove or rename
+hooks through ordinary scope, cleanliness and review checks. Such changes do
+not become external projections and receive no runtime-artifact exemption.
+A hook removed from controller disk, HEAD and index remains absent after
+integration; a missing file that the controller still tracks does not qualify.
+Canonical root aliases are resolved before checking contained regular files.
+
+If the controller creates the Story after its linked branch, bootstrap copies
+only the missing Story directory and preserves repository-owned assets.
+Differing configured Story directories are refused before either destination
+is created. New untracked controller hooks, partial controller ownership,
+index-only controller additions and unsafe controller/config paths do not
+qualify for material admission: they retain the external projection refusal
+unless their complete signed projection contract is satisfied. A tracked
+worktree replacement of an untracked controller asset remains refused.
 
 The controller config may be intentionally untracked, so an existing
 branch-local Story directory does not imply that the target config already

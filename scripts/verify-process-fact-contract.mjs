@@ -1988,6 +1988,8 @@ function assertProofStoryProgressiveBoundary() {
       && externalWorktreeSmokeText.includes('valid signed controller config and hook projections must not block review_run_start')
       && read('packages/main/src/handlers/review-run.ts').includes('inspectExpectedControllerRuntimeProjection')
       && read('packages/main/src/cli-engine.ts').includes('hasRepositoryOwnedControllerAssets')
+      && read('packages/main/src/cli/runtime-root.ts').includes('hasRepositoryOwnedControllerAssets')
+      && read('packages/main/src/cli/runtime-root.ts').includes('controller projection refused differing repository-owned Story directories')
       && read('packages/main/src/core/runtime-artifact-registry.ts').includes('hasRepositoryOwnedControllerAssets')
       && read('packages/main/package.json').includes('test:tracked-controller-bootstrap')
       && read('scripts/verify-runtime-fact-contract.mjs').includes("join(root, 'scripts/verify-tracked-controller-bootstrap.mjs')")
