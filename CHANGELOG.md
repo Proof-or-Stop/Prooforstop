@@ -1,5 +1,43 @@
 # Changelog
 
+## Lab tracked-config-projection - v0.3.382 - 2026-09-16
+
+# Tracked controller bootstrap compatibility repair
+
+## Problem
+
+B-0980 on main 0.3.381 could not start review: its legitimate tracked configuration difference made CLI bootstrap reject controller bytes, while reviewer preflight demanded external projection receipts for repository-owned native hooks. The same deadlock was reproduced in disposable linked Git repositories.
+
+## Final behavior
+
+A shared predicate canonicalizes roots and validates the selected config filename. Both checkouts must retain a regular configuration committed in HEAD and index. Each present controller hook must likewise be committed and regular; a hook absent from controller disk, HEAD and index stays absent after legitimate removal. Index-only controller additions, unsafe controller paths and new untracked hooks cannot acquire material ownership.
+
+Candidate hook modifications, removals and renames remain ordinary repository material. They do not require external projection receipts and never receive runtime scope exemptions. Dirty changes and undeclared scope remain rejected by the ordinary guards. This avoids the same deadlock both before and after a hook deletion reaches the controller.
+
+Existing Stories keep branch-local config bytes. When the controller creates a Story after its linked branch, bootstrap copies only the missing Story and preserves repository-owned material. Different configured Story directories are refused before either destination is created. Untracked external controllers retain signed projection and redundant-receipt recovery.
+
+## Verification
+
+The official Lab regression is `node scripts/verify-tracked-controller-bootstrap.mjs`. It uses current build bindings and a shared subprocess budget. Disposable Git fixtures drive actual CLI reads, dispatch and review_run_start; cover both bootstrap branches, committed hook deletion, dirty/scope refusal, post-integration removal, root aliases, malformed config names, mismatched Story destinations and reciprocal untracked projection recovery. The npm targets and runtime-fact contract execute this regression.
+
+The original benchmark-framework-hardening and external-worktree Go pre-review regressions are separate existing checks. Both passed again after the final ownership adjustment. They are not duplicated inside the new runtime-contract child. The process-fact contract and version-source maintenance regression also run separately. Current official GREEN and independent audit results must be read from the Lab record; this document grants no pass authority.
+
+Static bindings preserve unchanged call digests and existing rationales while rebinding reviewed source/dependency changes. One exact new isolated CLI regression invocation has a source-bound record; it cannot launch a provider or re-enter validation. Baseline comparisons preserve pending invocation identities and stale exception IDs.
+
+## Baseline limitations
+
+Unmodified main and the earlier candidate both failed the full runtime contract with STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT. They also failed static-boundary verification on the same EX-0061 store.ts dependency mismatch. Static analysis retained 60 pre-existing pending invocation identities and 32 stale exception IDs, with no newly nested or unexpanded commands. These remain repository-health failures, not global PASS evidence; the final source-binding comparison again preserved all baseline pending invocation identities, stale exception IDs and config drift. No unrelated baseline defect is being repaired or hidden.
+
+## Audit and integration
+
+Actual Claude audit a7b0772b-ea4b-4f3a-b435-83699fdb0c06 rejected the first candidate; d5edd5d6-74fd-4f89-8abc-ea02efb689b3 rejected the first prepared release. Their findings and provider records remain preserved. The subsequent repair addresses the late-Story path, executable test registration, constrained config paths, reciprocal projection test, differing-directory refusal coverage, legitimate material deletion and root canonicalization.
+
+Official Lab finish owns the atomic patch version, release record, rebuild, CLI version check, exact prepared-candidate different-vendor audit, local integration and cleanup. A rejected release was officially reopened; no manual version authority is substituted. No remote push is authorized. Lab completion does not mean B-0980, M0 or the benchmark runner is complete.
+
+Maintenance provenance: codex/lab-tracked-config-projection, repair 5b8db528bff1c6a196c15ba09e29900c54c9fc6d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-tracked-controller-bootstrap.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Integrated main-sync release - v0.3.381 - 2026-09-15
 
 # Two divergent main lines integrated under one identifying version
