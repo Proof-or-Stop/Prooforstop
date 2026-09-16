@@ -2249,12 +2249,12 @@ function assertProofStoryProgressiveBoundary() {
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('BLOCKED_PENDING_ESCALATION'), 'candidate routing: CLI text must prominently render pending escalation');
   {
     const managedImportSource = read('packages/main/src/handlers/managed-review-evidence.ts');
-    const sealedProposalRead = managedImportSource.indexOf('const sealedProposal = readManagedReviewEvidenceProposal');
-    const staleCandidatePreflight = managedImportSource.indexOf('assertCurrentCandidateReadBinding(sealedProposal)', sealedProposalRead);
-    const receiptIntake = managedImportSource.indexOf('const intake = createManagedReviewEvidenceBinding', sealedProposalRead);
-    assert(sealedProposalRead >= 0 && staleCandidatePreflight > sealedProposalRead && staleCandidatePreflight < receiptIntake,
-      'managed review import: stale sealed candidate binding must fail before expensive receipt/proposal intake');
-    assert(read('packages/main/src/core/process-fact-registry.ts').includes('rejects a stale sealed candidate read binding before expensive receipt and proposal intake'),
+    assert(managedImportSource.includes('export function runManagedReviewCandidatePreflight')
+      && managedImportSource.includes('const intake = runManagedReviewCandidatePreflight({')
+      && managedImportSource.includes('hasPersistedReceiptEvidence')
+      && managedImportSource.includes('assertCurrentCandidateReadBinding(proposal);'),
+    'managed review import: executable stale-candidate preflight, crash-recovery bypass and lock-held recheck must remain wired');
+    assert(read('packages/main/src/core/process-fact-registry.ts').includes('A fresh intake rejects a stale sealed candidate read binding before expensive receipt and proposal intake'),
       'process-fact registry: managed candidate stale fast-failure ordering must remain registered');
   }
   assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: ProofStory must not be wired through the thin story_advance handler');

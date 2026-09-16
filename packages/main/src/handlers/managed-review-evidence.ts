@@ -61,6 +61,21 @@ function assertManagedReviewImportStagingClean(ctx: HandlerContext, storyId: str
   }
 }
 
+export function runManagedReviewCandidatePreflight<TProposal, TResult>(args: {
+  sealedProposal: TProposal | null;
+  hasPersistedReceiptEvidence: boolean;
+  assertCurrentCandidateReadBinding: (proposal: TProposal) => void;
+  intake: () => TResult;
+}): TResult {
+  // A persisted ReviewPass/Finding belongs to the authenticated crash-recovery
+  // path below. Its historical routing input is verified from the exact receipt
+  // evidence and must not be reinterpreted against a later candidate reroute.
+  if (args.sealedProposal && !args.hasPersistedReceiptEvidence) {
+    args.assertCurrentCandidateReadBinding(args.sealedProposal);
+  }
+  return args.intake();
+}
+
 export function createManagedReviewEvidenceHandlers(
   ctx: HandlerContext,
   options: {
@@ -211,7 +226,6 @@ export function createManagedReviewEvidenceHandlers(
       // decision observable for every import path; the in-lock checks close
       // the remaining TOCTOU window.
       assertLiveReviewBinding();
-      const sealedProposal = readManagedReviewEvidenceProposal(ctx.root, runId);
       const assertCurrentCandidateReadBinding = (candidateProposal: ManagedReviewEvidenceProposal): void => {
         const routingMode = loadConfig(ctx.root).candidateSpecRouting?.mode ?? 'shadow';
         const currentStory = ctx.store.readStory(candidateProposal.storyId);
@@ -229,25 +243,35 @@ export function createManagedReviewEvidenceHandlers(
           currentStoryInputDigest: digestCandidateRoutingValue(currentStoryRoutingInput(ctx, candidateProposal.storyId)),
         });
       };
+      const sealedProposal = readManagedReviewEvidenceProposal(ctx.root, runId);
+      const hasPersistedReceiptEvidence =
+        ctx.store.readReviewPasses(managedRun.storyId).passes.some(pass => pass.managedEvidenceBinding?.receiptId === receiptId)
+        || ctx.store.readFindings(managedRun.storyId).findings.some(finding => finding.managedEvidenceBinding?.receiptId === receiptId);
       // The sealed provider proposal already contains the candidate read
       // manifest. Reject an obviously stale route before the more expensive
-      // receipt/proposal intake, then repeat the same check under the canonical
-      // persistence locks below to close the TOCTOU window.
-      if (sealedProposal) assertCurrentCandidateReadBinding(sealedProposal);
-      const intake = createManagedReviewEvidenceBinding({
-        root: ctx.root,
-        storyId: managedRun.storyId,
-        providerAgent: managedRun.agentType,
-        lane: managedRun.lane,
-        reviewRunId: managedRun.reviewRunId,
-        runId,
-        receiptId,
-        expected,
-        // The import transaction identity must survive a crash after sealing
-        // evidence-binding.json but before story metadata persistence. Bind its
-        // timestamp to the immutable provider proposal rather than a retry-local
-        // wall clock so the same receipt reconstructs byte-identical evidence.
-        importedAt: sealedProposal?.authoredAt,
+      // receipt/proposal intake for fresh imports. Existing receipt evidence
+      // remains eligible for authenticated crash recovery. Repeat the same
+      // check under the canonical persistence locks below to close the TOCTOU
+      // window for newly admitted evidence.
+      const intake = runManagedReviewCandidatePreflight({
+        sealedProposal,
+        hasPersistedReceiptEvidence,
+        assertCurrentCandidateReadBinding,
+        intake: () => createManagedReviewEvidenceBinding({
+          root: ctx.root,
+          storyId: managedRun.storyId!,
+          providerAgent: managedRun.agentType,
+          lane: managedRun.lane!,
+          reviewRunId: managedRun.reviewRunId!,
+          runId,
+          receiptId,
+          expected,
+          // The import transaction identity must survive a crash after sealing
+          // evidence-binding.json but before story metadata persistence. Bind its
+          // timestamp to the immutable provider proposal rather than a retry-local
+          // wall clock so the same receipt reconstructs byte-identical evidence.
+          importedAt: sealedProposal?.authoredAt,
+        }),
       });
       const proposal = intake.verification.proposal ?? sealedProposal;
       if (!proposal) throw new Error('managed_review_evidence_import: shared Proof Admissibility accepted no provider proposal');
