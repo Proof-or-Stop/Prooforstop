@@ -10193,17 +10193,14 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/managed-review-provider-state.ts').includes('provider seed integrity mismatch') && read('packages/main/src/core/managed-review-provider-state.ts').includes('provider seed binding mismatch'), 'cross-process seeds must verify keyed integrity and exact expected binding');
   assert(read('packages/main/src/core/reviewer-batch-subject.ts').includes('verifyReviewInventoryEpoch(epoch)') && read('packages/main/src/core/reviewer-batch-subject.ts').includes('BATCH_SUBJECT_CUTOFF_DRIFT') && read('packages/main/src/core/reviewer-batch-subject.ts').includes('BATCH_ASSIGNMENT_MISSING_LANES'), 'batch subject must verify signed current epoch, material cutoff and complete assignments');
   assert(read('packages/main/src/core/reviewer-batch-subject.ts').includes('reviewerBatchAdmissionLanes') && read('packages/main/src/core/reviewer-batch-subject.ts').includes("run.reviewPurpose === 'inventory-completeness'") && read('packages/main/src/core/reviewer-batch-subject.ts').includes('admissionLanesDigest'), 'managed batch admission must include only a current purpose-bound inventory critic in a distinct admission subject');
-  const criticAdmissionSubject = read('packages/main/src/core/reviewer-batch-subject.ts');
-  assert(!criticAdmissionSubject.includes('run.headHash === epoch.cutoff.headHash')
-    && criticAdmissionSubject.includes('inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)')
-    && criticAdmissionSubject.includes('run.materialHash === epoch.cutoff.materialHash')
-    && criticAdmissionSubject.includes("(run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')"),
-    'critic admission retains original signed purpose and material cutoff without rejecting metadata-only HEAD advancement');
   assert(read('packages/main/src/core/prompt-registry.ts').includes('A metadata-only HEAD advance does not replace the signed inventory cutoff')
-    && registrySource.includes('Metadata-only HEAD advancement may differ from the original cutoff HEAD')
-    && read('scripts/verify-inventory-critic-metadata-head.mjs').includes('INVENTORY_CRITIC_METADATA_HEAD_GREEN')
-    && read('packages/main/src/tasks/review-inventory-handler-smoke.ts').includes('both waves and exact signed cutoff preserved through finalization'),
-    'metadata-only critic admission requires matching prompt, registry and actual two-wave CLI coverage');
+    && registrySource.includes('Metadata-only HEAD advancement may differ from the original cutoff HEAD'),
+    'metadata-only critic admission requires matching prompt and registry contracts');
+  // Execute the real behavior from this registered serial-reference driver.
+  // Formatting or operand swaps cannot substitute for a two-wave witness.
+  execFileSync(process.execPath, ['scripts/verify-inventory-critic-metadata-head.mjs'], {
+    cwd: root, stdio: 'inherit', timeout: 900000,
+  });
   assert(read('packages/main/src/tasks/inventory-critic-live-metadata-projection-smoke.ts').includes('managed inventory critic receives current signed uncommitted inventory metadata in its sealed prompt'), 'managed inventory critic live metadata projection requires focused RED/GREEN coverage');
   assert(read('packages/main/src/core/managed-execution-input-identity.ts').includes('fingerprintCapturedManagedProviderState'), 'execution identity must bind captured provider inputs');
   assert(read('scripts/verify-u08-execution-identity.mjs').includes('fixture-env-secret'), 'input identity requires actual secret/environment drift regression');

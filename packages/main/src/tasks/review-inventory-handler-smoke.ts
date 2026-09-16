@@ -713,7 +713,7 @@ async function criticDiscoveryRecovery(): Promise<void> {
 
 // Disposable real CLI regression: an unchanged-material metadata commit must
 // preserve a complete wave and admit the next wave's purpose-bound critic.
-async function criticMetadataHeadRecovery(): Promise<void> {
+async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: string }): Promise<void> {
   const fixture = setup(undefined, true);
   const cwd = process.cwd();
   const critic = 'proof-or-stop-review-topology-critic';
@@ -726,6 +726,7 @@ async function criticMetadataHeadRecovery(): Promise<void> {
     cli(fixture.root, 'review_inventory_begin', { storyId, maxWaves: 2 });
     const epoch = fixture.store.readReviewInventoryEpochs(storyId).epochs[0];
     let findingId = '';
+    let negativeControls = 0;
     for (const wave of [1, 2]) {
       for (const [index, lane] of epoch.requiredLanes.entries()) {
         const env = { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: `metadata-wave-${wave}-${lane}` };
@@ -786,6 +787,7 @@ async function criticMetadataHeadRecovery(): Promise<void> {
               row.reviewRunId === reviewRunId ? { ...row, ...mutation } : row) } as typeof validRuns);
             assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
               `invalid current critic cannot borrow prior-wave authority: ${JSON.stringify(mutation)}`);
+            negativeControls++;
           } finally { fixture.store.writeReviewRuns(storyId, validRuns); }
         }
         const current = inventoryBefore.epochs.at(-1)!;
@@ -801,6 +803,7 @@ async function criticMetadataHeadRecovery(): Promise<void> {
               epochs: [{ ...unsigned, _hash: signReviewInventoryEpoch(unsigned) }] });
             assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }),
               /BATCH_SUBJECT_(CUTOFF_DRIFT|SCOPE_OR_ROSTER_DRIFT|CANDIDATE_DRIFT)/);
+            negativeControls++;
           } finally { fixture.store.writeReviewInventoryEpochs(storyId, inventoryBefore); }
         }
       }
@@ -819,6 +822,13 @@ async function criticMetadataHeadRecovery(): Promise<void> {
     assert.equal(complete.epochs[0].waves.length, 2);
     assert.deepEqual(complete.epochs[0].cutoff, epoch.cutoff);
     assert.equal(complete.criticReceipts.length, 2);
+    assert.equal(negativeControls, 14);
+    if (receipt) writeFileSync(receipt.path, JSON.stringify({
+      schemaVersion: 'inventory-critic-metadata-fixture.v1', nonce: receipt.nonce,
+      selector: 'METADATA_HEAD_CRITIC_ADMISSION_PASS', negativeControls,
+      waves: complete.epochs[0].waves.length, criticReceipts: complete.criticReceipts.length,
+      state: complete.epochs[0].state,
+    }), { flag: 'wx' });
     console.log('METADATA_HEAD_CRITIC_ADMISSION_PASS both waves and exact signed cutoff preserved through finalization');
   } finally {
     process.chdir(cwd);
@@ -826,7 +836,11 @@ async function criticMetadataHeadRecovery(): Promise<void> {
   }
 }
 if (process.argv.includes('--metadata-critic-admission-only')) {
-  await criticMetadataHeadRecovery();
+  const receiptIndex = process.argv.indexOf('--metadata-critic-receipt');
+  const nonceIndex = process.argv.indexOf('--metadata-critic-nonce');
+  assert.ok(receiptIndex > 0 && nonceIndex > 0 && process.argv[receiptIndex + 1] && process.argv[nonceIndex + 1],
+    'focused metadata regression requires its caller-owned receipt path and nonce');
+  await criticMetadataHeadRecovery({ path: process.argv[receiptIndex + 1]!, nonce: process.argv[nonceIndex + 1]! });
   process.exit(0);
 }
 
@@ -843,6 +857,7 @@ if (!process.argv.includes('--lifecycle-only') && !process.argv.includes('--rost
   }
   await criticDiscoveryRecovery();
   if (process.argv.includes('--purpose-only')) process.exit(0);
+  await criticMetadataHeadRecovery();
 }
 
 const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
