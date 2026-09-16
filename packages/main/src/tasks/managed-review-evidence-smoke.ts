@@ -45,7 +45,7 @@ import { promptRoleContract, reviewerHostRenderIdentity, resolvePromptRoleBody }
 import { assembleFullPromptEnvelope, buildFullTaskContext } from '../core/prompt-envelope.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { reviewerDispatchBindingDigest, reviewerDispatchPromptDigest } from '../core/prompt-contracts.js';
-import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, classifyManagedLiveBindingFailure, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
 import { signFinding, signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import { isFindingBlocking } from '../core/advisory.js';
 import { generateEd25519KeyPair } from '../core/authority-signing.js';
@@ -1188,6 +1188,21 @@ async function assertManagedImportEnforcesCandidateReadBinding(brokerPublicKey: 
 
 /** Regression for B-0980: real sealed fixture imports, not live Story credentials. */
 async function managedSupersessionRegression(): Promise<void> {
+  const material = `managed_review_live_material_stale:reviewed=${'a'.repeat(64)}:live=${'b'.repeat(64)}`;
+  const lineage = (left: number, right: number) =>
+    `managed_review_live_head_lineage_invalid:reviewed=${'a'.repeat(left)}:live=${'b'.repeat(right)}`;
+  for (const reason of [material, lineage(40, 40), lineage(40, 64), lineage(64, 40), lineage(64, 64)]) {
+    assert.equal(classifyManagedLiveBindingFailure(reason, false), 'stale_run_hash', reason);
+    assert.equal(classifyManagedLiveBindingFailure(reason, true), 'managed_receipt_invalid', `dual binding: ${reason}`);
+  }
+  for (const reason of ['', 'unknown_failure', 'managed_review_live_head_unavailable',
+    'managed_review_live_material_unavailable', 'managed_review_live_material_stale',
+    `managed_review_live_material_stale:reviewed=${'a'.repeat(64)}:live=unavailable`,
+    material.replace('a'.repeat(64), 'A'.repeat(64)), material.replace('b'.repeat(64), 'b'.repeat(63)),
+    'prefix:' + material, material + ':suffix', material + '\n', lineage(39, 40), lineage(40, 65),
+    lineage(40, 40).replace('b'.repeat(40), 'B'.repeat(40)), lineage(40, 40) + ':suffix']) {
+    assert.equal(classifyManagedLiveBindingFailure(reason, false), 'managed_receipt_invalid', reason);
+  }
   const root = mkdtempSync(join(tmpdir(), 'managed-review-supersession-'));
   const beforeCwd = process.cwd();
   try {
@@ -1234,6 +1249,10 @@ async function managedSupersessionRegression(): Promise<void> {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'change reviewed fixture material']);
     resetConfigCache();
     refreshCandidateArtifact(root, store, 'shadow');
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(e =>
+      e.evidenceId === oldPass.id && e.code === 'stale_run_hash'
+      && e.message.includes('managed_review_live_material_stale')),
+      'the original PASS reaches the material-drift classifier before replacement');
     const latestRun = addCurrentReviewRun(root, store, LANE, `${STORY_ID}:RR-003`);
     await importResult(latestRun);
     const allPasses = structuredClone(store.readReviewPasses(STORY_ID));

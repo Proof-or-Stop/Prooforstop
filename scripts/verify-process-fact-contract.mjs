@@ -7363,7 +7363,9 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   const liveOffset = subjectReader.indexOf('const live = verifyManagedReviewLiveBinding({', subjectOffset);
   assert(managedOffset >= 0 && liveOffset > managedOffset,
     'managed transport authentication must precede supersedable live freshness classification');
-  assert(subjectReader.includes("code: knownDrift ? 'stale_run_hash' : 'managed_receipt_invalid'"),
+  assert(subjectReader.includes("code: classifyManagedLiveBindingFailure(live.reason, nativeBinding !== undefined)")
+    && subjectReader.includes("export function classifyManagedLiveBindingFailure(")
+    && subjectReader.includes("return knownDrift ? 'stale_run_hash' : 'managed_receipt_invalid'"),
     'only recognized observable managed freshness drift is supersedable; unknown identity stays refused');
   const retentionOffset = subjectReader.indexOf('const retention = evaluateReviewRunMetadataRetention');
   assert(subjectReader.indexOf('if (!managedBinding && !nativeBinding) {', subjectOffset) > retentionOffset

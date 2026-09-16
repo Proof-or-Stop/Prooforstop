@@ -1441,6 +1441,15 @@ export function assertCurrentReviewRunForEvidence(
   return run;
 }
 
+/** Only observed, fully formed live identity drift is eligible for supersession. */
+export function classifyManagedLiveBindingFailure(
+  reason: string, hasNativeBinding: boolean,
+): 'stale_run_hash' | 'managed_receipt_invalid' {
+  const knownDrift = !hasNativeBinding && reason.trim() === reason && (/^managed_review_live_material_stale:reviewed=[a-f0-9]{64}:live=[a-f0-9]{64}$/.test(reason)
+    || /^managed_review_live_head_lineage_invalid:reviewed=(?:[a-f0-9]{40}|[a-f0-9]{64}):live=(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(reason));
+  return knownDrift ? 'stale_run_hash' : 'managed_receipt_invalid';
+}
+
 function validateEvidenceRunBinding(
   store: StoryStore,
   story: StoryInfo,
@@ -1680,10 +1689,8 @@ function validateEvidenceRunBinding(
       // Only an observed hash mismatch or head-lineage movement is ordinary
       // freshness. Unavailable Git/material identity and unknown errors remain
       // non-supersedable. The sealed transport was authenticated above.
-      const knownDrift = !nativeBinding && (/^managed_review_live_material_stale:reviewed=[a-f0-9]{64}:live=[a-f0-9]{64}$/.test(live.reason)
-        || /^managed_review_live_head_lineage_invalid:reviewed=(?:[a-f0-9]{40}|[a-f0-9]{64}):live=(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(live.reason));
       return {
-        code: knownDrift ? 'stale_run_hash' : 'managed_receipt_invalid',
+        code: classifyManagedLiveBindingFailure(live.reason, nativeBinding !== undefined),
         kind: evidence.kind,
         evidenceId: evidence.id,
         agent: evidence.agent,
