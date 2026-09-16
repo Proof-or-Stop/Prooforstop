@@ -1,3 +1,4 @@
+import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCritic, managedInventoryCriticJsonSchema, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, acceptanceReviewJsonSchema } from './acceptance-amendment-review.js';
@@ -2187,9 +2188,16 @@ export function materializeHostRunLaunch(
     // Asking Codex to install another seatbelt/bwrap profile inside either outer
     // boundary can fail before evidence collection. Uncontained Linux and Darwin
     // managed dispatches deliberately retain the ordinary Codex sandbox.
+    // Cross-host review without a sealed outer lane keeps Codex's read-only
+    // sandbox. With a lane, runHostRun still calls prepareManagedReadonlyLaunch
+    // before the runner; that outer boundary enforces source/Git write denial.
     const sandboxMode = args.launchProfile === 'managed_reviewer'
       ? 'danger-full-access'
-      : managedDispatchSandbox ?? 'read-only';
+      : args.launchProfile === 'cross_host_review_codex'
+        ? args.managedReadonlyLayout
+          ? MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.confined
+          : MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.unconfined
+        : managedDispatchSandbox ?? 'read-only';
     return {
       command: 'codex',
       // Formal managed review consumes Codex's observable JSON event stream:

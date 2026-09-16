@@ -209,6 +209,27 @@ async function main() {
   const managedHost = read(root, 'packages/main/src/core/managed-host-run.ts');
   const readonlyLane=read(root,'packages/main/src/core/managed-review-lane.ts');
   const readonlyPolicy=read(root,'packages/main/src/core/managed-review-lane-policy.ts');
+  const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  const { materializeHostRunLaunch: crossHostLaunch } = await importDist(root, 'packages/main/dist/core/host-run.js');
+  const crossHostArgs = {host:'codex',launchProfile:'cross_host_review_codex',cwd:root,root,promptText:'Runtime profile selection control only; no provider is launched.',env:{},storyId:null,agentType:'runtime-contract',recordedAt:new Date().toISOString(),projectRootHash:'fixture'};
+  const providerSandbox = args => { const launch=crossHostLaunch(args); return launch.argv[launch.argv.indexOf('-s')+1]; };
+  const {prepareManagedReadonlyLaunch: guardedCrossHostLaunch}=await importDist(root,'packages/main/dist/core/managed-review-readonly.js');
+  assert.throws(()=>guardedCrossHostLaunch({}, {command:process.execPath,argv:[],cwd:root}),
+    'A layout-shaped selection alone must not admit a provider launch');
+  check(readonlyRuntime.crossHostProviderSandbox.unconfined === 'read-only'
+    && providerSandbox(crossHostArgs) === 'read-only', 'Unconfined cross-host review must retain the provider read-only sandbox');
+  // A layout-shaped input selects argv only. It grants no launch authority:
+  // the actual consumer below must still prepare and enforce the outer lane.
+  check(readonlyRuntime.crossHostProviderSandbox.confined === 'danger-full-access'
+    && providerSandbox({...crossHostArgs,managedReadonlyLayout:{}}) === 'danger-full-access',
+    'Confined cross-host review must avoid a nested provider sandbox');
+  const hostRunSource=read(root,'packages/main/src/core/host-run.ts');
+  check(hostRunSource.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.confined')
+    && hostRunSource.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.unconfined')
+    && hostRunSource.includes('prepareManagedReadonlyLaunch(args.managedReadonlyLayout, {command: launch.command, argv: launch.argv, cwd: args.cwd})')
+    && hostRunSource.indexOf('spawn = await runner({',hostRunSource.indexOf('const guardedLaunch =')) > hostRunSource.indexOf('prepareManagedReadonlyLaunch(args.managedReadonlyLayout'),
+    'Cross-host provider argv must remain behind the actual outer-lane consumer');
+
   check(registrySource.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY')
     && registrySource.includes("optionalEnvironmentKeys: ['PROOF_OR_STOP_REVIEW_EXECUTION_CWD']")
     && readonlyLane.includes('MANAGED_REVIEW_LANE_ARTIFACT.directoryName')

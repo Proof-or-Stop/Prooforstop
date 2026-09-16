@@ -6,6 +6,14 @@ It currently supports Darwin with the local `sandbox-exec` capability and the
 registered Proof-or-Stop project layout. Unsupported requested configurations
 fail before provider startup; projects without this opt-in keep their existing behavior.
 
+Cross-host Codex review inside a verified outer lane uses Codex's
+`danger-full-access` inner mode to avoid creating a nested Darwin sandbox. The
+outer `sandbox-exec` wrapper remains mandatory and still denies writes to review
+source and original Git state. A cross-host call without that outer layout keeps
+Codex's `read-only` mode. The worker verifies the sealed lane and snapshot before
+launch, and `runHostRun` prepares the outer wrapper before calling its runner;
+profile selection alone is not permission to execute without confinement.
+
 Tracked review source and original project/Git files remain read-only to the
 provider. A fresh managed review also creates a second detached worktree at the
 same HEAD and starts the provider there. Tests, formatters, and generators may
