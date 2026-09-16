@@ -1,31 +1,5 @@
 # Changelog
 
-## Lab benchmark-review-supersession - v0.3.394 - 2026-09-16
-
-# Bounded managed review supersession repair
-
-B-0980 remains a 13-line configuration registration Story. Its real TEST transition refused historical managed passes RP-021 through RP-025 despite a newer completed RI-026. The shared collector already supersedes authenticated stale PASS records with newer valid same-lane evidence, but managed live freshness was returned as non-supersedable managed_receipt_invalid before the sealed authority check.
-
-## Repair boundary
-
-Authenticate the managed transport before classifying live freshness. Only a fully observed material-hash mismatch or head-lineage change receives the existing stale_run_hash classification. Unknown or unavailable identity and invalid managed receipts remain hard failures. Existing replacement ordering, lane equality, open-finding protection and historical storage are unchanged. No Story state is edited by this repair, and no Story DONE is claimed.
-
-## Verification
-
-The isolated regression creates provider test outputs through real managed supervision, signed terminal receipts and the official importer, then exercises the real collector. It does not use a real external model provider and is not formal review evidence.
-
-The unmodified implementation produced MANAGED_SUPERSESSION_RED after the original and replacement PASS controls succeeded. The minimal repair passed MANAGED_SUPERSESSION_PASS, including missing/invalid/different-lane replacement controls, a genuinely imported open Finding, old terminal-byte tampering with exact restoration, and same-material non-importer head movement.
-
-Static validation passes after rebinding unchanged call sites and adding one exact bounded fixture regression with source/dependency evidence. All 295 original exception IDs and kinds are retained. The process-fact verifier executes the fixed test command and checks authentication-before-freshness order. The complete process-fact verifier exited 0 and reported Process-fact contract verification passed. Its output is retained in /tmp/benchmark-review-supersession-process-contract.log. The independent Claude CLI audit is performed by the official finish command against the exact release candidate; its verdict is not authored by this note.
-
-## Environment preparation
-
-The Lab uses its own root and packages/main dependency installs and private main/utils/Lab builds. An initial root build also exposed missing graph-local dependencies; that was environment preparation, not target RED. No graph code, dependency manifests, validation limits, global installation or remote branch is changed.
-
-Maintenance provenance: codex/lab-benchmark-review-supersession, repair 99f456d677b9617c583571e8477703d8497fdcf3.
-Verification command (replayed before integration and on main): `["node","--import","./packages/main/dist/index.js","packages/main/dist/tasks/managed-review-evidence-smoke.js","--supersession-regression"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-resource-key - v0.3.393 - 2026-09-16
 
 # Bounded validation resource-key repair
