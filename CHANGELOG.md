@@ -1,5 +1,48 @@
 # Changelog
 
+## Lab reuse-lineage-material-policy - v0.3.402 - 2026-09-17
+
+# Lab reuse-lineage-material-policy
+
+## Problem
+Two path policies disagreed. materialHash excludes story metadata, evidence output locations and
+registry-declared runtime artifacts (`isMaterialExcludedPath`), so committing a dev-memory record
+leaves the tested bytes identical. The shared merge-lineage classifier trusted only story
+metadata (`isStoryMetadataPath`), so the same commit was an `untrusted-lineage-path`: routine
+reuse re-executed an identical PASS, DONE-required pre-run reuse rejected it, and admissibility
+rejected it.
+
+## Behavior change
+`classifyMergeLineage` (shared by routine reuse, DONE-required pre-run reuse and validation
+evidence admissibility) trusts exactly the paths materialHash already excludes. Every material
+path, a non-ancestor head, and a diff failure are still rejected. The admissibility message now
+says "material path(s)". The process-fact contract pins the new predicate and asserts the
+narrower story-metadata-only predicate is not reintroduced.
+
+## Verification
+RED/GREEN: `node scripts/verify-reuse-lineage-material-policy.mjs` (checkout source, disposable
+repositories).
+- Before: dev-memory finish decision, dev-memory experience log, story metadata plus finish
+  decision, and an evidence object output were all refused by the three consumers
+  (12 failing expectations).
+- After: all four reusable/trusted; controls (source change, finish decision plus source
+  change, material file under the state directory, config change, non-ancestor head) still
+  refused (25 checks).
+Regressions on the rebuilt dist: validation-reuse-merge-lineage-smoke, done-required-validation-smoke,
+done-required-freshness-smoke, validation-evidence-reuse-smoke and the process-fact contract PASS.
+
+## Measured data
+- Replay of the 20 historical PASS-then-re-execution pairs through the evaluator: before 0
+  reusable; after B-212f becomes reusable (131 command executions); B-a2a6 and B-cc10 lose their
+  dev-memory lineage refusal (their remaining refusals are July/August schema artifacts).
+- Session transcripts contain 31 refusal occurrences whose only reason was a material-excluded
+  lineage path (occurrences, not unique runs).
+Adjacent work: B-c86f widens the dev-memory runtime-artifact entry (different file).
+
+Maintenance provenance: codex/lab-reuse-lineage-material-policy, repair f701c02f0d92c1bb1e52c11a71ee2237fc6a80ce.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reuse-lineage-material-policy.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-terminal-refusal-reasons - v0.3.401 - 2026-09-17
 
 # Lab validation-terminal-refusal-reasons
