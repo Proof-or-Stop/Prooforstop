@@ -105,6 +105,19 @@ try {
  const lateMessage=new FinalAssistantResultScanner('grok',4096,schema);
  lateMessage.push(envelope+JSON.stringify({type:'assistant',message:'late content'})+'\n');lateMessage.flush();
  assert.equal(lateMessage.snapshot().result,null);assert(lateMessage.snapshot().count>1);
+ for(const tail of [JSON.stringify({type:'result',subtype:'success'}),
+   JSON.stringify({type:'error',message:'x'.repeat(5000)}),JSON.stringify({type:'assistant',message:'x'.repeat(5000)}),'{malformed']) {
+   for(const chunked of [false,true]) {
+     const terminal=new FinalAssistantResultScanner('grok',4096,schema);
+     const stream=envelope+tail+'\n';
+     if(chunked)for(let at=0;at<stream.length;at+=37)terminal.push(stream.slice(at,at+37));else terminal.push(stream);
+     terminal.flush();assert.equal(terminal.snapshot().result,null);assert(terminal.snapshot().count>1);
+   }
+ }
+ for(const prefix of [JSON.stringify({type:'result',subtype:'success'}),'malformed',JSON.stringify({type:'error',message:'x'.repeat(5000)})]) {
+   const terminal=new FinalAssistantResultScanner('grok',4096,schema);
+   terminal.push(prefix+'\n'+envelope);terminal.flush();assert.equal(terminal.snapshot().result,null);
+ }
  const {parseLiveProviderUsage}=await import(pathToFileURL(join(repo,'packages/main/dist/core/usage-ledger/dispatch-usage.js')).href);
  const usage=parseLiveProviderUsage('grok',JSON.stringify({type:'result',usage:{input_tokens:12,output_tokens:3,cache_read_input_tokens:4,cache_creation_input_tokens:2}}));
  assert.equal(usage.provider,'grok');assert.equal(usage.tokens,21);

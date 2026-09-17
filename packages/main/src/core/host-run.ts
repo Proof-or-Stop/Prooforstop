@@ -1306,6 +1306,10 @@ export class FinalAssistantResultScanner {
    * with managed_review_final_result_oversize.
    */
   private markOversizeCandidate(prefix: string): void {
+    if (this.host === 'grok') {
+      // An over-cap Grok line cannot prove that it was not another terminal.
+      this.candidateCount += 1; this.candidateTruncated = true; this.result = null; return;
+    }
     const looksCanonical = this.host === 'codex'
       ? prefix.includes(this.schemaVersion)
         && (!prefix.includes('"item.completed"') || prefix.includes('"agent_message"'))
@@ -1326,9 +1330,10 @@ export class FinalAssistantResultScanner {
     const event = parseJsonObjectLine(line);
     // Grok promises one terminal result. A failed or later event cannot leave
     // an earlier successful proposal eligible for signed intake.
-    if (this.host === 'grok' && (event?.type === 'error'
-      || (this.candidateCount > 0 && line.trim() && event?.type !== 'result')
-      || (event?.type === 'result' && (event.subtype !== 'success' || event.is_error === true)))) {
+    if (this.host === 'grok' && ((!event && line.trim()) || event?.type === 'error'
+      || (this.candidateCount > 0 && line.trim())
+      || (event?.type === 'result' && (event.subtype !== 'success' || event.is_error === true
+        || !Object.prototype.hasOwnProperty.call(event, 'structured_output'))))) {
       this.candidateCount += 1; this.result = null; return;
     }
     let candidate: unknown;
