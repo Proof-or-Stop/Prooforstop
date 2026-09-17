@@ -18,7 +18,7 @@
 // holds a real machine queue ticket through the product API. Controls: without
 // contention the same run passes; a CLI that is genuinely silent still dies.
 import { spawn, spawnSync, execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,6 +29,8 @@ const dist = join(repoRoot, 'packages/main/dist');
 const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { cwd: repoRoot, encoding: 'utf8' });
 if (build.status !== 0) { process.stderr.write(`${build.stdout}\n${build.stderr}\n`); throw new Error('packages/main build failed; this is not the target RED'); }
 
+const tempResidue = () => readdirSync(tmpdir()).filter((name) => name.startsWith('queue-holder-')).sort();
+const residueBefore = tempResidue();
 const sandbox = mkdtempSync(join(tmpdir(), 'pos-queue-wait-'));
 // The holder and every CLI run share a private machine queue (fixture homedir),
 // so replaying this script never occupies the real cross-session queue.
@@ -76,8 +78,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 const { withMachineValidationResources } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-execution-lock.js')}`)});
-const [ready, release] = process.argv.slice(2);
-const root = mkdtempSync(join(tmpdir(), 'queue-holder-'));
+const [ready, release, parent] = process.argv.slice(2);
+const root = mkdtempSync(join(parent, 'queue-holder-'));
 execFileSync('git', ['init', '-q'], { cwd: root });
 await withMachineValidationResources({ root, workspaceRoot: root, command: 'other-repository-validation' }, async () => {
   writeFileSync(ready, String(Date.now()));
@@ -93,7 +95,7 @@ try {
   rows.push({ scenario: 'uncontended, idle 1000ms', exit: quiet.code, ms: quiet.ms, stuck: /validate stuck/.test(quiet.stderr), waitLines: (quiet.stderr.match(/waiting for machine validation capacity/g) ?? []).length });
   // Contended: a helper holds a machine ticket; the fixture validation queues behind it.
   const ready = join(sandbox, 'holder.ready'); const release = join(sandbox, 'holder.release');
-  const holder = spawn(process.execPath, [holderScript, ready, release], { stdio: 'inherit', env: { ...process.env, ...machineEnv } });
+  const holder = spawn(process.execPath, [holderScript, ready, release, sandbox], { stdio: 'inherit', env: { ...process.env, ...machineEnv } });
   const holderExited = new Promise((r) => holder.on('exit', r));
   const acquired = await waitFor(ready, 60_000);
   if (!acquired) throw new Error('holder could not acquire the private fixture machine ticket within 60s; not the target RED');
@@ -115,6 +117,8 @@ try {
   rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   machine.cleanup();
 }
+const leaked = tempResidue().filter((name) => !residueBefore.includes(name));
+check(leaked.length === 0, `the run leaves no holder repository in the shared temp directory (leaked ${leaked.join(',')})`);
 console.log('scenario | exit | wallMs | killedAsIdle | queueWaitLines');
 for (const r of rows) console.log(`${r.scenario} | ${r.exit} | ${r.ms} | ${r.stuck} | ${r.waitLines}`);
 if (red.length) {
