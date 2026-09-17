@@ -503,6 +503,54 @@ try {
       `a record deferred outside a repository is delivered in order once discovery recovers (got ${JSON.stringify(after)})`);
     expectRepaired(pending.length === 0, `the pending queue is cleared outside a repository (found ${JSON.stringify(pending)})`);
   }
+  // Recovery that is blocked must hold newer records back, inside and outside a repository.
+  {
+    const plain = join(sandbox, `plain-blocked-${n++}`); mkdirSync(plain, { recursive: true });
+    const pending = join(home, '.proof-or-stop/activity-spool', `pending-${createHash('sha256').update(`pending:${plain}`).digest('hex')}`);
+    mkdirSync(pending, { recursive: true });
+    writeFileSync(join(pending, '00000000000001-0000001-aaaaaaaaaaaa.json'), JSON.stringify({ target: join(plain, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-pending' })}\n` }), { mode: 0o000 });
+    callHook(plain, 'newer-outside');
+    const blocked = lines(plain);
+    rows.push({ scenario: 'unreadable pending record outside a repository', repoLinesDuring: blocked.length, after: '-' });
+    expectRepaired(blocked.length === 0, `a newer record must not pass an unreadable older one (found ${JSON.stringify(blocked)})`);
+    chmodSync(join(pending, '00000000000001-0000001-aaaaaaaaaaaa.json'), 0o600);
+    callHook(plain, 'after-outside');
+    expectRepaired(JSON.stringify(lines(plain)) === JSON.stringify(['older-pending', 'newer-outside', 'after-outside']),
+      `order is preserved once the older record can be read (got ${JSON.stringify(lines(plain))})`);
+  }
+  {
+    const root = repo();
+    const pending = join(home, '.proof-or-stop/activity-spool', `pending-${createHash('sha256').update(`pending:${root}`).digest('hex')}`);
+    mkdirSync(pending, { recursive: true });
+    writeFileSync(join(pending, '00000000000001-0000001-bbbbbbbbbbbb.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-adopted' })}\n` }));
+    const spool = spoolFor(root);
+    mkdirSync(spool, { recursive: true }); chmodSync(spool, 0o500); // adoption into the queue fails
+    callHook(root, 'newer-inside');
+    const blocked = lines(root);
+    rows.push({ scenario: 'adoption into the worktree queue fails', repoLinesDuring: blocked.length, after: '-' });
+    expectRepaired(blocked.length === 0, `a newer record must not pass a pending record that cannot be adopted (found ${JSON.stringify(blocked)})`);
+    chmodSync(spool, 0o700);
+    callHook(root, 'after-inside');
+    expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['older-adopted', 'newer-inside', 'after-inside']),
+      `order is preserved once adoption succeeds (got ${JSON.stringify(lines(root))})`);
+  }
+  // Concurrent recovery outside a repository: ordered, no duplicates.
+  {
+    const plain = join(sandbox, `plain-concurrent-${n++}`); mkdirSync(plain, { recursive: true });
+    const pending = join(home, '.proof-or-stop/activity-spool', `pending-${createHash('sha256').update(`pending:${plain}`).digest('hex')}`);
+    mkdirSync(pending, { recursive: true });
+    for (let i = 0; i < 4; i++) {
+      writeFileSync(join(pending, `0000000000000${i}-0000001-cccccccccccc.json`), JSON.stringify({ target: join(plain, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: `queued-${i}` })}\n` }));
+    }
+    const concurrent = await Promise.all([0, 1].map((i) => callHookAsync(plain, `concurrent-${i}`)));
+    callHook(plain, 'settle-outside');
+    const after = lines(plain);
+    rows.push({ scenario: 'concurrent recovery outside a repository', repoLinesDuring: '-', after: `${after.length} lines` });
+    control(concurrent.every((code) => code === 0), 'both concurrent hooks exit 0');
+    expectRepaired(JSON.stringify(after.slice(0, 4)) === JSON.stringify(['queued-0', 'queued-1', 'queued-2', 'queued-3'])
+      && after.length === 7 && new Set(after).size === 7,
+      `concurrent recovery keeps the order and duplicates nothing (got ${JSON.stringify(after)})`);
+  }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
     ['no validation ticket', () => {}],

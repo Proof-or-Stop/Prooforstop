@@ -41,27 +41,33 @@ process.stdin.on('end', () => {
     const target = path.join(logDir, 'activity.jsonl');
     const line = JSON.stringify(entry) + '\n';
     const discovered = discoverWorkspace(root);
-    if (discovered === 'non-repository') {
-      // Positively outside a repository: no validation can be running here. Records that
-      // an earlier failed discovery deferred are delivered first, in their original order.
-      deliverPendingRecordsDirectly(root);
-      fs.mkdirSync(logDir, { recursive: true });
-      fs.appendFileSync(target, line);
-    } else if (discovered === 'uncertain') {
+    if (discovered === 'uncertain') {
       // Discovery failed (timeout, missing git, unreadable path). The repository may be
       // validating right now, so the record waits in a discovery-pending queue keyed by
       // this path; a later hook that can discover the worktree adopts it.
       publishSpoolRecord(pendingSpoolDir(root), { target, line });
+    } else if (discovered === 'non-repository') {
+      // Positively outside a repository: nothing can be validating, so the queue is
+      // delivered directly - through the same claims and ordering, so concurrent hooks
+      // never duplicate a record or pass an older one.
+      const queue = pendingSpoolDir(root);
+      publishSpoolRecord(queue, { target, line });
+      deliverQueue(queue, null);
     } else {
       // The discovered worktree is reused everywhere below: re-running discovery could
       // fail and silently move records into a different queue.
       const spool = spoolDirFor(discovered);
-      adoptPendingRecords(root, spool);
-      // Every repository write happens inside the product's own workspace validation
-      // capacity ticket, so a validation starting concurrently queues behind this
-      // millisecond-long write instead of racing it.
-      publishSpoolRecord(spool, { target, line });
-      flushSpool(spool, discovered);
+      if (!adoptPendingRecords(root, spool)) {
+        // Older records could not be moved into this worktree's queue: keep the current
+        // record behind them rather than delivering it first.
+        publishSpoolRecord(pendingSpoolDir(root), { target, line });
+      } else {
+        // Every repository write happens inside the product's own workspace validation
+        // capacity ticket, so a validation starting concurrently queues behind this
+        // millisecond-long write instead of racing it.
+        publishSpoolRecord(spool, { target, line });
+        deliverQueue(spool, discovered);
+      }
     }
   } catch {}
   process.exit(0);
@@ -97,45 +103,21 @@ function pendingSpoolDir(root) {
   return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', `pending-${key}`);
 }
 
-/**
- * Deliver records deferred by a failed discovery once discovery positively establishes
- * that this path is outside any repository: nothing can be validating, so they are
- * written in their original order and the pending queue is cleared.
- */
-function deliverPendingRecordsDirectly(root) {
-  const pending = pendingSpoolDir(root);
-  let names;
-  try { names = fs.readdirSync(pending).filter(name => name.endsWith('.json')).sort(); } catch { return; }
-  for (const name of names) {
-    const file = path.join(pending, name);
-    let raw;
-    try { raw = fs.readFileSync(file, 'utf8'); } catch { return; } // unreadable: keep for a later run
-    let record = null;
-    try { record = JSON.parse(raw); } catch { record = null; }
-    if (!record || typeof record.target !== 'string' || typeof record.line !== 'string') {
-      try { fs.unlinkSync(file); } catch { /* already gone */ }
-      continue;
-    }
-    try {
-      fs.mkdirSync(path.dirname(record.target), { recursive: true });
-      fs.appendFileSync(record.target, record.line);
-    } catch { return; } // target unwritable: retry on a later run
-    try { fs.unlinkSync(file); } catch { /* delivered at least once */ }
-  }
-  try { fs.rmdirSync(pending); } catch { /* not empty yet */ }
-}
-
 /** Move records published during failed discovery into this worktree's real queue. */
 function adoptPendingRecords(root, spool) {
   const pending = pendingSpoolDir(root);
   let names;
-  try { names = fs.readdirSync(pending).filter(name => name.endsWith('.json')); } catch { return; }
-  if (names.length === 0) return;
-  try { fs.mkdirSync(spool, { recursive: true, mode: 0o700 }); } catch { return; }
+  try { names = fs.readdirSync(pending).filter(name => name.endsWith('.json')); } catch { return true; }
+  if (names.length === 0) return true;
+  try { fs.mkdirSync(spool, { recursive: true, mode: 0o700 }); } catch { return false; }
   for (const name of names) {
-    try { fs.renameSync(path.join(pending, name), path.join(spool, name)); } catch { /* another hook adopted it */ }
+    try { fs.renameSync(path.join(pending, name), path.join(spool, name)); } catch {
+      // Another hook may have adopted it; anything still here blocks newer records.
+      if (fs.existsSync(path.join(pending, name))) return false;
+    }
   }
   try { fs.rmdirSync(pending); } catch { /* not empty yet */ }
+  return true;
 }
 
 function pidAlive(pid) {
@@ -213,10 +195,13 @@ function queueView(spool) {
  * target, so nothing is lost on a crash or a write failure - delivery is therefore
  * at-least-once: a crash between the append and the removal can repeat one line.
  */
-function flushSpool(spool, top) {
+function deliverQueue(spool, top) {
   for (let delivered = 0; delivered < 10000; delivered++) {
     const [oldest] = queueView(spool);
-    if (!oldest) return;
+    if (!oldest) {
+      try { fs.rmdirSync(spool); } catch { /* not empty, or in use by another hook */ }
+      return;
+    }
     if (oldest.claimedBy !== null) {
       // The oldest record is in flight. A live owner is still making progress, so stand
       // down; a dead owner's claim returns to the queue and is retried here.
@@ -225,7 +210,9 @@ function flushSpool(spool, top) {
       continue;
     }
     barrierWait();
-    if (workspaceValidationActive(top)) return; // a validation started: stop delivering
+    // Outside any repository (top === null) nothing can be validating, so no capacity
+    // ticket is involved; inside one, every write is ticket-guarded below.
+    if (top !== null && workspaceValidationActive(top)) return; // a validation started
     const claimed = path.join(spool, `${oldest.base}.delivering-${process.pid}`);
     try { fs.renameSync(path.join(spool, oldest.base), claimed); } catch { return; } // another hook won it
     // A record that cannot be READ may be perfectly valid (a transient EACCES, EIO or
@@ -242,10 +229,16 @@ function flushSpool(spool, top) {
       try { fs.unlinkSync(claimed); } catch { /* already gone */ }
       continue;
     }
-    const written = withWorkspaceWriteTicket(top, () => {
+    const append = () => {
       fs.mkdirSync(path.dirname(record.target), { recursive: true });
       fs.appendFileSync(record.target, record.line);
-    });
+    };
+    let written;
+    if (top === null) {
+      try { append(); written = true; } catch { written = false; }
+    } else {
+      written = withWorkspaceWriteTicket(top, append);
+    }
     if (!written) {
       // Not admitted, or the target could not be written: return the record to its place
       // so a later hook retries it in order, and stop.
