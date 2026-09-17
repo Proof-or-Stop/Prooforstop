@@ -16,7 +16,7 @@
 // ends, the next tool call delivers the deferred lines in order.
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,6 +35,12 @@ const deadPid = Number(spawnSync(process.execPath, ['-e', 'console.log(process.p
 // Everything after the live child exists must clean it up, including a failing build.
 const cleanUp = () => {
   live.kill('SIGKILL');
+  // Some scenarios deliberately strip a queue directory's permissions; restore them so the
+  // sandbox can be removed.
+  try {
+    const spoolRoot = join(home, '.proof-or-stop/activity-spool');
+    for (const name of readdirSync(spoolRoot)) { try { chmodSync(join(spoolRoot, name), 0o700); } catch { /* gone */ } }
+  } catch { /* no spool root */ }
   rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
 };
 process.on('uncaughtException', (error) => { cleanUp(); throw error; });
@@ -66,12 +72,11 @@ function callHookAsync(root, command, env = {}) {
     child.stdin.end(input);
   });
 }
-// One queue per cwd, with an alternative used only when the primary cannot be written.
-const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHash('sha256').update(`cwd:${root}`).digest('hex'));
-const altFor = (root) => `${spoolFor(root)}-alt`;
-const queueNames = (root, predicate) => [spoolFor(root), altFor(root)].flatMap((dir) => {
-  try { return readdirSync(dir).filter(predicate).map((name) => ({ dir, name })); } catch { return []; }
-});
+// One queue per canonical working directory.
+const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHash('sha256').update(realpathSync(root)).digest('hex'));
+const queueNames = (root, predicate) => {
+  try { return readdirSync(spoolFor(root)).filter(predicate).map((name) => ({ dir: spoolFor(root), name })); } catch { return []; }
+};
 const lockFor = (root) => join(spoolFor(root), '.flush.lock');
 const spoolRecords = (root) => queueNames(root, (name) => name.endsWith('.json')).map((entry) => entry.name).sort();
 const capacityDir = (root) => join(root, '.proof-or-stop/locks/validation-capacity.lock/workspaces', createHash('sha256').update(realpathSync(root)).digest('hex'));
@@ -537,23 +542,19 @@ try {
     expectRepaired(JSON.stringify(lines(plain)) === JSON.stringify(['older-queued', 'newer-outside', 'after-outside']),
       `order is preserved once the older record can be read (got ${JSON.stringify(lines(plain))})`);
   }
-  // The primary queue cannot be written: the record is retained in the alternative and
-  // delivered in order, never lost.
+  // The queue directory lost its write permission: it is this user's own directory, so it
+  // is repaired and the record is still published and delivered in order.
   {
     const root = repo();
     const queue = spoolFor(root);
     mkdirSync(queue, { recursive: true });
     writeFileSync(join(queue, '00000000000001-0000001-bbbbbbbbbbbb.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-primary' })}\n` }));
-    chmodSync(queue, 0o500); // publication into the primary queue fails
+    chmodSync(queue, 0o500); // the queue directory lost its write permission
     callHook(root, 'newer-inside');
-    const retained = spoolRecords(root).length;
-    chmodSync(queue, 0o700);
-    callHook(root, 'after-inside');
     const after = lines(root);
-    rows.push({ scenario: 'primary queue unwritable', repoLinesDuring: retained, after: JSON.stringify(after) });
-    expectRepaired(retained >= 2, `a record is retained when the primary queue cannot be written (retained ${retained})`);
-    expectRepaired(JSON.stringify(after) === JSON.stringify(['older-primary', 'newer-inside', 'after-inside']),
-      `retained records are delivered in order once the primary queue is writable (got ${JSON.stringify(after)})`);
+    rows.push({ scenario: 'queue directory not writable', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['older-primary', 'newer-inside']),
+      `a queue directory that lost its permissions is repaired and delivers in order (got ${JSON.stringify(after)})`);
   }
   // Concurrent recovery outside a repository: ordered, no duplicates.
   {
@@ -572,22 +573,19 @@ try {
       && after.length === 7 && new Set(after).size === 7,
       `concurrent recovery keeps the order and duplicates nothing (got ${JSON.stringify(after)})`);
   }
-  // A queue directory that cannot be ENUMERATED is unknown, not empty: newer records wait.
+  // A queue directory stripped of every permission is this user's own directory: it is
+  // repaired, and the older record still reaches the log first.
   {
     const root = repo();
     const queue = spoolFor(root);
     mkdirSync(queue, { recursive: true });
     writeFileSync(join(queue, '00000000000001-0000001-dddddddddddd.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-unreadable-dir' })}\n` }));
-    chmodSync(queue, 0o000); // enumeration fails
+    chmodSync(queue, 0o000); // neither readable nor writable
     callHook(root, 'newer-unreadable-dir');
-    const blocked = lines(root);
-    chmodSync(queue, 0o700);
-    callHook(root, 'after-unreadable-dir');
     const after = lines(root);
-    rows.push({ scenario: 'pending queue cannot be enumerated', repoLinesDuring: blocked.length, after: JSON.stringify(after) });
-    expectRepaired(blocked.length === 0, `an unenumerable queue directory must block newer records (found ${JSON.stringify(blocked)})`);
-    expectRepaired(JSON.stringify(after) === JSON.stringify(['older-unreadable-dir', 'newer-unreadable-dir', 'after-unreadable-dir']),
-      `order is preserved once the queue directory can be read (got ${JSON.stringify(after)})`);
+    rows.push({ scenario: 'queue directory stripped of permissions', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['older-unreadable-dir', 'newer-unreadable-dir']),
+      `a queue directory with no permissions is repaired and delivers oldest first (got ${JSON.stringify(after)})`);
   }
   // A failing build must not leave this verifier's own children or sandboxes behind.
   if (!process.env.HOOK_VERIFIER_NESTED) {
@@ -602,6 +600,47 @@ try {
     control(nested.status !== 0 && /build failed/.test(`${nested.stdout}${nested.stderr}`), 'a failing build stops the verifier');
     expectRepaired(leaked.length === 0, `a failing build leaves no sandbox behind (found ${JSON.stringify(leaked)})`);
   }
+  // A Git diagnostic that names a path means broken metadata or a wrong inherited GIT_DIR,
+  // not "no repository": the worktree may exist and be validating.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    const brokenGit = join(sandbox, 'broken-gitdir'); mkdirSync(brokenGit, { recursive: true });
+    writeFileSync(join(brokenGit, 'git'), '#!/bin/sh\necho "fatal: not a git repository: /work/.git" >&2\nexit 128\n');
+    chmodSync(join(brokenGit, 'git'), 0o755);
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'broken-gitdir' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home, PATH: `${brokenGit}:${process.env.PATH}` }, encoding: 'utf8',
+    });
+    control(r.status === 0, 'the hook exits 0 on a broken repository diagnostic');
+    const during = lines(root);
+    rows.push({ scenario: 'git reports broken repository metadata', repoLinesDuring: during.length, after: '-' });
+    expectRepaired(during.length === 0, `a path-naming git diagnostic must not be read as "no repository" (found ${JSON.stringify(during)})`);
+    rmSync(t, { recursive: true, force: true });
+    callHook(root, 'after-broken-gitdir');
+    expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['broken-gitdir', 'after-broken-gitdir']),
+      `the deferred record is delivered in order once discovery works (got ${JSON.stringify(lines(root))})`);
+  }
+  // Equivalent spellings of one directory share one queue, so order is preserved.
+  {
+    const root = repo();
+    const alias = join(sandbox, `alias-${n++}`);
+    symlinkSync(root, alias);
+    const t = ticket(root, live.pid);
+    const before = readdirSync(join(home, '.proof-or-stop/activity-spool'));
+    callHook(root, 'plain-spelling');
+    callHook(`${root}/`, 'trailing-slash');
+    callHook(alias, 'symlink-alias');
+    // Only the queues these three calls created count; earlier scenarios keep their own.
+    const queues = readdirSync(join(home, '.proof-or-stop/activity-spool')).filter((name) => !before.includes(name));
+    rmSync(t, { recursive: true, force: true });
+    callHook(root, 'settle-alias');
+    const after = lines(root);
+    rows.push({ scenario: 'equivalent cwd spellings', repoLinesDuring: `${queues.length} queues`, after: JSON.stringify(after) });
+    expectRepaired(queues.length === 1, `equivalent spellings must share one queue (found ${queues.length})`);
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['plain-spelling', 'trailing-slash', 'symlink-alias', 'settle-alias']),
+      `every spelling is delivered in publication order (got ${JSON.stringify(after)})`);
+  }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
     ['no validation ticket', () => {}],
@@ -615,8 +654,7 @@ try {
     control(JSON.stringify(lines(root)) === JSON.stringify([`control-${name}`]), `${name}: the hook writes into the repository immediately`);
   }
 } finally {
-  live.kill('SIGKILL');
-  rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  cleanUp();
 }
 console.log('scenario | repository lines while active | lines after validation ended');
 for (const r of rows) console.log(`${r.scenario} | ${r.repoLinesDuring} | ${r.after}`);
