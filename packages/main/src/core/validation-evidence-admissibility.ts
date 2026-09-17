@@ -56,7 +56,7 @@ function validationHeadLineage(args: {
       // content-unchanged file no longer surfaces here.
       return { lineage: 'trusted-story-metadata-descendant' };
     case 'untrusted':
-      return { lineage: 'rejected', code: 'lineage_untrusted', reason: `validation evidence descendant lineage includes non-story-metadata path(s): ${classification.untrustedPaths.slice(0, 5).join(', ')}` };
+      return { lineage: 'rejected', code: 'lineage_untrusted', reason: `validation evidence descendant lineage includes material path(s): ${classification.untrustedPaths.slice(0, 5).join(', ')}` };
     case 'not-ancestor':
       return { lineage: 'rejected', code: 'lineage_not_ancestor', reason: 'validation evidence head is not an ancestor of current HEAD' };
     case 'diff-failed':

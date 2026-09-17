@@ -1,5 +1,446 @@
 # Changelog
 
+## Lab quorum-smoke-host-activity-temp-overlap - v0.3.407 - 2026-09-17
+
+# Lab quorum-smoke-host-activity-temp-overlap
+
+## Problem
+1. The quorum smoke's protected-mutation guard counted every write event in the active worktree.
+   A host tool-logging hook appends to the gitignored activity log while the operator keeps
+   working, so a run with 73/73 cases passing was reported FAIL on 2026-09-17.
+2. The ambient temp check refused whenever the temp parent contained any registered worktree. A
+   managed review registering a worktree under the shared TMPDIR made every quorum smoke refuse at
+   startup, although a fresh mkdtemp child cannot write inside that sibling.
+
+## Behavior change
+1. The guard snapshots existing host activity logs (`.proof-or-stop/activity.jsonl`,
+   `docs/story/activity.jsonl`, and story-scoped `activity.jsonl` under both story directories)
+   and tolerates an event on one of them only if the file still starts with its exact start bytes
+   (append-only), or it was absent at start at an enumerated location. Rewrites, truncations,
+   deletions, look-alike names and every other path remain mutations. Tolerated paths are reported
+   as `hostActivityPaths`.
+2. The ambient temp parent is refused only when it is inside or equal to a protected root. The
+   created base is still checked against every protected root in both directions, and an inherited
+   owned base keeps the two-way check.
+
+## Verification
+RED/GREEN: `node scripts/verify-quorum-smoke-host-activity-temp-overlap.mjs`. The guard's watcher is
+replaced by a controllable fake (FSEvents delivery on this machine was observed to stall entirely),
+so events are delivered deterministically; the guard's decision logic is the real code.
+- Before: three activity-log appends -> guard not clean (3 unowned paths); temp parent containing a
+  sibling worktree -> refused.
+- After: appends tolerated; temp parent allowed; controls (tracked source write, rewritten log,
+  `.bak` look-alike, temp parent inside the worktree) still refused.
+red-B-e40f-quorum-submit-harness `--case=resource-parallel-contract` ran its temp-allocation proofs
+and then stopped at a resource-claim assertion about proof-or-stop.config.json, which this Lab does
+not touch.
+
+## Observation (not changed here)
+fs.watch recursive delivered no events at all on this machine for several minutes, so the guard's
+watcher can be blind while fseventsd is backlogged; the state digest still covers tracked and
+untracked non-ignored bytes.
+
+## Pre-audit test hardening
+The temp-parent scenario previously asserted only the absence of the refusal message; in a fixture repository the case body fails for an unrelated reason (no product context), so that assertion could pass trivially. It now requires, from the run record: the owned temp base allocated under the temp parent and outside the sibling worktree, a clean protected-mutation guard, and a case outcome identical to a baseline run with an ordinary temp parent (both FAIL in the fixture repository; this proves the temp decision, not case success). Control: a refused run allocates no temp base. RED on the pre-fix source: 5 failing expectations; GREEN: 11 checks. End-to-end case success was measured separately on this machine (73/73 cases, blocked only by the host activity appends).
+
+## Independent audit repair
+Audit 32f51d5f (different vendor) rejected the candidate with two findings, both repaired:
+1. (high) The exemption followed symlinks and compared content only, so replacing the ignored log with a symlink to a file carrying the original prefix was accepted as an append: a structural mutation could report clean and redirect later host logging. Logs are now opened with O_RDONLY|O_NONBLOCK|O_NOFOLLOW, must be regular files, and are bound to their device/inode pair, so only the SAME file growing counts as an append.
+2. (medium) `snapshotHostActivityLogs` turned every read error into an absent baseline, so a log that was unreadable at the start and readable later had arbitrary content accepted. A baseline is now 'absent' only on a proven ENOENT; anything else is ineligible and can never be exempted.
+New controls: replacement by a symlink to an out-of-repository file carrying the prefix, replacement with byte-identical content (new inode), and a log unreadable (mode 0o000) at baseline then replaced. RED on the rejected version: all three reported clean; GREEN: 14 checks.
+
+## Second independent audit repair
+Audit e8b1729a rejected the second candidate with one medium finding: the exemption ignored file metadata, so changing an ignored log from 0644 to 0444 preserved bytes, device and inode and was accepted as an append, hiding a change that can break later host logging. Repaired: the baseline now also binds mode, uid and gid, and any difference is a mutation regardless of the bytes. New controls: a permission change alone, and a permission change alongside a legitimate append. RED on the rejected version: both reported clean; GREEN: 16 checks.
+
+## Third independent audit repair
+Audit f4fe6061 rejected the third candidate with one medium finding: the length check rejected only shrinkage, so a byte-identical in-place rewrite (or truncate-then-restore) on the same inode was exempted although nothing was appended. Repaired: an existing log is exempt only when it strictly grew, and a log created during the run is exempt only when it actually received bytes. New controls: an in-place rewrite of identical bytes and a truncate-then-restore, both on the same inode. RED on the rejected version: both reported clean; GREEN: 18 checks.
+
+## Fourth independent audit repair
+Audit 72cb1f9e rejected the fourth candidate with one medium finding: strict growth still does not prove append-only activity, because truncating an ignored log, restoring its bytes on the same inode and then appending one line leaves identity, metadata, prefix and a larger length - a legitimate host append could hide an unrelated destructive rewrite. Repaired: the guard now verifies each log incrementally. Every watch notification for an exempt log re-reads it and requires the new state to extend the previously observed one; a log whose observed sequence ever breaks is tainted and can never be exempted, whatever its final bytes. New controls: truncate/restore followed by an append, and an in-place rewrite followed by an append, each reporting the intermediate states as a real watcher would. RED on the rejected version: both reported clean; GREEN: 20 checks.
+
+Accepted limitation, stated in the code: this is observation-based, not operation-level attribution. If the platform coalesces a destructive step and a later append into one notification, that sequence is indistinguishable from an append. The durable remedy is the host not writing into the repository during a validation at all, which is the sibling Lab host-activity-log-during-validation.
+
+## Fifth independent audit repair
+Audit 7450c494 rejected the fifth candidate with two medium findings, both repaired:
+1. Requiring strict growth at every notification meant a duplicate or queued notification observing the same bytes permanently tainted the log and reported a false mutation. An observation may now equal the last accepted state; identity, metadata and prefix are still checked, and net growth from the baseline is still required.
+2. The final check compared only against the initial baseline, so a suffix removed after the last notification still looked like an append. The final state must now also equal or extend the LAST observed state.
+New controls: one append observed by four notifications (tolerated), a log created empty then appended (tolerated), and an observed suffix removed before close with no further notification (mutation). RED on the rejected version: the two tolerated cases reported false mutations and the suffix removal reported clean; GREEN: 23 checks.
+
+## Scope decision: the activity-log exemption is withdrawn
+Five independent audits in a row found the same class of hole in the content-based exemption (symlink swap, byte-identical replacement, metadata change, in-place rewrite, truncate/restore then append, suffix removal after the last notification). Each was repaired, and the sixth audit showed the remaining one is not fixable by snapshot comparison at all: without operation-level attribution, an append is indistinguishable from a destructive rewrite followed by an append whenever the platform coalesces notifications. On the operator's decision the exemption is withdrawn entirely and the guard stays fail-closed: every observed write inside a protected root is a mutation, including an append to a gitignored activity log. That is now a control in the test, so no future change can reintroduce a content-based exemption silently.
+The original incident (73/73 cases passing but reported FAIL) is addressed at its source by the sibling Lab host-activity-log-during-validation: the host hook keeps its own bookkeeping outside the repository while that worktree is validating. Hosts with an older hook need `proof-or-stop init --upgrade`.
+This Lab therefore delivers only the temp-parent repair: a temp parent that merely CONTAINS a registered worktree is no longer refused, while a temp parent INSIDE a worktree still is. RED against main: 4 failing expectations (refused at startup, no temp base allocated, no run record); GREEN: 10 checks.
+
+## Comment repair
+Audit 58c23472 accepted the fail-closed scope and left one low finding: the implementation still carried comments describing the withdrawn exemption (snapshot plus prefix comparison), including a dangling comment on the result interface. Those are replaced by the actual contract: every write observed inside a protected root is a mutation, including an append to a gitignored activity log, and host logging is kept out of the repository by the host hook instead. This notes file is the changelog source, and it describes the delivered behavior, not the superseded exemption.
+
+Maintenance provenance: codex/lab-quorum-smoke-host-activity-temp-overlap, repair 965cd4a91592a7a4fcfd9b60a1e0840be1b4bb7e.
+Verification command (replayed before integration and on main): `["node","scripts/verify-quorum-smoke-host-activity-temp-overlap.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab fixture-machine-retention - v0.3.406 - 2026-09-17
+
+# Lab fixture-machine-retention
+
+## Problem
+Each fixture validation creates `<tmpdir>/proof-or-stop-fixture-machine-*` and retains it on
+failure for diagnosis. Nothing removed retained directories: 125 had accumulated on this machine
+by 2026-09-17 (oldest from 2026-09-14, up to 8.1 MB each).
+
+## Behavior change
+`createFixtureMachineEnvironment` records `owner.json` (pid) and prunes retained siblings, best
+effort, never throwing:
+- a directory whose recorded owner is alive is kept;
+- a dead-owner directory is kept for a 10-minute diagnosis grace, and past the grace only the 20
+  newest are kept;
+- a legacy directory without an owner record is removed only after 6 hours untouched;
+- symlinks, files and unrelated directories are never removed.
+
+## Verification
+RED/GREEN: `node scripts/verify-fixture-machine-retention.mjs` (disposable TMPDIR).
+- Before: 38 seeded retained directories -> 38 remained; no owner record written.
+- After: 25 remained (8 old legacy removed, dead-owner past grace capped 25 -> 20); live owner,
+  recent dead owner, young legacy, unrelated directory and prefixed symlink kept.
+Regressions: verify-fixture-machine-environment.mjs and red-lab-nested-fixture-machine-isolation PASS.
+
+## Self-review hardening
+Legacy age (no owner record) was judged from the root and its immediate entries only, so a directory whose root is old but whose nested files are still being written could be pruned. Age is now the newest modification time anywhere in the tree (bounded walk of 20,000 entries, symlinks not followed; a larger tree counts as recently active and is kept). New control `legacyOldRootRecentNested` (7h-old root, fresh `home/queue/active.ticket`) must be kept. Result: 10 checks, before=39 after=26. u18 re-bound (44), U18_STATIC_PASS, GREEN re-recorded.
+
+## Independent audit repair
+Audit da062082 (different vendor) rejected the first candidate with two medium findings, both repaired:
+1. `newestMtimeMs` swallowed every readdir/lstat failure, so an unreadable subtree read as idle and authorized deletion; the recursive delete then destroyed the accessible diagnostic material before failing. Now only a confirmed ENOENT is skipped; any other inspection failure returns +Infinity, so an incompletely inspected candidate is never pruned.
+2. `owner.json` was read with `readFileSync`, so a FIFO (or a symlink to one) named owner.json blocked every fixture creation, because pruning runs synchronously on the creation path. Owner records are now opened with O_RDONLY|O_NONBLOCK|O_NOFOLLOW, verified to be a regular file under 64 KiB, and anything else marks the candidate unsafe and keeps it.
+New regressions: a candidate with an unreadable subtree (its visible timestamps old, its hidden contents recent) keeps its five accessible diagnostic files while a plain legacy directory in the same parent is still removed; FIFO and symlinked owner records are kept and creation still completes. RED on the rejected version: creation was killed after 60s and the accessible diagnosis was destroyed (5 failing expectations). GREEN: 15 checks, before=42 after=29.
+
+## Second independent audit repair
+Audit 972edbab rejected the second candidate with one medium finding: a present but unrecognized owner record still fell through to the legacy age rule, so an unknown schema with a live pid, a null or empty record, a string pid or a non-positive pid all authorized deletion after six idle hours. The documented legacy policy applies only when no owner record exists. Repaired: the age rule now runs only for an absent record (ENOENT); any present record that is not the recognized schema with a positive safe-integer pid keeps the directory, and liveness is checked only for a valid pid. New control group of six candidates (unknown schema with a live pid, null, empty, string pid, negative pid, zero pid), each old enough for the legacy rule. RED on the rejected version: all 6 deleted; GREEN: 16 checks, before=48 after=35.
+
+## Third independent audit repair
+Audit 05c6b97a rejected the third candidate with one medium finding: the liveness probe treated every error except EPERM as proof the owner was gone, and the recognized-record check accepted any positive safe integer, so a pid such as 2147483648 (which `process.kill` refuses with ERR_INVALID_ARG_TYPE) read as dead and authorized eviction. Repaired: liveness is now three-state - only ESRCH is 'absent', EPERM is 'alive', any other probe error is 'unknown' - and only 'absent' allows a directory into the dead-owner cap; a recorded pid must also be within the probeable range (<= 2147483647). New control: 21 aged records (one past the 20-directory cap) carrying pid 2147483648. RED on the rejected version: all 21 deleted; GREEN: 17 checks, before=69 after=56.
+
+Maintenance provenance: codex/lab-fixture-machine-retention, repair c2fc95fb60f1991a3af1a33ef7cf8bd17621455b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-fixture-machine-retention.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab machine-queue-ancestor-probe - v0.3.405 - 2026-09-17
+
+# Lab machine-queue-ancestor-probe
+
+## Problem
+A validation waiting in the machine queue behind another process's ticket ran a synchronous
+`ps -axo pid=,ppid=` with a 1000 ms timeout to detect ancestor conflicts. On a busy machine the
+spawn timed out and `spawnSync ps ETIMEDOUT` escaped the wait loop, crashing the waiting
+validation (observed 2026-09-17).
+
+## Behavior change
+The ancestor probe is asynchronous (heartbeats keep flowing), uses a 5000 ms timeout with
+SIGKILL, and returns "unknown" on failure. Unknown ancestry never admits the waiter: the probe
+only runs while still queued behind another ticket, so the waiter keeps waiting and probes again
+on the next poll, bounded by the queue deadline. A genuine ancestor conflict is still refused.
+The separate delegation identity probe keeps its own bounded retry policy (kernelObservationMs).
+
+## Verification
+RED/GREEN: `node scripts/verify-machine-queue-ancestor-probe.mjs` (private fixture machine queue;
+only the ancestor probe's `ps` argv is slowed).
+- Before: waiter crashed after ~1 s with `spawnSync ps ETIMEDOUT`.
+- After: waiter acquired after the holder released (~3.9 s); a descendant of the holder is still
+  refused; with a ps that never answers the waiter is not admitted while the holder holds.
+Regression scripts PASS: red-lab-nested-fixture-machine-isolation, verify-nested-validation-result-contract,
+verify-nested-reservation-faults, -cancellation, -owner-loss, -wrapper-transport, -boot-recovery,
+-registration-race.
+
+## Pre-audit test hardening
+Control 3 previously accepted a crashed waiter as "not admitted", which is the original failure. It now keeps only the non-admission control and adds a repaired expectation: with a probe that never answers, the waiter is still queued after 6s and acquires after the holder releases. New scenario: a genuine descendant conflict behind a slow ps (1500ms) is still refused as an ancestor conflict. RED on the pre-fix source: 3 failing expectations, all `spawnSync ps ETIMEDOUT`; GREEN: 5 checks.
+
+## Temp residue
+The worker repositories (ancestor-probe-*) are now created inside the disposable sandbox; a check proves no new ancestor-probe-* entry remains in the shared TMPDIR after the run.
+
+## Independent audit repair
+Audit 8156f92f (different vendor) rejected the first candidate with one medium finding: the awaited probe always allowed 5000ms and received neither the queue deadline nor the abort signal, so a probe started near the deadline kept the queued ticket for nearly five seconds past it, an abort waited for the probe, and an ancestor detected afterwards replaced the caller's authoritative failure. Repaired: each probe gets at most the caller's remaining wait, an abort kills the child, and `assertCapacityWaitActive` is re-checked immediately after the probe and before ancestry is interpreted. New regressions with a probe that never answers: a 2500ms deadline fails with the capacity-wait deadline error in 2730ms, and an abort at 1500ms fails with the caller's abort error in 1738ms; both assert the callback never ran and the waiter left no queue ticket. Both bounds fail on the rejected version (5227ms and 5234ms). Result: 14 checks.
+
+Maintenance provenance: codex/lab-machine-queue-ancestor-probe, repair 5cb8aa82326d1a9b940f86d932ab9e0854af9489.
+Verification command (replayed before integration and on main): `["node","scripts/verify-machine-queue-ancestor-probe.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab heartbeat-smoke-memory-pressure - v0.3.404 - 2026-09-17
+
+# Lab heartbeat-smoke-memory-pressure
+
+## Problem
+The investigation started from validate-progress-heartbeat-smoke failures suspected to come from
+memory pressure. Eight observed runs showed failures uncorrelated with swap-ins, so memory
+pressure is not the cause. The reproduced cause: a validation command without a resource
+declaration takes the same-user, cross-repository machine validation queue exclusively. While
+it waits behind another session's validation, the executor supplied no wait reporter, so the CLI
+printed nothing and the idle watchdog killed a healthy validation ("validate stuck: 1 seconds
+without output"). The machine queue dates from 2026-09-10, so this does not explain the
+July-September historical heartbeat failures, whose causes were fixed earlier. Registered
+validation wraps fixtures in a private machine queue and was not affected; direct runs and real
+CLI invocations were.
+
+## Behavior change
+The executor passes `onWaitProgress` with `progressIntervalMs` equal to the heartbeat interval, and
+emits a `capacity_wait` progress event rendered as
+`validate heartbeat: command i/n <label> waiting for machine validation capacity elapsedMs=... (holder ...)`.
+The wait remains bounded by the queue deadline and the command deadline (unchanged here).
+
+## Verification
+RED/GREEN: `node scripts/verify-validation-queue-wait-heartbeat.mjs` builds packages/main and runs
+the real CLI while a helper holds a ticket in a private fixture machine queue (replays never touch
+the real queue).
+- Before: queued 3 s with idle 1000 ms -> killed as idle, exit 1, 0 wait lines.
+- After: exit 0, 8 wait lines; control with heartbeat slower than idle is still killed; the
+  uncontended run passes.
+Registered wrapper runs of validate-progress-heartbeat-smoke passed 2/2. Process-fact contract PASS.
+
+## Known limits (not changed here)
+Under real contention the smoke can still fail when another validation holds the queue longer than
+a command's timeout (addressed separately by the queue-wait timeout Lab), and an idle row may
+report `blocked` if its idle budget expires while queued.
+
+## Independent audit repair
+Audit 54e9477e (different vendor) rejected the first candidate with one low finding: the holder helper created its queue-holder-* Git repository directly in the shared TMPDIR and never removed it, so every run leaked a repository. The holder now creates it inside the disposable sandbox, and a new check compares queue-holder-* entries in TMPDIR before and after the run (6 checks). 80 leaked holder/worker repositories from this session were removed. The same leak in the Lab E worker was fixed before its audit.
+
+Maintenance provenance: codex/lab-heartbeat-smoke-memory-pressure, repair 3602eed52673a5c66e5cdb01141ceed9676df846.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-queue-wait-heartbeat.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab reuse-host-session-environment - v0.3.403 - 2026-09-17
+
+# Lab reuse-host-session-environment
+
+## Problem
+Routine and DONE-required validation identities hash the ambient environment except a strip list.
+The Claude Code host still injected per-session values no validation command reads:
+`CLAUDE_CODE_HOST_SESSION_ID`, `CLAUDE_EFFORT` (the session effort setting) and `BAGGAGE`
+(host telemetry propagation carrying a sentry trace id and release). A new session or a changed
+effort level therefore produced a new identity, refusing an unchanged PASS as
+`validation-identity-changed` and re-running the full plan. Transcripts contain 21 refusals whose
+only reason was `validation-identity-changed`.
+
+## Behavior change
+The three keys join `HOST_LAUNCHER_SESSION_ENV_KEYS` (the extensible host-launcher list; the
+digest-pinned frozen list is unchanged). As with the existing entries, they are also no longer
+passed to validation child processes. An explicit `command.env` overlay of the same keys remains
+semantic.
+
+## Verification
+RED/GREEN: `node scripts/verify-reuse-host-session-environment.mjs`.
+- Before: each of the three keys changed the routine identity digest and the DONE-required
+  effectiveEnvironmentDigest and refused reuse (10 failing expectations).
+- After: identity-neutral and reusable; controls NODE_OPTIONS, CI, TZ, LANG and PATH still change
+  identity and refuse reuse; the explicit overlay stays semantic; the frozen list digest is
+  unchanged (23 checks).
+Regressions: done-required-validation-smoke, done-required-freshness-smoke,
+validation-evidence-reuse-smoke and the process-fact contract PASS.
+
+## Compatibility
+Stored receipts whose environment contained these keys recompute a different digest and must be
+re-earned once by running validation again, the same stance as the earlier host-launcher entries.
+
+## Pre-audit test hardening
+Controls now also require the DONE-required effectiveEnvironmentDigest to change (NODE_OPTIONS, CI, TZ, LANG, PATH) and to stay equal when all three host values are absent. A new expectation proves identity and spawn agree: the three host values are not passed to the command (RED on the pre-fix source: passed CLAUDE_CODE_HOST_SESSION_ID, CLAUDE_EFFORT, BAGGAGE), while ordinary ambient values still are. The frozen strip-list control now compares the recomputed digest, not only the constant. Result: 32 checks.
+
+Maintenance provenance: codex/lab-reuse-host-session-environment, repair dbeb57dd11492547047039526ce110e03acd02ee.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reuse-host-session-environment.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab reuse-lineage-material-policy - v0.3.402 - 2026-09-17
+
+# Lab reuse-lineage-material-policy
+
+## Problem
+Two path policies disagreed. materialHash excludes story metadata, evidence output locations and
+registry-declared runtime artifacts (`isMaterialExcludedPath`), so committing a dev-memory record
+leaves the tested bytes identical. The shared merge-lineage classifier trusted only story
+metadata (`isStoryMetadataPath`), so the same commit was an `untrusted-lineage-path`: routine
+reuse re-executed an identical PASS, DONE-required pre-run reuse rejected it, and admissibility
+rejected it.
+
+## Behavior change
+`classifyMergeLineage` (shared by routine reuse, DONE-required pre-run reuse and validation
+evidence admissibility) trusts exactly the paths materialHash already excludes. Every material
+path, a non-ancestor head, and a diff failure are still rejected. The admissibility message now
+says "material path(s)". The process-fact contract pins the new predicate and asserts the
+narrower story-metadata-only predicate is not reintroduced.
+
+## Verification
+RED/GREEN: `node scripts/verify-reuse-lineage-material-policy.mjs` (checkout source, disposable
+repositories).
+- Before: dev-memory finish decision, dev-memory experience log, story metadata plus finish
+  decision, and an evidence object output were all refused by the three consumers
+  (12 failing expectations).
+- After: all four reusable/trusted; controls (source change, finish decision plus source
+  change, material file under the state directory, config change, non-ancestor head) still
+  refused (25 checks).
+Regressions on the rebuilt dist: validation-reuse-merge-lineage-smoke, done-required-validation-smoke,
+done-required-freshness-smoke, validation-evidence-reuse-smoke and the process-fact contract PASS.
+
+## Measured data
+- Replay of the 20 historical PASS-then-re-execution pairs through the evaluator: before 0
+  reusable; after B-212f becomes reusable (131 command executions); B-a2a6 and B-cc10 lose their
+  dev-memory lineage refusal (their remaining refusals are July/August schema artifacts).
+- Session transcripts contain 31 refusal occurrences whose only reason was a material-excluded
+  lineage path (occurrences, not unique runs).
+Adjacent work: B-c86f widens the dev-memory runtime-artifact entry (different file).
+
+## Independent audit repair
+Audit 00f7c973 (different vendor) rejected the first candidate with one medium test finding and no production defect: the material-path controls accepted `untrusted OR material hash changed`, so a classifier that trusted every descendant would still pass. Repaired: each control now separately requires a material hash change, shared lineage `untrusted`, DONE-required lineage `rejected`, routine reuse refused, and an `untrusted-lineage-path:<path>` refusal reason for every material path. A mutation control re-runs the script with the classifier rewritten to trust every descendant; all 4 material controls catch it (12 control failures). Result: 38 checks.
+
+Maintenance provenance: codex/lab-reuse-lineage-material-policy, repair 3906e2611506aaf360376cc6b9cae77caa9cf90c.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reuse-lineage-material-policy.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab validation-terminal-refusal-reasons - v0.3.401 - 2026-09-17
+
+# Lab validation-terminal-refusal-reasons
+
+## Problem
+A Story validation that did not reuse a prior PASS printed its reuse refusal only to stderr
+("routine validation reuse refused: refusalReasons=..."). The durable `validation_terminal`
+process event recorded `disposition=executed` and nothing about why. Across 394 Stories on
+main, 647 executed terminals carried no reason, so 63 same-identity re-executions
+(5,140 command runs) could not be attributed once session transcripts were gone.
+
+## Behavior change
+- Executed `validation_terminal` events now carry
+  `reuse: { evaluated, reusable, lineage, refusalReasons, declinedReason? }` whenever a
+  Story reuse evaluation ran. `refusalReasons` is the same sorted, de-duplicated set the
+  verifier already logs.
+- `tryReuseRoutinePass` reports why a reusable PASS was not taken (`declinedReason`, for
+  example `observe-reuse-not-opted-in`, `focused-validation`, `dynamic-authority-not-admitted`).
+- Reused terminals are unchanged. No gate, reuse decision or duplicate-suite grouping reads
+  the new field; the three grouping keys are unchanged.
+
+## Verification
+RED/GREEN: `node scripts/verify-validation-terminal-refusal-reasons.mjs` builds packages/main
+and drives the real CLI in disposable Git fixtures (first run, material change, unchanged
+re-run, TEST transition, observe mode without opt-in).
+- Before: executed terminals attributable from the event alone 0/3 (4 failing expectations).
+- After: 3/3; the unchanged re-run is still reused and the TEST gate still reuses (26 checks).
+Regressions on the rebuilt dist: validation-evidence-reuse-smoke PASS, process-fact contract PASS.
+done-prepare-auto-closeout-smoke, validation-protocol-smoke and flow-stability-smoke fail with
+byte-identical messages on the pre-repair build as well (pre-existing, not changed here).
+
+## Measured optimization
+None claimed. This is observability: it makes the causes of redundant executions attributable.
+
+## Independent audit repairs
+Audit 2ccf4e70 (Codex) rejected the first candidate with three medium findings, all repaired:
+1. The no-validator branch evaluated reuse but persisted its executed terminal without attribution.
+   It now passes the evaluation; regression scenario C1 (no validator configured) fails before
+   the repair (NOT RECORDED) and passes after (`evidence-missing`).
+2. Two digest-bound static exceptions (EX-ACCEPTANCE-CLOSURE-FIXTURES,
+   EX-PROCESS-RUNTIME-ADMISSION-ORDER) still bound the previous verifier.ts digest. Both were
+   reviewed (the change threads attribution data and adds no process launch) and re-bound;
+   `node scripts/verify-validation-static-edges.mjs` reports U18_STATIC_PASS.
+3. Scenario B accepted unintended reuse and any decline reason. It now requires an executed
+   terminal, a second command execution, and `declinedReason === observe-reuse-not-opted-in`
+   (32 checks).
+
+Maintenance provenance: codex/lab-validation-terminal-refusal-reasons, repair fa4cb8aec5ab5b8c9c92da6d8960f4b007d244e3.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-terminal-refusal-reasons.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-review-temp - v0.3.400 - 2026-09-17
+
+# Bounded managed reviewer shell temporary-directory repair
+
+## Problem and root cause
+B-0980 RI-030 concept review disclosed failed Bash commands with EPERM when Claude attempted /private/tmp/claude-501, and explicitly substituted a placeholder read-log digest. That limited imported PASS is not treated as complete review assurance. All three real lane results were retained, and the owner officially cancelled RI-030 after terminal import before starting another review.
+
+The lane supplied standard TMPDIR/TMP/TEMP but not Claude's dedicated CLAUDE_CODE_TMPDIR. A real isolated diagnostic reproduced SHELL_UNAVAILABLE in 11956 ms. Changing only the dedicated variable to the existing admitted temporary directory allowed the identical real Bash SHA256 command in 9503 ms. This identifies a tool-execution problem missed by authentication/structured-result-only probes.
+
+## Repair
+managedReviewLaneEnvironment now maps CLAUDE_CODE_TMPDIR to lane.layout.temporary. The existing environment-key registry and runtime verifier include that field. The filesystem write allowlist, reviewer credentials, signature/receipt gates and user configuration are unchanged. The variable is derived alongside standard temporary variables in every private lane; only Claude consumes its provider-specific name. The regression exercises lane environment derivation and the OS write boundary; it does not establish the unchanged controller's ambient-environment merge precedence.
+
+## Verification
+- Test-only commit 18d19a7eef reproduced CLAUDE_PRIVATE_TEMP_RED with an absent mapping and was recorded by official Lab RED.
+- The expanded existing provider-state verifier checks the actual derived environment and real macOS sandbox: per-user bookkeeping under the private temp succeeds, while source, immutable probe and an external sibling remain unwritable. It emits CLAUDE_PRIVATE_TEMP_SANDBOX_PASS and preserves all prior auth/transport tests.
+- Production build passed. Static validation passed with needsReview=0, nested=0, unexpandedCommands=0, no configuration drift or stale exceptions. Existing manifest identifiers/classifications were preserved; digests and line bindings were refreshed, and EX-1039's cited runtime-contract excerpt includes the added real assertion.
+- A real Claude probe using the repaired production managedReviewLaneEnvironment, the normal production host runner and actual read-only OS boundary executed Bash shasum and returned the exact expected digest in 14488 ms, exit 0, one structured terminal, replacementSafe=true. There was no manual CLAUDE_CODE_TMPDIR override in that final probe. The immutable source probe remained unchanged. This is actual tool availability, not a Story review PASS.
+- The broad runtime contract reached its earlier sandbox/runtime checks but failed in unchanged nested verify-static-ast-reuse.mjs with STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT (actual 2, expected 1). The exact nested command independently reproduced the same failure on untouched main 0.3.399. That unrelated observer failure is retained and not repaired here; no claim of full runtime-contract success is made.
+- The first disposable diagnostic driver completed the default case and then hit EEXIST while reusing one provider-cache destination. This fixture-only failure is retained. The corrected driver uses a scenario-specific private cache; the successful private and production probes are separate records.
+
+## Evidence and scope
+Real diagnostic records: benchmark-claude-shell-diagnosis-20260917/ and benchmark-review-temp-real/ under /Users/jek/Documents/Proof-or-Stop-Benchmark-Plan. Test/build logs: /tmp/benchmark-review-temp-*.log. Mandatory independent Claude audit and local integration remain required in official Lab finish. No remote push and no Story DONE claim. B-0980 business scope remains its original configuration row.
+
+## Independent audit correction
+Claude audit 528eff00-2c82-443d-80ae-e1e82a4eb5c3 rejected the first candidate in 103023 ms. It accepted the runtime repair and actual OS boundary test but found that a locally constructed object-spread assertion did not prove the unchanged controller's ambient merge precedence. The tautological assertion was removed and the release note narrowed to the behavior actually exercised. The source repair, real private-temp Bash probe and source/external write refusals remain. No controller merge code or isolation policy is changed in this repair.
+
+Maintenance provenance: codex/lab-benchmark-review-temp, repair 5f3e9b6d48b61fde4079420d00fbe985d87fa43b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-provider-state.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-review-auth - v0.3.399 - 2026-09-17
+
+# Bounded isolated reviewer authentication repair
+
+## Problem and delivered behavior
+Formal managed Claude review refused the default macOS Keychain login after the isolated provider cache boundary was introduced. Grok was installed but had no canonical managed reviewer transport. This Lab restores the blocked review entry needed by benchmark prerequisite B-0980; it does not implement or complete the benchmark runner.
+
+The controller reads only the fixed Claude Code-credentials item for the canonical default macOS Claude directory, validates and retains only claudeAiOauth, and materializes it through the existing opaque snapshot and authenticated private seed into private mode-0700 directories/mode-0600 files. Custom configuration directories never fall back to the default account. Keychain errors are sanitized.
+
+Grok ordinary prompt and managed-dispatch calls are explicitly refused by the public handler, durable submit boundary, core runner and prompt materializer. Only formal managed review and acceptance-amendment review are supported. Grok gets a real grok/xai identity, isolated GROK_HOME, disabled shared leader and updater, protected prompt-file transport, and successful terminal structured-output handling for ordinary managed review and acceptance amendment review. Duplicate, malformed, oversized, failed and late contradictory terminal events cannot authorize intake. Existing source isolation, admission, signed subject/run, receipt and import checks remain in effect. Home policy files are refused rather than silently discarded. No credentials or policy are written back to ambient homes.
+
+Grok aggregate token usage remains explicitly unavailable because compatibility-stream counters can be placeholders. Validated live counters supply only a burn-limit lower bound. This is not a claim of complete benchmark token accounting.
+
+## Verification
+- Official pinned RED/GREEN: node scripts/verify-managed-provider-state.mjs. RED marker ISOLATED_REVIEW_AUTH_RED recorded before repair; final committed implementation passes ISOLATED_REVIEW_AUTH_PASS. Tests cover immutable snapshots, private modes, credential refusal, exact Keychain lookup with sanitized errors, MCP exclusion, custom-home refusal, Grok launcher/terminal negatives, and live usage lower bounds.
+- TypeScript production build passed. Private provider seed, private-state capture, execution identity, host readiness and prompt/cwd isolation regressions passed.
+- Canonical host-run usage smoke passed all 91 checks with the repository entrypoint preloaded.
+- Final static edge validation passed: zero stale exceptions, zero unresolved registered nested edges, zero unexpanded commands, no configuration drift. Existing exception identities and classifications were retained; only changed source/evidence bindings were refreshed.
+- Real isolated authentication probes passed: Claude 5271 ms, Grok 10052 ms. Actual managed-review structured rejection transport passed: Claude 9030 ms, Grok 4638 ms. Both used the OS read-only boundary, real private credentials and actual provider processes with successful close/reap receipts. These synthetic REJECT probes created no Story PASS and did not exercise a real Story import.
+- An earlier ordinary-launch probe authenticated but failed its READY assertion because the provider could not read the prompt file. It is retained as a failed harness observation. The corrected formal launcher probes passed; no failed measurement is presented as success.
+- Direct host-run usage smoke without canonical preload has the same DIRTY_WORKTREE_CATEGORIES initialization error on unchanged main; the canonical invocation passes. The broad managed-review evidence smoke hit the real proposal terminal/import race timeout; the fresh unchanged-main run reproduced the identical error at the same fixture line (see /tmp/benchmark-auth-evidence-main-baseline.log). Neither suite result is silently relabeled green. No unrelated fixture repair is included.
+
+## Scope and review
+The executable changes are bounded to provider auth/host plumbing, result handling, corresponding registries, existing regression assertions, and documentation. Static evidence manifest edits only rebind existing entries to this source revision. No Story JSON, remote publication, operator approval, reviewer independence gate, or unrelated feature is changed. Lab finish must independently audit the exact prepared candidate before local main integration.
+
+## Observation locations
+Local external logs: /tmp/benchmark-auth-*.log and /tmp/benchmark-review-auth-*.log.
+Real provider process artifacts: /Users/jek/Documents/Proof-or-Stop-Benchmark-Plan/benchmark-review-auth-live-v2 and benchmark-review-auth-structured.
+This record is maintenance provenance, not formal Story DONE or product-release evidence.
+
+## First independent audit and bounded corrections
+Claude audit e875bb1a-68b2-4ed1-b5ed-832b33dd8b1b rejected the first candidate with two medium findings. The rejection and its 283024 ms duration are retained, not overwritten. The repair closes the unintended Grok ordinary/managed-dispatch surface at four entry boundaries and adds policy-file refusal, auto-update flag, formal argv pairing, late non-error event and explicit macOS Keychain PASS/SKIP controls in the pinned verifier. This changes the rejected repair content before any new audit.
+
+For reviewer navigation: submitManagedHostRun requires exact isolated-review bindings in core/managed-host-run.ts; parseManagedReviewFinalProposal in that file rejects truncated, duplicate or missing final results. core/acceptance-amendment-review.ts parseAcceptanceReviewFinal independently requires exactly one nontruncated terminal result. Real provider command observations are in the external structured-probe logs; the earlier READY prompt-permission failure was Claude's ordinary launcher harness, not a claim that ordinary Grok review is supported.
+
+## Final real-provider observation after audit repairs
+The final structured transport probe passed for Claude in 12336 ms. Grok's final attempt returned a remote HTTP 403 permission-denied response after 7550 ms, exit 1, one error_during_execution terminal and replacementSafe=true. It is retained in benchmark-review-auth-structured-final/ and is not counted as a success. Earlier actual Grok isolated authentication and structured rejection calls succeeded (above); this adapter does not guarantee provider account/service availability. No retry, credential alteration or weakened refusal was used to turn the 403 into a pass. The local mandatory regression is green, and failed provider output remains ineligible as formal review evidence.
+
+## Second independent audit and bounded corrections
+Claude audit f2943715-bc75-4e77-b065-c75c1b58352a took 212425 ms and rejected two issues. Grok now refuses an unconfigured read-only lane before creating any run artifact, requires an admitted Grok private state, and the low-level runner also refuses a missing sealed readonly layout before provider launch. The pinned verifier exercises absent configuration, an empty configuration, no new artifact creation, and the missing-layout refusal. This restriction applies to Grok; pre-existing hosts preserve compatibility.
+
+Claude snapshot capture now calls a private input inspector without reading Keychain, then performs one validated Keychain capture into the opaque snapshot. The public preflight still validates credentials; it does not expose bytes or offer a skip flag. The test asserts exactly one Keychain read per snapshot. Registries and documentation reflect the configured-lane requirement. Both audit rejections remain retained.
+
+## Third independent audit and terminal-parser correction
+Claude audit 043efd4d-34ab-4e3b-8e9b-530a66441e29 took 154318 ms and identified an oversized late-line and empty duplicate-terminal hole. Grok now invalidates any nonempty event after a candidate, any malformed stream line, any result missing structured output, and every over-cap line (which cannot prove absence of a hidden terminal). The invalid result cannot be recovered by a later success. The verifier tests both entire-line and 37-character chunked delivery for late error/assistant overflow, malformed tails and empty duplicate results, plus invalid prefixes followed by a success. The restriction is Grok-only and preserves existing Codex/Claude multi-message behavior.
+
+## Fourth independent audit and complete flow coverage
+Claude audit b161ca81-3417-4b41-9223-9b7f7fd430bc took 389943 ms. It identified the old compatibility-proposal completion fallback, the missing full Grok flow fixture, and descriptive policy fields that were not consumed. Grok now refuses pre-existing compatibility proposal completion and cannot use the compatibility-race fallback. The runtime adapter consumes every retained registered credential-policy field; descriptive-only fields were removed.
+
+The existing managed-review-evidence smoke task now has --grok-isolated-regression. It uses the full production admission/private build/worker/receipt path with a compiled native fake grok executable. Five scenarios cover REVIEW import, compatibility proposal plus late error, compatibility proposal plus missing terminal, signed acceptance rejection and invalid acceptance terminal. Negative compatibility proposals use the explicitly existing controller injected-runner fixture seam; positive cases use the default production runner. The command is documented separately as a slower macOS integration test.
+
+The first integration attempt stopped on missing Lab graph dependency d3; npm ci in the Lab graph package repaired the environment without changing versions. The second reached completed worker evidence but correctly refused import because the legacy seed run predated the new inventory wave. The fixture now creates its current run after the real wave boundary. Integration results are retained separately and will be recorded below after completion.
+
+The current strict parser also accepted the retained real Grok successful structured rejection transcript, both in whole-buffer and 37-character chunks (RECORDED_REAL_GROK_STREAM_CURRENT_PARSER_PASS). This is compatibility replay evidence, not a fresh provider availability claim.
+
+## Integration fixture recovery observations
+The timestamp-only seed adjustment was insufficient: the real inventory gate also checks the initial review sequence. The corrected fixture creates RR-002 after inventory begin and binds its current canonical envelope. Another attempt exposed a fake executable input race (EPIPE); the native fixture now drains actual supervisor stdin and the attestation descriptor before exiting. These are fixture corrections, not relaxed production gates.
+
+The v5 run passed the full REVIEW admission/private build/worker/receipt/import case. Its next compatibility-negative case was correctly refused with signature_invalid,producer_owned_required, while the fixture expected a narrower error string. The fixture now accepts that exact refusal and separately asserts grok_compatibility_proposal_unsupported as the terminal reason. The selected-case run continues the remaining four scenarios; it emits a distinct subset marker, not the full-suite marker.
+
+## Completed integration verification
+The v5 log proves review-pass. The v6 selected-case run exited 0 and proves compat-late-error, compat-missing, acceptance-pass, and acceptance-late-error (GROK_ISOLATED_SELECTED_CASES_PASS). Together these cover all five declared cases; this is combined case coverage, not a claim that the default all-cases invocation completed in one run. Each case executed real admission, a separate private build, native synthetic provider process, cleanup/receipt checks and its import or rejection checks. All use the same production implementation; changes between runs were confined to the test assertion and selected-case control.
+
+Current committed auth regression passed ISOLATED_REVIEW_AUTH_PASS and CLAUDE_KEYCHAIN_FIXTURE_PASS. Static validation passed U18_STATIC_PASS with zero needsReview/nested/unexpandedCommands. The official Lab GREEN was recorded on af5c5677ca. Durable logs are under benchmark-review-auth-verification/. The exact prepared-version build and independent audit remain the responsibility of Lab finish.
+
+Maintenance provenance: codex/lab-benchmark-review-auth, repair af5c5677ca711baadafc4fcfd3bd16ee7f79a80c.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-provider-state.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab dependabot-20260917 - v0.3.398 - 2026-09-17
 
 # Dependabot dependency remediation (Lab dependabot-20260917)

@@ -357,7 +357,7 @@ export function renderCodexPromptContent(content: string): string {
     .replace(/\.claude\/agents\//g, `${PROOF_OR_STOP_ADAPTER_DIR}/agents/`);
 }
 
-export function renderPromptForHost(content: string, host: PromptHost): string {
+export function renderPromptForHost(content: string, host: PromptHost | 'grok'): string {
   if (host === 'codex') return renderCodexPromptContent(content);
   return content;
 }
@@ -499,12 +499,13 @@ interface AcceptanceReviewPromptSource {
 }
 export function projectPromptAsset(entry:PromptRegistryEntry, host:PromptHost, options?:PromptProjectionOptions):Readonly<RegistryPromptProjection>;
 export function projectPromptAsset(entry:GlobalShimPromptSource, host:PromptHost):Readonly<{roleId:string;materialized:string}>;
-export function projectPromptAsset(entry:AcceptanceReviewPromptSource, host:PromptHost):Readonly<{roleId:string;hostBody:string}>;
+export function projectPromptAsset(entry:AcceptanceReviewPromptSource, host:PromptHost | 'grok'):Readonly<{roleId:string;hostBody:string}>;
 export function projectPromptAsset(
   entry: PromptRegistryEntry | GlobalShimPromptSource | AcceptanceReviewPromptSource,
-  host: PromptHost,
+  host: PromptHost | 'grok',
   options: PromptProjectionOptions = {},
 ): Readonly<RegistryPromptProjection | {roleId:string;materialized:string} | {roleId:string;hostBody:string}> {
+  if (host === 'grok' && (!('kind' in entry) || entry.kind !== 'acceptance-review')) throw new Error('Grok asset generation is unsupported; use the managed review transport');
   if ('kind' in entry) {
     if (entry.kind === 'global-shim') {
       const {frontmatter,name} = extractTemplateFrontmatter(entry.raw,entry.file);

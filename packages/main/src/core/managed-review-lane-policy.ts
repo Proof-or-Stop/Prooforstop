@@ -31,7 +31,7 @@ export function resolveManagedReviewIsolation(root: string): ManagedReviewIsolat
 }
 /** Local capability check only; existence is not a claim of provider login readiness. */
 export function preflightManagedReadonlyHost(host: string, cwd: string, env: NodeJS.ProcessEnv): void {
-  if (host !== 'codex' && host !== 'claude') throw new Error('requested readonly reviewer host lacks protected prompt transport');
+  if (host !== 'codex' && host !== 'claude' && host !== 'grok') throw new Error('requested readonly reviewer host lacks protected prompt transport');
   const command=canonicalReviewHostCommand(host);
   for(const item of (env.PATH ?? process.env.PATH ?? '').split(delimiter)) {
     const candidate=resolve(cwd,item||'.',command);

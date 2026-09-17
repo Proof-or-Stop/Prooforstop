@@ -98,6 +98,7 @@ async function main() {
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
   const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  assert(readonlyRuntime.environmentKeys.includes('CLAUDE_CODE_TMPDIR'), 'Provider Bash temporary files must be mapped to the admitted private lane');
   const { materializeHostRunLaunch: crossHostLaunch } = await importDist(root, 'packages/main/dist/core/host-run.js');
   const crossHostArgs = {host:'codex',launchProfile:'cross_host_review_codex',cwd:root,root,promptText:'Runtime profile selection control only; no provider is launched.',env:{},storyId:null,agentType:'runtime-contract',recordedAt:new Date().toISOString(),projectRootHash:'fixture'};
   const providerSandbox = args => { const launch=crossHostLaunch(args); return launch.argv[launch.argv.indexOf('-s')+1]; };
@@ -181,6 +182,7 @@ async function main() {
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
   check(registrySource.includes('MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-execution-identity-key.ts').includes('policy.keyBytes') && read(root, 'packages/main/src/core/managed-execution-input-identity.ts').includes('policy.maxExecutableBytes'), 'execution identity IO bounds must be registered and consumed');
+  check(registrySource.includes('MANAGED_REVIEW_AUTH_RUNTIME_POLICY') && ['hosts','keychainExecutable','claudeKeychainService','keychainTimeoutMs','grokEnvironmentKey','grokSharedLeader','grokAutoUpdate','grokDisableAutoUpdater'].every(field => read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('authPolicy.'+field)), 'isolated reviewer authentication must consume the registered credential transport policy');
   check(registrySource.includes('MANAGED_PROVIDER_SEED_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('seedPolicy.encodedFileMultiplier') && read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.seedFileSuffix'), 'private provider seed bounds and filenames must consume runtime registries');
   check(registrySource.includes('REVIEWER_BATCH_PRODUCER_RUNTIME_POLICY') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('policy.versionTimeoutMs') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('policy.readinessTimeoutMs') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('artifact.seedDirectoryName'), 'batch producer probes and private storage consume registered runtime policies');
   const batchAdmission = read(root, 'packages/main/src/core/reviewer-batch-admission.ts');

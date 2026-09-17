@@ -1385,7 +1385,7 @@ export function recordBudgetBlock(
 
 /** A validated lower bound from one canonical provider stdout event, not billing authority. */
 export interface LiveProviderUsage {
-  provider: 'codex' | 'claude';
+  provider: 'codex' | 'claude' | 'grok';
   tokens: number;
   payloadDigest: string;
 }
@@ -1396,8 +1396,8 @@ export function parseLiveProviderUsage(host: string, line: string): LiveProvider
     const event = JSON.parse(line);
     if (!event || typeof event !== 'object' || Array.isArray(event)) return null;
     const type = ownProp(event, 'type') ? event.type : undefined;
-    if ((host === 'codex' && type !== 'turn.completed') || (host === 'claude' && type !== 'result')) return null;
-    if (host !== 'codex' && host !== 'claude') return null;
+    if ((host === 'codex' && type !== 'turn.completed') || ((host === 'claude' || host === 'grok') && type !== 'result')) return null;
+    if (host !== 'codex' && host !== 'claude' && host !== 'grok') return null;
     const usage = host === 'codex' ? adaptCodexTurnUsage(ownProp(event, 'usage') ? event.usage : undefined)
       : adaptAnthropicUsage(ownProp(event, 'usage') ? event.usage : undefined);
     if (usage.source !== 'provider-reported' || !usage.canonical || !usage.raw) return null;

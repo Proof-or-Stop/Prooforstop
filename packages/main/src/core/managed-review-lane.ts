@@ -71,6 +71,7 @@ export async function createManagedReviewLane(scratch: {parent:string; cwd:strin
 }
 export function managedReviewLaneEnvironment(lane: ManagedReviewLane): NodeJS.ProcessEnv {
   const environment: NodeJS.ProcessEnv = {TMPDIR:lane.layout.temporary,TMP:lane.layout.temporary,TEMP:lane.layout.temporary,
+    CLAUDE_CODE_TMPDIR:lane.layout.temporary,
     XDG_CACHE_HOME:lane.layout.cache,
     PROOF_OR_STOP_REVIEW_BUILD_SOURCE:lane.layout.buildSource,
     PROOF_OR_STOP_REVIEW_BUILD_OUTPUT:join(lane.layout.outputs[0]!,'packages/main/dist'),
