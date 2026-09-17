@@ -55,6 +55,10 @@ function launches(root) {
   const path = join(root, 'launches.txt');
   return existsSync(path) ? readFileSync(path, 'utf8').trim().split('\n').filter(Boolean) : [];
 }
+function decodeResponse(value) {
+  const parsed = JSON.parse(value);
+  return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+}
 async function scenario(arm, options = {}) {
   const root = mkdtempSync(join(tmpdir(), 'pos-selection-cost-'));
   const previous = process.cwd();
@@ -129,7 +133,7 @@ async function scenario(arm, options = {}) {
     const ctx = { root, scanRoot: join(root, 'packages/main'), store, causalPreflightFacts: () => structuredClone(facts), log(message) { handlerLog.push(message); } };
     const handler = createVerifierHandlers(ctx);
     const begin = performance.now();
-    const result = JSON.parse(await handler.validate({ story: storyId, dynamicMode: arm, json: true, noSync: true }));
+    const result = decodeResponse(await handler.validate({ story: storyId, dynamicMode: arm, json: true, noSync: true }));
     const wallMs = performance.now() - begin;
     const physical = launches(root).slice(baselineLaunches);
     const row = { arm, options, status: result.status, authority: result.dynamicValidation?.authority,
@@ -157,7 +161,7 @@ async function scenario(arm, options = {}) {
       if (options.repeat) {
         const before = launches(root).length;
         const repeatStart = performance.now();
-        const repeated = JSON.parse(await handler.validate({ story: storyId, dynamicMode: arm, json: true, noSync: true }));
+        const repeated = decodeResponse(await handler.validate({ story: storyId, dynamicMode: arm, json: true, noSync: true }));
         row.repeat = { wallMs: performance.now() - repeatStart, physicalLaunches: launches(root).length - before, status: repeated.status };
         assert.equal(repeated.status, 'pass');
         assert.equal(row.repeat.physicalLaunches, 0, 'valid whole-result evidence must avoid new child execution');
