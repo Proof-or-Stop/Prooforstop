@@ -1294,19 +1294,24 @@ function publicationOutputHashes(
 }
 
 /**
- * Build identity of a dynamic authoritative run. The build wave and the
- * selected commands execute as separate plans; the selected plan's binding is
- * trusted only when it started against the artifacts the build wave left, so
- * an authoritative PASS never binds a build its selected commands did not run.
+ * Build identity of a dynamic authoritative run: the run's own validated
+ * binding of the whole sequence (build wave, then every selected plan and
+ * shard, with continuity between them, one final identity; an empty selected
+ * plan leaves the build wave's binding in force), computed where the plans are
+ * combined. The wave-to-selected boundary is re-checked here so an
+ * authoritative PASS never binds a build its selected commands did not run.
  */
 function dynamicBuildArtifactsBinding(executedDynamic: {
+  buildArtifactsHash?: string;
   buildResult: { buildArtifacts?: { start?: string; end?: string } };
-  selectedResult: { buildArtifactsHash?: string; buildArtifacts?: { start?: string; end?: string } };
+  selectedResult: { buildArtifacts?: { start?: string; end?: string } };
 }): string | undefined {
+  const bound = executedDynamic.buildArtifactsHash;
+  if (!bound) return undefined;
   const buildEnd = executedDynamic.buildResult.buildArtifacts?.end;
   const selectedStart = executedDynamic.selectedResult.buildArtifacts?.start;
-  if (!buildEnd || !selectedStart || buildEnd !== selectedStart) return undefined;
-  return executedDynamic.selectedResult.buildArtifactsHash;
+  if (buildEnd && selectedStart && buildEnd !== selectedStart) return undefined;
+  return bound;
 }
 
 function recordValidationTerminal(
@@ -2313,7 +2318,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                       status: executedDynamic.dynamicAllPass ? 'pass' : 'fail',
                       allPass: executedDynamic.dynamicAllPass,
                       summary: executedDynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
-                      details: [executedDynamic.runtimeReport],
+                      details: [executedDynamic.runtimeReport, ...executedDynamic.buildArtifactsDiagnostics],
                       warnings: executedDynamic.authority.authoritative ? [] : ['Dynamic authority was not accepted; complete-plan fallback is required.'],
                       timestamp: new Date().toISOString(),
                       headSha: currentHead(handlerGitCwd) || '',
@@ -2754,7 +2759,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   status: executedDynamic.dynamicAllPass ? 'pass' : 'fail',
                   allPass: executedDynamic.dynamicAllPass,
                   summary: executedDynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
-                  details: [executedDynamic.runtimeReport],
+                  details: [executedDynamic.runtimeReport, ...executedDynamic.buildArtifactsDiagnostics],
                   warnings: [],
                   timestamp: new Date().toISOString(),
                   headSha: currentHead(handlerGitCwd) || '',

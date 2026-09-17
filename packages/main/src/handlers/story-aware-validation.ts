@@ -86,6 +86,7 @@ import {
 } from '../core/validation-tier-planner.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { narrowPortableValidationCommandTuple, provisionalValidationCommandId } from '../core/validation-command-portable-id.js';
+import { combineSequencedBuildArtifactsBindings } from '../core/build-artifacts-identity.js';
 
 export interface PrepareStoryAwareValidationArgs {
   findingConstraints?: import('../core/finding-validation.js').FindingValidationConstraints;
@@ -1077,21 +1078,38 @@ async function executeShardedEntry(args: {
   return { result: combineResults(results, `story-aware-dynamic-${domain}`, args.head), artifact };
 }
 
-function combineResults(results: ValidationResult[], provider: string, head: string): ValidationResult {
+/**
+ * Aggregate of plans that ran one after another. The build binding of the
+ * aggregate is the validated binding of the sequence (core/build-artifacts-
+ * identity combineSequencedBuildArtifactsBindings): every non-empty member
+ * bound, continuity between members, one final identity. A sequence that
+ * cannot bind fails the aggregate and reports why, so publication refuses it
+ * with the diagnostics instead of an unbound PASS. Exported for the Lab
+ * regression script.
+ */
+export function combineResults(results: ValidationResult[], provider: string, head: string): ValidationResult {
   const commands = results.flatMap((result) => result.commands);
-  const allPass = results.every((result) => result.allPass);
+  const binding = combineSequencedBuildArtifactsBindings(results);
+  const bindingDetails = binding.failures.map((failure) => `✗ build binding: ${failure}`);
+  const allPass = results.every((result) => result.allPass) && binding.failures.length === 0;
   return {
     provider,
     status: allPass ? (results.some((result) => result.status === 'warn') ? 'warn' : 'pass') : 'fail',
     allPass,
-    summary: allPass ? 'Dynamic selected validation commands passed' : 'Dynamic selected validation commands failed',
-    details: results.flatMap((result) => result.details),
+    summary: allPass
+      ? 'Dynamic selected validation commands passed'
+      : binding.failures.length > 0 && results.every((result) => result.allPass)
+        ? 'Dynamic validation plans could not bind the compiled artifacts they executed'
+        : 'Dynamic selected validation commands failed',
+    details: [...results.flatMap((result) => result.details), ...bindingDetails],
     warnings: results.flatMap((result) => result.warnings),
     timestamp: new Date().toISOString(),
     headSha: head,
     commands,
     commandExecutions: commands.length,
     disposition: 'executed',
+    ...(binding.buildArtifactsHash ? { buildArtifactsHash: binding.buildArtifactsHash } : {}),
+    ...(binding.buildArtifacts ? { buildArtifacts: binding.buildArtifacts } : {}),
   };
 }
 
@@ -1153,6 +1171,11 @@ export interface RunStoryAwareValidationArgs extends PrepareStoryAwareValidation
 export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
   buildResult: ValidationResult;
   selectedResult: ValidationResult;
+  /** Validated binding of the whole run (build wave, then every selected plan and shard, with continuity between them); absent when the sequence could not bind. */
+  buildArtifactsHash?: string;
+  buildArtifacts?: { root?: string; start?: string; end?: string };
+  /** Every `✗ build binding:` diagnostic the run's plans and their aggregation produced; publication surfaces them. */
+  buildArtifactsDiagnostics: string[];
   /** Verdict after accounting for both executed rows and admitted reuse rows. */
   dynamicAllPass: boolean;
   authority: DynamicAuthorityDecision;
@@ -1387,7 +1410,12 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const runtimeReport = formatDynamicValidationReport({ manifest: final.manifest, authority, durationMs: dynamicExecution.commands.reduce((sum, row) => sum + row.durationMs, 0) });
   checkFindingConstraints();
   persistStoryAwareValidationArtifacts({ projectRoot: args.projectRoot, storyId: args.storyId, manifest: final.manifest, report: runtimeReport, receipts, revocationLedger: final.revocationLedger, shardArtifacts });
-  return { ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport };
+  return {
+    ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport,
+    ...(dynamicExecution.buildArtifactsHash ? { buildArtifactsHash: dynamicExecution.buildArtifactsHash } : {}),
+    ...(dynamicExecution.buildArtifacts ? { buildArtifacts: dynamicExecution.buildArtifacts } : {}),
+    buildArtifactsDiagnostics: dynamicExecution.details.filter((line) => line.startsWith('✗ build binding:')),
+  };
 
   });
 }

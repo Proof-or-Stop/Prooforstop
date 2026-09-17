@@ -639,6 +639,45 @@ try {
     expectRepaired(!abab.buildArtifactsHash, 'a plan whose test executed swapped bytes must not carry a build binding');
     writeFileSync(join(mainDist, 'x.js'), BUILD_A);
 
+    // Audit #8: dynamic runs aggregate several plans (build wave, selected
+    // plans, shards). The aggregate must carry the validated binding of the
+    // sequence, or publication of every authoritative dynamic run fails as
+    // unbound and no rerun can repair it.
+    if (binding?.combineSequencedBuildArtifactsBindings) {
+      const combine = binding.combineSequencedBuildArtifactsBindings;
+      const A = '1'.repeat(64), B = '2'.repeat(64), C = '3'.repeat(64);
+      const plan = (provider, start, end, hash, commands = 1) => ({ provider, commands: Array.from({ length: commands }, () => ({})), ...(hash ? { buildArtifactsHash: hash } : {}), buildArtifacts: { root: '/r', start, end } });
+      const wave = plan('wave-0', A, B, B);
+      const bound = combine([wave, plan('selected', B, B, B)]);
+      expectRepaired(bound.buildArtifactsHash === B && bound.failures.length === 0 && bound.buildArtifacts?.start === A && bound.buildArtifacts?.end === B,
+        `a build wave followed by a selected plan that executed its output does not bind (${bound.failures.join(' | ')})`);
+      const emptySelected = combine([wave, { provider: 'selected', commands: [], details: [] }]);
+      expectRepaired(emptySelected.buildArtifactsHash === B && emptySelected.failures.length === 0,
+        `an empty selected plan does not leave the validated build-wave binding in force (${emptySelected.failures.join(' | ')})`);
+      expectRepaired(combine([]).buildArtifactsHash === undefined && combine([]).failures.length === 0, 'an empty sequence must have no binding and no failure');
+      const betweenWaves = combine([wave, plan('selected', C, C, C)]);
+      expectRepaired(!betweenWaves.buildArtifactsHash && betweenWaves.failures.some((f) => f.includes('build_artifacts_changed_between_plans')),
+        `artifacts replaced between the build wave and the selected plan still bound (${betweenWaves.failures.join(' | ')})`);
+      const shardDrift = combine([plan('shard-1', B, B, B), plan('shard-2', B, C, C)]);
+      expectRepaired(!shardDrift.buildArtifactsHash && shardDrift.failures.some((f) => f.includes('build_artifacts_member_not_bound_to_final_build')),
+        `a shard that ended on different bytes than its sibling executed still bound (${shardDrift.failures.join(' | ')})`);
+      const unboundMember = combine([wave, plan('selected', B, B, undefined)]);
+      expectRepaired(!unboundMember.buildArtifactsHash && unboundMember.failures.some((f) => f.includes('build_artifacts_member_unbound')),
+        `a selected plan whose own rules failed (no binding) still let the sequence bind (${unboundMember.failures.join(' | ')})`);
+      const rootMismatch = combine([wave, { ...plan('selected', B, B, B), buildArtifacts: { root: '/other', start: B, end: B } }]);
+      expectRepaired(!rootMismatch.buildArtifactsHash && rootMismatch.failures.some((f) => f.includes('build_artifacts_root_mismatch')),
+        `plans that digested different artifact roots still bound as one sequence (${rootMismatch.failures.join(' | ')})`);
+      const nested = combine([wave, combine([plan('shard-1', B, B, B), plan('shard-2', B, B, B)])]);
+      expectRepaired(nested.buildArtifactsHash === B && nested.failures.length === 0, `a nested aggregate (wave, then combined shards) does not bind (${nested.failures.join(' | ')})`);
+    } else {
+      expectRepaired(false, 'core/build-artifacts-identity exports no combineSequencedBuildArtifactsBindings');
+    }
+    const storyAwareSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
+    const combineStart = storyAwareSource.indexOf('export function combineResults(');
+    expectRepaired(combineStart >= 0 && storyAwareSource.slice(combineStart, combineStart + 1600).includes('combineSequencedBuildArtifactsBindings(results)'),
+      'the dynamic result aggregation does not carry the validated sequence binding (source-text guard)');
+    expectRepaired(storyAwareSource.includes('buildArtifactsDiagnostics: dynamicExecution.details.filter('), 'the dynamic run does not expose its binding diagnostics (source-text guard)');
+
     // The validate-file handler path cannot bypass the executor.
     const verifierSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
     const validateFileStart = verifierSource.indexOf('const runValidateFile = ');
@@ -653,6 +692,12 @@ try {
       'the executor does not enforce the per-command build binding rules (source-text guard)');
     // The validate-file result is rebuilt from the child's output; it must carry
     // the executor binding and discard any binding the child printed itself.
+    const dynamicBindingStart = verifierSource.indexOf('function dynamicBuildArtifactsBinding(');
+    check(dynamicBindingStart >= 0, 'dynamicBuildArtifactsBinding must be defined');
+    expectRepaired(verifierSource.slice(dynamicBindingStart, dynamicBindingStart + 900).includes('executedDynamic.buildArtifactsHash'),
+      'the authoritative dynamic binding does not consume the run-level sequence binding (source-text guard)');
+    expectRepaired((verifierSource.match(/details: \[executedDynamic\.runtimeReport, \.\.\.executedDynamic\.buildArtifactsDiagnostics\]/g) ?? []).length === 2,
+      'the authoritative dynamic assemblies do not surface the binding diagnostics (source-text guard)');
     const bindingHelperStart = verifierSource.indexOf('const withExecutorBinding = ');
     expectRepaired(bindingHelperStart >= 0 && verifierSource.slice(bindingHelperStart, bindingHelperStart + 900).includes('validation.buildArtifactsHash')
       && verifierSource.includes('const bound = withExecutorBinding(value);'),

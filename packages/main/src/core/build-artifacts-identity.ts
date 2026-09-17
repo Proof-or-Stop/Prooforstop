@@ -133,6 +133,72 @@ export function isRegisteredPackagesMainBuildCommand(command: {
   return false;
 }
 
+/** One plan of a sequence: its own plan-level binding, as the executor stamped it. */
+export interface SequencedBuildArtifactsMember {
+  provider?: string;
+  commands?: readonly unknown[];
+  buildArtifactsHash?: string;
+  buildArtifacts?: { root?: string; start?: string; end?: string };
+}
+
+/**
+ * Binding of several plans that ran one after another against the same
+ * artifact trees: a dynamic build wave followed by its selected plans, or the
+ * shards of one command. Each member is bound by its own plan-level rules; the
+ * sequence binds only when every non-empty member is bound, each member
+ * started on exactly the bytes the previous one left behind, every member's
+ * own binding is the identity the sequence ends on (so no member executed
+ * bytes the sequence does not bind) and all members digested the same root.
+ * A member with no commands and no binding (an empty selected plan)
+ * contributes nothing, so the build wave's validated binding stays in force.
+ * Failures are reported, never silently dropped: a sequence that cannot bind
+ * has no identity, and its consumers refuse publication.
+ */
+export function combineSequencedBuildArtifactsBindings(members: readonly SequencedBuildArtifactsMember[]): {
+  buildArtifactsHash?: string;
+  buildArtifacts?: { root?: string; start?: string; end?: string };
+  failures: string[];
+} {
+  const failures: string[] = [];
+  const active = members.filter((member) => (member.commands?.length ?? 0) > 0 || member.buildArtifactsHash || member.buildArtifacts?.start || member.buildArtifacts?.end);
+  if (active.length === 0) return { failures };
+  const label = (member: SequencedBuildArtifactsMember, index: number): string => member.provider || `plan ${index}`;
+  for (let i = 0; i < active.length; i++) {
+    const member = active[i];
+    if (!member.buildArtifactsHash || !member.buildArtifacts?.start || !member.buildArtifacts?.end) {
+      failures.push(`${label(member, i)}: carries no build binding of its own [build_artifacts_member_unbound]`);
+      continue;
+    }
+    if (i === 0) continue;
+    const previous = active[i - 1];
+    if (previous.buildArtifacts?.end && member.buildArtifacts.start !== previous.buildArtifacts.end) {
+      failures.push(`${label(member, i)}: started on compiled artifacts that differ from what ${label(previous, i - 1)} left behind [build_artifacts_changed_between_plans]`);
+    }
+    if (previous.buildArtifacts?.root && member.buildArtifacts.root && previous.buildArtifacts.root !== member.buildArtifacts.root) {
+      failures.push(`${label(member, i)}: digested a different artifact root than ${label(previous, i - 1)} [build_artifacts_root_mismatch]`);
+    }
+  }
+  if (failures.length > 0) return { failures };
+  const first = active[0];
+  const last = active[active.length - 1];
+  const final = last.buildArtifactsHash as string;
+  for (let i = 0; i < active.length; i++) {
+    if (active[i].buildArtifactsHash !== final) {
+      failures.push(`${label(active[i], i)}: executed bytes that differ from the artifacts the sequence ended on [build_artifacts_member_not_bound_to_final_build]`);
+    }
+  }
+  if (failures.length > 0) return { failures };
+  return {
+    buildArtifactsHash: final,
+    buildArtifacts: {
+      ...(first.buildArtifacts?.root ? { root: first.buildArtifacts.root } : {}),
+      start: first.buildArtifacts?.start as string,
+      end: last.buildArtifacts?.end as string,
+    },
+    failures,
+  };
+}
+
 /**
  * Binding for a PASS that is republished without executing anything. The
  * republished record must carry the identity the authenticated prior record

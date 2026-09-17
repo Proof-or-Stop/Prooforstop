@@ -150,6 +150,15 @@ try {
     commands: configured,
   });
   assert.equal(run.buildResult.allPass, true);
+  // The run binds the compiled artifacts its build wave produced and every
+  // selected plan and shard executed; the binding is the wave's own output.
+  assert.match(run.buildArtifactsHash ?? '', /^[a-f0-9]{64}$/, 'a dynamic run must bind the compiled artifacts it executed: ' + JSON.stringify(run.buildArtifactsDiagnostics));
+  assert.equal(run.buildArtifactsHash, run.buildResult.buildArtifacts?.end, 'the run binding must be the build wave output');
+  assert.deepEqual(run.buildArtifactsDiagnostics, [], 'a clean dynamic run must produce no build binding diagnostics');
+  if (run.selectedResult.commands.length > 0) {
+    assert.equal(run.selectedResult.buildArtifactsHash, run.buildArtifactsHash, 'the selected plans must have executed the build wave output');
+    assert.equal(run.selectedResult.buildArtifacts?.start, run.buildResult.buildArtifacts?.end, 'the first selected plan must start on the bytes the build wave left');
+  }
   assert.equal(run.authority.authoritative, false, 'no canonical baseline must fail closed');
   const shardRoot = join(root, '.proof-or-stop/runtime/dynamic-validation/B-production/shards');
   assert.equal(existsSync(shardRoot), true, 'production run must persist shard artifacts');
@@ -287,6 +296,8 @@ try {
     const baseline = persistCanonicalFullBaseline({ projectRoot: authorityRoot, sourceHead: authorityHead, result: authorityFull, commands: authorityCommands });
     assert.ok(baseline, 'positive authority fixture must persist a canonical baseline');
     const admitted = await runStoryAwareDynamicValidation({ projectRoot: authorityRoot, gitCwd: authorityRoot, storyId: 'B-authority', baseHead: authorityHead, head: authorityHead, changedFiles: [], mode: 'enforce-low-risk', commands: authorityCommands });
+    assert.match(admitted.buildArtifactsHash ?? '', /^[a-f0-9]{64}$/, 'an authoritative dynamic run must carry the binding publication consumes: ' + JSON.stringify(admitted.buildArtifactsDiagnostics));
+    assert.equal(admitted.buildArtifactsHash, admitted.buildResult.buildArtifacts?.end, 'the authoritative run binding must be the build wave output');
     assert.equal(admitted.authority.authoritative, true, JSON.stringify(admitted.authority));
     assert.equal(admitted.dynamicAllPass, true);
     console.log('gate-owned authority PASS');
