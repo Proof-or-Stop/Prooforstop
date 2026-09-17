@@ -726,8 +726,12 @@ function createOwnedTempBase(): { base: OwnedDirectory; removeBase: boolean } {
   } else {
     const tempParent = checkedDirectory(realpathSync(tmpdir()), 'quorum smoke ambient temp parent');
     // Refuse before mkdtemp: allocating and then deleting inside a worktree is
-    // already a protected write even if the final tree looks unchanged.
-    if (overlapsProtectedRoot(tempParent.path)) {
+    // already a protected write even if the final tree looks unchanged. A temp
+    // parent that merely CONTAINS a worktree (for example a managed review's
+    // worktree registered under the shared TMPDIR) is not refused: the fresh
+    // mkdtemp child below cannot be inside that sibling, and the created base is
+    // still checked against every protected root in both directions.
+    if (protectedRoots.some(root => containedBy(root, tempParent.path))) {
       throw new Error('quorum smoke ambient temp parent overlaps the repository or git common directory');
     }
     if (ambientTempParentIsInsideGitRepository(tempParent.path)) {
@@ -785,6 +789,8 @@ export interface QuorumSmokeProtectedMutationResult {
   finalDigest: string;
   stateMatched: boolean;
   frameworkTracePaths: string[];
+  /** Tolerated append-only host activity log writes (never counted in eventCount). */
+  hostActivityPaths?: string[];
 }
 
 function protectedStateDigest(identities: readonly OwnedDirectory[]): string {
@@ -865,6 +871,65 @@ function authenticatedRuntimeTraceFragment(candidate: string, traceFile: string 
 }
 
 /**
+ * Host activity logs are gitignored, append-only bookkeeping written by host
+ * tool hooks (for example a Claude Code PostToolUse logger) while an operator keeps
+ * working in the same worktree. An append to one of them is not a smoke mutation.
+ * Only appends are tolerated: each log present when the guard starts is snapshotted
+ * (size + digest), and at close the file must still start with those exact bytes.
+ * A log first created during the run is tolerated only at an enumerated location.
+ * Any other path, a rewrite, a truncation or a look-alike name stays a mutation.
+ */
+const HOST_ACTIVITY_LOG_RELATIVE_PATHS = ['.proof-or-stop/activity.jsonl', 'docs/story/activity.jsonl'] as const;
+const HOST_ACTIVITY_LOG_STORY_DIRS = ['.proof-or-stop/story/actives', 'docs/story/actives'] as const;
+
+interface HostActivityLogBaseline { size: number; digest: string }
+
+function hostActivityLogCandidates(root: string): string[] {
+  const candidates: string[] = HOST_ACTIVITY_LOG_RELATIVE_PATHS.map(path => join(root, path));
+  for (const dir of HOST_ACTIVITY_LOG_STORY_DIRS) {
+    let stories: string[] = [];
+    try { stories = readdirSync(join(root, dir)); } catch { /* absent */ }
+    for (const story of stories) candidates.push(join(root, dir, story, 'activity.jsonl'));
+  }
+  return candidates;
+}
+
+function isHostActivityLogPath(root: string, candidate: string): boolean {
+  const rel = relative(root, candidate).split('\\').join('/');
+  if ((HOST_ACTIVITY_LOG_RELATIVE_PATHS as readonly string[]).includes(rel)) return true;
+  return HOST_ACTIVITY_LOG_STORY_DIRS.some(dir => new RegExp(`^${dir.replace(/[.]/g, '\\.')}/[^/]+/activity\\.jsonl$`).test(rel));
+}
+
+function snapshotHostActivityLogs(roots: readonly string[]): Map<string, HostActivityLogBaseline | null> {
+  const baselines = new Map<string, HostActivityLogBaseline | null>();
+  for (const root of roots) {
+    for (const candidate of hostActivityLogCandidates(root)) {
+      try {
+        const bytes = readFileSync(candidate);
+        baselines.set(candidate, { size: bytes.length, digest: createHash('sha256').update(bytes).digest('hex') });
+      } catch {
+        baselines.set(candidate, null); // absent at start: an append-created log is tolerated
+      }
+    }
+  }
+  return baselines;
+}
+
+function isToleratedHostActivityAppend(
+  root: string,
+  candidate: string,
+  baselines: ReadonlyMap<string, HostActivityLogBaseline | null>,
+): boolean {
+  if (!isHostActivityLogPath(root, candidate) || !baselines.has(candidate)) return false;
+  const baseline = baselines.get(candidate);
+  let current: Buffer;
+  try { current = readFileSync(candidate); } catch { return false; } // deleted during the run
+  if (baseline === null) return true;
+  if (baseline === undefined || current.length < baseline.size) return false;
+  return createHash('sha256').update(current.subarray(0, baseline.size)).digest('hex') === baseline.digest;
+}
+
+/**
  * Observe the caller-selected protected roots for the complete worker window.
  * A before/after status check cannot detect write-then-restore or
  * create-then-delete behavior; the watcher makes either action a negative
@@ -884,6 +949,7 @@ export function createQuorumSmokeProtectedMutationGuard(
   const errors: string[] = [];
   let closed = false;
   const baselineDigest = protectedStateDigest(identities);
+  const hostActivityBaselines = snapshotHostActivityLogs(identities.map(identity => identity.path));
   try {
     for (const identity of identities) {
       const watcher = watch(identity.path, { recursive: true, persistent: false }, (eventType, filename) => {
@@ -929,7 +995,12 @@ export function createQuorumSmokeProtectedMutationGuard(
         exactFrameworkTracePaths.includes(candidate)
           || (exactFrameworkTracePaths.length > 0 && candidate === traceDirectory)
       )).sort();
-      const unownedPaths = [...paths].filter(candidate => !frameworkTracePaths.includes(candidate)).sort();
+      const hostActivityPaths = [...paths].filter(candidate => identities.some(identity => (
+        containedBy(identity.path, candidate) && isToleratedHostActivityAppend(identity.path, candidate, hostActivityBaselines)
+      )));
+      const unownedPaths = [...paths]
+        .filter(candidate => !frameworkTracePaths.includes(candidate) && !hostActivityPaths.includes(candidate))
+        .sort();
       const stateMatched = baselineDigest === finalDigest;
       return {
         clean: unownedPaths.length === 0 && errors.length === 0 && stateMatched,
@@ -940,6 +1011,7 @@ export function createQuorumSmokeProtectedMutationGuard(
         finalDigest,
         stateMatched,
         frameworkTracePaths,
+        hostActivityPaths: hostActivityPaths.sort(),
       };
     },
   };
