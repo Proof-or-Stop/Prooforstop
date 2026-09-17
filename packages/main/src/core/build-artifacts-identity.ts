@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
 
@@ -25,26 +25,46 @@ export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'
 /** Written by the build scripts inside each dist tree; it changes on every write, so it never folds into the tree digest. */
 const BUILD_BINDING_BASENAME = 'full-suite-build-binding.json';
 
+/**
+ * A symbolic link anywhere in an artifact tree makes the digest meaningless:
+ * its target can change without any byte below the root changing, so the
+ * identity is refused rather than silently narrowed to the link's own bytes.
+ */
+class BuildArtifactsIdentityUnavailable extends Error {
+  constructor(readonly path: string) {
+    super(`build artifacts identity unavailable: symbolic link at ${path}`);
+  }
+}
+
 function filesBelow(root: string): string[] {
   const result: string[] = [];
   const visit = (directory: string): void => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name);
+      if (entry.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(path);
       if (entry.isDirectory()) visit(path);
       else if (entry.isFile()) result.push(path);
+      else throw new BuildArtifactsIdentityUnavailable(path);
     }
   };
   visit(root);
   return result.sort();
 }
 
-/** sha256 over (relative path, bytes) of every file below `root`, or `absent` when the root does not exist. */
+/**
+ * sha256 over (relative path, bytes) of every regular file below `root`, or
+ * `absent` when the root does not exist. A root that is itself a symbolic link
+ * is not a tree this process can vouch for and throws.
+ */
 function artifactTreeDigest(root: string): string {
+  let stat;
   try {
-    if (!statSync(root).isDirectory()) return 'absent';
+    stat = lstatSync(root);
   } catch {
     return 'absent';
   }
+  if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(root);
+  if (!stat.isDirectory()) return 'absent';
   const hash = createHash('sha256');
   for (const path of filesBelow(root)) {
     const rel = relative(root, path);

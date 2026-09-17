@@ -1309,8 +1309,11 @@ function recordValidationTerminal(
     storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
     // Observable build identity: two executions against different compiled
     // trees are no longer indistinguishable from a verdict flip on unchanged
-    // material. The B-f824 duplicate-suite grouping keeps its three-key contract.
-    buildArtifactsHash: currentBuildArtifactsHash(gitCwd) ?? '',
+    // material. Executed results carry the end-of-execution identity; reused
+    // results bind the dist on disk now. The B-f824 duplicate-suite grouping
+    // keeps its three-key contract.
+    buildArtifactsHash: (typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash)
+      || currentBuildArtifactsHash(gitCwd) || '',
   });
 }
 
@@ -1432,13 +1435,25 @@ function persistStoryValidationEvidence(
   let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string; buildArtifactsHash?: string };
   try {
     gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    // The build identity is observed at the end of execution (the funnel stamps
+    // it on the result the moment the commands finished, after any rebuild the
+    // validation itself performed). Publication must still see that identity:
+    // a dist that moved in between was never tested by these receipts.
+    const executionBuildArtifactsHash = typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash
+      ? result.buildArtifactsHash
+      : currentBuildArtifactsHash(gitCwd);
+    const publicationBuildArtifactsHash = currentBuildArtifactsHash(gitCwd);
+    if (!executionBuildArtifactsHash || !publicationBuildArtifactsHash) {
+      return persistenceFailure('build artifacts identity is unavailable; the evidence cannot bind what it executed [build_artifacts_unavailable]');
+    }
+    if (executionBuildArtifactsHash !== publicationBuildArtifactsHash) {
+      return persistenceFailure('build artifacts changed between execution and publication; rerun validate [build_artifacts_drift_before_publication]');
+    }
     hashes = {
       headHash: currentHead(gitCwd) ?? result.headSha ?? result.headHash,
       materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
       storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
-      // Captured after the commands ran: the dist they executed, including any
-      // rebuild performed by the validation itself.
-      buildArtifactsHash: currentBuildArtifactsHash(gitCwd),
+      buildArtifactsHash: executionBuildArtifactsHash,
     };
     storyRel = normalizeRelPath(relative(
       realpathSync(gitCwd),
@@ -1773,10 +1788,21 @@ function decorateAndMaybePersistStoryValidation(
 ): any {
   if (!storyId) return result;
   const decorated = decorateStoryVerification(ctx, storyId, result);
+  // End-of-execution build identity: every caller hands the executor's result
+  // here synchronously once the commands finished, so this is the dist those
+  // commands ran against (after any rebuild the validation performed). The
+  // writer binds this value and refuses to publish if the dist moves before
+  // the write. A story whose workspace cannot be resolved binds nothing and
+  // is refused by the writer as unavailable.
+  let buildArtifactsHash: string | undefined;
+  try {
+    buildArtifactsHash = currentBuildArtifactsHash(resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }));
+  } catch { /* unavailable: the writer fails closed */ }
   const executed = {
     ...decorated,
     disposition: 'executed',
     commandExecutions: commandResults?.filter(row => row.executionReceipt?.disposition !== 'reused').length ?? 0,
+    ...(buildArtifactsHash ? { buildArtifactsHash } : {}),
   };
   if (!focus) {
     if (!commandResults || expectedCommandCount === undefined) {

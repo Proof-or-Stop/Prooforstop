@@ -941,6 +941,9 @@ export async function runDoneRequiredValidation(args: {
     }
   }
 
+  // End-of-execution build identity: the dist the receipts executed, observed
+  // the moment the last command returned (after the build receipt rewrote it).
+  const executionBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
   throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
   reasons.push(...validateSelfHostBuildProof({ receipts }, args.projectRoot, policy.commands));
 
@@ -948,8 +951,16 @@ export async function runDoneRequiredValidation(args: {
   const finalHeadHash = currentGitHead(args.gitCwd);
   const finalMaterialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
   const finalStoryFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
-  // The dist the receipts executed, captured after the build receipt rewrote it.
-  const finalBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
+  // Publication must still see the executed identity; a dist that moved in
+  // between was never tested by these receipts, so the evidence fails instead
+  // of binding a PASS to an untested build. An unreadable identity fails too.
+  const publicationBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
+  if (!executionBuildArtifactsHash || !publicationBuildArtifactsHash) {
+    reasons.push('build-artifacts-identity-unavailable');
+  } else if (executionBuildArtifactsHash !== publicationBuildArtifactsHash) {
+    reasons.push('build-artifacts-changed-before-publication');
+  }
+  const finalBuildArtifactsHash = executionBuildArtifactsHash;
   const status: DoneRequiredEvidenceStatus = policy.required && reasons.length === 0 ? 'PASS' : 'FAIL';
   const evidence: DoneRequiredEvidenceData = {
     schema: DONE_REQUIRED_EVIDENCE_SCHEMA,

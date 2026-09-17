@@ -159,33 +159,6 @@
         ]
       },
       {
-        "command": "node",
-        "args": [
-          "scripts/verify-validation-build-artifact-binding.mjs"
-        ],
-        "timeoutMs": 180000,
-        "focus": [
-          "fast"
-        ],
-        "assurance": "full-only",
-        "riskTier": "validation-infra",
-        "closurePolicy": "whole-repository",
-        "fullBaselineReusePolicy": "forbidden",
-        "policySource": "explicit-lab-maintenance",
-        "resources": [
-          {
-            "class": "fixed-path",
-            "key": "packages/main/src",
-            "access": "shared"
-          },
-          {
-            "class": "fixed-path",
-            "key": "scripts",
-            "access": "shared"
-          }
-        ]
-      },
-      {
         "command": "npm",
         "args": [
           "--prefix",
@@ -5515,6 +5488,33 @@
             "class": "machine-process",
             "key": "fanout",
             "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-validation-build-artifact-binding.mjs"
+        ],
+        "timeoutMs": 180000,
+        "focus": [
+          "fast"
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-lab-maintenance",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
           }
         ]
       }
