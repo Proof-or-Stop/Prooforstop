@@ -1,0 +1,79 @@
+import { createHash } from 'node:crypto';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
+import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
+
+/**
+ * Content identity of the compiled artifacts that validation commands execute.
+ *
+ * headHash, materialHash and storyFilesHash are all derived from the COMMITTED
+ * tree. The registered validation commands run `packages/main/dist` and
+ * `packages/utils/dist`, which are gitignored, so none of those digests can see
+ * a rebuilt, partial or stale dist. Two validations could therefore share a
+ * byte-identical evidence binding while executing different compiled code, and a
+ * PASS produced against one dist stayed reusable and admissible after dist
+ * changed. This digest closes that gap: evidence writers record it, and the
+ * reuse, admissibility and DONE-required freshness consumers refuse evidence
+ * whose recorded build no longer matches the artifacts on disk.
+ *
+ * The per-root digest mirrors scripts/full-suite-build-binding.mjs (relative
+ * path plus bytes, the binding manifest itself excluded), so it changes exactly
+ * when that manifest's distDigest would.
+ */
+export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'] as const;
+
+/** Written by the build scripts inside each dist tree; it changes on every write, so it never folds into the tree digest. */
+const BUILD_BINDING_BASENAME = 'full-suite-build-binding.json';
+
+function filesBelow(root: string): string[] {
+  const result: string[] = [];
+  const visit = (directory: string): void => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else if (entry.isFile()) result.push(path);
+    }
+  };
+  visit(root);
+  return result.sort();
+}
+
+/** sha256 over (relative path, bytes) of every file below `root`, or `absent` when the root does not exist. */
+function artifactTreeDigest(root: string): string {
+  try {
+    if (!statSync(root).isDirectory()) return 'absent';
+  } catch {
+    return 'absent';
+  }
+  const hash = createHash('sha256');
+  for (const path of filesBelow(root)) {
+    const rel = relative(root, path);
+    if (rel === BUILD_BINDING_BASENAME) continue;
+    hash.update(rel).update('\0').update(readFileSync(path)).update('\0');
+  }
+  return hash.digest('hex');
+}
+
+/**
+ * Digest of every build artifact root under `projectRoot` (the git cwd whose
+ * dist the commands execute, so a Story worktree binds its own build). An
+ * absent root contributes a stable `absent` marker: a fixture or a repository
+ * without a compiled tree still binds deterministically, and a tree that later
+ * appears or disappears changes the digest. Only an unreadable tree yields
+ * `undefined`, which every consumer treats as "cannot vouch" and refuses.
+ * Memoized per synchronous git observation like the committed-tree digests.
+ */
+export function currentBuildArtifactsHash(projectRoot: string): string | undefined {
+  const root = resolve(projectRoot);
+  return readObservedGitState(gitObservationKey(['build-artifacts-hash', root, BUILD_ARTIFACT_ROOTS]), () => {
+    try {
+      const hash = createHash('sha256');
+      for (const relativeRoot of BUILD_ARTIFACT_ROOTS) {
+        hash.update(relativeRoot).update('\0').update(artifactTreeDigest(join(root, relativeRoot))).update('\0');
+      }
+      return hash.digest('hex');
+    } catch {
+      return undefined;
+    }
+  });
+}

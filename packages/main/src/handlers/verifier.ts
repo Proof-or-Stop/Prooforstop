@@ -78,6 +78,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { isCanonicalGitHeadHash, captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, classifyEvidenceHashSnapshot, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
+import { currentBuildArtifactsHash } from '../core/build-artifacts-identity.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
@@ -897,12 +898,15 @@ export function evaluateStoryRoutineReuse(args: {
   let headAfter: string | undefined;
   let materialHash: string | undefined;
   let storyFilesHash: string | undefined;
+  let buildArtifactsHash: string | undefined;
   let clean = false;
   try {
     const snapshot = captureEvidenceHashSnapshot({ gitCwd: args.gitCwd, metadataRoot: args.ctx.root });
     headBefore = snapshot.headHash;
     materialHash = snapshot.materialHash;
     storyFilesHash = snapshot.storyFilesHash;
+    // Bound to the Story worktree's own dist: that is what its commands execute.
+    buildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
     // B-83aa CHK-003 (TOLERABLE): a partial snapshot is safe here because
     // evaluateRoutineValidationReuse below refuses reuse whenever a digest is
     // missing (material-hash-changed-or-missing / story-files-hash-changed-or-
@@ -932,6 +936,7 @@ export function evaluateStoryRoutineReuse(args: {
     currentCoverage: args.coverage,
     currentMaterialHash: materialHash,
     currentStoryFilesHash: storyFilesHash,
+    currentBuildArtifactsHash: buildArtifactsHash,
     clean,
     headBefore,
     headAfter,
@@ -1044,6 +1049,9 @@ function reusedStoryValidationResult(args: {
   const headHash = dynamicOrigin ? priorEvidence.headHash : currentHead(args.gitCwd);
   const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.ctx.root);
   const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.ctx.root);
+  // A reused PASS is re-persisted as a fresh record; without the build binding
+  // the very next reuse would refuse it as unbound.
+  const buildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
   const storyRel = normalizeRelPath(relative(
     realpathSync(args.gitCwd),
     realpathSync(args.ctx.store.storyDirPath(args.storyId)),
@@ -1091,6 +1099,7 @@ function reusedStoryValidationResult(args: {
       ...(headHash ? { headHash } : {}),
       ...(materialHash ? { materialHash } : {}),
       ...(storyFilesHash ? { storyFilesHash } : {}),
+      ...(buildArtifactsHash ? { buildArtifactsHash } : {}),
       verificationCoverage: args.snapshot.coverage,
       commandExecution: priorCommandExecution,
       disposition: 'reused',
@@ -1298,6 +1307,10 @@ function recordValidationTerminal(
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
     materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
     storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
+    // Observable build identity: two executions against different compiled
+    // trees are no longer indistinguishable from a verdict flip on unchanged
+    // material. The B-f824 duplicate-suite grouping keeps its three-key contract.
+    buildArtifactsHash: currentBuildArtifactsHash(gitCwd) ?? '',
   });
 }
 
@@ -1364,6 +1377,7 @@ function persistStoryValidationEvidence(
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
+    buildArtifactsHash?: string;
   } = {}): TestEvidenceData => ({
     command,
     output,
@@ -1373,6 +1387,7 @@ function persistStoryValidationEvidence(
     ...(hashes.headHash ? { headHash: hashes.headHash } : {}),
     ...(hashes.materialHash ? { materialHash: hashes.materialHash } : {}),
     ...(hashes.storyFilesHash ? { storyFilesHash: hashes.storyFilesHash } : {}),
+    ...(hashes.buildArtifactsHash ? { buildArtifactsHash: hashes.buildArtifactsHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
     commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount, {
       ...(semanticCommandPass !== undefined ? { semanticPass: semanticCommandPass } : {}),
@@ -1399,6 +1414,7 @@ function persistStoryValidationEvidence(
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
+    buildArtifactsHash?: string;
   } = {}, authenticate = true) => boundPersistedValidationEvidence({
     result,
     buildRecord: (output) => {
@@ -1413,13 +1429,16 @@ function persistStoryValidationEvidence(
   let gitCwd: string;
   let storyRel: string;
   let transaction: ReturnType<typeof captureDonePrepareGeneratedMetadataTransaction>;
-  let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string };
+  let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string; buildArtifactsHash?: string };
   try {
     gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
     hashes = {
       headHash: currentHead(gitCwd) ?? result.headSha ?? result.headHash,
       materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
       storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+      // Captured after the commands ran: the dist they executed, including any
+      // rebuild performed by the validation itself.
+      buildArtifactsHash: currentBuildArtifactsHash(gitCwd),
     };
     storyRel = normalizeRelPath(relative(
       realpathSync(gitCwd),

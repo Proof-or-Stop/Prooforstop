@@ -2486,6 +2486,8 @@ export interface TestEvidenceData {
   materialHash?: string;
   /** Hash of story-owned material files vs merge-base main captured at test time. */
   storyFilesHash?: string;
+  /** Content identity of the compiled artifact trees the commands executed (see core/build-artifacts-identity). Missing on legacy evidence, which is refused for reuse and admission. */
+  buildArtifactsHash?: string;
   /** @deprecated Legacy evidence freshness field. New writes use headHash. */
   git?: {
     head: string | null;

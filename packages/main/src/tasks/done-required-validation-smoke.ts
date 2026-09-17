@@ -16,6 +16,7 @@ import {
   runDoneRequiredValidation,
 } from '../core/done-required-validation.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentBuildArtifactsHash } from '../core/build-artifacts-identity.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { CliWatchdogTimeoutError, commandCliMaxBudget, doneRequiredDerivedBudget, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS, safeTimeoutSum, sequentialValidationBudget } from '../core/done-required-timeout-budget.js';
@@ -277,6 +278,7 @@ function writeDoneEvidence(root: string, store: StoryStore, receipts: DoneRequir
     ...(h.headHash ? { headHash: h.headHash } : {}),
     ...(h.materialHash ? { materialHash: h.materialHash } : {}),
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
+    buildArtifactsHash: currentBuildArtifactsHash(root),
     policyHash: policy.policyHash,
     commandSetHash: policy.commandSetHash,
     receipts,

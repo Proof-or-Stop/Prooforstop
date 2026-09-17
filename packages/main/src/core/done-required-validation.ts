@@ -5,6 +5,7 @@ import { realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import { currentBuildArtifactsHash } from './build-artifacts-identity.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
 import type {
@@ -947,6 +948,8 @@ export async function runDoneRequiredValidation(args: {
   const finalHeadHash = currentGitHead(args.gitCwd);
   const finalMaterialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
   const finalStoryFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
+  // The dist the receipts executed, captured after the build receipt rewrote it.
+  const finalBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
   const status: DoneRequiredEvidenceStatus = policy.required && reasons.length === 0 ? 'PASS' : 'FAIL';
   const evidence: DoneRequiredEvidenceData = {
     schema: DONE_REQUIRED_EVIDENCE_SCHEMA,
@@ -959,6 +962,7 @@ export async function runDoneRequiredValidation(args: {
     ...(finalHeadHash ? { headHash: finalHeadHash } : {}),
     ...(finalMaterialHash ? { materialHash: finalMaterialHash } : {}),
     ...(finalStoryFilesHash ? { storyFilesHash: finalStoryFilesHash } : {}),
+    ...(finalBuildArtifactsHash ? { buildArtifactsHash: finalBuildArtifactsHash } : {}),
     policyHash: policy.policyHash,
     commandSetHash: policy.commandSetHash,
     receipts,
@@ -1104,6 +1108,11 @@ export function evaluateDoneRequiredEvidence(args: {
   else if (evidence.materialHash !== currentMaterial) reasons.push('stale-material');
   if (!evidence.storyFilesHash || !currentStoryFiles) reasons.push('missing-storyFilesHash');
   else if (evidence.storyFilesHash !== currentStoryFiles) reasons.push('stale-storyFilesHash');
+  // validateSelfHostBuildProof below proves a build receipt preceded the tests;
+  // this proves the dist on disk is still the one those receipts executed.
+  const currentBuildArtifacts = currentBuildArtifactsHash(args.gitCwd);
+  if (!evidence.buildArtifactsHash || !currentBuildArtifacts) reasons.push('missing-buildArtifactsHash');
+  else if (evidence.buildArtifactsHash !== currentBuildArtifacts) reasons.push('stale-buildArtifacts');
   reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands));
   reasons.push(...validateDoneRequiredExecutionIdentityCoverage(evidence, currentExecutionIdentity, policy));
 

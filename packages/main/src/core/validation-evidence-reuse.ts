@@ -354,6 +354,8 @@ export function evaluateRoutineValidationReuse(args: {
   currentCoverage: VerificationCoverageReport;
   currentMaterialHash?: string;
   currentStoryFilesHash?: string;
+  /** core/build-artifacts-identity digest of the dist trees on disk now; the recorded PASS must have executed against the same one. */
+  currentBuildArtifactsHash?: string;
   clean: boolean;
   headBefore?: string;
   headAfter?: string;
@@ -382,6 +384,9 @@ export function evaluateRoutineValidationReuse(args: {
   if (!args.clean) reasons.push('worktree-dirty');
   if (!evidence.materialHash || !args.currentMaterialHash || evidence.materialHash !== args.currentMaterialHash) reasons.push('material-hash-changed-or-missing');
   if (!evidence.storyFilesHash || !args.currentStoryFilesHash || evidence.storyFilesHash !== args.currentStoryFilesHash) reasons.push('story-files-hash-changed-or-missing');
+  // The committed-tree digests above cannot see the gitignored dist the commands
+  // actually executed; a PASS earned against another build is not this build's PASS.
+  if (!evidence.buildArtifactsHash || !args.currentBuildArtifactsHash || evidence.buildArtifactsHash !== args.currentBuildArtifactsHash) reasons.push('build-artifacts-hash-changed-or-missing');
   const lineageResult = classifyTrustedValidationLineage({
     root: args.root,
     gitCwd: args.gitCwd,

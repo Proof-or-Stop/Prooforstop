@@ -369,6 +369,8 @@ export interface DoneRequiredEvidenceData {
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  /** Content identity of the compiled artifact trees the commands executed (core/build-artifacts-identity). */
+  buildArtifactsHash?: string;
   policyHash: string;
   commandSetHash: string;
   receipts: DoneRequiredCommandReceipt[];

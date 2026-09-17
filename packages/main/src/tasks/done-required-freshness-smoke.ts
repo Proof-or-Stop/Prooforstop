@@ -14,6 +14,7 @@ import {
   resolveDoneRequiredPolicy,
 } from '../core/done-required-validation.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentBuildArtifactsHash } from '../core/build-artifacts-identity.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo } from '../core/types.js';
@@ -148,6 +149,7 @@ function writeDoneEvidence(root: string, store: StoryStore): DoneRequiredEvidenc
     headHash: h.headHash,
     materialHash: h.materialHash,
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
+    buildArtifactsHash: currentBuildArtifactsHash(root),
     policyHash: policy.policyHash,
     commandSetHash: policy.commandSetHash,
     receipts: [receipt],

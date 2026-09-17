@@ -15,6 +15,7 @@ import {
   summarizeRoutineCommandExecution,
 } from '../core/validation-evidence-reuse.js';
 import { captureEvidenceHashSnapshot, checkEvidenceHashSnapshotReuse } from '../core/evidence-freshness.js';
+import { currentBuildArtifactsHash } from '../core/build-artifacts-identity.js';
 import type { TestEvidenceData, VerificationCoverageReport } from '../core/types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 import { StoryStore } from '../core/store.js';
@@ -561,6 +562,12 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
     assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
     assert.match(`${first.stdout}\n${first.stderr}`, /"commandExecutions":1/);
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1);
+    // Lab validation-build-artifact-binding: the executed PASS binds the compiled
+    // artifacts it ran against, and that binding must still match on disk before
+    // the transition may reuse it.
+    const executedEvidence = store.readTestEvidence(storyId);
+    assert.match(executedEvidence?.buildArtifactsHash ?? '', /^[a-f0-9]{64}$/, 'executed PASS must record buildArtifactsHash');
+    assert.equal(executedEvidence?.buildArtifactsHash, currentBuildArtifactsHash(root), 'recorded build binding must match the artifacts on disk before the transition');
 
     const canonicalPaths = [
       `.proof-or-stop/story/actives/${storyId}/index.json`,
@@ -1410,6 +1417,7 @@ function main(): void {
       headHash: baseHead,
       materialHash: 'material',
       storyFilesHash: 'story-files',
+      buildArtifactsHash: currentBuildArtifactsHash(root),
       verificationCoverage: { ...coverage, covered: 0, missingRequired: 1 },
       routineValidationIdentity: configured,
       commandExecution,
@@ -1426,6 +1434,7 @@ function main(): void {
       currentCoverage: coverage,
       currentMaterialHash: 'material',
       currentStoryFilesHash: 'story-files',
+      currentBuildArtifactsHash: currentBuildArtifactsHash(root),
       clean: true,
       headBefore: baseHead,
       headAfter: baseHead,
@@ -1519,6 +1528,7 @@ function main(): void {
         currentCoverage: coverage,
         currentMaterialHash: 'material',
         currentStoryFilesHash: 'story-files',
+        currentBuildArtifactsHash: currentBuildArtifactsHash(root),
         clean: true,
         headBefore: baseHead,
         headAfter: baseHead,
@@ -1571,6 +1581,7 @@ function main(): void {
       currentCoverage: coverage,
       currentMaterialHash: 'material',
       currentStoryFilesHash: 'story-files',
+      currentBuildArtifactsHash: currentBuildArtifactsHash(root),
       clean: true,
       headBefore: metadataHead,
       headAfter: metadataHead,
