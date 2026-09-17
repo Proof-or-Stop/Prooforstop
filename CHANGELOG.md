@@ -1,5 +1,42 @@
 # Changelog
 
+## Lab machine-queue-ancestor-probe - v0.3.405 - 2026-09-17
+
+# Lab machine-queue-ancestor-probe
+
+## Problem
+A validation waiting in the machine queue behind another process's ticket ran a synchronous
+`ps -axo pid=,ppid=` with a 1000 ms timeout to detect ancestor conflicts. On a busy machine the
+spawn timed out and `spawnSync ps ETIMEDOUT` escaped the wait loop, crashing the waiting
+validation (observed 2026-09-17).
+
+## Behavior change
+The ancestor probe is asynchronous (heartbeats keep flowing), uses a 5000 ms timeout with
+SIGKILL, and returns "unknown" on failure. Unknown ancestry never admits the waiter: the probe
+only runs while still queued behind another ticket, so the waiter keeps waiting and probes again
+on the next poll, bounded by the queue deadline. A genuine ancestor conflict is still refused.
+The separate delegation identity probe keeps its own bounded retry policy (kernelObservationMs).
+
+## Verification
+RED/GREEN: `node scripts/verify-machine-queue-ancestor-probe.mjs` (private fixture machine queue;
+only the ancestor probe's `ps` argv is slowed).
+- Before: waiter crashed after ~1 s with `spawnSync ps ETIMEDOUT`.
+- After: waiter acquired after the holder released (~3.9 s); a descendant of the holder is still
+  refused; with a ps that never answers the waiter is not admitted while the holder holds.
+Regression scripts PASS: red-lab-nested-fixture-machine-isolation, verify-nested-validation-result-contract,
+verify-nested-reservation-faults, -cancellation, -owner-loss, -wrapper-transport, -boot-recovery,
+-registration-race.
+
+## Pre-audit test hardening
+Control 3 previously accepted a crashed waiter as "not admitted", which is the original failure. It now keeps only the non-admission control and adds a repaired expectation: with a probe that never answers, the waiter is still queued after 6s and acquires after the holder releases. New scenario: a genuine descendant conflict behind a slow ps (1500ms) is still refused as an ancestor conflict. RED on the pre-fix source: 3 failing expectations, all `spawnSync ps ETIMEDOUT`; GREEN: 5 checks.
+
+## Temp residue
+The worker repositories (ancestor-probe-*) are now created inside the disposable sandbox; a check proves no new ancestor-probe-* entry remains in the shared TMPDIR after the run.
+
+Maintenance provenance: codex/lab-machine-queue-ancestor-probe, repair f3c5f79580d570c5c5aec459ddb93cf3fd175eca.
+Verification command (replayed before integration and on main): `["node","scripts/verify-machine-queue-ancestor-probe.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab heartbeat-smoke-memory-pressure - v0.3.404 - 2026-09-17
 
 # Lab heartbeat-smoke-memory-pressure
