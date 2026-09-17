@@ -18,7 +18,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const MARKER = 'host activity hook writes into the repository during its validation';
@@ -64,6 +64,15 @@ const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHas
 const lockFor = (root) => join(spoolFor(root), '.flush.lock');
 const spoolRecords = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.endsWith('.json')).sort(); } catch { return []; } };
 const capacityDir = (root) => join(root, '.proof-or-stop/locks/validation-capacity.lock/workspaces', createHash('sha256').update(realpathSync(root)).digest('hex'));
+const capacityEntriesFor = (root) => {
+  try {
+    const top = realpathSync(execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: root, encoding: 'utf8' }).trim());
+    const commonRaw = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: top, encoding: 'utf8' }).trim();
+    const common = realpathSync(isAbsolute(commonRaw) ? commonRaw : resolve(top, commonRaw));
+    const shared = common.endsWith('/.git') ? dirname(common) : common;
+    return readdirSync(join(shared, '.proof-or-stop/locks/validation-capacity.lock/workspaces', createHash('sha256').update(top).digest('hex')));
+  } catch { return []; }
+};
 const capacityEntries = (root) => { try { return readdirSync(capacityDir(root)); } catch { return []; } };
 const spoolClaims = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.includes('.delivering-')); } catch { return []; } };
 async function waitUntil(predicate, timeoutMs) {
@@ -73,6 +82,23 @@ async function waitUntil(predicate, timeoutMs) {
 }
 const log = (root) => join(root, 'docs/story/activity.jsonl');
 const lines = (root) => existsSync(log(root)) ? readFileSync(log(root), 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l).detail) : [];
+
+// A child that takes workspace validation capacity through the PRODUCT's own allocator,
+// so interoperability is exercised against the real implementation, not a fixture.
+const dist = join(repoRoot, 'packages/main/dist');
+const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { cwd: repoRoot, encoding: 'utf8' });
+if (build.status !== 0) { process.stderr.write(`${build.stdout}\n${build.stderr}\n`); throw new Error('packages/main build failed; this is not the target RED'); }
+const allocatorScript = join(sandbox, 'allocator.mjs');
+writeFileSync(allocatorScript, `
+import { existsSync, writeFileSync } from 'node:fs';
+const { withWorkspaceValidationCapacity } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-execution-lock.js')}`)});
+const [root, ready, release] = process.argv.slice(2);
+await withWorkspaceValidationCapacity({ root, workspaceRoot: root, workspaceOnly: true, command: 'validate', deadlineAt: Date.now() + 60000 }, async () => {
+  writeFileSync(ready, String(Date.now()));
+  const deadline = Date.now() + 60000;
+  while (!existsSync(release) && Date.now() < deadline) await new Promise((r) => setTimeout(r, 25));
+});
+`);
 
 const rows = [];
 try {
@@ -348,6 +374,66 @@ try {
     callHook(root, 'handoff-after');
     expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['handoff', 'handoff-after']),
       `the retained record is delivered in order afterwards (got ${JSON.stringify(lines(root))})`);
+  }
+  // Git discovery failing while a validation runs must not fall back to a direct write.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    const brokenGit = join(sandbox, 'broken-git'); mkdirSync(brokenGit, { recursive: true });
+    writeFileSync(join(brokenGit, 'git'), '#!/bin/sh\nexit 128\n'); chmodSync(join(brokenGit, 'git'), 0o755);
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'discovery-failed' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home, PATH: `${brokenGit}:${process.env.PATH}` }, encoding: 'utf8',
+    });
+    control(r.status === 0, 'the hook still exits 0 when git discovery fails');
+    const during = lines(root);
+    rows.push({ scenario: 'git discovery fails during a validation', repoLinesDuring: during.length, after: '-' });
+    expectRepaired(during.length === 0, `a failed discovery must not fall back to a repository write (found ${JSON.stringify(during)})`);
+    rmSync(t, { recursive: true, force: true });
+    callHook(root, 'after-discovery-failure');
+    expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['discovery-failed', 'after-discovery-failure']),
+      `the record published during failed discovery is adopted and delivered in order (got ${JSON.stringify(lines(root))})`);
+  }
+  // Interoperability with the REAL allocator, in both acquisition orders, including a
+  // linked worktree: the protected intervals must never overlap.
+  for (const linked of [false, true]) {
+    const base = repo();
+    let root = base;
+    if (linked) {
+      root = join(sandbox, `linked-${n++}`);
+      execFileSync('git', ['-c', 'user.name=Hook Fixture', '-c', 'user.email=fixture@example.invalid', 'worktree', 'add', '-q', '--detach', root], { cwd: base, stdio: 'ignore' });
+    }
+    // Order 1: the product holds capacity first; the hook must write nothing meanwhile.
+    const ready = join(sandbox, `alloc-ready-${linked}`), release = join(sandbox, `alloc-release-${linked}`);
+    const holder = spawn(process.execPath, [allocatorScript, root, ready, release], { stdio: 'inherit', env: { ...process.env, HOME: home } });
+    const holderExit = new Promise((r) => holder.on('exit', r));
+    control(await waitUntil(() => existsSync(ready), 30_000), `the product allocator acquired workspace capacity (${linked ? 'linked worktree' : 'main worktree'})`);
+    callHook(root, `allocator-first-${linked}`);
+    const during = lines(root);
+    writeFileSync(release, 'go');
+    await holderExit;
+    expectRepaired(during.length === 0, `the real allocator's capacity keeps the hook out (${linked ? 'linked' : 'main'}: found ${JSON.stringify(during)})`);
+    // Order 2: the hook holds its ticket first; the allocator must wait for it.
+    const ready2 = join(sandbox, `alloc2-ready-${linked}`), release2 = join(sandbox, `alloc2-release-${linked}`);
+    const barrier = join(sandbox, `barrier-alloc-${linked}`);
+    writeFileSync(barrier, 'hold');
+    const writing = callHookAsync(root, `hook-first-${linked}`, { PROOF_OR_STOP_ACTIVITY_ADMISSION_BARRIER: barrier });
+    control(await waitUntil(() => capacityEntriesFor(root).some((name) => name.endsWith('.ticket')), 15_000), 'the hook published its ticket');
+    const contender = spawn(process.execPath, [allocatorScript, root, ready2, release2], { stdio: 'inherit', env: { ...process.env, HOME: home } });
+    const contenderExit = new Promise((r) => contender.on('exit', r));
+    const admittedEarly = await waitUntil(() => existsSync(ready2), 2000);
+    rmSync(barrier, { force: true });
+    await writing;
+    control(await waitUntil(() => existsSync(ready2), 30_000), 'the product allocator is admitted once the hook releases its ticket');
+    writeFileSync(release2, 'go');
+    await contenderExit;
+    rows.push({ scenario: `real allocator interop (${linked ? 'linked worktree' : 'main worktree'})`, repoLinesDuring: during.length, after: JSON.stringify(lines(root)) });
+    expectRepaired(!admittedEarly, `the real allocator waits behind the hook's ticket (${linked ? 'linked' : 'main'})`);
+    // While the validator waits behind the hook's ticket, the hook yields its remaining
+    // records to it rather than queue-jumping; the next hook call delivers them.
+    callHook(root, `settle-${linked}`);
+    expectRepaired(lines(root).includes(`hook-first-${linked}`) && lines(root).includes(`settle-${linked}`),
+      `queued lines are delivered once the allocator released capacity (${linked ? 'linked' : 'main'}: got ${JSON.stringify(lines(root))})`);
   }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [

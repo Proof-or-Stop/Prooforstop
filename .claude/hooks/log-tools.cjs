@@ -40,14 +40,22 @@ process.stdin.on('end', () => {
       : path.join(root, 'docs', 'story');
     const target = path.join(logDir, 'activity.jsonl');
     const line = JSON.stringify(entry) + '\n';
-    const spool = spoolDir(root);
-    if (!spool) { fs.mkdirSync(logDir, { recursive: true }); fs.appendFileSync(target, line); }
-    else {
+    const discovered = discoverWorkspace(root);
+    if (discovered === 'non-repository') {
+      // Positively outside a repository: no validation can be running here.
+      fs.mkdirSync(logDir, { recursive: true });
+      fs.appendFileSync(target, line);
+    } else if (discovered === 'uncertain') {
+      // Discovery failed (timeout, missing git, unreadable path). The repository may be
+      // validating right now, so the record waits in a discovery-pending queue keyed by
+      // this path; a later hook that can discover the worktree adopts it.
+      publishSpoolRecord(pendingSpoolDir(root), { target, line });
+    } else {
+      const spool = spoolDir(root);
+      adoptPendingRecords(root, spool);
       // Every repository write happens inside the product's own workspace validation
       // capacity ticket, so a validation starting concurrently queues behind this
-      // millisecond-long write instead of racing it. If the ticket cannot be held (a
-      // validation holds capacity, or one is arriving), the record stays outside the
-      // repository and a later hook delivers it in order.
+      // millisecond-long write instead of racing it.
       publishSpoolRecord(spool, { target, line });
       flushSpool(spool, root);
     }
@@ -59,8 +67,22 @@ function git(root, args) {
   return execSync(`git ${args}`, { cwd: root, encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 }
 
+/**
+ * Where this path lives: the worktree top, 'non-repository' when Git positively says so,
+ * or 'uncertain' for anything else (a timeout, a missing git, a realpath failure). An
+ * uncertain answer must never be treated as "no repository": that would write into a
+ * repository that may be validating right now.
+ */
+function discoverWorkspace(root) {
+  try { return fs.realpathSync(git(root, 'rev-parse --show-toplevel')); } catch (error) {
+    const detail = `${error && error.stderr ? error.stderr : ''}${error && error.message ? error.message : ''}`;
+    return /not a git repository|no such file or directory.*\.git/i.test(detail) ? 'non-repository' : 'uncertain';
+  }
+}
+
 function workspaceTop(root) {
-  try { return fs.realpathSync(git(root, 'rev-parse --show-toplevel')); } catch { return null; }
+  const discovered = discoverWorkspace(root);
+  return typeof discovered === 'string' && discovered !== 'non-repository' ? discovered : null;
 }
 
 /** Per-worktree spool directory outside the repository: <home>/.proof-or-stop/activity-spool/<sha256(worktree)>/ */
@@ -69,6 +91,25 @@ function spoolDir(root) {
   if (!top) return null;
   const key = crypto.createHash('sha256').update(top).digest('hex');
   return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', key);
+}
+
+/** Queue for records published while the worktree could not be discovered. */
+function pendingSpoolDir(root) {
+  const key = crypto.createHash('sha256').update(`pending:${root}`).digest('hex');
+  return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', `pending-${key}`);
+}
+
+/** Move records published during failed discovery into this worktree's real queue. */
+function adoptPendingRecords(root, spool) {
+  const pending = pendingSpoolDir(root);
+  let names;
+  try { names = fs.readdirSync(pending).filter(name => name.endsWith('.json')); } catch { return; }
+  if (names.length === 0) return;
+  try { fs.mkdirSync(spool, { recursive: true, mode: 0o700 }); } catch { return; }
+  for (const name of names) {
+    try { fs.renameSync(path.join(pending, name), path.join(spool, name)); } catch { /* another hook adopted it */ }
+  }
+  try { fs.rmdirSync(pending); } catch { /* not empty yet */ }
 }
 
 function pidAlive(pid) {
