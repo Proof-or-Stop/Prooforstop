@@ -6057,6 +6057,10 @@ function processFactRegistryMap() {
   return new Map(parseProcessFactRegistry().map(entry => [entry.name, entry]));
 }
 
+assert(read(processFactRegistryPath).includes("name: 'runtime:changelog_history_compaction'"),
+  'The exact changelog compaction exception must remain registered');
+await import('./verify-changelog-compaction.mjs');
+
 function parseDonePreflightPredicateInventory(sourceText) {
   const body = extractExportedArrayBody(sourceText, 'DONE_PREFLIGHT_PREDICATE_INVENTORY');
   return parseTopLevelObjectBlocks(body, `${processFactRegistryPath} DONE_PREFLIGHT_PREDICATE_INVENTORY`)

@@ -25,6 +25,25 @@ export function changelogPreservesHistory(frozen,current){
     && insertion.endsWith('\n\n') && current.indexOf(history)===offset;
 }
 
+// User-authorized 2026-09-18 compaction. Only this exact replacement is admitted;
+// the original frozen bytes and complete pre-compaction log must remain in Git.
+export function reviewedChangelogCompaction(row,frozen,current,readHistory){
+  if(row.id!=='changelog-history'||row.path!=='CHANGELOG.md'
+    ||row.byteSha256!=='dfac66a15ee7761396e293e915c70b3c2d3dd5b4e1317e51b18d40c30213b2f5'
+    ||sha(frozen)!==row.byteSha256)return false;
+  const header=Buffer.from('# Changelog\n\n');
+  const compactBodyBytes=695;
+  if(current.length<header.length+compactBodyBytes)return false;
+  const compact=Buffer.concat([header,current.subarray(current.length-compactBodyBytes)]);
+  if(sha(compact)!=='a8c521cb6c84f20cbc216c846d51b38757dc9b85a5914adb092c9e4b128ae90d'
+    ||!changelogPreservesHistory(compact,current))return false;
+  try{
+    const previous=readHistory('a8768173bc7488aa8fdc3ef45f1ed295cbd924c8');
+    return sha(previous)==='252e0187959b1881a4e902a32be4cd05d1355fe851e60db94d922016c87c0e5d'
+      &&changelogPreservesHistory(frozen,previous);
+  }catch{return false;}
+}
+
 // Explicit amendment already present in main at ef854edb5a16f01dbd7f92a4f1130649d7f80e1a.
 // The two edited paragraphs correct an overbroad environment-alias promise;
 // both original and amended bytes remain exact Git objects. This is not a

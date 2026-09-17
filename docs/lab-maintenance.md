@@ -137,6 +137,15 @@ cd ../.. # Return from .worktrees/Lab-slow-query to main before cleanup.
 npm run lab:worktree -- finish slow-query --notes /absolute/path/repair-notes.md --confirm --bump patch
 ```
 
+Write notes as 3-5 concise bullets about final delivered changes, including the
+verification and any important limitation. Link detailed investigation or audit
+records; do not copy failed attempts or withdrawn designs into the release summary.
+When updating CHANGELOG.md, read only the current entry or relevant Git diff.
+Consult older Git history only for a specific historical question; do not regenerate
+the full file. The 2026-09-18 user-authorized compaction keeps earlier entries at
+`a8768173bc7488aa8fdc3ef45f1ed295cbd924c8:CHANGELOG.md`; the identity verifier checks
+those retained bytes and the exact compact replacement, permitting later prepends.
+
 Finish requires a clean main and clean committed Lab with current GREEN. It holds
 the same main write lock as formal operations, merges latest local main into Lab,
 reruns the pinned test, and prepares a local release commit. Lab decides release

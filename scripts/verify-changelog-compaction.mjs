@@ -34,4 +34,8 @@ assert(!reviewedChangelogCompaction(row, frozen, header, readHistory), 'arbitrar
 assert(!reviewedChangelogCompaction(row, frozen, Buffer.from(current.toString().replace(previousCommit, '0'.repeat(40))), readHistory), 'history pointer mutation is refused');
 assert(!reviewedChangelogCompaction(row, frozen, Buffer.concat([current, Buffer.from('tamper')]), readHistory));
 assert(!reviewedChangelogCompaction(row, frozen, Buffer.concat([header, Buffer.from('unreviewed prefix\n\n'), current.subarray(header.length)]), readHistory));
+const { verifyFrozenFiles } = await import('./verify-proof-or-stop-identity-cutover.mjs');
+const tracked = new Set(git('ls-files', '-z').toString().split('\0').filter(Boolean));
+assert.deepEqual(verifyFrozenFiles(root, tracked).filter(error => error.includes('changelog-history')), [],
+  'the actual frozen-file gate must accept the retained-history compaction');
 console.log('CHANGELOG_COMPACTION_GREEN retained Git bytes, compact baseline, prepend and tamper controls');
