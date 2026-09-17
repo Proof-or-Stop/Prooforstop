@@ -86,6 +86,8 @@ import type { ChecklistData, ChecklistItem, ScopeContractData, StoryInfo, TestEv
 import {
   buildRoutineValidationIdentity,
   evaluateRoutineValidationReuse,
+  routineReuseTerminalAttribution,
+  type RoutineReuseTerminalAttribution,
   isCompleteRoutineValidationIdentity,
   isReusableCommandPass,
   summarizeRoutineCommandExecution,
@@ -1179,14 +1181,18 @@ function tryReuseRoutinePass(args: {
   built: NonNullable<ReturnType<typeof buildStoryRoutineIdentity>>;
   reuse: RoutineValidationReuseEvaluation;
   rebuild: () => ReturnType<typeof buildStoryRoutineIdentity>;
+  /** Receives why a reusable PASS was not taken, for the executed terminal event. */
+  onDecline?: (reason: string) => void;
 }): any | null {
-  if (!args.reuse.reusable || args.focus) return null;
+  const decline = (reason: string): null => { args.onDecline?.(reason); return null; };
+  if (!args.reuse.reusable) return null;
+  if (args.focus) return decline('focused-validation');
   if (args.dynamicMode === 'enforce-low-risk') {
     const prior = args.ctx.store.readTestEvidence(args.storyId);
     let output: any;
-    try { output = prior?.output ? JSON.parse(prior.output) : undefined; } catch { return null; }
+    try { output = prior?.output ? JSON.parse(prior.output) : undefined; } catch { return decline('dynamic-prior-output-invalid'); }
     if (output?.dynamicValidation?.authority !== 'enforce-authority'
-      || !assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true }).ok) return null;
+      || !assessStoredValidationPassAdmissibility(args.ctx, args.storyId, { allowDynamicCoverage: true }).ok) return decline('dynamic-authority-not-admitted');
     args.ctx.log?.('routine dynamic validation reused; commandExecutions=0');
     return reusedStoryValidationResult({
       ...args, snapshot: args.built.snapshot, identity: args.built.identity, resolvedDynamicMode: 'enforce-low-risk',
@@ -1198,15 +1204,16 @@ function tryReuseRoutinePass(args: {
       ...args, snapshot: args.built.snapshot, identity: args.built.identity, resolvedDynamicMode: 'off',
     });
   }
-  if (args.dynamicMode !== 'observe' || !args.observeOptIn) return null;
+  if (args.dynamicMode !== 'observe') return decline(`dynamic-mode-${args.dynamicMode}`);
+  if (!args.observeOptIn) return decline('observe-reuse-not-opted-in');
   try {
     const priorEvidence = args.ctx.store.readTestEvidence(args.storyId);
     const priorBasis = readRoutineReuseRevocationBasis(args.ctx.root, args.storyId);
     // The ledger has no timestamp. Bind its signed content digest instead of
     // inventing temporal ordering or trusting a missing/corrupt cache as empty.
-    if (!priorBasis || priorEvidence?.dynamicRevocationLedgerDigest !== priorBasis) return null;
+    if (!priorBasis || priorEvidence?.dynamicRevocationLedgerDigest !== priorBasis) return decline('observe-revocation-basis-mismatch');
     const preparationHead = currentHead(args.gitCwd);
-    if (!preparationHead) return null;
+    if (!preparationHead) return decline('observe-head-unavailable');
     const baseHead = execFileSync('git', ['merge-base', 'main', 'HEAD'], { cwd: args.gitCwd, encoding: 'utf8' }).trim();
     const priorArtifacts = readStoryAwareValidationArtifacts(args.ctx.root, args.storyId);
     const dynamic = prepareStoryAwareValidation({
@@ -1225,14 +1232,14 @@ function tryReuseRoutinePass(args: {
     // Selection persistence is an intervening operation. Rebuild the full
     // identity/coverage and double-read current Git inputs before consumption.
     if (currentHead(args.gitCwd) !== preparationHead
-      || readRoutineReuseRevocationBasis(args.ctx.root, args.storyId) !== priorBasis) return null;
+      || readRoutineReuseRevocationBasis(args.ctx.root, args.storyId) !== priorBasis) return decline('observe-inputs-changed-during-selection');
     const current = args.rebuild();
-    if (!current || current.identity.digest !== args.built.identity.digest) return null;
+    if (!current || current.identity.digest !== args.built.identity.digest) return decline('observe-identity-changed-during-selection');
     const reuse = evaluateStoryRoutineReuse({
       ctx: args.ctx, storyId: args.storyId, gitCwd: args.gitCwd,
       identity: current.identity, coverage: current.snapshot.coverage,
     });
-    if (!reuse.reusable) return null;
+    if (!reuse.reusable) return decline(`observe-recheck-refused:${[...new Set(reuse.refusalReasons)].sort().join(',')}`);
     args.ctx.log?.('routine validation reused; commandExecutions=0');
     return reusedStoryValidationResult({
       ctx: args.ctx, storyId: args.storyId, gitCwd: args.gitCwd,
@@ -1245,7 +1252,7 @@ function tryReuseRoutinePass(args: {
     });
   } catch (error) {
     args.ctx.log?.(`observe complete PASS reuse refused; executing: ${error instanceof Error ? error.message : String(error)}`);
-    return null;
+    return decline('observe-reuse-error');
   }
 }
 
@@ -1273,6 +1280,7 @@ function recordValidationTerminal(
   gitCwd: string,
   result: any,
   identity?: RoutineValidationIdentity,
+  reuseAttribution?: RoutineReuseTerminalAttribution,
 ) {
   let story;
   try { story = ctx.store.readStory(storyId); } catch { return; }
@@ -1298,6 +1306,7 @@ function recordValidationTerminal(
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
     materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
     storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
+    ...(reuseAttribution && result.disposition !== 'reused' ? { reuse: reuseAttribution } : {}),
   });
 }
 
@@ -1331,6 +1340,7 @@ function persistStoryValidationEvidence(
   commandResults: ValidationCommandResult[],
   expectedCommandCount: number,
   semanticCommandPass?: boolean,
+  reuseAttribution?: RoutineReuseTerminalAttribution,
 ): any | null {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
@@ -1488,7 +1498,7 @@ function persistStoryValidationEvidence(
     expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(ctx.root, storyId);
     ctx.store.writePreparedTestEvidence(storyId, prepared);
-    const terminal = recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
+    const terminal = recordValidationTerminal(ctx, storyId, gitCwd, result, identity, reuseAttribution);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
     const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
@@ -1751,6 +1761,7 @@ function decorateAndMaybePersistStoryValidation(
   expectedCommandCount?: number,
   semanticCommandPass?: boolean,
   invocation?: PrecertCheapCheckInvocation,
+  reuseAttribution?: RoutineReuseTerminalAttribution,
 ): any {
   if (!storyId) return result;
   const decorated = decorateStoryVerification(ctx, storyId, result);
@@ -1772,6 +1783,7 @@ function decorateAndMaybePersistStoryValidation(
       commandResults,
       expectedCommandCount,
       semanticCommandPass,
+      reuseAttribution,
     );
     if (persistenceFailure) return persistenceFailure;
   }
@@ -2113,9 +2125,11 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               }) => storyAutomaticTierSelection(ctx, args.story!, handlerGitCwd, commands, catalog, graph, changes),
             } : {}),
           } : {};
+          let reuseDeclinedReason: string | undefined;
           if (reuse?.reusable && built) {
             const reused = tryReuseRoutinePass({
               ctx, storyId: args.story!, gitCwd: handlerGitCwd, commands, dynamicMode, focus,
+              onDecline: (reason) => { reuseDeclinedReason = reason; },
               observeOptIn: args.reuseFreshRoutinePass ?? projectConfig.validate?.reuseFreshRoutinePass ?? false,
               built, reuse, rebuild: () => buildStoryRoutineIdentity({
                 ctx, storyId: args.story!, sourceKind: usingConfigured ? 'configured' : 'fallback',
@@ -2124,6 +2138,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             });
             if (reused) return reused;
           }
+          const reuseAttribution = reuse ? routineReuseTerminalAttribution(reuse, reuseDeclinedReason) : undefined;
           const launchGate = createRoutineValidationLaunchGate(ctx, args.story, commands, projectRoot, officialHeavyStoryValidate);
           let dynamicPreview: {
             mode: string;
@@ -2340,6 +2355,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               authoritative.commands,
               authoritative.commandExecutions,
               authoritative.allPass,
+              undefined,
+              reuseAttribution,
             );
             return respond(decorated);
           }
@@ -2507,6 +2524,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands.length,
             undefined,
             args,
+            reuseAttribution,
           );
           return reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
         };
@@ -2592,9 +2610,11 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage, allowDynamicCoverage })
           : null;
         const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
+        let reuseDeclinedReason: string | undefined;
         if (reuse?.reusable && built) {
           const reused = tryReuseRoutinePass({
             ctx, storyId: args.story!, gitCwd: handlerGitCwd, commands: [identityCommand], dynamicMode, focus,
+            onDecline: (reason) => { reuseDeclinedReason = reason; },
             observeOptIn: args.reuseFreshRoutinePass ?? projectConfig.validate?.reuseFreshRoutinePass ?? false,
             built, reuse, rebuild: () => buildStoryRoutineIdentity({
               ctx, storyId: args.story!, sourceKind: 'validate-file', commands: [identityCommand],
@@ -2603,6 +2623,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           });
           if (reused) return respond(reused);
         }
+        const reuseAttribution = reuse ? routineReuseTerminalAttribution(reuse, reuseDeclinedReason) : undefined;
         const launchGate = createRoutineValidationLaunchGate(ctx, args.story, [identityCommand], projectRoot, officialHeavyStoryValidate);
         let dynamicValidation: any;
         if (args.story && dynamicMode !== 'off' && !focus) {
@@ -2703,6 +2724,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             authoritative.commands,
             authoritative.commandExecutions,
             authoritative.allPass,
+            undefined,
+            reuseAttribution,
           );
           return respond(decorated);
         }
@@ -2795,7 +2818,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
           }));
           const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1, undefined, args);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1, undefined, args, reuseAttribution);
           const surfaced = reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
           return respond(surfaced);
         }
@@ -2823,6 +2846,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               1,
               semanticCommandPass,
               args,
+              reuseAttribution,
             );
             return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
           }
@@ -2844,7 +2868,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
             ...(code === 0 ? {} : { failureKind: commandResult.failureKind ?? 'validation_failure' }),
           }), focus ?? '');
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1, undefined, args);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1, undefined, args, reuseAttribution);
           return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
         }
 
