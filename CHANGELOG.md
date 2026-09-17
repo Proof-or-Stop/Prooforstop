@@ -1,5 +1,172 @@
 # Changelog
 
+## Lab reuse-host-session-environment - v0.3.403 - 2026-09-17
+
+# Lab reuse-host-session-environment
+
+## Problem
+Routine and DONE-required validation identities hash the ambient environment except a strip list.
+The Claude Code host still injected per-session values no validation command reads:
+`CLAUDE_CODE_HOST_SESSION_ID`, `CLAUDE_EFFORT` (the session effort setting) and `BAGGAGE`
+(host telemetry propagation carrying a sentry trace id and release). A new session or a changed
+effort level therefore produced a new identity, refusing an unchanged PASS as
+`validation-identity-changed` and re-running the full plan. Transcripts contain 21 refusals whose
+only reason was `validation-identity-changed`.
+
+## Behavior change
+The three keys join `HOST_LAUNCHER_SESSION_ENV_KEYS` (the extensible host-launcher list; the
+digest-pinned frozen list is unchanged). As with the existing entries, they are also no longer
+passed to validation child processes. An explicit `command.env` overlay of the same keys remains
+semantic.
+
+## Verification
+RED/GREEN: `node scripts/verify-reuse-host-session-environment.mjs`.
+- Before: each of the three keys changed the routine identity digest and the DONE-required
+  effectiveEnvironmentDigest and refused reuse (10 failing expectations).
+- After: identity-neutral and reusable; controls NODE_OPTIONS, CI, TZ, LANG and PATH still change
+  identity and refuse reuse; the explicit overlay stays semantic; the frozen list digest is
+  unchanged (23 checks).
+Regressions: done-required-validation-smoke, done-required-freshness-smoke,
+validation-evidence-reuse-smoke and the process-fact contract PASS.
+
+## Compatibility
+Stored receipts whose environment contained these keys recompute a different digest and must be
+re-earned once by running validation again, the same stance as the earlier host-launcher entries.
+
+## Pre-audit test hardening
+Controls now also require the DONE-required effectiveEnvironmentDigest to change (NODE_OPTIONS, CI, TZ, LANG, PATH) and to stay equal when all three host values are absent. A new expectation proves identity and spawn agree: the three host values are not passed to the command (RED on the pre-fix source: passed CLAUDE_CODE_HOST_SESSION_ID, CLAUDE_EFFORT, BAGGAGE), while ordinary ambient values still are. The frozen strip-list control now compares the recomputed digest, not only the constant. Result: 32 checks.
+
+Maintenance provenance: codex/lab-reuse-host-session-environment, repair dbeb57dd11492547047039526ce110e03acd02ee.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reuse-host-session-environment.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab reuse-lineage-material-policy - v0.3.402 - 2026-09-17
+
+# Lab reuse-lineage-material-policy
+
+## Problem
+Two path policies disagreed. materialHash excludes story metadata, evidence output locations and
+registry-declared runtime artifacts (`isMaterialExcludedPath`), so committing a dev-memory record
+leaves the tested bytes identical. The shared merge-lineage classifier trusted only story
+metadata (`isStoryMetadataPath`), so the same commit was an `untrusted-lineage-path`: routine
+reuse re-executed an identical PASS, DONE-required pre-run reuse rejected it, and admissibility
+rejected it.
+
+## Behavior change
+`classifyMergeLineage` (shared by routine reuse, DONE-required pre-run reuse and validation
+evidence admissibility) trusts exactly the paths materialHash already excludes. Every material
+path, a non-ancestor head, and a diff failure are still rejected. The admissibility message now
+says "material path(s)". The process-fact contract pins the new predicate and asserts the
+narrower story-metadata-only predicate is not reintroduced.
+
+## Verification
+RED/GREEN: `node scripts/verify-reuse-lineage-material-policy.mjs` (checkout source, disposable
+repositories).
+- Before: dev-memory finish decision, dev-memory experience log, story metadata plus finish
+  decision, and an evidence object output were all refused by the three consumers
+  (12 failing expectations).
+- After: all four reusable/trusted; controls (source change, finish decision plus source
+  change, material file under the state directory, config change, non-ancestor head) still
+  refused (25 checks).
+Regressions on the rebuilt dist: validation-reuse-merge-lineage-smoke, done-required-validation-smoke,
+done-required-freshness-smoke, validation-evidence-reuse-smoke and the process-fact contract PASS.
+
+## Measured data
+- Replay of the 20 historical PASS-then-re-execution pairs through the evaluator: before 0
+  reusable; after B-212f becomes reusable (131 command executions); B-a2a6 and B-cc10 lose their
+  dev-memory lineage refusal (their remaining refusals are July/August schema artifacts).
+- Session transcripts contain 31 refusal occurrences whose only reason was a material-excluded
+  lineage path (occurrences, not unique runs).
+Adjacent work: B-c86f widens the dev-memory runtime-artifact entry (different file).
+
+## Independent audit repair
+Audit 00f7c973 (different vendor) rejected the first candidate with one medium test finding and no production defect: the material-path controls accepted `untrusted OR material hash changed`, so a classifier that trusted every descendant would still pass. Repaired: each control now separately requires a material hash change, shared lineage `untrusted`, DONE-required lineage `rejected`, routine reuse refused, and an `untrusted-lineage-path:<path>` refusal reason for every material path. A mutation control re-runs the script with the classifier rewritten to trust every descendant; all 4 material controls catch it (12 control failures). Result: 38 checks.
+
+Maintenance provenance: codex/lab-reuse-lineage-material-policy, repair 3906e2611506aaf360376cc6b9cae77caa9cf90c.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reuse-lineage-material-policy.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab validation-terminal-refusal-reasons - v0.3.401 - 2026-09-17
+
+# Lab validation-terminal-refusal-reasons
+
+## Problem
+A Story validation that did not reuse a prior PASS printed its reuse refusal only to stderr
+("routine validation reuse refused: refusalReasons=..."). The durable `validation_terminal`
+process event recorded `disposition=executed` and nothing about why. Across 394 Stories on
+main, 647 executed terminals carried no reason, so 63 same-identity re-executions
+(5,140 command runs) could not be attributed once session transcripts were gone.
+
+## Behavior change
+- Executed `validation_terminal` events now carry
+  `reuse: { evaluated, reusable, lineage, refusalReasons, declinedReason? }` whenever a
+  Story reuse evaluation ran. `refusalReasons` is the same sorted, de-duplicated set the
+  verifier already logs.
+- `tryReuseRoutinePass` reports why a reusable PASS was not taken (`declinedReason`, for
+  example `observe-reuse-not-opted-in`, `focused-validation`, `dynamic-authority-not-admitted`).
+- Reused terminals are unchanged. No gate, reuse decision or duplicate-suite grouping reads
+  the new field; the three grouping keys are unchanged.
+
+## Verification
+RED/GREEN: `node scripts/verify-validation-terminal-refusal-reasons.mjs` builds packages/main
+and drives the real CLI in disposable Git fixtures (first run, material change, unchanged
+re-run, TEST transition, observe mode without opt-in).
+- Before: executed terminals attributable from the event alone 0/3 (4 failing expectations).
+- After: 3/3; the unchanged re-run is still reused and the TEST gate still reuses (26 checks).
+Regressions on the rebuilt dist: validation-evidence-reuse-smoke PASS, process-fact contract PASS.
+done-prepare-auto-closeout-smoke, validation-protocol-smoke and flow-stability-smoke fail with
+byte-identical messages on the pre-repair build as well (pre-existing, not changed here).
+
+## Measured optimization
+None claimed. This is observability: it makes the causes of redundant executions attributable.
+
+## Independent audit repairs
+Audit 2ccf4e70 (Codex) rejected the first candidate with three medium findings, all repaired:
+1. The no-validator branch evaluated reuse but persisted its executed terminal without attribution.
+   It now passes the evaluation; regression scenario C1 (no validator configured) fails before
+   the repair (NOT RECORDED) and passes after (`evidence-missing`).
+2. Two digest-bound static exceptions (EX-ACCEPTANCE-CLOSURE-FIXTURES,
+   EX-PROCESS-RUNTIME-ADMISSION-ORDER) still bound the previous verifier.ts digest. Both were
+   reviewed (the change threads attribution data and adds no process launch) and re-bound;
+   `node scripts/verify-validation-static-edges.mjs` reports U18_STATIC_PASS.
+3. Scenario B accepted unintended reuse and any decline reason. It now requires an executed
+   terminal, a second command execution, and `declinedReason === observe-reuse-not-opted-in`
+   (32 checks).
+
+Maintenance provenance: codex/lab-validation-terminal-refusal-reasons, repair fa4cb8aec5ab5b8c9c92da6d8960f4b007d244e3.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-terminal-refusal-reasons.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-review-temp - v0.3.400 - 2026-09-17
+
+# Bounded managed reviewer shell temporary-directory repair
+
+## Problem and root cause
+B-0980 RI-030 concept review disclosed failed Bash commands with EPERM when Claude attempted /private/tmp/claude-501, and explicitly substituted a placeholder read-log digest. That limited imported PASS is not treated as complete review assurance. All three real lane results were retained, and the owner officially cancelled RI-030 after terminal import before starting another review.
+
+The lane supplied standard TMPDIR/TMP/TEMP but not Claude's dedicated CLAUDE_CODE_TMPDIR. A real isolated diagnostic reproduced SHELL_UNAVAILABLE in 11956 ms. Changing only the dedicated variable to the existing admitted temporary directory allowed the identical real Bash SHA256 command in 9503 ms. This identifies a tool-execution problem missed by authentication/structured-result-only probes.
+
+## Repair
+managedReviewLaneEnvironment now maps CLAUDE_CODE_TMPDIR to lane.layout.temporary. The existing environment-key registry and runtime verifier include that field. The filesystem write allowlist, reviewer credentials, signature/receipt gates and user configuration are unchanged. The variable is derived alongside standard temporary variables in every private lane; only Claude consumes its provider-specific name. The regression exercises lane environment derivation and the OS write boundary; it does not establish the unchanged controller's ambient-environment merge precedence.
+
+## Verification
+- Test-only commit 18d19a7eef reproduced CLAUDE_PRIVATE_TEMP_RED with an absent mapping and was recorded by official Lab RED.
+- The expanded existing provider-state verifier checks the actual derived environment and real macOS sandbox: per-user bookkeeping under the private temp succeeds, while source, immutable probe and an external sibling remain unwritable. It emits CLAUDE_PRIVATE_TEMP_SANDBOX_PASS and preserves all prior auth/transport tests.
+- Production build passed. Static validation passed with needsReview=0, nested=0, unexpandedCommands=0, no configuration drift or stale exceptions. Existing manifest identifiers/classifications were preserved; digests and line bindings were refreshed, and EX-1039's cited runtime-contract excerpt includes the added real assertion.
+- A real Claude probe using the repaired production managedReviewLaneEnvironment, the normal production host runner and actual read-only OS boundary executed Bash shasum and returned the exact expected digest in 14488 ms, exit 0, one structured terminal, replacementSafe=true. There was no manual CLAUDE_CODE_TMPDIR override in that final probe. The immutable source probe remained unchanged. This is actual tool availability, not a Story review PASS.
+- The broad runtime contract reached its earlier sandbox/runtime checks but failed in unchanged nested verify-static-ast-reuse.mjs with STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT (actual 2, expected 1). The exact nested command independently reproduced the same failure on untouched main 0.3.399. That unrelated observer failure is retained and not repaired here; no claim of full runtime-contract success is made.
+- The first disposable diagnostic driver completed the default case and then hit EEXIST while reusing one provider-cache destination. This fixture-only failure is retained. The corrected driver uses a scenario-specific private cache; the successful private and production probes are separate records.
+
+## Evidence and scope
+Real diagnostic records: benchmark-claude-shell-diagnosis-20260917/ and benchmark-review-temp-real/ under /Users/jek/Documents/Proof-or-Stop-Benchmark-Plan. Test/build logs: /tmp/benchmark-review-temp-*.log. Mandatory independent Claude audit and local integration remain required in official Lab finish. No remote push and no Story DONE claim. B-0980 business scope remains its original configuration row.
+
+## Independent audit correction
+Claude audit 528eff00-2c82-443d-80ae-e1e82a4eb5c3 rejected the first candidate in 103023 ms. It accepted the runtime repair and actual OS boundary test but found that a locally constructed object-spread assertion did not prove the unchanged controller's ambient merge precedence. The tautological assertion was removed and the release note narrowed to the behavior actually exercised. The source repair, real private-temp Bash probe and source/external write refusals remain. No controller merge code or isolation policy is changed in this repair.
+
+Maintenance provenance: codex/lab-benchmark-review-temp, repair 5f3e9b6d48b61fde4079420d00fbe985d87fa43b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-provider-state.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-review-auth - v0.3.399 - 2026-09-17
 
 # Bounded isolated reviewer authentication repair

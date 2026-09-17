@@ -111,9 +111,18 @@ export function isValidationTransportEnvKey(
  * validation, which is the normal remedy for a stale receipt.
  */
 export const HOST_LAUNCHER_SESSION_ENV_KEYS = [
+  // Lab reuse-host-session-environment: per-session values the Claude Code host
+  // injects that no validation command reads (zero readers in this repository).
+  // BAGGAGE carries the host's telemetry propagation (sentry-trace_id, release);
+  // CLAUDE_EFFORT is the session's effort setting; CLAUDE_CODE_HOST_SESSION_ID
+  // names the host session. Left ambient, a new session or effort level re-ran
+  // the full plan as validation-identity-changed.
+  'BAGGAGE',
   'CLAUDE_CODE_CHILD_SESSION',
+  'CLAUDE_CODE_HOST_SESSION_ID',
   'CLAUDE_CODE_MESSAGING_SOCKET',
   'CLAUDE_CODE_MESSAGING_TOKEN',
+  'CLAUDE_EFFORT',
   'CLAUDE_PID',
   'CMUX_SOCKET_PATH',
   'CMUX_TERMINAL_LIFECYCLE_ID',

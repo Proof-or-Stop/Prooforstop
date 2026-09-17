@@ -6458,7 +6458,11 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   // validation-lineage.ts classifier (used by both the reuse and admissibility copies).
   // The net-endpoint diff replaces the per-commit union, so rev-list is no longer used.
   const lineageText = read('packages/main/src/core/validation-lineage.ts');
-  for (const token of ['merge-base', '--is-ancestor', 'diff-tree', 'isStoryMetadataPath']) {
+  // Lab reuse-lineage-material-policy: lineage trust uses the same path policy as
+  // materialHash, so a material-excluded commit cannot force identical re-execution.
+  assert(!lineageText.includes('isStoryMetadataPath'),
+    'shared merge-lineage classifier must not narrow trust back to story metadata only (materialHash ignores more paths)');
+  for (const token of ['merge-base', '--is-ancestor', 'diff-tree', 'isMaterialExcludedPath']) {
     assert(lineageText.includes(token), `shared merge-lineage classifier contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');

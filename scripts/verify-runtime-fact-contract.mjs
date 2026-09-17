@@ -98,6 +98,7 @@ async function main() {
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
   const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  assert(readonlyRuntime.environmentKeys.includes('CLAUDE_CODE_TMPDIR'), 'Provider Bash temporary files must be mapped to the admitted private lane');
   const { materializeHostRunLaunch: crossHostLaunch } = await importDist(root, 'packages/main/dist/core/host-run.js');
   const crossHostArgs = {host:'codex',launchProfile:'cross_host_review_codex',cwd:root,root,promptText:'Runtime profile selection control only; no provider is launched.',env:{},storyId:null,agentType:'runtime-contract',recordedAt:new Date().toISOString(),projectRootHash:'fixture'};
   const providerSandbox = args => { const launch=crossHostLaunch(args); return launch.argv[launch.argv.indexOf('-s')+1]; };

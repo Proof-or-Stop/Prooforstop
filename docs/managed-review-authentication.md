@@ -14,6 +14,13 @@ credential file inside its mode-0700 configuration directory. Custom Claude
 directories never silently fall back to the default account. Lookup errors are
 sanitized; credentials do not appear in argv, public receipts or diagnostics.
 
+The lane sets `CLAUDE_CODE_TMPDIR` to its existing private temporary directory,
+in addition to `TMPDIR`, `TMP` and `TEMP`. On macOS, Claude's Bash tool otherwise
+uses `/tmp/claude-{uid}` outside that lane even when `TMPDIR` is set. This mapping
+keeps shell bookkeeping inside the admitted writable directory; it does not
+permit writes to source or to other temporary directories. Authentication and
+structured-output probes alone do not prove that reviewer shell tools work.
+
 Grok captures its existing `auth.json` and TOML configuration from `GROK_HOME`
 (default `~/.grok`), or uses an existing `XAI_API_KEY`. Each reviewer receives an
 independent `GROK_HOME`; shared leader use and automatic updating are disabled in
