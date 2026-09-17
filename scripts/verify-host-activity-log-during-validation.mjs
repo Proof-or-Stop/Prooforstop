@@ -52,6 +52,15 @@ function callHook(root, command) {
   const r = spawnSync(process.execPath, [hook], { input, env: { ...process.env, HOME: home }, encoding: 'utf8' });
   if (r.status !== 0) throw new Error(`hook exited ${r.status}: ${r.stderr}`);
 }
+function callHookAsync(root, command) {
+  const input = JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' });
+  return new Promise((resolveExit) => {
+    const child = spawn(process.execPath, [hook], { env: { ...process.env, HOME: home }, stdio: ['pipe', 'ignore', 'ignore'] });
+    child.on('exit', (code) => resolveExit(code));
+    child.stdin.end(input);
+  });
+}
+const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', `${createHash('sha256').update(realpathSync(root)).digest('hex')}.jsonl`);
 const log = (root) => join(root, 'docs/story/activity.jsonl');
 const lines = (root) => existsSync(log(root)) ? readFileSync(log(root), 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l).detail) : [];
 
@@ -72,6 +81,50 @@ try {
     rows[rows.length - 1].after = JSON.stringify(after);
     expectRepaired(JSON.stringify(after) === JSON.stringify(['during-validation-1', 'during-validation-2', 'after-validation']),
       `deferred lines are delivered in order once validation ends (got ${JSON.stringify(after)})`);
+  }
+  // Ordering: while older deferred lines are pending, new lines queue behind them.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    for (let i = 0; i < 20; i++) callHook(root, `queued-${i}`);
+    rmSync(t, { recursive: true, force: true });
+    const parallel = await Promise.all(Array.from({ length: 8 }, (_, i) => callHookAsync(root, `parallel-${i}`)));
+    const after = lines(root);
+    const queued = Array.from({ length: 20 }, (_, i) => `queued-${i}`);
+    rows.push({ scenario: 'eight hooks start together after validation ends', repoLinesDuring: '-', after: `${after.length} lines` });
+    control(parallel.every((code) => code === 0), 'every concurrent hook exits 0');
+    expectRepaired(JSON.stringify(after.slice(0, 20)) === JSON.stringify(queued),
+      `deferred lines precede every line written after validation (got ${JSON.stringify(after.slice(0, 22))})`);
+    expectRepaired(after.length === 28 && new Set(after.slice(20)).size === 8 && after.slice(20).every((d) => d.startsWith('parallel-')),
+      `no line is lost or duplicated under concurrent flushes (got ${after.length} lines)`);
+  }
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    callHook(root, 'pending-1');
+    rmSync(t, { recursive: true, force: true });
+    const lock = `${spoolFor(root)}.lock`;
+    mkdirSync(lock); writeFileSync(join(lock, 'owner'), String(live.pid));
+    callHook(root, 'while-another-hook-flushes');
+    const whileHeld = lines(root);
+    rmSync(lock, { recursive: true, force: true });
+    callHook(root, 'after-flush');
+    const after = lines(root);
+    rows.push({ scenario: 'another live hook holds the flush lock', repoLinesDuring: whileHeld.length, after: JSON.stringify(after) });
+    expectRepaired(whileHeld.length === 0, `a new line does not overtake a pending flush (found ${JSON.stringify(whileHeld)})`);
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['pending-1', 'while-another-hook-flushes', 'after-flush']), `order preserved after the flush lock is released (got ${JSON.stringify(after)})`);
+  }
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    callHook(root, 'stale-pending');
+    rmSync(t, { recursive: true, force: true });
+    const lock = `${spoolFor(root)}.lock`;
+    mkdirSync(lock); writeFileSync(join(lock, 'owner'), String(deadPid));
+    callHook(root, 'after-stale-lock');
+    const after = lines(root);
+    rows.push({ scenario: 'flush lock left by a dead hook', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['stale-pending', 'after-stale-lock']), `a dead owner's lock does not strand lines (got ${JSON.stringify(after)})`);
   }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [

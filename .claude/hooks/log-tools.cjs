@@ -46,8 +46,12 @@ process.stdin.on('end', () => {
       // host's own bookkeeping outside the repository until the run ends.
       fs.mkdirSync(path.dirname(spool), { recursive: true, mode: 0o700 });
       fs.appendFileSync(spool, JSON.stringify({ target, line }) + '\n', { mode: 0o600 });
+    } else if (spool && (fs.existsSync(spool) || fs.existsSync(`${spool}.lock`))) {
+      // Older deferred lines are still pending: queue behind them so the
+      // repository receives every line in its original order.
+      fs.appendFileSync(spool, JSON.stringify({ target, line }) + '\n', { mode: 0o600 });
+      flushSpool(spool);
     } else {
-      if (spool) flushSpool(spool);
       fs.mkdirSync(logDir, { recursive: true });
       fs.appendFileSync(target, line);
     }
@@ -101,21 +105,57 @@ function workspaceValidationActive(root) {
   return false;
 }
 
-/** Deliver deferred lines in their original order, then drop the spool. */
+/**
+ * Deliver deferred lines in their original order, then drop the spool. One
+ * flusher at a time (a lock directory owned by a live pid); it drains until no
+ * spool remains, and re-checks after releasing the lock so a line queued while
+ * it was finishing is not stranded.
+ */
 function flushSpool(spool) {
-  const claimed = `${spool}.flushing-${process.pid}`;
-  try { fs.renameSync(spool, claimed); } catch { return; }
-  try {
-    for (const record of fs.readFileSync(claimed, 'utf8').split('\n')) {
-      if (!record) continue;
-      try {
-        const { target, line } = JSON.parse(record);
-        fs.mkdirSync(path.dirname(target), { recursive: true });
-        fs.appendFileSync(target, line);
-      } catch {}
+  const lock = `${spool}.lock`;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    if (!acquireFlushLock(lock)) return;
+    try {
+      while (fs.existsSync(spool)) {
+        const claimed = `${spool}.flushing-${process.pid}`;
+        try { fs.renameSync(spool, claimed); } catch { break; }
+        try {
+          for (const record of fs.readFileSync(claimed, 'utf8').split('\n')) {
+            if (!record) continue;
+            try {
+              const { target, line } = JSON.parse(record);
+              fs.mkdirSync(path.dirname(target), { recursive: true });
+              fs.appendFileSync(target, line);
+            } catch {}
+          }
+        } finally {
+          try { fs.unlinkSync(claimed); } catch {}
+        }
+      }
+    } finally {
+      try { fs.rmSync(lock, { recursive: true, force: true }); } catch {}
     }
-  } finally {
-    try { fs.unlinkSync(claimed); } catch {}
+    if (!fs.existsSync(spool)) return;
+  }
+}
+
+function acquireFlushLock(lock) {
+  try {
+    fs.mkdirSync(lock, { mode: 0o700 });
+    fs.writeFileSync(path.join(lock, 'owner'), String(process.pid));
+    return true;
+  } catch {
+    try {
+      let owner = null;
+      try { owner = Number(fs.readFileSync(path.join(lock, 'owner'), 'utf8')); } catch {}
+      // A lock without an owner record is only abandoned once it is clearly old.
+      if (owner === null && Date.now() - fs.statSync(lock).mtimeMs < 10_000) return false;
+      if (owner !== null && pidAlive(owner)) return false;
+      fs.rmSync(lock, { recursive: true, force: true });
+      fs.mkdirSync(lock, { mode: 0o700 });
+      fs.writeFileSync(path.join(lock, 'owner'), String(process.pid));
+      return true;
+    } catch { return false; }
   }
 }
 
