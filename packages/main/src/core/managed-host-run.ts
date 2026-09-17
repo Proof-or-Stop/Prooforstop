@@ -3491,6 +3491,9 @@ export async function runManagedHostRunWorker(
         runId: spec.runId,
         hasValidProposal: existingProposal !== null,
       });
+      if (spec.host === 'grok' && existingProposal) {
+        return writeTerminal(paths, 'failed', 'grok_compatibility_proposal_unsupported', result.replacementSafe, result, now());
+      }
       // Older adapters may already have submitted one descriptor-attested,
       // immutable proposal before their ordinary final prose is emitted. That
       // proposal is the compatibility authority; only runs without it use the
@@ -3513,7 +3516,7 @@ export async function runManagedHostRunWorker(
           // the final-result writer takes the immutable-file fence. Its valid
           // proposal is the authority; malformed or absent competitors still
           // leave this final result fail-closed.
-          if (readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
+          if (spec.host !== 'grok' && readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
             return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());
           }
           return writeTerminal(

@@ -35,8 +35,8 @@ function validateInput(host:'codex'|'claude'|'grok',kind:'credentials'|'configur
   }
 }
 function inspectManagedProviderState(host:string,env:NodeJS.ProcessEnv,validateKeychain:boolean): {host:'codex'|'claude'|'grok'; directory:string; credentials:string|null; configuration:string|null; keychain?:true} {
-  if(host!=='codex'&&host!=='claude'&&host!=='grok')throw new Error('managed readonly provider state adapter unsupported');
-  const requested=host==='codex'?(env.CODEX_HOME??join(homedir(),'.codex')):host==='grok'?(env.GROK_HOME??join(homedir(),'.grok')):(env.CLAUDE_CONFIG_DIR??join(homedir(),'.claude'));
+  if((host!=='codex'&&host!=='claude'&&host!=='grok')||!authPolicy.hosts.includes(host))throw new Error('managed readonly provider state adapter unsupported');
+  const requested=host==='codex'?(env.CODEX_HOME??join(homedir(),'.codex')):host==='grok'?(env[authPolicy.grokEnvironmentKey]??join(homedir(),'.grok')):(env.CLAUDE_CONFIG_DIR??join(homedir(),'.claude'));
   if(!isAbsolute(requested))throw new Error('managed provider configuration directory must be absolute');
   const directory=existsSync(requested)?realpathSync(requested):requested;
   const credentials=join(directory,host==='claude'?'.credentials.json':'auth.json');
@@ -95,7 +95,7 @@ export function captureManagedProviderState(host:string,env:NodeJS.ProcessEnv):M
     const config=files.find(file=>file.name==='config.toml');
     const value=config?parseToml(config.bytes.toString('utf8')):{};
     const cli=record(value.cli)?value.cli:{};
-    const bytes=Buffer.from(stringifyToml({...value,cli:{...cli,use_leader:false,auto_update:false}}));
+    const bytes=Buffer.from(stringifyToml({...value,cli:{...cli,use_leader:authPolicy.grokSharedLeader,auto_update:authPolicy.grokAutoUpdate}}));
     if(config)config.bytes=bytes;else files.push({name:'config.toml',bytes});
   }
   const token=Object.freeze({}) as ManagedProviderStateSnapshot;
@@ -123,7 +123,7 @@ export function createManagedProviderState(cache:string,host:string,env:NodeJS.P
   return materializeManagedProviderState(cache,captureManagedProviderState(host,env));
 }
 export function managedProviderStateEnvironment(state:ManagedReviewProviderState):NodeJS.ProcessEnv {
-  return state.host==='codex'?{CODEX_HOME:state.directory}:state.host==='grok'?{GROK_HOME:state.directory,GROK_DISABLE_AUTOUPDATER:'1'}:{CLAUDE_CONFIG_DIR:state.directory};
+  return state.host==='codex'?{CODEX_HOME:state.directory}:state.host==='grok'?{[authPolicy.grokEnvironmentKey]:state.directory,GROK_DISABLE_AUTOUPDATER:authPolicy.grokDisableAutoUpdater}:{CLAUDE_CONFIG_DIR:state.directory};
 }
 
 export interface ManagedProviderSeedBinding {

@@ -30,9 +30,9 @@ export const MACHINE_FIXED_PORT_RUNTIME_POLICY = { directoryMode: 0o700, probeTi
 export const MANAGED_REVIEW_AUTH_RUNTIME_POLICY = {
   hosts: ['codex', 'claude', 'grok'],
   claudeKeychainService: 'Claude Code-credentials', keychainExecutable: '/usr/bin/security',
-  keychainTimeoutMs: 10000, keychainScope: 'default-macos-claude-directory-only',
-  grokEnvironmentKey: 'GROK_HOME', grokSharedLeader: false,
-  secretTransport: 'private-captured-files-only', credentialLogging: 'forbidden',
+  keychainTimeoutMs: 10000,
+  grokEnvironmentKey: 'GROK_HOME', grokSharedLeader: false, grokAutoUpdate: false,
+  grokDisableAutoUpdater: '1',
 } as const;
 export const MANAGED_REVIEW_TEMP_RUNTIME_POLICY = { environmentKeys: ['TMPDIR', 'TMP', 'TEMP'], directoryMode: 0o700, isolation: 'per-managed-review-scratch' } as const;
 export const OWNER_SESSION_IDENTITY_RUNTIME_POLICY = {

@@ -17,7 +17,8 @@ sanitized; credentials do not appear in argv, public receipts or diagnostics.
 Grok captures its existing `auth.json` and TOML configuration from `GROK_HOME`
 (default `~/.grok`), or uses an existing `XAI_API_KEY`. Each reviewer receives an
 independent `GROK_HOME`; shared leader use and automatic updating are disabled in
-the private configuration. The original home, settings and login files are not
+the private configuration. Compatibility proposals cannot complete a Grok run;
+only its single successful structured terminal is eligible. The original home, settings and login files are not
 modified. Home-level managed or requirements policy files are refused until an
 adapter can preserve their semantics; they are never silently omitted.
 
@@ -49,6 +50,13 @@ default-account-only Keychain access with sanitized failures, exclusion of MCP
 credentials, private Grok state, protected prompt transport and structured result
 intake. These local fixtures do not create Story evidence. Real provider probes
 are recorded separately and do not substitute for independent candidate review.
+
+On macOS, run `node --import ./packages/main/dist/index.js packages/main/dist/tasks/managed-review-evidence-smoke.js --grok-isolated-regression`
+for the slower hermetic admission, private build, real synthetic provider process,
+terminal receipt, REVIEW import and acceptance-review integration controls. Its
+compatibility-proposal negatives use the existing explicit controller test seam;
+the positive cases use the production runner and native synthetic executable.
+No test result creates a real Story credential.
 
 Provider references: [Grok headless mode](https://docs.x.ai/build/cli/headless-scripting)
 and [Grok settings](https://docs.x.ai/build/settings). Exact installed CLI help and
