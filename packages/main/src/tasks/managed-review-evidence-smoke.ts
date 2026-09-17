@@ -4204,7 +4204,10 @@ async function grokIsolatedIntegrationRegression(): Promise<void> {
   const workers: Promise<unknown>[] = [];
   const scratches: string[] = [];
   try {
-    for (const scenario of ['review-pass', 'compat-late-error', 'compat-missing', 'acceptance-pass', 'acceptance-late-error']) {
+    const allCases = ['review-pass', 'compat-late-error', 'compat-missing', 'acceptance-pass', 'acceptance-late-error'];
+    const selected = process.argv[3] ? process.argv[3].split(',') : allCases;
+    assert(selected.length > 0 && selected.every(name => allCases.includes(name)));
+    for (const scenario of selected) {
       for (const key of Object.keys(process.env)) delete process.env[key];
       Object.assign(process.env, withoutManagedAmbientAuthority(withoutReviewerDispatchAuthority(original)));
       process.env.PROOF_OR_STOP_SESSION_ID = 'grok-isolated-fixture';
@@ -4296,7 +4299,8 @@ async function grokIsolatedIntegrationRegression(): Promise<void> {
         assert.equal(pass?.managedEvidenceBinding?.providerHost, 'grok');
       } else if (scenario.startsWith('compat')) {
         assert.ok(readManagedReviewEvidenceProposal(root, runId), 'valid compatibility proposal was actually written');
-        assert.throws(() => createManagedReviewEvidenceHandlers(context).managed_review_evidence_import({ runId, receiptId: receipt.receiptId }), /failed|completed|terminal|receipt/);
+        assert.equal((await getManagedHostRunStatus({ root, runId })).run.terminal?.reason, 'grok_compatibility_proposal_unsupported');
+        assert.throws(() => createManagedReviewEvidenceHandlers(context).managed_review_evidence_import({ runId, receiptId: receipt.receiptId }), /failed|completed|terminal|receipt|signature_invalid,producer_owned_required/);
       } else {
         const expected = { ...subject, storyId: STORY_ID, promptDigest: readManagedHostRunBinding(root, runId).promptDigest,
           publicKey: managedAcceptanceReviewPublicKey(root, runId)! };
@@ -4306,7 +4310,7 @@ async function grokIsolatedIntegrationRegression(): Promise<void> {
       assert.equal(scratches.every(p => !existsSync(p)), true, 'all owned readonly lanes are cleaned');
       console.log('GROK_ISOLATED_INTEGRATION_CASE_PASS', scenario);
     }
-    console.log('GROK_ISOLATED_ADMISSION_WORKER_IMPORT_ACCEPTANCE_PASS');
+    console.log(process.argv[3] ? 'GROK_ISOLATED_SELECTED_CASES_PASS' : 'GROK_ISOLATED_ADMISSION_WORKER_IMPORT_ACCEPTANCE_PASS');
   } finally {
     await Promise.allSettled(workers);
     process.chdir(originalCwd); resetConfigCache(); resetSessionIdForTest();

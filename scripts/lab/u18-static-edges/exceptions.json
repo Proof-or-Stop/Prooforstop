@@ -8118,7 +8118,7 @@
       "id": "EX-0095",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:153:execFileSync",
       "callDigest": "5617576b499027612ec09aa204076e8e57149595f3b1316ef9e92d0eaebb49c6",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8131,12 +8131,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 151,
           "endLine": 161,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "    assert.equal(env[key], undefined, `host-owned fixture env must not inherit ${key}`);\n  }\n  const observed = execFileSync(\n    process.execPath,\n    ['-e', 'process.stdout.write(JSON.stringify({agent: process.env.PROOF_OR_STOP_AGENT ?? null, role: process.env.PROOF_OR_STOP_ACTIVITY_ROLE ?? null}))'],\n    { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },\n  );\n  assert.deepEqual(\n    JSON.parse(observed),\n    { agent: null, role: null },\n    `host-owned fixture child inherited reviewer dispatch authority: ${observed}`,"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8149,7 +8149,7 @@
       "id": "EX-0096",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:467:spawnSync",
       "callDigest": "bd2482e4e5bae8ba4c6ecf4d17a6fc1cfcd43bdd580cda1d3c8ff98ad10c66ba",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8162,12 +8162,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 465,
           "endLine": 475,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "    try { readFileSync(gatePath); return true; } catch { return false; }\n  }, 'sanitized provider tool child was never released');\n  const result = spawnSync(process.execPath, [CLI, 'managed_review_proposal_set', JSON.stringify({\n    storyId: STORY_ID,\n    providerAgent: LANE,\n    lane: LANE,\n    reviewRunId,\n    conclusion: 'pass',\n    note: 'Sanitized Codex tool child authored this exact provider verdict.',\n    ...managedReadEvidence(root),\n  })], {"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8180,7 +8180,7 @@
       "id": "EX-0097",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:497:spawn",
       "callDigest": "5d655c9ba4149cd4834fb08625a11c9f4a0e63ded2712324ae7d44189f9ef2c7",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8193,12 +8193,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 495,
           "endLine": 505,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "): Promise<{ status: number | null; stdout: string; stderr: string }> {\n  const childEnvironment = withoutManagedAmbientAuthority(env);\n  const child = spawn(process.execPath, [CLI, command, JSON.stringify(args)], {\n    cwd: root,\n    env: {\n      ...childEnvironment,\n      LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '3',\n    },\n    stdio: ['ignore', 'pipe', 'pipe', 'pipe'],\n  });\n  let stdout = '';"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8211,7 +8211,7 @@
       "id": "EX-0098",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:554:spawn",
       "callDigest": "084044ebe5b8707554a3ffa7a5a3da52b1be6775a9a5597d13448631f7c9a3e0",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8224,12 +8224,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 552,
           "endLine": 562,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "): Promise<{ status: number | null; stdout: string; stderr: string }> {\n  const childEnvironment = withoutManagedAmbientAuthority(env);\n  const child = spawn(process.execPath, [SELF, '--brokered-native-binding-fixture', root, JSON.stringify(args)], {\n    cwd: root,\n    env: {\n      ...childEnvironment,\n      LATTICE_NATIVE_REVIEW_ATTESTATION_FD: '3',\n    },\n    stdio: ['ignore', 'pipe', 'pipe', 'pipe'],\n  });\n  let stdout = '';"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8242,7 +8242,7 @@
       "id": "EX-0099",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:579:spawn",
       "callDigest": "5716033cf41268ad65c91245f56c8847c1f99d4fea5135e217cd1c4a58bf30f0",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8255,12 +8255,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 577,
           "endLine": 587,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "  attestation: ReturnType<typeof signManagedReviewProposalInvocation>,\n): Promise<{ status: number | null; stdout: string; stderr: string }> {\n  const child = spawn(process.execPath, [CLI, 'managed_review_proposal_set', JSON.stringify(args)], {\n    cwd: root,\n    env: {\n      PATH: process.env.PATH ?? '/usr/bin:/bin',\n      LATTICE_MANAGED_REVIEW_INVOCATION_FD: '3',\n    },\n    stdio: ['ignore', 'pipe', 'pipe', 'pipe'],\n  });\n  let stdout = '';"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8273,7 +8273,7 @@
       "id": "EX-0100",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:629:spawn",
       "callDigest": "c18c371a36901f3122ab0dda669376347c6ac33c687664d5329c61619f9c8ae3",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8286,12 +8286,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 627,
           "endLine": 637,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "  let descriptorPrivateKey = '';\n  const descriptorLauncher: import('../core/managed-host-run.js').ManagedHostRunWorkerLauncher = request => {\n    const child = spawn(process.execPath, [CLI, '--root', request.root, 'host_run_worker', JSON.stringify({ runId: request.runId })], {\n      cwd: request.root,\n      detached: true,\n      env: {\n        ...process.env,\n        LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD: '3',\n      },\n      stdio: ['ignore', 'ignore', 'ignore', 'pipe'],\n    });"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8304,7 +8304,7 @@
       "id": "EX-0101",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1517:spawn",
       "callDigest": "55482059a5f3cc792e8672da20762323e47804ddeb82b05d1813bf639cd963cd",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8317,12 +8317,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 1515,
           "endLine": 1525,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "        const readyPath = join(root, `${runId}-proposal-${index}.ready`);\n        const resultPath = join(root, `${runId}-proposal-${index}.result`);\n        const child = spawn(process.execPath, [SELF, '--proposal-worker', root, runId, readyPath, proposalBarrier, resultPath], {\n          cwd: root,\n          env: plan.env,\n          stdio: 'ignore',\n        });\n        return { child, exit: waitForExit(child), readyPath, resultPath };\n      });\n      await eventually(async () => workers.every(worker => {\n        try { readFileSync(worker.readyPath); return true; } catch { return false; }"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8335,7 +8335,7 @@
       "id": "EX-0102",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1584:spawn",
       "callDigest": "c94cfc0a9350edd1ec2c83f029bf16b13e8b7cae3ad90f743abe271384a15d4c",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8348,12 +8348,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 1582,
           "endLine": 1592,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "      const readyPath = join(root, `import-worker-${index}.ready`);\n      const resultPath = join(root, `import-worker-${index}.result`);\n      const child = spawn(process.execPath, [\n        SELF, '--import-worker', root, submitted.runId, 'AUTO',\n        readyPath, importBarrier, resultPath,\n      ], { cwd: root, env: hostOwnedChildEnv(), stdio: 'ignore' });\n      return { child, exit: waitForExit(child), readyPath, resultPath };\n    });\n    await eventually(async () => importWorkers.every(worker => {\n      try { readFileSync(worker.readyPath); return true; } catch { return false; }\n    }), 'concurrent import workers did not reach the pre-terminal barrier');"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8366,7 +8366,7 @@
       "id": "EX-0103",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2297:spawn",
       "callDigest": "2b37076e05a496a584e48f1683af04e974be698e03f7263c910260811bb194d0",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8379,12 +8379,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 2295,
           "endLine": 2305,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "    const sanitizedToolRunner: HostRunRunner = async plan => {\n      const gatePath = join(root, `${plan.env.LATTICE_MANAGED_HOST_RUN_ID}-sanitized-tool.go`);\n      const child = spawn(process.execPath, [SELF, '--sanitized-proposal-tool', root, gatePath, sanitizedReviewRunId], {\n        cwd: root,\n        detached: true,\n        env: { PATH: process.env.PATH ?? '/usr/bin:/bin' },\n        stdio: ['ignore', 'pipe', 'pipe', 'pipe'],\n      });\n      assert.ok(child.pid);\n      const providerIdentity = {\n        pid: child.pid!,"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8397,7 +8397,7 @@
       "id": "EX-0104",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2420:spawn",
       "callDigest": "23c0e8fb26d9bed4234ea2b925136ec1a2b9fc6084fe062d72ffbfd1a7058b35",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8410,12 +8410,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 2418,
           "endLine": 2428,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "    let descriptorPrivateKey = '';\n    const descriptorLauncher: import('../core/managed-host-run.js').ManagedHostRunWorkerLauncher = request => {\n      const child = spawn(process.execPath, [CLI, '--root', request.root, 'host_run_worker', JSON.stringify({ runId: request.runId })], {\n        cwd: request.root,\n        detached: true,\n        env: {\n          ...process.env,\n          LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD: '3',\n        },\n        stdio: ['ignore', 'ignore', 'ignore', 'pipe'],\n      });"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8428,7 +8428,7 @@
       "id": "EX-0105",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2650:spawnSync",
       "callDigest": "0e5f33cdb491dc314ba34cb57a520ce6a37b10e903e75283e39d80b959c41601",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8441,12 +8441,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 2648,
           "endLine": 2658,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "      'compatibility proposal ingress rejects a trimmed findings note shorter than ten characters',\n    );\n    const rawSameUidProposal = spawnSync(process.execPath, [CLI, 'managed_review_proposal_set', JSON.stringify(forgedProposal)], {\n      cwd: root,\n      encoding: 'utf8',\n      env: { PATH: process.env.PATH ?? '/usr/bin:/bin' },\n    });\n    assert.notEqual(rawSameUidProposal.status, 0,\n      'same-UID raw CLI without the broker descriptor cannot submit a managed reviewer proposal');\n    assert.match(`${rawSameUidProposal.stderr ?? ''}\\n${rawSameUidProposal.stdout ?? ''}`,\n      /match exactly one active managed reviewer|proposal capability or agent identity is missing or mismatched/,"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8459,7 +8459,7 @@
       "id": "EX-0106",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2660:spawn",
       "callDigest": "552b18cd7b1e12867b0ded88d62f60f5b202ef4f86ff37d3da14ba0236110ecc",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8472,12 +8472,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 2658,
           "endLine": 2668,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "      /match exactly one active managed reviewer|proposal capability or agent identity is missing or mismatched/,\n      'same-UID raw CLI remains outside the provider invocation authority boundary');\n    const detachedToolChild = spawn(process.execPath, [CLI, 'managed_review_proposal_set', JSON.stringify(forgedProposal)], {\n      cwd: root,\n      detached: true,\n      env: { PATH: process.env.PATH ?? '/usr/bin:/bin' },\n      stdio: ['ignore', 'pipe', 'pipe'],\n    });\n    let detachedToolStdout = '';\n    let detachedToolStderr = '';\n    detachedToolChild.stdout!.setEncoding('utf8');"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8490,7 +8490,7 @@
       "id": "EX-0107",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3447:spawnSync",
       "callDigest": "5fab1b73673a90f9fc33aed22ea614f08f0d5ae0668d49eec4a6f21ff909550e",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8503,12 +8503,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 3445,
           "endLine": 3455,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "      invocationNonce: randomUUID(),\n    }, brokerKeys.privateKey);\n    const inheritedInline = spawnSync(process.execPath, [CLI, 'review_pass_set', JSON.stringify({\n      storyId: STORY_ID,\n      agent: LANE,\n      reviewRunId: REVIEW_RUN_ID,\n      note: 'An inherited inline environment token must not become native authority.',\n      readManifest: {\n        filesReadFully: ['packages/main/src/example.ts'],\n        filesTriagedByName: [],\n        scanEscalationReason: null,"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8521,7 +8521,7 @@
       "id": "EX-0108",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3604:spawnSync",
       "callDigest": "0b9d0ab06deaac81b4721e9ba4bb23b2be1adf6421cf4f70d42d70a8cd84e99d",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8534,12 +8534,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 3602,
           "endLine": 3612,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "    );\n    const passesBeforeRawCli = store.readReviewPasses(STORY_ID).passes.length;\n    const rawCli = spawnSync(process.execPath, [CLI, 'review_pass_set', JSON.stringify({\n      storyId: STORY_ID,\n      agent: LANE,\n      reviewRunId: REVIEW_RUN_ID,\n      note: 'Raw Claude CLI attempts to write a direct pass against a Codex-native dispatch.',\n      readManifest: {\n        filesReadFully: ['packages/main/src/example.ts'],\n        filesTriagedByName: [],\n        scanEscalationReason: null,"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8552,7 +8552,7 @@
       "id": "EX-0109",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3640:spawnSync",
       "callDigest": "11b7625247e6b95145fc121c84b442bed5bbf2a8e1e49349e5be2c73e3ba47e0",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8565,12 +8565,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 3638,
           "endLine": 3648,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "    );\n    const findingsBeforeRawCli = store.readFindings(STORY_ID).findings.length;\n    const rawCliFinding = spawnSync(process.execPath, [CLI, 'finding_add', JSON.stringify({\n      storyId: STORY_ID,\n      agent: LANE,\n      reviewRunId: REVIEW_RUN_ID,\n      desc: 'raw cross-provider CLI cannot mint a formal finding',\n      severity: 'high',\n      category: 'adversarial',\n      readManifest: {\n        filesReadFully: ['packages/main/src/example.ts'],"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8583,7 +8583,7 @@
       "id": "EX-0110",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3773:spawn",
       "callDigest": "57a0b89d1f4ef5bc0bceeb091c449b4caed583b1f4ddd559ac5e1dc00a49843e",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8596,12 +8596,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 3771,
           "endLine": 3781,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "      const resultPath = join(root, `distinct-finding-worker-${index}.result`);\n      const afterReadPath = join(root, `distinct-finding-worker-${index}.after-read`);\n      const child = spawn(process.execPath, [\n        SELF, '--import-worker', root, candidate.runId, candidate.receiptId,\n        readyPath, findingStartBarrier, resultPath, afterReadPath, findingPersistBarrier,\n      ], { cwd: root, env: hostOwnedChildEnv(), stdio: 'ignore' });\n      return { child, exit: waitForExit(child), readyPath, afterReadPath };\n    });\n    await eventually(async () => findingImportWorkers.every(worker => existsSync(worker.readyPath)),\n      'different-receipt finding workers did not reach the start barrier');\n    writeFileSync(findingStartBarrier, 'start');"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -8614,7 +8614,7 @@
       "id": "EX-0111",
       "key": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3885:spawn",
       "callDigest": "0fa081b5736801d06f87cb74756a96ca5a059da8c0a3991b803ec2312dd48848",
-      "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+      "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
       "configIndexes": [
         160
       ],
@@ -8627,12 +8627,12 @@
           "file": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
           "startLine": 3883,
           "endLine": 3893,
-          "sourceDigest": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+          "sourceDigest": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
           "excerpt": "      const resultPath = join(root, `distinct-receipt-worker-${index}.result`);\n      const afterReadPath = join(root, `distinct-receipt-worker-${index}.after-read`);\n      const child = spawn(process.execPath, [\n        SELF, '--import-worker', root, candidate.runId, candidate.receiptId,\n        readyPath, distinctReceiptStartBarrier, resultPath, afterReadPath, distinctReceiptPersistBarrier,\n      ], { cwd: root, env: hostOwnedChildEnv(), stdio: 'ignore' });\n      return { child, exit: waitForExit(child), readyPath, resultPath, afterReadPath };\n    });\n    await eventually(async () => distinctReceiptWorkers.every(worker => existsSync(worker.readyPath)),\n      'distinct receipt import workers did not reach the start barrier');\n    writeFileSync(distinctReceiptStartBarrier, 'start');"
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334"
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58"
       },
       "invocations": [
         {
@@ -14480,7 +14480,7 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "7a0405d6ca313d71036f2ee50493f7644b84983e4adaf737af45213c50e07334",
+        "packages/main/src/tasks/managed-review-evidence-smoke.ts": "037a1aee23b3bc653ea11632980e441986382cc43cdafe56613085cb6aa78d58",
         "packages/main/src/core/review-run.ts": "d38a4cbfc384106ba9d577b582df3755d5964d976fb19b4a88c8059aa9fd2fa4",
         "packages/main/src/core/managed-review-evidence.ts": "d2c213c96f6b88eeac27ccbf36fe4b78f753a5bf7dd0872020fd09727cbecaf8",
         "scripts/verify-process-fact-contract.mjs": "e872988d45e1c872c4ff92eaf00b1903eceb081ea5f71b3a10453c73bd57132d"
