@@ -22,7 +22,6 @@ const GATED_SEVERITIES = new Set(['high', 'critical']);
 // Advisories accepted as known exceptions (no fix available). Keyed by package
 // name; value documents why the exception is tolerated.
 const ALLOWLIST = {
-  pkg: 'GHSA-22r3-9w55-cj54 (moderate, build-only devtool, no upstream fix); tracked for migration to @yao-pkg/pkg',
 };
 
 function auditWorkspace(ws) {

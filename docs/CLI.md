@@ -872,14 +872,14 @@ node packages/main/dist/cli.js doctor --format=json
 
 ## Optional Desktop Binary Packaging
 
-Proof-or-Stop can still be packaged as a single desktop executable with Vercel `pkg`,
+Proof-or-Stop can still be packaged as a single desktop executable with `@yao-pkg/pkg`,
 but this is optional packaging, not the Mac App release path. The desktop build
 uses a small pkg-specific entrypoint that loads the same full local bootstrap as
 `bin/proof-or-stop.js`, so packaged binaries include core commands
 and utils commands such as `aux_doc_list`.
-The entrypoint exists because pkg's Node 18 snapshot loader does not reliably
-run this repo's ESM bootstrap directly from the snapshot; it stages the bundled
-bootstrap assets into a temp runtime directory first.
+Desktop targets embed Node.js 24. The build host requires Node.js 22 or newer
+for `@yao-pkg/pkg`. The entrypoint retains the existing staging of bundled ESM
+bootstrap assets into a temporary runtime directory before loading them.
 
 ```bash
 npm install

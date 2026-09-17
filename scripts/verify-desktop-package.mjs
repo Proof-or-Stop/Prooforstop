@@ -78,10 +78,11 @@ assertIncludes(help, 'session_brief', 'core help');
 
 const utilsHelp = runBinary(['aux_doc_list', '--help'], 'utils command help');
 assertIncludes(utilsHelp, 'aux_doc_list', 'utils command help');
-assertIncludes(utilsHelp, '文档', 'utils command help');
+assertIncludes(utilsHelp, 'List project documents', 'utils command help');
 
 const codexVerification = runBinary(['verify_codex'], 'codex adapter verification');
 assertIncludes(codexVerification, 'Codex adapter checks passed', 'codex adapter verification');
-assertIncludes(codexVerification, 'Local wrapper heartbeat', 'codex adapter verification');
+assertIncludes(codexVerification, 'Global fallback heartbeat', 'codex adapter verification');
+assertIncludes(codexVerification, 'skipped in packaged desktop runtime', 'standalone heartbeat exemption');
 
 console.log(`packaged executable smoke passed: ${binary}`);

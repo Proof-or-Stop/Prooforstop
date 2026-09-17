@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab dependabot-20260917 - v0.3.398 - 2026-09-17
+
+# Dependabot dependency remediation (Lab dependabot-20260917)
+
+GitHub's open-alert snapshot on 2026-09-17 contained 14 alerts in the root lockfile: four high fast-uri alerts, seven Hono alerts (six moderate and one low), two moderate qs alerts, and the moderate unpatched Vercel pkg advisory. This local Lab targets that dependency set and the desktop compatibility required by the packager replacement.
+
+The root lock now resolves fast-uri 3.1.8, Hono 4.13.8 and qs 6.16.0. The retired pkg 5.8.1 development dependency is replaced with @yao-pkg/pkg 6.22.0; its obsolete audit exception is removed. Desktop targets use Node 24. The staging entry preserves original package.json bytes because the new packager rewrites ESM manifests for its CommonJS snapshot. The existing lazy inspector compatibility shim is retained because native pkg carriers omit inspector support. Desktop smoke assertions now match the current English help and standalone heartbeat diagnostics. CLI packaging documentation describes the updated tool and runtime.
+
+The Lab recorded a target RED against the old four dependency versions before repair. The exact pinned command `node scripts/verify-dependabot-remediation.mjs` passed: zero npm audit vulnerabilities across root, main, utils, lab and graph; desktop compilation; and real macOS ARM64 standalone binary checks for core help, auxiliary help and Codex verification with system Node excluded from PATH. `node scripts/verify-cli-audit-runtime-coverage.mjs` also passed, including rewritten-manifest restoration and refusal of mismatched runtime versions. A direct runtime smoke covered Hono requests, qs parsing, AJV validation, and MCP server/HTTP transport construction and shutdown.
+
+This is local Lab RED/GREEN maintenance evidence, not formal Story DONE or signed product-release evidence. Windows, Linux and macOS x64 binaries were not executed. Full repository tests were not run. The independent Claude (Anthropic) audit passed for the repair HEAD; Lab finish must audit the prepared release candidate again. The user explicitly authorized local Lab finish integration. No remote push is authorized or performed. GitHub alerts will need reevaluation after an authorized push reaches the default branch.
+
+Finish preflight also detected dependency-digest drift in the static validation exception inventory. Review confirmed the only package manifest change is the packager dev dependency, with scripts unchanged. Exactly 78 existing package.json/package-lock.json pins were refreshed against that reviewed change; exception reasons, classifications, call sites, selectors and evidence remained unchanged. The static scanner passed on main, reproduced 60 affected needs-review rows before refresh, and passed after refresh. The pinned Lab command now also requires that scanner to pass.
+
+Maintenance provenance: codex/lab-dependabot-20260917, repair 603c04f252ad968bb7cf5023736de67ff609aff9.
+Verification command (replayed before integration and on main): `["node","scripts/verify-dependabot-remediation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-process-refusal-order - v0.3.397 - 2026-09-16
 
 # Process-contract refusal ordering repair
