@@ -1,58 +1,5 @@
 # Changelog
 
-## Lab quorum-smoke-host-activity-temp-overlap - v0.3.407 - 2026-09-17
-
-# Lab quorum-smoke-host-activity-temp-overlap
-
-## Problem
-1. The quorum smoke's protected-mutation guard counted every write event in the active worktree.
-   A host tool-logging hook appends to the gitignored activity log while the operator keeps
-   working, so a run with 73/73 cases passing was reported FAIL on 2026-09-17.
-2. The ambient temp check refused whenever the temp parent contained any registered worktree. A
-   managed review registering a worktree under the shared TMPDIR made every quorum smoke refuse at
-   startup, although a fresh mkdtemp child cannot write inside that sibling.
-
-## Behavior change
-1. The guard snapshots existing host activity logs (`.proof-or-stop/activity.jsonl`,
-   `docs/story/activity.jsonl`, and story-scoped `activity.jsonl` under both story directories)
-   and tolerates an event on one of them only if the file still starts with its exact start bytes
-   (append-only), or it was absent at start at an enumerated location. Rewrites, truncations,
-   deletions, look-alike names and every other path remain mutations. Tolerated paths are reported
-   as `hostActivityPaths`.
-2. The ambient temp parent is refused only when it is inside or equal to a protected root. The
-   created base is still checked against every protected root in both directions, and an inherited
-   owned base keeps the two-way check.
-
-## Verification
-RED/GREEN: `node scripts/verify-quorum-smoke-host-activity-temp-overlap.mjs`. The guard's watcher is
-replaced by a controllable fake (FSEvents delivery on this machine was observed to stall entirely),
-so events are delivered deterministically; the guard's decision logic is the real code.
-- Before: three activity-log appends -> guard not clean (3 unowned paths); temp parent containing a
-  sibling worktree -> refused.
-- After: appends tolerated; temp parent allowed; controls (tracked source write, rewritten log,
-  `.bak` look-alike, temp parent inside the worktree) still refused.
-red-B-e40f-quorum-submit-harness `--case=resource-parallel-contract` ran its temp-allocation proofs
-and then stopped at a resource-claim assertion about proof-or-stop.config.json, which this Lab does
-not touch.
-
-## Observation (not changed here)
-fs.watch recursive delivered no events at all on this machine for several minutes, so the guard's
-watcher can be blind while fseventsd is backlogged; the state digest still covers tracked and
-untracked non-ignored bytes.
-
-## Pre-audit test hardening
-The temp-parent scenario previously asserted only the absence of the refusal message; in a fixture repository the case body fails for an unrelated reason (no product context), so that assertion could pass trivially. It now requires, from the run record: the owned temp base allocated under the temp parent and outside the sibling worktree, a clean protected-mutation guard, and a case outcome identical to a baseline run with an ordinary temp parent (both FAIL in the fixture repository; this proves the temp decision, not case success). Control: a refused run allocates no temp base. RED on the pre-fix source: 5 failing expectations; GREEN: 11 checks. End-to-end case success was measured separately on this machine (73/73 cases, blocked only by the host activity appends).
-
-## Independent audit repair
-Audit 32f51d5f (different vendor) rejected the candidate with two findings, both repaired:
-1. (high) The exemption followed symlinks and compared content only, so replacing the ignored log with a symlink to a file carrying the original prefix was accepted as an append: a structural mutation could report clean and redirect later host logging. Logs are now opened with O_RDONLY|O_NONBLOCK|O_NOFOLLOW, must be regular files, and are bound to their device/inode pair, so only the SAME file growing counts as an append.
-2. (medium) `snapshotHostActivityLogs` turned every read error into an absent baseline, so a log that was unreadable at the start and readable later had arbitrary content accepted. A baseline is now 'absent' only on a proven ENOENT; anything else is ineligible and can never be exempted.
-New controls: replacement by a symlink to an out-of-repository file carrying the prefix, replacement with byte-identical content (new inode), and a log unreadable (mode 0o000) at baseline then replaced. RED on the rejected version: all three reported clean; GREEN: 14 checks.
-
-Maintenance provenance: codex/lab-quorum-smoke-host-activity-temp-overlap, repair 9d2042d35247f39ad7384fe50067ae01437fdc41.
-Verification command (replayed before integration and on main): `["node","scripts/verify-quorum-smoke-host-activity-temp-overlap.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab fixture-machine-retention - v0.3.406 - 2026-09-17
 
 # Lab fixture-machine-retention
