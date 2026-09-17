@@ -2131,7 +2131,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           );
         }
         if (configuredCommands.length === 0 && fallbackCommands.length === 0) {
-          const buildNoValidatorResult = () => {
+          const buildNoValidatorResult = async () => {
             if (!args.story) {
               return externalResult({
                 provider: 'proof-or-stop-verifier-no-validation-entry',
@@ -2164,6 +2164,18 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             if (officialHeavyStoryValidate && args.story) {
               claimTestAdmissibleRoutineValidationWindow(ctx, args.story);
             }
+            // Nothing will execute here, but the evidence still has to bind the
+            // compiled artifacts on disk, and only the executor may observe that
+            // identity (a writer that derived it could attribute a build to
+            // commands that never ran it). An empty plan is that same executor
+            // with zero commands: its start and end observations are the same
+            // instant with nothing in between, so the binding it stamps cannot
+            // belong to any command. Without this, a project with no configured
+            // validator could not persist validation evidence at all.
+            const noCommandPlan = await executeValidationPlan(
+              { provider: 'proof-or-stop-verifier-no-validation-entry', commands: [], warnings: [] },
+              projectRoot, currentHead(handlerGitCwd), args.story, { gitCwd: handlerGitCwd },
+            );
             const base = externalResult({
               provider: 'proof-or-stop-verifier-no-validation-entry',
               status: 'warn',
@@ -2179,15 +2191,20 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ],
               headSha: currentHead(handlerGitCwd),
             });
+            const boundBase = {
+              ...base,
+              ...(noCommandPlan.buildArtifactsHash ? { buildArtifactsHash: noCommandPlan.buildArtifactsHash } : {}),
+              ...(noCommandPlan.buildArtifacts ? { buildArtifacts: noCommandPlan.buildArtifacts } : {}),
+            };
             return {
               ...decorateAndMaybePersistStoryValidation(
-                ctx, args.story, focus, base, built?.identity, [], 0, undefined, args,
+                ctx, args.story, focus, boundBase, built?.identity, [], 0, undefined, args,
                 reuse ? routineReuseTerminalAttribution(reuse) : undefined,
               ),
               ...(reuse && built ? { reuse: { ...reuse, identityDigest: built.identity.digest } } : {}),
             };
           };
-          const decorated = buildNoValidatorResult();
+          const decorated = await buildNoValidatorResult();
           return respond(decorated);
         }
 

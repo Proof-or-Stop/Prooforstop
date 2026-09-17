@@ -639,6 +639,52 @@ try {
     expectRepaired(!abab.buildArtifactsHash, 'a plan whose test executed swapped bytes must not carry a build binding');
     writeFileSync(join(mainDist, 'x.js'), BUILD_A);
 
+    // Accepted limitation, pinned here so it cannot change unnoticed. ONE
+    // command can swap a different build in, test against it, and restore the
+    // registered build's exact bytes and timestamps before it returns. Both
+    // boundary observations of that command see the registered build, so the
+    // plan passes and binds bytes its test never executed. The assertions below
+    // therefore describe what the executor does NOT detect; they are controls of
+    // the documented bound in core/build-artifacts-identity.ts, not of a repair.
+    //
+    // Closing it needs OS-enforced write denial for the command and every
+    // descendant, which is a platform policy rather than an observation. Even
+    // that would not bound what the command executes: it can copy the artifacts
+    // elsewhere, alter the copy and load that instead, leaving the trees
+    // untouched. So no observation of these trees can promise that the tests
+    // executed the bound build; it promises the bytes at the boundaries.
+    //
+    // If this case ever FAILS, the window was closed: move the scenario to
+    // expectRepaired, and narrow the bound recorded in build-artifacts-identity.
+    const IN_COMMAND_SWAP = [
+      "const fs = require('node:fs');",
+      "const cp = require('node:child_process');",
+      "const p = 'packages/main/dist/tasks/x.js';",
+      'const a = fs.readFileSync(p);',
+      'const st = fs.statSync(p);',
+      `fs.writeFileSync(p, ${JSON.stringify('process.exit(0); // build B\n')});`,
+      'const inner = cp.spawnSync(process.execPath, [p]);',
+      'fs.writeFileSync(p, a);',
+      'fs.utimesSync(p, st.atime, st.mtime);',
+      'process.exit(inner.status === 0 ? 0 : 1);',
+    ].join(' ');
+    const SWAP_LABEL = 'swap, test and restore inside one command';
+    const inCommand = await run([
+      { label: 'build', command: 'node', args: ['-e', FAILING_BUILD_A], timeoutMs: 20_000, providesBuildProof: 'packages-main-build' },
+      { label: SWAP_LABEL, command: 'node', args: ['-e', IN_COMMAND_SWAP], timeoutMs: 20_000 },
+    ]);
+    const swapStep = inCommand.commands.find((command) => command.label === SWAP_LABEL);
+    check(spawnSync(process.execPath, [join(mainDist, 'x.js')]).status === 1,
+      'trap: the restored build A must fail, so a passing inner test can only have executed build B');
+    check(swapStep?.code === 0, `trap: the inner test must have passed against the swapped build (code=${swapStep?.code})`);
+    check(Boolean(swapStep?.buildArtifactsBefore) && swapStep?.buildArtifactsBefore === swapStep?.buildArtifactsAfter,
+      'accepted limitation: both boundary observations of the swapping command are identical');
+    check(inCommand.allPass === true,
+      `accepted limitation: an in-command swap-test-restore is not detected (${inCommand.details.join(' | ')})`);
+    if (binding) check(inCommand.buildArtifactsHash === binding.currentBuildArtifactsHash(root),
+      'accepted limitation: the plan binds the bytes on disk, which the inner test did not execute');
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+
     // Audit #8: dynamic runs aggregate several plans (build wave, selected
     // plans, shards). The aggregate must carry the validated binding of the
     // sequence, or publication of every authoritative dynamic run fails as
@@ -723,7 +769,9 @@ try {
       writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/runtime/\nnode_modules\ndist\n');
       writeFileSync(join(root, 'source.ts'), 'export const handlerBinding = true;\n');
       writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', workflow: { profile: 'light' } }, null, 2));
-      writeFileSync(join(root, 'validate.ts'), validateTs);
+      // null: a project with no validator at all (no validate.ts, no configured
+      // validate.commands, no discoverable fallback).
+      if (validateTs !== null) writeFileSync(join(root, 'validate.ts'), validateTs);
       mkdirSync(join(root, 'node_modules/.bin'), { recursive: true });
       writeFileSync(join(root, 'node_modules/.bin/tsx'), '#!/bin/sh\nexec node "$@"\n', { mode: 0o755 });
       git(root, ['init', '-q', '-b', 'main']);
@@ -761,6 +809,21 @@ try {
     const cleanJson = clean.runCli(['--json']);
     check(cleanJson.status === 0, `control: clean validate file must pass with --json (${cleanJson.text.slice(0, 400)})`);
     expectRepaired(/^[a-f0-9]{64}$/.test(clean.evidence()?.buildArtifactsHash ?? ''), 'validate-file PASS evidence does not carry the executor build binding');
+
+    // Audit #8 follow-up, found by running main's reuse and terminal verifiers
+    // against the merged tree: a Story in a project with NO configured validator never
+    // reaches the executor, so its evidence carried no binding and this Lab's
+    // publication guard refused it as build_artifacts_unavailable — a project
+    // without validate.commands could not persist validation evidence at all.
+    // The path now observes the identity through an empty executor plan.
+    const noValidator = seed('no-validator', null);
+    const noValidatorRun = noValidator.runCli(['--json']);
+    expectRepaired(noValidatorRun.status === 0,
+      `a Story in a project with no configured validator cannot persist validation evidence (${noValidatorRun.text.slice(0, 400)})`);
+    expectRepaired(/^[a-f0-9]{64}$/.test(noValidator.evidence()?.buildArtifactsHash ?? ''),
+      'no-validator evidence does not record the build identity the executor observed');
+    check(noValidator.evidence()?.result === 'PASS' || noValidator.evidence()?.result === 'WARN',
+      `control: the no-validator run must persist a non-failing result (got ${JSON.stringify(noValidator.evidence()?.result)})`);
 
     // Target: an exit-zero validate file that rewrites the artifacts it tested,
     // and prints a forged binding of its own.
