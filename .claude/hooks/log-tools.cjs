@@ -41,36 +41,18 @@ process.stdin.on('end', () => {
     const target = path.join(logDir, 'activity.jsonl');
     const line = JSON.stringify(entry) + '\n';
     const discovered = discoverWorkspace(root);
-    if (discovered === 'uncertain') {
-      // Discovery failed (timeout, missing git, unreadable path). The repository may be
-      // validating right now, so the record waits in a discovery-pending queue keyed by
-      // this path; a later hook that can discover the worktree adopts it.
-      publishSpoolRecord(pendingSpoolDir(root), { target, line });
-    } else if (discovered === 'non-repository') {
-      // Positively outside a repository: nothing can be validating, so the queue is
-      // delivered directly - through the same claims and ordering, so concurrent hooks
-      // never duplicate a record or pass an older one.
-      const queue = pendingSpoolDir(root);
-      publishSpoolRecord(queue, { target, line });
-      deliverQueue(queue, null);
-    } else {
-      // The discovered worktree is reused everywhere below: re-running discovery could
-      // fail and silently move records into a different queue.
-      const spool = spoolDirFor(discovered);
-      if (!adoptPendingRecords(root, spool)) {
-        // Older records could not be moved into this worktree's queue. The current record
-        // is still published, into whichever queue is writable: record names are
-        // time-ordered, so the older records sort ahead of it once both queues merge.
-        // Nothing is delivered until adoption succeeds.
-        publishToFirstWritableQueue([spool, pendingSpoolDir(root)], { target, line });
-      } else {
-        // Every repository write happens inside the product's own workspace validation
-        // capacity ticket, so a validation starting concurrently queues behind this
-        // millisecond-long write instead of racing it.
-        publishSpoolRecord(spool, { target, line });
-        deliverQueue(spool, discovered);
-      }
+    // One queue per cwd, whatever discovery says: publication, ordering and delivery all
+    // read the same queue, so a record published while discovery was failing can never be
+    // overtaken by a later one. Discovery decides only whether delivery may run now.
+    publishSpoolRecord(queueDirs(root), { target, line });
+    if (discovered === 'non-repository') {
+      // Positively outside a repository: nothing can be validating, so deliver directly.
+      deliverQueue(root, null);
+    } else if (discovered !== 'uncertain') {
+      // Inside a worktree: every write is guarded by a workspace capacity ticket.
+      deliverQueue(root, discovered);
     }
+    // 'uncertain': the repository may be validating, so the record simply waits.
   } catch {}
   process.exit(0);
 });
@@ -94,47 +76,15 @@ function discoverWorkspace(root) {
 }
 
 /** Per-worktree spool directory outside the repository, keyed by the discovered top. */
-/** Publish into the first queue that accepts the record; the last failure propagates. */
-function publishToFirstWritableQueue(queues, record) {
-  let lastError;
-  for (const queue of queues) {
-    try { publishSpoolRecord(queue, record); return; } catch (error) { lastError = error; }
-  }
-  throw lastError;
-}
-
-function spoolDirFor(top) {
-  const key = crypto.createHash('sha256').update(top).digest('hex');
-  return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', key);
-}
-
-/** Queue for records published while the worktree could not be discovered. */
-function pendingSpoolDir(root) {
-  const key = crypto.createHash('sha256').update(`pending:${root}`).digest('hex');
-  return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', `pending-${key}`);
-}
-
-/** Move records published during failed discovery into this worktree's real queue. */
-function adoptPendingRecords(root, spool) {
-  const pending = pendingSpoolDir(root);
-  let names;
-  try { names = fs.readdirSync(pending).filter(name => name.endsWith('.json')); } catch (error) {
-    // Only a confirmed absence means "nothing pending"; anything else is unknown, and
-    // unknown must block newer records rather than let them pass.
-    return error.code === 'ENOENT';
-  }
-  if (names.length === 0) return true;
-  try { fs.mkdirSync(spool, { recursive: true, mode: 0o700 }); } catch { return false; }
-  for (const name of names) {
-    try { fs.renameSync(path.join(pending, name), path.join(spool, name)); } catch {
-      // Another hook may have adopted it, but an indeterminate answer must not read as
-      // success: only a confirmed absence lets newer records through.
-      try { fs.statSync(path.join(pending, name)); return false; } catch (error) {
-        if (error.code !== 'ENOENT') return false;
-      }
-    }
-  }
-  return true;
+/**
+ * The queue directories for one cwd: a primary and an alternative. The alternative exists
+ * only so a record is still retained when the primary cannot be written; delivery reads
+ * both as one queue, ordered by the records' own time-ordered names.
+ */
+function queueDirs(root) {
+  const key = crypto.createHash('sha256').update(`cwd:${root}`).digest('hex');
+  const base = path.join(os.homedir(), '.proof-or-stop', 'activity-spool', key);
+  return [base, `${base}-alt`];
 }
 
 function pidAlive(pid) {
@@ -171,21 +121,26 @@ function workspaceValidationActive(top) {
  * place. Producers never share a file, so a concurrent flush can never rotate a file
  * out from under a half-written record.
  */
-function publishSpoolRecord(spool, record) {
+function publishSpoolRecord(dirs, record) {
   const name = `${String(Date.now()).padStart(14, '0')}-${String(process.pid).padStart(7, '0')}-${crypto.randomBytes(6).toString('hex')}`;
-  const tmp = path.join(spool, `.${name}.tmp`);
-  // Publication is retried once: if anything removed the directory between the mkdir and
-  // the write, the record is still published rather than silently lost.
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      fs.mkdirSync(spool, { recursive: true, mode: 0o700 });
-      fs.writeFileSync(tmp, JSON.stringify(record), { mode: 0o600 });
-      fs.renameSync(tmp, path.join(spool, `${name}.json`));
-      return;
-    } catch (error) {
-      if (attempt === 1 || error.code !== 'ENOENT') throw error;
+  let lastError;
+  for (const spool of dirs) {
+    const tmp = path.join(spool, `.${name}.tmp`);
+    // Publication is retried once per directory: if anything removed it between the mkdir
+    // and the write, the record is still published rather than silently lost.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        fs.mkdirSync(spool, { recursive: true, mode: 0o700 });
+        fs.writeFileSync(tmp, JSON.stringify(record), { mode: 0o600 });
+        fs.renameSync(tmp, path.join(spool, `${name}.json`));
+        return;
+      } catch (error) {
+        lastError = error;
+        if (error.code !== 'ENOENT') break; // this directory is unusable: try the next one
+      }
     }
   }
+  throw lastError;
 }
 
 const RECORD_CLAIM = /^(.*\.json)\.delivering-(\d+)$/;
@@ -195,17 +150,29 @@ const RECORD_CLAIM = /^(.*\.json)\.delivering-(\d+)$/;
  * name. Selecting from this view can never skip a record another hook already claimed,
  * which a "list the unclaimed records" view could.
  */
-function queueView(spool) {
-  let names;
-  try { names = fs.readdirSync(spool); } catch { return []; }
-  return names
-    .map(name => {
-      if (name.endsWith('.json')) return { name, base: name, claimedBy: null };
+/**
+ * A queue directory that cannot be ENUMERATED is unknown, not empty: it may hold records
+ * older than anything visible, so nothing may be delivered while that is true.
+ */
+function queueEnumerable(dirs) {
+  for (const spool of dirs) {
+    try { fs.readdirSync(spool); } catch (error) { if (error.code !== 'ENOENT') return false; }
+  }
+  return true;
+}
+
+function queueView(dirs) {
+  const entries = [];
+  for (const spool of dirs) {
+    let names;
+    try { names = fs.readdirSync(spool); } catch { continue; }
+    for (const name of names) {
+      if (name.endsWith('.json')) { entries.push({ spool, name, base: name, claimedBy: null }); continue; }
       const match = RECORD_CLAIM.exec(name);
-      return match ? { name, base: match[1], claimedBy: Number(match[2]) } : null;
-    })
-    .filter(Boolean)
-    .sort((left, right) => (left.base < right.base ? -1 : left.base > right.base ? 1 : 0));
+      if (match) entries.push({ spool, name, base: match[1], claimedBy: Number(match[2]) });
+    }
+  }
+  return entries.sort((left, right) => (left.base < right.base ? -1 : left.base > right.base ? 1 : 0));
 }
 
 /**
@@ -221,9 +188,11 @@ function queueView(spool) {
  * target, so nothing is lost on a crash or a write failure - delivery is therefore
  * at-least-once: a crash between the append and the removal can repeat one line.
  */
-function deliverQueue(spool, top) {
+function deliverQueue(root, top) {
+  const dirs = queueDirs(root);
+  if (!queueEnumerable(dirs)) return; // unknown queue contents: deliver nothing
   for (let delivered = 0; delivered < 10000; delivered++) {
-    const [oldest] = queueView(spool);
+    const [oldest] = queueView(dirs);
     // A queue directory is never removed: removing it would race a producer that has
     // created it and is about to publish into it. An empty directory is harmless.
     if (!oldest) return;
@@ -231,21 +200,21 @@ function deliverQueue(spool, top) {
       // The oldest record is in flight. A live owner is still making progress, so stand
       // down; a dead owner's claim returns to the queue and is retried here.
       if (pidAlive(oldest.claimedBy)) return;
-      try { fs.renameSync(path.join(spool, oldest.name), path.join(spool, oldest.base)); } catch { return; }
+      try { fs.renameSync(path.join(oldest.spool, oldest.name), path.join(oldest.spool, oldest.base)); } catch { return; }
       continue;
     }
     barrierWait();
     // Outside any repository (top === null) nothing can be validating, so no capacity
     // ticket is involved; inside one, every write is ticket-guarded below.
     if (top !== null && workspaceValidationActive(top)) return; // a validation started
-    const claimed = path.join(spool, `${oldest.base}.delivering-${process.pid}`);
-    try { fs.renameSync(path.join(spool, oldest.base), claimed); } catch { return; } // another hook won it
+    const claimed = path.join(oldest.spool, `${oldest.base}.delivering-${process.pid}`);
+    try { fs.renameSync(path.join(oldest.spool, oldest.base), claimed); } catch { return; } // another hook won it
     // A record that cannot be READ may be perfectly valid (a transient EACCES, EIO or
     // descriptor exhaustion), so it goes back to the queue untouched. Only a record that
     // reads fine and is genuinely malformed is discarded.
     let raw;
     try { raw = fs.readFileSync(claimed, 'utf8'); } catch {
-      try { fs.renameSync(claimed, path.join(spool, oldest.base)); } catch { /* recovered later */ }
+      try { fs.renameSync(claimed, path.join(oldest.spool, oldest.base)); } catch { /* recovered later */ }
       return;
     }
     let record = null;
@@ -267,7 +236,7 @@ function deliverQueue(spool, top) {
     if (!written) {
       // Not admitted, or the target could not be written: return the record to its place
       // so a later hook retries it in order, and stop.
-      try { fs.renameSync(claimed, path.join(spool, oldest.base)); } catch { /* recovered later */ }
+      try { fs.renameSync(claimed, path.join(oldest.spool, oldest.base)); } catch { /* recovered later */ }
       return;
     }
     try { fs.unlinkSync(claimed); } catch { /* recovered later */ }

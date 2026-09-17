@@ -66,9 +66,14 @@ function callHookAsync(root, command, env = {}) {
     child.stdin.end(input);
   });
 }
-const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHash('sha256').update(realpathSync(root)).digest('hex'));
+// One queue per cwd, with an alternative used only when the primary cannot be written.
+const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHash('sha256').update(`cwd:${root}`).digest('hex'));
+const altFor = (root) => `${spoolFor(root)}-alt`;
+const queueNames = (root, predicate) => [spoolFor(root), altFor(root)].flatMap((dir) => {
+  try { return readdirSync(dir).filter(predicate).map((name) => ({ dir, name })); } catch { return []; }
+});
 const lockFor = (root) => join(spoolFor(root), '.flush.lock');
-const spoolRecords = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.endsWith('.json')).sort(); } catch { return []; } };
+const spoolRecords = (root) => queueNames(root, (name) => name.endsWith('.json')).map((entry) => entry.name).sort();
 const capacityDir = (root) => join(root, '.proof-or-stop/locks/validation-capacity.lock/workspaces', createHash('sha256').update(realpathSync(root)).digest('hex'));
 const capacityEntriesFor = (root) => {
   try {
@@ -82,15 +87,8 @@ const capacityEntriesFor = (root) => {
 const capacityEntries = (root) => { try { return readdirSync(capacityDir(root)); } catch { return []; } };
 // Queue directories are deliberately never removed (removing one races a producer), so
 // what matters is that no RECORD is left behind in any of them.
-const pendingRecords = () => {
-  const spoolRoot = join(home, '.proof-or-stop/activity-spool');
-  let dirs;
-  try { dirs = readdirSync(spoolRoot).filter((name) => name.startsWith('pending-')); } catch { return []; }
-  return dirs.flatMap((dir) => {
-    try { return readdirSync(join(spoolRoot, dir)).filter((name) => name.endsWith('.json')).map((name) => `${dir}/${name}`); } catch { return []; }
-  });
-};
-const spoolClaims = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.includes('.delivering-')); } catch { return []; } };
+const pendingRecords = (root) => spoolRecords(root);
+const spoolClaims = (root) => queueNames(root, (name) => name.includes('.delivering-')).map((entry) => entry.name);
 async function waitUntil(predicate, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) { if (predicate()) return true; await new Promise((r) => setTimeout(r, 25)); }
@@ -163,10 +161,13 @@ try {
     rmSync(t, { recursive: true, force: true });
     const spool = spoolFor(root);
     const [oldest] = spoolRecords(root);
-    renameSync(join(spool, oldest), join(spool, `${oldest}.delivering-${live.pid}`));
+    // Without an individually claimable record file there is nothing to hold, which is
+    // itself the defect: report it rather than crashing.
+    if (oldest) renameSync(join(spool, oldest), join(spool, `${oldest}.delivering-${live.pid}`));
+    else red.push('a deferred record must be an individually claimable file (no record file found)');
     callHook(root, 'while-another-hook-delivers');
     const whileHeld = lines(root);
-    renameSync(join(spool, `${oldest}.delivering-${live.pid}`), join(spool, oldest));
+    if (oldest) renameSync(join(spool, `${oldest}.delivering-${live.pid}`), join(spool, oldest));
     callHook(root, 'after-delivery');
     const after = lines(root);
     rows.push({ scenario: 'another live hook is delivering the oldest record', repoLinesDuring: whileHeld.length, after: JSON.stringify(after) });
@@ -187,7 +188,7 @@ try {
     // The flusher publishes its own record and then pauses at the barrier before the
     // first delivery: five queued records prove it is inside the delivery loop.
     const reached = await waitUntil(() => spoolRecords(root).length >= 5, 10_000);
-    control(reached, 'the flusher reached its first delivery before the barrier was released');
+    expectRepaired(reached, 'records are queued as individual files, so a flusher can be paused at its first delivery');
     const beforeRestart = lines(root).length;
     const restarted = ticket(root, live.pid); // a validation starts while the flusher is paused
     rmSync(barrier, { force: true });
@@ -235,7 +236,7 @@ try {
     const barrier = join(sandbox, 'barrier-producer');
     writeFileSync(barrier, 'hold');
     const flushing = callHookAsync(root, 'draining', { PROOF_OR_STOP_ACTIVITY_SPOOL_BARRIER: barrier });
-    control(await waitUntil(() => spoolRecords(root).length >= 7, 10_000), 'the draining hook reached its first delivery');
+    expectRepaired(await waitUntil(() => spoolRecords(root).length >= 7, 10_000), 'the draining hook reaches its first delivery with every record queued');
     const producers = await Promise.all([0, 1, 2].map((i) => callHookAsync(root, `concurrent-${i}`)));
     rmSync(barrier, { force: true });
     await flushing;
@@ -327,12 +328,13 @@ try {
     rmSync(t, { recursive: true, force: true });
     const spool = spoolFor(root);
     const [oldest] = spoolRecords(root);
-    renameSync(join(spool, oldest), join(spool, `${oldest}.delivering-${live.pid}`));
+    if (oldest) renameSync(join(spool, oldest), join(spool, `${oldest}.delivering-${live.pid}`));
+    else red.push('a deferred record must be an individually claimable file (in-flight scenario)');
     callHook(root, 'arrives-during');
     const during = lines(root);
     rows.push({ scenario: 'older record in flight, newer records queued', repoLinesDuring: during.length, after: '-' });
     expectRepaired(during.length === 0, `no newer record may pass a record still in flight (found ${JSON.stringify(during)})`);
-    renameSync(join(spool, `${oldest}.delivering-${live.pid}`), join(spool, oldest));
+    if (oldest) renameSync(join(spool, `${oldest}.delivering-${live.pid}`), join(spool, oldest));
     callHook(root, 'settle-order');
     expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['older', 'newer', 'arrives-during', 'settle-order']),
       `delivery resumes in the original order (got ${JSON.stringify(lines(root))})`);
@@ -456,7 +458,7 @@ try {
   {
     const plain = join(sandbox, `plain-${n++}`); mkdirSync(plain, { recursive: true });
     callHook(plain, 'not-a-repository');
-    const pending = pendingRecords();
+    const pending = pendingRecords(plain);
     rows.push({ scenario: 'directory outside any repository', repoLinesDuring: lines(plain).length, after: `${pending.length} pending records` });
     expectRepaired(JSON.stringify(lines(plain)) === JSON.stringify(['not-a-repository']),
       `a directory outside any repository keeps immediate logging (got ${JSON.stringify(lines(plain))})`);
@@ -474,10 +476,10 @@ try {
     });
     callHook(root, 'healthy-2');
     const after = lines(root);
-    const pending = pendingRecords();
+    const pending = pendingRecords(root);
     rows.push({ scenario: 'discovery succeeds, fails, succeeds', repoLinesDuring: '-', after: JSON.stringify(after) });
     expectRepaired(JSON.stringify(after) === JSON.stringify(['healthy-1', 'while-discovery-fails', 'healthy-2']),
-      `a record published during a failed lookup is adopted, not stranded (got ${JSON.stringify(after)})`);
+      `a record published during a failed lookup is delivered in order, not stranded (got ${JSON.stringify(after)})`);
     expectRepaired(pending.length === 0, `no pending record is left behind (found ${JSON.stringify(pending)})`);
   }
   // A record that cannot be read right now is retained, not discarded.
@@ -488,7 +490,8 @@ try {
     rmSync(t, { recursive: true, force: true });
     const spool = spoolFor(root);
     const [oldest] = spoolRecords(root);
-    chmodSync(join(spool, oldest), 0o000); // transient read failure
+    if (!oldest) red.push('a deferred record must be an individually claimable file (read-failure scenario)');
+    if (oldest) chmodSync(join(spool, oldest), 0o000); // transient read failure
     callHook(root, 'during-read-failure');
     const blocked = lines(root);
     const retained = spoolRecords(root).length + spoolClaims(root).length;
@@ -513,50 +516,52 @@ try {
     });
     callHook(plain, 'outside-2');
     const after = lines(plain);
-    const pending = pendingRecords();
+    const pending = pendingRecords(plain);
     rows.push({ scenario: 'outside a repository: discovery fails, then recovers', repoLinesDuring: '-', after: JSON.stringify(after) });
     expectRepaired(JSON.stringify(after) === JSON.stringify(['outside-1', 'outside-while-broken', 'outside-2']),
       `a record deferred outside a repository is delivered in order once discovery recovers (got ${JSON.stringify(after)})`);
     expectRepaired(pending.length === 0, `no pending record is left outside a repository (found ${JSON.stringify(pending)})`);
   }
-  // Recovery that is blocked must hold newer records back, inside and outside a repository.
+  // A queued record that cannot be read holds newer records back, outside a repository.
   {
     const plain = join(sandbox, `plain-blocked-${n++}`); mkdirSync(plain, { recursive: true });
-    const pending = join(home, '.proof-or-stop/activity-spool', `pending-${createHash('sha256').update(`pending:${plain}`).digest('hex')}`);
-    mkdirSync(pending, { recursive: true });
-    writeFileSync(join(pending, '00000000000001-0000001-aaaaaaaaaaaa.json'), JSON.stringify({ target: join(plain, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-pending' })}\n` }), { mode: 0o000 });
+    const queue = spoolFor(plain);
+    mkdirSync(queue, { recursive: true });
+    writeFileSync(join(queue, '00000000000001-0000001-aaaaaaaaaaaa.json'), JSON.stringify({ target: join(plain, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-queued' })}\n` }), { mode: 0o000 });
     callHook(plain, 'newer-outside');
     const blocked = lines(plain);
-    rows.push({ scenario: 'unreadable pending record outside a repository', repoLinesDuring: blocked.length, after: '-' });
+    rows.push({ scenario: 'unreadable queued record outside a repository', repoLinesDuring: blocked.length, after: '-' });
     expectRepaired(blocked.length === 0, `a newer record must not pass an unreadable older one (found ${JSON.stringify(blocked)})`);
-    chmodSync(join(pending, '00000000000001-0000001-aaaaaaaaaaaa.json'), 0o600);
+    chmodSync(join(queue, '00000000000001-0000001-aaaaaaaaaaaa.json'), 0o600);
     callHook(plain, 'after-outside');
-    expectRepaired(JSON.stringify(lines(plain)) === JSON.stringify(['older-pending', 'newer-outside', 'after-outside']),
+    expectRepaired(JSON.stringify(lines(plain)) === JSON.stringify(['older-queued', 'newer-outside', 'after-outside']),
       `order is preserved once the older record can be read (got ${JSON.stringify(lines(plain))})`);
   }
+  // The primary queue cannot be written: the record is retained in the alternative and
+  // delivered in order, never lost.
   {
     const root = repo();
-    const pending = join(home, '.proof-or-stop/activity-spool', `pending-${createHash('sha256').update(`pending:${root}`).digest('hex')}`);
-    mkdirSync(pending, { recursive: true });
-    writeFileSync(join(pending, '00000000000001-0000001-bbbbbbbbbbbb.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-adopted' })}\n` }));
-    const spool = spoolFor(root);
-    mkdirSync(spool, { recursive: true }); chmodSync(spool, 0o500); // adoption into the queue fails
+    const queue = spoolFor(root);
+    mkdirSync(queue, { recursive: true });
+    writeFileSync(join(queue, '00000000000001-0000001-bbbbbbbbbbbb.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-primary' })}\n` }));
+    chmodSync(queue, 0o500); // publication into the primary queue fails
     callHook(root, 'newer-inside');
-    const blocked = lines(root);
-    rows.push({ scenario: 'adoption into the worktree queue fails', repoLinesDuring: blocked.length, after: '-' });
-    expectRepaired(blocked.length === 0, `a newer record must not pass a pending record that cannot be adopted (found ${JSON.stringify(blocked)})`);
-    chmodSync(spool, 0o700);
+    const retained = spoolRecords(root).length;
+    chmodSync(queue, 0o700);
     callHook(root, 'after-inside');
-    expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['older-adopted', 'newer-inside', 'after-inside']),
-      `order is preserved once adoption succeeds (got ${JSON.stringify(lines(root))})`);
+    const after = lines(root);
+    rows.push({ scenario: 'primary queue unwritable', repoLinesDuring: retained, after: JSON.stringify(after) });
+    expectRepaired(retained >= 2, `a record is retained when the primary queue cannot be written (retained ${retained})`);
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['older-primary', 'newer-inside', 'after-inside']),
+      `retained records are delivered in order once the primary queue is writable (got ${JSON.stringify(after)})`);
   }
   // Concurrent recovery outside a repository: ordered, no duplicates.
   {
     const plain = join(sandbox, `plain-concurrent-${n++}`); mkdirSync(plain, { recursive: true });
-    const pending = join(home, '.proof-or-stop/activity-spool', `pending-${createHash('sha256').update(`pending:${plain}`).digest('hex')}`);
-    mkdirSync(pending, { recursive: true });
+    const queue = spoolFor(plain);
+    mkdirSync(queue, { recursive: true });
     for (let i = 0; i < 4; i++) {
-      writeFileSync(join(pending, `0000000000000${i}-0000001-cccccccccccc.json`), JSON.stringify({ target: join(plain, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: `queued-${i}` })}\n` }));
+      writeFileSync(join(queue, `0000000000000${i}-0000001-cccccccccccc.json`), JSON.stringify({ target: join(plain, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: `queued-${i}` })}\n` }));
     }
     const concurrent = await Promise.all([0, 1].map((i) => callHookAsync(plain, `concurrent-${i}`)));
     callHook(plain, 'settle-outside');
@@ -567,22 +572,22 @@ try {
       && after.length === 7 && new Set(after).size === 7,
       `concurrent recovery keeps the order and duplicates nothing (got ${JSON.stringify(after)})`);
   }
-  // A pending queue that cannot be ENUMERATED is unknown, not empty: newer records wait.
+  // A queue directory that cannot be ENUMERATED is unknown, not empty: newer records wait.
   {
     const root = repo();
-    const pending = join(home, '.proof-or-stop/activity-spool', `pending-${createHash('sha256').update(`pending:${root}`).digest('hex')}`);
-    mkdirSync(pending, { recursive: true });
-    writeFileSync(join(pending, '00000000000001-0000001-dddddddddddd.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-unreadable-dir' })}\n` }));
-    chmodSync(pending, 0o000); // enumeration fails
+    const queue = spoolFor(root);
+    mkdirSync(queue, { recursive: true });
+    writeFileSync(join(queue, '00000000000001-0000001-dddddddddddd.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-unreadable-dir' })}\n` }));
+    chmodSync(queue, 0o000); // enumeration fails
     callHook(root, 'newer-unreadable-dir');
     const blocked = lines(root);
-    chmodSync(pending, 0o700);
+    chmodSync(queue, 0o700);
     callHook(root, 'after-unreadable-dir');
     const after = lines(root);
     rows.push({ scenario: 'pending queue cannot be enumerated', repoLinesDuring: blocked.length, after: JSON.stringify(after) });
-    expectRepaired(blocked.length === 0, `an unreadable pending queue must block newer records (found ${JSON.stringify(blocked)})`);
+    expectRepaired(blocked.length === 0, `an unenumerable queue directory must block newer records (found ${JSON.stringify(blocked)})`);
     expectRepaired(JSON.stringify(after) === JSON.stringify(['older-unreadable-dir', 'newer-unreadable-dir', 'after-unreadable-dir']),
-      `order is preserved once the pending queue can be read (got ${JSON.stringify(after)})`);
+      `order is preserved once the queue directory can be read (got ${JSON.stringify(after)})`);
   }
   // A failing build must not leave this verifier's own children or sandboxes behind.
   if (!process.env.HOOK_VERIFIER_NESTED) {
