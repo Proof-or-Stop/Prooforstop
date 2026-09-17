@@ -199,8 +199,17 @@ function workspaceCapacityDir(root) {
   } catch { return null; }
 }
 
-function capacityHolderAlive(ticketPath) {
-  try { return pidAlive(JSON.parse(fs.readFileSync(path.join(ticketPath, 'holder.json'), 'utf8')).pid); } catch { return false; }
+/**
+ * Liveness of a queue entry's holder. A vanished or unreadable entry is 'uncertain', not
+ * dead: a `.choosing` marker that disappears mid-scan has just become a ticket, and
+ * treating that as absent would let this hook admit itself past a validation that is
+ * already admitted. Only a readable record with a dead pid is 'dead'.
+ */
+function capacityHolderState(entryPath) {
+  let holder;
+  try { holder = JSON.parse(fs.readFileSync(path.join(entryPath, 'holder.json'), 'utf8')); } catch { return 'uncertain'; }
+  if (!Number.isSafeInteger(holder?.pid)) return 'uncertain';
+  return pidAlive(holder.pid) ? 'alive' : 'dead';
 }
 
 /**
@@ -238,10 +247,20 @@ function withWorkspaceWriteTicket(root, write) {
     fs.renameSync(choosing, ticket);
     published = ticket;
     const entries = fs.readdirSync(dir);
-    // A choosing marker blocks only while its owner lives: one left by a crashed process
-    // must never stall host bookkeeping forever.
-    if (entries.some(name => name.endsWith('.choosing') && capacityHolderAlive(path.join(dir, name)))) return false;
-    const live = entries.filter(name => name.endsWith('.ticket') && capacityHolderAlive(path.join(dir, name))).sort();
+    admissionBarrierWait();
+    // A choosing marker blocks while its owner lives; one left by a crashed process must
+    // never stall host bookkeeping. Anything uncertain - an entry that vanished or cannot
+    // be read while this scan runs - means the queue moved under us, so retreat.
+    for (const name of entries.filter(name => name.endsWith('.choosing'))) {
+      if (capacityHolderState(path.join(dir, name)) !== 'dead') return false;
+    }
+    const live = [];
+    for (const name of entries.filter(name => name.endsWith('.ticket'))) {
+      const state = path.join(dir, name) === ticket ? 'alive' : capacityHolderState(path.join(dir, name));
+      if (state === 'uncertain') return false;
+      if (state === 'alive') live.push(name);
+    }
+    live.sort();
     if (live.length === 0 || path.join(dir, live[0]) !== ticket) return false; // not the oldest: retreat
     write();
     return true;
@@ -255,6 +274,16 @@ function withWorkspaceWriteTicket(root, write) {
 /** Test seam: pause before each delivery while the named file exists (bounded). */
 function barrierWait() {
   const barrier = process.env.PROOF_OR_STOP_ACTIVITY_SPOOL_BARRIER;
+  if (!barrier) return;
+  const deadline = Date.now() + 20000;
+  while (fs.existsSync(barrier) && Date.now() < deadline) {
+    try { execSync('sleep 0.05'); } catch { break; }
+  }
+}
+
+/** Test seam: pause between listing the queue and inspecting its holders. */
+function admissionBarrierWait() {
+  const barrier = process.env.PROOF_OR_STOP_ACTIVITY_ADMISSION_BARRIER;
   if (!barrier) return;
   const deadline = Date.now() + 20000;
   while (fs.existsSync(barrier) && Date.now() < deadline) {

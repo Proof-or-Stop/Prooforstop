@@ -317,6 +317,38 @@ try {
     control(JSON.stringify(lines(root)) === JSON.stringify(after), 'a live choosing owner still keeps the hook out');
     rmSync(liveChoosing, { recursive: true, force: true });
   }
+  // A competing validator turns its choosing marker into an earlier ticket between the
+  // hook's listing of the queue and its inspection of the holders.
+  {
+    const root = repo();
+    const dir = capacityDir(root);
+    mkdirSync(dir, { recursive: true });
+    const competing = join(dir, 'competing.choosing');
+    mkdirSync(competing, { recursive: true });
+    // The marker starts with a dead owner, so it is not an active validation yet and the
+    // hook proceeds; it becomes a live, lexically earlier ticket during the pause.
+    writeFileSync(join(competing, 'holder.json'), JSON.stringify({ lockId: 'competing', pid: deadPid, hostname: 'fixture', command: 'validate', acquiredAt: new Date().toISOString() }));
+    const barrier = join(sandbox, 'barrier-admission');
+    writeFileSync(barrier, 'hold');
+    const writing = callHookAsync(root, 'handoff', { PROOF_OR_STOP_ACTIVITY_ADMISSION_BARRIER: barrier });
+    // Pausing between listing the queue and inspecting it is part of the repair: without
+    // that observable point the hook cannot notice the queue moving under it.
+    const listed = await waitUntil(() => capacityEntries(root).some((name) => name.endsWith('.ticket')), 10_000);
+    expectRepaired(listed, 'the hook publishes its ticket and inspects the queue as a separate, observable step');
+    // The marker becomes a live, lexically earlier ticket: the entry the hook listed is gone.
+    writeFileSync(join(competing, 'holder.json'), JSON.stringify({ lockId: 'competing', pid: live.pid, hostname: 'fixture', command: 'validate', acquiredAt: new Date().toISOString() }));
+    renameSync(competing, join(dir, `${'0'.repeat(15)}1-competing.ticket`));
+    rmSync(barrier, { force: true });
+    await writing;
+    const during = lines(root);
+    rows.push({ scenario: 'competing marker becomes an earlier ticket mid-admission', repoLinesDuring: during.length, after: `${spoolRecords(root).length} records spooled` });
+    expectRepaired(during.length === 0, `a queue entry that vanishes mid-admission must keep the hook out (found ${JSON.stringify(during)})`);
+    expectRepaired(spoolRecords(root).length === 1, 'the undelivered record is retained');
+    rmSync(join(dir, `${'0'.repeat(15)}1-competing.ticket`), { recursive: true, force: true });
+    callHook(root, 'handoff-after');
+    expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['handoff', 'handoff-after']),
+      `the retained record is delivered in order afterwards (got ${JSON.stringify(lines(root))})`);
+  }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
     ['no validation ticket', () => {}],
