@@ -94,6 +94,14 @@ try {
     rows.push({ scenario: 'control: descendant of the holder requests the queue', outcome: r.outcome, ms: r.ms, message: r.message ?? '-' });
     control(r.outcome === 'error' && /conflicts with an ancestor/.test(r.message ?? ''), `ancestor conflict must still be refused (got ${r.outcome}: ${r.message ?? ''})`);
   }
+  // 2b) The same genuine conflict behind a slow ps is still refused as a conflict, not a crash.
+  {
+    const result = join(sandbox, 'w2b.json');
+    await run(['ancestor', join(sandbox, 'h2b.ready'), '', result, 'nested-child'], { PATH: shim('slow-ps-conflict', 1.5) });
+    const r = readResult(result);
+    rows.push({ scenario: 'descendant of the holder, ps answers after 1500ms', outcome: r.outcome, ms: r.ms, message: r.message ?? '-' });
+    expectRepaired(r.outcome === 'error' && /conflicts with an ancestor/.test(r.message ?? ''), `a slow ps must still detect the ancestor conflict (got ${r.outcome}: ${r.message ?? ''})`);
+  }
   // 3) Control: a probe that never answers never admits the waiter while the holder still holds.
   {
     const ready = join(sandbox, 'h3.ready'), release = join(sandbox, 'h3.release'), result = join(sandbox, 'w3.json');
@@ -106,7 +114,8 @@ try {
     await waiter; await holder;
     const r = readResult(result);
     rows.push({ scenario: 'control: ps never answers, holder keeps ticket 6s', outcome: `${early.outcome} -> ${r.outcome}`, ms: r.ms, message: r.message ?? '-' });
-    control(early.outcome === 'none' || early.outcome === 'error', 'a waiter whose ancestry is unknown is never admitted while another process holds the ticket');
+    control(early.outcome !== 'acquired', 'a waiter whose ancestry is unknown is never admitted while another process holds the ticket');
+    expectRepaired(early.outcome === 'none' && r.outcome === 'acquired', `an unanswered probe keeps the waiter queued and it acquires after release (early ${early.outcome}, final ${r.outcome}: ${r.message ?? ''})`);
   }
 } finally {
   try { machine.cleanup(); } catch (error) { console.log(`fixture machine cleanup: ${error.message}`); }
