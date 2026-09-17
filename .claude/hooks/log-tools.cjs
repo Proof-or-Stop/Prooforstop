@@ -51,20 +51,23 @@ process.stdin.on('end', () => {
       // this path; a later hook that can discover the worktree adopts it.
       publishSpoolRecord(pendingSpoolDir(root), { target, line });
     } else {
-      const spool = spoolDir(root);
+      // The discovered worktree is reused everywhere below: re-running discovery could
+      // fail and silently move records into a different queue.
+      const spool = spoolDirFor(discovered);
       adoptPendingRecords(root, spool);
       // Every repository write happens inside the product's own workspace validation
       // capacity ticket, so a validation starting concurrently queues behind this
       // millisecond-long write instead of racing it.
       publishSpoolRecord(spool, { target, line });
-      flushSpool(spool, root);
+      flushSpool(spool, discovered);
     }
   } catch {}
   process.exit(0);
 });
 
 function git(root, args) {
-  return execSync(`git ${args}`, { cwd: root, encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  // stderr is captured, never printed: classifying "not a git repository" needs it.
+  return execSync(`git ${args}`, { cwd: root, encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
 /**
@@ -80,15 +83,8 @@ function discoverWorkspace(root) {
   }
 }
 
-function workspaceTop(root) {
-  const discovered = discoverWorkspace(root);
-  return typeof discovered === 'string' && discovered !== 'non-repository' ? discovered : null;
-}
-
-/** Per-worktree spool directory outside the repository: <home>/.proof-or-stop/activity-spool/<sha256(worktree)>/ */
-function spoolDir(root) {
-  const top = workspaceTop(root);
-  if (!top) return null;
+/** Per-worktree spool directory outside the repository, keyed by the discovered top. */
+function spoolDirFor(top) {
   const key = crypto.createHash('sha256').update(top).digest('hex');
   return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', key);
 }
@@ -122,10 +118,9 @@ function pidAlive(pid) {
  * validation capacity ticket at
  * <shared root>/.proof-or-stop/locks/validation-capacity.lock/workspaces/<sha256(worktree)>/*.ticket.
  */
-function workspaceValidationActive(root) {
+function workspaceValidationActive(top) {
   try {
-    const top = workspaceTop(root);
-    if (!top) return false;
+    if (!top) return true; // unknown workspace: assume a validation may be running
     const commonRaw = git(top, 'rev-parse --git-common-dir');
     const common = fs.realpathSync(path.isAbsolute(commonRaw) ? commonRaw : path.resolve(top, commonRaw));
     const sharedRoot = path.basename(common) === '.git' ? path.dirname(common) : common;
@@ -153,10 +148,6 @@ function publishSpoolRecord(spool, record) {
   const tmp = path.join(spool, `.${name}.tmp`);
   fs.writeFileSync(tmp, JSON.stringify(record), { mode: 0o600 });
   fs.renameSync(tmp, path.join(spool, `${name}.json`));
-}
-
-function pendingSpoolRecords(spool) {
-  try { return fs.readdirSync(spool).some(name => name.endsWith('.json') || name.includes('.delivering-')); } catch { return false; }
 }
 
 const RECORD_CLAIM = /^(.*\.json)\.delivering-(\d+)$/;
@@ -192,7 +183,7 @@ function queueView(spool) {
  * target, so nothing is lost on a crash or a write failure - delivery is therefore
  * at-least-once: a crash between the append and the removal can repeat one line.
  */
-function flushSpool(spool, root) {
+function flushSpool(spool, top) {
   for (let delivered = 0; delivered < 10000; delivered++) {
     const [oldest] = queueView(spool);
     if (!oldest) return;
@@ -204,7 +195,7 @@ function flushSpool(spool, root) {
       continue;
     }
     barrierWait();
-    if (workspaceValidationActive(root)) return; // a validation started: stop delivering
+    if (workspaceValidationActive(top)) return; // a validation started: stop delivering
     const claimed = path.join(spool, `${oldest.base}.delivering-${process.pid}`);
     try { fs.renameSync(path.join(spool, oldest.base), claimed); } catch { return; } // another hook won it
     let record = null;
@@ -213,7 +204,7 @@ function flushSpool(spool, root) {
       try { fs.unlinkSync(claimed); } catch { /* already gone */ }
       continue;
     }
-    const written = withWorkspaceWriteTicket(root, () => {
+    const written = withWorkspaceWriteTicket(top, () => {
       fs.mkdirSync(path.dirname(record.target), { recursive: true });
       fs.appendFileSync(record.target, record.line);
     });
@@ -228,9 +219,8 @@ function flushSpool(spool, root) {
 }
 
 /** The workspace validation capacity directory this worktree's validations queue in. */
-function workspaceCapacityDir(root) {
+function workspaceCapacityDir(top) {
   try {
-    const top = workspaceTop(root);
     if (!top) return null;
     const commonRaw = git(top, 'rev-parse --git-common-dir');
     const common = fs.realpathSync(path.isAbsolute(commonRaw) ? commonRaw : path.resolve(top, commonRaw));
@@ -261,8 +251,8 @@ function capacityHolderState(entryPath) {
  * this hook exits or dies. Returns false when the ticket was not admitted or the write
  * failed; the caller then leaves the record queued.
  */
-function withWorkspaceWriteTicket(root, write) {
-  const dir = workspaceCapacityDir(root);
+function withWorkspaceWriteTicket(top, write) {
+  const dir = workspaceCapacityDir(top);
   if (!dir) return false;
   let published = null;
   try {

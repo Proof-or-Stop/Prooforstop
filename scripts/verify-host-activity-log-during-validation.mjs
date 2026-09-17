@@ -435,6 +435,35 @@ try {
     expectRepaired(lines(root).includes(`hook-first-${linked}`) && lines(root).includes(`settle-${linked}`),
       `queued lines are delivered once the allocator released capacity (${linked ? 'linked' : 'main'}: got ${JSON.stringify(lines(root))})`);
   }
+  // A directory that is genuinely not a repository keeps the original behavior: the line
+  // is written immediately and nothing accumulates in a pending queue.
+  {
+    const plain = join(sandbox, `plain-${n++}`); mkdirSync(plain, { recursive: true });
+    callHook(plain, 'not-a-repository');
+    const pending = readdirSync(join(home, '.proof-or-stop/activity-spool')).filter((name) => name.startsWith('pending-'));
+    rows.push({ scenario: 'directory outside any repository', repoLinesDuring: lines(plain).length, after: `${pending.length} pending queues` });
+    expectRepaired(JSON.stringify(lines(plain)) === JSON.stringify(['not-a-repository']),
+      `a directory outside any repository keeps immediate logging (got ${JSON.stringify(lines(plain))})`);
+    expectRepaired(pending.length === 0, `a non-repository directory accumulates no pending records (found ${JSON.stringify(pending)})`);
+  }
+  // Discovery that succeeds, then fails, then succeeds again: nothing is stranded.
+  {
+    const root = repo();
+    callHook(root, 'healthy-1');
+    const brokenGit = join(sandbox, 'broken-git-2'); mkdirSync(brokenGit, { recursive: true });
+    writeFileSync(join(brokenGit, 'git'), '#!/bin/sh\nexit 128\n'); chmodSync(join(brokenGit, 'git'), 0o755);
+    spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'while-discovery-fails' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home, PATH: `${brokenGit}:${process.env.PATH}` }, encoding: 'utf8',
+    });
+    callHook(root, 'healthy-2');
+    const after = lines(root);
+    const pending = readdirSync(join(home, '.proof-or-stop/activity-spool')).filter((name) => name.startsWith('pending-'));
+    rows.push({ scenario: 'discovery succeeds, fails, succeeds', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['healthy-1', 'while-discovery-fails', 'healthy-2']),
+      `a record published during a failed lookup is adopted, not stranded (got ${JSON.stringify(after)})`);
+    expectRepaired(pending.length === 0, `no pending queue is left behind (found ${JSON.stringify(pending)})`);
+  }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
     ['no validation ticket', () => {}],
