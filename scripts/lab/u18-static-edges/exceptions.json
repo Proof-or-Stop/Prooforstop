@@ -2486,7 +2486,7 @@
           "excerpt": "    const workerRoot = checkedDirectory(ownedRootInput, 'quorum smoke worker process temp root');\n    const environment = createWorkerEnvironment(workerRoot, workerEnv, workerProcessMarker, runId, fault);\n    const child = spawn(process.execPath, [`--title=${workerProcessMarker}`, executable, ...args], {\n      cwd: process.cwd(),\n      detached: process.platform !== 'win32',\n      env: environment,\n      stdio: ['ignore', 'pipe', 'pipe'],\n    });\n    const chunks: Buffer[] = [];\n    child.stdout.on('data', (chunk: Buffer) => chunks.push(chunk));\n    child.stderr.on('data', (chunk: Buffer) => chunks.push(chunk));"
         }
       ],
-      "key": "packages/main/src/tasks/quorum-submit-smoke-worker.ts:1533:spawn",
+      "key": "packages/main/src/tasks/quorum-submit-smoke-worker.ts:1385:spawn",
       "callDigest": "de1a03a30c8500fe64782c6ddae13de928ce3489dc018d915fd5b84fc84fe243",
       "sourceDigest": "1c396f517762183ba6964376a1197f1c8f4f0584498f60f6e29dda09254859f8",
       "configIndexes": [
