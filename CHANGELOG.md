@@ -1,5 +1,39 @@
 # Changelog
 
+## Lab host-activity-log-during-validation - v0.3.407 - 2026-09-17
+
+# Lab host-activity-log-during-validation
+
+## Problem
+The Claude Code PostToolUse hook `.claude/hooks/log-tools.cjs` (copied into projects by
+`proof-or-stop init`) appended every tool call into the repository even while that worktree was
+validating. Fixtures that guard the worktree against mutation observed the host's own bookkeeping.
+
+## Behavior change
+When the product's own signal says this worktree is validating (a workspace validation capacity
+ticket at `<shared root>/.proof-or-stop/locks/validation-capacity.lock/workspaces/<sha256(worktree)>/`
+whose holder pid is alive), the hook appends the entry to a per-worktree spool outside the repository
+(`~/.proof-or-stop/activity-spool/<sha256(worktree)>.jsonl`, mode 0600). The next hook call without an
+active validation delivers spooled lines to their original targets in order and removes the spool.
+Without an active validation the hook writes into the repository immediately, as before.
+
+## Verification
+RED/GREEN: `node scripts/verify-host-activity-log-during-validation.mjs` runs the real hook script
+against disposable repositories and a disposable HOME.
+- Before: 2 repository lines written while the worktree validated.
+- After: 0 while validating; after the ticket is released the next call delivers
+  `during-validation-1, during-validation-2, after-validation` in order. Controls (no ticket, dead
+  holder, ticket for another worktree) still write immediately.
+Process-fact contract PASS. verify-entrypoints.mjs and test:proof-or-stop-residue fail identically
+on a baseline Lab without this change (pre-existing).
+
+## Self-review hardening: ordering under concurrent hooks
+Two hooks flushing at once could interleave, and a new line written directly could overtake older deferred ones. Now a single flusher holds a lock directory (owner pid; a dead owner's lock or an ownerless lock older than 10s is broken), drains until no spool remains and re-checks after release. While a spool or lock exists, new lines queue behind it. New scenarios: 20 deferred lines then 8 hooks started together, a flush lock held by a live pid, and a lock left by a dead pid. RED on the previous hook (3/3 runs): lines interleaved and a new line overtook the pending flush; GREEN: 11 checks, all lines ordered, none lost.
+
+Maintenance provenance: codex/lab-host-activity-log-during-validation, repair 1ebc9397c6a835d94be5974e296946712952d1e3.
+Verification command (replayed before integration and on main): `["node","scripts/verify-host-activity-log-during-validation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab fixture-machine-retention - v0.3.406 - 2026-09-17
 
 # Lab fixture-machine-retention
