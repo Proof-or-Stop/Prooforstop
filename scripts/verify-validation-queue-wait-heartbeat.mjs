@@ -30,6 +30,11 @@ const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { 
 if (build.status !== 0) { process.stderr.write(`${build.stdout}\n${build.stderr}\n`); throw new Error('packages/main build failed; this is not the target RED'); }
 
 const sandbox = mkdtempSync(join(tmpdir(), 'pos-queue-wait-'));
+// The holder and every CLI run share a private machine queue (fixture homedir),
+// so replaying this script never occupies the real cross-session queue.
+const { createFixtureMachineEnvironment } = await import(`file://${join(dist, 'tasks/helpers/fixture-machine-environment.js')}`);
+const machine = createFixtureMachineEnvironment();
+const machineEnv = { NODE_OPTIONS: machine.env.NODE_OPTIONS };
 const red = [];
 let checks = 0;
 const expectRepaired = (ok, message) => { if (ok) checks++; else red.push(message); };
@@ -50,7 +55,7 @@ function runValidate(root, env) {
   return new Promise((resolveRun) => {
     const started = Date.now();
     const child = spawn(process.execPath, [join(dist, 'cli.js'), '--root', root, 'validate', '--json'], {
-      cwd: root, env: { ...process.env, PROOF_OR_STOP_MAX_TIMEOUT_MS: '290000', ...env },
+      cwd: root, env: { ...process.env, ...machineEnv, PROOF_OR_STOP_MAX_TIMEOUT_MS: '290000', ...env },
     });
     let stderr = ''; let stdout = '';
     child.stderr.on('data', (d) => { stderr += d; });
@@ -88,10 +93,10 @@ try {
   rows.push({ scenario: 'uncontended, idle 1000ms', exit: quiet.code, ms: quiet.ms, stuck: /validate stuck/.test(quiet.stderr), waitLines: (quiet.stderr.match(/waiting for machine validation capacity/g) ?? []).length });
   // Contended: a helper holds a machine ticket; the fixture validation queues behind it.
   const ready = join(sandbox, 'holder.ready'); const release = join(sandbox, 'holder.release');
-  const holder = spawn(process.execPath, [holderScript, ready, release], { stdio: 'inherit' });
+  const holder = spawn(process.execPath, [holderScript, ready, release], { stdio: 'inherit', env: { ...process.env, ...machineEnv } });
   const holderExited = new Promise((r) => holder.on('exit', r));
-  const acquired = await waitFor(ready, 600_000);
-  if (!acquired) throw new Error('holder could not acquire a machine ticket within 600s; not the target RED');
+  const acquired = await waitFor(ready, 60_000);
+  if (!acquired) throw new Error('holder could not acquire the private fixture machine ticket within 60s; not the target RED');
   const contendedRun = runValidate(fixture('contended'), { PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000', PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '250' });
   setTimeout(() => writeFileSync(release, 'release'), 3000);
   const contended = await contendedRun;
@@ -108,6 +113,7 @@ try {
   check(quiet.code === 0 && !/validate stuck/.test(quiet.stderr), 'uncontended validation passes');
 } finally {
   rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  machine.cleanup();
 }
 console.log('scenario | exit | wallMs | killedAsIdle | queueWaitLines');
 for (const r of rows) console.log(`${r.scenario} | ${r.exit} | ${r.ms} | ${r.stuck} | ${r.waitLines}`);
