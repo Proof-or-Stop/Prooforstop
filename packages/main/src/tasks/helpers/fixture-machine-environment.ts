@@ -1,5 +1,5 @@
 /** Test-only machine-registry namespace. Never imported by production executors. */
-import { existsSync, lstatSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, constants, existsSync, fstatSync, lstatSync, mkdtempSync, mkdirSync, openSync, readSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -34,10 +34,13 @@ function newestMtimeMs(root: string, maxEntries = 20_000): number {
   let newest = lstatSync(root).mtimeMs;
   const pending = [root];
   let visited = 0;
+  const vanished = (error: unknown): boolean => (error as NodeJS.ErrnoException)?.code === 'ENOENT';
   while (pending.length > 0) {
     const dir = pending.pop()!;
     let entries: string[];
-    try { entries = readdirSync(dir); } catch { continue; }
+    // An entry we cannot inspect may hold recent activity, so an incomplete scan
+    // never authorizes deletion: only a confirmed disappearance is skipped.
+    try { entries = readdirSync(dir); } catch (error) { if (vanished(error)) continue; return Number.POSITIVE_INFINITY; }
     for (const name of entries) {
       if (++visited > maxEntries) return Number.POSITIVE_INFINITY; // too large to judge: treat as recent
       const path = join(dir, name);
@@ -45,10 +48,39 @@ function newestMtimeMs(root: string, maxEntries = 20_000): number {
         const stat = lstatSync(path);
         newest = Math.max(newest, stat.mtimeMs);
         if (stat.isDirectory()) pending.push(path);
-      } catch { /* vanished */ }
+      } catch (error) { if (!vanished(error)) return Number.POSITIVE_INFINITY; }
     }
   }
   return newest;
+}
+
+const OWNER_RECORD_MAX_BYTES = 64 * 1024;
+
+/**
+ * Read a retained directory's owner record without following symlinks and without
+ * ever blocking: a FIFO or device named owner.json would otherwise hang every
+ * fixture creation, since pruning runs synchronously on the creation path.
+ * Returns the parsed record, `undefined` when absent, and 'unsafe' when something
+ * is there that cannot be read as a plain record - an unsafe candidate is kept.
+ */
+function readFixtureMachineOwner(path: string): { schema?: unknown; pid?: unknown } | undefined | 'unsafe' {
+  let fd: number | undefined;
+  try {
+    fd = openSync(path, constants.O_RDONLY | constants.O_NONBLOCK | constants.O_NOFOLLOW);
+  } catch (error) {
+    return (error as NodeJS.ErrnoException)?.code === 'ENOENT' ? undefined : 'unsafe';
+  }
+  try {
+    const stat = fstatSync(fd);
+    if (!stat.isFile() || stat.size > OWNER_RECORD_MAX_BYTES) return 'unsafe';
+    const buffer = Buffer.alloc(Number(stat.size));
+    const read = readSync(fd, buffer, 0, buffer.length, 0);
+    return JSON.parse(buffer.subarray(0, read).toString('utf8')) as { schema?: unknown; pid?: unknown };
+  } catch {
+    return 'unsafe';
+  } finally {
+    try { closeSync(fd); } catch { /* already closed */ }
+  }
 }
 
 /** Best-effort pruning of retained fixture machine directories under `parent`. Never throws. */
@@ -69,9 +101,9 @@ export function pruneRetainedFixtureMachines(
     if (path === options.exclude) continue;
     try {
       if (!lstatSync(path).isDirectory()) continue; // symlinks and files are never followed or removed
+      const owner = readFixtureMachineOwner(join(path, 'owner.json'));
+      if (owner === 'unsafe') continue; // unreadable owner record: keep the directory
       const age = now - newestMtimeMs(path);
-      let owner: { schema?: unknown; pid?: unknown } | undefined;
-      try { owner = JSON.parse(readFileSync(join(path, 'owner.json'), 'utf8')); } catch { owner = undefined; }
       if (owner && owner.schema === FIXTURE_MACHINE_OWNER_SCHEMA && typeof owner.pid === 'number') {
         if (processAlive(owner.pid) || age < FIXTURE_MACHINE_RETENTION.deadOwnerGraceMs) continue;
         deadOwner.push({ path, mtimeMs: now - age });
