@@ -953,14 +953,18 @@ function isToleratedHostActivityAppend(
   if (baseline === undefined || baseline === 'ineligible') return false;
   const current = readHostActivityLogFile(candidate);
   if (current === 'absent' || current === 'ineligible') return false; // deleted, replaced by a link, or unreadable
-  if (baseline === 'absent') return true; // created during the run as a plain file
+  // Created during the run as a plain file: only a log that actually received a line
+  // is an append; an empty creation is a mutation like any other.
+  if (baseline === 'absent') return current.bytes.length > 0;
   // The same file must have grown: a replacement (even byte-identical, even carrying
   // the original prefix) is a structural mutation, not an append.
   if (current.dev !== baseline.dev || current.ino !== baseline.ino) return false;
   // Metadata is part of the file's state: a permission or ownership change is a
   // mutation in its own right, even when the bytes only grew.
   if (current.mode !== baseline.mode || current.uid !== baseline.uid || current.gid !== baseline.gid) return false;
-  if (current.bytes.length < baseline.size) return false;
+  // Only growth is an append: an in-place rewrite, or truncate-then-restore, keeps the
+  // length and the inode, so it must stay a mutation.
+  if (current.bytes.length <= baseline.size) return false;
   return createHash('sha256').update(current.bytes.subarray(0, baseline.size)).digest('hex') === baseline.digest;
 }
 

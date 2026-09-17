@@ -15,7 +15,7 @@
 // path, and a temp parent INSIDE a worktree are still refused.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { symlinkSync } from 'node:fs';
-import fs, { appendFileSync, chmodSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
+import fs, { appendFileSync, chmodSync, closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, rmSync, truncateSync, unlinkSync, writeSync, writeFileSync } from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { EventEmitter } from 'node:events';
 import { tmpdir } from 'node:os';
@@ -108,6 +108,23 @@ try {
   });
   rows.push({ scenario: 'activity log replaced with identical bytes', clean: replaced.clean, paths: replaced.paths.length });
   expectRepaired(replaced.clean === false, 'replacing the activity log with an identical copy must stay a mutation');
+  const rewrittenInPlace = await guarded((root) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    const bytes = readFileSync(log);
+    const fd = openSync(log, 'r+'); writeSync(fd, bytes, 0, bytes.length, 0); closeSync(fd);
+    return ['docs/story/activity.jsonl'];
+  });
+  rows.push({ scenario: 'activity log rewritten in place, same inode and length', clean: rewrittenInPlace.clean, paths: rewrittenInPlace.paths.length });
+  expectRepaired(rewrittenInPlace.clean === false, 'a byte-identical in-place rewrite must stay a mutation');
+  const truncateRestore = await guarded((root) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    const bytes = readFileSync(log);
+    truncateSync(log, 0);
+    const fd = openSync(log, 'r+'); writeSync(fd, bytes, 0, bytes.length, 0); closeSync(fd);
+    return ['docs/story/activity.jsonl'];
+  });
+  rows.push({ scenario: 'activity log truncated then restored', clean: truncateRestore.clean, paths: truncateRestore.paths.length });
+  expectRepaired(truncateRestore.clean === false, 'truncate-then-restore on the same inode must stay a mutation');
   const chmodOnly = await guarded((root) => { chmodSync(join(root, 'docs/story/activity.jsonl'), 0o444); return ['docs/story/activity.jsonl']; });
   rows.push({ scenario: 'activity log made read-only (bytes unchanged)', clean: chmodOnly.clean, paths: chmodOnly.paths.length });
   expectRepaired(chmodOnly.clean === false, 'changing the activity log permissions must stay a mutation');
