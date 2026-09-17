@@ -332,6 +332,28 @@ try {
     });
   }
 
+  check('partial-DONE recovery refuses detached HEAD with checkout guidance and no merge', () => {
+    const { root: recoveryRoot, storyId } = makePartialDoneRecoveryFixture();
+    cleanup.push(recoveryRoot);
+    const beforeHead = git(recoveryRoot, ['rev-parse', 'HEAD']);
+    const storyHead = git(recoveryRoot, ['rev-parse', `refs/heads/story/${storyId}`]);
+    git(recoveryRoot, ['checkout', '--detach', beforeHead]);
+    const handlers = createDoneRecoverHandlers({
+      root: recoveryRoot,
+      store: new StoryStore(recoveryRoot),
+      scanRoot: join(recoveryRoot, 'packages/main'),
+    });
+    assert.throws(() => handlers.done_recover({ storyId }), error => {
+      assert.match(String(error), /done_recover refused: resolved integration worktree/);
+      assert.match(String(error), /detached HEAD/);
+      assert.match(String(error), /git checkout main/);
+      return true;
+    });
+    assert.equal(git(recoveryRoot, ['rev-parse', 'HEAD']), beforeHead);
+    assert.equal(git(recoveryRoot, ['rev-parse', `refs/heads/story/${storyId}`]), storyHead);
+    assert.equal(git(recoveryRoot, ['status', '--short']), '');
+  });
+
   check('partial-DONE recovery auto-bumps runtime version before build', () => {
     const { root: recoveryRoot, storyId } = makeRuntimePartialDoneRecoveryFixture();
     cleanup.push(recoveryRoot);

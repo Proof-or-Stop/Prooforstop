@@ -60,7 +60,10 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       const lock = acquireDoneMainMergeLock(storyId, mainRepoRoot, mainMergeRoot);
       try {
 
-      const currentBranch = localIntegrationBranchNameForRef(git(mainMergeRoot, ['symbolic-ref', '--quiet', 'HEAD']));
+      let currentBranch = 'unavailable or detached HEAD';
+      try {
+        currentBranch = localIntegrationBranchNameForRef(git(mainMergeRoot, ['symbolic-ref', '--quiet', 'HEAD'])) ?? currentBranch;
+      } catch { /* Preserve the actionable refusal below when HEAD is detached. */ }
       if (currentBranch !== integrationBranch) {
         throw new Error(
           `done_recover refused: resolved integration worktree at "${mainMergeRoot}" is on branch "${currentBranch}", not "${integrationBranch}".\n` +
