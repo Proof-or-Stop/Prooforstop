@@ -60,7 +60,7 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       const lock = acquireDoneMainMergeLock(storyId, mainRepoRoot, mainMergeRoot);
       try {
 
-      const currentBranch = git(mainMergeRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
+      const currentBranch = localIntegrationBranchNameForRef(git(mainMergeRoot, ['symbolic-ref', '--quiet', 'HEAD']));
       if (currentBranch !== integrationBranch) {
         throw new Error(
           `done_recover refused: resolved integration worktree at "${mainMergeRoot}" is on branch "${currentBranch}", not "${integrationBranch}".\n` +
