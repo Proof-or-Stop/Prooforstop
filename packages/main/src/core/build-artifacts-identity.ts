@@ -75,56 +75,6 @@ function artifactTreeDigest(root: string): string {
 }
 
 /**
- * Digest of every build artifact root under `projectRoot` (the git cwd whose
- * dist the commands execute, so a Story worktree binds its own build). An
- * absent root contributes a stable `absent` marker: a fixture or a repository
- * without a compiled tree still binds deterministically, and a tree that later
- * appears or disappears changes the digest. Only an unreadable tree yields
- * `undefined`, which every consumer treats as "cannot vouch" and refuses.
- * Memoized per synchronous git observation like the committed-tree digests.
- */
-/**
- * Cheap per-command observation of the artifact trees: relative path, size and
- * modification time (nanoseconds) of every regular file, taken with lstat so a
- * symbolic link makes the observation unavailable exactly as it does for the
- * content digest. A routine plan runs hundreds of commands against a 57 MB tree,
- * so the executor observes this fingerprint around every command and reserves
- * the content digest for the plan boundaries. Any write below a root changes
- * size or mtime, which is what the executor needs to attribute a rewrite.
- */
-export function currentBuildArtifactsFingerprint(projectRoot: string): string | undefined {
-  const root = resolve(projectRoot);
-  try {
-    const hash = createHash('sha256');
-    for (const relativeRoot of BUILD_ARTIFACT_ROOTS) {
-      const base = join(root, relativeRoot);
-      let stat;
-      try {
-        stat = lstatSync(base);
-      } catch {
-        hash.update(relativeRoot).update('\0absent\0');
-        continue;
-      }
-      if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(base);
-      if (!stat.isDirectory()) {
-        hash.update(relativeRoot).update('\0absent\0');
-        continue;
-      }
-      hash.update(relativeRoot).update('\0');
-      for (const path of filesBelow(base)) {
-        const rel = relative(base, path);
-        if (rel === BUILD_BINDING_BASENAME) continue;
-        const file = lstatSync(path, { bigint: true });
-        hash.update(rel).update('\0').update(String(file.size)).update('\0').update(String(file.mtimeNs)).update('\0');
-      }
-    }
-    return hash.digest('hex');
-  } catch {
-    return undefined;
-  }
-}
-
-/**
  * The registered packages/main build shapes a validation plan may contain.
  * These are the only commands allowed to change the build identity during a
  * plan; the DONE-required receipt recogniser in core/done-required-validation
@@ -169,6 +119,15 @@ export function resolveReusedBuildArtifactsBinding(args: {
   return { ok: true, buildArtifactsHash: args.prior };
 }
 
+/**
+ * Digest of every build artifact root under `projectRoot` (the git cwd whose
+ * dist the commands execute, so a Story worktree binds its own build). An
+ * absent root contributes a stable `absent` marker: a fixture or a repository
+ * without a compiled tree still binds deterministically, and a tree that later
+ * appears or disappears changes the digest. Only an unreadable tree yields
+ * `undefined`, which every consumer treats as "cannot vouch" and refuses.
+ * Memoized per synchronous git observation like the committed-tree digests.
+ */
 export function currentBuildArtifactsHash(projectRoot: string): string | undefined {
   const root = resolve(projectRoot);
   return readObservedGitState(gitObservationKey(['build-artifacts-hash', root, BUILD_ARTIFACT_ROOTS]), () => {

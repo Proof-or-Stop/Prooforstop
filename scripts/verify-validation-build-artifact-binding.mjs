@@ -36,7 +36,7 @@ import { dirname, join, resolve } from 'node:path';
 const { evaluateRoutineValidationReuse, buildRoutineValidationIdentity } = await import('../packages/main/src/core/validation-evidence-reuse.ts');
 const { evaluateValidationEvidenceAdmissibility } = await import('../packages/main/src/core/validation-evidence-admissibility.ts');
 const { currentGitHead, currentMaterialHash, currentStoryFilesHash } = await import('../packages/main/src/core/evidence-freshness.ts');
-const { runDoneRequiredValidation, evaluateDoneRequiredEvidence } = await import('../packages/main/src/core/done-required-validation.ts');
+const { runDoneRequiredValidation, evaluateDoneRequiredEvidence, validateReceiptBuildBinding } = await import('../packages/main/src/core/done-required-validation.ts');
 const { executeValidationPlan } = await import('../packages/main/src/core/validation-executor.ts');
 const { StoryStore } = await import('../packages/main/src/core/store.ts');
 const { resetConfigCache } = await import('../packages/main/src/core/config.ts');
@@ -286,10 +286,11 @@ try {
 
   // A registered build may rewrite dist; the later test executes the rebuilt
   // build and the evidence binds that build, not the pre-run one.
-  const h = doneRequiredFixture('done-required-registered-rebuild', [
+  const REGISTERED_REBUILD_COMMANDS = [
     { label: 'build', command: 'node', args: ['-e', REBUILD], providesBuildProof: 'packages-main-build' },
     { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'] },
-  ]);
+  ];
+  const h = doneRequiredFixture('done-required-registered-rebuild', REGISTERED_REBUILD_COMMANDS);
   const preRun = binding ? binding.currentBuildArtifactsHash(h.root) : undefined;
   const registered = await runDoneRequiredValidation({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root });
   check(registered.status === 'PASS', `registered build followed by a test must PASS (reasons=${registered.reasons.join(', ')})`);
@@ -299,6 +300,42 @@ try {
     check(registered.receipts[1].buildArtifactsBefore === registered.buildArtifactsHash, 'the test receipt must have started against the bound build');
   }
   check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true, 'a PASS bound to the rebuilt dist is admissible while that dist stays');
+
+  // Audit #5: receipts are a sequential chain, so each one must start on the
+  // bytes the previous one left behind, and the bound identity must be the
+  // registered build's own output. Evidence whose build receipt recorded
+  // output X while the test started on (and the evidence binds) R describes a
+  // dist that was replaced between the two receipts; every per-receipt rule
+  // holds on it, only the chain is broken. The writer and the evaluator share
+  // validateReceiptBuildBinding, so the evaluator path proves both.
+  if (binding) {
+    const replaced = 'f'.repeat(64);
+    const chainBroken = {
+      ...registered,
+      receipts: [
+        { ...registered.receipts[0], buildArtifactsAfter: replaced },
+        ...registered.receipts.slice(1),
+      ],
+    };
+    h.store.writeDoneRequiredEvidence(h.storyId, chainBroken);
+    const broken = evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root });
+    expectRepaired(broken.ok === false && broken.reasons.some((reason) => reason.startsWith('build-artifacts-changed-between-receipts[1]')),
+      `a test receipt that did not start on the previous receipt's output was accepted (reasons=${broken.reasons.join(', ')})`);
+    expectRepaired(broken.ok === false && broken.reasons.some((reason) => reason.startsWith('build-artifacts-differ-from-registered-build')),
+      `evidence bound to bytes other than the registered build's output was accepted (reasons=${broken.reasons.join(', ')})`);
+    h.store.writeDoneRequiredEvidence(h.storyId, registered);
+    check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true, 'restoring the receipt chain makes the PASS admissible again');
+    // The writer cannot be driven into a deterministic between-receipts write
+    // (its two observations are microseconds apart in one process), so its
+    // coverage is the same validator called with the writer's own argument
+    // shape, plus a guard that the writer still calls it that way.
+    const writerShape = validateReceiptBuildBinding({ receipts: chainBroken.receipts, buildArtifactsHash: chainBroken.buildArtifactsHash }, h.root, REGISTERED_REBUILD_COMMANDS);
+    expectRepaired(writerShape.some((reason) => reason.startsWith('build-artifacts-changed-between-receipts[1]')) && writerShape.some((reason) => reason.startsWith('build-artifacts-differ-from-registered-build')),
+      `the writer-shape validator accepted a broken receipt chain (reasons=${writerShape.join(', ')})`);
+    check(validateReceiptBuildBinding({ receipts: registered.receipts, buildArtifactsHash: registered.buildArtifactsHash }, h.root, REGISTERED_REBUILD_COMMANDS).length === 0, 'control: the intact receipt chain yields no binding reasons');
+    const doneRequiredSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
+    expectRepaired(doneRequiredSource.includes('validateReceiptBuildBinding({ receipts, buildArtifactsHash: executionBuildArtifactsHash }'), 'the DONE-required writer does not validate its receipts against the end-of-execution identity (source-text guard)');
+  }
 
   // A registered build that lands AFTER the tests invalidates them: the tests
   // executed a build that was replaced before the evidence was bound.
@@ -408,21 +445,54 @@ try {
       'the registered build must run before the test so the test starts against the rebuilt artifacts');
 
     // A rewrite that preserves every size and restores every timestamp is
-    // invisible to the per-command fingerprints; the plan must still end on the
-    // exact bytes the registered build produced.
+    // invisible to an lstat fingerprint. Every per-command observation is a
+    // content digest, so the rewriting command is attributed by name and the
+    // plan cannot end on bytes the registered build did not produce.
     const STAMP = '2026-01-02T03:04:05.678Z';
-    const BUILD_STAMPED = `const fs = require('node:fs'); const p = 'packages/main/dist/tasks/x.js'; fs.writeFileSync(p, 'process.exit(0); // build A\\n'); const d = new Date('${STAMP}'); fs.utimesSync(p, d, d);`;
-    const EVASIVE_REWRITE = `const fs = require('node:fs'); const p = 'packages/main/dist/tasks/x.js'; fs.writeFileSync(p, 'process.exit(1); // build B\\n'); const d = new Date('${STAMP}'); fs.utimesSync(p, d, d);`;
+    const stamped = (body) => `const fs = require('node:fs'); const p = 'packages/main/dist/tasks/x.js'; fs.writeFileSync(p, ${JSON.stringify(body)}); const d = new Date('${STAMP}'); fs.utimesSync(p, d, d);`;
+    const BUILD_STAMPED = stamped('process.exit(0); // build A\n');
+    const EVASIVE_REWRITE = stamped('process.exit(1); // build B\n');
     const evasive = await run([
       { label: 'build', command: 'node', args: ['-e', BUILD_STAMPED], timeoutMs: 20_000, providesBuildProof: 'packages-main-build' },
       { label: 'stealthy rewrite', command: 'node', args: ['-e', EVASIVE_REWRITE], timeoutMs: 20_000 },
     ]);
     const stealthy = evasive.commands.find((command) => command.label === 'stealthy rewrite');
     check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('build B'), 'the stealthy rewrite must have replaced the bytes');
-    check(Boolean(stealthy?.buildArtifactsBefore) && stealthy?.buildArtifactsBefore === stealthy?.buildArtifactsAfter, 'the equal-length, timestamp-restoring rewrite must be invisible to the per-command fingerprint (that is the evasion under test)');
-    expectRepaired(evasive.allPass === false && evasive.details.some((line) => line.includes('build_artifacts_changed_after_build')),
+    expectRepaired(Boolean(stealthy?.buildArtifactsBefore) && stealthy?.buildArtifactsBefore !== stealthy?.buildArtifactsAfter,
+      'the equal-length, timestamp-restoring rewrite was invisible to the per-command observation (size/mtime fingerprint instead of a content digest)');
+    expectRepaired(evasive.allPass === false && evasive.details.some((line) => line.includes('stealthy rewrite') && line.includes('build_artifacts_changed_by_non_build_command')),
+      `a size- and timestamp-preserving rewrite was not attributed to the command that made it (${evasive.details.join(' | ')})`);
+    expectRepaired(evasive.details.some((line) => line.includes('build_artifacts_changed_after_build')),
       `a size- and timestamp-preserving rewrite after the registered build still produced a passing plan (${evasive.details.join(' | ')})`);
     expectRepaired(!evasive.buildArtifactsHash, 'a plan whose final bytes differ from the registered build output must not carry a build binding');
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+
+    // Audit #5 evasion: swap the build for one the test passes against, run
+    // the test, then restore the registered build's exact bytes and timestamps.
+    // The plan ends on the registered build's own output, so a start/end
+    // content comparison and lstat fingerprints both see nothing; the test
+    // nevertheless executed bytes the plan never binds.
+    const FAILING_BUILD_A = stamped('process.exit(1); // build A\n');
+    const PASSING_SWAP_B = stamped('process.exit(0); // build B\n');
+    const abab = await run([
+      { label: 'build', command: 'node', args: ['-e', FAILING_BUILD_A], timeoutMs: 20_000, providesBuildProof: 'packages-main-build' },
+      { label: 'swap in build B', command: 'node', args: ['-e', PASSING_SWAP_B], timeoutMs: 20_000 },
+      { label: 'test that passes only against build B', command: 'node', args: ['packages/main/dist/tasks/x.js'], timeoutMs: 20_000 },
+      { label: 'restore build A', command: 'node', args: ['-e', FAILING_BUILD_A], timeoutMs: 20_000 },
+    ]);
+    const ababBuild = abab.commands.find((command) => command.label === 'build');
+    const ababSwap = abab.commands.find((command) => command.label === 'swap in build B');
+    const ababTest = abab.commands.find((command) => command.label === 'test that passes only against build B');
+    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('build A'), 'the restore must have put build A back');
+    check(ababTest?.code === 0, `trap: the test must have passed against the swapped build (code=${ababTest?.code})`);
+    if (binding) check(binding.currentBuildArtifactsHash(root) === ababBuild?.buildArtifactsAfter, 'trap: the plan must end on exactly the bytes the registered build produced');
+    expectRepaired(Boolean(ababSwap?.buildArtifactsBefore) && ababSwap?.buildArtifactsBefore !== ababSwap?.buildArtifactsAfter,
+      'the swap that preserved size and timestamps was invisible to the per-command observation');
+    expectRepaired(abab.allPass === false && abab.details.some((line) => line.includes('swap in build B') && line.includes('build_artifacts_changed_by_non_build_command')),
+      `a swap-test-restore sequence around a registered build still produced a passing plan (${abab.details.join(' | ')})`);
+    expectRepaired(abab.details.some((line) => line.includes('test that passes only against build B') && line.includes('receipt_not_bound_to_final_build')),
+      `the test that executed the swapped bytes was not refused as unbound to the final build (${abab.details.join(' | ')})`);
+    expectRepaired(!abab.buildArtifactsHash, 'a plan whose test executed swapped bytes must not carry a build binding');
     writeFileSync(join(mainDist, 'x.js'), BUILD_A);
 
     // The validate-file handler path cannot bypass the executor.

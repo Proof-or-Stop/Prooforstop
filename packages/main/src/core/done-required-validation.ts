@@ -764,11 +764,16 @@ export function validateSelfHostBuildProof(
 
 /**
  * Per-receipt build binding. Each receipt records the compiled-artifact
- * identity it started against and the one it left behind. Only a registered
- * packages/main build receipt may change that identity; any other command that
- * does so has rewritten the dist under test. Every non-build receipt must have
- * started against the identity the evidence finally binds, so a build that
- * lands after a test invalidates that test instead of relabelling it. Legacy
+ * content digest it started against and the one it left behind. The receipts
+ * run sequentially, so the chain must be continuous: every receipt starts on
+ * exactly the bytes the previous one left behind, otherwise something rewrote
+ * the dist between two commands. Only a registered packages/main build receipt
+ * may change the identity; any other command that does so has rewritten the
+ * dist under test. Every non-build receipt must have started against the
+ * identity the evidence finally binds, so a build that lands after a test
+ * invalidates that test instead of relabelling it, and that final identity
+ * must be the output of the last registered build, so a rewrite that lands
+ * after the build cannot be published as the build's own bytes. Legacy
  * receipts without the observations cannot vouch and are refused.
  */
 export function validateReceiptBuildBinding(
@@ -778,21 +783,34 @@ export function validateReceiptBuildBinding(
 ): string[] {
   const reasons: string[] = [];
   const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
+  let previous: { label: string; after: string } | undefined;
+  let lastRegisteredBuildOutput: string | undefined;
   for (let i = 0; i < receipts.length; i++) {
     const receipt = receipts[i];
     const before = receipt.buildArtifactsBefore;
     const after = receipt.buildArtifactsAfter;
     if (!before || !after) {
       reasons.push(`missing-receipt-build-binding[${i}]: ${receipt.label} did not record the build identity it executed`);
+      previous = undefined;
       continue;
     }
-    if (isPackagesMainBuild(receipt, projectRoot, commands[i])) continue;
+    if (previous && before !== previous.after) {
+      reasons.push(`build-artifacts-changed-between-receipts[${i}]: ${receipt.label} started on compiled artifacts that differ from what ${previous.label} left behind; the dist was rewritten between two receipts`);
+    }
+    previous = { label: receipt.label, after };
+    if (isPackagesMainBuild(receipt, projectRoot, commands[i])) {
+      lastRegisteredBuildOutput = after;
+      continue;
+    }
     if (before !== after) {
       reasons.push(`build-artifacts-changed-during-command[${i}]: ${receipt.label} rewrote the compiled artifacts but is not a registered packages/main build`);
     }
     if (evidence.buildArtifactsHash && before !== evidence.buildArtifactsHash) {
       reasons.push(`receipt-not-bound-to-final-build[${i}]: ${receipt.label} executed a build that was replaced before the evidence was bound; rerun it against the final build`);
     }
+  }
+  if (evidence.buildArtifactsHash && lastRegisteredBuildOutput && evidence.buildArtifactsHash !== lastRegisteredBuildOutput) {
+    reasons.push('build-artifacts-differ-from-registered-build: the evidence binds compiled artifacts that are not the output of the last registered packages/main build; a later command or an external write replaced the dist');
   }
   return reasons;
 }

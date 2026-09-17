@@ -18,7 +18,7 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
-import { currentBuildArtifactsFingerprint, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
 import {
   canonicalizeEntries,
   MAX_JOBS,
@@ -2278,7 +2278,7 @@ export async function executeValidationPlan(
   const executed: (ValidationCommandResult | null)[] = new Array(totalCommands).fill(null);
   // Content digest of the compiled artifacts before anything launches. The
   // matching digest after the plan is the identity the evidence binds; the
-  // per-command fingerprints attribute every change in between.
+  // per-command content digests attribute every change in between.
   const buildArtifactsAtStart = currentBuildArtifactsHash(projectRoot);
   // Latched by whichever command first observes the plan deadline blown. The
   // sequential implementation threw at exactly that point and never started a
@@ -2291,10 +2291,13 @@ export async function executeValidationPlan(
   const scheduled = await withValidationPlanStages(() => runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
     if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
     options.beforeLaunch?.();
-    // Execution-boundary observation of the compiled artifacts: what this
-    // command started against and what it left behind. The plan-level rules
-    // below turn these into the binding the evidence carries.
-    const buildArtifactsBefore = currentBuildArtifactsFingerprint(projectRoot);
+    // Execution-boundary observation of the compiled artifacts, by content:
+    // the exact bytes this command started against and the exact bytes it
+    // left behind. Content, not sizes or timestamps, so a swap that is later
+    // restored is still attributed to the commands that ran in between. A
+    // digest of the 57 MB tree costs about 90 ms warm; the plan-level rules
+    // below turn these observations into the binding the evidence carries.
+    const buildArtifactsBefore = currentBuildArtifactsHash(projectRoot);
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
@@ -2304,18 +2307,10 @@ export async function executeValidationPlan(
       deadlineAt: options.deadlineAt,
       deadlineError: options.deadlineError,
     });
-    const buildArtifactsAfter = currentBuildArtifactsFingerprint(projectRoot);
+    const buildArtifactsAfter = currentBuildArtifactsHash(projectRoot);
     if (buildArtifactsBefore) result.buildArtifactsBefore = buildArtifactsBefore;
     if (buildArtifactsAfter) result.buildArtifactsAfter = buildArtifactsAfter;
     result.buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command) ? 'build' : 'test';
-    // A registered build is the only command allowed to change the artifacts,
-    // so its output is digested by content the moment it returns: the plan may
-    // only end on exactly those bytes, whatever any later command does to
-    // sizes or timestamps.
-    if (result.buildArtifactsRole === 'build') {
-      const produced = currentBuildArtifactsHash(projectRoot);
-      if (produced) result.buildArtifactsContentAfter = produced;
-    }
     if (
       result.timedOut
       && typeof options.deadlineAt === 'number'
@@ -2413,36 +2408,32 @@ export async function executeValidationPlan(
   // command that changed the artifacts rewrote the dist under test. Legacy or
   // unobservable trees (symbolic links) cannot vouch and are refused.
   const buildArtifactsAtEnd = currentBuildArtifactsHash(projectRoot);
-  const buildArtifactsEndFingerprint = currentBuildArtifactsFingerprint(projectRoot);
   const buildBindingFailures: string[] = [];
-  if (!buildArtifactsAtStart || !buildArtifactsAtEnd || !buildArtifactsEndFingerprint) {
+  if (!buildArtifactsAtStart || !buildArtifactsAtEnd) {
     buildBindingFailures.push('build artifacts identity is unavailable (symbolic link or unreadable artifact tree); the plan cannot bind what it executed [build_artifacts_identity_unavailable]');
   } else {
     const buildRan = commands.some((result) => result.buildArtifactsRole === 'build');
+    // Every observation is a content digest, so these rules hold against a
+    // swap that is later restored: the swap, every test that ran on the
+    // swapped bytes, and the restore each fail their own comparison.
     for (const result of commands) {
-      if (result.buildArtifactsRole === 'build') continue;
       if (!result.buildArtifactsBefore || !result.buildArtifactsAfter) {
         buildBindingFailures.push(`${result.label}: build artifacts were not observed around this command [build_artifacts_observation_missing]`);
         continue;
       }
+      if (result.buildArtifactsRole === 'build') continue;
       if (result.buildArtifactsBefore !== result.buildArtifactsAfter) {
         buildBindingFailures.push(`${result.label}: compiled artifacts changed while this non-build command ran${buildRan ? ' (a registered build overlapped it)' : ''} [build_artifacts_changed_by_non_build_command]`);
       }
-      if (result.buildArtifactsBefore !== buildArtifactsEndFingerprint) {
-        buildBindingFailures.push(`${result.label}: executed a build that was replaced before the plan ended; rerun it against the final build [receipt_not_bound_to_final_build]`);
+      if (result.buildArtifactsBefore !== buildArtifactsAtEnd) {
+        buildBindingFailures.push(`${result.label}: executed bytes that differ from the artifacts the plan ended on; rerun it against the final build [receipt_not_bound_to_final_build]`);
       }
     }
     // The plan may only end on the exact bytes the last registered build
-    // produced (or, when no build ran, the bytes it started with). This is a
-    // content comparison, so a rewrite that preserves sizes and restores
-    // timestamps — invisible to the per-command fingerprints — still fails.
-    const builds = commands.filter((result) => result.buildArtifactsRole === 'build');
-    const unobservedBuild = builds.find((result) => !result.buildArtifactsContentAfter);
-    if (unobservedBuild) {
-      buildBindingFailures.push(`${unobservedBuild.label}: the registered build's output could not be digested [build_artifacts_identity_unavailable]`);
-    }
-    const expectedFinalContent = builds.length > 0 ? builds[builds.length - 1].buildArtifactsContentAfter : buildArtifactsAtStart;
-    if (!unobservedBuild && buildArtifactsAtEnd !== expectedFinalContent) {
+    // produced (or, when no build ran, the bytes it started with).
+    const builds = commands.filter((result) => result.buildArtifactsRole === 'build' && result.buildArtifactsAfter);
+    const expectedFinalContent = builds.length > 0 ? builds[builds.length - 1].buildArtifactsAfter : buildArtifactsAtStart;
+    if (buildArtifactsAtEnd !== expectedFinalContent) {
       buildBindingFailures.push(buildRan
         ? 'compiled artifacts differ from the output of the last registered packages/main build; a later command rewrote them [build_artifacts_changed_after_build]'
         : 'compiled artifacts changed during the plan without a registered packages/main build [build_artifacts_changed_by_non_build_command]');
@@ -2511,7 +2502,6 @@ export async function executeValidationPlan(
     buildArtifacts: {
       ...(buildArtifactsAtStart ? { start: buildArtifactsAtStart } : {}),
       ...(buildArtifactsAtEnd ? { end: buildArtifactsAtEnd } : {}),
-      ...(buildArtifactsEndFingerprint ? { endFingerprint: buildArtifactsEndFingerprint } : {}),
     },
     ...(focus ? { focus: { name: focus, mode: 'focused' as const, finalFullValidation: false as const, doneRequiredProof: false as const } } : {}),
   };
