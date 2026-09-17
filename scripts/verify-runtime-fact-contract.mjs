@@ -83,6 +83,12 @@ async function main() {
   check(read(root, 'packages/main/src/core/runtime-fact-registry.ts').includes('MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY'), 'Managed critic fixture runtime policy must be registered');
   check(read(root, 'packages/main/src/tasks/isolated-finding-fixture.ts').includes('managedCriticFixtureBudgetMs(process.env,budgetStartedAt)'), 'Isolated fixture must consume the managed critic budget');
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  const recoverySource = read(root, 'packages/main/src/handlers/done-recover.ts');
+  check(registrySource.includes('partial-DONE recovery reads the committed Story branch snapshot'), 'Recovery runtime contract must preserve branch-only Story metadata');
+  check(recoverySource.includes('readStoryFromBranch(mainRepoRoot, ctx.store.storyDirRel(), `refs/heads/story/${storyId}`, storyId)'), 'Recovery must resolve the committed Story snapshot using its exact local branch');
+  check(recoverySource.includes("['merge-tree', '--write-tree', `refs/heads/${integrationBranch}`, `refs/heads/${partial.branch}`]")
+    && recoverySource.includes("'merge', `refs/heads/${partial.branch}`"), 'Recovery merge probes and writes must agree on explicit local branch refs');
+
   check(registrySource.includes('Controller HEAD and index own the selected regular config'), 'Repository-owned bootstrap assets must retain their material ownership contract');
   for (const file of ['packages/main/src/cli-engine.ts', 'packages/main/src/cli/runtime-root.ts', 'packages/main/src/core/runtime-artifact-registry.ts']) {
     check(read(root, file).includes('hasRepositoryOwnedControllerAssets'), `${file} must share the repository-owned asset predicate`);

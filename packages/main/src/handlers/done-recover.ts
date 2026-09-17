@@ -6,6 +6,7 @@ import {
   assertMainWorktreeClean,
   assertStoryWorktreeClean,
   detectPartialDoneStories,
+  readStoryFromBranch,
   removeStoryWorktree,
   resolveMainBranchWorktree,
   resolveMainRepoRoot,
@@ -18,7 +19,7 @@ import {
   runDoneMainPackageBuildAfterMerge,
   shouldBuildDoneMainPackageForChangedPaths,
 } from './done-effects.js';
-import { resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
+import { localIntegrationBranchNameForRef, resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 
 function git(gitCwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -46,8 +47,13 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       if (!storyId) throw new Error('done_recover: storyId is required');
 
       const mainRepoRoot = resolveMainRepoRoot(root);
-      const initialStory = ctx.store.readStory(storyId);
-      const integrationBranch = resolveStoryIntegrationTarget(mainRepoRoot, initialStory)?.parentBranch;
+      // A partial-DONE Story may exist only on its unmerged branch. Resolve the
+      // frozen delivery target from the same committed snapshot as the scanner.
+      const initialStory = readStoryFromBranch(mainRepoRoot, ctx.store.storyDirRel(), `refs/heads/story/${storyId}`, storyId)
+        ?? ctx.store.readStory(storyId);
+      const integrationTarget = resolveStoryIntegrationTarget(mainRepoRoot, initialStory);
+      const integrationBranch = integrationTarget
+        ? localIntegrationBranchNameForRef(integrationTarget.parentBranch) : undefined;
       if (!integrationBranch) throw new Error(`done_recover refused: no integration branch can be resolved for ${storyId}`);
       const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot, integrationBranch);
       const store = mainMergeRoot === root ? ctx.store : new StoryStore(mainMergeRoot);
@@ -84,7 +90,7 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       assertStoryWorktreeClean(partial.worktreePath);
 
       const lines: string[] = [];
-      git(mainMergeRoot, ['merge-tree', '--write-tree', integrationBranch, partial.branch]);
+      git(mainMergeRoot, ['merge-tree', '--write-tree', `refs/heads/${integrationBranch}`, `refs/heads/${partial.branch}`]);
       const mainShaBeforeRecoveryMerge = git(mainMergeRoot, ['rev-parse', 'HEAD']);
       let preRecoveryMergeVersion: string | undefined;
       try {
@@ -100,7 +106,7 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       let mainShaAfterRecoveryMerge = mainShaBeforeRecoveryMerge;
       git(
         mainMergeRoot,
-        ['-c', 'commit.gpgsign=false', 'merge', partial.branch, '--no-ff', '-m', `merge: ${storyId} ${partial.title}`],
+        ['-c', 'commit.gpgsign=false', 'merge', `refs/heads/${partial.branch}`, '--no-ff', '-m', `merge: ${storyId} ${partial.title}`],
       );
       mainShaAfterRecoveryMerge = git(mainMergeRoot, ['rev-parse', 'HEAD']);
       lines.push(`✓ ${partial.branch} merged into ${integrationBranch}`);
