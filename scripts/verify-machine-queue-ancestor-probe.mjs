@@ -13,7 +13,7 @@
 // that answers the ancestor probe (`-axo pid=,ppid=`) after 1500 ms. Controls: a real ancestor conflict is still
 // refused, and a probe that never answers never admits the waiter early.
 import { spawn, spawnSync, execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +25,8 @@ const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { 
 if (build.status !== 0) { process.stderr.write(`${build.stdout}\n${build.stderr}\n`); throw new Error('packages/main build failed; this is not the target RED'); }
 const { createFixtureMachineEnvironment } = await import(`file://${join(dist, 'tasks/helpers/fixture-machine-environment.js')}`);
 
+const tempResidue = () => readdirSync(tmpdir()).filter((name) => name.startsWith('ancestor-probe-')).sort();
+const residueBefore = tempResidue();
 const sandbox = mkdtempSync(join(tmpdir(), 'pos-ancestor-probe-'));
 const machine = createFixtureMachineEnvironment();
 const red = [];
@@ -49,7 +51,7 @@ import { join } from 'node:path';
 import { execFileSync, spawn } from 'node:child_process';
 const { withMachineValidationResources } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-execution-lock.js')}`)});
 const [role, ready, release, result, childRole] = process.argv.slice(2);
-const root = mkdtempSync(join(tmpdir(), 'ancestor-probe-' + role + '-'));
+const root = mkdtempSync(join(process.env.ANCESTOR_PROBE_SANDBOX, 'ancestor-probe-' + role + '-'));
 execFileSync('git', ['init', '-q'], { cwd: root });
 const started = Date.now();
 try {
@@ -69,7 +71,7 @@ try {
 }
 `);
 async function waitFor(path, ms) { const d = Date.now() + ms; while (!existsSync(path)) { if (Date.now() > d) return false; await new Promise((r) => setTimeout(r, 50)); } return true; }
-const run = (args, env) => { const child = spawn(process.execPath, [workerScript, ...args], { stdio: 'inherit', env: { ...process.env, NODE_OPTIONS: machine.env.NODE_OPTIONS, ...env } }); return new Promise((r) => child.on('exit', r)); };
+const run = (args, env) => { const child = spawn(process.execPath, [workerScript, ...args], { stdio: 'inherit', env: { ...process.env, NODE_OPTIONS: machine.env.NODE_OPTIONS, ANCESTOR_PROBE_SANDBOX: sandbox, ...env } }); return new Promise((r) => child.on('exit', r)); };
 const readResult = (path) => existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : { outcome: 'none' };
 
 const rows = [];
@@ -121,6 +123,8 @@ try {
   try { machine.cleanup(); } catch (error) { console.log(`fixture machine cleanup: ${error.message}`); }
   rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
 }
+const leaked = tempResidue().filter((name) => !residueBefore.includes(name));
+control(leaked.length === 0, `the run leaves no worker repository in the shared temp directory (leaked ${leaked.join(',')})`);
 console.log('scenario | outcome | ms | message');
 for (const r of rows) console.log(`${r.scenario} | ${r.outcome} | ${r.ms} | ${r.message}`);
 if (red.length) {
