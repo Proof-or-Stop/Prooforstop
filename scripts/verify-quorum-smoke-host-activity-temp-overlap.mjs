@@ -82,6 +82,35 @@ try {
   });
   rows.push({ scenario: 'host activity log appends', clean: appends.clean, paths: appends.paths.length });
   expectRepaired(appends.clean === true, `appends to host activity logs must not fail the guard (paths: ${appends.paths.join(', ')})`);
+  // Repeated or queued notifications observe the same bytes again: still an append.
+  const duplicateNotifications = await guarded((root, fire) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    appendFileSync(log, '{"line":1}\n');
+    fire('docs/story/activity.jsonl'); fire('docs/story/activity.jsonl');
+    return ['docs/story/activity.jsonl', 'docs/story/activity.jsonl'];
+  });
+  rows.push({ scenario: 'append observed by four notifications', clean: duplicateNotifications.clean, paths: duplicateNotifications.paths.length });
+  expectRepaired(duplicateNotifications.clean === true, `repeated notifications for one append must stay tolerated (paths ${duplicateNotifications.paths.join(', ')})`);
+  const createdThenAppended = await guarded((root, fire) => {
+    const log = join(root, '.proof-or-stop/activity.jsonl');
+    mkdirSync(join(root, '.proof-or-stop'), { recursive: true });
+    writeFileSync(log, ''); fire('.proof-or-stop/activity.jsonl');
+    appendFileSync(log, '{"line":1}\n');
+    return ['.proof-or-stop/activity.jsonl'];
+  });
+  rows.push({ scenario: 'log created empty then appended', clean: createdThenAppended.clean, paths: createdThenAppended.paths.length });
+  expectRepaired(createdThenAppended.clean === true, `a log created and then appended must stay tolerated (paths ${createdThenAppended.paths.join(', ')})`);
+  // A suffix removed after the last notification: the final bytes still extend the
+  // baseline, so only the observed state proves the loss.
+  const suffixRemoved = await guarded((root, fire) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    appendFileSync(log, '{"line":1}\n'); fire('docs/story/activity.jsonl');
+    appendFileSync(log, '{"line":2}\n'); fire('docs/story/activity.jsonl');
+    truncateSync(log, readFileSync(log).length - '{"line":2}\n'.length);
+    return [];
+  });
+  rows.push({ scenario: 'observed suffix removed before close, no further notification', clean: suffixRemoved.clean, paths: suffixRemoved.paths.length });
+  expectRepaired(suffixRemoved.clean === false, `removing an already observed suffix must stay a mutation (clean ${suffixRemoved.clean})`);
   const source = await guarded((root) => { writeFileSync(join(root, 'src/app.ts'), 'export const x = 2;\n'); return ['src/app.ts']; });
   rows.push({ scenario: 'control: tracked source write', clean: source.clean, paths: source.paths.length });
   control(source.clean === false, 'a tracked source write is still a mutation');

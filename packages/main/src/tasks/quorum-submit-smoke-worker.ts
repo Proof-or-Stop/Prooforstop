@@ -947,10 +947,16 @@ function snapshotHostActivityLogs(roots: readonly string[]): Map<string, HostAct
  * Does `current` extend `previous`? Same file (device, inode), same metadata, and
  * strictly more bytes whose prefix is unchanged.
  */
-function hostActivityStateExtends(previous: HostActivityLogBaseline, current: { bytes: Buffer; dev: number; ino: number; mode: number; uid: number; gid: number }): boolean {
+function hostActivityStateExtends(
+  previous: HostActivityLogBaseline,
+  current: { bytes: Buffer; dev: number; ino: number; mode: number; uid: number; gid: number },
+  { allowUnchanged = false }: { allowUnchanged?: boolean } = {},
+): boolean {
   if (current.dev !== previous.dev || current.ino !== previous.ino) return false;
   if (current.mode !== previous.mode || current.uid !== previous.uid || current.gid !== previous.gid) return false;
-  if (current.bytes.length <= previous.size) return false;
+  // A repeated or coalesced notification can observe the same bytes twice; that is not a
+  // mutation. Only a SHORTER file, or a changed prefix, breaks the append-only shape.
+  if (allowUnchanged ? current.bytes.length < previous.size : current.bytes.length <= previous.size) return false;
   return createHash('sha256').update(current.bytes.subarray(0, previous.size)).digest('hex') === previous.digest;
 }
 
@@ -965,12 +971,19 @@ function isToleratedHostActivityAppend(
   root: string,
   candidate: string,
   baselines: ReadonlyMap<string, HostActivityLogState>,
+  observed?: ReadonlyMap<string, HostActivityLogState>,
 ): boolean {
   if (!isHostActivityLogPath(root, candidate) || !baselines.has(candidate)) return false;
   const baseline = baselines.get(candidate);
   if (baseline === undefined || baseline === 'ineligible') return false;
   const current = readHostActivityLogFile(candidate);
   if (current === 'absent' || current === 'ineligible') return false; // deleted, replaced by a link, or unreadable
+  // The final state must also equal or extend the LAST observed state: a suffix removed
+  // after the last notification is still a mutation, although it extends the baseline.
+  const latest = observed?.get(candidate);
+  if (latest === 'ineligible') return false;
+  if (latest !== undefined && latest !== 'absent'
+    && !hostActivityStateExtends(latest, current, { allowUnchanged: true })) return false;
   // Created during the run as a plain file: only a log that actually received a line
   // is an append; an empty creation is a mutation like any other.
   if (baseline === 'absent') return current.bytes.length > 0;
@@ -1020,7 +1033,7 @@ export function createQuorumSmokeProtectedMutationGuard(
       hostActivityTainted.add(candidate);
       return;
     }
-    if (previous === 'absent' ? read.bytes.length === 0 : !hostActivityStateExtends(previous, read)) {
+    if (previous !== 'absent' && !hostActivityStateExtends(previous, read, { allowUnchanged: true })) {
       hostActivityTainted.add(candidate);
       return;
     }
@@ -1075,7 +1088,7 @@ export function createQuorumSmokeProtectedMutationGuard(
       const hostActivityPaths = [...paths].filter(candidate => identities.some(identity => (
         containedBy(identity.path, candidate)
           && !hostActivityTainted.has(candidate)
-          && isToleratedHostActivityAppend(identity.path, candidate, hostActivityBaselines)
+          && isToleratedHostActivityAppend(identity.path, candidate, hostActivityBaselines, hostActivityObserved)
       )));
       const unownedPaths = [...paths]
         .filter(candidate => !frameworkTracePaths.includes(candidate) && !hostActivityPaths.includes(candidate))
