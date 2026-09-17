@@ -7,6 +7,18 @@ import { mkdtempSync, readFileSync, writeFileSync, rmSync, readdirSync } from 'n
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { registerHooks } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
+// The oracle imports the production source graph, which may use non-erasable
+// TypeScript. Compile only this verifier process, preserving the source resolver.
+registerHooks({ load(url, context, nextLoad) {
+  if (!url.endsWith('.ts')) return nextLoad(url, context);
+  return { format: 'module', shortCircuit: true, source: ts.transpileModule(
+    readFileSync(fileURLToPath(url), 'utf8'),
+    { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, esModuleInterop: true }, fileName: fileURLToPath(url) },
+  ).outputText };
+} });
 const G = await import('../packages/main/src/core/git-tree-observation.ts');
 const M = await import('../packages/main/src/core/evidence-freshness.ts');
 const store = await import('../packages/main/src/core/evidence/artifact-store.ts');

@@ -33,7 +33,7 @@ export function readObservedGitState<T>(key: string, probe: () => T): T {
   return value;
 }
 
-class ObservedGitFailure { readonly error: unknown; constructor(error: unknown) { this.error = error; } }
+class ObservedGitFailure { constructor(readonly error: unknown) {} }
 
 /** Only a command git itself refused (it ran to completion and exited non-zero)
  * is observed as failed for the rest of the segment. A command this process could
