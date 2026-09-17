@@ -943,6 +943,24 @@ function snapshotHostActivityLogs(roots: readonly string[]): Map<string, HostAct
   return baselines;
 }
 
+/**
+ * Does `current` extend `previous`? Same file (device, inode), same metadata, and
+ * strictly more bytes whose prefix is unchanged.
+ */
+function hostActivityStateExtends(previous: HostActivityLogBaseline, current: { bytes: Buffer; dev: number; ino: number; mode: number; uid: number; gid: number }): boolean {
+  if (current.dev !== previous.dev || current.ino !== previous.ino) return false;
+  if (current.mode !== previous.mode || current.uid !== previous.uid || current.gid !== previous.gid) return false;
+  if (current.bytes.length <= previous.size) return false;
+  return createHash('sha256').update(current.bytes.subarray(0, previous.size)).digest('hex') === previous.digest;
+}
+
+function hostActivityStateOf(read: { bytes: Buffer; dev: number; ino: number; mode: number; uid: number; gid: number }): HostActivityLogBaseline {
+  return {
+    size: read.bytes.length, digest: createHash('sha256').update(read.bytes).digest('hex'),
+    dev: read.dev, ino: read.ino, mode: read.mode, uid: read.uid, gid: read.gid,
+  };
+}
+
 function isToleratedHostActivityAppend(
   root: string,
   candidate: string,
@@ -956,16 +974,9 @@ function isToleratedHostActivityAppend(
   // Created during the run as a plain file: only a log that actually received a line
   // is an append; an empty creation is a mutation like any other.
   if (baseline === 'absent') return current.bytes.length > 0;
-  // The same file must have grown: a replacement (even byte-identical, even carrying
-  // the original prefix) is a structural mutation, not an append.
-  if (current.dev !== baseline.dev || current.ino !== baseline.ino) return false;
-  // Metadata is part of the file's state: a permission or ownership change is a
-  // mutation in its own right, even when the bytes only grew.
-  if (current.mode !== baseline.mode || current.uid !== baseline.uid || current.gid !== baseline.gid) return false;
-  // Only growth is an append: an in-place rewrite, or truncate-then-restore, keeps the
-  // length and the inode, so it must stay a mutation.
-  if (current.bytes.length <= baseline.size) return false;
-  return createHash('sha256').update(current.bytes.subarray(0, baseline.size)).digest('hex') === baseline.digest;
+  // The same file must have grown, keeping its identity, metadata and prefix: a
+  // replacement, an in-place rewrite or a metadata change is a structural mutation.
+  return hostActivityStateExtends(baseline, current);
 }
 
 /**
@@ -989,6 +1000,32 @@ export function createQuorumSmokeProtectedMutationGuard(
   let closed = false;
   const baselineDigest = protectedStateDigest(identities);
   const hostActivityBaselines = snapshotHostActivityLogs(identities.map(identity => identity.path));
+  // Accepted limitation: this is observation-based, not operation-level attribution.
+  // If the platform coalesces a destructive step and a later append into a single
+  // notification, that sequence is indistinguishable from an append here. The durable
+  // remedy is the host not writing into the repository during a validation at all.
+  // Every observed state of an exempt log must extend the previous one. Comparing only
+  // the final bytes cannot tell an append from a destructive rewrite followed by an
+  // append; observing each notification catches the destructive step itself. A log whose
+  // observed sequence ever breaks is tainted and can never be exempted afterwards.
+  const hostActivityObserved = new Map<string, HostActivityLogState>(hostActivityBaselines);
+  const hostActivityTainted = new Set<string>();
+  const observeHostActivity = (root: string, candidate: string): void => {
+    if (!isHostActivityLogPath(root, candidate) || !hostActivityObserved.has(candidate)) return;
+    if (hostActivityTainted.has(candidate)) return;
+    const previous = hostActivityObserved.get(candidate);
+    const read = readHostActivityLogFile(candidate);
+    if (read === 'absent') { hostActivityTainted.add(candidate); return; } // removed mid-run
+    if (read === 'ineligible' || previous === undefined || previous === 'ineligible') {
+      hostActivityTainted.add(candidate);
+      return;
+    }
+    if (previous === 'absent' ? read.bytes.length === 0 : !hostActivityStateExtends(previous, read)) {
+      hostActivityTainted.add(candidate);
+      return;
+    }
+    hostActivityObserved.set(candidate, hostActivityStateOf(read));
+  };
   try {
     for (const identity of identities) {
       const watcher = watch(identity.path, { recursive: true, persistent: false }, (eventType, filename) => {
@@ -998,6 +1035,7 @@ export function createQuorumSmokeProtectedMutationGuard(
           return;
         }
         paths.add(candidate);
+        observeHostActivity(identity.path, candidate);
         if (eventType !== 'change' && eventType !== 'rename') {
           errors.push(`unknown protected-root watch event ${String(eventType)}`);
         }
@@ -1035,7 +1073,9 @@ export function createQuorumSmokeProtectedMutationGuard(
           || (exactFrameworkTracePaths.length > 0 && candidate === traceDirectory)
       )).sort();
       const hostActivityPaths = [...paths].filter(candidate => identities.some(identity => (
-        containedBy(identity.path, candidate) && isToleratedHostActivityAppend(identity.path, candidate, hostActivityBaselines)
+        containedBy(identity.path, candidate)
+          && !hostActivityTainted.has(candidate)
+          && isToleratedHostActivityAppend(identity.path, candidate, hostActivityBaselines)
       )));
       const unownedPaths = [...paths]
         .filter(candidate => !frameworkTracePaths.includes(candidate) && !hostActivityPaths.includes(candidate))

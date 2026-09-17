@@ -64,7 +64,10 @@ async function guarded(action, before) {
   const root = repo();
   before?.(root);
   const guard = createQuorumSmokeProtectedMutationGuard([root]);
-  for (const relative of action(root)) emit(root, relative);
+  // A real watcher delivers one notification per operation; `fire` lets a scenario
+  // report intermediate states exactly as the kernel would.
+  const fire = (relative) => emit(root, relative);
+  for (const relative of action(root, fire)) emit(root, relative);
   return guard.close();
 }
 const rows = [];
@@ -125,6 +128,29 @@ try {
   });
   rows.push({ scenario: 'activity log truncated then restored', clean: truncateRestore.clean, paths: truncateRestore.paths.length });
   expectRepaired(truncateRestore.clean === false, 'truncate-then-restore on the same inode must stay a mutation');
+  // A destructive rewrite followed by a legitimate append: the final bytes look like a
+  // pure append, so only the intermediate observation can distinguish them.
+  const rewriteThenAppend = await guarded((root, fire) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    const bytes = readFileSync(log);
+    truncateSync(log, 0); fire('docs/story/activity.jsonl');
+    const fd = openSync(log, 'r+'); writeSync(fd, bytes, 0, bytes.length, 0); closeSync(fd); fire('docs/story/activity.jsonl');
+    appendFileSync(log, '{"line":1}\n');
+    return ['docs/story/activity.jsonl'];
+  });
+  rows.push({ scenario: 'activity log truncated, restored, then appended', clean: rewriteThenAppend.clean, paths: rewriteThenAppend.paths.length });
+  expectRepaired(rewriteThenAppend.clean === false && rewriteThenAppend.paths.includes(join(sandbox, `repo-${n - 1}`, 'docs/story/activity.jsonl')),
+    `a destructive rewrite followed by an append must stay a mutation (clean ${rewriteThenAppend.clean}, paths ${rewriteThenAppend.paths.length})`);
+  const inPlaceThenAppend = await guarded((root, fire) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    const bytes = readFileSync(log);
+    const fd = openSync(log, 'r+'); writeSync(fd, Buffer.from('{"forged":1}\n'), 0, 13, 0); closeSync(fd); fire('docs/story/activity.jsonl');
+    const restore = openSync(log, 'r+'); writeSync(restore, bytes, 0, bytes.length, 0); closeSync(restore); fire('docs/story/activity.jsonl');
+    appendFileSync(log, '{"line":1}\n');
+    return ['docs/story/activity.jsonl'];
+  });
+  rows.push({ scenario: 'activity log rewritten in place, restored, then appended', clean: inPlaceThenAppend.clean, paths: inPlaceThenAppend.paths.length });
+  expectRepaired(inPlaceThenAppend.clean === false, `an in-place rewrite followed by an append must stay a mutation (clean ${inPlaceThenAppend.clean})`);
   const chmodOnly = await guarded((root) => { chmodSync(join(root, 'docs/story/activity.jsonl'), 0o444); return ['docs/story/activity.jsonl']; });
   rows.push({ scenario: 'activity log made read-only (bytes unchanged)', clean: chmodOnly.clean, paths: chmodOnly.paths.length });
   expectRepaired(chmodOnly.clean === false, 'changing the activity log permissions must stay a mutation');
