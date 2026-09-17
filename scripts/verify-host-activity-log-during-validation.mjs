@@ -32,6 +32,12 @@ const expectRepaired = (ok, message) => { if (ok) checks++; else red.push(messag
 const control = (ok, message) => { if (!ok) throw new Error(`control failed (not the target RED): ${message}`); checks++; };
 const live = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });
 const deadPid = Number(spawnSync(process.execPath, ['-e', 'console.log(process.pid)'], { encoding: 'utf8' }).stdout.trim());
+// Everything after the live child exists must clean it up, including a failing build.
+const cleanUp = () => {
+  live.kill('SIGKILL');
+  rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+};
+process.on('uncaughtException', (error) => { cleanUp(); throw error; });
 
 let n = 0;
 function repo() {
@@ -74,6 +80,16 @@ const capacityEntriesFor = (root) => {
   } catch { return []; }
 };
 const capacityEntries = (root) => { try { return readdirSync(capacityDir(root)); } catch { return []; } };
+// Queue directories are deliberately never removed (removing one races a producer), so
+// what matters is that no RECORD is left behind in any of them.
+const pendingRecords = () => {
+  const spoolRoot = join(home, '.proof-or-stop/activity-spool');
+  let dirs;
+  try { dirs = readdirSync(spoolRoot).filter((name) => name.startsWith('pending-')); } catch { return []; }
+  return dirs.flatMap((dir) => {
+    try { return readdirSync(join(spoolRoot, dir)).filter((name) => name.endsWith('.json')).map((name) => `${dir}/${name}`); } catch { return []; }
+  });
+};
 const spoolClaims = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.includes('.delivering-')); } catch { return []; } };
 async function waitUntil(predicate, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
@@ -87,7 +103,7 @@ const lines = (root) => existsSync(log(root)) ? readFileSync(log(root), 'utf8').
 // so interoperability is exercised against the real implementation, not a fixture.
 const dist = join(repoRoot, 'packages/main/dist');
 const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { cwd: repoRoot, encoding: 'utf8' });
-if (build.status !== 0) { process.stderr.write(`${build.stdout}\n${build.stderr}\n`); throw new Error('packages/main build failed; this is not the target RED'); }
+if (build.status !== 0) { process.stderr.write(`${build.stdout}\n${build.stderr}\n`); cleanUp(); throw new Error('packages/main build failed; this is not the target RED'); }
 const allocatorScript = join(sandbox, 'allocator.mjs');
 writeFileSync(allocatorScript, `
 import { existsSync, writeFileSync } from 'node:fs';
@@ -440,11 +456,11 @@ try {
   {
     const plain = join(sandbox, `plain-${n++}`); mkdirSync(plain, { recursive: true });
     callHook(plain, 'not-a-repository');
-    const pending = readdirSync(join(home, '.proof-or-stop/activity-spool')).filter((name) => name.startsWith('pending-'));
-    rows.push({ scenario: 'directory outside any repository', repoLinesDuring: lines(plain).length, after: `${pending.length} pending queues` });
+    const pending = pendingRecords();
+    rows.push({ scenario: 'directory outside any repository', repoLinesDuring: lines(plain).length, after: `${pending.length} pending records` });
     expectRepaired(JSON.stringify(lines(plain)) === JSON.stringify(['not-a-repository']),
       `a directory outside any repository keeps immediate logging (got ${JSON.stringify(lines(plain))})`);
-    expectRepaired(pending.length === 0, `a non-repository directory accumulates no pending records (found ${JSON.stringify(pending)})`);
+    expectRepaired(pending.length === 0, `a non-repository directory leaves no pending record (found ${JSON.stringify(pending)})`);
   }
   // Discovery that succeeds, then fails, then succeeds again: nothing is stranded.
   {
@@ -458,11 +474,11 @@ try {
     });
     callHook(root, 'healthy-2');
     const after = lines(root);
-    const pending = readdirSync(join(home, '.proof-or-stop/activity-spool')).filter((name) => name.startsWith('pending-'));
+    const pending = pendingRecords();
     rows.push({ scenario: 'discovery succeeds, fails, succeeds', repoLinesDuring: '-', after: JSON.stringify(after) });
     expectRepaired(JSON.stringify(after) === JSON.stringify(['healthy-1', 'while-discovery-fails', 'healthy-2']),
       `a record published during a failed lookup is adopted, not stranded (got ${JSON.stringify(after)})`);
-    expectRepaired(pending.length === 0, `no pending queue is left behind (found ${JSON.stringify(pending)})`);
+    expectRepaired(pending.length === 0, `no pending record is left behind (found ${JSON.stringify(pending)})`);
   }
   // A record that cannot be read right now is retained, not discarded.
   {
@@ -497,11 +513,11 @@ try {
     });
     callHook(plain, 'outside-2');
     const after = lines(plain);
-    const pending = readdirSync(join(home, '.proof-or-stop/activity-spool')).filter((name) => name.startsWith('pending-'));
+    const pending = pendingRecords();
     rows.push({ scenario: 'outside a repository: discovery fails, then recovers', repoLinesDuring: '-', after: JSON.stringify(after) });
     expectRepaired(JSON.stringify(after) === JSON.stringify(['outside-1', 'outside-while-broken', 'outside-2']),
       `a record deferred outside a repository is delivered in order once discovery recovers (got ${JSON.stringify(after)})`);
-    expectRepaired(pending.length === 0, `the pending queue is cleared outside a repository (found ${JSON.stringify(pending)})`);
+    expectRepaired(pending.length === 0, `no pending record is left outside a repository (found ${JSON.stringify(pending)})`);
   }
   // Recovery that is blocked must hold newer records back, inside and outside a repository.
   {
@@ -550,6 +566,36 @@ try {
     expectRepaired(JSON.stringify(after.slice(0, 4)) === JSON.stringify(['queued-0', 'queued-1', 'queued-2', 'queued-3'])
       && after.length === 7 && new Set(after).size === 7,
       `concurrent recovery keeps the order and duplicates nothing (got ${JSON.stringify(after)})`);
+  }
+  // A pending queue that cannot be ENUMERATED is unknown, not empty: newer records wait.
+  {
+    const root = repo();
+    const pending = join(home, '.proof-or-stop/activity-spool', `pending-${createHash('sha256').update(`pending:${root}`).digest('hex')}`);
+    mkdirSync(pending, { recursive: true });
+    writeFileSync(join(pending, '00000000000001-0000001-dddddddddddd.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-unreadable-dir' })}\n` }));
+    chmodSync(pending, 0o000); // enumeration fails
+    callHook(root, 'newer-unreadable-dir');
+    const blocked = lines(root);
+    chmodSync(pending, 0o700);
+    callHook(root, 'after-unreadable-dir');
+    const after = lines(root);
+    rows.push({ scenario: 'pending queue cannot be enumerated', repoLinesDuring: blocked.length, after: JSON.stringify(after) });
+    expectRepaired(blocked.length === 0, `an unreadable pending queue must block newer records (found ${JSON.stringify(blocked)})`);
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['older-unreadable-dir', 'newer-unreadable-dir', 'after-unreadable-dir']),
+      `order is preserved once the pending queue can be read (got ${JSON.stringify(after)})`);
+  }
+  // A failing build must not leave this verifier's own children or sandboxes behind.
+  if (!process.env.HOOK_VERIFIER_NESTED) {
+    const brokenNpm = join(sandbox, 'broken-npm'); mkdirSync(brokenNpm, { recursive: true });
+    writeFileSync(join(brokenNpm, 'npm'), '#!/bin/sh\nexit 1\n'); chmodSync(join(brokenNpm, 'npm'), 0o755);
+    const before = readdirSync(tmpdir()).filter((name) => name.startsWith('pos-activity-hook-'));
+    const nested = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], {
+      env: { ...process.env, HOOK_VERIFIER_NESTED: '1', PATH: `${brokenNpm}:${process.env.PATH}` }, encoding: 'utf8', timeout: 120_000,
+    });
+    const leaked = readdirSync(tmpdir()).filter((name) => name.startsWith('pos-activity-hook-') && !before.includes(name));
+    rows.push({ scenario: 'verifier cleanup when its build fails', repoLinesDuring: nested.status, after: `${leaked.length} sandboxes leaked` });
+    control(nested.status !== 0 && /build failed/.test(`${nested.stdout}${nested.stderr}`), 'a failing build stops the verifier');
+    expectRepaired(leaked.length === 0, `a failing build leaves no sandbox behind (found ${JSON.stringify(leaked)})`);
   }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [

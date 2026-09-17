@@ -58,9 +58,11 @@ process.stdin.on('end', () => {
       // fail and silently move records into a different queue.
       const spool = spoolDirFor(discovered);
       if (!adoptPendingRecords(root, spool)) {
-        // Older records could not be moved into this worktree's queue: keep the current
-        // record behind them rather than delivering it first.
-        publishSpoolRecord(pendingSpoolDir(root), { target, line });
+        // Older records could not be moved into this worktree's queue. The current record
+        // is still published, into whichever queue is writable: record names are
+        // time-ordered, so the older records sort ahead of it once both queues merge.
+        // Nothing is delivered until adoption succeeds.
+        publishToFirstWritableQueue([spool, pendingSpoolDir(root)], { target, line });
       } else {
         // Every repository write happens inside the product's own workspace validation
         // capacity ticket, so a validation starting concurrently queues behind this
@@ -92,6 +94,15 @@ function discoverWorkspace(root) {
 }
 
 /** Per-worktree spool directory outside the repository, keyed by the discovered top. */
+/** Publish into the first queue that accepts the record; the last failure propagates. */
+function publishToFirstWritableQueue(queues, record) {
+  let lastError;
+  for (const queue of queues) {
+    try { publishSpoolRecord(queue, record); return; } catch (error) { lastError = error; }
+  }
+  throw lastError;
+}
+
 function spoolDirFor(top) {
   const key = crypto.createHash('sha256').update(top).digest('hex');
   return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', key);
@@ -107,16 +118,22 @@ function pendingSpoolDir(root) {
 function adoptPendingRecords(root, spool) {
   const pending = pendingSpoolDir(root);
   let names;
-  try { names = fs.readdirSync(pending).filter(name => name.endsWith('.json')); } catch { return true; }
+  try { names = fs.readdirSync(pending).filter(name => name.endsWith('.json')); } catch (error) {
+    // Only a confirmed absence means "nothing pending"; anything else is unknown, and
+    // unknown must block newer records rather than let them pass.
+    return error.code === 'ENOENT';
+  }
   if (names.length === 0) return true;
   try { fs.mkdirSync(spool, { recursive: true, mode: 0o700 }); } catch { return false; }
   for (const name of names) {
     try { fs.renameSync(path.join(pending, name), path.join(spool, name)); } catch {
-      // Another hook may have adopted it; anything still here blocks newer records.
-      if (fs.existsSync(path.join(pending, name))) return false;
+      // Another hook may have adopted it, but an indeterminate answer must not read as
+      // success: only a confirmed absence lets newer records through.
+      try { fs.statSync(path.join(pending, name)); return false; } catch (error) {
+        if (error.code !== 'ENOENT') return false;
+      }
     }
   }
-  try { fs.rmdirSync(pending); } catch { /* not empty yet */ }
   return true;
 }
 
@@ -155,11 +172,20 @@ function workspaceValidationActive(top) {
  * out from under a half-written record.
  */
 function publishSpoolRecord(spool, record) {
-  fs.mkdirSync(spool, { recursive: true, mode: 0o700 });
   const name = `${String(Date.now()).padStart(14, '0')}-${String(process.pid).padStart(7, '0')}-${crypto.randomBytes(6).toString('hex')}`;
   const tmp = path.join(spool, `.${name}.tmp`);
-  fs.writeFileSync(tmp, JSON.stringify(record), { mode: 0o600 });
-  fs.renameSync(tmp, path.join(spool, `${name}.json`));
+  // Publication is retried once: if anything removed the directory between the mkdir and
+  // the write, the record is still published rather than silently lost.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      fs.mkdirSync(spool, { recursive: true, mode: 0o700 });
+      fs.writeFileSync(tmp, JSON.stringify(record), { mode: 0o600 });
+      fs.renameSync(tmp, path.join(spool, `${name}.json`));
+      return;
+    } catch (error) {
+      if (attempt === 1 || error.code !== 'ENOENT') throw error;
+    }
+  }
 }
 
 const RECORD_CLAIM = /^(.*\.json)\.delivering-(\d+)$/;
@@ -198,10 +224,9 @@ function queueView(spool) {
 function deliverQueue(spool, top) {
   for (let delivered = 0; delivered < 10000; delivered++) {
     const [oldest] = queueView(spool);
-    if (!oldest) {
-      try { fs.rmdirSync(spool); } catch { /* not empty, or in use by another hook */ }
-      return;
-    }
+    // A queue directory is never removed: removing it would race a producer that has
+    // created it and is about to publish into it. An empty directory is harmless.
+    if (!oldest) return;
     if (oldest.claimedBy !== null) {
       // The oldest record is in flight. A live owner is still making progress, so stand
       // down; a dead owner's claim returns to the queue and is retried here.
