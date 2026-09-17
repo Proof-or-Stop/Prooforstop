@@ -1384,13 +1384,13 @@ function persistStoryValidationEvidence(
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const failureKind = validationFailureKindFromResult(result, allPass);
-  const persistenceFailure = (reason: string) => ({
+  const persistenceFailure = (reason: string, extraDetails: string[] = []) => ({
     ...externalResult({
       provider: 'proof-or-stop-verifier-executed-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation result could not persist its canonical evidence transaction',
-      details: ['canonical-validation-persistence-failed', reason],
+      details: ['canonical-validation-persistence-failed', reason, ...extraDetails],
       warnings: [],
       commands: commandResults,
     }),
@@ -1476,6 +1476,16 @@ function persistStoryValidationEvidence(
       ? result.buildArtifactsHash
       : undefined;
     const publicationBuildArtifactsHash = currentBuildArtifactsHash(gitCwd);
+    // A result the executor refused to stamp carries its `✗ build binding:`
+    // diagnostics; they are the reason publication is refused and are kept in
+    // the returned result so the caller sees what was rewritten, not merely
+    // that the identity was unavailable.
+    const executorBindingDiagnostics = Array.isArray(result.details)
+      ? (result.details as unknown[]).filter((line): line is string => typeof line === 'string' && line.startsWith('✗ build binding:'))
+      : [];
+    if (!executionBuildArtifactsHash && executorBindingDiagnostics.length > 0) {
+      return persistenceFailure('the executor rejected the build binding of this run; the evidence cannot bind what it executed [build_artifacts_binding_rejected]', executorBindingDiagnostics);
+    }
     if (!executionBuildArtifactsHash || !publicationBuildArtifactsHash) {
       return persistenceFailure('build artifacts identity is unavailable; the evidence cannot bind what it executed [build_artifacts_unavailable]');
     }
@@ -2785,7 +2795,14 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         const validation = await runValidateFile(launchGate.beforeLaunch);
         const commandResult = validation.commands[0];
-        const { code, output } = commandResult;
+        const { code: childCode, output } = commandResult;
+        // The executor's build-binding verdict is part of the validate file's
+        // outcome: an exit-zero validate file whose plan the executor rejected
+        // (it rewrote the artifacts it tested, or their identity was unavailable)
+        // did not validate what it claims, so it is treated as a failed command
+        // on every rendering path below, with the executor's diagnostics kept.
+        const executorBindingDetails = validation.details.filter((line) => line.startsWith('✗ build binding:'));
+        const code = executorBindingDetails.length > 0 && childCode === 0 ? 1 : childCode;
         if (dynamicValidation?.manifest) {
           const manifest = dynamicValidation.manifest as ValidationSelectionManifest;
           const commandId = manifest.rows[0]?.commandId;
@@ -2853,7 +2870,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         // A validate file cannot print its own binding into evidence: any
         // buildArtifactsHash in the child's JSON is discarded, and an executor
         // binding failure fails the result with the executor's own diagnostics.
-        const executorBindingDetails = validation.details.filter((line) => line.startsWith('✗ build binding:'));
         const withExecutorBinding = <T extends Record<string, unknown>>(value: T): T => {
           const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, ...rest } = value as Record<string, unknown>;
           const bound: Record<string, unknown> = validation.buildArtifactsHash
@@ -2961,14 +2977,17 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             );
             const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
             const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
+            // `code` already carries the executor's build-binding verdict, so
+            // the plain-text rendering fails exactly as --json does; the
+            // executor's diagnostics are part of the reported output.
             reportOutcome(code === 0 && coverage.missingRequired === 0);
-            return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
+            return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (executorBindingDetails.length > 0 ? `\n${executorBindingDetails.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
           } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             // If story metadata cannot be read, fall back to raw verifier output.
           }
         }
         reportOutcome(code === 0);
-        return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
+        return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + (executorBindingDetails.length > 0 ? `\n${executorBindingDetails.join('\n')}` : '') + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
       };
       return await runValidateFileAndRender();
       }));

@@ -2308,6 +2308,14 @@ export async function executeValidationPlan(
     if (buildArtifactsBefore) result.buildArtifactsBefore = buildArtifactsBefore;
     if (buildArtifactsAfter) result.buildArtifactsAfter = buildArtifactsAfter;
     result.buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command) ? 'build' : 'test';
+    // A registered build is the only command allowed to change the artifacts,
+    // so its output is digested by content the moment it returns: the plan may
+    // only end on exactly those bytes, whatever any later command does to
+    // sizes or timestamps.
+    if (result.buildArtifactsRole === 'build') {
+      const produced = currentBuildArtifactsHash(projectRoot);
+      if (produced) result.buildArtifactsContentAfter = produced;
+    }
     if (
       result.timedOut
       && typeof options.deadlineAt === 'number'
@@ -2424,8 +2432,20 @@ export async function executeValidationPlan(
         buildBindingFailures.push(`${result.label}: executed a build that was replaced before the plan ended; rerun it against the final build [receipt_not_bound_to_final_build]`);
       }
     }
-    if (buildArtifactsAtStart !== buildArtifactsAtEnd && !buildRan) {
-      buildBindingFailures.push('compiled artifacts changed during the plan without a registered packages/main build [build_artifacts_changed_by_non_build_command]');
+    // The plan may only end on the exact bytes the last registered build
+    // produced (or, when no build ran, the bytes it started with). This is a
+    // content comparison, so a rewrite that preserves sizes and restores
+    // timestamps — invisible to the per-command fingerprints — still fails.
+    const builds = commands.filter((result) => result.buildArtifactsRole === 'build');
+    const unobservedBuild = builds.find((result) => !result.buildArtifactsContentAfter);
+    if (unobservedBuild) {
+      buildBindingFailures.push(`${unobservedBuild.label}: the registered build's output could not be digested [build_artifacts_identity_unavailable]`);
+    }
+    const expectedFinalContent = builds.length > 0 ? builds[builds.length - 1].buildArtifactsContentAfter : buildArtifactsAtStart;
+    if (!unobservedBuild && buildArtifactsAtEnd !== expectedFinalContent) {
+      buildBindingFailures.push(buildRan
+        ? 'compiled artifacts differ from the output of the last registered packages/main build; a later command rewrote them [build_artifacts_changed_after_build]'
+        : 'compiled artifacts changed during the plan without a registered packages/main build [build_artifacts_changed_by_non_build_command]');
     }
   }
   for (const line of buildBindingFailures) details.push(`✗ build binding: ${line}`);

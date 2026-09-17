@@ -28,8 +28,8 @@ registerHooks({ load(url, context, nextLoad) {
   return nextLoad(url, context);
 } });
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
@@ -407,6 +407,24 @@ try {
     expectRepaired(Boolean(testCommand?.buildArtifactsBefore) && testCommand?.buildArtifactsBefore === buildCommand?.buildArtifactsAfter,
       'the registered build must run before the test so the test starts against the rebuilt artifacts');
 
+    // A rewrite that preserves every size and restores every timestamp is
+    // invisible to the per-command fingerprints; the plan must still end on the
+    // exact bytes the registered build produced.
+    const STAMP = '2026-01-02T03:04:05.678Z';
+    const BUILD_STAMPED = `const fs = require('node:fs'); const p = 'packages/main/dist/tasks/x.js'; fs.writeFileSync(p, 'process.exit(0); // build A\\n'); const d = new Date('${STAMP}'); fs.utimesSync(p, d, d);`;
+    const EVASIVE_REWRITE = `const fs = require('node:fs'); const p = 'packages/main/dist/tasks/x.js'; fs.writeFileSync(p, 'process.exit(1); // build B\\n'); const d = new Date('${STAMP}'); fs.utimesSync(p, d, d);`;
+    const evasive = await run([
+      { label: 'build', command: 'node', args: ['-e', BUILD_STAMPED], timeoutMs: 20_000, providesBuildProof: 'packages-main-build' },
+      { label: 'stealthy rewrite', command: 'node', args: ['-e', EVASIVE_REWRITE], timeoutMs: 20_000 },
+    ]);
+    const stealthy = evasive.commands.find((command) => command.label === 'stealthy rewrite');
+    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('build B'), 'the stealthy rewrite must have replaced the bytes');
+    check(Boolean(stealthy?.buildArtifactsBefore) && stealthy?.buildArtifactsBefore === stealthy?.buildArtifactsAfter, 'the equal-length, timestamp-restoring rewrite must be invisible to the per-command fingerprint (that is the evasion under test)');
+    expectRepaired(evasive.allPass === false && evasive.details.some((line) => line.includes('build_artifacts_changed_after_build')),
+      `a size- and timestamp-preserving rewrite after the registered build still produced a passing plan (${evasive.details.join(' | ')})`);
+    expectRepaired(!evasive.buildArtifactsHash, 'a plan whose final bytes differ from the registered build output must not carry a build binding');
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+
     // The validate-file handler path cannot bypass the executor.
     const verifierSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
     const validateFileStart = verifierSource.indexOf('const runValidateFile = ');
@@ -423,6 +441,84 @@ try {
       'the validate-file result assemblies do not carry the executor build binding (source-text guard)');
   } finally {
     rmTree(planSandbox);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Validate-file handler path, end to end through the built CLI, with and
+// without --json. `npx tsx` resolves a local node_modules/.bin/tsx shim that
+// runs the file with Node's native TypeScript stripping, so no network is used.
+// ---------------------------------------------------------------------------
+{
+  const cli = join(repoRoot, 'packages/main/dist/cli.js');
+  check(existsSync(cli), `handler-level validate-file regression requires a built CLI at ${cli}`);
+  const handlerSandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-handler-'));
+  try {
+    const seed = (name, validateTs) => {
+      const root = join(handlerSandbox, name); mkdirSync(root);
+      const storyId = 'B-bab-handler';
+      writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/runtime/\nnode_modules\ndist\n');
+      writeFileSync(join(root, 'source.ts'), 'export const handlerBinding = true;\n');
+      writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', workflow: { profile: 'light' } }, null, 2));
+      writeFileSync(join(root, 'validate.ts'), validateTs);
+      mkdirSync(join(root, 'node_modules/.bin'), { recursive: true });
+      writeFileSync(join(root, 'node_modules/.bin/tsx'), '#!/bin/sh\nexec node "$@"\n', { mode: 0o755 });
+      git(root, ['init', '-q', '-b', 'main']);
+      git(root, ['config', 'user.email', 'fixture@example.invalid']);
+      git(root, ['config', 'user.name', 'Build Binding Fixture']);
+      git(root, ['config', 'commit.gpgsign', 'false']);
+      git(root, ['add', '.']); git(root, ['commit', '-qm', 'base']);
+      git(root, ['checkout', '-qb', `story/${storyId}`]);
+      const now = '2026-07-16T00:00:00.000Z';
+      const store = new StoryStore(root);
+      store.writeStory(storyId, { storyId, name: 'build-binding-handler', title: 'validate-file binding', description: 'Disposable validate-file build binding fixture.', type: 'bug', phase: 'TEST', priority: 'medium', createdAt: now, startedAt: now, endedAt: null, riskSignals: [], currentReviewRound: now, events: [{ phase: 'TEST', action: 'advance', timestamp: now }] });
+      store.writeChecklist(storyId, { items: [{ id: 'CHK-001', title: 'binding', context: 'validate file', status: 'done', verificationIntent: { happy: [{ desc: 'validate file runs', type: 'logic', priority: 'should' }], edge: [], adversarial: [] }, startTime: now, endTime: now }] });
+      const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+      persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
+      git(root, ['add', '.proof-or-stop']); git(root, ['commit', '-qm', 'seed story metadata']);
+      const mainDist = join(root, 'packages/main/dist/tasks'); mkdirSync(mainDist, { recursive: true });
+      writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+      mkdirSync(join(root, 'packages/utils/dist'), { recursive: true });
+      writeFileSync(join(root, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
+      const evidencePath = join(root, `.proof-or-stop/story/actives/${storyId}/test-evidence.json`);
+      const runCli = (extra) => {
+        const r = spawnSync(process.execPath, [cli, 'validate', `--story=${storyId}`, ...extra], {
+          cwd: root, encoding: 'utf8', timeout: 300_000,
+          env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_SESSION_ID: 'build-binding-handler', PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex', npm_config_yes: 'true' },
+        });
+        return { status: r.status, text: `${r.stdout ?? ''}\n${r.stderr ?? ''}` };
+      };
+      const evidence = () => existsSync(evidencePath) ? JSON.parse(readFileSync(evidencePath, 'utf8')) : null;
+      return { root, mainDist, runCli, evidence };
+    };
+    const PASS_JSON = "console.log(JSON.stringify({ provider: 'validate-file-fixture', status: 'pass', allPass: true, summary: 'semantic PASS', details: [], warnings: [] }));";
+
+    // Control: a validate file that leaves the artifacts alone earns a bound PASS.
+    const clean = seed('clean', `${PASS_JSON}\n`);
+    const cleanJson = clean.runCli(['--json']);
+    check(cleanJson.status === 0, `control: clean validate file must pass with --json (${cleanJson.text.slice(0, 400)})`);
+    expectRepaired(/^[a-f0-9]{64}$/.test(clean.evidence()?.buildArtifactsHash ?? ''), 'validate-file PASS evidence does not carry the executor build binding');
+
+    // Target: an exit-zero validate file that rewrites the artifacts it tested,
+    // and prints a forged binding of its own.
+    const REWRITING = `require('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // rewritten by validate.ts\\n');\nconsole.log(JSON.stringify({ provider: 'validate-file-fixture', status: 'pass', allPass: true, summary: 'semantic PASS', details: [], warnings: [], buildArtifactsHash: 'f'.repeat(64) }));\n`;
+    const rewriting = seed('rewriting', REWRITING);
+    const withJson = rewriting.runCli(['--json']);
+    check(readFileSync(join(rewriting.mainDist, 'x.js'), 'utf8').includes('rewritten by validate.ts'), 'the validate file must have rewritten dist');
+    expectRepaired(withJson.status !== 0, 'an exit-zero validate file that rewrote dist was reported successful with --json');
+    expectRepaired(withJson.text.includes('build_artifacts_changed_by_non_build_command'), `--json output does not carry the executor diagnostic (${withJson.text.slice(0, 300)})`);
+    expectRepaired(rewriting.evidence()?.result !== 'PASS', 'a PASS was persisted for a validate file that rewrote the artifacts it tested');
+    expectRepaired(rewriting.evidence()?.buildArtifactsHash !== 'f'.repeat(64), 'the binding printed by the validate file reached the evidence');
+    // The synthetic certification window authorizes exactly one heavy execution
+    // per fixture (a second run is refused as pre_cert_window_already_consumed
+    // before it renders anything), so the plain-text scenario gets its own.
+    const rewritingPlain = seed('rewriting-plain', REWRITING);
+    const plain = rewritingPlain.runCli([]);
+    check(readFileSync(join(rewritingPlain.mainDist, 'x.js'), 'utf8').includes('rewritten by validate.ts'), 'the validate file must have rewritten dist (plain-text run)');
+    expectRepaired(plain.status !== 0, 'an exit-zero validate file that rewrote dist was reported successful without --json');
+    expectRepaired(plain.text.includes('build_artifacts_changed_by_non_build_command'), `plain-text output does not carry the executor diagnostic (${plain.text.slice(0, 300)})`);
+  } finally {
+    rmTree(handlerSandbox);
   }
 }
 

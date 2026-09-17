@@ -96,6 +96,8 @@ export interface ValidationCommandResult {
   buildArtifactsAfter?: string;
   /** Whether the executor recognised this command as the registered packages/main build. */
   buildArtifactsRole?: 'build' | 'test';
+  /** For a registered build only: the full content digest of the artifacts it produced, taken as it returned. */
+  buildArtifactsContentAfter?: string;
   label: string;
   command: string;
   args: string[];
