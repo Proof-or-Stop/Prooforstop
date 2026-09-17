@@ -1,5 +1,43 @@
 # Changelog
 
+## Lab fixture-machine-retention - v0.3.406 - 2026-09-17
+
+# Lab fixture-machine-retention
+
+## Problem
+Each fixture validation creates `<tmpdir>/proof-or-stop-fixture-machine-*` and retains it on
+failure for diagnosis. Nothing removed retained directories: 125 had accumulated on this machine
+by 2026-09-17 (oldest from 2026-09-14, up to 8.1 MB each).
+
+## Behavior change
+`createFixtureMachineEnvironment` records `owner.json` (pid) and prunes retained siblings, best
+effort, never throwing:
+- a directory whose recorded owner is alive is kept;
+- a dead-owner directory is kept for a 10-minute diagnosis grace, and past the grace only the 20
+  newest are kept;
+- a legacy directory without an owner record is removed only after 6 hours untouched;
+- symlinks, files and unrelated directories are never removed.
+
+## Verification
+RED/GREEN: `node scripts/verify-fixture-machine-retention.mjs` (disposable TMPDIR).
+- Before: 38 seeded retained directories -> 38 remained; no owner record written.
+- After: 25 remained (8 old legacy removed, dead-owner past grace capped 25 -> 20); live owner,
+  recent dead owner, young legacy, unrelated directory and prefixed symlink kept.
+Regressions: verify-fixture-machine-environment.mjs and red-lab-nested-fixture-machine-isolation PASS.
+
+## Self-review hardening
+Legacy age (no owner record) was judged from the root and its immediate entries only, so a directory whose root is old but whose nested files are still being written could be pruned. Age is now the newest modification time anywhere in the tree (bounded walk of 20,000 entries, symlinks not followed; a larger tree counts as recently active and is kept). New control `legacyOldRootRecentNested` (7h-old root, fresh `home/queue/active.ticket`) must be kept. Result: 10 checks, before=39 after=26. u18 re-bound (44), U18_STATIC_PASS, GREEN re-recorded.
+
+## Independent audit repair
+Audit da062082 (different vendor) rejected the first candidate with two medium findings, both repaired:
+1. `newestMtimeMs` swallowed every readdir/lstat failure, so an unreadable subtree read as idle and authorized deletion; the recursive delete then destroyed the accessible diagnostic material before failing. Now only a confirmed ENOENT is skipped; any other inspection failure returns +Infinity, so an incompletely inspected candidate is never pruned.
+2. `owner.json` was read with `readFileSync`, so a FIFO (or a symlink to one) named owner.json blocked every fixture creation, because pruning runs synchronously on the creation path. Owner records are now opened with O_RDONLY|O_NONBLOCK|O_NOFOLLOW, verified to be a regular file under 64 KiB, and anything else marks the candidate unsafe and keeps it.
+New regressions: a candidate with an unreadable subtree (its visible timestamps old, its hidden contents recent) keeps its five accessible diagnostic files while a plain legacy directory in the same parent is still removed; FIFO and symlinked owner records are kept and creation still completes. RED on the rejected version: creation was killed after 60s and the accessible diagnosis was destroyed (5 failing expectations). GREEN: 15 checks, before=42 after=29.
+
+Maintenance provenance: codex/lab-fixture-machine-retention, repair a8d84151a8689c9c768af5d8d4cbbe4ba8ebd169.
+Verification command (replayed before integration and on main): `["node","scripts/verify-fixture-machine-retention.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab machine-queue-ancestor-probe - v0.3.405 - 2026-09-17
 
 # Lab machine-queue-ancestor-probe
