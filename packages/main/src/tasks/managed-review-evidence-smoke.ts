@@ -4220,6 +4220,14 @@ async function grokIsolatedIntegrationRegression(): Promise<void> {
       writeFileSync(join(auth, 'auth.json'), authText, { mode: 0o600 });
       writeFileSync(join(auth, 'config.toml'), '[cli]\nuse_leader = true\nauto_update = true\n');
       const acceptance = scenario.startsWith('acceptance');
+      if (!acceptance) {
+        createReviewInventoryHandlers({ root, store, scanRoot: join(root, 'packages/main') }).review_inventory_begin({ storyId: STORY_ID });
+        // A new sequence, not a re-dated pre-wave run, is required by the real epoch boundary.
+        const priorRun = structuredClone(run);
+        const fresh = captureReviewRunSnapshot(root, { storyId: STORY_ID, storyPhase: 'REVIEW', currentReviewRound: REVIEW_ROUND }, root);
+        Object.assign(run, { reviewRunId: STORY_ID + ':RR-002', startedAt: new Date().toISOString(), headHash: fresh.headHash, materialHash: fresh.materialHash, storyFilesHash: fresh.storyFilesHash });
+        bindCurrentReviewEnvelope(root, store, run); store.writeReviewRuns(STORY_ID, { runs: [priorRun, run] });
+      }
       const evidence = managedReadEvidence(root);
       const proposal = { storyId: STORY_ID, providerAgent: LANE, lane: LANE, reviewRunId: run.reviewRunId,
         conclusion: 'pass' as const, note: 'Synthetic Grok transport fixture inspected the declared files.', ...evidence };
@@ -4248,11 +4256,6 @@ async function grokIsolatedIntegrationRegression(): Promise<void> {
       let runId: string;
       const context = { root, store, scanRoot: join(root, 'packages/main') };
       if (!acceptance) {
-        createReviewInventoryHandlers(context).review_inventory_begin({ storyId: STORY_ID });
-        // This fixture's run must be issued after the real inventory wave boundary.
-        const fresh = captureReviewRunSnapshot(root, { storyId: STORY_ID, storyPhase: 'REVIEW', currentReviewRound: REVIEW_ROUND }, root);
-        Object.assign(run, { startedAt: new Date().toISOString(), headHash: fresh.headHash, materialHash: fresh.materialHash, storyFilesHash: fresh.storyFilesHash });
-        bindCurrentReviewEnvelope(root, store, run); store.writeReviewRuns(STORY_ID, { runs: [run] });
         const batch = deriveReviewerBatchSubject(store, root, { storyId: STORY_ID });
         const admitted = await admitReviewerBatch({ root, store, storyId: STORY_ID, epochId: batch.subject.binding.epochId,
           wave: batch.subject.binding.wave, assignments: batch.requiredLanes.map(lane => ({ lane, kind: 'managed' as const, host: 'grok' })) });
