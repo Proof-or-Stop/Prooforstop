@@ -66,6 +66,7 @@ try {
   });
   const policy = { commands, policyHash: 'policy', commandSetHash: 'command-set' };
   const doneRequired = (env) => buildDoneRequiredExecutionIdentity({ projectRoot: root, policy, processEnvironment: env });
+  const doneDigests = (env) => JSON.stringify(doneRequired(env).commands.map((c) => c.effectiveEnvironmentDigest));
   const coverage = { total: 0, covered: 0, missingRequired: 0, missingOptional: 0, items: [] };
   const baseIdentity = routine(sessionOne);
   const evidence = {
@@ -102,16 +103,20 @@ try {
   {
     const env = { ...sessionOne }; delete env.CLAUDE_CODE_HOST_SESSION_ID; delete env.CLAUDE_EFFORT; delete env.BAGGAGE;
     const reuse = reuseIn(env);
-    rows.push({ change: 'all three host session values absent', routineIdentitySame: routine(env).digest === baseIdentity.digest, doneRequiredEnvDigestSame: '-', reusable: reuse.reusable, reasons: reuse.refusalReasons.join(',') || '-' });
+    const sameDone = doneDigests(env) === doneDigests(sessionOne);
+    rows.push({ change: 'all three host session values absent', routineIdentitySame: routine(env).digest === baseIdentity.digest, doneRequiredEnvDigestSame: sameDone, reusable: reuse.reusable, reasons: reuse.refusalReasons.join(',') || '-' });
     expectRepaired(reuse.reusable === true, `absent host session values must not refuse reuse, refused ${reuse.refusalReasons.join(',')}`);
+    expectRepaired(sameDone, 'absent host session values must not change the DONE-required effectiveEnvironmentDigest');
   }
 
   // Controls: behavior-affecting inputs still change identity and refuse reuse.
   for (const [key, value] of Object.entries({ NODE_OPTIONS: '--max-old-space-size=64', CI: 'true', TZ: 'Asia/Tokyo', LANG: 'C', PATH: '/usr/bin' })) {
     const env = { ...sessionOne, [key]: value };
     const reuse = reuseIn(env);
-    rows.push({ change: `control ${key}`, routineIdentitySame: routine(env).digest === baseIdentity.digest, doneRequiredEnvDigestSame: '-', reusable: reuse.reusable, reasons: reuse.refusalReasons.join(',') || '-' });
+    const sameDone = doneDigests(env) === doneDigests(sessionOne);
+    rows.push({ change: `control ${key}`, routineIdentitySame: routine(env).digest === baseIdentity.digest, doneRequiredEnvDigestSame: sameDone, reusable: reuse.reusable, reasons: reuse.refusalReasons.join(',') || '-' });
     check(routine(env).digest !== baseIdentity.digest, `control ${key} must still change identity`);
+    check(!sameDone, `control ${key} must still change the DONE-required effectiveEnvironmentDigest`);
     check(reuse.reusable === false && reuse.refusalReasons.includes('validation-identity-changed'), `control ${key} must still refuse reuse`);
   }
   // Control: an explicit command.env overlay of a host key is semantic.
@@ -121,9 +126,19 @@ try {
     const spawnEnv = envModule.effectiveValidationCommandEnvironment(sessionOne, { CLAUDE_EFFORT: 'low' }, root);
     check(spawnEnv.CLAUDE_EFFORT === 'low', 'explicit overlay value is passed to the command');
   }
+  // Identity and spawn agree: an identity-neutral host value is not passed to the command either,
+  // so a reused PASS cannot hide a command that would read it.
+  {
+    const spawnEnv = envModule.effectiveValidationCommandEnvironment(sessionOne, undefined, root);
+    const leaked = Object.keys(volatile).filter((key) => key in spawnEnv);
+    rows.push({ change: 'host session values in the command environment', routineIdentitySame: '-', doneRequiredEnvDigestSame: '-', reusable: '-', reasons: leaked.length ? `passed: ${leaked.join(',')}` : 'not passed' });
+    expectRepaired(leaked.length === 0, `identity-neutral host values must not reach the command (passed ${leaked.join(',')})`);
+    check(spawnEnv.LANG === sessionOne.LANG && spawnEnv.PATH === sessionOne.PATH, 'ordinary ambient values still reach the command');
+  }
   // Control: the frozen, digest-pinned strip list is untouched.
   const frozenDigest = `sha256:${createHash('sha256').update(JSON.stringify(envModule.VALIDATION_TRANSPORT_ENV_KEY_LIST)).digest('hex')}`;
   check(envModule.VALIDATION_TRANSPORT_ENV_KEYS_DIGEST === FROZEN_LIST_DIGEST, 'frozen strip-list digest constant unchanged');
+  check(frozenDigest === FROZEN_LIST_DIGEST, `frozen strip list contents unchanged (recomputed ${frozenDigest})`);
   rows.push({ change: 'frozen strip list digest', routineIdentitySame: '-', doneRequiredEnvDigestSame: '-', reusable: '-', reasons: frozenDigest === FROZEN_LIST_DIGEST ? 'unchanged' : `recomputed ${frozenDigest}` });
 
   console.log('change | routineIdentitySame | doneRequiredEnvDigestSame | routineReusable | refusalReasons');
