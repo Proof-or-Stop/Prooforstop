@@ -94,13 +94,28 @@ try {
   git(repoForTemp, ['worktree', 'add', '-q', '--detach', join(tempWithWorktree, 'wt')]);
   const refused = (out) => /ambient temp parent overlaps the repository or git common directory/.test(out);
   const run = (tmp) => { const r = spawnSync(process.execPath, [smoke, '--case=qsm-002'], { cwd: repoForTemp, env: { ...process.env, TMPDIR: tmp }, encoding: 'utf8' }); return `${r.stdout}\n${r.stderr}`; };
-  const containing = run(tempWithWorktree);
-  rows.push({ scenario: 'temp parent contains a registered worktree', clean: refused(containing) ? 'refused' : 'allowed', paths: '-' });
-  expectRepaired(!refused(containing), 'a temp parent that only contains a sibling worktree must not be refused');
+  const runJson = (out) => { const line = out.split('\n').find((l) => l.startsWith('QUORUM_SMOKE_RUN_JSON ')); return line ? JSON.parse(line.slice('QUORUM_SMOKE_RUN_JSON '.length)) : null; };
+  const outcome = (json) => json ? JSON.stringify(json.results.map((r) => [r.caseId, r.status])) : 'no run record';
+  // Baseline: the same fixture repository with an ordinary temp parent. In a
+  // fixture repository the case body itself does not pass; the comparison isolates
+  // the temp decision from that unrelated outcome.
+  const ordinaryTemp = join(sandbox, 'tmp-ordinary'); mkdirSync(ordinaryTemp);
+  const baseline = runJson(run(ordinaryTemp));
+  control(baseline !== null && !refused(JSON.stringify(baseline)), 'baseline run with an ordinary temp parent produces a run record');
+  const containingOut = run(tempWithWorktree);
+  const containing = runJson(containingOut);
+  const base = containing?.fixtureSummary?.ownedTempBase ?? null;
+  rows.push({ scenario: 'temp parent contains a registered worktree', clean: refused(containingOut) ? 'refused' : `allocated ${base ? 'under temp parent' : 'nothing'}; outcome ${outcome(containing)} (baseline ${outcome(baseline)})`, paths: '-' });
+  expectRepaired(!refused(containingOut), 'a temp parent that only contains a sibling worktree must not be refused');
+  expectRepaired(typeof base === 'string' && base.startsWith(`${tempWithWorktree}/`) && !base.startsWith(`${join(tempWithWorktree, 'wt')}/`),
+    `the owned temp base is allocated under that parent and outside the sibling worktree (got ${base})`);
+  expectRepaired(containing?.protectedMutationGuard?.clean === true, 'the run observes no protected mutation');
+  expectRepaired(containing !== null && outcome(containing) === outcome(baseline), `case outcome matches the ordinary-temp baseline (got ${outcome(containing)}, baseline ${outcome(baseline)})`);
   const insideTemp = join(repoForTemp, 'inner-tmp'); mkdirSync(insideTemp);
-  const inside = run(insideTemp);
-  rows.push({ scenario: 'control: temp parent inside the worktree', clean: refused(inside) ? 'refused' : 'allowed', paths: '-' });
-  control(refused(inside), 'a temp parent inside the worktree is still refused');
+  const insideOut = run(insideTemp);
+  rows.push({ scenario: 'control: temp parent inside the worktree', clean: refused(insideOut) ? 'refused' : 'allowed', paths: '-' });
+  control(refused(insideOut), 'a temp parent inside the worktree is still refused');
+  control((runJson(insideOut)?.fixtureSummary?.ownedTempBase ?? null) === null, 'a refused run allocates no temp base');
   git(repoForTemp, ['worktree', 'remove', '--force', join(tempWithWorktree, 'wt')]);
 } finally {
   rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
