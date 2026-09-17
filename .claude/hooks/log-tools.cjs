@@ -40,17 +40,16 @@ process.stdin.on('end', () => {
       : path.join(root, 'docs', 'story');
     const target = path.join(logDir, 'activity.jsonl');
     const line = JSON.stringify(entry) + '\n';
-    const spool = spoolPath(root);
+    const spool = spoolDir(root);
     if (spool && workspaceValidationActive(root)) {
-      // A validation of this worktree may guard it against mutation: keep the
-      // host's own bookkeeping outside the repository until the run ends.
-      fs.mkdirSync(path.dirname(spool), { recursive: true, mode: 0o700 });
-      fs.appendFileSync(spool, JSON.stringify({ target, line }) + '\n', { mode: 0o600 });
-    } else if (spool && (fs.existsSync(spool) || fs.existsSync(`${spool}.lock`))) {
-      // Older deferred lines are still pending: queue behind them so the
-      // repository receives every line in its original order.
-      fs.appendFileSync(spool, JSON.stringify({ target, line }) + '\n', { mode: 0o600 });
-      flushSpool(spool);
+      // A validation of this worktree may guard it against mutation: keep the host's
+      // own bookkeeping outside the repository until that run ends.
+      publishSpoolRecord(spool, { target, line });
+    } else if (spool && pendingSpoolRecords(spool)) {
+      // Older deferred records are still pending: queue behind them so the repository
+      // receives every line in its original order, then deliver what can be delivered.
+      publishSpoolRecord(spool, { target, line });
+      flushSpool(spool, root);
     } else {
       fs.mkdirSync(logDir, { recursive: true });
       fs.appendFileSync(target, line);
@@ -67,17 +66,17 @@ function workspaceTop(root) {
   try { return fs.realpathSync(git(root, 'rev-parse --show-toplevel')); } catch { return null; }
 }
 
-/** Per-worktree spool outside the repository: <home>/.proof-or-stop/activity-spool/<sha256(worktree)>.jsonl */
-function spoolPath(root) {
+/** Per-worktree spool directory outside the repository: <home>/.proof-or-stop/activity-spool/<sha256(worktree)>/ */
+function spoolDir(root) {
   const top = workspaceTop(root);
   if (!top) return null;
   const key = crypto.createHash('sha256').update(top).digest('hex');
-  return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', `${key}.jsonl`);
+  return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', key);
 }
 
 function pidAlive(pid) {
-  if (!Number.isSafeInteger(pid) || pid <= 0) return false;
-  try { process.kill(pid, 0); return true; } catch (error) { return error.code === 'EPERM'; }
+  if (!Number.isSafeInteger(pid) || pid <= 0 || pid > 2147483647) return false;
+  try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; }
 }
 
 /**
@@ -106,57 +105,119 @@ function workspaceValidationActive(root) {
 }
 
 /**
- * Deliver deferred lines in their original order, then drop the spool. One
- * flusher at a time (a lock directory owned by a live pid); it drains until no
- * spool remains, and re-checks after releasing the lock so a line queued while
- * it was finishing is not stranded.
+ * Publish one record as its own file, written under a private name and renamed into
+ * place. Producers never share a file, so a concurrent flush can never rotate a file
+ * out from under a half-written record.
  */
-function flushSpool(spool) {
-  const lock = `${spool}.lock`;
-  for (let attempt = 0; attempt < 8; attempt++) {
-    if (!acquireFlushLock(lock)) return;
-    try {
-      while (fs.existsSync(spool)) {
-        const claimed = `${spool}.flushing-${process.pid}`;
-        try { fs.renameSync(spool, claimed); } catch { break; }
-        try {
-          for (const record of fs.readFileSync(claimed, 'utf8').split('\n')) {
-            if (!record) continue;
-            try {
-              const { target, line } = JSON.parse(record);
-              fs.mkdirSync(path.dirname(target), { recursive: true });
-              fs.appendFileSync(target, line);
-            } catch {}
-          }
-        } finally {
-          try { fs.unlinkSync(claimed); } catch {}
-        }
-      }
-    } finally {
-      try { fs.rmSync(lock, { recursive: true, force: true }); } catch {}
-    }
-    if (!fs.existsSync(spool)) return;
+function publishSpoolRecord(spool, record) {
+  fs.mkdirSync(spool, { recursive: true, mode: 0o700 });
+  const name = `${String(Date.now()).padStart(14, '0')}-${String(process.pid).padStart(7, '0')}-${crypto.randomBytes(6).toString('hex')}`;
+  const tmp = path.join(spool, `.${name}.tmp`);
+  fs.writeFileSync(tmp, JSON.stringify(record), { mode: 0o600 });
+  fs.renameSync(tmp, path.join(spool, `${name}.json`));
+}
+
+function spoolRecordNames(spool) {
+  try { return fs.readdirSync(spool).filter(name => name.endsWith('.json')).sort(); } catch { return []; }
+}
+
+function pendingSpoolRecords(spool) {
+  try { return fs.readdirSync(spool).some(name => name.endsWith('.json') || name.includes('.delivering-')); } catch { return false; }
+}
+
+/** A record claimed by a flusher that died is returned to the queue under its own name. */
+function recoverAbandonedRecords(spool) {
+  let names;
+  try { names = fs.readdirSync(spool); } catch { return; }
+  for (const name of names) {
+    const match = /^(.*)\.delivering-(\d+)$/.exec(name);
+    if (!match || pidAlive(Number(match[2]))) continue;
+    try { fs.renameSync(path.join(spool, name), path.join(spool, match[1])); } catch { /* another hook won */ }
   }
 }
 
-function acquireFlushLock(lock) {
+/**
+ * Deliver deferred records in their original order. One flusher at a time; the
+ * validation state is re-checked before every record, so a validation that starts
+ * mid-flush leaves the remaining records outside the repository. A record is removed
+ * only after its line reached the target, so nothing is lost on a crash or a write
+ * failure - delivery is therefore at-least-once: a crash between the append and the
+ * removal can repeat one line.
+ */
+function flushSpool(spool, root) {
+  const lock = path.join(spool, '.flush.lock');
+  if (!acquireFlushLock(lock)) return;
   try {
-    fs.mkdirSync(lock, { mode: 0o700 });
-    fs.writeFileSync(path.join(lock, 'owner'), String(process.pid));
-    return true;
-  } catch {
-    try {
-      let owner = null;
-      try { owner = Number(fs.readFileSync(path.join(lock, 'owner'), 'utf8')); } catch {}
-      // A lock without an owner record is only abandoned once it is clearly old.
-      if (owner === null && Date.now() - fs.statSync(lock).mtimeMs < 10_000) return false;
-      if (owner !== null && pidAlive(owner)) return false;
-      fs.rmSync(lock, { recursive: true, force: true });
-      fs.mkdirSync(lock, { mode: 0o700 });
-      fs.writeFileSync(path.join(lock, 'owner'), String(process.pid));
-      return true;
-    } catch { return false; }
+    recoverAbandonedRecords(spool);
+    for (const name of spoolRecordNames(spool)) {
+      if (workspaceValidationActive(root)) return; // a validation started: stop delivering
+      barrierWait();
+      const claimed = path.join(spool, `${name}.delivering-${process.pid}`);
+      try { fs.renameSync(path.join(spool, name), claimed); } catch { continue; } // another flusher won
+      let record = null;
+      try { record = JSON.parse(fs.readFileSync(claimed, 'utf8')); } catch { record = null; }
+      if (!record || typeof record.target !== 'string' || typeof record.line !== 'string') {
+        try { fs.unlinkSync(claimed); } catch { /* already gone */ }
+        continue;
+      }
+      try {
+        fs.mkdirSync(path.dirname(record.target), { recursive: true });
+        fs.appendFileSync(record.target, record.line);
+      } catch {
+        // The target could not be written: return the record to the queue and stop, so
+        // a later hook retries it in its original position.
+        try { fs.renameSync(claimed, path.join(spool, name)); } catch { /* recovered later */ }
+        return;
+      }
+      try { fs.unlinkSync(claimed); } catch { /* recovered later */ }
+    }
+  } finally {
+    releaseFlushLock(lock);
   }
+}
+
+/** Test seam: pause before each delivery while the named file exists (bounded). */
+function barrierWait() {
+  const barrier = process.env.PROOF_OR_STOP_ACTIVITY_SPOOL_BARRIER;
+  if (!barrier) return;
+  const deadline = Date.now() + 20000;
+  while (fs.existsSync(barrier) && Date.now() < deadline) {
+    try { execSync('sleep 0.05'); } catch { break; }
+  }
+}
+
+/**
+ * Exclusive flush lock. A lock left by a dead owner is reclaimed by RENAMING it away:
+ * the rename is atomic, so only one reclaimer can succeed and a live replacement lock
+ * can never be removed by a second observer acting on a stale reading.
+ */
+function acquireFlushLock(lock) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      fs.mkdirSync(lock);
+      fs.writeFileSync(path.join(lock, 'owner'), String(process.pid), { mode: 0o600 });
+      return true;
+    } catch (error) {
+      if (error.code !== 'EEXIST') return false;
+    }
+    let owner = null;
+    try { owner = Number(fs.readFileSync(path.join(lock, 'owner'), 'utf8')); } catch { owner = null; }
+    if (owner !== null && pidAlive(owner)) return false;
+    let age = 0;
+    try { age = Date.now() - fs.statSync(lock).mtimeMs; } catch { continue; }
+    if (owner === null && age < 10000) return false; // the owner record is not written yet
+    const graveyard = `${lock}.stale-${process.pid}-${crypto.randomBytes(4).toString('hex')}`;
+    try { fs.renameSync(lock, graveyard); } catch { continue; } // another reclaimer won
+    try { fs.rmSync(graveyard, { recursive: true, force: true }); } catch { /* best effort */ }
+  }
+  return false;
+}
+
+function releaseFlushLock(lock) {
+  let owner = null;
+  try { owner = Number(fs.readFileSync(path.join(lock, 'owner'), 'utf8')); } catch { owner = null; }
+  if (owner !== process.pid) return; // never remove a lock this process does not own
+  try { fs.rmSync(lock, { recursive: true, force: true }); } catch { /* best effort */ }
 }
 
 function detectStory(root) {

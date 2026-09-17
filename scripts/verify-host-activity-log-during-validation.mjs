@@ -16,7 +16,7 @@
 // ends, the next tool call delivers the deferred lines in order.
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -52,15 +52,23 @@ function callHook(root, command) {
   const r = spawnSync(process.execPath, [hook], { input, env: { ...process.env, HOME: home }, encoding: 'utf8' });
   if (r.status !== 0) throw new Error(`hook exited ${r.status}: ${r.stderr}`);
 }
-function callHookAsync(root, command) {
+function callHookAsync(root, command, env = {}) {
   const input = JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' });
   return new Promise((resolveExit) => {
-    const child = spawn(process.execPath, [hook], { env: { ...process.env, HOME: home }, stdio: ['pipe', 'ignore', 'ignore'] });
+    const child = spawn(process.execPath, [hook], { env: { ...process.env, HOME: home, ...env }, stdio: ['pipe', 'ignore', 'ignore'] });
     child.on('exit', (code) => resolveExit(code));
     child.stdin.end(input);
   });
 }
-const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', `${createHash('sha256').update(realpathSync(root)).digest('hex')}.jsonl`);
+const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHash('sha256').update(realpathSync(root)).digest('hex'));
+const lockFor = (root) => join(spoolFor(root), '.flush.lock');
+const spoolRecords = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.endsWith('.json')).sort(); } catch { return []; } };
+const spoolClaims = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.includes('.delivering-')); } catch { return []; } };
+async function waitUntil(predicate, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) { if (predicate()) return true; await new Promise((r) => setTimeout(r, 25)); }
+  return false;
+}
 const log = (root) => join(root, 'docs/story/activity.jsonl');
 const lines = (root) => existsSync(log(root)) ? readFileSync(log(root), 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l).detail) : [];
 
@@ -89,22 +97,26 @@ try {
     for (let i = 0; i < 20; i++) callHook(root, `queued-${i}`);
     rmSync(t, { recursive: true, force: true });
     const parallel = await Promise.all(Array.from({ length: 8 }, (_, i) => callHookAsync(root, `parallel-${i}`)));
+    // A producer whose flush is blocked by another flusher leaves its record for the
+    // next hook, so one more call settles whatever is still queued.
+    callHook(root, 'settle');
     const after = lines(root);
     const queued = Array.from({ length: 20 }, (_, i) => `queued-${i}`);
     rows.push({ scenario: 'eight hooks start together after validation ends', repoLinesDuring: '-', after: `${after.length} lines` });
     control(parallel.every((code) => code === 0), 'every concurrent hook exits 0');
     expectRepaired(JSON.stringify(after.slice(0, 20)) === JSON.stringify(queued),
       `deferred lines precede every line written after validation (got ${JSON.stringify(after.slice(0, 22))})`);
-    expectRepaired(after.length === 28 && new Set(after.slice(20)).size === 8 && after.slice(20).every((d) => d.startsWith('parallel-')),
-      `no line is lost or duplicated under concurrent flushes (got ${after.length} lines)`);
+    expectRepaired(after.length === 29 && new Set(after).size === 29
+      && after.slice(20, 28).every((d) => d.startsWith('parallel-')) && after[28] === 'settle',
+      `no line is lost or duplicated under concurrent flushes (got ${after.length} lines, ${new Set(after).size} distinct, tail ${JSON.stringify(after.slice(20))})`);
   }
   {
     const root = repo();
     const t = ticket(root, live.pid);
     callHook(root, 'pending-1');
     rmSync(t, { recursive: true, force: true });
-    const lock = `${spoolFor(root)}.lock`;
-    mkdirSync(lock); writeFileSync(join(lock, 'owner'), String(live.pid));
+    const lock = lockFor(root);
+    mkdirSync(lock, { recursive: true }); writeFileSync(join(lock, 'owner'), String(live.pid));
     callHook(root, 'while-another-hook-flushes');
     const whileHeld = lines(root);
     rmSync(lock, { recursive: true, force: true });
@@ -119,12 +131,109 @@ try {
     const t = ticket(root, live.pid);
     callHook(root, 'stale-pending');
     rmSync(t, { recursive: true, force: true });
-    const lock = `${spoolFor(root)}.lock`;
-    mkdirSync(lock); writeFileSync(join(lock, 'owner'), String(deadPid));
+    const lock = lockFor(root);
+    mkdirSync(lock, { recursive: true }); writeFileSync(join(lock, 'owner'), String(deadPid));
     callHook(root, 'after-stale-lock');
     const after = lines(root);
     rows.push({ scenario: 'flush lock left by a dead hook', repoLinesDuring: '-', after: JSON.stringify(after) });
     expectRepaired(JSON.stringify(after) === JSON.stringify(['stale-pending', 'after-stale-lock']), `a dead owner's lock does not strand lines (got ${JSON.stringify(after)})`);
+  }
+  // A validation that starts DURING a flush: the flusher re-checks before every record,
+  // so the remaining records stay outside the repository.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    for (let i = 0; i < 4; i++) callHook(root, `mid-flush-${i}`);
+    rmSync(t, { recursive: true, force: true });
+    const barrier = join(sandbox, 'barrier-mid-flush');
+    writeFileSync(barrier, 'hold');
+    const flushing = callHookAsync(root, 'flusher', { PROOF_OR_STOP_ACTIVITY_SPOOL_BARRIER: barrier });
+    await waitUntil(() => spoolClaims(root).length > 0 || lines(root).length > 0, 10_000);
+    const restarted = ticket(root, live.pid); // validation starts again mid-flush
+    rmSync(barrier, { force: true });
+    await flushing;
+    const during = lines(root);
+    const pending = spoolRecords(root).length;
+    rows.push({ scenario: 'validation starts during a flush', repoLinesDuring: during.length, after: `${pending} records still spooled` });
+    expectRepaired(during.length < 5 && pending > 0,
+      `a validation starting mid-flush must stop delivery (delivered ${during.length}, still spooled ${pending})`);
+    expectRepaired(during.every((detail) => detail.startsWith('mid-flush-')),
+      `only deferred records reach the repository while a validation is active (got ${JSON.stringify(during)})`);
+    rmSync(restarted, { recursive: true, force: true });
+    callHook(root, 'after-second-validation');
+    const after = lines(root);
+    expectRepaired(after.length === 6 && new Set(after).size === 6,
+      `every record is delivered exactly once after the second validation ends (got ${JSON.stringify(after)})`);
+  }
+  // A producer publishing while another hook drains: nothing is lost.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    for (let i = 0; i < 6; i++) callHook(root, `pre-${i}`);
+    rmSync(t, { recursive: true, force: true });
+    const barrier = join(sandbox, 'barrier-producer');
+    writeFileSync(barrier, 'hold');
+    const flushing = callHookAsync(root, 'draining', { PROOF_OR_STOP_ACTIVITY_SPOOL_BARRIER: barrier });
+    await waitUntil(() => spoolClaims(root).length > 0, 10_000);
+    const producers = await Promise.all([0, 1, 2].map((i) => callHookAsync(root, `concurrent-${i}`)));
+    rmSync(barrier, { force: true });
+    await flushing;
+    callHook(root, 'settle');
+    const after = lines(root);
+    rows.push({ scenario: 'producers publish while another hook drains', repoLinesDuring: '-', after: `${after.length} lines` });
+    control(producers.every((code) => code === 0), 'every concurrent producer exits 0');
+    expectRepaired(after.length === 11 && new Set(after).size === 11,
+      `no record is lost or duplicated when producers and a flusher overlap (got ${after.length} lines, ${new Set(after).size} distinct)`);
+  }
+  // Two hooks reclaiming the same stale lock: exactly one wins and nothing is lost.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    for (let i = 0; i < 4; i++) callHook(root, `stale-race-${i}`);
+    rmSync(t, { recursive: true, force: true });
+    const lock = lockFor(root);
+    mkdirSync(lock, { recursive: true }); writeFileSync(join(lock, 'owner'), String(deadPid));
+    const reclaimers = await Promise.all([0, 1].map((i) => callHookAsync(root, `reclaimer-${i}`)));
+    const after = lines(root);
+    rows.push({ scenario: 'two hooks reclaim the same stale lock', repoLinesDuring: '-', after: `${after.length} lines` });
+    control(reclaimers.every((code) => code === 0), 'both stale-lock reclaimers exit 0');
+    expectRepaired(after.length === 6 && new Set(after).size === 6,
+      `a contested stale lock loses and duplicates nothing (got ${JSON.stringify(after)})`);
+  }
+  // A record claimed by a flusher that died, and a target that cannot be written yet.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    callHook(root, 'abandoned-1');
+    rmSync(t, { recursive: true, force: true });
+    const spool = spoolFor(root);
+    const [record] = spoolRecords(root);
+    // Without per-record files there is nothing a dead flusher could have claimed; that
+    // absence is itself the defect, so report it instead of crashing.
+    if (record) renameSync(join(spool, record), join(spool, `${record}.delivering-${deadPid}`));
+    else red.push('a deferred record must be an individually recoverable file (no record file found)');
+    callHook(root, 'after-abandoned');
+    const after = lines(root);
+    rows.push({ scenario: 'record claimed by a dead flusher', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['abandoned-1', 'after-abandoned']),
+      `a record claimed by a dead flusher is recovered in order (got ${JSON.stringify(after)})`);
+  }
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    callHook(root, 'retry-1');
+    rmSync(t, { recursive: true, force: true });
+    mkdirSync(join(root, 'docs/story'), { recursive: true });
+    chmodSync(join(root, 'docs/story'), 0o500); // target temporarily unwritable
+    callHook(root, 'retry-2');
+    const blocked = spoolRecords(root).length + spoolClaims(root).length;
+    chmodSync(join(root, 'docs/story'), 0o700);
+    callHook(root, 'retry-3');
+    const after = lines(root);
+    rows.push({ scenario: 'target unwritable, then writable', repoLinesDuring: blocked, after: JSON.stringify(after) });
+    expectRepaired(blocked >= 2, `a failed target write retains its records (retained ${blocked})`);
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['retry-1', 'retry-2', 'retry-3']),
+      `retained records are delivered in order once the target is writable again (got ${JSON.stringify(after)})`);
   }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
