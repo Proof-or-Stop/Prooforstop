@@ -1,43 +1,5 @@
 # Changelog
 
-## Lab validation-terminal-refusal-reasons - v0.3.401 - 2026-09-17
-
-# Lab validation-terminal-refusal-reasons
-
-## Problem
-A Story validation that did not reuse a prior PASS printed its reuse refusal only to stderr
-("routine validation reuse refused: refusalReasons=..."). The durable `validation_terminal`
-process event recorded `disposition=executed` and nothing about why. Across 394 Stories on
-main, 647 executed terminals carried no reason, so 63 same-identity re-executions
-(5,140 command runs) could not be attributed once session transcripts were gone.
-
-## Behavior change
-- Executed `validation_terminal` events now carry
-  `reuse: { evaluated, reusable, lineage, refusalReasons, declinedReason? }` whenever a
-  Story reuse evaluation ran. `refusalReasons` is the same sorted, de-duplicated set the
-  verifier already logs.
-- `tryReuseRoutinePass` reports why a reusable PASS was not taken (`declinedReason`, for
-  example `observe-reuse-not-opted-in`, `focused-validation`, `dynamic-authority-not-admitted`).
-- Reused terminals are unchanged. No gate, reuse decision or duplicate-suite grouping reads
-  the new field; the three grouping keys are unchanged.
-
-## Verification
-RED/GREEN: `node scripts/verify-validation-terminal-refusal-reasons.mjs` builds packages/main
-and drives the real CLI in disposable Git fixtures (first run, material change, unchanged
-re-run, TEST transition, observe mode without opt-in).
-- Before: executed terminals attributable from the event alone 0/3 (4 failing expectations).
-- After: 3/3; the unchanged re-run is still reused and the TEST gate still reuses (26 checks).
-Regressions on the rebuilt dist: validation-evidence-reuse-smoke PASS, process-fact contract PASS.
-done-prepare-auto-closeout-smoke, validation-protocol-smoke and flow-stability-smoke fail with
-byte-identical messages on the pre-repair build as well (pre-existing, not changed here).
-
-## Measured optimization
-None claimed. This is observability: it makes the causes of redundant executions attributable.
-
-Maintenance provenance: codex/lab-validation-terminal-refusal-reasons, repair ec28680a32af8b73f1565e28baf87d927ec4df34.
-Verification command (replayed before integration and on main): `["node","scripts/verify-validation-terminal-refusal-reasons.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-review-temp - v0.3.400 - 2026-09-17
 
 # Bounded managed reviewer shell temporary-directory repair
