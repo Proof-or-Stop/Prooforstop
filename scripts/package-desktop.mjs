@@ -15,10 +15,10 @@ const mode = process.argv[2] || 'host';
 
 const hostTarget = targetForHost();
 const releaseTargets = [
-  'node18-macos-x64',
-  'node18-macos-arm64',
-  'node18-linux-x64',
-  'node18-win-x64',
+  'node24-macos-x64',
+  'node24-macos-arm64',
+  'node24-linux-x64',
+  'node24-win-x64',
 ];
 
 function bin(name) {
@@ -43,14 +43,14 @@ function assertExists(path, hint) {
 function targetForHost() {
   const platform = process.platform === 'darwin' ? 'macos' : process.platform;
   const arch = process.arch;
-  if (platform === 'macos' && (arch === 'x64' || arch === 'arm64')) return `node18-macos-${arch}`;
-  if (platform === 'linux' && (arch === 'x64' || arch === 'arm64')) return `node18-linux-${arch}`;
-  if (platform === 'win32' && arch === 'x64') return 'node18-win-x64';
+  if (platform === 'macos' && (arch === 'x64' || arch === 'arm64')) return `node24-macos-${arch}`;
+  if (platform === 'linux' && (arch === 'x64' || arch === 'arm64')) return `node24-linux-${arch}`;
+  if (platform === 'win32' && arch === 'x64') return 'node24-win-x64';
   throw new Error(`Unsupported host target for pkg: ${process.platform}/${process.arch}`);
 }
 
 function artifactName(target) {
-  const [, platform, arch] = target.match(/^node18-(macos|linux|win)-(.+)$/) || [];
+  const [, platform, arch] = target.match(/^node24-(macos|linux|win)-(.+)$/) || [];
   if (!platform || !arch) throw new Error(`Unsupported pkg target: ${target}`);
   return `proof-or-stop-${platform}-${arch}${platform === 'win' ? '.exe' : ''}`;
 }
@@ -81,7 +81,14 @@ function prepareRuntime() {
     throw new Error('Packaged ProofOrStop asset manifest is missing from the pkg snapshot.');
   }
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-  for (const relPath of manifest.files) copyIntoRuntime(snapshotRoot, runtimeRoot, relPath);
+  for (const relPath of manifest.files) {
+    copyIntoRuntime(snapshotRoot, runtimeRoot, relPath);
+    // pkg rewrites package.json for its CJS snapshot. The extracted assets retain
+    // their original ESM sources, so restore the exact build-time manifests.
+    if (Object.hasOwn(manifest.packageJsonSources || {}, relPath)) {
+      writeFileSync(join(runtimeRoot, relPath), manifest.packageJsonSources[relPath], 'utf8');
+    }
+  }
   process.once('exit', () => {
     try { rmSync(runtimeRoot, { recursive: true, force: true }); } catch {}
   });
@@ -177,7 +184,10 @@ function writeAssetManifest() {
     ...listFiles('node_modules/graceful-fs'),
     ...listFiles('node_modules/retry'),
   ].sort();
-  writeFileSync(assetManifestPath, JSON.stringify({ files }, null, 2) + '\n', 'utf8');
+  const packageJsonSources = Object.fromEntries(files
+    .filter((file) => file === 'package.json' || file.endsWith('/package.json'))
+    .map((file) => [file, readFileSync(join(repoRoot, file), 'utf8')]));
+  writeFileSync(assetManifestPath, JSON.stringify({ files, packageJsonSources }, null, 2) + '\n', 'utf8');
   return files;
 }
 
@@ -212,12 +222,14 @@ function buildPackages() {
   run(tsc, ['-p', 'packages/lab/tsconfig.json']);
 }
 
+// pkg base binaries omit inspector support. Keep profiler loading lazy so ordinary
+// CLI commands can boot; invoking inspector-dependent profiling still fails explicitly.
 function patchPkgRuntimeCompatibility() {
   const profilerPath = join(repoRoot, 'packages', 'main', 'dist', 'tasks', 'profiler.js');
   const source = readFileSync(profilerPath, 'utf8');
   const node19Import = "import { Session } from 'node:inspector/promises';";
   if (!source.includes(node19Import)) return;
-  const node18Compat = `class Session {
+  const lazyInspectorCompat = `class Session {
     delegate = null;
     async ensureDelegate() {
         if (!this.delegate) {
@@ -246,7 +258,7 @@ function patchPkgRuntimeCompatibility() {
         });
     }
 }`;
-  writeFileSync(profilerPath, source.replace(node19Import, node18Compat), 'utf8');
+  writeFileSync(profilerPath, source.replace(node19Import, lazyInspectorCompat), 'utf8');
 }
 
 function packageTarget(target) {
