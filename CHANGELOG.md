@@ -1,5 +1,269 @@
 # Changelog
 
+## Lab fixture-machine-retention - v0.3.406 - 2026-09-17
+
+# Lab fixture-machine-retention
+
+## Problem
+Each fixture validation creates `<tmpdir>/proof-or-stop-fixture-machine-*` and retains it on
+failure for diagnosis. Nothing removed retained directories: 125 had accumulated on this machine
+by 2026-09-17 (oldest from 2026-09-14, up to 8.1 MB each).
+
+## Behavior change
+`createFixtureMachineEnvironment` records `owner.json` (pid) and prunes retained siblings, best
+effort, never throwing:
+- a directory whose recorded owner is alive is kept;
+- a dead-owner directory is kept for a 10-minute diagnosis grace, and past the grace only the 20
+  newest are kept;
+- a legacy directory without an owner record is removed only after 6 hours untouched;
+- symlinks, files and unrelated directories are never removed.
+
+## Verification
+RED/GREEN: `node scripts/verify-fixture-machine-retention.mjs` (disposable TMPDIR).
+- Before: 38 seeded retained directories -> 38 remained; no owner record written.
+- After: 25 remained (8 old legacy removed, dead-owner past grace capped 25 -> 20); live owner,
+  recent dead owner, young legacy, unrelated directory and prefixed symlink kept.
+Regressions: verify-fixture-machine-environment.mjs and red-lab-nested-fixture-machine-isolation PASS.
+
+## Self-review hardening
+Legacy age (no owner record) was judged from the root and its immediate entries only, so a directory whose root is old but whose nested files are still being written could be pruned. Age is now the newest modification time anywhere in the tree (bounded walk of 20,000 entries, symlinks not followed; a larger tree counts as recently active and is kept). New control `legacyOldRootRecentNested` (7h-old root, fresh `home/queue/active.ticket`) must be kept. Result: 10 checks, before=39 after=26. u18 re-bound (44), U18_STATIC_PASS, GREEN re-recorded.
+
+## Independent audit repair
+Audit da062082 (different vendor) rejected the first candidate with two medium findings, both repaired:
+1. `newestMtimeMs` swallowed every readdir/lstat failure, so an unreadable subtree read as idle and authorized deletion; the recursive delete then destroyed the accessible diagnostic material before failing. Now only a confirmed ENOENT is skipped; any other inspection failure returns +Infinity, so an incompletely inspected candidate is never pruned.
+2. `owner.json` was read with `readFileSync`, so a FIFO (or a symlink to one) named owner.json blocked every fixture creation, because pruning runs synchronously on the creation path. Owner records are now opened with O_RDONLY|O_NONBLOCK|O_NOFOLLOW, verified to be a regular file under 64 KiB, and anything else marks the candidate unsafe and keeps it.
+New regressions: a candidate with an unreadable subtree (its visible timestamps old, its hidden contents recent) keeps its five accessible diagnostic files while a plain legacy directory in the same parent is still removed; FIFO and symlinked owner records are kept and creation still completes. RED on the rejected version: creation was killed after 60s and the accessible diagnosis was destroyed (5 failing expectations). GREEN: 15 checks, before=42 after=29.
+
+## Second independent audit repair
+Audit 972edbab rejected the second candidate with one medium finding: a present but unrecognized owner record still fell through to the legacy age rule, so an unknown schema with a live pid, a null or empty record, a string pid or a non-positive pid all authorized deletion after six idle hours. The documented legacy policy applies only when no owner record exists. Repaired: the age rule now runs only for an absent record (ENOENT); any present record that is not the recognized schema with a positive safe-integer pid keeps the directory, and liveness is checked only for a valid pid. New control group of six candidates (unknown schema with a live pid, null, empty, string pid, negative pid, zero pid), each old enough for the legacy rule. RED on the rejected version: all 6 deleted; GREEN: 16 checks, before=48 after=35.
+
+## Third independent audit repair
+Audit 05c6b97a rejected the third candidate with one medium finding: the liveness probe treated every error except EPERM as proof the owner was gone, and the recognized-record check accepted any positive safe integer, so a pid such as 2147483648 (which `process.kill` refuses with ERR_INVALID_ARG_TYPE) read as dead and authorized eviction. Repaired: liveness is now three-state - only ESRCH is 'absent', EPERM is 'alive', any other probe error is 'unknown' - and only 'absent' allows a directory into the dead-owner cap; a recorded pid must also be within the probeable range (<= 2147483647). New control: 21 aged records (one past the 20-directory cap) carrying pid 2147483648. RED on the rejected version: all 21 deleted; GREEN: 17 checks, before=69 after=56.
+
+Maintenance provenance: codex/lab-fixture-machine-retention, repair c2fc95fb60f1991a3af1a33ef7cf8bd17621455b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-fixture-machine-retention.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab machine-queue-ancestor-probe - v0.3.405 - 2026-09-17
+
+# Lab machine-queue-ancestor-probe
+
+## Problem
+A validation waiting in the machine queue behind another process's ticket ran a synchronous
+`ps -axo pid=,ppid=` with a 1000 ms timeout to detect ancestor conflicts. On a busy machine the
+spawn timed out and `spawnSync ps ETIMEDOUT` escaped the wait loop, crashing the waiting
+validation (observed 2026-09-17).
+
+## Behavior change
+The ancestor probe is asynchronous (heartbeats keep flowing), uses a 5000 ms timeout with
+SIGKILL, and returns "unknown" on failure. Unknown ancestry never admits the waiter: the probe
+only runs while still queued behind another ticket, so the waiter keeps waiting and probes again
+on the next poll, bounded by the queue deadline. A genuine ancestor conflict is still refused.
+The separate delegation identity probe keeps its own bounded retry policy (kernelObservationMs).
+
+## Verification
+RED/GREEN: `node scripts/verify-machine-queue-ancestor-probe.mjs` (private fixture machine queue;
+only the ancestor probe's `ps` argv is slowed).
+- Before: waiter crashed after ~1 s with `spawnSync ps ETIMEDOUT`.
+- After: waiter acquired after the holder released (~3.9 s); a descendant of the holder is still
+  refused; with a ps that never answers the waiter is not admitted while the holder holds.
+Regression scripts PASS: red-lab-nested-fixture-machine-isolation, verify-nested-validation-result-contract,
+verify-nested-reservation-faults, -cancellation, -owner-loss, -wrapper-transport, -boot-recovery,
+-registration-race.
+
+## Pre-audit test hardening
+Control 3 previously accepted a crashed waiter as "not admitted", which is the original failure. It now keeps only the non-admission control and adds a repaired expectation: with a probe that never answers, the waiter is still queued after 6s and acquires after the holder releases. New scenario: a genuine descendant conflict behind a slow ps (1500ms) is still refused as an ancestor conflict. RED on the pre-fix source: 3 failing expectations, all `spawnSync ps ETIMEDOUT`; GREEN: 5 checks.
+
+## Temp residue
+The worker repositories (ancestor-probe-*) are now created inside the disposable sandbox; a check proves no new ancestor-probe-* entry remains in the shared TMPDIR after the run.
+
+## Independent audit repair
+Audit 8156f92f (different vendor) rejected the first candidate with one medium finding: the awaited probe always allowed 5000ms and received neither the queue deadline nor the abort signal, so a probe started near the deadline kept the queued ticket for nearly five seconds past it, an abort waited for the probe, and an ancestor detected afterwards replaced the caller's authoritative failure. Repaired: each probe gets at most the caller's remaining wait, an abort kills the child, and `assertCapacityWaitActive` is re-checked immediately after the probe and before ancestry is interpreted. New regressions with a probe that never answers: a 2500ms deadline fails with the capacity-wait deadline error in 2730ms, and an abort at 1500ms fails with the caller's abort error in 1738ms; both assert the callback never ran and the waiter left no queue ticket. Both bounds fail on the rejected version (5227ms and 5234ms). Result: 14 checks.
+
+Maintenance provenance: codex/lab-machine-queue-ancestor-probe, repair 5cb8aa82326d1a9b940f86d932ab9e0854af9489.
+Verification command (replayed before integration and on main): `["node","scripts/verify-machine-queue-ancestor-probe.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab heartbeat-smoke-memory-pressure - v0.3.404 - 2026-09-17
+
+# Lab heartbeat-smoke-memory-pressure
+
+## Problem
+The investigation started from validate-progress-heartbeat-smoke failures suspected to come from
+memory pressure. Eight observed runs showed failures uncorrelated with swap-ins, so memory
+pressure is not the cause. The reproduced cause: a validation command without a resource
+declaration takes the same-user, cross-repository machine validation queue exclusively. While
+it waits behind another session's validation, the executor supplied no wait reporter, so the CLI
+printed nothing and the idle watchdog killed a healthy validation ("validate stuck: 1 seconds
+without output"). The machine queue dates from 2026-09-10, so this does not explain the
+July-September historical heartbeat failures, whose causes were fixed earlier. Registered
+validation wraps fixtures in a private machine queue and was not affected; direct runs and real
+CLI invocations were.
+
+## Behavior change
+The executor passes `onWaitProgress` with `progressIntervalMs` equal to the heartbeat interval, and
+emits a `capacity_wait` progress event rendered as
+`validate heartbeat: command i/n <label> waiting for machine validation capacity elapsedMs=... (holder ...)`.
+The wait remains bounded by the queue deadline and the command deadline (unchanged here).
+
+## Verification
+RED/GREEN: `node scripts/verify-validation-queue-wait-heartbeat.mjs` builds packages/main and runs
+the real CLI while a helper holds a ticket in a private fixture machine queue (replays never touch
+the real queue).
+- Before: queued 3 s with idle 1000 ms -> killed as idle, exit 1, 0 wait lines.
+- After: exit 0, 8 wait lines; control with heartbeat slower than idle is still killed; the
+  uncontended run passes.
+Registered wrapper runs of validate-progress-heartbeat-smoke passed 2/2. Process-fact contract PASS.
+
+## Known limits (not changed here)
+Under real contention the smoke can still fail when another validation holds the queue longer than
+a command's timeout (addressed separately by the queue-wait timeout Lab), and an idle row may
+report `blocked` if its idle budget expires while queued.
+
+## Independent audit repair
+Audit 54e9477e (different vendor) rejected the first candidate with one low finding: the holder helper created its queue-holder-* Git repository directly in the shared TMPDIR and never removed it, so every run leaked a repository. The holder now creates it inside the disposable sandbox, and a new check compares queue-holder-* entries in TMPDIR before and after the run (6 checks). 80 leaked holder/worker repositories from this session were removed. The same leak in the Lab E worker was fixed before its audit.
+
+Maintenance provenance: codex/lab-heartbeat-smoke-memory-pressure, repair 3602eed52673a5c66e5cdb01141ceed9676df846.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-queue-wait-heartbeat.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab reuse-host-session-environment - v0.3.403 - 2026-09-17
+
+# Lab reuse-host-session-environment
+
+## Problem
+Routine and DONE-required validation identities hash the ambient environment except a strip list.
+The Claude Code host still injected per-session values no validation command reads:
+`CLAUDE_CODE_HOST_SESSION_ID`, `CLAUDE_EFFORT` (the session effort setting) and `BAGGAGE`
+(host telemetry propagation carrying a sentry trace id and release). A new session or a changed
+effort level therefore produced a new identity, refusing an unchanged PASS as
+`validation-identity-changed` and re-running the full plan. Transcripts contain 21 refusals whose
+only reason was `validation-identity-changed`.
+
+## Behavior change
+The three keys join `HOST_LAUNCHER_SESSION_ENV_KEYS` (the extensible host-launcher list; the
+digest-pinned frozen list is unchanged). As with the existing entries, they are also no longer
+passed to validation child processes. An explicit `command.env` overlay of the same keys remains
+semantic.
+
+## Verification
+RED/GREEN: `node scripts/verify-reuse-host-session-environment.mjs`.
+- Before: each of the three keys changed the routine identity digest and the DONE-required
+  effectiveEnvironmentDigest and refused reuse (10 failing expectations).
+- After: identity-neutral and reusable; controls NODE_OPTIONS, CI, TZ, LANG and PATH still change
+  identity and refuse reuse; the explicit overlay stays semantic; the frozen list digest is
+  unchanged (23 checks).
+Regressions: done-required-validation-smoke, done-required-freshness-smoke,
+validation-evidence-reuse-smoke and the process-fact contract PASS.
+
+## Compatibility
+Stored receipts whose environment contained these keys recompute a different digest and must be
+re-earned once by running validation again, the same stance as the earlier host-launcher entries.
+
+## Pre-audit test hardening
+Controls now also require the DONE-required effectiveEnvironmentDigest to change (NODE_OPTIONS, CI, TZ, LANG, PATH) and to stay equal when all three host values are absent. A new expectation proves identity and spawn agree: the three host values are not passed to the command (RED on the pre-fix source: passed CLAUDE_CODE_HOST_SESSION_ID, CLAUDE_EFFORT, BAGGAGE), while ordinary ambient values still are. The frozen strip-list control now compares the recomputed digest, not only the constant. Result: 32 checks.
+
+Maintenance provenance: codex/lab-reuse-host-session-environment, repair dbeb57dd11492547047039526ce110e03acd02ee.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reuse-host-session-environment.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab reuse-lineage-material-policy - v0.3.402 - 2026-09-17
+
+# Lab reuse-lineage-material-policy
+
+## Problem
+Two path policies disagreed. materialHash excludes story metadata, evidence output locations and
+registry-declared runtime artifacts (`isMaterialExcludedPath`), so committing a dev-memory record
+leaves the tested bytes identical. The shared merge-lineage classifier trusted only story
+metadata (`isStoryMetadataPath`), so the same commit was an `untrusted-lineage-path`: routine
+reuse re-executed an identical PASS, DONE-required pre-run reuse rejected it, and admissibility
+rejected it.
+
+## Behavior change
+`classifyMergeLineage` (shared by routine reuse, DONE-required pre-run reuse and validation
+evidence admissibility) trusts exactly the paths materialHash already excludes. Every material
+path, a non-ancestor head, and a diff failure are still rejected. The admissibility message now
+says "material path(s)". The process-fact contract pins the new predicate and asserts the
+narrower story-metadata-only predicate is not reintroduced.
+
+## Verification
+RED/GREEN: `node scripts/verify-reuse-lineage-material-policy.mjs` (checkout source, disposable
+repositories).
+- Before: dev-memory finish decision, dev-memory experience log, story metadata plus finish
+  decision, and an evidence object output were all refused by the three consumers
+  (12 failing expectations).
+- After: all four reusable/trusted; controls (source change, finish decision plus source
+  change, material file under the state directory, config change, non-ancestor head) still
+  refused (25 checks).
+Regressions on the rebuilt dist: validation-reuse-merge-lineage-smoke, done-required-validation-smoke,
+done-required-freshness-smoke, validation-evidence-reuse-smoke and the process-fact contract PASS.
+
+## Measured data
+- Replay of the 20 historical PASS-then-re-execution pairs through the evaluator: before 0
+  reusable; after B-212f becomes reusable (131 command executions); B-a2a6 and B-cc10 lose their
+  dev-memory lineage refusal (their remaining refusals are July/August schema artifacts).
+- Session transcripts contain 31 refusal occurrences whose only reason was a material-excluded
+  lineage path (occurrences, not unique runs).
+Adjacent work: B-c86f widens the dev-memory runtime-artifact entry (different file).
+
+## Independent audit repair
+Audit 00f7c973 (different vendor) rejected the first candidate with one medium test finding and no production defect: the material-path controls accepted `untrusted OR material hash changed`, so a classifier that trusted every descendant would still pass. Repaired: each control now separately requires a material hash change, shared lineage `untrusted`, DONE-required lineage `rejected`, routine reuse refused, and an `untrusted-lineage-path:<path>` refusal reason for every material path. A mutation control re-runs the script with the classifier rewritten to trust every descendant; all 4 material controls catch it (12 control failures). Result: 38 checks.
+
+Maintenance provenance: codex/lab-reuse-lineage-material-policy, repair 3906e2611506aaf360376cc6b9cae77caa9cf90c.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reuse-lineage-material-policy.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab validation-terminal-refusal-reasons - v0.3.401 - 2026-09-17
+
+# Lab validation-terminal-refusal-reasons
+
+## Problem
+A Story validation that did not reuse a prior PASS printed its reuse refusal only to stderr
+("routine validation reuse refused: refusalReasons=..."). The durable `validation_terminal`
+process event recorded `disposition=executed` and nothing about why. Across 394 Stories on
+main, 647 executed terminals carried no reason, so 63 same-identity re-executions
+(5,140 command runs) could not be attributed once session transcripts were gone.
+
+## Behavior change
+- Executed `validation_terminal` events now carry
+  `reuse: { evaluated, reusable, lineage, refusalReasons, declinedReason? }` whenever a
+  Story reuse evaluation ran. `refusalReasons` is the same sorted, de-duplicated set the
+  verifier already logs.
+- `tryReuseRoutinePass` reports why a reusable PASS was not taken (`declinedReason`, for
+  example `observe-reuse-not-opted-in`, `focused-validation`, `dynamic-authority-not-admitted`).
+- Reused terminals are unchanged. No gate, reuse decision or duplicate-suite grouping reads
+  the new field; the three grouping keys are unchanged.
+
+## Verification
+RED/GREEN: `node scripts/verify-validation-terminal-refusal-reasons.mjs` builds packages/main
+and drives the real CLI in disposable Git fixtures (first run, material change, unchanged
+re-run, TEST transition, observe mode without opt-in).
+- Before: executed terminals attributable from the event alone 0/3 (4 failing expectations).
+- After: 3/3; the unchanged re-run is still reused and the TEST gate still reuses (26 checks).
+Regressions on the rebuilt dist: validation-evidence-reuse-smoke PASS, process-fact contract PASS.
+done-prepare-auto-closeout-smoke, validation-protocol-smoke and flow-stability-smoke fail with
+byte-identical messages on the pre-repair build as well (pre-existing, not changed here).
+
+## Measured optimization
+None claimed. This is observability: it makes the causes of redundant executions attributable.
+
+## Independent audit repairs
+Audit 2ccf4e70 (Codex) rejected the first candidate with three medium findings, all repaired:
+1. The no-validator branch evaluated reuse but persisted its executed terminal without attribution.
+   It now passes the evaluation; regression scenario C1 (no validator configured) fails before
+   the repair (NOT RECORDED) and passes after (`evidence-missing`).
+2. Two digest-bound static exceptions (EX-ACCEPTANCE-CLOSURE-FIXTURES,
+   EX-PROCESS-RUNTIME-ADMISSION-ORDER) still bound the previous verifier.ts digest. Both were
+   reviewed (the change threads attribution data and adds no process launch) and re-bound;
+   `node scripts/verify-validation-static-edges.mjs` reports U18_STATIC_PASS.
+3. Scenario B accepted unintended reuse and any decline reason. It now requires an executed
+   terminal, a second command execution, and `declinedReason === observe-reuse-not-opted-in`
+   (32 checks).
+
+Maintenance provenance: codex/lab-validation-terminal-refusal-reasons, repair fa4cb8aec5ab5b8c9c92da6d8960f4b007d244e3.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-terminal-refusal-reasons.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-review-temp - v0.3.400 - 2026-09-17
 
 # Bounded managed reviewer shell temporary-directory repair

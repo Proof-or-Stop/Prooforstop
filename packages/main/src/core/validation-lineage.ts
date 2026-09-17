@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { isStoryMetadataPath } from './evidence-freshness.js';
+import { isMaterialExcludedPath } from './material-path-policy.js';
 
 /**
  * Shared git-exec buffer, mirroring evidence-freshness.ts GIT_EXEC_OPTS. Node's
@@ -39,7 +39,12 @@ export type MergeLineageClassification =
  *
  * An empty net diff means the endpoint trees are byte-identical, which is
  * strictly safer than a metadata-only change, so it classifies as trusted.
- * Any genuinely content-changed non-metadata path classifies as untrusted.
+ * Trust uses the SAME path policy as materialHash (isMaterialExcludedPath: story
+ * metadata, evidence output locations, registry-declared runtime artifacts such
+ * as dev-memory records). A path materialHash ignores cannot change what a
+ * validation executed, so refusing it here only forced identical re-execution
+ * while materialHash stayed equal. Any content-changed material path classifies
+ * as untrusted.
  * The ancestry check and the net-diff computation are caught separately so a
  * diff failure is never mislabeled as a non-ancestor.
  */
@@ -69,7 +74,7 @@ export function classifyMergeLineage(
   } catch (error) {
     return { kind: 'diff-failed', error: error instanceof Error ? error.message : String(error) };
   }
-  const untrustedPaths = changed.filter(path => !isStoryMetadataPath(path, args.metadataRoot));
+  const untrustedPaths = changed.filter(path => !isMaterialExcludedPath(path, args.metadataRoot));
   if (untrustedPaths.length > 0) return { kind: 'untrusted', untrustedPaths };
   return { kind: 'trusted-descendant' };
 }
