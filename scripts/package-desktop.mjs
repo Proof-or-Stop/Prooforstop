@@ -15,10 +15,10 @@ const mode = process.argv[2] || 'host';
 
 const hostTarget = targetForHost();
 const releaseTargets = [
-  'node18-macos-x64',
-  'node18-macos-arm64',
-  'node18-linux-x64',
-  'node18-win-x64',
+  'node24-macos-x64',
+  'node24-macos-arm64',
+  'node24-linux-x64',
+  'node24-win-x64',
 ];
 
 function bin(name) {
@@ -43,14 +43,14 @@ function assertExists(path, hint) {
 function targetForHost() {
   const platform = process.platform === 'darwin' ? 'macos' : process.platform;
   const arch = process.arch;
-  if (platform === 'macos' && (arch === 'x64' || arch === 'arm64')) return `node18-macos-${arch}`;
-  if (platform === 'linux' && (arch === 'x64' || arch === 'arm64')) return `node18-linux-${arch}`;
-  if (platform === 'win32' && arch === 'x64') return 'node18-win-x64';
+  if (platform === 'macos' && (arch === 'x64' || arch === 'arm64')) return `node24-macos-${arch}`;
+  if (platform === 'linux' && (arch === 'x64' || arch === 'arm64')) return `node24-linux-${arch}`;
+  if (platform === 'win32' && arch === 'x64') return 'node24-win-x64';
   throw new Error(`Unsupported host target for pkg: ${process.platform}/${process.arch}`);
 }
 
 function artifactName(target) {
-  const [, platform, arch] = target.match(/^node18-(macos|linux|win)-(.+)$/) || [];
+  const [, platform, arch] = target.match(/^node24-(macos|linux|win)-(.+)$/) || [];
   if (!platform || !arch) throw new Error(`Unsupported pkg target: ${target}`);
   return `proof-or-stop-${platform}-${arch}${platform === 'win' ? '.exe' : ''}`;
 }
@@ -212,43 +212,6 @@ function buildPackages() {
   run(tsc, ['-p', 'packages/lab/tsconfig.json']);
 }
 
-function patchPkgRuntimeCompatibility() {
-  const profilerPath = join(repoRoot, 'packages', 'main', 'dist', 'tasks', 'profiler.js');
-  const source = readFileSync(profilerPath, 'utf8');
-  const node19Import = "import { Session } from 'node:inspector/promises';";
-  if (!source.includes(node19Import)) return;
-  const node18Compat = `class Session {
-    delegate = null;
-    async ensureDelegate() {
-        if (!this.delegate) {
-            const inspector = await import('node:inspector');
-            this.delegate = new inspector.Session();
-            this.delegate.connect();
-        }
-        return this.delegate;
-    }
-    connect() {}
-    disconnect() {
-        if (this.delegate) {
-            this.delegate.disconnect();
-            this.delegate = null;
-        }
-    }
-    async post(method, params = {}) {
-        const delegate = await this.ensureDelegate();
-        return new Promise((resolve, reject) => {
-            delegate.post(method, params, (error, result) => {
-                if (error)
-                    reject(error);
-                else
-                    resolve(result ?? {});
-            });
-        });
-    }
-}`;
-  writeFileSync(profilerPath, source.replace(node19Import, node18Compat), 'utf8');
-}
-
 function packageTarget(target) {
   const pkg = bin('pkg');
   assertExists(pkg, 'Run npm install from the repository root.');
@@ -282,7 +245,6 @@ if (!['host', 'release'].includes(mode)) {
 }
 
 buildPackages();
-patchPkgRuntimeCompatibility();
 writePkgEntrypoint();
 writePkgConfig();
 
