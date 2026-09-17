@@ -1,5 +1,45 @@
 # Changelog
 
+## Lab reuse-host-session-environment - v0.3.403 - 2026-09-17
+
+# Lab reuse-host-session-environment
+
+## Problem
+Routine and DONE-required validation identities hash the ambient environment except a strip list.
+The Claude Code host still injected per-session values no validation command reads:
+`CLAUDE_CODE_HOST_SESSION_ID`, `CLAUDE_EFFORT` (the session effort setting) and `BAGGAGE`
+(host telemetry propagation carrying a sentry trace id and release). A new session or a changed
+effort level therefore produced a new identity, refusing an unchanged PASS as
+`validation-identity-changed` and re-running the full plan. Transcripts contain 21 refusals whose
+only reason was `validation-identity-changed`.
+
+## Behavior change
+The three keys join `HOST_LAUNCHER_SESSION_ENV_KEYS` (the extensible host-launcher list; the
+digest-pinned frozen list is unchanged). As with the existing entries, they are also no longer
+passed to validation child processes. An explicit `command.env` overlay of the same keys remains
+semantic.
+
+## Verification
+RED/GREEN: `node scripts/verify-reuse-host-session-environment.mjs`.
+- Before: each of the three keys changed the routine identity digest and the DONE-required
+  effectiveEnvironmentDigest and refused reuse (10 failing expectations).
+- After: identity-neutral and reusable; controls NODE_OPTIONS, CI, TZ, LANG and PATH still change
+  identity and refuse reuse; the explicit overlay stays semantic; the frozen list digest is
+  unchanged (23 checks).
+Regressions: done-required-validation-smoke, done-required-freshness-smoke,
+validation-evidence-reuse-smoke and the process-fact contract PASS.
+
+## Compatibility
+Stored receipts whose environment contained these keys recompute a different digest and must be
+re-earned once by running validation again, the same stance as the earlier host-launcher entries.
+
+## Pre-audit test hardening
+Controls now also require the DONE-required effectiveEnvironmentDigest to change (NODE_OPTIONS, CI, TZ, LANG, PATH) and to stay equal when all three host values are absent. A new expectation proves identity and spawn agree: the three host values are not passed to the command (RED on the pre-fix source: passed CLAUDE_CODE_HOST_SESSION_ID, CLAUDE_EFFORT, BAGGAGE), while ordinary ambient values still are. The frozen strip-list control now compares the recomputed digest, not only the constant. Result: 32 checks.
+
+Maintenance provenance: codex/lab-reuse-host-session-environment, repair dbeb57dd11492547047039526ce110e03acd02ee.
+Verification command (replayed before integration and on main): `["node","scripts/verify-reuse-host-session-environment.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab reuse-lineage-material-policy - v0.3.402 - 2026-09-17
 
 # Lab reuse-lineage-material-policy
