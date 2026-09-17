@@ -14,7 +14,8 @@
 // Controls: non-log writes, a rewritten (non-append) activity log, a look-alike
 // path, and a temp parent INSIDE a worktree are still refused.
 import { execFileSync, spawnSync } from 'node:child_process';
-import fs, { appendFileSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { symlinkSync } from 'node:fs';
+import fs, { appendFileSync, chmodSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { EventEmitter } from 'node:events';
 import { tmpdir } from 'node:os';
@@ -59,8 +60,9 @@ function repo() {
   git(root, ['add', '.']); git(root, ['commit', '-qm', 'base']);
   return root;
 }
-async function guarded(action) {
+async function guarded(action, before) {
   const root = repo();
+  before?.(root);
   const guard = createQuorumSmokeProtectedMutationGuard([root]);
   for (const relative of action(root)) emit(root, relative);
   return guard.close();
@@ -86,6 +88,36 @@ try {
   const lookalike = await guarded((root) => { writeFileSync(join(root, 'docs/story/activity.jsonl.bak'), 'x\n'); return ['docs/story/activity.jsonl.bak']; });
   rows.push({ scenario: 'control: activity.jsonl.bak look-alike', clean: lookalike.clean, paths: lookalike.paths.length });
   control(lookalike.clean === false, 'a look-alike path is still a mutation');
+  // The exemption must bind to the file itself, not to its bytes: a replacement that
+  // carries the original prefix is a structural mutation, however it is delivered.
+  const symlinked = await guarded((root) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    // The decoy lives OUTSIDE the repository, so only the symlink itself is the change.
+    const decoy = join(sandbox, `decoy-${n}.jsonl`);
+    writeFileSync(decoy, `${readFileSync(log, 'utf8')}{"line":1}\n`);
+    unlinkSync(log); symlinkSync(decoy, log);
+    return ['docs/story/activity.jsonl'];
+  });
+  rows.push({ scenario: 'activity log replaced by a symlink carrying the prefix', clean: symlinked.clean, paths: symlinked.paths.length });
+  expectRepaired(symlinked.clean === false, 'replacing the activity log with a symlink must stay a mutation');
+  const replaced = await guarded((root) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    const bytes = readFileSync(log);
+    unlinkSync(log); writeFileSync(log, bytes);
+    return ['docs/story/activity.jsonl'];
+  });
+  rows.push({ scenario: 'activity log replaced with identical bytes', clean: replaced.clean, paths: replaced.paths.length });
+  expectRepaired(replaced.clean === false, 'replacing the activity log with an identical copy must stay a mutation');
+  // An unreadable baseline proves nothing about the original content, so the path can
+  // never become exempt afterwards.
+  const unreadableBaseline = await guarded((root) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    chmodSync(log, 0o600);
+    writeFileSync(log, '{"replacement":true}\n');
+    return ['docs/story/activity.jsonl'];
+  }, (root) => chmodSync(join(root, 'docs/story/activity.jsonl'), 0o000));
+  rows.push({ scenario: 'activity log unreadable at baseline, replaced during the run', clean: unreadableBaseline.clean, paths: unreadableBaseline.paths.length });
+  expectRepaired(unreadableBaseline.clean === false, 'a log that could not be read at baseline must never be exempted');
 
   // Bug 2: temp parent that contains a registered worktree.
   const smoke = join(dist, 'tasks/quorum-submit-smoke.js');

@@ -882,7 +882,32 @@ function authenticatedRuntimeTraceFragment(candidate: string, traceFile: string 
 const HOST_ACTIVITY_LOG_RELATIVE_PATHS = ['.proof-or-stop/activity.jsonl', 'docs/story/activity.jsonl'] as const;
 const HOST_ACTIVITY_LOG_STORY_DIRS = ['.proof-or-stop/story/actives', 'docs/story/actives'] as const;
 
-interface HostActivityLogBaseline { size: number; digest: string }
+interface HostActivityLogBaseline { size: number; digest: string; dev: number; ino: number }
+/** 'absent' = proven missing; 'ineligible' = present but not a plain readable file, never exempt. */
+type HostActivityLogState = HostActivityLogBaseline | 'absent' | 'ineligible';
+
+/**
+ * Read a host activity log by its own identity: no symlink is followed, only a regular
+ * file is accepted, and the device/inode pair is returned so a later read can prove the
+ * SAME file grew rather than a replacement carrying the original prefix.
+ */
+function readHostActivityLogFile(path: string): { bytes: Buffer; dev: number; ino: number } | 'absent' | 'ineligible' {
+  let fd: number;
+  try {
+    fd = openSync(path, fsConstants.O_RDONLY | fsConstants.O_NONBLOCK | fsConstants.O_NOFOLLOW);
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === 'ENOENT' ? 'absent' : 'ineligible';
+  }
+  try {
+    const stat = fstatSync(fd);
+    if (!stat.isFile()) return 'ineligible';
+    return { bytes: readFileSync(fd), dev: stat.dev, ino: stat.ino };
+  } catch {
+    return 'ineligible';
+  } finally {
+    try { closeSync(fd); } catch { /* already closed */ }
+  }
+}
 
 function hostActivityLogCandidates(root: string): string[] {
   const candidates: string[] = HOST_ACTIVITY_LOG_RELATIVE_PATHS.map(path => join(root, path));
@@ -900,16 +925,16 @@ function isHostActivityLogPath(root: string, candidate: string): boolean {
   return HOST_ACTIVITY_LOG_STORY_DIRS.some(dir => new RegExp(`^${dir.replace(/[.]/g, '\\.')}/[^/]+/activity\\.jsonl$`).test(rel));
 }
 
-function snapshotHostActivityLogs(roots: readonly string[]): Map<string, HostActivityLogBaseline | null> {
-  const baselines = new Map<string, HostActivityLogBaseline | null>();
+function snapshotHostActivityLogs(roots: readonly string[]): Map<string, HostActivityLogState> {
+  const baselines = new Map<string, HostActivityLogState>();
   for (const root of roots) {
     for (const candidate of hostActivityLogCandidates(root)) {
-      try {
-        const bytes = readFileSync(candidate);
-        baselines.set(candidate, { size: bytes.length, digest: createHash('sha256').update(bytes).digest('hex') });
-      } catch {
-        baselines.set(candidate, null); // absent at start: an append-created log is tolerated
-      }
+      const read = readHostActivityLogFile(candidate);
+      // Only a proven missing file is 'absent' (an append-created log is tolerated);
+      // anything unreadable stays ineligible so it can never be exempted later.
+      baselines.set(candidate, read === 'absent' || read === 'ineligible'
+        ? read
+        : { size: read.bytes.length, digest: createHash('sha256').update(read.bytes).digest('hex'), dev: read.dev, ino: read.ino });
     }
   }
   return baselines;
@@ -918,15 +943,19 @@ function snapshotHostActivityLogs(roots: readonly string[]): Map<string, HostAct
 function isToleratedHostActivityAppend(
   root: string,
   candidate: string,
-  baselines: ReadonlyMap<string, HostActivityLogBaseline | null>,
+  baselines: ReadonlyMap<string, HostActivityLogState>,
 ): boolean {
   if (!isHostActivityLogPath(root, candidate) || !baselines.has(candidate)) return false;
   const baseline = baselines.get(candidate);
-  let current: Buffer;
-  try { current = readFileSync(candidate); } catch { return false; } // deleted during the run
-  if (baseline === null) return true;
-  if (baseline === undefined || current.length < baseline.size) return false;
-  return createHash('sha256').update(current.subarray(0, baseline.size)).digest('hex') === baseline.digest;
+  if (baseline === undefined || baseline === 'ineligible') return false;
+  const current = readHostActivityLogFile(candidate);
+  if (current === 'absent' || current === 'ineligible') return false; // deleted, replaced by a link, or unreadable
+  if (baseline === 'absent') return true; // created during the run as a plain file
+  // The same file must have grown: a replacement (even byte-identical, even carrying
+  // the original prefix) is a structural mutation, not an append.
+  if (current.dev !== baseline.dev || current.ino !== baseline.ino) return false;
+  if (current.bytes.length < baseline.size) return false;
+  return createHash('sha256').update(current.bytes.subarray(0, baseline.size)).digest('hex') === baseline.digest;
 }
 
 /**
