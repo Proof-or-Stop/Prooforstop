@@ -2710,6 +2710,7 @@ export async function submitManagedHostRun(
 
   const requestedReadonlyLane = args.isolateManagedReview === true || args.profile === 'cross_host_review_codex'
     ? resolveManagedReviewIsolation(args.root) : null;
+  if (args.host === 'grok' && !requestedReadonlyLane) throw new Error('grok requires configured managedReviewIsolation and isolated managed review');
   const now = deps.now ?? Date.now;
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
   const createdMs = now();
@@ -2780,6 +2781,7 @@ export async function submitManagedHostRun(
       sealedEnvironment = normalizeExecutionBatchEnvironment({...process.env,...args.environment});
       admission = await consumeManagedLaunchAdmission(args, sealedEnvironment, {runId,deadlineAt});
       if (!admission) throw new Error('managed launch requires execution admission');
+      if (args.host === 'grok' && (admission.binding.execution.host !== 'grok' || !admission.providerState)) throw new Error('grok requires admitted private provider state');
     }
     if (args.isolateManagedReview === true) {
       managedReviewScratch = createManagedReviewScratchWorktree({

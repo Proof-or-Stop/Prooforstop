@@ -7,7 +7,7 @@ receipt checks. Authentication availability alone is never review approval.
 Claude accepts its existing supported credential file or noninteractive
 authentication environment. On macOS, when the selected configuration directory
 is the canonical default `~/.claude` and neither input exists, the controller
-reads only the `Claude Code-credentials` Keychain item using the fixed system
+reads the `Claude Code-credentials` Keychain item once per captured snapshot using the fixed system
 executable and a bounded timeout. It validates and captures only `claudeAiOauth`;
 unrelated MCP credentials are omitted. The reviewer receives a private mode-0600
 credential file inside its mode-0700 configuration directory. Custom Claude
@@ -20,6 +20,10 @@ independent `GROK_HOME`; shared leader use and automatic updating are disabled i
 the private configuration. The original home, settings and login files are not
 modified. Home-level managed or requirements policy files are refused until an
 adapter can preserve their semantics; they are never silently omitted.
+
+Grok formal submissions require a configured, supported `managedReviewIsolation`
+read-only lane and admitted private provider state. Unconfigured projects are
+refused before creating run artifacts; they never fall back to ambient Grok state.
 
 Both providers use the existing opaque input snapshot, keyed execution identity,
 refreshed private seed, admission and owned-scratch cleanup mechanisms. A missing

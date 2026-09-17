@@ -75,7 +75,7 @@ try {
      const bytes=fs.readFileSync(join(isolated.directory,'.credentials.json'),'utf8');
      assert.deepEqual(Object.keys(JSON.parse(bytes)),['claudeAiOauth']);
      assert(!bytes.includes('DO-NOT-COPY'));
-     assert(keychainCalls>0);
+     assert.equal(keychainCalls,1,'one capture must perform exactly one Keychain read');
      const calls=keychainCalls;
      assert.throws(()=>api.captureManagedProviderState('claude',{CLAUDE_CONFIG_DIR:grok}),/requires an existing/);
      assert.equal(keychainCalls,calls,'custom homes must never use another account Keychain');
@@ -125,7 +125,18 @@ try {
    await assert.rejects(()=>runHostRun({host:'grok',launchProfile:profile}),refusal);
    assert.throws(()=>materializeHostRunLaunch({host:'grok',launchProfile:profile}),refusal);
  }
- const launch=materializeHostRunLaunch({host:'grok',promptText:'fixture-private-prompt',cwd:root,root,
+ await assert.rejects(()=>runHostRun({host:'grok',launchProfile:'managed_reviewer'}),/grok requires a sealed managed readonly layout/);
+ const unconfigured={host:'grok',profile:'managed_reviewer',root,cwd:root,isolateManagedReview:true,
+   promptText:'fixture',phase:'REVIEW',storyId:'B-fixture',reviewRunId:'B-fixture:RR-001',
+   agentType:'proof-or-stop-review-quality',lane:'proof-or-stop-review-quality',projectRootHash:'fixture',
+   reviewBinding:{headHash:'fixture',materialHash:'fixture',storyFilesHash:'fixture',promptHash:'fixture',managedPromptDigest:'sha256:'+ 'a'.repeat(64)}};
+ const beforeRefusal=fs.readdirSync(root).sort();
+ await assert.rejects(()=>submitManagedHostRun(unconfigured),/grok requires configured managedReviewIsolation/);
+ assert.deepEqual(fs.readdirSync(root).sort(),beforeRefusal,'unconfigured Grok refuses before creating run artifacts');
+ fs.writeFileSync(join(root,'proof-or-stop.config.json'),'{}');
+ await assert.rejects(()=>submitManagedHostRun(unconfigured),/grok requires configured managedReviewIsolation/);
+ fs.unlinkSync(join(root,'proof-or-stop.config.json'));
+ const launch=materializeHostRunLaunch({host:'grok' ,promptText:'fixture-private-prompt',cwd:root,root,
    launchProfile:'managed_reviewer',managedRunId:'fixture-grok-review',model:'fixture-model',reasoningEffort:'high',
    storyId:'B-fixture',reviewRunId:'B-fixture:RR-001',lane:'proof-or-stop-review-quality',agentType:'proof-or-stop-review-quality'});
  try {

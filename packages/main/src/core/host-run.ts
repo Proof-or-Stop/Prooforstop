@@ -2346,6 +2346,7 @@ function appendFailedSummary(provider: string | null, reason: string | null): Ho
  */
 export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Promise<HostRunResult> {
   if (args.host === 'grok' && args.launchProfile !== 'managed_reviewer') throw new Error('grok supports only --managedReview / acceptance_amendment_review');
+  if (args.host === 'grok' && !args.managedReadonlyLayout) throw new Error('grok requires a sealed managed readonly layout before provider launch');
   // B-137a:F-110 — `agy` is accepted as a RECOGNISED host id here but is refused
   // before spawn in materializeLaunch (its print launcher takes the prompt only
   // in argv). Two layers on purpose: an unknown host is a caller error ("expected

@@ -34,7 +34,7 @@ function validateInput(host:'codex'|'claude'|'grok',kind:'credentials'|'configur
     throw new Error('managed Codex file-cache adapter cannot override a non-file credential-store policy');
   }
 }
-export function preflightManagedProviderState(host:string,env:NodeJS.ProcessEnv): {host:'codex'|'claude'|'grok'; directory:string; credentials:string|null; configuration:string|null; keychain?:true} {
+function inspectManagedProviderState(host:string,env:NodeJS.ProcessEnv,validateKeychain:boolean): {host:'codex'|'claude'|'grok'; directory:string; credentials:string|null; configuration:string|null; keychain?:true} {
   if(host!=='codex'&&host!=='claude'&&host!=='grok')throw new Error('managed readonly provider state adapter unsupported');
   const requested=host==='codex'?(env.CODEX_HOME??join(homedir(),'.codex')):host==='grok'?(env.GROK_HOME??join(homedir(),'.grok')):(env.CLAUDE_CONFIG_DIR??join(homedir(),'.claude'));
   if(!isAbsolute(requested))throw new Error('managed provider configuration directory must be absolute');
@@ -45,11 +45,14 @@ export function preflightManagedProviderState(host:string,env:NodeJS.ProcessEnv)
   if(host==='grok'&&['requirements.toml','managed_config.toml'].some(name=>existsSync(join(directory,name))))throw new Error('managed Grok home policy files require an explicit isolation adapter; refusing to omit them');
   const envAuth=(host==='claude'?CLAUDE_NONINTERACTIVE_AUTH_ENV_VARS:host==='grok'?['XAI_API_KEY']:[]).some(name=>Boolean(env[name]?.trim()));
   const keychain=!credentialFile&&!envAuth&&host==='claude'&&process.platform==='darwin'&&existsSync(join(homedir(),'.claude'))&&directory===realpathSync(join(homedir(),'.claude'));
-  if(keychain)captureClaudeKeychain();
+  if(keychain&&validateKeychain)captureClaudeKeychain();
   if(!credentialFile&&!envAuth&&!keychain)throw new Error(`managed ${host} isolated cache requires an existing file credential or a registered noninteractive credential environment; Claude Keychain fallback supports only the default macOS configuration directory`);
   if(credentialFile)captureFile(credentials,host,'credentials');
   if(configFile)captureFile(configuration,host,'configuration');
   return {host,directory,credentials:credentialFile?credentials:null,configuration:configFile?configuration:null,...(keychain?{keychain:true as const}:{})};
+}
+export function preflightManagedProviderState(host:string,env:NodeJS.ProcessEnv) {
+  return inspectManagedProviderState(host,env,true);
 }
 /** Never return provider error output: it may contain credential bytes. No shell or PATH lookup. */
 function captureClaudeKeychain():Buffer {
@@ -82,7 +85,7 @@ function captureFile(path:string,host:'codex'|'claude'|'grok',kind:'credentials'
   }finally{closeSync(fd);}
 }
 export function captureManagedProviderState(host:string,env:NodeJS.ProcessEnv):ManagedProviderStateSnapshot {
-  const inputs=preflightManagedProviderState(host,env);
+  const inputs=inspectManagedProviderState(host,env,false);
   const files:CapturedState['files']=[];
   if(inputs.keychain)files.push({name:'.credentials.json',bytes:captureClaudeKeychain()});
   for(const [source,name,kind] of [[inputs.credentials,host==='claude'?'.credentials.json':'auth.json','credentials'],[inputs.configuration,host==='claude'?'settings.json':'config.toml','configuration']] as const) {
