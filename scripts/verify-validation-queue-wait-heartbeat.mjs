@@ -8,10 +8,11 @@
 // reporter, so the CLI prints nothing: the capacity queue only reports through
 // onWaitProgress (every 30s by default) and the executor does not supply it. The
 // CLI idle watchdog therefore sees a silent process and kills a healthy validation.
-// validate-progress-heartbeat-smoke runs its "must pass" CLI calls with a 1s idle
-// budget, so it fails whenever any other validation on the machine holds the queue
-// (12 of 43 historical failed re-executions; reproduced 2026-09-17 while another
-// Story's validation ran: "validate stuck: 1 seconds without output").
+// Reproduced 2026-09-17: validate-progress-heartbeat-smoke run directly (outside the
+// fixture wrapper that isolates the machine queue per fixture) failed deterministically
+// with "validate stuck: 1 seconds without output" while another Story's validation
+// held the queue. The machine queue dates from 2026-09-10, so this does NOT explain
+// the July-September historical heartbeat failures; those had other, since-fixed causes.
 //
 // Drives this checkout's built CLI against a disposable fixture while a helper
 // holds a real machine queue ticket through the product API. Controls: without
