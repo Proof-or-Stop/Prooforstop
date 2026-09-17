@@ -63,6 +63,8 @@ function callHookAsync(root, command, env = {}) {
 const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHash('sha256').update(realpathSync(root)).digest('hex'));
 const lockFor = (root) => join(spoolFor(root), '.flush.lock');
 const spoolRecords = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.endsWith('.json')).sort(); } catch { return []; } };
+const capacityDir = (root) => join(root, '.proof-or-stop/locks/validation-capacity.lock/workspaces', createHash('sha256').update(realpathSync(root)).digest('hex'));
+const capacityEntries = (root) => { try { return readdirSync(capacityDir(root)); } catch { return []; } };
 const spoolClaims = (root) => { try { return readdirSync(spoolFor(root)).filter((name) => name.includes('.delivering-')); } catch { return []; } };
 async function waitUntil(predicate, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
@@ -252,6 +254,68 @@ try {
     expectRepaired(blocked >= 2, `a failed target write retains its records (retained ${blocked})`);
     expectRepaired(JSON.stringify(after) === JSON.stringify(['retry-1', 'retry-2', 'retry-3']),
       `retained records are delivered in order once the target is writable again (got ${JSON.stringify(after)})`);
+  }
+  // A validation publishing its ticket while this hook is between announcing its arrival
+  // and publishing its own ticket: the hook must see it and leave the line queued.
+  {
+    const root = repo();
+    const barrier = join(sandbox, 'barrier-choosing');
+    writeFileSync(barrier, 'hold');
+    const writing = callHookAsync(root, 'choosing-window', { PROOF_OR_STOP_ACTIVITY_TICKET_BARRIER: barrier });
+    // Announcing the arrival before reading ticket numbers is itself part of the repair:
+    // without it there is no window in which a validation can be seen at all.
+    const announced = await waitUntil(() => capacityEntries(root).some((name) => name.endsWith('.choosing')), 10_000);
+    expectRepaired(announced, 'the hook announces its arrival before reading ticket numbers');
+    const validator = ticket(root, live.pid); // a validation publishes while the hook is choosing
+    rmSync(barrier, { force: true });
+    await writing;
+    const during = lines(root);
+    rows.push({ scenario: 'validation publishes while the hook is choosing', repoLinesDuring: during.length, after: `${spoolRecords(root).length} records spooled` });
+    expectRepaired(during.length === 0, `a validation that publishes during the choosing window must keep the hook out (found ${JSON.stringify(during)})`);
+    rmSync(validator, { recursive: true, force: true });
+    callHook(root, 'choosing-after');
+    expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['choosing-window', 'choosing-after']),
+      `the queued line is delivered in order afterwards (got ${JSON.stringify(lines(root))})`);
+  }
+  // An older record in flight blocks a newer one, so nothing is delivered out of order.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    callHook(root, 'older'); callHook(root, 'newer');
+    rmSync(t, { recursive: true, force: true });
+    const spool = spoolFor(root);
+    const [oldest] = spoolRecords(root);
+    renameSync(join(spool, oldest), join(spool, `${oldest}.delivering-${live.pid}`));
+    callHook(root, 'arrives-during');
+    const during = lines(root);
+    rows.push({ scenario: 'older record in flight, newer records queued', repoLinesDuring: during.length, after: '-' });
+    expectRepaired(during.length === 0, `no newer record may pass a record still in flight (found ${JSON.stringify(during)})`);
+    renameSync(join(spool, `${oldest}.delivering-${live.pid}`), join(spool, oldest));
+    callHook(root, 'settle-order');
+    expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['older', 'newer', 'arrives-during', 'settle-order']),
+      `delivery resumes in the original order (got ${JSON.stringify(lines(root))})`);
+  }
+  // A choosing marker left by a crashed process must not stall host bookkeeping.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    callHook(root, 'stale-choosing-pending');
+    rmSync(t, { recursive: true, force: true });
+    const dir = capacityDir(root);
+    const dead = join(dir, 'dead-owner.choosing');
+    mkdirSync(dead, { recursive: true });
+    writeFileSync(join(dead, 'holder.json'), JSON.stringify({ lockId: 'dead', pid: deadPid, hostname: 'fixture', command: 'validate', acquiredAt: new Date().toISOString() }));
+    callHook(root, 'after-stale-choosing');
+    const after = lines(root);
+    rows.push({ scenario: 'choosing marker left by a dead process', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['stale-choosing-pending', 'after-stale-choosing']),
+      `a dead choosing marker does not stall delivery (got ${JSON.stringify(after)})`);
+    const liveChoosing = join(dir, 'live-owner.choosing');
+    mkdirSync(liveChoosing, { recursive: true });
+    writeFileSync(join(liveChoosing, 'holder.json'), JSON.stringify({ lockId: 'live', pid: live.pid, hostname: 'fixture', command: 'validate', acquiredAt: new Date().toISOString() }));
+    callHook(root, 'blocked-by-live-choosing');
+    control(JSON.stringify(lines(root)) === JSON.stringify(after), 'a live choosing owner still keeps the hook out');
+    rmSync(liveChoosing, { recursive: true, force: true });
   }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [

@@ -114,33 +114,28 @@ function publishSpoolRecord(spool, record) {
   fs.renameSync(tmp, path.join(spool, `${name}.json`));
 }
 
-function spoolRecordNames(spool) {
-  try { return fs.readdirSync(spool).filter(name => name.endsWith('.json')).sort(); } catch { return []; }
-}
-
 function pendingSpoolRecords(spool) {
   try { return fs.readdirSync(spool).some(name => name.endsWith('.json') || name.includes('.delivering-')); } catch { return false; }
 }
 
-/** Is another live hook currently delivering a record? */
-function liveClaimPresent(spool) {
-  let names;
-  try { names = fs.readdirSync(spool); } catch { return false; }
-  return names.some(name => {
-    const match = /\.delivering-(\d+)$/.exec(name);
-    return match !== null && pidAlive(Number(match[1]));
-  });
-}
+const RECORD_CLAIM = /^(.*\.json)\.delivering-(\d+)$/;
 
-/** A record claimed by a flusher that died is returned to the queue under its own name. */
-function recoverAbandonedRecords(spool) {
+/**
+ * One coherent view of the queue: every record, queued or in flight, ordered by its own
+ * name. Selecting from this view can never skip a record another hook already claimed,
+ * which a "list the unclaimed records" view could.
+ */
+function queueView(spool) {
   let names;
-  try { names = fs.readdirSync(spool); } catch { return; }
-  for (const name of names) {
-    const match = /^(.*)\.delivering-(\d+)$/.exec(name);
-    if (!match || pidAlive(Number(match[2]))) continue;
-    try { fs.renameSync(path.join(spool, name), path.join(spool, match[1])); } catch { /* another hook won */ }
-  }
+  try { names = fs.readdirSync(spool); } catch { return []; }
+  return names
+    .map(name => {
+      if (name.endsWith('.json')) return { name, base: name, claimedBy: null };
+      const match = RECORD_CLAIM.exec(name);
+      return match ? { name, base: match[1], claimedBy: Number(match[2]) } : null;
+    })
+    .filter(Boolean)
+    .sort((left, right) => (left.base < right.base ? -1 : left.base > right.base ? 1 : 0));
 }
 
 /**
@@ -157,17 +152,20 @@ function recoverAbandonedRecords(spool) {
  * at-least-once: a crash between the append and the removal can repeat one line.
  */
 function flushSpool(spool, root) {
-  recoverAbandonedRecords(spool);
   for (let delivered = 0; delivered < 10000; delivered++) {
-    // Another hook is delivering an older record: stand down entirely, or this hook
-    // would pass it. Its claim is live, so it is still making progress.
-    if (liveClaimPresent(spool)) return;
-    const [name] = spoolRecordNames(spool);
-    if (!name) return;
+    const [oldest] = queueView(spool);
+    if (!oldest) return;
+    if (oldest.claimedBy !== null) {
+      // The oldest record is in flight. A live owner is still making progress, so stand
+      // down; a dead owner's claim returns to the queue and is retried here.
+      if (pidAlive(oldest.claimedBy)) return;
+      try { fs.renameSync(path.join(spool, oldest.name), path.join(spool, oldest.base)); } catch { return; }
+      continue;
+    }
     barrierWait();
     if (workspaceValidationActive(root)) return; // a validation started: stop delivering
-    const claimed = path.join(spool, `${name}.delivering-${process.pid}`);
-    try { fs.renameSync(path.join(spool, name), claimed); } catch { return; } // another hook is delivering
+    const claimed = path.join(spool, `${oldest.base}.delivering-${process.pid}`);
+    try { fs.renameSync(path.join(spool, oldest.base), claimed); } catch { return; } // another hook won it
     let record = null;
     try { record = JSON.parse(fs.readFileSync(claimed, 'utf8')); } catch { record = null; }
     if (!record || typeof record.target !== 'string' || typeof record.line !== 'string') {
@@ -181,7 +179,7 @@ function flushSpool(spool, root) {
     if (!written) {
       // Not admitted, or the target could not be written: return the record to its place
       // so a later hook retries it in order, and stop.
-      try { fs.renameSync(claimed, path.join(spool, name)); } catch { /* recovered later */ }
+      try { fs.renameSync(claimed, path.join(spool, oldest.base)); } catch { /* recovered later */ }
       return;
     }
     try { fs.unlinkSync(claimed); } catch { /* recovered later */ }
@@ -216,23 +214,33 @@ function capacityHolderAlive(ticketPath) {
 function withWorkspaceWriteTicket(root, write) {
   const dir = workspaceCapacityDir(root);
   if (!dir) return false;
-  let ticket = null;
+  let published = null;
   try {
     fs.mkdirSync(dir, { recursive: true });
     const lockId = crypto.randomUUID();
-    const numbers = fs.readdirSync(dir).filter(name => name.endsWith('.ticket'))
-      .map(name => Number(name.slice(0, name.indexOf('-')))).filter(Number.isFinite);
-    const number = (numbers.length > 0 ? Math.max(...numbers) : 0) + 1;
-    ticket = path.join(dir, `${String(number).padStart(16, '0')}-${lockId}.ticket`);
-    const preparing = `${ticket}.${process.pid}-${lockId}.preparing`;
-    fs.mkdirSync(preparing);
-    fs.writeFileSync(path.join(preparing, 'holder.json'), `${JSON.stringify({
+    const holder = `${JSON.stringify({
       lockId, pid: process.pid, hostname: os.hostname(), command: 'host activity log delivery',
       acquiredAt: new Date().toISOString(), processStartTimeMs: Math.round(Date.now() - process.uptime() * 1000),
-    }, null, 2)}\n`);
-    fs.renameSync(preparing, ticket); // publication is atomic: a half-written ticket is never queue-visible
+    }, null, 2)}\n`;
+    // Announce the arrival BEFORE reading ticket numbers, exactly as the product's
+    // allocator does: the `.choosing` marker makes this selection visible, so a validation
+    // cannot publish a ticket between the reading and the publication and go unnoticed.
+    const choosing = path.join(dir, `${lockId}.choosing`);
+    const preparing = `${choosing}.${process.pid}-${lockId}.preparing`;
+    fs.mkdirSync(preparing);
+    fs.writeFileSync(path.join(preparing, 'holder.json'), holder);
+    fs.renameSync(preparing, choosing); // publication is atomic
+    published = choosing;
+    ticketBarrierWait();
+    const numbers = fs.readdirSync(dir).filter(name => name.endsWith('.ticket'))
+      .map(name => Number(name.slice(0, name.indexOf('-')))).filter(Number.isFinite);
+    const ticket = path.join(dir, `${String((numbers.length > 0 ? Math.max(...numbers) : 0) + 1).padStart(16, '0')}-${lockId}.ticket`);
+    fs.renameSync(choosing, ticket);
+    published = ticket;
     const entries = fs.readdirSync(dir);
-    if (entries.some(name => name.endsWith('.choosing'))) return false; // someone is arriving
+    // A choosing marker blocks only while its owner lives: one left by a crashed process
+    // must never stall host bookkeeping forever.
+    if (entries.some(name => name.endsWith('.choosing') && capacityHolderAlive(path.join(dir, name)))) return false;
     const live = entries.filter(name => name.endsWith('.ticket') && capacityHolderAlive(path.join(dir, name))).sort();
     if (live.length === 0 || path.join(dir, live[0]) !== ticket) return false; // not the oldest: retreat
     write();
@@ -240,13 +248,23 @@ function withWorkspaceWriteTicket(root, write) {
   } catch {
     return false;
   } finally {
-    if (ticket) { try { fs.rmSync(ticket, { recursive: true, force: true }); } catch { /* stale by pid */ } }
+    if (published) { try { fs.rmSync(published, { recursive: true, force: true }); } catch { /* stale by pid */ } }
   }
 }
 
 /** Test seam: pause before each delivery while the named file exists (bounded). */
 function barrierWait() {
   const barrier = process.env.PROOF_OR_STOP_ACTIVITY_SPOOL_BARRIER;
+  if (!barrier) return;
+  const deadline = Date.now() + 20000;
+  while (fs.existsSync(barrier) && Date.now() < deadline) {
+    try { execSync('sleep 0.05'); } catch { break; }
+  }
+}
+
+/** Test seam: pause between announcing the arrival and publishing the ticket. */
+function ticketBarrierWait() {
+  const barrier = process.env.PROOF_OR_STOP_ACTIVITY_TICKET_BARRIER;
   if (!barrier) return;
   const deadline = Date.now() + 20000;
   while (fs.existsSync(barrier) && Date.now() < deadline) {
