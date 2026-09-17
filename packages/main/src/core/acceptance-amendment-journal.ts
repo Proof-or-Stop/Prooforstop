@@ -132,7 +132,7 @@ export function createAcceptanceAmendmentController(store: StoryStore, root: str
         return proposed;
       });
     },
-    async startReview(args: { storyId: string; amendmentId: string; host: 'codex' | 'claude' }, deps: ManagedHostRunSubmitDeps = {}) {
+    async startReview(args: { storyId: string; amendmentId: string; host: 'codex' | 'claude' | 'grok' }, deps: ManagedHostRunSubmitDeps = {}) {
       const prepared = locked(args.storyId, () => {
         requireDev(args.storyId);
         const { entry } = entryFor(args.storyId, args.amendmentId);

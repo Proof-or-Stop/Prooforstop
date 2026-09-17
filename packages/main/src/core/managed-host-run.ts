@@ -1719,7 +1719,7 @@ function readTerminal(paths: ManagedHostRunPaths): ManagedHostRunTerminal | null
  */
 function cleanupManagedClaudePromptForTerminal(paths: ManagedHostRunPaths): void {
   const { text: specText, value: spec } = readManagedHostRunSpec(paths);
-  if (!isIsolatedReviewerProfile(spec.profile) || spec.host !== 'claude') return;
+  if (!isIsolatedReviewerProfile(spec.profile) || (spec.host !== 'claude' && spec.host !== 'grok')) return;
 
   const owner = readManagedHostRunOwner(paths);
   if (
@@ -2669,6 +2669,7 @@ export async function submitManagedHostRun(
   args: ManagedHostRunSubmitArgs,
   deps: ManagedHostRunSubmitDeps = {},
 ): Promise<ManagedHostRunProjection> {
+  if (args.host === 'grok' && !isIsolatedReviewerProfile(args.profile)) throw new Error('grok supports only --managedReview / acceptance_amendment_review');
   if (!args.root || !args.cwd) throw new Error('managed host run: root and cwd are required');
   if (!args.promptText) throw new Error('managed host run: prompt is empty; refuse pre-spawn');
   if (!args.phase || !args.agentType) throw new Error('managed host run: phase and agentType are required');
@@ -2709,6 +2710,7 @@ export async function submitManagedHostRun(
 
   const requestedReadonlyLane = args.isolateManagedReview === true || args.profile === 'cross_host_review_codex'
     ? resolveManagedReviewIsolation(args.root) : null;
+  if (args.host === 'grok' && !requestedReadonlyLane) throw new Error('grok requires configured managedReviewIsolation and isolated managed review');
   const now = deps.now ?? Date.now;
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
   const createdMs = now();
@@ -2779,6 +2781,7 @@ export async function submitManagedHostRun(
       sealedEnvironment = normalizeExecutionBatchEnvironment({...process.env,...args.environment});
       admission = await consumeManagedLaunchAdmission(args, sealedEnvironment, {runId,deadlineAt});
       if (!admission) throw new Error('managed launch requires execution admission');
+      if (args.host === 'grok' && (admission.binding.execution.host !== 'grok' || !admission.providerState)) throw new Error('grok requires admitted private provider state');
     }
     if (args.isolateManagedReview === true) {
       managedReviewScratch = createManagedReviewScratchWorktree({
@@ -3488,6 +3491,9 @@ export async function runManagedHostRunWorker(
         runId: spec.runId,
         hasValidProposal: existingProposal !== null,
       });
+      if (spec.host === 'grok' && existingProposal) {
+        return writeTerminal(paths, 'failed', 'grok_compatibility_proposal_unsupported', result.replacementSafe, result, now());
+      }
       // Older adapters may already have submitted one descriptor-attested,
       // immutable proposal before their ordinary final prose is emitted. That
       // proposal is the compatibility authority; only runs without it use the
@@ -3510,7 +3516,7 @@ export async function runManagedHostRunWorker(
           // the final-result writer takes the immutable-file fence. Its valid
           // proposal is the authority; malformed or absent competitors still
           // leave this final result fail-closed.
-          if (readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
+          if (spec.host !== 'grok' && readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
             return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());
           }
           return writeTerminal(

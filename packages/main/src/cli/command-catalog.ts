@@ -2405,7 +2405,7 @@ Behavior:
     }).strict().describe('Exact additive delta; the domain validator refuses unknown fields, weakening, unbound scope and incomplete topology.'),
   }},
   { name: 'acceptance_amendment_review', description: 'Launch or recover one independent DEV intent-reviewer attempt with its worker key pinned before launch.', schema: {
-    storyId: z.string().min(1), amendmentId: z.string().min(1), host: z.enum(['codex', 'claude']),
+    storyId: z.string().min(1), amendmentId: z.string().min(1), host: z.enum(['codex', 'claude', 'grok']),
   }},
   { name: 'acceptance_amendment_approve', description: 'Consume the independently signed approve verdict and atomically journal additive acceptance application; retries recover interrupted writes.', schema: {
     storyId: z.string().min(1), amendmentId: z.string().min(1),
@@ -3447,7 +3447,7 @@ Behavior:
   }},
   { name: 'host_run', description: 'Submit a durable managed Codex or Claude CLI run. Foreground mode attaches to the same durable run; --detach returns after the worker claim. Silence never implies failure. Alias: proof-or-stop host run', schema: {
     idempotencyKey: z.string().min(1).max(512).optional().describe('Stable logical request key for retry-safe submission; changed inputs are refused. Formal reviews automatically bind host/story/reviewRunId/lane.'),
-    host: z.string().describe('Canonical managed host: codex or claude (alias: claude-code->claude)'),
+    host: z.string().describe('Canonical managed host: codex, claude or grok (alias: claude-code->claude)'),
     model: z.string().min(1).max(256).optional().describe('Exact provider model id placed on the managed invocation argv and sealed into its run binding and receipt'),
     reasoningEffort: z.enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra']).optional().describe('Exact provider reasoning effort placed on invocation argv and sealed into the run binding and receipt; Claude supports low through max'),
     agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / proof-or-stop-review-quality / autopilot-repair'),

@@ -18,7 +18,7 @@ import { runSupervisedProviderProcess } from '../providers/supervised-process.js
 const profile = policy.ordinaryProfile;
 const pathPlan = policy.generatedPathPlan;
 export interface ExecutionBatchRequest { root: string; subjectIdentity: string; assignments: ReviewerBatchAssignment[]; deriveSubjectIdentity(): string; effectiveBaseEnvironment?: NodeJS.ProcessEnv; retryFromGeneration?: number; profile: string; }
-export interface ExecutionBatchBinding { schema: 'managed-execution-batch-binding.v1'; root: string; baseEnvironmentDigest: string; subjectIdentity: string; identity: string; generation: number; lane: string; host: 'codex' | 'claude'; profile: string; }
+export interface ExecutionBatchBinding { schema: 'managed-execution-batch-binding.v1'; root: string; baseEnvironmentDigest: string; subjectIdentity: string; identity: string; generation: number; lane: string; host: 'codex' | 'claude' | 'grok'; profile: string; }
 interface Roster { schema: 'execution-batch-roster.v1'; subjectIdentity: string; assignments: ReviewerBatchAssignment[]; profile: string; }
 function directories(root: string, subjectIdentity: string) {
   const project = realpathSync(resolveCanonicalRuntimeProjectRoot(root));
@@ -75,7 +75,7 @@ function captureInputs(args: Omit<ExecutionBatchRequest, 'assignments'>, roster:
   const captured = new Map<string, { state: ManagedProviderStateSnapshot; binary: string }>();
   const hostInputs: Record<string, string> = {}, hostRuntimeIdentities: Record<string, string> = {};
   for (const host of hosts) {
-    if (host !== 'codex' && host !== 'claude') throw new Error('managed batch provider unsupported');
+    if (host !== 'codex' && host !== 'claude' && host !== 'grok') throw new Error('managed batch provider unsupported');
     const state = captureManagedProviderState(host, env), binary = executable(host, cwd, env);
     captured.set(host, { state, binary });
     // Full base env including original provider-home paths is keyed unchanged.
@@ -95,7 +95,7 @@ export async function admitExecutionBatch(args: ExecutionBatchRequest) {
   const controller = createReviewerBatchAdmissionController({ gitCwd: args.root,
     deriveInputs: () => { captured = captureInputs(args, readRoster(args.root, directory), key); return captured.inputs; },
     probeHost: async (host, inputs, signal, context) => {
-      if (!context || context.identity !== reviewerBatchInputIdentity(inputs) || signal?.aborted || (host !== 'codex' && host !== 'claude')) throw new Error('batch probe context unavailable');
+      if (!context || context.identity !== reviewerBatchInputIdentity(inputs) || signal?.aborted || (host !== 'codex' && host !== 'claude' && host !== 'grok')) throw new Error('batch probe context unavailable');
       const saved = captured.captured.get(host); if (!saved) throw new Error('batch provider input unavailable');
       const seedDirectory = join(directory, artifact.seedDirectoryName); privateDirectory(seedDirectory, true);
       const plan = { schema: 'execution-batch-plan-record.v1', root: captured.cwd, subjectIdentity: args.subjectIdentity, generation: context.generation, identity: context.identity, inputs };
@@ -154,18 +154,18 @@ export function verifyExecutionBatchBinding(args: { root: string; binding: Execu
   if (args.providerStateSnapshot && fingerprintCapturedManagedProviderState(args.providerStateSnapshot, key, binding.host) !== fingerprintCapturedManagedProviderState(providerState, key, binding.host)) throw new Error('batch admitted seed differs from materialized provider cache');
   return { binding, providerState, admissionExpiresAt: record.expiresAt as number };
 }
-async function consumeExecutionBatchInternal(args: Omit<ExecutionBatchRequest, 'assignments'> & { lane: string; host: 'codex' | 'claude' }) {
+async function consumeExecutionBatchInternal(args: Omit<ExecutionBatchRequest, 'assignments'> & { lane: string; host: 'codex' | 'claude' | 'grok' }) {
   const { directory } = directories(args.root, args.subjectIdentity); privateDirectory(directory);
   const roster = readRoster(args.root, directory), key = readManagedExecutionIdentityKey(directory);
   const controller = createReviewerBatchAdmissionController({ gitCwd: args.root, deriveInputs: () => captureInputs(args, roster, key).inputs, probeHost: async () => { throw new Error('readonly batch consumer cannot probe'); } });
   const record = await controller.read(); if (record.state !== 'ADMITTED') throw new Error('batch admission required before managed launch');
   return verifyExecutionBatchBinding({ root: args.root, effectiveBaseEnvironment: args.effectiveBaseEnvironment ?? process.env, binding: { schema: 'managed-execution-batch-binding.v1', root: realpathSync(args.root), baseEnvironmentDigest: environmentDigest(key, args.effectiveBaseEnvironment ?? process.env), subjectIdentity: args.subjectIdentity, identity: record.identity, generation: record.generation, lane: args.lane, host: args.host, profile: args.profile } });
 }
-export async function consumeExecutionBatch(args: Omit<ExecutionBatchRequest, 'assignments'> & { lane: string; host: 'codex' | 'claude' }) {
+export async function consumeExecutionBatch(args: Omit<ExecutionBatchRequest, 'assignments'> & { lane: string; host: 'codex' | 'claude' | 'grok' }) {
   try { return await consumeExecutionBatchInternal(args); }
   catch { throw new Error('BATCH_ADMISSION_REQUIRED: request capability admission for the verified complete batch before managed launch; missing, stale, changed or invalid admission cannot be reused'); }
 }
-export async function consumeReviewerBatchAdmission(args: { store: StoryStore; root: string; storyId: string; lane: string; host: 'codex' | 'claude'; profile: string; effectiveBaseEnvironment: NodeJS.ProcessEnv }) {
+export async function consumeReviewerBatchAdmission(args: { store: StoryStore; root: string; storyId: string; lane: string; host: 'codex' | 'claude' | 'grok'; profile: string; effectiveBaseEnvironment: NodeJS.ProcessEnv }) {
   if (args.profile !== profile) throw new Error('ordinary reviewer batch profile mismatch');
   const derive = () => deriveReviewerBatchSubject(args.store, args.root, { storyId: args.storyId });
   const subject = derive();

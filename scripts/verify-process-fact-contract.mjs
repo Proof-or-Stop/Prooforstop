@@ -10247,6 +10247,7 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/host-execution-readiness.ts').includes('runSupervisedProviderProcess(args.executablePath'), 'readiness probes must share supervised provider lifetime');
   assert(read('scripts/verify-u08-supervised-readiness.mjs').includes('readiness probe must reap its live descendant before returning'), 'readiness has an actual descendant regression');
   assert(read('packages/main/src/core/managed-review-provider-state.ts').includes('materializeManagedProviderState(cache,captureManagedProviderState(host,env))'), 'provider state creation must use the captured input seam');
+  assert(registrySource.includes('Grok refuses compatibility-proposal completion') && registrySource.includes('Grok uses its own host identity') && registrySource.includes('Grok requires the configured read-only lane') && read('scripts/verify-managed-provider-state.mjs').includes('ISOLATED_REVIEW_AUTH_PASS'), 'isolated authentication and Grok structured review intake require registered semantics and executable negative controls');
   assert(read('scripts/verify-u08-private-state-capture.mjs').includes('capture must prevent source credential drift'), 'provider input drift has a real file regression');
   assert(registrySource.includes('canonical validation command IDs'), 'scope budget canonical validation identities must be registered');
   const legacyBudget = read('packages/main/src/core/story-scope-budget-legacy.ts');

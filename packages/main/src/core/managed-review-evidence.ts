@@ -54,7 +54,7 @@ function rawSha256(text: string): string {
 }
 
 export interface ManagedReviewExpectedBinding {
-  providerHost: 'codex' | 'claude' | 'agy';
+  providerHost: 'codex' | 'claude' | 'grok' | 'agy';
   model?: string | null;
   reasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max' | 'ultra' | null;
   headHash: string;
