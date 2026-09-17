@@ -108,6 +108,17 @@ try {
   });
   rows.push({ scenario: 'activity log replaced with identical bytes', clean: replaced.clean, paths: replaced.paths.length });
   expectRepaired(replaced.clean === false, 'replacing the activity log with an identical copy must stay a mutation');
+  const chmodOnly = await guarded((root) => { chmodSync(join(root, 'docs/story/activity.jsonl'), 0o444); return ['docs/story/activity.jsonl']; });
+  rows.push({ scenario: 'activity log made read-only (bytes unchanged)', clean: chmodOnly.clean, paths: chmodOnly.paths.length });
+  expectRepaired(chmodOnly.clean === false, 'changing the activity log permissions must stay a mutation');
+  const chmodWithAppend = await guarded((root) => {
+    const log = join(root, 'docs/story/activity.jsonl');
+    appendFileSync(log, '{"line":1}\n');
+    chmodSync(log, 0o444);
+    return ['docs/story/activity.jsonl'];
+  });
+  rows.push({ scenario: 'activity log appended and made read-only', clean: chmodWithAppend.clean, paths: chmodWithAppend.paths.length });
+  expectRepaired(chmodWithAppend.clean === false, 'a permission change alongside a legitimate append is still a mutation');
   // An unreadable baseline proves nothing about the original content, so the path can
   // never become exempt afterwards.
   const unreadableBaseline = await guarded((root) => {

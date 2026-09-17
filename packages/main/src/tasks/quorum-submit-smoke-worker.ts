@@ -882,7 +882,7 @@ function authenticatedRuntimeTraceFragment(candidate: string, traceFile: string 
 const HOST_ACTIVITY_LOG_RELATIVE_PATHS = ['.proof-or-stop/activity.jsonl', 'docs/story/activity.jsonl'] as const;
 const HOST_ACTIVITY_LOG_STORY_DIRS = ['.proof-or-stop/story/actives', 'docs/story/actives'] as const;
 
-interface HostActivityLogBaseline { size: number; digest: string; dev: number; ino: number }
+interface HostActivityLogBaseline { size: number; digest: string; dev: number; ino: number; mode: number; uid: number; gid: number }
 /** 'absent' = proven missing; 'ineligible' = present but not a plain readable file, never exempt. */
 type HostActivityLogState = HostActivityLogBaseline | 'absent' | 'ineligible';
 
@@ -891,7 +891,7 @@ type HostActivityLogState = HostActivityLogBaseline | 'absent' | 'ineligible';
  * file is accepted, and the device/inode pair is returned so a later read can prove the
  * SAME file grew rather than a replacement carrying the original prefix.
  */
-function readHostActivityLogFile(path: string): { bytes: Buffer; dev: number; ino: number } | 'absent' | 'ineligible' {
+function readHostActivityLogFile(path: string): { bytes: Buffer; dev: number; ino: number; mode: number; uid: number; gid: number } | 'absent' | 'ineligible' {
   let fd: number;
   try {
     fd = openSync(path, fsConstants.O_RDONLY | fsConstants.O_NONBLOCK | fsConstants.O_NOFOLLOW);
@@ -901,7 +901,7 @@ function readHostActivityLogFile(path: string): { bytes: Buffer; dev: number; in
   try {
     const stat = fstatSync(fd);
     if (!stat.isFile()) return 'ineligible';
-    return { bytes: readFileSync(fd), dev: stat.dev, ino: stat.ino };
+    return { bytes: readFileSync(fd), dev: stat.dev, ino: stat.ino, mode: stat.mode, uid: stat.uid, gid: stat.gid };
   } catch {
     return 'ineligible';
   } finally {
@@ -934,7 +934,10 @@ function snapshotHostActivityLogs(roots: readonly string[]): Map<string, HostAct
       // anything unreadable stays ineligible so it can never be exempted later.
       baselines.set(candidate, read === 'absent' || read === 'ineligible'
         ? read
-        : { size: read.bytes.length, digest: createHash('sha256').update(read.bytes).digest('hex'), dev: read.dev, ino: read.ino });
+        : {
+          size: read.bytes.length, digest: createHash('sha256').update(read.bytes).digest('hex'),
+          dev: read.dev, ino: read.ino, mode: read.mode, uid: read.uid, gid: read.gid,
+        });
     }
   }
   return baselines;
@@ -954,6 +957,9 @@ function isToleratedHostActivityAppend(
   // The same file must have grown: a replacement (even byte-identical, even carrying
   // the original prefix) is a structural mutation, not an append.
   if (current.dev !== baseline.dev || current.ino !== baseline.ino) return false;
+  // Metadata is part of the file's state: a permission or ownership change is a
+  // mutation in its own right, even when the bytes only grew.
+  if (current.mode !== baseline.mode || current.uid !== baseline.uid || current.gid !== baseline.gid) return false;
   if (current.bytes.length < baseline.size) return false;
   return createHash('sha256').update(current.bytes.subarray(0, baseline.size)).digest('hex') === baseline.digest;
 }
