@@ -42,7 +42,9 @@ process.stdin.on('end', () => {
     const line = JSON.stringify(entry) + '\n';
     const discovered = discoverWorkspace(root);
     if (discovered === 'non-repository') {
-      // Positively outside a repository: no validation can be running here.
+      // Positively outside a repository: no validation can be running here. Records that
+      // an earlier failed discovery deferred are delivered first, in their original order.
+      deliverPendingRecordsDirectly(root);
       fs.mkdirSync(logDir, { recursive: true });
       fs.appendFileSync(target, line);
     } else if (discovered === 'uncertain') {
@@ -93,6 +95,34 @@ function spoolDirFor(top) {
 function pendingSpoolDir(root) {
   const key = crypto.createHash('sha256').update(`pending:${root}`).digest('hex');
   return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', `pending-${key}`);
+}
+
+/**
+ * Deliver records deferred by a failed discovery once discovery positively establishes
+ * that this path is outside any repository: nothing can be validating, so they are
+ * written in their original order and the pending queue is cleared.
+ */
+function deliverPendingRecordsDirectly(root) {
+  const pending = pendingSpoolDir(root);
+  let names;
+  try { names = fs.readdirSync(pending).filter(name => name.endsWith('.json')).sort(); } catch { return; }
+  for (const name of names) {
+    const file = path.join(pending, name);
+    let raw;
+    try { raw = fs.readFileSync(file, 'utf8'); } catch { return; } // unreadable: keep for a later run
+    let record = null;
+    try { record = JSON.parse(raw); } catch { record = null; }
+    if (!record || typeof record.target !== 'string' || typeof record.line !== 'string') {
+      try { fs.unlinkSync(file); } catch { /* already gone */ }
+      continue;
+    }
+    try {
+      fs.mkdirSync(path.dirname(record.target), { recursive: true });
+      fs.appendFileSync(record.target, record.line);
+    } catch { return; } // target unwritable: retry on a later run
+    try { fs.unlinkSync(file); } catch { /* delivered at least once */ }
+  }
+  try { fs.rmdirSync(pending); } catch { /* not empty yet */ }
 }
 
 /** Move records published during failed discovery into this worktree's real queue. */
@@ -198,8 +228,16 @@ function flushSpool(spool, top) {
     if (workspaceValidationActive(top)) return; // a validation started: stop delivering
     const claimed = path.join(spool, `${oldest.base}.delivering-${process.pid}`);
     try { fs.renameSync(path.join(spool, oldest.base), claimed); } catch { return; } // another hook won it
+    // A record that cannot be READ may be perfectly valid (a transient EACCES, EIO or
+    // descriptor exhaustion), so it goes back to the queue untouched. Only a record that
+    // reads fine and is genuinely malformed is discarded.
+    let raw;
+    try { raw = fs.readFileSync(claimed, 'utf8'); } catch {
+      try { fs.renameSync(claimed, path.join(spool, oldest.base)); } catch { /* recovered later */ }
+      return;
+    }
     let record = null;
-    try { record = JSON.parse(fs.readFileSync(claimed, 'utf8')); } catch { record = null; }
+    try { record = JSON.parse(raw); } catch { record = null; }
     if (!record || typeof record.target !== 'string' || typeof record.line !== 'string') {
       try { fs.unlinkSync(claimed); } catch { /* already gone */ }
       continue;

@@ -464,6 +464,45 @@ try {
       `a record published during a failed lookup is adopted, not stranded (got ${JSON.stringify(after)})`);
     expectRepaired(pending.length === 0, `no pending queue is left behind (found ${JSON.stringify(pending)})`);
   }
+  // A record that cannot be read right now is retained, not discarded.
+  {
+    const root = repo();
+    const t = ticket(root, live.pid);
+    callHook(root, 'unreadable-1'); callHook(root, 'unreadable-2');
+    rmSync(t, { recursive: true, force: true });
+    const spool = spoolFor(root);
+    const [oldest] = spoolRecords(root);
+    chmodSync(join(spool, oldest), 0o000); // transient read failure
+    callHook(root, 'during-read-failure');
+    const blocked = lines(root);
+    const retained = spoolRecords(root).length + spoolClaims(root).length;
+    // The rejected behavior deletes the record outright, so restoring it may find nothing.
+    try { chmodSync(join(spool, oldest), 0o600); } catch { /* already discarded: reported below */ }
+    callHook(root, 'after-read-failure');
+    const after = lines(root);
+    rows.push({ scenario: 'spool record temporarily unreadable', repoLinesDuring: blocked.length, after: JSON.stringify(after) });
+    expectRepaired(blocked.length === 0 && retained === 3, `an unreadable record is retained, not discarded (delivered ${JSON.stringify(blocked)}, retained ${retained})`);
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['unreadable-1', 'unreadable-2', 'during-read-failure', 'after-read-failure']),
+      `every record is delivered in order once it can be read again (got ${JSON.stringify(after)})`);
+  }
+  // Outside any repository: discovery success, failure, success delivers everything.
+  {
+    const plain = join(sandbox, `plain-recovery-${n++}`); mkdirSync(plain, { recursive: true });
+    callHook(plain, 'outside-1');
+    const brokenGit = join(sandbox, 'broken-git-3'); mkdirSync(brokenGit, { recursive: true });
+    writeFileSync(join(brokenGit, 'git'), '#!/bin/sh\nexit 128\n'); chmodSync(join(brokenGit, 'git'), 0o755);
+    spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: plain, tool_name: 'Bash', tool_input: { command: 'outside-while-broken' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home, PATH: `${brokenGit}:${process.env.PATH}` }, encoding: 'utf8',
+    });
+    callHook(plain, 'outside-2');
+    const after = lines(plain);
+    const pending = readdirSync(join(home, '.proof-or-stop/activity-spool')).filter((name) => name.startsWith('pending-'));
+    rows.push({ scenario: 'outside a repository: discovery fails, then recovers', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['outside-1', 'outside-while-broken', 'outside-2']),
+      `a record deferred outside a repository is delivered in order once discovery recovers (got ${JSON.stringify(after)})`);
+    expectRepaired(pending.length === 0, `the pending queue is cleared outside a repository (found ${JSON.stringify(pending)})`);
+  }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
     ['no validation ticket', () => {}],
