@@ -174,8 +174,6 @@ try {
  const lane={layout,providerState:{host:'claude',directory:roots.cache,adapter:'isolated-file-cache-v1'}};
  const privateEnvironment=managedReviewLaneEnvironment(lane);
  assert.equal(privateEnvironment.CLAUDE_CODE_TMPDIR,roots.temporary,'CLAUDE_PRIVATE_TEMP_RED: Bash must use the admitted private temporary directory');
- const inherited={CLAUDE_CODE_TMPDIR:join(laneRoot,'outside'),...privateEnvironment};
- assert.equal(inherited.CLAUDE_CODE_TMPDIR,roots.temporary,'ambient provider temp cannot override the lane');
  if(process.platform==='darwin') {
    cp.execFileSync('git',['init','-q'],{cwd:roots.source});
    const protectedFile=join(roots.probeRoot,'.managed-readonly-capability');fs.writeFileSync(protectedFile,'immutable');
@@ -188,7 +186,7 @@ try {
        assert.throws(()=>fs.writeFileSync(denied,'bad'),e=>['EPERM','EACCES'].includes(e.code));
      console.log('PRIVATE_TEMP_WRITE_AND_BOUNDARY_PASS');`;
    const launch=prepareManagedReadonlyLaunch(layout,{command:process.execPath,argv:['-e',probe],cwd:roots.source});
-   const result=cp.execFileSync(launch.command,launch.argv,{cwd:launch.cwd,env:{...process.env,...inherited},encoding:'utf8',timeout:10000});
+   const result=cp.execFileSync(launch.command,launch.argv,{cwd:launch.cwd,env:{...process.env,...privateEnvironment},encoding:'utf8',timeout:10000});
    assert.match(result,/PRIVATE_TEMP_WRITE_AND_BOUNDARY_PASS/);
    assert.equal(fs.readFileSync(protectedFile,'utf8'),'immutable');
    console.log('CLAUDE_PRIVATE_TEMP_SANDBOX_PASS');
