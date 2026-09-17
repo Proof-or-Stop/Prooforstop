@@ -84,6 +84,76 @@ function artifactTreeDigest(root: string): string {
  * Memoized per synchronous git observation like the committed-tree digests.
  */
 /**
+ * Cheap per-command observation of the artifact trees: relative path, size and
+ * modification time (nanoseconds) of every regular file, taken with lstat so a
+ * symbolic link makes the observation unavailable exactly as it does for the
+ * content digest. A routine plan runs hundreds of commands against a 57 MB tree,
+ * so the executor observes this fingerprint around every command and reserves
+ * the content digest for the plan boundaries. Any write below a root changes
+ * size or mtime, which is what the executor needs to attribute a rewrite.
+ */
+export function currentBuildArtifactsFingerprint(projectRoot: string): string | undefined {
+  const root = resolve(projectRoot);
+  try {
+    const hash = createHash('sha256');
+    for (const relativeRoot of BUILD_ARTIFACT_ROOTS) {
+      const base = join(root, relativeRoot);
+      let stat;
+      try {
+        stat = lstatSync(base);
+      } catch {
+        hash.update(relativeRoot).update('\0absent\0');
+        continue;
+      }
+      if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(base);
+      if (!stat.isDirectory()) {
+        hash.update(relativeRoot).update('\0absent\0');
+        continue;
+      }
+      hash.update(relativeRoot).update('\0');
+      for (const path of filesBelow(base)) {
+        const rel = relative(base, path);
+        if (rel === BUILD_BINDING_BASENAME) continue;
+        const file = lstatSync(path, { bigint: true });
+        hash.update(rel).update('\0').update(String(file.size)).update('\0').update(String(file.mtimeNs)).update('\0');
+      }
+    }
+    return hash.digest('hex');
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The registered packages/main build shapes a validation plan may contain.
+ * These are the only commands allowed to change the build identity during a
+ * plan; the DONE-required receipt recogniser in core/done-required-validation
+ * accepts the same shapes on a receipt.
+ */
+export function isRegisteredPackagesMainBuildCommand(command: {
+  command: string;
+  args?: readonly string[];
+  cwd?: string;
+  providesBuildProof?: unknown;
+  proof?: unknown;
+}): boolean {
+  if (command.providesBuildProof === 'packages-main-build' || command.proof === 'packages-main-build') return true;
+  const args = Array.isArray(command.args) ? command.args : [];
+  const cwd = (command.cwd ?? '').replace(/\\/g, '/').replace(/\/+$/, '');
+  const atRoot = cwd === '' || cwd === '.';
+  const atPackagesMain = cwd === 'packages/main' || cwd === './packages/main';
+  if (command.command === 'npm' && atRoot) {
+    const prefixIndex = args.indexOf('--prefix');
+    if (prefixIndex >= 0 && args[prefixIndex + 1] === 'packages/main') {
+      return args[prefixIndex + 2] === 'run' && args[prefixIndex + 3] === 'build';
+    }
+  }
+  if (command.command === 'npm' && atPackagesMain) return args[0] === 'run' && args[1] === 'build';
+  if ((command.command === 'tsc' || command.command.endsWith('/tsc')) && atPackagesMain) return true;
+  return false;
+}
+
+/**
  * Binding for a PASS that is republished without executing anything. The
  * republished record must carry the identity the authenticated prior record
  * was earned against; it never adopts the dist on disk. Publication may only

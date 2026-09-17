@@ -1294,25 +1294,19 @@ function publicationOutputHashes(
 }
 
 /**
- * The registered packages/main build shapes a routine plan may contain. These
- * are the only commands allowed to change the build identity during a plan;
- * mirrors the DONE-required receipt recogniser in core/done-required-validation.
+ * Build identity of a dynamic authoritative run. The build wave and the
+ * selected commands execute as separate plans; the selected plan's binding is
+ * trusted only when it started against the artifacts the build wave left, so
+ * an authoritative PASS never binds a build its selected commands did not run.
  */
-function isRoutinePackagesMainBuildCommand(command: { command: string; args?: readonly string[]; cwd?: string; providesBuildProof?: unknown }): boolean {
-  if (command.providesBuildProof === 'packages-main-build') return true;
-  const args = Array.isArray(command.args) ? command.args : [];
-  const cwd = (command.cwd ?? '').replace(/\\/g, '/').replace(/\/+$/, '');
-  const atRoot = cwd === '' || cwd === '.';
-  const atPackagesMain = cwd === 'packages/main' || cwd === './packages/main';
-  if (command.command === 'npm' && atRoot) {
-    const prefixIndex = args.indexOf('--prefix');
-    if (prefixIndex >= 0 && args[prefixIndex + 1] === 'packages/main') {
-      return args[prefixIndex + 2] === 'run' && args[prefixIndex + 3] === 'build';
-    }
-  }
-  if (command.command === 'npm' && atPackagesMain) return args[0] === 'run' && args[1] === 'build';
-  if ((command.command === 'tsc' || command.command.endsWith('/tsc')) && atPackagesMain) return true;
-  return false;
+function dynamicBuildArtifactsBinding(executedDynamic: {
+  buildResult: { buildArtifacts?: { start?: string; end?: string } };
+  selectedResult: { buildArtifactsHash?: string; buildArtifacts?: { start?: string; end?: string } };
+}): string | undefined {
+  const buildEnd = executedDynamic.buildResult.buildArtifacts?.end;
+  const selectedStart = executedDynamic.selectedResult.buildArtifacts?.start;
+  if (!buildEnd || !selectedStart || buildEnd !== selectedStart) return undefined;
+  return executedDynamic.selectedResult.buildArtifactsHash;
 }
 
 function recordValidationTerminal(
@@ -1480,7 +1474,7 @@ function persistStoryValidationEvidence(
     // a dist that moved in between was never tested by these receipts.
     const executionBuildArtifactsHash = typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash
       ? result.buildArtifactsHash
-      : currentBuildArtifactsHash(gitCwd);
+      : undefined;
     const publicationBuildArtifactsHash = currentBuildArtifactsHash(gitCwd);
     if (!executionBuildArtifactsHash || !publicationBuildArtifactsHash) {
       return persistenceFailure('build artifacts identity is unavailable; the evidence cannot bind what it executed [build_artifacts_unavailable]');
@@ -1827,16 +1821,13 @@ function decorateAndMaybePersistStoryValidation(
 ): any {
   if (!storyId) return result;
   const decorated = decorateStoryVerification(ctx, storyId, result);
-  // End-of-execution build identity: every caller hands the executor's result
-  // here synchronously once the commands finished, so this is the dist those
-  // commands ran against (after any rebuild the validation performed). The
-  // writer binds this value and refuses to publish if the dist moves before
-  // the write. A story whose workspace cannot be resolved binds nothing and
-  // is refused by the writer as unavailable.
-  let buildArtifactsHash: string | undefined;
-  try {
-    buildArtifactsHash = currentBuildArtifactsHash(resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }));
-  } catch { /* unavailable: the writer fails closed */ }
+  // The build identity is observed by the executor at execution boundaries
+  // (core/validation-executor stamps it on the result only when its per-command
+  // binding rules held). Nothing is derived here: a result the executor did not
+  // stamp binds nothing and is refused by the writer as unavailable.
+  const buildArtifactsHash = typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash
+    ? result.buildArtifactsHash
+    : undefined;
   const executed = {
     ...decorated,
     disposition: 'executed',
@@ -2318,6 +2309,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                       headSha: currentHead(handlerGitCwd) || '',
                       commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
                       commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
+                      ...(dynamicBuildArtifactsBinding(executedDynamic) ? { buildArtifactsHash: dynamicBuildArtifactsBinding(executedDynamic) } : {}),
                       disposition: 'executed',
                     },
                     catalog: executedDynamic.catalog,
@@ -2433,12 +2425,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // Keep the real verifier path behind the same fail-closed readiness
           // contract as pinned verification evidence. The executor rechecks the
           // snapshot at each scheduler worker's child-launch boundary.
-          // Routine plans run up to hundreds of commands, so the build identity is
-          // observed once before and once after the plan rather than per receipt.
-          // Only a registered packages/main build may change it; a plan whose
-          // dist changed without one has had its artifacts rewritten under test
-          // and cannot bind a PASS to what it executed.
-          const buildArtifactsAtStart = currentBuildArtifactsHash(handlerGitCwd);
           const base = await executeValidationPlan({
             provider: usingConfigured ? 'proof-or-stop-verifier-configured-commands' : 'proof-or-stop-verifier-fallback-commands',
             commands,
@@ -2451,13 +2437,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             deadlineError: args.deadlineError,
             beforeLaunch: launchGate.beforeLaunch,
           });
-          const buildArtifactsAtEnd = currentBuildArtifactsHash(handlerGitCwd);
-          if (buildArtifactsAtStart && buildArtifactsAtEnd && buildArtifactsAtStart !== buildArtifactsAtEnd
-            && !commands.some((command) => isRoutinePackagesMainBuildCommand(command))) {
-            base.allPass = false;
-            base.status = 'fail';
-            base.details.push('build artifacts changed during validation by a command that is not a registered packages/main build; the PASS cannot bind what it executed [build_artifacts_changed_by_non_build_command]');
-          }
           const baselineHead = currentHead(handlerGitCwd) || '';
           if (!args.story && base.allPass && !baselineHead.trim()) ctx.log?.('canonical full baseline not produced: no resolvable HEAD');
           const canonicalBaseline = args.story
@@ -2769,6 +2748,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   headSha: currentHead(handlerGitCwd) || '',
                   commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
                   commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
+                  ...(dynamicBuildArtifactsBinding(executedDynamic) ? { buildArtifactsHash: dynamicBuildArtifactsBinding(executedDynamic) } : {}),
                   disposition: 'executed' as const,
                 } : undefined,
                 catalog: executedDynamic.catalog,
@@ -2868,7 +2848,25 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             });
           }
         }
-        const attachDynamic = <T extends Record<string, unknown>>(value: T): T => dynamicValidation ? { ...value, dynamicValidation } : value;
+        // The validate-file result is rebuilt from the child's exit code and
+        // output, so the executor's build binding is carried over explicitly.
+        // A validate file cannot print its own binding into evidence: any
+        // buildArtifactsHash in the child's JSON is discarded, and an executor
+        // binding failure fails the result with the executor's own diagnostics.
+        const executorBindingDetails = validation.details.filter((line) => line.startsWith('✗ build binding:'));
+        const withExecutorBinding = <T extends Record<string, unknown>>(value: T): T => {
+          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, ...rest } = value as Record<string, unknown>;
+          const bound: Record<string, unknown> = validation.buildArtifactsHash
+            ? { ...rest, buildArtifactsHash: validation.buildArtifactsHash, ...(validation.buildArtifacts ? { buildArtifacts: validation.buildArtifacts } : {}) }
+            : rest;
+          if (executorBindingDetails.length === 0) return bound as unknown as T;
+          const details = Array.isArray(bound.details) ? bound.details as unknown[] : [];
+          return { ...bound, status: 'fail', allPass: false, details: [...details, ...executorBindingDetails] } as unknown as T;
+        };
+        const attachDynamic = <T extends Record<string, unknown>>(value: T): T => {
+          const bound = withExecutorBinding(value);
+          return dynamicValidation ? { ...bound, dynamicValidation } : bound;
+        };
         // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
         // details AND respects dirty-gate-policy. When every polluted path
         // classifies as a passing category the pollution.blocking flag is

@@ -37,6 +37,7 @@ const { evaluateRoutineValidationReuse, buildRoutineValidationIdentity } = await
 const { evaluateValidationEvidenceAdmissibility } = await import('../packages/main/src/core/validation-evidence-admissibility.ts');
 const { currentGitHead, currentMaterialHash, currentStoryFilesHash } = await import('../packages/main/src/core/evidence-freshness.ts');
 const { runDoneRequiredValidation, evaluateDoneRequiredEvidence } = await import('../packages/main/src/core/done-required-validation.ts');
+const { executeValidationPlan } = await import('../packages/main/src/core/validation-executor.ts');
 const { StoryStore } = await import('../packages/main/src/core/store.ts');
 const { resetConfigCache } = await import('../packages/main/src/core/config.ts');
 const { persistSyntheticAdmittedWindowForTest } = await import('../packages/main/src/core/certification-window.ts');
@@ -324,11 +325,105 @@ try {
   const reusedEnd = verifierSource.indexOf('\n}\n', reusedStart);
   check(reusedStart >= 0 && reusedEnd > reusedStart, 'reusedStoryValidationResult must be defined');
   expectRepaired(verifierSource.slice(reusedStart, reusedEnd).includes('resolveReusedBuildArtifactsBinding('), 'reused PASS republication does not preserve the prior build binding (source-text guard)');
-  expectRepaired(verifierSource.includes('build_artifacts_changed_by_non_build_command'), 'routine plans do not refuse a dist rewritten by a non-build command (source-text guard)');
+  // The identity is observed by the executor at execution boundaries; the
+  // handler decorator must not derive it from the tree after the fact.
+  const decoratorStart = verifierSource.indexOf('function decorateAndMaybePersistStoryValidation(');
+  const decoratorEnd = verifierSource.indexOf('\n}\n', decoratorStart);
+  check(decoratorStart >= 0 && decoratorEnd > decoratorStart, 'decorateAndMaybePersistStoryValidation must be defined');
+  expectRepaired(!verifierSource.slice(decoratorStart, decoratorEnd).includes('currentBuildArtifactsHash('), 'the handler decorator still derives the build identity instead of taking the executor observation (source-text guard)');
   const doneRequiredSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
   expectRepaired((doneRequiredSource.match(/validateReceiptBuildBinding\(/g) ?? []).length >= 3, 'per-receipt build binding is not enforced by both the DONE-required writer and evaluator (source-text guard)');
 } finally {
   rmTree(sandbox);
+}
+
+// ---------------------------------------------------------------------------
+// Routine plans: the executor observes every command and stamps the binding.
+// The validate-file path feeds this same executor with a single command, so a
+// validate-file-shaped plan is exercised here directly (the `npx tsx` wrapper
+// itself is not run: tsx is not installed in this checkout).
+// ---------------------------------------------------------------------------
+{
+  const planSandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-plan-'));
+  try {
+    const root = join(planSandbox, 'plan'); mkdirSync(root);
+    git(root, ['init', '-q', '-b', 'main']);
+    git(root, ['config', 'user.email', 'fixture@example.invalid']);
+    git(root, ['config', 'user.name', 'Build Binding Fixture']);
+    git(root, ['config', 'commit.gpgsign', 'false']);
+    writeFileSync(join(root, '.gitignore'), 'dist\n');
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives' }));
+    // A validate-file-shaped entrypoint: exits 0 after rewriting the compiled artifacts it just tested.
+    writeFileSync(join(root, 'validate.js'), "require('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // rewritten by validate.js\\n'); process.exit(0);\n");
+    writeFileSync(join(root, 'validate-clean.js'), 'process.exit(0);\n');
+    git(root, ['add', '.']); git(root, ['commit', '-qm', 'plan fixture']);
+    const mainDist = join(root, 'packages/main/dist/tasks'); mkdirSync(mainDist, { recursive: true });
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+    mkdirSync(join(root, 'packages/utils/dist'), { recursive: true });
+    writeFileSync(join(root, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
+    const run = (commands) => executeValidationPlan({ provider: 'build-binding-fixture', commands, warnings: [] }, root, undefined, undefined, {});
+    const REWRITE = "require('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // rewritten\\n')";
+
+    // Control: a plan that leaves the artifacts alone passes and binds them.
+    const clean = await run([{ label: 'validate file', command: 'node', args: ['validate-clean.js'], timeoutMs: 20_000 }]);
+    check(clean.allPass === true, `control: untouched plan must pass (${clean.details.join(' | ')})`);
+    expectRepaired(/^[a-f0-9]{64}$/.test(clean.buildArtifactsHash ?? ''), 'routine plan result does not carry the executor build binding');
+    if (binding) expectRepaired(clean.buildArtifactsHash === binding.currentBuildArtifactsHash(root), 'routine plan binding does not equal the artifacts on disk at plan end');
+    expectRepaired(clean.commands.every((command) => /^[a-f0-9]{64}$/.test(command.buildArtifactsBefore ?? '') && /^[a-f0-9]{64}$/.test(command.buildArtifactsAfter ?? '') && command.buildArtifactsRole === 'test'),
+      'routine command results do not carry before/after observations and a role');
+
+    // Target: a validate-file-shaped command that rewrites the artifacts it tested.
+    const rewritten = await run([{ label: 'validate file', command: 'node', args: ['validate.js'], timeoutMs: 20_000 }]);
+    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('rewritten by validate.js'), 'the validate file must have rewritten dist');
+    expectRepaired(rewritten.allPass === false && rewritten.details.some((line) => line.includes('build_artifacts_changed_by_non_build_command')),
+      `a validate file that rewrote dist still produced a passing plan (${rewritten.details.join(' | ')})`);
+    expectRepaired(!rewritten.buildArtifactsHash, 'a plan whose artifacts were rewritten by a non-build command must not carry a build binding');
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+
+    // A non-build command among several rewrites dist: the whole plan is refused.
+    const mixed = await run([
+      { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 20_000 },
+      { label: 'rewrites dist', command: 'node', args: ['-e', REWRITE], timeoutMs: 20_000 },
+    ]);
+    expectRepaired(mixed.allPass === false && mixed.details.some((line) => line.includes('build_artifacts_changed_by_non_build_command')),
+      `a non-build command rewrote dist inside a routine plan and the plan still passed (${mixed.details.join(' | ')})`);
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+
+    // A registered build may rewrite dist and runs first, so every test executes
+    // the rebuilt artifacts and the plan binds them.
+    const preRun = binding ? binding.currentBuildArtifactsHash(root) : undefined;
+    const built = await run([
+      { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 20_000 },
+      { label: 'build', command: 'node', args: ['-e', REWRITE], timeoutMs: 20_000, providesBuildProof: 'packages-main-build' },
+    ]);
+    check(built.allPass === true, `registered build plus test must pass (${built.details.join(' | ')})`);
+    if (binding) {
+      check(built.buildArtifactsHash === binding.currentBuildArtifactsHash(root), 'the plan must bind the rebuilt artifacts');
+      check(built.buildArtifactsHash !== preRun, 'the plan must not bind the pre-run artifacts');
+    }
+    const buildCommand = built.commands.find((command) => command.label === 'build');
+    const testCommand = built.commands.find((command) => command.label === 'pass');
+    expectRepaired(buildCommand?.buildArtifactsRole === 'build' && testCommand?.buildArtifactsRole === 'test', 'executor must recognise the registered build command');
+    expectRepaired(Boolean(testCommand?.buildArtifactsBefore) && testCommand?.buildArtifactsBefore === buildCommand?.buildArtifactsAfter,
+      'the registered build must run before the test so the test starts against the rebuilt artifacts');
+
+    // The validate-file handler path cannot bypass the executor.
+    const verifierSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+    const validateFileStart = verifierSource.indexOf('const runValidateFile = ');
+    check(validateFileStart >= 0, 'runValidateFile must be defined');
+    expectRepaired(verifierSource.slice(validateFileStart, validateFileStart + 1200).includes('executeValidationPlan('), 'the validate-file path does not execute through the observing executor (source-text guard)');
+    const executorSource = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+    expectRepaired(executorSource.includes('receipt_not_bound_to_final_build') && executorSource.includes('build_artifacts_changed_by_non_build_command'),
+      'the executor does not enforce the per-command build binding rules (source-text guard)');
+    // The validate-file result is rebuilt from the child's output; it must carry
+    // the executor binding and discard any binding the child printed itself.
+    const bindingHelperStart = verifierSource.indexOf('const withExecutorBinding = ');
+    expectRepaired(bindingHelperStart >= 0 && verifierSource.slice(bindingHelperStart, bindingHelperStart + 900).includes('validation.buildArtifactsHash')
+      && verifierSource.includes('const bound = withExecutorBinding(value);'),
+      'the validate-file result assemblies do not carry the executor build binding (source-text guard)');
+  } finally {
+    rmTree(planSandbox);
+  }
 }
 
 if (red.length > 0) {

@@ -18,6 +18,7 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
+import { currentBuildArtifactsFingerprint, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
 import {
   canonicalizeEntries,
   MAX_JOBS,
@@ -2260,7 +2261,13 @@ export async function executeValidationPlan(
   // Canonicalization is what makes the claims comparable (and it REFUSES an
   // undeclarable one), so it happens before anything is launched. Every entry
   // keeps its plan position in `commandIndex`.
-  const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot);
+  // A registered packages/main build launches ahead of every other entry: it is
+  // the only command allowed to change the compiled artifacts, so running it
+  // first means every later command executes the build the evidence binds
+  // instead of a build that is then replaced (which the binding rules below
+  // would refuse). Plan order is otherwise preserved.
+  const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot)
+    .map((entry) => (isRegisteredPackagesMainBuildCommand(entry.command) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
   const exclusiveCount = entries.filter((entry) => entry.exclusiveByDefault).length;
 
   // Completion order is not plan order, so results are parked by plan index and
@@ -2269,6 +2276,10 @@ export async function executeValidationPlan(
   // another's, and formatWorktreePollutionDetails also appends dirty-gate audit
   // lines to process-events.jsonl, which stays single-writer this way.
   const executed: (ValidationCommandResult | null)[] = new Array(totalCommands).fill(null);
+  // Content digest of the compiled artifacts before anything launches. The
+  // matching digest after the plan is the identity the evidence binds; the
+  // per-command fingerprints attribute every change in between.
+  const buildArtifactsAtStart = currentBuildArtifactsHash(projectRoot);
   // Latched by whichever command first observes the plan deadline blown. The
   // sequential implementation threw at exactly that point and never started a
   // later command; entries still pending here are skipped for the same reason
@@ -2280,6 +2291,10 @@ export async function executeValidationPlan(
   const scheduled = await withValidationPlanStages(() => runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
     if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
     options.beforeLaunch?.();
+    // Execution-boundary observation of the compiled artifacts: what this
+    // command started against and what it left behind. The plan-level rules
+    // below turn these into the binding the evidence carries.
+    const buildArtifactsBefore = currentBuildArtifactsFingerprint(projectRoot);
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
@@ -2289,6 +2304,10 @@ export async function executeValidationPlan(
       deadlineAt: options.deadlineAt,
       deadlineError: options.deadlineError,
     });
+    const buildArtifactsAfter = currentBuildArtifactsFingerprint(projectRoot);
+    if (buildArtifactsBefore) result.buildArtifactsBefore = buildArtifactsBefore;
+    if (buildArtifactsAfter) result.buildArtifactsAfter = buildArtifactsAfter;
+    result.buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command) ? 'build' : 'test';
     if (
       result.timedOut
       && typeof options.deadlineAt === 'number'
@@ -2378,6 +2397,38 @@ export async function executeValidationPlan(
   if (concurrentPollution) {
     details.push(...formatConcurrentWorktreePollutionDetails(concurrentPollution, projectRoot, storyId));
   }
+  // Build-identity binding. The evidence binds the compiled artifacts as the
+  // plan left them; every change in between must be a registered packages/main
+  // build, and every non-build command must have started against that final
+  // build. A test that ran before or alongside a build executed a build that
+  // was then replaced, so it is refused instead of relabelled; a non-build
+  // command that changed the artifacts rewrote the dist under test. Legacy or
+  // unobservable trees (symbolic links) cannot vouch and are refused.
+  const buildArtifactsAtEnd = currentBuildArtifactsHash(projectRoot);
+  const buildArtifactsEndFingerprint = currentBuildArtifactsFingerprint(projectRoot);
+  const buildBindingFailures: string[] = [];
+  if (!buildArtifactsAtStart || !buildArtifactsAtEnd || !buildArtifactsEndFingerprint) {
+    buildBindingFailures.push('build artifacts identity is unavailable (symbolic link or unreadable artifact tree); the plan cannot bind what it executed [build_artifacts_identity_unavailable]');
+  } else {
+    const buildRan = commands.some((result) => result.buildArtifactsRole === 'build');
+    for (const result of commands) {
+      if (result.buildArtifactsRole === 'build') continue;
+      if (!result.buildArtifactsBefore || !result.buildArtifactsAfter) {
+        buildBindingFailures.push(`${result.label}: build artifacts were not observed around this command [build_artifacts_observation_missing]`);
+        continue;
+      }
+      if (result.buildArtifactsBefore !== result.buildArtifactsAfter) {
+        buildBindingFailures.push(`${result.label}: compiled artifacts changed while this non-build command ran${buildRan ? ' (a registered build overlapped it)' : ''} [build_artifacts_changed_by_non_build_command]`);
+      }
+      if (result.buildArtifactsBefore !== buildArtifactsEndFingerprint) {
+        buildBindingFailures.push(`${result.label}: executed a build that was replaced before the plan ended; rerun it against the final build [receipt_not_bound_to_final_build]`);
+      }
+    }
+    if (buildArtifactsAtStart !== buildArtifactsAtEnd && !buildRan) {
+      buildBindingFailures.push('compiled artifacts changed during the plan without a registered packages/main build [build_artifacts_changed_by_non_build_command]');
+    }
+  }
+  for (const line of buildBindingFailures) details.push(`✗ build binding: ${line}`);
   // Appended, never prepended: details[0] is the first command line (or the
   // focus banner) and callers read it as the headline.
   details.push(
@@ -2403,7 +2454,8 @@ export async function executeValidationPlan(
     && concurrentPollution!.statusLines.length > 0
     && concurrentPollution!.blocking !== false;
   const anyPollutionFailure = pollutionFailures.length > 0 || concurrentPollutionBlocking;
-  const allPass = requiredFailures.length === 0 && !anyPollutionFailure;
+  const buildBindingFailed = buildBindingFailures.length > 0;
+  const allPass = requiredFailures.length === 0 && !anyPollutionFailure && !buildBindingFailed;
   const status = allPass ? (optionalFailures.length > 0 || warnings.length > 0 ? 'warn' : 'pass') : 'fail';
   const failureKind: ValidationFailureKind | undefined = allPass
     ? undefined
@@ -2414,6 +2466,8 @@ export async function executeValidationPlan(
     ? optionalFailures.length > 0
       ? 'Required validation commands passed with optional failures'
       : 'Project validation commands passed'
+    : buildBindingFailed && requiredFailures.length === 0 && !anyPollutionFailure
+      ? 'Project validation commands could not bind the compiled artifacts they executed'
     : anyPollutionFailure && requiredFailures.length === 0
       ? 'Project validation commands dirtied the worktree'
     : 'Project validation commands failed';
@@ -2432,6 +2486,13 @@ export async function executeValidationPlan(
     ...(headSha ? { headSha } : {}),
     commands,
     ...(concurrentPollution ? { concurrentWorktreePollution: concurrentPollution } : {}),
+    // The identity the evidence binds: only stamped when the binding rules held.
+    ...(!buildBindingFailed && buildArtifactsAtEnd ? { buildArtifactsHash: buildArtifactsAtEnd } : {}),
+    buildArtifacts: {
+      ...(buildArtifactsAtStart ? { start: buildArtifactsAtStart } : {}),
+      ...(buildArtifactsAtEnd ? { end: buildArtifactsAtEnd } : {}),
+      ...(buildArtifactsEndFingerprint ? { endFingerprint: buildArtifactsEndFingerprint } : {}),
+    },
     ...(focus ? { focus: { name: focus, mode: 'focused' as const, finalFullValidation: false as const, doneRequiredProof: false as const } } : {}),
   };
 }

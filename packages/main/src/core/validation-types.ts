@@ -90,6 +90,12 @@ export interface ValidationCommandResult {
     cleanAfter: boolean;
   };
   executionReceipt?: {executionKey:string;receiptHash:string;disposition:'executed'|'reused';executedAt:string};
+  /** core/build-artifacts-identity fingerprint of the compiled artifacts observed by the executor immediately before launch. */
+  buildArtifactsBefore?: string;
+  /** The same fingerprint observed immediately after the child returned; only a registered packages/main build may change it. */
+  buildArtifactsAfter?: string;
+  /** Whether the executor recognised this command as the registered packages/main build. */
+  buildArtifactsRole?: 'build' | 'test';
   label: string;
   command: string;
   args: string[];
@@ -238,6 +244,14 @@ export interface ValidationResult {
    * attributable (which is every row of a jobs=1 / single-command run).
    */
   concurrentWorktreePollution?: ConcurrentWorktreePollution;
+  /**
+   * core/build-artifacts-identity digest of the compiled artifacts as the plan
+   * left them, stamped by the executor at the end of execution. Publication
+   * binds this value and refuses when the dist on disk no longer matches.
+   */
+  buildArtifactsHash?: string;
+  /** Executor observations behind buildArtifactsHash: content digests at plan start and end, fingerprint at end. */
+  buildArtifacts?: { start?: string; end?: string; endFingerprint?: string };
   focus?: {
     name: string;
     mode: 'focused';
