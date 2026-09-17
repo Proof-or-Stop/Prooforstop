@@ -25,10 +25,28 @@ function processAlive(pid: number): boolean {
   try { process.kill(pid, 0); return true; } catch (error) { return (error as NodeJS.ErrnoException).code === 'EPERM'; }
 }
 
-function newestMtimeMs(root: string): number {
+/**
+ * Newest modification time anywhere under a retained root (bounded walk, symlinks not
+ * followed). A process still using the directory touches nested queue and cache
+ * files, so the root's own timestamps alone could make an active directory look idle.
+ */
+function newestMtimeMs(root: string, maxEntries = 20_000): number {
   let newest = lstatSync(root).mtimeMs;
-  for (const name of ['home', 'owner.json', 'preload.mjs']) {
-    try { newest = Math.max(newest, lstatSync(join(root, name)).mtimeMs); } catch { /* absent */ }
+  const pending = [root];
+  let visited = 0;
+  while (pending.length > 0) {
+    const dir = pending.pop()!;
+    let entries: string[];
+    try { entries = readdirSync(dir); } catch { continue; }
+    for (const name of entries) {
+      if (++visited > maxEntries) return Number.POSITIVE_INFINITY; // too large to judge: treat as recent
+      const path = join(dir, name);
+      try {
+        const stat = lstatSync(path);
+        newest = Math.max(newest, stat.mtimeMs);
+        if (stat.isDirectory()) pending.push(path);
+      } catch { /* vanished */ }
+    }
   }
   return newest;
 }

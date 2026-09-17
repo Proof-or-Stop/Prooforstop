@@ -49,6 +49,14 @@ const groups = {
   deadAged: Array.from({ length: 25 }, (_, i) => makeDir(`${PREFIX}dead-aged-${String(i).padStart(2, '0')}`, 20 * MIN + i * MIN, deadPid)),
   deadRecent: Array.from({ length: 2 }, (_, i) => makeDir(`${PREFIX}dead-recent-${i}`, 2 * MIN + i * 10_000, deadPid)),
   liveOwner: [makeDir(`${PREFIX}live-owner`, 8 * HOUR, live.pid)],
+  legacyOldRootRecentNested: [(() => {
+    const root = makeDir(`${PREFIX}legacy-nested-activity`, 7 * HOUR);
+    mkdirSync(join(root, 'home/queue'), { recursive: true });
+    writeFileSync(join(root, 'home/queue/active.ticket'), 'in use\n');
+    const old = new Date(Date.now() - 7 * HOUR);
+    utimesSync(join(root, 'home'), old, old); utimesSync(root, old, old);
+    return root;
+  })()],
   unrelated: [makeDir('some-other-tool-dir', 8 * HOUR)],
 };
 const symlinkPath = join(parent, `${PREFIX}symlink`);
@@ -64,7 +72,7 @@ try {
   created = JSON.parse(child.stdout.trim().split('\n').at(-1)).root;
   const exists = (p) => { try { lstatSync(p); return true; } catch { return false; } };
   const count = (list) => list.filter(exists).length;
-  const before = 8 + 2 + 25 + 2 + 1;
+  const before = 8 + 2 + 25 + 2 + 1 + 1;
   const after = readdirSync(parent).filter((n) => n.startsWith(PREFIX) && n !== 'proof-or-stop-fixture-machine-symlink' && join(parent, n) !== created).length;
   console.log('group | seeded | remaining');
   for (const [name, list] of Object.entries(groups)) console.log(`${name} | ${list.length} | ${count(list)}`);
@@ -72,6 +80,7 @@ try {
 
   control(existsSync(created), 'the new fixture directory exists');
   control(count(groups.liveOwner) === 1, 'a directory whose owner is alive is kept');
+  control(count(groups.legacyOldRootRecentNested) === 1, 'a legacy directory with recent nested activity is kept');
   control(count(groups.deadRecent) === 2, 'recently retained directories keep their diagnosis grace');
   control(count(groups.legacyYoung) === 2, 'young legacy directories without an owner record are kept');
   control(count(groups.unrelated) === 1 && exists(symlinkPath), 'unrelated directories and prefixed symlinks are untouched');
