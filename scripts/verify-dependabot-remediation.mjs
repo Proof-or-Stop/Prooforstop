@@ -35,6 +35,9 @@ for (const ws of workspaces) {
   assert.equal(result.status, 0, `${ws}: audit command failed: ${result.stderr}`);
   console.log(`${ws}: npm audit zero vulnerabilities`);
 }
+const staticEvidence = spawnSync(process.execPath, ['scripts/verify-validation-static-edges.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
+assert.ifError(staticEvidence.error);
+assert.equal(staticEvidence.status, 0, 'Updated dependency evidence must preserve static validation boundaries');
 for (const args of [['run', 'package:desktop:host'], ['run', 'test:desktop-package']]) {
   const result = spawnSync('npm', args, { cwd: root, stdio: 'inherit', timeout: 600000 });
   assert.ifError(result.error);
