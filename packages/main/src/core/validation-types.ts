@@ -356,6 +356,10 @@ export interface DoneRequiredCommandReceipt {
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  /** core/build-artifacts-identity digest observed immediately before this command started. */
+  buildArtifactsBefore?: string;
+  /** The same digest observed immediately after this command returned; only a registered build may change it. */
+  buildArtifactsAfter?: string;
 }
 
 export interface DoneRequiredEvidenceData {

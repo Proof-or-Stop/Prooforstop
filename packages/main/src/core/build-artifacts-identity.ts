@@ -83,6 +83,22 @@ function artifactTreeDigest(root: string): string {
  * `undefined`, which every consumer treats as "cannot vouch" and refuses.
  * Memoized per synchronous git observation like the committed-tree digests.
  */
+/**
+ * Binding for a PASS that is republished without executing anything. The
+ * republished record must carry the identity the authenticated prior record
+ * was earned against; it never adopts the dist on disk. Publication may only
+ * proceed while the dist on disk still equals that prior identity.
+ */
+export function resolveReusedBuildArtifactsBinding(args: {
+  prior: string | undefined;
+  current: string | undefined;
+}): { ok: true; buildArtifactsHash: string } | { ok: false; reason: string } {
+  if (!args.prior) return { ok: false, reason: 'prior evidence has no buildArtifactsHash binding [build_artifacts_unbound]' };
+  if (!args.current) return { ok: false, reason: 'current build artifacts identity is unavailable [build_artifacts_unavailable]' };
+  if (args.prior !== args.current) return { ok: false, reason: 'build artifacts changed since the reused PASS was earned [build_artifacts_mismatch]' };
+  return { ok: true, buildArtifactsHash: args.prior };
+}
+
 export function currentBuildArtifactsHash(projectRoot: string): string | undefined {
   const root = resolve(projectRoot);
   return readObservedGitState(gitObservationKey(['build-artifacts-hash', root, BUILD_ARTIFACT_ROOTS]), () => {

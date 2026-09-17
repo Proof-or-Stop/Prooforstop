@@ -762,6 +762,41 @@ export function validateSelfHostBuildProof(
   return reasons;
 }
 
+/**
+ * Per-receipt build binding. Each receipt records the compiled-artifact
+ * identity it started against and the one it left behind. Only a registered
+ * packages/main build receipt may change that identity; any other command that
+ * does so has rewritten the dist under test. Every non-build receipt must have
+ * started against the identity the evidence finally binds, so a build that
+ * lands after a test invalidates that test instead of relabelling it. Legacy
+ * receipts without the observations cannot vouch and are refused.
+ */
+export function validateReceiptBuildBinding(
+  evidence: Pick<DoneRequiredEvidenceData, 'receipts' | 'buildArtifactsHash'>,
+  projectRoot: string,
+  commands: DoneRequiredCommand[] = [],
+): string[] {
+  const reasons: string[] = [];
+  const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
+  for (let i = 0; i < receipts.length; i++) {
+    const receipt = receipts[i];
+    const before = receipt.buildArtifactsBefore;
+    const after = receipt.buildArtifactsAfter;
+    if (!before || !after) {
+      reasons.push(`missing-receipt-build-binding[${i}]: ${receipt.label} did not record the build identity it executed`);
+      continue;
+    }
+    if (isPackagesMainBuild(receipt, projectRoot, commands[i])) continue;
+    if (before !== after) {
+      reasons.push(`build-artifacts-changed-during-command[${i}]: ${receipt.label} rewrote the compiled artifacts but is not a registered packages/main build`);
+    }
+    if (evidence.buildArtifactsHash && before !== evidence.buildArtifactsHash) {
+      reasons.push(`receipt-not-bound-to-final-build[${i}]: ${receipt.label} executed a build that was replaced before the evidence was bound; rerun it against the final build`);
+    }
+  }
+  return reasons;
+}
+
 function validateDoneRequiredEvidenceEnvironmentProjection(
   evidence: DoneRequiredEvidenceData,
   policy: DoneRequiredPolicy,
@@ -889,6 +924,10 @@ export async function runDoneRequiredValidation(args: {
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
       const receiptStartedMs = Date.now();
       const receiptStartedAt = new Date(receiptStartedMs).toISOString();
+      // Per-receipt build identity: the dist this command started against and
+      // the dist it left behind. Only a registered build receipt may change it,
+      // and every test receipt must have started against the final build.
+      const buildArtifactsBefore = currentBuildArtifactsHash(args.gitCwd);
       const result = await runValidationCommand(command, args.projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
         progress: runtimeOptions.progress,
         heartbeatMs: runtimeOptions.heartbeatMs,
@@ -899,6 +938,7 @@ export async function runDoneRequiredValidation(args: {
       });
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
       const receiptEndedAt = new Date().toISOString();
+      const buildArtifactsAfter = currentBuildArtifactsHash(args.gitCwd);
       const headHash = currentGitHead(args.gitCwd);
       const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
       const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
@@ -933,6 +973,8 @@ export async function runDoneRequiredValidation(args: {
         ...(headHash ? { headHash } : {}),
         ...(materialHash ? { materialHash } : {}),
         ...(storyFilesHash ? { storyFilesHash } : {}),
+        ...(buildArtifactsBefore ? { buildArtifactsBefore } : {}),
+        ...(buildArtifactsAfter ? { buildArtifactsAfter } : {}),
       };
       receipts.push(receipt);
       if (status === 'FAIL') {
@@ -946,6 +988,9 @@ export async function runDoneRequiredValidation(args: {
   const executionBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
   throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
   reasons.push(...validateSelfHostBuildProof({ receipts }, args.projectRoot, policy.commands));
+  // Every test receipt must have executed the build this evidence binds, and
+  // nothing but a registered build may have rewritten the dist mid-run.
+  reasons.push(...validateReceiptBuildBinding({ receipts, buildArtifactsHash: executionBuildArtifactsHash }, args.projectRoot, policy.commands));
 
   const endedMs = Date.now();
   const finalHeadHash = currentGitHead(args.gitCwd);
@@ -1125,6 +1170,7 @@ export function evaluateDoneRequiredEvidence(args: {
   if (!evidence.buildArtifactsHash || !currentBuildArtifacts) reasons.push('missing-buildArtifactsHash');
   else if (evidence.buildArtifactsHash !== currentBuildArtifacts) reasons.push('stale-buildArtifacts');
   reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands));
+  reasons.push(...validateReceiptBuildBinding(evidence, args.projectRoot, policy.commands));
   reasons.push(...validateDoneRequiredExecutionIdentityCoverage(evidence, currentExecutionIdentity, policy));
 
   const uniqueReasons = [...new Set(reasons)];

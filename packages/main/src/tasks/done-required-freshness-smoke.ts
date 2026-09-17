@@ -137,6 +137,8 @@ function writeDoneEvidence(root: string, store: StoryStore): DoneRequiredEvidenc
     headHash: h.headHash,
     materialHash: h.materialHash,
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
+    buildArtifactsBefore: currentBuildArtifactsHash(root),
+    buildArtifactsAfter: currentBuildArtifactsHash(root),
   };
   const evidence: DoneRequiredEvidenceData = {
     schema: DONE_REQUIRED_EVIDENCE_SCHEMA,

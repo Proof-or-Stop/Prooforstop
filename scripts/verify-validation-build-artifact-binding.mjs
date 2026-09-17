@@ -258,21 +258,75 @@ try {
   f.store.writeDoneRequiredEvidence(f.storyId, evidence);
   check(evaluate().ok === true, 'unchanged-build control: the bound PASS is admissible again');
 
-  // The binding is the dist as executed: a command that rebuilds dist during the
-  // run binds the rebuilt state, not the pre-run state.
-  const g = doneRequiredFixture('done-required-rebuild', [
-    { label: 'rebuild', command: 'node', args: ['-e', "require('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // rebuilt during the run\\n')"] },
+  // Per-receipt binding: every receipt records the dist it started against and
+  // the dist it left behind. A receipt without those observations cannot vouch.
+  expectRepaired(evidence.receipts.every((receipt) => /^[a-f0-9]{64}$/.test(receipt.buildArtifactsBefore ?? '') && /^[a-f0-9]{64}$/.test(receipt.buildArtifactsAfter ?? '')),
+    'DONE-required receipts do not record the build identity before and after execution');
+  const { buildArtifactsBefore: _receiptStripped, ...unboundReceipt } = evidence.receipts[0];
+  f.store.writeDoneRequiredEvidence(f.storyId, { ...evidence, receipts: [unboundReceipt, ...evidence.receipts.slice(1)] });
+  const unbound = evaluate();
+  expectRepaired(unbound.ok === false && unbound.reasons.some((reason) => reason.startsWith('missing-receipt-build-binding[0]')), `a receipt without its build observations was accepted (reasons=${unbound.reasons.join(', ')})`);
+  f.store.writeDoneRequiredEvidence(f.storyId, evidence);
+  check(evaluate().ok === true, 'restoring the receipt observations makes the PASS admissible again');
+
+  // A command that is not a registered packages/main build must not rewrite the
+  // artifacts under test: the run fails instead of binding whatever it left.
+  const REBUILD = "require('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // rebuilt during the run\\n')";
+  const g = doneRequiredFixture('done-required-unregistered-rebuild', [
+    { label: 'rewrites dist', command: 'node', args: ['-e', REBUILD] },
     { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'] },
   ]);
-  const preRun = binding ? binding.currentBuildArtifactsHash(g.root) : undefined;
-  const rebuilt = await runDoneRequiredValidation({ projectRoot: g.root, storyId: g.storyId, store: g.store, gitCwd: g.root });
-  check(rebuilt.status === 'PASS', `rebuild-during-run must PASS (reasons=${rebuilt.reasons.join(', ')})`);
-  check(readFileSync(g.mainFile, 'utf8').includes('rebuilt during the run'), 'the rebuild command must have rewritten dist');
+  const unregistered = await runDoneRequiredValidation({ projectRoot: g.root, storyId: g.storyId, store: g.store, gitCwd: g.root });
+  check(readFileSync(g.mainFile, 'utf8').includes('rebuilt during the run'), 'the rewriting command must have rewritten dist');
+  expectRepaired(unregistered.status === 'FAIL' && unregistered.reasons.some((reason) => reason.startsWith('build-artifacts-changed-during-command[0]')),
+    `a non-build command rewrote dist during the run and the evidence still passed (status=${unregistered.status}, reasons=${unregistered.reasons.join(', ')})`);
+  expectRepaired(evaluateDoneRequiredEvidence({ projectRoot: g.root, storyId: g.storyId, store: g.store, gitCwd: g.root }).ok === false,
+    'evidence whose dist was rewritten by a non-build command was admitted');
+
+  // A registered build may rewrite dist; the later test executes the rebuilt
+  // build and the evidence binds that build, not the pre-run one.
+  const h = doneRequiredFixture('done-required-registered-rebuild', [
+    { label: 'build', command: 'node', args: ['-e', REBUILD], providesBuildProof: 'packages-main-build' },
+    { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'] },
+  ]);
+  const preRun = binding ? binding.currentBuildArtifactsHash(h.root) : undefined;
+  const registered = await runDoneRequiredValidation({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root });
+  check(registered.status === 'PASS', `registered build followed by a test must PASS (reasons=${registered.reasons.join(', ')})`);
   if (binding) {
-    check(rebuilt.buildArtifactsHash === binding.currentBuildArtifactsHash(g.root), 'the PASS must bind the rebuilt dist the later command executed');
-    check(rebuilt.buildArtifactsHash !== preRun, 'the PASS must not bind the pre-run dist');
+    check(registered.buildArtifactsHash === binding.currentBuildArtifactsHash(h.root), 'the PASS must bind the rebuilt dist the test executed');
+    check(registered.buildArtifactsHash !== preRun, 'the PASS must not bind the pre-run dist');
+    check(registered.receipts[1].buildArtifactsBefore === registered.buildArtifactsHash, 'the test receipt must have started against the bound build');
   }
-  check(evaluateDoneRequiredEvidence({ projectRoot: g.root, storyId: g.storyId, store: g.store, gitCwd: g.root }).ok === true, 'a PASS bound to the rebuilt dist is admissible while that dist stays');
+  check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true, 'a PASS bound to the rebuilt dist is admissible while that dist stays');
+
+  // A registered build that lands AFTER the tests invalidates them: the tests
+  // executed a build that was replaced before the evidence was bound.
+  const k = doneRequiredFixture('done-required-rebuild-after-tests', [
+    { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'] },
+    { label: 'build', command: 'node', args: ['-e', REBUILD], providesBuildProof: 'packages-main-build' },
+  ]);
+  const late = await runDoneRequiredValidation({ projectRoot: k.root, storyId: k.storyId, store: k.store, gitCwd: k.root });
+  expectRepaired(late.status === 'FAIL' && late.reasons.some((reason) => reason.startsWith('receipt-not-bound-to-final-build[0]')),
+    `a build that replaced the tested dist after the tests still produced PASS (status=${late.status}, reasons=${late.reasons.join(', ')})`);
+
+  // Reused PASS republication keeps the authenticated prior binding and never
+  // adopts the dist on disk; it is refused when the two differ.
+  if (binding) {
+    const A = 'a'.repeat(64), B = 'b'.repeat(64);
+    const same = binding.resolveReusedBuildArtifactsBinding({ prior: A, current: A });
+    check(same.ok === true && same.buildArtifactsHash === A, 'reuse keeps the prior binding when the dist is unchanged');
+    check(binding.resolveReusedBuildArtifactsBinding({ prior: A, current: B }).ok === false, 'reuse must refuse when the dist differs from the prior binding');
+    check(binding.resolveReusedBuildArtifactsBinding({ prior: undefined, current: A }).ok === false, 'reuse must refuse an unbound prior PASS');
+    check(binding.resolveReusedBuildArtifactsBinding({ prior: A, current: undefined }).ok === false, 'reuse must refuse when the current identity is unavailable');
+  }
+  const verifierSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+  const reusedStart = verifierSource.indexOf('function reusedStoryValidationResult(');
+  const reusedEnd = verifierSource.indexOf('\n}\n', reusedStart);
+  check(reusedStart >= 0 && reusedEnd > reusedStart, 'reusedStoryValidationResult must be defined');
+  expectRepaired(verifierSource.slice(reusedStart, reusedEnd).includes('resolveReusedBuildArtifactsBinding('), 'reused PASS republication does not preserve the prior build binding (source-text guard)');
+  expectRepaired(verifierSource.includes('build_artifacts_changed_by_non_build_command'), 'routine plans do not refuse a dist rewritten by a non-build command (source-text guard)');
+  const doneRequiredSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
+  expectRepaired((doneRequiredSource.match(/validateReceiptBuildBinding\(/g) ?? []).length >= 3, 'per-receipt build binding is not enforced by both the DONE-required writer and evaluator (source-text guard)');
 } finally {
   rmTree(sandbox);
 }

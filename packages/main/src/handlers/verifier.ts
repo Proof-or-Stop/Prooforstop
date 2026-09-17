@@ -78,7 +78,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { isCanonicalGitHeadHash, captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, classifyEvidenceHashSnapshot, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
-import { currentBuildArtifactsHash } from '../core/build-artifacts-identity.js';
+import { currentBuildArtifactsHash, resolveReusedBuildArtifactsBinding } from '../core/build-artifacts-identity.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
@@ -1049,9 +1049,26 @@ function reusedStoryValidationResult(args: {
   const headHash = dynamicOrigin ? priorEvidence.headHash : currentHead(args.gitCwd);
   const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.ctx.root);
   const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.ctx.root);
-  // A reused PASS is re-persisted as a fresh record; without the build binding
-  // the very next reuse would refuse it as unbound.
-  const buildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
+  // A reused PASS is re-persisted as a fresh record. It keeps the identity the
+  // authenticated prior record was earned against and never adopts the dist on
+  // disk: the command results being republished ran against that prior build.
+  // Publication is refused unless the dist on disk still equals it.
+  const reusedBinding = resolveReusedBuildArtifactsBinding({
+    prior: priorEvidence.buildArtifactsHash,
+    current: currentBuildArtifactsHash(args.gitCwd),
+  });
+  if (!reusedBinding.ok) {
+    return externalResult({
+      provider: 'proof-or-stop-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because the compiled artifacts no longer match the reused PASS',
+      details: ['canonical-pass-persistence-failed', reusedBinding.reason],
+      warnings: [],
+      commands: [],
+    });
+  }
+  const buildArtifactsHash = reusedBinding.buildArtifactsHash;
   const storyRel = normalizeRelPath(relative(
     realpathSync(args.gitCwd),
     realpathSync(args.ctx.store.storyDirPath(args.storyId)),
@@ -1274,6 +1291,28 @@ function publicationOutputHashes(
     [eventsPath, hash(terminal ? Buffer.concat([before, terminal.eventBytes]) : before)],
     [`${storyRel}/closeout-write-receipts.jsonl`, hash(baseline.get(`${storyRel}/closeout-write-receipts.jsonl`) ?? Buffer.alloc(0))],
   ]);
+}
+
+/**
+ * The registered packages/main build shapes a routine plan may contain. These
+ * are the only commands allowed to change the build identity during a plan;
+ * mirrors the DONE-required receipt recogniser in core/done-required-validation.
+ */
+function isRoutinePackagesMainBuildCommand(command: { command: string; args?: readonly string[]; cwd?: string; providesBuildProof?: unknown }): boolean {
+  if (command.providesBuildProof === 'packages-main-build') return true;
+  const args = Array.isArray(command.args) ? command.args : [];
+  const cwd = (command.cwd ?? '').replace(/\\/g, '/').replace(/\/+$/, '');
+  const atRoot = cwd === '' || cwd === '.';
+  const atPackagesMain = cwd === 'packages/main' || cwd === './packages/main';
+  if (command.command === 'npm' && atRoot) {
+    const prefixIndex = args.indexOf('--prefix');
+    if (prefixIndex >= 0 && args[prefixIndex + 1] === 'packages/main') {
+      return args[prefixIndex + 2] === 'run' && args[prefixIndex + 3] === 'build';
+    }
+  }
+  if (command.command === 'npm' && atPackagesMain) return args[0] === 'run' && args[1] === 'build';
+  if ((command.command === 'tsc' || command.command.endsWith('/tsc')) && atPackagesMain) return true;
+  return false;
 }
 
 function recordValidationTerminal(
@@ -2394,6 +2433,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // Keep the real verifier path behind the same fail-closed readiness
           // contract as pinned verification evidence. The executor rechecks the
           // snapshot at each scheduler worker's child-launch boundary.
+          // Routine plans run up to hundreds of commands, so the build identity is
+          // observed once before and once after the plan rather than per receipt.
+          // Only a registered packages/main build may change it; a plan whose
+          // dist changed without one has had its artifacts rewritten under test
+          // and cannot bind a PASS to what it executed.
+          const buildArtifactsAtStart = currentBuildArtifactsHash(handlerGitCwd);
           const base = await executeValidationPlan({
             provider: usingConfigured ? 'proof-or-stop-verifier-configured-commands' : 'proof-or-stop-verifier-fallback-commands',
             commands,
@@ -2406,6 +2451,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             deadlineError: args.deadlineError,
             beforeLaunch: launchGate.beforeLaunch,
           });
+          const buildArtifactsAtEnd = currentBuildArtifactsHash(handlerGitCwd);
+          if (buildArtifactsAtStart && buildArtifactsAtEnd && buildArtifactsAtStart !== buildArtifactsAtEnd
+            && !commands.some((command) => isRoutinePackagesMainBuildCommand(command))) {
+            base.allPass = false;
+            base.status = 'fail';
+            base.details.push('build artifacts changed during validation by a command that is not a registered packages/main build; the PASS cannot bind what it executed [build_artifacts_changed_by_non_build_command]');
+          }
           const baselineHead = currentHead(handlerGitCwd) || '';
           if (!args.story && base.allPass && !baselineHead.trim()) ctx.log?.('canonical full baseline not produced: no resolvable HEAD');
           const canonicalBaseline = args.story
