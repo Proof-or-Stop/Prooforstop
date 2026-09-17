@@ -789,7 +789,6 @@ export interface QuorumSmokeProtectedMutationResult {
   finalDigest: string;
   stateMatched: boolean;
   frameworkTracePaths: string[];
-  /** Tolerated append-only host activity log writes (never counted in eventCount). */
 }
 
 function protectedStateDigest(identities: readonly OwnedDirectory[]): string {
@@ -870,13 +869,12 @@ function authenticatedRuntimeTraceFragment(candidate: string, traceFile: string 
 }
 
 /**
- * Host activity logs are gitignored, append-only bookkeeping written by host
- * tool hooks (for example a Claude Code PostToolUse logger) while an operator keeps
- * working in the same worktree. An append to one of them is not a smoke mutation.
- * Only appends are tolerated: each log present when the guard starts is snapshotted
- * (size + digest), and at close the file must still start with those exact bytes.
- * A log first created during the run is tolerated only at an enumerated location.
- * Any other path, a rewrite, a truncation or a look-alike name stays a mutation.
+ * Fail-closed contract: every write observed inside a protected root is a mutation,
+ * including an append to a gitignored host activity log. A content-based exemption for
+ * such appends was implemented and withdrawn: comparing a file before and after cannot
+ * distinguish an append from a destructive rewrite followed by an append, so it could
+ * hide a real mutation. Host logging is instead kept out of the repository while a
+ * validation runs, by the host hook itself.
  */
 /**
  * Observe the caller-selected protected roots for the complete worker window.
