@@ -1,37 +1,5 @@
 # Changelog
 
-## Lab fixture-machine-retention - v0.3.406 - 2026-09-17
-
-# Lab fixture-machine-retention
-
-## Problem
-Each fixture validation creates `<tmpdir>/proof-or-stop-fixture-machine-*` and retains it on
-failure for diagnosis. Nothing removed retained directories: 125 had accumulated on this machine
-by 2026-09-17 (oldest from 2026-09-14, up to 8.1 MB each).
-
-## Behavior change
-`createFixtureMachineEnvironment` records `owner.json` (pid) and prunes retained siblings, best
-effort, never throwing:
-- a directory whose recorded owner is alive is kept;
-- a dead-owner directory is kept for a 10-minute diagnosis grace, and past the grace only the 20
-  newest are kept;
-- a legacy directory without an owner record is removed only after 6 hours untouched;
-- symlinks, files and unrelated directories are never removed.
-
-## Verification
-RED/GREEN: `node scripts/verify-fixture-machine-retention.mjs` (disposable TMPDIR).
-- Before: 38 seeded retained directories -> 38 remained; no owner record written.
-- After: 25 remained (8 old legacy removed, dead-owner past grace capped 25 -> 20); live owner,
-  recent dead owner, young legacy, unrelated directory and prefixed symlink kept.
-Regressions: verify-fixture-machine-environment.mjs and red-lab-nested-fixture-machine-isolation PASS.
-
-## Self-review hardening
-Legacy age (no owner record) was judged from the root and its immediate entries only, so a directory whose root is old but whose nested files are still being written could be pruned. Age is now the newest modification time anywhere in the tree (bounded walk of 20,000 entries, symlinks not followed; a larger tree counts as recently active and is kept). New control `legacyOldRootRecentNested` (7h-old root, fresh `home/queue/active.ticket`) must be kept. Result: 10 checks, before=39 after=26. u18 re-bound (44), U18_STATIC_PASS, GREEN re-recorded.
-
-Maintenance provenance: codex/lab-fixture-machine-retention, repair 10343aa6761f43f09cc6604409fbb4d95c60e0f0.
-Verification command (replayed before integration and on main): `["node","scripts/verify-fixture-machine-retention.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab machine-queue-ancestor-probe - v0.3.405 - 2026-09-17
 
 # Lab machine-queue-ancestor-probe
