@@ -18,9 +18,21 @@ import { registerHooks, createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 const ts = createRequire(import.meta.url)('typescript');
+// Mutation control: with LINEAGE_MUTANT=trust-all-descendants the classifier is
+// rewritten to trust every descendant commit. The controls below must then fail;
+// the parent run spawns this mode and requires it to be detected.
+const MUTANT = process.env.LINEAGE_MUTANT === 'trust-all-descendants';
+let mutantApplied = false;
+function mutate(url, source) {
+  if (!MUTANT || !url.endsWith('/core/validation-lineage.ts')) return source;
+  const needle = '!isMaterialExcludedPath(path, args.metadataRoot)';
+  if (!source.includes(needle)) throw new Error('mutation target not found in validation-lineage.ts (not the target RED)');
+  mutantApplied = true;
+  return source.replace(needle, 'false');
+}
 registerHooks({ load(url, context, nextLoad) {
   if (url.startsWith('file:') && url.endsWith('.ts')) return { format: 'module', shortCircuit: true,
-    source: ts.transpileModule(readFileSync(fileURLToPath(url), 'utf8'), { compilerOptions: {
+    source: ts.transpileModule(mutate(url, readFileSync(fileURLToPath(url), 'utf8')), { compilerOptions: {
       target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, esModuleInterop: true,
     }, fileName: fileURLToPath(url) }).outputText };
   return nextLoad(url, context);
@@ -39,7 +51,8 @@ const { resetConfigCache } = await import('../packages/main/src/core/config.ts')
 const MARKER = 'material-excluded commit refused as untrusted validation lineage';
 const red = [];
 let checks = 0;
-const check = (value, message) => { assert(value, message); checks++; };
+const controlFailures = [];
+const check = (value, message) => { if (MUTANT) { if (!value) controlFailures.push(message); else checks++; return; } assert(value, message); checks++; };
 const expectRepaired = (value, message) => { if (value) checks++; else red.push(message); };
 const sandbox = mkdtempSync(join(tmpdir(), 'pos-lineage-material-'));
 const git = (root, args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -113,8 +126,15 @@ function scenario(name, files, expectTrusted) {
     expectRepaired(trusted.lineage !== 'rejected', `${name}: DONE-required pre-run reuse lineage must not reject, got ${trusted.reasons.join(',')}`);
     expectRepaired(reuse.reusable === true, `${name}: routine reuse must reuse the fresh PASS, refused ${reuse.refusalReasons.join(',')}`);
   } else {
-    check(lineage.kind === 'untrusted' || !materialUnchanged, `${name}: control must stay untrusted or material-changed`);
+    // Each consumer is asserted on its own: a material hash change alone must not
+    // be what makes a control pass.
+    const materialPaths = Object.keys(files).filter((path) => !isMaterialExcludedPath(path, root));
+    check(!materialUnchanged, `${name}: control changes the material hash`);
+    check(lineage.kind === 'untrusted', `${name}: shared lineage classifier must stay untrusted, got ${lineage.kind}`);
+    check(trusted.lineage === 'rejected', `${name}: DONE-required pre-run reuse lineage must reject, got ${trusted.lineage}`);
     check(reuse.reusable === false, `${name}: control must still refuse reuse`);
+    check(materialPaths.every((path) => reuse.refusalReasons.includes(`untrusted-lineage-path:${path}`)),
+      `${name}: routine refusal names every material lineage path (${materialPaths.join(',')}), got ${reuse.refusalReasons.join(',')}`);
   }
 }
 
@@ -149,6 +169,20 @@ try {
   rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
 }
 
+if (MUTANT) {
+  if (!mutantApplied) throw new Error('mutation was not applied (not the target RED)');
+  console.log(`MUTANT DETECTED ${controlFailures.length}`);
+  for (const line of controlFailures) console.log(`  - ${line}`);
+  process.exit(controlFailures.length > 0 ? 0 : 1);
+}
+{
+  const { spawnSync } = await import('node:child_process');
+  const mutant = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], { env: { ...process.env, LINEAGE_MUTANT: 'trust-all-descendants' }, encoding: 'utf8' });
+  const detected = Number(/MUTANT DETECTED (\d+)/.exec(mutant.stdout)?.[1] ?? 0);
+  const lineageDetections = (mutant.stdout.match(/shared lineage classifier must stay untrusted/g) ?? []).length;
+  rows.push({ name: 'mutation: trust every descendant', materialUnchanged: '-', allExcluded: '-', lineage: `${lineageDetections}/4 controls caught`, doneRequiredLineage: '-', reusable: '-', reasons: `${detected} control failures` });
+  check(mutant.status === 0 && lineageDetections === 4, `a classifier that trusts every descendant is caught by all four material controls (caught ${lineageDetections}, exit ${mutant.status})`);
+}
 console.log('scenario | materialUnchanged | allPathsMaterialExcluded | sharedLineage | doneRequiredLineage | routineReusable | refusalReasons');
 for (const r of rows) console.log(`${r.name} | ${r.materialUnchanged} | ${r.allExcluded} | ${r.lineage} | ${r.doneRequiredLineage} | ${r.reusable} | ${r.reasons}`);
 if (red.length) {
