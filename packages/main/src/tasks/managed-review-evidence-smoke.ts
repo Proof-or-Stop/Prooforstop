@@ -4249,6 +4249,10 @@ async function grokIsolatedIntegrationRegression(): Promise<void> {
       const context = { root, store, scanRoot: join(root, 'packages/main') };
       if (!acceptance) {
         createReviewInventoryHandlers(context).review_inventory_begin({ storyId: STORY_ID });
+        // This fixture's run must be issued after the real inventory wave boundary.
+        const fresh = captureReviewRunSnapshot(root, { storyId: STORY_ID, storyPhase: 'REVIEW', currentReviewRound: REVIEW_ROUND }, root);
+        Object.assign(run, { startedAt: new Date().toISOString(), headHash: fresh.headHash, materialHash: fresh.materialHash, storyFilesHash: fresh.storyFilesHash });
+        bindCurrentReviewEnvelope(root, store, run); store.writeReviewRuns(STORY_ID, { runs: [run] });
         const batch = deriveReviewerBatchSubject(store, root, { storyId: STORY_ID });
         const admitted = await admitReviewerBatch({ root, store, storyId: STORY_ID, epochId: batch.subject.binding.epochId,
           wave: batch.subject.binding.wave, assignments: batch.requiredLanes.map(lane => ({ lane, kind: 'managed' as const, host: 'grok' })) });
