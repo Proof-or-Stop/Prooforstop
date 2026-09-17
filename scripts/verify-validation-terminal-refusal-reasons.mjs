@@ -39,7 +39,7 @@ let checks = 0;
 const expectRepaired = (ok, message) => { if (ok) checks++; else red.push(message); };
 const git = (root, args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 
-function fixture(name, validateConfig) {
+function fixture(name, validateConfig, { noValidator = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), `pos-terminal-reasons-${name}-`));
   const counter = join(root, '.probe-counter.log');
   const storyId = `B-trr-${name}`;
@@ -49,7 +49,7 @@ function fixture(name, validateConfig) {
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
-    validate: { commands: [{ label: 'terminal reasons probe', command: process.execPath, args: ['probe.mjs'], timeoutMs: 20_000 }], ...validateConfig },
+    ...(noValidator ? {} : { validate: { commands: [{ label: 'terminal reasons probe', command: process.execPath, args: ['probe.mjs'], timeoutMs: 20_000 }], ...validateConfig } }),
   }, null, 2));
   git(root, ['init', '-q']);
   git(root, ['config', 'user.email', 'fixture@example.invalid']);
@@ -157,13 +157,26 @@ try {
   assert.equal(b2.status, 0, `${b2.stdout}\n${b2.stderr}`);
   t = b.terminals().at(-1);
   record('B2 observe, reuse not opted in', t, loggedReasons(b2));
-  if (t.disposition === 'executed') {
-    assert.equal(loggedReasons(b2), null, 'the evaluator itself did not refuse; the observe path declined');
-    expectRepaired(t.reuse?.evaluated === true && t.reuse?.reusable === true && typeof t.reuse?.declinedReason === 'string' && t.reuse.declinedReason.length > 0,
-      'B2 executed terminal must record why a reusable PASS was declined');
-  } else {
-    checks++;
-  }
+  assert.equal(t.disposition, 'executed', 'observe mode without the reuse opt-in must execute, not reuse');
+  assert.equal(b.executions(), 2, 'the declined reuse must actually re-run the command');
+  assert.equal(loggedReasons(b2), null, 'the evaluator itself did not refuse; the observe path declined');
+  checks += 3;
+  expectRepaired(t.reuse?.evaluated === true && t.reuse?.reusable === true && t.reuse?.declinedReason === 'observe-reuse-not-opted-in',
+    `B2 executed terminal must record declinedReason observe-reuse-not-opted-in (got ${JSON.stringify(t.reuse)})`);
+
+  // Scenario C: no project validator configured; the Story path still evaluates reuse.
+  const c = fixture('no-validator', {}, { noValidator: true });
+  sandboxes.push(c.root);
+  const c1 = c.run(['validate', `--story=${c.storyId}`, '--json']);
+  assert.equal(c1.status, 0, `${c1.stdout}\n${c1.stderr}`);
+  t = c.terminals().at(-1);
+  record('C1 no validator configured', t, loggedReasons(c1));
+  assert.equal(t?.disposition, 'executed', 'no-validator first run persists an executed terminal');
+  const loggedC = loggedReasons(c1);
+  assert.ok(loggedC && loggedC.length > 0, `no-validator refusal must be logged: ${c1.stderr}`);
+  checks += 2;
+  expectRepaired(t.reuse?.evaluated === true && JSON.stringify(t.reuse?.refusalReasons) === JSON.stringify(loggedC),
+    `C1 no-validator terminal refusal reasons must equal the logged reasons ${JSON.stringify(loggedC)}`);
 } finally {
   for (const root of sandboxes) rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
 }

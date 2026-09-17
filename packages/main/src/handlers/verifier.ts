@@ -2090,7 +2090,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               headSha: currentHead(handlerGitCwd),
             });
             return {
-              ...decorateAndMaybePersistStoryValidation(ctx, args.story, focus, base, built?.identity, [], 0, undefined, args),
+              ...decorateAndMaybePersistStoryValidation(
+                ctx, args.story, focus, base, built?.identity, [], 0, undefined, args,
+                reuse ? routineReuseTerminalAttribution(reuse) : undefined,
+              ),
               ...(reuse && built ? { reuse: { ...reuse, identityDigest: built.identity.digest } } : {}),
             };
           };
