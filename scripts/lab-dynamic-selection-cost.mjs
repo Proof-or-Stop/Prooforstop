@@ -51,6 +51,7 @@ async function scenario(arm, options = {}) {
   const git = (...args) => gitAt(root, ...args);
   const put = (path, bytes) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), bytes); };
   let store;
+  const handlerLog = [];
   try {
     put('.gitignore', 'launches.txt\n.proof-or-stop/runtime/\n.proof-or-stop/locks/\n.proof-or-stop/activity.jsonl\n**/owner-lease.json\n**/certification-window.json\n');
     put('packages/main/src/core/validation-runtime-tracer.cjs', readFileSync(join(repo, 'packages/main/dist/core/validation-runtime-tracer.cjs')));
@@ -71,10 +72,11 @@ async function scenario(arm, options = {}) {
         inputRoots: [path], inputsComplete: true, assurance: 'story-selectable',
         riskTier: options.sharedRisk && label === 'unrelated4' ? 'shared' : 'local',
         closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable',
-        declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'], timeoutMs: 10000 };
+        resources: [{ class: 'fixed-path', key: '.', access: 'exclusive' }],
+        declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE', 'FORCE_COLOR'], timeoutMs: 60000 };
     });
     put('proof-or-stop.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src',
-      storyDir: '.proof-or-stop/story/actives', validate: { dynamic: { mode: arm }, commands } }));
+      storyDir: '.proof-or-stop/story/actives', validate: { dynamic: { mode: arm }, reuseFreshRoutinePass: true, commands } }));
     git('init', '-q', '-b', 'main'); git('config', 'user.name', 'Lab experiment'); git('config', 'user.email', 'lab@example.invalid');
     process.chdir(root); resetConfigCache();
     store = new StoryStore(root);
@@ -93,7 +95,7 @@ async function scenario(arm, options = {}) {
     const baselineStart = performance.now();
     if (!options.missingBaseline) {
       const baseline = await executeValidationPlan({ provider: 'full-baseline', commands: configured, warnings: [] }, root, baseHead, storyId);
-      assert.equal(baseline.allPass, true, 'baseline setup must pass before measuring the candidate');
+      assert.equal(baseline.allPass, true, 'baseline setup must pass before measuring the candidate: ' + JSON.stringify(baseline));
       assert.ok(persistCanonicalFullBaseline({ projectRoot: root, sourceHead: baseHead, result: baseline, commands: configured }));
     }
     const baselineMs = performance.now() - baselineStart;
@@ -113,7 +115,7 @@ async function scenario(arm, options = {}) {
       resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } },
       evidenceTarget: { writable: true, path: join(root, '.proof-or-stop/causal-evidence') },
       sideChannel: { available: true, maxOutputChars: 12000, maxProgressEvents: 1 } };
-    const ctx = { root, scanRoot: join(root, 'packages/main'), store, causalPreflightFacts: () => structuredClone(facts), log() {} };
+    const ctx = { root, scanRoot: join(root, 'packages/main'), store, causalPreflightFacts: () => structuredClone(facts), log(message) { handlerLog.push(message); } };
     const handler = createVerifierHandlers(ctx);
     const begin = performance.now();
     const result = JSON.parse(await handler.validate({ story: storyId, dynamicMode: arm, json: true, noSync: true }));
@@ -157,6 +159,9 @@ async function scenario(arm, options = {}) {
       }
     }
     return row;
+  } catch (error) {
+    results.diagnostic = { arm, options, physicalLaunchesIncludingBaseline: launches(root), handlerLog };
+    throw error;
   } finally {
     if (store) releaseOwnerLease(store.storyDirPath(storyId));
     process.chdir(previous); resetConfigCache();
@@ -165,6 +170,10 @@ async function scenario(arm, options = {}) {
 }
 
 try {
+  if (mode !== 'enforce-low-risk') {
+    await scenario(mode, { repeat: true });
+    assert.fail('DYNAMIC_SELECTION_COST_RED: candidate still observes and executes the full eligible workload');
+  }
   // A/B then B/A: candidate mode is read from this checkout, never hard-coded.
   for (const arm of ['observe', mode, mode, 'observe']) await scenario(arm, { repeat: true });
   for (const arm of ['observe', 'enforce-low-risk']) await scenario(arm, { defect: true });
@@ -207,3 +216,6 @@ try {
   for (const failure of results.failures) console.error(failure);
   if (results.pass) console.log('DYNAMIC_SELECTION_COST_GREEN');
 }
+// Imported CLI modules own background timers; all children and fixture leases
+// above have completed before this standalone experiment terminates.
+process.exit(process.exitCode || 0);

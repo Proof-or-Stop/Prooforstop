@@ -39,7 +39,8 @@ every result. No claim of population error reduction follows from this corpus.
 
 ## Reproduction
 
-Install independent dependencies with `npm ci --no-audit --no-fund`, then run
+Install independent dependencies with `npm ci --no-audit --no-fund` and
+`npm ci --prefix packages/main --no-audit --no-fund`, then run
 `node scripts/ensure-dist.mjs`. The pinned command is
 `node scripts/lab-dynamic-selection-cost.mjs`. It writes raw measurements outside
 the worktree under the Git common directory's `lab-maintenance` folder, preserving
