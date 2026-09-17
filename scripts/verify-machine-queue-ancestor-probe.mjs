@@ -34,6 +34,7 @@ let checks = 0;
 const expectRepaired = (ok, message) => { if (ok) checks++; else red.push(message); };
 const control = (ok, message) => { if (!ok) throw new Error(`control failed (not the target RED): ${message}`); checks++; };
 const realPs = execFileSync('/usr/bin/which', ['ps'], { encoding: 'utf8' }).trim();
+const machineQueueDir = join(machine.root, 'home', '.proof-or-stop', 'locks', 'machine-fixed-port-capacity');
 
 function shim(name, delaySeconds, neverAnswers = false) {
   const dir = join(sandbox, name); mkdirSync(dir);
@@ -54,8 +55,13 @@ const [role, ready, release, result, childRole] = process.argv.slice(2);
 const root = mkdtempSync(join(process.env.ANCESTOR_PROBE_SANDBOX, 'ancestor-probe-' + role + '-'));
 execFileSync('git', ['init', '-q'], { cwd: root });
 const started = Date.now();
+const controller = new AbortController();
+const abortAfter = Number(process.env.PROBE_ABORT_AFTER_MS || 0);
+if (abortAfter > 0) setTimeout(() => controller.abort(new Error('caller aborted the capacity wait')), abortAfter).unref();
+let callbackRan = false;
 try {
-  await withMachineValidationResources({ root, workspaceRoot: root, command: role, deadlineAt: Date.now() + 40000 }, async () => {
+  await withMachineValidationResources({ root, workspaceRoot: root, command: role, abortSignal: controller.signal, deadlineAt: Date.now() + Number(process.env.PROBE_DEADLINE_MS || 40000) }, async () => {
+    callbackRan = true;
     if (ready) writeFileSync(ready, 'held');
     if (childRole) {
       // Nested acquisition by a descendant: a genuine ancestor conflict.
@@ -65,9 +71,9 @@ try {
     }
     if (release) { const d = Date.now() + 30000; while (!existsSync(release) && Date.now() < d) await new Promise((r) => setTimeout(r, 50)); }
   });
-  if (!childRole && !ready) writeFileSync(result, JSON.stringify({ outcome: 'acquired', ms: Date.now() - started }));
+  if (!childRole && !ready) writeFileSync(result, JSON.stringify({ outcome: 'acquired', ms: Date.now() - started, callbackRan }));
 } catch (error) {
-  writeFileSync(result, JSON.stringify({ outcome: 'error', message: String(error && error.message || error).slice(0, 300), ms: Date.now() - started }));
+  writeFileSync(result, JSON.stringify({ outcome: 'error', message: String(error && error.message || error).slice(0, 300), ms: Date.now() - started, callbackRan }));
 }
 `);
 async function waitFor(path, ms) { const d = Date.now() + ms; while (!existsSync(path)) { if (Date.now() > d) return false; await new Promise((r) => setTimeout(r, 50)); } return true; }
@@ -118,6 +124,29 @@ try {
     rows.push({ scenario: 'control: ps never answers, holder keeps ticket 6s', outcome: `${early.outcome} -> ${r.outcome}`, ms: r.ms, message: r.message ?? '-' });
     control(early.outcome !== 'acquired', 'a waiter whose ancestry is unknown is never admitted while another process holds the ticket');
     expectRepaired(early.outcome === 'none' && r.outcome === 'acquired', `an unanswered probe keeps the waiter queued and it acquires after release (early ${early.outcome}, final ${r.outcome}: ${r.message ?? ''})`);
+  }
+  // 4) The probe never outlives the caller's own budget: a hung probe must not hold
+  // the queued ticket past the deadline, nor survive an abort, nor run the callback.
+  // The budget must bound the probe itself: a hung probe started just before the
+  // deadline must not keep the ticket for its whole 5000ms allowance afterwards.
+  for (const [name, env, expected, boundMs] of [
+    ['short deadline', { PROBE_DEADLINE_MS: '2500' }, /capacity wait deadline exceeded/, 2500 + 1500],
+    ['abort during the probe', { PROBE_ABORT_AFTER_MS: '1500', PROBE_DEADLINE_MS: '40000' }, /aborted the capacity wait/, 1500 + 1500],
+  ]) {
+    const ready = join(sandbox, `h4${name}.ready`), release = join(sandbox, `h4${name}.release`), result = join(sandbox, `w4${name}.json`);
+    const holder = run(['holder', ready, release, join(sandbox, `h4${name}.json`)], {});
+    if (!(await waitFor(ready, 20000))) throw new Error(`holder did not acquire the private queue (${name})`);
+    const waiterStarted = Date.now();
+    await run(['waiter', '', '', result], { PATH: shim(`hung-ps-${name.replace(/\W+/g, '-')}`, 0, true), ...env });
+    const waiterMs = Date.now() - waiterStarted;
+    const r = readResult(result);
+    const tickets = readdirSync(machineQueueDir).filter((entry) => entry.endsWith('.ticket') || entry.endsWith('.choosing'));
+    writeFileSync(release, 'go'); await holder;
+    rows.push({ scenario: `hung ps, ${name}`, outcome: r.outcome, ms: waiterMs, message: r.message ?? '-' });
+    expectRepaired(r.outcome === 'error' && expected.test(r.message ?? ''), `${name}: the caller's own failure must survive the probe (got ${r.outcome}: ${r.message ?? ''})`);
+    expectRepaired(waiterMs < boundMs, `${name}: the waiter must release within its own budget, not the probe's (took ${waiterMs}ms, bound ${boundMs}ms)`);
+    control(r.callbackRan !== true, `${name}: the callback never runs when the wait fails`);
+    control(tickets.length === 1, `${name}: the waiter leaves no queue ticket behind (found ${tickets.length})`);
   }
 } finally {
   try { machine.cleanup(); } catch (error) { console.log(`fixture machine cleanup: ${error.message}`); }
