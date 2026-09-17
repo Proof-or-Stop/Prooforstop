@@ -79,7 +79,7 @@ function makeWrapperGitFixture(): { metadataRoot: string; gitCwd: string; head: 
   return { metadataRoot, gitCwd, head: git(gitCwd, ['rev-parse', 'HEAD']) };
 }
 
-function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
+function makePartialDoneRecoveryFixture(parentBranch = 'main'): { root: string; storyId: string } {
   const root = mkdtemp('artifact-release-ledger-recover-');
   const storyId = 'B-recover';
   const now = '2026-07-05T00:06:00.000Z';
@@ -91,6 +91,9 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
   write(root, 'README.md', '# fixture\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'initial']);
+
+  if (parentBranch !== 'main') git(root, ['checkout', '-b', parentBranch]);
+  const parentCommitAtCreation = git(root, ['rev-parse', 'HEAD']);
 
   git(root, ['checkout', '-b', `story/${storyId}`]);
   write(root, 'docs/recovered.md', '# Recovered doc\n');
@@ -107,10 +110,16 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
     startedAt: now,
     endedAt: now,
     events: [{ phase: 'DONE', action: 'advance', timestamp: now }],
+    ...(parentBranch !== 'main' ? { integrationTarget: {
+      parentBranch,
+      parentCommitAtCreation,
+      source: 'creation_branch',
+      deliveryMode: 'merge_to_parent',
+    } } : {}),
   }, null, 2) + '\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'story done']);
-  git(root, ['checkout', 'main']);
+  git(root, ['checkout', parentBranch]);
   return { root, storyId };
 }
 
@@ -278,33 +287,71 @@ try {
     assert.equal(statusJson.count, 1);
   });
 
-  check('partial-DONE recovery writes and commits artifact release ledger for docs and experiments', () => {
+  for (const parentBranch of ['main', 'release/benchmark']) {
+    check(`branch-only partial-DONE recovery delivers artifacts to ${parentBranch}`, () => {
+      const { root: recoveryRoot, storyId } = makePartialDoneRecoveryFixture(parentBranch);
+      cleanup.push(recoveryRoot);
+      const store = new StoryStore(recoveryRoot);
+      const handlers = createDoneRecoverHandlers({
+        root: recoveryRoot,
+        store,
+        scanRoot: join(recoveryRoot, 'packages/main'),
+        doneMainBuildRunner: () => {
+          throw new Error('docs/experiments-only recovery must not run the runtime package build');
+        },
+      });
+
+      assert.equal(existsSync(join(recoveryRoot, store.storyDirRel(), storyId, 'index.json')), false);
+      assert.equal(JSON.parse(git(recoveryRoot, ['show', `refs/heads/story/${storyId}:${store.storyDirRel()}/${storyId}/index.json`])).phase, 'DONE');
+      const parentHead = git(recoveryRoot, ['rev-parse', 'HEAD']);
+      // Same-named tags must never replace either local branch during recovery.
+      git(recoveryRoot, ['tag', parentBranch, parentHead]);
+      git(recoveryRoot, ['tag', `story/${storyId}`, parentHead]);
+      let output: string;
+      try {
+        output = handlers.done_recover({ storyId });
+      } catch (error) {
+        throw new Error(`BRANCH_ONLY_DONE_RECOVERY_FAILED: ${String(error)}`, { cause: error });
+      }
+      assert.match(output, /partial-DONE recovered: B-recover/);
+      assert.match(output, /packages\/main build skipped after DONE merge/);
+      assert.match(output, /artifact release recorded: story=B-recover/);
+
+      const ledgerRoot = resolveArtifactReleaseLedgerRoot(recoveryRoot);
+      const records = readArtifactReleaseLedger(ledgerRoot);
+      assert.equal(records.length, 1);
+      assert.equal(records[0].storyId, storyId);
+      assert.deepEqual(records[0].paths, ['docs/recovered.md', 'experiments/recovery/result.txt']);
+      assert.equal(records[0].runtimeSemverChanged, false);
+      assert.ok(git(recoveryRoot, ['show', `HEAD:${ARTIFACT_RELEASE_LEDGER_REL_PATH}`]).includes('"storyId":"B-recover"'));
+      assert.equal(git(recoveryRoot, ['status', '--short']), '');
+      assert.equal(git(recoveryRoot, ['branch', '--list', `story/${storyId}`]), '');
+      assert.equal(git(recoveryRoot, ['branch', '--show-current']), parentBranch);
+      assert.equal(git(recoveryRoot, ['rev-parse', `refs/tags/story/${storyId}`]), parentHead);
+      if (parentBranch !== 'main') assert.equal(git(recoveryRoot, ['rev-parse', 'refs/heads/main']), parentHead);
+    });
+  }
+
+  check('partial-DONE recovery refuses detached HEAD with checkout guidance and no merge', () => {
     const { root: recoveryRoot, storyId } = makePartialDoneRecoveryFixture();
     cleanup.push(recoveryRoot);
-    const store = new StoryStore(recoveryRoot);
+    const beforeHead = git(recoveryRoot, ['rev-parse', 'HEAD']);
+    const storyHead = git(recoveryRoot, ['rev-parse', `refs/heads/story/${storyId}`]);
+    git(recoveryRoot, ['checkout', '--detach', beforeHead]);
     const handlers = createDoneRecoverHandlers({
       root: recoveryRoot,
-      store,
+      store: new StoryStore(recoveryRoot),
       scanRoot: join(recoveryRoot, 'packages/main'),
-      doneMainBuildRunner: () => {
-        throw new Error('docs/experiments-only recovery must not run the runtime package build');
-      },
     });
-
-    const output = handlers.done_recover({ storyId });
-    assert.match(output, /partial-DONE recovered: B-recover/);
-    assert.match(output, /packages\/main build skipped after DONE merge/);
-    assert.match(output, /artifact release recorded: story=B-recover/);
-
-    const ledgerRoot = resolveArtifactReleaseLedgerRoot(recoveryRoot);
-    const records = readArtifactReleaseLedger(ledgerRoot);
-    assert.equal(records.length, 1);
-    assert.equal(records[0].storyId, storyId);
-    assert.deepEqual(records[0].paths, ['docs/recovered.md', 'experiments/recovery/result.txt']);
-    assert.equal(records[0].runtimeSemverChanged, false);
-    assert.ok(git(recoveryRoot, ['show', `HEAD:${ARTIFACT_RELEASE_LEDGER_REL_PATH}`]).includes('"storyId":"B-recover"'));
+    assert.throws(() => handlers.done_recover({ storyId }), error => {
+      assert.match(String(error), /done_recover refused: resolved integration worktree/);
+      assert.match(String(error), /detached HEAD/);
+      assert.match(String(error), /git checkout main/);
+      return true;
+    });
+    assert.equal(git(recoveryRoot, ['rev-parse', 'HEAD']), beforeHead);
+    assert.equal(git(recoveryRoot, ['rev-parse', `refs/heads/story/${storyId}`]), storyHead);
     assert.equal(git(recoveryRoot, ['status', '--short']), '');
-    assert.equal(git(recoveryRoot, ['branch', '--list', `story/${storyId}`]), '');
   });
 
   check('partial-DONE recovery auto-bumps runtime version before build', () => {
