@@ -1,32 +1,5 @@
 # Changelog
 
-## Lab benchmark-review-temp - v0.3.400 - 2026-09-17
-
-# Bounded managed reviewer shell temporary-directory repair
-
-## Problem and root cause
-B-0980 RI-030 concept review disclosed failed Bash commands with EPERM when Claude attempted /private/tmp/claude-501, and explicitly substituted a placeholder read-log digest. That limited imported PASS is not treated as complete review assurance. All three real lane results were retained, and the owner officially cancelled RI-030 after terminal import before starting another review.
-
-The lane supplied standard TMPDIR/TMP/TEMP but not Claude's dedicated CLAUDE_CODE_TMPDIR. A real isolated diagnostic reproduced SHELL_UNAVAILABLE in 11956 ms. Changing only the dedicated variable to the existing admitted temporary directory allowed the identical real Bash SHA256 command in 9503 ms. This identifies a tool-execution problem missed by authentication/structured-result-only probes.
-
-## Repair
-managedReviewLaneEnvironment now maps CLAUDE_CODE_TMPDIR to lane.layout.temporary. The existing environment-key registry and runtime verifier include that field. The filesystem write allowlist, reviewer credentials, signature/receipt gates and user configuration are unchanged. The variable is derived alongside standard temporary variables in every private lane; only Claude consumes its provider-specific name. No ambient variable can override that derived mapping at the existing controller merge boundary.
-
-## Verification
-- Test-only commit 18d19a7eef reproduced CLAUDE_PRIVATE_TEMP_RED with an absent mapping and was recorded by official Lab RED.
-- The expanded existing provider-state verifier checks the actual derived environment and real macOS sandbox: per-user bookkeeping under the private temp succeeds, while source, immutable probe and an external sibling remain unwritable. It emits CLAUDE_PRIVATE_TEMP_SANDBOX_PASS and preserves all prior auth/transport tests.
-- Production build passed. Static validation passed with needsReview=0, nested=0, unexpandedCommands=0, no configuration drift or stale exceptions. Existing manifest identifiers/classifications were preserved; digests and line bindings were refreshed, and EX-1039's cited runtime-contract excerpt includes the added real assertion.
-- A real Claude probe using the repaired production managedReviewLaneEnvironment, the normal production host runner and actual read-only OS boundary executed Bash shasum and returned the exact expected digest in 14488 ms, exit 0, one structured terminal, replacementSafe=true. There was no manual CLAUDE_CODE_TMPDIR override in that final probe. The immutable source probe remained unchanged. This is actual tool availability, not a Story review PASS.
-- The broad runtime contract reached its earlier sandbox/runtime checks but failed in unchanged nested verify-static-ast-reuse.mjs with STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT (actual 2, expected 1). The exact nested command independently reproduced the same failure on untouched main 0.3.399. That unrelated observer failure is retained and not repaired here; no claim of full runtime-contract success is made.
-- The first disposable diagnostic driver completed the default case and then hit EEXIST while reusing one provider-cache destination. This fixture-only failure is retained. The corrected driver uses a scenario-specific private cache; the successful private and production probes are separate records.
-
-## Evidence and scope
-Real diagnostic records: benchmark-claude-shell-diagnosis-20260917/ and benchmark-review-temp-real/ under /Users/jek/Documents/Proof-or-Stop-Benchmark-Plan. Test/build logs: /tmp/benchmark-review-temp-*.log. Mandatory independent Claude audit and local integration remain required in official Lab finish. No remote push and no Story DONE claim. B-0980 business scope remains its original configuration row.
-
-Maintenance provenance: codex/lab-benchmark-review-temp, repair 6ea7021defd76733b2966536a4f091f6a6c70c75.
-Verification command (replayed before integration and on main): `["node","scripts/verify-managed-provider-state.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-review-auth - v0.3.399 - 2026-09-17
 
 # Bounded isolated reviewer authentication repair
