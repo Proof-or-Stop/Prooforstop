@@ -2,7 +2,7 @@ import { withInheritedMachineReservation, withMachineReservationController, mach
 import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, VALIDATION_RESOURCE_KEY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import {
   existsSync,
@@ -859,8 +859,29 @@ export async function withMachineValidationResources<T>(options: ValidationCapac
   }, lockKey, true);
 }
 
-function machinePortAncestorPids(): Set<number> {
-  const text = execFileSync('ps', ['-axo', 'pid=,ppid='], { encoding: 'utf8', timeout: 1000, maxBuffer: 8 * 1024 * 1024 });
+/**
+ * Budget for one ancestor probe. A busy machine can take longer than a second to
+ * list processes; the probe runs asynchronously so heartbeats keep flowing.
+ */
+export const MACHINE_ANCESTOR_PROBE_TIMEOUT_MS = 5000;
+
+/**
+ * Ancestors of this process, or undefined when `ps` did not answer in time or
+ * failed. Unknown ancestry never admits a waiter: the caller only probes while it
+ * is still queued behind another ticket, so it keeps waiting and probes again on
+ * the next poll, bounded by the queue deadline.
+ */
+async function machinePortAncestorPids(): Promise<Set<number> | undefined> {
+  let text: string;
+  try {
+    text = await new Promise<string>((resolveProbe, rejectProbe) => {
+      execFile('ps', ['-axo', 'pid=,ppid='], {
+        encoding: 'utf8', timeout: MACHINE_ANCESTOR_PROBE_TIMEOUT_MS, killSignal: 'SIGKILL', maxBuffer: 8 * 1024 * 1024,
+      }, (error, stdout) => (error ? rejectProbe(error) : resolveProbe(stdout)));
+    });
+  } catch {
+    return undefined;
+  }
   const parents = new Map<number, number>();
   for (const line of text.trim().split('\n')) {
     const [pid, parent] = line.trim().split(/\s+/).map(Number);
@@ -944,7 +965,9 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
           const prior = readCapacityDeclaration(candidate.path);
           if (prior && declaration && !claimsConflict({ name: command, resources: declaration.resources }, { name: 'prior', resources: prior.resources })) continue;
           if (candidate.holder && candidate.holder.pid !== process.pid) {
-            ancestors ??= machinePortAncestorPids();
+            ancestors ??= await machinePortAncestorPids();
+            // Unknown ancestry: stay queued and probe again next poll (never admit, never crash).
+            if (!ancestors) break;
             if (ancestors.has(candidate.holder.pid)) throw new Error('nested machine resource acquisition conflicts with an ancestor; declare machine resources on their actual leaf command only');
           }
         }
