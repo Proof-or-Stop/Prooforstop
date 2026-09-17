@@ -849,6 +849,8 @@ async function executeShardedEntry(args: {
   prepared: PreparedStoryAwareValidation;
   commands?: ValidationCommand[];
   projectRoot: string;
+  /** Git worktree root may differ from the config/project root on wrapper layouts; the executor digests artifacts under it. */
+  gitCwd?: string;
   storyId: string;
   head: string;
   progress?: ValidationProgressReporter;
@@ -870,6 +872,7 @@ async function executeShardedEntry(args: {
     commands: [{ ...baseCommand, ...(Object.keys(oracleEnv).length ? { env: oracleEnv } : { env: undefined }) }],
     warnings: [],
   }, args.projectRoot, args.head, args.storyId, {
+    ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
@@ -954,6 +957,7 @@ async function executeShardedEntry(args: {
       provider: `story-aware-dynamic-${domain}-${shard.shardId}`,
       commands: [command], warnings: [],
     }, args.projectRoot, args.head, args.storyId, {
+      ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
       progress: args.progress,
       abortSignal: args.abortSignal,
       deadlineAt: args.deadlineAt,
@@ -1253,6 +1257,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const waveEntry = first.catalog.find((entry) => entry.id === waveId)!;
   const waveCommand = commandForEntry(waveEntry, args.commands);
   const wave = await executeValidationPlan({ provider: 'story-aware-dynamic-wave-0', commands: [waveCommand], warnings: [] }, args.projectRoot, head, args.storyId, {
+    ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
@@ -1301,6 +1306,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
         provider: 'story-aware-dynamic-selected',
         commands: ordinaryEntries.map((entry) => commandForEntry(entry, args.commands)), warnings: [],
       }, args.projectRoot, head, args.storyId, {
+        ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
         progress: args.progress,
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
@@ -1310,7 +1316,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     for (const entry of shardEntries) {
       shardCommandIds.add(entry.id);
       const sharded = await executeShardedEntry({
-        entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot,
+        entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot, gitCwd: args.gitCwd,
         storyId: args.storyId, head, progress: args.progress, abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch, buildProofDigest,
       });

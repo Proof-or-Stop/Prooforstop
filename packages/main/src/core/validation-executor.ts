@@ -183,6 +183,15 @@ export interface ExecuteValidationPlanOptions {
   jobs?: number;
   /** Refuse each child launch if the caller's preflight snapshot is no longer valid. */
   beforeLaunch?: () => void;
+  /**
+   * The resolved git working directory whose compiled artifacts the commands
+   * execute and publication binds (the verifier passes its own resolved cwd so
+   * execution, publication, reuse and admission digest one root). Defaults to
+   * resolveProjectGitCwd(projectRoot), exactly as runValidationCommand resolves
+   * its dirty-status probe: the configured gitRoot on a wrapper-root layout,
+   * projectRoot verbatim on a plain repository.
+   */
+  gitCwd?: string;
 }
 
 /**
@@ -277,6 +286,20 @@ function formatTimeoutDiagnostics(
     `  args: ${JSON.stringify(command.args)}`,
     '  If this command legitimately needs longer, raise proof-or-stop.config.json validate.commands[].timeoutMs for that command; otherwise investigate a hung validation command.',
   ];
+}
+
+/**
+ * Id-independent git cwd of a validation plan: the configured gitRoot subdir on
+ * a wrapper-root layout, projectRoot verbatim on a plain repository or when
+ * nothing resolves. Shared by the dirty-status probe and the artifact digests
+ * so both observe the repository the commands actually execute.
+ */
+function resolvePlanGitCwd(projectRoot: string): string {
+  try {
+    return resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
+  } catch {
+    return projectRoot;
+  }
 }
 
 function commandCwd(projectRoot: string, cwd?: string): string {
@@ -1504,12 +1527,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   // project-level resolver — config loaded so a configured gitRoot subdir on a
   // wrapper-root layout is honored. Plain repos / unresolved → projectRoot
   // verbatim (byte-identical).
-  let statusGitCwd: string;
-  try {
-    statusGitCwd = resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
-  } catch {
-    statusGitCwd = projectRoot;
-  }
+  const statusGitCwd = resolvePlanGitCwd(projectRoot);
   const headBefore = readValidationSourceHead(statusGitCwd);
   const statusBefore = readGitStatus(statusGitCwd);
   // The runtime tracer is a useful ordinary-command observation aid, but its
@@ -2276,10 +2294,13 @@ export async function executeValidationPlan(
   // another's, and formatWorktreePollutionDetails also appends dirty-gate audit
   // lines to process-events.jsonl, which stays single-writer this way.
   const executed: (ValidationCommandResult | null)[] = new Array(totalCommands).fill(null);
-  // Content digest of the compiled artifacts before anything launches. The
-  // matching digest after the plan is the identity the evidence binds; the
-  // per-command content digests attribute every change in between.
-  const buildArtifactsAtStart = currentBuildArtifactsHash(projectRoot);
+  // One artifact root for the whole plan: the repository the commands execute
+  // and publication digests, never the wrapper metadata root. Content digest of
+  // the compiled artifacts before anything launches; the matching digest after
+  // the plan is the identity the evidence binds and the per-command content
+  // digests attribute every change in between.
+  const artifactsRoot = options.gitCwd ?? resolvePlanGitCwd(projectRoot);
+  const buildArtifactsAtStart = currentBuildArtifactsHash(artifactsRoot);
   // Latched by whichever command first observes the plan deadline blown. The
   // sequential implementation threw at exactly that point and never started a
   // later command; entries still pending here are skipped for the same reason
@@ -2300,7 +2321,7 @@ export async function executeValidationPlan(
     // Boundary observations only: a command that swaps and restores the trees
     // inside its own window is not observable here (build-artifacts-identity.ts
     // states the bound); that needs OS-enforced write denial, not observation.
-    const buildArtifactsBefore = currentBuildArtifactsHash(projectRoot);
+    const buildArtifactsBefore = currentBuildArtifactsHash(artifactsRoot);
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
@@ -2310,7 +2331,7 @@ export async function executeValidationPlan(
       deadlineAt: options.deadlineAt,
       deadlineError: options.deadlineError,
     });
-    const buildArtifactsAfter = currentBuildArtifactsHash(projectRoot);
+    const buildArtifactsAfter = currentBuildArtifactsHash(artifactsRoot);
     if (buildArtifactsBefore) result.buildArtifactsBefore = buildArtifactsBefore;
     if (buildArtifactsAfter) result.buildArtifactsAfter = buildArtifactsAfter;
     result.buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command) ? 'build' : 'test';
@@ -2410,7 +2431,7 @@ export async function executeValidationPlan(
   // was then replaced, so it is refused instead of relabelled; a non-build
   // command that changed the artifacts rewrote the dist under test. Legacy or
   // unobservable trees (symbolic links) cannot vouch and are refused.
-  const buildArtifactsAtEnd = currentBuildArtifactsHash(projectRoot);
+  const buildArtifactsAtEnd = currentBuildArtifactsHash(artifactsRoot);
   const buildBindingFailures: string[] = [];
   if (!buildArtifactsAtStart || !buildArtifactsAtEnd) {
     buildBindingFailures.push('build artifacts identity is unavailable (symbolic link or unreadable artifact tree); the plan cannot bind what it executed [build_artifacts_identity_unavailable]');
@@ -2503,6 +2524,7 @@ export async function executeValidationPlan(
     // The identity the evidence binds: only stamped when the binding rules held.
     ...(!buildBindingFailed && buildArtifactsAtEnd ? { buildArtifactsHash: buildArtifactsAtEnd } : {}),
     buildArtifacts: {
+      root: artifactsRoot,
       ...(buildArtifactsAtStart ? { start: buildArtifactsAtStart } : {}),
       ...(buildArtifactsAtEnd ? { end: buildArtifactsAtEnd } : {}),
     },

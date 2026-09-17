@@ -29,7 +29,7 @@ registerHooks({ load(url, context, nextLoad) {
 } });
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
@@ -148,6 +148,42 @@ try {
   writeFileSync(probe, BUILD_A);
   check(reuse().reusable === true, 'restoring build A must make the recorded PASS reusable again');
   check(admissibility().ok === true, 'restoring build A must make the recorded PASS admissible again');
+
+  // Audit #7: framing. `path\0bytes\0` let a single file whose bytes contain
+  // NUL collide with two files: a.js = X\0b.js\0Y hashed exactly like the pair
+  // a.js = X, b.js = Y. Both trees are valid JavaScript; the pair passes and the
+  // single file fails (b.js is missing), so a PASS earned on the pair could be
+  // reused on the single file. Every field is now length-framed.
+  const distRoot = join(root, 'packages/main/dist');
+  const COLLIDE_X = 'require("./b.js"); //';
+  const COLLIDE_Y = 'process.exit(0);';
+  writeFileSync(join(distRoot, 'a.js'), COLLIDE_X);
+  writeFileSync(join(distRoot, 'b.js'), COLLIDE_Y);
+  const pairIdentity = currentBuild();
+  rmSync(join(distRoot, 'b.js'));
+  writeFileSync(join(distRoot, 'a.js'), `${COLLIDE_X}\0b.js\0${COLLIDE_Y}`);
+  const singleIdentity = currentBuild();
+  if (binding) {
+    expectRepaired(Boolean(pairIdentity) && Boolean(singleIdentity) && pairIdentity !== singleIdentity,
+      'two different artifact trees share a build identity (NUL bytes inside a file collide with the path/content framing)');
+    const pairEvidence = { ...evidence, buildArtifactsHash: pairIdentity };
+    const pairReuse = evaluateRoutineValidationReuse({
+      root, gitCwd: root, evidence: pairEvidence, currentIdentity: identity, currentCoverage: { missingRequired: 0 },
+      currentMaterialHash: materialHash, currentStoryFilesHash: storyFilesHash, clean: true, headBefore: head, headAfter: head,
+      currentBuildArtifactsHash: singleIdentity,
+    });
+    expectRepaired(pairReuse.reusable === false && pairReuse.refusalReasons.includes('build-artifacts-hash-changed-or-missing'),
+      `a PASS earned on the two-file tree was reusable on the colliding single-file tree (reasons=${pairReuse.refusalReasons.join(',')})`);
+    const pairAdmission = evaluateValidationEvidenceAdmissibility({
+      evidence: pairEvidence, expectedCommand: evidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage',
+      blockingDirtyReason: '', gitCwd: root, metadataRoot: root,
+    });
+    expectRepaired(pairAdmission.ok === false && pairAdmission.reasonCodes.includes('build_artifacts_mismatch'),
+      `a PASS earned on the two-file tree was admissible on the colliding single-file tree (codes=${pairAdmission.reasonCodes.join(',')})`);
+  }
+  rmSync(join(distRoot, 'a.js'));
+  check(currentBuild() === recordedBuild, 'removing the collision files restores the recorded identity');
+  check(reuse().reusable === true && admissibility().ok === true, 'control: the recorded PASS is admissible again after the collision files are removed');
 
   // Symbolic links: a link inside dist can point at bytes that change without any
   // regular file below the root changing, so the identity must become unavailable.
@@ -446,6 +482,77 @@ try {
       expectRepaired(!blind.buildArtifactsHash, 'a plan whose artifact root could not be inspected must not carry a build binding');
     }
 
+    // Audit #7: one artifact root. On a wrapper-root layout (metadata root with
+    // a configured gitRoot subdirectory) the compiled artifacts live under the
+    // git root, which is what publication, reuse and admission digest. The
+    // executor must observe that same root, not the wrapper, or an unchanged
+    // run is rejected as drift before publication and no rerun can repair it.
+    const wrapper = join(planSandbox, 'wrapper'); mkdirSync(wrapper);
+    const nested = join(wrapper, 'repo'); mkdirSync(nested);
+    git(nested, ['init', '-q', '-b', 'main']);
+    git(nested, ['config', 'user.email', 'fixture@example.invalid']);
+    git(nested, ['config', 'user.name', 'Build Binding Fixture']);
+    git(nested, ['config', 'commit.gpgsign', 'false']);
+    writeFileSync(join(nested, '.gitignore'), 'dist\n');
+    writeFileSync(join(nested, 'validate-clean.js'), 'process.exit(0);\n');
+    git(nested, ['add', '.']); git(nested, ['commit', '-qm', 'nested repository']);
+    writeFileSync(join(wrapper, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', gitRoot: 'repo', storyDir: '.proof-or-stop/story/actives' }));
+    const nestedMainDist = join(nested, 'packages/main/dist/tasks'); mkdirSync(nestedMainDist, { recursive: true });
+    writeFileSync(join(nestedMainDist, 'x.js'), BUILD_A);
+    mkdirSync(join(nested, 'packages/utils/dist'), { recursive: true });
+    writeFileSync(join(nested, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
+    const wrapperCommands = [{ label: 'validate file', command: 'node', args: ['validate-clean.js'], cwd: 'repo', timeoutMs: 20_000 }];
+    const runWrapped = (options) => executeValidationPlan({ provider: 'build-binding-fixture', commands: wrapperCommands, warnings: [] }, wrapper, undefined, undefined, options);
+    const wrapped = await runWrapped({});
+    check(wrapped.allPass === true, `control: the wrapper-root plan must pass (${wrapped.details.join(' | ')})`);
+    if (binding) {
+      const nestedIdentity = binding.currentBuildArtifactsHash(nested);
+      const wrapperIdentity = binding.currentBuildArtifactsHash(wrapper);
+      check(Boolean(nestedIdentity) && Boolean(wrapperIdentity) && nestedIdentity !== wrapperIdentity, 'trap: the wrapper has no artifact trees, so its digest differs from the nested repository digest');
+      expectRepaired(wrapped.buildArtifactsHash === nestedIdentity,
+        `the executor digested the wrapper root instead of the configured git root (bound ${wrapped.buildArtifactsHash}, git root ${nestedIdentity}, wrapper ${wrapperIdentity})`);
+      // The resolver canonicalizes (realpath), so compare canonical forms: the macOS tmpdir is a symlink.
+      expectRepaired(Boolean(wrapped.buildArtifacts?.root) && realpathSync(wrapped.buildArtifacts.root) === realpathSync(nested), `the executor did not report the git root as its artifact root (${wrapped.buildArtifacts?.root})`);
+      const explicit = await runWrapped({ gitCwd: nested });
+      expectRepaired(explicit.allPass === true && explicit.buildArtifactsHash === nestedIdentity, 'the executor must honour the caller-resolved git cwd as its artifact root');
+      // Publication-side consumers digest under the git root: the executor's
+      // binding is admitted unchanged and refused after the artifacts drift.
+      const wrapperHead = currentGitHead(nested);
+      const wrapperMaterial = currentMaterialHash(nested, 'HEAD', wrapper);
+      const wrapperStoryFiles = currentStoryFilesHash(nested, 'HEAD', wrapper);
+      check(wrapperHead && wrapperMaterial && wrapperStoryFiles, `wrapper fixture identity must resolve (got ${wrapperHead}/${wrapperMaterial}/${wrapperStoryFiles})`);
+      const wrapperIdentityRecord = buildRoutineValidationIdentity({
+        projectRoot: wrapper, sourceKind: 'configured', sourceInputs: { fixture: 'build-binding-wrapper' },
+        commands: wrapperCommands, profile: 'balanced', verificationPolicyInputs: { fixture: 'build-binding-wrapper' },
+      });
+      const wrapperEvidence = {
+        command: 'proof-or-stop validate --story=B-bab --json', output: JSON.stringify({ allPass: true }), result: 'PASS', timestamp: new Date().toISOString(),
+        headHash: wrapperHead, materialHash: wrapperMaterial, storyFilesHash: wrapperStoryFiles, buildArtifactsHash: wrapped.buildArtifactsHash,
+        verificationCoverage: { missingRequired: 0 },
+        commandExecution: { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 },
+        disposition: 'executed', routineValidationIdentity: wrapperIdentityRecord,
+      };
+      const wrapperReuse = () => evaluateRoutineValidationReuse({
+        root: wrapper, gitCwd: nested, evidence: wrapperEvidence, currentIdentity: wrapperIdentityRecord, currentCoverage: { missingRequired: 0 },
+        currentMaterialHash: wrapperMaterial, currentStoryFilesHash: wrapperStoryFiles, clean: true, headBefore: wrapperHead, headAfter: wrapperHead,
+        currentBuildArtifactsHash: binding.currentBuildArtifactsHash(nested),
+      });
+      const wrapperAdmission = () => evaluateValidationEvidenceAdmissibility({
+        evidence: wrapperEvidence, expectedCommand: wrapperEvidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage',
+        blockingDirtyReason: '', gitCwd: nested, metadataRoot: wrapper,
+      });
+      const unchangedReuse = wrapperReuse();
+      expectRepaired(unchangedReuse.reusable === true, `an unchanged wrapper-root PASS bound by the executor is not reusable under the git root (reasons=${unchangedReuse.refusalReasons.join(',')})`);
+      const unchangedAdmission = wrapperAdmission();
+      expectRepaired(unchangedAdmission.ok === true, `an unchanged wrapper-root PASS bound by the executor is not admissible under the git root (codes=${unchangedAdmission.reasonCodes.join(',')})`);
+      writeFileSync(join(nestedMainDist, 'x.js'), BUILD_B);
+      const driftedReuse = wrapperReuse();
+      check(driftedReuse.reusable === false && driftedReuse.refusalReasons.includes('build-artifacts-hash-changed-or-missing'), `reuse must refuse the wrapper-root PASS after the git-root artifacts drift (reasons=${driftedReuse.refusalReasons.join(',')})`);
+      const driftedAdmission = wrapperAdmission();
+      check(driftedAdmission.ok === false && driftedAdmission.reasonCodes.includes('build_artifacts_mismatch'), `admissibility must refuse the wrapper-root PASS after the git-root artifacts drift (codes=${driftedAdmission.reasonCodes.join(',')})`);
+      writeFileSync(join(nestedMainDist, 'x.js'), BUILD_A);
+    }
+
     // Target: a validate-file-shaped command that rewrites the artifacts it tested.
     const rewritten = await run([{ label: 'validate file', command: 'node', args: ['validate.js'], timeoutMs: 20_000 }]);
     check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('rewritten by validate.js'), 'the validate file must have rewritten dist');
@@ -537,6 +644,10 @@ try {
     const validateFileStart = verifierSource.indexOf('const runValidateFile = ');
     check(validateFileStart >= 0, 'runValidateFile must be defined');
     expectRepaired(verifierSource.slice(validateFileStart, validateFileStart + 1200).includes('executeValidationPlan('), 'the validate-file path does not execute through the observing executor (source-text guard)');
+    expectRepaired(verifierSource.slice(validateFileStart, validateFileStart + 1200).includes('gitCwd: handlerGitCwd'), 'the validate-file executor call does not receive the handler-resolved git cwd as its artifact root (source-text guard)');
+    const routinePlanStart = verifierSource.indexOf('const base = await executeValidationPlan(');
+    check(routinePlanStart >= 0, 'the routine plan executor call must be defined');
+    expectRepaired(verifierSource.slice(routinePlanStart, routinePlanStart + 600).includes('gitCwd: handlerGitCwd'), 'the routine plan executor call does not receive the handler-resolved git cwd as its artifact root (source-text guard)');
     const executorSource = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
     expectRepaired(executorSource.includes('receipt_not_bound_to_final_build') && executorSource.includes('build_artifacts_changed_by_non_build_command'),
       'the executor does not enforce the per-command build binding rules (source-text guard)');

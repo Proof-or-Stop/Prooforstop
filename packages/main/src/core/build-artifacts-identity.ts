@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, type Hash } from 'node:crypto';
 import { lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
@@ -24,11 +24,26 @@ import { gitObservationKey, readObservedGitState } from './git-tree-observation.
  * OS-enforced write denial on the trees for every non-build command and its
  * descendants, which is a platform policy rather than an observation.
  *
- * The per-root digest mirrors scripts/full-suite-build-binding.mjs (relative
- * path plus bytes, the binding manifest itself excluded), so it changes exactly
- * when that manifest's distDigest would.
+ * The digest covers the same files as the distDigest of
+ * scripts/full-suite-build-binding.mjs (relative path plus bytes, the binding
+ * manifest itself excluded) but frames every field by its byte length under a
+ * versioned domain string, so two different trees cannot share an identity
+ * through NUL bytes inside a file (a single file holding `X\0b.js\0Y` is not
+ * the pair `a.js=X, b.js=Y`). The two digests are therefore not comparable.
  */
 export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'] as const;
+
+/** Versioned domain of the digest; bump it whenever the framing below changes. */
+const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v2';
+
+/**
+ * Unambiguous framing: every field is preceded by its byte length, so the
+ * concatenation of fields parses one way only, whatever bytes a field holds.
+ */
+function frame(hash: Hash, value: string | Buffer): void {
+  const bytes = typeof value === 'string' ? Buffer.from(value, 'utf8') : value;
+  hash.update(String(bytes.length)).update(':').update(bytes).update(';');
+}
 
 /** Written by the build scripts inside each dist tree; it changes on every write, so it never folds into the tree digest. */
 const BUILD_BINDING_BASENAME = 'full-suite-build-binding.json';
@@ -79,10 +94,12 @@ function artifactTreeDigest(root: string): string {
   if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(root);
   if (!stat.isDirectory()) return 'absent';
   const hash = createHash('sha256');
-  for (const path of filesBelow(root)) {
-    const rel = relative(root, path);
-    if (rel === BUILD_BINDING_BASENAME) continue;
-    hash.update(rel).update('\0').update(readFileSync(path)).update('\0');
+  frame(hash, `${DIGEST_DOMAIN}/tree`);
+  const files = filesBelow(root).filter((path) => relative(root, path) !== BUILD_BINDING_BASENAME);
+  frame(hash, String(files.length));
+  for (const path of files) {
+    frame(hash, relative(root, path));
+    frame(hash, readFileSync(path));
   }
   return hash.digest('hex');
 }
@@ -146,8 +163,11 @@ export function currentBuildArtifactsHash(projectRoot: string): string | undefin
   return readObservedGitState(gitObservationKey(['build-artifacts-hash', root, BUILD_ARTIFACT_ROOTS]), () => {
     try {
       const hash = createHash('sha256');
+      frame(hash, `${DIGEST_DOMAIN}/roots`);
+      frame(hash, String(BUILD_ARTIFACT_ROOTS.length));
       for (const relativeRoot of BUILD_ARTIFACT_ROOTS) {
-        hash.update(relativeRoot).update('\0').update(artifactTreeDigest(join(root, relativeRoot))).update('\0');
+        frame(hash, relativeRoot);
+        frame(hash, artifactTreeDigest(join(root, relativeRoot)));
       }
       return hash.digest('hex');
     } catch {

@@ -250,8 +250,8 @@ export interface ValidationResult {
    * binds this value and refuses when the dist on disk no longer matches.
    */
   buildArtifactsHash?: string;
-  /** Executor observations behind buildArtifactsHash: content digests at plan start and end. */
-  buildArtifacts?: { start?: string; end?: string };
+  /** Executor observations behind buildArtifactsHash: the artifact root it digested and the content digests at plan start and end. */
+  buildArtifacts?: { root?: string; start?: string; end?: string };
   focus?: {
     name: string;
     mode: 'focused';

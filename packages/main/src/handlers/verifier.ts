@@ -2441,6 +2441,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             warnings: [],
             ...(focus ? { focus } : {}),
           }, projectRoot, currentHead(handlerGitCwd), args.story, {
+            gitCwd: handlerGitCwd,
             progress: validationProgressReporter(ctx),
             abortSignal: args.abortSignal,
             deadlineAt: args.deadlineAt,
@@ -2613,6 +2614,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           warnings: [],
           ...(focus ? { focus } : {}),
         }, projectRoot, currentHead(handlerGitCwd), args.story, {
+          gitCwd: handlerGitCwd,
           progress: validationProgressReporter(ctx),
           abortSignal: args.abortSignal,
           deadlineAt: args.deadlineAt,
