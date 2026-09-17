@@ -339,6 +339,34 @@ export function classifyTrustedValidationLineage(args: {
   }
 }
 
+/**
+ * Durable attribution recorded on an EXECUTED validation_terminal: why this
+ * validation ran instead of reusing a prior PASS. Observational only -- no gate,
+ * reuse decision or duplicate-suite grouping reads it. `refusalReasons` is the
+ * same sorted, de-duplicated set the verifier logs; `declinedReason` is set when
+ * the evaluator found the PASS reusable but the reuse path did not take it.
+ */
+export interface RoutineReuseTerminalAttribution {
+  evaluated: true;
+  reusable: boolean;
+  lineage: TrustedValidationLineage;
+  refusalReasons: string[];
+  declinedReason?: string;
+}
+
+export function routineReuseTerminalAttribution(
+  evaluation: RoutineValidationReuseEvaluation,
+  declinedReason?: string,
+): RoutineReuseTerminalAttribution {
+  return {
+    evaluated: true,
+    reusable: evaluation.reusable,
+    lineage: evaluation.lineage,
+    refusalReasons: [...new Set(evaluation.refusalReasons)].sort(),
+    ...(evaluation.reusable && declinedReason ? { declinedReason } : {}),
+  };
+}
+
 export interface RoutineValidationReuseEvaluation {
   reusable: boolean;
   lineage: TrustedValidationLineage;

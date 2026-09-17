@@ -2,7 +2,7 @@ import { withInheritedMachineReservation, withMachineReservationController, mach
 import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, VALIDATION_RESOURCE_KEY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import {
   existsSync,
@@ -859,8 +859,33 @@ export async function withMachineValidationResources<T>(options: ValidationCapac
   }, lockKey, true);
 }
 
-function machinePortAncestorPids(): Set<number> {
-  const text = execFileSync('ps', ['-axo', 'pid=,ppid='], { encoding: 'utf8', timeout: 1000, maxBuffer: 8 * 1024 * 1024 });
+/**
+ * Budget for one ancestor probe. A busy machine can take longer than a second to
+ * list processes; the probe runs asynchronously so heartbeats keep flowing.
+ */
+export const MACHINE_ANCESTOR_PROBE_TIMEOUT_MS = 5000;
+
+/**
+ * Ancestors of this process, or undefined when `ps` did not answer in time or
+ * failed. Unknown ancestry never admits a waiter: the caller only probes while it
+ * is still queued behind another ticket, so it keeps waiting and probes again on
+ * the next poll, bounded by the queue deadline.
+ */
+async function machinePortAncestorPids(
+  options: { timeoutMs: number; signal?: AbortSignal },
+): Promise<Set<number> | undefined> {
+  if (!(options.timeoutMs > 0) || options.signal?.aborted) return undefined;
+  const text = await new Promise<string | undefined>((resolveProbe) => {
+    const child = execFile('ps', ['-axo', 'pid=,ppid='], {
+      encoding: 'utf8', timeout: options.timeoutMs, killSignal: 'SIGKILL', maxBuffer: 8 * 1024 * 1024,
+    }, (error, stdout) => { detach(); resolveProbe(error ? undefined : stdout); });
+    // Cancellation must not wait for a hung probe: kill the child so the caller's
+    // own abort/deadline classification surfaces without the probe's own budget.
+    const cancel = (): void => { try { child.kill('SIGKILL'); } catch { /* already gone */ } };
+    const detach = (): void => { options.signal?.removeEventListener('abort', cancel); };
+    if (options.signal) options.signal.addEventListener('abort', cancel, { once: true });
+  });
+  if (text === undefined) return undefined;
   const parents = new Map<number, number>();
   for (const line of text.trim().split('\n')) {
     const [pid, parent] = line.trim().split(/\s+/).map(Number);
@@ -944,7 +969,19 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
           const prior = readCapacityDeclaration(candidate.path);
           if (prior && declaration && !claimsConflict({ name: command, resources: declaration.resources }, { name: 'prior', resources: prior.resources })) continue;
           if (candidate.holder && candidate.holder.pid !== process.pid) {
-            ancestors ??= machinePortAncestorPids();
+            // The probe never outlives the caller's own budget: it gets at most the
+            // remaining wait, and an abort kills it. The caller's abort/deadline verdict
+            // is re-checked FIRST afterwards, so a conflict detected by a probe that
+            // finished past the deadline never replaces that verdict.
+            const remainingMs = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt)
+              ? options.deadlineAt - Date.now() : Number.POSITIVE_INFINITY;
+            ancestors ??= await machinePortAncestorPids({
+              timeoutMs: Math.min(MACHINE_ANCESTOR_PROBE_TIMEOUT_MS, remainingMs),
+              signal: options.abortSignal,
+            });
+            assertCapacityWaitActive(options);
+            // Unknown ancestry: stay queued and probe again next poll (never admit, never crash).
+            if (!ancestors) break;
             if (ancestors.has(candidate.holder.pid)) throw new Error('nested machine resource acquisition conflicts with an ancestor; declare machine resources on their actual leaf command only');
           }
         }
