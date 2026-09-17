@@ -83,6 +83,22 @@ const groups = {
     utimesSync(root, old, old);
     return root;
   })()],
+  // Present but unrecognized owner records: ownership is uncertain, so the age rule
+  // must not apply. Each is old enough that the legacy rule would otherwise delete it.
+  unrecognizedOwner: [
+    ['unknown-schema-live', JSON.stringify({ schema: 'some.other.owner.v1', pid: live.pid })],
+    ['null-record', 'null'],
+    ['empty-record', '{}'],
+    ['string-pid', JSON.stringify({ schema: 'proof-or-stop.fixture-machine-owner.v1', pid: '4242' })],
+    ['negative-pid', JSON.stringify({ schema: 'proof-or-stop.fixture-machine-owner.v1', pid: -1 })],
+    ['zero-pid', JSON.stringify({ schema: 'proof-or-stop.fixture-machine-owner.v1', pid: 0 })],
+  ].map(([name, body]) => {
+    const root = makeDir(`${PREFIX}owner-${name}`, 7 * HOUR);
+    writeFileSync(join(root, 'owner.json'), body);
+    const at = new Date(Date.now() - 7 * HOUR);
+    utimesSync(join(root, 'owner.json'), at, at); utimesSync(root, at, at);
+    return root;
+  }),
   unrelated: [makeDir('some-other-tool-dir', 8 * HOUR)],
 };
 const symlinkPath = join(parent, `${PREFIX}symlink`);
@@ -103,7 +119,7 @@ try {
   created = blockedCreation ? null : JSON.parse(child.stdout.trim().split('\n').at(-1)).root;
   const exists = (p) => { try { lstatSync(p); return true; } catch { return false; } };
   const count = (list) => list.filter(exists).length;
-  const before = 8 + 2 + 25 + 2 + 1 + 1 + 3;
+  const before = 8 + 2 + 25 + 2 + 1 + 1 + 3 + 6;
   const after = readdirSync(parent).filter((n) => n.startsWith(PREFIX) && n !== 'proof-or-stop-fixture-machine-symlink' && join(parent, n) !== created).length;
   if (created === null) console.log('fixture creation was killed after 60s: the pruner blocked on an owner record');
   console.log('group | seeded | remaining');
@@ -115,6 +131,8 @@ try {
   control(count(groups.liveOwner) === 1, 'a directory whose owner is alive is kept');
   control(count(groups.legacyOldRootRecentNested) === 1, 'a legacy directory with recent nested activity is kept');
   expectRepaired(count(groups.unreadableSubtree) === 1, 'a directory whose subtree cannot be fully inspected is kept');
+  expectRepaired(count(groups.unrecognizedOwner) === groups.unrecognizedOwner.length,
+    `a present but unrecognized owner record keeps the directory (remaining ${count(groups.unrecognizedOwner)} of ${groups.unrecognizedOwner.length})`);
   expectRepaired(count(groups.fifoOwner) === 1 && count(groups.symlinkedOwner) === 1, 'a directory whose owner record is a FIFO or a symlink to one is kept');
   control(count(groups.deadRecent) === 2, 'recently retained directories keep their diagnosis grace');
   control(count(groups.legacyYoung) === 2, 'young legacy directories without an owner record are kept');

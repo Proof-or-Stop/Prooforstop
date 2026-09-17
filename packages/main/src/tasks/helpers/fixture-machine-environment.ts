@@ -103,9 +103,17 @@ export function pruneRetainedFixtureMachines(
       if (!lstatSync(path).isDirectory()) continue; // symlinks and files are never followed or removed
       const owner = readFixtureMachineOwner(join(path, 'owner.json'));
       if (owner === 'unsafe') continue; // unreadable owner record: keep the directory
+      const pid = typeof owner?.pid === 'number' ? owner.pid : undefined;
+      const recognized = owner !== undefined && owner !== null
+        && owner.schema === FIXTURE_MACHINE_OWNER_SCHEMA
+        && pid !== undefined && Number.isSafeInteger(pid) && pid > 0;
+      // Uncertain ownership never authorizes deletion: a present but unrecognized
+      // record (unknown schema, wrong shape, unusable pid) keeps the directory. The
+      // age rule applies only when no owner record exists at all (legacy directories).
+      if (owner !== undefined && !recognized) continue;
       const age = now - newestMtimeMs(path);
-      if (owner && owner.schema === FIXTURE_MACHINE_OWNER_SCHEMA && typeof owner.pid === 'number') {
-        if (processAlive(owner.pid) || age < FIXTURE_MACHINE_RETENTION.deadOwnerGraceMs) continue;
+      if (recognized) {
+        if (processAlive(pid!) || age < FIXTURE_MACHINE_RETENTION.deadOwnerGraceMs) continue;
         deadOwner.push({ path, mtimeMs: now - age });
       } else if (age >= FIXTURE_MACHINE_RETENTION.legacyMinAgeMs) {
         remove(path);
