@@ -11590,7 +11590,7 @@
         "packages/main/src/core/machine.ts": "6a747a10d80606990a18990558a9e01269b34b43c1bbf31d59900eba8fdc328c",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/core/validation-evidence-size-policy.ts": "3186842f297cf62e58b946ef3d67b289a59f4e527cdb9213ebc7f862a3553a7f",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/verification.ts": "f19c12db7bb2a694d3160cc5ff5d5e384326067b060cb1828835f85b83723e4b",
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
@@ -11793,7 +11793,7 @@
         "packages/main/src/core/scope-anti-expansion.ts": "819e50f856f2d4647c69696d9176ff1e99fb8564b3b0b4ddf2f6ba8288be265c",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/core/validation-evidence-size-policy.ts": "3186842f297cf62e58b946ef3d67b289a59f4e527cdb9213ebc7f862a3553a7f",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/verification.ts": "f19c12db7bb2a694d3160cc5ff5d5e384326067b060cb1828835f85b83723e4b",
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
@@ -12084,7 +12084,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -12111,9 +12111,9 @@
     },
     {
       "id": "EX-NESTED-RESERVATION-02",
-      "key": "packages/main/src/core/validation-executor.ts:1113:execSync",
+      "key": "packages/main/src/core/validation-executor.ts:1115:execSync",
       "callDigest": "d10c0b5777dd3dcc84f47b2c6a0a523663a99328f0d337260ea780e00a2fa804",
-      "sourceDigest": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+      "sourceDigest": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
       "configIndexes": [
         173,
         174,
@@ -12188,16 +12188,16 @@
       "requiredEvidence": [
         {
           "file": "packages/main/src/core/validation-executor.ts",
-          "startLine": 1112,
-          "endLine": 1114,
-          "sourceDigest": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+          "startLine": 1114,
+          "endLine": 1116,
+          "sourceDigest": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
           "excerpt": "  try {\n    const raw = execSync('git --no-optional-locks status --porcelain=v1 --untracked-files=all', {\n      cwd: gitCwd,"
         }
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -12224,9 +12224,9 @@
     },
     {
       "id": "EX-NESTED-RESERVATION-03",
-      "key": "packages/main/src/core/validation-executor.ts:1668:spawn",
+      "key": "packages/main/src/core/validation-executor.ts:1688:spawn",
       "callDigest": "ae208362861616a0ef85b4e6e514049d0d74092fda653f09a9294d5e68678bff",
-      "sourceDigest": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+      "sourceDigest": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
       "configIndexes": [
         173,
         174,
@@ -12301,16 +12301,16 @@
       "requiredEvidence": [
         {
           "file": "packages/main/src/core/validation-executor.ts",
-          "startLine": 1667,
-          "endLine": 1669,
-          "sourceDigest": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+          "startLine": 1687,
+          "endLine": 1689,
+          "sourceDigest": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
           "excerpt": "    }\n    const child = spawn(command.command, command.args, {\n      cwd,"
         }
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -12423,7 +12423,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -12536,7 +12536,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -12649,7 +12649,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -12762,7 +12762,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -12875,7 +12875,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -12988,7 +12988,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -13101,7 +13101,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -13214,7 +13214,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -13327,7 +13327,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -13440,7 +13440,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -13553,7 +13553,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -13666,7 +13666,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -13779,7 +13779,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -13892,7 +13892,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -14005,7 +14005,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -14118,7 +14118,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
@@ -14231,7 +14231,7 @@
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "ff6f85e9ccf78e611a567f14d5af23da5a211267286ee26929ae42dd41820a49",
         "packages/main/src/core/validation-execution-lock.ts": "8349623278978de17a7ce59fe5dc7cfe7ee853b0ae199fdaad9abcbb105b16da",
-        "packages/main/src/core/validation-executor.ts": "1141743ea4d5bbf162fcda149e1df3cae3d8cd6ab494b1b28774e1454949477a",
+        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
         "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "4864b3095d71110f906e51b7fe5169830fe9f1ec0d694117f0e07881b47a6671",
