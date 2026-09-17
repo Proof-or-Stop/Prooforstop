@@ -1,45 +1,5 @@
 # Changelog
 
-## Lab heartbeat-smoke-memory-pressure - v0.3.404 - 2026-09-17
-
-# Lab heartbeat-smoke-memory-pressure
-
-## Problem
-The investigation started from validate-progress-heartbeat-smoke failures suspected to come from
-memory pressure. Eight observed runs showed failures uncorrelated with swap-ins, so memory
-pressure is not the cause. The reproduced cause: a validation command without a resource
-declaration takes the same-user, cross-repository machine validation queue exclusively. While
-it waits behind another session's validation, the executor supplied no wait reporter, so the CLI
-printed nothing and the idle watchdog killed a healthy validation ("validate stuck: 1 seconds
-without output"). The machine queue dates from 2026-09-10, so this does not explain the
-July-September historical heartbeat failures, whose causes were fixed earlier. Registered
-validation wraps fixtures in a private machine queue and was not affected; direct runs and real
-CLI invocations were.
-
-## Behavior change
-The executor passes `onWaitProgress` with `progressIntervalMs` equal to the heartbeat interval, and
-emits a `capacity_wait` progress event rendered as
-`validate heartbeat: command i/n <label> waiting for machine validation capacity elapsedMs=... (holder ...)`.
-The wait remains bounded by the queue deadline and the command deadline (unchanged here).
-
-## Verification
-RED/GREEN: `node scripts/verify-validation-queue-wait-heartbeat.mjs` builds packages/main and runs
-the real CLI while a helper holds a ticket in a private fixture machine queue (replays never touch
-the real queue).
-- Before: queued 3 s with idle 1000 ms -> killed as idle, exit 1, 0 wait lines.
-- After: exit 0, 8 wait lines; control with heartbeat slower than idle is still killed; the
-  uncontended run passes.
-Registered wrapper runs of validate-progress-heartbeat-smoke passed 2/2. Process-fact contract PASS.
-
-## Known limits (not changed here)
-Under real contention the smoke can still fail when another validation holds the queue longer than
-a command's timeout (addressed separately by the queue-wait timeout Lab), and an idle row may
-report `blocked` if its idle budget expires while queued.
-
-Maintenance provenance: codex/lab-heartbeat-smoke-memory-pressure, repair 6ce6f1b4559c25bffad6a207f022e991ea92f2c7.
-Verification command (replayed before integration and on main): `["node","scripts/verify-validation-queue-wait-heartbeat.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab reuse-host-session-environment - v0.3.403 - 2026-09-17
 
 # Lab reuse-host-session-environment
