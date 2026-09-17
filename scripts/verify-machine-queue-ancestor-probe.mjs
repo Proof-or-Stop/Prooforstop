@@ -10,7 +10,7 @@
 //
 // Drives this checkout's built queue in child processes that share a private
 // fixture machine queue (never the real one). The waiting process sees a `ps`
-// that answers after 1500 ms. Controls: a real ancestor conflict is still
+// that answers the ancestor probe (`-axo pid=,ppid=`) after 1500 ms. Controls: a real ancestor conflict is still
 // refused, and a probe that never answers never admits the waiter early.
 import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -35,7 +35,9 @@ const realPs = execFileSync('/usr/bin/which', ['ps'], { encoding: 'utf8' }).trim
 
 function shim(name, delaySeconds, neverAnswers = false) {
   const dir = join(sandbox, name); mkdirSync(dir);
-  const body = neverAnswers ? 'exec sleep 3600\n' : `sleep ${delaySeconds}\nexec ${realPs} "$@"\n`;
+  // Only the ancestor probe's exact argv is slowed; every other ps call answers normally.
+  const slow = neverAnswers ? 'exec sleep 3600' : `sleep ${delaySeconds}`;
+  const body = `if [ "$1" = "-axo" ] && [ "$2" = "pid=,ppid=" ]; then\n  ${slow}\nfi\nexec ${realPs} "$@"\n`;
   writeFileSync(join(dir, 'ps'), `#!/bin/sh\n${body}`); chmodSync(join(dir, 'ps'), 0o755);
   return `${dir}:${process.env.PATH}`;
 }
