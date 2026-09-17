@@ -9,7 +9,7 @@ import { managedReviewLaneEnvironment, type ManagedReviewLane } from './managed-
 import { MANAGED_REVIEW_LANE_ARTIFACT } from './runtime-artifact-registry.js';
 import { ACCEPTANCE_REVIEW_PROFILE } from './acceptance-amendment-review.js';
 
-type ManagedHost = 'codex' | 'claude';
+type ManagedHost = 'codex' | 'claude' | 'grok';
 type SingletonProfile = typeof ACCEPTANCE_REVIEW_PROFILE | 'cross_host_review_codex';
 interface SingletonRequest {
  root:string; storyId:string; profile:SingletonProfile; lane:string; host:ManagedHost;
@@ -37,7 +37,7 @@ export function bindManagedSingletonSubmission(args:ManagedHostRunSubmitArgs,tok
  submissions.set(args,token);return args;
 }
 export async function consumeManagedLaunchAdmission(args:ManagedHostRunSubmitArgs,effectiveBaseEnvironment:NodeJS.ProcessEnv,launchReservation:{runId:string;deadlineAt:string}):Promise<ManagedLaunchAdmission> {
- if(!args.storyId||!args.profile||(args.host!=='codex'&&args.host!=='claude'))throw new Error('managed batch admission subject unavailable');
+ if(!args.storyId||!args.profile||(args.host!=='codex'&&args.host!=='claude'&&args.host!=='grok'))throw new Error('managed batch admission subject unavailable');
  let admitted;
  if(args.profile==='managed_reviewer') {
   if(!args.lane||args.agentType!==args.lane||!args.reviewRunId)throw new Error('managed batch admission review lane missing');

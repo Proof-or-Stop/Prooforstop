@@ -25,4 +25,89 @@ try {
  catch {assert.fail('ISOLATED_REVIEW_AUTH_RED: authenticated Grok file state must be supported without using the ambient home');}
  assert.equal(state.host,'grok');
  assert.equal(state.directory,grok);
+ const api=await import(pathToFileURL(join(repo,'packages/main/dist/core/managed-review-provider-state.js')).href);
+ const credentials=fs.readFileSync(join(grok,'auth.json'),'utf8');
+ fs.writeFileSync(join(grok,'config.toml'),'[cli]\nuse_leader = true\nauto_update = true\n');
+ const captured=api.captureManagedProviderState('grok',{GROK_HOME:grok});
+ fs.writeFileSync(join(grok,'auth.json'),'{}');
+ const cache=join(root,'cache');fs.mkdirSync(cache,{mode:0o700});
+ const privateState=api.materializeManagedProviderState(cache,captured);
+ assert.equal(fs.readFileSync(join(privateState.directory,'auth.json'),'utf8'),credentials,'snapshot must not reread changed credentials');
+ assert.equal(fs.statSync(join(privateState.directory,'auth.json')).mode&0o777,0o600);
+ assert.equal(fs.statSync(privateState.directory).mode&0o777,0o700);
+ assert.match(fs.readFileSync(join(privateState.directory,'config.toml'),'utf8'),/use_leader = false/);
+ assert.match(fs.readFileSync(join(grok,'config.toml'),'utf8'),/use_leader = true/,'original config unchanged');
+ assert.equal(api.managedProviderStateEnvironment(privateState).GROK_HOME,privateState.directory);
+ assert.throws(()=>api.captureManagedProviderState('grok',{GROK_HOME:grok}),/supported nonempty/);
+ fs.unlinkSync(join(grok,'auth.json'));
+ assert.throws(()=>api.captureManagedProviderState('grok',{GROK_HOME:grok}),/requires an existing/);
+ assert.equal(api.preflightManagedProviderState('grok',{GROK_HOME:grok,XAI_API_KEY:'synthetic-key'}).credentials,null);
+ fs.symlinkSync(join(root,'auth.json'),join(grok,'auth.json'));
+ assert.throws(()=>api.captureManagedProviderState('grok',{GROK_HOME:grok}),/bounded regular/);
+
+ // Exercise the production fixed Keychain reader without touching actual login state.
+ const cp=(await import('node:child_process')).default;
+ const os=(await import('node:os')).default;
+ const {syncBuiltinESMExports}=await import('node:module');
+ const savedExec=cp.execFileSync,savedHome=os.homedir;
+ const fakeHome=join(root,'home');fs.mkdirSync(join(fakeHome,'.claude'),{recursive:true});
+ let keychainCalls=0;
+ try {
+   os.homedir=()=>fakeHome;
+   cp.execFileSync=(command,argv,options)=>{
+     assert.equal(command,'/usr/bin/security');
+     assert.deepEqual(argv,['find-generic-password','-s','Claude Code-credentials','-w']);
+     assert(options.timeout>0&&options.maxBuffer>0);keychainCalls++;
+     return Buffer.from(JSON.stringify({claudeAiOauth:{accessToken:'fixture-access',refreshToken:'fixture-refresh'},mcpOAuth:{unrelated:'DO-NOT-COPY'}}));
+   };
+   syncBuiltinESMExports();
+   if(process.platform==='darwin') {
+     const snap=api.captureManagedProviderState('claude',{});
+     const target=join(root,'claude-cache');fs.mkdirSync(target,{mode:0o700});
+     const isolated=api.materializeManagedProviderState(target,snap);
+     const bytes=fs.readFileSync(join(isolated.directory,'.credentials.json'),'utf8');
+     assert.deepEqual(Object.keys(JSON.parse(bytes)),['claudeAiOauth']);
+     assert(!bytes.includes('DO-NOT-COPY'));
+     assert(keychainCalls>0);
+     const calls=keychainCalls;
+     assert.throws(()=>api.captureManagedProviderState('claude',{CLAUDE_CONFIG_DIR:grok}),/requires an existing/);
+     assert.equal(keychainCalls,calls,'custom homes must never use another account Keychain');
+     cp.execFileSync=()=>{throw new Error('SECRET-CREDENTIAL-ERROR');};syncBuiltinESMExports();
+     assert.throws(()=>api.captureManagedProviderState('claude',{}),error=>/credential unavailable/.test(error.message)&&!String(error).includes('SECRET'));
+     cp.execFileSync=()=>Buffer.from('{"claudeAiOauth":{}}');syncBuiltinESMExports();
+     assert.throws(()=>api.captureManagedProviderState('claude',{}),/supported nonempty/);
+   }
+ } finally {cp.execFileSync=savedExec;os.homedir=savedHome;syncBuiltinESMExports();}
+ const {FinalAssistantResultScanner,materializeHostRunLaunch}=await import(pathToFileURL(join(repo,'packages/main/dist/core/host-run.js')).href);
+ const schema='fixture.review.v1',proposal={schemaVersion:schema,verdict:'pass'};
+ const scanner=new FinalAssistantResultScanner('grok',4096,schema);
+ scanner.push(JSON.stringify({type:'result',subtype:'success',structured_output:proposal})+'\n');scanner.flush();
+ assert.equal(scanner.snapshot().result,JSON.stringify(proposal));
+ const failed=new FinalAssistantResultScanner('grok',4096,schema);
+ failed.push(JSON.stringify({type:'result',subtype:'error_during_execution',structured_output:proposal})+'\n');failed.flush();
+ assert.equal(failed.snapshot().result,null);
+ const duplicate=new FinalAssistantResultScanner('grok',4096,schema);
+ const envelope=JSON.stringify({type:'result',subtype:'success',structured_output:proposal})+'\n';
+ duplicate.push(envelope+envelope);duplicate.flush();assert.equal(duplicate.snapshot().count,2,'duplicate terminal proposals remain ambiguous');
+ const contradictory=new FinalAssistantResultScanner('grok',4096,schema);
+ contradictory.push(JSON.stringify({type:'result',subtype:'success',is_error:true,structured_output:proposal})+'\n');contradictory.flush();assert.equal(contradictory.snapshot().result,null);
+ const oversize=new FinalAssistantResultScanner('grok',96,schema);
+ oversize.push(JSON.stringify({type:'result',subtype:'success',structured_output:{...proposal,note:'x'.repeat(512)}})+'\n');oversize.flush();assert.equal(oversize.snapshot().truncated,true);
+ const lateFailure=new FinalAssistantResultScanner('grok',4096,schema);lateFailure.push(envelope+JSON.stringify({type:'error',message:'fixture failure'})+'\n');lateFailure.flush();assert.equal(lateFailure.snapshot().result,null);
+ const {parseLiveProviderUsage}=await import(pathToFileURL(join(repo,'packages/main/dist/core/usage-ledger/dispatch-usage.js')).href);
+ const usage=parseLiveProviderUsage('grok',JSON.stringify({type:'result',usage:{input_tokens:12,output_tokens:3,cache_read_input_tokens:4,cache_creation_input_tokens:2}}));
+ assert.equal(usage.provider,'grok');assert.equal(usage.tokens,21);
+ assert.equal(parseLiveProviderUsage('grok',JSON.stringify({type:'result'})),null);
+ const {ReviewerBatchAdmitArgsSchema}=await import(pathToFileURL(join(repo,'packages/main/dist/core/reviewer-batch-admit-schema.js')).href);
+ assert.equal(ReviewerBatchAdmitArgsSchema.parse({storyId:'fixture',assignments:[{lane:'proof-or-stop-review-quality',kind:'managed',host:'grok'}]}).assignments[0].host,'grok');
+ const {canonicalReviewHostLauncherSpec,classifyReviewHostLauncher}=await import(pathToFileURL(join(repo,'packages/main/dist/core/host-execution-readiness.js')).href);
+ assert.equal(classifyReviewHostLauncher('grok',canonicalReviewHostLauncherSpec('grok').launcherArgv).launcherOk,true);
+ const launch=materializeHostRunLaunch({host:'grok',promptText:'fixture-private-prompt',cwd:root,root});
+ try {
+   assert.equal(launch.command,'grok');assert(!launch.argv.includes('fixture-private-prompt'));
+   const index=launch.argv.indexOf('--prompt-file');assert(index>=0);
+   assert.equal(fs.readFileSync(launch.argv[index+1],'utf8'),'fixture-private-prompt');
+   assert.equal(fs.statSync(launch.argv[index+1]).mode&0o777,0o600);
+ } finally {launch.cleanup();}
+ console.log('ISOLATED_REVIEW_AUTH_PASS: private Claude/Grok authentication, no ambient mutation, protected prompt and terminal-only result');
 } finally {rmSync(root,{recursive:true,force:true});}

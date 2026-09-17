@@ -240,8 +240,9 @@ function wantsJson(args: FormatArgs | undefined): boolean {
 function normalizeHost(raw: string): HostRunHost {
   const value = raw.trim().toLowerCase();
   if (value === 'codex') return 'codex';
+  if (value === 'grok') return 'grok';
   if (value === 'claude' || value === 'claude-code') return 'claude';
-  throw new Error(`host_run: unsupported host "${raw}" (expected codex | claude)`);
+  throw new Error(`host_run: unsupported host "${raw}" (expected codex | claude | grok)`);
 }
 
 function projectRootHashFor(root: string): string {

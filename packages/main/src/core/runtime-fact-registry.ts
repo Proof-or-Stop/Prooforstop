@@ -27,6 +27,13 @@ export const MACHINE_HEAVY_RESOURCE_POLICY = { cpuKey: 'heavy', processKey: 'fan
 export const VALIDATION_RESOURCE_KEY_RUNTIME_POLICY = { literalClasses: ['fixed-port', 'machine-cpu', 'machine-process', 'machine-validation'], pathResolution: 'command-cwd', validation: 'before-normalization' } as const;
 export const VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY = { descriptor: 4, descriptorEnvironment: 'PROOF_OR_STOP_VALIDATION_RESERVATION_FD', diagnosticsEnvironment: 'PROOF_OR_STOP_DELEGATION_DIAGNOSTICS', maxMessageBytes: 32768, kernelObservationMs: 1000, workerRegistrationMs: 5000, cleanupMs: 2000, observationRetries: 3, observationBackoffMs: 50, retirementPollMs: 20, retirementPollMaxMs: 500, platform: 'darwin', authority: 'live-machine-ticket-and-kernel-matched-inherited-descriptor', forwarding: 'explicit-node-spawn-boundary-only', cleanup: 'registered-group-absence-before-release' } as const;
 export const MACHINE_FIXED_PORT_RUNTIME_POLICY = { directoryMode: 0o700, probeTimeoutMs: 1000, queueDeadlineMs: 300000, scope: 'same-os-user-across-repositories', admissionBoundary: 'actual-command-child', unknownResources: 'exclusive-machine-queue', classifiedEmptyResources: 'shared-machine-barrier', barrierKey: 'admission' } as const;
+export const MANAGED_REVIEW_AUTH_RUNTIME_POLICY = {
+  hosts: ['codex', 'claude', 'grok'],
+  claudeKeychainService: 'Claude Code-credentials', keychainExecutable: '/usr/bin/security',
+  keychainTimeoutMs: 10000, keychainScope: 'default-macos-claude-directory-only',
+  grokEnvironmentKey: 'GROK_HOME', grokSharedLeader: false,
+  secretTransport: 'private-captured-files-only', credentialLogging: 'forbidden',
+} as const;
 export const MANAGED_REVIEW_TEMP_RUNTIME_POLICY = { environmentKeys: ['TMPDIR', 'TMP', 'TEMP'], directoryMode: 0o700, isolation: 'per-managed-review-scratch' } as const;
 export const OWNER_SESSION_IDENTITY_RUNTIME_POLICY = {
   primaryWorktreeProbeCommand: 'git worktree list --porcelain -z',

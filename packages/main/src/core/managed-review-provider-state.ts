@@ -1,15 +1,16 @@
 import { REVIEWER_BATCH_ADMISSION_ARTIFACT } from './runtime-artifact-registry.js';
-import { MANAGED_PROVIDER_SEED_RUNTIME_POLICY as seedPolicy } from './runtime-fact-registry.js';
+import { MANAGED_PROVIDER_SEED_RUNTIME_POLICY as seedPolicy, MANAGED_REVIEW_AUTH_RUNTIME_POLICY as authPolicy } from './runtime-fact-registry.js';
 import { managedExecutionKeyedDigest, type ManagedExecutionIdentityKey } from './managed-execution-identity-key.js';
 import { randomUUID } from 'node:crypto';
-import { parse as parseToml } from 'smol-toml';
+import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
-/** Registered file-cache adapter. Never exports a macOS Keychain credential. */
+import { execFileSync } from 'node:child_process';
+/** Private provider snapshots; only the controller reads the exact Claude login item. */
 import { linkSync, unlinkSync, constants, openSync, closeSync, fstatSync, readSync, existsSync, lstatSync, realpathSync, mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { CLAUDE_NONINTERACTIVE_AUTH_ENV_VARS } from '../providers/claude-cli.js';
-export interface ManagedReviewProviderState { host:'codex'|'claude'; directory:string; adapter:'isolated-file-cache-v1' }
+export interface ManagedReviewProviderState { host:'codex'|'claude'|'grok'; directory:string; adapter:'isolated-file-cache-v1' }
 const maxFileBytes=MANAGED_REVIEW_READONLY_RUNTIME_POLICY.providerFileMaxBytes;
 function inputFile(path:string): boolean {
   let info;try{info=lstatSync(path);}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return false;throw error;}
@@ -17,41 +18,58 @@ function inputFile(path:string): boolean {
 }
 function record(value:unknown): value is Record<string,unknown> {return value!==null&&typeof value==='object'&&!Array.isArray(value);}
 function nonempty(value:unknown): value is string {return typeof value==='string'&&value.trim().length>0;}
-function validateInput(host:'codex'|'claude',kind:'credentials'|'configuration',bytes:Buffer): void {
+function validateInput(host:'codex'|'claude'|'grok',kind:'credentials'|'configuration',bytes:Buffer): void {
   if(bytes.length>maxFileBytes)throw new Error('managed provider config/cache exceeds bounded input');
   let value:unknown;
-  try {value=host==='codex'&&kind==='configuration'?parseToml(bytes.toString('utf8')):JSON.parse(bytes.toString('utf8'));}
+  try {value=host!=='claude'&&kind==='configuration'?parseToml(bytes.toString('utf8')):JSON.parse(bytes.toString('utf8'));}
   catch {throw new Error(`managed ${host} ${kind} syntax invalid`);}
   if(!record(value))throw new Error(`managed ${host} ${kind} must be an object`);
   if(kind==='credentials') {
     const supported=host==='codex'
       ? nonempty(value.OPENAI_API_KEY)||(record(value.tokens)&&nonempty(value.tokens.access_token)&&nonempty(value.tokens.refresh_token)&&nonempty(value.tokens.id_token))
+      : host==='grok' ? Object.values(value).some(row=>record(row)&&nonempty(row.key)&&nonempty(row.auth_mode))
       : record(value.claudeAiOauth)&&nonempty(value.claudeAiOauth.accessToken)&&nonempty(value.claudeAiOauth.refreshToken);
     if(!supported)throw new Error(`managed ${host} credentials have no supported nonempty file-cache shape`);
   } else if(host==='codex'&&value.cli_auth_credentials_store!==undefined&&value.cli_auth_credentials_store!=='file') {
     throw new Error('managed Codex file-cache adapter cannot override a non-file credential-store policy');
   }
 }
-export function preflightManagedProviderState(host:string,env:NodeJS.ProcessEnv): {host:'codex'|'claude'; directory:string; credentials:string|null; configuration:string|null} {
-  if(host!=='codex'&&host!=='claude')throw new Error('managed readonly provider state adapter unsupported');
-  const requested=host==='codex'?(env.CODEX_HOME??join(homedir(),'.codex')):(env.CLAUDE_CONFIG_DIR??join(homedir(),'.claude'));
+export function preflightManagedProviderState(host:string,env:NodeJS.ProcessEnv): {host:'codex'|'claude'|'grok'; directory:string; credentials:string|null; configuration:string|null; keychain?:true} {
+  if(host!=='codex'&&host!=='claude'&&host!=='grok')throw new Error('managed readonly provider state adapter unsupported');
+  const requested=host==='codex'?(env.CODEX_HOME??join(homedir(),'.codex')):host==='grok'?(env.GROK_HOME??join(homedir(),'.grok')):(env.CLAUDE_CONFIG_DIR??join(homedir(),'.claude'));
   if(!isAbsolute(requested))throw new Error('managed provider configuration directory must be absolute');
   const directory=existsSync(requested)?realpathSync(requested):requested;
-  const credentials=join(directory,host==='codex'?'auth.json':'.credentials.json');
-  const configuration=join(directory,host==='codex'?'config.toml':'settings.json');
+  const credentials=join(directory,host==='claude'?'.credentials.json':'auth.json');
+  const configuration=join(directory,host==='claude'?'settings.json':'config.toml');
   const credentialFile=inputFile(credentials),configFile=inputFile(configuration);
-  const envAuth=host==='claude'&&CLAUDE_NONINTERACTIVE_AUTH_ENV_VARS.some(name=>Boolean(env[name]?.trim()));
-  if(!credentialFile&&!envAuth)throw new Error(`managed ${host} isolated cache requires an existing file credential${host==='claude'?' or registered noninteractive credential environment':''}; keyring-only authentication is unsupported because directory isolation changes credential identity`);
+  if(host==='grok'&&['requirements.toml','managed_config.toml'].some(name=>existsSync(join(directory,name))))throw new Error('managed Grok home policy files require an explicit isolation adapter; refusing to omit them');
+  const envAuth=(host==='claude'?CLAUDE_NONINTERACTIVE_AUTH_ENV_VARS:host==='grok'?['XAI_API_KEY']:[]).some(name=>Boolean(env[name]?.trim()));
+  const keychain=!credentialFile&&!envAuth&&host==='claude'&&process.platform==='darwin'&&existsSync(join(homedir(),'.claude'))&&directory===realpathSync(join(homedir(),'.claude'));
+  if(keychain)captureClaudeKeychain();
+  if(!credentialFile&&!envAuth&&!keychain)throw new Error(`managed ${host} isolated cache requires an existing file credential or a registered noninteractive credential environment; Claude Keychain fallback supports only the default macOS configuration directory`);
   if(credentialFile)captureFile(credentials,host,'credentials');
   if(configFile)captureFile(configuration,host,'configuration');
-  return {host,directory,credentials:credentialFile?credentials:null,configuration:configFile?configuration:null};
+  return {host,directory,credentials:credentialFile?credentials:null,configuration:configFile?configuration:null,...(keychain?{keychain:true as const}:{})};
+}
+/** Never return provider error output: it may contain credential bytes. No shell or PATH lookup. */
+function captureClaudeKeychain():Buffer {
+  let raw:Buffer;
+  try {raw=execFileSync(authPolicy.keychainExecutable,['find-generic-password','-s',authPolicy.claudeKeychainService,'-w'],
+    {timeout:authPolicy.keychainTimeoutMs,maxBuffer:maxFileBytes,stdio:['ignore','pipe','pipe']});}
+  catch {throw new Error('managed Claude default Keychain credential unavailable; authenticate with Claude or configure noninteractive credentials');}
+  let parsed:unknown;
+  try {parsed=JSON.parse(raw.toString('utf8'));}catch {throw new Error('managed Claude Keychain credential syntax invalid');}
+  if(!record(parsed)||!record(parsed.claudeAiOauth))throw new Error('managed Claude Keychain OAuth credential missing');
+  // MCP OAuth and unrelated account secrets never enter the reviewer snapshot.
+  const bytes=Buffer.from(JSON.stringify({claudeAiOauth:parsed.claudeAiOauth}));
+  validateInput('claude','credentials',bytes);return bytes;
 }
 declare const snapshotBrand: unique symbol;
 /** Controller-local capability. It cannot be reconstructed from JSON. */
 export interface ManagedProviderStateSnapshot { readonly [snapshotBrand]: true }
-type CapturedState = { host:'codex'|'claude'; files: Array<{name:string; bytes:Buffer}> };
+type CapturedState = { host:'codex'|'claude'|'grok'; files: Array<{name:string; bytes:Buffer}> };
 const capturedStates = new WeakMap<ManagedProviderStateSnapshot, CapturedState>();
-function captureFile(path:string,host:'codex'|'claude',kind:'credentials'|'configuration'):Buffer {
+function captureFile(path:string,host:'codex'|'claude'|'grok',kind:'credentials'|'configuration'):Buffer {
   const fd=openSync(path,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);
   try {
     const before=fstatSync(fd);
@@ -66,8 +84,16 @@ function captureFile(path:string,host:'codex'|'claude',kind:'credentials'|'confi
 export function captureManagedProviderState(host:string,env:NodeJS.ProcessEnv):ManagedProviderStateSnapshot {
   const inputs=preflightManagedProviderState(host,env);
   const files:CapturedState['files']=[];
-  for(const [source,name,kind] of [[inputs.credentials,host==='codex'?'auth.json':'.credentials.json','credentials'],[inputs.configuration,host==='codex'?'config.toml':'settings.json','configuration']] as const) {
+  if(inputs.keychain)files.push({name:'.credentials.json',bytes:captureClaudeKeychain()});
+  for(const [source,name,kind] of [[inputs.credentials,host==='claude'?'.credentials.json':'auth.json','credentials'],[inputs.configuration,host==='claude'?'settings.json':'config.toml','configuration']] as const) {
     if(source)files.push({name,bytes:captureFile(source,inputs.host,kind)});
+  }
+  if(inputs.host==='grok') {
+    const config=files.find(file=>file.name==='config.toml');
+    const value=config?parseToml(config.bytes.toString('utf8')):{};
+    const cli=record(value.cli)?value.cli:{};
+    const bytes=Buffer.from(stringifyToml({...value,cli:{...cli,use_leader:false,auto_update:false}}));
+    if(config)config.bytes=bytes;else files.push({name:'config.toml',bytes});
   }
   const token=Object.freeze({}) as ManagedProviderStateSnapshot;
   capturedStates.set(token,{host:inputs.host,files});return token;
@@ -94,16 +120,16 @@ export function createManagedProviderState(cache:string,host:string,env:NodeJS.P
   return materializeManagedProviderState(cache,captureManagedProviderState(host,env));
 }
 export function managedProviderStateEnvironment(state:ManagedReviewProviderState):NodeJS.ProcessEnv {
-  return state.host==='codex'?{CODEX_HOME:state.directory}:{CLAUDE_CONFIG_DIR:state.directory};
+  return state.host==='codex'?{CODEX_HOME:state.directory}:state.host==='grok'?{GROK_HOME:state.directory,GROK_DISABLE_AUTOUPDATER:'1'}:{CLAUDE_CONFIG_DIR:state.directory};
 }
 
 export interface ManagedProviderSeedBinding {
   subjectIdentity: string;
   generation: number;
-  host: 'codex' | 'claude';
+  host: 'codex' | 'claude' | 'grok';
 }
 function seedFile(directory:string,binding:ManagedProviderSeedBinding):string {
-  if(!binding.subjectIdentity||!Number.isSafeInteger(binding.generation)||binding.generation<1||!['codex','claude'].includes(binding.host))throw new Error('invalid provider seed binding');
+  if(!binding.subjectIdentity||!Number.isSafeInteger(binding.generation)||binding.generation<1||!['codex','claude','grok'].includes(binding.host))throw new Error('invalid provider seed binding');
   const info=lstatSync(directory);
   if(!info.isDirectory()||info.isSymbolicLink()||(info.mode&0o077)!==0||info.uid!==process.getuid?.())throw new Error('provider seed requires private controller directory');
   return join(realpathSync(directory),`generation-${binding.generation}-${binding.host}${REVIEWER_BATCH_ADMISSION_ARTIFACT.seedFileSuffix}`);
@@ -140,7 +166,7 @@ export function readCapturedManagedProviderSeed(directory:string,key:ManagedExec
   if(typeof envelope.serialized!=='string'||typeof envelope.signature!=='string'||managedExecutionKeyedDigest(key,'managed-provider-seed.v1',[Buffer.from(envelope.serialized)])!==envelope.signature)throw new Error('provider seed integrity mismatch');
   const body=JSON.parse(envelope.serialized);
   if(body.schema!=='managed-provider-seed.v1'||body.binding?.subjectIdentity!==binding.subjectIdentity||body.binding?.generation!==binding.generation||body.binding?.host!==binding.host||!Array.isArray(body.files)||body.files.length>seedPolicy.maxFiles)throw new Error('provider seed binding mismatch');
-  const allowed=binding.host==='codex'?['auth.json','config.toml']:['.credentials.json','settings.json'];
+  const allowed=binding.host==='claude'?['.credentials.json','settings.json']:['auth.json','config.toml'];
   const names=new Set<string>();const files:CapturedState['files']=[];
   for(const file of body.files){
     if(!file||!allowed.includes(file.name)||names.has(file.name)||typeof file.base64!=='string')throw new Error('invalid provider seed entry');

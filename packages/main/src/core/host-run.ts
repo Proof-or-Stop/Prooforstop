@@ -498,11 +498,11 @@ export const HOST_RUN_REFUSAL_EXIT_CODE = 3;
 // ---------------------------------------------------------------------------
 
 function ledgerHostKind(host: HostRunHost): string {
-  return host === 'codex' ? 'codex' : host === 'claude' ? 'claude-code' : 'antigravity';
+  return host === 'codex' ? 'codex' : host === 'claude' ? 'claude-code' : host === 'grok' ? 'grok' : 'antigravity';
 }
 
 function hostProviderName(host: HostRunHost): string {
-  return host === 'codex' ? 'openai' : host === 'claude' ? 'anthropic' : 'antigravity';
+  return host === 'codex' ? 'openai' : host === 'claude' ? 'anthropic' : host === 'grok' ? 'xai' : 'antigravity';
 }
 
 function resolvePhase(
@@ -1240,7 +1240,7 @@ export class FinalAssistantResultScanner {
   }
 
   push(text: string): void {
-    if ((this.host !== 'codex' && this.host !== 'claude') || text.length === 0) return;
+    if ((this.host !== 'codex' && this.host !== 'claude' && this.host !== 'grok') || text.length === 0) return;
     let data = text;
     while (data.length > 0) {
       const nl = data.indexOf('\n');
@@ -1324,6 +1324,13 @@ export class FinalAssistantResultScanner {
 
   private consider(line: string, terminated: boolean): void {
     const event = parseJsonObjectLine(line);
+    // Grok promises one terminal result. A failed or later event cannot leave
+    // an earlier successful proposal eligible for signed intake.
+    if (this.host === 'grok' && (event?.type === 'error'
+      || (this.candidateCount > 0 && line.trim() && event?.type !== 'result')
+      || (event?.type === 'result' && (event.subtype !== 'success' || event.is_error === true)))) {
+      this.candidateCount += 1; this.result = null; return;
+    }
     let candidate: unknown;
     if (this.host === 'codex') {
       // `codex exec` without --json writes the final assistant text directly
@@ -1345,13 +1352,13 @@ export class FinalAssistantResultScanner {
       const record = item as Record<string, unknown>;
       if (record.type !== 'agent_message') return;
       candidate = record.text;
-    } else if (this.host === 'claude') {
+    } else if (this.host === 'claude' || this.host === 'grok') {
       if (!event) return;
       if (event.type !== 'result') return;
       // F-142: only a successful provider-validated structured_output is a
       // proposal candidate. Error/non-success result events and success events
       // without structured_output are ignored; event.result is never used.
-      if (event.subtype !== 'success') return;
+      if (event.subtype !== 'success' || event.is_error === true) return;
       if (!Object.prototype.hasOwnProperty.call(event, 'structured_output')) return;
       candidate = JSON.stringify(event.structured_output);
     } else {
@@ -1446,7 +1453,7 @@ export function usageLineRetainerFor(host: HostRunHost): HostRunUsageLineRetaine
       return typeof usage === 'object' && usage !== null && !Array.isArray(usage);
     };
   }
-  if (host === 'claude') {
+  if (host === 'claude' || host === 'grok') {
     return (line: string): boolean => {
       const event = parseJsonObjectLine(line);
       if (event === null) return false;
@@ -2217,7 +2224,7 @@ export function materializeHostRunLaunch(
     };
   }
   const spec = canonicalReviewHostLauncherSpec(args.host);
-  if (args.host === 'claude') {
+  if (args.host === 'claude' || args.host === 'grok') {
     // Claude Code's tool sandbox permits file reads only beneath its working
     // directory. Formal managed reviewers therefore receive the authoritative
     // one-shot prompt from the ignored runtime tree inside that exact cwd;
@@ -2252,17 +2259,17 @@ export function materializeHostRunLaunch(
     // The canonical Claude launcher ends in its protected prompt-file token.
     // Insert selectors immediately before it so flag/value pairs stay intact.
     argv.splice(
-      argv.length - 1,
+      argv.length - (args.host==='grok'?2:1),
       0,
       ...(selection.model ? ['--model', selection.model] : []),
-      ...(selection.reasoningEffort ? ['--effort', selection.reasoningEffort] : []),
+      ...(selection.reasoningEffort ? [args.host==='grok'?'--reasoning-effort':'--effort', selection.reasoningEffort] : []),
     );
     if (args.launchProfile === 'managed_reviewer') {
       // A detached managed reviewer has no human terminal on which Claude can
       // approve its required inspection/Lattice commands. Scope this mode to
       // the signed managed-review profile; ordinary Claude runs retain policy.
       argv.splice(
-        argv.length - 1,
+        argv.length - (args.host==='grok'?2:1),
         0,
         '--permission-mode', 'bypassPermissions',
         '--json-schema', args.finalResultSchema === ACCEPTANCE_REVIEW_FINAL_SCHEMA ? JSON.stringify(acceptanceReviewJsonSchema()) : managedReviewClaudeJsonSchema(args),
@@ -2343,8 +2350,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   // codex | claude | agy"), whereas agy is a known host with an unmet transport
   // precondition, which deserves the specific refusal message rather than being
   // misreported as an unsupported host.
-  if (args.host !== 'codex' && args.host !== 'claude' && args.host !== 'agy') {
-    throw new Error(`host_run: unsupported host "${String(args.host)}" (expected codex | claude | agy)`);
+  if (args.host !== 'codex' && args.host !== 'claude' && args.host !== 'grok' && args.host !== 'agy') {
+    throw new Error(`host_run: unsupported host "${String(args.host)}" (expected codex | claude | grok | agy)`);
   }
   if (typeof args.promptText !== 'string' || args.promptText.length === 0) {
     throw new Error('host_run: promptText is required (empty prompt refused pre-spawn)');
@@ -2906,26 +2913,29 @@ function recordFinalForHost(
       };
     }
 
-    // agy: no usage surface — always an unavailable final.
+    // Grok compatibility-stream counters can contain placeholder zeroes; retain raw output,
+    // but do not claim complete usage without a verified ledger completeness signal.
+    const unavailableProvider = args.host === 'grok' ? 'xai' : 'antigravity';
+    const unavailableReason = args.host === 'grok' ? 'grok_usage_completeness_unverified' : 'agy_print_mode_reports_no_usage';
     const res = recordDispatchUnavailableFinal(
       args.root,
       ctx,
       correlation,
       estimateRecordId,
-      { name: 'antigravity', model: null },
-      'agy_print_mode_reports_no_usage',
+      { name: unavailableProvider, model: null },
+      unavailableReason,
       opts,
     );
     // F-021: only claim the unavailable row when it actually appended.
-    if (!res.recorded) return appendFailedSummary('antigravity', res.reason ?? null);
+    if (!res.recorded) return appendFailedSummary(unavailableProvider, res.reason ?? null);
     return {
       recorded: 'unavailable',
-      provider: 'antigravity',
+      provider: unavailableProvider,
       input: null,
       cacheRead: null,
       output: null,
       recordId: res.recordId,
-      reason: 'agy_print_mode_reports_no_usage',
+      reason: unavailableReason,
     };
   } catch {
     // The seam never throws to the run; a final-record failure degrades the summary.

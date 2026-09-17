@@ -1719,7 +1719,7 @@ function readTerminal(paths: ManagedHostRunPaths): ManagedHostRunTerminal | null
  */
 function cleanupManagedClaudePromptForTerminal(paths: ManagedHostRunPaths): void {
   const { text: specText, value: spec } = readManagedHostRunSpec(paths);
-  if (!isIsolatedReviewerProfile(spec.profile) || spec.host !== 'claude') return;
+  if (!isIsolatedReviewerProfile(spec.profile) || (spec.host !== 'claude' && spec.host !== 'grok')) return;
 
   const owner = readManagedHostRunOwner(paths);
   if (
