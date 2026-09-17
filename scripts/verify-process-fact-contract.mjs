@@ -6059,7 +6059,12 @@ function processFactRegistryMap() {
 
 assert(read(processFactRegistryPath).includes("name: 'runtime:changelog_history_compaction'"),
   'The exact changelog compaction exception must remain registered');
-await import('./verify-changelog-compaction.mjs');
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-changelog-compaction.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
+  assert(output.includes('CHANGELOG_COMPACTION_GREEN'), 'changelog compaction executable proof must pass');
+} catch (error) {
+  assert(false, verificationFailureMessage('changelog compaction', error));
+}
 
 function parseDonePreflightPredicateInventory(sourceText) {
   const body = extractExportedArrayBody(sourceText, 'DONE_PREFLIGHT_PREDICATE_INVENTORY');

@@ -144,7 +144,7 @@ When updating CHANGELOG.md, read only the current entry or relevant Git diff.
 Consult older Git history only for a specific historical question; do not regenerate
 the full file. The 2026-09-18 user-authorized compaction keeps earlier entries at
 `a8768173bc7488aa8fdc3ef45f1ed295cbd924c8:CHANGELOG.md`; the identity verifier checks
-those retained bytes and the exact compact replacement, permitting later prepends.
+those retained bytes, ancestry from HEAD and the exact compact replacement, permitting later prepends.
 
 Finish requires a clean main and clean committed Lab with current GREEN. It holds
 the same main write lock as formal operations, merges latest local main into Lab,

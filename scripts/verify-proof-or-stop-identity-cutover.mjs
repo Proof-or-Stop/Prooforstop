@@ -6121,7 +6121,7 @@ export function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELIN
       try { frozen = git(['cat-file', 'blob', row.gitBlobOid], { cwd: root, encoding: null }); }
       catch { errors.push(`frozen baseline ${row.id}: byte mutation (pinned Git blob unavailable)`); continue; }
       const current = readFileSync(resolve(root, row.path));
-      if ((row.id === 'changelog-history' && sha256(frozen) === row.byteSha256 && changelogPreservesHistory(frozen, current)) || reviewedChangelogCompaction(row, frozen, current, commit => git(['show', `${commit}:CHANGELOG.md`], { cwd: root, encoding: null }))) continue;
+      if ((row.id === 'changelog-history' && sha256(frozen) === row.byteSha256 && changelogPreservesHistory(frozen, current)) || reviewedChangelogCompaction(row, frozen, current, commit => git(['show', `${commit}:CHANGELOG.md`], { cwd: root, encoding: null }), commit => { git(['merge-base', '--is-ancestor', commit, 'HEAD'], { cwd: root }); return true; })) continue;
       if (reviewedProvenanceAmendment(row, frozen, current)) continue;
     }
     let actualOid;
