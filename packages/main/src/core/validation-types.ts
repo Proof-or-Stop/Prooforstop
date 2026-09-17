@@ -193,6 +193,7 @@ export interface ConcurrentWorktreePollution {
 export type ValidationProgressEventType =
   | 'command_start'
   | 'heartbeat'
+  | 'capacity_wait'
   | 'command_timeout'
   | 'command_end';
 
@@ -210,6 +211,8 @@ export interface ValidationProgressEvent {
   timestamp: string;
   code?: number;
   timedOut?: boolean;
+  /** capacity_wait only: who holds the machine validation queue, as reported by the queue. */
+  waitDetail?: string;
 }
 
 export type ValidationProgressReporter = (event: ValidationProgressEvent) => void;
