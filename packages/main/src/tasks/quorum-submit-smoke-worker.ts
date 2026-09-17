@@ -790,7 +790,6 @@ export interface QuorumSmokeProtectedMutationResult {
   stateMatched: boolean;
   frameworkTracePaths: string[];
   /** Tolerated append-only host activity log writes (never counted in eventCount). */
-  hostActivityPaths?: string[];
 }
 
 function protectedStateDigest(identities: readonly OwnedDirectory[]): string {
@@ -879,119 +878,6 @@ function authenticatedRuntimeTraceFragment(candidate: string, traceFile: string 
  * A log first created during the run is tolerated only at an enumerated location.
  * Any other path, a rewrite, a truncation or a look-alike name stays a mutation.
  */
-const HOST_ACTIVITY_LOG_RELATIVE_PATHS = ['.proof-or-stop/activity.jsonl', 'docs/story/activity.jsonl'] as const;
-const HOST_ACTIVITY_LOG_STORY_DIRS = ['.proof-or-stop/story/actives', 'docs/story/actives'] as const;
-
-interface HostActivityLogBaseline { size: number; digest: string; dev: number; ino: number; mode: number; uid: number; gid: number }
-/** 'absent' = proven missing; 'ineligible' = present but not a plain readable file, never exempt. */
-type HostActivityLogState = HostActivityLogBaseline | 'absent' | 'ineligible';
-
-/**
- * Read a host activity log by its own identity: no symlink is followed, only a regular
- * file is accepted, and the device/inode pair is returned so a later read can prove the
- * SAME file grew rather than a replacement carrying the original prefix.
- */
-function readHostActivityLogFile(path: string): { bytes: Buffer; dev: number; ino: number; mode: number; uid: number; gid: number } | 'absent' | 'ineligible' {
-  let fd: number;
-  try {
-    fd = openSync(path, fsConstants.O_RDONLY | fsConstants.O_NONBLOCK | fsConstants.O_NOFOLLOW);
-  } catch (error) {
-    return (error as NodeJS.ErrnoException).code === 'ENOENT' ? 'absent' : 'ineligible';
-  }
-  try {
-    const stat = fstatSync(fd);
-    if (!stat.isFile()) return 'ineligible';
-    return { bytes: readFileSync(fd), dev: stat.dev, ino: stat.ino, mode: stat.mode, uid: stat.uid, gid: stat.gid };
-  } catch {
-    return 'ineligible';
-  } finally {
-    try { closeSync(fd); } catch { /* already closed */ }
-  }
-}
-
-function hostActivityLogCandidates(root: string): string[] {
-  const candidates: string[] = HOST_ACTIVITY_LOG_RELATIVE_PATHS.map(path => join(root, path));
-  for (const dir of HOST_ACTIVITY_LOG_STORY_DIRS) {
-    let stories: string[] = [];
-    try { stories = readdirSync(join(root, dir)); } catch { /* absent */ }
-    for (const story of stories) candidates.push(join(root, dir, story, 'activity.jsonl'));
-  }
-  return candidates;
-}
-
-function isHostActivityLogPath(root: string, candidate: string): boolean {
-  const rel = relative(root, candidate).split('\\').join('/');
-  if ((HOST_ACTIVITY_LOG_RELATIVE_PATHS as readonly string[]).includes(rel)) return true;
-  return HOST_ACTIVITY_LOG_STORY_DIRS.some(dir => new RegExp(`^${dir.replace(/[.]/g, '\\.')}/[^/]+/activity\\.jsonl$`).test(rel));
-}
-
-function snapshotHostActivityLogs(roots: readonly string[]): Map<string, HostActivityLogState> {
-  const baselines = new Map<string, HostActivityLogState>();
-  for (const root of roots) {
-    for (const candidate of hostActivityLogCandidates(root)) {
-      const read = readHostActivityLogFile(candidate);
-      // Only a proven missing file is 'absent' (an append-created log is tolerated);
-      // anything unreadable stays ineligible so it can never be exempted later.
-      baselines.set(candidate, read === 'absent' || read === 'ineligible'
-        ? read
-        : {
-          size: read.bytes.length, digest: createHash('sha256').update(read.bytes).digest('hex'),
-          dev: read.dev, ino: read.ino, mode: read.mode, uid: read.uid, gid: read.gid,
-        });
-    }
-  }
-  return baselines;
-}
-
-/**
- * Does `current` extend `previous`? Same file (device, inode), same metadata, and
- * strictly more bytes whose prefix is unchanged.
- */
-function hostActivityStateExtends(
-  previous: HostActivityLogBaseline,
-  current: { bytes: Buffer; dev: number; ino: number; mode: number; uid: number; gid: number },
-  { allowUnchanged = false }: { allowUnchanged?: boolean } = {},
-): boolean {
-  if (current.dev !== previous.dev || current.ino !== previous.ino) return false;
-  if (current.mode !== previous.mode || current.uid !== previous.uid || current.gid !== previous.gid) return false;
-  // A repeated or coalesced notification can observe the same bytes twice; that is not a
-  // mutation. Only a SHORTER file, or a changed prefix, breaks the append-only shape.
-  if (allowUnchanged ? current.bytes.length < previous.size : current.bytes.length <= previous.size) return false;
-  return createHash('sha256').update(current.bytes.subarray(0, previous.size)).digest('hex') === previous.digest;
-}
-
-function hostActivityStateOf(read: { bytes: Buffer; dev: number; ino: number; mode: number; uid: number; gid: number }): HostActivityLogBaseline {
-  return {
-    size: read.bytes.length, digest: createHash('sha256').update(read.bytes).digest('hex'),
-    dev: read.dev, ino: read.ino, mode: read.mode, uid: read.uid, gid: read.gid,
-  };
-}
-
-function isToleratedHostActivityAppend(
-  root: string,
-  candidate: string,
-  baselines: ReadonlyMap<string, HostActivityLogState>,
-  observed?: ReadonlyMap<string, HostActivityLogState>,
-): boolean {
-  if (!isHostActivityLogPath(root, candidate) || !baselines.has(candidate)) return false;
-  const baseline = baselines.get(candidate);
-  if (baseline === undefined || baseline === 'ineligible') return false;
-  const current = readHostActivityLogFile(candidate);
-  if (current === 'absent' || current === 'ineligible') return false; // deleted, replaced by a link, or unreadable
-  // The final state must also equal or extend the LAST observed state: a suffix removed
-  // after the last notification is still a mutation, although it extends the baseline.
-  const latest = observed?.get(candidate);
-  if (latest === 'ineligible') return false;
-  if (latest !== undefined && latest !== 'absent'
-    && !hostActivityStateExtends(latest, current, { allowUnchanged: true })) return false;
-  // Created during the run as a plain file: only a log that actually received a line
-  // is an append; an empty creation is a mutation like any other.
-  if (baseline === 'absent') return current.bytes.length > 0;
-  // The same file must have grown, keeping its identity, metadata and prefix: a
-  // replacement, an in-place rewrite or a metadata change is a structural mutation.
-  return hostActivityStateExtends(baseline, current);
-}
-
 /**
  * Observe the caller-selected protected roots for the complete worker window.
  * A before/after status check cannot detect write-then-restore or
@@ -1012,33 +898,6 @@ export function createQuorumSmokeProtectedMutationGuard(
   const errors: string[] = [];
   let closed = false;
   const baselineDigest = protectedStateDigest(identities);
-  const hostActivityBaselines = snapshotHostActivityLogs(identities.map(identity => identity.path));
-  // Accepted limitation: this is observation-based, not operation-level attribution.
-  // If the platform coalesces a destructive step and a later append into a single
-  // notification, that sequence is indistinguishable from an append here. The durable
-  // remedy is the host not writing into the repository during a validation at all.
-  // Every observed state of an exempt log must extend the previous one. Comparing only
-  // the final bytes cannot tell an append from a destructive rewrite followed by an
-  // append; observing each notification catches the destructive step itself. A log whose
-  // observed sequence ever breaks is tainted and can never be exempted afterwards.
-  const hostActivityObserved = new Map<string, HostActivityLogState>(hostActivityBaselines);
-  const hostActivityTainted = new Set<string>();
-  const observeHostActivity = (root: string, candidate: string): void => {
-    if (!isHostActivityLogPath(root, candidate) || !hostActivityObserved.has(candidate)) return;
-    if (hostActivityTainted.has(candidate)) return;
-    const previous = hostActivityObserved.get(candidate);
-    const read = readHostActivityLogFile(candidate);
-    if (read === 'absent') { hostActivityTainted.add(candidate); return; } // removed mid-run
-    if (read === 'ineligible' || previous === undefined || previous === 'ineligible') {
-      hostActivityTainted.add(candidate);
-      return;
-    }
-    if (previous !== 'absent' && !hostActivityStateExtends(previous, read, { allowUnchanged: true })) {
-      hostActivityTainted.add(candidate);
-      return;
-    }
-    hostActivityObserved.set(candidate, hostActivityStateOf(read));
-  };
   try {
     for (const identity of identities) {
       const watcher = watch(identity.path, { recursive: true, persistent: false }, (eventType, filename) => {
@@ -1048,7 +907,6 @@ export function createQuorumSmokeProtectedMutationGuard(
           return;
         }
         paths.add(candidate);
-        observeHostActivity(identity.path, candidate);
         if (eventType !== 'change' && eventType !== 'rename') {
           errors.push(`unknown protected-root watch event ${String(eventType)}`);
         }
@@ -1085,13 +943,8 @@ export function createQuorumSmokeProtectedMutationGuard(
         exactFrameworkTracePaths.includes(candidate)
           || (exactFrameworkTracePaths.length > 0 && candidate === traceDirectory)
       )).sort();
-      const hostActivityPaths = [...paths].filter(candidate => identities.some(identity => (
-        containedBy(identity.path, candidate)
-          && !hostActivityTainted.has(candidate)
-          && isToleratedHostActivityAppend(identity.path, candidate, hostActivityBaselines, hostActivityObserved)
-      )));
       const unownedPaths = [...paths]
-        .filter(candidate => !frameworkTracePaths.includes(candidate) && !hostActivityPaths.includes(candidate))
+        .filter(candidate => !frameworkTracePaths.includes(candidate))
         .sort();
       const stateMatched = baselineDigest === finalDigest;
       return {
@@ -1103,7 +956,6 @@ export function createQuorumSmokeProtectedMutationGuard(
         finalDigest,
         stateMatched,
         frameworkTracePaths,
-        hostActivityPaths: hostActivityPaths.sort(),
       };
     },
   };

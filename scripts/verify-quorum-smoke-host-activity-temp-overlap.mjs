@@ -1,21 +1,24 @@
 #!/usr/bin/env node
 // Lab quorum-smoke-host-activity-temp-overlap RED/GREEN.
 //
-// Bug 1: the quorum smoke's protected-mutation guard treats every write event in
-// the active worktree as a smoke mutation. A host tool-logging hook appends one
-// line per tool call to the gitignored activity log (docs/story/activity.jsonl),
-// so a real run with 73/73 cases passing was reported FAIL on 2026-09-17 because
-// the operator kept working in the same worktree.
-// Bug 2: the ambient temp check refuses whenever the temp parent CONTAINS any
-// registered worktree of the repository. A managed review that registers a
-// worktree under the shared TMPDIR made every quorum smoke refuse at startup,
+// Bug: the quorum smoke's ambient temp check refused whenever the temp parent
+// CONTAINS any registered worktree of the repository. A managed review that
+// registered a worktree under the shared TMPDIR made every quorum smoke refuse at
+// startup ("ambient temp parent overlaps the repository or git common directory"),
 // although a fresh mkdtemp child cannot write inside that sibling worktree.
 //
-// Controls: non-log writes, a rewritten (non-append) activity log, a look-alike
-// path, and a temp parent INSIDE a worktree are still refused.
+// The originally recorded RED also covered a second symptom observed the same day:
+// a real run with 73/73 cases passing was reported FAIL because the operator's host
+// tool-logging hook appended to the gitignored activity log in the same worktree. An
+// exemption for those appends was implemented and then withdrawn: comparing a file
+// before and after cannot distinguish an append from a destructive rewrite followed
+// by an append, so any such exemption can hide a real mutation. The guard therefore
+// stays fail-closed - every observed write inside a protected root is a mutation -
+// and host logging is kept out of the repository during a validation by the sibling
+// Lab host-activity-log-during-validation. The controls below pin that fail-closed
+// behavior so no future change reintroduces a content-based exemption.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { symlinkSync } from 'node:fs';
-import fs, { appendFileSync, chmodSync, closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, rmSync, truncateSync, unlinkSync, writeSync, writeFileSync } from 'node:fs';
+import fs, { appendFileSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { EventEmitter } from 'node:events';
 import { tmpdir } from 'node:os';
@@ -27,9 +30,9 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(repoRoot, 'packages/main/dist');
 const build = spawnSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { cwd: repoRoot, encoding: 'utf8' });
 if (build.status !== 0) { process.stderr.write(`${build.stdout}\n${build.stderr}\n`); throw new Error('packages/main build failed; this is not the target RED'); }
-// macOS FSEvents delivery is asynchronous and can stall on a loaded machine, so
-// the guard's watcher is replaced by a controllable fake that delivers exactly the
-// events a real write produces. The guard's own decision logic is unchanged.
+// macOS FSEvents delivery is asynchronous and can stall on a loaded machine, so the
+// guard's watcher is replaced by a controllable fake that delivers exactly the events
+// a real write produces. The guard's own decision logic is unchanged.
 const fakeWatchers = [];
 fs.watch = (path, _options, listener) => {
   const emitter = new EventEmitter();
@@ -60,19 +63,16 @@ function repo() {
   git(root, ['add', '.']); git(root, ['commit', '-qm', 'base']);
   return root;
 }
-async function guarded(action, before) {
+async function guarded(action) {
   const root = repo();
-  before?.(root);
   const guard = createQuorumSmokeProtectedMutationGuard([root]);
-  // A real watcher delivers one notification per operation; `fire` lets a scenario
-  // report intermediate states exactly as the kernel would.
-  const fire = (relative) => emit(root, relative);
-  for (const relative of action(root, fire)) emit(root, relative);
+  for (const relative of action(root)) emit(root, relative);
   return guard.close();
 }
 const rows = [];
 try {
-  // Bug 1: host activity log appends during the run.
+  // Fail-closed controls: every observed write inside a protected root stays a mutation,
+  // including an append to a gitignored host activity log.
   const appends = await guarded((root) => {
     appendFileSync(join(root, 'docs/story/activity.jsonl'), '{"line":1}\n');
     mkdirSync(join(root, '.proof-or-stop'), { recursive: true });
@@ -80,129 +80,16 @@ try {
     appendFileSync(join(root, 'docs/story/actives/B-x/activity.jsonl'), '{"line":1}\n');
     return ['docs/story/activity.jsonl', '.proof-or-stop/activity.jsonl', 'docs/story/actives/B-x/activity.jsonl'];
   });
-  rows.push({ scenario: 'host activity log appends', clean: appends.clean, paths: appends.paths.length });
-  expectRepaired(appends.clean === true, `appends to host activity logs must not fail the guard (paths: ${appends.paths.join(', ')})`);
-  // Repeated or queued notifications observe the same bytes again: still an append.
-  const duplicateNotifications = await guarded((root, fire) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    appendFileSync(log, '{"line":1}\n');
-    fire('docs/story/activity.jsonl'); fire('docs/story/activity.jsonl');
-    return ['docs/story/activity.jsonl', 'docs/story/activity.jsonl'];
-  });
-  rows.push({ scenario: 'append observed by four notifications', clean: duplicateNotifications.clean, paths: duplicateNotifications.paths.length });
-  expectRepaired(duplicateNotifications.clean === true, `repeated notifications for one append must stay tolerated (paths ${duplicateNotifications.paths.join(', ')})`);
-  const createdThenAppended = await guarded((root, fire) => {
-    const log = join(root, '.proof-or-stop/activity.jsonl');
-    mkdirSync(join(root, '.proof-or-stop'), { recursive: true });
-    writeFileSync(log, ''); fire('.proof-or-stop/activity.jsonl');
-    appendFileSync(log, '{"line":1}\n');
-    return ['.proof-or-stop/activity.jsonl'];
-  });
-  rows.push({ scenario: 'log created empty then appended', clean: createdThenAppended.clean, paths: createdThenAppended.paths.length });
-  expectRepaired(createdThenAppended.clean === true, `a log created and then appended must stay tolerated (paths ${createdThenAppended.paths.join(', ')})`);
-  // A suffix removed after the last notification: the final bytes still extend the
-  // baseline, so only the observed state proves the loss.
-  const suffixRemoved = await guarded((root, fire) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    appendFileSync(log, '{"line":1}\n'); fire('docs/story/activity.jsonl');
-    appendFileSync(log, '{"line":2}\n'); fire('docs/story/activity.jsonl');
-    truncateSync(log, readFileSync(log).length - '{"line":2}\n'.length);
-    return [];
-  });
-  rows.push({ scenario: 'observed suffix removed before close, no further notification', clean: suffixRemoved.clean, paths: suffixRemoved.paths.length });
-  expectRepaired(suffixRemoved.clean === false, `removing an already observed suffix must stay a mutation (clean ${suffixRemoved.clean})`);
+  rows.push({ scenario: 'control: host activity log appends', clean: appends.clean, paths: appends.paths.length });
+  control(appends.clean === false && appends.paths.length === 3, `an append to a host activity log is still a mutation (clean ${appends.clean}, paths ${appends.paths.length})`);
   const source = await guarded((root) => { writeFileSync(join(root, 'src/app.ts'), 'export const x = 2;\n'); return ['src/app.ts']; });
   rows.push({ scenario: 'control: tracked source write', clean: source.clean, paths: source.paths.length });
   control(source.clean === false, 'a tracked source write is still a mutation');
-  const rewrite = await guarded((root) => { writeFileSync(join(root, 'docs/story/activity.jsonl'), '{"rewritten":true}\n'); return ['docs/story/activity.jsonl']; });
-  rows.push({ scenario: 'control: activity log rewritten (not an append)', clean: rewrite.clean, paths: rewrite.paths.length });
-  control(rewrite.clean === false, 'a rewritten activity log is still a mutation');
-  const lookalike = await guarded((root) => { writeFileSync(join(root, 'docs/story/activity.jsonl.bak'), 'x\n'); return ['docs/story/activity.jsonl.bak']; });
-  rows.push({ scenario: 'control: activity.jsonl.bak look-alike', clean: lookalike.clean, paths: lookalike.paths.length });
-  control(lookalike.clean === false, 'a look-alike path is still a mutation');
-  // The exemption must bind to the file itself, not to its bytes: a replacement that
-  // carries the original prefix is a structural mutation, however it is delivered.
-  const symlinked = await guarded((root) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    // The decoy lives OUTSIDE the repository, so only the symlink itself is the change.
-    const decoy = join(sandbox, `decoy-${n}.jsonl`);
-    writeFileSync(decoy, `${readFileSync(log, 'utf8')}{"line":1}\n`);
-    unlinkSync(log); symlinkSync(decoy, log);
-    return ['docs/story/activity.jsonl'];
-  });
-  rows.push({ scenario: 'activity log replaced by a symlink carrying the prefix', clean: symlinked.clean, paths: symlinked.paths.length });
-  expectRepaired(symlinked.clean === false, 'replacing the activity log with a symlink must stay a mutation');
-  const replaced = await guarded((root) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    const bytes = readFileSync(log);
-    unlinkSync(log); writeFileSync(log, bytes);
-    return ['docs/story/activity.jsonl'];
-  });
-  rows.push({ scenario: 'activity log replaced with identical bytes', clean: replaced.clean, paths: replaced.paths.length });
-  expectRepaired(replaced.clean === false, 'replacing the activity log with an identical copy must stay a mutation');
-  const rewrittenInPlace = await guarded((root) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    const bytes = readFileSync(log);
-    const fd = openSync(log, 'r+'); writeSync(fd, bytes, 0, bytes.length, 0); closeSync(fd);
-    return ['docs/story/activity.jsonl'];
-  });
-  rows.push({ scenario: 'activity log rewritten in place, same inode and length', clean: rewrittenInPlace.clean, paths: rewrittenInPlace.paths.length });
-  expectRepaired(rewrittenInPlace.clean === false, 'a byte-identical in-place rewrite must stay a mutation');
-  const truncateRestore = await guarded((root) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    const bytes = readFileSync(log);
-    truncateSync(log, 0);
-    const fd = openSync(log, 'r+'); writeSync(fd, bytes, 0, bytes.length, 0); closeSync(fd);
-    return ['docs/story/activity.jsonl'];
-  });
-  rows.push({ scenario: 'activity log truncated then restored', clean: truncateRestore.clean, paths: truncateRestore.paths.length });
-  expectRepaired(truncateRestore.clean === false, 'truncate-then-restore on the same inode must stay a mutation');
-  // A destructive rewrite followed by a legitimate append: the final bytes look like a
-  // pure append, so only the intermediate observation can distinguish them.
-  const rewriteThenAppend = await guarded((root, fire) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    const bytes = readFileSync(log);
-    truncateSync(log, 0); fire('docs/story/activity.jsonl');
-    const fd = openSync(log, 'r+'); writeSync(fd, bytes, 0, bytes.length, 0); closeSync(fd); fire('docs/story/activity.jsonl');
-    appendFileSync(log, '{"line":1}\n');
-    return ['docs/story/activity.jsonl'];
-  });
-  rows.push({ scenario: 'activity log truncated, restored, then appended', clean: rewriteThenAppend.clean, paths: rewriteThenAppend.paths.length });
-  expectRepaired(rewriteThenAppend.clean === false && rewriteThenAppend.paths.includes(join(sandbox, `repo-${n - 1}`, 'docs/story/activity.jsonl')),
-    `a destructive rewrite followed by an append must stay a mutation (clean ${rewriteThenAppend.clean}, paths ${rewriteThenAppend.paths.length})`);
-  const inPlaceThenAppend = await guarded((root, fire) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    const bytes = readFileSync(log);
-    const fd = openSync(log, 'r+'); writeSync(fd, Buffer.from('{"forged":1}\n'), 0, 13, 0); closeSync(fd); fire('docs/story/activity.jsonl');
-    const restore = openSync(log, 'r+'); writeSync(restore, bytes, 0, bytes.length, 0); closeSync(restore); fire('docs/story/activity.jsonl');
-    appendFileSync(log, '{"line":1}\n');
-    return ['docs/story/activity.jsonl'];
-  });
-  rows.push({ scenario: 'activity log rewritten in place, restored, then appended', clean: inPlaceThenAppend.clean, paths: inPlaceThenAppend.paths.length });
-  expectRepaired(inPlaceThenAppend.clean === false, `an in-place rewrite followed by an append must stay a mutation (clean ${inPlaceThenAppend.clean})`);
-  const chmodOnly = await guarded((root) => { chmodSync(join(root, 'docs/story/activity.jsonl'), 0o444); return ['docs/story/activity.jsonl']; });
-  rows.push({ scenario: 'activity log made read-only (bytes unchanged)', clean: chmodOnly.clean, paths: chmodOnly.paths.length });
-  expectRepaired(chmodOnly.clean === false, 'changing the activity log permissions must stay a mutation');
-  const chmodWithAppend = await guarded((root) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    appendFileSync(log, '{"line":1}\n');
-    chmodSync(log, 0o444);
-    return ['docs/story/activity.jsonl'];
-  });
-  rows.push({ scenario: 'activity log appended and made read-only', clean: chmodWithAppend.clean, paths: chmodWithAppend.paths.length });
-  expectRepaired(chmodWithAppend.clean === false, 'a permission change alongside a legitimate append is still a mutation');
-  // An unreadable baseline proves nothing about the original content, so the path can
-  // never become exempt afterwards.
-  const unreadableBaseline = await guarded((root) => {
-    const log = join(root, 'docs/story/activity.jsonl');
-    chmodSync(log, 0o600);
-    writeFileSync(log, '{"replacement":true}\n');
-    return ['docs/story/activity.jsonl'];
-  }, (root) => chmodSync(join(root, 'docs/story/activity.jsonl'), 0o000));
-  rows.push({ scenario: 'activity log unreadable at baseline, replaced during the run', clean: unreadableBaseline.clean, paths: unreadableBaseline.paths.length });
-  expectRepaired(unreadableBaseline.clean === false, 'a log that could not be read at baseline must never be exempted');
+  const untouched = await guarded(() => []);
+  rows.push({ scenario: 'control: no write at all', clean: untouched.clean, paths: untouched.paths.length });
+  control(untouched.clean === true && untouched.paths.length === 0, 'a run that writes nothing is clean');
 
-  // Bug 2: temp parent that contains a registered worktree.
+  // The repair: a temp parent that merely CONTAINS a registered worktree.
   const smoke = join(dist, 'tasks/quorum-submit-smoke.js');
   const repoForTemp = repo();
   const tempWithWorktree = join(sandbox, 'tmp-with-worktree'); mkdirSync(tempWithWorktree);
@@ -211,9 +98,9 @@ try {
   const run = (tmp) => { const r = spawnSync(process.execPath, [smoke, '--case=qsm-002'], { cwd: repoForTemp, env: { ...process.env, TMPDIR: tmp }, encoding: 'utf8' }); return `${r.stdout}\n${r.stderr}`; };
   const runJson = (out) => { const line = out.split('\n').find((l) => l.startsWith('QUORUM_SMOKE_RUN_JSON ')); return line ? JSON.parse(line.slice('QUORUM_SMOKE_RUN_JSON '.length)) : null; };
   const outcome = (json) => json ? JSON.stringify(json.results.map((r) => [r.caseId, r.status])) : 'no run record';
-  // Baseline: the same fixture repository with an ordinary temp parent. In a
-  // fixture repository the case body itself does not pass; the comparison isolates
-  // the temp decision from that unrelated outcome.
+  // Baseline: the same fixture repository with an ordinary temp parent. In a fixture
+  // repository the case body itself does not pass; the comparison isolates the temp
+  // decision from that unrelated outcome.
   const ordinaryTemp = join(sandbox, 'tmp-ordinary'); mkdirSync(ordinaryTemp);
   const baseline = runJson(run(ordinaryTemp));
   control(baseline !== null && !refused(JSON.stringify(baseline)), 'baseline run with an ordinary temp parent produces a run record');
@@ -242,4 +129,4 @@ if (red.length) {
   for (const line of red) console.log(`  - ${line}`);
   process.exit(1);
 }
-console.log(`quorum smoke tolerates host activity appends and sibling temp worktrees (${checks} checks)`);
+console.log(`quorum smoke allows a sibling temp worktree and stays fail-closed on repository writes (${checks} checks)`);
