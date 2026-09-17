@@ -99,6 +99,15 @@ const groups = {
     utimesSync(join(root, 'owner.json'), at, at); utimesSync(root, at, at);
     return root;
   }),
+  // A pid outside the supported range cannot be probed: ownership is unknown, so even
+  // 21 aged records (past the 20-directory cap) must all survive.
+  outOfRangePid: Array.from({ length: 21 }, (_, i) => {
+    const root = makeDir(`${PREFIX}out-of-range-pid-${String(i).padStart(2, '0')}`, 7 * HOUR);
+    writeFileSync(join(root, 'owner.json'), JSON.stringify({ schema: 'proof-or-stop.fixture-machine-owner.v1', pid: 2147483648 }));
+    const at = new Date(Date.now() - 7 * HOUR - i * MIN);
+    utimesSync(join(root, 'owner.json'), at, at); utimesSync(root, at, at);
+    return root;
+  }),
   unrelated: [makeDir('some-other-tool-dir', 8 * HOUR)],
 };
 const symlinkPath = join(parent, `${PREFIX}symlink`);
@@ -119,7 +128,7 @@ try {
   created = blockedCreation ? null : JSON.parse(child.stdout.trim().split('\n').at(-1)).root;
   const exists = (p) => { try { lstatSync(p); return true; } catch { return false; } };
   const count = (list) => list.filter(exists).length;
-  const before = 8 + 2 + 25 + 2 + 1 + 1 + 3 + 6;
+  const before = 8 + 2 + 25 + 2 + 1 + 1 + 3 + 6 + 21;
   const after = readdirSync(parent).filter((n) => n.startsWith(PREFIX) && n !== 'proof-or-stop-fixture-machine-symlink' && join(parent, n) !== created).length;
   if (created === null) console.log('fixture creation was killed after 60s: the pruner blocked on an owner record');
   console.log('group | seeded | remaining');
@@ -131,6 +140,8 @@ try {
   control(count(groups.liveOwner) === 1, 'a directory whose owner is alive is kept');
   control(count(groups.legacyOldRootRecentNested) === 1, 'a legacy directory with recent nested activity is kept');
   expectRepaired(count(groups.unreadableSubtree) === 1, 'a directory whose subtree cannot be fully inspected is kept');
+  expectRepaired(count(groups.outOfRangePid) === 21,
+    `an owner pid outside the probeable range keeps every aged directory, cap included (remaining ${count(groups.outOfRangePid)} of 21)`);
   expectRepaired(count(groups.unrecognizedOwner) === groups.unrecognizedOwner.length,
     `a present but unrecognized owner record keeps the directory (remaining ${count(groups.unrecognizedOwner)} of ${groups.unrecognizedOwner.length})`);
   expectRepaired(count(groups.fifoOwner) === 1 && count(groups.symlinkedOwner) === 1, 'a directory whose owner record is a FIFO or a symlink to one is kept');

@@ -20,9 +20,21 @@ export const FIXTURE_MACHINE_RETENTION = {
   maxRetainedDeadOwner: 20,
 } as const;
 
-function processAlive(pid: number): boolean {
-  if (!Number.isSafeInteger(pid) || pid <= 0) return false;
-  try { process.kill(pid, 0); return true; } catch (error) { return (error as NodeJS.ErrnoException).code === 'EPERM'; }
+/** Largest value `process.kill` accepts as a pid. */
+const MAX_SUPPORTED_PID = 2_147_483_647;
+
+/**
+ * Liveness of a recorded owner. Only ESRCH proves the process is gone; EPERM proves
+ * it exists under another user, and any other probe error leaves ownership unknown.
+ * Uncertainty must never authorize deletion, so 'unknown' keeps the directory.
+ */
+function ownerLiveness(pid: number): 'alive' | 'absent' | 'unknown' {
+  try { process.kill(pid, 0); return 'alive'; } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'ESRCH') return 'absent';
+    if (code === 'EPERM') return 'alive';
+    return 'unknown';
+  }
 }
 
 /**
@@ -106,14 +118,14 @@ export function pruneRetainedFixtureMachines(
       const pid = typeof owner?.pid === 'number' ? owner.pid : undefined;
       const recognized = owner !== undefined && owner !== null
         && owner.schema === FIXTURE_MACHINE_OWNER_SCHEMA
-        && pid !== undefined && Number.isSafeInteger(pid) && pid > 0;
+        && pid !== undefined && Number.isSafeInteger(pid) && pid > 0 && pid <= MAX_SUPPORTED_PID;
       // Uncertain ownership never authorizes deletion: a present but unrecognized
       // record (unknown schema, wrong shape, unusable pid) keeps the directory. The
       // age rule applies only when no owner record exists at all (legacy directories).
       if (owner !== undefined && !recognized) continue;
       const age = now - newestMtimeMs(path);
       if (recognized) {
-        if (processAlive(pid!) || age < FIXTURE_MACHINE_RETENTION.deadOwnerGraceMs) continue;
+        if (ownerLiveness(pid!) !== 'absent' || age < FIXTURE_MACHINE_RETENTION.deadOwnerGraceMs) continue;
         deadOwner.push({ path, mtimeMs: now - age });
       } else if (age >= FIXTURE_MACHINE_RETENTION.legacyMinAgeMs) {
         remove(path);
