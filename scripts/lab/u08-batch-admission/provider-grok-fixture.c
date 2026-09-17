@@ -10,6 +10,10 @@ static void emit(const char *text){
 }
 int main(int argc,char **argv){
  if(argc>1&&!strcmp(argv[1],"--version")){puts("grok fixture 1.0.0");return 0;}
+ /* Complete the real supervisor's input/attestation delivery before exiting. */
+ int byte;while((byte=getchar())!=EOF){}
+ const char *descriptor=getenv("LATTICE_MANAGED_REVIEW_INVOCATION_FD");
+ if(descriptor){FILE *input=fdopen(atoi(descriptor),"r");if(!input)return 70;while(fgetc(input)!=EOF){}fclose(input);}
  const char *home=getenv("GROK_HOME"),*original=getenv("GROK_FIXTURE_ORIGINAL_HOME"),*updater=getenv("GROK_DISABLE_AUTOUPDATER");
  if(!home||!original||!strcmp(home,original)||!updater||strcmp(updater,"1"))return 71;
  char file[8192],config[8192]={0};snprintf(file,sizeof(file),"%s/config.toml",home);FILE *f=fopen(file,"r");if(!f)return 72;fread(config,1,sizeof(config)-1,f);fclose(f);
