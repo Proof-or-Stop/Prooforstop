@@ -43,12 +43,23 @@ try {
     const env = { ...process.env };
     for (const key of ['NODE_OPTIONS', 'PROOF_OR_STOP_IMPLEMENTATION_MANIFEST', 'PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN', 'PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST']) delete env[key];
     const invoke = () => spawn(process.execPath, [join(desktopDir, 'pkg-entry.cjs'), '--version'], { cwd: scratch, env, encoding: 'utf8', timeout: 30000 });
-    const manifest = join(snapshot, 'packages/main/package.json'), original = fs.readFileSync(manifest, 'utf8');
+    const assetManifest = join(desktopDir, 'asset-manifest.json');
+    const originalAssets = fs.readFileSync(assetManifest, 'utf8');
+    const assets = JSON.parse(originalAssets);
+    const manifestKey = 'packages/main/package.json';
+    const original = assets.packageJsonSources[manifestKey];
+    assert.equal(original, fs.readFileSync(join(snapshot, manifestKey), 'utf8'));
+    // Model the new packager's CJS manifest rewrite while preserving ESM assets.
+    for (const [rel, contents] of Object.entries(assets.packageJsonSources)) {
+      const pkg = JSON.parse(contents);
+      if (pkg.type === 'module') fs.writeFileSync(join(snapshot, rel), JSON.stringify({ ...pkg, type: 'commonjs' }));
+    }
     const version = JSON.parse(original).version;
     const good = invoke(); assert.equal(good.status, 0, good.stderr); assert.ok(good.stdout.includes(version));
-    fs.writeFileSync(manifest, JSON.stringify({ ...JSON.parse(original), version: '999.1.0' }));
+    assets.packageJsonSources[manifestKey] = JSON.stringify({ ...JSON.parse(original), version: '999.1.0' });
+    fs.writeFileSync(assetManifest, JSON.stringify(assets));
     const bad = invoke(); assert.notEqual(bad.status, 0); assert.match(bad.stderr, /CLI_RUNTIME_VERSION_MISMATCH/);
-    fs.writeFileSync(manifest, original); assert.equal(invoke().status, 0);
+    fs.writeFileSync(assetManifest, originalAssets); assert.equal(invoke().status, 0);
     measurements.desktop = { manifestFiles: files.length, canonicalAccepted: true, staleRefused: true, restoredAccepted: true };
   });
   await check('two-new-executable-pins-against-built-dist', async () => {

@@ -81,7 +81,14 @@ function prepareRuntime() {
     throw new Error('Packaged ProofOrStop asset manifest is missing from the pkg snapshot.');
   }
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-  for (const relPath of manifest.files) copyIntoRuntime(snapshotRoot, runtimeRoot, relPath);
+  for (const relPath of manifest.files) {
+    copyIntoRuntime(snapshotRoot, runtimeRoot, relPath);
+    // pkg rewrites package.json for its CJS snapshot. The extracted assets retain
+    // their original ESM sources, so restore the exact build-time manifests.
+    if (Object.hasOwn(manifest.packageJsonSources || {}, relPath)) {
+      writeFileSync(join(runtimeRoot, relPath), manifest.packageJsonSources[relPath], 'utf8');
+    }
+  }
   process.once('exit', () => {
     try { rmSync(runtimeRoot, { recursive: true, force: true }); } catch {}
   });
@@ -177,7 +184,10 @@ function writeAssetManifest() {
     ...listFiles('node_modules/graceful-fs'),
     ...listFiles('node_modules/retry'),
   ].sort();
-  writeFileSync(assetManifestPath, JSON.stringify({ files }, null, 2) + '\n', 'utf8');
+  const packageJsonSources = Object.fromEntries(files
+    .filter((file) => file === 'package.json' || file.endsWith('/package.json'))
+    .map((file) => [file, readFileSync(join(repoRoot, file), 'utf8')]));
+  writeFileSync(assetManifestPath, JSON.stringify({ files, packageJsonSources }, null, 2) + '\n', 'utf8');
   return files;
 }
 
@@ -210,6 +220,45 @@ function buildPackages() {
   run(tsc, ['-p', 'packages/main/tsconfig.json']);
   run(tsc, ['-p', 'packages/utils/tsconfig.json']);
   run(tsc, ['-p', 'packages/lab/tsconfig.json']);
+}
+
+// pkg base binaries omit inspector support. Keep profiler loading lazy so ordinary
+// CLI commands can boot; invoking inspector-dependent profiling still fails explicitly.
+function patchPkgRuntimeCompatibility() {
+  const profilerPath = join(repoRoot, 'packages', 'main', 'dist', 'tasks', 'profiler.js');
+  const source = readFileSync(profilerPath, 'utf8');
+  const node19Import = "import { Session } from 'node:inspector/promises';";
+  if (!source.includes(node19Import)) return;
+  const lazyInspectorCompat = `class Session {
+    delegate = null;
+    async ensureDelegate() {
+        if (!this.delegate) {
+            const inspector = await import('node:inspector');
+            this.delegate = new inspector.Session();
+            this.delegate.connect();
+        }
+        return this.delegate;
+    }
+    connect() {}
+    disconnect() {
+        if (this.delegate) {
+            this.delegate.disconnect();
+            this.delegate = null;
+        }
+    }
+    async post(method, params = {}) {
+        const delegate = await this.ensureDelegate();
+        return new Promise((resolve, reject) => {
+            delegate.post(method, params, (error, result) => {
+                if (error)
+                    reject(error);
+                else
+                    resolve(result ?? {});
+            });
+        });
+    }
+}`;
+  writeFileSync(profilerPath, source.replace(node19Import, lazyInspectorCompat), 'utf8');
 }
 
 function packageTarget(target) {
@@ -245,6 +294,7 @@ if (!['host', 'release'].includes(mode)) {
 }
 
 buildPackages();
+patchPkgRuntimeCompatibility();
 writePkgEntrypoint();
 writePkgConfig();
 
