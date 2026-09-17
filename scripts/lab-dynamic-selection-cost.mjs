@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import os from 'node:os';
+import { syncBuiltinESMExports } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
@@ -19,9 +21,18 @@ const start = performance.now();
 const out = join(resolve(repo, gitAt(repo, 'rev-parse', '--git-common-dir')), 'lab-maintenance', 'dynamic-selection-cost-measurements');
 mkdirSync(out, { recursive: true });
 const runId = new Date().toISOString().replaceAll(':', '-');
+// Same test-only OS-home isolation used by verify-machine-provider-admission.
+// Keep real queue algorithms; give this disposable workload its own namespace.
+const isolatedHome = mkdtempSync(join(tmpdir(), 'pos-selection-home-'));
+const originalUserInfo = os.userInfo;
+os.userInfo = (...args) => ({ ...originalUserInfo(...args), homedir: isolatedHome });
+syncBuiltinESMExports();
+const isolationPath = join(out, `${runId}-isolate-home.mjs`);
+writeFileSync(isolationPath, `import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';const original=os.userInfo;os.userInfo=(...args)=>({...original(...args),homedir:${JSON.stringify(isolatedHome)}});syncBuiltinESMExports();\n`);
 const results = {
   schema: 'lab.dynamic-selection-cost.v1', runId, head: gitAt(repo, 'rev-parse', 'HEAD'),
   node: process.version, platform: process.platform, arch: process.arch,
+  isolation: 'Disposable OS-home queue namespace; real scheduler, executor and receipts; synthetic causal preflight and certification fixture',
   configDigest: digest(configBytes), candidateMode: mode,
   contractDigest: digest(readFileSync(join(repo, 'docs/lab/dynamic-selection-cost/CONTRACT.md'))),
   harnessDigest: digest(readFileSync(fileURLToPath(import.meta.url))),
@@ -193,10 +204,11 @@ try {
     ['shared-receipt-publication', 'scripts/verify-shared-receipt-publication.mjs'],
   ]) {
     const began = performance.now();
-    const child = spawnSync(process.execPath, [path], { cwd: repo, encoding: 'utf8', timeout: 180000, maxBuffer: 8 * 1024 * 1024 });
+    const argv = ['--import', isolationPath, path];
+    const child = spawnSync(process.execPath, argv, { cwd: repo, encoding: 'utf8', timeout: 180000, maxBuffer: 8 * 1024 * 1024 });
     const output = `${child.stdout || ''}${child.stderr || ''}`;
     const logPath = join(out, `${runId}-${name}.log`); writeFileSync(logPath, output);
-    results.controls.push({ name, command: [process.execPath, path], wallMs: performance.now() - began,
+    results.controls.push({ name, command: [process.execPath, ...argv], wallMs: performance.now() - began,
       exitCode: child.status, signal: child.signal, outputDigest: digest(output), logPath });
     console.log('CONTROL', JSON.stringify(results.controls.at(-1)));
     assert.equal(child.status, 0, `${name} must preserve its current safety contract; see ${logPath}`);
@@ -215,6 +227,8 @@ try {
   console.log('RESULT', resultPath);
   for (const failure of results.failures) console.error(failure);
   if (results.pass) console.log('DYNAMIC_SELECTION_COST_GREEN');
+  os.userInfo = originalUserInfo; syncBuiltinESMExports();
+  rmSync(isolatedHome, { recursive: true, force: true });
 }
 // Imported CLI modules own background timers; all children and fixture leases
 // above have completed before this standalone experiment terminates.

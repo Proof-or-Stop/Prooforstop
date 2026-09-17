@@ -37,6 +37,13 @@ per child to make execution cost visible. It is synthetic and local, not a sampl
 of historical Story deliveries. The exact contract and harness digests accompany
 every result. No claim of population error reduction follows from this corpus.
 
+Machine-queue storage uses a disposable OS-home namespace in the test processes,
+following the existing machine-admission regression pattern. Queue algorithms
+are unchanged. Causal preflight and PRE_CERT admission are fixture prerequisites;
+the production selector, child executor, signing and evidence consumer run for
+real. Measurements exclude competing maintenance queues, but share host CPU.
+They do not benchmark production admission or complete Story lifecycle latency.
+
 ## Reproduction
 
 Install independent dependencies with `npm ci --no-audit --no-fund` and
