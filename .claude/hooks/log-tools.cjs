@@ -41,18 +41,15 @@ process.stdin.on('end', () => {
     const target = path.join(logDir, 'activity.jsonl');
     const line = JSON.stringify(entry) + '\n';
     const spool = spoolDir(root);
-    if (spool && workspaceValidationActive(root)) {
-      // A validation of this worktree may guard it against mutation: keep the host's
-      // own bookkeeping outside the repository until that run ends.
-      publishSpoolRecord(spool, { target, line });
-    } else if (spool && pendingSpoolRecords(spool)) {
-      // Older deferred records are still pending: queue behind them so the repository
-      // receives every line in its original order, then deliver what can be delivered.
+    if (!spool) { fs.mkdirSync(logDir, { recursive: true }); fs.appendFileSync(target, line); }
+    else {
+      // Every repository write happens inside the product's own workspace validation
+      // capacity ticket, so a validation starting concurrently queues behind this
+      // millisecond-long write instead of racing it. If the ticket cannot be held (a
+      // validation holds capacity, or one is arriving), the record stays outside the
+      // repository and a later hook delivers it in order.
       publishSpoolRecord(spool, { target, line });
       flushSpool(spool, root);
-    } else {
-      fs.mkdirSync(logDir, { recursive: true });
-      fs.appendFileSync(target, line);
     }
   } catch {}
   process.exit(0);
@@ -125,6 +122,16 @@ function pendingSpoolRecords(spool) {
   try { return fs.readdirSync(spool).some(name => name.endsWith('.json') || name.includes('.delivering-')); } catch { return false; }
 }
 
+/** Is another live hook currently delivering a record? */
+function liveClaimPresent(spool) {
+  let names;
+  try { names = fs.readdirSync(spool); } catch { return false; }
+  return names.some(name => {
+    const match = /\.delivering-(\d+)$/.exec(name);
+    return match !== null && pidAlive(Number(match[1]));
+  });
+}
+
 /** A record claimed by a flusher that died is returned to the queue under its own name. */
 function recoverAbandonedRecords(spool) {
   let names;
@@ -137,42 +144,103 @@ function recoverAbandonedRecords(spool) {
 }
 
 /**
- * Deliver deferred records in their original order. One flusher at a time; the
- * validation state is re-checked before every record, so a validation that starts
- * mid-flush leaves the remaining records outside the repository. A record is removed
- * only after its line reached the target, so nothing is lost on a crash or a write
- * failure - delivery is therefore at-least-once: a crash between the append and the
- * removal can repeat one line.
+ * Deliver deferred records in their original order, oldest first. Only the OLDEST
+ * record is ever claimed, so two hooks can never deliver out of order: the claim is an
+ * atomic rename, and whichever hook loses it simply leaves delivery to the winner. No
+ * global lock is involved, so there is no lock to leak, reclaim or steal.
+ *
+ * Each record's repository write happens while this process holds a workspace
+ * validation capacity ticket, which is the product's own exclusion: a validation that
+ * starts meanwhile queues behind the write, and a validation that already holds
+ * capacity keeps this hook out. A record is removed only after its line reached the
+ * target, so nothing is lost on a crash or a write failure - delivery is therefore
+ * at-least-once: a crash between the append and the removal can repeat one line.
  */
 function flushSpool(spool, root) {
-  const lock = path.join(spool, '.flush.lock');
-  if (!acquireFlushLock(lock)) return;
-  try {
-    recoverAbandonedRecords(spool);
-    for (const name of spoolRecordNames(spool)) {
-      if (workspaceValidationActive(root)) return; // a validation started: stop delivering
-      barrierWait();
-      const claimed = path.join(spool, `${name}.delivering-${process.pid}`);
-      try { fs.renameSync(path.join(spool, name), claimed); } catch { continue; } // another flusher won
-      let record = null;
-      try { record = JSON.parse(fs.readFileSync(claimed, 'utf8')); } catch { record = null; }
-      if (!record || typeof record.target !== 'string' || typeof record.line !== 'string') {
-        try { fs.unlinkSync(claimed); } catch { /* already gone */ }
-        continue;
-      }
-      try {
-        fs.mkdirSync(path.dirname(record.target), { recursive: true });
-        fs.appendFileSync(record.target, record.line);
-      } catch {
-        // The target could not be written: return the record to the queue and stop, so
-        // a later hook retries it in its original position.
-        try { fs.renameSync(claimed, path.join(spool, name)); } catch { /* recovered later */ }
-        return;
-      }
-      try { fs.unlinkSync(claimed); } catch { /* recovered later */ }
+  recoverAbandonedRecords(spool);
+  for (let delivered = 0; delivered < 10000; delivered++) {
+    // Another hook is delivering an older record: stand down entirely, or this hook
+    // would pass it. Its claim is live, so it is still making progress.
+    if (liveClaimPresent(spool)) return;
+    const [name] = spoolRecordNames(spool);
+    if (!name) return;
+    barrierWait();
+    if (workspaceValidationActive(root)) return; // a validation started: stop delivering
+    const claimed = path.join(spool, `${name}.delivering-${process.pid}`);
+    try { fs.renameSync(path.join(spool, name), claimed); } catch { return; } // another hook is delivering
+    let record = null;
+    try { record = JSON.parse(fs.readFileSync(claimed, 'utf8')); } catch { record = null; }
+    if (!record || typeof record.target !== 'string' || typeof record.line !== 'string') {
+      try { fs.unlinkSync(claimed); } catch { /* already gone */ }
+      continue;
     }
+    const written = withWorkspaceWriteTicket(root, () => {
+      fs.mkdirSync(path.dirname(record.target), { recursive: true });
+      fs.appendFileSync(record.target, record.line);
+    });
+    if (!written) {
+      // Not admitted, or the target could not be written: return the record to its place
+      // so a later hook retries it in order, and stop.
+      try { fs.renameSync(claimed, path.join(spool, name)); } catch { /* recovered later */ }
+      return;
+    }
+    try { fs.unlinkSync(claimed); } catch { /* recovered later */ }
+  }
+}
+
+/** The workspace validation capacity directory this worktree's validations queue in. */
+function workspaceCapacityDir(root) {
+  try {
+    const top = workspaceTop(root);
+    if (!top) return null;
+    const commonRaw = git(top, 'rev-parse --git-common-dir');
+    const common = fs.realpathSync(path.isAbsolute(commonRaw) ? commonRaw : path.resolve(top, commonRaw));
+    const sharedRoot = path.basename(common) === '.git' ? path.dirname(common) : common;
+    const key = crypto.createHash('sha256').update(top).digest('hex');
+    return path.join(sharedRoot, '.proof-or-stop', 'locks', 'validation-capacity.lock', 'workspaces', key);
+  } catch { return null; }
+}
+
+function capacityHolderAlive(ticketPath) {
+  try { return pidAlive(JSON.parse(fs.readFileSync(path.join(ticketPath, 'holder.json'), 'utf8')).pid); } catch { return false; }
+}
+
+/**
+ * Run `write` while holding an admitted workspace validation capacity ticket, using the
+ * same ticket protocol the product's validations use: a private directory published by
+ * an atomic rename, admitted only when it is the oldest live ticket and nobody is
+ * arriving. The ticket carries this process's pid, so it is classified stale the moment
+ * this hook exits or dies. Returns false when the ticket was not admitted or the write
+ * failed; the caller then leaves the record queued.
+ */
+function withWorkspaceWriteTicket(root, write) {
+  const dir = workspaceCapacityDir(root);
+  if (!dir) return false;
+  let ticket = null;
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    const lockId = crypto.randomUUID();
+    const numbers = fs.readdirSync(dir).filter(name => name.endsWith('.ticket'))
+      .map(name => Number(name.slice(0, name.indexOf('-')))).filter(Number.isFinite);
+    const number = (numbers.length > 0 ? Math.max(...numbers) : 0) + 1;
+    ticket = path.join(dir, `${String(number).padStart(16, '0')}-${lockId}.ticket`);
+    const preparing = `${ticket}.${process.pid}-${lockId}.preparing`;
+    fs.mkdirSync(preparing);
+    fs.writeFileSync(path.join(preparing, 'holder.json'), `${JSON.stringify({
+      lockId, pid: process.pid, hostname: os.hostname(), command: 'host activity log delivery',
+      acquiredAt: new Date().toISOString(), processStartTimeMs: Math.round(Date.now() - process.uptime() * 1000),
+    }, null, 2)}\n`);
+    fs.renameSync(preparing, ticket); // publication is atomic: a half-written ticket is never queue-visible
+    const entries = fs.readdirSync(dir);
+    if (entries.some(name => name.endsWith('.choosing'))) return false; // someone is arriving
+    const live = entries.filter(name => name.endsWith('.ticket') && capacityHolderAlive(path.join(dir, name))).sort();
+    if (live.length === 0 || path.join(dir, live[0]) !== ticket) return false; // not the oldest: retreat
+    write();
+    return true;
+  } catch {
+    return false;
   } finally {
-    releaseFlushLock(lock);
+    if (ticket) { try { fs.rmSync(ticket, { recursive: true, force: true }); } catch { /* stale by pid */ } }
   }
 }
 
@@ -184,40 +252,6 @@ function barrierWait() {
   while (fs.existsSync(barrier) && Date.now() < deadline) {
     try { execSync('sleep 0.05'); } catch { break; }
   }
-}
-
-/**
- * Exclusive flush lock. A lock left by a dead owner is reclaimed by RENAMING it away:
- * the rename is atomic, so only one reclaimer can succeed and a live replacement lock
- * can never be removed by a second observer acting on a stale reading.
- */
-function acquireFlushLock(lock) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      fs.mkdirSync(lock);
-      fs.writeFileSync(path.join(lock, 'owner'), String(process.pid), { mode: 0o600 });
-      return true;
-    } catch (error) {
-      if (error.code !== 'EEXIST') return false;
-    }
-    let owner = null;
-    try { owner = Number(fs.readFileSync(path.join(lock, 'owner'), 'utf8')); } catch { owner = null; }
-    if (owner !== null && pidAlive(owner)) return false;
-    let age = 0;
-    try { age = Date.now() - fs.statSync(lock).mtimeMs; } catch { continue; }
-    if (owner === null && age < 10000) return false; // the owner record is not written yet
-    const graveyard = `${lock}.stale-${process.pid}-${crypto.randomBytes(4).toString('hex')}`;
-    try { fs.renameSync(lock, graveyard); } catch { continue; } // another reclaimer won
-    try { fs.rmSync(graveyard, { recursive: true, force: true }); } catch { /* best effort */ }
-  }
-  return false;
-}
-
-function releaseFlushLock(lock) {
-  let owner = null;
-  try { owner = Number(fs.readFileSync(path.join(lock, 'owner'), 'utf8')); } catch { owner = null; }
-  if (owner !== process.pid) return; // never remove a lock this process does not own
-  try { fs.rmSync(lock, { recursive: true, force: true }); } catch { /* best effort */ }
 }
 
 function detectStory(root) {
