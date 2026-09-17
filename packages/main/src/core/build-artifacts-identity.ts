@@ -16,6 +16,14 @@ import { gitObservationKey, readObservedGitState } from './git-tree-observation.
  * reuse, admissibility and DONE-required freshness consumers refuse evidence
  * whose recorded build no longer matches the artifacts on disk.
  *
+ * What the identity bounds: the bytes on disk at the observation points (plan
+ * and command boundaries for routine plans, receipt boundaries for DONE-required
+ * runs). What it does not bound: a command that rewrites an artifact tree and
+ * restores it inside its own window, the same limit the executor's
+ * sourceProvenance head/clean observations accept. Closing that window needs
+ * OS-enforced write denial on the trees for every non-build command and its
+ * descendants, which is a platform policy rather than an observation.
+ *
  * The per-root digest mirrors scripts/full-suite-build-binding.mjs (relative
  * path plus bytes, the binding manifest itself excluded), so it changes exactly
  * when that manifest's distDigest would.
@@ -60,8 +68,13 @@ function artifactTreeDigest(root: string): string {
   let stat;
   try {
     stat = lstatSync(root);
-  } catch {
-    return 'absent';
+  } catch (error) {
+    // Only a confirmed missing root is `absent`. Any other observation failure
+    // (EACCES, EIO, ...) means this process cannot inspect the tree at all;
+    // that is unavailable, never a valid identity.
+    const code = (error as NodeJS.ErrnoException | null)?.code;
+    if (code === 'ENOENT' || code === 'ENOTDIR') return 'absent';
+    throw new BuildArtifactsIdentityUnavailable(root);
   }
   if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(root);
   if (!stat.isDirectory()) return 'absent';

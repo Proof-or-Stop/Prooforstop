@@ -2297,6 +2297,9 @@ export async function executeValidationPlan(
     // restored is still attributed to the commands that ran in between. A
     // digest of the 57 MB tree costs about 90 ms warm; the plan-level rules
     // below turn these observations into the binding the evidence carries.
+    // Boundary observations only: a command that swaps and restores the trees
+    // inside its own window is not observable here (build-artifacts-identity.ts
+    // states the bound); that needs OS-enforced write denial, not observation.
     const buildArtifactsBefore = currentBuildArtifactsHash(projectRoot);
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       progress: options.progress,

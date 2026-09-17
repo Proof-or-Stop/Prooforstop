@@ -29,7 +29,7 @@ registerHooks({ load(url, context, nextLoad) {
 } });
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
@@ -174,6 +174,26 @@ try {
   // A missing artifact tree is not the recorded one either.
   rmTree(join(root, 'packages/main/dist'));
   expectRefusedByBuild('PASS recorded against build A was accepted after packages/main/dist disappeared');
+  if (binding) check(/^[a-f0-9]{64}$/.test(binding.currentBuildArtifactsHash(root) ?? ''), 'a confirmed missing root still yields a definite identity (absent marker)');
+
+  // Audit #6: an observation failure is not "absent". A root this process
+  // cannot lstat (its parent denies search) must make the identity unavailable
+  // and every consumer must refuse, exactly as for a symbolic link.
+  if (typeof process.getuid === 'function' && process.getuid() === 0) {
+    console.log('skip: the EACCES case needs an unprivileged user');
+  } else {
+    const parent = join(root, 'packages/main');
+    chmodSync(parent, 0o000);
+    try {
+      if (binding) expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'an artifact root that cannot be inspected (EACCES) was digested as a valid identity');
+      const r = reuse();
+      expectRepaired(r.reusable === false && r.refusalReasons.includes('build-artifacts-hash-changed-or-missing'), `reuse accepted a PASS while the artifact root could not be inspected (reasons=${r.refusalReasons.join(',')})`);
+      const a = admissibility();
+      expectRepaired(a.ok === false && a.reasonCodes.includes('build_artifacts_unavailable'), `admissibility accepted a PASS while the artifact root could not be inspected (codes=${a.reasonCodes.join(',')})`);
+    } finally {
+      chmodSync(parent, 0o755);
+    }
+  }
 
   // Source-text guards (not runtime proof): the canonical terminal event must
   // carry the binding, the executed result must be stamped with the identity at
@@ -408,6 +428,23 @@ try {
     if (binding) expectRepaired(clean.buildArtifactsHash === binding.currentBuildArtifactsHash(root), 'routine plan binding does not equal the artifacts on disk at plan end');
     expectRepaired(clean.commands.every((command) => /^[a-f0-9]{64}$/.test(command.buildArtifactsBefore ?? '') && /^[a-f0-9]{64}$/.test(command.buildArtifactsAfter ?? '') && command.buildArtifactsRole === 'test'),
       'routine command results do not carry before/after observations and a role');
+
+    // Audit #6: an artifact root the executor cannot inspect fails the plan as
+    // unavailable; it never binds an "absent" tree.
+    if (typeof process.getuid === 'function' && process.getuid() === 0) {
+      console.log('skip: the executor EACCES case needs an unprivileged user');
+    } else {
+      chmodSync(join(root, 'packages/main'), 0o000);
+      let blind;
+      try {
+        blind = await run([{ label: 'validate file', command: 'node', args: ['validate-clean.js'], timeoutMs: 20_000 }]);
+      } finally {
+        chmodSync(join(root, 'packages/main'), 0o755);
+      }
+      expectRepaired(blind.allPass === false && blind.details.some((line) => line.includes('build_artifacts_identity_unavailable')),
+        `a plan whose artifact root could not be inspected still passed (${blind.details.join(' | ')})`);
+      expectRepaired(!blind.buildArtifactsHash, 'a plan whose artifact root could not be inspected must not carry a build binding');
+    }
 
     // Target: a validate-file-shaped command that rewrites the artifacts it tested.
     const rewritten = await run([{ label: 'validate file', command: 'node', args: ['validate.js'], timeoutMs: 20_000 }]);
