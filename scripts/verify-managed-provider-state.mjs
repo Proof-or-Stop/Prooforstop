@@ -164,5 +164,32 @@ try {
    assert.equal(fs.readFileSync(launch.argv[index+1],'utf8'),'fixture-private-prompt');
    assert.equal(fs.statSync(launch.argv[index+1]).mode&0o777,0o600);
  } finally {launch.cleanup();}
+ const {managedReviewLaneEnvironment}=await import(pathToFileURL(join(repo,'packages/main/dist/core/managed-review-lane.js')).href);
+ const laneRoot=join(root,'temp-lane');fs.mkdirSync(laneRoot);
+ const roots=Object.fromEntries(['source','buildSource','originalWorktree','gitCommonDir','probeRoot','temporary','cache'].map(name=>{
+   const path=join(laneRoot,name);fs.mkdirSync(path);return [name,path];
+ }));
+ const output=join(roots.source,'.proof-or-stop/runtime/managed-review-build');fs.mkdirSync(output,{recursive:true});
+ const layout={...roots,outputs:[output]};
+ const lane={layout,providerState:{host:'claude',directory:roots.cache,adapter:'isolated-file-cache-v1'}};
+ const privateEnvironment=managedReviewLaneEnvironment(lane);
+ assert.equal(privateEnvironment.CLAUDE_CODE_TMPDIR,roots.temporary,'CLAUDE_PRIVATE_TEMP_RED: Bash must use the admitted private temporary directory');
+ if(process.platform==='darwin') {
+   cp.execFileSync('git',['init','-q'],{cwd:roots.source});
+   const protectedFile=join(roots.probeRoot,'.managed-readonly-capability');fs.writeFileSync(protectedFile,'immutable');
+   const outside=join(laneRoot,'outside');fs.mkdirSync(outside);
+   const {prepareManagedReadonlyLaunch}=await import(pathToFileURL(join(repo,'packages/main/dist/core/managed-review-readonly.js')).href);
+   const probe=`const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+     const temp=path.join(process.env.CLAUDE_CODE_TMPDIR,'claude-'+process.getuid());fs.mkdirSync(temp);
+     fs.writeFileSync(path.join(temp,'cwd-probe'),'ok');
+     for(const denied of ${JSON.stringify([join(roots.source,'unapproved'),join(outside,'unapproved'),protectedFile])})
+       assert.throws(()=>fs.writeFileSync(denied,'bad'),e=>['EPERM','EACCES'].includes(e.code));
+     console.log('PRIVATE_TEMP_WRITE_AND_BOUNDARY_PASS');`;
+   const launch=prepareManagedReadonlyLaunch(layout,{command:process.execPath,argv:['-e',probe],cwd:roots.source});
+   const result=cp.execFileSync(launch.command,launch.argv,{cwd:launch.cwd,env:{...process.env,...privateEnvironment},encoding:'utf8',timeout:10000});
+   assert.match(result,/PRIVATE_TEMP_WRITE_AND_BOUNDARY_PASS/);
+   assert.equal(fs.readFileSync(protectedFile,'utf8'),'immutable');
+   console.log('CLAUDE_PRIVATE_TEMP_SANDBOX_PASS');
+ } else console.log('CLAUDE_PRIVATE_TEMP_SANDBOX_SKIPPED: macOS-specific adapter');
  console.log('ISOLATED_REVIEW_AUTH_PASS: private Claude/Grok authentication, no ambient mutation, protected prompt and terminal-only result');
 } finally {rmSync(root,{recursive:true,force:true});}
