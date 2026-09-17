@@ -17,4 +17,12 @@ try {
  writeFileSync(join(root,'.credentials.json'),JSON.stringify({claudeAiOauth:{accessToken:'synthetic-access',refreshToken:'synthetic-refresh'}}));
  assert.ok(preflightManagedProviderState('claude',{CLAUDE_CONFIG_DIR:root}).credentials);
  console.log('PASS supported file/token credentials, quoted file TOML/comments, Claude environment credentials');
+ const grok=join(root,'grok');
+ const fs=await import('node:fs');fs.mkdirSync(grok,{mode:0o700});
+ fs.writeFileSync(join(grok,'auth.json'),JSON.stringify({'https://auth.x.ai::fixture':{key:'synthetic-access',auth_mode:'oidc',refresh_token:'synthetic-refresh',oidc_issuer:'https://auth.x.ai',oidc_client_id:'fixture',expires_at:'2099-01-01T00:00:00Z'}}),{mode:0o600});
+ let state;
+ try {state=preflightManagedProviderState('grok',{GROK_HOME:grok});}
+ catch {assert.fail('ISOLATED_REVIEW_AUTH_RED: authenticated Grok file state must be supported without using the ambient home');}
+ assert.equal(state.host,'grok');
+ assert.equal(state.directory,grok);
 } finally {rmSync(root,{recursive:true,force:true});}
