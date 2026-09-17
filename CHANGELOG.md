@@ -1,5 +1,74 @@
 # Changelog
 
+## Lab benchmark-review-auth - v0.3.399 - 2026-09-17
+
+# Bounded isolated reviewer authentication repair
+
+## Problem and delivered behavior
+Formal managed Claude review refused the default macOS Keychain login after the isolated provider cache boundary was introduced. Grok was installed but had no canonical managed reviewer transport. This Lab restores the blocked review entry needed by benchmark prerequisite B-0980; it does not implement or complete the benchmark runner.
+
+The controller reads only the fixed Claude Code-credentials item for the canonical default macOS Claude directory, validates and retains only claudeAiOauth, and materializes it through the existing opaque snapshot and authenticated private seed into private mode-0700 directories/mode-0600 files. Custom configuration directories never fall back to the default account. Keychain errors are sanitized.
+
+Grok ordinary prompt and managed-dispatch calls are explicitly refused by the public handler, durable submit boundary, core runner and prompt materializer. Only formal managed review and acceptance-amendment review are supported. Grok gets a real grok/xai identity, isolated GROK_HOME, disabled shared leader and updater, protected prompt-file transport, and successful terminal structured-output handling for ordinary managed review and acceptance amendment review. Duplicate, malformed, oversized, failed and late contradictory terminal events cannot authorize intake. Existing source isolation, admission, signed subject/run, receipt and import checks remain in effect. Home policy files are refused rather than silently discarded. No credentials or policy are written back to ambient homes.
+
+Grok aggregate token usage remains explicitly unavailable because compatibility-stream counters can be placeholders. Validated live counters supply only a burn-limit lower bound. This is not a claim of complete benchmark token accounting.
+
+## Verification
+- Official pinned RED/GREEN: node scripts/verify-managed-provider-state.mjs. RED marker ISOLATED_REVIEW_AUTH_RED recorded before repair; final committed implementation passes ISOLATED_REVIEW_AUTH_PASS. Tests cover immutable snapshots, private modes, credential refusal, exact Keychain lookup with sanitized errors, MCP exclusion, custom-home refusal, Grok launcher/terminal negatives, and live usage lower bounds.
+- TypeScript production build passed. Private provider seed, private-state capture, execution identity, host readiness and prompt/cwd isolation regressions passed.
+- Canonical host-run usage smoke passed all 91 checks with the repository entrypoint preloaded.
+- Final static edge validation passed: zero stale exceptions, zero unresolved registered nested edges, zero unexpanded commands, no configuration drift. Existing exception identities and classifications were retained; only changed source/evidence bindings were refreshed.
+- Real isolated authentication probes passed: Claude 5271 ms, Grok 10052 ms. Actual managed-review structured rejection transport passed: Claude 9030 ms, Grok 4638 ms. Both used the OS read-only boundary, real private credentials and actual provider processes with successful close/reap receipts. These synthetic REJECT probes created no Story PASS and did not exercise a real Story import.
+- An earlier ordinary-launch probe authenticated but failed its READY assertion because the provider could not read the prompt file. It is retained as a failed harness observation. The corrected formal launcher probes passed; no failed measurement is presented as success.
+- Direct host-run usage smoke without canonical preload has the same DIRTY_WORKTREE_CATEGORIES initialization error on unchanged main; the canonical invocation passes. The broad managed-review evidence smoke hit the real proposal terminal/import race timeout; the fresh unchanged-main run reproduced the identical error at the same fixture line (see /tmp/benchmark-auth-evidence-main-baseline.log). Neither suite result is silently relabeled green. No unrelated fixture repair is included.
+
+## Scope and review
+The executable changes are bounded to provider auth/host plumbing, result handling, corresponding registries, existing regression assertions, and documentation. Static evidence manifest edits only rebind existing entries to this source revision. No Story JSON, remote publication, operator approval, reviewer independence gate, or unrelated feature is changed. Lab finish must independently audit the exact prepared candidate before local main integration.
+
+## Observation locations
+Local external logs: /tmp/benchmark-auth-*.log and /tmp/benchmark-review-auth-*.log.
+Real provider process artifacts: /Users/jek/Documents/Proof-or-Stop-Benchmark-Plan/benchmark-review-auth-live-v2 and benchmark-review-auth-structured.
+This record is maintenance provenance, not formal Story DONE or product-release evidence.
+
+## First independent audit and bounded corrections
+Claude audit e875bb1a-68b2-4ed1-b5ed-832b33dd8b1b rejected the first candidate with two medium findings. The rejection and its 283024 ms duration are retained, not overwritten. The repair closes the unintended Grok ordinary/managed-dispatch surface at four entry boundaries and adds policy-file refusal, auto-update flag, formal argv pairing, late non-error event and explicit macOS Keychain PASS/SKIP controls in the pinned verifier. This changes the rejected repair content before any new audit.
+
+For reviewer navigation: submitManagedHostRun requires exact isolated-review bindings in core/managed-host-run.ts; parseManagedReviewFinalProposal in that file rejects truncated, duplicate or missing final results. core/acceptance-amendment-review.ts parseAcceptanceReviewFinal independently requires exactly one nontruncated terminal result. Real provider command observations are in the external structured-probe logs; the earlier READY prompt-permission failure was Claude's ordinary launcher harness, not a claim that ordinary Grok review is supported.
+
+## Final real-provider observation after audit repairs
+The final structured transport probe passed for Claude in 12336 ms. Grok's final attempt returned a remote HTTP 403 permission-denied response after 7550 ms, exit 1, one error_during_execution terminal and replacementSafe=true. It is retained in benchmark-review-auth-structured-final/ and is not counted as a success. Earlier actual Grok isolated authentication and structured rejection calls succeeded (above); this adapter does not guarantee provider account/service availability. No retry, credential alteration or weakened refusal was used to turn the 403 into a pass. The local mandatory regression is green, and failed provider output remains ineligible as formal review evidence.
+
+## Second independent audit and bounded corrections
+Claude audit f2943715-bc75-4e77-b065-c75c1b58352a took 212425 ms and rejected two issues. Grok now refuses an unconfigured read-only lane before creating any run artifact, requires an admitted Grok private state, and the low-level runner also refuses a missing sealed readonly layout before provider launch. The pinned verifier exercises absent configuration, an empty configuration, no new artifact creation, and the missing-layout refusal. This restriction applies to Grok; pre-existing hosts preserve compatibility.
+
+Claude snapshot capture now calls a private input inspector without reading Keychain, then performs one validated Keychain capture into the opaque snapshot. The public preflight still validates credentials; it does not expose bytes or offer a skip flag. The test asserts exactly one Keychain read per snapshot. Registries and documentation reflect the configured-lane requirement. Both audit rejections remain retained.
+
+## Third independent audit and terminal-parser correction
+Claude audit 043efd4d-34ab-4e3b-8e9b-530a66441e29 took 154318 ms and identified an oversized late-line and empty duplicate-terminal hole. Grok now invalidates any nonempty event after a candidate, any malformed stream line, any result missing structured output, and every over-cap line (which cannot prove absence of a hidden terminal). The invalid result cannot be recovered by a later success. The verifier tests both entire-line and 37-character chunked delivery for late error/assistant overflow, malformed tails and empty duplicate results, plus invalid prefixes followed by a success. The restriction is Grok-only and preserves existing Codex/Claude multi-message behavior.
+
+## Fourth independent audit and complete flow coverage
+Claude audit b161ca81-3417-4b41-9223-9b7f7fd430bc took 389943 ms. It identified the old compatibility-proposal completion fallback, the missing full Grok flow fixture, and descriptive policy fields that were not consumed. Grok now refuses pre-existing compatibility proposal completion and cannot use the compatibility-race fallback. The runtime adapter consumes every retained registered credential-policy field; descriptive-only fields were removed.
+
+The existing managed-review-evidence smoke task now has --grok-isolated-regression. It uses the full production admission/private build/worker/receipt path with a compiled native fake grok executable. Five scenarios cover REVIEW import, compatibility proposal plus late error, compatibility proposal plus missing terminal, signed acceptance rejection and invalid acceptance terminal. Negative compatibility proposals use the explicitly existing controller injected-runner fixture seam; positive cases use the default production runner. The command is documented separately as a slower macOS integration test.
+
+The first integration attempt stopped on missing Lab graph dependency d3; npm ci in the Lab graph package repaired the environment without changing versions. The second reached completed worker evidence but correctly refused import because the legacy seed run predated the new inventory wave. The fixture now creates its current run after the real wave boundary. Integration results are retained separately and will be recorded below after completion.
+
+The current strict parser also accepted the retained real Grok successful structured rejection transcript, both in whole-buffer and 37-character chunks (RECORDED_REAL_GROK_STREAM_CURRENT_PARSER_PASS). This is compatibility replay evidence, not a fresh provider availability claim.
+
+## Integration fixture recovery observations
+The timestamp-only seed adjustment was insufficient: the real inventory gate also checks the initial review sequence. The corrected fixture creates RR-002 after inventory begin and binds its current canonical envelope. Another attempt exposed a fake executable input race (EPIPE); the native fixture now drains actual supervisor stdin and the attestation descriptor before exiting. These are fixture corrections, not relaxed production gates.
+
+The v5 run passed the full REVIEW admission/private build/worker/receipt/import case. Its next compatibility-negative case was correctly refused with signature_invalid,producer_owned_required, while the fixture expected a narrower error string. The fixture now accepts that exact refusal and separately asserts grok_compatibility_proposal_unsupported as the terminal reason. The selected-case run continues the remaining four scenarios; it emits a distinct subset marker, not the full-suite marker.
+
+## Completed integration verification
+The v5 log proves review-pass. The v6 selected-case run exited 0 and proves compat-late-error, compat-missing, acceptance-pass, and acceptance-late-error (GROK_ISOLATED_SELECTED_CASES_PASS). Together these cover all five declared cases; this is combined case coverage, not a claim that the default all-cases invocation completed in one run. Each case executed real admission, a separate private build, native synthetic provider process, cleanup/receipt checks and its import or rejection checks. All use the same production implementation; changes between runs were confined to the test assertion and selected-case control.
+
+Current committed auth regression passed ISOLATED_REVIEW_AUTH_PASS and CLAUDE_KEYCHAIN_FIXTURE_PASS. Static validation passed U18_STATIC_PASS with zero needsReview/nested/unexpandedCommands. The official Lab GREEN was recorded on af5c5677ca. Durable logs are under benchmark-review-auth-verification/. The exact prepared-version build and independent audit remain the responsibility of Lab finish.
+
+Maintenance provenance: codex/lab-benchmark-review-auth, repair af5c5677ca711baadafc4fcfd3bd16ee7f79a80c.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-provider-state.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab dependabot-20260917 - v0.3.398 - 2026-09-17
 
 # Dependabot dependency remediation (Lab dependabot-20260917)
