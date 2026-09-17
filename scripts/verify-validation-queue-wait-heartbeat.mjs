@@ -88,12 +88,13 @@ try {
   // Contended: a helper holds a machine ticket; the fixture validation queues behind it.
   const ready = join(sandbox, 'holder.ready'); const release = join(sandbox, 'holder.release');
   const holder = spawn(process.execPath, [holderScript, ready, release], { stdio: 'inherit' });
+  const holderExited = new Promise((r) => holder.on('exit', r));
   const acquired = await waitFor(ready, 600_000);
   if (!acquired) throw new Error('holder could not acquire a machine ticket within 600s; not the target RED');
   const contendedRun = runValidate(fixture('contended'), { PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000', PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '250' });
   setTimeout(() => writeFileSync(release, 'release'), 3000);
   const contended = await contendedRun;
-  await new Promise((r) => holder.on('exit', r));
+  await holderExited;
   const waitLines = (contended.stderr.match(/waiting for machine validation capacity/g) ?? []).length;
   rows.push({ scenario: 'queued 3s behind another validation, idle 1000ms', exit: contended.code, ms: contended.ms, stuck: /validate stuck/.test(contended.stderr), waitLines });
   expectRepaired(!/validate stuck/.test(contended.stderr), 'a validation queued behind another repository must not be killed as idle');
