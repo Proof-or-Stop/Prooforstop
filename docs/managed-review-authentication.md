@@ -30,7 +30,9 @@ to a repository, shared directory, prompt or arbitrary endpoint.
 
 Use `host_run --host=grok --managedReview` with the ordinary exact Story/run/lane
 bindings, and assign `grok` explicitly in `reviewer_batch_admit`. Grok also accepts
-the existing acceptance-amendment review schema. It is attributed to `xai`, never
+the existing acceptance-amendment review schema. Ordinary prompt runs and managed
+dispatch are refused before submission or spawn; this adapter supports only these
+formal review profiles. It is attributed to `xai`, never
 to Anthropic. The protected prompt-file launcher uses Grok's documented Messages
 stream and accepts only a successful structured terminal proposal. Raw usage
 remains in the process transcript; aggregate usage is marked unavailable because

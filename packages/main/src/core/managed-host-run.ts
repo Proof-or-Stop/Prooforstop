@@ -2669,6 +2669,7 @@ export async function submitManagedHostRun(
   args: ManagedHostRunSubmitArgs,
   deps: ManagedHostRunSubmitDeps = {},
 ): Promise<ManagedHostRunProjection> {
+  if (args.host === 'grok' && !isIsolatedReviewerProfile(args.profile)) throw new Error('grok supports only --managedReview / acceptance_amendment_review');
   if (!args.root || !args.cwd) throw new Error('managed host run: root and cwd are required');
   if (!args.promptText) throw new Error('managed host run: prompt is empty; refuse pre-spawn');
   if (!args.phase || !args.agentType) throw new Error('managed host run: phase and agentType are required');

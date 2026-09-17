@@ -2178,6 +2178,7 @@ export function materializeHostRunLaunch(
   args: HostRunArgs,
   managedDispatchEnvironment?: { platform: NodeJS.Platform; containerBoundaryPresent: boolean },
 ): MaterializedLaunch {
+  if (args.host === 'grok' && args.launchProfile !== 'managed_reviewer') throw new Error('grok supports only --managedReview / acceptance_amendment_review');
   const selection = normalizeHostRunModelSelection(args);
   const managedDispatchSandbox = args.launchProfile === 'managed_dispatch' && args.host === 'codex'
     ? managedDispatchCodexSandboxMode(
@@ -2344,6 +2345,7 @@ function appendFailedSummary(provider: string | null, reason: string | null): Ho
  * blocked row is written) with a nonzero exit and NO spawn.
  */
 export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Promise<HostRunResult> {
+  if (args.host === 'grok' && args.launchProfile !== 'managed_reviewer') throw new Error('grok supports only --managedReview / acceptance_amendment_review');
   // B-137a:F-110 — `agy` is accepted as a RECOGNISED host id here but is refused
   // before spawn in materializeLaunch (its print launcher takes the prompt only
   // in argv). Two layers on purpose: an unknown host is a caller error ("expected

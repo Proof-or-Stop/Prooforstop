@@ -390,6 +390,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
   return {
     async host_run(args: HostRunCommandArgs): Promise<HostRunCommandResult | HostRunDetachResult | string> {
       const host = normalizeHost(normalizeString(args.host));
+      if (host === 'grok' && args.managedReview !== true) throw new Error('grok supports only --managedReview / acceptance_amendment_review');
       const selection = normalizeHostRunModelSelection({
         host,
         model: args.model,
