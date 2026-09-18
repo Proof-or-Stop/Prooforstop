@@ -1,12 +1,13 @@
 // Isolated fixture receipt plumbing. Embedded mutation records are fixture data.
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../../dist/core/store.js';
 import { resetConfigCache } from '../../dist/core/config.js';
+import { PROCESS_FACT_REGISTRY } from '../../dist/core/process-fact-registry.js';
 import { createProofStoryHandlers, } from '../../dist/handlers/proofstory.js';
 import { PRE_REVIEW_LIVE_PROOF_COMMAND, } from '../../dist/core/pre-review-check.js';
 import { signScopeCheck } from '../../dist/handlers/scope-check.js';
@@ -168,6 +169,15 @@ function writeRegistration(root) {
     write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventoryHandlers=true;\n');
     write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohort=true;\n');
     write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
+    // Registry snapshot assembly visits all physical candidates before narrowing
+    // this controlled synthetic graph. Empty modules add no executable edges and
+    // never replace the explicit producer/consumer fixtures above.
+    const registeredSources = new Set(PROCESS_FACT_REGISTRY.flatMap(entry => [
+        ...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? []),
+    ]));
+    for (const file of registeredSources) {
+        if (!existsSync(join(root, file))) write(root, file, 'export {};\n');
+    }
 }
 function writeLiveProofFixture(root, proof, recomputeRoot = true) {
     const digestUrl = new URL("../../dist/core/digest.js", import.meta.url).href;

@@ -2526,7 +2526,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
 
 test('F-247: verifier-owned topology and pre-review checks are executable and current', async () => {
   const { withCurrentAcceptanceFixture } = await import('./helpers/current-acceptance-fixture.mjs');
-  await withCurrentAcceptanceFixture(async ({ storyId, store, cli }) => {
+  await withCurrentAcceptanceFixture(async ({ root, storyId, store, cli }) => {
     const topology = JSON.parse(cli('acceptance_topology_check', { storyId, json: true }));
     assert.equal(topology.status, 'pass');
     assert.equal(topology.readOnly, true);
@@ -2559,6 +2559,30 @@ test('F-247: verifier-owned topology and pre-review checks are executable and cu
     assert.deepEqual(store.readPreReviewCheck(storyId), tampered, 'negative read does not repair its own input');
     store.writePreReviewCheck(storyId, original);
     assert.equal(JSON.parse(cli('pre_review_check_read', { storyId, json: true })).ok, true);
+    // This is a physical snapshot-completeness control in an owned fixture,
+    // independent of the unchanged discovered producer/consumer paths.
+    const { deriveAcceptanceCoverageBasis } = await import(pathToFileURL(join(distRoot, 'core/acceptance-coverage-basis.js')).href);
+    const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    const derive = () => deriveAcceptanceCoverageBasis({
+      storyId, workspaceRoot: root, checklist: store.readChecklist(storyId),
+      contract: store.readProofStoryContract(storyId), scopeCheck: store.readScopeCheck(storyId),
+      scopeContract: store.readScopeContract(storyId), headHash: git(['rev-parse', 'HEAD']),
+      materialHash: currentMaterialHash(root, 'HEAD', root), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root),
+      phaseBasis: 'plan',
+    });
+    const complete = derive();
+    assert.equal(complete.basis.status, 'complete');
+    const missingSource = 'packages/main/src/core/proof-admissibility.ts';
+    assert.equal(readFileSync(join(root, missingSource), 'utf8'), 'export {};\n');
+    rmSync(join(root, missingSource));
+    git(['add', missingSource]);
+    git(['commit', '-m', 'remove a registered fixture snapshot input']);
+    const missing = derive();
+    assert.equal(missing.basis.status, 'partial');
+    assert.equal(missing.basis.snapshotSeal.status, 'partial');
+    assert.ok(missing.basis.snapshotSeal.issues.some(issue => issue.code === 'snapshot_missing'
+      && issue.targetKind === 'source_file' && issue.canonicalRef === missingSource));
+    assert.deepEqual(missing.basis.enumeratedPathRefs, complete.basis.enumeratedPathRefs);
     emitIntentMarker('CHK-004:happy:2', 'acceptance_topology_check reports current complete structural PASS');
     emitIntentMarker('CHK-004:happy:3', 'pre_review_check_read reports current admissible executable PASS');
   });
