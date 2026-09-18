@@ -5,7 +5,8 @@ import { realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { currentBuildArtifactsHash } from './build-artifacts-identity.js';
+import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
 import type {
@@ -802,6 +803,12 @@ export function validateReceiptBuildBinding(
       lastRegisteredBuildOutput = after;
       continue;
     }
+    // DONE-required evidence is the authoritative executed-build proof, so a
+    // receipt whose command could have swapped the artifacts inside its own
+    // window — undetectable at the boundaries — cannot carry that claim.
+    if (!(receipt.buildArtifactsProtection ?? '').startsWith('enforced:')) {
+      reasons.push(`build-artifacts-protection-unenforced[${i}]: ${receipt.label} ran without enforced artifact write protection (${receipt.buildArtifactsProtection ?? 'not recorded'}); this evidence cannot prove which build it executed`);
+    }
     if (before !== after) {
       reasons.push(`build-artifacts-changed-during-command[${i}]: ${receipt.label} rewrote the compiled artifacts but is not a registered packages/main build`);
     }
@@ -937,6 +944,7 @@ export async function runDoneRequiredValidation(args: {
   }
 
   if (policy.required && policy.configErrors.length === 0) {
+    const artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
     for (let i = 0; i < policy.commands.length; i++) {
       const command = policy.commands[i];
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
@@ -945,8 +953,15 @@ export async function runDoneRequiredValidation(args: {
       // Per-receipt build identity: the dist this command started against and
       // the dist it left behind. Only a registered build receipt may change it,
       // and every test receipt must have started against the final build.
+      // Boundary observations cannot see a swap a command undoes before it
+      // returns, so every non-build receipt executes under a mechanism that
+      // denies it, and its descendants, the right to write these trees.
+      const commandIsRegisteredBuild = command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
+        || command.proof === PACKAGES_MAIN_BUILD_PROOF
+        || isRegisteredPackagesMainBuildCommand(command);
       const buildArtifactsBefore = currentBuildArtifactsHash(args.gitCwd);
       const result = await runValidationCommand(command, args.projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
+        ...(commandIsRegisteredBuild ? {} : { artifactWriteProtection }),
         progress: runtimeOptions.progress,
         heartbeatMs: runtimeOptions.heartbeatMs,
         abortSignal: runtimeOptions.abortSignal,
@@ -993,6 +1008,7 @@ export async function runDoneRequiredValidation(args: {
         ...(storyFilesHash ? { storyFilesHash } : {}),
         ...(buildArtifactsBefore ? { buildArtifactsBefore } : {}),
         ...(buildArtifactsAfter ? { buildArtifactsAfter } : {}),
+        buildArtifactsProtection: commandIsRegisteredBuild ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label,
       };
       receipts.push(receipt);
       if (status === 'FAIL') {

@@ -19,6 +19,7 @@ import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, resolveArtifactWriteProtection, type ArtifactWriteProtection } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
   MAX_JOBS,
@@ -165,6 +166,13 @@ export interface RunValidationCommandOptions {
   deadlineError?: () => Error;
   /** Exact tool-owned environment for the canonical reuse capsule only. */
   exactEnvironment?: Record<string, string>;
+  /**
+   * Denies this command and every process it spawns the right to write the
+   * compiled artifacts. Applied at the spawn boundary only: the recorded
+   * command, args and every identity derived from them stay the command the
+   * plan declared, never the wrapper.
+   */
+  artifactWriteProtection?: ArtifactWriteProtection;
 }
 
 interface CapturedValidationCommandResult {
@@ -1704,10 +1712,17 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
       throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
     }
-    const child = spawn(command.command, command.args, {
+    const declaredShell = Boolean(command.shell || isWindows);
+    // The protection wrapper replaces only what is handed to spawn. Everything
+    // recorded about this command — label, command, args, identity digests —
+    // still describes the declared command.
+    const launch = options.artifactWriteProtection?.enforced
+      ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell })
+      : { command: command.command, args: [...command.args], shell: declaredShell };
+    const child = spawn(launch.command, launch.args, {
       cwd,
       env: options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv),
-      shell: command.shell || isWindows,
+      shell: launch.shell,
       stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
       // POSIX: give the child its own process group (it becomes group leader) so the
       // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
@@ -2279,6 +2294,56 @@ function scheduledStatusForCommand(result: ValidationCommandResult): ScheduledSt
   return result.code === 0 ? 'PASS' : 'FAIL';
 }
 
+/**
+ * Plan-level build binding rules over the executor's own observations. Pure and
+ * exported so every rule can be exercised directly: with write protection
+ * enforced, most of these violations can no longer be produced by running a
+ * command, and this is the second line of defence that still catches them on a
+ * host where protection could not be established.
+ *
+ * Every observation is a content digest, so the rules hold against a swap that
+ * is later restored ACROSS commands: the swap, every command that ran on the
+ * swapped bytes, and the restore each fail their own comparison. They cannot
+ * see a swap that happens and is undone inside one command; that is what the
+ * write protection is for.
+ */
+export function evaluatePlanBuildArtifactsBinding(input: {
+  commands: readonly Pick<ValidationCommandResult, 'label' | 'buildArtifactsBefore' | 'buildArtifactsAfter' | 'buildArtifactsRole'>[];
+  start?: string;
+  end?: string;
+}): string[] {
+  const failures: string[] = [];
+  const { commands, start, end } = input;
+  if (!start || !end) {
+    failures.push('build artifacts identity is unavailable (symbolic link or unreadable artifact tree); the plan cannot bind what it executed [build_artifacts_identity_unavailable]');
+    return failures;
+  }
+  const buildRan = commands.some((result) => result.buildArtifactsRole === 'build');
+  for (const result of commands) {
+    if (!result.buildArtifactsBefore || !result.buildArtifactsAfter) {
+      failures.push(`${result.label}: build artifacts were not observed around this command [build_artifacts_observation_missing]`);
+      continue;
+    }
+    if (result.buildArtifactsRole === 'build') continue;
+    if (result.buildArtifactsBefore !== result.buildArtifactsAfter) {
+      failures.push(`${result.label}: compiled artifacts changed while this non-build command ran${buildRan ? ' (a registered build overlapped it)' : ''} [build_artifacts_changed_by_non_build_command]`);
+    }
+    if (result.buildArtifactsBefore !== end) {
+      failures.push(`${result.label}: executed bytes that differ from the artifacts the plan ended on; rerun it against the final build [receipt_not_bound_to_final_build]`);
+    }
+  }
+  // The plan may only end on the exact bytes the last registered build
+  // produced (or, when no build ran, the bytes it started with).
+  const builds = commands.filter((result) => result.buildArtifactsRole === 'build' && result.buildArtifactsAfter);
+  const expectedFinalContent = builds.length > 0 ? builds[builds.length - 1].buildArtifactsAfter : start;
+  if (end !== expectedFinalContent) {
+    failures.push(buildRan
+      ? 'compiled artifacts differ from the output of the last registered packages/main build; a later command rewrote them [build_artifacts_changed_after_build]'
+      : 'compiled artifacts changed during the plan without a registered packages/main build [build_artifacts_changed_by_non_build_command]');
+  }
+  return failures;
+}
+
 export async function executeValidationPlan(
   plan: ValidationPlan,
   projectRoot: string,
@@ -2320,6 +2385,10 @@ export async function executeValidationPlan(
   // the plan is the identity the evidence binds and the per-command content
   // digests attribute every change in between.
   const artifactsRoot = options.gitCwd ?? resolvePlanGitCwd(projectRoot);
+  // Boundary observations cannot see a swap that a command undoes before it
+  // returns, so every non-build command is launched under a mechanism that
+  // denies it, and its descendants, the right to write these trees at all.
+  const artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot);
   const buildArtifactsAtStart = currentBuildArtifactsHash(artifactsRoot);
   // Latched by whichever command first observes the plan deadline blown. The
   // sequential implementation threw at exactly that point and never started a
@@ -2341,8 +2410,12 @@ export async function executeValidationPlan(
     // Boundary observations only: a command that swaps and restores the trees
     // inside its own window is not observable here (build-artifacts-identity.ts
     // states the bound); that needs OS-enforced write denial, not observation.
+    // A registered build is the one command allowed to change these trees, so
+    // it alone runs unprotected; everything else is denied the write.
+    const buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command) ? 'build' as const : 'test' as const;
     const buildArtifactsBefore = currentBuildArtifactsHash(artifactsRoot);
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
+      ...(buildArtifactsRole === 'test' ? { artifactWriteProtection } : {}),
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
       commandIndex: entry.commandIndex,
@@ -2354,7 +2427,10 @@ export async function executeValidationPlan(
     const buildArtifactsAfter = currentBuildArtifactsHash(artifactsRoot);
     if (buildArtifactsBefore) result.buildArtifactsBefore = buildArtifactsBefore;
     if (buildArtifactsAfter) result.buildArtifactsAfter = buildArtifactsAfter;
-    result.buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command) ? 'build' : 'test';
+    result.buildArtifactsRole = buildArtifactsRole;
+    result.buildArtifactsProtection = buildArtifactsRole === 'build'
+      ? REGISTERED_BUILD_PROTECTION_LABEL
+      : artifactWriteProtection.label;
     if (
       result.timedOut
       && typeof options.deadlineAt === 'number'
@@ -2452,37 +2528,11 @@ export async function executeValidationPlan(
   // command that changed the artifacts rewrote the dist under test. Legacy or
   // unobservable trees (symbolic links) cannot vouch and are refused.
   const buildArtifactsAtEnd = currentBuildArtifactsHash(artifactsRoot);
-  const buildBindingFailures: string[] = [];
-  if (!buildArtifactsAtStart || !buildArtifactsAtEnd) {
-    buildBindingFailures.push('build artifacts identity is unavailable (symbolic link or unreadable artifact tree); the plan cannot bind what it executed [build_artifacts_identity_unavailable]');
-  } else {
-    const buildRan = commands.some((result) => result.buildArtifactsRole === 'build');
-    // Every observation is a content digest, so these rules hold against a
-    // swap that is later restored: the swap, every test that ran on the
-    // swapped bytes, and the restore each fail their own comparison.
-    for (const result of commands) {
-      if (!result.buildArtifactsBefore || !result.buildArtifactsAfter) {
-        buildBindingFailures.push(`${result.label}: build artifacts were not observed around this command [build_artifacts_observation_missing]`);
-        continue;
-      }
-      if (result.buildArtifactsRole === 'build') continue;
-      if (result.buildArtifactsBefore !== result.buildArtifactsAfter) {
-        buildBindingFailures.push(`${result.label}: compiled artifacts changed while this non-build command ran${buildRan ? ' (a registered build overlapped it)' : ''} [build_artifacts_changed_by_non_build_command]`);
-      }
-      if (result.buildArtifactsBefore !== buildArtifactsAtEnd) {
-        buildBindingFailures.push(`${result.label}: executed bytes that differ from the artifacts the plan ended on; rerun it against the final build [receipt_not_bound_to_final_build]`);
-      }
-    }
-    // The plan may only end on the exact bytes the last registered build
-    // produced (or, when no build ran, the bytes it started with).
-    const builds = commands.filter((result) => result.buildArtifactsRole === 'build' && result.buildArtifactsAfter);
-    const expectedFinalContent = builds.length > 0 ? builds[builds.length - 1].buildArtifactsAfter : buildArtifactsAtStart;
-    if (buildArtifactsAtEnd !== expectedFinalContent) {
-      buildBindingFailures.push(buildRan
-        ? 'compiled artifacts differ from the output of the last registered packages/main build; a later command rewrote them [build_artifacts_changed_after_build]'
-        : 'compiled artifacts changed during the plan without a registered packages/main build [build_artifacts_changed_by_non_build_command]');
-    }
-  }
+  const buildBindingFailures = evaluatePlanBuildArtifactsBinding({
+    commands,
+    start: buildArtifactsAtStart,
+    end: buildArtifactsAtEnd,
+  });
   for (const line of buildBindingFailures) details.push(`✗ build binding: ${line}`);
   // Appended, never prepended: details[0] is the first command line (or the
   // focus banner) and callers read it as the headline.
@@ -2543,6 +2593,7 @@ export async function executeValidationPlan(
     ...(concurrentPollution ? { concurrentWorktreePollution: concurrentPollution } : {}),
     // The identity the evidence binds: only stamped when the binding rules held.
     ...(!buildBindingFailed && buildArtifactsAtEnd ? { buildArtifactsHash: buildArtifactsAtEnd } : {}),
+    buildArtifactsProtection: artifactWriteProtection.label,
     buildArtifacts: {
       root: artifactsRoot,
       ...(buildArtifactsAtStart ? { start: buildArtifactsAtStart } : {}),

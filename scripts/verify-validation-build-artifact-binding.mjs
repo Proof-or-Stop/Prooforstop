@@ -37,7 +37,7 @@ const { evaluateRoutineValidationReuse, buildRoutineValidationIdentity } = await
 const { evaluateValidationEvidenceAdmissibility } = await import('../packages/main/src/core/validation-evidence-admissibility.ts');
 const { currentGitHead, currentMaterialHash, currentStoryFilesHash } = await import('../packages/main/src/core/evidence-freshness.ts');
 const { runDoneRequiredValidation, evaluateDoneRequiredEvidence, validateReceiptBuildBinding } = await import('../packages/main/src/core/done-required-validation.ts');
-const { executeValidationPlan } = await import('../packages/main/src/core/validation-executor.ts');
+const { executeValidationPlan, evaluatePlanBuildArtifactsBinding: executorRules } = await import('../packages/main/src/core/validation-executor.ts');
 const { StoryStore } = await import('../packages/main/src/core/store.ts');
 const { resetConfigCache } = await import('../packages/main/src/core/config.ts');
 const { persistSyntheticAdmittedWindowForTest } = await import('../packages/main/src/core/certification-window.ts');
@@ -334,9 +334,10 @@ try {
     { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'] },
   ]);
   const unregistered = await runDoneRequiredValidation({ projectRoot: g.root, storyId: g.storyId, store: g.store, gitCwd: g.root });
-  check(readFileSync(g.mainFile, 'utf8').includes('rebuilt during the run'), 'the rewriting command must have rewritten dist');
-  expectRepaired(unregistered.status === 'FAIL' && unregistered.reasons.some((reason) => reason.startsWith('build-artifacts-changed-during-command[0]')),
-    `a non-build command rewrote dist during the run and the evidence still passed (status=${unregistered.status}, reasons=${unregistered.reasons.join(', ')})`);
+  expectRepaired(!readFileSync(g.mainFile, 'utf8').includes('rebuilt during the run'),
+    'a non-build DONE-required command rewrote the compiled artifacts; the write was not prevented');
+  expectRepaired(unregistered.status === 'FAIL',
+    `a non-build command that tried to rewrite dist still produced passing DONE-required evidence (status=${unregistered.status}, reasons=${unregistered.reasons.join(', ')})`);
   expectRepaired(evaluateDoneRequiredEvidence({ projectRoot: g.root, storyId: g.storyId, store: g.store, gitCwd: g.root }).ok === false,
     'evidence whose dist was rewritten by a non-build command was admitted');
 
@@ -381,6 +382,28 @@ try {
       `evidence bound to bytes other than the registered build's output was accepted (reasons=${broken.reasons.join(', ')})`);
     h.store.writeDoneRequiredEvidence(h.storyId, registered);
     check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true, 'restoring the receipt chain makes the PASS admissible again');
+
+    // Audits #6/#9: DONE-required evidence is the authoritative executed-build
+    // proof, so a receipt whose command ran without enforced write protection
+    // could have swapped the artifacts inside its own window and cannot carry
+    // that claim, whatever its boundary observations say.
+    const unprotected = {
+      ...registered,
+      receipts: registered.receipts.map((receipt, index) => (index === 1
+        ? { ...receipt, buildArtifactsProtection: 'unenforced:no artifact write-protection mechanism is implemented for platform linux' }
+        : receipt)),
+    };
+    h.store.writeDoneRequiredEvidence(h.storyId, unprotected);
+    const unprotectedResult = evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root });
+    expectRepaired(unprotectedResult.ok === false && unprotectedResult.reasons.some((reason) => reason.startsWith('build-artifacts-protection-unenforced[1]')),
+      `a DONE-required receipt that ran without enforced artifact write protection was admitted (reasons=${unprotectedResult.reasons.join(', ')})`);
+    const legacyProtection = { ...registered, receipts: registered.receipts.map((receipt, index) => (index === 1 ? { ...receipt, buildArtifactsProtection: undefined } : receipt)) };
+    h.store.writeDoneRequiredEvidence(h.storyId, legacyProtection);
+    const legacyResult = evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root });
+    expectRepaired(legacyResult.ok === false && legacyResult.reasons.some((reason) => reason.startsWith('build-artifacts-protection-unenforced[1]')),
+      `a receipt recording no protection at all was admitted (reasons=${legacyResult.reasons.join(', ')})`);
+    h.store.writeDoneRequiredEvidence(h.storyId, registered);
+    check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true, 'restoring the enforced receipts makes the PASS admissible again');
     // The writer cannot be driven into a deterministic between-receipts write
     // (its two observations are microseconds apart in one process), so its
     // coverage is the same validator called with the writer's own argument
@@ -553,21 +576,33 @@ try {
       writeFileSync(join(nestedMainDist, 'x.js'), BUILD_A);
     }
 
-    // Target: a validate-file-shaped command that rewrites the artifacts it tested.
+    // With write protection enforced, a non-build command can no longer perform
+    // any of these rewrites at all: the write is denied for the command and for
+    // every process it spawns. These cases therefore assert PREVENTION — the
+    // command fails and the artifacts are untouched — and the plan-level rules
+    // that used to catch the rewrite after the fact are exercised directly as a
+    // pure function further below, because they remain the second line of
+    // defence on a host where no protection mechanism exists.
+    const protection = clean.buildArtifactsProtection ?? '';
+    expectRepaired(protection.startsWith('enforced:'),
+      `the plan did not establish artifact write protection (${protection || 'not recorded'})`);
+    expectRepaired(clean.commands.every((command) => (command.buildArtifactsProtection ?? '').startsWith('enforced:')),
+      'a non-build command ran without recorded write protection');
+
+    // Target: a validate-file-shaped command that tries to rewrite the artifacts it tested.
     const rewritten = await run([{ label: 'validate file', command: 'node', args: ['validate.js'], timeoutMs: 20_000 }]);
-    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('rewritten by validate.js'), 'the validate file must have rewritten dist');
-    expectRepaired(rewritten.allPass === false && rewritten.details.some((line) => line.includes('build_artifacts_changed_by_non_build_command')),
-      `a validate file that rewrote dist still produced a passing plan (${rewritten.details.join(' | ')})`);
-    expectRepaired(!rewritten.buildArtifactsHash, 'a plan whose artifacts were rewritten by a non-build command must not carry a build binding');
+    expectRepaired(readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A,
+      'a validate file rewrote the compiled artifacts it was testing; the write was not prevented');
+    expectRepaired(rewritten.allPass === false, `a validate file that tried to rewrite dist still produced a passing plan (${rewritten.details.join(' | ')})`);
     writeFileSync(join(mainDist, 'x.js'), BUILD_A);
 
-    // A non-build command among several rewrites dist: the whole plan is refused.
+    // A non-build command among several tries to rewrite dist: refused at the write.
     const mixed = await run([
       { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 20_000 },
       { label: 'rewrites dist', command: 'node', args: ['-e', REWRITE], timeoutMs: 20_000 },
     ]);
-    expectRepaired(mixed.allPass === false && mixed.details.some((line) => line.includes('build_artifacts_changed_by_non_build_command')),
-      `a non-build command rewrote dist inside a routine plan and the plan still passed (${mixed.details.join(' | ')})`);
+    expectRepaired(readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A, 'a non-build command inside a plan rewrote dist; the write was not prevented');
+    expectRepaired(mixed.allPass === false, `a non-build command that tried to rewrite dist still produced a passing plan (${mixed.details.join(' | ')})`);
     writeFileSync(join(mainDist, 'x.js'), BUILD_A);
 
     // A registered build may rewrite dist and runs first, so every test executes
@@ -585,77 +620,19 @@ try {
     const buildCommand = built.commands.find((command) => command.label === 'build');
     const testCommand = built.commands.find((command) => command.label === 'pass');
     expectRepaired(buildCommand?.buildArtifactsRole === 'build' && testCommand?.buildArtifactsRole === 'test', 'executor must recognise the registered build command');
+    expectRepaired(buildCommand?.buildArtifactsProtection === 'registered-build:writes-permitted',
+      `the registered build must be launched unprotected so it can write (${buildCommand?.buildArtifactsProtection})`);
     expectRepaired(Boolean(testCommand?.buildArtifactsBefore) && testCommand?.buildArtifactsBefore === buildCommand?.buildArtifactsAfter,
       'the registered build must run before the test so the test starts against the rebuilt artifacts');
 
-    // A rewrite that preserves every size and restores every timestamp is
-    // invisible to an lstat fingerprint. Every per-command observation is a
-    // content digest, so the rewriting command is attributed by name and the
-    // plan cannot end on bytes the registered build did not produce.
+    // Audit #6 / #9: the swap-test-restore that no boundary observation can see.
+    // ONE command saves the registered build, installs a different one, tests
+    // against it, and restores the original bytes and timestamps before it
+    // returns. Both boundary observations agree and the plan ends on the
+    // registered build's own output, so only preventing the write closes it.
     const STAMP = '2026-01-02T03:04:05.678Z';
     const stamped = (body) => `const fs = require('node:fs'); const p = 'packages/main/dist/tasks/x.js'; fs.writeFileSync(p, ${JSON.stringify(body)}); const d = new Date('${STAMP}'); fs.utimesSync(p, d, d);`;
-    const BUILD_STAMPED = stamped('process.exit(0); // build A\n');
-    const EVASIVE_REWRITE = stamped('process.exit(1); // build B\n');
-    const evasive = await run([
-      { label: 'build', command: 'node', args: ['-e', BUILD_STAMPED], timeoutMs: 20_000, providesBuildProof: 'packages-main-build' },
-      { label: 'stealthy rewrite', command: 'node', args: ['-e', EVASIVE_REWRITE], timeoutMs: 20_000 },
-    ]);
-    const stealthy = evasive.commands.find((command) => command.label === 'stealthy rewrite');
-    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('build B'), 'the stealthy rewrite must have replaced the bytes');
-    expectRepaired(Boolean(stealthy?.buildArtifactsBefore) && stealthy?.buildArtifactsBefore !== stealthy?.buildArtifactsAfter,
-      'the equal-length, timestamp-restoring rewrite was invisible to the per-command observation (size/mtime fingerprint instead of a content digest)');
-    expectRepaired(evasive.allPass === false && evasive.details.some((line) => line.includes('stealthy rewrite') && line.includes('build_artifacts_changed_by_non_build_command')),
-      `a size- and timestamp-preserving rewrite was not attributed to the command that made it (${evasive.details.join(' | ')})`);
-    expectRepaired(evasive.details.some((line) => line.includes('build_artifacts_changed_after_build')),
-      `a size- and timestamp-preserving rewrite after the registered build still produced a passing plan (${evasive.details.join(' | ')})`);
-    expectRepaired(!evasive.buildArtifactsHash, 'a plan whose final bytes differ from the registered build output must not carry a build binding');
-    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
-
-    // Audit #5 evasion: swap the build for one the test passes against, run
-    // the test, then restore the registered build's exact bytes and timestamps.
-    // The plan ends on the registered build's own output, so a start/end
-    // content comparison and lstat fingerprints both see nothing; the test
-    // nevertheless executed bytes the plan never binds.
     const FAILING_BUILD_A = stamped('process.exit(1); // build A\n');
-    const PASSING_SWAP_B = stamped('process.exit(0); // build B\n');
-    const abab = await run([
-      { label: 'build', command: 'node', args: ['-e', FAILING_BUILD_A], timeoutMs: 20_000, providesBuildProof: 'packages-main-build' },
-      { label: 'swap in build B', command: 'node', args: ['-e', PASSING_SWAP_B], timeoutMs: 20_000 },
-      { label: 'test that passes only against build B', command: 'node', args: ['packages/main/dist/tasks/x.js'], timeoutMs: 20_000 },
-      { label: 'restore build A', command: 'node', args: ['-e', FAILING_BUILD_A], timeoutMs: 20_000 },
-    ]);
-    const ababBuild = abab.commands.find((command) => command.label === 'build');
-    const ababSwap = abab.commands.find((command) => command.label === 'swap in build B');
-    const ababTest = abab.commands.find((command) => command.label === 'test that passes only against build B');
-    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('build A'), 'the restore must have put build A back');
-    check(ababTest?.code === 0, `trap: the test must have passed against the swapped build (code=${ababTest?.code})`);
-    if (binding) check(binding.currentBuildArtifactsHash(root) === ababBuild?.buildArtifactsAfter, 'trap: the plan must end on exactly the bytes the registered build produced');
-    expectRepaired(Boolean(ababSwap?.buildArtifactsBefore) && ababSwap?.buildArtifactsBefore !== ababSwap?.buildArtifactsAfter,
-      'the swap that preserved size and timestamps was invisible to the per-command observation');
-    expectRepaired(abab.allPass === false && abab.details.some((line) => line.includes('swap in build B') && line.includes('build_artifacts_changed_by_non_build_command')),
-      `a swap-test-restore sequence around a registered build still produced a passing plan (${abab.details.join(' | ')})`);
-    expectRepaired(abab.details.some((line) => line.includes('test that passes only against build B') && line.includes('receipt_not_bound_to_final_build')),
-      `the test that executed the swapped bytes was not refused as unbound to the final build (${abab.details.join(' | ')})`);
-    expectRepaired(!abab.buildArtifactsHash, 'a plan whose test executed swapped bytes must not carry a build binding');
-    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
-
-    // Accepted limitation, pinned here so it cannot change unnoticed. ONE
-    // command can swap a different build in, test against it, and restore the
-    // registered build's exact bytes and timestamps before it returns. Both
-    // boundary observations of that command see the registered build, so the
-    // plan passes and binds bytes its test never executed. The assertions below
-    // therefore describe what the executor does NOT detect; they are controls of
-    // the documented bound in core/build-artifacts-identity.ts, not of a repair.
-    //
-    // Closing it needs OS-enforced write denial for the command and every
-    // descendant, which is a platform policy rather than an observation. Even
-    // that would not bound what the command executes: it can copy the artifacts
-    // elsewhere, alter the copy and load that instead, leaving the trees
-    // untouched. So no observation of these trees can promise that the tests
-    // executed the bound build; it promises the bytes at the boundaries.
-    //
-    // If this case ever FAILS, the window was closed: move the scenario to
-    // expectRepaired, and narrow the bound recorded in build-artifacts-identity.
     const IN_COMMAND_SWAP = [
       "const fs = require('node:fs');",
       "const cp = require('node:child_process');",
@@ -674,16 +651,52 @@ try {
       { label: SWAP_LABEL, command: 'node', args: ['-e', IN_COMMAND_SWAP], timeoutMs: 20_000 },
     ]);
     const swapStep = inCommand.commands.find((command) => command.label === SWAP_LABEL);
+    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('build A'), 'control: the registered build produced build A');
     check(spawnSync(process.execPath, [join(mainDist, 'x.js')]).status === 1,
-      'trap: the restored build A must fail, so a passing inner test can only have executed build B');
-    check(swapStep?.code === 0, `trap: the inner test must have passed against the swapped build (code=${swapStep?.code})`);
-    check(Boolean(swapStep?.buildArtifactsBefore) && swapStep?.buildArtifactsBefore === swapStep?.buildArtifactsAfter,
-      'accepted limitation: both boundary observations of the swapping command are identical');
-    check(inCommand.allPass === true,
-      `accepted limitation: an in-command swap-test-restore is not detected (${inCommand.details.join(' | ')})`);
-    if (binding) check(inCommand.buildArtifactsHash === binding.currentBuildArtifactsHash(root),
-      'accepted limitation: the plan binds the bytes on disk, which the inner test did not execute');
+      'trap: the installed build A must fail, so a passing inner test could only have executed build B');
+    expectRepaired(swapStep?.code !== 0,
+      `a command swapped a different build in, tested against it and restored the original; the write was not prevented (code=${swapStep?.code})`);
+    expectRepaired(inCommand.allPass === false,
+      `an in-command swap-test-restore still produced a passing plan (${inCommand.details.join(' | ')})`);
+    if (binding) check(inCommand.buildArtifactsHash === undefined || inCommand.buildArtifactsHash === binding.currentBuildArtifactsHash(root),
+      'any binding carried by the refused plan must be the untouched artifacts');
     writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+
+    // Protection must not block anything else: a command may still write
+    // everywhere else, and may still READ the artifacts it is testing.
+    // Outside the fixture repository: a new file inside it would trip the
+    // unrelated worktree-pollution gate and prove nothing about protection.
+    const permittedWrite = join(planSandbox, 'permitted-write.txt');
+    const allowed = await run([{
+      label: 'reads artifacts and writes elsewhere', command: 'node',
+      args: ['-e', `const fs=require('node:fs'); fs.readFileSync('packages/main/dist/tasks/x.js'); fs.writeFileSync(${JSON.stringify(permittedWrite)},'ok'); process.exit(0);`],
+      timeoutMs: 20_000,
+    }]);
+    expectRepaired(allowed.allPass === true, `write protection blocked a command that only read the artifacts and wrote elsewhere (${allowed.details.join(' | ')})`);
+    check(readFileSync(permittedWrite, 'utf8') === 'ok', 'control: the permitted write actually happened');
+
+    // The plan-level rules stay the second line of defence for a host with no
+    // protection mechanism, so they are exercised directly rather than through
+    // writes that can no longer happen.
+    if (executorRules) {
+      const A = 'a'.repeat(64), B = 'b'.repeat(64);
+      const cmd = (label, before, after, role) => ({ label, buildArtifactsBefore: before, buildArtifactsAfter: after, buildArtifactsRole: role });
+      const rules = (commands, start, end) => executorRules({ commands, start, end });
+      check(rules([cmd('t', A, A, 'test')], A, A).length === 0, 'control: an untouched plan has no binding failures');
+      expectRepaired(rules([cmd('t', A, B, 'test')], A, B).some((line) => line.includes('build_artifacts_changed_by_non_build_command')),
+        'the rules no longer catch a non-build command that changed the artifacts');
+      expectRepaired(rules([cmd('t', A, A, 'test'), cmd('b', A, B, 'build')], A, B).some((line) => line.includes('receipt_not_bound_to_final_build')),
+        'the rules no longer catch a test that executed a build replaced before the plan ended');
+      expectRepaired(rules([cmd('b', A, B, 'build'), cmd('t', B, B, 'test')], A, A).some((line) => line.includes('build_artifacts_changed_after_build')),
+        'the rules no longer catch a plan that ended on bytes the registered build did not produce');
+      expectRepaired(rules([{ label: 'unobserved' }], A, A).some((line) => line.includes('build_artifacts_observation_missing')),
+        'the rules no longer catch a command with no observations');
+      expectRepaired(rules([cmd('t', A, A, 'test')], undefined, A).some((line) => line.includes('build_artifacts_identity_unavailable')),
+        'the rules no longer refuse a plan whose artifact identity is unavailable');
+    } else {
+      expectRepaired(false, 'core/validation-executor exports no evaluatePlanBuildArtifactsBinding');
+    }
+
 
     // Audit #8: dynamic runs aggregate several plans (build wave, selected
     // plans, shards). The aggregate must carry the validated binding of the
@@ -825,24 +838,26 @@ try {
     check(noValidator.evidence()?.result === 'PASS' || noValidator.evidence()?.result === 'WARN',
       `control: the no-validator run must persist a non-failing result (got ${JSON.stringify(noValidator.evidence()?.result)})`);
 
-    // Target: an exit-zero validate file that rewrites the artifacts it tested,
-    // and prints a forged binding of its own.
+    // Target: a validate file that tries to rewrite the artifacts it tested and
+    // prints a forged binding of its own. Through the real CLI the write is now
+    // denied to it and to anything it spawns, so it cannot rewrite them at all,
+    // and its forged binding still never reaches the evidence.
     const REWRITING = `require('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // rewritten by validate.ts\\n');\nconsole.log(JSON.stringify({ provider: 'validate-file-fixture', status: 'pass', allPass: true, summary: 'semantic PASS', details: [], warnings: [], buildArtifactsHash: 'f'.repeat(64) }));\n`;
     const rewriting = seed('rewriting', REWRITING);
     const withJson = rewriting.runCli(['--json']);
-    check(readFileSync(join(rewriting.mainDist, 'x.js'), 'utf8').includes('rewritten by validate.ts'), 'the validate file must have rewritten dist');
-    expectRepaired(withJson.status !== 0, 'an exit-zero validate file that rewrote dist was reported successful with --json');
-    expectRepaired(withJson.text.includes('build_artifacts_changed_by_non_build_command'), `--json output does not carry the executor diagnostic (${withJson.text.slice(0, 300)})`);
-    expectRepaired(rewriting.evidence()?.result !== 'PASS', 'a PASS was persisted for a validate file that rewrote the artifacts it tested');
+    expectRepaired(readFileSync(join(rewriting.mainDist, 'x.js'), 'utf8') === BUILD_A,
+      'a validate file rewrote the compiled artifacts through the real CLI; the write was not prevented');
+    expectRepaired(withJson.status !== 0, 'a validate file that tried to rewrite dist was reported successful with --json');
+    expectRepaired(rewriting.evidence()?.result !== 'PASS', 'a PASS was persisted for a validate file that tried to rewrite the artifacts it tested');
     expectRepaired(rewriting.evidence()?.buildArtifactsHash !== 'f'.repeat(64), 'the binding printed by the validate file reached the evidence');
     // The synthetic certification window authorizes exactly one heavy execution
     // per fixture (a second run is refused as pre_cert_window_already_consumed
     // before it renders anything), so the plain-text scenario gets its own.
     const rewritingPlain = seed('rewriting-plain', REWRITING);
     const plain = rewritingPlain.runCli([]);
-    check(readFileSync(join(rewritingPlain.mainDist, 'x.js'), 'utf8').includes('rewritten by validate.ts'), 'the validate file must have rewritten dist (plain-text run)');
-    expectRepaired(plain.status !== 0, 'an exit-zero validate file that rewrote dist was reported successful without --json');
-    expectRepaired(plain.text.includes('build_artifacts_changed_by_non_build_command'), `plain-text output does not carry the executor diagnostic (${plain.text.slice(0, 300)})`);
+    expectRepaired(readFileSync(join(rewritingPlain.mainDist, 'x.js'), 'utf8') === BUILD_A,
+      'a validate file rewrote the compiled artifacts on the plain-text path; the write was not prevented');
+    expectRepaired(plain.status !== 0, 'a validate file that tried to rewrite dist was reported successful without --json');
   } finally {
     rmTree(handlerSandbox);
   }

@@ -96,6 +96,8 @@ export interface ValidationCommandResult {
   buildArtifactsAfter?: string;
   /** Whether the executor recognised this command as the registered packages/main build. */
   buildArtifactsRole?: 'build' | 'test';
+  /** How the artifacts were protected while this command ran: `enforced:<mechanism>`, `unenforced:<reason>`, or the registered build's permitted write. */
+  buildArtifactsProtection?: string;
   label: string;
   command: string;
   args: string[];
@@ -253,6 +255,14 @@ export interface ValidationResult {
    * binds this value and refuses when the dist on disk no longer matches.
    */
   buildArtifactsHash?: string;
+  /**
+   * Whether the compiled artifacts were write-protected while the plan's
+   * non-build commands ran (`enforced:<mechanism>` / `unenforced:<reason>`).
+   * Without enforcement the recorded identity is still the bytes observed at
+   * the command boundaries, but it is not proof that the commands executed
+   * them: a command can swap a build in and back inside its own window.
+   */
+  buildArtifactsProtection?: string;
   /** Executor observations behind buildArtifactsHash: the artifact root it digested and the content digests at plan start and end. */
   buildArtifacts?: { root?: string; start?: string; end?: string };
   focus?: {
@@ -377,6 +387,8 @@ export interface DoneRequiredCommandReceipt {
   buildArtifactsBefore?: string;
   /** The same digest observed immediately after this command returned; only a registered build may change it. */
   buildArtifactsAfter?: string;
+  /** How the artifacts were protected while this command ran: `enforced:<mechanism>`, `unenforced:<reason>`, or the registered build's permitted write. */
+  buildArtifactsProtection?: string;
 }
 
 export interface DoneRequiredEvidenceData {

@@ -106,6 +106,7 @@ const STORY_ID = 'B-ac25';
       ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
       buildArtifactsBefore: currentBuildArtifactsHash(root),
       buildArtifactsAfter: currentBuildArtifactsHash(root),
+      buildArtifactsProtection: 'enforced:sandbox-exec',
     };
     writeDoneEvidence(root, store, [receipt]);
     const evaluation = evaluateDoneRequiredEvidence({
@@ -249,6 +250,7 @@ function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
     buildArtifactsBefore: currentBuildArtifactsHash(root),
     buildArtifactsAfter: currentBuildArtifactsHash(root),
+    buildArtifactsProtection: 'enforced:sandbox-exec',
     ...overrides,
   };
   return {
@@ -508,6 +510,7 @@ function assertDoneRequiredBlocked(
         ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
         buildArtifactsBefore: currentBuildArtifactsHash(root),
         buildArtifactsAfter: currentBuildArtifactsHash(root),
+        buildArtifactsProtection: 'enforced:sandbox-exec',
       };
     });
     writeDoneEvidence(root, store, receipts);
@@ -1135,6 +1138,7 @@ function assertDoneRequiredBlocked(
       ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
       buildArtifactsBefore: currentBuildArtifactsHash(root),
       buildArtifactsAfter: currentBuildArtifactsHash(root),
+      buildArtifactsProtection: 'enforced:sandbox-exec',
     };
     writeDoneEvidence(root, store, [receipt]);
     const pass = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });

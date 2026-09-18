@@ -139,6 +139,7 @@ function writeDoneEvidence(root: string, store: StoryStore): DoneRequiredEvidenc
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
     buildArtifactsBefore: currentBuildArtifactsHash(root),
     buildArtifactsAfter: currentBuildArtifactsHash(root),
+    buildArtifactsProtection: 'enforced:sandbox-exec',
   };
   const evidence: DoneRequiredEvidenceData = {
     schema: DONE_REQUIRED_EVIDENCE_SCHEMA,
