@@ -31,10 +31,14 @@ import { BUILD_ARTIFACT_ROOTS, projectHasArtifactContract } from './build-artifa
  * self-test and re-verified before every launch (verify); and each self-test
  * probe must leave an execution witness that only a probe the wrapper really
  * ran can leave, so a wrapper's exit status alone never earns enforcement.
- * What this does not cover: the wrapper's dynamically linked libraries and
- * the environment this process inherits (`LD_PRELOAD` and its relatives) are
- * assumed to belong to the same domain as the executable and are not
- * enumerated here.
+ * The wrapper is launched with a SANITISED environment: every variable the
+ * dynamic loader honours before the wrapper's own code runs (`LD_*`,
+ * `DYLD_*`, glibc's unsecure list) is withheld from the wrapper process and
+ * re-applied only inside the established sandbox, so a launch environment
+ * cannot run code ahead of the mechanism (partitionLaunchEnvironment). What
+ * this does not cover: the wrapper's dynamically linked libraries, which are
+ * assumed to belong to the same root-owned domain as the executable and are
+ * not enumerated here.
  *
  * What this does NOT establish, on any platform: that a command executed the
  * protected bytes. A command denied writes here can still copy the artifacts
@@ -55,7 +59,7 @@ export interface ArtifactWriteProtection {
    * bound identity first and throws `[artifact_protection_wrapper_drift]`
    * rather than launch through an executable other than the one it self-tested.
    */
-  wrap(launch: { command: string; args: readonly string[]; shell: boolean }): { command: string; args: string[]; shell: boolean };
+  wrap(launch: WrapperLaunchInput): WrapperLaunch;
   /**
    * Re-checks, against the filesystem now, that the wrapper this resolution
    * self-tested is still the executable a launch would run: same canonical
@@ -66,6 +70,44 @@ export interface ArtifactWriteProtection {
   verify?: () => string | undefined;
   /** The wrapper identity an enforcing resolution is bound to (absent otherwise). */
   wrapper?: WrapperIdentity;
+}
+
+/**
+ * What a command would be spawned with; `env` is the environment the COMMAND
+ * must see (this process's environment when omitted). An enforcing wrapper
+ * returns the same command inside the wrapper, with the wrapper process's own
+ * environment sanitised and the withheld variables re-applied inside the
+ * sandbox, so the command still sees exactly the declared environment.
+ */
+export interface WrapperLaunchInput { command: string; args: readonly string[]; shell: boolean; env?: NodeJS.ProcessEnv }
+export interface WrapperLaunch { command: string; args: string[]; shell: boolean; env: NodeJS.ProcessEnv }
+
+/**
+ * Environment variables the dynamic loader reads before the executable's own
+ * code runs: glibc's unsecure list, plus every `LD_*` (glibc) and `DYLD_*`
+ * (macOS) name. Any of them in a wrapper's launch environment can load code
+ * into the wrapper process ahead of the sandbox it is about to establish.
+ */
+const LOADER_ENVIRONMENT = new Set(['GCONV_PATH', 'GETCONF_DIR', 'GLIBC_TUNABLES', 'HOSTALIASES', 'LOCALDOMAIN', 'LOCPATH', 'MALLOC_TRACE', 'NIS_PATH', 'NLSPATH', 'RESOLV_HOST_CONF', 'RES_OPTIONS', 'TMPDIR', 'TZDIR']);
+export function isLoaderEnvironmentVariable(name: string): boolean {
+  return name.startsWith('LD_') || name.startsWith('DYLD_') || LOADER_ENVIRONMENT.has(name);
+}
+
+/**
+ * Split a launch environment into what the WRAPPER process may see (nothing
+ * the loader honours) and what is re-applied to the command inside the
+ * sandbox (exactly the withheld variables, in stable order), so the command's
+ * own environment is unchanged while the wrapper loads with none of it.
+ */
+export function partitionLaunchEnvironment(env: NodeJS.ProcessEnv): { wrapperEnv: NodeJS.ProcessEnv; reapplied: [string, string][] } {
+  const wrapperEnv: NodeJS.ProcessEnv = {};
+  const reapplied: [string, string][] = [];
+  for (const name of Object.keys(env).sort()) {
+    const value = env[name];
+    if (value === undefined) continue;
+    if (isLoaderEnvironmentVariable(name)) reapplied.push([name, value]); else wrapperEnv[name] = value;
+  }
+  return { wrapperEnv, reapplied };
 }
 
 /** Identity of the wrapper executable a resolution self-tested; every field is re-compared before a launch. */
@@ -141,6 +183,8 @@ export function weakestProtectionLabel(labels: readonly (string | undefined)[]):
 }
 
 const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
+/** Applies the withheld loader variables INSIDE a sandbox-exec sandbox (bwrap has --setenv). */
+const ENV_BIN = '/usr/bin/env';
 /** Exit status the self-test probe uses to report "the write was refused". */
 const PROBE_DENIED_EXIT = 3;
 
@@ -227,12 +271,21 @@ export function wrapperIdentityDrift(expected: WrapperIdentity): string | undefi
   return changed.length === 0 ? undefined : `wrapper ${expected.path} changed since it was self-tested (${changed.join(', ')})`;
 }
 
+/** A launch handed to spawn unchanged: nothing wraps it, so nothing is withheld. */
+function passthrough(launch: WrapperLaunchInput): WrapperLaunch {
+  return { command: launch.command, args: [...launch.args], shell: launch.shell, env: launch.env ?? process.env };
+}
+
 function unenforced(reason: string): ArtifactWriteProtection {
-  return {
-    enforced: false,
-    label: `unenforced:${reason}`,
-    wrap: (launch) => ({ command: launch.command, args: [...launch.args], shell: launch.shell }),
-  };
+  return { enforced: false, label: `unenforced:${reason}`, wrap: passthrough };
+}
+
+/** The command line that runs inside the sandbox, shell launches re-expressed explicitly. */
+function innerCommandLine(launch: WrapperLaunchInput): string[] {
+  // A shell launch is one command line; re-express it as an explicit shell
+  // under the sandbox rather than letting the spawn layer build it, so the
+  // sandbox is the parent of the shell and therefore of everything it runs.
+  return launch.shell ? ['/bin/sh', '-c', [launch.command, ...launch.args].join(' ')] : [launch.command, ...launch.args];
 }
 
 type Mechanism = { name: 'sandbox-exec' | 'bwrap'; wrapper: WrapperIdentity; wrap: ArtifactWriteProtection['wrap'] };
@@ -282,16 +335,24 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
   try { accessSync(SANDBOX_EXEC, constants.X_OK); executable = realpathSync(SANDBOX_EXEC); } catch { return 'sandbox-exec is not executable on this host'; }
   const wrapper = trustWrapper('sandbox-exec', executable, trust);
   if (typeof wrapper === 'string') return wrapper;
+  // The re-application of withheld variables runs INSIDE the sandbox through
+  // /usr/bin/env, which must be as unreplaceable as the wrapper itself.
+  let envBin: string;
+  try { accessSync(ENV_BIN, constants.X_OK); envBin = realpathSync(ENV_BIN); } catch { return `${ENV_BIN} is not executable on this host`; }
+  if (!trust.unsafeTrustReplaceableWrapperForFixture) {
+    const replaceable = wrapperReplaceableBy(envBin);
+    if (replaceable) return `${ENV_BIN} could be replaced by a validation command (${replaceable})`;
+  }
   const profile = sandboxExecProfile(denied);
   return {
     name: 'sandbox-exec',
     wrapper,
-    wrap: (launch) => (launch.shell
-      // A shell launch is one command line; re-express it as an explicit shell
-      // under the sandbox rather than letting the spawn layer build it, so the
-      // sandbox is the parent of the shell and therefore of everything it runs.
-      ? { command: executable, args: ['-p', profile, '/bin/sh', '-c', [launch.command, ...launch.args].join(' ')], shell: false }
-      : { command: executable, args: ['-p', profile, launch.command, ...launch.args], shell: false }),
+    wrap: (launch) => {
+      const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
+      const inner = innerCommandLine(launch);
+      const applied = reapplied.length > 0 ? [envBin, ...reapplied.map(([name, value]) => `${name}=${value}`), ...inner] : inner;
+      return { command: executable, args: ['-p', profile, ...applied], shell: false, env: wrapperEnv };
+    },
   };
 }
 
@@ -332,9 +393,12 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], discovery: 
   return {
     name: 'bwrap',
     wrapper,
-    wrap: (launch) => (launch.shell
-      ? { command: bwrap, args: [...prefix, '/bin/sh', '-c', [launch.command, ...launch.args].join(' ')], shell: false }
-      : { command: bwrap, args: [...prefix, launch.command, ...launch.args], shell: false }),
+    wrap: (launch) => {
+      const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
+      // `--setenv` applies inside the namespace, after every mount is in place.
+      const setenv = reapplied.flatMap(([name, value]) => ['--setenv', name, value]);
+      return { command: bwrap, args: [...prefix.slice(0, -1), ...setenv, '--', ...innerCommandLine(launch)], shell: false, env: wrapperEnv };
+    },
   };
 }
 
@@ -349,8 +413,8 @@ function runProbe(mechanism: Mechanism, witnessDir: string, body: string, target
   const nonce = randomBytes(16).toString('hex');
   const witness = join(witnessDir, `witness-${nonce}`);
   const script = `const fs = require('node:fs'); fs.writeFileSync(process.argv[2], process.argv[3]); ${body}`;
-  const launch = mechanism.wrap({ command: process.execPath, args: ['-e', script, target, witness, nonce], shell: false });
-  const run = spawnSync(launch.command, launch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'] });
+  const launch = mechanism.wrap({ command: process.execPath, args: ['-e', script, target, witness, nonce], shell: false, env: process.env });
+  const run = spawnSync(launch.command, launch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'], env: launch.env });
   let witnessed = false;
   try { witnessed = readFileSync(witness, 'utf8') === nonce; } catch { witnessed = false; }
   try { rmSync(witness, { force: true }); } catch { /* the directory is removed as a whole */ }
@@ -488,7 +552,7 @@ export function resolveArtifactWriteProtection(
   const root = resolve(artifactsRoot);
   const configRoot = options.configRoot ?? root;
   if (!projectHasArtifactContract(root, configRoot)) {
-    return { enforced: false, label: NO_CONTRACT_PROTECTION_LABEL, wrap: (launch) => ({ command: launch.command, args: [...launch.args], shell: launch.shell }) };
+    return { enforced: false, label: NO_CONTRACT_PROTECTION_LABEL, wrap: passthrough };
   }
   const allRoots = BUILD_ARTIFACT_ROOTS.map((relative) => canonicalize(join(root, relative)));
   const existingRoots = allRoots.filter((path) => isDirectory(path));

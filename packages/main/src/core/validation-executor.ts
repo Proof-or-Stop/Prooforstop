@@ -1739,15 +1739,19 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
       throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
     }
     const declaredShell = Boolean(command.shell || isWindows);
+    const childEnv = options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv);
     // The protection wrapper replaces only what is handed to spawn. Everything
     // recorded about this command — label, command, args, identity digests —
-    // still describes the declared command.
+    // still describes the declared command. The environment is handed to the
+    // wrapper too: it withholds what the loader would honour from its own
+    // process and re-applies it inside the sandbox, so the command still sees
+    // exactly `childEnv` while nothing in it can run ahead of the mechanism.
     const launch = options.artifactWriteProtection?.enforced
-      ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell })
-      : { command: command.command, args: [...command.args], shell: declaredShell };
+      ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv })
+      : { command: command.command, args: [...command.args], shell: declaredShell, env: childEnv };
     const child = spawn(launch.command, launch.args, {
       cwd,
-      env: options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv),
+      env: launch.env,
       shell: launch.shell,
       stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
       // POSIX: give the child its own process group (it becomes group leader) so the

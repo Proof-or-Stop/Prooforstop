@@ -821,10 +821,27 @@ try {
           const delegatingDir = join(sandbox, 'delegating-wrapper'); mkdirSync(delegatingDir, { recursive: true });
           const deniedRoots = ['packages/main/dist', 'packages/utils/dist'].map((relative) => join(realpathSync(h.root), relative));
           const delegatingProfile = binding.sandboxExecProfile(deniedRoots).replace(/'/g, "'\\''");
-          writeFileSync(join(delegatingDir, 'bwrap'), `#!/bin/sh\nwhile [ "$1" != "--" ]; do shift; done; shift\nexec /usr/bin/sandbox-exec -p '${delegatingProfile}' "$@"\n`, { mode: 0o755 });
+          // The fixture also records the environment IT was launched with and
+          // honours `--setenv` the way bwrap does (inside the sandbox), so the
+          // audit #25 case below can observe both sides of the partition.
+          const wrapperEnvWitness = join(delegatingDir, 'wrapper-env-witness');
+          writeFileSync(join(delegatingDir, 'bwrap'), `#!/bin/sh\nprintf '%s' "\${LD_PRELOAD-unset}" > '${wrapperEnvWitness}'\nassign=""\nwhile [ "$1" != "--" ]; do if [ "$1" = "--setenv" ]; then assign="$assign $2=$3"; shift 3; else shift; fi; done; shift\nexec /usr/bin/env $assign /usr/bin/sandbox-exec -p '${delegatingProfile}' "$@"\n`, { mode: 0o755 });
           const seam = { platform: 'linux', searchPath: delegatingDir, cwd: sandbox, unsafeTrustReplaceableWrapperForFixture: true };
           const bound = binding.resolveArtifactWriteProtection(h.root, seam);
           check(bound.enforced === true && bound.label === 'enforced:bwrap', `control: a fixture wrapper that really denies the writes must earn enforcement (${bound.label})`);
+          // Audit #25 (1): the wrapper process is launched WITHOUT the
+          // variables the dynamic loader honours; they reach only the command
+          // inside the sandbox (`--setenv`, placed before `--`). Observed on
+          // both sides: the wrapper saw LD_PRELOAD unset, the command saw it.
+          const preloadLaunch = bound.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner=' + process.env.LD_PRELOAD)"], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so' } });
+          const setenvAt = preloadLaunch.args.indexOf('--setenv');
+          expectRepaired(setenvAt >= 0 && preloadLaunch.args[setenvAt + 1] === 'LD_PRELOAD' && preloadLaunch.args[setenvAt + 2] === '/fixture/preload.so' && preloadLaunch.args.indexOf('--') > setenvAt,
+            `LD_PRELOAD was not re-applied inside the bwrap namespace (${JSON.stringify(preloadLaunch.args.slice(0, setenvAt + 4))})`);
+          expectRepaired(preloadLaunch.env && !('LD_PRELOAD' in preloadLaunch.env) && preloadLaunch.env.PATH === process.env.PATH,
+            'the bwrap wrapper process was launched with LD_PRELOAD in its own environment');
+          const preloadRun = spawnSync(preloadLaunch.command, preloadLaunch.args, { encoding: 'utf8', env: preloadLaunch.env, timeout: 20_000 });
+          expectRepaired(preloadRun.status === 0 && preloadRun.stdout === 'inner=/fixture/preload.so' && readFileSync(wrapperEnvWitness, 'utf8') === 'unset',
+            `the wrapper saw LD_PRELOAD=${readFileSync(wrapperEnvWitness, 'utf8')} while the command saw ${JSON.stringify(preloadRun.stdout)} (exit ${preloadRun.status})`);
           expectRepaired(bound.wrapper && bound.wrapper.path === realpathSync(join(delegatingDir, 'bwrap')) && /^[a-f0-9]{64}$/.test(bound.wrapper.digest) && typeof bound.verify === 'function' && bound.verify() === undefined,
             'an enforcing resolution does not bind the wrapper executable by identity');
           check(binding.artifactProtectionStale(bound, { buildRanSinceResolve: false, anyRootExists: true }) === false, 'control: the resolution holds while the wrapper is unchanged');
@@ -841,6 +858,48 @@ try {
           expectRepaired(rebound.enforced === false && rebound.label.includes('left no execution witness'),
             `re-resolving against the replacement accepted its exit status as enforcement (${rebound.label})`);
         }
+        // Audit #25 (1): the partition itself, pure: every LD_* / DYLD_* name
+        // and glibc's unsecure list is withheld from the wrapper and re-applied
+        // inside; everything else reaches the wrapper unchanged.
+        if (typeof binding.partitionLaunchEnvironment === 'function') {
+          const split = binding.partitionLaunchEnvironment({ PATH: '/usr/bin', HOME: '/h', LD_PRELOAD: '/x.so', LD_AUDIT: '/a.so', LD_LIBRARY_PATH: '/l', DYLD_INSERT_LIBRARIES: '/d.dylib', GLIBC_TUNABLES: 'g', TMPDIR: '/t' });
+          expectRepaired(JSON.stringify(split.wrapperEnv) === JSON.stringify({ HOME: '/h', PATH: '/usr/bin' })
+            && JSON.stringify(split.reapplied) === JSON.stringify([['DYLD_INSERT_LIBRARIES', '/d.dylib'], ['GLIBC_TUNABLES', 'g'], ['LD_AUDIT', '/a.so'], ['LD_LIBRARY_PATH', '/l'], ['LD_PRELOAD', '/x.so'], ['TMPDIR', '/t']]),
+            `the launch environment partition lets loader variables reach the wrapper (${JSON.stringify(split)})`);
+          check(binding.isLoaderEnvironmentVariable('LD_AUDIT') && binding.isLoaderEnvironmentVariable('DYLD_FORCE_FLAT_NAMESPACE') && !binding.isLoaderEnvironmentVariable('NODE_OPTIONS'), 'loader-variable classification');
+        } else {
+          expectRepaired(false, 'core/build-artifacts-protection exports no partitionLaunchEnvironment');
+        }
+        // Audit #25 (1), on the real macOS mechanism: sandbox-exec is launched
+        // without the loader variables and re-applies them INSIDE the sandbox
+        // through /usr/bin/env, so the command still sees its declared
+        // environment. (DYLD_INSERT_LIBRARIES is checked in the arguments only:
+        // dyld refuses to start a process whose inserted library is missing.)
+        if (process.platform === 'darwin' && hostEnforced) {
+          const hostProtection = binding.resolveArtifactWriteProtection(h.root);
+          const dyldLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, DYLD_INSERT_LIBRARIES: '/fixture/insert.dylib', LD_PRELOAD: '/fixture/preload.so' } });
+          const envAt = dyldLaunch.args.indexOf('/usr/bin/env');
+          const commandAt = dyldLaunch.args.indexOf(process.execPath);
+          // Everything between /usr/bin/env and the command is a re-applied
+          // loader variable (this process's own TMPDIR is one of them on macOS).
+          const reappliedArgs = envAt >= 0 && commandAt > envAt ? dyldLaunch.args.slice(envAt + 1, commandAt) : [];
+          expectRepaired(dyldLaunch.command === '/usr/bin/sandbox-exec' && envAt === 2 && commandAt > envAt
+            && reappliedArgs.includes('DYLD_INSERT_LIBRARIES=/fixture/insert.dylib') && reappliedArgs.includes('LD_PRELOAD=/fixture/preload.so')
+            && reappliedArgs.every((assignment) => binding.isLoaderEnvironmentVariable(assignment.split('=')[0]))
+            && Object.keys(dyldLaunch.env).every((key) => !binding.isLoaderEnvironmentVariable(key)),
+            `sandbox-exec was launched with loader variables in its own environment or without re-applying them inside (${JSON.stringify(dyldLaunch.args.slice(0, 7))}, env keys ${Object.keys(dyldLaunch.env).filter((key) => /^(LD_|DYLD_)/.test(key)).join(',')})`);
+          const innerLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner=' + process.env.LD_PRELOAD + '|' + process.env.GLIBC_TUNABLES + '|' + process.env.HOME)"], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so', GLIBC_TUNABLES: 'glibc.malloc.check=1' } });
+          const innerRun = spawnSync(innerLaunch.command, innerLaunch.args, { encoding: 'utf8', env: innerLaunch.env, timeout: 20_000 });
+          expectRepaired(innerRun.status === 0 && innerRun.stdout === `inner=/fixture/preload.so|glibc.malloc.check=1|${process.env.HOME}`,
+            `the command under sandbox-exec did not see its declared environment (${JSON.stringify(innerRun.stdout)}, exit ${innerRun.status}, ${(innerRun.stderr || '').slice(0, 120)})`);
+          const plainLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { PATH: process.env.PATH ?? '' } });
+          check(!plainLaunch.args.includes('/usr/bin/env') && plainLaunch.args[2] === process.execPath, 'control: a launch with nothing to withhold is not routed through /usr/bin/env');
+        }
+        const executorSource6 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+        expectRepaired(executorSource6.includes('.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv })') && executorSource6.includes('      env: launch.env,'),
+          'the executor spawns the wrapper with the command environment instead of the environment the wrapper returns (source-text guard)');
+        const protectionSource6 = readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8');
+        expectRepaired(protectionSource6.includes("stdio: ['ignore', 'pipe', 'pipe'], env: launch.env });"), 'the self-test launches the wrapper with the auditor process environment instead of the partitioned one (source-text guard)');
         const missing = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: join(sandbox, 'nowhere'), cwd: sandbox });
         check(missing.enforced === false && missing.label.startsWith('unenforced:bwrap (bubblewrap) is not on PATH'), `control: no wrapper on PATH is reported as such (${missing.label})`);
         const unsupported = binding.resolveArtifactWriteProtection(h.root, { platform: 'win32' });
@@ -1256,6 +1315,37 @@ if (hostEnforced) {
       `the plan did not establish artifact write protection (${protection || 'not recorded'})`);
     expectRepaired(clean.commands.every((command) => (command.buildArtifactsProtection ?? '').startsWith('enforced:')),
       'a non-build command ran without recorded write protection');
+
+    // Audit #25 (1), through the executor: a command that declares a loader
+    // variable still sees it (re-applied inside the sandbox) and still runs
+    // enforced; the wrapper itself was launched without it (the partition and
+    // the source-text guards above cover the wrapper side).
+    const declaredPreload = await run([{ label: 'declared preload', command: 'node', args: ['-e', "process.stdout.write('preload=' + process.env.LD_PRELOAD)"], env: { LD_PRELOAD: '/fixture/preload.so' }, timeoutMs: 20_000 }]);
+    expectRepaired(declaredPreload.allPass === true && (declaredPreload.buildArtifactsProtection ?? '').startsWith('enforced:') && (declaredPreload.commands[0]?.output ?? '').includes('preload=/fixture/preload.so'),
+      `a command declaring LD_PRELOAD did not run enforced with its declared environment (allPass=${declaredPreload.allPass}, ${declaredPreload.buildArtifactsProtection}, ${JSON.stringify((declaredPreload.commands[0]?.output ?? '').slice(0, 80))})`);
+    // Linux only, where LD_PRELOAD is honoured: a preload library whose
+    // constructor rewrites dist and exits 0 before the declared command runs.
+    // Applied inside the sandbox its write is denied (it exits 7 instead);
+    // applied to the wrapper it would run before bwrap mounts anything and
+    // rewrite dist under an enforced PASS. Skipped where a C compiler, bwrap
+    // enforcement or Linux itself is unavailable, and said so.
+    if (process.platform === 'linux' && hostEnforced) {
+      const cc = spawnSync('cc', ['--version'], { encoding: 'utf8' });
+      if (cc.status === 0) {
+        const preloadDir = join(planSandbox, 'preload'); mkdirSync(preloadDir, { recursive: true });
+        writeFileSync(join(preloadDir, 'preload.c'), `#include <fcntl.h>\n#include <unistd.h>\n__attribute__((constructor)) static void swap(void) { const char *p = getenv("FIXTURE_ARTIFACT"); int fd = p ? open(p, O_WRONLY | O_TRUNC) : -1; if (fd >= 0) { write(fd, "process.exit(1); // preload\\n", 27); close(fd); _exit(0); } _exit(7); }\n`);
+        const built = spawnSync('cc', ['-shared', '-fPIC', '-o', join(preloadDir, 'preload.so'), join(preloadDir, 'preload.c')], { encoding: 'utf8' });
+        check(built.status === 0, `control: the preload fixture must compile (${built.stderr})`);
+        const hijacked = await run([{ label: 'preload constructor', command: 'node', args: ['validate-clean.js'], env: { LD_PRELOAD: join(preloadDir, 'preload.so'), FIXTURE_ARTIFACT: join(mainDist, 'x.js') }, timeoutMs: 20_000 }]);
+        expectRepaired(readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A && hijacked.allPass === false,
+          `a preload constructor rewrote dist ahead of the wrapper or produced a passing plan (allPass=${hijacked.allPass}, dist ${readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A ? 'intact' : 'REWRITTEN'})`);
+        writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+      } else {
+        console.log('preload-constructor case skipped: no C compiler on this Linux host');
+      }
+    } else {
+      console.log(`preload-constructor case skipped: LD_PRELOAD is a Linux loader variable (platform=${process.platform}, enforced=${hostEnforced})`);
+    }
 
     // Target: a validate-file-shaped command that tries to rewrite the artifacts it tested.
     const rewritten = await run([{ label: 'validate file', command: 'node', args: ['validate.js'], timeoutMs: 20_000 }]);
