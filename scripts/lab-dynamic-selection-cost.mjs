@@ -161,6 +161,11 @@ async function scenario(arm, options = {}) {
     if (options.defect) {
       assert.equal(result.status, 'fail', 'optimized validation must detect the affected arithmetic defect');
       assert.ok(result.commands.some(c => c.output?.includes('ARITHMETIC_DEFECT')));
+      assert.equal(result.dynamicValidation.authority,
+        arm === 'enforce-low-risk' ? 'enforce-authority' : 'full-plan-oracle');
+      assert.deepEqual([...physical].sort(), arm === 'enforce-low-risk'
+        ? ['build', 'local'] : commands.map(c => c.label).sort(),
+      'fault detection must use the claimed arm, never an unnoticed full fallback');
     } else {
       assert.equal(result.status, 'pass', JSON.stringify(result));
       if (options.missingBaseline || options.sharedRisk || options.unknownMaterial) {
@@ -181,9 +186,29 @@ async function scenario(arm, options = {}) {
         assert.equal(row.repeat.physicalLaunches, 0, 'valid whole-result evidence must avoid new child execution');
         assert.equal(assessStoredValidationPassAdmissibility(ctx, storyId, { allowDynamicCoverage: true }).ok, true);
         const signed = store.readTestEvidence(storyId);
-        store.writeTestEvidence(storyId, { ...signed, validationArtifactSignature: undefined });
-        assert.equal(assessStoredValidationPassAdmissibility(ctx, storyId, { allowDynamicCoverage: true }).ok, false,
-          'signature removal must block stale or forged reuse');
+        const signature = signed.validationArtifactSignature;
+        assert.equal(typeof signature, 'string');
+        assert.ok(signature.length > 0);
+        const signatureStart = signature.lastIndexOf(':') + 1;
+        assert.ok(signatureStart > 0 && signatureStart < signature.length);
+        const altered = signature.slice(0, signatureStart)
+          + (signature[signatureStart] === 'a' ? 'b' : 'a') + signature.slice(signatureStart + 1);
+        row.signatureControls = [];
+        for (const [name, evidence] of [
+          ['missing', { ...signed, validationArtifactSignature: undefined }],
+          ['altered', { ...signed, validationArtifactSignature: altered }],
+          ['payload-altered', { ...signed, output: signed.output + '\n' }],
+        ]) {
+          store.writeTestEvidence(storyId, evidence);
+          const admission = assessStoredValidationPassAdmissibility(ctx, storyId, { allowDynamicCoverage: true });
+          assert.equal(admission.ok, false, `${name} signature must block forged reuse`);
+          assert.ok(admission.reasonCodes.includes('validation_evidence_signature_invalid'),
+            `${name} signature must be rejected by signature verification`);
+          row.signatureControls.push({ name, refused: true, reasonCodes: admission.reasonCodes });
+        }
+        store.writeTestEvidence(storyId, signed);
+        assert.equal(assessStoredValidationPassAdmissibility(ctx, storyId, { allowDynamicCoverage: true }).ok, true,
+          'restoring authentic evidence must restore admission');
         row.signatureTamperRefused = true;
       }
     }
@@ -220,6 +245,7 @@ try {
     ['immutable-selectors', 'packages/main/dist/tasks/narrowing-repin-smoke.js'],
     ['atomic-repair-and-evidence', 'scripts/verify-review-remediation-close.mjs'],
     ['shared-receipt-publication', 'scripts/verify-shared-receipt-publication.mjs'],
+    ['static-source-bindings', 'scripts/verify-validation-static-edges.mjs'],
   ]) {
     const began = performance.now();
     const argv = ['--import', isolationPath, path];
