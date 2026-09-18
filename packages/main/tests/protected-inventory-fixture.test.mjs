@@ -49,6 +49,11 @@ try {
   assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'caller Git history remains unchanged');
   assert.equal(git(root, ['status', '--porcelain']), '', 'caller worktree remains clean');
   assert.equal(fs.readFileSync(join(root, CONFIG_FILENAMES[0]), 'utf8'), bytesBefore);
+  config.validate.commands[0].timeoutMs += 1;
+  write(CONFIG_FILENAMES[0], JSON.stringify(config));
+  assert.throws(() => runInNewContext(emitted, context, { timeout: 30000 }),
+    undefined, 'caller original command/timeout mutation must be refused');
+  write(CONFIG_FILENAMES[0], bytesBefore);
   assert.ok(created.length > 0, 'the regression owns its mutation fixture');
   assert.ok(created.every(path => !fs.existsSync(path)), 'owned mutation fixtures are removed');
   assert.ok(messages.some(message => message.startsWith('PROTECTED_INVENTORY_MUTATIONS_PASS ')),
