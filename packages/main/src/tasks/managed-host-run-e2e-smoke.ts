@@ -315,8 +315,8 @@ async function main(): Promise<void> {
     assert.equal(verifyManagedReviewEvidence({
       root: completedRoot,
       storyId: 'B-managed-e2e',
-      agent: 'proof-or-stop-review-quality',
-      lane: 'proof-or-stop-review-quality',
+      agent: binding.binding.providerAgent,
+      lane: binding.binding.lane,
       reviewRunId: 'B-managed-e2e:RR-001',
       binding: binding.binding,
       expected: { ...expected, managedPromptDigest: `sha256:${'0'.repeat(64)}` },
@@ -324,9 +324,15 @@ async function main(): Promise<void> {
     assert.equal(verifyManagedReviewEvidence({
       root: completedRoot,
       storyId: 'B-managed-e2e',
-      agent: 'proof-or-stop-review-quality', lane: 'proof-or-stop-review-quality', reviewRunId: 'B-managed-e2e:RR-001',
+      agent: binding.binding.providerAgent, lane: binding.binding.lane, reviewRunId: 'B-managed-e2e:RR-001',
       binding: { ...binding.binding, managedPromptDigest: `sha256:${'0'.repeat(64)}` }, expected,
     }).valid, false, 'a changed signed prompt binding must not reuse the detached-worker receipt');
+    assert.equal(verifyManagedReviewEvidence({
+      root: completedRoot,
+      storyId: 'B-managed-e2e',
+      agent: 'proof-or-stop-review-quality', lane: binding.binding.lane, reviewRunId: 'B-managed-e2e:RR-001',
+      binding: binding.binding, expected,
+    }).valid, false, 'a different caller role must not reuse the exact signed provider binding');
 
     const crashedRoot = join(root, 'crashed');
     const crashReleasePath = join(root, 'crash-worker.release');
