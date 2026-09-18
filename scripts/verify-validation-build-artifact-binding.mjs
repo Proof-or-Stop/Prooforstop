@@ -272,12 +272,47 @@ try {
     // self-host layout marker, no artifact tree) records that explicitly, on
     // every platform, instead of being refused for lacking trees it never
     // had; the layout marker alone brings the contract back.
+    // Audit #22 (2): absence alone is never an exemption (a command could
+    // create, execute and remove a tree inside its own window): a project
+    // with nothing at the artifact paths is exempt only when its tracked
+    // config DECLARES the contract inapplicable; otherwise the contract
+    // applies and this host enforces it (macOS denies creating the trees).
     const treeless = join(sandbox, 'treeless'); mkdirSync(treeless);
     const treelessProtection = binding.resolveArtifactWriteProtection(treeless);
-    expectRepaired(treelessProtection.enforced === false && treelessProtection.label === 'not-applicable:no-artifact-contract',
-      `a project without the artifact contract must record not-applicable:no-artifact-contract (${treelessProtection.label})`);
+    if (process.platform === 'darwin') {
+      expectRepaired(treelessProtection.enforced === true && treelessProtection.label === 'enforced:sandbox-exec', `on macOS a project that has not declared the contract inapplicable is protected against creating the trees (${treelessProtection.label})`);
+    } else {
+      expectRepaired(treelessProtection.label !== 'not-applicable:no-artifact-contract', `absence alone exempted a project from the contract (${treelessProtection.label})`);
+    }
+    const declared = join(sandbox, 'declared-none'); mkdirSync(declared);
+    writeFileSync(join(declared, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', artifactContract: 'none' }));
+    const declaredProtection = binding.resolveArtifactWriteProtection(declared);
+    expectRepaired(declaredProtection.enforced === false && declaredProtection.label === 'not-applicable:no-artifact-contract',
+      `a project that declares the contract inapplicable and has nothing at the artifact paths must record not-applicable:no-artifact-contract (${declaredProtection.label})`);
     if (typeof binding.projectHasArtifactContract === 'function') {
-      check(binding.projectHasArtifactContract(treeless) === false && binding.projectHasArtifactContract(root) === true, 'the contract follows the self-host layout marker or an existing tree');
+      check(binding.projectHasArtifactContract(treeless) === true && binding.projectHasArtifactContract(declared) === false && binding.projectHasArtifactContract(root) === true, 'the contract applies unless declared inapplicable with nothing at the artifact paths');
+      // Audit #22 (1): any ENTRY at a root's path, or a path that cannot be
+      // inspected, brings the contract (and the identity walker's refusal)
+      // even without the layout marker and with the other root absent.
+      for (const [name, make] of [
+        ['symlink', (dir) => { mkdirSync(join(dir, 'packages/main'), { recursive: true }); mkdirSync(join(dir, 'elsewhere')); symlinkSync(join(dir, 'elsewhere'), join(dir, 'packages/main/dist'), 'dir'); }],
+        ['regular file', (dir) => { mkdirSync(join(dir, 'packages/main'), { recursive: true }); writeFileSync(join(dir, 'packages/main/dist'), 'not a tree\n'); }],
+      ]) {
+        const invalid = join(sandbox, `invalid-${name.replace(/\s+/g, '-')}`); mkdirSync(invalid);
+        writeFileSync(join(invalid, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', artifactContract: 'none' }));
+        make(invalid);
+        expectRepaired(binding.projectHasArtifactContract(invalid) === true, `a ${name} at an artifact root's path did not bring the contract`);
+        expectRepaired(binding.currentBuildArtifactsHash(invalid) === undefined, `a ${name} at an artifact root's path was digested as a valid identity`);
+        expectRepaired(binding.resolveArtifactWriteProtection(invalid).label !== 'not-applicable:no-artifact-contract', `a ${name} at an artifact root's path was exempted from the contract`);
+      }
+      if (!(typeof process.getuid === 'function' && process.getuid() === 0)) {
+        const opaque = join(sandbox, 'invalid-eacces'); mkdirSync(join(opaque, 'packages/main'), { recursive: true });
+        writeFileSync(join(opaque, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', artifactContract: 'none' }));
+        chmodSync(join(opaque, 'packages/main'), 0o000);
+        try {
+          expectRepaired(binding.projectHasArtifactContract(opaque) === true && binding.currentBuildArtifactsHash(opaque) === undefined, 'an artifact root whose parent cannot be inspected was exempted or digested');
+        } finally { chmodSync(join(opaque, 'packages/main'), 0o755); }
+      }
       const markerOnly = join(sandbox, 'marker-only'); mkdirSync(join(markerOnly, 'packages/main'), { recursive: true });
       writeFileSync(join(markerOnly, 'packages/main/package.json'), '{"name":"marker-only","private":true}\n');
       check(binding.projectHasArtifactContract(markerOnly) === true, 'the layout marker alone establishes the contract');
@@ -288,8 +323,9 @@ try {
         check(markerProtection.label !== 'not-applicable:no-artifact-contract', `a self-host layout is never exempt (${markerProtection.label})`);
       }
       if (binding.currentBuildArtifactsHash) {
-        const treelessIdentity = binding.currentBuildArtifactsHash(treeless);
-        check(/^[a-f0-9]{64}$/.test(treelessIdentity ?? '') && treelessIdentity !== binding.currentBuildArtifactsHash(markerOnly), 'a project without the contract has a definite identity distinct from an absent-tree layout');
+        const declaredIdentity = binding.currentBuildArtifactsHash(declared);
+        check(/^[a-f0-9]{64}$/.test(declaredIdentity ?? '') && declaredIdentity !== binding.currentBuildArtifactsHash(markerOnly) && declaredIdentity !== binding.currentBuildArtifactsHash(treeless),
+          'a project that declared the contract inapplicable has a definite identity distinct from any absent-tree layout under the contract');
       }
     } else {
       expectRepaired(false, 'core/build-artifacts-identity exports no projectHasArtifactContract');
@@ -315,7 +351,7 @@ try {
         'a protection resolved before a registered build stayed valid after it');
       check(stale({ label: 'not-applicable:no-artifact-trees' }, { buildRanSinceResolve: false, anyRootExists: false }) === false, 'control: the exemption holds while no tree exists');
       check(stale({ label: 'enforced:sandbox-exec' }, { buildRanSinceResolve: false, anyRootExists: true }) === false, 'control: an enforced resolution holds until a build runs');
-      check(binding.hasAnyArtifactRoot(root) === true && binding.hasAnyArtifactRoot(treeless) === false, 'hasAnyArtifactRoot reports the configured trees');
+      check(binding.hasAnyArtifactRoot(root) === true && binding.hasAnyArtifactRoot(treeless) === true && binding.hasAnyArtifactRoot(declared) === false, 'hasAnyArtifactRoot reports the contract (trees, or an undeclared project) and not a declared-none project');
       const executorSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
       expectRepaired(executorSource2.includes("if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot) })) {")
         && executorSource2.includes("if (buildArtifactsRole === 'build') buildRanSinceResolve = true;"),
@@ -374,6 +410,14 @@ try {
       chmodSync(probe, 0o644);
     }
     check(reuse().reusable === true && admissibility().ok === true, 'restoring the execute bit restores the recorded identity');
+    // Audit #22 (3): the exact execute mask, not "any bit": 0755 and 0655 are
+    // different builds to the owner who runs them.
+    if (binding) {
+      chmodSync(probe, 0o755); const owner = binding.currentBuildArtifactsHash(root);
+      chmodSync(probe, 0o655); const notOwner = binding.currentBuildArtifactsHash(root);
+      chmodSync(probe, 0o644);
+      expectRepaired(Boolean(owner) && Boolean(notOwner) && owner !== notOwner, 'modes 0755 and 0655 share an artifact identity');
+    }
   }
 
   // Audit #14 (1): a symbolic link on the PATH to a tree (`packages/main`)
@@ -1221,6 +1265,20 @@ if (hostEnforced) {
     }]);
     expectRepaired(allowed.allPass === true, `write protection blocked a command that only read the artifacts and wrote elsewhere (${allowed.details.join(' | ')})`);
     check(readFileSync(permittedWrite, 'utf8') === 'ok', 'control: the permitted write actually happened');
+    // Audit #22 (2): a project that has NOT declared the contract inapplicable
+    // and has no trees is still protected against creating one inside a
+    // command's window; the command exits 3 when denied, 0 if it succeeded.
+    if (process.platform === 'darwin') {
+      const bare = join(planSandbox, 'bare'); mkdirSync(bare);
+      git(bare, ['init', '-q', '-b', 'main']); git(bare, ['config', 'user.email', 'fixture@example.invalid']); git(bare, ['config', 'user.name', 'Build Binding Fixture']); git(bare, ['config', 'commit.gpgsign', 'false']);
+      writeFileSync(join(bare, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives' }));
+      writeFileSync(join(bare, '.gitignore'), 'dist\n'); git(bare, ['add', '.']); git(bare, ['commit', '-qm', 'bare fixture']);
+      const CREATE_TREE = "const fs = require('node:fs'); try { fs.mkdirSync('packages/main/dist/tasks', { recursive: true }); fs.writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0);'); process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS'].includes(error && error.code) ? 3 : 4); }";
+      const creation = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [{ label: 'create the tree', command: 'node', args: ['-e', CREATE_TREE], timeoutMs: 20_000 }], warnings: [] }, bare, undefined, undefined, {});
+      const creator = creation.commands.find((command) => command.label === 'create the tree');
+      expectRepaired(creator?.code === 3 && !existsSync(join(bare, 'packages/main/dist')),
+        `a command in an undeclared tree-less project was allowed to create an artifact tree (code=${creator?.code}; ${creation.details.join(' | ')})`);
+    }
     // Audit #21 (2): under the real protection a command may not move the
     // tree's ancestor aside (the rename that takes the tree out from under a
     // path rule or carries a mount away); it exits 3 when denied, 0 if it

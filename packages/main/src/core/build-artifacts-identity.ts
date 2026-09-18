@@ -35,7 +35,7 @@ import { weakestProtectionLabel } from './build-artifacts-protection.js';
 export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'] as const;
 
 /** Versioned domain of the digest; bump it whenever the framing below changes. */
-const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v3';
+const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v4';
 
 /**
  * Unambiguous framing: every field is preceded by its byte length, so the
@@ -60,8 +60,8 @@ class BuildArtifactsIdentityUnavailable extends Error {
   }
 }
 
-function filesBelow(root: string): Array<{ path: string; executable: boolean }> {
-  const result: Array<{ path: string; executable: boolean }> = [];
+function filesBelow(root: string): Array<{ path: string; executeMask: number }> {
+  const result: Array<{ path: string; executeMask: number }> = [];
   const visit = (directory: string): void => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name);
@@ -73,9 +73,11 @@ function filesBelow(root: string): Array<{ path: string; executable: boolean }> 
         // tree through which its bytes stay writable whatever protection the
         // tree itself is under; such a tree is not one this process can vouch for.
         if (stat.nlink > 1) throw new BuildArtifactsIdentityUnavailable(path, 'hard-linked file');
-        // The execute bit is part of what a command finds: an entry point that
-        // lost it fails with EACCES with identical bytes.
-        result.push({ path, executable: (stat.mode & 0o111) !== 0 });
+        // The execute bits are part of what a command finds: an entry point
+        // that lost the owner's bit fails with EACCES with identical bytes, and
+        // 0755 and 0655 are different builds to the owner who runs them, so the
+        // exact mask is framed, not whether any bit is set.
+        result.push({ path, executeMask: stat.mode & 0o111 });
       }
       else throw new BuildArtifactsIdentityUnavailable(path);
     }
@@ -112,7 +114,7 @@ function artifactTreeDigest(root: string): string {
   frame(hash, String(files.length));
   for (const file of files) {
     frame(hash, relative(root, file.path));
-    frame(hash, file.executable ? 'x' : '-');
+    frame(hash, String(file.executeMask));
     frame(hash, readFileSync(file.path));
   }
   return hash.digest('hex');
@@ -281,16 +283,44 @@ export function resolveReusedBuildArtifactsBinding(args: {
  * Memoized per synchronous git observation like the committed-tree digests.
  */
 /**
- * Whether this project carries the compiled-artifact contract at all: it has
- * the self-host layout (a tracked `packages/main/package.json`) or any of the
- * artifact trees exists. A project with neither executes nothing these roots
- * describe; its evidence records that explicitly instead of being refused for
- * lacking trees it never had.
+ * A project's explicit, tracked declaration that the compiled-artifact
+ * contract does not apply to it: `"artifactContract": "none"` at the top level
+ * of proof-or-stop.config.json. Read raw, so the declaration is exactly what
+ * the committed file says (it is material, like the rest of that file).
+ */
+export function declaredNoArtifactContract(projectRoot: string): boolean {
+  try {
+    const parsed = JSON.parse(readFileSync(join(resolve(projectRoot), 'proof-or-stop.config.json'), 'utf8')) as { artifactContract?: unknown };
+    return parsed !== null && typeof parsed === 'object' && parsed.artifactContract === 'none';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Whether this project carries the compiled-artifact contract. It does when it
+ * has the self-host layout (a tracked `packages/main/package.json`), when
+ * ANY entry exists at an artifact root's path (a directory, but also a symbolic
+ * link or a regular file — those are then judged by the identity walker, which
+ * refuses them), or when a root's path cannot be inspected at all. Absence
+ * alone is never an exemption: a command could create, execute and remove a
+ * tree inside its own window. Only a project that DECLARES the contract
+ * inapplicable (declaredNoArtifactContract) and has nothing at those paths is
+ * outside it.
  */
 export function projectHasArtifactContract(projectRoot: string): boolean {
   const root = resolve(projectRoot);
   if (existsSync(join(root, 'packages/main/package.json'))) return true;
-  return BUILD_ARTIFACT_ROOTS.some((relative) => { try { return lstatSync(join(root, relative)).isDirectory(); } catch { return false; } });
+  for (const relative of BUILD_ARTIFACT_ROOTS) {
+    try {
+      lstatSync(join(root, relative));
+      return true;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException | null)?.code;
+      if (code !== 'ENOENT' && code !== 'ENOTDIR') return true;
+    }
+  }
+  return !declaredNoArtifactContract(root);
 }
 
 export function currentBuildArtifactsHash(projectRoot: string): string | undefined {

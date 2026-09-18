@@ -288,6 +288,9 @@ function assertPostCommandHookMutationFailsTerminalCloseout(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
+      // An external project with no compiled-artifact trees declares the
+      // contract inapplicable; absence alone would not exempt it.
+      artifactContract: 'none',
       validate: {
         commands: [{
           label: 'terminal hook probe',
@@ -387,6 +390,9 @@ function assertPhaseHookMutationFailsTransitionCloseout(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
+      // An external project with no compiled-artifact trees declares the
+      // contract inapplicable; absence alone would not exempt it.
+      artifactContract: 'none',
       validate: {
         commands: [{
           label: 'phase hook probe',
@@ -489,6 +495,9 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
+      // An external project with no compiled-artifact trees declares the
+      // contract inapplicable; absence alone would not exempt it.
+      artifactContract: 'none',
       validate: {
         commands: [{
           label: 'transition reuse probe',

@@ -52,11 +52,14 @@ export const REGISTERED_BUILD_PROTECTION_LABEL = 'registered-build:writes-permit
 export const NOT_APPLICABLE_PROTECTION_LABEL = 'not-applicable:no-artifact-trees';
 
 /**
- * A project without the compiled-artifact contract (no self-host layout, no
- * artifact tree; see projectHasArtifactContract): nothing these roots describe
- * is executed, the identity records the same fact, and the label satisfies the
- * contract. A tree or the layout marker appearing later makes the resolution
- * stale (artifactProtectionStale), after which the ordinary rules apply.
+ * A project that DECLARES the compiled-artifact contract inapplicable
+ * (`"artifactContract": "none"` in its tracked config) and has nothing at the
+ * artifact roots' paths (see projectHasArtifactContract): nothing these roots
+ * describe is executed, the identity records the same fact, and the label
+ * satisfies the contract on the strength of that declaration — absence alone
+ * never earns it. An entry or the layout marker appearing later makes the
+ * resolution stale (artifactProtectionStale), after which the ordinary rules
+ * apply.
  */
 export const NO_CONTRACT_PROTECTION_LABEL = 'not-applicable:no-artifact-contract';
 
