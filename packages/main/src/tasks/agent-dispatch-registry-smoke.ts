@@ -642,12 +642,26 @@ try {
     else process.env.PROOF_OR_STOP_AGENT = previousPlanActor;
   }
   process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-verification-intent';
+  for (const field of ['scope', 'expectation', 'requirementSource'] as const) {
+    const row: Record<string, string> = {
+      desc: 'metadata negative control', type: 'logic', priority: 'must',
+      scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
+    };
+    delete row[field];
+    const before = mutationState();
+    assert.throws(() => checklistHandlers.checklist_update({
+      storyId, itemId: 'CHK-001',
+      verificationIntent: { happy: [row], edge: [], adversarial: [] },
+      agent: 'proof-or-stop-verification-intent',
+    }), /verification_intent_metadata_required/);
+    assert.equal(mutationState(), before, `missing ${field} must not mutate Story state`);
+  }
   try {
     checklistHandlers.checklist_update({
       storyId,
       itemId: 'CHK-001',
       verificationIntent: {
-        happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must' }],
+        happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
         edge: [],
         adversarial: [],
       },
@@ -655,7 +669,7 @@ try {
     });
     const writtenItem = store.readChecklist(storyId).items.find(item => item.id === 'CHK-001');
     assert.deepEqual(writtenItem?.verificationIntent, {
-      happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must' }],
+      happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
       edge: [],
       adversarial: [],
     }, 'canonical PLAN role can write verificationIntent through the real checklist handler');
