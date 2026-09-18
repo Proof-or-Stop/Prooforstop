@@ -820,18 +820,16 @@ function assertStaleEvidenceHintCrossSurface(): void {
   }
 }
 
-/** Extract the EVIDENCE STALE block (marker line + the following 7 indented
- *  lines) from a surface output, so we can assert byte-identity against the
- *  renderer output without false negatives from surface-specific
- *  preamble/trailing text. */
+/** Extract the marker and its indented block, including variable stale-intent
+ *  rows, without swallowing a following surface section. Keep every extracted
+ *  byte so the cross-surface assertions still detect missing or altered text. */
 function extractStaleBlock(output: string): string {
   const lines = output.split('\n');
   const markerIdx = lines.findIndex(l => l.startsWith(EVIDENCE_STALE_MARKER));
   if (markerIdx < 0) return '';
-  // Renderer emits exactly 8 lines (B-bdce): marker / meaning / drift-class /
-  // "Run to recover" / 2 recovery command lines / "Or, when converging..." /
-  // done_prepare one-step command line.
-  return lines.slice(markerIdx, markerIdx + 8).join('\n');
+  let end = markerIdx + 1;
+  while (end < lines.length && lines[end].startsWith('  ')) end += 1;
+  return lines.slice(markerIdx, end).join('\n');
 }
 
 assertStaleEvidenceHintCrossSurface();
