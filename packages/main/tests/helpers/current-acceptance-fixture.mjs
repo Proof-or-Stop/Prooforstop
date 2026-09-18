@@ -138,6 +138,9 @@ function writeRegistration(root) {
     write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export function runPreReviewCheckGate(){}\n');
     write(root, 'packages/main/src/core/process-fact-registry.ts', "export const facts=['acceptance_basis','acceptance_basis_generate','pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
     write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology=true;\n');
+    // Physical producer/consumer closure required by the current process registry.
+    write(root, 'packages/main/src/core/scope-inventory-budget.ts', 'export const scopeInventoryBudget=true;\n');
+    write(root, 'packages/main/src/core/story-scope-budget-legacy.ts', 'export const storyScopeBudgetLegacy=true;\n');
     write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatch=true;\n');
     // The production process-fact closure now reaches the signed REVIEW
     // inventory through transition-orchestrator.  Keep the cohort repository a

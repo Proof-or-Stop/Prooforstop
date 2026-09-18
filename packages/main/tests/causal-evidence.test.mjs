@@ -527,40 +527,47 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
 });
 
 test('CHK-001: oversized output probes stay within the receipt verification bound', async () => {
-  const identity = baseIdentity('B-causal-output-probe-boundary');
-  const store = new MemoryReceiptStore();
-  const output = 'x'.repeat(CAUSAL_MAX_OUTPUT_CHARS + 1);
-  const run = async () => ({ code: 0, output });
+  const root = mkdtempSync(join(tmpdir(), 'causal-output-probe-boundary-'));
+  try {
+    const identity = baseIdentity('B-causal-output-probe-boundary', { cwd: root });
+    const store = new StoryStore(root);
+    const output = 'x'.repeat(CAUSAL_MAX_OUTPUT_CHARS + 1);
+    const run = async () => ({ code: 0, output });
 
-  const first = await executeCausalEvidence({
-    identity,
-    selector: 'BOUNDARY-PASS',
-    intentRef: 'CHK-001:edge:oversized-output-probe',
-    run,
-    receiptStore: store,
-    batch: createCausalEvidenceBatch(),
-    preflight: preflightFor(identity),
-    revalidateBeforeRun: () => true,
-  });
-  assert.equal(first.receipt.outputLength, CAUSAL_MAX_OUTPUT_CHARS + 1);
-  assert.equal(first.receipt.outputProbe.length, CAUSAL_MAX_OUTPUT_CHARS);
-  assert.equal(first.receipt.outputProbe.includes('<causal-output-gap>'), true);
-  assert.equal(first.receipt.reusable, true);
-  assert.equal(verifyCausalEvidenceReceipt(first.receipt, first.key.key), true);
+    const first = await executeCausalEvidence({
+      identity,
+      selector: 'BOUNDARY-PASS',
+      intentRef: 'CHK-001:edge:oversized-output-probe',
+      run,
+      receiptStore: store,
+      batch: createCausalEvidenceBatch(),
+      preflight: preflightFor(identity),
+      revalidateBeforeRun: () => true,
+    });
+    assert.equal(first.receipt.outputLength, CAUSAL_MAX_OUTPUT_CHARS + 1);
+    assert.equal(first.receipt.outputProbe.length, CAUSAL_MAX_OUTPUT_CHARS);
+    assert.equal(first.receipt.outputProbe.includes('<causal-output-gap>'), true);
+    assert.equal(first.receipt.reusable, true);
+    assert.equal(verifyCausalEvidenceReceipt(first.receipt, first.key.key), true);
+    assert.equal(store.readCausalSelectorOutput(identity.storyId, first.receipt.selectorOutput.digest), output,
+      'oversized reusable execution retains the complete selector output in the real store');
 
-  const second = await executeCausalEvidence({
-    identity,
-    selector: 'BOUNDARY-PASS',
-    intentRef: 'CHK-001:edge:oversized-output-probe-reuse',
-    run: async () => ({ code: 0, output: 'must-not-rerun' }),
-    receiptStore: store,
-    batch: createCausalEvidenceBatch(),
-    preflight: preflightFor(identity),
-    revalidateBeforeRun: () => true,
-  });
-  assert.equal(second.disposition, 'reused');
-  assert.equal(second.receipt.receiptHash, first.receipt.receiptHash);
-  emitIntentMarker('CHK-001:edge:oversized-output-probe', 'bounded oversized output probe verifies and reuses');
+    const second = await executeCausalEvidence({
+      identity,
+      selector: 'BOUNDARY-PASS',
+      intentRef: 'CHK-001:edge:oversized-output-probe-reuse',
+      run: async () => ({ code: 0, output: 'must-not-rerun' }),
+      receiptStore: store,
+      batch: createCausalEvidenceBatch(),
+      preflight: preflightFor(identity),
+      revalidateBeforeRun: () => true,
+    });
+    assert.equal(second.disposition, 'reused');
+    assert.equal(second.receipt.receiptHash, first.receipt.receiptHash);
+    emitIntentMarker('CHK-001:edge:oversized-output-probe', 'bounded oversized output probe verifies and reuses');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('B-5a15 F-007: non-PASS outcomes never occupy a reusable receipt key or batch cache', async () => {
@@ -986,10 +993,12 @@ test('B-5a15: an injected index-write failure recovers the orphaned receipt with
     }));
     const storyStore = new StoryStore(root);
     const originalWriteJsonFile = storyStore.writeJsonFile.bind(storyStore);
-    let injectIndexWriteFailure = true;
+    // Exhaust both bounded persistence attempts; the runner must still launch once.
+    let remainingIndexWriteFailures = 2;
+    let writeAttempts = 0;
     storyStore.writeJsonFile = (filePath, data) => {
-      if (injectIndexWriteFailure && filePath.endsWith(CAUSAL_RECEIPT_INDEX_FILE)) {
-        injectIndexWriteFailure = false;
+      if (remainingIndexWriteFailures > 0 && filePath.endsWith(CAUSAL_RECEIPT_INDEX_FILE)) {
+        remainingIndexWriteFailures--;
         throw new Error('injected causal-evidence index write failure');
       }
       return originalWriteJsonFile(filePath, data);
@@ -999,7 +1008,8 @@ test('B-5a15: an injected index-write failure recovers the orphaned receipt with
     const store = {
       readCausalEvidenceReceipt: (...args) => storyStore.readCausalEvidenceReceipt(...args),
       writeCausalEvidenceReceipt: (...args) => {
-        persistedReceipts.push(args[1]);
+        writeAttempts++;
+        if (!persistedReceipts.some(receipt => receipt.receiptHash === args[1].receiptHash)) persistedReceipts.push(args[1]);
         return storyStore.writeCausalEvidenceReceipt(...args);
       },
     };
@@ -1022,6 +1032,8 @@ test('B-5a15: an injected index-write failure recovers the orphaned receipt with
     );
     assert.equal(launches, 1);
     assert.equal(persistedReceipts.length, 1);
+    assert.equal(writeAttempts, 2, 'retry publication of the same immutable receipt without rerunning');
+    assert.equal(remainingIndexWriteFailures, 0);
     const orphanedReceipt = persistedReceipts[0];
     assert.equal(
       readFileSync(storyStore.causalEvidenceReceiptPath(storyId, orphanedReceipt.receiptHash), 'utf8').length > 0,
