@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab benchmark-review-read-evidence-contract - v0.3.419 - 2026-09-18
+
+- Clarify managed reviewer prompts and provider schema descriptions: ordinary reviewers and inventory critics must actually read at least one relevant permitted file in full and report matching nonempty read evidence. Do not fabricate reading records or infer full-corpus coverage from this minimum.
+- Explain that a nonblank uncertaintyReason is required only for suspected Findings and must be omitted for verified Findings or an absent evidenceState.
+- Preserve all existing parser, signature, scope, receipt and independent-review requirements. Focused RED/GREEN coverage checks both prompt delivery and accepted/rejected ordinary, critic and Finding envelopes. The complete static-edge scan passes after refreshing exactly three existing dependency digests; exception commands and permissions are unchanged.
+- This bounded maintenance addresses B-0980 provider-output failures; it does not mark B-0980 DONE or claim the benchmark runner is delivered. Provider results and partial cost observations are retained in [the development evidence directory](/Users/jek/Documents/Proof-or-Stop-Benchmark-Plan/b0980-ri035-review-evidence).
+
+Maintenance provenance: codex/lab-benchmark-review-read-evidence-contract, repair f4759f22c17f210cbdeb6de4ec08de3e36bb85f0.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab inventory-guard-fixture - v0.3.418 - 2026-09-18
 
 - Preserve a mechanical check of the real caller HEAD and working tree against the merge base with local main. Existing validation commands, argv, order, timeouts, budget limits, package scripts and runner sources remain protected. Bounded additive registrations and separately gated scope paths may change; new timeout overrides cannot shadow any original command or override.
