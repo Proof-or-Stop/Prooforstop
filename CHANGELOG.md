@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab stale-hint-extraction - v0.3.416 - 2026-09-18
+
+- Fix stale-evidence smoke extraction to retain the complete indented hint when stale-intent rows vary.
+- Keep byte-exact cross-surface assertions and exercise one, three, and fifteen stale intents, surrounding output, and altered recovery commands.
+- Lab RED reproduced truncation; GREEN replays the same built focused regression. Full native Story freshness replay remains a separate acceptance requirement.
+
+Maintenance provenance: codex/lab-stale-hint-extraction, repair e7c80f9cc153fc5405a17e4f39a507a30040e824.
+Verification command (replayed before integration and on main): `["node","-e","const{execFileSync}=require('node:child_process');execFileSync(process.execPath,['scripts/ensure-dist.mjs'],{stdio:'inherit'});execFileSync(process.execPath,['packages/main/dist/tasks/verification-freshness-smoke.js','--stale-hint-extraction-only'],{stdio:'inherit'});"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-run-id-guidance - v0.3.415 - 2026-09-18
 
 Pending REVIEW guidance now explicitly tells the independent reviewer to bind its finding or pass to the run ID returned by review_run_start. Canonical dispatch, distinct child IDs, exact child waits, and reviewer ownership remain unchanged.
