@@ -16,6 +16,8 @@ import { readOwnerLease, releaseOwnerLease } from '../packages/main/dist/core/st
 import { adapterSessionEnv, adapterSessionId } from '../packages/main/dist/tasks/adapter-session-env.js';
 import { currentGitHead } from '../packages/main/dist/core/evidence-freshness.js';
 import { assertGitObservationInactive } from '../packages/main/dist/core/git-tree-observation.js';
+import { runIsolatedFindingFixture } from '../packages/main/dist/tasks/isolated-finding-fixture.js';
+if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
 const storyId = 'B-review-observation';
 const reviewRound = '2020-01-01T00:00:00.000Z';
 const cliPath = fileURLToPath(new URL('../bin/proof-or-stop.js', import.meta.url));
