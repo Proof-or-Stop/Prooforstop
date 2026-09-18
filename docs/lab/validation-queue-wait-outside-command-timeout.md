@@ -21,8 +21,10 @@ timeout.
   wait deadline (`machine queue wait deadline exceeded before child launch`), not as the caller's deadline.
 - The earlier contract - "a queue wait consumes the configured budget", recorded in
   `docs/lab/nested-verification-machine-owner.md` and asserted by mode `queue-wait-cap` of
-  `scripts/verify-nested-validation-result-contract.mjs` - is superseded; that mode now asserts the new
-  contract and the old record carries a superseded note.
+  `scripts/verify-nested-validation-result-contract.mjs`, and "a queued command timeout launches zero" in
+  `scripts/verify-machine-port-boundaries.mjs` and `scripts/verify-machine-heavy-boundaries.mjs` - is
+  superseded. Those checks now assert the new contract (the boundary suites also keep a case where an outer
+  deadline shorter than the wait still launches nothing), and the old record carries a superseded note.
 
 ## Verification
 RED/GREEN: `node scripts/verify-validation-queue-wait-outside-command-timeout.mjs` (private fixture machine
