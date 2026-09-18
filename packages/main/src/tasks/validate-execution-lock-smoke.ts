@@ -1879,31 +1879,103 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
 }
 
 function assertProtectedInventoryAndTimeoutSourcesUnchanged(): void {
-  // B-cc10 CHK-007: `git diff -- <path>` on a path that does not exist on EITHER side
-  // silently diffs nothing and passes vacuously, so naming only one config spelling
-  // would quietly stop protecting this file after the rename. Both accepted spellings
-  // are listed so whichever one the checkout has is really compared.
-  const protectedFiles = [
-    ...CONFIG_FILENAMES,
-    'package.json',
-    'packages/main/package.json',
-    'packages/main/src/tasks/full-suite-runner.ts',
-    'packages/main/src/tasks/full-suite-runner-smoke.ts',
-  ];
-  assert.doesNotThrow(() => execFileSync('git', [
-    'diff', '--exit-code', 'main...HEAD', '--', ...protectedFiles,
-  ], { cwd: repoRoot(), stdio: ['ignore', 'pipe', 'pipe'] }),
-  'CHK-003 adversarial inventory proof requires zero story-branch diff over protected command/timeout sources');
-  assert.doesNotThrow(() => execFileSync('git', [
-    'diff', '--exit-code', 'HEAD', '--', ...protectedFiles,
-  ], { cwd: repoRoot(), stdio: ['ignore', 'pipe', 'pipe'] }),
-  'CHK-003 adversarial inventory proof requires zero uncommitted diff over protected command/timeout sources');
-
-  const runnerSource = readFileSync(join(repoRoot(), 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8');
-  const smokeSource = readFileSync(join(repoRoot(), 'packages/main/src/tasks/full-suite-runner-smoke.ts'), 'utf8');
-  assert.match(runnerSource, /120_000|120000/, '120-second member timeout source must remain present');
-  assert.match(runnerSource + smokeSource, /180_000|180000/, '180-second member timeout source must remain present');
-  assert.match(runnerSource + smokeSource, /300_000|300000/, '300-second proof threshold source must remain present');
+  // This group is a repeatable regression for command/timeout protection. Its
+  // mutation history belongs to an owned fixture, not to the caller's feature
+  // branch. Story scope and integration reviews audit that caller branch.
+  const sourceRoot = repoRoot();
+  const root = mkdtempSync(join(tmpdir(), 'protected-inventory-mutations-'));
+  const files = [...CONFIG_FILENAMES, 'package.json', 'packages/main/package.json',
+    'packages/main/src/tasks/full-suite-runner.ts', 'packages/main/src/tasks/full-suite-runner-smoke.ts'];
+  const originals = new Map<string, string>();
+  const write = (file: string, value: string | null): void => {
+    if (value === null) { rmSync(join(root, file), { force: true }); return; }
+    mkdirSync(dirname(join(root, file)), { recursive: true });
+    writeFileSync(join(root, file), value);
+  };
+  const check = (): void => {
+    for (const file of CONFIG_FILENAMES) {
+      const mainHas = git(root, ['ls-tree', '--name-only', 'main', '--', file]).trim() !== '';
+      const headHas = git(root, ['ls-tree', '--name-only', 'HEAD', '--', file]).trim() !== '';
+      const workingHas = existsSync(join(root, file));
+      assert.equal(headHas, mainHas, 'protected config committed presence must remain unchanged');
+      assert.equal(workingHas, mainHas, 'protected config working presence must remain unchanged');
+    }
+    // B-cc10 CHK-007: `git diff -- <path>` on a path that does not exist on EITHER side
+    // silently diffs nothing and passes vacuously, so naming only one config spelling
+    // would quietly stop protecting this file after the rename. Both accepted spellings
+    // are listed so whichever one the checkout has is really compared.
+    const protectedFiles = [
+      ...CONFIG_FILENAMES,
+      'package.json',
+      'packages/main/package.json',
+      'packages/main/src/tasks/full-suite-runner.ts',
+      'packages/main/src/tasks/full-suite-runner-smoke.ts',
+    ];
+    assert.doesNotThrow(() => execFileSync('git', [
+      'diff', '--exit-code', 'main...HEAD', '--', ...protectedFiles,
+    ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }),
+    'CHK-003 adversarial inventory proof requires zero story-branch diff over protected command/timeout sources');
+    assert.doesNotThrow(() => execFileSync('git', [
+      'diff', '--exit-code', 'HEAD', '--', ...protectedFiles,
+    ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }),
+    'CHK-003 adversarial inventory proof requires zero uncommitted diff over protected command/timeout sources');
+  
+    const runnerSource = readFileSync(join(root, 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8');
+    const smokeSource = readFileSync(join(root, 'packages/main/src/tasks/full-suite-runner-smoke.ts'), 'utf8');
+    assert.match(runnerSource, /120_000|120000/, '120-second member timeout source must remain present');
+    assert.match(runnerSource + smokeSource, /180_000|180000/, '180-second member timeout source must remain present');
+    assert.match(runnerSource + smokeSource, /300_000|300000/, '300-second proof threshold source must remain present');
+  };
+  try {
+    for (const file of files) {
+      if (!existsSync(join(sourceRoot, file))) continue;
+      const content = readFileSync(join(sourceRoot, file), 'utf8');
+      originals.set(file, content); write(file, content);
+    }
+    const configFiles = CONFIG_FILENAMES.filter(file => originals.has(file));
+    assert.ok(configFiles.length > 0, 'at least one actual protected config must seed the fixture');
+    git(root, ['init', '-q', '-b', 'main']);
+    git(root, ['add', '.']); git(root, ['commit', '-qm', 'protected inventory baseline']);
+    git(root, ['switch', '-c', 'story/protected-inventory']);
+    check();
+    const cases: Array<{ name: string; changes: Record<string, string | null> }> = [];
+    for (const file of configFiles) {
+      const baseline = JSON.parse(originals.get(file)!);
+      const mutate = (name: string, change: (value: typeof baseline) => void): void => {
+        const value = JSON.parse(originals.get(file)!); change(value);
+        cases.push({ name: `${file}:${name}`, changes: { [file]: JSON.stringify(value) } });
+      };
+      assert.ok(baseline.validate?.commands?.length > 0, 'fixture must contain original command coverage');
+      mutate('command', value => { value.validate.commands[0].command = 'mutated-command'; });
+      mutate('timeout', value => { value.validate.commands[0].timeoutMs = (value.validate.commands[0].timeoutMs ?? 120000) + 1; });
+      mutate('command-removal', value => { value.validate.commands.shift(); });
+      const budget = Object.keys(baseline.storyScopeBudget?.limits ?? {}).find(key => typeof baseline.storyScopeBudget.limits[key] === 'number');
+      assert.ok(budget, 'fixture must contain a real scope budget limit');
+      mutate('scope-budget', value => { value.storyScopeBudget.limits[budget!] += 1; });
+      cases.push({ name: `${file}:missing`, changes: { [file]: null } });
+    }
+    for (const file of files.filter(file => !CONFIG_FILENAMES.includes(file as typeof CONFIG_FILENAMES[number]))) {
+      const before = originals.get(file); assert.ok(before, `protected source is present: ${file}`);
+      const changed = file.endsWith('.json')
+        ? JSON.stringify({ ...JSON.parse(before), scripts: { ...JSON.parse(before).scripts, test: 'changed-protected-command' } })
+        : before + '\nexport const protectedMutation = true;\n';
+      cases.push({ name: `${file}:content`, changes: { [file]: changed } });
+    }
+    for (const file of CONFIG_FILENAMES.filter(file => !originals.has(file))) {
+      cases.push({ name: `${file}:added`, changes: { [file]: originals.get(configFiles[0])! } });
+      cases.push({ name: `${file}:renamed`, changes: { [configFiles[0]]: null, [file]: originals.get(configFiles[0])! } });
+    }
+    for (const test of cases) {
+      for (const [file, value] of Object.entries(test.changes)) write(file, value);
+      assert.throws(check, { name: 'AssertionError' }, `working mutation rejected: ${test.name}`);
+      git(root, ['add', '.']); git(root, ['commit', '-qm', `mutate ${test.name}`]);
+      assert.throws(check, { name: 'AssertionError' }, `committed mutation rejected: ${test.name}`);
+      for (const file of Object.keys(test.changes)) write(file, originals.get(file) ?? null);
+      git(root, ['add', '.']); git(root, ['commit', '-qm', `restore ${test.name}`]);
+      check();
+    }
+    console.log(`PROTECTED_INVENTORY_MUTATIONS_PASS ${cases.length} working and committed controls; restored baselines pass`);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
 function assertCapacityReclaimImplementationIsIdentityStable(): void {
