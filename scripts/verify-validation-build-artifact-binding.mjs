@@ -1333,12 +1333,42 @@ if (hostEnforced) {
       const cc = spawnSync('cc', ['--version'], { encoding: 'utf8' });
       if (cc.status === 0) {
         const preloadDir = join(planSandbox, 'preload'); mkdirSync(preloadDir, { recursive: true });
-        writeFileSync(join(preloadDir, 'preload.c'), `#include <fcntl.h>\n#include <unistd.h>\n__attribute__((constructor)) static void swap(void) { const char *p = getenv("FIXTURE_ARTIFACT"); int fd = p ? open(p, O_WRONLY | O_TRUNC) : -1; if (fd >= 0) { write(fd, "process.exit(1); // preload\\n", 27); close(fd); _exit(0); } _exit(7); }\n`);
-        const built = spawnSync('cc', ['-shared', '-fPIC', '-o', join(preloadDir, 'preload.so'), join(preloadDir, 'preload.c')], { encoding: 'utf8' });
-        check(built.status === 0, `control: the preload fixture must compile (${built.stderr})`);
+        // The constructor rewrites the file named by FIXTURE_ARTIFACT and
+        // exits 0 before the declared command runs; where the write is denied
+        // it exits with the DENIAL code (3), and with 7 on any other failure,
+        // so the protected run must report the denial and nothing else.
+        const preloadSource = [
+          '#include <errno.h>',
+          '#include <fcntl.h>',
+          '#include <stdlib.h>',
+          '#include <unistd.h>',
+          'static const char rewritten[] = "process.exit(1); // rewritten by the preload constructor\\n";',
+          '__attribute__((constructor)) static void swap(void) {',
+          '  const char *path = getenv("FIXTURE_ARTIFACT");',
+          '  if (path == NULL) _exit(9);',
+          '  int fd = open(path, O_WRONLY | O_TRUNC);',
+          '  if (fd >= 0) { ssize_t n = write(fd, rewritten, sizeof(rewritten) - 1); close(fd); _exit(n == (ssize_t)(sizeof(rewritten) - 1) ? 0 : 7); }',
+          '  _exit(errno == EACCES || errno == EROFS || errno == EPERM ? 3 : 7);',
+          '}',
+          '',
+        ].join('\n');
+        writeFileSync(join(preloadDir, 'preload.c'), preloadSource);
+        const built = spawnSync('cc', ['-std=c11', '-Wall', '-Wextra', '-Werror', '-Wimplicit-function-declaration', '-Wint-conversion', '-shared', '-fPIC', '-o', join(preloadDir, 'preload.so'), join(preloadDir, 'preload.c')], { encoding: 'utf8' });
+        check(built.status === 0, `control: the preload fixture must compile cleanly under -Werror (${built.stderr})`);
+        // Unprotected control: outside any wrapper the constructor really does
+        // rewrite a disposable artifact and exit 0 before node runs anything.
+        const disposable = join(preloadDir, 'disposable.js'); writeFileSync(disposable, BUILD_A);
+        const unprotected = spawnSync('node', ['validate-clean.js'], { cwd: root, encoding: 'utf8', env: { ...process.env, LD_PRELOAD: join(preloadDir, 'preload.so'), FIXTURE_ARTIFACT: disposable }, timeout: 20_000 });
+        check(unprotected.status === 0 && readFileSync(disposable, 'utf8').includes('rewritten by the preload constructor'),
+          `control: the preload constructor must rewrite an unprotected file and exit 0 (exit ${unprotected.status}, ${JSON.stringify(readFileSync(disposable, 'utf8').slice(0, 60))})`);
+        // Protected run: the same library declared on a validation command is
+        // applied inside the sandbox, its write is denied, and the plan fails
+        // with the denial code — never a pass, never a rewritten dist, never
+        // some other failure standing in for the denial.
         const hijacked = await run([{ label: 'preload constructor', command: 'node', args: ['validate-clean.js'], env: { LD_PRELOAD: join(preloadDir, 'preload.so'), FIXTURE_ARTIFACT: join(mainDist, 'x.js') }, timeoutMs: 20_000 }]);
-        expectRepaired(readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A && hijacked.allPass === false,
-          `a preload constructor rewrote dist ahead of the wrapper or produced a passing plan (allPass=${hijacked.allPass}, dist ${readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A ? 'intact' : 'REWRITTEN'})`);
+        const hijackedCommand = hijacked.commands[0];
+        expectRepaired(readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A && hijacked.allPass === false && hijackedCommand?.code === 3 && (hijackedCommand?.buildArtifactsProtection ?? '').startsWith('enforced:'),
+          `a preload constructor did not meet the intended denial inside the sandbox (allPass=${hijacked.allPass}, exit ${hijackedCommand?.code}, ${hijackedCommand?.buildArtifactsProtection}, dist ${readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A ? 'intact' : 'REWRITTEN'})`);
         writeFileSync(join(mainDist, 'x.js'), BUILD_A);
       } else {
         console.log('preload-constructor case skipped: no C compiler on this Linux host');
