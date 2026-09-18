@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab host-activity-log-during-validation - v0.3.422 - 2026-09-18
+
+- Stop the Claude host activity hook (`.claude/hooks/log-tools.cjs`) from appending into a worktree while that worktree validates: a line is written only while the hook holds the product's own workspace validation capacity ticket, and is dropped otherwise, fixing the 2026-09-17 quorum smoke run reported FAIL with 73/73 cases passing.
+- Resolve the real destination first and refuse symlinked logs, hard links, FIFOs, destinations outside the ticket's worktree and uncertain Git discovery; directories are created per component from the filesystem root (including Windows drive and UNC roots) without following links. A residual rename race remains an accepted limitation because Node has no openat/mkdirat.
+- Verification: `node scripts/verify-host-activity-log-during-validation.mjs` fails 29 expectations against main's hook and passes 83 checks after the repair, including interop with the real capacity allocator and failure on any hook timeout.
+- Details, measured data and the audit history: [docs/lab/host-activity-log-during-validation.md](docs/lab/host-activity-log-during-validation.md).
+
+Maintenance provenance: codex/lab-host-activity-log-during-validation, repair 77110791b350a3179b5acac9ed04dfca9acc9113.
+Verification command (replayed before integration and on main): `["node","scripts/verify-host-activity-log-during-validation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-review-digest-refresh - v0.3.421 - 2026-09-18
 
 - Refresh exactly four existing review-run.ts dependency digests after audited upstream 0.3.420 changed that source file.
