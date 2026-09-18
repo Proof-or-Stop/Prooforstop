@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab benchmark-review-digest-refresh - v0.3.421 - 2026-09-18
+
+- Refresh exactly four existing review-run.ts dependency digests after audited upstream 0.3.420 changed that source file.
+- Preserve every exception identity, source binding, command, resource policy, and verification requirement; no new exception is added.
+- Existing static scanner reproduced four NEEDS_REVIEW results before the repair and passed with zero after it. See b0980-parallel-diagnostic-20260918/dependency-drift.json for the diagnosis.
+- This bounded Lab repair restores the benchmark supporting static check; it is not formal Story DONE or benchmark runner delivery.
+
+Maintenance provenance: codex/lab-benchmark-review-digest-refresh, repair 5f91abdf2a50baf43f7e68633af70c995f479931.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edges.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-evidence-observation - v0.3.420 - 2026-09-18
 
 - Share identical read-only Git probes across one synchronous collection of authenticated reviewer evidence, addressing the repeated reads found while executing B-e6d9 transition-authority acceptance.
