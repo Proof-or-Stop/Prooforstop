@@ -38,14 +38,18 @@ process.stdin.on('end', () => {
     const logDir = storyId
       ? path.join(root, 'docs', 'story', 'actives', storyId)
       : path.join(root, 'docs', 'story');
-    const target = path.join(logDir, 'activity.jsonl');
+    const targetRelative = path.join(path.relative(root, logDir), 'activity.jsonl');
     const line = JSON.stringify(entry) + '\n';
     const discovered = discoverWorkspace(root);
     // One queue per cwd, whatever discovery says: publication, ordering and delivery all
     // read the same queue, so a record published while discovery was failing can never be
     // overtaken by a later one. Discovery decides only whether delivery may run now.
     const identity = queueIdentity(root);
-    publishSpoolRecord(identity.dir, { target, line });
+    // The record is bound to the canonical directory it belongs to and stores its target
+    // RELATIVE to it. A symlink retargeted between publication and delivery can therefore
+    // never redirect the line into another repository.
+    rememberUnresolvedSource(identity);
+    publishSpoolRecord(identity.dir, { root: identity.canonicalRoot, targetRelative, line });
     if (identity.canonical && discovered === 'non-repository') {
       // Positively outside a repository: nothing can be validating, so deliver directly.
       deliverQueue(identity, null);
@@ -96,13 +100,16 @@ function discoverWorkspace(root) {
  * used, the invocation delivers nothing, and a later canonical run adopts those records.
  */
 function queueIdentity(root) {
-  const dirFor = (value) => path.join(os.homedir(), '.proof-or-stop', 'activity-spool', crypto.createHash('sha256').update(value).digest('hex'));
+  const spoolRoot = path.join(os.homedir(), '.proof-or-stop', 'activity-spool');
+  const dirFor = (value) => path.join(spoolRoot, crypto.createHash('sha256').update(value).digest('hex'));
   const lexical = path.resolve(root);
   try {
     const canonical = fs.realpathSync(root);
-    return { dir: dirFor(canonical), lexicalDir: dirFor(lexical), canonical: true };
+    return { dir: dirFor(canonical), canonicalRoot: canonical, canonical: true, spoolRoot };
   } catch {
-    return { dir: dirFor(lexical), lexicalDir: dirFor(lexical), canonical: false };
+    // Unresolved: the queue records the spelling that was used, so a later invocation
+    // through ANY spelling that canonicalizes to the same directory can find and adopt it.
+    return { dir: path.join(spoolRoot, `unresolved-${crypto.createHash('sha256').update(lexical).digest('hex')}`), lexical, canonicalRoot: null, canonical: false, spoolRoot };
   }
 }
 
@@ -110,18 +117,33 @@ function queueIdentity(root) {
  * Move records published while canonicalization was unavailable into the canonical queue.
  * Anything unresolved blocks delivery, so a newer record can never pass an older one.
  */
-function adoptLexicalRecords(identity) {
-  if (!identity.canonical || identity.lexicalDir === identity.dir) return true;
-  let names;
-  try { names = fs.readdirSync(identity.lexicalDir).filter(name => name.endsWith('.json')); } catch (error) {
+function adoptUnresolvedRecords(identity) {
+  if (!identity.canonical) return true;
+  let queues;
+  try { queues = fs.readdirSync(identity.spoolRoot).filter(name => name.startsWith('unresolved-')); } catch (error) {
     return error.code === 'ENOENT';
   }
-  if (names.length === 0) return true;
-  try { fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 }); } catch { return false; }
-  for (const name of names) {
-    try { fs.renameSync(path.join(identity.lexicalDir, name), path.join(identity.dir, name)); } catch {
-      try { fs.statSync(path.join(identity.lexicalDir, name)); return false; } catch (error) {
-        if (error.code !== 'ENOENT') return false;
+  for (const queue of queues) {
+    const dir = path.join(identity.spoolRoot, queue);
+    let source;
+    try { source = JSON.parse(fs.readFileSync(path.join(dir, 'source.json'), 'utf8')); } catch { continue; }
+    let resolved;
+    // The spelling is retried now: only a queue whose recorded path canonicalizes to THIS
+    // directory is adopted, whatever spelling either invocation used.
+    try { resolved = fs.realpathSync(source.path); } catch { continue; }
+    if (resolved !== identity.canonicalRoot) continue;
+    let names;
+    try { names = fs.readdirSync(dir).filter(name => name.endsWith('.json')); } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      return false;
+    }
+    if (names.length === 0) continue;
+    try { fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 }); } catch { return false; }
+    for (const name of names) {
+      try { fs.renameSync(path.join(dir, name), path.join(identity.dir, name)); } catch {
+        try { fs.statSync(path.join(dir, name)); return false; } catch (error) {
+          if (error.code !== 'ENOENT') return false;
+        }
       }
     }
   }
@@ -162,6 +184,14 @@ function workspaceValidationActive(top) {
  * place. Producers never share a file, so a concurrent flush can never rotate a file
  * out from under a half-written record.
  */
+function rememberUnresolvedSource(identity) {
+  if (identity.canonical) return;
+  try {
+    fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 });
+    fs.writeFileSync(path.join(identity.dir, 'source.json'), `${JSON.stringify({ path: identity.lexical })}\n`, { mode: 0o600 });
+  } catch { /* the record itself still carries the work */ }
+}
+
 function publishSpoolRecord(spool, record) {
   const name = `${String(Date.now()).padStart(14, '0')}-${String(process.pid).padStart(7, '0')}-${crypto.randomBytes(6).toString('hex')}`;
   const tmp = path.join(spool, `.${name}.tmp`);
@@ -221,7 +251,7 @@ function queueView(spool) {
  * at-least-once: a crash between the append and the removal can repeat one line.
  */
 function deliverQueue(identity, top) {
-  if (!adoptLexicalRecords(identity)) return; // older records unresolved: deliver nothing
+  if (!adoptUnresolvedRecords(identity)) return; // older records unresolved: deliver nothing
   const spool = identity.dir;
   for (let delivered = 0; delivered < 10000; delivered++) {
     const view = queueView(spool);
@@ -253,13 +283,30 @@ function deliverQueue(identity, top) {
     }
     let record = null;
     try { record = JSON.parse(raw); } catch { record = null; }
-    if (!record || typeof record.target !== 'string' || typeof record.line !== 'string') {
+    if (!record || typeof record.line !== 'string' || typeof record.targetRelative !== 'string'
+      || (record.root !== null && typeof record.root !== 'string')) {
       try { fs.unlinkSync(claimed); } catch { /* already gone */ }
       continue;
     }
+    // The destination is re-derived from the workspace the record was bound to, and only
+    // ever inside the workspace this delivery holds a ticket for.
+    const recordRoot = record.root ?? identity.canonicalRoot;
+    let liveRoot;
+    try { liveRoot = fs.realpathSync(recordRoot); } catch { liveRoot = null; }
+    if (liveRoot === null) {
+      // The directory this record belonged to is gone, so its log cannot exist either.
+      try { fs.unlinkSync(claimed); } catch { /* already gone */ }
+      continue;
+    }
+    if (liveRoot !== identity.canonicalRoot || (top !== null && !(liveRoot === top || liveRoot.startsWith(`${top}${path.sep}`)))) {
+      // It belongs to another workspace than the one this ticket protects: leave it.
+      try { fs.renameSync(claimed, path.join(spool, oldest.base)); } catch { /* recovered later */ }
+      return;
+    }
+    const target = path.join(liveRoot, record.targetRelative);
     const append = () => {
-      fs.mkdirSync(path.dirname(record.target), { recursive: true });
-      fs.appendFileSync(record.target, record.line);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.appendFileSync(target, record.line);
     };
     let written;
     if (top === null) {

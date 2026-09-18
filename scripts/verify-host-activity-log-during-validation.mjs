@@ -532,7 +532,7 @@ try {
     const plain = join(sandbox, `plain-blocked-${n++}`); mkdirSync(plain, { recursive: true });
     const queue = spoolFor(plain);
     mkdirSync(queue, { recursive: true });
-    writeFileSync(join(queue, '00000000000001-0000001-aaaaaaaaaaaa.json'), JSON.stringify({ target: join(plain, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-queued' })}\n` }), { mode: 0o000 });
+    writeFileSync(join(queue, '00000000000001-0000001-aaaaaaaaaaaa.json'), JSON.stringify({ root: realpathSync(plain), targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: 'older-queued' })}\n` }), { mode: 0o000 });
     callHook(plain, 'newer-outside');
     const blocked = lines(plain);
     rows.push({ scenario: 'unreadable queued record outside a repository', repoLinesDuring: blocked.length, after: '-' });
@@ -548,7 +548,7 @@ try {
     const root = repo();
     const queue = spoolFor(root);
     mkdirSync(queue, { recursive: true });
-    writeFileSync(join(queue, '00000000000001-0000001-bbbbbbbbbbbb.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-primary' })}\n` }));
+    writeFileSync(join(queue, '00000000000001-0000001-bbbbbbbbbbbb.json'), JSON.stringify({ root: realpathSync(root), targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: 'older-primary' })}\n` }));
     chmodSync(queue, 0o500); // the queue directory lost its write permission
     callHook(root, 'newer-inside');
     const after = lines(root);
@@ -562,7 +562,7 @@ try {
     const queue = spoolFor(plain);
     mkdirSync(queue, { recursive: true });
     for (let i = 0; i < 4; i++) {
-      writeFileSync(join(queue, `0000000000000${i}-0000001-cccccccccccc.json`), JSON.stringify({ target: join(plain, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: `queued-${i}` })}\n` }));
+      writeFileSync(join(queue, `0000000000000${i}-0000001-cccccccccccc.json`), JSON.stringify({ root: realpathSync(plain), targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: `queued-${i}` })}\n` }));
     }
     const concurrent = await Promise.all([0, 1].map((i) => callHookAsync(plain, `concurrent-${i}`)));
     callHook(plain, 'settle-outside');
@@ -579,7 +579,7 @@ try {
     const root = repo();
     const queue = spoolFor(root);
     mkdirSync(queue, { recursive: true });
-    writeFileSync(join(queue, '00000000000001-0000001-dddddddddddd.json'), JSON.stringify({ target: join(root, 'docs/story/activity.jsonl'), line: `${JSON.stringify({ detail: 'older-unreadable-dir' })}\n` }));
+    writeFileSync(join(queue, '00000000000001-0000001-dddddddddddd.json'), JSON.stringify({ root: realpathSync(root), targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: 'older-unreadable-dir' })}\n` }));
     chmodSync(queue, 0o000); // neither readable nor writable
     callHook(root, 'newer-unreadable-dir');
     const after = lines(root);
@@ -680,6 +680,59 @@ try {
     rows.push({ scenario: 'cwd canonicalization unavailable, then available', repoLinesDuring: '-', after: JSON.stringify(after) });
     expectRepaired(JSON.stringify(after) === JSON.stringify(['before-cwd-exists', 'after-cwd-exists']),
       `a record published before canonicalization is adopted and delivered first (got ${JSON.stringify(after)})`);
+  }
+  // An alias retargeted between publication and delivery must not redirect the line.
+  {
+    const source = repo();
+    const other = repo();
+    const alias = join(sandbox, `alias-retarget-${n++}`);
+    symlinkSync(source, alias);
+    const t = ticket(source, live.pid);
+    callHook(alias, 'queued-through-alias');
+    rmSync(t, { recursive: true, force: true });
+    rmSync(alias, { force: true }); symlinkSync(other, alias); // the alias now points elsewhere
+    const otherTicket = ticket(other, live.pid); // and that repository is validating
+    callHook(source, 'delivered-through-source');
+    const delivered = lines(source);
+    const redirected = lines(other);
+    rows.push({ scenario: 'alias retargeted between publication and delivery', repoLinesDuring: redirected.length, after: JSON.stringify(delivered) });
+    expectRepaired(redirected.length === 0, `a retargeted alias must not redirect a deferred line (found ${JSON.stringify(redirected)})`);
+    expectRepaired(JSON.stringify(delivered) === JSON.stringify(['queued-through-alias', 'delivered-through-source']),
+      `the deferred line reaches the workspace it belonged to (got ${JSON.stringify(delivered)})`);
+    rmSync(otherTicket, { recursive: true, force: true });
+  }
+  // An alias removed between publication and delivery must not block its queue forever.
+  {
+    const source = repo();
+    const alias = join(sandbox, `alias-removed-${n++}`);
+    symlinkSync(source, alias);
+    const t = ticket(source, live.pid);
+    callHook(alias, 'queued-before-removal');
+    rmSync(t, { recursive: true, force: true });
+    rmSync(alias, { force: true });
+    callHook(source, 'after-removal');
+    const after = lines(source);
+    rows.push({ scenario: 'alias removed between publication and delivery', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(after.includes('after-removal'), `a removed alias must not block the queue (got ${JSON.stringify(after)})`);
+  }
+  // A record published before canonicalization is adopted through ANY later spelling.
+  {
+    const base = repo();
+    const aliasA = join(sandbox, `alias-a-${n++}`); symlinkSync(base, aliasA);
+    const aliasB = join(sandbox, `alias-b-${n++}`); symlinkSync(base, aliasB);
+    const pendingDir = join(aliasA, 'appears-later');
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: pendingDir, tool_name: 'Bash', tool_input: { command: 'before-resolvable' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home }, encoding: 'utf8',
+    });
+    control(r.status === 0, 'the hook exits 0 for an unresolvable cwd');
+    mkdirSync(join(base, 'appears-later'), { recursive: true });
+    // Resume through a DIFFERENT spelling than the one that failed.
+    callHook(join(aliasB, 'appears-later'), 'after-resolvable');
+    const after = lines(join(base, 'appears-later'));
+    rows.push({ scenario: 'unresolved record adopted through another alias', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['before-resolvable', 'after-resolvable']),
+      `an unresolved record is adopted through any equivalent spelling (got ${JSON.stringify(after)})`);
   }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
