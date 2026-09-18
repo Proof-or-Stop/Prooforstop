@@ -15,6 +15,11 @@
 
 ## Repository-specific operating guide
 
+For CHANGELOG.md, prepend only 3-5 concise bullets describing final delivered
+changes. Link detailed investigation and audit records instead of copying them.
+Read only the current entry or relevant Git diff when updating it; consult older
+Git history only for a specific historical question. Do not regenerate the file.
+
 This English guide supplements the managed global-thin block above for the
 Proof-or-Stop repository. The repository-local CLI and implementation at the
 current checkout are authoritative when this guide, generated help, and runtime
