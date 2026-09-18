@@ -3254,7 +3254,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "b42723a3d275e94436e2d1e28a204e3a9d1e39ec4064deb0017364f6162c9277"
+    "sha256": "a39950c300c2582af5c51c980ac66240437a5768992c8a7d5bc95fd3ed40d86f"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
