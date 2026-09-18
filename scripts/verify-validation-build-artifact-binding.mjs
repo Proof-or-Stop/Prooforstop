@@ -56,6 +56,10 @@ const realGit = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
 const sandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-'));
 const red = [];
 let checks = 0;
+// Whether THIS host demonstrably denies artifact writes (set once the resolver has run).
+// Sections that need enforcement to mean anything run only on such a host; the
+// others assert the fail-closed outcome instead.
+let hostEnforced = false;
 function check(value, message) { assert(value, message); checks++; }
 function expectRepaired(value, message) { if (value) checks++; else red.push(message); }
 function git(root, args) { return execFileSync(realGit, args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); }
@@ -211,26 +215,30 @@ try {
     const unlabeled = withLabel(undefined);
     expectRepaired(reuseWith(unlabeled).refusalReasons.includes('build-artifacts-protection-unenforced'), 'a PASS recording no protection at all was reusable');
     expectRepaired(admitWith(unlabeled).reasonCodes.includes('build_artifacts_protection_unenforced'), 'a PASS recording no protection at all was admissible');
+    // Audit #14 (2): the retired not-applicable exemption is a bypass (a
+    // command can create, execute and remove a tree inside its window); it
+    // never satisfies the contract.
     const notApplicable = withLabel('not-applicable:no-artifact-trees');
-    check(reuseWith(notApplicable).reusable === true, `control: a not-applicable label (no artifact trees, no mechanism) must not refuse reuse (${reuseWith(notApplicable).refusalReasons.join(',')})`);
-    check(admitWith(notApplicable).ok === true, `control: a not-applicable label must not refuse admission (${admitWith(notApplicable).reasonCodes.join(',')})`);
+    expectRepaired(reuseWith(notApplicable).refusalReasons.includes('build-artifacts-protection-unenforced'), 'a PASS recorded under the retired not-applicable label was reusable');
+    expectRepaired(admitWith(notApplicable).reasonCodes.includes('build_artifacts_protection_unenforced'), 'a PASS recorded under the retired not-applicable label was admissible');
     check(reuseWith(evidence).reusable === true && admitWith(evidence).ok === true, 'control: the enforced recorded PASS is still reusable and admissible');
   }
 
   // Audit #10 (4)/(5): the protection contract and the build recogniser.
   if (binding?.artifactProtectionSatisfied && binding?.logicalCommandCwd) {
     const sat = binding.artifactProtectionSatisfied;
-    check(sat('enforced:sandbox-exec') && sat('enforced:bwrap') && sat('not-applicable:no-artifact-trees'), 'enforced and not-applicable labels satisfy the contract');
-    expectRepaired(!sat('unenforced:x') && !sat('registered-build:writes-permitted') && !sat(undefined) && !sat(''),
-      'an unenforced, registered-build, empty or missing label satisfied the executed-build contract');
+    check(sat('enforced:sandbox-exec') && sat('enforced:bwrap'), 'enforced labels satisfy the contract');
+    expectRepaired(!sat('unenforced:x') && !sat('registered-build:writes-permitted') && !sat('not-applicable:no-artifact-trees') && !sat(undefined) && !sat(''),
+      'an unenforced, retired not-applicable, registered-build, empty or missing label satisfied the executed-build contract');
     // Platform-aware: the mechanism this host is expected to establish, or that
     // it must honestly report as unavailable. macOS: sandbox-exec, which also
     // denies creating an absent tree. Linux with bwrap on PATH: bwrap over
-    // existing trees only, so a treeless project is not-applicable there.
-    // Anything else: no mechanism; trees present -> unenforced, absent -> not-applicable.
+    // existing trees only, so a treeless project is unenforced there (a tree
+    // could be created, executed and removed). Anything else: unenforced.
     const bwrapOnPath = process.platform === 'linux' && (process.env.PATH ?? '').split(':').some((dir) => dir && existsSync(join(dir, 'bwrap')));
     const expectedMechanism = process.platform === 'darwin' ? 'enforced:sandbox-exec' : bwrapOnPath ? 'enforced:bwrap' : null;
     const resolved = binding.resolveArtifactWriteProtection(root);
+    hostEnforced = resolved.enforced === true;
     if (expectedMechanism) {
       expectRepaired(resolved.enforced === true && resolved.label === expectedMechanism,
         `on this host the resolver did not establish and self-test ${expectedMechanism} for a project with artifact trees (${resolved.label})`);
@@ -243,7 +251,7 @@ try {
     if (process.platform === 'darwin') {
       check(treelessProtection.enforced === true && treelessProtection.label === 'enforced:sandbox-exec', `on macOS a project with no artifact trees is still protected against creating them (${treelessProtection.label})`);
     } else {
-      check(treelessProtection.enforced === false && treelessProtection.label === 'not-applicable:no-artifact-trees', `a project with no artifact trees and no mechanism able to deny their creation is not-applicable (${treelessProtection.label})`);
+      expectRepaired(treelessProtection.enforced === false && treelessProtection.label.startsWith('unenforced:'), `a project with no artifact trees and no mechanism able to deny their creation must be unenforced, not exempt (${treelessProtection.label})`);
     }
     // Audit #11 (2): the self-test probes every configured root, and bwrap is
     // never reported as enforcing while a configured root is absent (an absent
@@ -297,6 +305,26 @@ try {
     expectRepaired(false, 'core/build-artifacts-identity exports no logicalCommandCwd, or the protection module is not loadable');
   }
   check(reuse().reusable === true && admissibility().ok === true, 'control: the recorded PASS is admissible again after the collision files are removed');
+
+  // Audit #14 (1): a symbolic link on the PATH to a tree (`packages/main`)
+  // re-targets the whole tree without touching a byte inside it, and no
+  // protection of the resolved tree covers the link: identity unavailable.
+  {
+    const realMain = join(root, 'packages/main.real');
+    const linkMain = join(root, 'packages/main');
+    execFileSync('mv', [linkMain, realMain]);
+    symlinkSync('main.real', linkMain, 'dir');
+    try {
+      if (binding) expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'an artifact tree reached through a symbolic-link ancestor was digested as a valid identity');
+      const viaLink = reuse();
+      expectRepaired(viaLink.reusable === false && viaLink.refusalReasons.includes('build-artifacts-hash-changed-or-missing'), `reuse accepted a PASS while the artifact tree was reached through a link (reasons=${viaLink.refusalReasons.join(',')})`);
+      expectRepaired(admissibility().ok === false && admissibility().reasonCodes.includes('build_artifacts_unavailable'), `admissibility accepted a PASS while the artifact tree was reached through a link (codes=${admissibility().reasonCodes.join(',')})`);
+    } finally {
+      rmSync(linkMain);
+      execFileSync('mv', [realMain, linkMain]);
+    }
+    check(reuse().reusable === true && admissibility().ok === true, 'restoring the real directory restores the recorded identity');
+  }
 
   // Audit #12 (1): a hard link is a writable alias outside the tree that no
   // protection OF the tree can cover, so a tree containing a multiply-linked
@@ -413,6 +441,7 @@ function doneRequiredFixture(name, doneRequiredCommands) {
   return { root, store, storyId, mainFile: join(mainDist, 'x.js'), utilsFile: join(utilsDist, 'index.js') };
 }
 
+if (hostEnforced) {
 try {
   const f = doneRequiredFixture('done-required', [{ label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
   const evaluate = () => evaluateDoneRequiredEvidence({ projectRoot: f.root, storyId: f.storyId, store: f.store, gitCwd: f.root });
@@ -534,8 +563,9 @@ try {
       `a receipt recording no protection at all was admitted (reasons=${legacyResult.reasons.join(', ')})`);
     const notApplicableReceipts = { ...registered, receipts: registered.receipts.map((receipt, index) => (index === 1 ? { ...receipt, buildArtifactsProtection: 'not-applicable:no-artifact-trees' } : receipt)) };
     h.store.writeDoneRequiredEvidence(h.storyId, notApplicableReceipts);
-    check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true,
-      'control: a receipt from a host with no mechanism and no artifact trees (not-applicable) is admissible');
+    const retiredLabel = evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root });
+    expectRepaired(retiredLabel.ok === false && retiredLabel.reasons.some((reason) => reason.startsWith('build-artifacts-protection-unenforced[1]')),
+      `a receipt carrying the retired not-applicable label was admitted (reasons=${retiredLabel.reasons.join(', ')})`);
     h.store.writeDoneRequiredEvidence(h.storyId, registered);
     check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true, 'restoring the enforced receipts makes the PASS admissible again');
     // Audit #10 (4): an unsupported host is refused BEFORE the first launch,
@@ -558,7 +588,7 @@ try {
       // /proc/<host-pid>/root (or cwd, fd) aliases: PID isolation + private /proc.
       expectRepaired(readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8').includes("'--unshare-pid', '--proc', '/proc'"), 'the bwrap wrapper exposes the host /proc (source-text guard)');
       check(doneRequiredProtectionRefusal('enforced:sandbox-exec', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: an enforced host is not refused');
-      check(doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: a host with no artifact trees is not refused');
+      expectRepaired(typeof doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', [...REGISTERED_REBUILD_COMMANDS].reverse(), h.root) === 'string', 'the retired not-applicable label was not refused up front');
       const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       const loopStart = doneRequiredWriterSource.indexOf('for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {');
       const refusalCall = doneRequiredWriterSource.indexOf('doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd)');
@@ -614,6 +644,22 @@ try {
 } finally {
   rmTree(sandbox);
 }
+} else {
+  // Audit #14 (4): a host without demonstrated enforcement. The PASS and
+  // prevention cases above would be meaningless here; what must hold instead
+  // is the fail-closed outcome: the writer refuses BEFORE launching anything
+  // and the refusal is not admissible.
+  try {
+    const f = doneRequiredFixture('done-required-unenforced', [{ label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+    const evidence = await runDoneRequiredValidation({ projectRoot: f.root, storyId: f.storyId, store: f.store, gitCwd: f.root });
+    expectRepaired(evidence.status === 'FAIL' && evidence.receipts.length === 0 && evidence.reasons.some((reason) => reason.startsWith('build-artifacts-protection-unavailable:')),
+      `on a host without enforcement the DONE-required writer launched or passed (status=${evidence.status}, receipts=${evidence.receipts.length}, reasons=${evidence.reasons.join(', ')})`);
+    expectRepaired(evaluateDoneRequiredEvidence({ projectRoot: f.root, storyId: f.storyId, store: f.store, gitCwd: f.root }).ok === false, 'the refused DONE-required evidence was admitted');
+    console.log('skip: DONE-required PASS and prevention cases need demonstrated artifact write protection on this host (refusal asserted instead)');
+  } finally {
+    rmTree(sandbox);
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Routine plans: the executor observes every command and stamps the binding.
@@ -621,7 +667,7 @@ try {
 // validate-file-shaped plan is exercised here directly (the `npx tsx` wrapper
 // itself is not run: tsx is not installed in this checkout).
 // ---------------------------------------------------------------------------
-{
+if (hostEnforced) {
   const planSandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-plan-'));
   try {
     const root = join(planSandbox, 'plan'); mkdirSync(root);
@@ -1001,6 +1047,27 @@ try {
   } finally {
     rmTree(planSandbox);
   }
+} else {
+  // Audit #14 (4): without enforcement a routine plan still runs and records
+  // its observation, labelled unenforced, which no consumer treats as
+  // authoritative; the prevention cases cannot hold and are not pretended.
+  const planSandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-plan-unenforced-'));
+  try {
+    const root = join(planSandbox, 'plan'); mkdirSync(root);
+    git(root, ['init', '-q', '-b', 'main']); git(root, ['config', 'user.email', 'fixture@example.invalid']); git(root, ['config', 'user.name', 'Build Binding Fixture']); git(root, ['config', 'commit.gpgsign', 'false']);
+    writeFileSync(join(root, '.gitignore'), 'dist\n');
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives' }));
+    git(root, ['add', '.']); git(root, ['commit', '-qm', 'plan fixture']);
+    mkdirSync(join(root, 'packages/main/dist/tasks'), { recursive: true }); writeFileSync(join(root, 'packages/main/dist/tasks/x.js'), BUILD_A);
+    mkdirSync(join(root, 'packages/utils/dist'), { recursive: true }); writeFileSync(join(root, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
+    const observed = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [{ label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 20_000 }], warnings: [] }, root, undefined, undefined, {});
+    expectRepaired(observed.allPass === true && typeof observed.buildArtifactsProtection === 'string' && observed.buildArtifactsProtection.startsWith('unenforced:'),
+      `on a host without enforcement a routine plan must run observation-only under an unenforced label (allPass=${observed.allPass}, label=${observed.buildArtifactsProtection})`);
+    if (binding) expectRepaired(!binding.artifactProtectionSatisfied(observed.buildArtifactsProtection), 'an unenforced routine plan label satisfied the contract');
+    console.log('skip: executor prevention cases need demonstrated artifact write protection on this host (observation-only outcome asserted instead)');
+  } finally {
+    rmTree(planSandbox);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1008,7 +1075,7 @@ try {
 // without --json. `npx tsx` resolves a local node_modules/.bin/tsx shim that
 // runs the file with Node's native TypeScript stripping, so no network is used.
 // ---------------------------------------------------------------------------
-{
+if (hostEnforced) {
   const cli = join(repoRoot, 'packages/main/dist/cli.js');
   check(existsSync(cli), `handler-level validate-file regression requires a built CLI at ${cli}`);
   const handlerSandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-handler-'));
@@ -1142,6 +1209,8 @@ try {
   } finally {
     rmTree(handlerSandbox);
   }
+} else {
+  console.log('skip: handler-level validate-file cases need demonstrated artifact write protection on this host');
 }
 
 if (red.length > 0) {

@@ -279,6 +279,23 @@ export function currentBuildArtifactsHash(projectRoot: string): string | undefin
       frame(hash, `${DIGEST_DOMAIN}/roots`);
       frame(hash, String(BUILD_ARTIFACT_ROOTS.length));
       for (const relativeRoot of BUILD_ARTIFACT_ROOTS) {
+        // A symbolic link anywhere between the project root and the tree
+        // (`packages` or `packages/main`) re-targets the whole tree without
+        // touching a byte inside it, and no protection of the resolved tree
+        // covers the link itself; such a layout is not one this process can
+        // vouch for. The project root itself may be reached through links
+        // (a temporary directory often is) and is not judged.
+        let ancestor = root;
+        for (const component of relativeRoot.split('/').slice(0, -1)) {
+          ancestor = join(ancestor, component);
+          let stat;
+          try { stat = lstatSync(ancestor); } catch (error) {
+            const code = (error as NodeJS.ErrnoException | null)?.code;
+            if (code === 'ENOENT' || code === 'ENOTDIR') { stat = undefined; break; }
+            throw new BuildArtifactsIdentityUnavailable(ancestor, 'uninspectable ancestor');
+          }
+          if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(ancestor, 'symbolic link on the path to the artifact tree');
+        }
         frame(hash, relativeRoot);
         frame(hash, artifactTreeDigest(join(root, relativeRoot)));
       }

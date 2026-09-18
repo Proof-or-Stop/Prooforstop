@@ -31,7 +31,7 @@ export interface ArtifactWriteProtection {
   enforced: boolean;
   /**
    * Recorded on results, receipts and evidence:
-   * `enforced:<mechanism>`, `not-applicable:no-artifact-trees`, or `unenforced:<reason>`.
+   * `enforced:<mechanism>` or `unenforced:<reason>` (`registered-build:writes-permitted` on a build command).
    */
   label: string;
   /** Rewrites a launch so the child and its descendants cannot write the artifact roots. */
@@ -41,17 +41,25 @@ export interface ArtifactWriteProtection {
 /** A command the plan permits to write the artifacts, so it is deliberately launched unprotected. */
 export const REGISTERED_BUILD_PROTECTION_LABEL = 'registered-build:writes-permitted';
 
-/** No artifact tree exists to protect, and no mechanism exists on this host; the contract does not apply. */
+/**
+ * Retired label. It was recorded when no mechanism existed and no artifact tree
+ * existed either, on the theory that there was nothing to protect. That theory
+ * was wrong for a command that executes: it can create a tree, execute it and
+ * remove it before returning, and both boundary observations still read
+ * "absent". The label is kept only so evidence that carries it stays readable;
+ * it never satisfies the contract.
+ */
 export const NOT_APPLICABLE_PROTECTION_LABEL = 'not-applicable:no-artifact-trees';
 
 /**
  * Whether a recorded label satisfies the executed-build contract: the writes
- * were demonstrably denied, or there were no artifact trees to protect. An
- * `unenforced:` label, a registered-build label on a non-build command, or a
+ * were demonstrably denied on this host, by a mechanism that passed its
+ * self-test, and nothing else. An `unenforced:` label, the retired
+ * not-applicable label, a registered-build label on a non-build command, or a
  * missing label never satisfies it.
  */
 export function artifactProtectionSatisfied(label: string | undefined): boolean {
-  return typeof label === 'string' && (label.startsWith('enforced:') || label === NOT_APPLICABLE_PROTECTION_LABEL);
+  return typeof label === 'string' && label.startsWith('enforced:');
 }
 
 const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
@@ -203,11 +211,11 @@ export function artifactProtectionStale(
  * artifact root is denied whether or not it exists yet where the mechanism can
  * express that, so a command cannot create a tree that a later observation
  * would count; a mechanism that cannot express it for an absent root is not
- * reported as enforcing. Where no mechanism exists on this host, a project that
- * has no artifact trees at all has nothing to protect and is outside the
- * contract (`not-applicable`, valid only while that remains true — see
- * artifactProtectionStale); a project that does have them is `unenforced`, and
- * the consumers of that label refuse to treat its evidence as authoritative.
+ * reported as enforcing. Where no mechanism exists on this host the result is
+ * `unenforced` whether or not the trees exist: an absent tree is not "nothing
+ * to protect", because a command can create it, execute it and remove it
+ * inside its own window. The consumers of that label refuse to treat the
+ * evidence as authoritative, and the DONE-required writer refuses to launch.
  */
 export function resolveArtifactWriteProtection(artifactsRoot: string): ArtifactWriteProtection {
   const root = resolve(artifactsRoot);
@@ -218,10 +226,7 @@ export function resolveArtifactWriteProtection(artifactsRoot: string): ArtifactW
   else if (process.platform === 'linux') mechanism = bwrapMechanism(existingRoots, allRoots);
   else mechanism = `no artifact write-protection mechanism is implemented for platform ${process.platform}`;
   if (typeof mechanism === 'string') {
-    if (existingRoots.length === 0) {
-      return { enforced: false, label: NOT_APPLICABLE_PROTECTION_LABEL, wrap: (launch) => ({ command: launch.command, args: [...launch.args], shell: launch.shell }) };
-    }
-    return unenforced(mechanism);
+    return unenforced(existingRoots.length === 0 ? `${mechanism}; no artifact tree exists yet, but a command could create, execute and remove one` : mechanism);
   }
   const failure = selfTest(mechanism, existingRoots, allRoots);
   if (failure) return unenforced(failure);

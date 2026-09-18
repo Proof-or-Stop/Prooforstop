@@ -318,7 +318,7 @@ try {
     console.log('gate-owned authority PASS');
     // The run carries the protection its commands executed under, so the
     // evidence publication derives from it is reusable and admissible.
-    assert.match(admitted.buildArtifactsProtection ?? '', /^(enforced:|not-applicable:)/, 'an authoritative dynamic run must carry a satisfied protection label: ' + JSON.stringify(admitted.buildArtifactsProtection));
+    assert.match(admitted.buildArtifactsProtection ?? '', /^enforced:/, 'an authoritative dynamic run must carry a satisfied protection label: ' + JSON.stringify(admitted.buildArtifactsProtection));
     // Every receipt this run earned binds the compiled artifacts the run
     // executed, under the protection contract, and carries the v3 schema.
     const earned = admitted.receipts.filter((receipt) => receipt.producedBy === 'story-execution');
@@ -326,7 +326,7 @@ try {
     for (const receipt of earned) {
       assert.equal(receipt.schema, 'proof-or-stop.validation-command-receipt.v3');
       assert.equal(receipt.buildArtifactsDigest, admitted.buildArtifactsHash, 'every receipt binds the compiled artifacts the run executed');
-      assert.match(receipt.buildArtifactsProtection, /^(enforced:|not-applicable:)/, 'a receipt is authoritative only under enforced or not-applicable protection');
+      assert.match(receipt.buildArtifactsProtection, /^enforced:/, 'a receipt is authoritative only under enforced or not-applicable protection');
     }
     const dynamicArgs = { projectRoot: authorityRoot, gitCwd: authorityRoot, storyId: 'B-authority', baseHead: authorityHead, head: authorityHead, changedFiles: [], mode: 'enforce-low-risk' as const, commands: authorityCommands };
     const unchangedRerun = await runStoryAwareDynamicValidation(dynamicArgs);

@@ -2631,8 +2631,20 @@ export async function executeValidationPlan(
     ...(concurrentPollution ? { concurrentWorktreePollution: concurrentPollution } : {}),
     // The identity the evidence binds: only stamped when the binding rules held.
     ...(!buildBindingFailed && buildArtifactsAtEnd ? { buildArtifactsHash: buildArtifactsAtEnd } : {}),
-    buildArtifactsProtection: commands.find((result) => result.buildArtifactsRole !== 'build' && !artifactProtectionSatisfied(result.buildArtifactsProtection))?.buildArtifactsProtection
-      ?? artifactWriteProtection.label,
+    // The plan's label is the weakest protection any NON-build command ran
+    // under. A plan that ran only registered builds records none: it proves
+    // nothing about protected execution, and a resolution taken before its
+    // build (possibly unenforced because a tree was still missing) must not
+    // be carried into an aggregate whose tests ran enforced afterwards.
+    ...((): { buildArtifactsProtection?: string } => {
+      // A plan with nothing to run (no validator configured) executed nothing
+      // that could have swapped the trees; it records the host's resolution so
+      // its evidence is judged on whether this host can enforce at all.
+      if (commands.length === 0) return { buildArtifactsProtection: artifactWriteProtection.label };
+      const labels = commands.filter((result) => result.buildArtifactsRole !== 'build').map((result) => result.buildArtifactsProtection).filter((label): label is string => typeof label === 'string');
+      const weakest = labels.find((label) => !artifactProtectionSatisfied(label)) ?? labels[0];
+      return weakest ? { buildArtifactsProtection: weakest } : {};
+    })(),
     buildArtifacts: {
       root: artifactsRoot,
       ...(buildArtifactsAtStart ? { start: buildArtifactsAtStart } : {}),

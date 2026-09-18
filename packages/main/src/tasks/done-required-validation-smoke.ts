@@ -106,8 +106,8 @@ const STORY_ID = 'B-ac25';
       ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
       buildArtifactsBefore: currentBuildArtifactsHash(root),
       buildArtifactsAfter: currentBuildArtifactsHash(root),
-      // A Windows producer has no write-protection mechanism; a root with no artifact trees records the not-applicable label.
-      buildArtifactsProtection: 'not-applicable:no-artifact-trees',
+      // A Windows producer has no write-protection mechanism; it records the unenforced label its resolver emits.
+      buildArtifactsProtection: 'unenforced:no artifact write-protection mechanism is implemented for platform win32; no artifact tree exists yet, but a command could create, execute and remove one',
     };
     writeDoneEvidence(root, store, [receipt]);
     const evaluation = evaluateDoneRequiredEvidence({
@@ -120,7 +120,13 @@ const STORY_ID = 'B-ac25';
         platform: 'win32',
       },
     });
-    assert.equal(evaluation.ok, true, `Windows-shaped full DONE evaluator must pass: ${evaluation.reasons.join(', ')}`);
+    // The cross-platform command identity is accepted (nothing but the
+    // protection contract refuses), and the protection contract does refuse:
+    // a host without a write-protection mechanism cannot earn this evidence.
+    assert.equal(evaluation.ok, false, 'Windows-shaped DONE evidence recorded without enforcement must be refused');
+    assert.deepEqual(evaluation.reasons.filter((reason) => !reason.startsWith('build-artifacts-protection-unenforced[')), [],
+      `Windows-shaped full DONE evaluator must refuse ONLY on protection: ${evaluation.reasons.join(', ')}`);
+    assert.ok(evaluation.reasons.some((reason) => reason.startsWith('build-artifacts-protection-unenforced[')), 'the refusal must name the missing enforcement');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
