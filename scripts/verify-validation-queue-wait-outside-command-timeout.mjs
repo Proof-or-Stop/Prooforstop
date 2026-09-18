@@ -83,6 +83,30 @@ function lockRun(input) {
   return JSON.parse(r.stdout.trim().split('\n').at(-1));
 }
 
+// A delegated nested command at the maximum supported timeout, run by an outer command that also has
+// the maximum timeout: the outer reservation then extends past Node's 2^31-1 ms timer ceiling, and
+// neither the grant handshake nor the granted frame may expire at once.
+const innerScript = join(sandbox, 'inner.mjs');
+writeFileSync(innerScript, `
+const { runValidationCommand, MAX_NODE_TIMER_DELAY_MS } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-executor.js')}`)});
+const r = await runValidationCommand({ label: 'inner', command: process.execPath, args: ['-e', 'setTimeout(() => console.log("INNER-RAN"), 300)'], timeoutMs: MAX_NODE_TIMER_DELAY_MS, resources: [{ class: 'machine-cpu', key: 'heavy', access: 'exclusive' }] }, process.argv[2]);
+console.log('INNER ' + JSON.stringify({ code: r.code, timedOut: r.timedOut === true, ran: /INNER-RAN/.test(r.output), output: r.output.slice(0, 200) }));
+`);
+const outerScript = join(sandbox, 'outer.mjs');
+writeFileSync(outerScript, `
+const { runValidationCommand, MAX_NODE_TIMER_DELAY_MS } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-executor.js')}`)});
+const r = await runValidationCommand({ label: 'outer', command: process.execPath, args: [${JSON.stringify(innerScript)}, process.argv[2]], timeoutMs: MAX_NODE_TIMER_DELAY_MS, resources: [{ class: 'machine-cpu', key: 'heavy', access: 'exclusive' }] }, process.argv[2]);
+console.log('OUTER ' + JSON.stringify({ code: r.code, output: r.output }));
+`);
+function nestedAtMaximum() {
+  const r = spawnSync(process.execPath, [outerScript, workspace], { env: machineEnv, encoding: 'utf8', timeout: 60_000 });
+  const outer = r.stdout.match(/OUTER (\{.*\})/);
+  if (r.status !== 0 || !outer) throw new Error(`outer runner failed (not the target RED): ${r.stdout}${r.stderr}`);
+  const { code, output } = JSON.parse(outer[1]);
+  const inner = output.match(/INNER (\{.*\})/);
+  return { outerCode: code, inner: inner ? JSON.parse(inner[1]) : null, overflow: /TimeoutOverflowWarning/.test(output) };
+}
+
 async function waitFor(path, ms) {
   const deadline = Date.now() + ms;
   while (!existsSync(path)) { if (Date.now() > deadline) return false; await new Promise((r) => setTimeout(r, 50)); }
@@ -140,6 +164,11 @@ try {
   const callerFirst = await behindHolder(4000, async () => lockRun({ waitMs: 60_000, holdMs: 1000, workMs: 0 }));
   rows.push({ scenario: 'control: lock queued, caller deadline 1000ms', code: '-', timedOut: callerFirst.error, ran: callerFirst.ran, effectiveTimeoutMs: '-', wallMs: callerFirst.wallMs });
   control(!callerFirst.ran && callerFirst.error === 'CALLER-DEADLINE', `the caller's own deadline still reports the caller's error (got ${callerFirst.error})`);
+
+  const maximum = nestedAtMaximum();
+  rows.push({ scenario: 'delegated nested command, both at the maximum timeout', code: maximum.inner?.code, timedOut: maximum.inner?.timedOut, ran: maximum.inner?.ran, effectiveTimeoutMs: '-', wallMs: maximum.overflow ? 'timer overflow' : '-' });
+  expectRepaired(maximum.outerCode === 0 && maximum.inner?.code === 0 && maximum.inner.ran && !maximum.overflow,
+    `a delegated command at the maximum timeout stays active after admission (inner ${JSON.stringify(maximum.inner)}, overflow ${maximum.overflow})`);
 } finally {
   rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   machine.cleanup();

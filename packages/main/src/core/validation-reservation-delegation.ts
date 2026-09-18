@@ -233,16 +233,30 @@ function subset(requested: ResourceClaim[] | null, held: ResourceClaim[] | null)
   return held === null || requested !== null && requested.every(row => held.some(prior => prior.class === row.class && prior.key === row.key && (prior.access === 'exclusive' || prior.access === row.access)));
 }
 function conflict(a: ResourceClaim[] | null, b: ResourceClaim[] | null): boolean { return a === null || b === null || claimsConflict({ name: 'a', resources: a }, { name: 'b', resources: b }); }
+// Node's setTimeout ceiling (2^31-1 ms, MAX_NODE_TIMER_DELAY_MS in validation-executor.ts): a longer delay
+// is silently reduced to 1 ms, so an absolute deadline beyond it would fire at once.
+const MAX_TIMER_DELAY_MS = 2_147_483_647;
+/** Fire once `deadlineAt` has passed, re-arming in bounded segments when it lies beyond the timer ceiling. */
+export function deadlineTimer(deadlineAt: number, fire: () => void): { cancel(): void } {
+  let handle: NodeJS.Timeout | undefined, cancelled = false;
+  const arm = (): void => {
+    if (cancelled) return;
+    const remaining = deadlineAt - Date.now();
+    handle = remaining > MAX_TIMER_DELAY_MS ? setTimeout(arm, MAX_TIMER_DELAY_MS) : setTimeout(fire, Math.max(1, remaining));
+  };
+  arm();
+  return { cancel: () => { cancelled = true; clearTimeout(handle); } };
+}
 async function request(bootstrap: Bootstrap, input: Omit<Request, 'pid' | 'start' | 'nonce'>, signal?: AbortSignal): Promise<{ socket: Socket; grant: Grant; revocation: AbortSignal }> {
   const self = identity(process.pid), nonce = randomUUID(), revocation = new AbortController();
   return await new Promise((resolve, reject) => {
     const socket = createConnection(bootstrap.socket); let bytes = '', settled = false, accepted: Grant | undefined;
     const fail = (error: Error) => {
       if (settled) { revocation.abort(error); return; }
-      settled = true; clearTimeout(timer); signal?.removeEventListener('abort',cancel); socket.destroy(); reject(error);
+      settled = true; timer.cancel(); signal?.removeEventListener('abort',cancel); socket.destroy(); reject(error);
     };
     const cancel=()=>fail(signal?.reason instanceof Error ? signal.reason : failure('request aborted'));
-    const timer = setTimeout(() => fail(failure('handshake deadline')), Math.max(1, input.deadlineAt - Date.now()));
+    const timer = deadlineTimer(input.deadlineAt, () => fail(failure('handshake deadline')));
     signal?.addEventListener('abort',cancel,{once:true});if(signal?.aborted){cancel();return;}
     socket.once('error', fail); socket.once('end', () => fail(failure('issuer closed'))); socket.once('close', () => fail(failure('issuer closed')));
     socket.once('connect', () => socket.write(JSON.stringify({ ...input, pid: self.pid, start: self.start, nonce }) + '\n'));
@@ -263,7 +277,7 @@ async function request(bootstrap: Bootstrap, input: Omit<Request, 'pid' | 'start
           const grant = response.grant as Grant;
           if (!verifyCanonical(grant, response.signature, bootstrap.publicKey) || grant.reservation !== bootstrap.lockId || grant.subject.pid !== self.pid || grant.subject.start !== self.start || grant.nonce !== nonce || grant.operation !== input.operation || !grantClaimsBound(grant, input, bootstrap) || grant.deadlineAt > (input.operation === 'cancel' ? input.deadlineAt : Math.min(bootstrap.deadlineAt, input.deadlineAt)) || Date.now() >= grant.deadlineAt) throw failure('grant subject/binding/signature');
           const fresh = readBootstrapFresh(frames.getStore()?.fd ?? FD, input.operation === 'cancel'); if (!fresh || fresh.publicKey !== bootstrap.publicKey || !sameProcess(self)) throw failure('grant owner changed');
-          accepted = grant; settled = true; clearTimeout(timer); signal?.removeEventListener('abort',cancel); resolve({ socket, grant, revocation: revocation.signal });
+          accepted = grant; settled = true; timer.cancel(); signal?.removeEventListener('abort',cancel); resolve({ socket, grant, revocation: revocation.signal });
         } catch (error) { fail(error instanceof Error ? error : failure('invalid response')); }
       }
     });
@@ -313,11 +327,11 @@ export async function withInheritedMachineReservation<T>(resources: ResourceClai
   const response = await request(bootstrap, { operation: 'grant', resources, parentGrantId: current?.grantId, deadlineAt: Math.min(deadlineAt, bootstrap.deadlineAt) }, requestSignal);
   const abort = new AbortController(), revoke = () => abort.abort(failure('live reservation revoked'));
   response.revocation.addEventListener('abort', revoke, {once:true}); if(response.revocation.aborted)revoke();
-  response.socket.once('close', revoke); const timer = setTimeout(revoke, Math.max(1, response.grant.deadlineAt - Date.now()));
+  response.socket.once('close', revoke); const timer = deadlineTimer(response.grant.deadlineAt, revoke);
   const forward = () => abort.abort(signal?.reason); signal?.addEventListener('abort', forward, { once: true });
   const frame: Frame = { active: true, heldPorts: response.grant.heldPorts ?? [], grantId: response.grant.grantId, deadlineAt: response.grant.deadlineAt, resources: response.grant.resources ?? resources, fd: FD, bootstrap, abort };
   try { if (signal?.aborted || abort.signal.aborted || response.socket.destroyed || Date.now() >= response.grant.deadlineAt) throw failure('grant revoked before entry'); return { inherited: true, value: await frames.run(frame, fn) }; }
-  finally { frame.active = false; clearTimeout(timer); signal?.removeEventListener('abort', forward); response.socket.removeListener('close', revoke); response.revocation.removeEventListener('abort', revoke); response.socket.end(JSON.stringify({release:response.grant.grantId})+'\n'); }
+  finally { frame.active = false; timer.cancel(); signal?.removeEventListener('abort', forward); response.socket.removeListener('close', revoke); response.revocation.removeEventListener('abort', revoke); response.socket.end(JSON.stringify({release:response.grant.grantId})+'\n'); }
 }
 /** Machine-only stale fence. Unknown records retain capacity; no foreign process is signaled. */
 export function machineReservationResidualsPresent(ticket: string): boolean {
@@ -418,7 +432,7 @@ export async function withMachineReservationController<T>(input: MachineReservat
   const consumedPending = new Map<string,{capability:string;expiresAt?:number}>();
   const registeredTokens = new Map<number,string>();
   const registered = new Map<number, ProcessIdentity & { parents: string[] }>(), active = new Map<Socket, { subject: ProcessIdentity; resources: ResourceClaim[] | null; grantId: string; parents: string[]; deadlineAt: number; revoked?: boolean; terminal?: boolean; disconnected?: boolean }>();
-  const grantTimers = new Map<Socket, NodeJS.Timeout>();
+  const grantTimers = new Map<Socket, { cancel(): void }>();
   const sockets = new Set<Socket>(), pending: Array<{ socket: Socket; input: Request }> = [];
   let alive = true, fd = -1; let frame: Frame | undefined;
   let callbackStarted=false, callbackThrew=false, callbackError:unknown, callbackResult:unknown;
@@ -541,7 +555,7 @@ export async function withMachineReservationController<T>(input: MachineReservat
       const descendantGrants=[...active.values()].some(row=>row!==grant&&row.parents.includes(grant.grantId));
       const descendantsRemain = [...registered.values()].some(row=>row.parents.includes(grant.grantId) && !groupGone(row.pgid));
       if(pendingWork||descendantGrants||descendantsRemain||subjectGroupWorkPresent(grant.subject,grant.terminal===true))continue;
-      active.delete(socket); clearTimeout(grantTimers.get(socket)); grantTimers.delete(socket); retired++;
+      active.delete(socket); grantTimers.get(socket)?.cancel(); grantTimers.delete(socket); retired++;
     }
     return retired;
   };
@@ -579,7 +593,7 @@ export async function withMachineReservationController<T>(input: MachineReservat
         const grant: Grant = { reservation: owner.lockId, subject, nonce: input.nonce, operation: input.operation, resources, deadlineAt: Math.min(owner.deadlineAt, input.deadlineAt, ...[...active.values()].filter(prior=>parents.includes(prior.grantId)).map(prior=>prior.deadlineAt)), grantId: randomUUID() };
         grant.heldPorts=(resources??[]).filter(row=>row.class==='fixed-port'&&row.access==='exclusive'&&[owner.resources,...[...active.values()].filter(prior=>parents.includes(prior.grantId)).map(prior=>prior.resources)].some(rows=>rows?.some(prior=>prior.class==='fixed-port'&&prior.access==='exclusive'&&prior.key===row.key))).map(row=>row.key);
         active.set(socket, { subject, resources, parents, grantId: grant.grantId, deadlineAt: grant.deadlineAt });
-        grantTimers.set(socket,setTimeout(()=>{revokeGrant(grant.grantId);drainNow();},Math.max(1,grant.deadlineAt-Date.now())));
+        grantTimers.set(socket,deadlineTimer(grant.deadlineAt,()=>{revokeGrant(grant.grantId);drainNow();}));
         socket.write(JSON.stringify({ grant, signature: signCanonical(grant, keys.privateKey) }) + '\n');
         changed = true;
       } catch (error) {
@@ -686,7 +700,7 @@ export async function withMachineReservationController<T>(input: MachineReservat
     frame={active:true,resources:owner.resources,fd,bootstrap,abort,register:(pid,token)=>register(pid,process.pid,[],token),prepare:()=>prepare(),cancel:token=>cancel(token),attempt:token=>attempt(token),spawned:(token,pid)=>spawned(token,pid)};
     try {callbackStarted=true;const result=await frames.run(frame, fn);callbackResult=result;return result;}catch(error){callbackThrew=true;callbackError=error;throw error;}
   } finally {
-    alive = false; if (retirementTimer) clearTimeout(retirementTimer); for(const timer of grantTimers.values())clearTimeout(timer); if(frame)frame.active=false; abort.abort(failure('reservation ended')); for (const socket of sockets) socket.destroy();
+    alive = false; if (retirementTimer) clearTimeout(retirementTimer); for(const timer of grantTimers.values())timer.cancel(); if(frame)frame.active=false; abort.abort(failure('reservation ended')); for (const socket of sockets) socket.destroy();
     for (const group of registered.values()) {
       // Only previously observed owned group leaders are signal targets: still observed with the
       // recorded identity, or absent while the recorded group persists, which is the common shape
