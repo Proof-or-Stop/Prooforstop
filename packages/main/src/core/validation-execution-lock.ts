@@ -17,14 +17,16 @@ import {
   realpathSync,
   renameSync,
   rmSync,
+  rmdirSync,
   statSync,
+  symlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs';
 import { hostname, networkInterfaces, userInfo } from 'node:os';
 import { createServer } from 'node:net';
-import { MACHINE_FIXED_PORT_ARTIFACT, VALIDATION_RESERVATION_DELEGATION_ARTIFACT } from './runtime-artifact-registry.js';
-import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
+import { MACHINE_FIXED_PORT_ARTIFACT, VALIDATION_RESERVATION_DELEGATION_ARTIFACT, WORKSPACE_VALIDATION_COORDINATION_ARTIFACT } from './runtime-artifact-registry.js';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import {
   acquireMkdirLock,
   type AcquiredMkdirLock,
@@ -366,6 +368,69 @@ export function validationCapacityLockPath(workspaceRoot: string, requireGitIden
     sharedRoot = canonicalWorkspace;
   }
   return join(sharedRoot, VALIDATION_CAPACITY_LOCK_REL);
+}
+
+/** Keep one queue for old and new callers, with all physical writes outside
+ * the guarded repository. Never move or replace a populated legacy directory.
+ * rmdir is the atomic empty check; if an old writer wins the mkdir race, retry
+ * there instead of admitting a second queue. Unknown owners remain blocking.
+ */
+async function prepareWorkspaceValidationCoordination(options: ValidationCapacityLockOptions, legacyPath: string): Promise<void> {
+  const sharedRoot = realpathSync(resolve(legacyPath, '../../..'));
+  const namespace = join(realpathSync(userInfo().homedir), PROOF_OR_STOP_DIR, 'locks', WORKSPACE_VALIDATION_COORDINATION_ARTIFACT.directoryName);
+  const target = join(namespace, createHash('sha256').update(sharedRoot).digest('hex'));
+  const rel = relative(sharedRoot, target);
+  if (!isAbsolute(rel) && rel !== '..' && !rel.startsWith('../') && !rel.startsWith('..\\')) {
+    throw new Error('workspace validation coordination must be outside the protected repository');
+  }
+  for (const path of [namespace, target]) {
+    mkdirSync(path, { recursive: true, mode: 0o700 });
+    const stat = lstatSync(path);
+    if (!stat.isDirectory() || stat.isSymbolicLink()
+      || (process.platform !== 'win32' && (stat.uid !== userInfo().uid || (stat.mode & 0o077) !== 0))) {
+      throw new Error('workspace validation coordination requires a private owned directory');
+    }
+  }
+  mkdirSync(dirname(legacyPath), { recursive: true });
+  const pruneEmptyQueue = (path: string): void => {
+    // Reuse the existing owner classifier; age alone never reclaims a ticket.
+    activeCapacityCandidates(path, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
+    activeCapacityCandidates(path, '.ticket', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
+    const workspaces = join(path, 'workspaces');
+    if (!existsSync(workspaces)) return;
+    if (!lstatSync(workspaces).isDirectory() || lstatSync(workspaces).isSymbolicLink()) return;
+    for (const name of readdirSync(workspaces)) {
+      if (!/^[a-f0-9]{64}$/.test(name)) continue;
+      const child = join(workspaces, name);
+      if (!lstatSync(child).isDirectory() || lstatSync(child).isSymbolicLink()) continue;
+      activeCapacityCandidates(child, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
+      activeCapacityCandidates(child, '.ticket', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
+      try { rmdirSync(child); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
+    }
+    try { rmdirSync(workspaces); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
+  };
+  while (true) {
+    assertCapacityWaitActive(options);
+    let stat;
+    try { stat = lstatSync(legacyPath); }
+    catch (error: any) { if (error.code !== 'ENOENT') throw error; }
+    if (stat?.isSymbolicLink()) {
+      if (realpathSync(legacyPath) !== realpathSync(target)) throw new Error('workspace validation coordination alias points at an unowned queue');
+      return;
+    }
+    if (stat) {
+      if (!stat.isDirectory()) throw new Error('workspace validation coordination legacy path is not a directory');
+      pruneEmptyQueue(legacyPath);
+      try { rmdirSync(legacyPath); }
+      catch (error: any) {
+        if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error;
+        if (error.code !== 'ENOENT') { await waitForCapacityRetry(options, Math.max(10, options.pollMs ?? VALIDATION_CAPACITY_WAIT_POLL_MS)); continue; }
+      }
+    }
+    try { symlinkSync(target, legacyPath, process.platform === 'win32' ? 'junction' : 'dir'); }
+    catch (error: any) { if (error.code !== 'EEXIST') throw error; }
+    // Verify the winner before the caller can publish any ticket.
+  }
 }
 
 /**
@@ -812,6 +877,7 @@ export async function withWorkspaceValidationCapacity<T>(
   fn: () => Promise<T> | T,
 ): Promise<T> {
   const sharedKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
+  await prepareWorkspaceValidationCoordination(options, sharedKey);
   const lockKey = options.workspaceOnly ? join(sharedKey, 'workspaces', createHash('sha256').update(realpathSync(options.workspaceRoot)).digest('hex')) : sharedKey;
   return withValidationCapacityQueue(options, fn, lockKey);
 }
