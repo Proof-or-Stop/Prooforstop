@@ -3173,7 +3173,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "contextSha256": "ccd4fe3e8ae44b0b260c36ee4ed2c71d095e98d904df2d200655aa1360d91fea"
   },
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
-  {"sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs", "occurrences": 574, "contextSha256": "b92cb5d327db40b813c431f28fe7e1290867034a5b1e5687545c114fabb1a07b"}
+  {"sourcePath":"scripts/verify-proof-or-stop-identity-cutover.mjs","occurrences":576,"contextSha256":"cbceb5683962fa377ea0ca1a14168f593692bc20e1a35f387d84fbcf7a545aca"}
 ];
 
 function assertOwnedImportUseIntegrity(sourceMap, pins = OWNED_IMPORT_USE_CONTEXTS) {

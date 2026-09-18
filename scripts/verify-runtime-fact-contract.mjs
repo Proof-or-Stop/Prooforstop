@@ -26,6 +26,7 @@ const requiredEvidenceFacts = [
   'identity-canonical-digest-memo',
   'validation-machine-reservation-delegation',
   'finding-evidence-fixture-deadlines',
+  'identity-certification-composite-deadline',
   'workspace-validation-coordination',
   'command-observation-boundaries',
   'verification-output-integrity',
