@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab causal-fixture-compat - v0.3.417 - 2026-09-18
+
+- Restore causal receipt tests against current output-storage and bounded persistence-retry contracts without changing production authority.
+- Use the real receipt store for oversized selector output and exhaust both index-write retries while proving one execution and immutable receipt recovery.
+- Close the isolated acceptance fixture over registered snapshot inputs; retain complete-topology assertions and add a missing-source negative control.
+- Lab RED reproduced all three original failures; GREEN replays the same three original cases with the additional negative assertions. This does not claim full causal-suite or Story DONE evidence.
+
+Maintenance provenance: codex/lab-causal-fixture-compat, repair 99a20aa833cb2d9aaf2d45e35b3b6d43a4bf55cd.
+Verification command (replayed before integration and on main): `["node","-e","const{execFileSync}=require('node:child_process');execFileSync(process.execPath,['scripts/ensure-dist.mjs'],{stdio:'inherit'});execFileSync(process.execPath,['--test','--test-name-pattern=oversized output probes|injected index-write failure|verifier-owned topology and pre-review','packages/main/tests/causal-evidence.test.mjs'],{stdio:'inherit'});"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab stale-hint-extraction - v0.3.416 - 2026-09-18
 
 - Fix stale-evidence smoke extraction to retain the complete indented hint when stale-intent rows vary.
