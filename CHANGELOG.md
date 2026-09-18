@@ -1,16 +1,5 @@
 # Changelog
 
-## Lab validation-queue-wait-outside-command-timeout - v0.3.423 - 2026-09-18
-
-- Stop counting time spent waiting on the same-user machine validation queue toward a validation command's configured timeout: the wait is bounded by the 300 s queue deadline and the caller's outer deadline, and the command is armed with its whole timeout once admitted.
-- Add `waitDeadlineAt` to the capacity lock options (also honored by delegated grant requests) so the admission wait has its own bound while `deadlineAt` keeps bounding the admitted work; an expired wait bound reports a capacity wait, not the caller's deadline.
-- Verification: `node scripts/verify-validation-queue-wait-outside-command-timeout.mjs` fails 4 expectations before the repair (a 2 s command queued 4 s was killed with 0 ms effective budget) and passes 9 checks after it; the `queue-wait-cap` mode of the nested result contract now asserts the new contract.
-- Details and measurements: [docs/lab/validation-queue-wait-outside-command-timeout.md](docs/lab/validation-queue-wait-outside-command-timeout.md).
-
-Maintenance provenance: codex/lab-validation-queue-wait-outside-command-timeout, repair b447362d53a46af969bc2c3e7e72d492649f9a1a.
-Verification command (replayed before integration and on main): `["node","scripts/verify-validation-queue-wait-outside-command-timeout.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab host-activity-log-during-validation - v0.3.422 - 2026-09-18
 
 - Stop the Claude host activity hook (`.claude/hooks/log-tools.cjs`) from appending into a worktree while that worktree validates: a line is written only while the hook holds the product's own workspace validation capacity ticket, and is dropped otherwise, fixing the 2026-09-17 quorum smoke run reported FAIL with 73/73 cases passing.
