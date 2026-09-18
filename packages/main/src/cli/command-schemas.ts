@@ -6,7 +6,17 @@ export const verificationIntentTypeSchema = z.preprocess((value) => {
   if (value === 'cli_blackbox') return 'cli';
   if (value === 'browser_blackbox') return 'browser';
   return value;
-}, z.enum(['logic', 'cli', 'browser', 'manual', 'docs']));
+}, z.enum(['logic', 'cli', 'browser', 'manual', 'docs'], {
+  // Zod's default enum diagnostic omits the received value. Keep CLI callers
+  // able to distinguish evidence kinds from verification types without
+  // permitting unbounded values or control characters to shape the output.
+  error: (issue) => {
+    const received = typeof issue.input === 'string'
+      ? `${JSON.stringify(issue.input.slice(0, 64))}${issue.input.length > 64 ? ' (truncated)' : ''}`
+      : typeof issue.input;
+    return `Invalid verification type ${received}; expected one of ${issue.values.map(value => JSON.stringify(value)).join(' | ')}`;
+  },
+}));
 
 const plannedPathEndpointSchema = z.object({
   id: z.string().trim().min(1),
