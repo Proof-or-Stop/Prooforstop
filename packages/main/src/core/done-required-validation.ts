@@ -976,7 +976,9 @@ export async function runDoneRequiredValidation(args: {
   }
 
   if (policy.required && policy.configErrors.length === 0) {
-    let artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
+    // The contract declaration is read from the configuration root
+    // (projectRoot), which on a wrapper-root layout is not the artifact root.
+    let artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd, { configRoot: args.projectRoot });
     // Unsupported host: decided before the first launch, never after the suite.
     let protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd);
     if (protectionRefusal) reasons.push(protectionRefusal);
@@ -991,8 +993,8 @@ export async function runDoneRequiredValidation(args: {
       const commandIsRegisteredBuild = command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
         || command.proof === PACKAGES_MAIN_BUILD_PROOF
         || isRegisteredPackagesMainBuildCommand(command, args.projectRoot, args.gitCwd);
-      if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd) })) {
-        artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
+      if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd, args.projectRoot) })) {
+        artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd, { configRoot: args.projectRoot });
         buildRanSinceResolve = false;
         protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd);
         if (protectionRefusal) {
@@ -1013,7 +1015,7 @@ export async function runDoneRequiredValidation(args: {
         // Observed at the spawn boundary (or inherited from the reuse key for a
         // cached run); this writer records what the execution carried and never
         // relabels a result with what it observes afterwards.
-        artifactBinding: { root: args.gitCwd, protection: commandIsRegisteredBuild ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
+        artifactBinding: { root: args.gitCwd, configRoot: args.projectRoot, protection: commandIsRegisteredBuild ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
         progress: runtimeOptions.progress,
         heartbeatMs: runtimeOptions.heartbeatMs,
         abortSignal: runtimeOptions.abortSignal,
@@ -1071,7 +1073,7 @@ export async function runDoneRequiredValidation(args: {
 
   // End-of-execution build identity: the dist the receipts executed, observed
   // the moment the last command returned (after the build receipt rewrote it).
-  const executionBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
+  const executionBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd, args.projectRoot);
   throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
   reasons.push(...validateSelfHostBuildProof({ receipts }, args.projectRoot, policy.commands, args.gitCwd));
   // Every test receipt must have executed the build this evidence binds, and
@@ -1085,7 +1087,7 @@ export async function runDoneRequiredValidation(args: {
   // Publication must still see the executed identity; a dist that moved in
   // between was never tested by these receipts, so the evidence fails instead
   // of binding a PASS to an untested build. An unreadable identity fails too.
-  const publicationBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
+  const publicationBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd, args.projectRoot);
   if (!executionBuildArtifactsHash || !publicationBuildArtifactsHash) {
     reasons.push('build-artifacts-identity-unavailable');
   } else if (executionBuildArtifactsHash !== publicationBuildArtifactsHash) {
@@ -1252,7 +1254,7 @@ export function evaluateDoneRequiredEvidence(args: {
   else if (evidence.storyFilesHash !== currentStoryFiles) reasons.push('stale-storyFilesHash');
   // validateSelfHostBuildProof below proves a build receipt preceded the tests;
   // this proves the dist on disk is still the one those receipts executed.
-  const currentBuildArtifacts = currentBuildArtifactsHash(args.gitCwd);
+  const currentBuildArtifacts = currentBuildArtifactsHash(args.gitCwd, args.projectRoot);
   if (!evidence.buildArtifactsHash || !currentBuildArtifacts) reasons.push('missing-buildArtifactsHash');
   else if (evidence.buildArtifactsHash !== currentBuildArtifacts) reasons.push('stale-buildArtifacts');
   reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands, args.gitCwd));

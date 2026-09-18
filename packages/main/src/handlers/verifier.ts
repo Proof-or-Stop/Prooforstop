@@ -908,7 +908,7 @@ export function evaluateStoryRoutineReuse(args: {
     materialHash = snapshot.materialHash;
     storyFilesHash = snapshot.storyFilesHash;
     // Bound to the Story worktree's own dist: that is what its commands execute.
-    buildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
+    buildArtifactsHash = currentBuildArtifactsHash(args.gitCwd, args.ctx.root);
     // B-83aa CHK-003 (TOLERABLE): a partial snapshot is safe here because
     // evaluateRoutineValidationReuse below refuses reuse whenever a digest is
     // missing (material-hash-changed-or-missing / story-files-hash-changed-or-
@@ -1057,7 +1057,7 @@ function reusedStoryValidationResult(args: {
   // Publication is refused unless the dist on disk still equals it.
   const reusedBinding = resolveReusedBuildArtifactsBinding({
     prior: priorEvidence.buildArtifactsHash,
-    current: currentBuildArtifactsHash(args.gitCwd),
+    current: currentBuildArtifactsHash(args.gitCwd, args.ctx.root),
   });
   if (!reusedBinding.ok) {
     return externalResult({
@@ -1362,7 +1362,7 @@ function recordValidationTerminal(
     // results bind the dist on disk now. The B-f824 duplicate-suite grouping
     // keeps its three-key contract.
     buildArtifactsHash: (typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash)
-      || currentBuildArtifactsHash(gitCwd) || '',
+      || currentBuildArtifactsHash(gitCwd, ctx.root) || '',
     ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     ...(reuseAttribution && result.disposition !== 'reused' ? { reuse: reuseAttribution } : {}),
   });
@@ -1497,7 +1497,7 @@ function persistStoryValidationEvidence(
     const executionBuildArtifactsHash = typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash
       ? result.buildArtifactsHash
       : undefined;
-    const publicationBuildArtifactsHash = currentBuildArtifactsHash(gitCwd);
+    const publicationBuildArtifactsHash = currentBuildArtifactsHash(gitCwd, ctx.root);
     // A result the executor refused to stamp carries its `✗ build binding:`
     // diagnostics; they are the reason publication is refused and are kept in
     // the returned result so the caller sees what was rewritten, not merely

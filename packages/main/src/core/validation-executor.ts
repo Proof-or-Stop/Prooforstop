@@ -181,7 +181,7 @@ export interface RunValidationCommandOptions {
    * shared-execution cache carries the provenance of the run that was actually
    * executed (bound into its reuse key), never a fresh observation.
    */
-  artifactBinding?: { root: string; protection: string };
+  artifactBinding?: { root: string; configRoot?: string; protection: string };
 }
 
 interface CapturedValidationCommandResult {
@@ -1587,7 +1587,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   const spawnEnv = { ...effectiveEnv };
   // Observed immediately before launch, in the same scope the result is built
   // in; the matching observation is taken the moment the child has finished.
-  const buildArtifactsBefore = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root) : undefined;
+  const buildArtifactsBefore = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root, options.artifactBinding.configRoot) : undefined;
   if (tracer && traceFile) {
     mkdirSync(join(projectRoot, RUNTIME_TRACE_DIR), { recursive: true });
     spawnEnv.PROOF_OR_STOP_RUNTIME_TRACE_FILE = traceFile;
@@ -1661,7 +1661,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
       runtimeEvents.push('finish');
       const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
-      const buildArtifactsAfter = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root) : undefined;
+      const buildArtifactsAfter = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root, options.artifactBinding.configRoot) : undefined;
       const headAfter = readValidationSourceHead(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
       const completeOutput = stripAnsi(output);
@@ -2419,13 +2419,15 @@ export async function executeValidationPlan(
   // Boundary observations cannot see a swap that a command undoes before it
   // returns, so every non-build command is launched under a mechanism that
   // denies it, and its descendants, the right to write these trees at all.
-  let artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot);
+  // The contract declaration is read from the project's configuration root
+  // (projectRoot), which on a wrapper-root layout is not the artifact root.
+  let artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot, { configRoot: projectRoot });
   // A resolution describes the host at one moment. A registered build may
   // create or replace the trees, and a `not-applicable` exemption (no tree to
   // protect) is valid only while that stays true, so the protection is
   // re-resolved before a test launches whenever either has happened.
   let buildRanSinceResolve = false;
-  const buildArtifactsAtStart = currentBuildArtifactsHash(artifactsRoot);
+  const buildArtifactsAtStart = currentBuildArtifactsHash(artifactsRoot, projectRoot);
   // Latched by whichever command first observes the plan deadline blown. The
   // sequential implementation threw at exactly that point and never started a
   // later command; entries still pending here are skipped for the same reason
@@ -2449,13 +2451,13 @@ export async function executeValidationPlan(
     // A registered build is the one command allowed to change these trees, so
     // it alone runs unprotected; everything else is denied the write.
     const buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ? 'build' as const : 'test' as const;
-    if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot) })) {
-      artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot);
+    if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot, projectRoot) })) {
+      artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot, { configRoot: projectRoot });
       buildRanSinceResolve = false;
     }
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       ...(buildArtifactsRole === 'test' ? { artifactWriteProtection } : {}),
-      artifactBinding: { root: artifactsRoot, protection: buildArtifactsRole === 'build' ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
+      artifactBinding: { root: artifactsRoot, configRoot: projectRoot, protection: buildArtifactsRole === 'build' ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
       commandIndex: entry.commandIndex,
@@ -2577,7 +2579,7 @@ export async function executeValidationPlan(
   // was then replaced, so it is refused instead of relabelled; a non-build
   // command that changed the artifacts rewrote the dist under test. Legacy or
   // unobservable trees (symbolic links) cannot vouch and are refused.
-  const buildArtifactsAtEnd = currentBuildArtifactsHash(artifactsRoot);
+  const buildArtifactsAtEnd = currentBuildArtifactsHash(artifactsRoot, projectRoot);
   const buildBindingFailures = evaluatePlanBuildArtifactsBinding({
     commands,
     start: buildArtifactsAtStart,

@@ -46,7 +46,7 @@ export function sharedValidationReuseAllowed(command: ValidationCommand): boolea
 export async function executeSharedValidationCommand(
   command: ValidationCommand, projectRoot: string, timeoutMs: number,
   capture: () => Promise<{ result: ValidationCommandResult; completeOutput: string }>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
-  artifactBinding?: { root: string; protection: string },
+  artifactBinding?: { root: string; configRoot?: string; protection: string },
 ): Promise<ValidationCommandResult> {
   const run = async () => (await capture()).result;
   const context = explicitContext ?? contexts.getStore();
@@ -60,7 +60,7 @@ export async function executeSharedValidationCommand(
   // under are inputs of the reuse key: a receipt earned against other bytes or
   // without protection is simply not a match, and a cached result inherits
   // exactly the binding it was executed with.
-  const artifactBindingHash = artifactBinding ? currentBuildArtifactsHash(artifactBinding.root) : undefined;
+  const artifactBindingHash = artifactBinding ? currentBuildArtifactsHash(artifactBinding.root, artifactBinding.configRoot) : undefined;
   if (artifactBinding && !artifactBindingHash) return executeWithoutReuse('artifact_identity_unavailable');
   assertActive();
   const started = performance.now();
@@ -129,7 +129,7 @@ export async function executeSharedValidationCommand(
         && executionImplementationIdentity().digest === implementationDigest
         // The compiled artifacts are a reuse-key input like any other: a tree
         // that moved since the key was built makes every later step stale.
-        && (!artifactBinding || currentBuildArtifactsHash(artifactBinding.root) === artifactBindingHash);
+        && (!artifactBinding || currentBuildArtifactsHash(artifactBinding.root, artifactBinding.configRoot) === artifactBindingHash);
     } catch { return false; }
   };
   const {label: _label, optional: _optional, focus: _focus, ...execution} = normalized;

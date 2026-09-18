@@ -104,7 +104,7 @@ export function evaluateValidationEvidenceAdmissibility(
   if (evidence.storyFilesHash && storyFilesHash && evidence.storyFilesHash !== storyFilesHash) add('story_files_mismatch', 'validation evidence storyFilesHash does not match current storyFilesHash');
   // The committed-tree digests above cannot see the gitignored dist the commands
   // executed. Legacy evidence without the binding is refused rather than trusted.
-  const buildArtifactsHash = currentBuildArtifactsHash(input.gitCwd);
+  const buildArtifactsHash = currentBuildArtifactsHash(input.gitCwd, input.metadataRoot);
   if (!evidence.buildArtifactsHash) add('build_artifacts_unbound', 'validation evidence has no buildArtifactsHash binding; run validate again');
   else if (!buildArtifactsHash) add('build_artifacts_unavailable', 'current build artifacts identity is unavailable');
   else if (evidence.buildArtifactsHash !== buildArtifactsHash) add('build_artifacts_mismatch', 'validation evidence buildArtifactsHash does not match the compiled artifacts on disk');

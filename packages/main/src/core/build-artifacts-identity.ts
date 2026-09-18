@@ -291,12 +291,17 @@ export function resolveReusedBuildArtifactsBinding(args: {
 /**
  * A project's explicit, tracked declaration that the compiled-artifact
  * contract does not apply to it: `"artifactContract": "none"` at the top level
- * of proof-or-stop.config.json. Read raw, so the declaration is exactly what
- * the committed file says (it is material, like the rest of that file).
+ * of proof-or-stop.config.json under `configRoot`, the root the project's
+ * configuration is loaded from. On a plain layout that is the artifact root;
+ * on a wrapper-root layout it is the wrapper metadata root whose `gitRoot`
+ * subdirectory holds the artifacts, and reading the declaration from the
+ * artifact root there would find no config and ignore a valid declaration.
+ * Read raw, so the declaration is exactly what the committed file says (it is
+ * material, like the rest of that file).
  */
-export function declaredNoArtifactContract(projectRoot: string): boolean {
+export function declaredNoArtifactContract(configRoot: string): boolean {
   try {
-    const parsed = JSON.parse(readFileSync(join(resolve(projectRoot), 'proof-or-stop.config.json'), 'utf8')) as { artifactContract?: unknown };
+    const parsed = JSON.parse(readFileSync(join(resolve(configRoot), 'proof-or-stop.config.json'), 'utf8')) as { artifactContract?: unknown };
     return parsed !== null && typeof parsed === 'object' && parsed.artifactContract === 'none';
   } catch {
     return false;
@@ -311,11 +316,13 @@ export function declaredNoArtifactContract(projectRoot: string): boolean {
  * refuses them), or when a root's path cannot be inspected at all. Absence
  * alone is never an exemption: a command could create, execute and remove a
  * tree inside its own window. Only a project that DECLARES the contract
- * inapplicable (declaredNoArtifactContract) and has nothing at those paths is
- * outside it.
+ * inapplicable (declaredNoArtifactContract, read from `configRoot`) and has
+ * nothing at those paths under `artifactsRoot` is outside it. The two roots
+ * are the same directory on a plain layout and differ on a wrapper-root
+ * layout, so every caller states both.
  */
-export function projectHasArtifactContract(projectRoot: string): boolean {
-  const root = resolve(projectRoot);
+export function projectHasArtifactContract(artifactsRoot: string, configRoot: string = artifactsRoot): boolean {
+  const root = resolve(artifactsRoot);
   if (existsSync(join(root, 'packages/main/package.json'))) return true;
   for (const relative of BUILD_ARTIFACT_ROOTS) {
     try {
@@ -326,15 +333,22 @@ export function projectHasArtifactContract(projectRoot: string): boolean {
       if (code !== 'ENOENT' && code !== 'ENOTDIR') return true;
     }
   }
-  return !declaredNoArtifactContract(root);
+  return !declaredNoArtifactContract(configRoot);
 }
 
-export function currentBuildArtifactsHash(projectRoot: string): string | undefined {
-  const root = resolve(projectRoot);
-  return readObservedGitState(gitObservationKey(['build-artifacts-hash', root, BUILD_ARTIFACT_ROOTS]), () => {
+/**
+ * `artifactsRoot` is the git cwd whose trees the commands execute;
+ * `configRoot` is where the project's configuration (and so its
+ * `artifactContract` declaration) lives — the same directory on a plain
+ * layout, the wrapper metadata root on a wrapper-root layout.
+ */
+export function currentBuildArtifactsHash(artifactsRoot: string, configRoot: string = artifactsRoot): string | undefined {
+  const root = resolve(artifactsRoot);
+  const declarationRoot = resolve(configRoot);
+  return readObservedGitState(gitObservationKey(['build-artifacts-hash', root, declarationRoot, BUILD_ARTIFACT_ROOTS]), () => {
     try {
       const hash = createHash('sha256');
-      if (!projectHasArtifactContract(root)) {
+      if (!projectHasArtifactContract(root, declarationRoot)) {
         frame(hash, `${DIGEST_DOMAIN}/no-artifact-contract`);
         return hash.digest('hex');
       }

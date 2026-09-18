@@ -353,11 +353,11 @@ try {
       check(stale({ label: 'enforced:sandbox-exec' }, { buildRanSinceResolve: false, anyRootExists: true }) === false, 'control: an enforced resolution holds until a build runs');
       check(binding.hasAnyArtifactRoot(root) === true && binding.hasAnyArtifactRoot(treeless) === true && binding.hasAnyArtifactRoot(declared) === false, 'hasAnyArtifactRoot reports the contract (trees, or an undeclared project) and not a declared-none project');
       const executorSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
-      expectRepaired(executorSource2.includes("if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot) })) {")
+      expectRepaired(executorSource2.includes("if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot, projectRoot) })) {")
         && executorSource2.includes("if (buildArtifactsRole === 'build') buildRanSinceResolve = true;"),
         'the executor does not re-resolve protection before a test that follows a registered build or a newly created tree (source-text guard)');
       const doneRequiredSource3 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
-      expectRepaired(doneRequiredSource3.includes('if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd) })) {')
+      expectRepaired(doneRequiredSource3.includes('if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd, args.projectRoot) })) {')
         && doneRequiredSource3.includes('protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd);')
         && doneRequiredSource3.includes('if (commandIsRegisteredBuild) buildRanSinceResolve = true;'),
         'the DONE-required writer does not re-resolve protection (and re-decide the refusal) before a non-build receipt that follows a registered build (source-text guard)');
@@ -783,9 +783,64 @@ try {
       {
         const brokenDir = join(sandbox, 'broken-wrapper'); mkdirSync(brokenDir, { recursive: true });
         writeFileSync(join(brokenDir, 'bwrap'), '#!/bin/sh\nexit 7\n', { mode: 0o755 });
-        const broken = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: brokenDir, cwd: sandbox });
+        // Audit #24 (1): a wrapper this user could replace (it sits in a
+        // directory this user can write) is refused before any probe runs,
+        // wherever PATH found it; the self-test is reached only through the
+        // fixture seam that waives that rule for a disposable wrapper.
+        const replaceable = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: brokenDir, cwd: sandbox });
+        expectRepaired(replaceable.enforced === false && replaceable.label.includes('could be replaced by a validation command') && replaceable.label.includes('is writable by this user'),
+          `a wrapper in a directory this user can write was not refused as replaceable (${replaceable.label})`);
+        const broken = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: brokenDir, cwd: sandbox, unsafeTrustReplaceableWrapperForFixture: true });
         expectRepaired(broken.enforced === false && broken.label.startsWith('unenforced:bwrap self-test'),
           `a discoverable wrapper that cannot operate was not reported as its own unenforced failure (${broken.label})`);
+        // Audit #24 (1): a wrapper that merely exits with the "denied" status
+        // never earns enforcement: every probe must leave the execution
+        // witness that only a probe the wrapper really ran can leave.
+        const exit3Dir = join(sandbox, 'exit3-wrapper'); mkdirSync(exit3Dir, { recursive: true });
+        writeFileSync(join(exit3Dir, 'bwrap'), '#!/bin/sh\nexit 3\n', { mode: 0o755 });
+        const exit3 = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: exit3Dir, cwd: sandbox, unsafeTrustReplaceableWrapperForFixture: true });
+        expectRepaired(exit3.enforced === false && exit3.label.includes('left no execution witness (exit 3)'),
+          `a wrapper that only exits 3 was accepted as enforcing (${exit3.label})`);
+        const exit3Untrusted = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: exit3Dir, cwd: sandbox });
+        expectRepaired(exit3Untrusted.enforced === false && exit3Untrusted.label.includes('could be replaced by a validation command'),
+          `an exit-3 wrapper in a writable directory was not refused as replaceable (${exit3Untrusted.label})`);
+        if (typeof binding.wrapperReplaceableBy === 'function') {
+          expectRepaired(typeof binding.wrapperReplaceableBy(join(exit3Dir, 'bwrap')) === 'string', 'a wrapper in a user-writable directory was judged unreplaceable');
+          expectRepaired(typeof binding.wrapperReplaceableBy('/usr/bin/sandbox-exec', 0) === 'string' && binding.wrapperReplaceableBy('/usr/bin/sandbox-exec', 0).includes('root'), 'a root process was not refused as able to replace any wrapper');
+          if (process.platform === 'darwin' && process.getuid?.() !== 0) check(binding.wrapperReplaceableBy('/usr/bin/sandbox-exec') === undefined, 'control: the system sandbox-exec is not replaceable by this user');
+        } else {
+          expectRepaired(false, 'core/build-artifacts-protection exports no wrapperReplaceableBy');
+        }
+        // Audit #24 (1): the wrapper that passed the self-test is bound by
+        // identity and re-verified before every launch. A fixture bwrap that
+        // really enforces (it delegates to sandbox-exec with the same profile)
+        // earns enforcement; replaced afterwards by an exit-3 script, the
+        // resolution reports itself stale, refuses to launch through the
+        // replacement, and a fresh resolution refuses the replacement too.
+        if (process.platform === 'darwin' && hostEnforced && typeof binding.sandboxExecProfile === 'function') {
+          const delegatingDir = join(sandbox, 'delegating-wrapper'); mkdirSync(delegatingDir, { recursive: true });
+          const deniedRoots = ['packages/main/dist', 'packages/utils/dist'].map((relative) => join(realpathSync(h.root), relative));
+          const delegatingProfile = binding.sandboxExecProfile(deniedRoots).replace(/'/g, "'\\''");
+          writeFileSync(join(delegatingDir, 'bwrap'), `#!/bin/sh\nwhile [ "$1" != "--" ]; do shift; done; shift\nexec /usr/bin/sandbox-exec -p '${delegatingProfile}' "$@"\n`, { mode: 0o755 });
+          const seam = { platform: 'linux', searchPath: delegatingDir, cwd: sandbox, unsafeTrustReplaceableWrapperForFixture: true };
+          const bound = binding.resolveArtifactWriteProtection(h.root, seam);
+          check(bound.enforced === true && bound.label === 'enforced:bwrap', `control: a fixture wrapper that really denies the writes must earn enforcement (${bound.label})`);
+          expectRepaired(bound.wrapper && bound.wrapper.path === realpathSync(join(delegatingDir, 'bwrap')) && /^[a-f0-9]{64}$/.test(bound.wrapper.digest) && typeof bound.verify === 'function' && bound.verify() === undefined,
+            'an enforcing resolution does not bind the wrapper executable by identity');
+          check(binding.artifactProtectionStale(bound, { buildRanSinceResolve: false, anyRootExists: true }) === false, 'control: the resolution holds while the wrapper is unchanged');
+          writeFileSync(join(delegatingDir, 'bwrap'), '#!/bin/sh\nexit 3\n', { mode: 0o755 });
+          expectRepaired(typeof bound.verify() === 'string' && bound.verify().includes('changed since it was self-tested'),
+            `replacing the wrapper between launches was not detected (${bound.verify()})`);
+          expectRepaired(binding.artifactProtectionStale(bound, { buildRanSinceResolve: false, anyRootExists: true }) === true,
+            'a resolution whose wrapper was replaced was not reported stale, so the executor would not re-resolve before the next launch');
+          let launched = null; let refusal = null;
+          try { launched = bound.wrap({ command: process.execPath, args: ['-e', 'process.exit(0)'], shell: false }); } catch (error) { refusal = error; }
+          expectRepaired(launched === null && refusal && String(refusal.message).includes('[artifact_protection_wrapper_drift]'),
+            `a launch was handed to a wrapper other than the one that passed the self-test (${launched ? JSON.stringify(launched) : refusal?.message})`);
+          const rebound = binding.resolveArtifactWriteProtection(h.root, seam);
+          expectRepaired(rebound.enforced === false && rebound.label.includes('left no execution witness'),
+            `re-resolving against the replacement accepted its exit status as enforcement (${rebound.label})`);
+        }
         const missing = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: join(sandbox, 'nowhere'), cwd: sandbox });
         check(missing.enforced === false && missing.label.startsWith('unenforced:bwrap (bubblewrap) is not on PATH'), `control: no wrapper on PATH is reported as such (${missing.label})`);
         const unsupported = binding.resolveArtifactWriteProtection(h.root, { platform: 'win32' });
@@ -1116,6 +1171,77 @@ if (hostEnforced) {
       const driftedAdmission = wrapperAdmission();
       check(driftedAdmission.ok === false && driftedAdmission.reasonCodes.includes('build_artifacts_mismatch'), `admissibility must refuse the wrapper-root PASS after the git-root artifacts drift (codes=${driftedAdmission.reasonCodes.join(',')})`);
       writeFileSync(join(nestedMainDist, 'x.js'), BUILD_A);
+
+      // Audit #24 (2): the contract declaration is read from the CONFIGURATION
+      // root, which on a wrapper-root layout is the wrapper, not the git root
+      // holding the (absent) artifacts. A wrapper declaring
+      // `artifactContract: "none"` over a repository with no artifact trees
+      // is exempt for hashing, protection, reuse and admission alike; the
+      // same repository judged on its own (no declaration in sight) is not.
+      const wrapperNone = join(planSandbox, 'wrapper-none'); mkdirSync(wrapperNone);
+      const nestedNone = join(wrapperNone, 'repo'); mkdirSync(nestedNone);
+      git(nestedNone, ['init', '-q', '-b', 'main']);
+      git(nestedNone, ['config', 'user.email', 'fixture@example.invalid']);
+      git(nestedNone, ['config', 'user.name', 'Build Binding Fixture']);
+      git(nestedNone, ['config', 'commit.gpgsign', 'false']);
+      writeFileSync(join(nestedNone, 'validate-clean.js'), 'process.exit(0);\n');
+      git(nestedNone, ['add', '.']); git(nestedNone, ['commit', '-qm', 'nested repository without compiled trees']);
+      writeFileSync(join(wrapperNone, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', gitRoot: 'repo', storyDir: '.proof-or-stop/story/actives', artifactContract: 'none' }));
+      const noneIdentity = binding.currentBuildArtifactsHash(nestedNone, wrapperNone);
+      check(binding.projectHasArtifactContract(nestedNone) === true, 'control: the git root judged alone (absence, no declaration in sight) carries the contract');
+      expectRepaired(binding.projectHasArtifactContract(nestedNone, wrapperNone) === false, 'a wrapper-root declaration of artifactContract: none was ignored because it was read from the git root');
+      expectRepaired(binding.resolveArtifactWriteProtection(nestedNone, { configRoot: wrapperNone }).label === 'not-applicable:no-artifact-contract',
+        `protection resolved for a declared-none wrapper-root layout did not record the exemption (${binding.resolveArtifactWriteProtection(nestedNone, { configRoot: wrapperNone }).label})`);
+      expectRepaired(binding.hasAnyArtifactRoot(nestedNone, wrapperNone) === false && binding.hasAnyArtifactRoot(nestedNone) === true, 'hasAnyArtifactRoot does not judge the declaration at the configuration root');
+      expectRepaired(/^[a-f0-9]{64}$/.test(noneIdentity ?? '') && noneIdentity === binding.currentBuildArtifactsHash(wrapperNone) && noneIdentity !== binding.currentBuildArtifactsHash(nestedNone),
+        'the identity of a declared-none wrapper-root layout is not the no-contract identity');
+      const noneCommands = [{ label: 'validate file', command: 'node', args: ['validate-clean.js'], cwd: 'repo', timeoutMs: 20_000 }];
+      const noneRun = await executeValidationPlan({ provider: 'build-binding-fixture', commands: noneCommands, warnings: [] }, wrapperNone, undefined, undefined, {});
+      expectRepaired(noneRun.allPass === true && noneRun.buildArtifactsProtection === 'not-applicable:no-artifact-contract' && noneRun.buildArtifactsHash === noneIdentity,
+        `a non-build command on a declared-none wrapper-root layout did not run under the exemption (allPass=${noneRun.allPass}, protection=${noneRun.buildArtifactsProtection}, ${noneRun.details.join(' | ')})`);
+      expectRepaired(noneRun.commands.every((command) => command.buildArtifactsProtection === 'not-applicable:no-artifact-contract'), 'a command on a declared-none wrapper-root layout carried a label other than the exemption');
+      const noneHead = currentGitHead(nestedNone);
+      const noneMaterial = currentMaterialHash(nestedNone, 'HEAD', wrapperNone);
+      const noneStoryFiles = currentStoryFilesHash(nestedNone, 'HEAD', wrapperNone);
+      check(noneHead && noneMaterial && noneStoryFiles, 'declared-none wrapper fixture identity must resolve');
+      const noneIdentityRecord = buildRoutineValidationIdentity({
+        projectRoot: wrapperNone, sourceKind: 'configured', sourceInputs: { fixture: 'build-binding-wrapper-none' },
+        commands: noneCommands, profile: 'balanced', verificationPolicyInputs: { fixture: 'build-binding-wrapper-none' },
+      });
+      const noneEvidence = {
+        command: 'proof-or-stop validate --story=B-bab --json', output: JSON.stringify({ allPass: true }), result: 'PASS', timestamp: new Date().toISOString(),
+        headHash: noneHead, materialHash: noneMaterial, storyFilesHash: noneStoryFiles, buildArtifactsHash: noneRun.buildArtifactsHash, buildArtifactsProtection: noneRun.buildArtifactsProtection,
+        verificationCoverage: { missingRequired: 0 },
+        commandExecution: { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 },
+        disposition: 'executed', routineValidationIdentity: noneIdentityRecord,
+      };
+      const noneReuse = evaluateRoutineValidationReuse({
+        root: wrapperNone, gitCwd: nestedNone, evidence: noneEvidence, currentIdentity: noneIdentityRecord, currentCoverage: { missingRequired: 0 },
+        currentMaterialHash: noneMaterial, currentStoryFilesHash: noneStoryFiles, clean: true, headBefore: noneHead, headAfter: noneHead,
+        currentBuildArtifactsHash: binding.currentBuildArtifactsHash(nestedNone, wrapperNone),
+      });
+      expectRepaired(noneReuse.reusable === true, `a declared-none wrapper-root PASS is not reusable (reasons=${noneReuse.refusalReasons.join(',')})`);
+      const noneAdmission = evaluateValidationEvidenceAdmissibility({
+        evidence: noneEvidence, expectedCommand: noneEvidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage',
+        blockingDirtyReason: '', gitCwd: nestedNone, metadataRoot: wrapperNone,
+      });
+      expectRepaired(noneAdmission.ok === true, `a declared-none wrapper-root PASS is not admissible (codes=${noneAdmission.reasonCodes.join(',')})`);
+      expectRepaired(doneRequiredProtectionRefusal('not-applicable:no-artifact-contract', [{ label: 'unit', command: 'node', args: ['validate-clean.js'], cwd: 'repo' }], wrapperNone, nestedNone) === undefined,
+        'the DONE-required writer refuses a declared-none wrapper-root layout up front');
+      const doneRequiredSource5 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
+      expectRepaired(doneRequiredSource5.includes('resolveArtifactWriteProtection(args.gitCwd, { configRoot: args.projectRoot })') && doneRequiredSource5.includes('currentBuildArtifactsHash(args.gitCwd, args.projectRoot)')
+        && doneRequiredSource5.includes('artifactBinding: { root: args.gitCwd, configRoot: args.projectRoot, protection:'),
+        'the DONE-required writer resolves the contract declaration from the git root instead of the configuration root (source-text guard)');
+      const verifierSource5 = readFileSync(join(repoRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+      const admissibilitySource5 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-evidence-admissibility.ts'), 'utf8');
+      expectRepaired(!/currentBuildArtifactsHash\((args\.)?gitCwd\)/.test(verifierSource5) && admissibilitySource5.includes('currentBuildArtifactsHash(input.gitCwd, input.metadataRoot)'),
+        'the verifier or admissibility digests the git root without the configuration root (source-text guard)');
+      // A tree appearing under the exempt git root ends the exemption: the
+      // resolution is stale and the ordinary contract applies again.
+      mkdirSync(join(nestedNone, 'packages/main/dist'), { recursive: true });
+      expectRepaired(binding.hasAnyArtifactRoot(nestedNone, wrapperNone) === true && binding.artifactProtectionStale({ label: 'not-applicable:no-artifact-contract' }, { buildRanSinceResolve: false, anyRootExists: binding.hasAnyArtifactRoot(nestedNone, wrapperNone) }) === true
+        && binding.projectHasArtifactContract(nestedNone, wrapperNone) === true,
+        'a tree created under a declared-none wrapper-root layout did not bring the contract back');
     }
 
     // With write protection enforced, a non-build command can no longer perform
@@ -1384,7 +1510,7 @@ if (hostEnforced) {
     // the executor binding and discard any binding the child printed itself.
     // Audit #10 (1): provenance is captured where the child is spawned and
     // travels through the reuse key; nothing relabels a result afterwards.
-    expectRepaired(executorSource.includes("const buildArtifactsBefore = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root) : undefined;")
+    expectRepaired(executorSource.includes("const buildArtifactsBefore = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root, options.artifactBinding.configRoot) : undefined;")
       && executorSource.includes("buildArtifactsProtection: options.artifactBinding.protection"),
       'the executor capture does not record the build observations and protection at the spawn boundary (source-text guard)');
     expectRepaired(!/result\.buildArtifactsBefore = |result\.buildArtifactsAfter = |result\.buildArtifactsProtection = /.test(executorSource),
@@ -1535,7 +1661,7 @@ if (hostEnforced) {
       // identity and publishes a reusable receipt only for a run that observed
       // exactly the key's identity and label.
       const sharedSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
-      expectRepaired(sharedSource2.includes('&& (!artifactBinding || currentBuildArtifactsHash(artifactBinding.root) === artifactBindingHash);'),
+      expectRepaired(sharedSource2.includes('&& (!artifactBinding || currentBuildArtifactsHash(artifactBinding.root, artifactBinding.configRoot) === artifactBindingHash);'),
         'the shared-execution unchanged() check ignores the artifact identity in the reuse key (source-text guard)');
       expectRepaired(sharedSource2.includes('fresh.buildArtifactsBefore !== artifactBindingHash || fresh.buildArtifactsAfter !== artifactBindingHash || fresh.buildArtifactsProtection !== artifactBinding.protection'),
         'a run whose observations differ from the reuse key can still be cached as reusable (source-text guard)');
