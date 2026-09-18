@@ -6,7 +6,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { persistCanonicalFullBaseline, runStoryAwareDynamicValidation } from '../handlers/story-aware-validation.js';
+import { persistCanonicalFullBaseline, runStoryAwareDynamicValidation, storedDynamicReceiptIntegrityReasons } from '../handlers/story-aware-validation.js';
 import { configuredValidationCommands } from '../handlers/verifier.js';
 import { createValidationClosureCertificate, verifyValidationShardReceipt, verifyValidationClosureCertificate } from '../core/story-aware-validation.js';
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
@@ -344,6 +344,73 @@ try {
     assert.ok(rebuiltBytes.receipts.some((receipt) => receipt.producedBy === 'story-execution' && receipt.buildArtifactsDigest === rebuiltBytes.buildArtifactsHash),
       'the re-executed command must earn a receipt bound to the new bytes');
     console.log('dynamic receipts lapse with compiled bytes PASS');
+
+    // A REAL registered build as Wave-0 (recognised by shape: `./tsc` run in
+    // packages/main, rewriting dist) followed by a selectable test. The
+    // build earns a receipt bound to its output under the registered-build
+    // label, stored-evidence integrity accepts the run, a superseded-schema
+    // receipt seeded beforehand is dropped rather than blocking, and an
+    // unchanged rerun reuses the test while the build executes again.
+    const registeredRoot = mkdtempSync(join(tmpdir(), 'proof-story-aware-registered-build-'));
+    try {
+      mkdirSync(join(registeredRoot, 'packages/main/src/core'), { recursive: true });
+      writeFileSync(join(registeredRoot, 'packages/main/src/.keep'), '\n');
+      writeFileSync(join(registeredRoot, 'packages/main/src/core/validation-runtime-tracer.cjs'), readFileSync(new URL('../core/validation-runtime-tracer.cjs', import.meta.url), 'utf8'));
+      // A registered build recognised by SHAPE (`*/tsc` in packages/main), not by
+      // a flag: a node script that rewrites dist and reads nothing outside the
+      // repository, so its traced closure is complete. (A real `npm run build`
+      // reads npm's own installation and can never certify a complete closure.)
+      writeFileSync(join(registeredRoot, 'packages/main/tsc'), "#!/usr/bin/env node\nconst fs = require('node:fs'); fs.mkdirSync('dist/tasks', { recursive: true }); fs.writeFileSync('dist/tasks/x.js', 'process.exit(0); // registered build\\n');\n", { mode: 0o755 });
+      writeFileSync(join(registeredRoot, 'proof-or-stop.config.json'), JSON.stringify({
+        validate: { commands: [{
+          command: './tsc', args: [], cwd: 'packages/main', label: 'build', inputRoots: ['packages/main/tsc'],
+          assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
+          fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'],
+        }, {
+          command: runtimeNode, args: ['-e', 'process.stdout.write("unit-pass")'], label: 'unit',
+          assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
+          fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'],
+        }] },
+      }, null, 2) + '\n');
+      writeFileSync(join(registeredRoot, '.gitignore'), 'dist\n.proof-or-stop/\n');
+      mkdirSync(join(registeredRoot, 'packages/utils/dist'), { recursive: true });
+      writeFileSync(join(registeredRoot, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
+      const registeredGit = (args: string[]) => execFileSync('git', args, { cwd: registeredRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+      registeredGit(['init']);
+      registeredGit(['config', 'user.email', 'smoke@example.test']);
+      registeredGit(['config', 'user.name', 'Proof-or-Stop Smoke']);
+      registeredGit(['add', '.']);
+      registeredGit(['commit', '-m', 'registered build fixture']);
+      const registeredHead = registeredGit(['rev-parse', 'HEAD']);
+      const registeredCommands = configuredValidationCommands(registeredRoot);
+      const registeredFull = await executeValidationPlan({ provider: 'registered-baseline-full', commands: registeredCommands, warnings: [] }, registeredRoot, registeredHead, 'B-registered');
+      assert.equal(registeredFull.allPass, true, JSON.stringify(registeredFull.details));
+      assert.equal(registeredFull.commands.find((row) => row.label === 'build')?.buildArtifactsRole, 'build', 'the ./tsc build must be recognised as the registered build by shape');
+      assert.ok(registeredFull, 'complete baseline must run');
+      assert.ok(persistCanonicalFullBaseline({ projectRoot: registeredRoot, sourceHead: registeredHead, result: registeredFull, commands: registeredCommands }), 'registered fixture must persist a canonical baseline');
+      // A receipt of a superseded schema left behind by an older runner.
+      const legacyDir = join(registeredRoot, '.proof-or-stop/runtime/dynamic-validation/B-registered');
+      mkdirSync(legacyDir, { recursive: true });
+      writeFileSync(join(legacyDir, 'receipts.json'), JSON.stringify([{ schema: 'proof-or-stop.validation-command-receipt.v2', id: 'legacy-v2-receipt', commandId: 'stale', signature: 'ed25519:validation-artifact-v1:00' }], null, 2) + '\n');
+      const registeredArgs = { projectRoot: registeredRoot, gitCwd: registeredRoot, storyId: 'B-registered', baseHead: registeredHead, head: registeredHead, changedFiles: [], mode: 'enforce-low-risk' as const, commands: registeredCommands };
+      const registeredFirst = await runStoryAwareDynamicValidation(registeredArgs);
+      assert.equal(registeredFirst.dynamicAllPass, true, JSON.stringify(registeredFirst.buildArtifactsDiagnostics));
+      assert.equal(registeredFirst.authority.authoritative, true, JSON.stringify(registeredFirst.authority));
+      assert.ok(registeredFirst.receipts.every((receipt) => receipt.schema === 'proof-or-stop.validation-command-receipt.v3'), 'a superseded-schema receipt must be dropped, not retained: ' + JSON.stringify(registeredFirst.receipts.map((receipt) => [receipt.id, receipt.schema])));
+      assert.ok(registeredFirst.receipts.some((receipt) => receipt.buildArtifactsProtection === 'registered-build:writes-permitted' && receipt.buildArtifactsDigest === registeredFirst.buildArtifactsHash),
+        'the registered build must earn a receipt bound to its output: ' + JSON.stringify(registeredFirst.receipts.map((receipt) => [receipt.commandId, receipt.buildArtifactsProtection])));
+      // The gate consults stored integrity inside the project's signing root, as the DONE gate does.
+      assert.deepEqual(withValidationSigningRoot(registeredRoot, () => storedDynamicReceiptIntegrityReasons(registeredRoot, 'B-registered', registeredHead, registeredFirst.manifest, registeredRoot)), [],
+        'stored dynamic evidence with a real registered build must pass integrity');
+      const registeredSecond = await runStoryAwareDynamicValidation(registeredArgs);
+      assert.equal(registeredSecond.authority.authoritative, true, JSON.stringify(registeredSecond.authority));
+      assert.ok(registeredSecond.manifest.totals.reused >= 1, 'an unchanged rerun must reuse the test through its receipt: ' + JSON.stringify(registeredSecond.manifest.rows.map((row) => [row.commandId, row.disposition, row.reasons])));
+      assert.ok(registeredSecond.manifest.rows.some((row) => row.reasons.includes('wave-0-build') && row.disposition === 'execute'), 'the registered build must execute on every run');
+      assert.deepEqual(withValidationSigningRoot(registeredRoot, () => storedDynamicReceiptIntegrityReasons(registeredRoot, 'B-registered', registeredHead, registeredSecond.manifest, registeredRoot)), [], 'stored integrity must hold after the rerun');
+      console.log('registered build receipts and legacy receipt recovery PASS');
+    } finally {
+      rmSync(registeredRoot, { recursive: true, force: true });
+    }
   } finally {
     rmSync(authorityRoot, { recursive: true, force: true });
   }

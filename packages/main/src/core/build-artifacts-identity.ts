@@ -54,8 +54,8 @@ const BUILD_BINDING_BASENAME = 'full-suite-build-binding.json';
  * identity is refused rather than silently narrowed to the link's own bytes.
  */
 class BuildArtifactsIdentityUnavailable extends Error {
-  constructor(readonly path: string) {
-    super(`build artifacts identity unavailable: symbolic link at ${path}`);
+  constructor(readonly path: string, reason = 'symbolic link') {
+    super(`build artifacts identity unavailable: ${reason} at ${path}`);
   }
 }
 
@@ -66,7 +66,13 @@ function filesBelow(root: string): string[] {
       const path = join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(path);
       if (entry.isDirectory()) visit(path);
-      else if (entry.isFile()) result.push(path);
+      else if (entry.isFile()) {
+        // A regular file with more than one link has an alias outside this
+        // tree through which its bytes stay writable whatever protection the
+        // tree itself is under; such a tree is not one this process can vouch for.
+        if (lstatSync(path).nlink > 1) throw new BuildArtifactsIdentityUnavailable(path, 'hard-linked file');
+        result.push(path);
+      }
       else throw new BuildArtifactsIdentityUnavailable(path);
     }
   };
@@ -133,7 +139,11 @@ export function logicalCommandCwd(projectRoot: string, cwd?: string): string {
  * These are the only commands allowed to change the build identity during a
  * plan and the only ones launched without artifact write protection. Pass the
  * project root so the cwd is judged logically; without one, a relative cwd is
- * still normalised but an absolute one can only be compared as written.
+ * still normalised but an absolute one can only be compared as written. A
+ * relative cwd is where the launcher resolves it (the project root); its
+ * logical location is judged against the ARTIFACT root, which on a wrapper-root
+ * layout (metadata root with a configured git root beneath it) is that git
+ * root, so `repo/packages/main` under the wrapper is `packages/main` there.
  */
 export function isRegisteredPackagesMainBuildCommand(command: {
   command: string;
@@ -141,12 +151,12 @@ export function isRegisteredPackagesMainBuildCommand(command: {
   cwd?: string;
   providesBuildProof?: unknown;
   proof?: unknown;
-}, projectRoot?: string): boolean {
+}, projectRoot?: string, artifactsRoot: string | undefined = projectRoot): boolean {
   if (command.providesBuildProof === 'packages-main-build' || command.proof === 'packages-main-build') return true;
   const args = Array.isArray(command.args) ? command.args : [];
   const raw = (command.cwd ?? '').replace(/\\/g, '/');
   const cwd = projectRoot
-    ? logicalCommandCwd(projectRoot, raw)
+    ? logicalCommandCwd(artifactsRoot ?? projectRoot, isAbsolute(raw) ? raw : resolve(projectRoot, raw || '.'))
     : (isAbsolute(raw) ? raw.replace(/\/+$/, '') : (posix.normalize(raw || '.').replace(/\/+$/, '') || '.'));
   const atRoot = cwd === '.';
   const atPackagesMain = cwd === 'packages/main';

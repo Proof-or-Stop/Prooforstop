@@ -8,7 +8,7 @@
  * identity and cache keys; they are not provenance signatures.
  */
 import { execFileSync } from 'node:child_process';
-import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied } from './build-artifacts-protection.js';
 import { authorityRevisionClosure, validationAuthoritySources } from './validation-authority-graph.js';
 import { readStoryGitBytes } from './story-git-bytes.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -825,8 +825,19 @@ export function verifyValidationCommandReceipt(receipt: ValidationCommandReceipt
   if (!Number.isFinite(created) || !Number.isFinite(expiry) || expiry <= created || expiry - created > MAX_RECEIPT_AGE_MS) reasons.push('expiry-policy-invalid');
   if (!Number.isFinite(expiry) || now >= expiry) reasons.push('expired');
   if (!receipt.inputDigest || !receipt.buildProofDigest || !receipt.cleanTreeDigest) reasons.push('missing-source-first-proof');
-  if (!receipt.buildArtifactsDigest || !artifactProtectionSatisfied(receipt.buildArtifactsProtection)) reasons.push('missing-executed-build-binding');
+  if (!receipt.buildArtifactsDigest || !receiptProtectionAcceptable(receipt.buildArtifactsProtection)) reasons.push('missing-executed-build-binding');
   return { ok: reasons.length === 0, reasons };
+}
+/**
+ * A receipt's protection label is acceptable when the command ran under
+ * enforced (or not-applicable) protection, OR when the receipt is the
+ * registered build's own: the build is the one command permitted to write the
+ * artifacts, its receipt binds the OUTPUT it produced, and stored-evidence
+ * integrity needs that receipt for the Wave-0 row. A registered-build receipt
+ * never authorises reuse (see receiptAdmissible).
+ */
+export function receiptProtectionAcceptable(label: string | undefined): boolean {
+  return artifactProtectionSatisfied(label) || label === REGISTERED_BUILD_PROTECTION_LABEL;
 }
 export const verifyReceipt = verifyValidationCommandReceipt;
 export const createReceipt = createValidationCommandReceipt;
@@ -968,6 +979,10 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   if (receipt.catalogDigest !== digestCanonicalJson(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
   if (ctx.runnerDigest && receipt.runnerDigest !== ctx.runnerDigest) return false;
   if (ctx.buildProofDigest && receipt.buildProofDigest !== ctx.buildProofDigest) return false;
+  // The registered build's receipt vouches for the output it produced (stored
+  // integrity consumes it); it is not a test that could be skipped on its
+  // strength, so it never makes a row reusable.
+  if (receipt.buildArtifactsProtection === REGISTERED_BUILD_PROTECTION_LABEL) return false;
   // Without a known current build there is nothing a prior execution can be
   // proven to match; with one, the receipt must have executed exactly it.
   if (!ctx.buildArtifactsHash || receipt.buildArtifactsDigest !== ctx.buildArtifactsHash) return false;

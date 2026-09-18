@@ -555,19 +555,20 @@ function receiptLine(receipt: DoneRequiredCommandReceipt): string {
   return `${receipt.status} ${receipt.label}: ${receipt.command} ${args.join(' ')}`.trim();
 }
 
-function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand): boolean {
+function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand, artifactsRoot: string = projectRoot): boolean {
   if (receipt.status !== 'PASS') return false;
   if (command?.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF || command?.proof === PACKAGES_MAIN_BUILD_PROOF) return true;
   // Compare on the portable LOGICAL cwd (not the absolute physical receipt.cwd)
   // so a build proof written in worktree A is still recognized when evaluated
   // under root B (F-001).
-  // One recogniser for launch and receipt: the receipt's logical cwd is already
-  // repo-relative, and the shared matcher compares logical cwds.
+  // One recogniser for launch and receipt: the receipt's logical cwd is
+  // relative to the project root, and the shared matcher judges it against
+  // the artifact root (the git root on a wrapper-root layout).
   return isRegisteredPackagesMainBuildCommand({
     command: receipt.command,
     args: Array.isArray(receipt.args) ? receipt.args : [],
     cwd: receiptLogicalCwd(projectRoot, receipt),
-  });
+  }, projectRoot, artifactsRoot);
 }
 
 function requiresPackagesMainBuildProof(command?: DoneRequiredCommand): boolean {
@@ -733,6 +734,7 @@ export function validateSelfHostBuildProof(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
   projectRoot: string,
   commands: DoneRequiredCommand[] = [],
+  artifactsRoot: string = projectRoot,
 ): string[] {
   const reasons: string[] = [];
   const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
@@ -741,7 +743,7 @@ export function validateSelfHostBuildProof(
     const command = commands[i];
     if (!requiresPackagesMainBuildProof(command)) continue;
     const build = receipts.slice(0, i).find((candidate, candidateIndex) => (
-      isPackagesMainBuild(candidate, projectRoot, commands[candidateIndex]) &&
+      isPackagesMainBuild(candidate, projectRoot, commands[candidateIndex], artifactsRoot) &&
       candidate.materialHash &&
       receipt.materialHash &&
       candidate.materialHash === receipt.materialHash
@@ -781,12 +783,13 @@ export function doneRequiredProtectionRefusal(
   protectionLabel: string,
   commands: DoneRequiredCommand[],
   projectRoot: string,
+  artifactsRoot: string = projectRoot,
 ): string | undefined {
   if (artifactProtectionSatisfied(protectionLabel)) return undefined;
   const unprotected = commands.filter((command) => !(
     command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
     || command.proof === PACKAGES_MAIN_BUILD_PROOF
-    || isRegisteredPackagesMainBuildCommand(command, projectRoot)
+    || isRegisteredPackagesMainBuildCommand(command, projectRoot, artifactsRoot)
   ));
   if (unprotected.length === 0) return undefined;
   const labels = unprotected.map((command) => command.label).join(', ');
@@ -797,6 +800,7 @@ export function validateReceiptBuildBinding(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts' | 'buildArtifactsHash'>,
   projectRoot: string,
   commands: DoneRequiredCommand[] = [],
+  artifactsRoot: string = projectRoot,
 ): string[] {
   const reasons: string[] = [];
   const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
@@ -815,7 +819,7 @@ export function validateReceiptBuildBinding(
       reasons.push(`build-artifacts-changed-between-receipts[${i}]: ${receipt.label} started on compiled artifacts that differ from what ${previous.label} left behind; the dist was rewritten between two receipts`);
     }
     previous = { label: receipt.label, after };
-    if (isPackagesMainBuild(receipt, projectRoot, commands[i])) {
+    if (isPackagesMainBuild(receipt, projectRoot, commands[i], artifactsRoot)) {
       lastRegisteredBuildOutput = after;
       continue;
     }
@@ -962,7 +966,7 @@ export async function runDoneRequiredValidation(args: {
   if (policy.required && policy.configErrors.length === 0) {
     let artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
     // Unsupported host: decided before the first launch, never after the suite.
-    let protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot);
+    let protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd);
     if (protectionRefusal) reasons.push(protectionRefusal);
     // A registered build may create or replace the trees, and a
     // `not-applicable` exemption holds only while no tree exists, so the
@@ -974,11 +978,11 @@ export async function runDoneRequiredValidation(args: {
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
       const commandIsRegisteredBuild = command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
         || command.proof === PACKAGES_MAIN_BUILD_PROOF
-        || isRegisteredPackagesMainBuildCommand(command, args.projectRoot);
+        || isRegisteredPackagesMainBuildCommand(command, args.projectRoot, args.gitCwd);
       if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd) })) {
         artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
         buildRanSinceResolve = false;
-        protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot);
+        protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd);
         if (protectionRefusal) {
           reasons.push(`${protectionRefusal} (protection re-resolved before ${command.label}, after the registered build created or replaced the artifact trees)`);
           break;
@@ -1057,10 +1061,10 @@ export async function runDoneRequiredValidation(args: {
   // the moment the last command returned (after the build receipt rewrote it).
   const executionBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd);
   throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
-  reasons.push(...validateSelfHostBuildProof({ receipts }, args.projectRoot, policy.commands));
+  reasons.push(...validateSelfHostBuildProof({ receipts }, args.projectRoot, policy.commands, args.gitCwd));
   // Every test receipt must have executed the build this evidence binds, and
   // nothing but a registered build may have rewritten the dist mid-run.
-  reasons.push(...validateReceiptBuildBinding({ receipts, buildArtifactsHash: executionBuildArtifactsHash }, args.projectRoot, policy.commands));
+  reasons.push(...validateReceiptBuildBinding({ receipts, buildArtifactsHash: executionBuildArtifactsHash }, args.projectRoot, policy.commands, args.gitCwd));
 
   const endedMs = Date.now();
   const finalHeadHash = currentGitHead(args.gitCwd);
@@ -1239,8 +1243,8 @@ export function evaluateDoneRequiredEvidence(args: {
   const currentBuildArtifacts = currentBuildArtifactsHash(args.gitCwd);
   if (!evidence.buildArtifactsHash || !currentBuildArtifacts) reasons.push('missing-buildArtifactsHash');
   else if (evidence.buildArtifactsHash !== currentBuildArtifacts) reasons.push('stale-buildArtifacts');
-  reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands));
-  reasons.push(...validateReceiptBuildBinding(evidence, args.projectRoot, policy.commands));
+  reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands, args.gitCwd));
+  reasons.push(...validateReceiptBuildBinding(evidence, args.projectRoot, policy.commands, args.gitCwd));
   reasons.push(...validateDoneRequiredExecutionIdentityCoverage(evidence, currentExecutionIdentity, policy));
 
   const uniqueReasons = [...new Set(reasons)];

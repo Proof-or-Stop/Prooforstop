@@ -29,7 +29,7 @@ registerHooks({ load(url, context, nextLoad) {
 } });
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
+import { existsSync, linkSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
@@ -272,11 +272,11 @@ try {
         'the executor does not re-resolve protection before a test that follows a registered build or a newly created tree (source-text guard)');
       const doneRequiredSource3 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       expectRepaired(doneRequiredSource3.includes('if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd) })) {')
-        && doneRequiredSource3.includes('protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot);')
+        && doneRequiredSource3.includes('protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd);')
         && doneRequiredSource3.includes('if (commandIsRegisteredBuild) buildRanSinceResolve = true;'),
         'the DONE-required writer does not re-resolve protection (and re-decide the refusal) before a non-build receipt that follows a registered build (source-text guard)');
       // Audit #11 (5): scheduling and launch classify a build the same way.
-      expectRepaired(executorSource2.includes('isRegisteredPackagesMainBuildCommand(entry.command, projectRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry'),
+      expectRepaired(executorSource2.includes('isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry'),
         'build prioritisation judges the raw cwd while launch judges the logical cwd (source-text guard)');
     } else {
       expectRepaired(false, 'core/build-artifacts-protection exports no artifactProtectionStale / hasAnyArtifactRoot');
@@ -297,6 +297,23 @@ try {
     expectRepaired(false, 'core/build-artifacts-identity exports no logicalCommandCwd, or the protection module is not loadable');
   }
   check(reuse().reusable === true && admissibility().ok === true, 'control: the recorded PASS is admissible again after the collision files are removed');
+
+  // Audit #12 (1): a hard link is a writable alias outside the tree that no
+  // protection OF the tree can cover, so a tree containing a multiply-linked
+  // file is not one this process can vouch for: identity unavailable, every
+  // consumer refuses, and removing the alias restores the identity.
+  const alias = join(sandbox, 'x-alias.js');
+  linkSync(probe, alias);
+  try {
+    if (binding) expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'an artifact with a hard link outside the tree was digested as a valid identity');
+    const linkedReuse = reuse();
+    expectRepaired(linkedReuse.reusable === false && linkedReuse.refusalReasons.includes('build-artifacts-hash-changed-or-missing'), `reuse accepted a PASS while an artifact had a writable alias (reasons=${linkedReuse.refusalReasons.join(',')})`);
+    const linkedAdmission = admissibility();
+    expectRepaired(linkedAdmission.ok === false && linkedAdmission.reasonCodes.includes('build_artifacts_unavailable'), `admissibility accepted a PASS while an artifact had a writable alias (codes=${linkedAdmission.reasonCodes.join(',')})`);
+  } finally {
+    rmSync(alias);
+  }
+  check(reuse().reusable === true && admissibility().ok === true, 'removing the alias restores the recorded identity');
 
   // Symbolic links: a link inside dist can point at bytes that change without any
   // regular file below the root changing, so the identity must become unavailable.
@@ -535,7 +552,7 @@ try {
       check(doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: a host with no artifact trees is not refused');
       const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       const loopStart = doneRequiredWriterSource.indexOf('for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {');
-      const refusalCall = doneRequiredWriterSource.indexOf('doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot)');
+      const refusalCall = doneRequiredWriterSource.indexOf('doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd)');
       expectRepaired(refusalCall >= 0 && loopStart > refusalCall, 'the DONE-required writer does not consult the protection refusal before its command loop (source-text guard)');
     } else {
       expectRepaired(false, 'core/done-required-validation exports no doneRequiredProtectionRefusal');
@@ -674,6 +691,32 @@ try {
       expectRepaired(Boolean(wrapped.buildArtifacts?.root) && realpathSync(wrapped.buildArtifacts.root) === realpathSync(nested), `the executor did not report the git root as its artifact root (${wrapped.buildArtifacts?.root})`);
       const explicit = await runWrapped({ gitCwd: nested });
       expectRepaired(explicit.allPass === true && explicit.buildArtifactsHash === nestedIdentity, 'the executor must honour the caller-resolved git cwd as its artifact root');
+      // Audit #12 (4): a registered build declared under the wrapper (cwd
+      // `repo/packages/main`) is `packages/main` relative to the artifact
+      // root, so it is recognised, launched unprotected, scheduled first, and
+      // the test that follows executes and binds what it produced.
+      mkdirSync(join(nested, 'packages/main'), { recursive: true });
+      writeFileSync(join(nested, 'packages/main/package.json'), JSON.stringify({ name: 'fixture-nested-main', private: true, scripts: {
+        build: "node -e \"require('node:fs').writeFileSync('dist/tasks/x.js', 'process.exit(0); // rebuilt under the wrapper\\n')\"",
+      } }, null, 2) + '\n');
+      git(nested, ['add', 'packages/main/package.json']); git(nested, ['commit', '-qm', 'fixture: nested build script']);
+      const preWrapperBuild = binding.currentBuildArtifactsHash(nested);
+      const wrappedBuild = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [
+        { label: 'validate file', command: 'node', args: ['validate-clean.js'], cwd: 'repo', timeoutMs: 20_000 },
+        { label: 'nested build', command: 'npm', args: ['run', 'build'], cwd: 'repo/packages/main', timeoutMs: 60_000 },
+      ], warnings: [] }, wrapper, undefined, undefined, {});
+      check(readFileSync(join(nestedMainDist, 'x.js'), 'utf8').includes('rebuilt under the wrapper'), `control: the nested build must have rewritten dist (${wrappedBuild.details.join(' | ')})`);
+      const nestedBuild = wrappedBuild.commands.find((command) => command.label === 'nested build');
+      const nestedTest = wrappedBuild.commands.find((command) => command.label === 'validate file');
+      expectRepaired(nestedBuild?.buildArtifactsRole === 'build', `a registered build under a wrapper-root layout was classified as a test (${nestedBuild?.buildArtifactsRole})`);
+      expectRepaired(wrappedBuild.allPass === true && Boolean(nestedTest?.buildArtifactsBefore) && nestedTest?.buildArtifactsBefore === nestedBuild?.buildArtifactsAfter,
+        `under a wrapper-root layout the build was denied its writes or did not run first (allPass=${wrappedBuild.allPass}; ${wrappedBuild.details.join(' | ')})`);
+      expectRepaired(wrappedBuild.buildArtifactsHash === binding.currentBuildArtifactsHash(nested) && wrappedBuild.buildArtifactsHash !== preWrapperBuild, 'the wrapper-root plan must bind the artifacts the nested build produced');
+      writeFileSync(join(nestedMainDist, 'x.js'), BUILD_A);
+      // The DONE-required recogniser judges the same logical location.
+      const doneRequiredSource4 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
+      expectRepaired(doneRequiredSource4.includes('}, projectRoot, artifactsRoot);') && doneRequiredSource4.includes('validateReceiptBuildBinding({ receipts, buildArtifactsHash: executionBuildArtifactsHash }, args.projectRoot, policy.commands, args.gitCwd)'),
+        'the DONE-required receipt recogniser does not judge the build against the artifact root (source-text guard)');
       // Publication-side consumers digest under the git root: the executor's
       // binding is admitted unchanged and refused after the artifacts drift.
       const wrapperHead = currentGitHead(nested);
@@ -1045,6 +1088,26 @@ try {
         'the shared-execution unchanged() check ignores the artifact identity in the reuse key (source-text guard)');
       expectRepaired(sharedSource2.includes('fresh.buildArtifactsBefore !== artifactBindingHash || fresh.buildArtifactsAfter !== artifactBindingHash || fresh.buildArtifactsProtection !== artifactBinding.protection'),
         'a run whose observations differ from the reuse key can still be cached as reusable (source-text guard)');
+      // Audit #12 (2): the registered build earns a receipt bound to its
+      // output (stored integrity needs one for the Wave-0 row), that receipt
+      // verifies, and it never authorises reuse.
+      const coreDynamicSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/story-aware-validation.ts'), 'utf8');
+      expectRepaired(coreDynamicSource2.includes('export function receiptProtectionAcceptable(') && coreDynamicSource2.includes('|| label === REGISTERED_BUILD_PROTECTION_LABEL')
+        && coreDynamicSource2.includes("if (receipt.buildArtifactsProtection === REGISTERED_BUILD_PROTECTION_LABEL) return false;"),
+        'registered-build receipts are refused by verification or accepted for reuse (source-text guard)');
+      expectRepaired(dynamicHandlerSource.includes('const registeredBuild = args.result.buildArtifactsProtection === REGISTERED_BUILD_PROTECTION_LABEL;')
+        && dynamicHandlerSource.includes('const executedBuild = registeredBuild ? args.result.buildArtifactsAfter : args.result.buildArtifactsBefore;'),
+        'receiptForResult issues no receipt for the registered build (source-text guard)');
+      // Audit #12 (5): superseded-schema receipts are history, dropped on read
+      // so they can never block the current predicate.
+      expectRepaired((dynamicHandlerSource.match(/receipt\.schema === VALIDATION_RECEIPT_SCHEMA\)/g) ?? []).length >= 2,
+        'superseded-schema receipts are retained where every receipt must verify (source-text guard)');
+      // Audit #12 (3): the probe removes only what it demonstrably created,
+      // never recursively.
+      const protectionSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8');
+      expectRepaired(protectionSource2.includes('const written = existing ? existsSync(target) : run.status === 0 && isDirectory(target);')
+        && protectionSource2.includes('if (existing) rmSync(target, { force: true }); else rmdirSync(target);') && !/rmSync\(target, \{ recursive: true/.test(protectionSource2),
+        'the protection self-test can recursively remove an artifact root it did not create (source-text guard)');
     }
 
     // Target: a validate file that tries to rewrite the artifacts it tested and

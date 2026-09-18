@@ -2385,11 +2385,16 @@ export async function executeValidationPlan(
   // first means every later command executes the build the evidence binds
   // instead of a build that is then replaced (which the binding rules below
   // would refuse). Plan order is otherwise preserved.
+  // One artifact root for the whole plan: the repository the commands execute
+  // and publication digests, never the wrapper metadata root. Resolved before
+  // scheduling because build recognition is judged against it.
+  const artifactsRoot = options.gitCwd ?? resolvePlanGitCwd(projectRoot);
   const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot)
-    // Judged on the same logical cwd as the launch classification below, so a
-    // build declared with an absolute cwd is prioritised exactly as it is
+    // Judged on the same logical cwd (relative to the artifact root) as the
+    // launch classification below, so a build declared with an absolute cwd,
+    // or under a wrapper-root layout, is prioritised exactly as it is
     // recognised; the two can never disagree about one command.
-    .map((entry) => (isRegisteredPackagesMainBuildCommand(entry.command, projectRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
+    .map((entry) => (isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
   const exclusiveCount = entries.filter((entry) => entry.exclusiveByDefault).length;
 
   // Completion order is not plan order, so results are parked by plan index and
@@ -2398,12 +2403,9 @@ export async function executeValidationPlan(
   // another's, and formatWorktreePollutionDetails also appends dirty-gate audit
   // lines to process-events.jsonl, which stays single-writer this way.
   const executed: (ValidationCommandResult | null)[] = new Array(totalCommands).fill(null);
-  // One artifact root for the whole plan: the repository the commands execute
-  // and publication digests, never the wrapper metadata root. Content digest of
-  // the compiled artifacts before anything launches; the matching digest after
-  // the plan is the identity the evidence binds and the per-command content
-  // digests attribute every change in between.
-  const artifactsRoot = options.gitCwd ?? resolvePlanGitCwd(projectRoot);
+  // Content digest of the compiled artifacts before anything launches; the
+  // matching digest after the plan is the identity the evidence binds and the
+  // per-command content digests attribute every change in between.
   // Boundary observations cannot see a swap that a command undoes before it
   // returns, so every non-build command is launched under a mechanism that
   // denies it, and its descendants, the right to write these trees at all.
@@ -2436,7 +2438,7 @@ export async function executeValidationPlan(
     // states the bound); that needs OS-enforced write denial, not observation.
     // A registered build is the one command allowed to change these trees, so
     // it alone runs unprotected; everything else is denied the write.
-    const buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command, projectRoot) ? 'build' as const : 'test' as const;
+    const buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ? 'build' as const : 'test' as const;
     if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot) })) {
       artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot);
       buildRanSinceResolve = false;

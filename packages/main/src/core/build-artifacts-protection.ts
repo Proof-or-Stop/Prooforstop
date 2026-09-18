@@ -1,4 +1,4 @@
-import { accessSync, constants, existsSync, lstatSync, realpathSync, rmSync } from 'node:fs';
+import { accessSync, constants, existsSync, lstatSync, realpathSync, rmSync, rmdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { basename, delimiter, dirname, join, resolve } from 'node:path';
 import { BUILD_ARTIFACT_ROOTS } from './build-artifacts-identity.js';
@@ -160,8 +160,12 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
       : `try { require('node:fs').mkdirSync(process.argv[1]); process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`;
     const launch = mechanism.wrap({ command: process.execPath, args: ['-e', probe, target], shell: false });
     const run = spawnSync(launch.command, launch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'] });
-    const written = existsSync(target);
-    if (written) { try { rmSync(target, { recursive: true, force: true }); } catch { /* reported below */ } }
+    // Only what the probe itself demonstrably created is removed: the uniquely
+    // named probe file, or the root directory when the probe reported that it
+    // created it — never recursively, and never a directory that exists for
+    // any other reason (a build running elsewhere may have just created it).
+    const written = existing ? existsSync(target) : run.status === 0 && isDirectory(target);
+    if (written) { try { if (existing) rmSync(target, { force: true }); else rmdirSync(target); } catch { /* reported below */ } }
     if (run.error) return `${mechanism.name} self-test on ${root} could not start the wrapper: ${run.error.message}`;
     if (written) return `${mechanism.name} self-test on ${root} did not deny the write (exit ${run.status})`;
     if (run.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test on ${root} ended unexpectedly (exit ${run.status}${run.signal ? `, signal ${run.signal}` : ''}): ${(run.stderr || '').trim().split('\n')[0].slice(0, 160)}`;

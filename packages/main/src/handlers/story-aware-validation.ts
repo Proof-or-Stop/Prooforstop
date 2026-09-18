@@ -1,7 +1,8 @@
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
-import { artifactProtectionSatisfied } from '../core/build-artifacts-protection.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied } from '../core/build-artifacts-protection.js';
+import { VALIDATION_RECEIPT_SCHEMA } from '../core/story-aware-validation.js';
 function projectSigningRoot(projectRoot: string): string {
  const configured=loadConfig(projectRoot).gitRoot;
  const resolved=resolveProjectGitRoot(projectRoot, configured);
@@ -528,10 +529,12 @@ export function storedDynamicReceiptIntegrityReasons(
     // Strict reads are deliberate: the execution cache's empty-ledger recovery
     // cannot be used to accept an existing PASS after evidence disappears.
     const ledger = JSON.parse(readFileSync(join(dir, 'revocation-ledger.json'), 'utf8')) as ReceiptRevocationLedger;
-    const receipts = JSON.parse(readFileSync(join(dir, 'receipts.json'), 'utf8')) as ValidationCommandReceipt[];
+    const storedReceipts = JSON.parse(readFileSync(join(dir, 'receipts.json'), 'utf8')) as ValidationCommandReceipt[];
     if (!verifyRevocationLedger(ledger) || ledger.digest !== manifest.receiptRevocationLedgerDigest)
       return ['dynamic_revocation_ledger_changed_or_invalid'];
-    if (!Array.isArray(receipts)) return ['dynamic_receipts_invalid'];
+    if (!Array.isArray(storedReceipts)) return ['dynamic_receipts_invalid'];
+    // Superseded-schema receipts are history (see readStoryAwareValidationArtifacts).
+    const receipts = storedReceipts.filter((receipt) => receipt && typeof receipt === 'object' && receipt.schema === VALIDATION_RECEIPT_SCHEMA);
     const baseline = readCanonicalFullBaseline(projectRoot);
     if (!baseline || baseline.sourceHead !== manifest.baseHead || baseline.epochId !== manifest.canonicalBaselineEpochId
       || baseline.inventoryDigest !== manifest.inventoryDigest || baseline.catalogDigest !== manifest.catalogDigest
@@ -680,7 +683,12 @@ export function readStoryAwareValidationArtifacts(projectRoot: string, storyId: 
   let revocationLedger = buildRevocationLedger([], []);
   try {
     const parsed = JSON.parse(readFileSync(join(dir, 'receipts.json'), 'utf8')) as unknown;
-    if (Array.isArray(parsed)) receipts = parsed as ValidationCommandReceipt[];
+    // A receipt of a superseded schema is history, not evidence: it can
+    // neither be reused nor verified, so keeping it would only make every
+    // "all receipts verify" predicate false forever and send each run to the
+    // complete-plan fallback. It is dropped here and replaced by the receipts
+    // the next run earns; revocation is still checked on what remains.
+    if (Array.isArray(parsed)) receipts = (parsed as ValidationCommandReceipt[]).filter((receipt) => receipt && typeof receipt === 'object' && receipt.schema === VALIDATION_RECEIPT_SCHEMA);
   } catch { /* first run / corrupt cache -> fail closed and execute */ }
   try {
     const parsed = JSON.parse(readFileSync(join(dir, 'revocation-ledger.json'), 'utf8')) as ReceiptRevocationLedger;
@@ -1133,9 +1141,19 @@ function receiptForResult(args: {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
   // A receipt vouches for what its command executed: it must have started and
   // ended on the same compiled artifacts, under enforced (or not-applicable)
-  // write protection, or it is not a receipt at all.
-  const executedBuild = args.result.buildArtifactsBefore;
-  if (!executedBuild || args.result.buildArtifactsAfter !== executedBuild || !artifactProtectionSatisfied(args.result.buildArtifactsProtection)) return undefined;
+  // write protection, or it is not a receipt at all. The registered build is
+  // the exception the contract names: it is the one command permitted to
+  // write the artifacts, so its receipt binds the OUTPUT it left behind and
+  // carries the registered-build label; stored-evidence integrity consumes it
+  // for the Wave-0 row, and reuse never accepts it (receiptAdmissible).
+  const registeredBuild = args.result.buildArtifactsProtection === REGISTERED_BUILD_PROTECTION_LABEL;
+  const executedBuild = registeredBuild ? args.result.buildArtifactsAfter : args.result.buildArtifactsBefore;
+  if (!executedBuild) return undefined;
+  if (registeredBuild) {
+    if (!args.result.buildArtifactsBefore) return undefined;
+  } else if (args.result.buildArtifactsAfter !== executedBuild || !artifactProtectionSatisfied(args.result.buildArtifactsProtection)) {
+    return undefined;
+  }
   const provenance = args.result.sourceProvenance;
   if (!provenance || provenance.schemaVersion !== VALIDATION_SOURCE_PROVENANCE_SCHEMA
     || !provenance.cleanBefore || !provenance.cleanAfter
