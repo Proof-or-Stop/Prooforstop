@@ -1,4 +1,4 @@
-import { accessSync, constants, existsSync, lstatSync, realpathSync, rmSync, rmdirSync } from 'node:fs';
+import { accessSync, constants, existsSync, lstatSync, readdirSync, realpathSync, rmSync, rmdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { basename, delimiter, dirname, join, resolve } from 'node:path';
 import { BUILD_ARTIFACT_ROOTS } from './build-artifacts-identity.js';
@@ -125,7 +125,7 @@ function sandboxExecMechanism(denied: string[]): Mechanism | string {
   };
 }
 
-function bwrapMechanism(existingRoots: string[], allRoots: string[]): Mechanism | string {
+function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot: string): Mechanism | string {
   const bwrap = executableOnPath('bwrap');
   if (!bwrap) return 'bwrap (bubblewrap) is not on PATH';
   // bwrap re-binds a tree read-only over itself, so it can only protect a tree
@@ -135,13 +135,38 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[]): Mechanism 
   // must therefore exist before bwrap is reported as enforcing anything.
   const absent = allRoots.filter((root) => !existingRoots.includes(root));
   if (absent.length > 0) return `bwrap cannot protect the absent artifact root(s) ${absent.join(', ')}; every configured root must exist (a build creates them) before evidence can be authoritative`;
-  // The whole filesystem stays visible and writable as on the host; only the
-  // artifact trees are re-bound read-only over themselves, for the command and
-  // everything it spawns inside the namespace. The namespace gets its own PID
-  // space and a private /proc: with the host's /proc visible, a same-user
-  // process's /proc/<pid>/root (or cwd, or fd) is an alias into the host mount
-  // namespace, where the trees are still writable underneath the bind.
-  const binds = existingRoots.flatMap((root) => ['--ro-bind', root, root]);
+  // The whole filesystem stays visible and writable as on the host, for the
+  // command and everything it spawns inside the namespace. A read-only bind
+  // on the tree alone is not enough: a mount travels with the directory it is
+  // on, so renaming `packages/main` aside would carry the protection away and
+  // leave a fresh, writable `packages/main/dist` creatable at the protected
+  // path. Every directory on the path from the project root down to each tree
+  // is therefore bound read-only, and each of its children that is not itself
+  // on that path is re-bound writable, so ordinary writes anywhere else in the
+  // project keep working while the chain cannot be renamed, removed or
+  // replaced. (macOS sandbox-exec rules are path-based and do not need this.)
+  // The namespace also gets its own PID space and a private /proc: with the
+  // host's /proc visible, a same-user process's /proc/<pid>/root (or cwd, or
+  // fd) is an alias into the host mount namespace, where the trees are still
+  // writable underneath the bind.
+  const chain = new Set<string>([projectRoot]);
+  for (const root of existingRoots) {
+    let directory = dirname(root);
+    while (directory.startsWith(projectRoot) && directory !== projectRoot) { chain.add(directory); directory = dirname(directory); }
+  }
+  const binds: string[] = ['--ro-bind', projectRoot, projectRoot];
+  for (const directory of [...chain].sort()) {
+    let entries;
+    try { entries = readdirSync(directory, { withFileTypes: true }); } catch { continue; }
+    for (const entry of entries) {
+      const child = join(directory, entry.name);
+      // A symbolic link cannot be mounted over; it stays as the read-only
+      // parent presents it, and writes through it reach its target's own mount.
+      if (entry.isSymbolicLink() || chain.has(child) || existingRoots.includes(child)) continue;
+      binds.push('--bind', child, child);
+    }
+  }
+  for (const root of existingRoots) binds.push('--ro-bind', root, root);
   const prefix = ['--dev-bind', '/', '/', '--unshare-pid', '--proc', '/proc', ...binds, '--die-with-parent', '--'];
   return {
     name: 'bwrap',
@@ -180,6 +205,17 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
     if (run.error) return `${mechanism.name} self-test on ${root} could not start the wrapper: ${run.error.message}`;
     if (written) return `${mechanism.name} self-test on ${root} did not deny the write (exit ${run.status})`;
     if (run.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test on ${root} ended unexpectedly (exit ${run.status}${run.signal ? `, signal ${run.signal}` : ''}): ${(run.stderr || '').trim().split('\n')[0].slice(0, 160)}`;
+    // A mount-based mechanism must also deny moving the tree's ancestor aside
+    // (the rename that would carry the read-only mount away): probe it, and
+    // if the rename unexpectedly succeeds, put the directory straight back.
+    if (mechanism.name === 'bwrap' && existing) {
+      const ancestor = dirname(root);
+      const renameProbe = `const fs = require('node:fs'); const a = process.argv[1]; try { fs.renameSync(a, a + '.proof-or-stop-rename-probe'); try { fs.renameSync(a + '.proof-or-stop-rename-probe', a); } catch {} process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS','EBUSY','EXDEV'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`;
+      const renameLaunch = mechanism.wrap({ command: process.execPath, args: ['-e', renameProbe, ancestor], shell: false });
+      const renameRun = spawnSync(renameLaunch.command, renameLaunch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'] });
+      if (renameRun.error) return `${mechanism.name} rename self-test on ${ancestor} could not start the wrapper: ${renameRun.error.message}`;
+      if (renameRun.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test did not deny moving ${ancestor} aside (exit ${renameRun.status})`;
+    }
   }
   return undefined;
 }
@@ -223,7 +259,7 @@ export function resolveArtifactWriteProtection(artifactsRoot: string): ArtifactW
   const existingRoots = allRoots.filter((path) => isDirectory(path));
   let mechanism: Mechanism | string;
   if (process.platform === 'darwin') mechanism = sandboxExecMechanism(allRoots);
-  else if (process.platform === 'linux') mechanism = bwrapMechanism(existingRoots, allRoots);
+  else if (process.platform === 'linux') mechanism = bwrapMechanism(existingRoots, allRoots, canonicalize(root));
   else mechanism = `no artifact write-protection mechanism is implemented for platform ${process.platform}`;
   if (typeof mechanism === 'string') {
     return unenforced(existingRoots.length === 0 ? `${mechanism}; no artifact tree exists yet, but a command could create, execute and remove one` : mechanism);

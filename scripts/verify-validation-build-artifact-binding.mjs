@@ -586,7 +586,14 @@ try {
       check(doneRequiredProtectionRefusal(unenforcedLabel, [REGISTERED_REBUILD_COMMANDS[0]], h.root) === undefined, 'control: a policy made only of registered builds needs no protection');
       // Linux: the namespace must not expose the host mount namespace through
       // /proc/<host-pid>/root (or cwd, fd) aliases: PID isolation + private /proc.
-      expectRepaired(readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8').includes("'--unshare-pid', '--proc', '/proc'"), 'the bwrap wrapper exposes the host /proc (source-text guard)');
+      const protectionSource3 = readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8');
+      expectRepaired(protectionSource3.includes("'--unshare-pid', '--proc', '/proc'"), 'the bwrap wrapper exposes the host /proc (source-text guard)');
+      // Audit #15 (1): the ancestors of a tree are bound read-only (a mount
+      // travels with a renamed directory) with every other child re-bound
+      // writable, and the self-test probes that the ancestor cannot be moved.
+      expectRepaired(protectionSource3.includes("const binds: string[] = ['--ro-bind', projectRoot, projectRoot];") && protectionSource3.includes("binds.push('--bind', child, child);")
+        && protectionSource3.includes("self-test did not deny moving"),
+        'the bwrap wrapper leaves the artifact ancestors renameable, or does not probe it (source-text guard)');
       check(doneRequiredProtectionRefusal('enforced:sandbox-exec', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: an enforced host is not refused');
       expectRepaired(typeof doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', [...REGISTERED_REBUILD_COMMANDS].reverse(), h.root) === 'string', 'the retired not-applicable label was not refused up front');
       const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
@@ -1154,8 +1161,8 @@ if (hostEnforced) {
         && verifierSource2.includes('buildArtifactsProtection: noCommandPlan.buildArtifactsProtection'),
         'the verifier drops the protection label when assembling the dynamic authoritative result or the no-validator result (source-text guard)');
       const dynamicHandlerSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
-      expectRepaired(dynamicHandlerSource.includes('buildArtifactsProtection: dynamicExecution.buildArtifactsProtection'),
-        'the dynamic run drops the aggregate protection label (source-text guard)');
+      expectRepaired(dynamicHandlerSource.includes('...(runProtection ? { buildArtifactsProtection: runProtection } : {}),') && dynamicHandlerSource.includes("row.disposition === 'reuse' && row.receiptId"),
+        'the dynamic run drops the aggregate protection label, or ignores the receipts it reused when only the build executed (source-text guard)');
       // Audit #11 (3): the shared-execution cache revalidates the artifact
       // identity and publishes a reusable receipt only for a run that observed
       // exactly the key's identity and label.

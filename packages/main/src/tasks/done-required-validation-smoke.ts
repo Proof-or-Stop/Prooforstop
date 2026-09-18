@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
@@ -17,6 +17,7 @@ import {
 } from '../core/done-required-validation.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentBuildArtifactsHash } from '../core/build-artifacts-identity.js';
+import { resolveArtifactWriteProtection } from '../core/build-artifacts-protection.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { CliWatchdogTimeoutError, commandCliMaxBudget, doneRequiredDerivedBudget, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS, safeTimeoutSum, sequentialValidationBudget } from '../core/done-required-timeout-budget.js';
@@ -164,10 +165,18 @@ function fixture(doneRequiredCommands?: unknown, proofAdmissibility?: unknown): 
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-required-'));
   writeConfig(root, doneRequiredCommands, proofAdmissibility);
   writeFileSync(join(root, 'README.md'), '# done required fixture\n', 'utf-8');
+  writeFileSync(join(root, '.gitignore'), 'dist\n', 'utf-8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'proof-or-stop.config.json']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', '.gitignore']);
   git(root, ['commit', '-m', 'base']);
+  // Both compiled artifact trees exist, as in the repository this evidence is
+  // for: a mount-based mechanism (Linux bwrap) can only protect trees that
+  // exist, and a fixture without them would be refused before any command runs.
+  mkdirSync(join(root, 'packages/main/dist/tasks'), { recursive: true });
+  writeFileSync(join(root, 'packages/main/dist/tasks/x.js'), 'process.exit(0); // fixture build\n', 'utf-8');
+  mkdirSync(join(root, 'packages/utils/dist'), { recursive: true });
+  writeFileSync(join(root, 'packages/utils/dist/index.js'), 'export const utils = 1;\n', 'utf-8');
 
   const store = new StoryStore(root);
   const now = '2026-06-20T00:00:00.000Z';
@@ -1160,16 +1169,32 @@ function assertDoneRequiredBlocked(
   }
 }
 
+/**
+ * Whether this host can demonstrably deny artifact writes for the fixture. The
+ * real-execution cases below need that to mean anything; on any other host the
+ * writer refuses BEFORE launching, which is asserted instead.
+ */
+function assertRefusedBeforeLaunch(evidence: DoneRequiredEvidenceData): void {
+  assert.equal(evidence.status, 'FAIL', 'a host without enforcement must refuse');
+  assert.equal(evidence.receipts.length, 0, 'nothing may launch on a host without enforcement');
+  assert.ok(evidence.reasons.some((reason) => reason.startsWith('build-artifacts-protection-unavailable:')), evidence.reasons.join(', '));
+  console.log('skip: real-execution DONE-required case needs demonstrated artifact write protection on this host (refusal asserted instead)');
+}
+
 // Failing command writes FAIL artifact and blocks.
 {
   const { root, store } = fixture([{ label: 'expected failure', command: 'node', args: ['-e', 'process.exit(7)'] }]);
   try {
     const evidence = await runDoneRequiredValidation({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    if (!resolveArtifactWriteProtection(root).enforced) {
+      assertRefusedBeforeLaunch(evidence);
+    } else {
     assert.equal(evidence.status, 'FAIL');
     assert.equal(evidence.receipts[0].exitCode, 7);
     const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
     assert.equal(evaluation.blocking, true);
     assert.ok(evaluation.reasons.some(reason => reason.includes('command-failed')));
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1238,6 +1263,7 @@ function assertDoneRequiredBlocked(
   try {
     addPassingNpmTestPackage(root);
     const evidence = await runDoneRequiredValidation({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    if (!resolveArtifactWriteProtection(root).enforced) { assertRefusedBeforeLaunch(evidence); } else {
     assert.equal(evidence.status, 'PASS', evidence.reasons.join(', '));
     assert.equal(
       evidence.reasons.some(reason => reason.includes('missing-build-proof')),
@@ -1254,6 +1280,7 @@ function assertDoneRequiredBlocked(
     const row = doneRow(buildDoneChecklist(STORY_ID, store, root, { gitCwd: root, auditWriter: null }), 'done-required-validation');
     assert.equal(row.status, 'pass');
     assert.equal(row.blocking, false);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1267,6 +1294,7 @@ function assertDoneRequiredBlocked(
   );
   try {
     const evidence = await runDoneRequiredValidation({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    if (!resolveArtifactWriteProtection(root).enforced) { assertRefusedBeforeLaunch(evidence); } else {
     assert.equal(evidence.status, 'PASS', evidence.reasons.join(', '));
     assert.equal(evidence.receipts.length, 1);
     assert.equal(evidence.receipts[0].commandSpec?.schema, 'proof-or-stop.command-spec.v2');
@@ -1281,6 +1309,7 @@ function assertDoneRequiredBlocked(
       false,
       `generated evidence must not report command_spec_missing: ${evaluation.proofAdmissibility.reasons.join(', ')}`,
     );
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -406,6 +406,9 @@ try {
       assert.equal(registeredSecond.authority.authoritative, true, JSON.stringify(registeredSecond.authority));
       assert.ok(registeredSecond.manifest.totals.reused >= 1, 'an unchanged rerun must reuse the test through its receipt: ' + JSON.stringify(registeredSecond.manifest.rows.map((row) => [row.commandId, row.disposition, row.reasons])));
       assert.ok(registeredSecond.manifest.rows.some((row) => row.reasons.includes('wave-0-build') && row.disposition === 'execute'), 'the registered build must execute on every run');
+      // Only the build executed; the run's protection comes from the receipts
+      // the manifest admitted, so the evidence publication derives is admissible.
+      assert.match(registeredSecond.buildArtifactsProtection ?? '', /^enforced:/, 'an all-tests-reused rerun must carry a satisfied protection label: ' + JSON.stringify(registeredSecond.buildArtifactsProtection));
       assert.deepEqual(withValidationSigningRoot(registeredRoot, () => storedDynamicReceiptIntegrityReasons(registeredRoot, 'B-registered', registeredHead, registeredSecond.manifest, registeredRoot)), [], 'stored integrity must hold after the rerun');
       console.log('registered build receipts and legacy receipt recovery PASS');
     } finally {

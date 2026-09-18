@@ -1450,11 +1450,22 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const runtimeReport = formatDynamicValidationReport({ manifest: final.manifest, authority, durationMs: dynamicExecution.commands.reduce((sum, row) => sum + row.durationMs, 0) });
   checkFindingConstraints();
   persistStoryAwareValidationArtifacts({ projectRoot: args.projectRoot, storyId: args.storyId, manifest: final.manifest, report: runtimeReport, receipts, revocationLedger: final.revocationLedger, shardArtifacts });
+  // The run's protection is the weakest any test ran under, whether it ran in
+  // this invocation or was admitted as a reused receipt: when every test is
+  // reused only the build wave executed, which records no label of its own,
+  // and the label must then come from the receipts the manifest admitted
+  // (each already verified against the current build by receiptAdmissible).
+  const reusedLabels = final.manifest.rows
+    .filter((row) => row.disposition === 'reuse' && row.receiptId)
+    .map((row) => receipts.find((receipt) => receipt.id === row.receiptId)?.buildArtifactsProtection)
+    .filter((label): label is string => typeof label === 'string');
+  const runLabels = [...(dynamicExecution.buildArtifactsProtection ? [dynamicExecution.buildArtifactsProtection] : []), ...reusedLabels];
+  const runProtection = runLabels.find((label) => !artifactProtectionSatisfied(label)) ?? runLabels[0];
   return {
     ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport,
     ...(dynamicExecution.buildArtifactsHash ? { buildArtifactsHash: dynamicExecution.buildArtifactsHash } : {}),
     ...(dynamicExecution.buildArtifacts ? { buildArtifacts: dynamicExecution.buildArtifacts } : {}),
-    ...(dynamicExecution.buildArtifactsProtection ? { buildArtifactsProtection: dynamicExecution.buildArtifactsProtection } : {}),
+    ...(runProtection ? { buildArtifactsProtection: runProtection } : {}),
     buildArtifactsDiagnostics: dynamicExecution.details.filter((line) => line.startsWith('✗ build binding:')),
   };
 
