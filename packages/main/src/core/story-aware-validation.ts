@@ -8,6 +8,7 @@
  * identity and cache keys; they are not provenance signatures.
  */
 import { execFileSync } from 'node:child_process';
+import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
 import { authorityRevisionClosure, validationAuthoritySources } from './validation-authority-graph.js';
 import { readStoryGitBytes } from './story-git-bytes.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -44,7 +45,8 @@ import {
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
-export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v2' as const;
+/** v3: a receipt binds the compiled artifacts its command executed and the protection it ran under; v2 receipts fail verification and are re-earned. */
+export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v3' as const;
 export const VALIDATION_SHARD_RECEIPT_SCHEMA = 'proof-or-stop.validation-shard-receipt.v1' as const;
 export const VALIDATION_SELECTION_SCHEMA = 'proof-or-stop.validation-selection.v1' as const;
 export const VALIDATION_CLOSURE_SCHEMA = 'proof-or-stop.validation-closure-certificate.v1' as const;
@@ -796,6 +798,10 @@ export interface ValidationCommandReceipt {
   producedBy: 'canonical-full-baseline' | 'story-execution'; cleanTreeDigest: string;
   executionEnvironmentDigest: string; result: 'PASS' | 'FAIL' | 'TIMEOUT'; exitCode: number;
   outputDigest: string; durationMs: number; createdAt: string; expiresAt: string;
+  /** core/build-artifacts-identity digest the command executed (equal before and after it ran). */
+  buildArtifactsDigest: string;
+  /** Protection the command ran under; only an enforced or not-applicable label makes the receipt authoritative. */
+  buildArtifactsProtection: string;
   revocationLedgerDigest: string; signature: string;
 }
 export interface ReceiptRevocationLedger {
@@ -819,6 +825,7 @@ export function verifyValidationCommandReceipt(receipt: ValidationCommandReceipt
   if (!Number.isFinite(created) || !Number.isFinite(expiry) || expiry <= created || expiry - created > MAX_RECEIPT_AGE_MS) reasons.push('expiry-policy-invalid');
   if (!Number.isFinite(expiry) || now >= expiry) reasons.push('expired');
   if (!receipt.inputDigest || !receipt.buildProofDigest || !receipt.cleanTreeDigest) reasons.push('missing-source-first-proof');
+  if (!receipt.buildArtifactsDigest || !artifactProtectionSatisfied(receipt.buildArtifactsProtection)) reasons.push('missing-executed-build-binding');
   return { ok: reasons.length === 0, reasons };
 }
 export const verifyReceipt = verifyValidationCommandReceipt;
@@ -891,6 +898,8 @@ export interface DynamicValidationContext {
   closures?: Map<string, ValidationClosureCertificate> | Record<string, ValidationClosureCertificate>;
   receipts?: ValidationCommandReceipt[]; baselineEpochId?: string; revocationLedger?: ReceiptRevocationLedger;
   buildProofDigest?: string; toolchainDigest?: string; runnerDigest?: string; mode?: DynamicValidationMode;
+  /** Identity of the compiled artifacts this run's Wave-0 build left; a receipt may be reused only if its command executed exactly these bytes. */
+  buildArtifactsHash?: string;
   graph?: DualRevisionImpactGraph; scopeContract?: ScopeContractData; gitCwd?: string; now?: number;
   /** Stable build/Wave-0 command that must execute on every dynamic run. */
   buildCommandId?: string;
@@ -959,6 +968,9 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   if (receipt.catalogDigest !== digestCanonicalJson(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
   if (ctx.runnerDigest && receipt.runnerDigest !== ctx.runnerDigest) return false;
   if (ctx.buildProofDigest && receipt.buildProofDigest !== ctx.buildProofDigest) return false;
+  // Without a known current build there is nothing a prior execution can be
+  // proven to match; with one, the receipt must have executed exactly it.
+  if (!ctx.buildArtifactsHash || receipt.buildArtifactsDigest !== ctx.buildArtifactsHash) return false;
   if (receipt.sourceBaseHead !== ctx.baseHead || receipt.canonicalBaselineEpochId !== (ctx.baselineEpochId || '')) return false;
   if (ctx.gitCwd) {
     const executionEnvironmentDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });

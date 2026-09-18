@@ -106,7 +106,8 @@ const STORY_ID = 'B-ac25';
       ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
       buildArtifactsBefore: currentBuildArtifactsHash(root),
       buildArtifactsAfter: currentBuildArtifactsHash(root),
-      buildArtifactsProtection: 'enforced:sandbox-exec',
+      // A Windows producer has no write-protection mechanism; a root with no artifact trees records the not-applicable label.
+      buildArtifactsProtection: 'not-applicable:no-artifact-trees',
     };
     writeDoneEvidence(root, store, [receipt]);
     const evaluation = evaluateDoneRequiredEvidence({

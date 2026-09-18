@@ -108,7 +108,7 @@ function context(changePath: string, status: 'added' | 'modified' | 'deleted' | 
   assert.equal(verifyStoryChangeManifest(changes), true);
   return {
     storyId: 'B-mutation', baseHead: 'base', head: 'head', inventory, catalog, changes,
-    closures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe' as const,
+    closures, baselineEpochId: 'epoch', buildProofDigest: 'build', buildArtifactsHash: 'fixture-build-artifacts', mode: 'observe' as const,
   };
 }
 
@@ -165,7 +165,7 @@ try {
     const fullFailureIds = full.commands.flatMap((row, commandIndex) => row.code === 0 ? [] : [catalog[commandIndex]!.id]);
     const selectedIds = new Set(selectedEntries.map((entry) => entry.id));
     assert.equal(fullFailureIds.every((id) => selectedIds.has(id)), true, `dynamic class ${index} omitted a complete-plan failure`);
-    const executedReceipts = full.commands.flatMap((row, commandIndex) => row.code === 0 ? [createValidationCommandReceipt({
+    const executedReceipts = full.commands.flatMap((row, commandIndex) => row.code === 0 ? [createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
       id: `replay-${index}-${catalog[commandIndex]!.id}`,
       commandId: catalog[commandIndex]!.id,
       commandIdentityDigest: stableDigest({ command: row.command, args: row.args }),
@@ -189,7 +189,7 @@ const baselineRow = baseline.rows.find((row) => row.commandId === 'unit')!;
 const baselineClosure = closures.get('unit')!;
 
 function receipt(overrides: Partial<ValidationCommandReceipt> = {}): ValidationCommandReceipt {
-  return createValidationCommandReceipt({
+  return createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
     id: 'receipt-unit', commandId: 'unit', commandIdentityDigest: 'unit-command',
     inputDigest: baselineRow.inputDigest, closureCertificateDigest: baselineClosure.signature,
     catalogDigest, inventoryDigest: inventory.digest, runnerDigest: 'runner',
@@ -230,7 +230,7 @@ const cleanContext = {
   changes: buildStoryChangeManifest({ storyId: 'B-mutation', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
 };
 const cleanPlan = buildDynamicValidationPlan(cleanContext);
-const cleanReceipts = cleanPlan.rows.map(row => createValidationCommandReceipt({
+const cleanReceipts = cleanPlan.rows.map(row => createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
   id: `clean-${row.commandId}`, commandId: row.commandId,
   commandIdentityDigest: stableDigest({ commandId: row.commandId }), inputDigest: row.inputDigest,
   closureCertificateDigest: closures.get(row.commandId)!.signature, catalogDigest,
@@ -315,7 +315,7 @@ try {
     closures: storedClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'enforce-low-risk',
     runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest, revocationLedger: ledger, tierSelection: storedTierBinding,
   });
-  const storedReceipts = seedManifest.rows.map((row) => createValidationCommandReceipt({
+  const storedReceipts = seedManifest.rows.map((row) => createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
     id: `stored-${row.commandId}`, commandId: row.commandId,
     commandIdentityDigest: stableDigest({ commandId: row.commandId }), inputDigest: row.inputDigest,
     closureCertificateDigest: storedClosures.get(row.commandId)!.signature, catalogDigest: storedCatalogDigest,
@@ -327,7 +327,7 @@ try {
   }));
   const storedManifest = buildDynamicValidationPlan({
     storyId: 'B-stored', baseHead: 'base', head: 'head', inventory: storedInventory, catalog: storedCatalog, changes: storedChanges,
-    closures: storedClosures, receipts: storedReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'enforce-low-risk',
+    closures: storedClosures, receipts: storedReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', buildArtifactsHash: 'fixture-build-artifacts', mode: 'enforce-low-risk',
     runnerDigest: DYNAMIC_RUNNER_DIGEST, toolchainDigest, revocationLedger: ledger, tierSelection: storedTierBinding,
   });
   assert.equal(storedManifest.rows.filter((row) => row.disposition === 'reuse').length, 1);

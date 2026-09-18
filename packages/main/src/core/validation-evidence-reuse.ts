@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { delimiter, isAbsolute, join, posix, resolve, win32 } from 'node:path';
 import { classifyMergeLineage } from './validation-lineage.js';
@@ -415,6 +416,10 @@ export function evaluateRoutineValidationReuse(args: {
   // The committed-tree digests above cannot see the gitignored dist the commands
   // actually executed; a PASS earned against another build is not this build's PASS.
   if (!evidence.buildArtifactsHash || !args.currentBuildArtifactsHash || evidence.buildArtifactsHash !== args.currentBuildArtifactsHash) reasons.push('build-artifacts-hash-changed-or-missing');
+  // A binding recorded without enforced write protection describes the bytes at
+  // the command boundaries, not what the commands executed; it is observation,
+  // never authority, so it is not a PASS this run may inherit.
+  if (!artifactProtectionSatisfied(evidence.buildArtifactsProtection)) reasons.push('build-artifacts-protection-unenforced');
   const lineageResult = classifyTrustedValidationLineage({
     root: args.root,
     gitCwd: args.gitCwd,

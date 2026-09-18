@@ -1119,6 +1119,9 @@ function reusedStoryValidationResult(args: {
       ...(materialHash ? { materialHash } : {}),
       ...(storyFilesHash ? { storyFilesHash } : {}),
       ...(buildArtifactsHash ? { buildArtifactsHash } : {}),
+      // The republished record keeps the protection the prior record was
+      // earned under; it is part of what made that PASS reusable at all.
+      ...(priorEvidence.buildArtifactsProtection ? { buildArtifactsProtection: priorEvidence.buildArtifactsProtection } : {}),
       verificationCoverage: args.snapshot.coverage,
       commandExecution: priorCommandExecution,
       disposition: 'reused',
@@ -1360,6 +1363,7 @@ function recordValidationTerminal(
     // keeps its three-key contract.
     buildArtifactsHash: (typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash)
       || currentBuildArtifactsHash(gitCwd) || '',
+    ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     ...(reuseAttribution && result.disposition !== 'reused' ? { reuse: reuseAttribution } : {}),
   });
 }
@@ -1429,6 +1433,7 @@ function persistStoryValidationEvidence(
     materialHash?: string;
     storyFilesHash?: string;
     buildArtifactsHash?: string;
+    buildArtifactsProtection?: string;
   } = {}): TestEvidenceData => ({
     command,
     output,
@@ -1439,6 +1444,7 @@ function persistStoryValidationEvidence(
     ...(hashes.materialHash ? { materialHash: hashes.materialHash } : {}),
     ...(hashes.storyFilesHash ? { storyFilesHash: hashes.storyFilesHash } : {}),
     ...(hashes.buildArtifactsHash ? { buildArtifactsHash: hashes.buildArtifactsHash } : {}),
+    ...(hashes.buildArtifactsProtection ? { buildArtifactsProtection: hashes.buildArtifactsProtection } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
     commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount, {
       ...(semanticCommandPass !== undefined ? { semanticPass: semanticCommandPass } : {}),
@@ -1466,6 +1472,7 @@ function persistStoryValidationEvidence(
     materialHash?: string;
     storyFilesHash?: string;
     buildArtifactsHash?: string;
+    buildArtifactsProtection?: string;
   } = {}, authenticate = true) => boundPersistedValidationEvidence({
     result,
     buildRecord: (output) => {
@@ -1480,7 +1487,7 @@ function persistStoryValidationEvidence(
   let gitCwd: string;
   let storyRel: string;
   let transaction: ReturnType<typeof captureDonePrepareGeneratedMetadataTransaction>;
-  let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string; buildArtifactsHash?: string };
+  let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string; buildArtifactsHash?: string; buildArtifactsProtection?: string };
   try {
     gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
     // The build identity is observed at the end of execution (the funnel stamps
@@ -1512,6 +1519,7 @@ function persistStoryValidationEvidence(
       materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
       storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
       buildArtifactsHash: executionBuildArtifactsHash,
+      ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     };
     storyRel = normalizeRelPath(relative(
       realpathSync(gitCwd),
@@ -1859,6 +1867,7 @@ function decorateAndMaybePersistStoryValidation(
     disposition: 'executed',
     commandExecutions: commandResults?.filter(row => row.executionReceipt?.disposition !== 'reused').length ?? 0,
     ...(buildArtifactsHash ? { buildArtifactsHash } : {}),
+    ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
   };
   if (!focus) {
     if (!commandResults || expectedCommandCount === undefined) {
@@ -2921,10 +2930,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         // buildArtifactsHash in the child's JSON is discarded, and an executor
         // binding failure fails the result with the executor's own diagnostics.
         const withExecutorBinding = <T extends Record<string, unknown>>(value: T): T => {
-          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, ...rest } = value as Record<string, unknown>;
+          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, buildArtifactsProtection: _printedProtection, ...rest } = value as Record<string, unknown>;
+          // The protection label travels with the binding: a validate file
+          // cannot declare its own, and evidence without one is never reused.
+          const protection = typeof validation.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: validation.buildArtifactsProtection } : {};
           const bound: Record<string, unknown> = validation.buildArtifactsHash
-            ? { ...rest, buildArtifactsHash: validation.buildArtifactsHash, ...(validation.buildArtifacts ? { buildArtifacts: validation.buildArtifacts } : {}) }
-            : rest;
+            ? { ...rest, buildArtifactsHash: validation.buildArtifactsHash, ...(validation.buildArtifacts ? { buildArtifacts: validation.buildArtifacts } : {}), ...protection }
+            : { ...rest, ...protection };
           if (executorBindingDetails.length === 0) return bound as unknown as T;
           const details = Array.isArray(bound.details) ? bound.details as unknown[] : [];
           return { ...bound, status: 'fail', allPass: false, details: [...details, ...executorBindingDetails] } as unknown as T;

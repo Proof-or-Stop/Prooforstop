@@ -1418,6 +1418,7 @@ function main(): void {
       materialHash: 'material',
       storyFilesHash: 'story-files',
       buildArtifactsHash: currentBuildArtifactsHash(root),
+      buildArtifactsProtection: 'enforced:sandbox-exec',
       verificationCoverage: { ...coverage, covered: 0, missingRequired: 1 },
       routineValidationIdentity: configured,
       commandExecution,

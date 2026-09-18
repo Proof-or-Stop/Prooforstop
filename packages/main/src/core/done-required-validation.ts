@@ -5,8 +5,8 @@ import { realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
-import { REGISTERED_BUILD_PROTECTION_LABEL, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
+import { BUILD_ARTIFACT_ROOTS, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
 import type {
@@ -561,23 +561,13 @@ function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: s
   // Compare on the portable LOGICAL cwd (not the absolute physical receipt.cwd)
   // so a build proof written in worktree A is still recognized when evaluated
   // under root B (F-001).
-  const cwd = receiptLogicalCwd(projectRoot, receipt);
-  const rootCwd = repoRelativeLogicalCwd(projectRoot);
-  const packagesMain = repoRelativeLogicalCwd(projectRoot, 'packages/main');
-  const args = Array.isArray(receipt.args) ? receipt.args : [];
-  if (receipt.command === 'npm' && cwd === rootCwd) {
-    const prefixIndex = args.indexOf('--prefix');
-    if (prefixIndex >= 0 && args[prefixIndex + 1] === 'packages/main') {
-      return args[prefixIndex + 2] === 'run' && args[prefixIndex + 3] === 'build';
-    }
-  }
-  if (receipt.command === 'npm' && cwd === packagesMain) {
-    return args[0] === 'run' && args[1] === 'build';
-  }
-  if ((receipt.command === 'tsc' || receipt.command.endsWith('/tsc')) && cwd === packagesMain) {
-    return true;
-  }
-  return false;
+  // One recogniser for launch and receipt: the receipt's logical cwd is already
+  // repo-relative, and the shared matcher compares logical cwds.
+  return isRegisteredPackagesMainBuildCommand({
+    command: receipt.command,
+    args: Array.isArray(receipt.args) ? receipt.args : [],
+    cwd: receiptLogicalCwd(projectRoot, receipt),
+  });
 }
 
 function requiresPackagesMainBuildProof(command?: DoneRequiredCommand): boolean {
@@ -777,6 +767,32 @@ export function validateSelfHostBuildProof(
  * after the build cannot be published as the build's own bytes. Legacy
  * receipts without the observations cannot vouch and are refused.
  */
+/**
+ * Refusal of a DONE-required run BEFORE any command launches. This evidence is
+ * the authoritative executed-build proof, so on a host whose artifact trees
+ * exist but cannot be write-protected, every non-build receipt would be refused
+ * by validateReceiptBuildBinding after the run anyway. Deciding that here means
+ * an unsupported host learns why in seconds, with the remedy, instead of after
+ * the whole suite, and nothing is executed whose evidence could not count. A
+ * `not-applicable` host (no artifact trees, nothing to protect) and a policy
+ * made only of registered builds are not refused.
+ */
+export function doneRequiredProtectionRefusal(
+  protectionLabel: string,
+  commands: DoneRequiredCommand[],
+  projectRoot: string,
+): string | undefined {
+  if (artifactProtectionSatisfied(protectionLabel)) return undefined;
+  const unprotected = commands.filter((command) => !(
+    command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
+    || command.proof === PACKAGES_MAIN_BUILD_PROOF
+    || isRegisteredPackagesMainBuildCommand(command, projectRoot)
+  ));
+  if (unprotected.length === 0) return undefined;
+  const labels = unprotected.map((command) => command.label).join(', ');
+  return `build-artifacts-protection-unavailable: ${protectionLabel}; ${unprotected.length} non-build DONE-required command(s) (${labels}) would run without enforced artifact write protection and their receipts would be refused, so nothing was executed. Provide a write-protection mechanism for this host (macOS: /usr/bin/sandbox-exec; Linux: bwrap on PATH) or remove the compiled artifact trees (${BUILD_ARTIFACT_ROOTS.join(', ')}) if this project does not execute them.`;
+}
+
 export function validateReceiptBuildBinding(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts' | 'buildArtifactsHash'>,
   projectRoot: string,
@@ -806,7 +822,7 @@ export function validateReceiptBuildBinding(
     // DONE-required evidence is the authoritative executed-build proof, so a
     // receipt whose command could have swapped the artifacts inside its own
     // window — undetectable at the boundaries — cannot carry that claim.
-    if (!(receipt.buildArtifactsProtection ?? '').startsWith('enforced:')) {
+    if (!artifactProtectionSatisfied(receipt.buildArtifactsProtection)) {
       reasons.push(`build-artifacts-protection-unenforced[${i}]: ${receipt.label} ran without enforced artifact write protection (${receipt.buildArtifactsProtection ?? 'not recorded'}); this evidence cannot prove which build it executed`);
     }
     if (before !== after) {
@@ -945,7 +961,10 @@ export async function runDoneRequiredValidation(args: {
 
   if (policy.required && policy.configErrors.length === 0) {
     const artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
-    for (let i = 0; i < policy.commands.length; i++) {
+    // Unsupported host: decided before the first launch, never after the suite.
+    const protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot);
+    if (protectionRefusal) reasons.push(protectionRefusal);
+    for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {
       const command = policy.commands[i];
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
       const receiptStartedMs = Date.now();
@@ -958,10 +977,13 @@ export async function runDoneRequiredValidation(args: {
       // denies it, and its descendants, the right to write these trees.
       const commandIsRegisteredBuild = command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
         || command.proof === PACKAGES_MAIN_BUILD_PROOF
-        || isRegisteredPackagesMainBuildCommand(command);
-      const buildArtifactsBefore = currentBuildArtifactsHash(args.gitCwd);
+        || isRegisteredPackagesMainBuildCommand(command, args.projectRoot);
       const result = await runValidationCommand(command, args.projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
         ...(commandIsRegisteredBuild ? {} : { artifactWriteProtection }),
+        // Observed at the spawn boundary (or inherited from the reuse key for a
+        // cached run); this writer records what the execution carried and never
+        // relabels a result with what it observes afterwards.
+        artifactBinding: { root: args.gitCwd, protection: commandIsRegisteredBuild ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
         progress: runtimeOptions.progress,
         heartbeatMs: runtimeOptions.heartbeatMs,
         abortSignal: runtimeOptions.abortSignal,
@@ -971,7 +993,6 @@ export async function runDoneRequiredValidation(args: {
       });
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
       const receiptEndedAt = new Date().toISOString();
-      const buildArtifactsAfter = currentBuildArtifactsHash(args.gitCwd);
       const headHash = currentGitHead(args.gitCwd);
       const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
       const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
@@ -1006,9 +1027,9 @@ export async function runDoneRequiredValidation(args: {
         ...(headHash ? { headHash } : {}),
         ...(materialHash ? { materialHash } : {}),
         ...(storyFilesHash ? { storyFilesHash } : {}),
-        ...(buildArtifactsBefore ? { buildArtifactsBefore } : {}),
-        ...(buildArtifactsAfter ? { buildArtifactsAfter } : {}),
-        buildArtifactsProtection: commandIsRegisteredBuild ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label,
+        ...(result.buildArtifactsBefore ? { buildArtifactsBefore: result.buildArtifactsBefore } : {}),
+        ...(result.buildArtifactsAfter ? { buildArtifactsAfter: result.buildArtifactsAfter } : {}),
+        ...(result.buildArtifactsProtection ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
       };
       receipts.push(receipt);
       if (status === 'FAIL') {

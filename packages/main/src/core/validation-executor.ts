@@ -19,7 +19,7 @@ import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
-import { REGISTERED_BUILD_PROTECTION_LABEL, resolveArtifactWriteProtection, type ArtifactWriteProtection } from './build-artifacts-protection.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, resolveArtifactWriteProtection, type ArtifactWriteProtection } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
   MAX_JOBS,
@@ -173,6 +173,15 @@ export interface RunValidationCommandOptions {
    * plan declared, never the wrapper.
    */
   artifactWriteProtection?: ArtifactWriteProtection;
+  /**
+   * Binds the command to the compiled artifacts it executes: the root whose
+   * trees are digested immediately before the child launches and immediately
+   * after it returns, and the protection label the caller decided for it. The
+   * observations are taken at the spawn boundary, so a result served from the
+   * shared-execution cache carries the provenance of the run that was actually
+   * executed (bound into its reuse key), never a fresh observation.
+   */
+  artifactBinding?: { root: string; protection: string };
 }
 
 interface CapturedValidationCommandResult {
@@ -1396,7 +1405,7 @@ export function runValidationCommand(
       if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
         throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
       }
-    }), options);
+    }, options.artifactBinding), options);
 }
 
 /**
@@ -1566,6 +1575,9 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     ? join(projectRoot, RUNTIME_TRACE_DIR, `${process.pid}-${commandIndex}-${Date.now()}.json`)
     : undefined;
   const spawnEnv = { ...effectiveEnv };
+  // Observed immediately before launch, in the same scope the result is built
+  // in; the matching observation is taken the moment the child has finished.
+  const buildArtifactsBefore = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root) : undefined;
   if (tracer && traceFile) {
     mkdirSync(join(projectRoot, RUNTIME_TRACE_DIR), { recursive: true });
     spawnEnv.PROOF_OR_STOP_RUNTIME_TRACE_FILE = traceFile;
@@ -1639,6 +1651,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
       runtimeEvents.push('finish');
       const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
+      const buildArtifactsAfter = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root) : undefined;
       const headAfter = readValidationSourceHead(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
       const completeOutput = stripAnsi(output);
@@ -1657,6 +1670,9 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
         args: command.args,
         ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
+        ...(buildArtifactsBefore ? { buildArtifactsBefore } : {}),
+        ...(buildArtifactsAfter ? { buildArtifactsAfter } : {}),
+        ...(options.artifactBinding ? { buildArtifactsProtection: options.artifactBinding.protection } : {}),
         code,
         output: delegationDiagnostic === undefined ? trimOutput(completeOutput, code !== 0) : `${trimOutput(completeOutput, true)}\n${delegationDiagnostic}`,
         ...(delegationDiagnostic === undefined ? {} : { delegationDiagnostic, observedExitCode }),
@@ -2412,10 +2428,10 @@ export async function executeValidationPlan(
     // states the bound); that needs OS-enforced write denial, not observation.
     // A registered build is the one command allowed to change these trees, so
     // it alone runs unprotected; everything else is denied the write.
-    const buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command) ? 'build' as const : 'test' as const;
-    const buildArtifactsBefore = currentBuildArtifactsHash(artifactsRoot);
+    const buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command, projectRoot) ? 'build' as const : 'test' as const;
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       ...(buildArtifactsRole === 'test' ? { artifactWriteProtection } : {}),
+      artifactBinding: { root: artifactsRoot, protection: buildArtifactsRole === 'build' ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
       commandIndex: entry.commandIndex,
@@ -2424,13 +2440,10 @@ export async function executeValidationPlan(
       deadlineAt: options.deadlineAt,
       deadlineError: options.deadlineError,
     });
-    const buildArtifactsAfter = currentBuildArtifactsHash(artifactsRoot);
-    if (buildArtifactsBefore) result.buildArtifactsBefore = buildArtifactsBefore;
-    if (buildArtifactsAfter) result.buildArtifactsAfter = buildArtifactsAfter;
+    // The observations and the protection label arrive on the result from the
+    // capture (an executed run) or from the reuse key (a cached run); the plan
+    // never overwrites them with what it sees now.
     result.buildArtifactsRole = buildArtifactsRole;
-    result.buildArtifactsProtection = buildArtifactsRole === 'build'
-      ? REGISTERED_BUILD_PROTECTION_LABEL
-      : artifactWriteProtection.label;
     if (
       result.timedOut
       && typeof options.deadlineAt === 'number'
@@ -2593,7 +2606,8 @@ export async function executeValidationPlan(
     ...(concurrentPollution ? { concurrentWorktreePollution: concurrentPollution } : {}),
     // The identity the evidence binds: only stamped when the binding rules held.
     ...(!buildBindingFailed && buildArtifactsAtEnd ? { buildArtifactsHash: buildArtifactsAtEnd } : {}),
-    buildArtifactsProtection: artifactWriteProtection.label,
+    buildArtifactsProtection: commands.find((result) => result.buildArtifactsRole !== 'build' && !artifactProtectionSatisfied(result.buildArtifactsProtection))?.buildArtifactsProtection
+      ?? artifactWriteProtection.label,
     buildArtifacts: {
       root: artifactsRoot,
       ...(buildArtifactsAtStart ? { start: buildArtifactsAtStart } : {}),

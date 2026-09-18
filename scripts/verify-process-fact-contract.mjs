@@ -9565,7 +9565,8 @@ function assertStoryAwareDynamicValidationRuntime() {
   assert(handlerText.includes('boundary.readPathSchema !== VALIDATION_RUNTIME_TRACE_POLICY.schemaVersion') && handlerText.includes('sourceAuthorityPath(rel)'), 'closure must require physical trace schema and map contained relative paths');
   const signingText = read('packages/main/src/core/validation-artifact-signing.ts');
   const validationText = read('packages/main/src/core/story-aware-validation.ts');
-  assert(validationText.includes("VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v2'"), 'dynamic reuse must reject legacy receipts without executor source observations');
+  assert(validationText.includes("VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v3'"), 'dynamic reuse must reject legacy receipts without executor source observations or an executed-build binding');
+  assert(validationText.includes("reasons.push('missing-executed-build-binding')") && validationText.includes('receipt.buildArtifactsDigest !== ctx.buildArtifactsHash'), 'dynamic receipts must bind the compiled artifacts their command executed and reuse must require the current build');
   assert(validationText.includes('certifiedTreesEqual(ctx.gitCwd, sourceHead, actualHead, entry, closure)') && validationText.includes('environmentDigest: declaredEnvironmentDigest(entry, ctx)'), 'cross-commit reuse must bind receipt-relative trees and effective declared environment');
   assert(handlerText.includes('!provenance.cleanBefore || !provenance.cleanAfter') && handlerText.includes('provenance.headBefore !== args.head || provenance.headAfter !== args.head'), 'receipt issuance requires executor-observed unchanged clean source at both boundaries');
   const registeredAdapterDigest = handlerText.match(/const DYN5_ADAPTER_SOURCE_DIGEST = '([a-f0-9]{64})'/)?.[1];

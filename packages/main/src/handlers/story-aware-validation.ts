@@ -1,6 +1,7 @@
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { artifactProtectionSatisfied } from '../core/build-artifacts-protection.js';
 function projectSigningRoot(projectRoot: string): string {
  const configured=loadConfig(projectRoot).gitRoot;
  const resolved=resolveProjectGitRoot(projectRoot, configured);
@@ -104,6 +105,8 @@ export interface PrepareStoryAwareValidationArgs {
   mode?: DynamicValidationMode;
   baselineEpochId?: string;
   buildProofDigest?: string;
+  /** Identity of the artifacts this run's Wave-0 build left, once known; gates receipt reuse. */
+  buildArtifactsHash?: string;
   toolchainDigest?: string;
   runtimeTraces?: Map<string, ValidationRuntimeTrace>;
   receipts?: ValidationCommandReceipt[];
@@ -193,7 +196,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 9, executor: 'validation-executor', selector: 'validation-tier-planner' });
+export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 10, executor: 'validation-executor', selector: 'validation-tier-planner' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -310,6 +313,8 @@ export function persistCanonicalFullBaseline(args: {
   sourceHead: string;
   result: ValidationResult;
   buildProofDigest?: string;
+  /** Identity of the artifacts this run's Wave-0 build left, once known; gates receipt reuse. */
+  buildArtifactsHash?: string;
   toolchainDigest?: string;
   commands?: ValidationCommand[];
 }): CanonicalFullBaseline | undefined {
@@ -471,6 +476,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     mode: args.mode || 'observe',
     gitCwd,
     buildProofDigest: args.buildProofDigest,
+    ...(args.buildArtifactsHash ? { buildArtifactsHash: args.buildArtifactsHash } : {}),
     toolchainDigest,
     scopeContract: args.scopeContract,
     buildCommandId: waveZeroCommand(catalog),
@@ -1110,6 +1116,7 @@ export function combineResults(results: ValidationResult[], provider: string, he
     disposition: 'executed',
     ...(binding.buildArtifactsHash ? { buildArtifactsHash: binding.buildArtifactsHash } : {}),
     ...(binding.buildArtifacts ? { buildArtifacts: binding.buildArtifacts } : {}),
+    ...(binding.buildArtifactsProtection ? { buildArtifactsProtection: binding.buildArtifactsProtection } : {}),
   };
 }
 
@@ -1124,6 +1131,11 @@ function receiptForResult(args: {
   revocationLedger: ReceiptRevocationLedger;
 }): ValidationCommandReceipt | undefined {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  // A receipt vouches for what its command executed: it must have started and
+  // ended on the same compiled artifacts, under enforced (or not-applicable)
+  // write protection, or it is not a receipt at all.
+  const executedBuild = args.result.buildArtifactsBefore;
+  if (!executedBuild || args.result.buildArtifactsAfter !== executedBuild || !artifactProtectionSatisfied(args.result.buildArtifactsProtection)) return undefined;
   const provenance = args.result.sourceProvenance;
   if (!provenance || provenance.schemaVersion !== VALIDATION_SOURCE_PROVENANCE_SCHEMA
     || !provenance.cleanBefore || !provenance.cleanAfter
@@ -1153,6 +1165,8 @@ function receiptForResult(args: {
     exitCode: 0,
     outputDigest,
     durationMs: args.result.durationMs,
+    buildArtifactsDigest: executedBuild,
+    buildArtifactsProtection: args.result.buildArtifactsProtection as string,
     createdAt,
     revocationLedgerDigest: args.revocationLedger.digest,
   });
@@ -1199,6 +1213,8 @@ export function deriveGateOwnedPrerequisites(args: {
   baseline?: CanonicalFullBaseline;
   buildResult?: ValidationResult;
   buildProofDigest?: string;
+  /** Identity of the artifacts this run's Wave-0 build left, once known; gates receipt reuse. */
+  buildArtifactsHash?: string;
   receipts: ValidationCommandReceipt[];
   shardArtifacts: DynamicShardArtifact[];
 }): Partial<Parameters<typeof evaluateDynamicAuthority>[0]['prerequisites']> {
@@ -1287,12 +1303,16 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
     jobs: 1,
   });
-  const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
+  // The proof of the build is the build's OUTPUT, not merely its exit and
+  // stdout: a build that produces different compiled bytes with identical
+  // output is a different build, and every receipt bound to the old one lapses.
+  const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, buildArtifactsHash: wave.buildArtifactsHash ?? null, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
   const final = prepare({
     ...args,
     receipts: prior.receipts,
     revocationLedger: prior.revocationLedger,
     buildProofDigest,
+    ...(wave.buildArtifactsHash ? { buildArtifactsHash: wave.buildArtifactsHash } : {}),
     ...(resolvedTierSelection ? { tierSelection: resolvedTierSelection, tierSelectionResolver: undefined } : {}),
   });
   const selectedEntries = final.manifest.rows

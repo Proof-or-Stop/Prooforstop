@@ -2488,6 +2488,8 @@ export interface TestEvidenceData {
   storyFilesHash?: string;
   /** Content identity of the compiled artifact trees the commands executed (see core/build-artifacts-identity). Missing on legacy evidence, which is refused for reuse and admission. */
   buildArtifactsHash?: string;
+  /** How those trees were protected while the commands ran (`enforced:<mechanism>` / `not-applicable:no-artifact-trees` / `unenforced:<reason>`); evidence that is not enforced or not-applicable is never reused or admitted. */
+  buildArtifactsProtection?: string;
   /** @deprecated Legacy evidence freshness field. New writes use headHash. */
   git?: {
     head: string | null;

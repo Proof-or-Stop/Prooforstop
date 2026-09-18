@@ -273,8 +273,23 @@ try {
         command: runtimeNode, args: ['-e', 'process.stdout.write("authority-pass")'], label: 'build',
         assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
         fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'],
+      }, {
+        // A selectable non-build command whose receipt can be reused across runs.
+        command: runtimeNode, args: ['-e', 'process.stdout.write("unit-pass")'], label: 'unit',
+        assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
+        fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'],
       }] },
     }, null, 2) + '\n');
+    // Compiled artifact trees, gitignored so they are invisible to the committed
+    // identity, exactly like the real packages/*/dist.
+    // Runtime artifacts (the canonical baseline, traces, receipts) are ignored
+    // exactly as in the real repository: an untracked .proof-or-stop/ would make
+    // every command's source provenance dirty and no receipt could be issued.
+    writeFileSync(join(authorityRoot, '.gitignore'), 'dist\n.proof-or-stop/\n');
+    mkdirSync(join(authorityRoot, 'packages/main/dist/tasks'), { recursive: true });
+    writeFileSync(join(authorityRoot, 'packages/main/dist/tasks/x.js'), 'process.exit(0); // build A\n');
+    mkdirSync(join(authorityRoot, 'packages/utils/dist'), { recursive: true });
+    writeFileSync(join(authorityRoot, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
     const authorityGit = (args: string[]) => execFileSync('git', args, { cwd: authorityRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
     authorityGit(['init']);
     authorityGit(['config', 'user.email', 'smoke@example.test']);
@@ -301,6 +316,31 @@ try {
     assert.equal(admitted.authority.authoritative, true, JSON.stringify(admitted.authority));
     assert.equal(admitted.dynamicAllPass, true);
     console.log('gate-owned authority PASS');
+    // Every receipt this run earned binds the compiled artifacts the run
+    // executed, under the protection contract, and carries the v3 schema.
+    const earned = admitted.receipts.filter((receipt) => receipt.producedBy === 'story-execution');
+    assert.ok(earned.length >= 1, 'the authoritative run must persist at least one story-execution receipt: ' + JSON.stringify(admitted.manifest.totals));
+    for (const receipt of earned) {
+      assert.equal(receipt.schema, 'proof-or-stop.validation-command-receipt.v3');
+      assert.equal(receipt.buildArtifactsDigest, admitted.buildArtifactsHash, 'every receipt binds the compiled artifacts the run executed');
+      assert.match(receipt.buildArtifactsProtection, /^(enforced:|not-applicable:)/, 'a receipt is authoritative only under enforced or not-applicable protection');
+    }
+    const dynamicArgs = { projectRoot: authorityRoot, gitCwd: authorityRoot, storyId: 'B-authority', baseHead: authorityHead, head: authorityHead, changedFiles: [], mode: 'enforce-low-risk' as const, commands: authorityCommands };
+    const unchangedRerun = await runStoryAwareDynamicValidation(dynamicArgs);
+    assert.equal(unchangedRerun.dynamicAllPass, true, JSON.stringify(unchangedRerun.buildArtifactsDiagnostics));
+    assert.ok(unchangedRerun.manifest.totals.reused >= 1,
+      'an unchanged rerun must reuse the selectable command through its receipt: ' + JSON.stringify(unchangedRerun.manifest.rows.map((row) => [row.commandId, row.disposition, row.reasons])));
+    // Same source, same build output and exit code, DIFFERENT compiled bytes:
+    // every receipt earned on the old bytes lapses and the command runs again.
+    writeFileSync(join(authorityRoot, 'packages/main/dist/tasks/x.js'), 'process.exit(0); // build B: same output, other bytes\n');
+    const rebuiltBytes = await runStoryAwareDynamicValidation(dynamicArgs);
+    assert.equal(rebuiltBytes.dynamicAllPass, true, JSON.stringify(rebuiltBytes.buildArtifactsDiagnostics));
+    assert.notEqual(rebuiltBytes.buildArtifactsHash, unchangedRerun.buildArtifactsHash, 'different compiled bytes are a different build');
+    assert.equal(rebuiltBytes.manifest.totals.reused, 0,
+      'no receipt earned on the previous compiled bytes may be reused: ' + JSON.stringify(rebuiltBytes.manifest.rows.map((row) => [row.commandId, row.disposition, row.reasons])));
+    assert.ok(rebuiltBytes.receipts.some((receipt) => receipt.producedBy === 'story-execution' && receipt.buildArtifactsDigest === rebuiltBytes.buildArtifactsHash),
+      'the re-executed command must earn a receipt bound to the new bytes');
+    console.log('dynamic receipts lapse with compiled bytes PASS');
   } finally {
     rmSync(authorityRoot, { recursive: true, force: true });
   }

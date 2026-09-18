@@ -36,7 +36,7 @@ import { dirname, join, resolve } from 'node:path';
 const { evaluateRoutineValidationReuse, buildRoutineValidationIdentity } = await import('../packages/main/src/core/validation-evidence-reuse.ts');
 const { evaluateValidationEvidenceAdmissibility } = await import('../packages/main/src/core/validation-evidence-admissibility.ts');
 const { currentGitHead, currentMaterialHash, currentStoryFilesHash } = await import('../packages/main/src/core/evidence-freshness.ts');
-const { runDoneRequiredValidation, evaluateDoneRequiredEvidence, validateReceiptBuildBinding } = await import('../packages/main/src/core/done-required-validation.ts');
+const { runDoneRequiredValidation, evaluateDoneRequiredEvidence, validateReceiptBuildBinding, doneRequiredProtectionRefusal } = await import('../packages/main/src/core/done-required-validation.ts');
 const { executeValidationPlan, evaluatePlanBuildArtifactsBinding: executorRules } = await import('../packages/main/src/core/validation-executor.ts');
 const { StoryStore } = await import('../packages/main/src/core/store.ts');
 const { resetConfigCache } = await import('../packages/main/src/core/config.ts');
@@ -44,7 +44,11 @@ const { persistSyntheticAdmittedWindowForTest } = await import('../packages/main
 const { deriveCertificationDomainInputHashes } = await import('../packages/main/src/handlers/certification-window.ts');
 // Present only after the repair. Used to build routine evidence exactly as the
 // repaired writer does; never used as the subject of an assertion.
-const binding = await import('../packages/main/src/core/build-artifacts-identity.ts').catch(() => null);
+const identityModule = await import('../packages/main/src/core/build-artifacts-identity.ts').catch(() => null);
+const protectionModule = await import('../packages/main/src/core/build-artifacts-protection.ts').catch(() => null);
+// One handle for the whole binding surface: the identity digest, the shared
+// build recogniser, and the write-protection resolver and contract.
+const binding = identityModule ? { ...identityModule, ...(protectionModule ?? {}) } : null;
 
 const MARKER = 'stale build artifacts admitted as fresh validation evidence';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -105,7 +109,7 @@ try {
     result: 'PASS',
     timestamp: new Date().toISOString(),
     headHash: head, materialHash, storyFilesHash,
-    ...(recordedBuild ? { buildArtifactsHash: recordedBuild } : {}),
+    ...(recordedBuild ? { buildArtifactsHash: recordedBuild, buildArtifactsProtection: 'enforced:sandbox-exec' } : {}),
     verificationCoverage: { missingRequired: 0 },
     commandExecution: { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 },
     disposition: 'executed',
@@ -183,6 +187,63 @@ try {
   }
   rmSync(join(distRoot, 'a.js'));
   check(currentBuild() === recordedBuild, 'removing the collision files restores the recorded identity');
+
+  // Audit #10 (3): a binding recorded without enforced write protection is an
+  // observation of the bytes at the command boundaries, never proof of what
+  // the commands executed. It is refused for reuse and admission; a project
+  // with no artifact trees at all records `not-applicable` and is accepted.
+  if (binding) {
+    const withLabel = (label) => ({ ...evidence, ...(label === undefined ? { buildArtifactsProtection: undefined } : { buildArtifactsProtection: label }) });
+    const reuseWith = (ev) => evaluateRoutineValidationReuse({
+      root, gitCwd: root, evidence: ev, currentIdentity: identity, currentCoverage: { missingRequired: 0 },
+      currentMaterialHash: materialHash, currentStoryFilesHash: storyFilesHash, clean: true, headBefore: head, headAfter: head,
+      currentBuildArtifactsHash: currentBuild(),
+    });
+    const admitWith = (ev) => evaluateValidationEvidenceAdmissibility({
+      evidence: ev, expectedCommand: evidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage',
+      blockingDirtyReason: '', gitCwd: root, metadataRoot: root,
+    });
+    const unenforced = withLabel('unenforced:no artifact write-protection mechanism is implemented for platform win32');
+    expectRepaired(reuseWith(unenforced).refusalReasons.includes('build-artifacts-protection-unenforced'),
+      `a PASS recorded without enforced protection was reusable (reasons=${reuseWith(unenforced).refusalReasons.join(',')})`);
+    expectRepaired(admitWith(unenforced).reasonCodes.includes('build_artifacts_protection_unenforced'),
+      `a PASS recorded without enforced protection was admissible (codes=${admitWith(unenforced).reasonCodes.join(',')})`);
+    const unlabeled = withLabel(undefined);
+    expectRepaired(reuseWith(unlabeled).refusalReasons.includes('build-artifacts-protection-unenforced'), 'a PASS recording no protection at all was reusable');
+    expectRepaired(admitWith(unlabeled).reasonCodes.includes('build_artifacts_protection_unenforced'), 'a PASS recording no protection at all was admissible');
+    const notApplicable = withLabel('not-applicable:no-artifact-trees');
+    check(reuseWith(notApplicable).reusable === true, `control: a not-applicable label (no artifact trees, no mechanism) must not refuse reuse (${reuseWith(notApplicable).refusalReasons.join(',')})`);
+    check(admitWith(notApplicable).ok === true, `control: a not-applicable label must not refuse admission (${admitWith(notApplicable).reasonCodes.join(',')})`);
+    check(reuseWith(evidence).reusable === true && admitWith(evidence).ok === true, 'control: the enforced recorded PASS is still reusable and admissible');
+  }
+
+  // Audit #10 (4)/(5): the protection contract and the build recogniser.
+  if (binding?.artifactProtectionSatisfied && binding?.logicalCommandCwd) {
+    const sat = binding.artifactProtectionSatisfied;
+    check(sat('enforced:sandbox-exec') && sat('enforced:bwrap') && sat('not-applicable:no-artifact-trees'), 'enforced and not-applicable labels satisfy the contract');
+    expectRepaired(!sat('unenforced:x') && !sat('registered-build:writes-permitted') && !sat(undefined) && !sat(''),
+      'an unenforced, registered-build, empty or missing label satisfied the executed-build contract');
+    const resolved = binding.resolveArtifactWriteProtection(root);
+    expectRepaired(resolved.enforced === true && resolved.label === 'enforced:sandbox-exec',
+      `on this host the resolver did not establish and self-test sandbox-exec (${resolved.label})`);
+    const treeless = join(sandbox, 'treeless'); mkdirSync(treeless);
+    const treelessProtection = binding.resolveArtifactWriteProtection(treeless);
+    check(treelessProtection.enforced === true, `on this host a project with no artifact trees is still protected against creating them (${treelessProtection.label})`);
+    // (5) one recogniser, judged on the logical cwd.
+    const npmBuild = (cwd) => ({ command: 'npm', args: ['run', 'build'], cwd });
+    check(binding.isRegisteredPackagesMainBuildCommand(npmBuild('packages/main'), root), 'control: relative packages/main cwd is a registered build');
+    expectRepaired(binding.isRegisteredPackagesMainBuildCommand(npmBuild(join(root, 'packages/main')), root), 'a build declared with an absolute cwd was not recognised');
+    expectRepaired(binding.isRegisteredPackagesMainBuildCommand(npmBuild('./packages/../packages/main'), root), 'a build declared with a non-normalised relative cwd was not recognised');
+    expectRepaired(binding.isRegisteredPackagesMainBuildCommand(npmBuild('packages/main/'), root), 'a build declared with a trailing slash was not recognised');
+    const linkedRoot = join(sandbox, 'linked-root'); symlinkSync(root, linkedRoot, 'dir');
+    expectRepaired(binding.isRegisteredPackagesMainBuildCommand(npmBuild(join(root, 'packages/main')), linkedRoot), 'a build under a symlinked project root was not recognised');
+    rmSync(linkedRoot);
+    check(!binding.isRegisteredPackagesMainBuildCommand(npmBuild('packages/utils'), root), 'control: a utils build is not the registered packages/main build');
+    check(binding.isRegisteredPackagesMainBuildCommand({ command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'], cwd: './' }, root), 'control: the root-form build with a ./ cwd is recognised');
+    check(binding.logicalCommandCwd(root, join(root, 'packages', 'main')) === 'packages/main' && binding.logicalCommandCwd(root, undefined) === '.', 'logical cwd normalises absolute and empty cwds');
+  } else {
+    expectRepaired(false, 'core/build-artifacts-identity exports no logicalCommandCwd, or the protection module is not loadable');
+  }
   check(reuse().reusable === true && admissibility().ok === true, 'control: the recorded PASS is admissible again after the collision files are removed');
 
   // Symbolic links: a link inside dist can point at bytes that change without any
@@ -402,8 +463,31 @@ try {
     const legacyResult = evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root });
     expectRepaired(legacyResult.ok === false && legacyResult.reasons.some((reason) => reason.startsWith('build-artifacts-protection-unenforced[1]')),
       `a receipt recording no protection at all was admitted (reasons=${legacyResult.reasons.join(', ')})`);
+    const notApplicableReceipts = { ...registered, receipts: registered.receipts.map((receipt, index) => (index === 1 ? { ...receipt, buildArtifactsProtection: 'not-applicable:no-artifact-trees' } : receipt)) };
+    h.store.writeDoneRequiredEvidence(h.storyId, notApplicableReceipts);
+    check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true,
+      'control: a receipt from a host with no mechanism and no artifact trees (not-applicable) is admissible');
     h.store.writeDoneRequiredEvidence(h.storyId, registered);
     check(evaluateDoneRequiredEvidence({ projectRoot: h.root, storyId: h.storyId, store: h.store, gitCwd: h.root }).ok === true, 'restoring the enforced receipts makes the PASS admissible again');
+    // Audit #10 (4): an unsupported host is refused BEFORE the first launch,
+    // with the remedy, not after the whole suite has run for nothing. Pure
+    // rule (the resolver cannot be made unenforced on this host), plus a guard
+    // that the writer consults it ahead of the command loop.
+    if (typeof doneRequiredProtectionRefusal === 'function') {
+      const unenforcedLabel = 'unenforced:no artifact write-protection mechanism is implemented for platform win32';
+      const refused = doneRequiredProtectionRefusal(unenforcedLabel, REGISTERED_REBUILD_COMMANDS, h.root);
+      expectRepaired(typeof refused === 'string' && refused.startsWith('build-artifacts-protection-unavailable:') && refused.includes(unenforcedLabel) && refused.includes('(pass)') && refused.includes('nothing was executed'),
+        `an unenforced host with a non-build DONE-required command was not refused up front (${refused})`);
+      check(doneRequiredProtectionRefusal(unenforcedLabel, [REGISTERED_REBUILD_COMMANDS[0]], h.root) === undefined, 'control: a policy made only of registered builds needs no protection');
+      check(doneRequiredProtectionRefusal('enforced:sandbox-exec', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: an enforced host is not refused');
+      check(doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: a host with no artifact trees is not refused');
+      const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
+      const loopStart = doneRequiredWriterSource.indexOf('for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {');
+      const refusalCall = doneRequiredWriterSource.indexOf('doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot)');
+      expectRepaired(refusalCall >= 0 && loopStart > refusalCall, 'the DONE-required writer does not consult the protection refusal before its command loop (source-text guard)');
+    } else {
+      expectRepaired(false, 'core/done-required-validation exports no doneRequiredProtectionRefusal');
+    }
     // The writer cannot be driven into a deterministic between-receipts write
     // (its two observations are microseconds apart in one process), so its
     // coverage is the same validator called with the writer's own argument
@@ -550,7 +634,7 @@ try {
       });
       const wrapperEvidence = {
         command: 'proof-or-stop validate --story=B-bab --json', output: JSON.stringify({ allPass: true }), result: 'PASS', timestamp: new Date().toISOString(),
-        headHash: wrapperHead, materialHash: wrapperMaterial, storyFilesHash: wrapperStoryFiles, buildArtifactsHash: wrapped.buildArtifactsHash,
+        headHash: wrapperHead, materialHash: wrapperMaterial, storyFilesHash: wrapperStoryFiles, buildArtifactsHash: wrapped.buildArtifactsHash, buildArtifactsProtection: wrapped.buildArtifactsProtection,
         verificationCoverage: { missingRequired: 0 },
         commandExecution: { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 },
         disposition: 'executed', routineValidationIdentity: wrapperIdentityRecord,
@@ -751,6 +835,33 @@ try {
       'the executor does not enforce the per-command build binding rules (source-text guard)');
     // The validate-file result is rebuilt from the child's output; it must carry
     // the executor binding and discard any binding the child printed itself.
+    // Audit #10 (1): provenance is captured where the child is spawned and
+    // travels through the reuse key; nothing relabels a result afterwards.
+    expectRepaired(executorSource.includes("const buildArtifactsBefore = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root) : undefined;")
+      && executorSource.includes("buildArtifactsProtection: options.artifactBinding.protection"),
+      'the executor capture does not record the build observations and protection at the spawn boundary (source-text guard)');
+    expectRepaired(!/result\.buildArtifactsBefore = |result\.buildArtifactsAfter = |result\.buildArtifactsProtection = /.test(executorSource),
+      'the executor still stamps observations or protection onto results after they return (source-text guard)');
+    const sharedSource = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
+    expectRepaired(sharedSource.includes('artifactBinding:artifactBinding ? {hash:artifactBindingHash,protection:artifactBinding.protection} : null,'),
+      'the shared-execution reuse key does not include the artifact identity and protection (source-text guard)');
+    expectRepaired(sharedSource.includes('fresh.buildArtifactsBefore !== fresh.buildArtifactsAfter'),
+      'a run that changed the artifacts can still be cached as reusable (source-text guard)');
+    expectRepaired(sharedSource.includes('buildArtifactsBefore:artifactBindingHash,buildArtifactsAfter:artifactBindingHash,buildArtifactsProtection:artifactBinding.protection'),
+      'a reused result does not inherit the binding of the run that was executed (source-text guard)');
+    const doneRequiredSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
+    expectRepaired(doneRequiredSource2.includes('buildArtifactsProtection: result.buildArtifactsProtection') && !doneRequiredSource2.includes('const buildArtifactsAfter = currentBuildArtifactsHash(args.gitCwd);'),
+      'the DONE-required writer still observes and stamps its own protection instead of recording what the execution carried (source-text guard)');
+    // Audit #10 (2): signed dynamic receipts bind the executed artifacts and
+    // lapse with the compiled bytes, not only with the build's output.
+    const coreDynamicSource = readFileSync(join(repoRoot, 'packages/main/src/core/story-aware-validation.ts'), 'utf8');
+    expectRepaired(coreDynamicSource.includes("'proof-or-stop.validation-command-receipt.v3'") && coreDynamicSource.includes("reasons.push('missing-executed-build-binding')")
+      && coreDynamicSource.includes('receipt.buildArtifactsDigest !== ctx.buildArtifactsHash'),
+      'dynamic receipts do not bind the executed artifacts, or reuse does not require the current build (source-text guard)');
+    expectRepaired(storyAwareSource.includes('buildArtifactsHash: wave.buildArtifactsHash ?? null, commands: wave.commands.map(')
+      && storyAwareSource.includes('buildArtifactsDigest: executedBuild,')
+      && storyAwareSource.includes("version: 10, executor: 'validation-executor'"),
+      'the build proof ignores compiled bytes, receipts omit the executed build, or the runner policy version was not bumped (source-text guard)');
     const dynamicBindingStart = verifierSource.indexOf('function dynamicBuildArtifactsBinding(');
     check(dynamicBindingStart >= 0, 'dynamicBuildArtifactsBinding must be defined');
     expectRepaired(verifierSource.slice(dynamicBindingStart, dynamicBindingStart + 900).includes('executedDynamic.buildArtifactsHash'),

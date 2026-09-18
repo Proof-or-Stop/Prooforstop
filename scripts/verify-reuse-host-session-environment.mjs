@@ -75,6 +75,7 @@ try {
   const evidence = {
     command: 'proof-or-stop validate --story=B-env --json', output: '{}', result: 'PASS', timestamp: new Date().toISOString(),
     buildArtifactsHash: currentBuildArtifactsHash(root),
+    buildArtifactsProtection: 'enforced:sandbox-exec',
     headHash: head, materialHash: 'material', storyFilesHash: 'story-files', verificationCoverage: coverage,
     routineValidationIdentity: baseIdentity,
     commandExecution: summarizeRoutineCommandExecution([{ label: 'probe', command: process.execPath, args: ['-e', '0'], code: 0, output: '', durationMs: 1 }], 1),

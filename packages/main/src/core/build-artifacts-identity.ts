@@ -1,6 +1,6 @@
 import { createHash, type Hash } from 'node:crypto';
-import { lstatSync, readdirSync, readFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { isAbsolute, join, posix, relative, resolve } from 'node:path';
 import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
 
 /**
@@ -105,10 +105,35 @@ function artifactTreeDigest(root: string): string {
 }
 
 /**
+ * Repo-relative logical cwd of a command: `.` for the project root, otherwise a
+ * `/`-separated path. A relative cwd is resolved in the project root's own path
+ * space (so `./packages/../packages/main` is `packages/main`); an absolute cwd
+ * is canonicalised through the filesystem together with the root, so a
+ * symlinked checkout still resolves to the same logical location. Shared by the
+ * plan-time build recogniser and the DONE-required receipt recogniser so the
+ * two can never classify one command differently.
+ */
+export function logicalCommandCwd(projectRoot: string, cwd?: string): string {
+  const root = resolve(projectRoot);
+  const raw = (cwd ?? '').trim();
+  if (!raw) return '.';
+  let rel: string;
+  if (isAbsolute(raw)) {
+    const canonical = (path: string): string => { try { return realpathSync(path); } catch { return resolve(path); } };
+    rel = relative(canonical(root), canonical(raw));
+  } else {
+    rel = relative(root, resolve(root, raw));
+  }
+  rel = rel.replace(/\\/g, '/').replace(/\/+$/, '');
+  return rel === '' ? '.' : rel;
+}
+
+/**
  * The registered packages/main build shapes a validation plan may contain.
  * These are the only commands allowed to change the build identity during a
- * plan; the DONE-required receipt recogniser in core/done-required-validation
- * accepts the same shapes on a receipt.
+ * plan and the only ones launched without artifact write protection. Pass the
+ * project root so the cwd is judged logically; without one, a relative cwd is
+ * still normalised but an absolute one can only be compared as written.
  */
 export function isRegisteredPackagesMainBuildCommand(command: {
   command: string;
@@ -116,12 +141,15 @@ export function isRegisteredPackagesMainBuildCommand(command: {
   cwd?: string;
   providesBuildProof?: unknown;
   proof?: unknown;
-}): boolean {
+}, projectRoot?: string): boolean {
   if (command.providesBuildProof === 'packages-main-build' || command.proof === 'packages-main-build') return true;
   const args = Array.isArray(command.args) ? command.args : [];
-  const cwd = (command.cwd ?? '').replace(/\\/g, '/').replace(/\/+$/, '');
-  const atRoot = cwd === '' || cwd === '.';
-  const atPackagesMain = cwd === 'packages/main' || cwd === './packages/main';
+  const raw = (command.cwd ?? '').replace(/\\/g, '/');
+  const cwd = projectRoot
+    ? logicalCommandCwd(projectRoot, raw)
+    : (isAbsolute(raw) ? raw.replace(/\/+$/, '') : (posix.normalize(raw || '.').replace(/\/+$/, '') || '.'));
+  const atRoot = cwd === '.';
+  const atPackagesMain = cwd === 'packages/main';
   if (command.command === 'npm' && atRoot) {
     const prefixIndex = args.indexOf('--prefix');
     if (prefixIndex >= 0 && args[prefixIndex + 1] === 'packages/main') {
@@ -139,6 +167,8 @@ export interface SequencedBuildArtifactsMember {
   commands?: readonly unknown[];
   buildArtifactsHash?: string;
   buildArtifacts?: { root?: string; start?: string; end?: string };
+  /** Protection label the member's non-build commands ran under, as the executor stamped it. */
+  buildArtifactsProtection?: string;
 }
 
 /**
@@ -157,6 +187,8 @@ export interface SequencedBuildArtifactsMember {
 export function combineSequencedBuildArtifactsBindings(members: readonly SequencedBuildArtifactsMember[]): {
   buildArtifactsHash?: string;
   buildArtifacts?: { root?: string; start?: string; end?: string };
+  /** Weakest protection label among the members; absent when no member recorded one. */
+  buildArtifactsProtection?: string;
   failures: string[];
 } {
   const failures: string[] = [];
@@ -188,6 +220,10 @@ export function combineSequencedBuildArtifactsBindings(members: readonly Sequenc
     }
   }
   if (failures.length > 0) return { failures };
+  // The sequence ran under the weakest protection any member ran under: one
+  // unenforced member makes the whole sequence observation-only.
+  const labels = active.map((member) => member.buildArtifactsProtection).filter((value): value is string => typeof value === 'string' && value.length > 0);
+  const protection = labels.find((value) => !(value.startsWith('enforced:') || value === 'not-applicable:no-artifact-trees')) ?? labels[0];
   return {
     buildArtifactsHash: final,
     buildArtifacts: {
@@ -195,6 +231,7 @@ export function combineSequencedBuildArtifactsBindings(members: readonly Sequenc
       start: first.buildArtifacts?.start as string,
       end: last.buildArtifacts?.end as string,
     },
+    ...(protection ? { buildArtifactsProtection: protection } : {}),
     failures,
   };
 }

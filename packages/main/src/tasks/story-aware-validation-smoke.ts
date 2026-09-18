@@ -490,13 +490,14 @@ const fullOnlyReceipt = createValidationCommandReceipt({
   runnerDigest: '', toolchainDigest: '', buildProofDigest: 'build', sourceHead: 'head', sourceBaseHead: 'base',
   canonicalBaselineEpochId: 'epoch', producedBy: 'canonical-full-baseline', cleanTreeDigest: 'clean',
   executionEnvironmentDigest: 'environment', result: 'PASS', exitCode: 0, outputDigest: 'output', durationMs: 1,
+  buildArtifactsDigest: 'build-artifacts', buildArtifactsProtection: 'enforced:fixture',
   createdAt: new Date().toISOString(), revocationLedgerDigest: stableDigest({}),
 });
 const fullOnlyPlan = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory: fullOnlyInventory,
   catalog: fullOnlyCatalog, changes, closures: fullOnlyClosures, baselineEpochId: 'epoch',
   buildProofDigest: 'build', mode: 'observe', graph: completeNoImpactGraph, tierSelection: fullOnlyBinding,
-  receipts: [fullOnlyReceipt],
+  receipts: [fullOnlyReceipt], buildArtifactsHash: 'build-artifacts',
 });
 assert.equal(fullOnlyPlan.fullEscalated, false,
   'full-only floor fixture must exercise the row policy without blanket escalation');
@@ -574,7 +575,7 @@ const noPinSeed = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: noPinChanges, closures,
   baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
 });
-const legacyReceipts = noPinSeed.rows.map((row) => createValidationCommandReceipt({
+const legacyReceipts = noPinSeed.rows.map((row) => createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
   id: `legacy-${row.commandId}`, commandId: row.commandId, commandIdentityDigest: row.commandId,
   inputDigest: row.inputDigest, closureCertificateDigest: closures.get(row.commandId)!.signature,
   catalogDigest: stableDigest(catalog), inventoryDigest: inventory.digest, runnerDigest: 'runner',
@@ -585,7 +586,7 @@ const legacyReceipts = noPinSeed.rows.map((row) => createValidationCommandReceip
 }));
 const noPinReuse = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: noPinChanges, closures,
-  receipts: legacyReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+  receipts: legacyReceipts, buildArtifactsHash: 'fixture-build-artifacts', baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
 });
 assert.equal(noPinReuse.rows.filter((row) => row.commandId !== 'always').every((row) => row.disposition === 'reuse'), true,
   'the compatibility fixture must first prove the otherwise-unaffected commands would reuse');
@@ -601,7 +602,7 @@ const selectorFullBinding = buildAutomaticValidationTierSelectionBinding({
 });
 const selectorFullSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: noPinChanges, closures,
-  receipts: legacyReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+  receipts: legacyReceipts, buildArtifactsHash: 'fixture-build-artifacts', baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
   tierSelection: selectorFullBinding,
 });
 assert.equal(selectorFullSelection.effectiveTier, 'repository-full');
@@ -612,7 +613,7 @@ assert.equal(selectorFullSelection.totals.reused, 0,
 assert.equal(selectorFullSelection.rows.every((row) => row.disposition === 'execute'), true);
 const legacyPinSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog, changes: legacyPinChanges, closures,
-  receipts: legacyReceipts, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+  receipts: legacyReceipts, buildArtifactsHash: 'fixture-build-artifacts', baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
 });
 assert.equal(legacyPinSelection.fullEscalated, true);
 assert.ok(legacyPinSelection.escalationReasons.includes('legacy-validation-pin-unresolved:validation-0123456789abcdef'));
@@ -624,7 +625,7 @@ assert.equal(legacyPinSelection.rows.every((row) => row.disposition === 'execute
 // admitted even when every other field is valid.
 const localRow = selection.rows.find((row) => row.commandId === catalog[1]!.id)!;
 const localClosure = closures.get(catalog[1]!.id)!;
-const makeReceipt = (revocationLedgerDigest: string) => createValidationCommandReceipt({
+const makeReceipt = (revocationLedgerDigest: string) => createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
   id: 'receipt',
   commandId: localRow.commandId,
   commandIdentityDigest: 'command',
@@ -652,7 +653,7 @@ const reusableReceipt = makeReceipt(stableDigest({}));
 const reusedContext = {
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
   changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
-  closures, receipts: [reusableReceipt], baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe' as const,
+  closures, receipts: [reusableReceipt], buildArtifactsHash: 'fixture-build-artifacts', baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe' as const,
 };
 const reusedSelection = buildDynamicValidationPlan(reusedContext);
 assert.equal(verifyValidationCommandReceipt(reusableReceipt).ok, true);
@@ -679,12 +680,12 @@ const revokedLedger = buildRevocationLedger(['receipt']);
 const revokedSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
   changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
-  closures, receipts: [makeReceipt(revokedLedger.digest)], revocationLedger: revokedLedger,
+  closures, receipts: [makeReceipt(revokedLedger.digest)], revocationLedger: revokedLedger, buildArtifactsHash: 'fixture-build-artifacts',
   baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
 });
 assert.equal(revokedSelection.rows.find((row) => row.commandId === localRow.commandId)?.disposition, 'execute');
 
-const receipt = createValidationCommandReceipt({
+const receipt = createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
   id: 'receipt',
   commandId: 'local',
   commandIdentityDigest: 'command',

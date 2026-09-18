@@ -370,6 +370,11 @@ function receiptForBaseline(args: {
     result: 'PASS',
     exitCode: 0,
     outputDigest: stableDigest(args.result.output),
+    // The replayed command result carries the artifacts it executed and the
+    // protection it ran under when it came through the executor; a replay that
+    // lacks them produces a receipt verification refuses, which is correct.
+    buildArtifactsDigest: (args.result as { buildArtifactsBefore?: string }).buildArtifactsBefore ?? '',
+    buildArtifactsProtection: (args.result as { buildArtifactsProtection?: string }).buildArtifactsProtection ?? '',
     durationMs: args.result.durationMs,
     createdAt,
     revocationLedgerDigest: stableDigest({}),
@@ -433,7 +438,7 @@ for (const candidate of replayStories) {
       const dynamicManifest = buildDynamicValidationPlan({
         storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
         inventory, catalog, changes, closures, receipts: baselineReceipts,
-        baselineEpochId: candidate.pair.base, graph, buildProofDigest: 'historical-replay-plan',
+        baselineEpochId: candidate.pair.base, graph, buildProofDigest: 'historical-replay-plan', buildArtifactsHash: full.buildArtifactsHash,
         mode: 'shadow', gitCwd: dynamicRoot,
       });
       const selectedIds = new Set(dynamicManifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
@@ -579,11 +584,11 @@ const focusedSelectionFaults = (() => {
   const probeCatalogDigest = stableDigest(probeCatalog);
   const probeClosures = new Map(probeCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })]));
   const probeChanges = buildStoryChangeManifest({ storyId: 'B-fi-focused', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [sourceChange] });
-  const baseContext = { storyId: 'B-fi-focused', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: probeInventory, catalog: probeCatalog, changes: probeChanges, closures: probeClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const };
+  const baseContext = { storyId: 'B-fi-focused', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: probeInventory, catalog: probeCatalog, changes: probeChanges, closures: probeClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', buildArtifactsHash: 'fixture-build-artifacts', mode: 'observe' as const };
   const noGraphPlan = buildDynamicValidationPlan(baseContext);
   const targetRow = noGraphPlan.rows.find(row => row.commandId === targetEntry.id)!;
   const targetClosure = probeClosures.get(targetEntry.id)!;
-  const makeProbeReceipt = (closure: typeof targetClosure) => createValidationCommandReceipt({
+  const makeProbeReceipt = (closure: typeof targetClosure) => createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
     id: 'fi-focused-receipt', commandId: targetEntry.id,
     commandIdentityDigest: stableDigest({ command: targetEntry.command, args: targetEntry.args }),
     inputDigest: targetRow.inputDigest, closureCertificateDigest: closure.signature,
@@ -621,9 +626,9 @@ const focusedSelectionFaults = (() => {
   const graphInventory = graphCatalog ? { ...inventory, commands: inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id)), digest: stableDigest(inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id))) } : undefined;
   const graphClosures = graphCatalog && graphInventory ? new Map(graphCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: graphInventory.digest, catalogDigest: stableDigest(graphCatalog), staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })])) : undefined;
   const graphChanges = graphSourceChange && graphCatalog && graphInventory && graphClosures ? buildStoryChangeManifest({ storyId: 'B-fi-focused-graph', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [graphSourceChange] }) : undefined;
-  const graphContext = graphCatalog && graphInventory && graphClosures && graphChanges ? { storyId: 'B-fi-focused-graph', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: graphInventory, catalog: graphCatalog, changes: graphChanges, closures: graphClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const } : undefined;
+  const graphContext = graphCatalog && graphInventory && graphClosures && graphChanges ? { storyId: 'B-fi-focused-graph', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: graphInventory, catalog: graphCatalog, changes: graphChanges, closures: graphClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', buildArtifactsHash: 'fixture-build-artifacts', mode: 'observe' as const } : undefined;
   const graphTargetRow = graphContext && graphTargetMatch?.target ? buildDynamicValidationPlan(graphContext).rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
-  const graphReceipt = graphContext && graphTargetMatch?.target && graphTargetRow && graphClosures ? createValidationCommandReceipt({
+  const graphReceipt = graphContext && graphTargetMatch?.target && graphTargetRow && graphClosures ? createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
     id: 'fi-focused-graph-receipt', commandId: graphTargetMatch.target.id,
     commandIdentityDigest: stableDigest({ command: graphTargetMatch.target.command, args: graphTargetMatch.target.args }), inputDigest: graphTargetRow.inputDigest,
     closureCertificateDigest: graphClosures.get(graphTargetMatch.target.id)!.signature, catalogDigest: stableDigest(graphCatalog), inventoryDigest: graphInventory!.digest,
@@ -650,7 +655,7 @@ const focusedSelectionFaults = (() => {
     ? buildStoryChangeManifest({ storyId: 'B-fi-focused-head-only', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [headOnlyChangedFile] })
     : undefined;
   const headOnlyContext = headOnlyCatalog && headOnlyInventory && headOnlyClosures && headOnlyChanges
-    ? { storyId: 'B-fi-focused-head-only', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: headOnlyInventory, catalog: headOnlyCatalog, changes: headOnlyChanges, closures: headOnlyClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const }
+    ? { storyId: 'B-fi-focused-head-only', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: headOnlyInventory, catalog: headOnlyCatalog, changes: headOnlyChanges, closures: headOnlyClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', buildArtifactsHash: 'fixture-build-artifacts', mode: 'observe' as const }
     : undefined;
   const headOnlyPrePlan = headOnlyContext && headOnlyGraph ? buildDynamicValidationPlan({ ...headOnlyContext, graph: headOnlyGraph }) : undefined;
   const headOnlyTargetRow = headOnlyPrePlan && graphTargetMatch?.target ? headOnlyPrePlan.rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
@@ -752,7 +757,7 @@ if (paired) {
     pairedManifest = buildDynamicValidationPlan({
       storyId: 'B-current-paired', baseHead: currentHead, head: currentHead, inventory, catalog,
       changes: currentChanges, closures: currentClosures, receipts: baselineReceipts,
-      baselineEpochId: currentHead, buildProofDigest: 'paired-performance', graph: currentGraph,
+      baselineEpochId: currentHead, buildProofDigest: 'paired-performance', buildArtifactsHash: baseline.buildArtifactsHash, graph: currentGraph,
       mode: 'shadow', gitCwd: pairedRoot,
     });
     selectedIds = new Set(pairedManifest.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId));

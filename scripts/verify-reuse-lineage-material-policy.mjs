@@ -90,6 +90,7 @@ function passEvidence(root, identity) {
   return {
     command: 'proof-or-stop validate --story=B-lin --json', output: '{}', result: 'PASS', timestamp: new Date().toISOString(),
     buildArtifactsHash: currentBuildArtifactsHash(root),
+    buildArtifactsProtection: 'enforced:sandbox-exec',
     headHash: git(root, ['rev-parse', 'HEAD']), materialHash: currentMaterialHash(root, 'HEAD', root), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root),
     verificationCoverage: { total: 0, covered: 0, missingRequired: 0, missingOptional: 0, items: [] },
     routineValidationIdentity: identity,

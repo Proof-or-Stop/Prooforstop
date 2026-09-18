@@ -1,4 +1,5 @@
 import {readValidationReuseCost,saveValidationReuseCost} from './validation-reuse-costs.js';
+import { currentBuildArtifactsHash } from './build-artifacts-identity.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'node:child_process';
@@ -45,6 +46,7 @@ export function sharedValidationReuseAllowed(command: ValidationCommand): boolea
 export async function executeSharedValidationCommand(
   command: ValidationCommand, projectRoot: string, timeoutMs: number,
   capture: () => Promise<{ result: ValidationCommandResult; completeOutput: string }>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
+  artifactBinding?: { root: string; protection: string },
 ): Promise<ValidationCommandResult> {
   const run = async () => (await capture()).result;
   const context = explicitContext ?? contexts.getStore();
@@ -54,6 +56,12 @@ export async function executeSharedValidationCommand(
   const policy = sharedValidationReusePolicy(command);
   if (!policy.eligible) return executeWithoutReuse(policy.reason);
   if (!context) return executeWithoutReuse('shared_context_unavailable');
+  // The compiled artifacts the command executes and the protection it runs
+  // under are inputs of the reuse key: a receipt earned against other bytes or
+  // without protection is simply not a match, and a cached result inherits
+  // exactly the binding it was executed with.
+  const artifactBindingHash = artifactBinding ? currentBuildArtifactsHash(artifactBinding.root) : undefined;
+  if (artifactBinding && !artifactBindingHash) return executeWithoutReuse('artifact_identity_unavailable');
   assertActive();
   const started = performance.now();
   const economicsKey = context.reuseEconomics === 'measured' ? causalCanonical({
@@ -131,6 +139,7 @@ export async function executeSharedValidationCommand(
         fullBaselineReusePolicy:command.fullBaselineReusePolicy ?? null,riskTier:command.riskTier ?? null,
         resources:command.resources ?? null}},
     storyFilesHash:initial.gitMaterial?.storyFilesHash,
+    artifactBinding:artifactBinding ? {hash:artifactBindingHash,protection:artifactBinding.protection} : null,
     effectiveEnvironment:effectiveCausalEnvironment(command.env,normalized.cwd),
     runtimeVersion:process.version,toolVersion:resolveCausalToolVersion(projectRoot),selectorPolicy:DEFAULT_CAUSAL_SELECTOR_POLICY,
   };
@@ -148,7 +157,10 @@ export async function executeSharedValidationCommand(
       executionWallMs = performance.now() - executionStarted;
       // Receipt identity belongs to complete execution bytes, never the bounded display.
       return {code:fresh.code,output:captured.completeOutput,timedOut:fresh.timedOut,durationMs:fresh.durationMs,timeoutMs:fresh.timeoutMs,
-        partial:Boolean(fresh.worktreePollution?.paths.length) || captured.completeOutput.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()};
+        // A run that changed the compiled artifacts is never reusable: a later
+        // consumer would inherit a binding its own trees no longer match.
+        partial:Boolean(fresh.worktreePollution?.paths.length) || captured.completeOutput.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()
+          || Boolean(fresh.buildArtifactsBefore && fresh.buildArtifactsAfter && fresh.buildArtifactsBefore !== fresh.buildArtifactsAfter)};
     },
   });
   assertActive();
@@ -169,5 +181,9 @@ export async function executeSharedValidationCommand(
   if (causal.receipt.status !== 'pass' || !causal.receipt.reusable) throw new Error('shared validation refused non-PASS receipt');
   return {label:command.label,command:command.command,args:[...command.args],shell:normalized.shell,
     cwd:resolve(normalized.cwd),code:causal.receipt.exitCode,output:causal.receipt.outputProbe,
-    optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt,executionDecision:{disposition:'reused',reason:'matching_receipt'}};
+    optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt,executionDecision:{disposition:'reused',reason:'matching_receipt'},
+    // Derived from the reuse key, which the executed run matched exactly: the
+    // artifacts it ran against equal the artifacts on disk now, and its
+    // protection label is the one the caller demanded.
+    ...(artifactBinding ? {buildArtifactsBefore:artifactBindingHash,buildArtifactsAfter:artifactBindingHash,buildArtifactsProtection:artifactBinding.protection} : {})};
 }
