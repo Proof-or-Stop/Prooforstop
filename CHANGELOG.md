@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab dirty-category-init - v0.3.414 - 2026-09-18
+
+- Fix the existing circular initialization that prevents the flow validation entry from starting: dirty-worktree reaches its eager policy through evidence freshness and the validation executor before its category constant has initialized.
+- Move the unchanged category tuple into an import-free data module. Preserve the original dirty-worktree export, all category types and blocking decisions, and both eager and per-evaluation exhaustive policy checks.
+- Add a regression using two fresh Node import orders, exact policy/category coverage, and a deleted-category refusal control. Record target RED and GREEN against the current built implementation.
+- This local Lab repairs module initialization only; it does not certify the complete flow suite or mark B-e6d9 DONE.
+
+Maintenance provenance: codex/lab-dirty-category-init, repair aa636eafa0957bd64b9360176e25442f81a18b6b.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/dirty-category-module-init.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-companion-compat - v0.3.413 - 2026-09-18
 
 - Update the validation input companion to use the current complete-capture API and require one physical execution, exact diagnostic reason, unchanged original result, and no fabricated shared receipt when context is absent.
