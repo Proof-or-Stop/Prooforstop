@@ -568,6 +568,7 @@ function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: s
     command: receipt.command,
     args: Array.isArray(receipt.args) ? receipt.args : [],
     cwd: receiptLogicalCwd(projectRoot, receipt),
+    shell: receipt.shell === true,
   }, projectRoot, artifactsRoot);
 }
 

@@ -301,6 +301,18 @@ try {
     expectRepaired(binding.isRegisteredPackagesMainBuildCommand(npmBuild(join(root, 'packages/main')), linkedRoot), 'a build under a symlinked project root was not recognised');
     rmSync(linkedRoot);
     check(!binding.isRegisteredPackagesMainBuildCommand(npmBuild('packages/utils'), root), 'control: a utils build is not the registered packages/main build');
+    // Audit #17 (2): recognition by shape exempts a command from protection,
+    // so only a complete, unambiguous invocation qualifies: never a shell
+    // command line, never anything appended to the build arguments.
+    expectRepaired(!binding.isRegisteredPackagesMainBuildCommand({ command: 'npm', args: ['run', 'build', '&&', 'node', 'swap-test-restore.js'], cwd: 'packages/main', shell: true }, root),
+      'a shell command line that starts with the build was exempted from protection as a registered build');
+    expectRepaired(!binding.isRegisteredPackagesMainBuildCommand({ command: 'npm', args: ['run', 'build'], cwd: 'packages/main', shell: true }, root),
+      'a shell-mode build invocation was recognised by shape (a shell line is one string to the shell)');
+    expectRepaired(!binding.isRegisteredPackagesMainBuildCommand({ command: 'npm', args: ['run', 'build', 'extra'], cwd: 'packages/main' }, root)
+      && !binding.isRegisteredPackagesMainBuildCommand({ command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build', '--', 'x'], cwd: '.' }, root)
+      && !binding.isRegisteredPackagesMainBuildCommand({ command: './tsc', args: ['&&', 'node', 'x.js'], cwd: 'packages/main' }, root),
+      'a build invocation with appended arguments was recognised by shape');
+    check(binding.isRegisteredPackagesMainBuildCommand({ command: './tsc', args: [], cwd: 'packages/main' }, root) && binding.isRegisteredPackagesMainBuildCommand({ command: 'tsc', args: ['-b'], cwd: 'packages/main' }, root), 'control: the exact tsc forms are recognised');
     check(binding.isRegisteredPackagesMainBuildCommand({ command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'], cwd: './' }, root), 'control: the root-form build with a ./ cwd is recognised');
     check(binding.logicalCommandCwd(root, join(root, 'packages', 'main')) === 'packages/main' && binding.logicalCommandCwd(root, undefined) === '.', 'logical cwd normalises absolute and empty cwds');
   } else {
@@ -601,6 +613,15 @@ try {
       expectRepaired(protectionSource3.includes("const binds = [...chain].sort().flatMap((directory) => ['--bind', directory, directory]);") && !protectionSource3.includes("'--ro-bind', projectRoot, projectRoot")
         && protectionSource3.includes("self-test did not deny moving"),
         'the bwrap wrapper leaves the artifact ancestors renameable, makes the project read-only, or does not probe the rename (source-text guard)');
+      // Audit #17 (1): the chain reaches the filesystem root, and the self-test
+      // probes that the project's own parent cannot be moved aside.
+      expectRepaired(protectionSource3.includes("for (;;) { chain.add(directory); const parent = dirname(directory); if (parent === directory) break; directory = parent; }")
+        && protectionSource3.includes("self-test did not deny moving the project's parent"),
+        'the bwrap mount chain stops at the project root, so a parent above it can be renamed with every protected mount inside (source-text guard)');
+      // Audit #17 (3): a sharded entry's oracle joins the binding sequence.
+      const shardedHandlerSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
+      expectRepaired(shardedHandlerSource.includes('const withOracle = combineSequencedBuildArtifactsBindings([oracle, ...results]);'),
+        'the sharded entry binds only its shards, leaving the oracle\'s artifacts and protection out of the sequence (source-text guard)');
       check(doneRequiredProtectionRefusal('enforced:sandbox-exec', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: an enforced host is not refused');
       expectRepaired(typeof doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', [...REGISTERED_REBUILD_COMMANDS].reverse(), h.root) === 'string', 'the retired not-applicable label was not refused up front');
       const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');

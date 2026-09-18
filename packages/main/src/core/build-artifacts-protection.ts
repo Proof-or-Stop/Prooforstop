@@ -151,10 +151,15 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot
   // /proc: with the host's /proc visible, a same-user process's
   // /proc/<pid>/root (or cwd, or fd) is an alias into the host mount
   // namespace, where the trees are still writable underneath the bind.
-  const chain = new Set<string>([projectRoot]);
+  // The chain runs all the way up to the filesystem root: a writable parent
+  // ABOVE the project (`/tmp/p` for a checkout at `/tmp/p/repo`) could
+  // otherwise be renamed aside with every protected mount inside it, and a
+  // fresh tree created at the original pathname. Every ancestor becomes a
+  // mount point and so cannot be moved; nothing else about it changes.
+  const chain = new Set<string>();
   for (const root of existingRoots) {
     let directory = dirname(root);
-    while (directory.startsWith(projectRoot) && directory !== projectRoot) { chain.add(directory); directory = dirname(directory); }
+    for (;;) { chain.add(directory); const parent = dirname(directory); if (parent === directory) break; directory = parent; }
   }
   const binds = [...chain].sort().flatMap((directory) => ['--bind', directory, directory]);
   for (const root of existingRoots) binds.push('--ro-bind', root, root);
@@ -177,7 +182,7 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot
  * probed without first creating that parent, which the mechanism does not deny;
  * it is covered by the same rule as its siblings but is reported as unprobed.
  */
-function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: string[]): string | undefined {
+function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: string[], projectRoot: string): string | undefined {
   for (const root of allRoots) {
     const existing = existingRoots.includes(root);
     if (!existing && !isDirectory(dirname(root))) continue;
@@ -206,6 +211,18 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
       const renameRun = spawnSync(renameLaunch.command, renameLaunch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'] });
       if (renameRun.error) return `${mechanism.name} rename self-test on ${ancestor} could not start the wrapper: ${renameRun.error.message}`;
       if (renameRun.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test did not deny moving ${ancestor} aside (exit ${renameRun.status})`;
+    }
+  }
+  // A mount-based mechanism must deny moving the PROJECT's own parent aside
+  // as well (the relocation that would carry every protected mount away).
+  if (mechanism.name === 'bwrap' && existingRoots.length > 0) {
+    const parent = dirname(projectRoot);
+    if (parent !== projectRoot) {
+      const renameProbe = `const fs = require('node:fs'); const a = process.argv[1]; try { fs.renameSync(a, a + '.proof-or-stop-rename-probe'); try { fs.renameSync(a + '.proof-or-stop-rename-probe', a); } catch {} process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS','EBUSY','EXDEV'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`;
+      const renameLaunch = mechanism.wrap({ command: process.execPath, args: ['-e', renameProbe, parent], shell: false });
+      const renameRun = spawnSync(renameLaunch.command, renameLaunch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'] });
+      if (renameRun.error) return `${mechanism.name} rename self-test on ${parent} could not start the wrapper: ${renameRun.error.message}`;
+      if (renameRun.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test did not deny moving the project's parent ${parent} aside (exit ${renameRun.status})`;
     }
   }
   return undefined;
@@ -255,7 +272,7 @@ export function resolveArtifactWriteProtection(artifactsRoot: string): ArtifactW
   if (typeof mechanism === 'string') {
     return unenforced(existingRoots.length === 0 ? `${mechanism}; no artifact tree exists yet, but a command could create, execute and remove one` : mechanism);
   }
-  const failure = selfTest(mechanism, existingRoots, allRoots);
+  const failure = selfTest(mechanism, existingRoots, allRoots, canonicalize(root));
   if (failure) return unenforced(failure);
   return { enforced: true, label: `enforced:${mechanism.name}`, wrap: mechanism.wrap };
 }

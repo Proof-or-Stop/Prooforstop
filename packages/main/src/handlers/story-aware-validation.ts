@@ -1089,7 +1089,26 @@ async function executeShardedEntry(args: {
     aggregation.errors.push(`aggregate verdict mismatch: original=${originalOracle.verdict} aggregate=${aggregateVerdict}`);
   }
   const artifact: DynamicShardArtifact = { commandId: args.entry.id, domain, shards, receipts, aggregation, residue, originalOracle };
-  return { result: combineResults(results, `story-aware-dynamic-${domain}`, args.head), artifact };
+  // The oracle ran first, against these same trees; its observations and its
+  // protection belong in the binding sequence even though its verdict is
+  // reported separately: an oracle that passed on one build followed by
+  // shards that passed on another must not bind as one execution.
+  const combined = combineResults(results, `story-aware-dynamic-${domain}`, args.head);
+  const withOracle = combineSequencedBuildArtifactsBindings([oracle, ...results]);
+  const oracleFailures = withOracle.failures.map((failure) => `✗ build binding: ${failure}`);
+  const { buildArtifactsHash: _h, buildArtifacts: _b, buildArtifactsProtection: _p, ...unbound } = combined;
+  return {
+    result: {
+      ...unbound,
+      allPass: combined.allPass && withOracle.failures.length === 0,
+      status: combined.allPass && withOracle.failures.length === 0 ? combined.status : 'fail',
+      details: [...combined.details, ...oracleFailures],
+      ...(withOracle.buildArtifactsHash ? { buildArtifactsHash: withOracle.buildArtifactsHash } : {}),
+      ...(withOracle.buildArtifacts ? { buildArtifacts: withOracle.buildArtifacts } : {}),
+      ...(withOracle.buildArtifactsProtection ? { buildArtifactsProtection: withOracle.buildArtifactsProtection } : {}),
+    },
+    artifact,
+  };
 }
 
 /**

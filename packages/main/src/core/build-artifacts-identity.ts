@@ -149,10 +149,16 @@ export function isRegisteredPackagesMainBuildCommand(command: {
   command: string;
   args?: readonly string[];
   cwd?: string;
+  shell?: boolean;
   providesBuildProof?: unknown;
   proof?: unknown;
 }, projectRoot?: string, artifactsRoot: string | undefined = projectRoot): boolean {
   if (command.providesBuildProof === 'packages-main-build' || command.proof === 'packages-main-build') return true;
+  // Recognition by shape exempts a command from write protection, so only a
+  // COMPLETE, unambiguous build invocation qualifies: never a shell command
+  // line (`npm run build && node swap.js` is one string to the shell), and
+  // never an invocation with anything appended to the build arguments.
+  if (command.shell === true) return false;
   const args = Array.isArray(command.args) ? command.args : [];
   const raw = (command.cwd ?? '').replace(/\\/g, '/');
   const cwd = projectRoot
@@ -160,14 +166,10 @@ export function isRegisteredPackagesMainBuildCommand(command: {
     : (isAbsolute(raw) ? raw.replace(/\/+$/, '') : (posix.normalize(raw || '.').replace(/\/+$/, '') || '.'));
   const atRoot = cwd === '.';
   const atPackagesMain = cwd === 'packages/main';
-  if (command.command === 'npm' && atRoot) {
-    const prefixIndex = args.indexOf('--prefix');
-    if (prefixIndex >= 0 && args[prefixIndex + 1] === 'packages/main') {
-      return args[prefixIndex + 2] === 'run' && args[prefixIndex + 3] === 'build';
-    }
-  }
-  if (command.command === 'npm' && atPackagesMain) return args[0] === 'run' && args[1] === 'build';
-  if ((command.command === 'tsc' || command.command.endsWith('/tsc')) && atPackagesMain) return true;
+  const exactly = (expected: readonly string[]): boolean => args.length === expected.length && expected.every((value, index) => args[index] === value);
+  if (command.command === 'npm' && atRoot) return exactly(['--prefix', 'packages/main', 'run', 'build']);
+  if (command.command === 'npm' && atPackagesMain) return exactly(['run', 'build']);
+  if ((command.command === 'tsc' || command.command.endsWith('/tsc')) && atPackagesMain) return exactly([]) || exactly(['-b']) || exactly(['--build']);
   return false;
 }
 
